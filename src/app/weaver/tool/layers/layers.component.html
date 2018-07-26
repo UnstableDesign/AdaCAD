@@ -1,0 +1,31 @@
+<button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
+  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
+  Create Layer
+</button>
+<mat-list>
+  <ng-container *ngFor="let layer of layers">
+  <mat-list-item (click)="selected = layer.id;" class="level" [class.selected]="selected === layer.id" [disableRipple]="false">
+    <div class="level-item">
+      <button mat-icon-button>
+        <i aria-label="Favorite button" class="fas" [class.fa-eye-slash]="!layer.visible" [class.fa-eye]="layer.visible" (click)="layer.visible = !layer.visible;"></i>
+      </button>
+      <input class="colorpicker layer-cp" [(colorPicker)]="layer.color" (colorPickerChange)="colorChange($event)"
+       [cpPosition]="'bottom'"
+       [style.background]="layer.color"/>
+     </div>
+     <div class="level-item center-item fill-remaining-space">
+      <span class="">{{ layer.name }}</span>
+    </div>
+    <div class="level-item level-right">
+      <button mat-icon-button class="edit-button" (click)="openDialog(layer)">
+        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+      </button>
+      <button mat-icon-button class="trash-button">
+        <i aria-label="Favorite button" class="fas fa-trash"></i>
+      </button>
+    </div>
+  </mat-list-item>
+  </ng-container>
+
+</mat-list>
+

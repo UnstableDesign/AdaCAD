@@ -1,0 +1,53 @@
+<app-topbar></app-topbar>
+<mat-sidenav-container class="example-container">
+  <mat-sidenav mode="side" position="end" opened>
+    <mat-tab-group #group (click)="selected = group.selectedIndex;">
+      <mat-tab label="Design">
+        <app-design [brush]="brush" [favorites]="patterns | filter: {favorite: true }"
+        (onViewChange)="onViewChange($event);"
+        (onBrushChange)="onBrushChange($event)" (onFill)="onFill($event)" (onCopy)="onCopy();"
+        (onClear)="onClear();" (onMask)="onMask($event);" (onPaste)="onPaste($event);"></app-design> 
+      </mat-tab>
+      <mat-tab label="Layers">
+        <app-layers *ngIf="selected === 1" [layers]="draft.layers" (onColorChange)="redraw()"
+        (onCreateLayer)="createLayer($event);"></app-layers> 
+      </mat-tab>
+      <mat-tab label="Pattern">
+        <app-patterns *ngIf="selected === 2" [patterns]="patterns"
+        (onChange)="updatePatterns($event);"
+        (onCreatePattern)="createPattern($event);"></app-patterns>  
+      </mat-tab>
+    </mat-tab-group>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <!-- <div class="layers-container">
+      <button mat-mini-fab class="rowLayer" *ngFor="let row of draft.rowLayerMapping">
+      </button>
+    </div> -->
+    <div #weaveDraft weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
+      <canvas #myCanvas style="background:#fbfbfb;" >
+      </canvas>
+    <!-- <div class="draft-container">
+      <svg #canvas style="background: #fbfbfb;" [attr.width]="(draft.pattern)?.length * 20" [attr.height]="(draft.pattern)[0]?.length * 20">
+        <g *ngFor="let row of (draft.pattern); let i = index">
+          <ng-container *ngFor="let up of row; let j = index">
+            <rect *ngIf="up" [attr.x]="i * 20" [attr.y]="j * 20" width="20" height="20" fill="#000"/>
+          </ng-container>
+        </g>
+      </svg> -->
+      <svg #layers class="layers" [attr.width]="40" [style.left]="myCanvas.offsetLeft - 45">
+        <g *ngFor="let row of (draft.rowLayerMapping); let i = index">
+          <circle cx="20" [attr.cy]="(i*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft.layers[row]?.color" (click)="rowLayerChange(row, i)"/>
+        </g>
+      </svg>
+      <svg #mySelection class="selection">
+        <text x="5" y="25"></text>
+      </svg>
+      <!-- <div class="threading-container">
+      </div>
+      <div class="tieup-container">
+      </div> -->
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

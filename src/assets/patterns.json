@@ -1,0 +1,64 @@
+[
+  {
+    "name": "Plain Weave",
+    "id": 0,
+    "favorite": false,
+    "height": 2,
+    "width": 2,
+    "pattern": [
+                [false, true],
+                [true, false]
+               ]
+
+  },
+  {
+    "name": "Balanced Twill",
+    "id": 1,
+    "favorite": true,
+    "height": 4,
+    "width": 4,
+    "pattern": [
+                [false, false, true, true],
+                [false, true, true, false],
+                [true, true, false, false],
+                [true, false, false, true]
+               ]
+  },
+  {
+    "name": "Weft-Faced Twill",
+    "id": 2,
+    "favorite": false,
+    "height": 3,
+    "width": 3,
+    "pattern": [
+                [false, false, true],
+                [false, true, false],
+                [true, false, false]
+               ]
+  },
+  {
+    "name": "Warp-Faced Twill",
+    "id": 3,
+    "favorite": false,
+    "height": 3,
+    "width": 3,
+    "pattern": [
+                [true, true, false],
+                [true, false, true],
+                [false, true, true]
+               ]
+  },
+  {
+    "name": "Double Weave",
+    "id": 4,
+    "favorite": true,
+    "height": 4,
+    "width": 4,
+    "pattern": [
+                [true, true, true, false],
+                [true, false, false, false],
+                [true, false, true, true],
+                [false, false, true, false]
+               ]
+  }
+]

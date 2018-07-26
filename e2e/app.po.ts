@@ -1,6 +1,6 @@
 import { browser, by, element } from 'protractor';
 
-export class WorldWideWeftPage {
+export class WorldWarpWeftPage {
   navigateTo() {
     return browser.get('/');
   }

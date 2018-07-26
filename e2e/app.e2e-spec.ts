@@ -1,10 +1,10 @@
-import { WorldWideWeftPage } from './app.po';
+import { WorldWarpWeftPage } from './app.po';
 
-describe('world-wide-weft App', () => {
-  let page: WorldWideWeftPage;
+describe('world-warp-weft App', () => {
+  let page: WorldWarpWeftPage;
 
   beforeEach(() => {
-    page = new WorldWideWeftPage();
+    page = new WorldWarpWeftPage();
   });
 
   it('should display welcome message', () => {

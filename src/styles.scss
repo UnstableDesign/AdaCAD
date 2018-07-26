@@ -1,1 +1,77 @@
 /* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/pink-bluegrey.css';
+@import '~bulma/bulma';
+
+body {
+  margin: 0;
+}
+
+.fill-remaining-space {
+  /* This fills the remaining space, by using flexbox. 
+     Every toolbar row uses a flexbox row layout. */
+  flex: 1 1 auto;
+}
+
+.mat-focused .mat-form-field-label {
+    color: rgba(255,255,255,.7);
+}
+
+.mat-drawer {
+  width: 310px !important;
+}
+
+.mat-drawer-content {
+  height: calc(100vh - 64px) !important;
+}
+
+.mat-tab-label {
+  min-width: 103px !important;
+}
+
+.mat-tab-group {
+  height: 100% !important;
+}
+
+.mat-tab-body-wrapper {
+  height: 100% !important;
+}
+
+.buttons .dropdown {
+  margin-right: .5rem;
+  flex-direction: column;
+
+  &:hover .button {
+    color: #ebebeb !important;
+    background-color: #00c4a7;
+    }
+}
+
+.is-outlined.is-active {
+  background-color: #00d1b2 !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+
+.dropdown-menu {
+  min-width: auto;
+
+  a.dropdown-item {
+    padding-right: 2rem;
+  }
+}
+
+.is-fullwidth {
+  width: 100%;
+}
+
+// .mat-toolbar .mat-raised-button {
+//   color: #424242 !important;
+// }
+
+// .button {
+//   color: #424242 !important;
+
+//   &:hover {
+//     color: #ebebeb !important;
+//   }
+// }

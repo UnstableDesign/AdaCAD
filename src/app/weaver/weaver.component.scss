@@ -1,0 +1,28 @@
+.draft-container {
+  text-align: center;
+  margin: 10px;
+  position: relative;
+  overflow: scroll;
+
+  canvas {
+    position: relative;
+    margin-left: 45px;
+    margin-right: 10px;
+  }
+}
+
+.selection {
+  position: absolute;
+  border: dashed black 2px;
+  background: #ffffff98;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.layers {
+  position: fixed;
+  left: 0px;
+  top: 74px;
+  background: #303030;
+  height: 100%;
+}

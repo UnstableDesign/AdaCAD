@@ -1,0 +1,9 @@
+.pattern-container {
+  text-align: center;
+
+  .pattern-block {
+    stroke: black;
+    stroke-width: 2px;
+    stroke-dasharray: 1,4;
+  }
+}
