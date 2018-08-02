@@ -3,10 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms';
 import { Layer } from '../../../core/model/layer';
 
-export interface DialogData {
-  animal: string;
-  name: string;
-}
+import * as g from 'g.js';
 
 @Component({
   selector: 'app-layers-modal',

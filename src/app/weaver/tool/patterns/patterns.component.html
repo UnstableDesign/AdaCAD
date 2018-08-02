@@ -24,8 +24,8 @@
         <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
       </div>
       <div class="level-item">
-        <svg [attr.width]="pattern.width * 10" [attr.height]="pattern.height * 10" style="background:#fefefe;">
-          <g *ngFor="let row of pattern.pattern; let i = index">
+        <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
+          <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
             <ng-container *ngFor="let up of row; let j = index">
             <rect *ngIf="up" [attr.x]="j * 10" [attr.y]="i * 10" width="10" height="10" fill="#000"/>
             </ng-container>

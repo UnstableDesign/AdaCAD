@@ -65,10 +65,10 @@
               Invert
             </a>
             <a id="mirrorX" (click)="pasteEvent($event, 'mirrorX')" name="paste" class="dropdown-item brush">
-              Mirror X
+              Vertical Flip
             </a>
             <a id="mirrorY" (click)="pasteEvent($event, 'mirrorY')" name="paste" class="dropdown-item brush">
-              Mirror Y
+              Horizontal Flip
             </a>
           </div>
         </div>
@@ -83,6 +83,12 @@
     </div> -->
   </section>
   <mat-divider></mat-divider>
+  <section class="section-container">
+    <h3>Connections</h3>
+    <div class="buttons">
+      <button name="createConnection" class="button is-primary"(click)="openDialog()">Create</button>
+    </div>
+  </section>
   <mat-divider></mat-divider>
   <section class="section-container">
     <h3>View</h3>

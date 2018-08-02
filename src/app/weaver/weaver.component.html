@@ -5,8 +5,13 @@
       <mat-tab label="Design">
         <app-design [brush]="brush" [favorites]="patterns | filter: {favorite: true }"
         (onViewChange)="onViewChange($event);"
-        (onBrushChange)="onBrushChange($event)" (onFill)="onFill($event)" (onCopy)="onCopy();"
-        (onClear)="onClear();" (onMask)="onMask($event);" (onPaste)="onPaste($event);"></app-design> 
+        (onBrushChange)="onBrushChange($event)" 
+        (onFill)="onFill($event)" 
+        (onCopy)="onCopy();"
+        (onClear)="onClear();" 
+        (onMask)="onMask($event);" 
+        (onPaste)="onPaste($event);"
+        (onConnectionCreate)="openDialog();"></app-design> 
       </mat-tab>
       <mat-tab label="Layers">
         <app-layers *ngIf="selected === 1" [layers]="draft.layers" (onColorChange)="redraw()"
@@ -25,22 +30,41 @@
       <button mat-mini-fab class="rowLayer" *ngFor="let row of draft.rowLayerMapping">
       </button>
     </div> -->
-    <div #weaveDraft weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
-      <canvas #myCanvas style="background:#fbfbfb;" >
+    <div #weaveDraft weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container" (scroll)="print($event);">
+      <canvas #myCanvas style="background:#fbfbfb;"  >
       </canvas>
-    <!-- <div class="draft-container">
-      <svg #canvas style="background: #fbfbfb;" [attr.width]="(draft.pattern)?.length * 20" [attr.height]="(draft.pattern)[0]?.length * 20">
-        <g *ngFor="let row of (draft.pattern); let i = index">
-          <ng-container *ngFor="let up of row; let j = index">
-            <rect *ngIf="up" [attr.x]="i * 20" [attr.y]="j * 20" width="20" height="20" fill="#000"/>
-          </ng-container>
-        </g>
-      </svg> -->
-      <svg #layers class="layers" [attr.width]="40" [style.left]="myCanvas.offsetLeft - 45">
-        <g *ngFor="let row of (draft.rowLayerMapping); let i = index">
-          <circle cx="20" [attr.cy]="(i*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft.layers[row]?.color" (click)="rowLayerChange(row, i)"/>
+      <svg #connections [style.left]="myCanvas.offsetLeft" [attr.width]="draft.warps * 20" [attr.height]="draft.wefts * 20" style="position:absolute" [class.hidden]="view !== 'yarn'">
+        <g *ngFor="let c of (draft.connections)">
+          <line 
+          [attr.x1]="c.start.x === 1? c.start.x * 20 - 15 : c.start.x * 20 - 5" 
+          [attr.y1]="c.start.y * 20 - 10"       
+          [attr.x2]="c.end.x === 1? c.end.x * 20 - 15 : c.end.x * 20 - 5"
+          [attr.y2]="c.end.y * 20 - 10"
+          [attr.stroke]="draft.layers[c.layerId]?.color"
+          stroke-width="5"/>
+          <circle 
+          [attr.cx]="c.start.x === 1? c.start.x * 20 - 15 : c.start.x * 20 - 5" 
+          [attr.cy]="c.start.y * 20 - 10" r="7" 
+          [attr.fill]="draft.layers[c.layerId]?.color"/>
+          <circle
+          [attr.cx]="c.end.x === 1? c.end.x * 20 - 15 : c.end.x * 20 - 5"
+          [attr.cy]="c.end.y * 20 - 10" r="7" 
+          [attr.fill]="draft.layers[c.layerId]?.color"/>
         </g>
       </svg>
+      <svg #layers class="layers" [attr.width]="50" [style.left]="myCanvas.offsetLeft - 55">
+        <g *ngFor="let row of (draft.rowLayerMapping); let i = index">
+          <circle cx="20" [attr.cy]="(i*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft.layers[row]?.color" (click)="rowLayerChange(row, i)"/>
+          <text text-anchor="end" x="5" [attr.y]="(i*20+15)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
+        </g>
+      </svg>
+      <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft.warps * 20) + 15 }">
+        <div *ngFor="let row of (draft.rowLayerMapping); let i = index" class="insert-button">
+          <span (click)="insertRow(i + 1, row);"><i class="fa fa-plus-circle"></i></span>
+          <span (click)="cloneRow(i + 1, i, row);"><i class="fa fa-clone"></i></span>
+          <span (click)="deleteRow(i);"><i class="fa fa-trash"></i></span>
+        </div>
+      </div>
       <svg #mySelection class="selection">
         <text x="5" y="25"></text>
       </svg>

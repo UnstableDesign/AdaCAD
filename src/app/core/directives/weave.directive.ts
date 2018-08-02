@@ -1,300 +1,381 @@
-import { Directive, ElementRef, Renderer, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, ViewChild, Renderer, HostListener, Input } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/from';
-import { Subscription } from 'rxjs/Subscription';
-import { Draft } from '../model/draft';
 import * as d3 from "d3";
 
-class Point {
-  x: number;
-  y: number;
-  i: number;
-  j: number;
-}
+import { Draft } from '../model/draft';
+import { Layer } from '../model/layer';
+import { Point } from '../model/point';
+import { Selection } from '../model/selection';
 
-class Selection {
-  start: Point;
-  end: Point;
-  width: number;
-  height: number;
-
-  setParameters() {
-    this.width = Math.abs(this.start.x - this.end.x);
-    this.height = Math.abs(this.start.y - this.end.y);
-  }
-}
-
-class Copy {
-  width: number;
-  height: number;
-  pattern: Array<Array<boolean>>;
-}
-
+/**
+ * WeaveDirective handles the events and manipulation of the weave draft.
+ * @class
+ */
 @Directive({
   selector: '[weave]'
 })
 export class WeaveDirective {
+  /**
+   * Contains the name of the brush being used to manipulate the weave draft.
+   * It is defined and inputed from the HTML declaration of the WeaveDirective.
+   * @property {string}
+   */
   @Input('brush') brush: any;
+
+  /**
+   * The Draft object containing the pattern and layer information.
+   * It is defined and inputed from the HTML declaration of the WeaveDirective.
+   * @property {Draft}
+   */
   @Input('draft') weave: any;
 
-  subscription: Subscription;
-  lSub: Subscription;
-  cx;
-  width = 500;
-  height = 500;
-  selection: Selection = new Selection();
-  copy: any;
+  /**
+   * The HTML canvas element within the weave draft.
+   * @property {HTMLCanvasElement}
+   */
   canvasEl: HTMLCanvasElement;
+
+  /**
+   * The pattern that has been copied from the draft pattern.
+   * @property {Array<Array<boolean>>}
+   */
+  copy: Array<Array<boolean>>;
+
+  /**
+   * The 2D context of the canvas
+   * @property {any}
+   */
+  cx: any;
+
+  /**
+   * The current selection within the weave canvas.
+   * @property {Selection}
+   */
+  selection: Selection = new Selection();
+
+  /**
+   * Subscribes to move event after a touch event is started.
+   * @property {Subscription}
+   */
+  subscription: Subscription;
+
+  /**
+   * The HTML SVG element used to show the selection.
+   * @property {HTMLElement}
+   */
   svgEl: HTMLElement;
 
-  constructor(private el: ElementRef) {
-    // start
-    this.selection.width = 80;
-    this.selection.height = 80;
-    this.selection.start = new Point;
-    this.selection.start.x = 40;
-    this.selection.start.y = 40;
-  }
+  /**
+   * Creates the element reference.
+   * @constructor
+   */
+  constructor(private el: ElementRef) {}
 
+  /**
+   *
+   */
   ngOnInit() {
+    // define the elements and context of the weave draft.
     this.canvasEl = this.el.nativeElement.firstElementChild;
     this.svgEl = this.el.nativeElement.lastElementChild;
-
-    d3.select(this.svgEl).attr("width", 0).attr("height",0).style('display', 'none');
-    // this.svgEl.attr.width = 0;
-    // this.svgEl.attr.height = 0;
-    var i;
     this.cx = this.canvasEl.getContext('2d');
 
     // set the width and height
     this.canvasEl.width = this.weave.warps * 20;
     this.canvasEl.height = this.weave.wefts * 20;
 
-    // set some default properties about the line
-    this.cx.globalAlpha = 1;
-    this.cx.lineWidth = 2;
-    // this.cx.lineCap = 'round';
-    this.cx.strokeStyle = '#000';
+    // Set up the initial grid.
+    this.drawGrid()
 
-    this.cx.setLineDash([1,5]);
+    // make the selection SVG invisible using d3
+    d3.select(this.svgEl).style('display', 'none');
+  }
 
-    for (i = 0; i <= this.canvasEl.width; i += 20) {
-      this.cx.moveTo(i, 0);
-      this.cx.lineTo(i, this.canvasEl.height);
-    }
+  /**
+   * 
+   */
+   ngOnDestroy() {
+     this.removeSubscription();
+   }
 
-    for (i = 0; i <= this.canvasEl.height; i += 20) {
-      this.cx.moveTo(0, i);
-      this.cx.lineTo(this.canvasEl.width, i);
-    }
+  /**
+   * Resizes and then redraws the canvas on a change to the wefts or warps. 
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public updateSize() {
+    // set the updated width and height
+    this.canvasEl.width = this.weave.warps * 20;
+    this.canvasEl.height = this.weave.wefts * 20;
 
-    this.cx.stroke();
-
-    // this.cx.lineWidth = 5;
-    // this.cx.beginPath();
-    // this.cx.moveTo(140,10);
-    // this.cx.lineTo(180,10);
-    // this.cx.arcTo(190,20,180,30,10);
-    // this.cx.lineTo(180,30);
-
-    // this.cx.stroke();
-
+    // redraw the 
+    this.redraw();
   }
 
   
+  /**
+   * Touch start event. Subscribes to the move event.
+   * @extends WeaveDirective
+   * @param {Event} event - The mousedown event.
+   * @returns {void}
+   */
   @HostListener('mousedown', ['$event'])
-    onStart(event) {
-      if (event.target.localName === 'canvas') {                      // if there is a target
-        this.removeSubscription();    // avoid mem leaks 
-        this.subscription = 
-          Observable.fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));   
-      
+  private onStart(event) {
+    var offset = 0;
 
-        const currentPos = {
-          x: Math.floor(event.offsetX / 20) * 20,
-          y: Math.floor(event.offsetY / 20) * 20,
-          i: Math.floor(event.offsetY / 20),
-          j: Math.floor(event.offsetX / 20),
-        };
+    // create offset if brush is select to allow easier selection.
+    if (this.brush === 'select') {
+      offset = 7;
+    }
 
-        switch (this.brush) {
-          case 'invert':
-          case 'point':
-          case 'erase':
-            this.drawOnCanvas(currentPos);
-            break;
-          case 'select':
-            this.selection.start = currentPos;
-            this.selection.end = currentPos;
-            this.selection.width = 0;
-            this.selection.height = 0;
-            d3.select(this.svgEl).attr("width", 0).attr("height",0).style('display', 'none');
-          default:
-            break;
-        }
-      }
-  }
-
-  // @HostListener('mousemove', ['$event'])
-  // @HostListener('touchmove', ['$event'])    // don't declare this, as it is added dynamically
-    onMove(event) {
-      // do stuff with event
-      const currentPos = {
-        x: Math.floor(event.offsetX / 20) * 20,
-        y: Math.floor(event.offsetY / 20) * 20,
-        i: Math.floor(event.offsetY / 20),
-        j: Math.floor(event.offsetX / 20),
+    // We only care when the event happens in the canvas.
+    if (event.target.localName === 'canvas') {
+      // avoid mem leaks 
+      this.removeSubscription();    
+      // set up subscription for move event
+      this.subscription = 
+        Observable.fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));   
+    
+      // set up the Point to be used.
+      const currentPos: Point = {
+        x: Math.floor((event.offsetX + offset) / 20) * 20,
+        y: Math.floor((event.offsetY + offset) / 20) * 20,
+        i: Math.floor((event.offsetY + offset) / 20),
+        j: Math.floor((event.offsetX + offset) / 20),
       };
+
+      // determine action based on brush type.
       switch (this.brush) {
+        case 'invert':
         case 'point':
         case 'erase':
           this.drawOnCanvas(currentPos);
           break;
         case 'select':
+          this.selection.start = currentPos;
           this.selection.end = currentPos;
-          this.selection.setParameters();
-          this.selectArea();
-        case 'invert':
+          this.selection.width = 0;
+          this.selection.height = 0;
+          d3.select(this.svgEl).style('display', 'none');
+          break;
         default:
           break;
       }
+    }
+  }
 
-      // console.log(this.canvasEl.offsetLeft);
+  /**
+   * Event called when mouse down and moved within the canvas.
+   * @extends WeaveDirective
+   * @param {Event} event - The mousemove event.
+   * @returns {void}
+   */
+  private onMove(event) {
+    var offset = 0;
+
+    // create offset if brush is select to allow easier selection.
+    if (this.brush === 'select') {
+      offset = 7;
     }
 
+    // set up the point based on touched square.
+    const currentPos: Point = {
+      x: Math.floor((event.offsetX + offset) / 20) * 20,
+      y: Math.floor((event.offsetY + offset) / 20) * 20,
+      i: Math.floor((event.offsetY + offset) / 20),
+      j: Math.floor((event.offsetX + offset) / 20),
+    };
+
+    // determine action based on brush type. invert inactive on move.
+    switch (this.brush) {
+      case 'point':
+      case 'erase':
+        this.drawOnCanvas(currentPos);
+        break;
+      case 'select':
+        this.selection.end = currentPos;
+        this.selection.setParameters();
+        this.selectArea();
+        break;
+      case 'invert':
+      default:
+        break;
+    }
+  }
+
+  /**
+   * Event removes subscription when touch has ended.
+   * @extends WeaveDirective
+   * @param {Event} event - The mouseleave or mouseup event.
+   * @returns {void}
+   */
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
-    onEnd(event) {
-      // do stuff
-      if (!(event.type === 'mouseleave' && this.brush === 'select')) {
-        this.removeSubscription();
-      }
+  private onEnd(event) {
+    // remove subscription unless it is leave event with select.
+    if (!(event.type === 'mouseleave' && this.brush === 'select')) {
+      this.removeSubscription();
+    }
+  }
+
+  /**
+   * Remove the subscription from the move event.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+ private removeSubscription() {    
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Draws or erases a single rectangle on the canvas. Updates the weave draft.
+   * @extends WeaveDirective
+   * @param {Point} currentPos - the current position of the mouse within draft.
+   * @returns {void}
+   */
+  private drawOnCanvas( currentPos: Point ) {
+    // incase the context is not set
+    var color = this.weave.getColor(currentPos.i);
+
+    // start our drawing path
+    if (color) {
+      this.cx.fillStyle = color;
+    } else {
+      this.cx.fillStyle = '#000000';
     }
 
-   ngOnDestroy() {
-     this.removeSubscription();
-   }
+    if (!this.cx || !currentPos) { return; }
 
-   removeSubscription() {    
-      if (this.subscription) {
-        this.subscription.unsubscribe();
-      }
-    }
-
-    onSelectionEvent(e) {
-      console.log(e);
-      // case 'clear':
-      //     this.fillArea(this.selection, [[false]]);
-      //     break;
-    }
-
-    private drawOnCanvas(
-      currentPos: { x: number, y: number, i: number, j: number }
-    ) {
-      // incase the context is not set
-      var color = this.weave.getColor(currentPos.i);
-
-      if (!this.cx) { return; }
-
-      // start our drawing path
-      if (color) {
-        this.cx.fillStyle = color;
-      } else {
-        this.cx.fillStyle = '#000000';
-      }
-
-      // we're drawing lines so we need a previous position
-      if (currentPos && this.brush === 'point') {
+    // Set the heddles based on the brush.
+    switch (this.brush) {
+      case 'point':
         this.weave.setHeddle(currentPos.i,currentPos.j,true);
-        
-      } else if (currentPos && this.brush === 'erase') {
+        break;
+      case 'erase':
         this.weave.setHeddle(currentPos.i,currentPos.j,false);
-        
-      } else if (currentPos && this.brush === 'invert') {
+        break;
+      case 'invert':
         const val = !this.weave.isUp(currentPos.i,currentPos.j);
         this.weave.setHeddle(currentPos.i,currentPos.j,val);
-      }
-
-      if (this.weave.isUp(currentPos.i, currentPos.j)) {
-        // draws a line from the start pos until the current position
-        this.cx.setLineDash([0]);
-        this.cx.strokeRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
-        this.cx.fillRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
-      } else {
-        // draws a line from the start pos until the current position
-        this.cx.clearRect(currentPos.x + 1, currentPos.y + 1, 18, 18);
-
-      }
+        break;
+      default:
+        break;
     }
 
-    private fillArea(selection, pattern, type) {
-      const si = Math.min(selection.start.y, selection.end.y);
-      const sj = Math.min(selection.start.x, selection.end.x);
-      var color = "#000000"
+    // draws the rectangle if heddle is up, otherwise it is erased.
+    if (this.weave.isUp(currentPos.i, currentPos.j)) {
+      this.cx.strokeRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
+      this.cx.fillRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
+    } else {
+      this.cx.clearRect(currentPos.x + 1, currentPos.y + 1, 18, 18);
+    }
+  }
 
-      this.weave.updateSelection(selection, pattern, type);
+  /**
+   * Fills in selected area of canvas. Updates the pattern within selection.
+   * @extends WeaveDirective
+   * @param {Selection} selection - defined user selected area to fill.
+   * @param {Array<Array<boolean>>} - the pattern used to fill the area.
+   * @param {string} - the type of logic used to fill selected area.
+   * @returns {void}
+   */
+  private fillArea(
+    selection: Selection, 
+    pattern: Array<Array<boolean>>, 
+    type: string
+  ) {
+    const si = Math.min(selection.start.y, selection.end.y);
+    const sj = Math.min(selection.start.x, selection.end.x);
+    var color = "#000000"
 
-      for (var i = si; i < si + selection.height; i+= 20) {
-        color = this.weave.getColor(i / 20);
-        this.cx.fillStyle = color;
-        for (var j = sj; j < sj + selection.width; j += 20) {
-          if (this.weave.isUp(i / 20, j / 20)) {
-            this.cx.setLineDash([0]);
-            this.cx.strokeRect(j + 2, i + 2, 16, 16);
-            this.cx.fillRect(j + 2, i + 2, 16, 16);
-          } else {
-            this.cx.clearRect(j + 1, i + 1, 18, 18);
-          }
+    this.weave.updateSelection(selection, pattern, type);
+
+    for (var i = si; i < si + selection.height; i+= 20) {
+      color = this.weave.getColor(i / 20);
+      this.cx.fillStyle = color;
+      for (var j = sj; j < sj + selection.width; j += 20) {
+        if (this.weave.isUp(i / 20, j / 20)) {
+          this.cx.setLineDash([0]);
+          this.cx.strokeRect(j + 2, i + 2, 16, 16);
+          this.cx.fillRect(j + 2, i + 2, 16, 16);
+        } else {
+          this.cx.clearRect(j + 1, i + 1, 18, 18);
         }
       }
-
     }
 
-    private selectArea() {
-      var left, top;
+  }
 
-      left = Math.min(this.selection.start.x, this.selection.end.x);
-      top = Math.min(this.selection.start.y, this.selection.end.y);
-      d3.select(this.svgEl)
-        .attr("width", this.selection.width)
-        .attr("height",this.selection.height)
-        .style('display', 'initial')
-        .style('left', left + this.canvasEl.offsetLeft)
-        .style('top', top + this.canvasEl.offsetTop);
+  /**
+   * Creates the selection overlay
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  private selectArea() {
+    var left, top;
 
-      d3.select(this.svgEl)
-        .select('text')
-        .attr('fill', '#424242')
-        .attr('font-weight', 900)
-        .attr('font-size', 18)
-        .attr('stroke', 'white')
-        .attr('stroke-width', 1)
-        .text(this.selection.height / 20 +' x '+ this.selection.width / 20);
+    // define the left and top offsets
+    left = Math.min(this.selection.start.x, this.selection.end.x);
+    top = Math.min(this.selection.start.y, this.selection.end.y);
 
-    }
+    // updates the size of the selection
+    d3.select(this.svgEl)
+      .attr("width", this.selection.width)
+      .attr("height",this.selection.height)
+      .style('display', 'initial')
+      .style('left', left + this.canvasEl.offsetLeft)
+      .style('top', top + this.canvasEl.offsetTop);
 
-    public copyArea() {
-      const si = Math.min(this.selection.start.i, this.selection.end.i);
-      const sj = Math.min(this.selection.start.j, this.selection.end.j);
-      var w = this.selection.width / 20;
-      var h = this.selection.height / 20;
+    // updates the text within the selection
+    d3.select(this.svgEl)
+      .select('text')
+      .attr('fill', '#424242')
+      .attr('font-weight', 900)
+      .attr('font-size', 18)
+      .attr('stroke', 'white')
+      .attr('stroke-width', 1)
+      .text(this.selection.height / 20 +' x '+ this.selection.width / 20);
 
-      var copy = [];
+  }
 
-      for (var i = 0; i < h; i++) {
-        copy.push([]);
-        for(var j = 0; j < w; j++) {
-          copy[i].push(this.weave.isUp(si + i, sj + j));
-        }
+  /**
+   * Creates the copied pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  private copyArea() {
+    const si = Math.min(this.selection.start.i, this.selection.end.i);
+    const sj = Math.min(this.selection.start.j, this.selection.end.j);
+    var w = this.selection.width / 20;
+    var h = this.selection.height / 20;
+
+    var copy = [];
+
+    // Create the pattern based on weave draft.
+    for (var i = 0; i < h; i++) {
+      copy.push([]);
+      for(var j = 0; j < w; j++) {
+        copy[i].push(this.weave.isUp(si + i, sj + j));
       }
-
-      this.copy = copy;
-
     }
 
-    printPattern(pattern) {
+    this.copy = copy;
+
+  }
+
+  /**
+   * Prints the pattern to the console.
+   * @extends WeaveDirective
+   * @param {Array<Array<boolean>>} pattern - 2D pattern array.
+   * @returns {void}
+   */
+  public printPattern(pattern) {
     for (var i = 0; i < pattern.length; i++) {
       var s = "";
       for (var j = 0; j < pattern[0].length; j++) {
@@ -308,13 +389,21 @@ export class WeaveDirective {
     }
   }
 
-  redrawRow(y, i) {
+  /**
+   * Redraws one row to avoid drawing the entire canvas.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  private redrawRow(y, i) {
     var color = '#000000'
+
+    // Gets color of row.
     color = this.weave.getColor(i);
     this.cx.fillStyle = color;
+
+    // draw row
     for (var j = 0; j < this.weave.warps * 20; j += 20) {
       if (this.weave.isUp(i, j / 20)) {
-        this.cx.setLineDash([0]);
         this.cx.strokeRect(j + 2, y + 2, 16, 16);
         this.cx.fillRect(j + 2, y + 2, 16, 16);
       } else {
@@ -323,16 +412,27 @@ export class WeaveDirective {
     }
   }
 
-  redraw() {
+  /**
+   * Draws the grid lines onto the canvas.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  private drawGrid() {
     var i,j;
-    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+    this.cx.lineWidth = 2;
+    this.cx.lineCap = 'round';
+    this.cx.strokeStyle = '#000';
     this.cx.setLineDash([1,5]);
 
+    this.cx.beginPath();
+
+    // draw vertical lines
     for (i = 0; i <= this.canvasEl.width; i += 20) {
       this.cx.moveTo(i, 0);
       this.cx.lineTo(i, this.canvasEl.height);
     }
 
+    // draw horizontal lines
     for (i = 0; i <= this.canvasEl.height; i += 20) {
       this.cx.moveTo(0, i);
       this.cx.lineTo(this.canvasEl.width, i);
@@ -340,40 +440,158 @@ export class WeaveDirective {
 
     this.cx.stroke();
 
+    // reset the line dash.
+    this.cx.setLineDash([0]);
+  }
+
+  /**
+   * Redraws teh entire canvas based on weave pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public redraw() {
+    var i,j;
+    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+    this.drawGrid();
+
     var color = '#000000';
 
     for (var y = 0; y < this.weave.wefts * 20; y += 20) {
-      color = this.weave.getColor( y / 20);
-      this.cx.fillStyle = color;
-      for (var x = 0; x < this.weave.warps * 20; x += 20) {
-        if (this.weave.isUp(y / 20 , x / 20)) {
-          this.cx.setLineDash([0]);
-          this.cx.strokeRect(x + 2, y + 2, 16, 16);
-          this.cx.fillRect(x + 2, y + 2, 16, 16);
-        } else {
-          this.cx.clearRect(x + 1, y + 1, 18, 18);
-        }
-      }
+      this.redrawRow(y, y / 20);
     }
   }
 
-  simulate() {
+  /**
+   * Simulates the visual look of the weave pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public simulate() {
     var color = '#000000';
     var offset;
-    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+    var height = 0;
 
-    for (var y = 0; y < this.weave.wefts * 20; y += 20) {
-      color = this.weave.getColor( y / 20);
-      for (var x = 0; x < this.weave.warps * 20; x += 20) {
-        if (!this.weave.isUp(y / 20 , x / 20)) {
-          this.cx.fillStyle = color;
-          this.cx.fillRect(x, y, 20, 20);
-        } else {
-          this.cx.fillStyle = '#000000';
-          this.cx.fillRect(x + 1, y, 18, 21 );
-        }
+    for (var i = 0; i < this.weave.wefts; i++) {
+      var layerId = this.weave.rowLayerMapping[i];
+      var t = this.weave.layers[layerId].getThickness();
+      if (t !== undefined) {
+        height += Math.ceil((this.weave.wpi / t) * 20);
       }
     }
+
+    this.canvasEl.height = height;
+
+    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+
+    var i = 0;
+    var y = 0;
+    while (y < this.canvasEl.height) {
+      color = this.weave.getColor(i);
+      var l = this.weave.rowLayerMapping[i];
+      var h = Math.ceil((this.weave.wpi / this.weave.layers[l].getThickness()) * 20);
+      for (var x = 0; x < this.weave.warps * 20; x += 20) {
+        if (!this.weave.isUp(i , x / 20)) {
+          this.cx.fillStyle = color;
+          this.cx.fillRect(x, y, 20, h);
+        } else {
+          this.cx.fillStyle = '#000000';
+          this.cx.fillRect(x, y, 20, h );
+        }
+      }
+
+      i++;
+      y += h;
+    }
+  }
+
+  /**
+   * Visualizes the path of the yarns within the weave.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public functional() {
+    this.updateSize();
+    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+    this.drawGrid();
+    this.cx.setLineDash([0]);
+
+    for (var l = 0; l < this.weave.layers.length; l++) {
+      // Each layer.
+      this.cx.strokeStyle = this.weave.layers[l].getColor();
+      this.cx.lineWidth = 5;
+      var first = true;
+      var left = true;
+      var py = null;
+      var s,e;
+      var s1 = null;
+      var s2 = null;
+      var e1 = null;
+      var e2 = null;
+
+      for (var r = 0; r < this.weave.rowLayerMapping.length; r++) {
+        var y = (r * 20) + 10;
+        first = true;
+        for (var x = 0; x < this.weave.pattern[r].length; x++) {
+
+          if (this.weave.isUp(r,x)) {
+
+            if (first && this.weave.rowLayerMapping[r] === l) {
+              this.cx.beginPath();
+              this.cx.moveTo(x * 20 + 5, y);
+              this.cx.lineTo((x + 1)* 20 - 5, y)
+              first = false;
+              if (s1 === null) {
+                s1 = (x * 20) + 5;
+                e1 = (x + 1) * 20 - 5;
+                py = y;
+              } else {
+                s2 = (x * 20) + 5;
+                e2 = (x + 1) * 20 - 5;
+              }
+            } else if (this.weave.rowLayerMapping[r] === l) {
+              this.cx.lineTo((x + 1) * 20 - 5, y);
+
+              if (py === y) {
+                e1 = (x + 1) * 20 - 5;
+              } else {
+                e2 = (x + 1) * 20 - 5;
+              }
+
+            }
+          }
+        }
+        if (first === false) {
+          this.cx.stroke();
+        }
+
+        if (s2 !== null && e2 !== null) {
+          e = Math.max(e1,e2);
+          s = Math.min(s1,s2);
+          this.cx.beginPath();
+          if (left) {
+            this.cx.moveTo(s1, py);
+            this.cx.lineTo(s, py);
+            this.cx.lineTo(s, y);
+            this.cx.lineTo(s2, y);
+          } else if (!left) {
+            this.cx.moveTo(e1, py);
+            this.cx.lineTo(e, py);
+            this.cx.lineTo(e, y);
+            this.cx.lineTo(e2, y);
+          }
+          this.cx.stroke();
+          s1 = s2;
+          e1 = e2;
+          s2 = null;
+          e2 = null;
+          py = y;
+          left = !left;
+        }
+
+      }
+    }
+
+    this.cx.strokeStyle = "#000";
   }
 
 }

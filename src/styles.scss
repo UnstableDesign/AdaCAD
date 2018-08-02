@@ -6,14 +6,31 @@ body {
   margin: 0;
 }
 
+svg {
+  overflow: visible;
+}
+
 .fill-remaining-space {
   /* This fills the remaining space, by using flexbox. 
      Every toolbar row uses a flexbox row layout. */
   flex: 1 1 auto;
 }
 
+.hidden {
+  display: none;
+}
+
 .mat-focused .mat-form-field-label {
-    color: rgba(255,255,255,.7);
+  color: rgba(255,255,255,.7);
+}
+
+.mat-radio-button {
+  padding-right: 10px;
+}
+
+.mat-form-radio-label {
+  color: rgba(255,255,255,.7);
+  padding-right: 10px;
 }
 
 .mat-drawer {
@@ -62,6 +79,10 @@ body {
 
 .is-fullwidth {
   width: 100%;
+}
+
+.mat-input-infix.mat-form-field-infix {
+  display: flex;
 }
 
 // .mat-toolbar .mat-raised-button {

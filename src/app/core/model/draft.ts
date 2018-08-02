@@ -1,5 +1,11 @@
 import { Layer } from './layer';
 
+import * as _ from 'lodash';
+
+/**
+ * Definition of draft interface.
+ * @interface
+ */
 export interface DraftInterface {
   pattern: Array<Array<boolean>>;
   layers: Array<Layer>;
@@ -11,6 +17,10 @@ export interface DraftInterface {
 
 }
 
+/**
+ * Definition and implementation of draft object.
+ * @class
+ */
 export class Draft implements DraftInterface {
   pattern: Array<Array<boolean>>;
   layers: Array<Layer>;
@@ -19,13 +29,16 @@ export class Draft implements DraftInterface {
   labels: Array<any>;
   wefts: number;
   warps: number;
+  wpi: number;
 
-  constructor(wefts, warps) {
+  constructor(wefts, warps, wpi) {
     let l = new Layer();
     l.setID(0);
     l.setVisible(true);
+    l.setThickness(wpi);
     this.wefts = wefts;
     this.warps = warps;
+    this.wpi = wpi;
     this.layers = [l];
     this.rowLayerMapping = [];
 
@@ -73,6 +86,7 @@ export class Draft implements DraftInterface {
   }
 
   updateSelection(selection: any, pattern: any, type: string) {
+    console.log(selection, pattern, type);
     const sj = Math.min(selection.start.j, selection.end.j);
     const si = Math.min(selection.start.i, selection.end.i);
 
@@ -83,7 +97,6 @@ export class Draft implements DraftInterface {
 
     w = selection.width / 20;
     h = selection.height / 20;
-
 
     for (var i = 0; i < h; i++ ) {
       for (var j = 0; j < w; j++ ) {
@@ -113,12 +126,33 @@ export class Draft implements DraftInterface {
     }
   }
 
-  insertRow(i: number) {
+  insertRow(i: number, layerId: number) {
+    var col = [];
+
+    for (var j = 0; j < this.warps; j++) {
+      col.push(false);
+    }
+
+    this.wefts += 1;
+
+    this.rowLayerMapping.splice(i,0,layerId);
+    this.pattern.splice(i,0,col);
 
   }
 
-  deleteRow(i: number) {
+  cloneRow(i: number, c: number, layerId: number) {
+    const col = _.clone(this.pattern[c]);
 
+    this.wefts += 1;
+
+    this.rowLayerMapping.splice(i, 0, layerId);
+    this.pattern.splice(i, 0, col);
+  }
+
+  deleteRow(i: number) {
+    this.wefts -= 1;
+    this.rowLayerMapping.splice(i, 1);
+    this.pattern.splice(i, 1);
   }
 
   insertCol(j: number) {
@@ -132,6 +166,7 @@ export class Draft implements DraftInterface {
   addLayer(layer) {
     layer.setID(this.layers.length);
     layer.setVisible(true);
+    layer.setThickness(this.wpi);
     this.layers.push(layer);
 
   }

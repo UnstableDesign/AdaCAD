@@ -1,3 +1,7 @@
+/**
+ * Definition of pattern object.
+ * @class
+ */
 export class Pattern {
   height: number;
   width: number;

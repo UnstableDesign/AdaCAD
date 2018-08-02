@@ -13,11 +13,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 import { WeaverComponent } from './weaver.component';
@@ -30,6 +31,7 @@ import { DraftComponent } from './draft/draft.component';
 
 import { CoreModule } from '../core/core.module';
 import { PatternModal } from './modal/pattern/pattern.modal';
+import { ConnectionModal } from './modal/connection/connection.modal';
 
 
 @NgModule({
@@ -50,6 +52,7 @@ import { PatternModal } from './modal/pattern/pattern.modal';
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatRadioModule,
     MatSelectModule,
     MatSidenavModule,
     MatTabsModule,
@@ -65,11 +68,13 @@ import { PatternModal } from './modal/pattern/pattern.modal';
     PatternsComponent, 
     DraftComponent,
     LayersModal,
-    PatternModal
+    PatternModal,
+    ConnectionModal
   ],
   entryComponents: [
     LayersModal,
     PatternModal,
+    ConnectionModal
   ],
 })
 export class WeaverModule { }

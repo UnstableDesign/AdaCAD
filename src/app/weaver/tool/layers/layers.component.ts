@@ -29,7 +29,7 @@ export class LayersComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(LayersModal, 
-      {data: layer });
+      {data: layer, width: '650px' });
 
     dialogRef.afterClosed().subscribe(result => {
       if (!create) {

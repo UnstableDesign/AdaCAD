@@ -1,5 +1,7 @@
-import { EventEmitter } from '@angular/core';
-
+/**
+ * Definition of Layer object.
+ * @class
+ */
 export class Layer {
   color: string;
   id: number;

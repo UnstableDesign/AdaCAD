@@ -5,19 +5,13 @@ import { WeaveDirective } from '../core/directives/weave.directive';
 import { Draft } from '../core/model/draft';
 import { Layer } from '../core/model/layer';
 import { Pattern } from '../core/model/pattern';
+import {MatDialog, MatDialogConfig} from "@angular/material";
+import { ConnectionModal } from './modal/connection/connection.modal';
 
-class Point {
-  x: number;
-  y: number;
-}
-
-class Selection {
-  start: Point;
-  end: Point;
-  width: number;
-  height: number;
-}
-
+/**
+ * Controller of the Weaver component.
+ * @class
+ */
 @Component({
   selector: 'app-weaver',
   templateUrl: './weaver.component.html',
@@ -29,10 +23,27 @@ export class WeaverComponent implements OnInit {
   brush = 'point';
   selected = 0;
   draft: Draft;
-  selection: Selection = new Selection();
   patterns;
+  view = 'pattern';
 
-  constructor(private ps: PatternService) {
+  constructor(private ps: PatternService, private dialog: MatDialog) {}
+
+  ngOnInit() {
+    this.draft = new Draft (30, 40, 12);
+    this.draft.layers[0].setColor('#3d3d3d');
+
+    this.ps.getPatterns().subscribe((res: Array<Pattern>) => {this.patterns = res;});
+  }
+
+  openDialog() {
+
+    const dialogRef = this.dialog.open(ConnectionModal, {data: {layers: this.draft.layers}});
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.draft.connections.push(result);
+      }
+    });
   }
 
   @HostListener('window:keydown.Control.e', ['$event'])
@@ -42,7 +53,6 @@ export class WeaverComponent implements OnInit {
 
   @HostListener('window:keydown.Control.d', ['$event'])
   keyEventPoint(e) {
-    console.log(e);
     this.brush = 'point';
   }
 
@@ -56,30 +66,23 @@ export class WeaverComponent implements OnInit {
     this.brush = 'invert';
   }
 
-  ngOnInit() {
-    var layer2 = new Layer();
-    var layer3 = new Layer();
-
-    this.draft = new Draft (20, 40);
-    this.draft.addLayer(layer2);
-    this.draft.addLayer(layer3);
-
-
-    this.draft.layers[0].setColor('#000000');
-    this.draft.layers[1].setColor('#ed5a0e');
-    this.draft.layers[2].setColor('#c2185b');
-
-    this.selection.width = 80;
-    this.selection.height = 80;
-    this.selection.start = new Point;
-    this.selection.start.x = 40;
-    this.selection.start.y = 40;
-
-    this.ps.getPatterns().subscribe((res: Array<Pattern>) => {this.patterns = res;});
-  }
-
   print(e) {
     console.log(e);
+  }
+
+  insertRow(i, layer) {
+    this.draft.insertRow(i, layer);
+    this.weaveDraft.updateSize();
+  }
+
+  cloneRow(i, c, layer) {
+    this.draft.cloneRow(i, c, layer);
+    this.weaveDraft.updateSize();
+  }
+
+  deleteRow(i) {
+    this.draft.deleteRow(i);
+    this.weaveDraft.updateSize();
   }
 
   updatePatterns(e: any) {
@@ -96,14 +99,17 @@ export class WeaverComponent implements OnInit {
   }
 
   onViewChange(e: any) {
+    this.view = e.view;
 
     switch (e.view) {
       case 'visual':
         this.weaveDraft.simulate();
         break;
       case 'yarn':
+        this.weaveDraft.functional();
+        break;
       default:
-        this.weaveDraft.redraw();
+        this.weaveDraft.updateSize();
         break;
     }
   }

@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Create Connection</h2>
+
+<mat-dialog-content>
+  <form #connectionForm="ngForm">
+    <mat-form-field class="is-fullwidth">
+      <mat-select placeholder="Layer" name="layer" [(ngModel)]="connection.layerId">
+        <mat-option *ngFor="let layer of layers" [value]="layer.id">
+          {{ layer.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="is-fullwidth">
+      <mat-form-field >
+        <input matInput  type="number" placeholder="Start Column" name="startX" [(ngModel)]="connection.start.x"> 
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput  type="number" placeholder="Start Row" name="startY" [(ngModel)]="connection.start.y"> 
+      </mat-form-field>
+    </div>
+    <div class="is-fullwidth">
+      <mat-form-field >
+        <input matInput  type="number" placeholder="End Column" name="startX" [(ngModel)]="connection.end.x"> 
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput  type="number" placeholder="End Row" name="startY" [(ngModel)]="connection.end.y"> 
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+  <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
+</mat-dialog-actions>

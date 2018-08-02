@@ -1,4 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import {MatDialog, MatDialogConfig} from "@angular/material";
+import { ConnectionModal } from '../../modal/connection/connection.modal';
 
 @Component({
   selector: 'app-design',
@@ -15,13 +17,19 @@ export class DesignComponent implements OnInit {
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
   @Output() onViewChange: any = new EventEmitter();
+  @Output() onConnectionCreate: any = new EventEmitter();
 
   view = 'pattern';
   copy = false;
 
-  constructor() { }
+  constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
+  }
+
+  openDialog() {
+
+    this.onConnectionCreate.emit();
   }
 
   viewChange(e: any) {
