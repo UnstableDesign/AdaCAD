@@ -1,0 +1,11 @@
+<label>
+   <input type="file" (change)="detectFiles($event)">
+</label>
+
+<button
+        [disabled]="!selectedFiles"
+        (click)="uploadSingle();">
+
+  Upload Single
+</button>
+<canvas #uploadImage class="hidden"></canvas>

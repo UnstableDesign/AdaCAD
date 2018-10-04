@@ -11,7 +11,7 @@ import { Pattern } from '../../../core/model/pattern';
 export class PatternModal implements OnInit {
 
   constructor(private dialogRef: MatDialogRef<PatternModal>,
-             @Inject(MAT_DIALOG_DATA) private pattern: Pattern) { }
+             @Inject(MAT_DIALOG_DATA) public pattern: Pattern) { }
 
   ngOnInit() {
   }

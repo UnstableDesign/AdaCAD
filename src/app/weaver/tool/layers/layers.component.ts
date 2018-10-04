@@ -10,8 +10,11 @@ import { Layer } from '../../../core/model/layer';
 })
 export class LayersComponent implements OnInit {
   @Input() layers;
+  @Input() warps;
   @Output() onColorChange: any = new EventEmitter();
   @Output() onCreateLayer: any = new EventEmitter();
+  @Output() onShowLayer: any = new EventEmitter();
+  @Output() onHideLayer: any = new EventEmitter();
 
   selected = 0;
 
@@ -29,7 +32,7 @@ export class LayersComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(LayersModal, 
-      {data: layer, width: '650px' });
+      {data: { layer: layer, warps: this.warps }, width: '650px' });
 
     dialogRef.afterClosed().subscribe(result => {
       if (!create) {
@@ -44,4 +47,12 @@ export class LayersComponent implements OnInit {
     this.onColorChange.emit();
   }
 
+
+  visibleButton(id, visible) {
+    if (visible) {
+      this.onShowLayer.emit({layerId: id});
+    } else {
+      this.onHideLayer.emit({layerId: id});
+    }
+  }
 }

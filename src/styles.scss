@@ -17,7 +17,7 @@ svg {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .mat-focused .mat-form-field-label {
@@ -81,7 +81,7 @@ svg {
   width: 100%;
 }
 
-.mat-input-infix.mat-form-field-infix {
+.mat-form-field-infix.mat-form-field-infix {
   display: flex;
 }
 

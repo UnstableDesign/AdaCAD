@@ -1,5 +1,21 @@
 <div class="example-container">
   <section class="section-container">
+    <mat-button-toggle-group name="fontStyle" aria-label="Font Style" #group [value]="view" (change)="viewChange($event);">
+      <mat-button-toggle value="pattern">
+        <i class="fa fa-chess-board" aria-hidden="true"></i>
+        Draft
+      </mat-button-toggle>
+      <mat-button-toggle value="yarn">
+        <i class="fa fa-project-diagram" aria-hidden="true"></i>
+        Yarn
+      </mat-button-toggle>
+      <!-- <mat-button-toggle value="visual">
+        <i class="fa fa-image" aria-hidden="true"></i>
+        Visual
+      </mat-button-toggle> -->
+    </mat-button-toggle-group>
+  </section>
+  <section *ngIf="view === 'pattern'" class="section-container">
     <h3>Brushes</h3>
     <div class="buttons">
       <button matTooltip="Shortcut: d" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Point</button>
@@ -8,9 +24,9 @@
       <button matTooltip="Shortcut: x. Note: This brush cannot be dragged." name="invert" class="button is-primary brush  " [class.is-active]="brush === 'invert'" (click)="brushChange($event)">Invert</button>
       <button matTooltip="Shortcut: s" name="select" id="select" class="button is-primary codehilite brush" [class.is-active]="brush === 'select'" (click)="brushChange($event)">Select</button>
     </div>
-  </section>
   <mat-divider></mat-divider>
-  <section class="section-container">
+  </section>
+  <section *ngIf="view === 'pattern'" class="section-container">
     <h3>Edit Selection</h3>
     <div class="buttons">
       <div class="dropdown is-hoverable">
@@ -81,30 +97,16 @@
       <a name="button" class="button is-primary is-outline brush">Button</a>
       <a name="qrcode" class="button is-primary is-outline brush">QR Code</a>
     </div> -->
-  </section>
   <mat-divider></mat-divider>
-  <section class="section-container">
+  </section>
+  <section *ngIf="view === 'yarn'" class="section-container">
     <h3>Connections</h3>
     <div class="buttons">
-      <button name="createConnection" class="button is-primary"(click)="openDialog()">Create</button>
+      <button name="createConnection" class="button is-primary" (click)="openConnectionDialog()">Create</button>
+      <button name="createConnection" class="button is-primary">Move</button>
+      <button name="createConnection" class="button is-primary">Delete</button>
     </div>
-  </section>
   <mat-divider></mat-divider>
-  <section class="section-container">
-    <h3>View</h3>
-    <mat-button-toggle-group name="fontStyle" aria-label="Font Style" #group [value]="view" (change)="viewChange($event);">
-      <mat-button-toggle value="pattern">
-        <i class="fa fa-chess-board" aria-hidden="true"></i>
-        Pattern
-      </mat-button-toggle>
-      <mat-button-toggle value="yarn">
-        <i class="fa fa-project-diagram" aria-hidden="true"></i>
-        Yarn
-      </mat-button-toggle>
-      <mat-button-toggle value="visual">
-        <i class="fa fa-image" aria-hidden="true"></i>
-        Visual
-      </mat-button-toggle>
-    </mat-button-toggle-group>
   </section>
+  
 </div>

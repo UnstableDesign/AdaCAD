@@ -7,6 +7,8 @@ import { Layer } from '../core/model/layer';
 import { Pattern } from '../core/model/pattern';
 import {MatDialog, MatDialogConfig} from "@angular/material";
 import { ConnectionModal } from './modal/connection/connection.modal';
+import { InitModal } from './modal/init/init.modal';
+import { LabelModal } from './modal/label/label.modal';
 
 /**
  * Controller of the Weaver component.
@@ -18,24 +20,197 @@ import { ConnectionModal } from './modal/connection/connection.modal';
   styleUrls: ['./weaver.component.scss']
 })
 export class WeaverComponent implements OnInit {
-  @ViewChild(WeaveDirective) weaveDraft;
+  /**
+   * The reference to the weave directive.
+   * @property {WeaveDirective}
+   */
+  @ViewChild(WeaveDirective) weaveRef;
 
+  /**
+   * The name of the current selected brush.
+   * @property {string}
+   */
   brush = 'point';
-  selected = 0;
+  
+  /**
+   * The weave Draft object.
+   * @property {Draft}
+   */
   draft: Draft;
-  patterns;
-  view = 'pattern';
 
-  constructor(private ps: PatternService, private dialog: MatDialog) {}
+  /**
+   * The list of all patterns saved. Provided by pattern service.
+   * @property {Array<Pattern>}
+   */
+  patterns;
+
+  /**
+   * The name of the current view being shown.
+   * @property {string}
+   */
+  view: string = 'pattern';
+
+  selected;
+
+  /// ANGULAR FUNCTIONS
+  /**
+   * @constructor
+   */
+  constructor(private ps: PatternService, private dialog: MatDialog) {
+    const dialogRef = this.dialog.open(InitModal);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.draft = new Draft(30, result.warps, result.epi);
+        this.draft.layers[0].setColor('#3d3d3d');
+      }
+    });
+
+  }
 
   ngOnInit() {
-    this.draft = new Draft (30, 40, 12);
-    this.draft.layers[0].setColor('#3d3d3d');
 
     this.ps.getPatterns().subscribe((res: Array<Pattern>) => {this.patterns = res;});
   }
 
-  openDialog() {
+  /// EVENTS
+  /**
+   * Sets brush to erase on key control + e.
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + e
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Control.e', ['$event'])
+  private keyEventErase(e) {
+    this.brush = 'erase';
+  }
+
+  /**
+   * Sets brush to point on key control + d.
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + d
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Control.d', ['$event'])
+  private keyEventPoint(e) {
+    this.brush = 'point';
+  }
+
+  /**
+   * Sets brush to select on key control + s
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + s
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Control.s', ['$event'])
+  private keyEventSelect(e) {
+    this.brush = 'select';
+  }
+
+  /**
+   * Sets key control to invert on control + x
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + x
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Control.x', ['$event'])
+  private keyEventInvert(e) {
+    this.brush = 'invert';
+  }
+
+  /**
+   * Updates the canvas based on the weave view.
+   * @extends WeaveComponent
+   * @param {Event} e - view change event from design component.
+   * @returns {void}
+   */
+  public onViewChange(e: any) {
+    this.view = e.view;
+
+    switch (e.view) {
+      case 'visual':
+        this.weaveRef.simulate();
+        break;
+      case 'yarn':
+        this.weaveRef.functional();
+        break;
+      default:
+        this.weaveRef.updateSize();
+        break;
+    }
+  }
+
+  /**
+   * Change the name of the brush to reflect selected brush.
+   * @extends WeaveComponent
+   * @param {Event} e - brush change event from design component.
+   * @returns {void}
+   */
+  public onBrushChange(e:any) {
+    this.brush = e.name;
+  }
+
+  /**
+   * Tell the weave directive to fill selection with pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - fill event from design component.
+   * @returns {void}
+   */
+  public onFill(e) {
+    var p = this.patterns[e.id].pattern;
+    this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
+  }
+
+  /**
+   * Tell weave reference to clear selection.
+   * @extends WeaveComponent
+   * @param {Event} e - clear event from design component.
+   * @returns {void}
+   */
+  public onClear() {
+    this.weaveRef.fillArea(this.weaveRef.selection, [[null]], 'original')
+  }
+
+  /**
+   * Weave reference masks pattern over selected area.
+   * @extends WeaveComponent
+   * @param {Event} e - mask event from design component.
+   * @returns {void}
+   */
+  public onMask(e) {
+    console.log(e);
+    var p = this.patterns[e.id].pattern;
+    this.weaveRef.fillArea(this.weaveRef.selection, p, 'mask');
+  }
+
+  /**
+   * Tells weave reference to paste copied pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - paste event from design component.
+   * @returns {void}
+   */
+  public onPaste(e) {
+    var p = this.weaveRef.copy;
+    var type = e.type;
+    this.weaveRef.fillArea(this.weaveRef.selection, p, type);
+  }
+
+  /**
+   * Creates the copied pattern within the weave reference
+   * @extends WeaveComponent
+   * @param {Event} e - copy event from design component.
+   * @returns {void}
+   */
+  public onCopy() {
+    this.weaveRef.copyArea();
+  }
+
+  /**
+   * Open the connection modal.
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public openConnectionDialog() {
 
     const dialogRef = this.dialog.open(ConnectionModal, {data: {layers: this.draft.layers}});
 
@@ -46,116 +221,105 @@ export class WeaverComponent implements OnInit {
     });
   }
 
-  @HostListener('window:keydown.Control.e', ['$event'])
-  keyEventErase(e) {
-    this.brush = 'erase';
+  /**
+   * Open the label modal.
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public openLabelDialog() {
+
+    const dialogRef = this.dialog.open(LabelModal);
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log(result);
+      }
+    });
   }
 
-  @HostListener('window:keydown.Control.d', ['$event'])
-  keyEventPoint(e) {
-    this.brush = 'point';
+  /**
+   * Change layer of row to next in list.
+   * @extends WeaveComponent
+   * @param {number} layer - ID of previous layer
+   * @param {number} the index of row within the pattern.
+   * @returns {void}
+   */
+  public rowLayerChange(row, index) {
+
+    const len = this.draft.layers.length;
+    var layer = this.draft.rowLayerMapping[row];
+
+    var newLayer = (layer + 1) % len;
+    while (!this.draft.layers[newLayer].visible) {
+      var newLayer = (newLayer + 1) % len;
+    }
+
+    this.draft.rowLayerMapping[row] = newLayer;
+
+    this.weaveRef.redrawRow(index * 20, index);
   }
 
-  @HostListener('window:keydown.Control.s', ['$event'])
-  keyEventSelect(e) {
-    this.brush = 'select';
-  }
-
-  @HostListener('window:keydown.Control.x', ['$event'])
-  keyEventInvert(e) {
-    this.brush = 'invert';
-  }
-
-  print(e) {
+  /// PUBLIC FUNCTIONS
+  /**
+   * 
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public print(e) {
     console.log(e);
   }
 
-  insertRow(i, layer) {
+  /**
+   * In
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public insertRow(i, layer) {
     this.draft.insertRow(i, layer);
-    this.weaveDraft.updateSize();
+    this.draft.updateConnections(i, 1);
+    this.weaveRef.updateSize();
   }
 
-  cloneRow(i, c, layer) {
+  public cloneRow(i, c, layer) {
     this.draft.cloneRow(i, c, layer);
-    this.weaveDraft.updateSize();
+    this.draft.updateConnections(i, 1);
+    this.weaveRef.updateSize();
   }
 
-  deleteRow(i) {
+  public deleteRow(i) {
     this.draft.deleteRow(i);
-    this.weaveDraft.updateSize();
+    this.draft.updateConnections(i, -1);
+    this.weaveRef.updateSize();
   }
 
-  updatePatterns(e: any) {
+  public updatePatterns(e: any) {
     this.patterns = e.patterns;
   }
 
-  createLayer(e: any) {
+  public createLayer(e: any) {
     this.draft.addLayer(e.layer);
+    if (e.layer.image) {
+      this.weaveRef.updateSize();
+    }
   }
 
-  createPattern(e: any) {
+  public hideLayer(e:any) {
+    this.draft.updateVisible();
+    this.weaveRef.updateSize();
+  }
+
+  public showLayer(e:any) {
+    this.draft.updateVisible();
+    this.weaveRef.updateSize();
+  }
+
+  public createPattern(e: any) {
     e.pattern.id = this.patterns.length;
     this.patterns.push(e.pattern);
   }
 
-  onViewChange(e: any) {
-    this.view = e.view;
-
-    switch (e.view) {
-      case 'visual':
-        this.weaveDraft.simulate();
-        break;
-      case 'yarn':
-        this.weaveDraft.functional();
-        break;
-      default:
-        this.weaveDraft.updateSize();
-        break;
-    }
-  }
-
-  onBrushChange(e:any) {
-    this.brush = e.name;
-  }
-
-  onFill(e) {
-    var p = this.patterns[e.id].pattern;
-    console.log(p);
-    this.weaveDraft.fillArea(this.weaveDraft.selection, p, 'original');
-  }
-
-  onClear() {
-    this.weaveDraft.fillArea(this.weaveDraft.selection, [[null]], 'original')
-  }
-
-  onMask(e) {
-    console.log(e);
-    var p = this.patterns[e.id].pattern;
-    this.weaveDraft.fillArea(this.weaveDraft.selection, p, 'mask');
-  }
-
-  onPaste(e) {
-    var p = this.weaveDraft.copy;
-    var type = e.type;
-    this.weaveDraft.fillArea(this.weaveDraft.selection, p, type);
-  }
-
-  onCopy() {
-    this.weaveDraft.copyArea();
-  }
-
-  rowLayerChange(layer, index) {
-
-    const len = this.draft.layers.length;
-
-    var newLayer = (layer + 1) % len;
-    this.draft.rowLayerMapping[index] = newLayer;
-
-    this.weaveDraft.redrawRow(index * 20, index);
-  }
-
-  redraw() {
-    this.weaveDraft.redraw();
+  public redraw() {
+    this.weaveRef.redraw();
   }
 
 }

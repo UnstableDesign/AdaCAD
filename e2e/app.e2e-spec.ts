@@ -1,10 +1,10 @@
-import { WorldWarpWeftPage } from './app.po';
+import { AdaCADWeaverPage } from './app.po';
 
-describe('world-warp-weft App', () => {
-  let page: WorldWarpWeftPage;
+describe('adacad-weaver App', () => {
+  let page: AdaCADWeaverPage;
 
   beforeEach(() => {
-    page = new WorldWarpWeftPage();
+    page = new AdaCADWeaverPage();
   });
 
   it('should display welcome message', () => {

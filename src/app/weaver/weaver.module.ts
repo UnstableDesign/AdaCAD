@@ -27,11 +27,12 @@ import { DesignComponent } from './tool/design/design.component';
 import { LayersComponent } from './tool/layers/layers.component';
 import { LayersModal } from './modal/layers/layers.modal';
 import { PatternsComponent } from './tool/patterns/patterns.component';
-import { DraftComponent } from './draft/draft.component';
 
 import { CoreModule } from '../core/core.module';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { ConnectionModal } from './modal/connection/connection.modal';
+import { InitModal } from './modal/init/init.modal';
+import { LabelModal } from './modal/label/label.modal';
 
 
 @NgModule({
@@ -65,16 +66,19 @@ import { ConnectionModal } from './modal/connection/connection.modal';
     TopbarComponent, 
     DesignComponent, 
     LayersComponent, 
-    PatternsComponent, 
-    DraftComponent,
+    PatternsComponent,
     LayersModal,
     PatternModal,
-    ConnectionModal
+    ConnectionModal,
+    InitModal,
+    LabelModal
   ],
   entryComponents: [
     LayersModal,
     PatternModal,
-    ConnectionModal
+    ConnectionModal,
+    InitModal,
+    LabelModal
   ],
 })
 export class WeaverModule { }

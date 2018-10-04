@@ -8,6 +8,7 @@ export class Pattern {
   pattern: Array<Array<boolean>>;
   favorite: boolean;
   id: number;
+  name: string;
 
   constructor() {
     this.favorite = false;

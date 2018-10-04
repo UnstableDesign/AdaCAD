@@ -1,10 +1,10 @@
-<h2 mat-dialog-title>Layer</h2>
+<h2 mat-dialog-title>Edit Shuttle</h2>
 
 <mat-dialog-content>
   
   <form #layerForm="ngForm">
     <mat-form-field class="is-fullwidth">
-      <input matInput placeholder="Layer Name" name="name" [(ngModel)]="layer.name">
+      <input matInput placeholder="Shuttle Name" name="name" [(ngModel)]="layer.name">
     </mat-form-field>
     <mat-form-field class="is-fullwidth">
       <mat-select placeholder="Yarn Type" name="type" [(ngModel)]="layer.type">
@@ -13,19 +13,28 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <div class="is-fullwidth">
+      <mat-form-field >
+        <input matInput  type="text" placeholder="Start Label" name="labelStart" [(ngModel)]="layer.startLabel">
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput  type="text" placeholder="End Label" name="labelEnd" [(ngModel)]="layer.endLabel">
+      </mat-form-field>
+    </div>
     <mat-form-field >
       <input matInput  type="number" placeholder="Yarn Thickness" name="thickness" [(ngModel)]="layer.thickness"> 
       <span *ngIf="layer.thickness">&nbsp;&nbsp;wraps/inch</span>
     </mat-form-field>
     <mat-form-field>
-      <input matInput placeholder="Layer Color" class="colorpicker" [(colorPicker)]="layer.color" 
+      <input matInput placeholder="Shuttle Color" class="colorpicker" [(colorPicker)]="layer.color" 
        [style.background]="layer.color" name="color" [(ngModel)]="layer.color"/>
     </mat-form-field>
-    <mat-radio-group>
+    <mat-radio-group [(ngModel)]="layer.insert" name="insert">
       <label class="mat-form-radio-label">Yarn In: </label>
-      <mat-radio-button value="0">Right</mat-radio-button>
       <mat-radio-button value="1">Left</mat-radio-button>
+      <mat-radio-button value="0">Right</mat-radio-button>
     </mat-radio-group>
+    <!-- <upload-form [warps]="warps" (onImageData)="processData($event)"></upload-form> -->
   </form>
  
 </mat-dialog-content>

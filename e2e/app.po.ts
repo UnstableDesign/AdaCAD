@@ -1,6 +1,6 @@
 import { browser, by, element } from 'protractor';
 
-export class WorldWarpWeftPage {
+export class AdaCADWeaverPage {
   navigateTo() {
     return browser.get('/');
   }

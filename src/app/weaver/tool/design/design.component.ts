@@ -18,6 +18,7 @@ export class DesignComponent implements OnInit {
   @Output() onClear: any = new EventEmitter();
   @Output() onViewChange: any = new EventEmitter();
   @Output() onConnectionCreate: any = new EventEmitter();
+  @Output() onLabelCreate: any = new EventEmitter();
 
   view = 'pattern';
   copy = false;
@@ -27,9 +28,14 @@ export class DesignComponent implements OnInit {
   ngOnInit() {
   }
 
-  openDialog() {
+  openConnectionDialog() {
 
     this.onConnectionCreate.emit();
+  }
+
+  openLabelDialog() {
+
+    this.onLabelCreate.emit();
   }
 
   viewChange(e: any) {

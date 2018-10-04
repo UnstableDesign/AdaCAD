@@ -11,7 +11,8 @@ import * as g from 'g.js';
   styleUrls: ['./layers.modal.scss']
 })
 export class LayersModal {
-
+  layer: Layer;
+  warps: number;
   // layer = {
   //   name: 'Layer 0',
   //   id: 0,
@@ -24,24 +25,46 @@ export class LayersModal {
 
   constructor(
       private dialogRef: MatDialogRef<LayersModal>,
-      @Inject(MAT_DIALOG_DATA) private layer: Layer) {
+      @Inject(MAT_DIALOG_DATA) public data: any) {
 
-      if (!layer) {
-        layer = new Layer();
+      if (!data.layer) {
+        this.layer = new Layer();
+      } else {
+        this.layer = data.layer;
       }
+
+      this.warps = data.warps;
 
   }
 
-  onNoClick(): void {
-    this.dialogRef.close(this.layer);
+  processData(e: any) {
+    var img = e.data;
+    var data = [];
+
+    for (var i=0; i< e.height; i++) {
+      data.push([]);
+      for (var j=0; j< e.width; j++) {
+        var idx = (i * 4 * this.warps) + (j * 4);
+        var threshold = (img[idx] + img[idx+1] + img[idx+2]);
+        var alpha = img[idx + 3];
+
+        if (threshold < 750 && alpha != 0) {
+          data[i].push(true);
+        } else {
+          data[i].push(false);
+        }
+      }
+    }
+    
+    this.layer.image = data;
   }
 
   close() {
-    this.onNoClick();
+    this.dialogRef.close(null);
   }
 
   save() {
-    this.onNoClick();
+    this.dialogRef.close(this.layer);
   }
 
 }

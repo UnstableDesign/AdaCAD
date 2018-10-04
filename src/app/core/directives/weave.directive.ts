@@ -1,9 +1,6 @@
 import { Directive, ElementRef, ViewChild, Renderer, HostListener, Input } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/observable/from';
+import { Observable, Subscription, fromEvent, from } from 'rxjs';
 import * as d3 from "d3";
 
 import { Draft } from '../model/draft';
@@ -19,6 +16,7 @@ import { Selection } from '../model/selection';
   selector: '[weave]'
 })
 export class WeaveDirective {
+  /// ATTRIBUTES
   /**
    * Contains the name of the brush being used to manipulate the weave draft.
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
@@ -69,6 +67,7 @@ export class WeaveDirective {
    */
   svgEl: HTMLElement;
 
+  /// ANGULAR FUNCTIONS
   /**
    * Creates the element reference.
    * @constructor
@@ -102,21 +101,7 @@ export class WeaveDirective {
      this.removeSubscription();
    }
 
-  /**
-   * Resizes and then redraws the canvas on a change to the wefts or warps. 
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public updateSize() {
-    // set the updated width and height
-    this.canvasEl.width = this.weave.warps * 20;
-    this.canvasEl.height = this.weave.wefts * 20;
-
-    // redraw the 
-    this.redraw();
-  }
-
-  
+   /// EVENTS
   /**
    * Touch start event. Subscribes to the move event.
    * @extends WeaveDirective
@@ -138,7 +123,7 @@ export class WeaveDirective {
       this.removeSubscription();    
       // set up subscription for move event
       this.subscription = 
-        Observable.fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));   
+        fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));   
     
       // set up the Point to be used.
       const currentPos: Point = {
@@ -233,6 +218,64 @@ export class WeaveDirective {
     }
   }
 
+  /// PRIVATE FUNCTIONS
+  /**
+   * Creates the copied pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  private copyArea() {
+    const si = Math.min(this.selection.start.i, this.selection.end.i);
+    const sj = Math.min(this.selection.start.j, this.selection.end.j);
+    var w = this.selection.width / 20;
+    var h = this.selection.height / 20;
+
+    var copy = [];
+
+    // Create the pattern based on weave draft.
+    for (var i = 0; i < h; i++) {
+      copy.push([]);
+      for(var j = 0; j < w; j++) {
+        copy[i].push(this.weave.isUp(si + i, sj + j));
+      }
+    }
+
+    this.copy = copy;
+
+  }
+
+  /**
+   * Draws the grid lines onto the canvas.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  private drawGrid() {
+    var i,j;
+    this.cx.lineWidth = 2;
+    this.cx.lineCap = 'round';
+    this.cx.strokeStyle = '#000';
+    this.cx.setLineDash([1,5]);
+
+    this.cx.beginPath();
+
+    // draw vertical lines
+    for (i = 0; i <= this.canvasEl.width; i += 20) {
+      this.cx.moveTo(i, 0);
+      this.cx.lineTo(i, this.canvasEl.height);
+    }
+
+    // draw horizontal lines
+    for (i = 0; i <= this.canvasEl.height; i += 20) {
+      this.cx.moveTo(0, i);
+      this.cx.lineTo(this.canvasEl.width, i);
+    }
+
+    this.cx.stroke();
+
+    // reset the line dash.
+    this.cx.setLineDash([0]);
+  }
+
   /**
    * Draws or erases a single rectangle on the canvas. Updates the weave draft.
    * @extends WeaveDirective
@@ -313,83 +356,6 @@ export class WeaveDirective {
   }
 
   /**
-   * Creates the selection overlay
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  private selectArea() {
-    var left, top;
-
-    // define the left and top offsets
-    left = Math.min(this.selection.start.x, this.selection.end.x);
-    top = Math.min(this.selection.start.y, this.selection.end.y);
-
-    // updates the size of the selection
-    d3.select(this.svgEl)
-      .attr("width", this.selection.width)
-      .attr("height",this.selection.height)
-      .style('display', 'initial')
-      .style('left', left + this.canvasEl.offsetLeft)
-      .style('top', top + this.canvasEl.offsetTop);
-
-    // updates the text within the selection
-    d3.select(this.svgEl)
-      .select('text')
-      .attr('fill', '#424242')
-      .attr('font-weight', 900)
-      .attr('font-size', 18)
-      .attr('stroke', 'white')
-      .attr('stroke-width', 1)
-      .text(this.selection.height / 20 +' x '+ this.selection.width / 20);
-
-  }
-
-  /**
-   * Creates the copied pattern.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  private copyArea() {
-    const si = Math.min(this.selection.start.i, this.selection.end.i);
-    const sj = Math.min(this.selection.start.j, this.selection.end.j);
-    var w = this.selection.width / 20;
-    var h = this.selection.height / 20;
-
-    var copy = [];
-
-    // Create the pattern based on weave draft.
-    for (var i = 0; i < h; i++) {
-      copy.push([]);
-      for(var j = 0; j < w; j++) {
-        copy[i].push(this.weave.isUp(si + i, sj + j));
-      }
-    }
-
-    this.copy = copy;
-
-  }
-
-  /**
-   * Prints the pattern to the console.
-   * @extends WeaveDirective
-   * @param {Array<Array<boolean>>} pattern - 2D pattern array.
-   * @returns {void}
-   */
-  public printPattern(pattern) {
-    for (var i = 0; i < pattern.length; i++) {
-      var s = "";
-      for (var j = 0; j < pattern[0].length; j++) {
-        if (pattern[i][j]) {
-          s += 'x';
-        } else {
-          s += 'o'
-        }
-      }
-      console.log(s);
-    }
-  }
-
-  /**
    * Redraws one row to avoid drawing the entire canvas.
    * @extends WeaveDirective
    * @returns {void}
@@ -413,97 +379,54 @@ export class WeaveDirective {
   }
 
   /**
-   * Draws the grid lines onto the canvas.
+   * Creates the selection overlay
    * @extends WeaveDirective
    * @returns {void}
    */
-  private drawGrid() {
-    var i,j;
-    this.cx.lineWidth = 2;
-    this.cx.lineCap = 'round';
-    this.cx.strokeStyle = '#000';
-    this.cx.setLineDash([1,5]);
+  private selectArea() {
+    var left, top, x, y, anchor;
 
-    this.cx.beginPath();
+    x = 5; 
+    y = 20;
+    anchor = 'start';
 
-    // draw vertical lines
-    for (i = 0; i <= this.canvasEl.width; i += 20) {
-      this.cx.moveTo(i, 0);
-      this.cx.lineTo(i, this.canvasEl.height);
-    }
+    if (this.selection.start.x < this.selection.end.x) {
+        x = this.selection.width - 10;
+        anchor = 'end';
+     }
 
-    // draw horizontal lines
-    for (i = 0; i <= this.canvasEl.height; i += 20) {
-      this.cx.moveTo(0, i);
-      this.cx.lineTo(this.canvasEl.width, i);
-    }
+     if (this.selection.start.y < this.selection.end.y) {
+       y = this.selection.height - 10;
+     }
 
-    this.cx.stroke();
+    // define the left and top offsets
+    left = Math.min(this.selection.start.x, this.selection.end.x);
+    top = Math.min(this.selection.start.y, this.selection.end.y);
 
-    // reset the line dash.
-    this.cx.setLineDash([0]);
+    // updates the size of the selection
+    d3.select(this.svgEl)
+      .attr("width", this.selection.width)
+      .attr("height",this.selection.height)
+      .style('display', 'initial')
+      .style('left', left + this.canvasEl.offsetLeft)
+      .style('top', top + this.canvasEl.offsetTop);
+
+    // updates the text within the selection
+    d3.select(this.svgEl)
+      .select('text')
+      .attr('fill', '#424242')
+      .attr('font-weight', 900)
+      .attr('font-size', 18)
+      .attr('stroke', 'white')
+      .attr('stroke-width', 1)
+      .attr('x', x)
+      .attr('y', y)
+      .attr('text-anchor', anchor)
+      .text(this.selection.height / 20 +' x '+ this.selection.width / 20);
+
   }
 
-  /**
-   * Redraws teh entire canvas based on weave pattern.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public redraw() {
-    var i,j;
-    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
-    this.drawGrid();
-
-    var color = '#000000';
-
-    for (var y = 0; y < this.weave.wefts * 20; y += 20) {
-      this.redrawRow(y, y / 20);
-    }
-  }
-
-  /**
-   * Simulates the visual look of the weave pattern.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public simulate() {
-    var color = '#000000';
-    var offset;
-    var height = 0;
-
-    for (var i = 0; i < this.weave.wefts; i++) {
-      var layerId = this.weave.rowLayerMapping[i];
-      var t = this.weave.layers[layerId].getThickness();
-      if (t !== undefined) {
-        height += Math.ceil((this.weave.wpi / t) * 20);
-      }
-    }
-
-    this.canvasEl.height = height;
-
-    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
-
-    var i = 0;
-    var y = 0;
-    while (y < this.canvasEl.height) {
-      color = this.weave.getColor(i);
-      var l = this.weave.rowLayerMapping[i];
-      var h = Math.ceil((this.weave.wpi / this.weave.layers[l].getThickness()) * 20);
-      for (var x = 0; x < this.weave.warps * 20; x += 20) {
-        if (!this.weave.isUp(i , x / 20)) {
-          this.cx.fillStyle = color;
-          this.cx.fillRect(x, y, 20, h);
-        } else {
-          this.cx.fillStyle = '#000000';
-          this.cx.fillRect(x, y, 20, h );
-        }
-      }
-
-      i++;
-      y += h;
-    }
-  }
-
+  /// PUBLIC FUNCTIONS
   /**
    * Visualizes the path of the yarns within the weave.
    * @extends WeaveDirective
@@ -512,7 +435,7 @@ export class WeaveDirective {
   public functional() {
     this.updateSize();
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
-    this.drawGrid();
+    // this.drawGrid();
     this.cx.setLineDash([0]);
 
     for (var l = 0; l < this.weave.layers.length; l++) {
@@ -520,7 +443,7 @@ export class WeaveDirective {
       this.cx.strokeStyle = this.weave.layers[l].getColor();
       this.cx.lineWidth = 5;
       var first = true;
-      var left = true;
+      var left = !this.weave.layers[l].insert;
       var py = null;
       var s,e;
       var s1 = null;
@@ -528,12 +451,13 @@ export class WeaveDirective {
       var e1 = null;
       var e2 = null;
 
-      for (var r = 0; r < this.weave.rowLayerMapping.length; r++) {
-        var y = (r * 20) + 10;
+      for (var i = this.weave.visibleRows.length; i > 0 ; i--) {
+        var y = ((i - 1) * 20) + 10;
+        var r = this.weave.visibleRows[i - 1];
         first = true;
         for (var x = 0; x < this.weave.pattern[r].length; x++) {
 
-          if (this.weave.isUp(r,x)) {
+          if (this.weave.isUp(i - 1,x)) {
 
             if (first && this.weave.rowLayerMapping[r] === l) {
               this.cx.beginPath();
@@ -592,6 +516,101 @@ export class WeaveDirective {
     }
 
     this.cx.strokeStyle = "#000";
+  }
+
+  /**
+   * Redraws teh entire canvas based on weave pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public redraw() {
+    var i,j;
+    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+    this.drawGrid();
+
+    var color = '#000000';
+
+    for (i = 0; i < this.weave.visibleRows.length; i++) {
+      var row = this.weave.visibleRows[i];
+      this.redrawRow(i * 20, i);
+    }
+  }
+
+  /**
+   * Simulates the visual look of the weave pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public simulate() {
+    var color = '#000000';
+    var offset;
+    var height = 0;
+
+    for (var i = 0; i < this.weave.wefts; i++) {
+      var layerId = this.weave.rowLayerMapping[i];
+      var t = this.weave.layers[layerId].getThickness();
+      if (t !== undefined) {
+        height += Math.ceil((this.weave.wpi / t) * 20);
+      }
+    }
+
+    this.canvasEl.height = height;
+
+    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+
+    var i = 0;
+    var y = 0;
+    while (y < this.canvasEl.height) {
+      color = this.weave.getColor(i);
+      var l = this.weave.rowLayerMapping[i];
+      var h = Math.ceil((this.weave.wpi / this.weave.layers[l].getThickness()) * 20);
+      for (var x = 0; x < this.weave.warps * 20; x += 20) {
+        if (!this.weave.isUp(i , x / 20)) {
+          this.cx.fillStyle = color;
+          this.cx.fillRect(x, y, 20, h);
+        } else {
+          this.cx.fillStyle = '#000000';
+          this.cx.fillRect(x, y, 20, h );
+        }
+      }
+
+      i++;
+      y += h;
+    }
+  }
+
+  /**
+   * Resizes and then redraws the canvas on a change to the wefts or warps. 
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public updateSize() {
+    // set the updated width and height
+    this.canvasEl.width = this.weave.warps * 20;
+    this.canvasEl.height = this.weave.visibleRows.length * 20;
+
+    // redraw the 
+    this.redraw();
+  }
+
+  /**
+   * Prints the pattern to the console.
+   * @extends WeaveDirective
+   * @param {Array<Array<boolean>>} pattern - 2D pattern array.
+   * @returns {void}
+   */
+  public printPattern(pattern) {
+    for (var i = 0; i < pattern.length; i++) {
+      var s = "";
+      for (var j = 0; j < pattern[0].length; j++) {
+        if (pattern[i][j]) {
+          s += 'x';
+        } else {
+          s += 'o'
+        }
+      }
+      console.log(s);
+    }
   }
 
 }

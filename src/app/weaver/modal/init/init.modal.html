@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Initialize Weave Draft</h2>
+
+<mat-dialog-content>
+  <form #initForm="ngForm">
+    <mat-form-field >
+      <input matInput  type="number" placeholder="Weave Warps" name="warps" [(ngModel)]="form.warps">
+    </mat-form-field>
+    <mat-form-field >
+      <input matInput  type="number" placeholder="Weave EPI" name="epi" [(ngModel)]="form.epi">
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button class="mat-raised-button mat-primary"(click)="save()">Start</button>
+</mat-dialog-actions>

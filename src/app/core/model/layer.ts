@@ -9,14 +9,19 @@ export class Layer {
   name: string;
   type: string;
   visible: boolean;
+  insert: number;
+  image?: any;
+  startLabel?: string;
+  endLabel?: string;
 
   constructor() {
+    this.insert = 0;
   }
 
   setID(id: number) {
     this.id = id;
     if (!this.name) {
-      this.name = 'Layer ' + (id + 1);
+      this.name = 'Shuttle ' + (id + 1);
     }
   }
 

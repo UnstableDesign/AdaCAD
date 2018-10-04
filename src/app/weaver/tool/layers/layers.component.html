@@ -1,12 +1,12 @@
 <button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
   <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-  Create Layer
+  Create Shuttle
 </button>
 <mat-list>
   <ng-container *ngFor="let layer of layers">
   <mat-list-item (click)="selected = layer.id;" class="level" [class.selected]="selected === layer.id" [disableRipple]="false">
     <div class="level-item">
-      <button mat-icon-button>
+      <button mat-icon-button (click)="visibleButton(layer.id, layer.visible)">
         <i aria-label="Favorite button" class="fas" [class.fa-eye-slash]="!layer.visible" [class.fa-eye]="layer.visible" (click)="layer.visible = !layer.visible;"></i>
       </button>
       <input class="colorpicker layer-cp" [(colorPicker)]="layer.color" (colorPickerChange)="colorChange($event)"

@@ -1,25 +1,25 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DraftComponent } from './draft.component';
+import { LabelModal } from './label.modal';
 
-describe('DraftComponent', () => {
-  let component: DraftComponent;
-  let fixture: ComponentFixture<DraftComponent>;
+describe('LabelModal', () => {
+  let component: LabelModal;
+  let fixture: ComponentFixture<LabelModal>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DraftComponent ]
+      declarations: [ LabelModal ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DraftComponent);
+    fixture = TestBed.createComponent(LabelModal);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should be created', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });

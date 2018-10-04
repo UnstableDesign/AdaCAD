@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import 'rxjs/add/operator/map';
+import { map } from 'rxjs/operators';
 
 /**
  * Definition of pattern provider.
@@ -13,7 +13,7 @@ export class PatternService {
 
   getPatterns() {
     return this.http.get('assets/patterns.json')
-      .map((response: Response) => response.json());
+      .pipe(map((response: Response) => response.json()));
   }
 
 }
