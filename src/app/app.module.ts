@@ -16,15 +16,7 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { WeaverModule } from './weaver/weaver.module';
 
-export const firebaseConfig = 
-{
-  apiKey: "AIzaSyC5lSe7NkzFdJkAMUNeh78t7SqLL9r6foU",
-  authDomain: "adacad-weaver.firebaseapp.com",
-  databaseURL: "https://adacad-weaver.firebaseio.com",
-  projectId: "adacad-weaver",
-  storageBucket: "adacad-weaver.appspot.com",
-  messagingSenderId: "949203732957"
-};
+export const firebaseConfig = {};
 
 @NgModule({
   declarations: [
