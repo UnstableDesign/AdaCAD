@@ -1,4 +1,4 @@
-<app-topbar></app-topbar>
+<app-topbar (onSave)="onSave($event);"></app-topbar>
 <mat-sidenav-container class="example-container">
   <mat-sidenav mode="side" position="end" opened>
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
@@ -37,6 +37,7 @@
     <div *ngIf="draft" #weaveRef weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container" (scroll)="print($event);">
       <canvas #myCanvas style="background:#fbfbfb;"  >
       </canvas>
+      <canvas #bitmapImage hidden></canvas>
       <svg #connections [style.left]="myCanvas.offsetLeft" [attr.width]="draft?.warps * 20" [attr.height]="draft?.wefts * 20" style="position:absolute" [class.hidden]="view !== 'yarn'">
         <g *ngFor="let c of (draft?.connections)">
           <line 

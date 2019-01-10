@@ -25,6 +25,7 @@ export class WeaverComponent implements OnInit {
    * @property {WeaveDirective}
    */
   @ViewChild(WeaveDirective) weaveRef;
+  @ViewChild('bitmapImage') bitmap;
 
   /**
    * The name of the current selected brush.
@@ -203,6 +204,16 @@ export class WeaverComponent implements OnInit {
    */
   public onCopy() {
     this.weaveRef.copyArea();
+  }
+
+  /**
+   *
+   *
+   */
+  public onSave(e: any) {
+    e.bitmap = this.bitmap;
+    this.weaveRef.saveBMP("weave_draft", e);
+    // console.log(this.bitmap);
   }
 
   /**

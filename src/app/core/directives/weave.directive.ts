@@ -251,6 +251,8 @@ export class WeaveDirective {
    */
   private drawGrid() {
     var i,j;
+    this.cx.fillStyle = "white";
+    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
     this.cx.lineWidth = 2;
     this.cx.lineCap = 'round';
     this.cx.strokeStyle = '#000';
@@ -611,6 +613,61 @@ export class WeaveDirective {
       }
       console.log(s);
     }
+  }
+
+  /**
+   * Saves the draft as a bitmap file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   */
+  public savePNG(fileName, obj) {
+    let link = obj.downloadLink.nativeElement;
+
+    link.href = this.canvasEl.toDataURL("image/png");
+    link.download = fileName + ".png";
+    console.log(link);
+  }
+
+  /**
+   * Saves the draft as a bitmap file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   */
+  public saveBMP(fileName, obj) {
+    let b = obj.bitmap.nativeElement;
+    let context = b.getContext('2d');
+    let draft = this.weave.pattern;
+    var i,j;
+
+    b.width = this.weave.warps;
+    b.height = this.weave.wefts;
+    context.fillStyle = "white";
+    context.fillRect(0,0,b.width,b.height);
+
+    context.fillStyle = "black";
+
+    for(i = 0; i < b.height; i++) {
+      for(j=0; j < b.width; j++) {
+        let up = draft[i][j];
+        if(up) {
+          context.fillRect(j,i,1,1)
+        }
+      }
+    }
+
+    // let b = new Image(this.weave.warps, this.weave.wefts);
+
+    // b.width = this.weave.warps;
+    // b.height = this.weave.wefts;
+    // b.src ="data:image/bmp;base64";
+    // b.hidden = true;
+    let link = obj.downloadLink.nativeElement;
+
+    link.href = b.toDataURL("image/png").replace('image/png', 'image/bmp');
+    link.download = fileName + ".bmp";
+    // console.log(this.weave);
   }
 
 }

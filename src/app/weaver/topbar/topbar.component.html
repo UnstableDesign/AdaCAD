@@ -5,6 +5,6 @@
   <span class="fill-remaining-space"></span>
 
   <span>
-    <button mat-raised-button>Download Weave</button>
+    <a #downloadLink mat-raised-button (click)="saveClicked($event)">Download Weave</a>
   </span>
 </mat-toolbar>
