@@ -7,6 +7,7 @@ import { Draft } from '../model/draft';
 import { Layer } from '../model/layer';
 import { Point } from '../model/point';
 import { Selection } from '../model/selection';
+import { CanvasToBMP } from '../model/canvas2image';
 
 /**
  * WeaveDirective handles the events and manipulation of the weave draft.
@@ -665,9 +666,13 @@ export class WeaveDirective {
     // b.hidden = true;
     let link = obj.downloadLink.nativeElement;
 
-    link.href = b.toDataURL("image/png").replace('image/png', 'image/bmp');
-    link.download = fileName + ".bmp";
+    // link.href = b.toDataURL("image/tiff");
+    // link.download = fileName + ".tif";
+    // console.log(link.href);
     // console.log(this.weave);
+    // c2i.saveAsBMP(b, b.width, b.height);
+    link.href = CanvasToBMP.toDataURL(b);
+    link.download = fileName + ".bmp";
   }
 
 }
