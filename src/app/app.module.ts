@@ -15,9 +15,9 @@ import { AppComponent } from './app.component';
 
 import { CoreModule } from './core/core.module';
 import { WeaverModule } from './weaver/weaver.module';
-import { secrets } from '../environments/secrets';
+// import { secrets } from '../environments/secrets';
 
-export const firebaseConfig = secrets;
+// export const firebaseConfig = secrets;
 
 @NgModule({
   declarations: [
@@ -30,10 +30,10 @@ export const firebaseConfig = secrets;
     HttpModule,
     WeaverModule,
     BrowserAnimationsModule,
-    AngularFireModule.initializeApp(firebaseConfig),
-    AngularFireDatabaseModule,
-    AngularFireAuthModule,
-    AngularFireStorageModule
+    // AngularFireModule.initializeApp(firebaseConfig),
+    // AngularFireDatabaseModule,
+    // AngularFireAuthModule,
+    // AngularFireStorageModule
   ],
   providers: [{ 
     provide: HAMMER_GESTURE_CONFIG, 
