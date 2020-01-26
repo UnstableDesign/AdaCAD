@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { AngularFireStorage } from 'angularfire2/storage';
@@ -20,7 +20,7 @@ export class UploadService {
   constructor(private af: AngularFireAuth, 
               private db: AngularFireDatabase,
               private st: AngularFireStorage,
-              private http: Http,
+              private http: HttpClient,
               private httpClient: HttpClient) { }
 
   private basePath:string = '/uploads';

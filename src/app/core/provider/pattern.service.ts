@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
 /**
@@ -9,11 +9,10 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class PatternService {
 
-  constructor(private http: Http) { }
+  constructor(private http: HttpClient) { }
 
   getPatterns() {
-    return this.http.get('assets/patterns.json')
-      .pipe(map((response: Response) => response.json()));
+    return this.http.get('assets/patterns.json', {observe: 'response'});
   }
 
 }

@@ -71,7 +71,7 @@ export class WeaverComponent implements OnInit {
 
   ngOnInit() {
 
-    this.ps.getPatterns().subscribe((res: Array<Pattern>) => {this.patterns = res;});
+    this.ps.getPatterns().subscribe((res: Array<any>) => {this.patterns = res.body;console.log(res.body);});
   }
 
   /// EVENTS
