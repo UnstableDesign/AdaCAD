@@ -5,7 +5,7 @@ import { WeaveDirective } from '../core/directives/weave.directive';
 import { Draft } from '../core/model/draft';
 import { Layer } from '../core/model/layer';
 import { Pattern } from '../core/model/pattern';
-import {MatDialog, MatDialogConfig} from "@angular/material";
+import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
