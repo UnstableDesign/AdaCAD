@@ -21,6 +21,13 @@ import { LabelModal } from './modal/label/label.modal';
 })
 export class WeaverComponent implements OnInit {
   /**
+   * The reference to the weave directive.
+   * @property {WeaveDirective}
+   */
+  @ViewChild(WeaveDirective, {static: false}) weaveRef;
+  @ViewChild('bitmapImage', {static: false}) bitmap;
+
+  /**
    * The name of the current selected brush.
    * @property {string}
    */
@@ -63,12 +70,6 @@ export class WeaverComponent implements OnInit {
   }
 
   ngOnInit() {
-    /**
-     * The reference to the weave directive.
-     * @property {WeaveDirective}
-     */
-    @ViewChild(WeaveDirective) weaveRef;
-    @ViewChild('bitmapImage') bitmap;
 
     this.ps.getPatterns().subscribe((res: Array<Pattern>) => {this.patterns = res;});
   }

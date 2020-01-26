@@ -16,6 +16,7 @@ export class UploadFormComponent implements OnInit {
   selectedFiles: FileList;
   currentUpload: Upload;
   imageToShow: any;
+  @ViewChild('uploadImage', {static: false}) canvas: ElementRef;
   @Output() onImageData: any = new EventEmitter();
 
   constructor(private upSvc: UploadService, private httpClient: HttpClient) { }
@@ -64,7 +65,6 @@ export class UploadFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    @ViewChild('uploadImage') canvas: ElementRef;
   }
 
 }
