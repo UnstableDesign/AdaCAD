@@ -1,4 +1,4 @@
-import { Directive, ElementRef, ViewChild, Renderer, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, ViewChild, HostListener, Input, Renderer2 } from '@angular/core';
 
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
 import * as d3 from "d3";

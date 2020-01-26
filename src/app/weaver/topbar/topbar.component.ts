@@ -8,12 +8,12 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef }
 export class TopbarComponent implements OnInit {
   
   @Output() onSave: any = new EventEmitter();
-  @ViewChild('downloadLink') anchor: any;
   downloadLink: ElementRef;
 
   constructor() { }
 
   ngOnInit() {
+    @ViewChild('downloadLink') anchor: any;
     this.downloadLink = this.anchor._elementRef;
   }
 
