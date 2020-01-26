@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Http, Response, HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { AngularFireStorage } from 'angularfire2/storage';

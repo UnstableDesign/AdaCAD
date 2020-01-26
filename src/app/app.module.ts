@@ -1,8 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { HttpClientModule } from '@angular/common/http';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule, HttpModule } from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser'
 import { AngularFireModule } from 'angularfire2';
@@ -15,9 +14,9 @@ import { AppComponent } from './app.component';
 
 import { CoreModule } from './core/core.module';
 import { WeaverModule } from './weaver/weaver.module';
-// import { secrets } from '../environments/secrets';
+import { secrets } from '../environments/secrets';
 
-// export const firebaseConfig = secrets;
+export const firebaseConfig = secrets;
 
 @NgModule({
   declarations: [
@@ -30,10 +29,10 @@ import { WeaverModule } from './weaver/weaver.module';
     HttpModule,
     WeaverModule,
     BrowserAnimationsModule,
-    // AngularFireModule.initializeApp(firebaseConfig),
-    // AngularFireDatabaseModule,
-    // AngularFireAuthModule,
-    // AngularFireStorageModule
+    AngularFireModule.initializeApp(firebaseConfig),
+    AngularFireDatabaseModule,
+    AngularFireAuthModule,
+    AngularFireStorageModule
   ],
   providers: [{ 
     provide: HAMMER_GESTURE_CONFIG, 
