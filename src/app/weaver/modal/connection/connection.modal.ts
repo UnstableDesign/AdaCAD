@@ -9,7 +9,7 @@ export class Point {
 class Connection {
   start: Point;
   end: Point;
-  layerId: number;
+  shuttleId: number;
 }
 
 @Component({
@@ -19,7 +19,7 @@ class Connection {
 })
 export class ConnectionModal implements OnInit {
   connection: Connection = new Connection();
-  layers: any;
+  shuttles: any;
 
   constructor(private dialogRef: MatDialogRef<ConnectionModal>,
              @Inject(MAT_DIALOG_DATA) private data: any) { }
@@ -27,7 +27,7 @@ export class ConnectionModal implements OnInit {
   ngOnInit() {
     this.connection.start = new Point();
     this.connection.end = new Point();
-    this.layers = this.data.layers;
+    this.shuttles = this.data.shuttles;
   }
 
   close() {

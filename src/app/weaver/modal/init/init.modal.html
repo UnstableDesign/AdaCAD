@@ -8,6 +8,11 @@
     <mat-form-field >
       <input matInput  type="number" placeholder="Weave EPI" name="epi" [(ngModel)]="form.epi">
     </mat-form-field>
+    <p>OR</p>
+    <!-- <mat-form-field > -->
+    <mat-label>Upload Bitmap file</mat-label><br>
+    <upload-form type="init" (onImageData)="processData($event)" class="button"></upload-form>
+    <!-- </mat-form-field> -->
   </form>
 </mat-dialog-content>
 

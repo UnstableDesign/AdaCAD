@@ -1,15 +1,21 @@
-import { Component, OnInit, HostListener, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild } from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
+import { HistoryService } from '../core/provider/history.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
 import { Draft } from '../core/model/draft';
-import { Layer } from '../core/model/layer';
+import { Shuttle } from '../core/model/shuttle';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
-
+import {RedoAction, UndoAction} from '../history/actions';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {getRedoAction, getUndoAction} from '../history/selectors';
+import {AppState} from '../ngrx/app.state';
+import {select, Store} from '@ngrx/store';
 /**
  * Controller of the Weaver component.
  * @class
@@ -53,25 +59,56 @@ export class WeaverComponent implements OnInit {
 
   selected;
 
+  private unsubscribe$ = new Subject();
+  private undoItem;
+  private redoItem;
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
+   * ps - pattern service (variable name is initials). Subscribes to the patterns and used
+   * to get and update stitches.
+   * history - undo history service, used to control the state of the woven pattern
+   * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private ps: PatternService, private dialog: MatDialog) {
+  constructor(private ps: PatternService, private history: HistoryService, 
+              private dialog: MatDialog, private store: Store<AppState>) {
     const dialogRef = this.dialog.open(InitModal);
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.draft = new Draft(30, result.warps, result.epi);
-        this.draft.layers[0].setColor('#3d3d3d');
+        this.draft = new Draft(result.wefts, result.warps, result.epi, result.pattern);
+        this.draft.shuttles[0].setColor('#3d3d3d');
       }
     });
 
   }
 
   ngOnInit() {
+    this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
+      this.undoItem = undoItem;
+      console.log(undoItem);
+    });
+    this.store.pipe(select(getRedoAction), takeUntil(this.unsubscribe$)).subscribe(redoItem => {
+      this.redoItem = redoItem;
+      console.log(redoItem);
+    });
+    this.ps.getPatterns().subscribe((res) => {this.patterns = res.body;});
+  }
 
-    this.ps.getPatterns().subscribe((res: Array<any>) => {this.patterns = res.body;console.log(res.body);});
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+
+  undo() {
+    this.store.dispatch(new UndoAction());
+    this.weaveRef.onUndoRedo();
+  }
+
+  redo() {
+    this.store.dispatch(new RedoAction());
+    this.weaveRef.onUndoRedo();
   }
 
   /// EVENTS
@@ -223,7 +260,7 @@ export class WeaverComponent implements OnInit {
    */
   public openConnectionDialog() {
 
-    const dialogRef = this.dialog.open(ConnectionModal, {data: {layers: this.draft.layers}});
+    const dialogRef = this.dialog.open(ConnectionModal, {data: {shuttles: this.draft.shuttles}});
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -249,23 +286,23 @@ export class WeaverComponent implements OnInit {
   }
 
   /**
-   * Change layer of row to next in list.
+   * Change shuttle of row to next in list.
    * @extends WeaveComponent
-   * @param {number} layer - ID of previous layer
+   * @param {number} shuttle - ID of previous shuttle
    * @param {number} the index of row within the pattern.
    * @returns {void}
    */
-  public rowLayerChange(row, index) {
+  public rowShuttleChange(row, index) {
 
-    const len = this.draft.layers.length;
-    var layer = this.draft.rowLayerMapping[row];
+    const len = this.draft.shuttles.length;
+    var shuttle = this.draft.rowShuttleMapping[row];
 
-    var newLayer = (layer + 1) % len;
-    while (!this.draft.layers[newLayer].visible) {
-      var newLayer = (newLayer + 1) % len;
+    var newShuttle = (shuttle + 1) % len;
+    while (!this.draft.shuttles[newShuttle].visible) {
+      var newShuttle = (newShuttle + 1) % len;
     }
 
-    this.draft.rowLayerMapping[row] = newLayer;
+    this.draft.rowShuttleMapping[row] = newShuttle;
 
     this.weaveRef.redrawRow(index * 20, index);
   }
@@ -285,14 +322,14 @@ export class WeaverComponent implements OnInit {
    * @extends WeaveComponent
    * @returns {void}
    */
-  public insertRow(i, layer) {
-    this.draft.insertRow(i, layer);
+  public insertRow(i, shuttle) {
+    this.draft.insertRow(i, shuttle);
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
   }
 
-  public cloneRow(i, c, layer) {
-    this.draft.cloneRow(i, c, layer);
+  public cloneRow(i, c, shuttle) {
+    this.draft.cloneRow(i, c, shuttle);
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
   }
@@ -307,19 +344,19 @@ export class WeaverComponent implements OnInit {
     this.patterns = e.patterns;
   }
 
-  public createLayer(e: any) {
-    this.draft.addLayer(e.layer);
-    if (e.layer.image) {
+  public createShuttle(e: any) {
+    this.draft.addShuttle(e.shuttle);
+    if (e.shuttle.image) {
       this.weaveRef.updateSize();
     }
   }
 
-  public hideLayer(e:any) {
+  public hideShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.updateSize();
   }
 
-  public showLayer(e:any) {
+  public showShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.updateSize();
   }

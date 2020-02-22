@@ -24,11 +24,14 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { WeaverComponent } from './weaver.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { DesignComponent } from './tool/design/design.component';
-import { LayersComponent } from './tool/layers/layers.component';
-import { LayersModal } from './modal/layers/layers.modal';
+import { ShuttlesComponent } from './tool/shuttles/shuttles.component';
+import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { PatternsComponent } from './tool/patterns/patterns.component';
+import { HistoryComponent } from './tool/history/history.component';
 
 import { CoreModule } from '../core/core.module';
+import { HistoryModule } from '../history/history.module';
+import { NgrxModule } from '../ngrx/ngrx.module';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
@@ -39,6 +42,8 @@ import { LabelModal } from './modal/label/label.modal';
   imports: [
     CommonModule,
     CoreModule,
+    HistoryModule,
+    NgrxModule,
     FormsModule,
     ReactiveFormsModule,
 
@@ -65,16 +70,17 @@ import { LabelModal } from './modal/label/label.modal';
     WeaverComponent, 
     TopbarComponent, 
     DesignComponent, 
-    LayersComponent, 
+    ShuttlesComponent, 
     PatternsComponent,
-    LayersModal,
+    HistoryComponent,
+    ShuttlesModal,
     PatternModal,
     ConnectionModal,
     InitModal,
     LabelModal
   ],
   entryComponents: [
-    LayersModal,
+    ShuttlesModal,
     PatternModal,
     ConnectionModal,
     InitModal,

@@ -8,7 +8,13 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef }
 export class TopbarComponent implements OnInit {
   
   @Output() onSave: any = new EventEmitter();
-  @ViewChild('downloadLink', {static: false}) anchor: any;
+  @Output() onUndo: any = new EventEmitter();
+  @Output() onRedo: any = new EventEmitter();
+
+  @Input() undoItem;
+  @Input() redoItem;
+
+  @ViewChild('downloadLink', {static: true}) anchor: any;
   downloadLink: ElementRef;
 
   constructor() { }
@@ -22,6 +28,14 @@ export class TopbarComponent implements OnInit {
       downloadLink: this.downloadLink,
     }
   	this.onSave.emit(obj);
+  }
+
+  undoClicked(e:any) {
+    this.onUndo.emit();
+  }
+
+  redoClicked(e:any) {
+    this.onRedo.emit();
   }
 
 }

@@ -1,20 +1,20 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms';
-import { Layer } from '../../../core/model/layer';
+import { Shuttle } from '../../../core/model/shuttle';
 
 import * as g from 'g.js';
 
 @Component({
-  selector: 'app-layers-modal',
-  templateUrl: './layers.modal.html',
-  styleUrls: ['./layers.modal.scss']
+  selector: 'app-shuttles-modal',
+  templateUrl: './shuttles.modal.html',
+  styleUrls: ['./shuttles.modal.scss']
 })
-export class LayersModal {
-  layer: Layer;
+export class ShuttlesModal {
+  shuttle: Shuttle;
   warps: number;
-  // layer = {
-  //   name: 'Layer 0',
+  // shuttle = {
+  //   name: 'Shuttle 0',
   //   id: 0,
   //   thickness: 0,
   //   color: '#000000',
@@ -24,13 +24,13 @@ export class LayersModal {
   types = ['regular', 'conductive', 'thermo'];
 
   constructor(
-      private dialogRef: MatDialogRef<LayersModal>,
+      private dialogRef: MatDialogRef<ShuttlesModal>,
       @Inject(MAT_DIALOG_DATA) public data: any) {
 
-      if (!data.layer) {
-        this.layer = new Layer();
+      if (!data.shuttle) {
+        this.shuttle = new Shuttle();
       } else {
-        this.layer = data.layer;
+        this.shuttle = data.shuttle;
       }
 
       this.warps = data.warps;
@@ -56,7 +56,8 @@ export class LayersModal {
       }
     }
     
-    this.layer.image = data;
+    this.shuttle.image = data;
+    console.log(data);
   }
 
   close() {
@@ -64,7 +65,7 @@ export class LayersModal {
   }
 
   save() {
-    this.dialogRef.close(this.layer);
+    this.dialogRef.close(this.shuttle);
   }
 
 }

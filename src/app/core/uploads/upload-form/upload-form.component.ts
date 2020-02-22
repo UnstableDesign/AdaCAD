@@ -13,6 +13,7 @@ import { map } from 'rxjs/operators';
 })
 export class UploadFormComponent implements OnInit {
   @Input() warps: number;
+  @Input() type: string;
   selectedFiles: FileList;
   currentUpload: Upload;
   imageToShow: any;
@@ -45,8 +46,16 @@ export class UploadFormComponent implements OnInit {
           var ctx = canvas.getContext('2d');
 
           image.onload = (() => {
-            canvas.width = this.warps;
-            canvas.height = image.naturalHeight * (this.warps / image.naturalWidth);
+            if (this.type === "shuttle") {
+              canvas.width = this.warps;
+              canvas.height = image.naturalHeight * (this.warps / image.naturalWidth);
+            }
+            else {
+              canvas.width = image.naturalWidth;
+              canvas.height = image.naturalHeight;
+              console.log(canvas.width, canvas.height);
+            }
+            
             
             ctx.mozImageSmoothingEnabled = false;
             ctx.webkitImageSmoothingEnabled = false;
@@ -56,6 +65,7 @@ export class UploadFormComponent implements OnInit {
             ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
             var data = ctx.getImageData(0,0, canvas.width, canvas.height);
+            console.log(data);
             this.onImageData.emit(data);
           });
         });

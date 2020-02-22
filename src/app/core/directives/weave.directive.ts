@@ -2,12 +2,22 @@ import { Directive, ElementRef, ViewChild, HostListener, Input, Renderer2 } from
 
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
 import * as d3 from "d3";
+import {cloneDeep} from 'lodash';
 
 import { Draft } from '../model/draft';
-import { Layer } from '../model/layer';
+import { Shuttle } from '../model/shuttle';
 import { Point } from '../model/point';
 import { Selection } from '../model/selection';
 import { CanvasToBMP } from '../model/canvas2image';
+import { DraftSegment } from '../../ngrx/draft/segment';
+import { AddAction } from '../../ngrx/draft/actions';
+import {select, Store} from '@ngrx/store';
+import {getCurrentDraft, selectAll} from '../../ngrx/draft/selectors';
+import {Subject} from 'rxjs';
+import {takeLast, takeUntil} from 'rxjs/operators';
+import {AppState} from '../../ngrx/app.state';
+
+const generateId = () => (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
 
 /**
  * WeaveDirective handles the events and manipulation of the weave draft.
@@ -26,7 +36,7 @@ export class WeaveDirective {
   @Input('brush') brush: any;
 
   /**
-   * The Draft object containing the pattern and layer information.
+   * The Draft object containing the pattern and shuttle information.
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {Draft}
    */
@@ -68,17 +78,27 @@ export class WeaveDirective {
    */
   svgEl: HTMLElement;
 
+
+  private segments$: Observable<DraftSegment[]>;
+  private prevSegment = null;
+  private currSegment = null;
+
+  private tempPattern: Array<Array<boolean>>;
+  private segment: DraftSegment;
+  private unsubscribe$ = new Subject();
+
   /// ANGULAR FUNCTIONS
   /**
    * Creates the element reference.
    * @constructor
    */
-  constructor(private el: ElementRef) {}
+  constructor(private el: ElementRef, private store: Store<any>) {}
 
   /**
    *
    */
   ngOnInit() {
+    this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft.
     this.canvasEl = this.el.nativeElement.firstElementChild;
     this.svgEl = this.el.nativeElement.lastElementChild;
@@ -89,10 +109,15 @@ export class WeaveDirective {
     this.canvasEl.height = this.weave.wefts * 20;
 
     // Set up the initial grid.
-    this.drawGrid()
+    this.redraw();
 
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
+
+    this.store.pipe(select(getCurrentDraft), takeUntil(this.unsubscribe$)).subscribe(undoredo => {
+      this.prevSegment = this.currSegment;
+      this.currSegment = undoredo;
+    });
   }
 
   /**
@@ -134,6 +159,9 @@ export class WeaveDirective {
         j: Math.floor((event.offsetX + offset) / 20),
       };
 
+      // Save temp pattern
+      this.tempPattern = cloneDeep(this.weave.pattern);
+
       // determine action based on brush type.
       switch (this.brush) {
         case 'invert':
@@ -150,6 +178,12 @@ export class WeaveDirective {
           break;
         default:
           break;
+      }
+      this.segment = {
+        start: [currentPos.i, currentPos.j],
+        end: [currentPos.i, currentPos.j],
+        pattern: null,
+        id: generateId(),
       }
     }
   }
@@ -191,6 +225,12 @@ export class WeaveDirective {
       default:
         break;
     }
+
+    var i = currentPos.i, j = currentPos.j;
+    if (this.segment.start[0] > i) this.segment.start[0] = i;
+    if (this.segment.start[1] > j) this.segment.start[1] = j;
+    if (this.segment.end[0] < i) this.segment.end[0] = i;
+    if (this.segment.end[1] < j) this.segment.end[1] = j;
   }
 
   /**
@@ -205,6 +245,23 @@ export class WeaveDirective {
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && this.brush === 'select')) {
       this.removeSubscription();
+
+      if (event.type === 'mouseup' && this.brush != 'select') {
+        let segmentPattern = [];
+
+        for (var i = this.segment.start[0]; i < this.segment.end[0] + 1; i++) {
+          segmentPattern.push([])
+          var index = i - this.segment.start[0];
+          for (var j = this.segment.start[1]; j < this.segment.end[1] + 1; j++) {
+            var past, present;
+            past = this.tempPattern[i][j];
+            present = this.weave.pattern[i][j];
+            segmentPattern[index].push(past ? !present : present)
+          }
+        }
+        this.segment.pattern = segmentPattern;
+        this.onAdd(this.segment);
+      }
     }
   }
 
@@ -342,6 +399,20 @@ export class WeaveDirective {
 
     this.weave.updateSelection(selection, pattern, type);
 
+    let segmentPattern = [];
+    for (var i = this.segment.start[0]; i < this.segment.end[0] + 1; i++) {
+      segmentPattern.push([])
+      var index = i - this.segment.start[0];
+      for (var j = this.segment.start[1]; j < this.segment.end[1] + 1; j++) {
+        var past, present;
+        past = this.tempPattern[i][j];
+        present = this.weave.pattern[i][j];
+        segmentPattern[index].push(past ? !present : present)
+      }
+    }
+    this.segment.pattern = segmentPattern;
+    this.onAdd(this.segment);
+
     for (var i = si; i < si + selection.height; i+= 20) {
       color = this.weave.getColor(i / 20);
       this.cx.fillStyle = color;
@@ -356,6 +427,33 @@ export class WeaveDirective {
       }
     }
 
+  }
+
+  private undoRedoSegment() {
+    console.log(this.prevSegment);
+    var start = this.prevSegment.start;
+    var end = this.prevSegment.end;
+    var segment = this.prevSegment.pattern;
+
+    var oldBrush = this.brush;
+
+    this.brush = 'invert';
+    console.log(oldBrush);
+
+    for (var i = start[0]; i <= end[0]; i++) {
+      for (var j = start[1]; j <= end[1]; j++ ) {
+        if (segment[i-start[0]][j-start[1]]) {
+          this.drawOnCanvas({
+            x: j * 20,
+            y: i * 20,
+            i: i,
+            j: j
+          });
+        }
+      }
+    }
+
+    this.brush = oldBrush;
   }
 
   /**
@@ -441,12 +539,12 @@ export class WeaveDirective {
     // this.drawGrid();
     this.cx.setLineDash([0]);
 
-    for (var l = 0; l < this.weave.layers.length; l++) {
-      // Each layer.
-      this.cx.strokeStyle = this.weave.layers[l].getColor();
+    for (var l = 0; l < this.weave.shuttles.length; l++) {
+      // Each shuttle.
+      this.cx.strokeStyle = this.weave.shuttles[l].getColor();
       this.cx.lineWidth = 5;
       var first = true;
-      var left = !this.weave.layers[l].insert;
+      var left = !this.weave.shuttles[l].insert;
       var py = null;
       var s,e;
       var s1 = null;
@@ -462,7 +560,7 @@ export class WeaveDirective {
 
           if (this.weave.isUp(i - 1,x)) {
 
-            if (first && this.weave.rowLayerMapping[r] === l) {
+            if (first && this.weave.rowShuttleMapping[r] === l) {
               this.cx.beginPath();
               this.cx.moveTo(x * 20 + 5, y);
               this.cx.lineTo((x + 1)* 20 - 5, y)
@@ -475,7 +573,7 @@ export class WeaveDirective {
                 s2 = (x * 20) + 5;
                 e2 = (x + 1) * 20 - 5;
               }
-            } else if (this.weave.rowLayerMapping[r] === l) {
+            } else if (this.weave.rowShuttleMapping[r] === l) {
               this.cx.lineTo((x + 1) * 20 - 5, y);
 
               if (py === y) {
@@ -550,8 +648,8 @@ export class WeaveDirective {
     var height = 0;
 
     for (var i = 0; i < this.weave.wefts; i++) {
-      var layerId = this.weave.rowLayerMapping[i];
-      var t = this.weave.layers[layerId].getThickness();
+      var shuttleId = this.weave.rowShuttleMapping[i];
+      var t = this.weave.shuttles[shuttleId].getThickness();
       if (t !== undefined) {
         height += Math.ceil((this.weave.wpi / t) * 20);
       }
@@ -565,8 +663,8 @@ export class WeaveDirective {
     var y = 0;
     while (y < this.canvasEl.height) {
       color = this.weave.getColor(i);
-      var l = this.weave.rowLayerMapping[i];
-      var h = Math.ceil((this.weave.wpi / this.weave.layers[l].getThickness()) * 20);
+      var l = this.weave.rowShuttleMapping[i];
+      var h = Math.ceil((this.weave.wpi / this.weave.shuttles[l].getThickness()) * 20);
       for (var x = 0; x < this.weave.warps * 20; x += 20) {
         if (!this.weave.isUp(i , x / 20)) {
           this.cx.fillStyle = color;
@@ -594,6 +692,11 @@ export class WeaveDirective {
 
     // redraw the 
     this.redraw();
+  }
+
+  public onUndoRedo() {
+    console.log("undoredo-weave directive")
+    this.undoRedoSegment();
   }
 
   /**
@@ -673,6 +776,13 @@ export class WeaveDirective {
     // c2i.saveAsBMP(b, b.width, b.height);
     link.href = CanvasToBMP.toDataURL(b);
     link.download = fileName + ".bmp";
+  }
+
+  // History
+
+
+  private onAdd(segment: DraftSegment) {
+    this.store.dispatch(new AddAction(segment));
   }
 
 }

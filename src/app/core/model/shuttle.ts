@@ -1,8 +1,8 @@
 /**
- * Definition of Layer object.
+ * Definition of Shuttle object.
  * @class
  */
-export class Layer {
+export class Shuttle {
   color: string;
   id: number;
   thickness: number;

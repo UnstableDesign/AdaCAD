@@ -1,0 +1,31 @@
+<button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
+  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
+  Create Shuttle
+</button>
+<mat-list>
+  <ng-container *ngFor="let shuttle of shuttles">
+  <mat-list-item (click)="selected = shuttle.id;" class="level" [class.selected]="selected === shuttle.id" [disableRipple]="false">
+    <div class="level-item">
+      <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
+        <i aria-label="Favorite button" class="fas" [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
+      </button>
+      <input class="colorpicker shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
+       [cpPosition]="'bottom'"
+       [style.background]="shuttle.color"/>
+     </div>
+     <div class="level-item center-item fill-remaining-space">
+      <span class="">{{ shuttle.name }}</span>
+    </div>
+    <div class="level-item level-right">
+      <button mat-icon-button class="edit-button" (click)="openDialog(shuttle)">
+        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+      </button>
+      <button mat-icon-button class="trash-button">
+        <i aria-label="Favorite button" class="fas fa-trash"></i>
+      </button>
+    </div>
+  </mat-list-item>
+  </ng-container>
+
+</mat-list>
+

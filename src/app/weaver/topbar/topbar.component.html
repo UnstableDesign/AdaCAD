@@ -4,7 +4,9 @@
   <!-- This fills the remaining space of the current row -->
   <span class="fill-remaining-space"></span>
 
-  <span>
+  <span style="display:inherit;">
+    <a #undoEvent mat-raised-button [disabled]="!undoItem" (click)="undoClicked($event);">Undo</a>
+    <a #redoEvent mat-raised-button [disabled]="!redoItem" (click)="redoClicked($event);">Redo</a>
     <a #downloadLink mat-raised-button (click)="saveClicked($event)">Download Weave</a>
   </span>
 </mat-toolbar>
