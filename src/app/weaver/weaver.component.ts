@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener, ViewChild } from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
-import { HistoryService } from '../core/provider/history.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
 import { Draft } from '../core/model/draft';
 import { Shuttle } from '../core/model/shuttle';
@@ -71,15 +70,21 @@ export class WeaverComponent implements OnInit {
    * history - undo history service, used to control the state of the woven pattern
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private ps: PatternService, private history: HistoryService, 
-              private dialog: MatDialog, private store: Store<AppState>) {
+  constructor(private ps: PatternService, private dialog: MatDialog, 
+              private store: Store<AppState>) {
     const dialogRef = this.dialog.open(InitModal);
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.draft = new Draft(result.wefts, result.warps, result.epi, result.pattern);
-        this.draft.shuttles[0].setColor('#3d3d3d');
-      }
+        console.log(result);
+        this.draft = new Draft(result);
+        if (result.type != "update") this.draft.shuttles[0].setColor('#3d3d3d');
+      } 
+      // else if (result.type === "update") {
+      //   console.log(result);
+      //   this.draft = result.draft;
+      //   this.weaveRef.redraw();
+      // }
     });
 
   }
@@ -249,8 +254,9 @@ export class WeaverComponent implements OnInit {
    */
   public onSave(e: any) {
     e.bitmap = this.bitmap;
-    this.weaveRef.saveBMP("weave_draft", e);
-    // console.log(this.bitmap);
+    if (e.type === "bmp") this.weaveRef.saveBMP("weave_draft", e);
+    else if (e.type === "ada") this.weaveRef.saveADA("weave_draft", e);
+    
   }
 
   /**

@@ -14,20 +14,34 @@ export class TopbarComponent implements OnInit {
   @Input() undoItem;
   @Input() redoItem;
 
-  @ViewChild('downloadLink', {static: true}) anchor: any;
-  downloadLink: ElementRef;
+  @ViewChild('bmpLink', {static: true}) bmpLink: any;
+  @ViewChild('adaLink', {static: true}) adaLink: any;
+  downloadBmp: ElementRef;
+  downloadAda: ElementRef;
 
   constructor() { }
 
   ngOnInit() {
-    this.downloadLink = this.anchor._elementRef;
+    this.downloadBmp = this.bmpLink._elementRef;
+    this.downloadAda = this.adaLink._elementRef;
   }
 
-  public saveClicked(e: any) {
+  public saveAsBmp(e: any) {
     var obj: any = {
-      downloadLink: this.downloadLink,
+      downloadLink: this.downloadBmp,
+      type: "bmp"
     }
+    console.log(obj);
   	this.onSave.emit(obj);
+  }
+
+  public saveAsAda(e: any) {
+    var obj: any = {
+      downloadLink: this.downloadAda,
+      type: "ada"
+    }
+    console.log(obj);
+    this.onSave.emit(obj);
   }
 
   undoClicked(e:any) {

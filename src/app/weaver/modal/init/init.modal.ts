@@ -16,11 +16,19 @@ export class InitModal implements OnInit {
   ngOnInit() {
     this.form.pattern = null;
     this.form.wefts = 30;
+    this.form.type = "new";
   }
 
-  processData(e: any) {
+  handleFile(e: any) {
+    console.log(e);
+    if (e.type === "image") this.processImageData(e.data);
+    else if (e.type === "ada") this.processDraftData(e.data);
+  }
+
+  processImageData(e: any) {
     this.form.warps = e.width;
     this.form.wefts = e.height;
+    this.form.type = "new";
     var img = e.data;
     var data = [];
 
@@ -40,6 +48,12 @@ export class InitModal implements OnInit {
     }
     this.form.pattern = data;
     // console.log(this.form.pattern);
+  }
+
+  processDraftData(e: any) {
+    this.form.type = "update";
+    this.form.draft = e;
+
   }
 
   onNoClick(): void {

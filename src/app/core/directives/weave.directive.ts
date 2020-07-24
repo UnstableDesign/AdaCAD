@@ -778,6 +778,22 @@ export class WeaveDirective {
     link.download = fileName + ".bmp";
   }
 
+  /**
+   * Saves the draft as a bitmap file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   */
+  public saveADA(fileName, obj) {
+    var theJSON = JSON.stringify(this.weave);
+    console.log(theJSON);
+    var uri = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
+    console.log(uri);
+    let link = obj.downloadLink.nativeElement;
+    link.href = uri;
+    link.download = fileName + ".ada";
+  }
+
   // History
 
 

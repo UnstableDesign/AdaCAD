@@ -10,10 +10,12 @@ export interface DraftInterface {
   pattern: Array<Array<boolean>>;
   shuttles: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
+  visibleRows: Array<number>;
   connections: Array<any>;
   labels: Array<any>;
   wefts: number;
   warps: number;
+  epi: number;
 
 }
 
@@ -32,38 +34,71 @@ export class Draft implements DraftInterface {
   warps: number;
   epi: number;
 
-  constructor(wefts, warps, epi, pattern = null) {
-    // console.log(pattern);
-    let l = new Shuttle();
-    l.setID(0);
-    l.setVisible(true);
-    l.setThickness(epi);
-    this.wefts = wefts;
-    this.warps = warps;
-    this.epi = epi;
-    this.shuttles = [l];
-    this.rowShuttleMapping = [];
-    this.visibleRows = [];
-
-    for(var i = 0; i < wefts; i++) {
-        this.rowShuttleMapping.push(0);
-        this.visibleRows.push(i);
+  constructor({type, ...params}) {
+    console.log(type, params);
+    var pattern = null;
+    var shuttles = params.draft.shuttles
+    var sd = [];
+    for (var i in shuttles) {
+      var s = new Shuttle(shuttles[i]);
+      sd.push(s);
+    }
+    switch (type) {
+      case "update":
+        this.shuttles = sd;
+        this.rowShuttleMapping = params.draft.rowShuttleMapping;
+        this.wefts = params.draft.wefts;
+        this.warps = params.draft.warps;
+        this.visibleRows = params.draft.visibleRows;
+        this.epi = params.draft.epi;
+        pattern = params.draft.pattern;
+        this.connections = params.draft.connections;
+        this.labels = params.draft.labels;
+        break;
+      case "new":
+        let l = new Shuttle({id: 0, name: 'Shuttle 1', visible: true, color: '#3d3d3d'});
+        l.setThickness(params.epi);
+        this.wefts = params.wefts;
+        this.warps = params.warps;
+        this.epi = params.epi;
+        this.shuttles = [l];
+        this.rowShuttleMapping = [];
+        this.visibleRows = [];
+        this.connections = [];
+        this.labels = [];
+        pattern = params.pattern;
+        for(var i = 0; i < this.wefts; i++) {
+          this.rowShuttleMapping.push(0);
+          this.visibleRows.push(i);
+        }
+        break;
     }
 
-    this.connections = [];
-    this.labels = [];
     if (!pattern) {
       this.pattern = [];
 
-      for(var i = 0; i < wefts; i++) {
+      for(var i = 0; i < this.wefts; i++) {
         this.pattern.push([]);
-        for (var j = 0; j < warps; j++)
+        for (var j = 0; j < this.warps; j++)
           this.pattern[i].push(false);
       }
     }
     else this.pattern = pattern;
 
     // console.log(this.pattern);
+  }
+
+  loadAdaFile(draft) {
+    this.shuttles = draft.shuttles;
+    this.rowShuttleMapping = draft.rowShuttleMapping;
+    this.wefts = draft.wefts;
+    this.warps = draft.warps;
+    this.visibleRows = draft.visibleRows;
+    this.epi = draft.epi;
+    pattern = draft.pattern;
+    this.connections = draft.connections;
+    this.labels = draft.labels;
+    return pattern;
   }
 
   isUp(i:number, j:number) : boolean{

@@ -14,8 +14,22 @@ export class Shuttle {
   startLabel?: string;
   endLabel?: string;
 
-  constructor() {
-    this.insert = 0;
+  constructor(shuttleDict = null) {
+    if (shuttleDict) this.updateVariables(shuttleDict);
+    else this.insert = 0;
+  }
+
+  updateVariables({color, id, thickness, name, type, visible, insert, image, startLabel, endLabel}) {
+    this.color = color;
+    this.id = id;
+    this.thickness = thickness;
+    this.name = name;
+    this.type = type;
+    this.visible = visible;
+    this.insert = insert;
+    this.image = image;
+    this.startLabel = startLabel;
+    this.endLabel = endLabel;
   }
 
   setID(id: number) {

@@ -5,8 +5,12 @@
   <span class="fill-remaining-space"></span>
 
   <span style="display:inherit;">
-    <a #undoEvent mat-raised-button [disabled]="!undoItem" (click)="undoClicked($event);">Undo</a>
-    <a #redoEvent mat-raised-button [disabled]="!redoItem" (click)="redoClicked($event);">Redo</a>
-    <a #downloadLink mat-raised-button (click)="saveClicked($event)">Download Weave</a>
+    <button #undoEvent mat-raised-button [disabled]="!undoItem" (click)="undoClicked($event);">Undo</button>
+    <button #redoEvent mat-raised-button [disabled]="!redoItem" (click)="redoClicked($event);">Redo</button>
+    <button mat-raised-button [matMenuTriggerFor]="downloadDropdown">Download Weave</button>
+    <mat-menu #downloadDropdown mat-raised-button>
+      <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item>Save as Bitmap</a>
+      <a #adaLink (click)="saveAsAda($event)" mat-menu-item>Save as AdaCAD file</a>
+    </mat-menu>
   </span>
 </mat-toolbar>
