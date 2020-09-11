@@ -37,9 +37,12 @@ export class Draft implements DraftInterface {
   constructor({type, ...params}) {
     console.log(type, params);
     var pattern = null;
-    var shuttles = params.draft.shuttles
+    //var shuttles = params.draft.shuttles
+    //temp replacement of above commmented out line with below 2 lines found in deployed code
+    let l = new Shuttle();
+    var shuttles = [l]//params.draft.shuttles
     var sd = [];
-    for (var i in shuttles) {
+    for (var sh in shuttles) {
       var s = new Shuttle(shuttles[i]);
       sd.push(s);
     }
@@ -95,7 +98,7 @@ export class Draft implements DraftInterface {
     this.warps = draft.warps;
     this.visibleRows = draft.visibleRows;
     this.epi = draft.epi;
-    pattern = draft.pattern;
+    var pattern = draft.pattern;
     this.connections = draft.connections;
     this.labels = draft.labels;
     return pattern;
