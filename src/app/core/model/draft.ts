@@ -1,4 +1,5 @@
 import { Shuttle } from './shuttle';
+import { Threading } from './threading';
 
 import * as _ from 'lodash';
 
@@ -16,7 +17,7 @@ export interface DraftInterface {
   wefts: number;
   warps: number;
   epi: number;
-
+  threading: Threading;
 }
 
 /**
@@ -33,6 +34,7 @@ export class Draft implements DraftInterface {
   wefts: number;
   warps: number;
   epi: number;
+  threading: Threading;
 
   constructor({type, ...params}) {
     console.log(type, params);
@@ -89,6 +91,7 @@ export class Draft implements DraftInterface {
     else this.pattern = pattern;
 
     // console.log(this.pattern);
+    this.threading = new Threading(this.wefts, this.warps);
   }
 
   loadAdaFile(draft) {
@@ -116,6 +119,8 @@ export class Draft implements DraftInterface {
   setHeddle(i:number, j:number, bool:boolean) {
     var row = this.visibleRows[i];
     this.pattern[row][j] = bool;
+    this.threading.updateFlippedPattern(row, j, bool);
+    this.threading.updateThreading();
   }
 
   rowToShuttle(row: number) {
