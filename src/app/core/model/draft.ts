@@ -1,5 +1,7 @@
 import { Shuttle } from './shuttle';
 import { Threading } from './threading';
+import { Treadling } from './treadling';
+
 
 import * as _ from 'lodash';
 
@@ -18,6 +20,7 @@ export interface DraftInterface {
   warps: number;
   epi: number;
   threading: Threading;
+  treadling: Treadling;
 }
 
 /**
@@ -35,6 +38,7 @@ export class Draft implements DraftInterface {
   warps: number;
   epi: number;
   threading: Threading;
+  treadling: Treadling;
 
   constructor({type, ...params}) {
     console.log(type, params);
@@ -92,6 +96,7 @@ export class Draft implements DraftInterface {
 
     // console.log(this.pattern);
     this.threading = new Threading(this.wefts, this.warps);
+    this.treadling = new Treadling(this.wefts, this.pattern);
   }
 
   loadAdaFile(draft) {
@@ -121,6 +126,8 @@ export class Draft implements DraftInterface {
     this.pattern[row][j] = bool;
     this.threading.updateFlippedPattern(row, j, bool);
     this.threading.updateThreading();
+    this.treadling.updatePattern(this.pattern);
+    this.treadling.updateTreadling();
   }
 
   rowToShuttle(row: number) {
