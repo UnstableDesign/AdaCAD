@@ -1,7 +1,7 @@
 import { Shuttle } from './shuttle';
 import { Threading } from './threading';
 import { Treadling } from './treadling';
-
+import { TieUps }  from "./tieups";
 
 import * as _ from 'lodash';
 
@@ -21,6 +21,7 @@ export interface DraftInterface {
   epi: number;
   threading: Threading;
   treadling: Treadling;
+  tieups: TieUps;
 }
 
 /**
@@ -39,6 +40,7 @@ export class Draft implements DraftInterface {
   epi: number;
   threading: Threading;
   treadling: Treadling;
+  tieups: TieUps;
 
   constructor({type, ...params}) {
     console.log(type, params);
@@ -97,6 +99,7 @@ export class Draft implements DraftInterface {
     // console.log(this.pattern);
     this.threading = new Threading(this.wefts, this.warps);
     this.treadling = new Treadling(this.wefts, this.pattern);
+    this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
   }
 
   loadAdaFile(draft) {
@@ -128,6 +131,13 @@ export class Draft implements DraftInterface {
     this.threading.updateThreading();
     this.treadling.updatePattern(this.pattern);
     this.treadling.updateTreadling();
+    this.tieups.updatePattern(this.pattern);
+    this.tieups.updateThreading(this.threading.threading);
+    this.tieups.updateTreadling(this.treadling.treadling);
+    this.tieups.updateTreadleCount(this.treadling.treadle_count);
+    //assuming frames will be used without gaps of unused frames (i.e. all unused_frames would be later frames)
+    this.tieups.updateUsedFrames(this.threading.usedFrames.length);
+    this.tieups.updateTieUps();
   }
 
   rowToShuttle(row: number) {
