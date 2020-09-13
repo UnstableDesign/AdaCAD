@@ -98,8 +98,6 @@ export class Threading {
             }
           }
         }
-        console.log("threading");
-        console.log(this.threading);
         this.updateUsedFrames();
     }
 

@@ -30,13 +30,15 @@
       </mat-tab>
     </mat-tab-group>
   </mat-sidenav>
-
   <mat-sidenav-content>
     <!-- <div class="shuttles-container">
       <button mat-mini-fab class="rowShuttle" *ngFor="let row of draft.rowShuttleMapping">
       </button>
     </div> -->
     <div *ngIf="draft" #weaveRef weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
+      <div #threadref class="threading-container" width = "500" height="100">
+        <canvas #threading width="200" height="100" style="background:#fbfbfb;"></canvas>
+      </div>
       <canvas #myCanvas style="background:#fbfbfb;"  >
       </canvas>
       <canvas #bitmapImage hidden></canvas>

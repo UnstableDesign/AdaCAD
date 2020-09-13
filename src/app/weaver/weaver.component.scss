@@ -11,6 +11,11 @@
     cursor: pointer;
   }
 }
+.threading-container{
+  canvas {
+    position: static;
+  }
+}
 
 .selection {
   position: absolute;
@@ -22,7 +27,7 @@
 
 .shuttles {
   position: absolute;
-  top: 0px;
+  top: 166px;
   background: #303030;
   height: 100%;
   cursor: pointer;

@@ -2,7 +2,7 @@ import { Directive, ElementRef, ViewChild, HostListener, Input, Renderer2 } from
 
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
 import * as d3 from "d3";
-import {cloneDeep} from 'lodash';
+import {cloneDeep, now} from 'lodash';
 
 import { Draft } from '../model/draft';
 import { Shuttle } from '../model/shuttle';
@@ -61,6 +61,12 @@ export class WeaveDirective {
   cx: any;
 
   /**
+   * The 2D context of the threading canvas
+   * @property {any}
+   */
+  cxThreading: any;
+
+  /**
    * The current selection within the weave canvas.
    * @property {Selection}
    */
@@ -78,6 +84,12 @@ export class WeaveDirective {
    */
   svgEl: HTMLElement;
 
+  /**
+   * Subscribes to move event after a touch event is started.
+   * @property {HTMLCanvasElement}
+   * 
+   */
+  threadingCanvas;
 
   private segments$: Observable<DraftSegment[]>;
   private prevSegment = null;
@@ -87,12 +99,24 @@ export class WeaveDirective {
   private segment: DraftSegment;
   private unsubscribe$ = new Subject();
 
+  private threadingNow: Array<Array<number>>;
+  private threadingLast: Array<Array<number>>;
+
+  private threadingSize: number;
+
+  private shuttleLocation: number;
+
   /// ANGULAR FUNCTIONS
   /**
    * Creates the element reference.
    * @constructor
    */
-  constructor(private el: ElementRef, private store: Store<any>) {}
+  constructor(private el: ElementRef, private store: Store<any>) {
+    this.threadingNow = [];
+    this.threadingLast = [];
+    this.threadingSize = 160;
+    this.shuttleLocation = 166;
+  }
 
   /**
    *
@@ -100,16 +124,24 @@ export class WeaveDirective {
   ngOnInit() {
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft.
-    this.canvasEl = this.el.nativeElement.firstElementChild;
+    console.log("this.el.nativeElement.children");
+    console.log(this.el.nativeElement.children);
+    this.canvasEl = this.el.nativeElement.children[1];
     this.svgEl = this.el.nativeElement.lastElementChild;
+    this.threadingCanvas = this.el.nativeElement.firstElementChild.firstElementChild;
     this.cx = this.canvasEl.getContext('2d');
+    this.cxThreading = this.threadingCanvas.getContext('2d');
 
     // set the width and height
     this.canvasEl.width = this.weave.warps * 20;
     this.canvasEl.height = this.weave.wefts * 20;
+    this.threadingCanvas.width = this.weave.warps *20;
+    this.threadingCanvas.height = this.threadingSize;
 
     // Set up the initial grid.
-    this.redraw();
+    this.redraw(this.cx, this.canvasEl,"pattern");
+
+    this.redraw(this.cxThreading, this.threadingCanvas, "threading");
 
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
@@ -307,33 +339,33 @@ export class WeaveDirective {
    * @extends WeaveDirective
    * @returns {void}
    */
-  private drawGrid() {
+  private drawGrid(cx,canvas) {
     var i,j;
-    this.cx.fillStyle = "white";
-    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-    this.cx.lineWidth = 2;
-    this.cx.lineCap = 'round';
-    this.cx.strokeStyle = '#000';
-    this.cx.setLineDash([1,5]);
+    cx.fillStyle = "white";
+    cx.fillRect(0,0,canvas.width,canvas.height);
+    cx.lineWidth = 2;
+    cx.lineCap = 'round';
+    cx.strokeStyle = '#000';
+    cx.setLineDash([1,5]);
 
-    this.cx.beginPath();
+    cx.beginPath();
 
     // draw vertical lines
-    for (i = 0; i <= this.canvasEl.width; i += 20) {
-      this.cx.moveTo(i, 0);
-      this.cx.lineTo(i, this.canvasEl.height);
+    for (i = 0; i <= canvas.width; i += 20) {
+      cx.moveTo(i, 0);
+      cx.lineTo(i, canvas.height);
     }
 
     // draw horizontal lines
-    for (i = 0; i <= this.canvasEl.height; i += 20) {
-      this.cx.moveTo(0, i);
-      this.cx.lineTo(this.canvasEl.width, i);
+    for (i = 0; i <= canvas.height; i += 20) {
+      cx.moveTo(0, i);
+      cx.lineTo(canvas.width, i);
     }
 
-    this.cx.stroke();
+    cx.stroke();
 
     // reset the line dash.
-    this.cx.setLineDash([0]);
+    cx.setLineDash([0]);
   }
 
   /**
@@ -349,8 +381,10 @@ export class WeaveDirective {
     // start our drawing path
     if (color) {
       this.cx.fillStyle = color;
+      this.cxThreading.fillStyle = color;
     } else {
       this.cx.fillStyle = '#000000';
+      this.cxThreading.fillStyle = '#000000';
     }
 
     if (!this.cx || !currentPos) { return; }
@@ -378,6 +412,34 @@ export class WeaveDirective {
     } else {
       this.cx.clearRect(currentPos.x + 1, currentPos.y + 1, 18, 18);
     }
+    if (this.weave.threading.usedFrames.length > this.threadingSize/20) {
+      this.updateSizeThreading();
+    }
+    for (var i = 0; i < this.weave.threading.usedFrames.length; i++) {
+      for (var j = 0; j < this.weave.threading.threading[i].length; j++) {
+        if(this.weave.threading.threading[i][j]) {
+          this.threadingNow.push([j,i]);
+        }
+      }
+    }
+    for (var i = 0; i < this.threadingLast.length; i++) {
+      var fresh = false;
+      for(var j = 0; j < this.threadingNow.length; j++) {
+        if (this.threadingLast[i] == this.threadingNow[j]) {
+          fresh = true;
+        }
+      }
+      if (!fresh) {
+        this.cxThreading.clearRect((this.threadingLast[i][0] * 20)+1, (this.threadingSize-(this.threadingLast[i][1] * 20)-20+1), 18,18);
+      }
+    }
+    this.threadingLast = [];
+    for (var i =0; i < this.threadingNow.length; i++) {
+      this.cxThreading.strokeRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
+      this.cxThreading.fillRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
+      this.threadingLast.push(this.threadingNow[i]);
+    }
+    this.threadingNow = [];
   }
 
   /**
@@ -461,24 +523,33 @@ export class WeaveDirective {
    * @extends WeaveDirective
    * @returns {void}
    */
-  private redrawRow(y, i) {
+  private redrawRow(y, i,cx) {
     var color = '#000000'
 
     // Gets color of row.
     color = this.weave.getColor(i);
-    this.cx.fillStyle = color;
+    cx.fillStyle = color;
 
     // draw row
     for (var j = 0; j < this.weave.warps * 20; j += 20) {
       if (this.weave.isUp(i, j / 20)) {
-        this.cx.strokeRect(j + 2, y + 2, 16, 16);
-        this.cx.fillRect(j + 2, y + 2, 16, 16);
+        cx.strokeRect(j + 2, y + 2, 16, 16);
+        cx.fillRect(j + 2, y + 2, 16, 16);
       } else {
-        this.cx.clearRect(j + 1, y + 1, 18, 18);
+        cx.clearRect(j + 1, y + 1, 18, 18);
       }
     }
   }
 
+  private redrawLastThreading() {
+    this.cx.fillStyle = '#000000';
+    this.cxThreading.fillStyle = '#000000';
+
+    for (var i =0; i < this.threadingNow.length; i++) {
+      this.cxThreading.strokeRect((this.threadingLast[i][0]*20)+2, (this.threadingSize-(this.threadingLast[i][1]*20)-20)+2,16,16);
+      this.cxThreading.fillRect((this.threadingLast[i][0]*20)+2, (this.threadingSize-(this.threadingLast[i][1]*20)-20)+2,16,16);
+    }
+  }
   /**
    * Creates the selection overlay
    * @extends WeaveDirective
@@ -620,20 +691,28 @@ export class WeaveDirective {
   }
 
   /**
-   * Redraws teh entire canvas based on weave pattern.
+   * Redraws the entire canvas based on weave pattern.
    * @extends WeaveDirective
    * @returns {void}
    */
-  public redraw() {
+  public redraw(cx, canvas, type) {
     var i,j;
-    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
-    this.drawGrid();
+    cx.clearRect(0,0, canvas.width, canvas.height);
+    this.drawGrid(cx,canvas);
 
     var color = '#000000';
+    cx.fillStyle = color;
+    if(type == "pattern") {
+      for (i = 0; i < this.weave.visibleRows.length; i++) {
+        var row = this.weave.visibleRows[i];
+        this.redrawRow(i * 20, i, cx);
+      }
+    } else if (type == "threading") {
+      this.redrawLastThreading();
+    } else if (type == "tieups") {
 
-    for (i = 0; i < this.weave.visibleRows.length; i++) {
-      var row = this.weave.visibleRows[i];
-      this.redrawRow(i * 20, i);
+    } else if (type == "treadling") {
+
     }
   }
 
@@ -691,7 +770,17 @@ export class WeaveDirective {
     this.canvasEl.height = this.weave.visibleRows.length * 20;
 
     // redraw the 
-    this.redraw();
+    this.redraw(this.cx, this.canvasEl, "pattern");
+  }
+
+  public updateSizeThreading() {
+    var temp = this.shuttleLocation + 20;
+    var stringShuttleLocation = temp.toString() + "px";
+    this.shuttleLocation = temp;
+    this.el.nativeElement.children[4].style.top = stringShuttleLocation;
+    this.threadingCanvas.height = this.weave.threading.usedFrames.length * 20;
+    this.threadingSize = this.weave.threading.usedFrames.length * 20;
+    this.redraw(this.cxThreading, this.threadingCanvas, "threading");
   }
 
   public onUndoRedo() {

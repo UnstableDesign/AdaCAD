@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild } from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
@@ -79,6 +79,8 @@ export class WeaverComponent implements OnInit {
         console.log(result);
         this.draft = new Draft(result);
         if (result.type != "update") this.draft.shuttles[0].setColor('#3d3d3d');
+        console.log("this.draft.shuttles");
+        console.log(this.draft.shuttles);
       } 
       // else if (result.type === "update") {
       //   console.log(result);
@@ -86,7 +88,6 @@ export class WeaverComponent implements OnInit {
       //   this.weaveRef.redraw();
       // }
     });
-
   }
 
   ngOnInit() {

@@ -22,7 +22,7 @@ export class TieUps {
         this.treadle_count = treadle_count;
         this.tieups = [];
 
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < this.treadle_count; i++) {
             this.tieups.push([]);
             for (var j = 0; j < this.usedFrames; j++) {
                 this.tieups[i].push(false);
@@ -52,13 +52,20 @@ export class TieUps {
     */
     updateTreadleCount(treadle_count: number) {
         this.treadle_count = treadle_count;
+        this.tieups = [];
+        for (var i =0; i < this.treadle_count; i++) {
+            this.tieups.push([]);
+            for (var j= 0; j < this.usedFrames; j++) {
+                this.tieups[i].push(false);
+            }
+        }
     }
 
     //may not be a necessary function but you know i think it might be
     updateUsedFrames(usedFrames: number) {
         this.usedFrames = usedFrames;
         this.tieups = [];
-        for (var i =0; i < 10; i++) {
+        for (var i =0; i < this.treadle_count; i++) {
             this.tieups.push([]);
             for (var j= 0; j < this.usedFrames; j++) {
                 this.tieups[i].push(false);
