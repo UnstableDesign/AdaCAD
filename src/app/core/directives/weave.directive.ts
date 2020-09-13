@@ -123,9 +123,7 @@ export class WeaveDirective {
    */
   ngOnInit() {
     this.segments$ = this.store.pipe(select(selectAll));
-    // define the elements and context of the weave draft.
-    console.log("this.el.nativeElement.children");
-    console.log(this.el.nativeElement.children);
+    // define the elements and context of the weave draft and threading.
     this.canvasEl = this.el.nativeElement.children[1];
     this.svgEl = this.el.nativeElement.lastElementChild;
     this.threadingCanvas = this.el.nativeElement.firstElementChild.firstElementChild;
@@ -140,7 +138,6 @@ export class WeaveDirective {
 
     // Set up the initial grid.
     this.redraw(this.cx, this.canvasEl,"pattern");
-
     this.redraw(this.cxThreading, this.threadingCanvas, "threading");
 
     // make the selection SVG invisible using d3
@@ -415,6 +412,8 @@ export class WeaveDirective {
     if (this.weave.threading.usedFrames.length > this.threadingSize/20) {
       this.updateSizeThreading();
     }
+
+    //iterates through the used frames and the threading 2d array to update the this.threadingNow list of tuples [x,y]
     for (var i = 0; i < this.weave.threading.usedFrames.length; i++) {
       for (var j = 0; j < this.weave.threading.threading[i].length; j++) {
         if(this.weave.threading.threading[i][j]) {
@@ -422,6 +421,7 @@ export class WeaveDirective {
         }
       }
     }
+    //examines if there are stale threading marks left on the threading grid by comparing the two lists: this.threadingLast and this.threadingNow
     for (var i = 0; i < this.threadingLast.length; i++) {
       var fresh = false;
       for(var j = 0; j < this.threadingNow.length; j++) {
@@ -429,11 +429,12 @@ export class WeaveDirective {
           fresh = true;
         }
       }
-      if (!fresh) {
+      if (!fresh) { //clears stale rectangles (note: the y-coordinate saved in both threading lists are "upside down" hence the subtraction from this.threadingSize, there was still an offset by 20, so this was subtracted as well)
         this.cxThreading.clearRect((this.threadingLast[i][0] * 20)+1, (this.threadingSize-(this.threadingLast[i][1] * 20)-20+1), 18,18);
       }
     }
     this.threadingLast = [];
+    //marking all of the fresh rectangles
     for (var i =0; i < this.threadingNow.length; i++) {
       this.cxThreading.strokeRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
       this.cxThreading.fillRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
@@ -541,6 +542,11 @@ export class WeaveDirective {
     }
   }
 
+  /**
+   * Redraws the rectangles associated with the list this.LastThreading (called after an update to the threading grid's size)
+   * @extends WeaveDirective
+   * @returns {void}
+   */
   private redrawLastThreading() {
     this.cx.fillStyle = '#000000';
     this.cxThreading.fillStyle = '#000000';
@@ -773,7 +779,13 @@ export class WeaveDirective {
     this.redraw(this.cx, this.canvasEl, "pattern");
   }
 
+  /**
+   * Resizes and then redraws the threading canvas on a change to the number of used frames (if this change is such that the number of used frames is greater than 8). 
+   * @extends WeaveDirective
+   * @returns {void}
+   */
   public updateSizeThreading() {
+    //shifts the shuttle location down by 20 corresponding to space needed for the added frame
     var temp = this.shuttleLocation + 20;
     var stringShuttleLocation = temp.toString() + "px";
     this.shuttleLocation = temp;
