@@ -37,12 +37,13 @@ export class Draft implements DraftInterface {
   constructor({type, ...params}) {
     console.log(type, params);
     var pattern = null;
-    var shuttles = params.draft.shuttles
-    var sd = [];
-    for (var i in shuttles) {
-      var s = new Shuttle(shuttles[i]);
-      sd.push(s);
-    }
+   //LINKED TO ADA FILE UPLOAD, BROKEN FOR DEPLOY
+   //var shuttles = params.draft.shuttles
+   // var sd = [];
+   // for (var i in shuttles) {
+   //   var s = new Shuttle(shuttles[i]);
+   //   sd.push(s);
+   // }
     switch (type) {
       case "update":
         this.shuttles = sd;
@@ -56,7 +57,7 @@ export class Draft implements DraftInterface {
         this.labels = params.draft.labels;
         break;
       case "new":
-        let l = new Shuttle({id: 0, name: 'Shuttle 1', visible: true, color: '#3d3d3d'});
+        let l = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#3d3d3d'});
         l.setThickness(params.epi);
         this.wefts = params.wefts;
         this.warps = params.warps;
@@ -67,9 +68,9 @@ export class Draft implements DraftInterface {
         this.connections = [];
         this.labels = [];
         pattern = params.pattern;
-        for(var i = 0; i < this.wefts; i++) {
+        for(var ii = 0; ii < this.wefts; ii++) {
           this.rowShuttleMapping.push(0);
-          this.visibleRows.push(i);
+          this.visibleRows.push(ii);
         }
         break;
     }
@@ -77,10 +78,10 @@ export class Draft implements DraftInterface {
     if (!pattern) {
       this.pattern = [];
 
-      for(var i = 0; i < this.wefts; i++) {
+      for(var ii = 0; ii < this.wefts; ii++) {
         this.pattern.push([]);
         for (var j = 0; j < this.warps; j++)
-          this.pattern[i].push(false);
+          this.pattern[ii].push(false);
       }
     }
     else this.pattern = pattern;
@@ -95,10 +96,10 @@ export class Draft implements DraftInterface {
     this.warps = draft.warps;
     this.visibleRows = draft.visibleRows;
     this.epi = draft.epi;
-    pattern = draft.pattern;
+    this.pattern = draft.pattern;
     this.connections = draft.connections;
     this.labels = draft.labels;
-    return pattern;
+    return this.pattern;
   }
 
   isUp(i:number, j:number) : boolean{

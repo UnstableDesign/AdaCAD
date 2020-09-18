@@ -17,6 +17,7 @@ export class InitModal implements OnInit {
     this.form.pattern = null;
     this.form.wefts = 30;
     this.form.type = "new";
+    this.form.shuttles = null;
   }
 
   handleFile(e: any) {

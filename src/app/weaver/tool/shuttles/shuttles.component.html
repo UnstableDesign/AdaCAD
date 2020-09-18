@@ -1,6 +1,6 @@
 <button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
   <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-  Create Shuttle
+  Create Weft System
 </button>
 <mat-list>
   <ng-container *ngFor="let shuttle of shuttles">
@@ -20,9 +20,9 @@
       <button mat-icon-button class="edit-button" (click)="openDialog(shuttle)">
         <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
       </button>
-      <button mat-icon-button class="trash-button">
+<!--       <button mat-icon-button class="trash-button">
         <i aria-label="Favorite button" class="fas fa-trash"></i>
-      </button>
+      </button> -->
     </div>
   </mat-list-item>
   </ng-container>

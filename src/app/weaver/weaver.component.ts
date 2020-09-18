@@ -76,9 +76,12 @@ export class WeaverComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log(result);
         this.draft = new Draft(result);
-        if (result.type != "update") this.draft.shuttles[0].setColor('#3d3d3d');
+        if (result.type != "update"){
+            this.draft.shuttles[0].setColor('#3d3d3d');
+        } else{
+         console.log("didn't add shuttle")
+        }
       } 
       // else if (result.type === "update") {
       //   console.log(result);

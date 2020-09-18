@@ -16,14 +16,14 @@
         (onConnectionCreate)="openConnectionDialog();"
         (onLabelCreate)="openLabelDialog()"></app-design> 
       </mat-tab>
-      <mat-tab label="Shuttles">
+      <mat-tab label="System">
         <app-shuttles *ngIf="selected === 1" [shuttles]="draft?.shuttles" (onColorChange)="redraw()"
         [warps]="draft?.warps"
         (onCreateShuttle)="createShuttle($event);"
         (onHideShuttle)="hideShuttle($event);"
         (onShowShuttle)="showShuttle($event);"></app-shuttles> 
       </mat-tab>
-      <mat-tab label="Stitches">
+      <mat-tab label="Pattern">
         <app-patterns *ngIf="selected === 2" [patterns]="patterns"
         (onChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"></app-patterns>  
