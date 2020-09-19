@@ -41,6 +41,9 @@
       </div>
       <canvas #myCanvas style="background:#fbfbfb;"  >
       </canvas>
+      <div #tieupsref class="tieups-container" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft?.warps * 20) - 55 }" width = "500" height="100">
+        <canvas #tieups width="200" height="100" style="background:#fbfbfb;"></canvas>
+      </div>
       <canvas #bitmapImage hidden></canvas>
       <svg #connections [style.left]="myCanvas.offsetLeft" [attr.width]="draft?.warps * 20" [attr.height]="draft?.wefts * 20" style="position:absolute" [class.hidden]="view !== 'yarn'">
         <g *ngFor="let c of (draft?.connections)">

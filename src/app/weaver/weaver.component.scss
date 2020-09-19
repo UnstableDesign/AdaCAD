@@ -16,6 +16,14 @@
     position: static;
   }
 }
+
+.tieups-container {
+  position: absolute;
+  top: 0px;
+  canvas{
+    position: absolute;
+  }
+}
 .treadling-container{
   position: absolute;
   top: 166px;

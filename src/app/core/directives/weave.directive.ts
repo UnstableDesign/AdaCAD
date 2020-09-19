@@ -73,6 +73,12 @@ export class WeaveDirective {
   cxTreadling: any;
 
   /**
+   * The 2D context of the treadling canvas
+   * @property {any}
+   */
+  cxTieups: any;
+
+  /**
    * The current selection within the weave canvas.
    * @property {Selection}
    */
@@ -95,14 +101,21 @@ export class WeaveDirective {
    * @property {HTMLCanvasElement}
    * 
    */
-  threadingCanvas;
+  threadingCanvas: HTMLCanvasElement;
 
     /**
    * The HTML canvas element within the weave draft for treadling.
    * @property {HTMLCanvasElement}
    * 
    */
-  treadlingCanvas;
+  treadlingCanvas: HTMLCanvasElement;
+
+  /**
+   * The HTML canvas element within the weave draft for tieups.
+   * @property {HTMLCanvasElement}
+   * 
+   */
+  tieupsCanvas: HTMLCanvasElement;
 
   private segments$: Observable<DraftSegment[]>;
   private prevSegment = null;
@@ -116,6 +129,8 @@ export class WeaveDirective {
   private threadingLast: Array<Array<number>>;
   private treadlingNow: Array<Array<number>>;
   private treadlingLast: Array<Array<number>>;
+  private tieupsLast: Array<Array<number>>;
+  private tieupsNow: Array<Array<number>>;
 
   private threadingSize: number;
   private treadles: number;
@@ -135,6 +150,8 @@ export class WeaveDirective {
     this.treadles = 10;
     this.treadlingNow = [];
     this.treadlingLast = [];
+    this.tieupsLast = [];
+    this.tieupsNow = [];
   }
 
   /**
@@ -146,10 +163,12 @@ export class WeaveDirective {
     this.canvasEl = this.el.nativeElement.children[1];
     this.svgEl = this.el.nativeElement.lastElementChild;
     this.threadingCanvas = this.el.nativeElement.firstElementChild.firstElementChild;
-    this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
+    this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
+    this.treadlingCanvas = this.el.nativeElement.children[5].firstElementChild;
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
     this.cxTreadling = this.treadlingCanvas.getContext('2d');
+    this.cxTieups = this.tieupsCanvas.getContext('2d');
 
     // set the width and height
     this.canvasEl.width = this.weave.warps * 20;
@@ -158,11 +177,14 @@ export class WeaveDirective {
     this.threadingCanvas.height = this.threadingSize;
     this.treadlingCanvas.height = this.weave.wefts * 20;
     this.treadlingCanvas.width = this.treadles * 20;
+    this.tieupsCanvas.width = this.treadles*20;
+    this.tieupsCanvas.height = this.threadingSize;
 
     // Set up the initial grid.
     this.redraw(this.cx, this.canvasEl,"pattern");
     this.redraw(this.cxThreading, this.threadingCanvas, "threading");
     this.redraw(this.cxTreadling, this.treadlingCanvas, "treadling");
+    this.redraw(this.cxTieups, this.tieupsCanvas, "tieups");
 
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
@@ -497,6 +519,34 @@ export class WeaveDirective {
       this.treadlingLast.push(this.treadlingNow[i]);    
     }
     this.treadlingNow = [];
+
+    for (var i = 0; i < this.weave.tieups.tieups.length; i++) {
+      for(var j = 0; j < this.weave.tieups.tieups[i].length; j ++) {
+        if (this.weave.tieups.tieups[i][j]) {
+          this.tieupsNow.push([i,j]);
+        }
+      }
+    }
+
+    for (var i = 0; i < this.tieupsLast.length; i++) {
+      var fresh = false;
+      for (var j = 0; j < this.tieupsNow.length; j++) {
+        if (this.tieupsLast[i] == this.tieupsNow[j]) {
+          fresh = true;
+        }
+      }
+      if (!fresh) {
+        this.cxTieups.clearRect((this.tieupsLast[i][0]*20)+1, (this.threadingSize-this.tieupsLast[i][1]*20)-20+1,18,18);
+      }
+    }
+
+    this.tieupsLast = [];
+    for (var i = 0; i < this.tieupsNow.length; i++) {
+      this.cxTieups.strokeRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
+      this.cxTieups.fillRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
+      this.tieupsLast.push(this.tieupsNow[i]);
+    }
+    this.tieupsNow = [];
   }
 
   /**
@@ -845,11 +895,13 @@ export class WeaveDirective {
     var temp = this.shuttleLocation + 20;
     var stringShuttleLocation = temp.toString() + "px";
     this.shuttleLocation = temp;
+    this.el.nativeElement.children[6].style.top = stringShuttleLocation;
     this.el.nativeElement.children[5].style.top = stringShuttleLocation;
-    this.el.nativeElement.children[4].style.top = stringShuttleLocation;
     this.threadingCanvas.height = this.weave.threading.usedFrames.length * 20;
     this.threadingSize = this.weave.threading.usedFrames.length * 20;
+    this.tieupsCanvas.height = this.weave.threading.usedFrames.length * 20;
     this.redraw(this.cxThreading, this.threadingCanvas, "threading");
+    this.redraw(this.cxTieups, this.tieupsCanvas, "tieups");
   }
 
   /**
@@ -860,7 +912,9 @@ export class WeaveDirective {
   public updateSizeTreadling() {
     this.treadles = this.weave.treadling.treadle_count;
     this.treadlingCanvas.width = this.treadles *20;
+    this.tieupsCanvas.width = this.treadles*20;
     this.redraw(this.cxTreadling, this.treadlingCanvas, "treadling");
+    this.redraw(this.cxTieups, this.tieupsCanvas, "tieups");
   }
 
   public onUndoRedo() {

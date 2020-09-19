@@ -134,9 +134,6 @@ export class Draft implements DraftInterface {
     this.tieups.updatePattern(this.pattern);
     this.tieups.updateThreading(this.threading.threading);
     this.tieups.updateTreadling(this.treadling.treadling);
-    console.log("this.treadling");
-    console.log(this.treadling);
-    console.log("this.treadling.treadle_count");
     this.tieups.updateTreadleCount(this.treadling.treadle_count);
     //assuming frames will be used without gaps of unused frames (i.e. all unused_frames would be later frames)
     this.tieups.updateUsedFrames(this.threading.usedFrames.length);
