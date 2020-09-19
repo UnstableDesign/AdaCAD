@@ -81,8 +81,6 @@ export class Treadling {
                 }
             }
         }
-        console.log("treadling");
-        console.log(this.treadling);
         this.updateTreadleCount();
     }
 

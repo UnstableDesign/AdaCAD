@@ -437,6 +437,10 @@ export class WeaveDirective {
       this.updateSizeThreading();
     }
 
+    if (this.weave.treadling.treadle_count > this.treadles) {
+      this.updateSizeTreadling();
+    }
+
     //iterates through the used frames and the threading 2d array to update the this.threadingNow list of tuples [x,y]
     for (var i = 0; i < this.weave.threading.usedFrames.length; i++) {
       for (var j = 0; j < this.weave.threading.threading[i].length; j++) {
@@ -466,9 +470,7 @@ export class WeaveDirective {
     }
     this.threadingNow = [];
 
-    console.log("treadle_count");
-    console.log(this.weave.treadling.treadle_count);
-    for (var i = 0; i < this.weave.treadling.treadle_count; i++) {
+    for (var i = 0; i < this.weave.treadling.treadling.length; i++) {
       for (var j= 0; j < this.weave.treadling.treadling[i].length; j++) {
         if(this.weave.treadling.treadling[i][j]) {
           this.treadlingNow.push([j,i]);
@@ -848,6 +850,17 @@ export class WeaveDirective {
     this.threadingCanvas.height = this.weave.threading.usedFrames.length * 20;
     this.threadingSize = this.weave.threading.usedFrames.length * 20;
     this.redraw(this.cxThreading, this.threadingCanvas, "threading");
+  }
+
+  /**
+   * Resizes and then redraws the treadling canvas on a change to the number of used treadles (if this change is such that the number of used frames is greater than 10). 
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public updateSizeTreadling() {
+    this.treadles = this.weave.treadling.treadle_count;
+    this.treadlingCanvas.width = this.treadles *20;
+    this.redraw(this.cxTreadling, this.treadlingCanvas, "treadling");
   }
 
   public onUndoRedo() {
