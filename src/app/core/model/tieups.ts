@@ -94,7 +94,7 @@ export class TieUps {
                 if (utilInstance.countOnes(utilInstance.xor(this.pattern[r], this.threading[tr])) < utilInstance.countOnes(this.pattern[r])) {
                     adjusted = true;
                     // then mark the tie ups to include this frame (aka threading row) at the current column of the tieups (the "activated" treadle in this row of the pattern)
-                    for (var j = 0; j < this.treadling[r].length; j++) {
+                    for (var j = 0; j < this.treadle_count; j++) {
                         if (this.treadling[r][j] == true) {
                             this.tieups[j][tr] = true;
                         }

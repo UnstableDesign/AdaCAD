@@ -67,6 +67,12 @@ export class WeaveDirective {
   cxThreading: any;
 
   /**
+   * The 2D context of the treadling canvas
+   * @property {any}
+   */
+  cxTreadling: any;
+
+  /**
    * The current selection within the weave canvas.
    * @property {Selection}
    */
@@ -85,11 +91,18 @@ export class WeaveDirective {
   svgEl: HTMLElement;
 
   /**
-   * Subscribes to move event after a touch event is started.
+   * The HTML canvas element within the weave draft for threading.
    * @property {HTMLCanvasElement}
    * 
    */
   threadingCanvas;
+
+    /**
+   * The HTML canvas element within the weave draft for treadling.
+   * @property {HTMLCanvasElement}
+   * 
+   */
+  treadlingCanvas;
 
   private segments$: Observable<DraftSegment[]>;
   private prevSegment = null;
@@ -101,8 +114,11 @@ export class WeaveDirective {
 
   private threadingNow: Array<Array<number>>;
   private threadingLast: Array<Array<number>>;
+  private treadlingNow: Array<Array<number>>;
+  private treadlingLast: Array<Array<number>>;
 
   private threadingSize: number;
+  private treadles: number;
 
   private shuttleLocation: number;
 
@@ -116,6 +132,9 @@ export class WeaveDirective {
     this.threadingLast = [];
     this.threadingSize = 160;
     this.shuttleLocation = 166;
+    this.treadles = 10;
+    this.treadlingNow = [];
+    this.treadlingLast = [];
   }
 
   /**
@@ -127,18 +146,23 @@ export class WeaveDirective {
     this.canvasEl = this.el.nativeElement.children[1];
     this.svgEl = this.el.nativeElement.lastElementChild;
     this.threadingCanvas = this.el.nativeElement.firstElementChild.firstElementChild;
+    this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
+    this.cxTreadling = this.treadlingCanvas.getContext('2d');
 
     // set the width and height
     this.canvasEl.width = this.weave.warps * 20;
     this.canvasEl.height = this.weave.wefts * 20;
     this.threadingCanvas.width = this.weave.warps *20;
     this.threadingCanvas.height = this.threadingSize;
+    this.treadlingCanvas.height = this.weave.wefts * 20;
+    this.treadlingCanvas.width = this.treadles * 20;
 
     // Set up the initial grid.
     this.redraw(this.cx, this.canvasEl,"pattern");
     this.redraw(this.cxThreading, this.threadingCanvas, "threading");
+    this.redraw(this.cxTreadling, this.treadlingCanvas, "treadling");
 
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
@@ -441,6 +465,36 @@ export class WeaveDirective {
       this.threadingLast.push(this.threadingNow[i]);
     }
     this.threadingNow = [];
+
+    console.log("treadle_count");
+    console.log(this.weave.treadling.treadle_count);
+    for (var i = 0; i < this.weave.treadling.treadle_count; i++) {
+      for (var j= 0; j < this.weave.treadling.treadling[i].length; j++) {
+        if(this.weave.treadling.treadling[i][j]) {
+          this.treadlingNow.push([j,i]);
+        }
+      }
+    }
+
+    for (var i =0; i < this.treadlingLast.length; i++) {
+      var fresh = false;
+      for (var j=0; j < this.treadlingNow.length; j++) {
+        if (this.treadlingLast[i] == this.treadlingNow[j]) {
+          fresh = true;
+        }
+      }
+      if (!fresh) {
+        this.cxTreadling.clearRect((this.treadlingLast[i][0]*20)+1, (this.treadlingLast[i][1]*20)+1,18,18);
+      }
+    }
+
+    this.treadlingLast = [];
+    for(var i =0; i < this.treadlingNow.length; i++) {
+      this.cxTreadling.strokeRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
+      this.cxTreadling.fillRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
+      this.treadlingLast.push(this.treadlingNow[i]);    
+    }
+    this.treadlingNow = [];
   }
 
   /**
@@ -789,6 +843,7 @@ export class WeaveDirective {
     var temp = this.shuttleLocation + 20;
     var stringShuttleLocation = temp.toString() + "px";
     this.shuttleLocation = temp;
+    this.el.nativeElement.children[5].style.top = stringShuttleLocation;
     this.el.nativeElement.children[4].style.top = stringShuttleLocation;
     this.threadingCanvas.height = this.weave.threading.usedFrames.length * 20;
     this.threadingSize = this.weave.threading.usedFrames.length * 20;

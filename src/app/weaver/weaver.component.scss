@@ -16,6 +16,13 @@
     position: static;
   }
 }
+.treadling-container{
+  position: absolute;
+  top: 166px;
+  canvas {
+    position: absolute;
+  }
+}
 
 .selection {
   position: absolute;

@@ -61,6 +61,9 @@
           [attr.fill]="draft?.shuttles[c.shuttleId]?.color"/>
         </g>
       </svg>
+      <div #treadref class="treadling-container" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft?.warps * 20) - 55 }" width = "500" height="100">
+        <canvas #treadling width="200" height="100" style="background:#fbfbfb;"></canvas>
+      </div>
       <svg #shuttles class="shuttles" [style.left]="myCanvas.offsetLeft - 55">
         <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
           <circle cx="20" [attr.cy]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>

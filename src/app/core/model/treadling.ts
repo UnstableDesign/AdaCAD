@@ -87,6 +87,7 @@ export class Treadling {
     }
 
     updateTreadleCount() {
+        this.treadle_count = 0;
         var checked_treadles = []
         for (var i =0; i < this.treadling.length; i++) {
             var counter = 0;
@@ -99,6 +100,7 @@ export class Treadling {
             this.treadle_count += counter;
         }
     }
+
     updatePattern(pattern: Array<Array<boolean>>) {
         this.pattern = pattern;
     }
