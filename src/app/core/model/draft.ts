@@ -35,17 +35,19 @@ export class Draft implements DraftInterface {
   epi: number;
 
   constructor({type, ...params}) {
-    console.log(type, params);
+    console.log("Draft Constructor", type, params);
     var pattern = null;
-   //LINKED TO ADA FILE UPLOAD, BROKEN FOR DEPLOY
-   //var shuttles = params.draft.shuttles
-   // var sd = [];
-   // for (var i in shuttles) {
-   //   var s = new Shuttle(shuttles[i]);
-   //   sd.push(s);
-   // }
+
+
     switch (type) {
       case "update":
+
+          var shuttles = params.draft.shuttles
+          var sd = [];
+          for (var i in shuttles) {
+            var s = new Shuttle(shuttles[i]);
+            sd.push(s);
+          }
         this.shuttles = sd;
         this.rowShuttleMapping = params.draft.rowShuttleMapping;
         this.wefts = params.draft.wefts;

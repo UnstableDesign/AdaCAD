@@ -12,7 +12,7 @@
     <button mat-raised-button [matMenuTriggerFor]="downloadDropdown">Download Weave</button>
     <mat-menu #downloadDropdown mat-raised-button>
       <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item>Save as Bitmap</a>
-<!--       <a #adaLink (click)="saveAsAda($event)" mat-menu-item>Save as AdaCAD file</a>
- -->    </mat-menu>
+      <a #adaLink (click)="saveAsAda($event)" mat-menu-item>Save as AdaCAD file</a>
+    </mat-menu>
   </span>
 </mat-toolbar>
