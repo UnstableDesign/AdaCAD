@@ -81,14 +81,12 @@ export class UploadFormComponent implements OnInit {
                 data: data,
                 type: 'ada',
               }
-
               this.onData.emit(obj);
             });
           });
         }
       }
     });
-    
   }
 
   ngOnInit() {

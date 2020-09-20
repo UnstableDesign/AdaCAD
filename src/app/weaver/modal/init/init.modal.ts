@@ -58,11 +58,13 @@ export class InitModal implements OnInit {
   }
 
   onNoClick(): void {
+    console.log("onNoClick", this.form)
     this.dialogRef.close(this.form);
   }
 
   save() {
-    this.onNoClick();
+    console.log("Save", this.form)
+    this.dialogRef.close(this.form);
   }
 
 }

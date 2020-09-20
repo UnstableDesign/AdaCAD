@@ -55,4 +55,11 @@ export class ShuttlesComponent implements OnInit {
       this.onHideShuttle.emit({shuttleId: id});
     }
   }
+
+  handleFile(e: any) {
+    console.log(e);
+   
+  }
+
+
 }

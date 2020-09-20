@@ -72,9 +72,11 @@ export class WeaverComponent implements OnInit {
    */
   constructor(private ps: PatternService, private dialog: MatDialog, 
               private store: Store<AppState>) {
+    
     const dialogRef = this.dialog.open(InitModal);
 
     dialogRef.afterClosed().subscribe(result => {
+      console.log('result on close', result)
       if (result) {
         this.draft = new Draft(result);
         if (result.type != "update"){
@@ -83,14 +85,18 @@ export class WeaverComponent implements OnInit {
          console.log("didn't add shuttle")
         }
       } 
-      // else if (result.type === "update") {
-      //   console.log(result);
-      //   this.draft = result.draft;
-      //   this.weaveRef.redraw();
-      // }
+       else if (result.type === "update") {
+         console.log(result);
+         this.draft = result.draft;
+         this.weaveRef.redraw();
+       }
     });
 
   }
+
+
+
+
 
   ngOnInit() {
     this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
