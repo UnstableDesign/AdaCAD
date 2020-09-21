@@ -284,6 +284,19 @@ export class WeaverComponent implements OnInit {
     });
   }
 
+    /**
+   * Open the about modal.
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public openAboutDialog() {
+    console.log("emit caught")
+
+    const dialogRef = this.dialog.open(AboutModal);
+
+  }
+
+
   /**
    * Open the label modal.
    * @extends WeaveComponent

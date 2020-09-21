@@ -1,6 +1,11 @@
-<app-topbar [undoItem]="undoItem" [redoItem]="redoItem" 
-  (onUndo)="undo();" (onRedo)="redo();"
-  (onSave)="onSave($event);"></app-topbar>
+<app-topbar 
+[undoItem]="undoItem" 
+[redoItem]="redoItem"
+  (onUndo)="undo();" 
+  (onRedo)="redo();"
+  (onSave)="onSave($event);">
+    
+  </app-topbar>
 <mat-sidenav-container class="example-container">
   <mat-sidenav mode="side" position="end" opened>
     <mat-tab-group #group (click)="selected = group.selectedIndex;">

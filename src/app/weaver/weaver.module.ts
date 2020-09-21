@@ -33,6 +33,7 @@ import { HistoryComponent } from './tool/history/history.component';
 import { CoreModule } from '../core/core.module';
 import { HistoryModule } from '../history/history.module';
 import { NgrxModule } from '../ngrx/ngrx.module';
+import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
@@ -76,6 +77,7 @@ import { LabelModal } from './modal/label/label.modal';
     PatternsComponent,
     HistoryComponent,
     ShuttlesModal,
+    AboutModal,
     PatternModal,
     ConnectionModal,
     InitModal,
@@ -83,6 +85,7 @@ import { LabelModal } from './modal/label/label.modal';
   ],
   entryComponents: [
     ShuttlesModal,
+    AboutModal,
     PatternModal,
     ConnectionModal,
     InitModal,
