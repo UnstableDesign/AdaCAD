@@ -10,7 +10,7 @@
   <mat-sidenav mode="side" position="end" opened>
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
       <mat-tab label="Design">
-        <app-design [brush]="brush" [favorites]="patterns | filter: {favorite: true }"
+        <app-design [brush]="brush" [favorites]="draft?.patterns | filter: {favorite: true }"
         (onViewChange)="onViewChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
@@ -29,7 +29,7 @@
         (onShowShuttle)="showShuttle($event);"></app-shuttles> 
       </mat-tab>
       <mat-tab label="Pattern">
-        <app-patterns *ngIf="selected === 2" [patterns]="patterns"
+        <app-patterns *ngIf="selected === 2" [patterns]="draft?.patterns"
         (onChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"></app-patterns>  
       </mat-tab>

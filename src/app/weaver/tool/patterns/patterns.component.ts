@@ -18,11 +18,13 @@ export class PatternsComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log("init bar");
     // this.ps.getPatterns().subscribe((res: any) => {this.patterns = res;});
 
   }
 
   openDialog(pattern) {
+    console.log("open dialog")
     var create = false;
 
     if (!pattern) {

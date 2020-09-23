@@ -48,7 +48,7 @@ export class WeaverComponent implements OnInit {
    * The list of all patterns saved. Provided by pattern service.
    * @property {Array<Pattern>}
    */
-  patterns;
+  //patterns;
 
   /**
    * The name of the current view being shown.
@@ -76,19 +76,27 @@ export class WeaverComponent implements OnInit {
     const dialogRef = this.dialog.open(InitModal);
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('result on close', result)
+
+
       if (result) {
         this.draft = new Draft(result);
         if (result.type != "update"){
             this.draft.shuttles[0].setColor('#3d3d3d');
-            this.draft.patterns = this.patterns;
+
+            //only retreives default patterns when its not a .ada upload
+            this.ps.getPatterns().subscribe((res) => {
+              this.draft.patterns = res.body;
+            });
+
         } 
       } 
        else if (result.type === "update") {
-         console.log(result);
          this.draft = result.draft;
          this.weaveRef.redraw();
        }
+
+       console.log("on init closed ", this.draft)
+
     });
 
   }
@@ -107,11 +115,6 @@ export class WeaverComponent implements OnInit {
       console.log(redoItem);
     });
     
-    this.ps.getPatterns().subscribe((res) => {
-      this.patterns = res.body;
-      console.log("getting patterns from file");
-      console.log(this.patterns);
-  });
     
   }
 
@@ -214,7 +217,8 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onFill(e) {
-    var p = this.patterns[e.id].pattern;
+    var p = this.draft.patterns[e.id].pattern;
+    console.log("fill", p)
     this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
   }
 
@@ -236,7 +240,7 @@ export class WeaverComponent implements OnInit {
    */
   public onMask(e) {
     console.log(e);
-    var p = this.patterns[e.id].pattern;
+    var p = this.draft.patterns[e.id].pattern;
     this.weaveRef.fillArea(this.weaveRef.selection, p, 'mask');
   }
 
@@ -267,6 +271,7 @@ export class WeaverComponent implements OnInit {
    *
    */
   public onSave(e: any) {
+
     e.bitmap = this.bitmap;
     if (e.type === "bmp") this.weaveRef.saveBMP("weave_draft", e);
     else if (e.type === "ada") this.weaveRef.saveADA("weave_draft", e);
@@ -362,8 +367,10 @@ export class WeaverComponent implements OnInit {
   }
 
   public updatePatterns(e: any) {
-    this.patterns = e.patterns;
-    this.draft.patterns = this.patterns;
+    // this.patterns = e.patterns;
+    // this.draft.patterns = this.patterns;
+    this.draft.patterns = e.patterns;
+
   }
 
   public createShuttle(e: any) {
@@ -384,9 +391,11 @@ export class WeaverComponent implements OnInit {
   }
 
   public createPattern(e: any) {
-    e.pattern.id = this.patterns.length;
-    this.patterns.push(e.pattern);
-    this.draft.patterns = this.patterns;
+    // e.pattern.id = this.patterns.length;
+    // this.patterns.push(e.pattern);
+    // this.draft.patterns = this.patterns;
+    e.pattern.id = this.draft.patterns.length;
+    this.draft.patterns.push(e.pattern);
   }
 
   public redraw() {

@@ -64,7 +64,6 @@ export class InitModal implements OnInit {
   }
 
   save() {
-    console.log("Save", this.form)
     this.dialogRef.close(this.form);
   }
 

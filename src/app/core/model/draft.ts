@@ -58,9 +58,7 @@ export class Draft implements DraftInterface {
         var patterns = params.draft.patterns
           var pts = [];
           for (var i in patterns) {
-            var p = new Pattern();
-            p.setPattern(patterns[i])
-            pts.push(p);
+            pts.push(patterns[i]);
           }
         this.patterns = pts;
 
@@ -171,7 +169,7 @@ export class Draft implements DraftInterface {
   }
 
   updateSelection(selection: any, pattern: any, type: string) {
-    console.log(selection, pattern, type);
+    console.log("update selection", selection, pattern, type);
     const sj = Math.min(selection.start.j, selection.end.j);
     const si = Math.min(selection.start.i, selection.end.i);
 
