@@ -14,6 +14,7 @@ export class PatternsComponent implements OnInit {
   @Input() patterns;
   @Output() onChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
+  @Output() onRemovePattern: any = new EventEmitter();
   constructor(private dialog: MatDialog) { 
   }
 
@@ -62,4 +63,13 @@ export class PatternsComponent implements OnInit {
     this.onChange.emit(obj);
   }
 
+
+  removePattern(pattern) {
+    console.log("remove pattern", pattern);
+    this.onRemovePattern.emit({pattern: pattern});
+  }
+
 }
+
+
+

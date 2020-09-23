@@ -31,7 +31,8 @@
       <mat-tab label="Pattern">
         <app-patterns *ngIf="selected === 2" [patterns]="draft?.patterns"
         (onChange)="updatePatterns($event);"
-        (onCreatePattern)="createPattern($event);"></app-patterns>  
+        (onCreatePattern)="createPattern($event);"
+        (onRemovePattern)="removePattern($event);"></app-patterns>  
       </mat-tab>
     </mat-tab-group>
   </mat-sidenav>

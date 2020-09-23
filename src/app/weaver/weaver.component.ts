@@ -85,7 +85,6 @@ export class WeaverComponent implements OnInit {
 
             //only retreives default patterns when its not a .ada upload
             this.ps.getPatterns().subscribe((res) => {
-               console.log(res);
                for(var i in res.body){
                   this.draft.patterns.push(res.body[i])
                }
@@ -400,6 +399,14 @@ export class WeaverComponent implements OnInit {
     e.pattern.id = this.draft.patterns.length;
     this.draft.patterns.push(e.pattern);
   }
+
+
+//should this just hide the pattern or fully remove it, could create problems with undo/redo
+   public removePattern(e: any) {
+    this.draft.patterns = this.draft.patterns.filter(pattern => pattern !== e.pattern);
+  }
+
+
 
   public redraw() {
     this.weaveRef.redraw();
