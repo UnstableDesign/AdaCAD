@@ -81,9 +81,8 @@ export class WeaverComponent implements OnInit {
         this.draft = new Draft(result);
         if (result.type != "update"){
             this.draft.shuttles[0].setColor('#3d3d3d');
-        } else{
-         console.log("didn't add shuttle")
-        }
+            this.draft.patterns = this.patterns;
+        } 
       } 
        else if (result.type === "update") {
          console.log(result);
@@ -107,7 +106,13 @@ export class WeaverComponent implements OnInit {
       this.redoItem = redoItem;
       console.log(redoItem);
     });
-    this.ps.getPatterns().subscribe((res) => {this.patterns = res.body;});
+    
+    this.ps.getPatterns().subscribe((res) => {
+      this.patterns = res.body;
+      console.log("getting patterns from file");
+      console.log(this.patterns);
+  });
+    
   }
 
   ngOnDestroy(): void {
@@ -358,6 +363,7 @@ export class WeaverComponent implements OnInit {
 
   public updatePatterns(e: any) {
     this.patterns = e.patterns;
+    this.draft.patterns = this.patterns;
   }
 
   public createShuttle(e: any) {
@@ -380,6 +386,7 @@ export class WeaverComponent implements OnInit {
   public createPattern(e: any) {
     e.pattern.id = this.patterns.length;
     this.patterns.push(e.pattern);
+    this.draft.patterns = this.patterns;
   }
 
   public redraw() {

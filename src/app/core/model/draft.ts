@@ -1,4 +1,5 @@
 import { Shuttle } from './shuttle';
+import { Pattern } from './pattern';
 
 import * as _ from 'lodash';
 
@@ -7,7 +8,8 @@ import * as _ from 'lodash';
  * @interface
  */
 export interface DraftInterface {
-  pattern: Array<Array<boolean>>;
+  pattern: Array<Array<boolean>>; // the single design pattern
+  patterns: Array<Array<Array<boolean>>>; //the collection of smaller subpatterns from the pattern bar
   shuttles: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   visibleRows: Array<number>;
@@ -25,6 +27,7 @@ export interface DraftInterface {
  */
 export class Draft implements DraftInterface {
   pattern: Array<Array<boolean>>;
+  patterns: Array<Array<Array<boolean>>>;
   shuttles: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   visibleRows: Array<number>;
@@ -48,7 +51,19 @@ export class Draft implements DraftInterface {
             var s = new Shuttle(shuttles[i]);
             sd.push(s);
           }
+
+
         this.shuttles = sd;
+
+        var patterns = params.draft.patterns
+          var pts = [];
+          for (var i in patterns) {
+            var p = new Pattern();
+            p.setPattern(patterns[i])
+            pts.push(p);
+          }
+        this.patterns = pts;
+
         this.rowShuttleMapping = params.draft.rowShuttleMapping;
         this.wefts = params.draft.wefts;
         this.warps = params.draft.warps;
@@ -69,6 +84,7 @@ export class Draft implements DraftInterface {
         this.visibleRows = [];
         this.connections = [];
         this.labels = [];
+        this.patterns = [];
         pattern = params.pattern;
         for(var ii = 0; ii < this.wefts; ii++) {
           this.rowShuttleMapping.push(0);
@@ -99,6 +115,7 @@ export class Draft implements DraftInterface {
     this.visibleRows = draft.visibleRows;
     this.epi = draft.epi;
     this.pattern = draft.pattern;
+    this.patterns = draft.patterns;
     this.connections = draft.connections;
     this.labels = draft.labels;
     return this.pattern;

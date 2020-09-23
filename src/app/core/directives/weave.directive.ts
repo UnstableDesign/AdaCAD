@@ -6,6 +6,7 @@ import {cloneDeep} from 'lodash';
 
 import { Draft } from '../model/draft';
 import { Shuttle } from '../model/shuttle';
+import { Pattern } from '../model/pattern';
 import { Point } from '../model/point';
 import { Selection } from '../model/selection';
 import { CanvasToBMP } from '../model/canvas2image';
@@ -41,6 +42,8 @@ export class WeaveDirective {
    * @property {Draft}
    */
   @Input('draft') weave: any;
+
+
 
   /**
    * The HTML canvas element within the weave draft.
@@ -779,12 +782,16 @@ export class WeaveDirective {
   }
 
   /**
-   * Saves the draft as a bitmap file
+   * Saves the draft as a .ada file
    * @extends WeaveDirective
    * @param {string} fileName - name to save file as
    * @returns {void}
    */
   public saveADA(fileName, obj) {
+
+
+    console.log("save ADA", this.weave);
+
     var theJSON = JSON.stringify(this.weave);
     console.log(theJSON);
     var uri = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);

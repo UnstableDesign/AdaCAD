@@ -63,9 +63,7 @@ export class TopbarComponent implements OnInit {
 
 
   openAboutDialog() {
-    console.log("emitting on about Create")
     this.onAboutCreate.emit();
-    console.log("attempting to open");
     const dialogRef = this.dialog.open(AboutModal);
 
   }
