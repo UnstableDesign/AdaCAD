@@ -85,7 +85,10 @@ export class WeaverComponent implements OnInit {
 
             //only retreives default patterns when its not a .ada upload
             this.ps.getPatterns().subscribe((res) => {
-              this.draft.patterns = res.body;
+               console.log(res);
+               for(var i in res.body){
+                  this.draft.patterns.push(res.body[i])
+               }
             });
 
         } 

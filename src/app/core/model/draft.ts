@@ -9,7 +9,7 @@ import * as _ from 'lodash';
  */
 export interface DraftInterface {
   pattern: Array<Array<boolean>>; // the single design pattern
-  patterns: Array<Array<Array<boolean>>>; //the collection of smaller subpatterns from the pattern bar
+  patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar
   shuttles: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   visibleRows: Array<number>;
@@ -27,7 +27,7 @@ export interface DraftInterface {
  */
 export class Draft implements DraftInterface {
   pattern: Array<Array<boolean>>;
-  patterns: Array<Array<Array<boolean>>>;
+  patterns: Array<Pattern>;
   shuttles: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   visibleRows: Array<number>;
@@ -57,7 +57,7 @@ export class Draft implements DraftInterface {
 
         var patterns = params.draft.patterns
           var pts = [];
-          for (var i in patterns) {
+          for (i in patterns) {
             pts.push(patterns[i]);
           }
         this.patterns = pts;
