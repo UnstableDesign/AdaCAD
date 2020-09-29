@@ -262,6 +262,37 @@ export class Draft implements DraftInterface {
     }
   }
 
+
+//alwasy adds to end
+  insertCol() {
+    console.log("insert col");
+    var row = [];
+
+    //push one false to the end of each row
+    for (var j = 0; j < this.wefts; j++) {
+      this.pattern[j].push(false);
+    }
+
+    this.warps += 1;
+    this.updateVisible();
+
+  }
+
+
+//always deletes from end
+  deleteCol(i: number) {
+      console.log("delete col");
+
+    this.warps -= 1;
+
+    //push one false to the end of each row
+    for (var j = 0; j < this.wefts; j++) {
+      this.pattern[j].splice(i, 1);
+    }
+
+    this.updateVisible();
+  }
+
   addShuttle(shuttle) {
     shuttle.setID(this.shuttles.length);
     shuttle.setVisible(true);

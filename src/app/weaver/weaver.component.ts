@@ -369,6 +369,22 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.updateSize();
   }
 
+    /**
+   * In
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public insertCol(i, shuttle) {
+    this.draft.insertCol();
+    this.weaveRef.updateSize();
+  }
+
+
+  public deleteCol(i) {
+    this.draft.deleteCol(i);
+    this.weaveRef.updateSize();
+  }
+
   public updatePatterns(e: any) {
     // this.patterns = e.patterns;
     // this.draft.patterns = this.patterns;
@@ -412,6 +428,26 @@ export class WeaverComponent implements OnInit {
       var diff = this.draft.wefts - e.weft_num;
       for(var i = 0; i < diff; i++){  
         this.deleteRow(this.draft.wefts-1);
+      }
+
+    }
+
+  }
+
+    public warpNumChange(e:any) {
+    console.log("warpNumChange")
+    if(e.warp_num == "") return;
+
+    if(e.warp_num > this.draft.warps){
+      var diff = e.warp_num - this.draft.warps;
+      
+      for(var i = 0; i < diff; i++){  
+        this.insertCol(this.draft.warps, 0);
+      }
+    }else{
+      var diff = this.draft.warps - e.warp_num;
+      for(var i = 0; i < diff; i++){  
+        this.deleteCol(this.draft.warps-1);
       }
 
     }

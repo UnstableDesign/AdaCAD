@@ -69,11 +69,12 @@ export class ShuttlesComponent implements OnInit {
 
 
   warpChange() {
+    console.log("warp change");
     this.onWarpNumChange.emit({warp_num: this.warp_form.value});
   }
 
   epiChange() {
-    this.onWeftNumChange.emit({epi: this.epi_form.value});
+    this.onEpiChange.emit({epi: this.epi_form.value});
   }
 
 
