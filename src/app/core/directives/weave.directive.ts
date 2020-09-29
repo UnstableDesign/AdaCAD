@@ -139,6 +139,7 @@ export class WeaveDirective {
    */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
+
     var offset = 0;
 
     // create offset if brush is select to allow easier selection.
@@ -245,6 +246,8 @@ export class WeaveDirective {
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
+    console.log("on end", event)
+
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && this.brush === 'select')) {
       this.removeSubscription();
@@ -433,7 +436,9 @@ export class WeaveDirective {
   }
 
   private undoRedoSegment() {
+
     console.log(this.prevSegment);
+    
     var start = this.prevSegment.start;
     var end = this.prevSegment.end;
     var segment = this.prevSegment.pattern;

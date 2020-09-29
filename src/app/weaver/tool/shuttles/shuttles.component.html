@@ -39,3 +39,21 @@
 </mat-list>
 
 
+<form #envt_form="ngForm">
+  <mat-form-field class="is-fullwidth">
+     <div class="is-fullwidth">
+      <mat-form-field >
+        <input matInput  type="number" placeholder="Warps" name="warpNum" > 
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput [formControl]= "form" type="number" placeholder="Wefts" name="weft_num" value="{{wefts}}" (click)="weftChange()"> 
+      </mat-form-field>
+      <mat-form-field >
+        <input matInput  type="number" placeholder="EPI" name="epi"> 
+      </mat-form-field>
+      </div>
+  </mat-form-field>
+</form>
+
+
+

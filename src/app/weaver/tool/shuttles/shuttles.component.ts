@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../../../core/model/shuttle';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-shuttles',
@@ -11,16 +12,23 @@ import { Shuttle } from '../../../core/model/shuttle';
 export class ShuttlesComponent implements OnInit {
   @Input() shuttles;
   @Input() warps;
+  @Input() wefts;
+  @Input() epi;
+  @Output() onWeftNumChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();
   @Output() onCreateShuttle: any = new EventEmitter();
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
 
   selected = 0;
+  form = new FormControl('');
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
+    //this.form.wefts = this.wefts;
+
+
   }
 
   openDialog(shuttle) {
@@ -45,6 +53,11 @@ export class ShuttlesComponent implements OnInit {
 
   colorChange(e) {
     this.onColorChange.emit();
+  }
+
+
+  weftChange() {
+    this.onWeftNumChange.emit({weft_num: this.form.value});
   }
 
 

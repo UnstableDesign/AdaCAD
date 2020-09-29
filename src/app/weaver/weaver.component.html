@@ -22,11 +22,19 @@
         (onLabelCreate)="openLabelDialog()"></app-design> 
       </mat-tab>
       <mat-tab label="System">
-        <app-shuttles *ngIf="selected === 1" [shuttles]="draft?.shuttles" (onColorChange)="redraw()"
-        [warps]="draft?.warps"
+        <app-shuttles *ngIf="selected === 1" 
+        [warps] = "draft?.warps" 
+        [wefts] = "draft?.wefts"
+        [epi] = "draft?.epi" 
+        [shuttles]="draft?.shuttles" 
+        (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
         (onHideShuttle)="hideShuttle($event);"
-        (onShowShuttle)="showShuttle($event);"></app-shuttles> 
+        (onShowShuttle)="showShuttle($event);"
+        (onWeftNumChange) = "weftNumChange($event)">
+          
+        </app-shuttles> 
+
       </mat-tab>
       <mat-tab label="Pattern">
         <app-patterns *ngIf="selected === 2" [patterns]="draft?.patterns"

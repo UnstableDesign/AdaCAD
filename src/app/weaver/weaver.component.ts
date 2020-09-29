@@ -82,6 +82,7 @@ export class WeaverComponent implements OnInit {
         this.draft = new Draft(result);
         if (result.type != "update"){
             this.draft.shuttles[0].setColor('#3d3d3d');
+            this.draft.epi = 10;
 
             //only retreives default patterns when its not a .ada upload
             this.ps.getPatterns().subscribe((res) => {
@@ -390,6 +391,26 @@ export class WeaverComponent implements OnInit {
   public showShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.updateSize();
+  }
+
+  public weftNumChange(e:any) {
+
+    if(e.weft_num == "") return;
+
+    if(e.weft_num > this.draft.wefts){
+      var diff = e.weft_num - this.draft.wefts;
+      
+      for(var i = 0; i < diff; i++){  
+        this.insertRow(this.draft.wefts, 0);
+      }
+    }else{
+      var diff = this.draft.wefts - e.weft_num;
+      for(var i = 0; i < diff; i++){  
+        this.deleteRow(this.draft.wefts-1);
+      }
+
+    }
+
   }
 
   public createPattern(e: any) {
