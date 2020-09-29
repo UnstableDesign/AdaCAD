@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../../../core/model/shuttle';
+import { Draft } from '../../../core/model/draft';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -11,23 +12,28 @@ import { FormControl } from '@angular/forms';
 })
 export class ShuttlesComponent implements OnInit {
   @Input() shuttles;
-  @Input() warps;
   @Input() wefts;
+  @Input() warps;
   @Input() epi;
   @Output() onWeftNumChange: any = new EventEmitter();
+  @Output() onWarpNumChange: any = new EventEmitter();
+  @Output() onEpiNumChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();
   @Output() onCreateShuttle: any = new EventEmitter();
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
 
   selected = 0;
-  form = new FormControl('');
+  weft_form = new FormControl('');
+  warp_form = new FormControl('');
+  epi_form = new FormControl('');
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
-    //this.form.wefts = this.wefts;
-
+    this.epi_form.value = this.epi;
+    this.weft_form.value = this.wefts;
+    this.warp_form.value = this.warps;
 
   }
 
@@ -57,8 +63,19 @@ export class ShuttlesComponent implements OnInit {
 
 
   weftChange() {
-    this.onWeftNumChange.emit({weft_num: this.form.value});
+    console.log(this.weft_form);
+    this.onWeftNumChange.emit({weft_num: this.weft_form.value});
   }
+
+
+  warpChange() {
+    this.onWarpNumChange.emit({warp_num: this.warp_form.value});
+  }
+
+  epiChange() {
+    this.onWeftNumChange.emit({epi: this.epi_form.value});
+  }
+
 
 
   visibleButton(id, visible) {

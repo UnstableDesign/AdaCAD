@@ -393,6 +393,11 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.updateSize();
   }
 
+  public epiChange(e:any){
+    this.draft.epi = e.epi;
+
+  }
+
   public weftNumChange(e:any) {
 
     if(e.weft_num == "") return;

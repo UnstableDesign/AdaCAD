@@ -1,3 +1,15 @@
+
+<mat-expansion-panel >
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Weft Systems
+    </mat-panel-title>
+    <mat-panel-description>
+    
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+
 <button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
   <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
   Create Weft System
@@ -35,25 +47,37 @@
     </div>
   </mat-list-item>  
   </ng-container>
-
 </mat-list>
+</mat-expansion-panel>
 
+<mat-expansion-panel >
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Loom Settings
+    </mat-panel-title>
+    <mat-panel-description>
+    
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+  <form #envt_form="ngForm" >
 
-<form #envt_form="ngForm">
-  <mat-form-field class="is-fullwidth">
-     <div class="is-fullwidth">
-      <mat-form-field >
-        <input matInput  type="number" placeholder="Warps" name="warpNum" > 
+        <mat-form-field >
+        <input class="envt" matInput [formControl]= "warp_form" type="number" placeholder="Warps" name="warp_num" (click)="warpChange()" > 
       </mat-form-field>
+           
+  
       <mat-form-field >
-        <input matInput [formControl]= "form" type="number" placeholder="Wefts" name="weft_num" value="{{wefts}}" (click)="weftChange()"> 
+        <input class="envt" matInput [formControl]= "weft_form" type="number" placeholder="Wefts" name="weft_num"  (click)="weftChange()"> 
       </mat-form-field>
+  
       <mat-form-field >
-        <input matInput  type="number" placeholder="EPI" name="epi"> 
+        <input class="envt" matInput [formControl]= "epi_form" type="number" placeholder="EPI" name="epi" (click)="epiChange()"> 
+         <span matSuffix>epi</span>
       </mat-form-field>
-      </div>
-  </mat-form-field>
+ 
+
 </form>
+</mat-expansion-panel>
 
 
 

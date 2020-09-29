@@ -23,15 +23,16 @@
       </mat-tab>
       <mat-tab label="System">
         <app-shuttles *ngIf="selected === 1" 
-        [warps] = "draft?.warps" 
-        [wefts] = "draft?.wefts"
-        [epi] = "draft?.epi" 
         [shuttles]="draft?.shuttles" 
+        [wefts]="draft?.wefts" 
+        [warps]="draft?.warps" 
+        [epi]="draft?.epi" 
         (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
         (onHideShuttle)="hideShuttle($event);"
         (onShowShuttle)="showShuttle($event);"
-        (onWeftNumChange) = "weftNumChange($event)">
+        (onWeftNumChange) = "weftNumChange($event)"
+        (onEpiChange) = "epiChange($event)">
           
         </app-shuttles> 
 
