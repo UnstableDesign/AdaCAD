@@ -24,16 +24,14 @@
       <mat-tab label="System">
         <app-shuttles *ngIf="selected === 1" 
         [shuttles]="draft?.shuttles" 
-        [wefts]="draft?.wefts" 
         [warps]="draft?.warps" 
         [epi]="draft?.epi" 
         (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
         (onHideShuttle)="hideShuttle($event);"
         (onShowShuttle)="showShuttle($event);"
-        (onWeftNumChange) = "weftNumChange($event)"
         (onWarpNumChange) = "warpNumChange($event)"
-        (onEpiChange) = "epiChange($event)">
+        (onEpiNumChange) = "epiChange($event)">
           
         </app-shuttles> 
 

@@ -355,18 +355,26 @@ export class WeaverComponent implements OnInit {
     this.draft.insertRow(i, shuttle);
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
+    console.log('send emit - insert');
+    this.onAddRow.emit();
   }
 
   public cloneRow(i, c, shuttle) {
     this.draft.cloneRow(i, c, shuttle);
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
+    console.log('send emit - clone');
+    this.onAddRow.emit();
   }
 
   public deleteRow(i) {
     this.draft.deleteRow(i);
     this.draft.updateConnections(i, -1);
     this.weaveRef.updateSize();
+   console.log('send emit - delete');
+
+    this.onAddRow.emit();
+
   }
 
     /**
@@ -382,6 +390,7 @@ export class WeaverComponent implements OnInit {
 
   public deleteCol(i) {
     this.draft.deleteCol(i);
+    this.draft.updateConnections(i, -1);
     this.weaveRef.updateSize();
   }
 
@@ -414,28 +423,8 @@ export class WeaverComponent implements OnInit {
 
   }
 
-  public weftNumChange(e:any) {
 
-    if(e.weft_num == "") return;
-
-    if(e.weft_num > this.draft.wefts){
-      var diff = e.weft_num - this.draft.wefts;
-      
-      for(var i = 0; i < diff; i++){  
-        this.insertRow(this.draft.wefts, 0);
-      }
-    }else{
-      var diff = this.draft.wefts - e.weft_num;
-      for(var i = 0; i < diff; i++){  
-        this.deleteRow(this.draft.wefts-1);
-      }
-
-    }
-
-  }
-
-    public warpNumChange(e:any) {
-    console.log("warpNumChange")
+  public warpNumChange(e:any) {
     if(e.warp_num == "") return;
 
     if(e.warp_num > this.draft.warps){

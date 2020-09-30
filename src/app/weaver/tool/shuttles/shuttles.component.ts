@@ -12,10 +12,8 @@ import { FormControl } from '@angular/forms';
 })
 export class ShuttlesComponent implements OnInit {
   @Input() shuttles;
-  @Input() wefts;
   @Input() warps;
   @Input() epi;
-  @Output() onWeftNumChange: any = new EventEmitter();
   @Output() onWarpNumChange: any = new EventEmitter();
   @Output() onEpiNumChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();
@@ -32,7 +30,6 @@ export class ShuttlesComponent implements OnInit {
 
   ngOnInit() {
     this.epi_form.value = this.epi;
-    this.weft_form.value = this.wefts;
     this.warp_form.value = this.warps;
 
   }
@@ -62,19 +59,16 @@ export class ShuttlesComponent implements OnInit {
   }
 
 
-  weftChange() {
-    console.log(this.weft_form);
-    this.onWeftNumChange.emit({weft_num: this.weft_form.value});
-  }
-
-
   warpChange() {
-    console.log("warp change");
     this.onWarpNumChange.emit({warp_num: this.warp_form.value});
   }
 
   epiChange() {
-    this.onEpiChange.emit({epi: this.epi_form.value});
+    this.onEpiNumChange.emit({epi: this.epi_form.value});
+  }
+
+  updateForm(){
+    console.log("form upddated");
   }
 
 

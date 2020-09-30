@@ -62,16 +62,11 @@
   <form #envt_form="ngForm" >
 
         <mat-form-field >
-        <input class="envt" matInput [formControl]= "warp_form" type="number" placeholder="Warps" name="warp_num" (click)="warpChange()" > 
-      </mat-form-field>
-           
-  
-      <mat-form-field >
-        <input class="envt" matInput [formControl]= "weft_form" type="number" placeholder="Wefts" name="weft_num"  (click)="weftChange()"> 
+        <input class="envt" matInput [formControl]= "warp_form" type="number" min="2" placeholder="Warps" name="warp_num" (click)="warpChange()" > 
       </mat-form-field>
   
       <mat-form-field >
-        <input class="envt" matInput [formControl]= "epi_form" type="number" placeholder="EPI" name="epi" (click)="epiChange()"> 
+        <input class="envt" matInput [formControl]= "epi_form" type="number" min= "0" placeholder="EPI" name="epi" (click)="epiChange()"> 
          <span matSuffix>epi</span>
       </mat-form-field>
  
