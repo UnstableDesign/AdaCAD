@@ -48,6 +48,47 @@ class Util {
       }
       return returnedList;
     }
+
+    maxOfPositiveList(array) {
+      var max = -1;
+      for (var i = 0; i < array.length; i++){
+        if (array[i] > max) {
+          max = array[i];
+        }
+      }
+      return max;
+    }
+
+    minOfList(array) {
+      var min = array[0]
+      for (var i = 0; i < array.length; i++) {
+        if (array[i] < min) {
+          min = array[i]
+        }
+      }
+      return min;
+    }
+
+    findSmallestElmtBiggerThan(n, array) {
+      var minElmtBiggerThanN = this.maxOfPositiveList(array) + 1;
+      for (var i =0; i < array.length; i++) {
+        if (array[i] > n && minElmtBiggerThanN[i] > array[i]) {
+          minElmtBiggerThanN = array[i];
+        }
+      }
+      return minElmtBiggerThanN;
+    }
+
+    findSmallestGap(array) {
+      var min = this.minOfList(array);
+      var smallestElmtBiggerThan = this.findSmallestElmtBiggerThan(min,array);
+      var max = this.maxOfPositiveList(array);
+      while (smallestElmtBiggerThan-min < 2 && smallestElmtBiggerThan != (max+1)) {
+        min = min+1;
+        smallestElmtBiggerThan = this.findSmallestElmtBiggerThan(min,array);
+      }
+      return smallestElmtBiggerThan;
+    }
   }
   
   //makes it so that we are using this util class as a singleton (referenced: https://www.digitalocean.com/community/tutorials/js-js-singletons)

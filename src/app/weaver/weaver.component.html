@@ -73,7 +73,7 @@
           <text text-anchor="end" x="5" [attr.y]="(j*20+15)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
         </g>
       </svg>
-      <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft?.warps * 20) + 15 }">
+      <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft - 115 }">
         <div *ngFor="let i of (draft?.visibleRows)" class="insert-button">
           <span (click)="insertRow(i + 1, draft?.rowToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
           <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i));"><i class="fa fa-clone"></i></span>

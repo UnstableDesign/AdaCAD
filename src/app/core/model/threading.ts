@@ -1,3 +1,4 @@
+import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 import utilInstance from './util';
 
 /**
@@ -10,6 +11,7 @@ export class Threading {
     warps: Number;
     flipped_pattern: Array<Array<boolean>>;
     usedFrames: Array<number>;
+    userInputCoordinates: Array<Array<number>>;
 
     /*Input: the number of warps and wefts in this draft
     Result: A flipped pattern (flipped in comparison to the pattern used in draft.ts) that is constructed with all false values,
@@ -18,12 +20,14 @@ export class Threading {
         this.flipped_pattern = [];
         this.wefts = wefts;
         this.warps = warps;
+
         for(var i = 0; i < this.warps; i++) {
           this.flipped_pattern.push([]);
           for (var j = 0; j < this.wefts; j++) {
             this.flipped_pattern[i].push(false);
           }
         }
+
         this.threading = [];
         for (var i = 0; i < this.wefts; i++) {
             this.threading.push([]);
@@ -31,7 +35,9 @@ export class Threading {
               this.threading[i].push(false);
             }
         }
+
         this.usedFrames = [];
+        this.userInputCoordinates = [];
     }
 
     /* Input: None
@@ -40,35 +46,48 @@ export class Threading {
     */
     updateThreading() {
         //clears the threading to all false before processing (to account for the updating of threading while the draw-down is changing)
-        for(var i = 0;i < this.threading.length; i++) {
-            for (var j =0; j < this.threading[i].length; j++) {
-                this.threading[i][j] = false;
-            }
-        }
+        this.threading = this.threading.map(x => x.map(y => false));
+
         //defining helper variables:
-        //marked_strings keeps track of bit strings (or in this app, bool strings) to check if a column that is currently been processed is a repeat of an already processed string
         var marked_strings = [];
-        //corresponds to marked_strings so the frame for marked_strings[i] = marked_strings_frame_tracker[i]
         var marked_strings_frames_tracker =[];
-        //acts as the counter for the next frame (increments so the threading is a straight draw when possible)
-        var frame_count = 0;
-        //keeps track of columns that have been proccessed before this update, so as to not have multiple versions of the same column accounted for in the threading
         var column_tracker = [];
+
+        for(var i = 0; i < this.userInputCoordinates.length; i++) {
+          var frame = this.userInputCoordinates[i][0];
+          var warp_thread = this.userInputCoordinates[i][1];
+          var userMiscalc = false;
+          for (var j = 0; j < marked_strings.length; j++) {
+            if (marked_strings_frames_tracker[j] == frame && !utilInstance.equals(this.flipped_pattern[warp_thread], marked_strings[j])) {
+              userMiscalc = true;
+            }
+          }
+          if (!userMiscalc) {
+            this.threading[frame][warp_thread] = true;
+            marked_strings.push(this.flipped_pattern[warp_thread]);
+            marked_strings_frames_tracker.push(frame);
+            column_tracker.push(warp_thread);
+          }
+        }
+
         for (var c = 0; c < this.flipped_pattern.length; c++) {
           var contains = false;
-          //if the current column's pattern already exists in marked_strings, contains is set to true
           for (var i = 0; i < marked_strings.length;i++) {
             if (utilInstance.equals(marked_strings[i], this.flipped_pattern[c])) {
               contains = true;
             }
           }
-          //if this is a new pattern with at least 1 true marking
+
+          //if this is a new pattern with at least 1 true value
           if (!contains && (utilInstance.countOnes(this.flipped_pattern[c]) > 0)){
             var processed= false;
             var indx = 0;
+            var frame = utilInstance.findSmallestGap(marked_strings_frames_tracker);
+            this.threading[frame][c] = true;
+
             //checks if this column has already been added and if so processed is set to true and the index in marked strings is set
             for (var j = 0; j < column_tracker.length; j++ ) {
-              if (column_tracker[j] == c) {
+              if (column_tracker[j] == c/* column_tracker.includes(c)*/) {
                 processed =true;
                 indx = j;
               }
@@ -77,18 +96,13 @@ export class Threading {
             if (processed) {
               marked_strings[indx] = this.flipped_pattern[c];
               column_tracker[indx] = c;
-              marked_strings_frames_tracker[indx] = frame_count
-            } else { //else the new patter is pushed
+              marked_strings_frames_tracker[indx] = frame;
+            } else { //else the new pattern is pushed
               marked_strings.push(this.flipped_pattern[c]);
               column_tracker.push(c);
               //the new frame for this "unprecedented" pattern is pushed
-              marked_strings_frames_tracker.push(frame_count);
+              marked_strings_frames_tracker.push(frame);
             }
-            // //the new frame for this "unprecedented" pattern is pushed
-            // marked_strings_frames_tracker.push(frame_count);
-            //sets the threading at this frame and column to true and increments frame counter
-            this.threading[frame_count][c] = true;
-            frame_count = frame_count + 1;
           } else if (contains && utilInstance.countOnes(this.flipped_pattern[c]) > 0) { //otherwise if it is an old pattern with at least 1 true value
             //find the pattern in marked_strings and set threading at the corresponding frame of that original pattern and the new column to true
             for (var k = 0; k < marked_strings.length; k++) {
@@ -119,15 +133,45 @@ export class Threading {
             }
         }
     }
-    /*
-    Input: i for row of threading, j for column of threading
-    Result: returns whether that frame is used and the column is valid
-    Abdapted from draft.ts isUp*/
-    isUp(i:number, j:number) : boolean{
-        if ( this.usedFrames.indexOf(i) != -1 && j > -1 && j < this.threading[0].length) {
-            return true
-        } else {
-            return false;
+
+    // /*
+    // Input: i for row of threading, j for column of threading
+    // Result: returns wheter the threading grid is true at locationg (i,j)*/
+    isUp(i:number, j: number) : boolean {
+      if (i > -1 && i < this.warps && j > -1 && j < this.wefts) {
+        return this.threading[i][j];
+      }
+      return false;
+    }
+
+    addUserInput(i:number, j:number) {
+      var tempList = [i,j];
+      var contains = false;
+      for (var k = 0; k < this.userInputCoordinates.length;k++) {
+        if (utilInstance.equals(tempList, this.userInputCoordinates[k])) {
+          contains = true;
         }
+      }
+      if (!contains) {
+        this.userInputCoordinates.push([]);
+        this.userInputCoordinates[this.userInputCoordinates.length -1].push(i);
+        this.userInputCoordinates[this.userInputCoordinates.length -1].push(j);
+      }
+    }
+
+    deleteUserInput(i:number, j:number) {
+      var tempList = [i,j];
+      var contains = false;
+      var newUserInput = [];
+      for (var i = 0; i < this.userInputCoordinates.length; i++) {
+        if (utilInstance.equals(tempList, this.userInputCoordinates[i])) {
+          contains = true;
+        } else {
+          newUserInput.push(this.userInputCoordinates[i]);
+        }
+      }
+      if(contains) {
+        this.userInputCoordinates = newUserInput;
+      }
     }
 }

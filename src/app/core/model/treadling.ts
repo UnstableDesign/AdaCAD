@@ -102,4 +102,14 @@ export class Treadling {
     updatePattern(pattern: Array<Array<boolean>>) {
         this.pattern = pattern;
     }
+
+      
+    //Returns whether or not a particular location of the Treadling grid is marked true or false
+    isUp(i: number, j: number) : boolean { //TODO: will need to change as treadle_count exceeds 10
+        if (i > -1 && i < this.wefts && j > -1 && j < 10) {
+            return this.treadling[i][j];
+        }
+        return false;
+    }
+
 }

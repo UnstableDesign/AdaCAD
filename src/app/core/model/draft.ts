@@ -4,6 +4,7 @@ import { Treadling } from './treadling';
 import { TieUps }  from "./tieups";
 
 import * as _ from 'lodash';
+import { active } from 'd3';
 
 /**
  * Definition of draft interface.
@@ -96,7 +97,7 @@ export class Draft implements DraftInterface {
     }
     else this.pattern = pattern;
 
-    // console.log(this.pattern);
+    //Creating the Threading, Treadling, and TieUps objects
     this.threading = new Threading(this.wefts, this.warps);
     this.treadling = new Treadling(this.wefts, this.pattern);
     this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
@@ -123,7 +124,7 @@ export class Draft implements DraftInterface {
       return false;
     }
   }
-
+  
   setHeddle(i:number, j:number, bool:boolean) {
     var row = this.visibleRows[i];
     this.pattern[row][j] = bool;
@@ -138,6 +139,33 @@ export class Draft implements DraftInterface {
     //assuming frames will be used without gaps of unused frames (i.e. all unused_frames would be later frames)
     this.tieups.updateUsedFrames(this.threading.usedFrames.length);
     this.tieups.updateTieUps();
+  }
+
+  updateDrawDown() {
+    var updates =[]
+    for (var i =0; i < this.treadling.treadling.length;i++) {
+      var active_treadle =-1;
+      for (var j =0; j <this.treadling.treadling[i].length; j++) {
+        if (this.treadling.treadling[i][j]){
+          active_treadle= j;
+          break;
+        }
+      }
+      if (active_treadle != -1) {
+        for (var j = 0; j < this.tieups.tieups.length; j++) {
+          if (this.tieups.tieups[j][active_treadle]) {
+            for (var k = 0; k < this.threading.threading[j].length;k++) {
+              if (this.threading.threading[j][k]) {
+                this.pattern[i][k] =true;
+                var coordinatesArr = [i,k]; 
+                updates.push(coordinatesArr);
+              }
+            }
+          }
+        }
+      }
+    }
+    return updates;
   }
 
   rowToShuttle(row: number) {

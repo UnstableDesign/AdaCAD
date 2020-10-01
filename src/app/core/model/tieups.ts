@@ -22,9 +22,9 @@ export class TieUps {
         this.treadle_count = treadle_count;
         this.tieups = [];
 
-        for (var i = 0; i < this.treadle_count; i++) {
+        for (var i = 0; i < 10; i++) {
             this.tieups.push([]);
-            for (var j = 0; j < this.usedFrames; j++) {
+            for (var j = 0; j < 8; j++) {
                 this.tieups[i].push(false);
             }
         }
@@ -52,11 +52,19 @@ export class TieUps {
     */
     updateTreadleCount(treadle_count: number) {
         this.treadle_count = treadle_count;
-        this.tieups = [];
-        for (var i =0; i < this.treadle_count; i++) {
-            this.tieups.push([]);
-            for (var j= 0; j < this.usedFrames; j++) {
-                this.tieups[i].push(false);
+        if (this.treadle_count >10) {
+            this.tieups = [];
+            for (var i =0; i < this.treadle_count; i++) {
+                this.tieups.push([]);
+                if (this.usedFrames > 8) {
+                    for (var j= 0; j < this.usedFrames; j++) {
+                        this.tieups[i].push(false);
+                    }
+                } else {
+                    for (var j =0;j <8;j++){
+                        this.tieups[i].push(false);
+                    }
+                }
             }
         }
     }
@@ -64,11 +72,22 @@ export class TieUps {
     //may not be a necessary function but you know i think it might be
     updateUsedFrames(usedFrames: number) {
         this.usedFrames = usedFrames;
-        this.tieups = [];
-        for (var i =0; i < this.treadle_count; i++) {
-            this.tieups.push([]);
-            for (var j= 0; j < this.usedFrames; j++) {
-                this.tieups[i].push(false);
+        if (this.usedFrames > 8) {
+            this.tieups = [];
+            if(this.treadle_count > 10) {
+                for (var i =0; i < this.treadle_count; i++) {
+                    this.tieups.push([]);
+                    for (var j= 0; j < this.usedFrames; j++) {
+                        this.tieups[i].push(false);
+                    }
+                }
+            } else {
+                for (var i = 0; i < 10; i++) {
+                    this.tieups.push([]);
+                    for (var j = 0; j < this.usedFrames;j++) {
+                        this.tieups[i].push(false);
+                    }
+                }
             }
         }
     }
@@ -79,12 +98,11 @@ export class TieUps {
     updateTieUps() {
         //"empties" the pre-existing true values from the tie-ups (to protect from stale changes to the pattern still persisting in the tie-ups)
         var tie_up_counter = 0;
-        for (var i = 0; i < this.tieups.length; i++) {
-            for (var j= 0; j < this.tieups[i].length; j++) {
-                this.tieups[i][j] = false;
-            }
+        this.tieups = this.tieups.map(x => x.map(y => false));
+        var effective_treadles:Number = 10;
+        if (this.treadle_count > 10) {
+            effective_treadles = this.treadle_count;
         }
-        
         //iterates through each row of the pattern
         for (var r = 0; r < this.pattern.length; r++) {
             var adjusted = false;
@@ -94,7 +112,7 @@ export class TieUps {
                 if (utilInstance.countOnes(utilInstance.xor(this.pattern[r], this.threading[tr])) < utilInstance.countOnes(this.pattern[r])) {
                     adjusted = true;
                     // then mark the tie ups to include this frame (aka threading row) at the current column of the tieups (the "activated" treadle in this row of the pattern)
-                    for (var j = 0; j < this.treadle_count; j++) {
+                    for (var j = 0; j < effective_treadles; j++) {
                         if (this.treadling[r][j] == true) {
                             this.tieups[j][tr] = true;
                         }
@@ -110,8 +128,15 @@ export class TieUps {
                 break;
             }
         }
-
-        console.log("tieups");
-        console.log(this.tieups);
     }
+
+
+  //Returns whether or not a particular location of the TieUps grid is marked true or false
+  isUp(i: number, j:number) : boolean { //TODO: Change this to either variables or size of the array (kind of favoring size of array) but we don't want literals
+    if (i > -1 && i < 8 && j > -1 && j < 10) {
+      return this.tieups[i][j];
+    }
+    return false;
+  }
+
 }
