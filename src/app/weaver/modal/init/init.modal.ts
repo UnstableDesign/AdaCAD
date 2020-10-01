@@ -1,43 +1,65 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
+
+interface StartOptions {
+  value: string;
+  viewValue: string;
+}
+
+
 @Component({
   selector: 'app-init',
   templateUrl: './init.modal.html',
   styleUrls: ['./init.modal.scss']
 })
+
+
+
+
 export class InitModal implements OnInit {
 
-  form: any = {};
+
+
+  opts: StartOptions[] = [
+      {value: 'new', viewValue: 'Begin New Draft'},
+      {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
+      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'}
+    ];
+
+
+  //form: any = {};
+  selected:string = null;
+  valid:boolean = false; 
+  draft: any = {};
+
 
   constructor(private dialogRef: MatDialogRef<InitModal>) {
   }
 
   ngOnInit() {
-    this.form.pattern = null;
-    this.form.patterns = null;
-    this.form.wefts = 30;
-    this.form.type = "new";
-    this.form.shuttles = null;
+
+
   }
 
   handleFile(e: any) {
     console.log(e);
     if (e.type === "image") this.processImageData(e.data);
     else if (e.type === "ada") this.processDraftData(e.data);
+    this.valid = true;
+
   }
 
   processImageData(e: any) {
-    this.form.warps = e.width;
-    this.form.wefts = e.height;
-    this.form.type = "new";
+    this.draft.warps = e.width;
+    this.draft.wefts = e.height;
     var img = e.data;
     var data = [];
 
     for (var i=0; i< e.height; i++) {
       data.push([]);
       for (var j=0; j< e.width; j++) {
-        var idx = (i * 4 * this.form.warps) + (j * 4);
+        var idx = (i * 4 * this.draft.warps) + (j * 4);
         var threshold = (img[idx] + img[idx+1] + img[idx+2]);
         var alpha = img[idx + 3];
 
@@ -48,23 +70,28 @@ export class InitModal implements OnInit {
         }
       }
     }
-    this.form.pattern = data;
+    this.draft.pattern = data;
     // console.log(this.form.pattern);
   }
 
   processDraftData(e: any) {
-    this.form.type = "update";
-    this.form.draft = e;
+   // this.form.type = "update";
+    this.draft = e; //this is the data from the upload event
 
   }
 
   onNoClick(): void {
-    console.log("onNoClick", this.form)
-    this.dialogRef.close(this.form);
+    console.log("onNoClick", this.draft);
+    this.dialogRef.close(this.draft);
+    
   }
 
-  save() {
-    this.dialogRef.close(this.form);
+  save(f: NgForm) {
+    if(this.draft.epi == undefined) this.draft.epi = f.value.epi;
+    if(this.draft.warps == undefined) this.draft.warps = f.value.warps; 
+
+
+    this.dialogRef.close(this.draft);
   }
 
 }

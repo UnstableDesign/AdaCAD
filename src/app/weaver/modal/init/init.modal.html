@@ -1,21 +1,42 @@
-<h2 mat-dialog-title>Initialize Weave Draft</h2>
+<h2 mat-dialog-title>Welcome To AdaCAD</h2>
 
 <mat-dialog-content>
+
+
   <form #initForm="ngForm">
-    <mat-form-field>
-      <input matInput  type="number" placeholder="Weave Warps" name="warps" min="2" max="40" step="1" [(ngModel)]="form.warps">
+
+    <mat-form-field appearance="fill">
+      <mat-label>Where would you like to start?</mat-label>
+    <mat-select [(value)]="selected">
+      <mat-option *ngFor="let opt of opts" [value]="opt.value">
+        {{opt.viewValue}}
+      </mat-option>
+    </mat-select>
     </mat-form-field>
-     <mat-form-field >
-      <input matInput  type ="number" placeholder="Weave EPI" name="epi" [(ngModel)]="form.epi">
+
+    <ng-container *ngIf="(selected == 'new')">
+      <mat-form-field appearance="fill">
+      <input matInput  type="number" placeholder="Weave Warps" name="warps" min="2" step="1" [(ngModel)]="warps"  required (change) = "valid = 1">
+    </mat-form-field>
+     <mat-form-field appearance="fill">
+      <input matInput  type ="number" placeholder="Weave EPI" name="epi" [(ngModel)]="epi">
      </mat-form-field> 
-    <p>OR</p> 
-<!--     <mat-form-field > 
- -->    <mat-label>Open File (bitmap or .ada)</mat-label><br>
+    </ng-container>
+
+    
+    <ng-container *ngIf="(selected == 'ada' || selected == 'bmp')">
     <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
-<!--        </mat-form-field>
- -->  </form>
+    </ng-container>
+
+
+
+
+
+</form>
 </mat-dialog-content>
 
-<mat-dialog-actions>
-    <button class="mat-raised-button mat-primary"(click)="save()">Start</button>
-</mat-dialog-actions>
+ <ng-container>
+    <mat-dialog-actions>
+        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm)">Start</button>
+    </mat-dialog-actions>
+ </ng-container>

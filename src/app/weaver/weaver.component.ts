@@ -77,33 +77,19 @@ export class WeaverComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
 
+      console.log("closed");
 
-      if (result) {
-        this.draft = new Draft(result);
+      this.draft = new Draft(result);
 
-        if(result.epi === undefined) this.draft.epi = 10;
-
-
-        if (result.type != "update"){
-            this.draft.shuttles[0].setColor('#3d3d3d');
-
-            //only retreives default patterns when its not a .ada upload
-            this.ps.getPatterns().subscribe((res) => {
-               for(var i in res.body){
-                  this.draft.patterns.push(res.body[i])
-               }
-            });
-
-        } 
+      if (this.draft.patterns === undefined){
+           this.draft.patterns = [];
+          this.ps.getPatterns().subscribe((res) => {
+             for(var i in res.body){
+                this.draft.patterns.push(res.body[i])
+             }
+          });
       } 
-       else if (result.type === "update") {
-         this.draft = result.draft;
-         this.weaveRef.redraw();
-         console.log(draft);
-       }
-
-       console.log("on init closed ", this.draft)
-
+         
     });
 
   }

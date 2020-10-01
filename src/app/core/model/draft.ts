@@ -37,87 +37,84 @@ export class Draft implements DraftInterface {
   warps: number;
   epi: number;
 
-  constructor({type, ...params}) {
-    console.log("Draft Constructor", type, params);
-    var pattern = null;
+  constructor({...params}) {
+    console.log("Draft Constructor", params);
 
+    this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
+    this.warps = (params.warps === undefined) ? 20 : params.warps;
+    this.epi = (params.warps === undefined) ? 10 : params.epi;
+    this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
+    this.pattern = (params.pattern === undefined) ? [] : params.pattern;
+    this.connections = (params.connections === undefined)? [] : params.connections;
+    this.labels = (params.labels === undefined)? [] : params.labels;
 
-    switch (type) {
-      case "update":
-
-          var shuttles = params.draft.shuttles
+    if(params.shuttles === undefined){
+      let s = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#3d3d3d'});
+      this.shuttles = [s];
+    }else{
+      var shuttles = params.shuttles
           var sd = [];
           for (var i in shuttles) {
             var s = new Shuttle(shuttles[i]);
             sd.push(s);
           }
 
-
         this.shuttles = sd;
+    }
 
-        var patterns = params.draft.patterns
+
+    if(params.rowShuttleMapping === undefined){
+      this.rowShuttleMapping = [];
+    for(var ii = 0; ii < this.wefts; ii++) {
+          this.rowShuttleMapping.push(0);
+          this.visibleRows.push(ii);
+        }
+      }else{
+        this.rowShuttleMapping = params.rowShuttleMapping;
+      }
+
+
+
+    if(params.patterns !== undefined){
+          var patterns = params.patterns
           var pts = [];
           for (i in patterns) {
             pts.push(patterns[i]);
           }
         this.patterns = pts;
-
-        this.rowShuttleMapping = params.draft.rowShuttleMapping;
-        this.wefts = params.draft.wefts;
-        this.warps = params.draft.warps;
-        this.visibleRows = params.draft.visibleRows;
-        this.epi = params.draft.epi;
-        pattern = params.draft.pattern;
-        this.connections = params.draft.connections;
-        this.labels = params.draft.labels;
-        break;
-      case "new":
-        let l = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#3d3d3d'});
-        l.setThickness(params.epi);
-        this.wefts = params.wefts;
-        this.warps = params.warps;
-        this.epi = params.epi;
-        this.shuttles = [l];
-        this.rowShuttleMapping = [];
-        this.visibleRows = [];
-        this.connections = [];
-        this.labels = [];
-        this.patterns = [];
-        pattern = params.pattern;
-        for(var ii = 0; ii < this.wefts; ii++) {
-          this.rowShuttleMapping.push(0);
-          this.visibleRows.push(ii);
-        }
-        break;
     }
 
-    if (!pattern) {
-      this.pattern = [];
 
+    if (params.pattern === undefined) {
+      this.pattern = [];
       for(var ii = 0; ii < this.wefts; ii++) {
         this.pattern.push([]);
         for (var j = 0; j < this.warps; j++)
           this.pattern[ii].push(false);
       }
     }
-    else this.pattern = pattern;
+    else{
+      this.pattern = params.pattern;
+    } 
 
-    // console.log(this.pattern);
+
+    console.log(this);
+
   }
 
-  loadAdaFile(draft) {
-    this.shuttles = draft.shuttles;
-    this.rowShuttleMapping = draft.rowShuttleMapping;
-    this.wefts = draft.wefts;
-    this.warps = draft.warps;
-    this.visibleRows = draft.visibleRows;
-    this.epi = draft.epi;
-    this.pattern = draft.pattern;
-    this.patterns = draft.patterns;
-    this.connections = draft.connections;
-    this.labels = draft.labels;
-    return this.pattern;
-  }
+  // loadAdaFile(draft) {
+  //   this.shuttles = draft.shuttles;
+  //   this.rowShuttleMapping = draft.rowShuttleMapping;
+  //   this.wefts = draft.wefts;
+  //   this.warps = draft.warps;
+  //   this.visibleRows = draft.visibleRows;
+  //   this.epi = draft.epi;
+  //   this.pattern = draft.pattern;
+  //   this.patterns = draft.patterns;
+  //   this.connections = draft.connections;
+  //   this.labels = draft.labels;
+  //   return this.pattern;
+  // }
 
   isUp(i:number, j:number) : boolean{
     var row = this.visibleRows[i];
