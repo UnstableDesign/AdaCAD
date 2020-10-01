@@ -53,23 +53,40 @@
 <mat-expansion-panel >
   <mat-expansion-panel-header>
     <mat-panel-title>
-      Loom Settings
+      Weave Dimensions
     </mat-panel-title>
     <mat-panel-description>
     
     </mat-panel-description>
   </mat-expansion-panel-header>
-  <form #envt_form="ngForm" >
 
-        <mat-form-field >
-        <input class="envt" matInput [formControl]= "warp_form" type="number" min="2" placeholder="Warps" name="warp_num" (click)="warpChange()" > 
+
+ <form #envt="ngForm" novalidate>
+      <mat-form-field>
+        <input matInput name="warps" 
+        [readonly]="warp_locked" 
+        [(ngModel)]="warps" 
+        type="number" 
+        min="2" 
+        placeholder="Warps" 
+        (change)="warpChange(envt)"> 
+         <button mat-icon-button>
+        <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
       </mat-form-field>
-  
-      <mat-form-field >
-        <input class="envt" matInput [formControl]= "epi_form" type="number" min= "0" placeholder="EPI" name="epi" (click)="epiChange()"> 
-         <span matSuffix>epi</span>
+      <mat-form-field>
+        <input matInput  
+        name="epi" 
+        [(ngModel)]="epi" 
+        type="number" 
+        min= "0" 
+        placeholder="Ends Per Inch" 
+        (change)="epiChange(envt)">  
+        <span matSuffix>epi</span>
       </mat-form-field>
- 
+      <mat-form-field>
+        <input matInput name="width" [(ngModel)]="width" step="0.125" type="number" min= "0.25" placeholder="Width" (change)="widthChange(envt)"> 
+         <span matSuffix>inches</span> 
+       </mat-form-field>
 
 </form>
 </mat-expansion-panel>

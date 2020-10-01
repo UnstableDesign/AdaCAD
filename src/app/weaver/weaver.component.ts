@@ -356,7 +356,7 @@ export class WeaverComponent implements OnInit {
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
     console.log('send emit - insert');
-    this.onAddRow.emit();
+    //this.onAddRow.emit();
   }
 
   public cloneRow(i, c, shuttle) {
@@ -364,7 +364,7 @@ export class WeaverComponent implements OnInit {
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
     console.log('send emit - clone');
-    this.onAddRow.emit();
+    //this.onAddRow.emit();
   }
 
   public deleteRow(i) {
@@ -373,7 +373,7 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.updateSize();
    console.log('send emit - delete');
 
-    this.onAddRow.emit();
+    //this.onAddRow.emit();
 
   }
 
@@ -425,16 +425,16 @@ export class WeaverComponent implements OnInit {
 
 
   public warpNumChange(e:any) {
-    if(e.warp_num == "") return;
+    if(e.warps == "") return;
 
-    if(e.warp_num > this.draft.warps){
-      var diff = e.warp_num - this.draft.warps;
+    if(e.warps > this.draft.warps){
+      var diff = e.warps - this.draft.warps;
       
       for(var i = 0; i < diff; i++){  
         this.insertCol(this.draft.warps, 0);
       }
     }else{
-      var diff = this.draft.warps - e.warp_num;
+      var diff = this.draft.warps - e.warps;
       for(var i = 0; i < diff; i++){  
         this.deleteCol(this.draft.warps-1);
       }

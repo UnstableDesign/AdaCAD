@@ -3,13 +3,17 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../../../core/model/shuttle';
 import { Draft } from '../../../core/model/draft';
-import { FormControl } from '@angular/forms';
+import { NgForm } from '@angular/forms';
+
+
 
 @Component({
   selector: 'app-shuttles',
   templateUrl: './shuttles.component.html',
   styleUrls: ['./shuttles.component.scss']
 })
+
+
 export class ShuttlesComponent implements OnInit {
   @Input() shuttles;
   @Input() warps;
@@ -21,16 +25,15 @@ export class ShuttlesComponent implements OnInit {
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
 
+  width = 0;
   selected = 0;
-  weft_form = new FormControl('');
-  warp_form = new FormControl('');
-  epi_form = new FormControl('');
+  warp_locked = false;
+
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.epi_form.value = this.epi;
-    this.warp_form.value = this.warps;
+    this.width = this.warps / this.epi;
 
   }
 
@@ -59,17 +62,32 @@ export class ShuttlesComponent implements OnInit {
   }
 
 
-  warpChange() {
-    this.onWarpNumChange.emit({warp_num: this.warp_form.value});
+  warpChange(f: NgForm) {
+    console.log(f.value);
+    console.log(f.controls['warps']);
+    f.controls['width'].setValue(f.value.warps / f.value.epi);
+    this.onWarpNumChange.emit({warps: f.value.warps})
   }
 
-  epiChange() {
-    this.onEpiNumChange.emit({epi: this.epi_form.value});
+  epiChange(f: NgForm) {
+    console.log(f.value);
+    f.controls['width'].setValue(f.value.warps / f.value.epi);   
+    this.onEpiNumChange.emit({epi: f.value.epi});
+
   }
 
-  updateForm(){
-    console.log("form upddated");
+  widthChange(f: NgForm) {
+    console.log(f.value);
+    if(this.warp_locked){
+      f.controls['epi'].setValue(Math.ceil(f.value.warps / f.value.width));   
+    }else{
+      f.controls['warps'].setValue(Math.ceil(f.value.width * f.value.epi));   
+      this.onWarpNumChange.emit({warps: f.value.warps})
+    }
+   
+
   }
+
 
 
 
@@ -85,6 +103,5 @@ export class ShuttlesComponent implements OnInit {
     console.log(e);
    
   }
-
 
 }
