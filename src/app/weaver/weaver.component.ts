@@ -80,9 +80,12 @@ export class WeaverComponent implements OnInit {
 
       if (result) {
         this.draft = new Draft(result);
+
+        if(result.epi === undefined) this.draft.epi = 10;
+
+
         if (result.type != "update"){
             this.draft.shuttles[0].setColor('#3d3d3d');
-            this.draft.epi = 10;
 
             //only retreives default patterns when its not a .ada upload
             this.ps.getPatterns().subscribe((res) => {
@@ -96,6 +99,7 @@ export class WeaverComponent implements OnInit {
        else if (result.type === "update") {
          this.draft = result.draft;
          this.weaveRef.redraw();
+         console.log(draft);
        }
 
        console.log("on init closed ", this.draft)
