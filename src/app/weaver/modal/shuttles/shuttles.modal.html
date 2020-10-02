@@ -1,32 +1,32 @@
-<h2 mat-dialog-title>Edit Shuttle</h2>
+<h2 mat-dialog-title>Edit Weft System</h2>
 
 <mat-dialog-content>
   
   <form #shuttleForm="ngForm">
     <mat-form-field class="is-fullwidth">
-      <input matInput placeholder="Shuttle Name" name="name" [(ngModel)]="shuttle.name">
+      <input matInput placeholder="Weft System Name" name="name" [(ngModel)]="shuttle.name">
     </mat-form-field>
-    <mat-form-field class="is-fullwidth">
+   <!--  <mat-form-field class="is-fullwidth">
       <mat-select placeholder="Yarn Type" name="type" [(ngModel)]="shuttle.type">
         <mat-option *ngFor="let type of types" [value]="type">
           {{ type }}
         </mat-option>
       </mat-select>
-    </mat-form-field>
-    <div class="is-fullwidth">
+    </mat-form-field> -->
+<!--     <div class="is-fullwidth">
       <mat-form-field >
         <input matInput  type="text" placeholder="Start Label" name="labelStart" [(ngModel)]="shuttle.startLabel">
       </mat-form-field>
       <mat-form-field >
         <input matInput  type="text" placeholder="End Label" name="labelEnd" [(ngModel)]="shuttle.endLabel">
       </mat-form-field>
-    </div>
-    <mat-form-field >
-      <input matInput  type="number" placeholder="Wraps per Inch" name="thickness" [(ngModel)]="shuttle.thickness"> 
+    </div> -->
+<!--     <mat-form-field >
+      <input matInput  type="number" placeholder="Yarn Thickness" name="thickness" [(ngModel)]="shuttle.thickness"> 
       <span *ngIf="shuttle.thickness">&nbsp;&nbsp;wraps/inch</span>
-    </mat-form-field>
+    </mat-form-field> -->
     <mat-form-field>
-      <input matInput placeholder="Shuttle Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
+      <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
        [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
     </mat-form-field>
     <mat-radio-group [(ngModel)]="shuttle.insert" name="insert">
@@ -34,7 +34,7 @@
       <mat-radio-button value="1">Left</mat-radio-button>
       <mat-radio-button value="0">Right</mat-radio-button>
     </mat-radio-group>
-    <upload-form [type]="shuttle" [warps]="warps" (onImageData)="processData($event)" class="button"></upload-form>
+   <!--  <upload-form [type]="shuttle" [warps]="warps" (onImageData)="processData($event)" class="button"></upload-form> -->
   </form>
  
 </mat-dialog-content>

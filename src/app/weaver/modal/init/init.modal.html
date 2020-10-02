@@ -2,18 +2,18 @@
 
 <mat-dialog-content>
   <form #initForm="ngForm">
-    <mat-form-field >
-      <input matInput  type="number" placeholder="Weave Warps" name="warps" [(ngModel)]="form.warps">
+    <mat-form-field>
+      <input matInput  type="number" placeholder="Weave Warps" name="warps" min="2" max="40" step="1" [(ngModel)]="form.warps">
     </mat-form-field>
-   <!--  <mat-form-field >
-      <input matInput  type="number" placeholder="Weave EPI" name="epi" [(ngModel)]="form.epi">
-    </mat-form-field> -->
-    <p>OR</p>
-    <!-- <mat-form-field > -->
-    <mat-label>Upload Bitmap file</mat-label><br>
+     <mat-form-field >
+      <input matInput  type ="number" placeholder="Weave EPI" name="epi" [(ngModel)]="form.epi">
+     </mat-form-field> 
+    <p>OR</p> 
+<!--     <mat-form-field > 
+ -->    <mat-label>Open File (bitmap or .ada)</mat-label><br>
     <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
-    <!-- </mat-form-field> -->
-  </form>
+<!--        </mat-form-field>
+ -->  </form>
 </mat-dialog-content>
 
 <mat-dialog-actions>

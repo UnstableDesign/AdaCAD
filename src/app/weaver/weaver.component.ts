@@ -48,7 +48,7 @@ export class WeaverComponent implements OnInit {
    * The list of all patterns saved. Provided by pattern service.
    * @property {Array<Pattern>}
    */
-  patterns;
+  //patterns;
 
   /**
    * The name of the current view being shown.
@@ -72,23 +72,40 @@ export class WeaverComponent implements OnInit {
    */
   constructor(private ps: PatternService, private dialog: MatDialog, 
               private store: Store<AppState>) {
+    
     const dialogRef = this.dialog.open(InitModal);
 
     dialogRef.afterClosed().subscribe(result => {
+
+
       if (result) {
-        console.log(result);
         this.draft = new Draft(result);
-        if (result.type != "update") this.draft.shuttles[0].setColor('#3d3d3d');
-        console.log("this.draft.shuttles");
-        console.log(this.draft.shuttles);
+        if (result.type != "update"){
+            this.draft.shuttles[0].setColor('#3d3d3d');
+            this.draft.epi = 10;
+
+            //only retreives default patterns when its not a .ada upload
+            this.ps.getPatterns().subscribe((res) => {
+               for(var i in res.body){
+                  this.draft.patterns.push(res.body[i])
+               }
+            });
+
+        } 
       } 
-      // else if (result.type === "update") {
-      //   console.log(result);
-      //   this.draft = result.draft;
-      //   this.weaveRef.redraw();
-      // }
+       else if (result.type === "update") {
+         this.draft = result.draft;
+         this.weaveRef.redraw();
+       }
+
+       console.log("on init closed ", this.draft)
+
     });
   }
+
+
+
+
 
   ngOnInit() {
     this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
@@ -99,7 +116,8 @@ export class WeaverComponent implements OnInit {
       this.redoItem = redoItem;
       console.log(redoItem);
     });
-    this.ps.getPatterns().subscribe((res) => {this.patterns = res.body;});
+    
+    
   }
 
   ngOnDestroy(): void {
@@ -201,7 +219,8 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onFill(e) {
-    var p = this.patterns[e.id].pattern;
+    var p = this.draft.patterns[e.id].pattern;
+    console.log("fill", p)
     this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
   }
 
@@ -223,7 +242,7 @@ export class WeaverComponent implements OnInit {
    */
   public onMask(e) {
     console.log(e);
-    var p = this.patterns[e.id].pattern;
+    var p = this.draft.patterns[e.id].pattern;
     this.weaveRef.fillArea(this.weaveRef.selection, p, 'mask');
   }
 
@@ -254,6 +273,7 @@ export class WeaverComponent implements OnInit {
    *
    */
   public onSave(e: any) {
+
     e.bitmap = this.bitmap;
     if (e.type === "bmp") this.weaveRef.saveBMP("weave_draft", e);
     else if (e.type === "ada") this.weaveRef.saveADA("weave_draft", e);
@@ -275,6 +295,7 @@ export class WeaverComponent implements OnInit {
       }
     });
   }
+
 
   /**
    * Open the label modal.
@@ -333,22 +354,50 @@ export class WeaverComponent implements OnInit {
     this.draft.insertRow(i, shuttle);
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
+    console.log('send emit - insert');
+    //this.onAddRow.emit();
   }
 
   public cloneRow(i, c, shuttle) {
     this.draft.cloneRow(i, c, shuttle);
     this.draft.updateConnections(i, 1);
     this.weaveRef.updateSize();
+    console.log('send emit - clone');
+    //this.onAddRow.emit();
   }
 
   public deleteRow(i) {
     this.draft.deleteRow(i);
     this.draft.updateConnections(i, -1);
     this.weaveRef.updateSize();
+   console.log('send emit - delete');
+
+    //this.onAddRow.emit();
+
+  }
+
+    /**
+   * In
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public insertCol(i, shuttle) {
+    this.draft.insertCol();
+    this.weaveRef.updateSize();
+  }
+
+
+  public deleteCol(i) {
+    this.draft.deleteCol(i);
+    this.draft.updateConnections(i, -1);
+    this.weaveRef.updateSize();
   }
 
   public updatePatterns(e: any) {
-    this.patterns = e.patterns;
+    // this.patterns = e.patterns;
+    // this.draft.patterns = this.patterns;
+    this.draft.patterns = e.patterns;
+
   }
 
   public createShuttle(e: any) {
@@ -368,10 +417,46 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.updateSize();
   }
 
-  public createPattern(e: any) {
-    e.pattern.id = this.patterns.length;
-    this.patterns.push(e.pattern);
+  public epiChange(e:any){
+    this.draft.epi = e.epi;
+
   }
+
+
+  public warpNumChange(e:any) {
+    if(e.warps == "") return;
+
+    if(e.warps > this.draft.warps){
+      var diff = e.warps - this.draft.warps;
+      
+      for(var i = 0; i < diff; i++){  
+        this.insertCol(this.draft.warps, 0);
+      }
+    }else{
+      var diff = this.draft.warps - e.warps;
+      for(var i = 0; i < diff; i++){  
+        this.deleteCol(this.draft.warps-1);
+      }
+
+    }
+
+  }
+
+  public createPattern(e: any) {
+    // e.pattern.id = this.patterns.length;
+    // this.patterns.push(e.pattern);
+    // this.draft.patterns = this.patterns;
+    e.pattern.id = this.draft.patterns.length;
+    this.draft.patterns.push(e.pattern);
+  }
+
+
+//should this just hide the pattern or fully remove it, could create problems with undo/redo
+   public removePattern(e: any) {
+    this.draft.patterns = this.draft.patterns.filter(pattern => pattern !== e.pattern);
+  }
+
+
 
   public redraw() {
     this.weaveRef.redraw();

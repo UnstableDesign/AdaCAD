@@ -1,11 +1,16 @@
-<app-topbar [undoItem]="undoItem" [redoItem]="redoItem" 
-  (onUndo)="undo();" (onRedo)="redo();"
-  (onSave)="onSave($event);"></app-topbar>
+<app-topbar 
+[undoItem]="undoItem" 
+[redoItem]="redoItem"
+  (onUndo)="undo();" 
+  (onRedo)="redo();"
+  (onSave)="onSave($event);">
+    
+  </app-topbar>
 <mat-sidenav-container class="example-container">
   <mat-sidenav mode="side" position="end" opened>
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
       <mat-tab label="Design">
-        <app-design [brush]="brush" [favorites]="patterns | filter: {favorite: true }"
+        <app-design [brush]="brush" [favorites]="draft?.patterns | filter: {favorite: true }"
         (onViewChange)="onViewChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
@@ -16,17 +21,26 @@
         (onConnectionCreate)="openConnectionDialog();"
         (onLabelCreate)="openLabelDialog()"></app-design> 
       </mat-tab>
-      <mat-tab label="Shuttles">
-        <app-shuttles *ngIf="selected === 1" [shuttles]="draft?.shuttles" (onColorChange)="redraw()"
-        [warps]="draft?.warps"
+      <mat-tab label="System">
+        <app-shuttles *ngIf="selected === 1" 
+        [shuttles]="draft?.shuttles" 
+        [warps]="draft?.warps" 
+        [epi]="draft?.epi" 
+        (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
         (onHideShuttle)="hideShuttle($event);"
-        (onShowShuttle)="showShuttle($event);"></app-shuttles> 
+        (onShowShuttle)="showShuttle($event);"
+        (onWarpNumChange) = "warpNumChange($event)"
+        (onEpiNumChange) = "epiChange($event)">
+          
+        </app-shuttles> 
+
       </mat-tab>
-      <mat-tab label="Stitches">
-        <app-patterns *ngIf="selected === 2" [patterns]="patterns"
+      <mat-tab label="Pattern">
+        <app-patterns *ngIf="selected === 2" [patterns]="draft?.patterns"
         (onChange)="updatePatterns($event);"
-        (onCreatePattern)="createPattern($event);"></app-patterns>  
+        (onCreatePattern)="createPattern($event);"
+        (onRemovePattern)="removePattern($event);"></app-patterns>  
       </mat-tab>
     </mat-tab-group>
   </mat-sidenav>

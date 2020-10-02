@@ -2,6 +2,7 @@ import { Shuttle } from './shuttle';
 import { Threading } from './threading';
 import { Treadling } from './treadling';
 import { TieUps }  from "./tieups";
+import { Pattern } from './pattern';
 
 import * as _ from 'lodash';
 import { active } from 'd3';
@@ -11,7 +12,8 @@ import { active } from 'd3';
  * @interface
  */
 export interface DraftInterface {
-  pattern: Array<Array<boolean>>;
+  pattern: Array<Array<boolean>>; // the single design pattern
+  patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar
   shuttles: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   visibleRows: Array<number>;
@@ -31,6 +33,7 @@ export interface DraftInterface {
  */
 export class Draft implements DraftInterface {
   pattern: Array<Array<boolean>>;
+  patterns: Array<Pattern>;
   shuttles: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   visibleRows: Array<number>;
@@ -44,20 +47,28 @@ export class Draft implements DraftInterface {
   tieups: TieUps;
 
   constructor({type, ...params}) {
-    console.log(type, params);
+    console.log("Draft Constructor", type, params);
     var pattern = null;
-    //var shuttles = params.draft.shuttles
-    //temp replacement of above commmented out line with below 2 lines found in deployed code
-    let l = new Shuttle();
-    var shuttles = [l]//params.draft.shuttles
-    var sd = [];
-    for (var sh in shuttles) {
-      var s = new Shuttle(shuttles[i]);
-      sd.push(s);
-    }
     switch (type) {
       case "update":
+
+          var shuttles = params.draft.shuttles
+          var sd = [];
+          for (var i in shuttles) {
+            var s = new Shuttle(shuttles[i]);
+            sd.push(s);
+          }
+
+
         this.shuttles = sd;
+
+        var patterns = params.draft.patterns
+          var pts = [];
+          for (i in patterns) {
+            pts.push(patterns[i]);
+          }
+        this.patterns = pts;
+
         this.rowShuttleMapping = params.draft.rowShuttleMapping;
         this.wefts = params.draft.wefts;
         this.warps = params.draft.warps;
@@ -68,7 +79,7 @@ export class Draft implements DraftInterface {
         this.labels = params.draft.labels;
         break;
       case "new":
-        let l = new Shuttle({id: 0, name: 'Shuttle 1', visible: true, color: '#3d3d3d'});
+        let l = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#3d3d3d'});
         l.setThickness(params.epi);
         this.wefts = params.wefts;
         this.warps = params.warps;
@@ -78,10 +89,11 @@ export class Draft implements DraftInterface {
         this.visibleRows = [];
         this.connections = [];
         this.labels = [];
+        this.patterns = [];
         pattern = params.pattern;
-        for(var i = 0; i < this.wefts; i++) {
+        for(var ii = 0; ii < this.wefts; ii++) {
           this.rowShuttleMapping.push(0);
-          this.visibleRows.push(i);
+          this.visibleRows.push(ii);
         }
         break;
     }
@@ -89,10 +101,10 @@ export class Draft implements DraftInterface {
     if (!pattern) {
       this.pattern = [];
 
-      for(var i = 0; i < this.wefts; i++) {
+      for(var ii = 0; ii < this.wefts; ii++) {
         this.pattern.push([]);
         for (var j = 0; j < this.warps; j++)
-          this.pattern[i].push(false);
+          this.pattern[ii].push(false);
       }
     }
     else this.pattern = pattern;
@@ -110,10 +122,11 @@ export class Draft implements DraftInterface {
     this.warps = draft.warps;
     this.visibleRows = draft.visibleRows;
     this.epi = draft.epi;
-    var pattern = draft.pattern;
+    this.pattern = draft.pattern;
+    this.patterns = draft.patterns;
     this.connections = draft.connections;
     this.labels = draft.labels;
-    return pattern;
+    return this.pattern;
   }
 
   isUp(i:number, j:number) : boolean{
@@ -204,7 +217,7 @@ export class Draft implements DraftInterface {
   }
 
   updateSelection(selection: any, pattern: any, type: string) {
-    console.log(selection, pattern, type);
+    console.log("update selection", selection, pattern, type);
     const sj = Math.min(selection.start.j, selection.end.j);
     const si = Math.min(selection.start.i, selection.end.i);
 
@@ -295,6 +308,35 @@ export class Draft implements DraftInterface {
         c.end.y += offset;
       }
     }
+  }
+
+
+//alwasy adds to end
+  insertCol() {
+    var row = [];
+
+    //push one false to the end of each row
+    for (var j = 0; j < this.wefts; j++) {
+      this.pattern[j].push(false);
+    }
+
+    this.warps += 1;
+    this.updateVisible();
+
+  }
+
+
+//always deletes from end
+  deleteCol(i: number) {
+
+    this.warps -= 1;
+
+    //push one false to the end of each row
+    for (var j = 0; j < this.wefts; j++) {
+      this.pattern[j].splice(i, 1);
+    }
+
+    this.updateVisible();
   }
 
   addShuttle(shuttle) {

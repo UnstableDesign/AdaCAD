@@ -15,8 +15,10 @@ export class InitModal implements OnInit {
 
   ngOnInit() {
     this.form.pattern = null;
+    this.form.patterns = null;
     this.form.wefts = 30;
     this.form.type = "new";
+    this.form.shuttles = null;
   }
 
   handleFile(e: any) {
@@ -57,11 +59,12 @@ export class InitModal implements OnInit {
   }
 
   onNoClick(): void {
+    console.log("onNoClick", this.form)
     this.dialogRef.close(this.form);
   }
 
   save() {
-    this.onNoClick();
+    this.dialogRef.close(this.form);
   }
 
 }

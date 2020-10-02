@@ -9,7 +9,7 @@ import { ConnectionModal } from '../../modal/connection/connection.modal';
 })
 export class DesignComponent implements OnInit {
   @Input() brush;
-  @Input() favorites;
+  @Input() favorites; //where does this come from?
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onMask: any = new EventEmitter();

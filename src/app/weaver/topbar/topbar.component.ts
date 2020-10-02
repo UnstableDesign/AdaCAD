@@ -1,25 +1,34 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { AboutModal } from '../modal/about/about.modal';
 
 @Component({
   selector: 'app-topbar',
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
 })
+
+
+
 export class TopbarComponent implements OnInit {
   
   @Output() onSave: any = new EventEmitter();
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
+  @Output() onAboutCreate: any = new EventEmitter();
 
   @Input() undoItem;
   @Input() redoItem;
 
   @ViewChild('bmpLink', {static: true}) bmpLink: any;
   @ViewChild('adaLink', {static: true}) adaLink: any;
+
   downloadBmp: ElementRef;
   downloadAda: ElementRef;
 
-  constructor() { }
+
+  constructor(private dialog: MatDialog) { }
+
 
   ngOnInit() {
     this.downloadBmp = this.bmpLink._elementRef;
@@ -51,5 +60,14 @@ export class TopbarComponent implements OnInit {
   redoClicked(e:any) {
     this.onRedo.emit();
   }
+
+
+  openAboutDialog() {
+    this.onAboutCreate.emit();
+    const dialogRef = this.dialog.open(AboutModal);
+
+  }
+
+
 
 }

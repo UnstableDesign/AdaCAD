@@ -14,15 +14,18 @@ export class PatternsComponent implements OnInit {
   @Input() patterns;
   @Output() onChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
+  @Output() onRemovePattern: any = new EventEmitter();
   constructor(private dialog: MatDialog) { 
   }
 
   ngOnInit() {
+    console.log("init bar");
     // this.ps.getPatterns().subscribe((res: any) => {this.patterns = res;});
 
   }
 
   openDialog(pattern) {
+    console.log("open dialog")
     var create = false;
 
     if (!pattern) {
@@ -60,4 +63,13 @@ export class PatternsComponent implements OnInit {
     this.onChange.emit(obj);
   }
 
+
+  removePattern(pattern) {
+    console.log("remove pattern", pattern);
+    this.onRemovePattern.emit({pattern: pattern});
+  }
+
 }
+
+
+

@@ -6,6 +6,7 @@ import {cloneDeep, now} from 'lodash';
 
 import { Draft } from '../model/draft';
 import { Shuttle } from '../model/shuttle';
+import { Pattern } from '../model/pattern';
 import { Point } from '../model/point';
 import { Selection } from '../model/selection';
 import { CanvasToBMP } from '../model/canvas2image';
@@ -41,6 +42,8 @@ export class WeaveDirective {
    * @property {Draft}
    */
   @Input('draft') weave: any;
+
+
 
   /**
    * The HTML canvas element within the weave draft.
@@ -211,6 +214,7 @@ export class WeaveDirective {
    */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
+
     var offset = 0;
 
     // create offset if brush is select to allow easier selection.
@@ -333,6 +337,8 @@ export class WeaveDirective {
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
+    console.log("on end", event)
+
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && this.brush === 'select')) {
       this.removeSubscription();
@@ -896,7 +902,9 @@ export class WeaveDirective {
   }
 
   private undoRedoSegment() {
+
     console.log(this.prevSegment);
+    
     var start = this.prevSegment.start;
     var end = this.prevSegment.end;
     var segment = this.prevSegment.pattern;
@@ -1288,12 +1296,16 @@ export class WeaveDirective {
   }
 
   /**
-   * Saves the draft as a bitmap file
+   * Saves the draft as a .ada file
    * @extends WeaveDirective
    * @param {string} fileName - name to save file as
    * @returns {void}
    */
   public saveADA(fileName, obj) {
+
+
+    console.log("save ADA", this.weave);
+
     var theJSON = JSON.stringify(this.weave);
     console.log(theJSON);
     var uri = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);

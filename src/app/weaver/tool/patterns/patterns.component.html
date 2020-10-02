@@ -1,6 +1,6 @@
 <button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
   <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-  Create Stitch
+  Create Pattern
 </button>
 <ng-container *ngFor="let pattern of patterns;">
 <mat-card class="example-card">
@@ -8,7 +8,8 @@
     <button mat-icon-button (click)="openDialog(pattern)" class="pattern-edit-button">
       <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
     </button>
-    <button mat-icon-button class="pattern-trash-button">
+   <!--  Commented as it was not working -->
+    <button mat-icon-button (click)="removePattern(pattern)"class="pattern-trash-button">
       <i aria-label="Favorite button" class="fas fa-trash"></i>
     </button>
   </mat-card-header>
