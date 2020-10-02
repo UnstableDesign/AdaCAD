@@ -1,4 +1,5 @@
 <div class="example-container">
+
   <section class="section-container">
     <mat-button-toggle-group name="fontStyle" aria-label="Font Style" #group [value]="view" (change)="viewChange($event);">
       <mat-button-toggle value="pattern">
@@ -16,22 +17,28 @@
     </mat-button-toggle-group>
   </section>
   <section *ngIf="view === 'pattern'" class="section-container">
-    <h3>Brushes</h3>
+    <h3>Interlacement Tools</h3>
     <div class="buttons">
-      <button matTooltip="Shortcut: d" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Point</button>
+      <button matTooltip="draw in filled cells to draft" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Draw
+</button>
 
-      <button matTooltip="Shortcut: e" name="erase" class="button is-primary brush  " [class.is-active]="brush === 'erase'" (click)="brushChange($event)">Erase</button>
-      <button matTooltip="Shortcut: x. Note: This brush cannot be dragged." name="invert" class="button is-primary brush  " [class.is-active]="brush === 'invert'" (click)="brushChange($event)">Invert</button>
-      <button matTooltip="Shortcut: s" name="select" id="select" class="button is-primary codehilite brush" [class.is-active]="brush === 'select'" (click)="brushChange($event)">Select</button>
+      <button matTooltip="erase filled cells to draft" name="erase" class="button is-primary brush" [class.is-active]="brush === 'erase'" (click)="brushChange($event)">Erase</button>
+
+      <button matTooltip="invert the state of one cell" name="invert" class="button is-primary brush  " [class.is-active]="brush === 'invert'" (click)="brushChange($event)">Invert</button>
+     
     </div>
   <mat-divider></mat-divider>
   </section>
   <section *ngIf="view === 'pattern'" class="section-container">
-    <h3>Edit Selection</h3>
+    <h3>Pattern Tools</h3>
     <div class="buttons">
+       <button matTooltip="select a region of the draft" name="select" id="select" class="button is-primary codehilite brush" [class.is-active]="brush === 'select'" (click)="brushChange($event)">Select Region</button>
+     </div>
+
+  <div class="buttons">
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
-          <button id="fill" class="button is-primary codehilite brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu">
+          <button id="fill" [disabled] = "brush !=='select'" class="button is-primary codehilite brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu">
             <span class="brush-type">Fill</span>
             <span class="icon is-small">
               <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -48,14 +55,14 @@
       </div>
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
-          <button id="mask" class="button is-primary codehilite  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu">
+          <button id="mask" class="button is-primary codehilite  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu" [disabled] = "brush !=='select'">
             <span class="brush-type">Mask</span>
             <span class="icon is-small">
               <i class="fas fa-angle-down" aria-hidden="true"></i>
             </span>
           </button>
         </div>
-        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+        <div class="dropdown-menu" id="dropdown-menu" role="menu" >
           <div class="dropdown-content">
             <ng-container *ngFor="let pat of favorites">
             <a id="{{pat.id}}" name="fill" (click)="maskEvent($event, pat.id)" class="dropdown-item brush">{{ pat.name }}</a>
@@ -63,6 +70,10 @@
           </div>
         </div>
       </div>
+       <button name="clear" [disabled] = "brush !=='select'" class="button is-primary  brush" (click)="clearEvent($event);">Clear</button>
+      
+      <button name="copy" [disabled] = "brush !=='select'" (click)="copyEvent($event);" class="button is-primary  brush">Copy</button>
+
       <div class="dropdown" [class.is-hoverable]="copy">
         <div class="dropdown-trigger">
           <button id="paste" class="button is-primary  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu" [disabled]="!copy">
@@ -89,8 +100,6 @@
           </div>
         </div>
       </div>
-      <button name="clear" class="button is-primary  brush" (click)="clearEvent($event);">Clear</button>
-      <button name="copy" (click)="copyEvent($event);" class="button is-primary  brush">Copy</button>
     </div>
     <!-- <div class="label is-fullwidth">Create</div>
     <div class="buttons">

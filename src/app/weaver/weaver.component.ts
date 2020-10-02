@@ -75,32 +75,20 @@ export class WeaverComponent implements OnInit {
     
     const dialogRef = this.dialog.open(InitModal);
 
-    dialogRef.afterClosed().subscribe(result => {
+    var default_patterns = [];
 
-
-      if (result) {
-        this.draft = new Draft(result);
-        if (result.type != "update"){
-            this.draft.shuttles[0].setColor('#3d3d3d');
-            this.draft.epi = 10;
-
-            //only retreives default patterns when its not a .ada upload
-            this.ps.getPatterns().subscribe((res) => {
-               for(var i in res.body){
-                  this.draft.patterns.push(res.body[i])
-               }
-            });
-
-        } 
-      } 
-       else if (result.type === "update") {
-         this.draft = result.draft;
-         this.weaveRef.redraw();
+    this.ps.getPatterns().subscribe((res) => {
+       for(var i in res.body){
+          default_patterns.push(res.body[i]);
        }
+    }); 
 
-       console.log("on init closed ", this.draft)
 
-    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.draft = new Draft(result);
+      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;  
+   });
+
   }
 
 
@@ -108,6 +96,7 @@ export class WeaverComponent implements OnInit {
 
 
   ngOnInit() {
+
     this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
       this.undoItem = undoItem;
       console.log(undoItem);
