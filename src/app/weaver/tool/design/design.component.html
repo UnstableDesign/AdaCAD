@@ -19,11 +19,12 @@
   <section *ngIf="view === 'pattern'" class="section-container">
     <h3>Interlacement Tools</h3>
     <div class="buttons">
-      <button matTooltip="set to raised heddle" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Raise
+      <button matTooltip="draw in filled cells to draft" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Draw
 </button>
 
-      <button matTooltip="set to lowered heddle" name="erase" class="button is-primary brush" [class.is-active]="brush === 'erase'" (click)="brushChange($event)">Lower</button>
-      <button matTooltip="flip the state of one cell" name="invert" class="button is-primary brush  " [class.is-active]="brush === 'invert'" (click)="brushChange($event)">Flip</button>
+      <button matTooltip="erase filled cells to draft" name="erase" class="button is-primary brush" [class.is-active]="brush === 'erase'" (click)="brushChange($event)">Erase</button>
+
+      <button matTooltip="invert the state of one cell" name="invert" class="button is-primary brush  " [class.is-active]="brush === 'invert'" (click)="brushChange($event)">Invert</button>
      
     </div>
   <mat-divider></mat-divider>
