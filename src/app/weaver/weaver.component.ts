@@ -75,22 +75,19 @@ export class WeaverComponent implements OnInit {
     
     const dialogRef = this.dialog.open(InitModal);
 
+    var default_patterns = [];
+
+    this.ps.getPatterns().subscribe((res) => {
+       for(var i in res.body){
+          default_patterns.push(res.body[i]);
+       }
+    }); 
+
+
     dialogRef.afterClosed().subscribe(result => {
-
-      console.log("closed");
-
       this.draft = new Draft(result);
-
-      if (this.draft.patterns === undefined){
-           this.draft.patterns = [];
-          this.ps.getPatterns().subscribe((res) => {
-             for(var i in res.body){
-                this.draft.patterns.push(res.body[i])
-             }
-          });
-      } 
-         
-    });
+      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;  
+   });
 
   }
 
@@ -99,6 +96,7 @@ export class WeaverComponent implements OnInit {
 
 
   ngOnInit() {
+
     this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
       this.undoItem = undoItem;
       console.log(undoItem);

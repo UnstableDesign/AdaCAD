@@ -19,8 +19,6 @@ export class PatternsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log("init bar");
-    // this.ps.getPatterns().subscribe((res: any) => {this.patterns = res;});
 
   }
 

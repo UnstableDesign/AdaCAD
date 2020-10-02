@@ -82,8 +82,7 @@ export class InitModal implements OnInit {
 
   onNoClick(): void {
     console.log("onNoClick", this.draft);
-    this.dialogRef.close(this.draft);
-    
+    //this.dialogRef.close(this.draft);
   }
 
   save(f: NgForm) {

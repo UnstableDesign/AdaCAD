@@ -10,7 +10,7 @@
   <mat-sidenav mode="side" position="end" opened>
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
       <mat-tab label="Design">
-        <app-design [brush]="brush" [favorites]="draft?.patterns | filter: {favorite: true }"
+        <app-design [brush]="brush" [favorites]="draft?.patterns | filter: {favorite: true}"
         (onViewChange)="onViewChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 

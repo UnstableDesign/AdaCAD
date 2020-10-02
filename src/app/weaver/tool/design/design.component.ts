@@ -9,7 +9,7 @@ import { ConnectionModal } from '../../modal/connection/connection.modal';
 })
 export class DesignComponent implements OnInit {
   @Input() brush;
-  @Input() favorites; //where does this come from?
+  @Input() favorites;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onMask: any = new EventEmitter();
@@ -26,6 +26,10 @@ export class DesignComponent implements OnInit {
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
+    console.log('favs', this.favorites);
+    console.log('copy', this.copy);
+    console.log('favs', this.view);
+
   }
 
   openConnectionDialog() {
