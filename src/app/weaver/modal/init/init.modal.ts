@@ -85,7 +85,7 @@ export class InitModal implements OnInit {
     //this.dialogRef.close(this.draft);
   }
 
-  save(f: NgForm) {
+  save(f) {
     if(this.draft.epi == undefined) this.draft.epi = f.value.epi;
     if(this.draft.warps == undefined) this.draft.warps = f.value.warps; 
 
