@@ -15,7 +15,9 @@ export interface DraftInterface {
   pattern: Array<Array<boolean>>; // the single design pattern
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar
   shuttles: Array<Shuttle>;
+  warp_systems: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
+  colShuttleMapping: Array<number>;
   visibleRows: Array<number>;
   connections: Array<any>;
   labels: Array<any>;
@@ -35,7 +37,9 @@ export class Draft implements DraftInterface {
   pattern: Array<Array<boolean>>;
   patterns: Array<Pattern>;
   shuttles: Array<Shuttle>;
+  warp_systems: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
+  colShuttleMapping: Array<number>;
   visibleRows: Array<number>;
   connections: Array<any>;
   labels: Array<any>;
@@ -72,6 +76,21 @@ export class Draft implements DraftInterface {
     }
 
 
+    if(params.warp_systems === undefined){
+      let s = new Shuttle({id: 0, name: 'Warp System 1', visible: true, color: '#3d3d3d'});
+      this.warp_systems = [s];
+    }else{
+      var systems = params.warp_systems
+          var sd = [];
+          for (var i in systems) {
+            var s = new Shuttle(systems[i]);
+            sd.push(s);
+          }
+
+        this.warp_systems = sd;
+    }
+
+
     if(params.rowShuttleMapping === undefined){
       this.rowShuttleMapping = [];
     for(var ii = 0; ii < this.wefts; ii++) {
@@ -80,6 +99,17 @@ export class Draft implements DraftInterface {
         }
       }else{
         this.rowShuttleMapping = params.rowShuttleMapping;
+      }
+
+
+
+    if(params.colShuttleMapping === undefined){
+      this. colShuttleMapping = [];
+    for(var ii = 0; ii < this.warps; ii++) {
+          this.colShuttleMapping.push(0);
+        }
+      }else{
+        this.colShuttleMapping = params.colShuttleMapping;
       }
 
 
@@ -183,6 +213,11 @@ export class Draft implements DraftInterface {
 
   rowToShuttle(row: number) {
     return this.rowShuttleMapping[row];
+  }
+
+
+  colToShuttle(col: number) {
+    return this.colShuttleMapping[col];
   }
 
   updateVisible() {
@@ -353,8 +388,18 @@ export class Draft implements DraftInterface {
 
   }
 
+  addWarpSystem(shuttle) {
+    shuttle.setID(this.shuttles.length);
+    shuttle.setVisible(true);
+    if (!shuttle.thickness) {
+      shuttle.setThickness(this.epi);
+    }
+    this.warp_systems.push(shuttle);
+
+  }
+
   insertImage(shuttle) {
-    var max = this.rowShuttleMapping.length;
+    var max = this.ShuttleMapping.length;
     var data = shuttle.image;
     for (var i=data.length; i > 0; i--) {
       var idx = Math.min(max, i);

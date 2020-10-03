@@ -16,12 +16,14 @@ import { NgForm } from '@angular/forms';
 
 export class ShuttlesComponent implements OnInit {
   @Input() shuttles;
+  @Input() warp_systems;
   @Input() warps;
   @Input() epi;
   @Output() onWarpNumChange: any = new EventEmitter();
   @Output() onEpiNumChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();
   @Output() onCreateShuttle: any = new EventEmitter();
+  @Output() onCreateWarpSystem: any = new EventEmitter();
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
 
@@ -37,7 +39,7 @@ export class ShuttlesComponent implements OnInit {
 
   }
 
-  openDialog(shuttle) {
+  openDialog(type, shuttle) {
     var create = false;
 
     if (!shuttle) {
@@ -46,13 +48,25 @@ export class ShuttlesComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(ShuttlesModal, 
-      {data: { shuttle: shuttle, warps: this.warps }, width: '650px' });
+      {data: { shuttle: shuttle, warps: this.warps, type: type}, width: '650px' });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!create) {
-        this.shuttles[result.id] = result;
-      } else {
-        this.onCreateShuttle.emit({shuttle: result});
+      if (type == "weft"){
+
+        if (!create) {
+          this.shuttles[result.id] = result;
+        } else {
+          this.onCreateShuttle.emit({shuttle: result});
+        }
+
+      }else{
+
+        if (!create) {
+          this.warp_systems[result.id] = result;
+        } else {
+          this.onCreateWarpSystem.emit({shuttle: result});
+        }
+
       }
     });
   }

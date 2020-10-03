@@ -24,10 +24,12 @@
       <mat-tab label="System">
         <app-shuttles *ngIf="selected === 1" 
         [shuttles]="draft?.shuttles" 
+        [warp_systems]="draft?.warp_systems" 
         [warps]="draft?.warps" 
         [epi]="draft?.epi" 
         (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
+        (onCreateWarpSystem)="createWarpSystem($event);"
         (onHideShuttle)="hideShuttle($event);"
         (onShowShuttle)="showShuttle($event);"
         (onWarpNumChange) = "warpNumChange($event)"

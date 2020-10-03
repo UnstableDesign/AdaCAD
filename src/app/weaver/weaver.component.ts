@@ -396,6 +396,14 @@ export class WeaverComponent implements OnInit {
     }
   }
 
+  public createWarpSystem(e: any) {
+    this.draft.addWarpSystem(e.shuttle);
+    if (e.shuttle.image) {
+      this.weaveRef.updateSize();
+    }
+  }
+
+
   public hideShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.updateSize();

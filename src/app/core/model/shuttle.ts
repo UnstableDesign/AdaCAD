@@ -37,7 +37,7 @@ export class Shuttle {
   setID(id: number) {
     this.id = id;
     if (!this.name) {
-      this.name = 'Shuttle ' + (id + 1);
+      this.name = 'System ' + (id + 1);
     }
   }
 

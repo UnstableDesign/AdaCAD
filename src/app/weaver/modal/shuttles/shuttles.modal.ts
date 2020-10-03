@@ -13,6 +13,7 @@ import * as g from 'g.js';
 export class ShuttlesModal {
   shuttle: Shuttle;
   warps: number;
+  type: string;
   // shuttle = {
   //   name: 'Shuttle 0',
   //   id: 0,
@@ -27,6 +28,7 @@ export class ShuttlesModal {
       private dialogRef: MatDialogRef<ShuttlesModal>,
       @Inject(MAT_DIALOG_DATA) public data: any) {
 
+      this.type = (data.type).charAt(0).toUpperCase() + (data.type).slice(1);
       if (!data.shuttle) {
         this.shuttle = new Shuttle();
       } else {
