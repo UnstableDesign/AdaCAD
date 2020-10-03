@@ -337,8 +337,6 @@ export class WeaveDirective {
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
-    console.log("on end", event)
-
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && this.brush === 'select')) {
       this.removeSubscription();
@@ -483,89 +481,9 @@ export class WeaveDirective {
       this.updateSizeTreadling();
     }
 
-    for (var i = 0; i < this.weave.wefts; i++) {
-      for (var j = 0; j < this.weave.threading.threading[i].length; j++) {
-        if(this.weave.threading.threading[i][j]) {
-          this.threadingNow.push([j,i]);
-        }
-      }
-    }
-    //examines if there are stale threading marks left on the threading grid by comparing the two lists: this.threadingLast and this.threadingNow
-    for (var i = 0; i < this.threadingLast.length; i++) {
-      var fresh = false;
-      for(var j = 0; j < this.threadingNow.length; j++) {
-        if (this.threadingLast[i] == this.threadingNow[j]) {
-          fresh = true;
-        }
-      }
-      if (!fresh) { //clears stale rectangles (note: the y-coordinate saved in both threading lists are "upside down" hence the subtraction from this.threadingSize, there was still an offset by 20, so this was subtracted as well)
-        this.cxThreading.clearRect((this.threadingLast[i][0] * 20)+1, (this.threadingSize-(this.threadingLast[i][1] * 20)-20+1), 18,18);
-      }
-    }
-    this.threadingLast = [];
-    //marking all of the fresh rectangles
-    for (var i =0; i < this.threadingNow.length; i++) {
-      this.cxThreading.strokeRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
-      this.cxThreading.fillRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
-      this.threadingLast.push(this.threadingNow[i]);
-    }
-    this.threadingNow = [];
-
-    for (var i = 0; i < this.weave.treadling.treadling.length; i++) {
-      for (var j= 0; j < this.weave.treadling.treadling[i].length; j++) {
-        if(this.weave.treadling.treadling[i][j]) {
-          this.treadlingNow.push([j,i]);
-        }
-      }
-    }
-
-    for (var i =0; i < this.treadlingLast.length; i++) {
-      var fresh = false;
-      for (var j=0; j < this.treadlingNow.length; j++) {
-        if (this.treadlingLast[i] == this.treadlingNow[j]) {
-          fresh = true;
-        }
-      }
-      if (!fresh) {
-        this.cxTreadling.clearRect((this.treadlingLast[i][0]*20)+1, (this.treadlingLast[i][1]*20)+1,18,18);
-      }
-    }
-
-    this.treadlingLast = [];
-    for(var i =0; i < this.treadlingNow.length; i++) {
-      this.cxTreadling.strokeRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
-      this.cxTreadling.fillRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
-      this.treadlingLast.push(this.treadlingNow[i]);    
-    }
-    this.treadlingNow = [];
-
-    for (var i = 0; i < this.weave.tieups.tieups.length; i++) {
-      for(var j = 0; j < this.weave.tieups.tieups[i].length; j ++) {
-        if (this.weave.tieups.tieups[i][j]) {
-          this.tieupsNow.push([i,j]);
-        }
-      }
-    }
-
-    for (var i = 0; i < this.tieupsLast.length; i++) {
-      var fresh = false;
-      for (var j = 0; j < this.tieupsNow.length; j++) {
-        if (this.tieupsLast[i] == this.tieupsNow[j]) {
-          fresh = true;
-        }
-      }
-      if (!fresh) {
-        this.cxTieups.clearRect((this.tieupsLast[i][0]*20)+1, (this.threadingSize-this.tieupsLast[i][1]*20)-20+1,18,18);
-      }
-    }
-
-    this.tieupsLast = [];
-    for (var i = 0; i < this.tieupsNow.length; i++) {
-      this.cxTieups.strokeRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
-      this.cxTieups.fillRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
-      this.tieupsLast.push(this.tieupsNow[i]);
-    }
-    this.tieupsNow = [];
+    this.redrawThreading();
+    this.redrawTreadling();
+    this.redrawTieups();
   }
 
   /**
@@ -589,20 +507,27 @@ export class WeaveDirective {
     if (currentPos.i > -1 && (currentPos.j < this.weave.tieups.treadle_count || currentPos.j <  8 ) && currentPos.i > -1 && (currentPos.i < this.weave.tieups.usedFrames || currentPos.i < 10)) {
       switch (this.brush) {
         case 'point':
-          this.weave.tieups.tieups[((this.threadingSize / 20)-1) -currentPos.i][currentPos.j] = true;
+          this.weave.tieups.tieups[currentPos.j][((this.threadingSize / 20)-1) -currentPos.i] = true;
+          this.weave.tieups.addUserInput(currentPos.j, this.threadingSize/20-1-currentPos.i);
           break;
         case 'erase':
-          this.weave.tieups.tieups[((this.threadingSize / 20)-1)-currentPos.i][currentPos.j] = false;
+          this.weave.tieups.tieups[currentPos.j][((this.threadingSize / 20)-1)-currentPos.i] = false;
+          this.weave.tieups.deleteUserInput(currentPos.j, this.threadingSize/20-1-currentPos.i);
           break;
         case 'invert':
-          const val = !this.weave.tieups.isUp(currentPos.i,currentPos.j);
-          this.weave.tieups.tieups[((this.threadingSize /20)-1)-currentPos.i][currentPos.j] = val;
+          const val = !this.weave.tieups.isUp(currentPos.j,((this.threadingSize / 20)-1)-currentPos.i);
+          this.weave.tieups.tieups[currentPos.j][((this.threadingSize / 20)-1)-currentPos.i] = val;
+          if (!val) {
+            this.weave.tieups.addUserInput(currentPos.j, this.threadingSize/20-1-currentPos.i);
+          } else {
+            this.weave.tieups.deleteUserInput(currentPos.j, this.threadingSize/20-1-currentPos.i);
+
+          }
           break;
         default:
           break;
       }
     }
-
     // draws the rectangle if heddle is up, otherwise it is erased.
     // if (this.weave.tieups.isUp(((this.threadingSize / 20)-1) -currentPos.i, currentPos.j)) {
     //   this.cxTieups.strokeRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
@@ -610,34 +535,7 @@ export class WeaveDirective {
     // } else {
     //   this.cxTieups.clearRect(currentPos.x + 1, currentPos.y + 1, 18, 18);
     // }
-
-    for (var i = 0; i < this.weave.tieups.tieups.length; i++) {
-      for(var j = 0; j < this.weave.tieups.tieups[i].length; j ++) {
-        if (this.weave.tieups.tieups[i][j]) {
-          this.tieupsNow.push([i,j]);
-        }
-      }
-    }
-
-    for (var i = 0; i < this.tieupsLast.length; i++) {
-      var fresh = false;
-      for (var j = 0; j < this.tieupsNow.length; j++) {
-        if (this.tieupsLast[i] == this.tieupsNow[j]) {
-          fresh = true;
-        }
-      }
-      if (!fresh) {
-        this.cxTieups.clearRect((this.tieupsLast[i][0]*20)+1, (this.threadingSize-this.tieupsLast[i][1]*20)-20+1,18,18);
-      }
-    }
-
-    this.tieupsLast = [];
-    for (var i = 0; i < this.tieupsNow.length; i++) {
-      this.cxTieups.strokeRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
-      this.cxTieups.fillRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
-      this.tieupsLast.push(this.tieupsNow[i]);
-    }
-    this.tieupsNow = [];
+    this.redrawTieups();
 
     var updatesToDrawdown = this.weave.updateDrawDown();
     this.weave.tieups.updatePattern(this.weave.pattern);
@@ -679,7 +577,13 @@ export class WeaveDirective {
     if (currentPos.i > -1 && currentPos.i < this.weave.warps && currentPos.j > -1 && currentPos.j < this.weave.wefts) {
       switch (this.brush) {
         case 'point':
-          //TODO: computationss
+          //TODO: computations
+          for (var i = 0; i < this.weave.threading.threading.length; i++) {
+            if(this.weave.threading.threading[i][currentPos.j]) {
+              this.weave.threading.threading[i][currentPos.j] = false;
+            }
+
+          }
           this.weave.threading.threading[((this.threadingSize/20)-1)-currentPos.i][currentPos.j] = true;
           this.weave.threading.addUserInput(((this.threadingSize/20)-1)-currentPos.i,currentPos.j);
           break;
@@ -701,43 +605,15 @@ export class WeaveDirective {
           break;
       }
     }
-    // // draws the rectangle if heddle is up, otherwise it is erased.
-    // if (this.weave.threading.isUp(((this.threadingSize/20)-1)-currentPos.i, currentPos.j)) {
-    //   this.cxThreading.strokeRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
-    //   this.cxThreading.fillRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
-    // } else {
-    //   this.cxThreading.clearRect(currentPos.x + 1, currentPos.y + 1, 18, 18);
-    // }
+
     var updatesToDrawdown = this.weave.updateDrawDown();
     this.weave.tieups.updatePattern(this.weave.pattern);
-
-    for (var i = 0; i < this.weave.wefts; i++) {
-      for (var j = 0; j < this.weave.threading.threading[i].length; j++) {
-        if(this.weave.threading.threading[i][j]) {
-          this.threadingNow.push([j,i]);
-        }
-      }
-    }
-    //examines if there are stale threading marks left on the threading grid by comparing the two lists: this.threadingLast and this.threadingNow
-    for (var i = 0; i < this.threadingLast.length; i++) {
-      var fresh = false;
-      for(var j = 0; j < this.threadingNow.length; j++) {
-        if (this.threadingLast[i] == this.threadingNow[j]) {
-          fresh = true;
-        }
-      }
-      if (!fresh) { //clears stale rectangles (note: the y-coordinate saved in both threading lists are "upside down" hence the subtraction from this.threadingSize, there was still an offset by 20, so this was subtracted as well)
-        this.cxThreading.clearRect((this.threadingLast[i][0] * 20)+1, (this.threadingSize-(this.threadingLast[i][1] * 20)-20+1), 18,18);
-      }
-    }
-    this.threadingLast = [];
-    //marking all of the fresh rectangles
-    for (var i =0; i < this.threadingNow.length; i++) {
-      this.cxThreading.strokeRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
-      this.cxThreading.fillRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
-      this.threadingLast.push(this.threadingNow[i]);
-    }
-    this.threadingNow = [];
+    this.weave.tieups.updateTieUps();
+    this.weave.treadling.updateTreadling();
+    this.redrawThreading();
+    this.redrawTreadling();
+    this.redrawTieups();
+    console.log("threading after update:", this.weave.threading.threading);
 
     for (var i = 0; i < updatesToDrawdown.length; i++) {
       // draws the rectangle if heddle is up, otherwise it is erased.
@@ -779,53 +655,27 @@ export class WeaveDirective {
       switch (this.brush) {
         case 'point':
           this.weave.treadling.treadling[currentPos.i][currentPos.j] = true;
+          this.weave.treadling.addUserInput(currentPos.i, currentPos.j);
           break;
         case 'erase':
           this.weave.treadling.treadling[currentPos.i][currentPos.j] = false;
+          this.weave.treadling.deleteUserInput(currentPos.i, currentPos.j);
           break;
         case 'invert':
           const val = !this.weave.treadling.isUp(currentPos.i,currentPos.j);
           this.weave.treadling.treadling[currentPos.i][currentPos.j] = val;
+          if (!val) {
+            this.weave.treadling.addUserInput(currentPos.i, currentPos.j);
+          } else {
+            this.weave.treadling.deleteUserInput(currentPos.i, currentPos.j);
+          }
           break;
         default:
           break;
       }
     }
     
-    // draws the rectangle if heddle is up, otherwise it is erased.
-    // if (this.weave.treadling.isUp(currentPos.i, currentPos.j)) {
-    //   this.cxTreadling.strokeRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
-    //   this.cxTreadling.fillRect(currentPos.x + 2, currentPos.y + 2, 16, 16);
-    // } else {
-    //     this.cxTreadling.clearRect(currentPos.x + 1, currentPos.y + 1, 18, 18);
-    // }
-    for (var i = 0; i < this.weave.treadling.treadling.length; i++) {
-      for (var j= 0; j < this.weave.treadling.treadling[i].length; j++) {
-        if(this.weave.treadling.treadling[i][j]) {
-          this.treadlingNow.push([j,i]);
-        }
-      }
-    }
-
-    for (var i =0; i < this.treadlingLast.length; i++) {
-      var fresh = false;
-      for (var j=0; j < this.treadlingNow.length; j++) {
-        if (this.treadlingLast[i] == this.treadlingNow[j]) {
-          fresh = true;
-        }
-      }
-      if (!fresh) {
-        this.cxTreadling.clearRect((this.treadlingLast[i][0]*20)+1, (this.treadlingLast[i][1]*20)+1,18,18);
-      }
-    }
-
-    this.treadlingLast = [];
-    for(var i =0; i < this.treadlingNow.length; i++) {
-      this.cxTreadling.strokeRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
-      this.cxTreadling.fillRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
-      this.treadlingLast.push(this.treadlingNow[i]);    
-    }
-    this.treadlingNow = [];
+    this.redrawTreadling();
 
     var updatesToDrawdown = this.weave.updateDrawDown();
     this.weave.tieups.updatePattern(this.weave.pattern);
@@ -841,13 +691,6 @@ export class WeaveDirective {
       } else {
         this.cx.clearRect((y*20) + 1, (x*20) + 1, 18, 18);
         this.weave.threading.updateFlippedPattern(x, y,false);
-      }
-    }
-    for (var i = 0; i < this.weave.treadling.treadling.length; i++) {
-      for (var j= 0; j < this.weave.treadling.treadling[i].length; j++) {
-        if(this.weave.treadling.treadling[i][j]) {
-          this.treadlingNow.push([j,i]);
-        }
       }
     }
   }
@@ -1105,6 +948,96 @@ export class WeaveDirective {
     }
 
     this.cx.strokeStyle = "#000";
+  }
+
+  public redrawTieups() {
+    for (var i = 0; i < this.weave.tieups.tieups.length; i++) {
+      for(var j = 0; j < this.weave.tieups.tieups[i].length; j ++) {
+        if (this.weave.tieups.tieups[i][j]) {
+          this.tieupsNow.push([i,j]);
+        }
+      }
+    }
+
+    for (var i = 0; i < this.tieupsLast.length; i++) {
+      var fresh = false;
+      for (var j = 0; j < this.tieupsNow.length; j++) {
+        if (this.tieupsLast[i] == this.tieupsNow[j]) {
+          fresh = true;
+        }
+      }
+      if (!fresh) {
+        this.cxTieups.clearRect((this.tieupsLast[i][0]*20)+1, (this.threadingSize-this.tieupsLast[i][1]*20)-20+1,18,18);
+      }
+    }
+
+    this.tieupsLast = [];
+    for (var i = 0; i < this.tieupsNow.length; i++) {
+      this.cxTieups.strokeRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
+      this.cxTieups.fillRect((this.tieupsNow[i][0]*20)+2, (this.threadingSize-this.tieupsNow[i][1]*20)-20+2,16,16);
+      this.tieupsLast.push(this.tieupsNow[i]);
+    }
+    this.tieupsNow = [];
+  }
+
+  public redrawThreading() {
+    for (var i = 0; i < this.weave.wefts; i++) {
+      for (var j = 0; j < this.weave.threading.threading[i].length; j++) {
+        if(this.weave.threading.threading[i][j]) {
+          this.threadingNow.push([j,i]);
+        }
+      }
+    }
+    //examines if there are stale threading marks left on the threading grid by comparing the two lists: this.threadingLast and this.threadingNow
+    for (var i = 0; i < this.threadingLast.length; i++) {
+      var fresh = false;
+      for(var j = 0; j < this.threadingNow.length; j++) {
+        if (this.threadingLast[i] == this.threadingNow[j]) {
+          fresh = true;
+        }
+      }
+      if (!fresh) { //clears stale rectangles (note: the y-coordinate saved in both threading lists are "upside down" hence the subtraction from this.threadingSize, there was still an offset by 20, so this was subtracted as well)
+        this.cxThreading.clearRect((this.threadingLast[i][0] * 20)+1, (this.threadingSize-(this.threadingLast[i][1] * 20)-20+1), 18,18);
+      }
+    }
+    this.threadingLast = [];
+    //marking all of the fresh rectangles
+    for (var i =0; i < this.threadingNow.length; i++) {
+      this.cxThreading.strokeRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
+      this.cxThreading.fillRect((this.threadingNow[i][0]*20)+2, (this.threadingSize-(this.threadingNow[i][1]*20)-20)+2,16,16);
+      this.threadingLast.push(this.threadingNow[i]);
+    }
+    this.threadingNow = [];
+  }
+
+  public redrawTreadling() {
+    for (var i = 0; i < this.weave.treadling.treadling.length; i++) {
+      for (var j= 0; j < this.weave.treadling.treadling[i].length; j++) {
+        if(this.weave.treadling.treadling[i][j]) {
+          this.treadlingNow.push([j,i]);
+        }
+      }
+    }
+
+    for (var i =0; i < this.treadlingLast.length; i++) {
+      var fresh = false;
+      for (var j=0; j < this.treadlingNow.length; j++) {
+        if (this.treadlingLast[i] == this.treadlingNow[j]) {
+          fresh = true;
+        }
+      }
+      if (!fresh) {
+        this.cxTreadling.clearRect((this.treadlingLast[i][0]*20)+1, (this.treadlingLast[i][1]*20)+1,18,18);
+      }
+    }
+
+    this.treadlingLast = [];
+    for(var i =0; i < this.treadlingNow.length; i++) {
+      this.cxTreadling.strokeRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
+      this.cxTreadling.fillRect((this.treadlingNow[i][0]*20)+2, (this.treadlingNow[i][1]*20)+2,16,16);
+      this.treadlingLast.push(this.treadlingNow[i]);    
+    }
+    this.treadlingNow = [];
   }
 
   /**

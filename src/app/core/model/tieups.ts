@@ -11,7 +11,8 @@ export class TieUps {
     treadling: Array<Array<boolean>>;
     pattern: Array<Array<boolean>>;
     treadle_count: Number;
-    
+    userInputCoordinates: Array<Array<number>>;
+
     /*Input: the threading 2D array associated with the draft, the number of usedFrames, the treadling pattern, the pattern itself, the number of treadles required
     */
     constructor(threading: Array<Array<boolean>>, usedFrames: Number, treadling: Array<Array<boolean>>, pattern: Array<Array<boolean>>, treadle_count: number) {
@@ -28,6 +29,7 @@ export class TieUps {
                 this.tieups[i].push(false);
             }
         }
+        this.userInputCoordinates = [];
     }
 
     /*Input: the pattern associated with the draft (2D array of booleans)
@@ -97,11 +99,16 @@ export class TieUps {
     */
     updateTieUps() {
         //"empties" the pre-existing true values from the tie-ups (to protect from stale changes to the pattern still persisting in the tie-ups)
-        var tie_up_counter = 0;
+        //var tie_up_counter = 0;
         this.tieups = this.tieups.map(x => x.map(y => false));
         var effective_treadles:Number = 10;
         if (this.treadle_count > 10) {
             effective_treadles = this.treadle_count;
+        }
+        for (var i = 0; i < this.userInputCoordinates.length; i++){
+            var treadle = this.userInputCoordinates[i][0];
+            var frame = this.userInputCoordinates[i][1];
+            this.tieups[treadle][frame] = true;
         }
         //iterates through each row of the pattern
         for (var r = 0; r < this.pattern.length; r++) {
@@ -120,14 +127,15 @@ export class TieUps {
                 }
             }
             //if we made changes then we add to our tie_up counter
-            if (adjusted) {
-                tie_up_counter = tie_up_counter +1;
-            }
-            //assuming we can't have more tie-ups than treadles, we break if we reach this point
-            if (tie_up_counter >= this.treadle_count) {
-                break;
-            }
+            // if (adjusted) {
+            //     tie_up_counter = tie_up_counter +1;
+            // }
+            // //assuming we can't have more tie-ups than treadles, we break if we reach this point
+            // if (tie_up_counter >= this.treadle_count) {
+            //     break;
+            // }
         }
+        console.log("tieups after updating: ", this.tieups);
     }
 
 
@@ -137,6 +145,37 @@ export class TieUps {
       return this.tieups[i][j];
     }
     return false;
+  }
+
+  addUserInput(i:number, j:number) {
+    var tempList = [i,j];
+    var contains = false;
+    for (var k = 0; k < this.userInputCoordinates.length;k++) {
+      if (utilInstance.equals(tempList, this.userInputCoordinates[k])) {
+        contains = true;
+      }
+    }
+    if (!contains) {
+      this.userInputCoordinates.push([]);
+      this.userInputCoordinates[this.userInputCoordinates.length -1].push(i);
+      this.userInputCoordinates[this.userInputCoordinates.length -1].push(j);
+    }
+  }
+
+  deleteUserInput(i:number, j:number) {
+    var tempList = [i,j];
+    var contains = false;
+    var newUserInput = [];
+    for (var i = 0; i < this.userInputCoordinates.length; i++) {
+      if (utilInstance.equals(tempList, this.userInputCoordinates[i])) {
+        contains = true;
+      } else {
+        newUserInput.push(this.userInputCoordinates[i]);
+      }
+    }
+    if(contains) {
+      this.userInputCoordinates = newUserInput;
+    }
   }
 
 }

@@ -10,6 +10,7 @@ export class Treadling {
     wefts: Number;
     pattern: Array<Array<boolean>>;
     treadle_count: number;
+    userInputCoordinates: Array<Array<number>>;
 
     constructor(wefts: number, pattern: Array<Array<boolean>>) {
         this.pattern=pattern;
@@ -23,6 +24,7 @@ export class Treadling {
             }
         }
         this.treadle_count = 0;
+        this.userInputCoordinates = [];
     }
 
     /* Input: None
@@ -31,11 +33,7 @@ export class Treadling {
     */
     updateTreadling() {
         //clears the threading to all false before processing (to account for the updating of threading while the draw-down is changing)
-        for(var i = 0;i < this.treadling.length; i++) {
-            for (var j =0; j < this.treadling[i].length; j++) {
-                this.treadling[i][j] = false;
-            }
-        }
+        this.treadling = this.treadling.map(x => x.map(y => false));
 
         //defining helper variables:
         var marked_strings = [];
@@ -44,6 +42,22 @@ export class Treadling {
         //keeps track of row that have been proccessed before this update, so as to not have multiple versions of the same column accounted for in the treadling
         var row_tracker = [];
 
+        for(var i = 0; i < this.userInputCoordinates.length; i++) {
+            var weft_thread = this.userInputCoordinates[i][0];
+            var treadle = this.userInputCoordinates[i][1];
+            var userMiscalc = false;
+            for (var j = 0; j < marked_strings.length; j++) {
+              if (marked_strings_treadle_tracker[j] == treadle && !utilInstance.equals(this.pattern[weft_thread], marked_strings[j])) {
+                userMiscalc = true;
+              }
+            }
+            if (!userMiscalc) {
+              this.treadling[weft_thread][treadle] = true;
+              marked_strings.push(this.pattern[weft_thread]);
+              marked_strings_treadle_tracker.push(treadle);
+              row_tracker.push(weft_thread);
+            }
+        }
         for (var r = 0; r < this.pattern.length; r++) {
             var contains = false;
             for (var i = 0; i < marked_strings.length; i++) {
@@ -54,6 +68,8 @@ export class Treadling {
             if (!contains && (utilInstance.countOnes(this.pattern[r]) >0)) {
                 var processed = false;
                 var indx = 0;
+                var treadle = utilInstance.findSmallestGap(marked_strings_treadle_tracker);
+                this.treadling[r][treadle] = true;
 
                 for (var j = 0; j < row_tracker.length; j++) {
                     if (row_tracker[j] == r) {
@@ -65,14 +81,13 @@ export class Treadling {
                 if (processed) {
                     marked_strings[indx] = this.pattern[r];
                     row_tracker[indx] = r;
-                    marked_strings_treadle_tracker[indx] = treadle_count;
+                    marked_strings_treadle_tracker[indx] = treadle;
                 } else {
                     marked_strings.push(this.pattern[r]);
                     row_tracker.push(r);
-                    marked_strings_treadle_tracker.push(treadle_count);
+                    marked_strings_treadle_tracker.push(treadle);
                 }
-                this.treadling[r][treadle_count] = true;
-                treadle_count = treadle_count + 1;
+                //treadle_count = treadle_count + 1;
             } else if (contains && utilInstance.countOnes(this.pattern[r]) > 0) {
                 for (var k = 0; k < marked_strings.length; k++) {
                     if (utilInstance.equals(marked_strings[k], this.pattern[r])) {
@@ -111,5 +126,36 @@ export class Treadling {
         }
         return false;
     }
+
+    addUserInput(i:number, j:number) {
+        var tempList = [i,j];
+        var contains = false;
+        for (var k = 0; k < this.userInputCoordinates.length;k++) {
+          if (utilInstance.equals(tempList, this.userInputCoordinates[k])) {
+            contains = true;
+          }
+        }
+        if (!contains) {
+          this.userInputCoordinates.push([]);
+          this.userInputCoordinates[this.userInputCoordinates.length -1].push(i);
+          this.userInputCoordinates[this.userInputCoordinates.length -1].push(j);
+        }
+      }
+    
+      deleteUserInput(i:number, j:number) {
+        var tempList = [i,j];
+        var contains = false;
+        var newUserInput = [];
+        for (var i = 0; i < this.userInputCoordinates.length; i++) {
+          if (utilInstance.equals(tempList, this.userInputCoordinates[i])) {
+            contains = true;
+          } else {
+            newUserInput.push(this.userInputCoordinates[i]);
+          }
+        }
+        if(contains) {
+          this.userInputCoordinates = newUserInput;
+        }
+      }
 
 }

@@ -159,14 +159,14 @@ export class Draft implements DraftInterface {
     for (var i =0; i < this.treadling.treadling.length;i++) {
       var active_treadle =-1;
       for (var j =0; j <this.treadling.treadling[i].length; j++) {
-        if (this.treadling.treadling[i][j]){
+        if (this.treadling.treadling[i][j]) {
           active_treadle= j;
           break;
         }
       }
       if (active_treadle != -1) {
-        for (var j = 0; j < this.tieups.tieups.length; j++) {
-          if (this.tieups.tieups[j][active_treadle]) {
+        for (var j = 0; j < this.tieups.tieups[active_treadle].length; j++) {
+          if (this.tieups.tieups[active_treadle][j]) {
             for (var k = 0; k < this.threading.threading[j].length;k++) {
               if (this.threading.threading[j][k]) {
                 this.pattern[i][k] =true;
