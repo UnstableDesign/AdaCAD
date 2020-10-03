@@ -582,8 +582,8 @@ export class WeaveDirective {
           for (var i = 0; i < this.weave.threading.threading.length; i++) {
             if(this.weave.threading.threading[i][currentPos.j]) {
               this.weave.threading.threading[i][currentPos.j] = false;
+              this.weave.threading.deleteUserInput(i, currentPos.j);
             }
-
           }
           this.weave.threading.threading[((this.threadingSize/20)-1)-currentPos.i][currentPos.j] = true;
           this.weave.threading.addUserInput(((this.threadingSize/20)-1)-currentPos.i,currentPos.j);

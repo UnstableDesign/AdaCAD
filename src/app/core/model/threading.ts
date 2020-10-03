@@ -50,7 +50,7 @@ export class Threading {
 
         //defining helper variables:
         var marked_strings = [];
-        var marked_strings_frames_tracker =[];
+        var marked_strings_frames_tracker = [];
         var column_tracker = [];
 
         for(var i = 0; i < this.userInputCoordinates.length; i++) {
@@ -60,6 +60,7 @@ export class Threading {
           for (var j = 0; j < marked_strings.length; j++) {
             if (marked_strings_frames_tracker[j] == frame && !utilInstance.equals(this.flipped_pattern[warp_thread], marked_strings[j])) {
               userMiscalc = true;
+              this.deleteUserInput(this.userInputCoordinates[i][0], this.userInputCoordinates[i][1]);
             }
           }
           if (!userMiscalc) {
