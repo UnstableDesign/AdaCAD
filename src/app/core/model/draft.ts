@@ -416,4 +416,11 @@ export class Draft implements DraftInterface {
     return shuttle.color;
   }
 
+  getColorCol(index) {
+    var row = this.colShuttleMapping[index];
+    var shuttle = this.warp_systems[row];
+
+    return shuttle.color;
+  }
+
 }
