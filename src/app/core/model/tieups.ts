@@ -105,7 +105,7 @@ export class TieUps {
         if (this.treadle_count > 10) {
             effective_treadles = this.treadle_count;
         }
-        for (var i = 0; i < this.userInputCoordinates.length; i++){
+        for (var i = 0; i < this.userInputCoordinates.length; i++) {
             var treadle = this.userInputCoordinates[i][0];
             var frame = this.userInputCoordinates[i][1];
             this.tieups[treadle][frame] = true;
@@ -135,7 +135,6 @@ export class TieUps {
             //     break;
             // }
         }
-        console.log("tieups after updating: ", this.tieups);
     }
 
 

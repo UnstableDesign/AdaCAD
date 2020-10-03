@@ -553,6 +553,7 @@ export class WeaveDirective {
         this.weave.threading.updateFlippedPattern(x, y,false);
       }
     }
+    this.redrawDrawdown();
   }
 
   /**
@@ -613,7 +614,6 @@ export class WeaveDirective {
     this.redrawThreading();
     this.redrawTreadling();
     this.redrawTieups();
-    console.log("threading after update:", this.weave.threading.threading);
 
     for (var i = 0; i < updatesToDrawdown.length; i++) {
       // draws the rectangle if heddle is up, otherwise it is erased.
@@ -628,6 +628,7 @@ export class WeaveDirective {
         this.weave.threading.updateFlippedPattern(x, y,false);
       }
     }
+    this.redrawDrawdown();
   }
 
 
@@ -693,6 +694,7 @@ export class WeaveDirective {
         this.weave.threading.updateFlippedPattern(x, y,false);
       }
     }
+    this.redrawDrawdown();
   }
 
   /**
@@ -1040,6 +1042,12 @@ export class WeaveDirective {
     this.treadlingNow = [];
   }
 
+
+  public redrawDrawdown() {
+    for (var i = 0; i < this.weave.pattern.length;i++) {
+      this.redrawRow(i*20,i,this.cx);
+    }
+  }
   /**
    * Redraws the entire canvas based on weave pattern.
    * @extends WeaveDirective
