@@ -337,13 +337,12 @@ export class WeaveDirective {
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
-    console.log("on end", event)
 
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && this.brush === 'select')) {
       this.removeSubscription();
 
-      if (event.type === 'mouseup' && this.brush != 'select') {
+      if (event.type === 'mouseup' && this.brush != 'select' && this.segment !== undefined) {
         let segmentPattern = [];
 
         for (var i = this.segment.start[0]; i < this.segment.end[0] + 1; i++) {
@@ -935,7 +934,7 @@ export class WeaveDirective {
    * @extends WeaveDirective
    * @returns {void}
    */
-  private redrawRow(y, i,cx) {
+  private redrawRow(y, i, cx) {
     var color = '#000000'
 
     // Gets color of row.
@@ -952,6 +951,20 @@ export class WeaveDirective {
       }
     }
   }
+
+  //   /**
+  //  * Redraws one row to avoid drawing the entire canvas.
+  //  * @extends WeaveDirective
+  //  * @returns {void}
+  //  */
+  // private redrawCol(x, i,cx) {
+  //   var color = '#000000'
+
+  //   // Gets color of row.
+  //   color = this.weave.getColorCol(i);
+  //   cx.fillStyle = color;
+  // }
+
 
   /**
    * Redraws the rectangles associated with the list this.LastThreading (called after an update to the threading grid's size)

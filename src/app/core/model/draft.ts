@@ -101,8 +101,6 @@ export class Draft implements DraftInterface {
         this.rowShuttleMapping = params.rowShuttleMapping;
       }
 
-
-
     if(params.colShuttleMapping === undefined){
       this. colShuttleMapping = [];
     for(var ii = 0; ii < this.warps; ii++) {
@@ -111,7 +109,6 @@ export class Draft implements DraftInterface {
       }else{
         this.colShuttleMapping = params.colShuttleMapping;
       }
-
 
 
     if(params.patterns !== undefined){
@@ -399,7 +396,7 @@ export class Draft implements DraftInterface {
   }
 
   insertImage(shuttle) {
-    var max = this.ShuttleMapping.length;
+    var max = this.rowShuttleMapping.length;
     var data = shuttle.image;
     for (var i=data.length; i > 0; i--) {
       var idx = Math.min(max, i);

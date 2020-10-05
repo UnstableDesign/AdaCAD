@@ -57,7 +57,8 @@
       </div>
       <canvas #myCanvas style="background:#fbfbfb;"  >
       </canvas>
-      <div #tieupsref class="tieups-container" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft?.warps * 20) - 55 }" width = "500" height="100">
+
+      <div #tieupsref class="tieups-container" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft?.warps * 20) - 55}" width = "500" height="100">
         <canvas #tieups width="200" height="100" style="background:#fbfbfb;"></canvas>
       </div>
       <canvas #bitmapImage hidden></canvas>
@@ -90,12 +91,11 @@
         </g>
       </svg>
 
-      <svg #warp_systems class="warp_systems" [style.top]="myCanvas.height + 55">
+    <svg #warp_systems class="warp_systems" [style.top]="myCanvas.offsetTop + myCanvas.height" [style.left]="myCanvas.offsetLeft">
         <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-          <circle cy="20" [attr.cx]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[draft.colToShuttle(i)]?.color" (click)="colShuttleChange(i, j)"/>
-          <!-- <text text-anchor="end" y="5" [attr.x]="(j*20+15)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text> -->
-        </g>
-      </svg>
+          <circle cy="20" [attr.cx]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[draft.colToShuttle(j)]?.color" (click)="colShuttleChange(j)"/>
+          </g>
+      </svg>  
 
       <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft - 115 }">
         <div *ngFor="let i of (draft?.visibleRows)" class="insert-button">

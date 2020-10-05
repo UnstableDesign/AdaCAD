@@ -332,16 +332,17 @@ export class WeaverComponent implements OnInit {
    * @param {number} the index of column within the pattern.
    * @returns {void}
    */
-  public colShuttleChange(col, index) {
+  public colShuttleChange(col) {
 
     const len = this.draft.warp_systems.length;
     var shuttle_id = this.draft.colShuttleMapping[col];
 
     var newShuttle_id = (shuttle_id + 1) % len;
 
-    this.draft.colShuttleMapping[col] = newShuttle;
 
-    //this.weaveRef.redrawCol(index * 20, index);
+    this.draft.colShuttleMapping[col] = newShuttle_id;
+
+    //this.weaveRef.redrawCol(col * 20, col);
   }
 
   /// PUBLIC FUNCTIONS
