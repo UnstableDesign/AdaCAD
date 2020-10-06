@@ -343,7 +343,7 @@ export class Draft implements DraftInterface {
   }
 
 
-//alwasy adds to end
+  //alwasy adds to end
   insertCol() {
     var row = [];
 
@@ -353,7 +353,8 @@ export class Draft implements DraftInterface {
     }
 
     this.warps += 1;
-    this.updateVisible();
+    this.colShuttleMapping.push(0)
+    //this.updateVisible();
 
   }
 
@@ -363,11 +364,13 @@ export class Draft implements DraftInterface {
 
     this.warps -= 1;
 
-    //push one false to the end of each row
+    //remove one from the end of each row
     for (var j = 0; j < this.wefts; j++) {
       this.pattern[j].splice(i, 1);
     }
 
+
+    this.colShuttleMapping.splice(i, 1);
     this.updateVisible();
   }
 

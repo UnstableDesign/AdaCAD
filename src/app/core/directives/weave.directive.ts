@@ -804,13 +804,13 @@ export class WeaveDirective {
   //  * @extends WeaveDirective
   //  * @returns {void}
   //  */
-  // private redrawCol(x, i,cx) {
-  //   var color = '#000000'
+  private redrawCol(x, i,cx) {
+    // var color = '#000000'
 
-  //   // Gets color of row.
-  //   color = this.weave.getColorCol(i);
-  //   cx.fillStyle = color;
-  // }
+    // // Gets color of col.
+    // color = this.weave.getColorCol(i);
+    // cx.fillStyle = color;
+  }
 
 
   /**
@@ -1074,12 +1074,21 @@ export class WeaveDirective {
     this.drawGrid(cx,canvas);
 
     var color = '#000000';
+
     cx.fillStyle = color;
+    
     if(type == "pattern") {
       for (i = 0; i < this.weave.visibleRows.length; i++) {
         var row = this.weave.visibleRows[i];
         this.redrawRow(i * 20, i, cx);
       }
+
+      for (j = 0; j < this.weave.pattern[0].length; j++) {
+        var col = this.weave.colShuttleMapping[j];
+        this.redrawCol(j, j*20, cx);
+      }
+
+
     } else if (type == "threading") {
       this.redrawLastThreading();
     } else if (type == "tieups") {
@@ -1201,8 +1210,6 @@ export class WeaveDirective {
     // set the updated width and height
     this.canvasEl.width = this.weave.warps * 20;
     this.canvasEl.height = this.weave.visibleRows.length * 20;
-
-    // redraw the 
     this.redraw(this.cx, this.canvasEl, "pattern");
   }
 

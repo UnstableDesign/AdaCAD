@@ -93,8 +93,9 @@
 
     <svg #warp_systems class="warp_systems" [style.top]="myCanvas.offsetTop + myCanvas.height" [style.left]="myCanvas.offsetLeft">
         <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-          <circle cy="20" [attr.cx]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[draft.colToShuttle(j)]?.color" (click)="colShuttleChange(j)"/>
-          </g>
+          <circle cy="20" [attr.cx]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
+          <!--     <text text-anchor="end" y="5" [attr.x]="(j*20+15)" style="font-size:12px;" fill="#fff">{{ i }} {{j}}</text> -->
+        </g>
       </svg>  
 
       <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft - 115 }">
