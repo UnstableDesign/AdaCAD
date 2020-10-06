@@ -6,10 +6,11 @@
 
   canvas {
     position: relative;
-    margin-left: 65px;
+    margin-left: 115px;
     margin-right: 70px;
     cursor: pointer;
   }
+
 }
 .threading-container{
   canvas {
@@ -22,6 +23,8 @@
   top: 0px;
   canvas{
     position: absolute;
+    margin-left: 65px;
+
   }
 }
 .treadling-container{
@@ -29,6 +32,8 @@
   top: 166px;
   canvas {
     position: absolute;
+    margin-left: 65px;
+
   }
 }
 

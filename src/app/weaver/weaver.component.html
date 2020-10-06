@@ -52,6 +52,8 @@
       </button>
     </div> -->
     <div *ngIf="draft" #weaveRef weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
+      
+
       <div #threadref class="threading-container" width = "500" height="100">
         <canvas #threading width="200" height="100" style="background:#fbfbfb;"></canvas>
       </div>
@@ -98,7 +100,7 @@
         </g>
       </svg>  
 
-      <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft - 115 }">
+      <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft - 120}" [ngStyle]="{'top.px': myCanvas.offsetTop}" >
         <div *ngFor="let i of (draft?.visibleRows)" class="insert-button">
           <span (click)="insertRow(i + 1, draft?.rowToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
           <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i));"><i class="fa fa-clone"></i></span>
