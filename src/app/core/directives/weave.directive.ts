@@ -1095,41 +1095,101 @@ export class WeaveDirective {
    * @returns {void}
    */
   public simulate() {
+    console.log("simulate");
     var color = '#000000';
     var offset;
-    var height = 0;
+    var height = this.weave.visibleRows.length *20;
 
-    for (var i = 0; i < this.weave.wefts; i++) {
-      var shuttleId = this.weave.rowShuttleMapping[i];
-      var t = this.weave.shuttles[shuttleId].getThickness();
-      if (t !== undefined) {
-        height += Math.ceil((this.weave.wpi / t) * 20);
-      }
-    }
-
-    this.canvasEl.height = height;
-
+    this.updateSize();
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
 
-    var i = 0;
-    var y = 0;
-    while (y < this.canvasEl.height) {
-      color = this.weave.getColor(i);
-      var l = this.weave.rowShuttleMapping[i];
-      var h = Math.ceil((this.weave.wpi / this.weave.shuttles[l].getThickness()) * 20);
-      for (var x = 0; x < this.weave.warps * 20; x += 20) {
-        if (!this.weave.isUp(i , x / 20)) {
-          this.cx.fillStyle = color;
-          this.cx.fillRect(x, y, 20, h);
-        } else {
-          this.cx.fillStyle = '#000000';
-          this.cx.fillRect(x, y, 20, h );
+    this.cx.beginPath();
+    this.cx.strokeStyle = "#FFFFFF"; // Green path
+    this.cx.moveTo(0, 0);
+    this.cx.lineTo(0, height);
+    this.cx.stroke(); 
+
+    //start by drawing warp rectangles
+    for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
+      var id = this.weave.colShuttleMapping[x];
+      var color = this.weave.warp_systems[id].getColor();
+      this.cx.fillStyle = color;
+      this.cx.fillRect(x*20, 0, 20, height);
+      this.cx.strokeStyle = "#FFFFFF";
+      
+      this.cx.beginPath();
+      this.cx.strokeStyle = "#FFFFFF"; // Green path
+      this.cx.moveTo((x+1)*20, 0);
+      this.cx.lineTo((x+1)*20, height);
+      this.cx.stroke(); // Draw it
+
+    }
+
+    for (var i = 0; i < this.weave.visibleRows.length; i++){
+      var y = (i * 20);
+      var r = this.weave.visibleRows[i];
+      var weft_shuttle_id = this.weave.rowShuttleMapping[r];
+      var weft_color = this.weave.shuttles[weft_shuttle_id].getColor();
+
+      for (var x = 0; x < this.weave.pattern[r].length; x++) {
+
+
+        if (!this.weave.isUp(i,x)) {
+          this.cx.fillStyle = weft_color;
+          this.cx.fillRect(x*20, y, 20, 20);
+          this.cx.beginPath();
+          this.cx.strokeStyle = "#FFFFFF"; // Green path
+          this.cx.moveTo(x*20, y);
+          this.cx.lineTo((x+1)*20, y);
+          this.cx.stroke(); // Draw it
+
+          this.cx.beginPath();
+          this.cx.strokeStyle = "#FFFFFF"; // Green path
+          this.cx.moveTo(x*20, y+20);
+          this.cx.lineTo((x+1)*20, y+20);
+          this.cx.stroke(); // Draw it
         }
       }
 
-      i++;
-      y += h;
     }
+
+
+    this.cx.strokeStyle = "#000";
+
+
+
+
+    // for (var i = 0; i < this.weave.wefts; i++) {
+    //   var shuttleId = this.weave.rowShuttleMapping[i];
+    //   var t = this.weave.shuttles[shuttleId].getThickness();
+    //   if (t !== undefined) {
+    //     height += Math.ceil((this.weave.wpi / t) * 20);
+    //   }
+    // }
+
+    // this.canvasEl.height = height;
+
+    // this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
+
+    // var i = 0;
+    // var y = 0;
+    // while (y < this.canvasEl.height) {
+    //   color = this.weave.getColor(i);
+    //   var l = this.weave.rowShuttleMapping[i];
+    //   var h = Math.ceil((this.weave.wpi / this.weave.shuttles[l].getThickness()) * 20);
+    //   for (var x = 0; x < this.weave.warps * 20; x += 20) {
+    //     if (!this.weave.isUp(i , x / 20)) {
+    //       this.cx.fillStyle = color;
+    //       this.cx.fillRect(x, y, 20, h);
+    //     } else {
+    //       this.cx.fillStyle = '#000000';
+    //       this.cx.fillRect(x, y, 20, h );
+    //     }
+    //   }
+
+    //   i++;
+    //   y += h;
+    // }
   }
 
   /**

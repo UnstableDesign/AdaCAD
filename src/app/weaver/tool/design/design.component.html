@@ -10,11 +10,13 @@
         <i class="fa fa-project-diagram" aria-hidden="true"></i>
         Yarn
       </mat-button-toggle>
-      <!-- <mat-button-toggle value="visual">
+      <mat-button-toggle value="visual">
         <i class="fa fa-image" aria-hidden="true"></i>
         Visual
-      </mat-button-toggle> -->
+      </mat-button-toggle>
     </mat-button-toggle-group>
+
+
   </section>
   <section *ngIf="view === 'pattern'" class="section-container">
     <h3>Interlacement Tools</h3>
@@ -110,14 +112,11 @@
   </section>
 
   <!--Hidden for Deploy -->
- <!--  <section *ngIf="view === 'yarn'" class="section-container">
-    <h3>Connections</h3>
+  <section *ngIf="view === 'visual'" class="section-container">
+    <h3>Render options</h3>
     <div class="buttons">
-      <button name="createConnection" class="button is-primary" (click)="openConnectionDialog()">Create</button>
-      <button name="createConnection" class="button is-primary">Move</button>
-      <button name="createConnection" class="button is-primary">Delete</button>
     </div>
   <mat-divider></mat-divider>
-  </section> -->
+  </section>
   
 </div>
