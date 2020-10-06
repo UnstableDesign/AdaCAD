@@ -77,21 +77,17 @@ export class ShuttlesComponent implements OnInit {
 
 
   warpChange(f: NgForm) {
-    console.log(f.value);
-    console.log(f.controls['warps']);
     f.controls['width'].setValue(f.value.warps / f.value.epi);
     this.onWarpNumChange.emit({warps: f.value.warps})
   }
 
   epiChange(f: NgForm) {
-    console.log(f.value);
     f.controls['width'].setValue(f.value.warps / f.value.epi);   
     this.onEpiNumChange.emit({epi: f.value.epi});
 
   }
 
   widthChange(f: NgForm) {
-    console.log(f.value);
     if(this.warp_locked){
       f.controls['epi'].setValue(f.value.warps / f.value.width);   
     }else{
