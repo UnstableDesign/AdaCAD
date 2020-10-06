@@ -314,6 +314,7 @@ export class WeaverComponent implements OnInit {
     const len = this.draft.shuttles.length;
     var shuttle = this.draft.rowShuttleMapping[row];
 
+
     var newShuttle = (shuttle + 1) % len;
     while (!this.draft.shuttles[newShuttle].visible) {
       var newShuttle = (newShuttle + 1) % len;
