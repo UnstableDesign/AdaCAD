@@ -163,11 +163,12 @@ export class WeaveDirective {
   ngOnInit() {
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
-    this.canvasEl = this.el.nativeElement.children[1];
+    this.canvasEl = this.el.nativeElement.children[2];
     this.svgEl = this.el.nativeElement.lastElementChild;
-    this.threadingCanvas = this.el.nativeElement.firstElementChild.firstElementChild;
-    this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
+    this.threadingCanvas = this.el.nativeElement.children[1].firstElementChild;
+    this.tieupsCanvas = this.el.nativeElement.children[3].firstElementChild;
     this.treadlingCanvas = this.el.nativeElement.children[5].firstElementChild;
+    console.log(this.el.nativeElement.children);
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
     this.cxTreadling = this.treadlingCanvas.getContext('2d');
@@ -1121,8 +1122,8 @@ export class WeaveDirective {
     //start by drawing warp rectangles
     for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
       var id = this.weave.colShuttleMapping[x];
-      var color = this.weave.warp_systems[id].getColor();
-      this.cx.fillStyle = color;
+      var c = this.weave.warp_systems[id].getColor();
+      this.cx.fillStyle = c;
       this.cx.fillRect(x*20, 0, 20, height);
       this.cx.strokeStyle = "#FFFFFF";
       

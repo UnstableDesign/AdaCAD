@@ -37,7 +37,14 @@ export class WeaverComponent implements OnInit {
    * @property {string}
    */
   brush = 'point';
+
+  /**
+   * The name of the variable for showing ONLY the draw-down or the other features
+   * @property {boolean}
+   */
+  view_frames = false;
   
+
   /**
    * The weave Draft object.
    * @property {Draft}
@@ -175,10 +182,11 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - view change event from design component.
    * @returns {void}
    */
-  public onViewChange(e: any) {
-    this.view = e.view;
+  public viewChange(e: any) {
+    console.log(e);
+    this.view = e.value;
 
-    switch (e.view) {
+    switch (e.value) {
       case 'visual':
         this.weaveRef.simulate();
         break;
@@ -479,6 +487,19 @@ export class WeaverComponent implements OnInit {
 
   public redraw() {
     this.weaveRef.redraw();
+  }
+
+  public toggleViewFrames(){
+    this.view_frames = !this.view_frames;
+  }
+
+  public styleViewFrames(ctx){
+    if(this.view_frames) return {'top.px': ctx.offsetTop-30, 'left.px': ctx.offsetLeft-43};
+    return {'top.px': ctx.offsetTop-30, 'left.px': ctx.offsetLeft-43};
+  }
+
+  public styleRowButtons(ctx){
+    return {'left.px': ctx.offsetLeft - 120, 'top.px': ctx.offsetTop};
   }
 
 }

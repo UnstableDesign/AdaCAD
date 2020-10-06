@@ -4,14 +4,31 @@
   (onUndo)="undo();" 
   (onRedo)="redo();"
   (onSave)="onSave($event);">
-    
-  </app-topbar>
+</app-topbar>
+
+
 <mat-sidenav-container class="example-container">
   <mat-sidenav mode="side" position="end" opened>
+    <div class="view-toggle">
+    <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
+      <mat-button-toggle value="pattern">
+        <i class="fa fa-chess-board" aria-hidden="true"></i>
+        Draft
+      </mat-button-toggle>
+      <mat-button-toggle value="yarn">
+        <i class="fa fa-project-diagram" aria-hidden="true"></i>
+        Yarn
+      </mat-button-toggle>
+      <mat-button-toggle value="visual">
+        <i class="fa fa-image" aria-hidden="true"></i>
+        Visual
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
       <mat-tab label="Design">
         <app-design [brush]="brush" [favorites]="draft?.patterns | filter: {favorite: true}"
-        (onViewChange)="onViewChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
@@ -21,12 +38,13 @@
         (onConnectionCreate)="openConnectionDialog();"
         (onLabelCreate)="openLabelDialog()"></app-design> 
       </mat-tab>
-      <mat-tab label="System">
+      <mat-tab label="Materials">
         <app-shuttles *ngIf="selected === 1" 
         [shuttles]="draft?.shuttles" 
         [warp_systems]="draft?.warp_systems" 
         [warps]="draft?.warps" 
         [epi]="draft?.epi" 
+        [show_frames] = "show_frames"
         (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
         (onCreateWarpSystem)="createWarpSystem($event);"
@@ -38,7 +56,7 @@
         </app-shuttles> 
 
       </mat-tab>
-      <mat-tab label="Pattern">
+      <mat-tab label="Patterns">
         <app-patterns *ngIf="selected === 2" [patterns]="draft?.patterns"
         (onChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"
@@ -46,6 +64,8 @@
       </mat-tab>
     </mat-tab-group>
   </mat-sidenav>
+
+
   <mat-sidenav-content>
     <!-- <div class="shuttles-container">
       <button mat-mini-fab class="rowShuttle" *ngFor="let row of draft.rowShuttleMapping">
@@ -54,17 +74,29 @@
     <div *ngIf="draft" #weaveRef weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
       
 
-      <div #threadref class="threading-container" width = "500" height="100">
+      <div  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" [ngStyle]="styleViewFrames(drawDown)" (click)="view_frames = !view_frames;">
+        <span><i class="fas" [class.fa-eye-slash]="!view_frames" [class.fa-eye]="view_frames"> 
+        </i></span>
+
+      </div>
+
+      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container" width = "500" height="100">
         <canvas #threading width="200" height="100" style="background:#fbfbfb;"></canvas>
       </div>
-      <canvas #myCanvas style="background:#fbfbfb;"  >
+
+
+      <canvas #drawDown style="background:#fbfbfb;"  >
       </canvas>
 
-      <div #tieupsref class="tieups-container" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft?.warps * 20) - 55}" width = "500" height="100">
-        <canvas #tieups width="200" height="100" style="background:#fbfbfb;"></canvas>
+      
+
+      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #tieupsref class="tieups-container" [ngStyle]="{'left.px': drawDown.offsetLeft + (draft?.warps * 20) - 55}" width = "500" height="100">
+      <canvas #tieups width="200" height="100" style="background:#fbfbfb;"></canvas>
       </div>
+
       <canvas #bitmapImage hidden></canvas>
-      <svg #connections [style.left]="myCanvas.offsetLeft" [attr.width]="draft?.warps * 20" [attr.height]="draft?.wefts * 20" style="position:absolute" [class.hidden]="view !== 'yarn'">
+
+<!--       <svg #connections [style.left]="drawDown.offsetLeft" [attr.width]="draft?.warps * 20" [attr.height]="draft?.wefts * 20" style="position:absolute" [class.hidden]="view !== 'yarn'">
         <g *ngFor="let c of (draft?.connections)">
           <line 
           [attr.x1]="c.start.x === 1? c.start.x * 20 - 15 : c.start.x * 20 - 5" 
@@ -82,25 +114,29 @@
           [attr.cy]="c.end.y * 20 - 10" r="7" 
           [attr.fill]="draft?.shuttles[c.shuttleId]?.color"/>
         </g>
-      </svg>
-      <div #treadref class="treadling-container" [ngStyle]="{'left.px': myCanvas.offsetLeft + (draft?.warps * 20) - 55 }" width = "500" height="100">
+      </svg> -->
+      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="{'left.px': drawDown.offsetLeft + (draft?.warps * 20) - 55 }" width = "500" height="100">
         <canvas #treadling width="200" height="100" style="background:#fbfbfb;"></canvas>
       </div>
-      <svg #shuttles class="shuttles" [style.left]="myCanvas.offsetLeft - 55">
+
+
+
+      <svg #shuttles class="shuttles" [style.left]="drawDown.offsetLeft - 55">
         <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
           <circle cx="20" [attr.cy]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>
           <text text-anchor="end" x="5" [attr.y]="(j*20+15)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
         </g>
       </svg>
 
-    <svg #warp_systems class="warp_systems" [style.top]="myCanvas.offsetTop + myCanvas.height" [style.left]="myCanvas.offsetLeft">
+    <svg #warp_systems class="warp_systems" [style.top]="drawDown.offsetTop + drawDown.height" [style.left]="drawDown.offsetLeft">
         <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
           <circle cy="20" [attr.cx]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
-          <!--     <text text-anchor="end" y="5" [attr.x]="(j*20+15)" style="font-size:12px;" fill="#fff">{{ i }} {{j}}</text> -->
         </g>
       </svg>  
 
-      <div #insertButtons class="insert-button-group" [ngStyle]="{'left.px': myCanvas.offsetLeft - 120}" [ngStyle]="{'top.px': myCanvas.offsetTop}" >
+
+
+      <div #insertButtons class="insert-button-group" [ngStyle]="styleRowButtons(drawDown)" >
         <div *ngFor="let i of (draft?.visibleRows)" class="insert-button">
           <span (click)="insertRow(i + 1, draft?.rowToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
           <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i));"><i class="fa fa-clone"></i></span>

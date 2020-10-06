@@ -16,7 +16,6 @@ export class DesignComponent implements OnInit {
   @Output() onPaste: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
-  @Output() onViewChange: any = new EventEmitter();
   @Output() onConnectionCreate: any = new EventEmitter();
   @Output() onLabelCreate: any = new EventEmitter();
 
@@ -40,14 +39,6 @@ export class DesignComponent implements OnInit {
   openLabelDialog() {
 
     this.onLabelCreate.emit();
-  }
-
-  viewChange(e: any) {
-    this.view = e.value;
-    var obj: any = {};
-    obj.view = e.value;
-
-    this.onViewChange.emit(obj);
   }
 
   brushChange(e: any) {

@@ -19,6 +19,7 @@ export class ShuttlesComponent implements OnInit {
   @Input() warp_systems;
   @Input() warps;
   @Input() epi;
+  @Input() show_frames;
   @Output() onWarpNumChange: any = new EventEmitter();
   @Output() onEpiNumChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();

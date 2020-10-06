@@ -1,23 +1,5 @@
 <div class="example-container">
 
-  <section class="section-container">
-    <mat-button-toggle-group name="fontStyle" aria-label="Font Style" #group [value]="view" (change)="viewChange($event);">
-      <mat-button-toggle value="pattern">
-        <i class="fa fa-chess-board" aria-hidden="true"></i>
-        Draft
-      </mat-button-toggle>
-      <mat-button-toggle value="yarn">
-        <i class="fa fa-project-diagram" aria-hidden="true"></i>
-        Yarn
-      </mat-button-toggle>
-      <mat-button-toggle value="visual">
-        <i class="fa fa-image" aria-hidden="true"></i>
-        Visual
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-
-
-  </section>
   <section *ngIf="view === 'pattern'" class="section-container">
     <h3>Interlacement Tools</h3>
     <div class="buttons">

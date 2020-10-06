@@ -63,6 +63,12 @@
   width: 100%;
 }
 
+.view-toggle{
+    margin-bottom: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
 .insert-button-group {
   position: absolute;
   top: 0;
@@ -100,4 +106,31 @@
       }
     }
   }
+}
+
+.view_frames {
+  position: absolute;
+  width: 20px;
+  height: 100%;
+
+
+    span {
+      display: inline-flex;
+      padding-right: 5px;
+    }
+
+    .fa-eye-slash {
+      color: hsl(0, 100%, 100%);
+    }
+
+    .fa-eye{
+      color: hsl(0, 100%, 100%);
+    }
+
+    /*span.view_frame_text{
+      font-size:.7em;
+      width: 500px;
+      height:20px;
+      margin-left: 20px;
+    }*/
 }
