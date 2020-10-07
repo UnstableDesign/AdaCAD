@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import {cloneDeep, now} from 'lodash';
 
 import { Draft } from '../model/draft';
+import { Render } from '../model/render';
 import { Shuttle } from '../model/shuttle';
 import { Pattern } from '../model/pattern';
 import { Point } from '../model/point';
@@ -27,6 +28,8 @@ const generateId = () => (Date.now().toString(36) + Math.random().toString(36).s
 @Directive({
   selector: '[weave]'
 })
+
+
 export class WeaveDirective {
   /// ATTRIBUTES
   /**
@@ -44,7 +47,13 @@ export class WeaveDirective {
   @Input('draft') weave: any;
 
 
-
+/**
+   * The Render object containing the variables about how the variables.
+   * It is defined and inputed from the HTML declaration of the WeaveDirective.
+   * @property {Render}
+  */
+  // @Input('render') render: any;
+  render: Render;
   /**
    * The HTML canvas element within the weave draft.
    * @property {HTMLCanvasElement}
@@ -155,12 +164,16 @@ export class WeaveDirective {
     this.treadlingLast = [];
     this.tieupsLast = [];
     this.tieupsNow = [];
+    this.render = new Render();
   }
 
   /**
    *
    */
   ngOnInit() {
+
+    
+
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[2];
@@ -175,13 +188,13 @@ export class WeaveDirective {
     this.cxTieups = this.tieupsCanvas.getContext('2d');
 
     // set the width and height
-    this.canvasEl.width = this.weave.warps * 20;
-    this.canvasEl.height = this.weave.wefts * 20;
-    this.threadingCanvas.width = this.weave.warps *20;
+    this.canvasEl.width = this.weave.warps * this.render.cell_w;
+    this.canvasEl.height = this.weave.wefts * this.render.cell_h;
+    this.threadingCanvas.width = this.weave.warps * this.render.cell_w;
     this.threadingCanvas.height = this.threadingSize;
-    this.treadlingCanvas.height = this.weave.wefts * 20;
-    this.treadlingCanvas.width = this.treadles * 20;
-    this.tieupsCanvas.width = this.treadles*20;
+    this.treadlingCanvas.height = this.weave.wefts * this.render.cell_h;
+    this.treadlingCanvas.width = this.treadles * this.render.cell_w;
+    this.tieupsCanvas.width = this.treadles*this.render.cell_w;
     this.tieupsCanvas.height = this.threadingSize;
 
     // Set up the initial grid.
@@ -216,7 +229,7 @@ export class WeaveDirective {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
-    var offset = 0;
+    var offset = this.render.getOffset(this.brush);
 
     // create offset if brush is select to allow easier selection.
     if (this.brush === 'select') {

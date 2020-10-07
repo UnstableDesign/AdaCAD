@@ -9,7 +9,12 @@
 
 <mat-sidenav-container class="example-container">
   <mat-sidenav mode="side" position="end" opened>
+
     <div class="view-toggle">
+    
+    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="50" [value]="dims" (change)="renderChange($event)"></mat-slider>
+    
+
     <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
       <mat-button-toggle value="pattern">
         <i class="fa fa-chess-board" aria-hidden="true"></i>
@@ -67,6 +72,7 @@
 
 
   <mat-sidenav-content>
+
     <!-- <div class="shuttles-container">
       <button mat-mini-fab class="rowShuttle" *ngFor="let row of draft.rowShuttleMapping">
       </button>
@@ -146,10 +152,8 @@
       <svg #mySelection class="selection">
         <text x="5" y="5" text-anchor="start"></text>
       </svg>
-      <!-- <div class="threading-container">
-      </div>
-      <div class="tieup-container">
-      </div> -->
     </div>
+
+
   </mat-sidenav-content>
 </mat-sidenav-container>

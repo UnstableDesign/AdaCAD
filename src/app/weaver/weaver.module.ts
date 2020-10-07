@@ -17,6 +17,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSliderModule } from '@angular/material/slider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -64,6 +65,7 @@ import { LabelModal } from './modal/label/label.modal';
     MatRadioModule,
     MatSelectModule,
     MatSidenavModule,
+    MatSliderModule,
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,

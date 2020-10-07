@@ -3,6 +3,7 @@ import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild } fro
 import { PatternService } from '../core/provider/pattern.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
 import { Draft } from '../core/model/draft';
+import { Render } from '../core/model/render';
 import { Shuttle } from '../core/model/shuttle';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
@@ -43,6 +44,9 @@ export class WeaverComponent implements OnInit {
    * @property {boolean}
    */
   view_frames = false;
+
+
+  dims = 20; //default value for cell dimensions
   
 
   /**
@@ -50,6 +54,13 @@ export class WeaverComponent implements OnInit {
    * @property {Draft}
    */
   draft: Draft;
+
+
+ /**
+   * The weave Render object.
+   * @property {Render}
+   */
+  render: Render;
 
   /**
    * The list of all patterns saved. Provided by pattern service.
@@ -69,6 +80,7 @@ export class WeaverComponent implements OnInit {
   private undoItem;
   private redoItem;
 
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
@@ -79,7 +91,10 @@ export class WeaverComponent implements OnInit {
    */
   constructor(private ps: PatternService, private dialog: MatDialog, 
               private store: Store<AppState>) {
-    
+
+
+
+
     const dialogRef = this.dialog.open(InitModal);
 
     var default_patterns = [];
@@ -93,7 +108,7 @@ export class WeaverComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       this.draft = new Draft(result);
-      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;  
+      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns; 
    });
 
   }
@@ -104,13 +119,12 @@ export class WeaverComponent implements OnInit {
 
   ngOnInit() {
 
+
     this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
       this.undoItem = undoItem;
-      console.log(undoItem);
     });
     this.store.pipe(select(getRedoAction), takeUntil(this.unsubscribe$)).subscribe(redoItem => {
       this.redoItem = redoItem;
-      console.log(redoItem);
     });
     
     
@@ -500,6 +514,12 @@ export class WeaverComponent implements OnInit {
 
   public styleRowButtons(ctx){
     return {'left.px': ctx.offsetLeft - 120, 'top.px': ctx.offsetTop};
+  }
+
+  public renderChange(e: any){
+     this.weaveRef.render.setDims(e.value);
+     this.dims = this.weaveRef.render.getDims();
+     //this.redraw();
   }
 
 }
