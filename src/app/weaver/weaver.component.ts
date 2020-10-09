@@ -43,10 +43,7 @@ export class WeaverComponent implements OnInit {
    * The name of the variable for showing ONLY the draw-down or the other features
    * @property {boolean}
    */
-  view_frames = false;
-
-
-  dims = 20; //default value for cell dimensions
+  view_frames = true;
   
 
   /**
@@ -60,7 +57,7 @@ export class WeaverComponent implements OnInit {
    * The weave Render object.
    * @property {Render}
    */
-  render: Render;
+  render: Render = new Render();
 
   /**
    * The list of all patterns saved. Provided by pattern service.
@@ -91,8 +88,6 @@ export class WeaverComponent implements OnInit {
    */
   constructor(private ps: PatternService, private dialog: MatDialog, 
               private store: Store<AppState>) {
-
-
 
 
     const dialogRef = this.dialog.open(InitModal);
@@ -500,7 +495,10 @@ export class WeaverComponent implements OnInit {
 
 
   public redraw() {
-    this.weaveRef.redraw();
+    this.weaveRef.redrawDrawdown();
+    this.weaveRef.redrawThreading();
+    this.weaveRef.redrawTreadling();
+    this.weaveRef.redrawTieups();
   }
 
   public toggleViewFrames(){
@@ -515,11 +513,37 @@ export class WeaverComponent implements OnInit {
   public styleRowButtons(ctx){
     return {'left.px': ctx.offsetLeft - 120, 'top.px': ctx.offsetTop};
   }
+  public styleTieUps(ctx){
+    var dims = this.render.getCellDims("base");
+    var frames = this.draft.threading.threading.length;
+    return  {'left.px': ctx.offsetLeft + (dims.w * (this.draft.warps+0.5)), 'top.px':ctx.offsetTop};
+  }
+
+  public styleTreadling(ctx){
+    var dims = this.render.getCellDims("base");
+    return {'left.px': ctx.offsetLeft + (dims.w * (this.draft.warps+0.5)), 'top.px':ctx.offsetTop}
+  }
+
+  public styleWeftShuttles(ctx){
+    return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft - 55};
+  }
+
+  public styleWarpSystems(ctx){
+    return {'top.px': ctx.offsetTop + ctx.height, 'left.px': ctx.offsetLeft};
+  }
+ 
+  public styleShuttleRow(j){
+        var dims = this.render.getCellDims("base");
+        return (j*dims.h)+(dims.h/2);
+
+  }
 
   public renderChange(e: any){
-     this.weaveRef.render.setDims(e.value);
-     this.dims = this.weaveRef.render.getDims();
-     //this.redraw();
+     this.render.setZoom(e.value);
+     this.weaveRef.updateSize();
+     this.weaveRef.updateSizeThreading();
+     this.weaveRef.updateSizeTreadling();
+     this.redraw();
   }
 
 }

@@ -12,7 +12,7 @@
 
     <div class="view-toggle">
     
-    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="50" [value]="dims" (change)="renderChange($event)"></mat-slider>
+    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="10" max="100" value="render?.zoom" (change)="renderChange($event)"></mat-slider>
     
 
     <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
@@ -73,11 +73,8 @@
 
   <mat-sidenav-content>
 
-    <!-- <div class="shuttles-container">
-      <button mat-mini-fab class="rowShuttle" *ngFor="let row of draft.rowShuttleMapping">
-      </button>
-    </div> -->
-    <div *ngIf="draft" #weaveRef weave [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
+
+    <div *ngIf="draft" #weaveRef weave [render]="render" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
       
 
       <div  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" [ngStyle]="styleViewFrames(drawDown)" (click)="view_frames = !view_frames;">
@@ -86,19 +83,22 @@
 
       </div>
 
-      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container" width = "500" height="100">
-        <canvas #threading width="200" height="100" style="background:#fbfbfb;"></canvas>
+      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container">
+        <canvas #threading style="background:#fbfbfb;"></canvas>
       </div>
 
 
-      <canvas #drawDown style="background:#fbfbfb;"  >
+       <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #tieupsref class="tieups-container" [ngStyle]="styleTieUps(threading)">
+      <canvas #tieups style="background:#fbfbfb;"></canvas>
+      </div>
+
+
+      <canvas #drawDown style="background:#fbfbfb;">
       </canvas>
 
       
 
-      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #tieupsref class="tieups-container" [ngStyle]="{'left.px': drawDown.offsetLeft + (draft?.warps * 20) - 55}" width = "500" height="100">
-      <canvas #tieups width="200" height="100" style="background:#fbfbfb;"></canvas>
-      </div>
+  
 
       <canvas #bitmapImage hidden></canvas>
 
@@ -121,22 +121,24 @@
           [attr.fill]="draft?.shuttles[c.shuttleId]?.color"/>
         </g>
       </svg> -->
-      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="{'left.px': drawDown.offsetLeft + (draft?.warps * 20) - 55 }" width = "500" height="100">
-        <canvas #treadling width="200" height="100" style="background:#fbfbfb;"></canvas>
+
+
+      <div [style.visibility]="view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="styleTreadling(drawDown)">
+        <canvas #treadling style="background:#fbfbfb;"></canvas>
       </div>
 
 
 
-      <svg #shuttles class="shuttles" [style.left]="drawDown.offsetLeft - 55">
+      <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(drawDown)">
         <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
-          <circle cx="20" [attr.cy]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>
-          <text text-anchor="end" x="5" [attr.y]="(j*20+15)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
+          <circle cx="20" [attr.cy]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>
+          <text text-anchor="end" x="5" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
         </g>
       </svg>
 
-    <svg #warp_systems class="warp_systems" [style.top]="drawDown.offsetTop + drawDown.height" [style.left]="drawDown.offsetLeft">
+    <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(drawDown)">
         <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-          <circle cy="20" [attr.cx]="(j*20)+10" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
+          <circle cy="20" [attr.cx]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
         </g>
       </svg>  
 

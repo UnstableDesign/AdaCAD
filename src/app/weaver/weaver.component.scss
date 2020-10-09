@@ -1,40 +1,24 @@
 .draft-container {
-  text-align: center;
   margin: 10px;
   position: relative;
   overflow: scroll;
+  text-align: center;
 
   canvas {
-    position: relative;
-    margin-left: 115px;
-    margin-right: 70px;
     cursor: pointer;
   }
 
 }
-.threading-container{
-  canvas {
-    position: static;
-  }
-}
+
+
 
 .tieups-container {
   position: absolute;
-  top: 0px;
-  canvas{
-    position: absolute;
-    margin-left: 65px;
-
-  }
 }
+
+
 .treadling-container{
   position: absolute;
-  top: 166px;
-  canvas {
-    position: absolute;
-    margin-left: 65px;
-
-  }
 }
 
 .selection {
@@ -47,7 +31,6 @@
 
 .shuttles {
   position: absolute;
-  top: 166px;
   background: #303030;
   height: 100%;
   cursor: pointer;
@@ -56,7 +39,6 @@
 
 .warp_systems {
   position: absolute;
-  top: 0px;
   background: #303030;
   height: 50px;
   cursor: pointer;
