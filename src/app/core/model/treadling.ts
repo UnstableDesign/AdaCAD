@@ -6,6 +6,7 @@ import { CompileSummaryKind } from '@angular/compiler';
  * @class
  */
 export class Treadling {
+    num_treadles: Number;
     treadling: Array<Array<boolean>>;
     wefts: Number;
     pattern: Array<Array<boolean>>;
@@ -13,13 +14,14 @@ export class Treadling {
     userInputCoordinates: Array<Array<number>>;
 
     constructor(wefts: number, pattern: Array<Array<boolean>>) {
+        this.num_treadles = 10;
         this.pattern=pattern;
         this.wefts = wefts;
         this.treadling =[];
         for (var i = 0; i < this.wefts; i++) {
             this.treadling.push([]);
             //assumed standard number of treadles
-            for (var j = 0; j < 10; j++) {
+            for (var j = 0; j <  this.num_treadles; j++) {
                 this.treadling[i].push(false);
             }
         }

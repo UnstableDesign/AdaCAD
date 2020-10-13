@@ -134,7 +134,9 @@ export class Draft implements DraftInterface {
     } 
 
     //Creating the Threading, Treadling, and TieUps objects
-    this.threading = new Threading(this.wefts, this.warps);
+    // this.threading = new Threading(this.wefts, this.warps);
+    // this.treadling = new Treadling(this.wefts, this.pattern);
+    this.threading = new Threading(8, this.warps);
     this.treadling = new Treadling(this.wefts, this.pattern);
     this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
 

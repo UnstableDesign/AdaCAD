@@ -59,6 +59,8 @@ export class WeaverComponent implements OnInit {
    */
   render: Render = new Render();
 
+
+
   /**
    * The list of all patterns saved. Provided by pattern service.
    * @property {Array<Pattern>}
@@ -540,9 +542,9 @@ export class WeaverComponent implements OnInit {
 
   public renderChange(e: any){
      this.render.setZoom(e.value);
-     this.weaveRef.updateSize();
      this.weaveRef.updateSizeThreading();
      this.weaveRef.updateSizeTreadling();
+     this.weaveRef.updateSize();
      this.redraw();
   }
 

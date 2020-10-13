@@ -48,12 +48,13 @@ export class WeaveDirective {
 
 
 /**
-   * The Render object containing the variables about how the variables.
+   * The Render object containing the variables about zoom and cell sizes.
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {Render}
   */
- @Input('render') render: any;
+  @Input('render') render: any;
   /**
+/**
    * The HTML canvas element within the weave draft.
    * @property {HTMLCanvasElement}
    */
@@ -144,7 +145,7 @@ export class WeaveDirective {
   private tieupsNow: Array<Array<number>>;
 
   private threadingSize: number;
-  private treadles: number;
+  // private treadles: number;
 
   private shuttleLocation: number;
 
@@ -158,28 +159,29 @@ export class WeaveDirective {
     this.threadingLast = [];
     this.threadingSize = 160;
     this.shuttleLocation = 166;
-    this.treadles = 10;
+    // this.treadles = 10;
     this.treadlingNow = [];
     this.treadlingLast = [];
     this.tieupsLast = [];
     this.tieupsNow = [];
-    //this.render = new Render();
   }
 
   /**
    *
    */
-  ngOnInit() {    
+  ngOnInit() {  
 
+
+
+    //console.log("element", this.el.nativeElement.children);
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[3];
-    this.svgEl = this.el.nativeElement.lastElementChild;
+    this.svgEl = this.el.nativeElement.children[0].lastElementChild;
     
     this.threadingCanvas = this.el.nativeElement.children[1].firstElementChild;
     this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
-    this.treadlingCanvas = this.el.nativeElement.children[5].firstElementChild;
-    console.log(this.el.nativeElement.children);
+    this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
     this.cxTreadling = this.treadlingCanvas.getContext('2d');
@@ -187,7 +189,6 @@ export class WeaveDirective {
 
     // set the width and height
     var dims = this.render.getCellDims("base");
-    console.log("on init", dims);
 
 
 
@@ -196,8 +197,10 @@ export class WeaveDirective {
     this.threadingCanvas.width = this.weave.warps * dims.w;
     this.threadingCanvas.height = this.threadingSize;
     this.treadlingCanvas.height = this.weave.wefts * dims.h;
-    this.treadlingCanvas.width = this.treadles * dims.w;
-    this.tieupsCanvas.width = this.treadles*dims.w;
+
+    console.log(this.weave);
+    this.treadlingCanvas.width = this.weave.treadling.num_treadles * dims.w;
+    this.tieupsCanvas.width = this.weave.treadling.num_treadles*dims.w;
     this.tieupsCanvas.height = this.threadingSize;
 
     // Set up the initial grid.
@@ -429,10 +432,8 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawGrid(cx,canvas) {
-    console.log("draw grid");
 
     var dims = this.render.getCellDims("base");
-    console.log("draw_grid", dims);
 
 
     var i,j;
@@ -514,7 +515,7 @@ export class WeaveDirective {
       this.updateSizeThreading();
     }
 
-    if (this.weave.treadling.treadle_count > this.treadles) {
+    if (this.weave.treadling.treadle_count > this.weave.treadling.num_treadles) {
       this.updateSizeTreadling();
     }
 
@@ -826,7 +827,6 @@ export class WeaveDirective {
    * @returns {void}
    */
   private redrawRow(y, i, cx) {
-    console.log("redraw row");
     var base_dims = this.render.getCellDims("base");
     var base_fill = this.render.getCellDims("base_fill");
     var base_clear = this.render.getCellDims("base_clear");
@@ -1070,8 +1070,8 @@ export class WeaveDirective {
     var base_fill = this.render.getCellDims("base_fill");
     var base_clear = this.render.getCellDims("base_clear");
 
-
-    for (var i = 0; i < this.weave.wefts; i++) {
+    for (var i = 0; i < 8; i++) {
+   // for (var i = 0; i < this.weave.wefts; i++) {
       for (var j = 0; j < this.weave.threading.threading[i].length; j++) {
         if(this.weave.threading.threading[i][j]) {
           this.threadingNow.push([j,i]);
@@ -1320,13 +1320,19 @@ export class WeaveDirective {
 
     //shifts the shuttle location down by 20 corresponding to space needed for the added frame
     var temp = this.shuttleLocation + base_dims.h;
+
     var stringShuttleLocation = temp.toString() + "px";
     this.shuttleLocation = temp;
-    this.el.nativeElement.children[6].style.top = stringShuttleLocation;
-    this.el.nativeElement.children[5].style.top = stringShuttleLocation;
-    this.threadingCanvas.height = this.weave.threading.usedFrames.length * base_dims.h;
-    this.threadingSize = this.weave.threading.usedFrames.length * base_dims.h;
-    this.tieupsCanvas.height = this.weave.threading.usedFrames.length * base_dims.h;
+
+    //this will change as we change the front page
+    this.threadingCanvas.style.top = stringShuttleLocation;
+    this.tieupsCanvas.style.top = stringShuttleLocation;
+
+    var frames = (this.weave.threading.usedFrames.length > this.weave.threading.threading.length) ? this.weave.threading.usedFrames.length : this.weave.threading.threading.length;
+
+    this.threadingCanvas.height = frames * base_dims.h;
+    this.threadingSize = frames * base_dims.h;
+    this.tieupsCanvas.height = frames * base_dims.h;
     this.redraw(this.cxThreading, this.threadingCanvas, "threading");
     this.redraw(this.cxTieups, this.tieupsCanvas, "tieups");
   }
@@ -1339,9 +1345,10 @@ export class WeaveDirective {
   public updateSizeTreadling() {
     var base_dims = this.render.getCellDims("base");
 
-    this.treadles = this.weave.treadling.treadle_count;
-    this.treadlingCanvas.width = this.treadles *base_dims.w;
-    this.tieupsCanvas.width = this.treadles*base_dims.w;
+    var treadles = (this.weave.treadling.treadle_count > this.weave.treadling.num_treadles) ? this.weave.treadling.treadle_count : this.weave.treadling.num_treadles;
+
+    this.treadlingCanvas.width = treadles *base_dims.w;
+    this.tieupsCanvas.width = treadles*base_dims.w;
     this.redraw(this.cxTreadling, this.treadlingCanvas, "treadling");
     this.redraw(this.cxTieups, this.tieupsCanvas, "tieups");
   }
