@@ -80,21 +80,22 @@
 
       <div class="weftSelections">
 
-        <div  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" [ngStyle]="styleViewFrames(drawDown)" (click)="view_frames = !view_frames;">
+        <div  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
+        [ngStyle]="styleViewFrames(threading)" (click)="view_frames = !view_frames;">
         <span><i class="fas" [class.fa-eye-slash]="!view_frames" [class.fa-eye]="view_frames"> 
         </i></span>
         </div>
 
 
 
-        <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(drawDown)">
+        <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
           <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
             <circle cx="20" [attr.cy]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>
             <text text-anchor="end" x="5" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
           </g>
         </svg>
 
-        <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(drawDown)">
+        <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
           <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
             <circle cy="20" [attr.cx]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
           </g>
@@ -102,7 +103,7 @@
 
 
 
-        <div  #insertButtons class="insert-button-group" [ngStyle]="styleRowButtons(drawDown)" >
+        <div  #insertButtons class="insert-button-group" [ngStyle]="styleRowButtons(threading)" >
           <div *ngFor="let i of (draft?.visibleRows)" class="insert-button">
             <span (click)="insertRow(i + 1, draft?.rowToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
             <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i));"><i class="fa fa-clone"></i></span>
@@ -115,8 +116,8 @@
       </div>
         
 
-      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container">
-        <canvas #threading style="background:#fbfbfb;"></canvas>
+      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container" [ngStyle]="styleThreading()">
+        <canvas #threading></canvas>
       </div>
 
 
@@ -124,13 +125,13 @@
       <canvas #tieups style="background:#fbfbfb;"></canvas>
       </div>
 
-
-      <canvas #drawDown style="background:#fbfbfb;" width="drafts?.warps*20" height="drafts?.wefts*20">
-      </canvas>
+      <div class='drawdown-container' [ngStyle]="styleDrawdown(threading)">
+      <canvas #drawDown style="background:#fbfbfb;">  </canvas>
+      </div>
 
 
       
-      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="styleTreadling(drawDown)">
+      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="styleTreadling(threading)">
       <canvas #treadling style="background:#fbfbfb;"></canvas>
     </div>
 

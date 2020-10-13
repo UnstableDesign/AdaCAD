@@ -508,30 +508,46 @@ export class WeaverComponent implements OnInit {
   }
 
   public styleViewFrames(ctx){
-    if(this.view_frames) return {'top.px': ctx.offsetTop-30, 'left.px': ctx.offsetLeft-43};
-    return {'top.px': ctx.offsetTop-30, 'left.px': ctx.offsetLeft-43};
+    var dims = this.render.getCellDims("base");
+    if(this.view_frames) return {'top.px': ctx.offsetTop + ctx.height  - (dims.h), 'left.px': ctx.offsetLeft-43};
+    return {'top.px': ctx.offsetTop+ ctx.height  - (dims.h), 'left.px': ctx.offsetLeft-43};
   }
 
   public styleRowButtons(ctx){
-    return {'left.px': ctx.offsetLeft - 120, 'top.px': ctx.offsetTop};
+     var dims = this.render.getCellDims("base");
+     return {'left.px': ctx.offsetLeft - 120, 'top.px': ctx.offsetTop + ctx.height + dims.h};
   }
+
+  public styleThreading(){
+    return  {'top.px': 10};
+  }
+
   public styleTieUps(ctx){
     var dims = this.render.getCellDims("base");
-    var frames = this.draft.threading.threading.length;
-    return  {'left.px': ctx.offsetLeft + (dims.w * (this.draft.warps+0.5)), 'top.px':ctx.offsetTop};
+  //  var frames = this.draft.threading.threading.length;
+    return  {'left.px': ctx.offsetLeft + ctx.width + dims.w, 'top.px':ctx.offsetTop};
+  }
+
+  public styleDrawdown(ctx){
+    var dims = this.render.getCellDims("base");
+    return  {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
   }
 
   public styleTreadling(ctx){
     var dims = this.render.getCellDims("base");
-    return {'left.px': ctx.offsetLeft + (dims.w * (this.draft.warps+0.5)), 'top.px':ctx.offsetTop}
+    return {'top.px':ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft + ctx.width + dims.w}
   }
 
   public styleWeftShuttles(ctx){
-    return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft - 55};
+    var dims = this.render.getCellDims("base");
+     return {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft - 55};
   }
 
+
+
   public styleWarpSystems(ctx){
-    return {'top.px': ctx.offsetTop + ctx.height, 'left.px': ctx.offsetLeft};
+    var dims = this.render.getCellDims("base");
+    return {'top.px': ctx.offsetTop + ctx.height + (dims.h * (this.draft.wefts+1)), 'left.px': ctx.offsetLeft};
   }
  
   public styleShuttleRow(j){

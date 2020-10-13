@@ -3,27 +3,32 @@
   position: relative;
   overflow: scroll;
   text-align: center;
+  height: 100%;
 
   canvas {
     cursor: pointer;
   }
 
 }
-.weftSelections{
-/*  position:relative;
-  height: 100%;
-  width: 100px;*/
-}
 
 
-
-.tieups-container {
+.drawdown-container{
   position: absolute;
 }
 
+.tieups-container {
+  position:absolute;
+
+}
 
 .treadling-container{
   position: absolute;
+
+}
+
+.threading-container{
+
+
 }
 
 .selection {

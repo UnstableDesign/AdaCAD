@@ -160,4 +160,11 @@ export class Treadling {
         }
       }
 
+      isWithinRange(i:number, j:number){
+        if (i > -1 && i < this.treadling.length && j > -1 && j < this.treadling[0].length) return true;
+        if(j < this.treadle_count) return true;
+        return false;
+
+      }
+
 }

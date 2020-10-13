@@ -175,4 +175,12 @@ export class Threading {
         this.userInputCoordinates = newUserInput;
       }
     }
+
+    getVisibleFrames(){
+      if(this.threading.length > this.usedFrames.length){
+        return this.threading.length;
+      }else{
+        return this.usedFrames.length; 
+      }
+    }
 }
