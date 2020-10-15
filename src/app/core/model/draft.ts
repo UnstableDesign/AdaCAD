@@ -400,36 +400,76 @@ export class Draft implements DraftInterface {
     return shuttle.color;
   }
 
-  updateDraftFromThreading(i, j, value){
+/***
+   * updates the draft based on changes that happened within the threading.
+   * @param update{i: threading frame, j: threading warp, val: true or false for setting}
+   * more than one update object may be sent in the case where a thread is switching from one frame to another
+   * @returns (nothing) in the future - this can return the specific points to update on the draft
+   */  
+  updateDraftFromThreading(updates){
 
-      var idxs = this.loom.getAffectedDrawdownPoints({warp: j, frame: i});
-      for(i in idxs.wefts){
-        for (j in idxs.warps){
-           this.pattern[i][j] = value;
+    console.log("updates carried into update draft", updates);
+
+
+    for(var u in updates){
+
+      if(updates[u].i !== undefined){
+
+        var idxs = this.loom.getAffectedDrawdownPoints({warp: updates[u].j, frame: updates[u].i});
+        var conflicts = [];
+
+        for(var i = 0; i < idxs.wefts.length; i++){
+          for (var j = 0; j < idxs.warps.length; j++){
+             this.pattern[idxs.wefts[i]][idxs.warps[j]] = updates[u].val;
+          }
         }
+
       }
-      return idxs;
+    }
+      //return idxs;
   }
 
-  updateDraftFromTreadling(i, j, value){
 
-      var idxs = this.loom.getAffectedDrawdownPoints({weft: i, treadle: j});
-      for(i in idxs.wefts){
-        for (j in idxs.warps){
-           this.pattern[i][j] = value;
+/***
+   * updates the draft based on changes that happened within the treadling.
+   * @param update{i: weft pic frame, j: treadle, val: true or false for setting}
+   * more than one update object may be sent in the case where a thread is switching from one treadle to another
+   * @returns (nothing) in the future - this can return the specific points to update on the draft
+   */  
+  updateDraftFromTreadling(updates){
+
+    for(var u in updates){
+
+      if(updates[u].i !== undefined){
+
+        var idxs = this.loom.getAffectedDrawdownPoints({weft: updates[u].i, treadle: updates[u].j});
+          for(var wi = 0; wi < idxs.wefts.length; wi++){
+            for (var wj = 0; wj < idxs.warps.length; wj++){
+             this.pattern[idxs.wefts[wi]][idxs.warps[wj]] = updates[u].value;
+          }
         }
+
       }
 
-      return idxs;
+    }
+
+      //return idxs;
       
   }
 
+/***
+   * updates the draft based on changes that happened within the tie up.
+   * @param i: the tieup frame, j: the tieup treadle, value: true or false
+   * @returns (nothing) in the future - this can return the specific points to update on the draft
+   */  
   updateDraftFromTieup(i, j, value){
 
+
+      //this doesn't appear to be working
       var idxs = this.loom.getAffectedDrawdownPoints({frame: i, treadle: j});
-      for(i in idxs.wefts){
-        for (j in idxs.warps){
-           this.pattern[i][j] = value;
+      for(var wi = 0; wi < idxs.wefts.length; wi++){
+          for (var wj = 0; wj < idxs.warps.length; wj++){
+           this.pattern[idxs.wefts[wi]][idxs.warps[wj]] = value;
         }
       }
 

@@ -296,9 +296,10 @@ and returns an associated value for threading frames and treadles
 
 
 /***
-This function takes an object with vars frame, warp, weft, treadle as input and returns 
-indicies for the drawdown cells that will be affected apply to this selection
-*/
+   * takes in an object describing where the change in loom took place and returns a list of affected rows and columns in the draw dow
+   * @param i: the tieup frame, j: the tieup treadle, value: true or false
+   * @returns (wefts: array of affected rows, warps: array of affected columns)
+   */  
     getAffectedDrawdownPoints(obj){
           var active_thread_cols = [];
           var active_tieup_rows = [];
@@ -306,34 +307,36 @@ indicies for the drawdown cells that will be affected apply to this selection
           var active_treadle_rows = [];
 
       //this is a point in the threading
-      if(obj.frame !== null && obj.warp !== null){
+      if(obj.frame !== undefined && obj.warp !== undefined){
+    
 
-          for(var j = 0; j < this.tieup[0].length; j++){
+
+          //get any treadles that are connected to this frame in teh tieup
+          for(var j = 0; j < this.num_treadles; j++){
             if(this.tieup[obj.frame][j]){
               active_tieup_cols.push(j);
             }
           }
-
           for(var i = 0; i < this.treadling.length; i++){
             for(var t = 0; t < active_tieup_cols.length; t++){
-              if(this.treadling[i][t]) active_treadle_rows.push(i); 
+              var treadle_id = active_tieup_cols[t];
+              if(this.treadling[i] == treadle_id) active_treadle_rows.push(i); 
             }
           }          
-
           return {wefts: active_treadle_rows, warps: [obj.warp]};
       }
 
       //this is in the tie-up
       if(obj.frame !== undefined && obj.treadle !== undefined){
 
+          //get all 
           for(var i = 0; i < this.treadling.length; i++){
-              if(this.treadling[i][t]) active_treadle_rows.push(i); 
+              if(this.treadling[i] === obj.treadle) active_treadle_rows.push(i); 
           }
 
           for(var j = 0; j < this.threading.length; j++){
-              if(this.threading[j] === obj.frame){
-                active_thread_cols.push(j);
-              } 
+              if(this.threading[j] === obj.frame) active_thread_cols.push(j);
+               
           }
           return {wefts: active_treadle_rows, warps: active_thread_cols};
       }
@@ -359,22 +362,112 @@ indicies for the drawdown cells that will be affected apply to this selection
     }
 
     inTieupRange(i, j){
-      if(j > 0 && j < this.tieup.length) return true;
-      if(i > 0 && i < this.tieup[0].length) return true;
+      if(j >= 0 && j < this.tieup.length) return true;
+      if(i >= 0 && i < this.tieup[0].length) return true;
       return false;
     }
 
     inThreadingRange(i, j){
-      if(j > 0 && j < this.threading.length) return true;
-      if(i > 0 && i < this.num_frames) return true;
+      if(j >= 0 && j < this.threading.length) return true;
+      if(i >= 0 && i < this.num_frames) return true;
       return false;
     }
 
     inTreadlingRange(i, j){
-      if(j > 0 && j < this.treadling.length) return true;
-      if(i > 0 && i < this.num_treadles) return true;
+      if(j >= 0 && j < this.treadling.length) return true;
+      if(i >= 0 && i < this.num_treadles) return true;
       return false;
     }
+
+
+    updateTieup(i, j, val){
+        this.tieup[i][j] = val;
+    }
+
+    updateThreading(i, j, val){
+      var updates = [];
+      var frame = this.threading[j];
+
+      if(frame != -1) updates.push({i:frame, j: j, val:false});
+      updates.push({i:i, j: j, val:true});
+
+      this.threading[j] = i;
+
+      if(this.updateUnusedFrames()) return [{reset: true}]
+      
+      return updates;
+    }
+
+    updateTreadling(i, j, val){
+      var updates = [];
+      var treadle = this.treadling[i];
+      if(treadle != -1) updates.push({i:i, j: treadle, val:false});
+      updates.push({i:i, j: j, val:true});
+      
+      this.treadling[i] = j;
+
+      if(this.updateUnusedTreadles()) return [{reset: true}]
+
+      return updates;
+    }
+
+
+    updateUnusedFrames(){
+        var removed = [];
+        
+        //don't remove anything if we are at or under the minimum frame number
+        if(this.num_frames <= this.min_frames) return false;
+
+
+        for(var i = 0; i < this.num_frames; i++){
+          if(countOccurrences(this.threading, i) == 0){
+            removed.push(i);
+          }
+        }
+
+        if(removed.length == 0) return false;
+
+
+        for(var i = 0; i < removed.length; i++){
+            //reset the frame ids in the threading list (in case this is in the middle)
+            for(var j = 0; j < this.threading.length; j++){
+              if(this.threading[j] > removed[i]) this.threading[j]--;    
+            }
+        }
+
+        return true;
+
+    }
+
+
+    updateUnusedTreadles(){
+        var removed = [];
+        
+        //don't remove anything if we are at or under the minimum frame number
+        if(this.num_treadles <= this.min_treadles) return false;
+
+
+        for(var j = 0; j < this.num_treadles; j++){
+          if(countOccurrences(this.treadling, j) == 0){
+            removed.push(j);
+          }
+        }
+
+        if(removed.length == 0) return false;
+
+
+        for(var j = 0; j < removed.length; j++){
+            //reset the frame ids in the threading list (in case this is in the middle)
+            for(var i = 0; i < this.treadling.length; i++){
+              if(this.treadling[i] > removed[j]) this.threading[i]--;    
+            }
+        }
+
+        return true;
+
+    }
+
+
 
 
 }

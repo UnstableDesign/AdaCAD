@@ -316,7 +316,6 @@ export class WeaveDirective {
         } else if (event.target && event.target.closest('.threading-container')) {
           this.drawOnThreading(currentPos);
         } else {
-          console.log("draw on draw down from move");
           this.drawOnDrawdown(currentPos);
         }
         break;
@@ -468,33 +467,22 @@ export class WeaveDirective {
 
     // console.log("draw on drawdown", currentPos);
     // incase the context is not set
-    var color = this.weave.getColor(currentPos.i);
+    //var color = this.weave.getColor(currentPos.i);
     var updates;
-    // start our drawing path
-    if (color) {
-      this.cx.fillStyle = color;
-    } else {
-      this.cx.fillStyle = '#000000';
-    }
 
     if (!this.cx || !currentPos) { return; }
 
     // Set the heddles based on the brush.
     switch (this.brush) {
       case 'point':
-        console.log("point");
         this.weave.setHeddle(currentPos.i,currentPos.j,true);
         updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
         break;
       case 'erase':
-        console.log("erase");
-
         this.weave.setHeddle(currentPos.i,currentPos.j,false);
         updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
         break;
       case 'invert':
-         console.log("invert");
-
         const val = !this.weave.isUp(currentPos.i,currentPos.j);
         this.weave.setHeddle(currentPos.i,currentPos.j,val);
         updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
@@ -504,7 +492,7 @@ export class WeaveDirective {
         break;
     }
 
-    this.drawCell(this.cx,currentPos.i, currentPos.j, "drawdown");
+    this.drawCell(this.cx,currentPos.i, currentPos.j, "drawdown", null);
     this.drawLoomStates(updates);
   }
 
@@ -515,36 +503,31 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawOnTieups( currentPos: Point ) {
-    // incase the context is not set
-    var color = this.weave.getColor(currentPos.i);
-    var dims = this.render.getCellDims("base");
-    var updates;
 
-    // start our drawing path
-    if (color) {
-      this.cxTieups.fillStyle = color;
-    } else {
-      this.cxTieups.fillStyle = '#000000';
-    }
+    var updates;
+    var val = false;
+    
     if (!this.cxTieups || !currentPos) { return; }
 
     if (this.weave.loom.inTieupRange(currentPos.i, currentPos.j)) {
       switch (this.brush) {
         case 'point':
-          this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, true);
+            val = true;
           break;
         case 'erase':
-          this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, false);
+          val = false;
           break;
         case 'invert':
-          const val = !this.weave.loom.tieup[currentPos.j][currentPos.i];
-          this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, val);
+          val = !this.weave.loom.tieup[currentPos.j][currentPos.i];
           break;
         default:
           break;
       }
     }
-
+    
+    this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
+    this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, val);
+    this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup", val);
     this.redraw();
   }
 
@@ -555,38 +538,42 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawOnThreading( currentPos: Point ) {
-    // incase the context is not set
-    var color = this.weave.getColor(currentPos.i);
-    var dims = this.render.getCellDims("base");
-
-    // start our drawing path
-    if (color) {
-      this.cxThreading.fillStyle = color;
-    } else {
-      this.cxThreading.fillStyle = '#000000';
-    }
     if (!this.cxThreading || !currentPos) { return; }
 
     if (this.weave.loom.inThreadingRange(currentPos.i, currentPos.j)){
       
-      var frames = this.weave.loom.num_frames;
+
+
+      var val = false;
 
       switch (this.brush) {
         case 'point':
-            this.weave.updateDraftFromThreading(currentPos.i, currentPos.j, true);
+          val = true;
           break;
         case 'erase':
-          this.weave.updateDraftFromThreading(currentPos.i, currentPos.j, false);
+          val = false;
           break;
         case 'invert':
-          const val = !this.weave.threading.isUp(frames-currentPos.i,(currentPos.j));
-          this.weave.updateDraftFromThreading(currentPos.i, currentPos.j, val);
+          val = !this.weave.threading.isUp(currentPos.i,(currentPos.j));
           break;
         default:
           break;
       }
     }
+    
 
+    var updates = this.weave.loom.updateThreading(currentPos.i, currentPos.j, val);
+
+
+    for(var u in updates){
+      if(updates[u].reset !== undefined){
+        this.redrawLoom();
+      } else{
+        this.drawCell(this.cxThreading,updates[u].i, updates[u].j, "threading", updates[u].val);
+      }
+    }
+
+    this.weave.updateDraftFromThreading(updates);
     this.redraw();
   }
 
@@ -600,38 +587,36 @@ export class WeaveDirective {
   private drawOnTreadling( currentPos: Point ) {
 
 
-    var color = this.weave.getColor(currentPos.i);
-    var dims = this.render.getCellDims("base");
-
-    // start our drawing path
-    if (color) {
-      this.cxTreadling.fillStyle = color;
-    } else {
-      this.cxTreadling.fillStyle = '#000000';
-    }
-
     if (!this.cxTreadling || !currentPos) { return; }
     
+    var val = false;
+
     if(this.weave.loom.inTreadlingRange(currentPos.i, currentPos.j)){
       switch (this.brush) {
         case 'point':
-          this.weave.updateDraftFromTreadling(currentPos.i, currentPos.j, true);
+          val = true;
           break;
         case 'erase':
-          this.weave.updateDraftFromTreadling(currentPos.i, currentPos.j, false);
-
+          val = false;
           break;
         case 'invert':
-          const val = !this.weave.treadling.isUp(currentPos.i,currentPos.j);
-          this.weave.updateDraftFromTreadling(currentPos.i, currentPos.j, val);
-
+          val = !this.weave.treadling.isUp(currentPos.i,currentPos.j);
           break;
         default:
           break;
       }
     }
-    
- 
+
+    var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
+    for(var u in updates){
+      if(updates[u].reset !== undefined){
+        this.redrawLoom();
+      } else{
+      this.drawCell(this.cxTreadling,updates[u].i, updates[u].j, "treadling", updates[u].val);
+      }
+    }
+
+    this.weave.updateDraftFromTreadling(updates);
     this.redraw();
    }
 
@@ -672,7 +657,7 @@ export class WeaveDirective {
   
     for (var i = 0; i < Math.ceil(selection.height / base_dims.h); i++) {    
       for (var j = 0; j < Math.ceil(selection.width / base_dims.w); j ++) {
-        this.drawCell(this.cx, i, j, "drawdown")        
+        this.drawCell(this.cx, i, j, "drawdown", null)        
       }
     }
 
@@ -746,7 +731,7 @@ export class WeaveDirective {
     // draw row
 
     for (var j = 0; j < this.weave.warps; j++) {
-      this.drawCell(cx, i, j, "drawdown");
+      this.drawCell(this.cx, i, j, "drawdown", null);
     }
   }
 
