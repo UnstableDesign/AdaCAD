@@ -109,6 +109,14 @@ export class WeaveDirective {
    */
   svgEl: HTMLElement;
 
+
+  /**
+   * The HTML div element used to position the drawdown.
+   * @property {HTMLElement}
+   */
+  divEl: HTMLElement;
+
+
   /**
    * The HTML canvas element within the weave draft for threading.
    * @property {HTMLCanvasElement}
@@ -158,15 +166,18 @@ export class WeaveDirective {
 
 
 
-    console.log("element", this.el.nativeElement.children);
+    console.log("element", this.el.nativeElement.children[3]);
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[3].firstElementChild;
+    this.divEl = this.el.nativeElement.children[3];
     this.svgEl = this.el.nativeElement.children[0].lastElementChild;
+    console.log(this.svgEl);
     
     this.threadingCanvas = this.el.nativeElement.children[1].firstElementChild;
     this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
     this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
+    
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
     this.cxTreadling = this.treadlingCanvas.getContext('2d');
@@ -493,16 +504,7 @@ export class WeaveDirective {
         break;
     }
 
-     var dims_fill = this.render.getCellDims("base_fill");
-
-    // draws the rectangle if heddle is up, otherwise it is erased.
-    if (this.weave.isUp(currentPos.i, currentPos.j)) {
-      this.cx.fillRect(currentPos.x + dims_fill.x, currentPos.y + dims_fill.y, dims_fill.w, dims_fill.h);
-    } else {
-      this.cx.clearRect(currentPos.x + dims_fill.x, currentPos.y + dims_fill.y, dims_fill.w, dims_fill.h);
-    }
-
-
+    this.drawCell(this.cx,currentPos.i, currentPos.j, "drawdown");
     this.drawLoomStates(updates);
   }
 
@@ -648,7 +650,6 @@ export class WeaveDirective {
   ) {
     const si = Math.min(selection.start.y, selection.end.y);
     const sj = Math.min(selection.start.x, selection.end.x);
-    var color = "#000000"
 
     this.weave.updateSelection(selection, pattern, type);
 
@@ -667,20 +668,11 @@ export class WeaveDirective {
     //this.onAdd(this.segment);
 
     var base_dims = this.render.getCellDims("base");
-    var base_fill = this.render.getCellDims("base_fill");
-    var base_clear = this.render.getCellDims("base_clear");
 
-    for (var i = si; i < si + selection.height; i+= base_dims.h) {
-      color = this.weave.getColor(i / base_dims.h);
-      this.cx.fillStyle = color;
-      for (var j = sj; j < sj + selection.width; j += base_dims.w) {
-        if (this.weave.isUp(i / base_dims.h, j / base_dims.w)) {
-          this.cx.setLineDash([0]);
-          this.cx.strokeRect(j + base_fill.x, i + base_fill.y, base_fill.w, base_fill.h);
-          this.cx.fillRect(j + base_fill.x, i + base_fill.y, base_fill.w, base_fill.h);
-        } else {
-          this.cx.clearRect(j + base_clear.x, i + base_clear.y, base_clear.w, base_clear.h);
-        }
+  
+    for (var i = 0; i < Math.ceil(selection.height / base_dims.h); i++) {    
+      for (var j = 0; j < Math.ceil(selection.width / base_dims.w); j ++) {
+        this.drawCell(this.cx, i, j, "drawdown")        
       }
     }
 
@@ -716,31 +708,45 @@ export class WeaveDirective {
     // this.brush = oldBrush;
   }
 
+  private drawCell(cx, i, j, type, val){
+
+    var base_dims = this.render.getCellDims("base");
+    var base_fill = this.render.getCellDims("base_fill");
+    var color = "#333333";
+
+    if(type =="drawdown"){
+       color = this.weave.getColor(i);
+       if (this.weave.isUp(i, j)) cx.fillStyle = color;
+       else cx.fillStyle = "#FFFFFF";
+    
+    }else if(type=="threading"){
+       if(val) cx.fillStyle = this.weave.getColorCol(j);
+       else cx.fillStyle = "#FFFFFF"; 
+
+    }else if(type=="treadling"){
+      if(val) cx.fillStyle = this.weave.getColor(i);
+      else cx.fillStyle = "#FFFFFF"; 
+    }else if(type =="tieup"){
+      if(val) cx.fillStyle = "#333333";
+      else cx.fillStyle = "#FFFFFF"; 
+    }
+
+    cx.fillRect(j*base_dims.w + base_fill.x, i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+
+
+  }
+
   /**
    * Redraws one row to avoid drawing the entire canvas.
    * @extends WeaveDirective
    * @returns {void}
    */
   private redrawRow(y, i, cx) {
-    var base_dims = this.render.getCellDims("base");
-    var base_fill = this.render.getCellDims("base_fill");
-    var base_clear = this.render.getCellDims("base_clear");
-
-
-    var color = '#000000'
-
-    // Gets color of row.
-    color = this.weave.getColor(i);
-    cx.fillStyle = color;
-
+ 
     // draw row
-    for (var j = 0; j < this.weave.warps * base_dims.w; j += base_dims.w) {
-      if (this.weave.isUp(i, j / base_dims.w)) {
-        cx.strokeRect(j + base_fill.x, y + base_fill.y, base_fill.w, base_fill.h);
-        cx.fillRect(j + base_fill.x, y + base_fill.y, base_fill.w, base_fill.h);
-      } else {
-        cx.clearRect(j + base_clear.x, y + base_clear.y, base_clear.w, base_clear.h);
-      }
+
+    for (var j = 0; j < this.weave.warps; j++) {
+      this.drawCell(cx, i, j, "drawdown");
     }
   }
 
@@ -764,7 +770,6 @@ export class WeaveDirective {
    * @returns {void}
    */
   private selectArea() {
-    console.log("select area", this.selection);
     var left, top, x, y, anchor;
 
     var base_dims = this.render.getCellDims("base");
@@ -772,18 +777,15 @@ export class WeaveDirective {
     x = base_dims.w / 4;
     y = base_dims.h;
 
-    console.log("select", x, y);
-    // x = 5; 
-    // y = 20;
     anchor = 'start';
 
     if (this.selection.start.x < this.selection.end.x) {
-        x = this.selection.width - 10;
+        x = this.selection.width -  base_dims.w/2;
         anchor = 'end';
      }
 
      if (this.selection.start.y < this.selection.end.y) {
-       y = this.selection.height - 10;
+       y = this.selection.height -  base_dims.h/2;
      }
 
     // define the left and top offsets
@@ -795,21 +797,26 @@ export class WeaveDirective {
       .attr("width", this.selection.width)
       .attr("height",this.selection.height)
       .style('display', 'initial')
-      .style('left', left + this.canvasEl.offsetLeft)
-      .style('top', top + this.canvasEl.offsetTop);
+      .style('left', left + this.divEl.offsetLeft)
+      .style('top', top + this.divEl.offsetTop);
+
+    var rows = Math.ceil(this.selection.height / base_dims.h);
+    var cols = Math.ceil(this.selection.width / base_dims.w);
+    var fs = this.render.zoom * .18;
+    var fw = this.render.zoom * 9;
 
     // updates the text within the selection
     d3.select(this.svgEl)
       .select('text')
       .attr('fill', '#424242')
       .attr('font-weight', 900)
-      .attr('font-size', 18)
+      .attr('font-size', fs)
       .attr('stroke', 'white')
       .attr('stroke-width', 1)
       .attr('x', x)
       .attr('y', y)
       .attr('text-anchor', anchor)
-      .text(this.selection.height / base_dims.h +' x '+ this.selection.width / base_dims.w);
+      .text(cols +' x '+ rows);
 
   }
 
@@ -823,8 +830,6 @@ export class WeaveDirective {
 
     var base_dims = this.render.getCellDims("base");
 
-
-    this.updateSize();
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
     // this.drawGrid();
     this.cx.setLineDash([0]);
@@ -923,14 +928,13 @@ export class WeaveDirective {
     this.cxTreadling.fillStyle = "#00FF00";
     this.cxTieups.fillStyle = "#0000FF";
 
-
+    //check how many frames of the threading are in use
     for(var u in updates.threading){
        var max_frames = -1;
        if(updates.threading[u].i > max_frames) max_frames = updates.threading[u].i;
      }
-
-
-     
+    
+    //if the new value in outside of the visible range, redraw the entire loom
     if((max_frames+1)*dims.h > (this.cxThreading.canvas.height)){ 
       this.redrawLoom();
       return;
@@ -939,7 +943,7 @@ export class WeaveDirective {
     for(var u in updates.threading){    
        if(updates.threading[u].val)  this.cxThreading.fillStyle = "#FF0000";
        else  this.cxThreading.fillStyle = "#ffffff";
-       this.cxThreading.fillRect((dims.w*updates.threading[u].j)+base_fill.x, (dims.h*updates.threading[u].i)+base_fill.y, base_fill.w, base_fill.h);
+       this.drawCell( this.cxThreading, updates.threading[u].i, updates.threading[u].j, "threading", updates.threading[u].val);
     }
 
 
@@ -955,16 +959,12 @@ export class WeaveDirective {
     }
 
     for(var u in updates.treadling){   
-       if(updates.treadling[u].val) this.cxTreadling.fillStyle = "#00FF00";
-       else  this.cxTreadling.fillStyle = "#ffffff";
-      this.cxTreadling.fillRect((dims.w*updates.treadling[u].j)+base_fill.x, (dims.h*updates.treadling[u].i)+base_fill.y, base_fill.w, base_fill.h);
+      this.drawCell( this.cxTreadling, updates.treadling[u].i, updates.treadling[u].j, "treadling", updates.treadling[u].val);
     }
 
     for(var u in updates.tieup){
       for(var j in updates.tieup[u]){
-        if(updates.tieup[u][j].val) this.cxTieups.fillStyle = "#0000FF";
-        else this.cxTieups.fillStyle = "#ffffff";
-        this.cxTieups.fillRect((dims.w*updates.tieup[u][j].j)+base_fill.x, (dims.h*updates.tieup[u][j].i)+base_fill.y, base_fill.w, base_fill.h);
+        this.drawCell( this.cxTieups, updates.tieup[u][j].i, updates.tieup[u][j].j, "threading", updates.tieup[u][j].val);
       }
     }
   }
@@ -974,11 +974,6 @@ export class WeaveDirective {
   public redrawLoom() {
 
     var base_dims = this.render.getCellDims("base");
-    var base_fill = this.render.getCellDims("base_fill");
-    var base_clear = this.render.getCellDims("base_clear");
-
-
-
 
     this.cxThreading.canvas.width = base_dims.w * this.weave.loom.threading.length;
     this.cxThreading.canvas.height = base_dims.h * this.weave.loom.num_frames;
@@ -1001,17 +996,17 @@ export class WeaveDirective {
     this.cxTieups.fillStyle = '#0000FF';
 
     for (var j = 0; j < this.weave.loom.threading.length; j++) {
-       this.cxThreading.fillRect((j * base_dims.w) + base_fill.x, this.weave.loom.threading[j]*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+      this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading", true);
     }
 
     for (var i = 0; i < this.weave.loom.treadling.length; i++) {
-       this.cxTreadling.fillRect(this.weave.loom.treadling[i] * base_dims.w + base_fill.x, i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+       this.drawCell(this.cxTreadling, i, this.weave.loom.treadling[i], "treadling", true);
     }
 
     for (var i = 0; i < this.weave.loom.tieup.length; i++) {
       for(var j = 0; j < this.weave.loom.tieup[i].length; j++){
         if(this.weave.loom.tieup[i][j]){
-          this.cxTieups.fillRect(j* base_dims.w + base_fill.x, i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+          this.drawCell(this.cxTieups, i, j, "tieup", true);
         }
       }
     }
@@ -1060,11 +1055,11 @@ export class WeaveDirective {
 
 
     console.log("simulate");
+
     var color = '#000000';
     var offset;
     var height = this.weave.visibleRows.length *base_dims.h;
 
-    this.updateSize();
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
 
     this.cx.beginPath();
@@ -1073,12 +1068,13 @@ export class WeaveDirective {
     this.cx.lineTo(0, height);
     this.cx.stroke(); 
 
+
     //start by drawing warp rectangles
     for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
       var id = this.weave.colShuttleMapping[x];
       var c = this.weave.warp_systems[id].getColor();
       this.cx.fillStyle = c;
-      //this.cx.fillRect(x*base_dims.w, 0, base_dims.w, height);
+      this.cx.fillRect(x*base_dims.w, 0, base_dims.w, height);
       this.cx.strokeStyle = "#FFFFFF";
       
       this.cx.beginPath();
@@ -1100,7 +1096,7 @@ export class WeaveDirective {
 
         if (!this.weave.isUp(i,x)) {
           this.cx.fillStyle = weft_color;
-         // this.cx.fillRect(x*base_dims.w, y, base_dims.w, base_dims.h);
+          this.cx.fillRect(x*base_dims.w, y, base_dims.w, base_dims.h);
           this.cx.beginPath();
           this.cx.strokeStyle = "#FFFFFF"; // Green path
           this.cx.moveTo(x*base_dims.w, y);
@@ -1126,13 +1122,13 @@ export class WeaveDirective {
    * @extends WeaveDirective
    * @returns {void}
    */
-  public updateSize() {
-    var base_dims = this.render.getCellDims("base");
+  // public updateSize() {
+  //   var base_dims = this.render.getCellDims("base");
 
-    // set the updated width and height
-    this.canvasEl.width = this.weave.warps * base_dims.h;
-    this.canvasEl.height = this.weave.visibleRows.length * base_dims.w;
-  }
+  //   // set the updated width and height
+  //   this.canvasEl.width = this.weave.warps * base_dims.h;
+  //   this.canvasEl.height = this.weave.visibleRows.length * base_dims.w;
+  // }
 
 
 

@@ -205,7 +205,7 @@ export class WeaverComponent implements OnInit {
         this.weaveRef.functional();
         break;
       default:
-        this.weaveRef.updateSize();
+        this.weaveRef.redraw();
         break;
     }
   }
@@ -383,7 +383,8 @@ export class WeaverComponent implements OnInit {
   public insertRow(i, shuttle) {
     this.draft.insertRow(i, shuttle);
     this.draft.updateConnections(i, 1);
-    this.weaveRef.updateSize();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
     console.log('send emit - insert');
     //this.onAddRow.emit();
   }
@@ -391,7 +392,9 @@ export class WeaverComponent implements OnInit {
   public cloneRow(i, c, shuttle) {
     this.draft.cloneRow(i, c, shuttle);
     this.draft.updateConnections(i, 1);
-    this.weaveRef.updateSize();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+
     console.log('send emit - clone');
     //this.onAddRow.emit();
   }
@@ -399,7 +402,9 @@ export class WeaverComponent implements OnInit {
   public deleteRow(i) {
     this.draft.deleteRow(i);
     this.draft.updateConnections(i, -1);
-    this.weaveRef.updateSize();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+
    console.log('send emit - delete');
 
     //this.onAddRow.emit();
@@ -413,14 +418,17 @@ export class WeaverComponent implements OnInit {
    */
   public insertCol(i, shuttle) {
     this.draft.insertCol();
-    this.weaveRef.updateSize();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
   }
 
 
   public deleteCol(i) {
     this.draft.deleteCol(i);
     this.draft.updateConnections(i, -1);
-    this.weaveRef.updateSize();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+
   }
 
   public updatePatterns(e: any) {
@@ -433,26 +441,26 @@ export class WeaverComponent implements OnInit {
   public createShuttle(e: any) {
     this.draft.addShuttle(e.shuttle);
     if (e.shuttle.image) {
-      this.weaveRef.updateSize();
+    this.weaveRef.redraw();
     }
   }
 
   public createWarpSystem(e: any) {
     this.draft.addWarpSystem(e.shuttle);
     if (e.shuttle.image) {
-      this.weaveRef.updateSize();
+    this.weaveRef.redraw();
     }
   }
 
 
   public hideShuttle(e:any) {
     this.draft.updateVisible();
-    this.weaveRef.updateSize();
+    this.weaveRef.redraw();
   }
 
   public showShuttle(e:any) {
     this.draft.updateVisible();
-    this.weaveRef.updateSize();
+    this.weaveRef.redraw();
   }
 
   public epiChange(e:any){
@@ -495,7 +503,6 @@ export class WeaverComponent implements OnInit {
   }
 
 
-
   public redraw() {
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom()
@@ -517,7 +524,7 @@ export class WeaverComponent implements OnInit {
   }
 
   public styleThreading(){
-    return  {'top.px': 10};
+    return  {'top.px': 10, 'left.px':200};
   }
 
   public styleTieUps(ctx){

@@ -110,14 +110,17 @@
             <span (click)="deleteRow(i);"><i class="fa fa-trash"></i></span>
           </div>
         </div>
+
+
         <svg #mySelection class="selection">
           <text x="5" y="5" text-anchor="start"></text>
         </svg>
+      
       </div>
         
 
-      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container" [ngStyle]="styleThreading()">
-        <canvas #threading></canvas>
+      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container"  #threading>
+        <canvas #threading [ngStyle]="styleThreading()"></canvas>
       </div>
 
 

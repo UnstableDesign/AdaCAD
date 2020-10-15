@@ -272,6 +272,10 @@ export class Draft implements DraftInterface {
 
     this.rowShuttleMapping.splice(i,0,shuttleId);
     this.pattern.splice(i,0,col);
+
+    this.loom.treadling.splice(i, 0, -1);
+
+
     this.updateVisible();
 
   }
@@ -280,12 +284,12 @@ export class Draft implements DraftInterface {
     var row = this.visibleRows[c];
     const col = _.clone(this.pattern[c]);
 
-    console.log(i, c, shuttleId);
-
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i, 0, shuttleId);
     this.pattern.splice(i, 0, col);
+    this.loom.treadling.splice(i, 0, this.loom.treadling[i-1]);
+    console.log(i, 0, this.loom.treadling[i-1]);
 
     this.updateVisible();
   }
@@ -295,6 +299,7 @@ export class Draft implements DraftInterface {
     this.wefts -= 1;
     this.rowShuttleMapping.splice(i, 1);
     this.pattern.splice(i, 1);
+    this.loom.treadling.splice(i,1);
 
     this.updateVisible();
   }
@@ -324,7 +329,8 @@ export class Draft implements DraftInterface {
     }
 
     this.warps += 1;
-    this.colShuttleMapping.push(0)
+    this.colShuttleMapping.push(0);
+    this.loom.threading.push(-1);
     //this.updateVisible();
 
   }
@@ -342,7 +348,7 @@ export class Draft implements DraftInterface {
 
 
     this.colShuttleMapping.splice(i, 1);
-    this.updateVisible();
+    this.loom.threading.splice(i, 1);
   }
 
   addShuttle(shuttle) {

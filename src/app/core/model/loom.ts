@@ -5,6 +5,7 @@ import utilInstance from './util';
  * Definition of threading class.
  * @class
  */
+const countOccurrences = (blah, val) => blah.reduce((a, v) => (v === val ? a + 1 : a), 0);
 
  
 export class Loom{
@@ -103,6 +104,8 @@ export class Loom{
     }
 
 
+
+
    /* This function takes a point from the draw down [i,j] representing rows and columns 
 and returns an associated value for threading frames and treadles
    * @param obj{i: i,j: j} the Row, Column of the changed pixel.
@@ -127,7 +130,9 @@ and returns an associated value for threading frames and treadles
       //(1) check if the row is unique
       var found = false;
       for(var i = 0; i < obj.drawdown.length && !found; i++){
+        //don't check the row we are currently in
         if(i != obj.i){
+          //need a way to check here if it is the ONLY one assigned to this frame, or if others are as well
           const idx = obj.drawdown[i].find((element, ndx) => element !== i_pattern[ndx]);
           if(idx === undefined){
               found = true;
@@ -138,10 +143,12 @@ and returns an associated value for threading frames and treadles
 
 
       if(!found){
-        //config.treadle = this.treadling[obj.i];
-       // if(config.treadle == -1){
+        var count = countOccurrences(this.treadling, this.treadling[obj.i]);
+        if(this.treadling[obj.i] != -1 && count == 1){
+          config.treadle = this.treadling[obj.i];
+        }else{
           config.treadle = this.getEmptyTreadle();
-       // }
+        }
       }
 
      //(1) check if the column is unique
@@ -160,9 +167,13 @@ and returns an associated value for threading frames and treadles
 
 
       if(!found ){
-        //config.frame = this.threading[obj.j];
-        //if(config.frame == -1) 
-        config.frame = this.getEmptyFrame();
+        var count = countOccurrences(this.threading, this.threading[obj.j]);
+        if(this.threading[obj.j] != -1 && count == 1){
+          config.frame = this.threading[obj.j];
+        }else{
+          config.frame = this.getEmptyFrame();
+
+        }
       }
 
       return config;

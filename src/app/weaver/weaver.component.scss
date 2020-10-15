@@ -7,13 +7,22 @@
 
   canvas {
     cursor: pointer;
+    margin: 0px;
   }
 
+}
+
+.weftSelections{
+  width:200px;
 }
 
 
 .drawdown-container{
   position: absolute;
+
+  canvas{
+    position: absolute;
+  }
 }
 
 .tieups-container {
@@ -27,8 +36,9 @@
 }
 
 .threading-container{
-
-
+  canvas{
+    position:absolute;
+  }
 }
 
 .selection {
@@ -37,6 +47,7 @@
   background: #ffffff98;
   pointer-events: none;
   overflow: visible;
+  z-index: 1;
 }
 
 .shuttles {
