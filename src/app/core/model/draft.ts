@@ -1,7 +1,8 @@
 import { Shuttle } from './shuttle';
-import { Threading } from './threading';
-import { Treadling } from './treadling';
-import { TieUps }  from "./tieups";
+import { Loom } from './loom';
+// import { Threading } from './threading';
+// import { Treadling } from './treadling';
+// import { TieUps }  from "./tieups";
 import { Pattern } from './pattern';
 
 import * as _ from 'lodash';
@@ -24,9 +25,10 @@ export interface DraftInterface {
   wefts: number;
   warps: number;
   epi: number;
-  threading: Threading;
-  treadling: Treadling;
-  tieups: TieUps;
+  loom: Loom;
+  // threading: Threading;
+  // treadling: Treadling;
+  // tieups: TieUps;
 }
 
 /**
@@ -46,9 +48,10 @@ export class Draft implements DraftInterface {
   wefts: number;
   warps: number;
   epi: number;
-  threading: Threading;
-  treadling: Treadling;
-  tieups: TieUps;
+  loom: Loom;
+  // threading: Threading;
+  // treadling: Treadling;
+  // tieups: TieUps;
 
   constructor({...params}) {
     console.log("Draft Constructor", params);
@@ -136,9 +139,10 @@ export class Draft implements DraftInterface {
     //Creating the Threading, Treadling, and TieUps objects
     // this.threading = new Threading(this.wefts, this.warps);
     // this.treadling = new Treadling(this.wefts, this.pattern);
-    this.threading = new Threading(8, this.warps);
-    this.treadling = new Treadling(this.wefts, this.pattern);
-    this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
+    this.loom = new Loom(this.wefts, this.warps, 8, 10);
+    // this.threading = new Threading(8, this.warps);
+    // this.treadling = new Treadling(this.wefts, this.pattern);
+    // this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
 
     console.log(this);
 
@@ -170,45 +174,8 @@ export class Draft implements DraftInterface {
   setHeddle(i:number, j:number, bool:boolean) {
     var row = this.visibleRows[i];
     this.pattern[row][j] = bool;
-    this.threading.updateFlippedPattern(row, j, bool);
-    this.threading.updateThreading();
-    this.treadling.updatePattern(this.pattern);
-    this.treadling.updateTreadling();
-    this.tieups.updatePattern(this.pattern);
-    this.tieups.updateThreading(this.threading.threading);
-    this.tieups.updateTreadling(this.treadling.treadling);
-    this.tieups.updateTreadleCount(this.treadling.treadle_count);
-    //assuming frames will be used without gaps of unused frames (i.e. all unused_frames would be later frames)
-    this.tieups.updateUsedFrames(this.threading.usedFrames.length);
-    this.tieups.updateTieUps();
   }
 
-  updateDrawDown() {
-    var updates =[]
-    for (var i =0; i < this.treadling.treadling.length;i++) {
-      var active_treadle =-1;
-      for (var j =0; j <this.treadling.treadling[i].length; j++) {
-        if (this.treadling.treadling[i][j]) {
-          active_treadle= j;
-          break;
-        }
-      }
-      if (active_treadle != -1) {
-        for (var j = 0; j < this.tieups.tieups[active_treadle].length; j++) {
-          if (this.tieups.tieups[active_treadle][j]) {
-            for (var k = 0; k < this.threading.threading[j].length;k++) {
-              if (this.threading.threading[j][k]) {
-                this.pattern[i][k] =true;
-                var coordinatesArr = [i,k]; 
-                updates.push(coordinatesArr);
-              }
-            }
-          }
-        }
-      }
-    }
-    return updates;
-  }
 
   rowToShuttle(row: number) {
     return this.rowShuttleMapping[row];
@@ -250,6 +217,8 @@ export class Draft implements DraftInterface {
 
   }
 
+
+//update this to take dims into account;
   updateSelection(selection: any, pattern: any, type: string) {
     console.log("update selection", selection, pattern, type);
     const sj = Math.min(selection.start.j, selection.end.j);
@@ -423,6 +392,42 @@ export class Draft implements DraftInterface {
     var shuttle = this.warp_systems[row];
 
     return shuttle.color;
+  }
+
+  updateDraftFromThreading(i, j, value){
+
+      var idxs = this.loom.getAffectedDrawdownPoints({warp: j, frame: i});
+      for(i in idxs.wefts){
+        for (j in idxs.warps){
+           this.pattern[i][j] = value;
+        }
+      }
+      return idxs;
+  }
+
+  updateDraftFromTreadling(i, j, value){
+
+      var idxs = this.loom.getAffectedDrawdownPoints({weft: i, treadle: j});
+      for(i in idxs.wefts){
+        for (j in idxs.warps){
+           this.pattern[i][j] = value;
+        }
+      }
+
+      return idxs;
+      
+  }
+
+  updateDraftFromTieup(i, j, value){
+
+      var idxs = this.loom.getAffectedDrawdownPoints({frame: i, treadle: j});
+      for(i in idxs.wefts){
+        for (j in idxs.warps){
+           this.pattern[i][j] = value;
+        }
+      }
+
+      return idxs;
   }
 
 }

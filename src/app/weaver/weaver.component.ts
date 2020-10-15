@@ -497,10 +497,8 @@ export class WeaverComponent implements OnInit {
 
 
   public redraw() {
-    this.weaveRef.redrawDrawdown();
-    this.weaveRef.redrawThreading();
-    this.weaveRef.redrawTreadling();
-    this.weaveRef.redrawTieups();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom()
   }
 
   public toggleViewFrames(){
@@ -558,9 +556,6 @@ export class WeaverComponent implements OnInit {
 
   public renderChange(e: any){
      this.render.setZoom(e.value);
-     this.weaveRef.updateSizeThreading();
-     this.weaveRef.updateSizeTreadling();
-     this.weaveRef.updateSize();
      this.redraw();
   }
 
