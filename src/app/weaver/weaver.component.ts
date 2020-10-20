@@ -524,7 +524,7 @@ export class WeaverComponent implements OnInit {
   }
 
   public styleThreading(){
-    return  {'top.px': 10, 'left.px':200};
+    return  {'top.px': 55, 'left.px':200};
   }
 
   public styleTieUps(ctx){
@@ -535,11 +535,7 @@ export class WeaverComponent implements OnInit {
 
   public styleDrawdown(ctx){
     var dims = this.render.getCellDims("base");
-    //if(this.view_frames){
       return  {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
-   // }else{
-      //return {'top.px': 0, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
-  //  }
   }
 
   public styleTreadling(ctx){
@@ -556,7 +552,8 @@ export class WeaverComponent implements OnInit {
 
   public styleWarpSystems(ctx){
     var dims = this.render.getCellDims("base");
-    return {'top.px': ctx.offsetTop + ctx.height + (dims.h * (this.draft.wefts+1)), 'left.px': ctx.offsetLeft};
+    if(this.view_frames)    return {'top.px': ctx.offsetTop - 40, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop + ctx.height - 30, 'left.px': ctx.offsetLeft};
   }
  
   public styleShuttleRow(j){

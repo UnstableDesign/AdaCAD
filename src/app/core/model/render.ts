@@ -27,8 +27,8 @@ export class Render {
 
 
     this.base_cell = {
-    w: {max: 20, min: 2},
-    h: {max: 20, min: 2},
+    w: {max: 20, min: .1},
+    h: {max: 20, min: .1},
     margin_fill_x: {max: 1, min: 0},
     margin_fill_y: {max: 1, min: 0},
     margin_clear_x: {max: 2, min: 0},

@@ -13,7 +13,7 @@
     <div class="view-toggle">
     
 
-    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="10" max="100" value="{{render.zoom}}" (change)="renderChange($event)"></mat-slider>
+    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100" value="{{render.zoom}}" (change)="renderChange($event)"></mat-slider>
     
 
     <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
@@ -98,6 +98,7 @@
         <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
           <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
             <circle cy="20" [attr.cx]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
+            <text text-anchor="end" y="5" [attr.x]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ j + 1 }}</text>
           </g>
         </svg>  
 
