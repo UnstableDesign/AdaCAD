@@ -185,7 +185,7 @@ and returns an associated value for threading frames and treadles
 
 /***
    /* This function updates the values of the treadles, threading and tie up based on a returned value 
-   from get config
+   from getConfig
    * @param obj{i: i,j: j} the Row, Column of the changed pixel.
    * @returns a list of the updated points {obj{threading: array<{i,j}>, treadling: array<{i,j}>, tieup  array<{i,j}}}
    */   
@@ -286,9 +286,6 @@ and returns an associated value for threading frames and treadles
             }
         }
       }
-
-
-      console.log("update res", updates);
 
       return updates;
 
@@ -419,59 +416,73 @@ and returns an associated value for threading frames and treadles
       return updates;
     }
 
-
+/*
+This is broken because it needs to delete the affected drawdown cells before 
+updating the frame size. It also needs to update the tie up
+*/
     updateUnusedFrames(){
-        var removed = [];
-        
-        //don't remove anything if we are at or under the minimum frame number
-        if(this.num_frames <= this.min_frames) return false;
+      return false;
+        // console.log("update unusued frames");
+
+        // var removed = [];
+          
+        // console.log(this.num_frames, this.min_frames);  
+        // //don't remove anything if we are at or under the minimum frame number
+        // if(this.num_frames <= this.min_frames) return false;
+
+        // for(var i = 0; i < this.num_frames; i++){
+        // console.log("occurances", i, countOccurrences(this.threading, i));
+        //   if(countOccurrences(this.threading, i) == 0){
+        //     removed.push(i);
+        //   }
+        // }
+
+        // console.log("removed length", removed.length);
+        // if(removed.length == 0) return false;
 
 
-        for(var i = 0; i < this.num_frames; i++){
-          if(countOccurrences(this.threading, i) == 0){
-            removed.push(i);
-          }
-        }
+        // //reset the frame ids - 
+        // for(var i = 0; i < removed.length; i++){
+        //     //reset the frame ids in the threading list (in case this is in the middle)
+        //     for(var j = 0; j < this.threading.length; j++){
+        //       if(this.threading[j] > removed[i]) this.threading[j]--;    
+        //     }
+        //     this.num_frames--;
+        // }
 
-        if(removed.length == 0) return false;
-
-
-        for(var i = 0; i < removed.length; i++){
-            //reset the frame ids in the threading list (in case this is in the middle)
-            for(var j = 0; j < this.threading.length; j++){
-              if(this.threading[j] > removed[i]) this.threading[j]--;    
-            }
-        }
-
-        return true;
+        // return true;
 
     }
 
-
+/*
+This is broken because it needs to delete the affected drawdown cells before 
+updating the treadling size. It also needs to update the tie up
+*/
     updateUnusedTreadles(){
-        var removed = [];
+      return false;
+        // var removed = [];
         
-        //don't remove anything if we are at or under the minimum frame number
-        if(this.num_treadles <= this.min_treadles) return false;
+        // //don't remove anything if we are at or under the minimum frame number
+        // if(this.num_treadles <= this.min_treadles) return false;
 
 
-        for(var j = 0; j < this.num_treadles; j++){
-          if(countOccurrences(this.treadling, j) == 0){
-            removed.push(j);
-          }
-        }
+        // for(var j = 0; j < this.num_treadles; j++){
+        //   if(countOccurrences(this.treadling, j) == 0){
+        //     removed.push(j);
+        //   }
+        // }
 
-        if(removed.length == 0) return false;
+        // if(removed.length == 0) return false;
 
 
-        for(var j = 0; j < removed.length; j++){
-            //reset the frame ids in the threading list (in case this is in the middle)
-            for(var i = 0; i < this.treadling.length; i++){
-              if(this.treadling[i] > removed[j]) this.threading[i]--;    
-            }
-        }
+        // for(var j = 0; j < removed.length; j++){
+        //     //reset the frame ids in the threading list (in case this is in the middle)
+        //     for(var i = 0; i < this.treadling.length; i++){
+        //       if(this.treadling[i] > removed[j]) this.threading[i]--;    
+        //     }
+        // }
 
-        return true;
+        // return true;
 
     }
 
