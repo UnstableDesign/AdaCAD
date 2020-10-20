@@ -81,7 +81,7 @@
       <div class="weftSelections">
 
         <div  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
-        [ngStyle]="styleViewFrames(threading)" (click)="view_frames = !view_frames;">
+        [ngStyle]="styleViewFrames(threading)" (click)="view_frames = !view_frames; styleDrawdown(threading)">
         <span><i class="fas" [class.fa-eye-slash]="!view_frames" [class.fa-eye]="view_frames"> 
         </i></span>
         </div>

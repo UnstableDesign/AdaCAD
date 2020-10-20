@@ -262,7 +262,6 @@ export class WeaveDirective {
           } else if (event.target && event.target.closest('.threading-container')) {
             this.drawOnThreading(currentPos);
           } else {
-            console.log("draw on drawdown from mouse down");
             this.drawOnDrawdown(currentPos);
           }
           break;
@@ -503,13 +502,14 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawOnTieups( currentPos: Point ) {
-
+    console.log("draw on tieups", this.brush, currentPos);
     var updates;
     var val = false;
     
     if (!this.cxTieups || !currentPos) { return; }
 
     if (this.weave.loom.inTieupRange(currentPos.i, currentPos.j)) {
+      console.log("in range");
       switch (this.brush) {
         case 'point':
             val = true;
@@ -518,13 +518,14 @@ export class WeaveDirective {
           val = false;
           break;
         case 'invert':
-          val = !this.weave.loom.tieup[currentPos.j][currentPos.i];
+          val = !this.weave.loom.tieup[currentPos.i][currentPos.j];
           break;
         default:
           break;
       }
     }
     
+    console.log("update to ", val);
     this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
     this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, val);
     this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup", val);

@@ -535,7 +535,11 @@ export class WeaverComponent implements OnInit {
 
   public styleDrawdown(ctx){
     var dims = this.render.getCellDims("base");
-    return  {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
+    //if(this.view_frames){
+      return  {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
+   // }else{
+      //return {'top.px': 0, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
+  //  }
   }
 
   public styleTreadling(ctx){
