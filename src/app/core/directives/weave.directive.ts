@@ -606,7 +606,7 @@ export class WeaveDirective {
     }
 
     var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
-
+    console.log(updates);
     for(var u in updates){
       if(updates[u].reset !== undefined){
         this.redrawLoom();

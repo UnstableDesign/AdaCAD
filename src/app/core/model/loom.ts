@@ -356,7 +356,6 @@ and returns an associated value for threading frames and treadles
           //get the cells linked with these frames
           for(var ii = 0; ii < active_tieup_rows.length; ii++){
               for(var j = 0; j < this.threading.length; j++){
-                console.log(j, this.threading[j], active_tieup_rows[ii]);
                 if(this.threading[j] == active_tieup_rows[ii]) active_thread_cols.push(j);
               }
           }
@@ -393,10 +392,11 @@ and returns an associated value for threading frames and treadles
       var updates = [];
       var frame = this.threading[j];
 
-      if(frame != -1) updates.push({i:frame, j: j, val:false});
-      updates.push({i:i, j: j, val:true});
+      if(frame != -1 && val) updates.push({i:frame, j: j, val:false});
+      updates.push({i:i, j: j, val:val});
 
-      this.threading[j] = i;
+      if(val) this.threading[j] = i;
+      else this.threading[j] = -1;
 
       if(this.updateUnusedFrames()) return [{reset: true}]
       
@@ -406,10 +406,13 @@ and returns an associated value for threading frames and treadles
     updateTreadling(i, j, val){
       var updates = [];
       var treadle = this.treadling[i];
-      if(treadle != -1) updates.push({i:i, j: treadle, val:false});
-      updates.push({i:i, j: j, val:true});
+
+      //if this treadle is assigned && the value is true
+      if(treadle != -1 && val) updates.push({i:i, j: treadle, val:false});
+      updates.push({i:i, j: j, val:val});
       
-      this.treadling[i] = j;
+      if(val) this.treadling[i] = j;
+      else this.treadling[i] = -1;
 
       if(this.updateUnusedTreadles()) return [{reset: true}]
 
