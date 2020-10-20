@@ -344,15 +344,20 @@ and returns an associated value for threading frames and treadles
       //this is an action within the treadling
       if(obj.treadle !== undefined && obj.weft !== undefined){
 
+
+
+          //whcih frames are associated with this treadle via tie up?
           for(var i = 0; i < this.tieup.length; i++){
             if(this.tieup[i][obj.treadle]){
               active_tieup_rows.push(i);
             }
           }
 
+          //get the cells linked with these frames
           for(var ii = 0; ii < active_tieup_rows.length; ii++){
               for(var j = 0; j < this.threading.length; j++){
-                if(this.threading[j] == ii) active_thread_cols.push(j);
+                console.log(j, this.threading[j], active_tieup_rows[ii]);
+                if(this.threading[j] == active_tieup_rows[ii]) active_thread_cols.push(j);
               }
           }
 

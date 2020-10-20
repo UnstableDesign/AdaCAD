@@ -606,11 +606,12 @@ export class WeaveDirective {
     }
 
     var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
+
     for(var u in updates){
       if(updates[u].reset !== undefined){
         this.redrawLoom();
       } else{
-      this.drawCell(this.cxTreadling,updates[u].i, updates[u].j, "treadling", updates[u].val);
+        this.drawCell(this.cxTreadling,updates[u].i, updates[u].j, "treadling", updates[u].val);
       }
     }
 

@@ -408,9 +408,6 @@ export class Draft implements DraftInterface {
    */  
   updateDraftFromThreading(updates){
 
-    console.log("updates carried into update draft", updates);
-
-
     for(var u in updates){
 
       if(updates[u].i !== undefined){
@@ -439,13 +436,12 @@ export class Draft implements DraftInterface {
   updateDraftFromTreadling(updates){
 
     for(var u in updates){
-
       if(updates[u].i !== undefined){
 
         var idxs = this.loom.getAffectedDrawdownPoints({weft: updates[u].i, treadle: updates[u].j});
-          for(var wi = 0; wi < idxs.wefts.length; wi++){
-            for (var wj = 0; wj < idxs.warps.length; wj++){
-             this.pattern[idxs.wefts[wi]][idxs.warps[wj]] = updates[u].value;
+        for(var i = 0; i < idxs.wefts.length; i++){
+          for (var j = 0; j < idxs.warps.length; j++){
+             this.pattern[idxs.wefts[i]][idxs.warps[j]] = updates[u].val;
           }
         }
 
