@@ -2,7 +2,7 @@
   {
     "name": "Tabby",
     "id": 0,
-    "favorite": false,
+    "favorite": true,
     "height": 2,
     "width": 2,
     "pattern": [
@@ -14,7 +14,7 @@
   {
     "name": "Balanced Twill",
     "id": 1,
-    "favorite": true,
+    "favorite": false,
     "height": 4,
     "width": 4,
     "pattern": [

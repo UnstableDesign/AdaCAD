@@ -70,7 +70,7 @@
         </div>
 
          <div class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
-          <canvas #weftSystems style="background:#fbfbfb;">  </canvas>
+          <canvas id="weft-systems" #weftSystems style="background:#fbfbfb;">  </canvas>
         </div>
 
 <!--         <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
@@ -82,7 +82,7 @@
 
 
         <div class="warp-systems" [ngStyle]="styleWarpSystems(threading)">
-          <canvas #warpSystems style="background:#fbfbfb;">  </canvas>
+          <canvas id="warp-systems" #warpSystems style="background:#fbfbfb;">  </canvas>
         </div>
 <!-- 
         <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
@@ -111,22 +111,22 @@
         
 
       <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container"  #threading [ngStyle]="styleThreading()">
-        <canvas></canvas>
+        <canvas id="threading"></canvas>
       </div>
 
 
        <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #tieupsref class="tieups-container" [ngStyle]="styleTieUps(threading)">
-      <canvas #tieups style="background:#fbfbfb;"></canvas>
+      <canvas id="tieups" #tieups style="background:#fbfbfb;"></canvas>
       </div>
 
       <div class='drawdown-container' [ngStyle]="styleDrawdown(threading)">
-      <canvas #drawDown style="background:#fbfbfb;">  </canvas>
+      <canvas id="drawdown" #drawDown style="background:#fbfbfb;">  </canvas>
       </div>
 
 
       
       <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="styleTreadling(threading)">
-      <canvas #treadling style="background:#fbfbfb;"></canvas>
+      <canvas #treadling id="treadling" style="background:#fbfbfb;"></canvas>
     </div>
 
 

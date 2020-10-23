@@ -219,10 +219,11 @@ export class Draft implements DraftInterface {
 
 
 //update this to take dims into account;
-  updateSelection(selection: any, pattern: any, type: string) {
-    console.log("update selection", selection, pattern, type);
+  updateDrawdownSelection(selection: any, pattern: any, type: string) {
+   
     const sj = Math.min(selection.start.j, selection.end.j);
     const si = Math.min(selection.start.i, selection.end.i);
+
 
     const rows = pattern.length;
     const cols = pattern[0].length;

@@ -476,18 +476,11 @@ export class WeaverComponent implements OnInit {
     return {'top.px': ctx.offsetTop+ (this.draft.loom.num_frames-1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + 2) *dims.w};
   }
 
-  public styleRowButtons(ctx){
-     var dims = this.render.getCellDims("base");
-if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+3)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
-     else  return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};
-  }
-
   public styleThreading(){
-    return  {'top.px': 55, 'left.px':200};
+    return  {'top.px': 75, 'left.px':50};
   }
 
   public styleTieUps(ctx){
-    console.log(ctx.offsetLeft);
     var dims = this.render.getCellDims("base");
   //  var frames = this.draft.threading.threading.length;
     return  {'top.px':ctx.offsetTop, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w};
@@ -505,8 +498,15 @@ if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+3)*dims.h, 'l
 
   public styleWeftShuttles(ctx){
     var dims = this.render.getCellDims("base");
-     if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+3)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
+     if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+4)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
      else  return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+1)* dims.w};
+  }
+
+
+  public styleRowButtons(ctx){
+     var dims = this.render.getCellDims("base");
+    if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+5)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
+     else  return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};
   }
 
 
@@ -519,7 +519,7 @@ if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+3)*dims.h, 'l
  
   public styleShuttleRow(j){
         var dims = this.render.getCellDims("base");
-        return (j*dims.h)+(dims.h/2);
+        return (j*dims.h + dims.h/4) ;
 
   }
 
