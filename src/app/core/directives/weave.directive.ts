@@ -92,6 +92,21 @@ export class WeaveDirective {
   cxTieups: any;
 
   /**
+   * The 2D context of the weft_systems canvas
+   * @property {any}
+   */
+  cxWeftSystems: any;
+
+  /**
+   * The 2D context of the warp_systems canvas
+   * @property {any}
+   */
+  cxWarpSystems: any;
+
+
+
+
+  /**
    * The current selection within the weave canvas.
    * @property {Selection}
    */
@@ -138,6 +153,11 @@ export class WeaveDirective {
    */
   tieupsCanvas: HTMLCanvasElement;
 
+
+
+  weftSystemsCanvas: HTMLCanvasElement;
+  warpSystemsCanvas: HTMLCanvasElement;
+
   private segments$: Observable<DraftSegment[]>;
   private prevSegment = null;
   private currSegment = null;
@@ -166,7 +186,7 @@ export class WeaveDirective {
 
 
 
-    console.log("element", this.el.nativeElement.children[3]);
+    console.log("element", this.el.nativeElement.children[0].children[1].firstElementChild);
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[3].firstElementChild;
@@ -177,11 +197,15 @@ export class WeaveDirective {
     this.threadingCanvas = this.el.nativeElement.children[1].firstElementChild;
     this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
     this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
+    this.weftSystemsCanvas = this.el.nativeElement.children[0].children[1].firstElementChild;
+    this.warpSystemsCanvas = this.el.nativeElement.children[0].children[2].firstElementChild;
     
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
     this.cxTreadling = this.treadlingCanvas.getContext('2d');
     this.cxTieups = this.tieupsCanvas.getContext('2d');
+    this.cxWarpSystems = this.warpSystemsCanvas.getContext('2d');
+    this.cxWeftSystems = this.weftSystemsCanvas.getContext('2d');
 
     // set the width and height
     var dims = this.render.getCellDims("base");
@@ -196,6 +220,13 @@ export class WeaveDirective {
     this.treadlingCanvas.width = this.weave.loom.min_treadles * dims.w;
     this.tieupsCanvas.width = this.weave.loom.min_treadles*dims.w;
     this.tieupsCanvas.height = this.weave.loom.min_frames * dims.h;
+
+    this.weftSystemsCanvas.width =  dims.w*2;
+    this.weftSystemsCanvas.height = (this.weave.wefts+2) * dims.h;
+
+    this.warpSystemsCanvas.width =  (this.weave.warps+2) * dims.w;
+    this.warpSystemsCanvas.height = dims.h*2;
+
 
     // Set up the initial grid.
     this.redraw();
@@ -405,6 +436,78 @@ export class WeaveDirective {
     }
 
     this.copy = copy;
+
+  }
+
+
+  private drawWeftSystems(cx,canvas){
+
+      var dims = this.render.getCellDims("base");
+      var margin = this.render.zoom/50;
+      var top = dims.h;
+
+      cx.fillStyle = "#303030";
+      cx.fillRect(0,0,canvas.width,canvas.height);
+
+
+      cx.fillStyle = "white";
+      cx.fillRect(0,top,dims.w/2,dims.h*this.weave.wefts);
+
+      for(var i = 0 ; i < this.weave.wefts; i++){
+        cx.fillStyle = this.weave.getColor(i);
+        if(i == this.weave.wefts-1) cx.fillRect( margin, top+dims.h*i+margin, dims.w/2, dims.h-(margin*2));
+        else cx.fillRect( margin, top+dims.h*i+margin, dims.w/2, dims.h-(margin));
+      }
+
+
+      var fontsize = 12;
+      var interval = this.render.getTextInterval(0);
+      cx.fillStyle = "white";
+      cx.font =fontsize+"px Arial";
+
+      cx.fillText(0, dims.w, margin+top);
+
+      for(var i:number = interval; i < this.weave.wefts; i+= interval){
+        cx.fillText(i, dims.w, dims.h*i+margin+top);
+      }
+
+      cx.fillText(this.weave.wefts, dims.w, dims.h*this.weave.wefts+top);
+
+
+  }
+
+  private drawWarpSystems(cx,canvas){
+    var dims = this.render.getCellDims("base");
+    var margin = this.render.zoom/50;
+    var left = dims.w;
+
+
+      cx.fillStyle = "#303030";
+      cx.fillRect(0,0,canvas.width,canvas.height);
+    
+      cx.fillStyle = "white";
+      cx.fillRect(left,dims.h*3/2-margin,dims.w*this.weave.warps,dims.h/2);
+
+
+      for(var j = 0; j < this.weave.warps; j++){
+        cx.fillStyle = this.weave.getColorCol(j);
+        if(j == this.weave.warps-1) cx.fillRect(dims.w*j+margin+left, dims.h*3/2-margin, dims.w-(margin*2), dims.h/2 - margin);
+        else cx.fillRect( dims.w*j+margin+left, dims.h*3/2-margin, dims.w-margin, dims.h/2 - margin);
+      }
+
+      var fontsize = 12;
+      var interval = this.render.getTextInterval(0);
+      cx.fillStyle = "white";
+      cx.font =fontsize+"px Arial";
+
+      cx.fillText(0, left-margin, dims.h);
+
+      for(var i = interval; i < this.weave.warps; i+= interval){
+        cx.fillText(i, left+dims.w*i-margin, dims.h);
+      }
+
+      cx.fillText(this.weave.warps, left+dims.w*this.weave.warps, dims.h);
+      
 
   }
 
@@ -1013,6 +1116,8 @@ export class WeaveDirective {
     this.cx.canvas.width = base_dims.w * this.weave.pattern[0].length;
     this.cx.canvas.height = base_dims.h * this.weave.pattern.length;
     this.drawGrid(this.cx,this.canvasEl);
+    this.drawWeftSystems(this.cxWeftSystems, this.weftSystemsCanvas);
+    this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);
 
     var color = '#000000';
     this.cx.fillStyle = color;

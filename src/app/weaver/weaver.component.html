@@ -1,36 +1,19 @@
 <app-topbar 
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
+[zoom] = "render?.zoom"
+[view] = "view"
+  (onViewChange) ="viewChange($event);"
+  (onZoomChange) ="renderChange($event);"
   (onUndo)="undo();" 
   (onRedo)="redo();"
   (onSave)="onSave($event);">
+
 </app-topbar>
 
 
 <mat-sidenav-container class="example-container">
   <mat-sidenav mode="side" position="end" opened>
-
-    <div class="view-toggle">
-    
-
-    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100" value="{{render.zoom}}" (change)="renderChange($event)"></mat-slider>
-    
-
-    <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
-      <mat-button-toggle value="pattern">
-        <i class="fa fa-chess-board" aria-hidden="true"></i>
-        Draft
-      </mat-button-toggle>
-      <mat-button-toggle value="yarn">
-        <i class="fa fa-project-diagram" aria-hidden="true"></i>
-        Yarn
-      </mat-button-toggle>
-      <mat-button-toggle value="visual">
-        <i class="fa fa-image" aria-hidden="true"></i>
-        Visual
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
 
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
       <mat-tab label="Design">
@@ -86,21 +69,28 @@
         </i></span>
         </div>
 
+         <div class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
+          <canvas #weftSystems style="background:#fbfbfb;">  </canvas>
+        </div>
 
-
-        <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
+<!--         <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
           <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
             <circle cx="20" [attr.cy]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>
-            <text text-anchor="end" x="5" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
+            <text class="weft_text" text-anchor="middle" x="55" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
           </g>
-        </svg>
+        </svg> -->
 
+
+        <div  class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
+          <canvas #warpSystems style="background:#fbfbfb;">  </canvas>
+        </div>
+<!-- 
         <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
           <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
             <circle cy="20" [attr.cx]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
-            <text text-anchor="end" y="5" [attr.x]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ j + 1 }}</text>
+            <text class="warp_text" text-anchor="start" y="5" [attr.x]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ draft?.colShuttleMapping.length - j}}</text>
           </g>
-        </svg>  
+        </svg>   -->
 
 
 

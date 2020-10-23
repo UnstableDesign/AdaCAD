@@ -52,6 +52,15 @@ export class Render {
 
   }
 
+
+  getTextInterval(){
+    if(this.zoom > 90) return 1;
+    if(this.zoom > 75) return 5; 
+    if(this.zoom > 50) return 10;
+    if(this.zoom > 25) return 50; 
+    return 100;
+  }
+
   getCellDims(type: string){
     // console.log("get cell dims", type);
     var x = this.interpolate(this.getOffset(type+"_x"));

@@ -51,29 +51,17 @@
 
 .shuttles {
   position: absolute;
-  background: #303030;
-  height: 100%;
   cursor: pointer;
   width: 50px;
 }
 
 .warp_systems {
   position: absolute;
-  background: #303030;
   height: 50px;
   cursor: pointer;
-  width: 100%;
 }
 
-.view-toggle{
-    margin-bottom: 20px;
-    margin-top: 20px;
-    text-align: center;
 
-    mat-slider {
-      width: 200px;
-    }
-}
 
 .insert-button-group {
   position: absolute;
@@ -114,10 +102,14 @@
   }
 }
 
+.weft_text{
+}
+
 .view_frames {
   position: absolute;
   width: 20px;
   height: 100%;
+  z-index: 1;
 
 
     span {
