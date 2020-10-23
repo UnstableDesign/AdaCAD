@@ -321,49 +321,7 @@ export class WeaverComponent implements OnInit {
     });
   }
 
-  /**
-   * Change shuttle of row to next in list.
-   * @extends WeaveComponent
-   * @param {number} shuttle - ID of previous shuttle
-   * @param {number} the index of row within the pattern.
-   * @returns {void}
-   */
-  public rowShuttleChange(row, index) {
 
-    const len = this.draft.shuttles.length;
-    var shuttle = this.draft.rowShuttleMapping[row];
-
-
-    var newShuttle = (shuttle + 1) % len;
-    while (!this.draft.shuttles[newShuttle].visible) {
-      var newShuttle = (newShuttle + 1) % len;
-    }
-
-    this.draft.rowShuttleMapping[row] = newShuttle;
-
-    this.weaveRef.redrawRow(index * 20, index);
-  }
-
-
-    /**
-   * Change shuttle of col to next in list.
-   * @extends WeaveComponent
-   * @param {number} shuttle - ID of previous shuttle
-   * @param {number} the index of column within the pattern.
-   * @returns {void}
-   */
-  public colShuttleChange(col) {
-
-    const len = this.draft.warp_systems.length;
-    var shuttle_id = this.draft.colShuttleMapping[col];
-
-    var newShuttle_id = (shuttle_id + 1) % len;
-
-
-    this.draft.colShuttleMapping[col] = newShuttle_id;
-
-    //this.weaveRef.redrawCol(col * 20, col);
-  }
 
   /// PUBLIC FUNCTIONS
   /**
@@ -514,14 +472,14 @@ export class WeaverComponent implements OnInit {
 
   public styleViewFrames(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.view_frames) return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  ctx.width + (this.draft.loom.num_treadles+2) * dims.w};
-    return {'top.px': ctx.offsetTop+ ctx.height  - (dims.h), 'left.px': ctx.offsetLeft +  ctx.width + 2*dims.w};
+    if(this.view_frames) return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
+    return {'top.px': ctx.offsetTop+ (this.draft.loom.num_frames-1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + 2) *dims.w};
   }
 
   public styleRowButtons(ctx){
      var dims = this.render.getCellDims("base");
-     if(this.view_frames) return {'left.px': ctx.offsetLeft +  ctx.width + (this.draft.loom.num_treadles+4) * dims.w, 'top.px': ctx.offsetTop + ctx.height + dims.h};
-     else return {'left.px': ctx.offsetLeft +  ctx.width + 4*dims.w, 'top.px': ctx.offsetTop + ctx.height + dims.h};
+if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+3)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
+     else  return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};
   }
 
   public styleThreading(){
@@ -529,33 +487,34 @@ export class WeaverComponent implements OnInit {
   }
 
   public styleTieUps(ctx){
+    console.log(ctx.offsetLeft);
     var dims = this.render.getCellDims("base");
   //  var frames = this.draft.threading.threading.length;
-    return  {'left.px': ctx.offsetLeft + ctx.width + dims.w, 'top.px':ctx.offsetTop};
+    return  {'top.px':ctx.offsetTop, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w};
   }
 
   public styleDrawdown(ctx){
     var dims = this.render.getCellDims("base");
-      return  {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
+      return  {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
   }
 
   public styleTreadling(ctx){
     var dims = this.render.getCellDims("base");
-    return {'top.px':ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft + ctx.width + dims.w}
+    return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w}
   }
 
   public styleWeftShuttles(ctx){
     var dims = this.render.getCellDims("base");
-     if(this.view_frames) return {'top.px': ctx.offsetTop + ctx.height, 'left.px': ctx.offsetLeft +  ctx.width + (this.draft.loom.num_treadles+1) * dims.w};
-     else  return {'top.px': ctx.offsetTop + ctx.height, 'left.px': ctx.offsetLeft +  ctx.width + dims.w};
+     if(this.view_frames) return {'top.px': (this.draft.loom.num_frames+3)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
+     else  return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+1)* dims.w};
   }
 
 
 
   public styleWarpSystems(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.view_frames)    return {'top.px': ctx.offsetTop - dims.h*2, 'left.px': ctx.offsetLeft - dims.w};
-    else  return {'top.px': ctx.offsetTop + ctx.height - dims.h*2, 'left.px': ctx.offsetLeft - dims.w};
+    if(this.view_frames)    return {'top.px': ctx.offsetTop - dims.h*3, 'left.px': ctx.offsetLeft - dims.w};
+    else  return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames-2) * dims.h, 'left.px': ctx.offsetLeft - dims.w};
   }
  
   public styleShuttleRow(j){

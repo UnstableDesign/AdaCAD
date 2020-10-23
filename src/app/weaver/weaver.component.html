@@ -81,7 +81,7 @@
         </svg> -->
 
 
-        <div  class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
+        <div class="warp-systems" [ngStyle]="styleWarpSystems(threading)">
           <canvas #warpSystems style="background:#fbfbfb;">  </canvas>
         </div>
 <!-- 
@@ -110,8 +110,8 @@
       </div>
         
 
-      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container"  #threading>
-        <canvas #threading [ngStyle]="styleThreading()"></canvas>
+      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container"  #threading [ngStyle]="styleThreading()">
+        <canvas></canvas>
       </div>
 
 

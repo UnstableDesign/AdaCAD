@@ -129,7 +129,7 @@ export class WeaveDirective {
    * The HTML div element used to position the drawdown.
    * @property {HTMLElement}
    */
-  divEl: HTMLElement;
+  //divEl: HTMLElement;
 
 
   /**
@@ -186,13 +186,14 @@ export class WeaveDirective {
 
 
 
-    console.log("element", this.el.nativeElement.children[0].children[1].firstElementChild);
+    console.log("element", this.el.nativeElement.children);
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[3].firstElementChild;
-    this.divEl = this.el.nativeElement.children[3];
+    //this.divEl = this.el.nativeElement.children[3];
+
+    //this is the selection
     this.svgEl = this.el.nativeElement.children[0].lastElementChild;
-    console.log(this.svgEl);
     
     this.threadingCanvas = this.el.nativeElement.children[1].firstElementChild;
     this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
@@ -292,16 +293,37 @@ export class WeaveDirective {
             this.drawOnTieups(currentPos);
           } else if (event.target && event.target.closest('.threading-container')) {
             this.drawOnThreading(currentPos);
-          } else {
+          } else if(event.target && event.target.closest('.shuttles')){
+            this.drawOnShuttles(currentPos);
+          }else if(event.target && event.target.closest('.warp-systems')){
+            this.drawOnWarpSelectors(currentPos);
+          } else{
             this.drawOnDrawdown(currentPos);
           }
           break;
         case 'select':
+          console.log("select", currentPos);
+
           this.selection.start = currentPos;
           this.selection.end = currentPos;
           this.selection.width = 0;
           this.selection.height = 0;
           d3.select(this.svgEl).style('display', 'none');
+
+          if (event.target && event.target.closest('.treadling-container')) {
+            this.selection.setTarget(this.treadlingCanvas);
+          } else if (event.target && event.target.closest('.tieups-container')) {
+            this.selection.setTarget(this.tieupsCanvas);
+          } else if (event.target && event.target.closest('.threading-container')) {
+            this.selection.setTarget(this.threadingCanvas);
+          } else if(event.target && event.target.closest('.shuttles')){
+            this.selection.setTarget(this.weftSystemsCanvas);
+          }else if(event.target && event.target.closest('.warp-systems')){
+            console.log("setting warp");
+            this.selection.setTarget(this.warpSystemsCanvas);
+          } else{
+            this.selection.setTarget(this.canvasEl);
+          }
           break;
         default:
           break;
@@ -324,7 +346,7 @@ export class WeaveDirective {
   private onMove(event) {
     var dims = this.render.getCellDims("base");
     var offset = this.render.getCellDims(this.brush);
-
+    console.log("move");
   
     // set up the point based on touched square.
     const currentPos: Point = {
@@ -345,14 +367,23 @@ export class WeaveDirective {
           this.drawOnTieups(currentPos);
         } else if (event.target && event.target.closest('.threading-container')) {
           this.drawOnThreading(currentPos);
-        } else {
-          this.drawOnDrawdown(currentPos);
+        }else if(event.target && event.target.closest('.shuttles')){
+            this.drawOnShuttles(currentPos);
+        }else if(event.target && event.target.closest('.warp-systems')){
+            this.drawOnWarpSelectors(currentPos);
+        } else{
+            this.drawOnDrawdown(currentPos);
         }
         break;
       case 'select':
+        console.log("select");
         this.selection.end = currentPos;
+      
+        console.log(this.selection);
         this.selection.setParameters();
         this.selectArea();
+
+
         break;
       case 'invert':
       default:
@@ -439,6 +470,17 @@ export class WeaveDirective {
 
   }
 
+  private drawWeftSelectorCell(cx, i){
+        var dims = this.render.getCellDims("base");
+        var margin = this.render.zoom/50;
+        var top = dims.h;
+
+        cx.fillStyle = this.weave.getColor(i);
+        if(i == this.weave.wefts-1) cx.fillRect( margin, top+dims.h*i+margin, dims.w/2, dims.h-(margin*2));
+        else cx.fillRect( margin, top+dims.h*i+margin, dims.w/2, dims.h-(margin));
+  
+  }
+
 
   private drawWeftSystems(cx,canvas){
 
@@ -454,9 +496,7 @@ export class WeaveDirective {
       cx.fillRect(0,top,dims.w/2,dims.h*this.weave.wefts);
 
       for(var i = 0 ; i < this.weave.wefts; i++){
-        cx.fillStyle = this.weave.getColor(i);
-        if(i == this.weave.wefts-1) cx.fillRect( margin, top+dims.h*i+margin, dims.w/2, dims.h-(margin*2));
-        else cx.fillRect( margin, top+dims.h*i+margin, dims.w/2, dims.h-(margin));
+          this.drawWeftSelectorCell(cx, i);        
       }
 
 
@@ -476,6 +516,17 @@ export class WeaveDirective {
 
   }
 
+  private drawWarpSelectorCell(cx, j){
+        var dims = this.render.getCellDims("base");
+        var margin = this.render.zoom/50;
+        var left = dims.w;
+
+        cx.fillStyle = this.weave.getColorCol(j);
+        if(j == this.weave.warps-1) cx.fillRect(dims.w*j+margin+left, dims.h*3/2-margin, dims.w-(margin*2), dims.h/2 - margin);
+        else cx.fillRect( dims.w*j+margin+left, dims.h*3/2-margin, dims.w-margin, dims.h/2 - margin);
+  
+  }
+
   private drawWarpSystems(cx,canvas){
     var dims = this.render.getCellDims("base");
     var margin = this.render.zoom/50;
@@ -490,9 +541,7 @@ export class WeaveDirective {
 
 
       for(var j = 0; j < this.weave.warps; j++){
-        cx.fillStyle = this.weave.getColorCol(j);
-        if(j == this.weave.warps-1) cx.fillRect(dims.w*j+margin+left, dims.h*3/2-margin, dims.w-(margin*2), dims.h/2 - margin);
-        else cx.fillRect( dims.w*j+margin+left, dims.h*3/2-margin, dims.w-margin, dims.h/2 - margin);
+        this.drawWarpSelectorCell(cx, j);
       }
 
       var fontsize = 12;
@@ -556,6 +605,66 @@ export class WeaveDirective {
     }
   }
 
+
+  /**
+   * Change shuttle of row to next in list.
+   * @extends WeaveComponent
+   * @param {Point} the point of the interaction
+   * @returns {void}
+   */
+  private drawOnShuttles( currentPos: Point ) {
+    console.log("draw on shuttle", currentPos);
+    var dims = this.render.getCellDims("base");
+
+    var updates;
+
+    if (!this.cx || !currentPos) { return; }
+
+    var row = (currentPos.i-1); //need to offset this due to canvas padding
+
+    if(row < 0){ return; }
+
+    const len = this.weave.shuttles.length;
+    var shuttle = this.weave.rowShuttleMapping[row];
+
+
+    var newShuttle = (shuttle + 1) % len;
+    while (!this.weave.shuttles[newShuttle].visible) {
+      var newShuttle = (newShuttle + 1) % len;
+    }
+
+    this.weave.rowShuttleMapping[row] = newShuttle;
+    this.drawWeftSelectorCell(this.cxWeftSystems,(row));
+    this.redrawRow(row*dims.h, row, this.cx);
+  }
+
+  /**
+   * Change column to next row in the list
+   * @extends WeaveComponent
+   * @param {Point} the point of the interaction
+   * @returns {void}
+   */
+  private drawOnWarpSelectors( currentPos: Point ) {
+    console.log("draw on warp", currentPos);
+    var dims = this.render.getCellDims("base");
+
+    if (!this.cx || !currentPos) { return; }
+
+    var col = (currentPos.j-1); //need to offset this due to canvas padding
+
+    if(col < 0){ return; }
+
+
+    const len = this.weave.warp_systems.length;
+    var shuttle_id = this.weave.colShuttleMapping[col];
+
+    var newShuttle_id = (shuttle_id + 1) % len;
+
+
+    this.weave.colShuttleMapping[col] = newShuttle_id;
+  
+
+  }
 
 
 
@@ -879,13 +988,18 @@ export class WeaveDirective {
     left = Math.min(this.selection.start.x, this.selection.end.x);
     top = Math.min(this.selection.start.y, this.selection.end.y);
 
+    
+    var cx = this.selection.getTarget();
+    var div = cx.parentElement;
+    console.log("offset", div.offsetTop, this.warpSystemsCanvas.parentElement.offsetTop);
+
     // updates the size of the selection
     d3.select(this.svgEl)
       .attr("width", this.selection.width)
       .attr("height",this.selection.height)
       .style('display', 'initial')
-      .style('left', left + this.divEl.offsetLeft)
-      .style('top', top + this.divEl.offsetTop);
+      .style('left', left + div.offsetLeft)
+      .style('top', top + div.offsetTop);
 
     var rows = Math.ceil(this.selection.height / base_dims.h);
     var cols = Math.ceil(this.selection.width / base_dims.w);
