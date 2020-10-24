@@ -395,6 +395,8 @@ export class Draft implements DraftInterface {
   }
 
   getColorCol(index) {
+
+    console.log("locating index", index);
     var col = this.colShuttleMapping[index];
     var shuttle = this.warp_systems[col];
 

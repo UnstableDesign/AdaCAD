@@ -468,6 +468,9 @@ export class WeaverComponent implements OnInit {
 
   public toggleViewFrames(){
     this.render.toggleViewFrames();
+    if(this.render.view_frames){
+      this.weaveRef.recomputeLoom();
+    }
   }
 
   public styleViewFrames(ctx){

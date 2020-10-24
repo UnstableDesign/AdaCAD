@@ -734,18 +734,16 @@ export class WeaveDirective {
 
 
 
+
     if (!this.cx || !currentPos) { return; }
 
     // Set the heddles based on the brush.
     switch (this.brush) {
       case 'point':
         val = true;
-        this.weave.setHeddle(currentPos.i,currentPos.j,true);
-        updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
         break;
       case 'erase':
         val = false;
-        updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
         break;
       case 'invert':
          val = !this.weave.isUp(currentPos.i,currentPos.j);
@@ -755,9 +753,16 @@ export class WeaveDirective {
     }
 
     this.weave.setHeddle(currentPos.i,currentPos.j,val);
-    updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
     this.drawCell(this.cx,currentPos.i, currentPos.j, "drawdown", null);
-    this.drawLoomStates(updates);
+
+
+    //to save cpu, only compute this while frames are visible
+    if(this.render.view_frames){
+      updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern);
+      console.log("updates", updates);
+      this.drawLoomStates(updates);
+      console.log("exited draw on drawdown");
+    }
   }
 
   /**
@@ -1074,6 +1079,7 @@ export class WeaveDirective {
        else cx.fillStyle = "#FFFFFF";
     
     }else if(type=="threading"){
+      console.log("draw threading", i, j);
        if(val) cx.fillStyle = this.weave.getColorCol(j);
        else cx.fillStyle = "#FFFFFF"; 
 
@@ -1345,6 +1351,7 @@ export class WeaveDirective {
     
     //if the new value in outside of the visible range, redraw the entire loom
     if((max_frames+1)*dims.h > (this.cxThreading.canvas.height)){ 
+      console.log("REDRAW CALLED FROM drawLoomStates");
       this.redrawLoom();
       return;
     }
@@ -1352,6 +1359,7 @@ export class WeaveDirective {
     for(var u in updates.threading){    
        if(updates.threading[u].val)  this.cxThreading.fillStyle = "#FF0000";
        else  this.cxThreading.fillStyle = "#ffffff";
+       console.log("update threading at ", updates.threading[u].i, updates.threading[u].j);
        this.drawCell( this.cxThreading, updates.threading[u].i, updates.threading[u].j, "threading", updates.threading[u].val);
     }
 
@@ -1373,7 +1381,7 @@ export class WeaveDirective {
 
     for(var u in updates.tieup){
       for(var j in updates.tieup[u]){
-        this.drawCell( this.cxTieups, updates.tieup[u][j].i, updates.tieup[u][j].j, "threading", updates.tieup[u][j].val);
+        this.drawCell( this.cxTieups, updates.tieup[u][j].i, updates.tieup[u][j].j, "tieup", updates.tieup[u][j].val);
       }
     }
   }
@@ -1420,6 +1428,19 @@ export class WeaveDirective {
       }
     }
 
+  }
+
+//callled when frames become visible or drawdown without frame info is loaded
+  public recomputeLoom(){
+    var updates = [];
+    console.log("recompute");
+    for (var i = 0; i < this.weave.pattern.length; i++) {
+      for(var j = 0; j < this.weave.pattern[0].length; j++){
+          updates = this.weave.loom.updateFromDrawdown(i,j, this.weave.pattern);
+          console.log(updates);
+          this.drawLoomStates(updates);
+      }
+    }
   }
 
 

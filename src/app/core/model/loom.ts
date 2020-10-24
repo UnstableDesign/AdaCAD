@@ -79,6 +79,7 @@ export class Loom{
    * @returns {a list of updates made}
    */
     updateFromDrawdown(i, j, drawdown){
+      console.log(this.getConfig({i: i, j:j, drawdown: drawdown}));
       return this.updateConfig(this.getConfig({i: i, j:j, drawdown: drawdown}));
     }
 
@@ -113,6 +114,8 @@ and returns an associated value for threading frames and treadles
    */
 
     getConfig(obj){
+
+      console.log("in get config", obj);
 
 
       var config = {
