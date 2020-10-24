@@ -4,6 +4,8 @@
  */
 export class Render {
 
+  view_frames: boolean;
+
   zoom: number;
 
   base_cell: {
@@ -24,6 +26,7 @@ export class Render {
 
     //max values
     this.zoom = 100;
+    this.view_frames = true;
 
 
     this.base_cell = {
@@ -93,6 +96,10 @@ export class Render {
     if(type ==="base_fill_x") return this.base_cell.margin_fill_x;
     if(type ==="base_fill_y") return this.base_cell.margin_fill_y;
     else return {max: 0, min: 0};
+  }
+
+  toggleViewFrames(){
+    this.view_frames = !this.view_frames;
   }
 
 
