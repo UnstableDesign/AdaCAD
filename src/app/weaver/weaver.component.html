@@ -71,26 +71,29 @@
 
          <div class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
           <canvas id="weft-systems" #weftSystems style="background:#fbfbfb;">  </canvas>
-        </div>
-
-<!--         <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
+         <!--  <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttleText(threading)">
           <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
-            <circle cx="20" [attr.cy]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>
-            <text class="weft_text" text-anchor="middle" x="55" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
-          </g>
+          <text class="weft_text" text-anchor="middle" x="55" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text> 
+
+
+         </g>
         </svg> -->
+
+        </div>
 
 
         <div class="warp-systems" [ngStyle]="styleWarpSystems(threading)">
           <canvas id="warp-systems" #warpSystems style="background:#fbfbfb;">  </canvas>
-        </div>
-<!-- 
+          <!-- 
         <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
           <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
             <circle cy="20" [attr.cx]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
             <text class="warp_text" text-anchor="start" y="5" [attr.x]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ draft?.colShuttleMapping.length - j}}</text>
           </g>
         </svg>   -->
+
+        </div>
+
 
 
 

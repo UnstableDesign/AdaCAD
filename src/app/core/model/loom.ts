@@ -368,10 +368,22 @@ and returns an associated value for threading frames and treadles
       return false;
     }
 
+    hasTieup(i, j){
+      if(!this.inTieupRange(i, j)) return null;
+      else return (this.tieup[i][j]); 
+
+    }
+
     inThreadingRange(i, j){
       if(j >= 0 && j < this.threading.length) return true;
       if(i >= 0 && i < this.num_frames) return true;
       return false;
+    }
+
+    isInFrame(i, j){
+      if(!this.inThreadingRange(i, j)) return null;
+      else return (this.threading[j] ==i); 
+
     }
 
     inTreadlingRange(i, j){
@@ -380,18 +392,21 @@ and returns an associated value for threading frames and treadles
       return false;
     }
 
+    isInTreadle(i, j){
+      if(!this.inTreadlingRange(i, j)) return null;
+      else return (this.treadling[i] ==j); 
+
+    }
+
 
     updateTieup(i, j, val){
         this.tieup[i][j] = val;
     }
 
     updateThreading(i, j, val){
-      console.log("updating", i, j, val);
 
       var updates = [];
       var frame = this.threading[j];
-
-      console.log(frame, val);
 
       //nothing is assigned to this frame
       if(frame == -1){
@@ -498,56 +513,5 @@ updating the treadling size. It also needs to update the tie up
 
     }
 
-
-  updateThreadingSelection(selection: any, pattern: any, type: string, dims: any) {
-    const sj = Math.min(selection.start.j, selection.end.j);
-    const si = Math.min(selection.start.i, selection.end.i);
-
-    const rows = pattern.length;
-    const cols = pattern[0].length;
-
-    var w,h;
-
-    var all_updates = [];
-
-    w = selection.width / dims.w;
-    h = selection.height / dims.h;
-
-    for (var i = 0; i < h; i++ ) {
-      for (var j = 0; j < w; j++ ) {
-
-        var row = i + si;
-        var pattern_val = pattern[i % rows][j % cols];
-        var threading_val = (this.threading[j + sj] == row);
-        var val = false;
-
-        switch (type) {
-          case 'invert':
-            val = !pattern_val;
-            break;
-          case 'mask':
-            val = pattern_val && threading_val;
-            break;
-          case 'mirrorX':
-            val = pattern[(h - i - 1) % rows][j % cols];
-            break;
-          case 'mirrorY':
-            val= pattern[i % rows][(w - j - 1) % cols];
-            break;
-          default:
-            val = pattern_val;
-            break;
-        }
-        if(val){
-          var updates = this.updateThreading(row, j + sj, val);
-          for(var u in updates){
-            all_updates.push(updates[u]);
-          }
-        }
-      }
-    }
-
-    return all_updates;
-  }
 
 }//end class

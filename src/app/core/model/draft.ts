@@ -219,48 +219,48 @@ export class Draft implements DraftInterface {
 
 
 //update this to take dims into account;
-  updateDrawdownSelection(selection: any, pattern: any, type: string) {
+  // updateDrawdownSelection(selection: any, pattern: any, type: string) {
    
-    const sj = Math.min(selection.start.j, selection.end.j);
-    const si = Math.min(selection.start.i, selection.end.i);
+  //   const sj = Math.min(selection.start.j, selection.end.j);
+  //   const si = Math.min(selection.start.i, selection.end.i);
 
 
-    const rows = pattern.length;
-    const cols = pattern[0].length;
+  //   const rows = pattern.length;
+  //   const cols = pattern[0].length;
 
-    var w,h;
+  //   var w,h;
 
-    w = selection.width / 20;
-    h = selection.height / 20;
+  //   w = selection.width / 20;
+  //   h = selection.height / 20;
 
-    for (var i = 0; i < h; i++ ) {
-      for (var j = 0; j < w; j++ ) {
-        var row = this.visibleRows[i + si];
-        var temp = pattern[i % rows][j % cols];
-        var prev = this.pattern[row][j + sj];
+  //   for (var i = 0; i < h; i++ ) {
+  //     for (var j = 0; j < w; j++ ) {
+  //       var row = this.visibleRows[i + si];
+  //       var temp = pattern[i % rows][j % cols];
+  //       var prev = this.pattern[row][j + sj];
 
-        switch (type) {
-          case 'invert':
-            this.pattern[row][j + sj] = !temp;
-            break;
-          case 'mask':
-            this.pattern[row][j + sj] = temp && prev;
-            break;
-          case 'mirrorX':
-            temp = pattern[(h - i - 1) % rows][j % cols];
-            this.pattern[row][j + sj] = temp;
-            break;
-          case 'mirrorY':
-            temp = pattern[i % rows][(w - j - 1) % cols];
-            this.pattern[row][j + sj] = temp;
-            break;
-          default:
-            this.pattern[row][j + sj] = temp;
-            break;
-        }
-      }
-    }
-  }
+  //       switch (type) {
+  //         case 'invert':
+  //           this.pattern[row][j + sj] = !temp;
+  //           break;
+  //         case 'mask':
+  //           this.pattern[row][j + sj] = temp && prev;
+  //           break;
+  //         case 'mirrorX':
+  //           temp = pattern[(h - i - 1) % rows][j % cols];
+  //           this.pattern[row][j + sj] = temp;
+  //           break;
+  //         case 'mirrorY':
+  //           temp = pattern[i % rows][(w - j - 1) % cols];
+  //           this.pattern[row][j + sj] = temp;
+  //           break;
+  //         default:
+  //           this.pattern[row][j + sj] = temp;
+  //           break;
+  //       }
+  //     }
+  //   }
+  // }
 
   insertRow(i: number, shuttleId: number) {
     var col = [];
