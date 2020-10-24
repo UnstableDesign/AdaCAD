@@ -63,15 +63,15 @@ export class Loom{
         }
     }
 
-    repopulateLoomFromDrawdown(drawdown){
+    // repopulateLoomFromDrawdown(drawdown){
 
-      for(var i in drawdown){
-        for(var j in drawdown[i]){
-          this.updateConfig(this.getConfig({i: i, j:j, drawdown: drawdown}));
-        }
-      }
+    //   for(var i in drawdown){
+    //     for(var j in drawdown[i]){
+    //       this.updateConfig(this.getConfig({i: i, j:j, drawdown: drawdown}));
+    //     }
+    //   }
 
-    }
+    // }
 
 
    /* updates the threading, tieup, and treadling based on a point in the drawdown
@@ -79,7 +79,6 @@ export class Loom{
    * @returns {a list of updates made}
    */
     updateFromDrawdown(i, j, drawdown){
-      console.log(this.getConfig({i: i, j:j, drawdown: drawdown}));
       return this.updateConfig(this.getConfig({i: i, j:j, drawdown: drawdown}));
     }
 
@@ -115,8 +114,6 @@ and returns an associated value for threading frames and treadles
 
     getConfig(obj){
 
-      console.log("in get config", obj);
-
 
       var config = {
         i: obj.i, 
@@ -133,6 +130,7 @@ and returns an associated value for threading frames and treadles
       //(1) check if the row is unique
       var found = false;
       for(var i = 0; i < obj.drawdown.length && !found; i++){
+        
         //don't check the row we are currently in
         if(i != obj.i){
           //need a way to check here if it is the ONLY one assigned to this frame, or if others are as well
@@ -143,7 +141,6 @@ and returns an associated value for threading frames and treadles
           }
         }
       }
-
 
       if(!found){
         var count = countOccurrences(this.treadling, this.treadling[obj.i]);
