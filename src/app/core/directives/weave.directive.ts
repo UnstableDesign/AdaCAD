@@ -461,15 +461,14 @@ export class WeaveDirective {
     var copy = [];
     
     if(this.selection.target.id === 'weft-systems'){
-      console.log("copy weft system");
       for(var i = 0; i < h; i++){
         copy.push([]);
-        for(var j = 0; j < this.weave.loom.num_treadles; j++){
+        for(var j = 0; j < this.weave.shuttles.length; j++){
           copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'warp-systems'){
-      for(var i = 0; i < this.weave.loom.num_frames; i++){
+      for(var i = 0; i < this.weave.warp_systems.length; i++){
         copy.push([]);
         for(var j = 0; j < w; j++){
           copy[i].push(false);
@@ -576,8 +575,8 @@ export class WeaveDirective {
 
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom/50;
-
         cx.fillStyle = this.weave.getColorCol(j);
+
         if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
         else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
   
@@ -898,15 +897,12 @@ export class WeaveDirective {
     type: string
   ) {
 
-    console.log("in fill area");
     var dims = this.render.getCellDims("base");
     var updates = [];
     const si = Math.min(selection.start.y, selection.end.y) / dims.h;
     const sj = Math.min(selection.start.x, selection.end.x) / dims.w;
 
-    console.log("selection point top left", sj, si);
-    console.log(selection.width, selection.height);
-
+  
     const rows = pattern.length;
     const cols = pattern[0].length;
 
@@ -914,15 +910,15 @@ export class WeaveDirective {
 
     w = Math.ceil(selection.width / dims.w);
     h = Math.ceil(selection.height / dims.h);
-    console.log("selection size", w, h)
+
+    if(selection.target.id === "warp-systems") h = pattern.length;
+    if(selection.target.id === "weft-systems") w = pattern[0].length;
+
 
     for (var i = 0; i < h; i++ ) {
       for (var j = 0; j < w; j++ ) {
-          console.log
-        
         var row = this.weave.visibleRows[i + si];
         var col = j + sj;
-
         var temp = pattern[i % rows][j % cols];
        
         var prev = false; 
@@ -962,6 +958,7 @@ export class WeaveDirective {
               val = temp;
               break;
           }
+
 
           var updates = [];
 
@@ -1014,12 +1011,13 @@ export class WeaveDirective {
             break;
             case 'weft-systems':
               val = pattern[i % rows][j % cols];
-              console.log(val, i%rows, j%cols, row, col);
-              if(val) this.weave.rowShuttleMapping[row] = col;
+              if(val && col < this.weave.shuttles.length) this.weave.rowShuttleMapping[row] = col;
             break;
             case 'warp-systems':
-               val = pattern[i % rows][j % cols];
-              if(val) this.weave.colShuttleMapping[col] = row;
+              val = pattern[i % rows][j % cols];
+              if(val && row < this.weave.warp_systems.length){
+                  this.weave.colShuttleMapping[col] = row;
+              }
             break;
             default:
             break;
@@ -1029,6 +1027,7 @@ export class WeaveDirective {
 
       }
     }
+
     this.redraw();
 
   }
