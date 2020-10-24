@@ -12,8 +12,8 @@ export class Selection {
   target: any;
 
   setParameters() {
-    this.width = Math.ceil(Math.abs(this.start.x - this.end.x));
-    this.height = Math.ceil(Math.abs(this.start.y - this.end.y));
+    this.width = Math.abs(this.start.x - this.end.x);
+    this.height = Math.abs(this.start.y - this.end.y);
  
   }
 

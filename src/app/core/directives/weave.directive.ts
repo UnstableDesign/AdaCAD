@@ -1142,6 +1142,7 @@ export class WeaveDirective {
        y = this.selection.height -  base_dims.h/2;
      }
 
+
     // define the left and top offsets
     left = Math.min(this.selection.start.x, this.selection.end.x);
     top = Math.min(this.selection.start.y, this.selection.end.y);
@@ -1149,8 +1150,10 @@ export class WeaveDirective {
     
     var cx = this.selection.getTarget();
     var div = cx.parentElement;
+
     var rows = Math.ceil(this.selection.height / base_dims.h);
     var cols = Math.ceil(this.selection.width / base_dims.w);
+
     var fs = this.render.zoom * .18;
     var fw = this.render.zoom * 9;
 
