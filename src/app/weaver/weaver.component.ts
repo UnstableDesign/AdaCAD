@@ -508,28 +508,53 @@ export class WeaverComponent implements OnInit {
 
   public styleWeftShuttleText(ctx){
     var dims = this.render.getCellDims("base");
-     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
-     else  return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+1)* dims.w};
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};  
   }
+
 
 
   public styleRowButtons(ctx){
      var dims = this.render.getCellDims("base");
-    if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
-     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};
+    if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+5) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+4)* dims.w};
   }
 
+
+public getButtonRowHeight(ctx){
+     var dims = this.render.getCellDims("base");
+     return dims.h;
+  }
+
+
+public getTransform(j){
+    var dims = this.render.getCellDims("base");
+    return "translate("+(this.draft.warps-j)*dims.w+", 0) rotate(-45)"
+}
 
 
   public styleWarpSystems(ctx){
     var dims = this.render.getCellDims("base");
     if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 2*dims.h, 'left.px': ctx.offsetLeft};
     else  return {'top.px': ctx.offsetTop - 2*dims.h, 'left.px': ctx.offsetLeft};
+  }  
+
+
+  public styleWarpSystemsText(ctx){
+    var dims = this.render.getCellDims("base");
+    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 2.5*dims.h, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop - 2.5*dims.h, 'left.px': ctx.offsetLeft};
   }
  
   public styleShuttleRow(j){
         var dims = this.render.getCellDims("base");
         return (j*dims.h + dims.h/4) ;
+
+  }
+
+  public styleWarpRow(j){
+        var dims = this.render.getCellDims("base");
+        return (j*dims.w) ;
 
   }
 

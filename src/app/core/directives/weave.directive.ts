@@ -201,7 +201,7 @@ export class WeaveDirective {
     this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
     this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
     this.weftSystemsCanvas = this.el.nativeElement.children[0].children[1].firstElementChild;
-    this.warpSystemsCanvas = this.el.nativeElement.children[0].children[2].firstElementChild;
+    this.warpSystemsCanvas = this.el.nativeElement.children[0].children[3].firstElementChild;
     
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');

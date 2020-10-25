@@ -47,12 +47,30 @@
   width: 50px;
 }
 
+
+.shuttle-text {
+  position: absolute;
+  cursor: pointer;
+  user-select: none;
+  width: 20px;
+  height:100%;
+
+}
+
 .warp-systems {
   position: absolute;
   height: 50px;
   cursor: pointer;
 }
 
+.warp-systems-text {
+  position: absolute;
+  cursor: pointer;
+  user-select: none;
+  height: 20px;
+  width:100%;
+
+}
 
 
 .insert-button-group {
@@ -62,8 +80,8 @@
   height: 100%;
 
   .insert-button {
-    height: 20px;
     width: 60px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;

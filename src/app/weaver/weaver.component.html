@@ -71,28 +71,38 @@
 
          <div class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
           <canvas id="weft-systems" #weftSystems style="background:#fbfbfb;">  </canvas>
-         <!--  <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttleText(threading)">
+         </div>
+
+         <div class="shuttles-text">
+          <svg class="shuttle-text" [ngStyle]="styleWeftShuttleText(threading)">
           <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
-          <text class="weft_text" text-anchor="middle" x="55" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text> 
+          <text class="weft_text" 
+          text-anchor="middle" x="0" [attr.y]="styleShuttleRow(j)" style="font-size:12px;"     fill="#fff" 
+          [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{i}}</text> 
+          </g>
 
-
-         </g>
-        </svg> -->
+          <text class="weft_text" 
+          text-anchor="middle" x="0" [attr.y]="styleShuttleRow(draft?.visibleRows.length)" style="font-size:12px;" fill="#fff" >{{draft?.visibleRows.length}}</text> 
+        </svg> 
 
         </div>
 
 
         <div class="warp-systems" [ngStyle]="styleWarpSystems(threading)">
-          <canvas id="warp-systems" #warpSystems style="background:#fbfbfb;">  </canvas>
-          <!-- 
-        <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
-          <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-            <circle cy="20" [attr.cx]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
-            <text class="warp_text" text-anchor="start" y="5" [attr.x]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ draft?.colShuttleMapping.length - j}}</text>
-          </g>
-        </svg>   -->
-
+          <canvas id="warp-systems"#warp_systems style="background:#fbfbfb;">  </canvas>
         </div>
+
+        <div class='warp-systems-text' [ngStyle]="styleWarpSystemsText(threading)">
+         <svg class="warp-systems-text">
+
+          <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
+            <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
+             [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
+          </g>
+           <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
+            style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
+        </svg>  
+      </div> 
 
 
 
