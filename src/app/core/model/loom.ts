@@ -13,7 +13,7 @@ export class Loom{
     //1-d array the same size as warps that has the id for the frame it is associated with or -1. 
     threading: Array<number>; 
     min_frames: number; 
-    num_frames: number; 
+    num_frames: number; //the number frames in use
     
     //1-d array the same size as wefts that has the id for the frame it is associated with or -1. 
     treadling: Array<number>;
@@ -93,6 +93,7 @@ export class Loom{
       return this.num_treadles;
     }
 
+    //this will always get the first empty frame
     getEmptyFrame(){
 
       for(var i = 0; i < this.num_frames; i++){
@@ -216,6 +217,7 @@ and returns an associated value for threading frames and treadles
         this.threading[config.j] = config.frame;
         updates.threading.push({i: config.frame, j: config.j, val: true});
 
+
       }else{
         this.num_frames++;
         this.threading[config.j] = config.frame;
@@ -287,6 +289,7 @@ and returns an associated value for threading frames and treadles
         }
       }
 
+      if(this.updateUnusedFrames()) return [{reset: true}];
       return updates;
 
     }
@@ -404,7 +407,7 @@ and returns an associated value for threading frames and treadles
     }
 
     updateThreading(i, j, val){
-
+      console.log("update threading");
       var updates = [];
       var frame = this.threading[j];
 
@@ -443,42 +446,76 @@ and returns an associated value for threading frames and treadles
       return updates;
     }
 
+
+    
+
+
+
 /*
 This is broken because it needs to delete the affected drawdown cells before 
 updating the frame size. It also needs to update the tie up
 */
     updateUnusedFrames(){
-      return false;
-        // console.log("update unusued frames");
+        console.log("update unusued frames");
 
-        // var removed = [];
-          
-        // console.log(this.num_frames, this.min_frames);  
-        // //don't remove anything if we are at or under the minimum frame number
-        // if(this.num_frames <= this.min_frames) return false;
+        var frame_status = [];
+        var condensed = false;
 
-        // for(var i = 0; i < this.num_frames; i++){
-        // console.log("occurances", i, countOccurrences(this.threading, i));
-        //   if(countOccurrences(this.threading, i) == 0){
-        //     removed.push(i);
-        //   }
-        // }
+        //first check if the frames are being used or not
+        for(var i = 0; i < this.num_frames; i++){
+          frame_status[i] = countOccurrences(this.threading, i);
+        }
 
-        // console.log("removed length", removed.length);
-        // if(removed.length == 0) return false;
+        console.log(frame_status);
+        //compress the frames so they are in continuous rows
+        var unused = -1;
+        for(var i = 0; i < frame_status.length; i++){
+          if(frame_status[i] === 0) unused = i;
+          else{
+            if(unused !== -1){
+              condensed = true;
+
+              //update threading
+              for(var j = 0; j < this.threading.length; j++){
+                if(this.threading[j] == i){ 
+                  this.threading[j] = unused;
+                };
+              }
+
+              //update tieups
+              for(var i = 0; i < this.tieup.length; i++){
+                  this.tieup[unused][j] = this.tieup[i][j];
+              }
+
+              frame_status[unused] = 1;
+              frame_status[i] = 0
+              unused = i;
 
 
-        // //reset the frame ids - 
-        // for(var i = 0; i < removed.length; i++){
-        //     //reset the frame ids in the threading list (in case this is in the middle)
-        //     for(var j = 0; j < this.threading.length; j++){
-        //       if(this.threading[j] > removed[i]) this.threading[j]--;    
-        //     }
-        //     this.num_frames--;
-        // }
 
-        // return true;
+            }
+          }
+        }
+        console.log(frame_status);
+        console.log("unusued", unused);
 
+        //if there were no unusued frames, go back
+         if(unused === -1 || !condensed) return false;
+
+         //unusued will be the frame id of the last unused frame
+         //an unusued frame was found
+          for(var i = unused; i > (this.min_frames-1); i--){
+              if(frame_status[i] === 0){ 
+                this.num_frames--;
+                this.tieup.splice(i, 1);
+              }
+          }
+
+        console.log("threading", this.threading);
+        console.log("num frames", this.num_frames);
+        
+
+        return true;
     }
 
 /*

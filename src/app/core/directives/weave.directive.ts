@@ -732,7 +732,12 @@ export class WeaveDirective {
     //to save cpu, only compute this while frames are visible
     if(this.render.view_frames){
       updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern);
+      console.log("updates", updates);
       this.drawLoomStates(updates);
+      for(var u in updates){
+         if(updates[u].reset !== undefined) this.redrawLoom();
+      }
+     
     }
   }
 
@@ -1209,7 +1214,7 @@ export class WeaveDirective {
  //draws any updates from a change in a part of the drawdown on the threading, tieup, and treadling
  //will update height if a new row/column is added but for zoom, call redrawLoomSize
   public drawLoomStates(updates) {
-
+    console.log("draw loom states");
     var dims = this.render.getCellDims("base");
     var base_fill = this.render.getCellDims("base_fill");
 
@@ -1261,6 +1266,7 @@ export class WeaveDirective {
 
   //called on resize
   public redrawLoom() {
+    console.log("redraw loom");
 
     var base_dims = this.render.getCellDims("base");
 
