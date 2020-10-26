@@ -88,6 +88,17 @@ export class Render {
     return this.zoom;
   }
 
+   zoomOut(){
+    this.zoom -= 10; 
+    if(this.zoom < 1) this.zoom = 1;
+  }
+
+  zoomIn(){
+    this.zoom += 10; 
+    if(this.zoom > 100) this.zoom = 100;
+
+  }
+
   private getOffset(type) {
      // console.log("get offset", type);
     if(type ==="select_x") return this.select.offset_x;

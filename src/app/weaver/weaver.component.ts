@@ -143,15 +143,43 @@ export class WeaverComponent implements OnInit {
   }
 
   /// EVENTS
+
+/**
+   * Sets brush to erase on key p.
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + e
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Shift.p', ['$event'])
+  private keyEventZoomIn(e) {
+    console.log("zoom in");
+    this.render.zoomIn();
+    this.redraw();
+
+
+  }
+
+  @HostListener('window:keydown.Shift.o', ['$event'])
+  private keyEventZoomOut(e) {
+    console.log("zoom out");
+    this.render.zoomOut();
+    this.redraw();
+
+
+  }
+
   /**
    * Sets brush to erase on key control + e.
    * @extends WeaveComponent
    * @param {Event} e - Press Control + e
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.e', ['$event'])
+  @HostListener('window:keydown.e', ['$event'])
   private keyEventErase(e) {
+    console.log("erase");
     this.brush = 'erase';
+    this.weaveRef.unsetSelection();
+
   }
 
   /**
@@ -160,9 +188,11 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - Press Control + d
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.d', ['$event'])
+  @HostListener('window:keydown.d', ['$event'])
   private keyEventPoint(e) {
     this.brush = 'point';
+    this.weaveRef.unsetSelection();
+
   }
 
   /**
@@ -171,7 +201,7 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - Press Control + s
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.s', ['$event'])
+  @HostListener('window:keydown.s', ['$event'])
   private keyEventSelect(e) {
     this.brush = 'select';
   }
@@ -182,9 +212,11 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - Press Control + x
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.x', ['$event'])
+  @HostListener('window:keydown.x', ['$event'])
   private keyEventInvert(e) {
     this.brush = 'invert';
+    this.weaveRef.unsetSelection();
+
   }
 
   /**
@@ -218,6 +250,8 @@ export class WeaverComponent implements OnInit {
    */
   public onBrushChange(e:any) {
     this.brush = e.name;
+    this.weaveRef.unsetSelection();
+
   }
 
   /**
@@ -468,6 +502,7 @@ export class WeaverComponent implements OnInit {
 
   public toggleViewFrames(){
     this.render.toggleViewFrames();
+
     if(this.render.view_frames){
       this.weaveRef.recomputeLoom();
     }

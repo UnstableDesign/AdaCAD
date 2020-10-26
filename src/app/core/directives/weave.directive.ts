@@ -454,8 +454,8 @@ export class WeaveDirective {
     var dims = this.render.getCellDims("copy");
     const si = Math.min(this.selection.start.i, this.selection.end.i);
     const sj = Math.min(this.selection.start.j, this.selection.end.j);
-    var w = this.selection.width / dims.w;
-    var h = this.selection.height / dims.h;
+    var w = this.selection.width;
+    var h = this.selection.height;
 
 
     var copy = [];
@@ -902,8 +902,8 @@ export class WeaveDirective {
 
     var dims = this.render.getCellDims("base");
     var updates = [];
-    const si = Math.min(selection.start.y, selection.end.y) / dims.h;
-    const sj = Math.min(selection.start.x, selection.end.x) / dims.w;
+    const si = Math.min(selection.start.i, selection.end.i);
+    const sj = Math.min(selection.start.j, selection.end.j);
 
   
     const rows = pattern.length;
@@ -911,8 +911,8 @@ export class WeaveDirective {
 
     var w,h;
 
-    w = Math.ceil(selection.width / dims.w);
-    h = Math.ceil(selection.height / dims.h);
+    w = Math.ceil(selection.width);
+    h = Math.ceil(selection.height);
 
     if(selection.target.id === "warp-systems") h = pattern.length;
     if(selection.target.id === "weft-systems") w = pattern[0].length;
@@ -1127,106 +1127,9 @@ export class WeaveDirective {
    * @returns {void}
    */
   private selectArea() {
-    var left, top, x, y, anchor;
-
-    var base_dims = this.render.getCellDims("base");
-
-    x = base_dims.w / 4;
-    y = base_dims.h;
-
-    anchor = 'start';
-
-    if (this.selection.start.x < this.selection.end.x) {
-        x = this.selection.width -  base_dims.w/2;
-        anchor = 'end';
-     }
-
-     if (this.selection.start.y < this.selection.end.y) {
-       y = this.selection.height -  base_dims.h/2;
-     }
-
-
-    // define the left and top offsets
-    left = Math.min(this.selection.start.x, this.selection.end.x);
-    top = Math.min(this.selection.start.y, this.selection.end.y);
-
     
-    var cx = this.selection.getTarget();
-    var div = cx.parentElement;
-
-    var rows = Math.ceil(this.selection.height / base_dims.h);
-    var cols = Math.ceil(this.selection.width / base_dims.w);
-
-    var fs = this.render.zoom * .18;
-    var fw = this.render.zoom * 9;
-
-    if(cx.id === "warp-systems"){
-
-      d3.select(this.svgEl)
-        .attr("width",this.selection.width)
-        .attr("height",base_dims.h)
-        .style('display', 'initial')
-        .style('left', left + div.offsetLeft)
-        .style('top', div.offsetTop);
-
-
-      d3.select(this.svgEl)
-        .select('text')
-        .attr('fill', '#424242')
-        .attr('font-weight', 900)
-        .attr('font-size', fs)
-        .attr('stroke', 'white')
-        .attr('stroke-width', 1)
-        .attr('x', x)
-        .attr('y', y)
-        .attr('text-anchor', anchor)
-        .text(cols);
-
-    }else if(cx.id === "weft-systems"){
-       d3.select(this.svgEl)
-        .attr("width", base_dims.w)
-        .attr("height",this.selection.height)
-        .style('display', 'initial')
-        .style('left', div.offsetLeft)
-        .style('top', top+ div.offsetTop);
-
-      // updates the text within the selection
-      d3.select(this.svgEl)
-        .select('text')
-        .attr('fill', '#424242')
-        .attr('font-weight', 900)
-        .attr('font-size', fs)
-        .attr('stroke', 'white')
-        .attr('stroke-width', 1)
-        .attr('x', x)
-        .attr('y', y)
-        .attr('text-anchor', anchor)
-        .text(rows);
-
-    }else{
-      // updates the size of the selection
-      d3.select(this.svgEl)
-        .attr("width", this.selection.width)
-        .attr("height",this.selection.height)
-        .style('display', 'initial')
-        .style('left', left + div.offsetLeft)
-        .style('top', top + div.offsetTop);
-
-      // updates the text within the selection
-      d3.select(this.svgEl)
-        .select('text')
-        .attr('fill', '#424242')
-        .attr('font-weight', 900)
-        .attr('font-size', fs)
-        .attr('stroke', 'white')
-        .attr('stroke-width', 1)
-        .attr('x', x)
-        .attr('y', y)
-        .attr('text-anchor', anchor)
-        .text(cols +' x '+ rows);
-
-    }
-
+     var base_dims = this.render.getCellDims("base");
+     this.redrawSelection(base_dims);
 
       
 
@@ -1241,6 +1144,7 @@ export class WeaveDirective {
   public functional() {
 
     var base_dims = this.render.getCellDims("base");
+    this.unsetSelection();
 
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
     // this.drawGrid();
@@ -1451,7 +1355,121 @@ export class WeaveDirective {
     }
   }
 
+ public redrawSelection(dims){
+  console.log("redraw selection", dims);
+ 
+ if(this.selection.start !== undefined){
+      
+      var left, top, x, y, anchor;
 
+
+
+      x = dims.w / 4;
+      y = dims.h;
+
+      anchor = 'start';
+
+      if (this.selection.start.j < this.selection.end.j) {
+          x = this.selection.width*dims.w -  dims.w/2;
+          anchor = 'end';
+       }
+
+       if (this.selection.start.y < this.selection.end.y) {
+         y = this.selection.height*dims.h -  dims.h/2;
+       }
+
+
+      // define the left and top offsets
+      left = Math.min(this.selection.start.j, this.selection.end.j);
+      top = Math.min(this.selection.start.i, this.selection.end.i);
+
+
+      var cx = this.selection.getTarget();
+      var div = cx.parentElement;
+      console.log(div.offsetTop, this.render.zoom);
+
+    //  var rows = Math.ceil(this.selection.height / dims.h);
+    //  var cols = Math.ceil(this.selection.width / dims.w);
+
+      var fs = this.render.zoom * .18;
+      var fw = this.render.zoom * 9;
+
+      if(cx.id === "warp-systems"){
+
+        d3.select(this.svgEl)
+          .attr("width",this.selection.width*dims.h)
+          .attr("height",dims.h)
+          .style('display', 'initial')
+          .style('left', left*dims.w + div.offsetLeft)
+          .style('top', div.offsetTop);
+
+
+        d3.select(this.svgEl)
+          .select('text')
+          .attr('fill', '#424242')
+          .attr('font-weight', 900)
+          .attr('font-size', fs)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1)
+          .attr('x', x)
+          .attr('y', y)
+          .attr('text-anchor', anchor)
+          .text(this.selection.width);
+
+      }else if(cx.id === "weft-systems"){
+         d3.select(this.svgEl)
+          .attr("width", dims.w)
+          .attr("height",this.selection.height*dims.w)
+          .style('display', 'initial')
+          .style('left', div.offsetLeft)
+          .style('top', top*dims.h+ div.offsetTop);
+
+        // updates the text within the selection
+        d3.select(this.svgEl)
+          .select('text')
+          .attr('fill', '#424242')
+          .attr('font-weight', 900)
+          .attr('font-size', fs)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1)
+          .attr('x', x)
+          .attr('y', y)
+          .attr('text-anchor', anchor)
+          .text(this.selection.height);
+
+      }else{
+        // updates the size of the selection
+        d3.select(this.svgEl)
+          .attr("width", this.selection.width*dims.w)
+          .attr("height",this.selection.height*dims.h)
+          .style('display', 'initial')
+          .style('left', left*dims.w + div.offsetLeft)
+          .style('top', top*dims.h + div.offsetTop);
+
+        // updates the text within the selection
+        d3.select(this.svgEl)
+          .select('text')
+          .attr('fill', '#424242')
+          .attr('font-weight', 900)
+          .attr('font-size', fs)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1)
+          .attr('x', x)
+          .attr('y', y)
+          .attr('text-anchor', anchor)
+          .text(this.selection.width +' x '+ this.selection.height);
+
+      }
+
+    }
+ }
+
+
+public unsetSelection(){
+  console.log("unset selection");
+ d3.select(this.svgEl).style('display', 'none');
+
+}
   
 
   /**
@@ -1460,15 +1478,21 @@ export class WeaveDirective {
    * @returns {void}
    */
   public redraw() {
+
     var i,j;
 
-    var base_dims = this.render.getCellDims("base");
+    console.log("in redraw", this.selection);
 
+    var base_dims = this.render.getCellDims("base");
+   
     this.cx.canvas.width = base_dims.w * this.weave.pattern[0].length;
     this.cx.canvas.height = base_dims.h * this.weave.pattern.length;
     this.drawGrid(this.cx,this.canvasEl);
     this.drawWeftSystems(this.cxWeftSystems, this.weftSystemsCanvas);
     this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);
+    this.redrawSelection(base_dims); // make sure to do this after the others are updated
+
+
 
     var color = '#000000';
     this.cx.fillStyle = color;
@@ -1492,9 +1516,11 @@ export class WeaveDirective {
    */
   public simulate() {
     var base_dims = this.render.getCellDims("base");
+    this.unsetSelection();
 
 
     console.log("simulate");
+
 
     var color = '#000000';
     var offset;
@@ -1663,7 +1689,7 @@ export class WeaveDirective {
     let link = obj.downloadLink.nativeElement;
     link.href = uri;
     link.download = fileName + ".ada";
-  }
+  } 
 
   // // History
   // private onAdd(segment: DraftSegment) {

@@ -93,15 +93,16 @@
         </div>
 
         <div class='warp-systems-text' [ngStyle]="styleWarpSystemsText(threading)">
-         <svg class="warp-systems-text">
+          
+            <svg class="warp-systems-text">
 
-          <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-            <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
-             [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
-          </g>
-           <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
-            style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
-        </svg>  
+            <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
+              <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
+               [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
+            </g>
+             <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
+              style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
+           </svg>  
       </div> 
 
 

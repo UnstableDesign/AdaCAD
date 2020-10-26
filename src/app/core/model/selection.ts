@@ -11,11 +11,12 @@ export class Selection {
   height: number;
   target: any;
 
+
   setParameters() {
-    this.width = Math.abs(this.start.x - this.end.x);
-    this.height = Math.abs(this.start.y - this.end.y);
- 
+    this.width = Math.abs(this.start.j - this.end.j);
+    this.height = Math.abs(this.start.i - this.end.i);
   }
+
 
   setTarget(t){
   	this.target = t;
