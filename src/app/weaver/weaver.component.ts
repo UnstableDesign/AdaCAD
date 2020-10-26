@@ -155,6 +155,7 @@ export class WeaverComponent implements OnInit {
     console.log("zoom in");
     this.render.zoomIn();
     this.redraw();
+    this.weaveRef.unsetSelection();
 
 
   }
@@ -164,6 +165,7 @@ export class WeaverComponent implements OnInit {
     console.log("zoom out");
     this.render.zoomOut();
     this.redraw();
+    this.weaveRef.unsetSelection();
 
 
   }
@@ -596,6 +598,8 @@ public getTransform(j){
   public renderChange(value: any){
      this.render.setZoom(value);
      this.redraw();
+     this.weaveRef.unsetSelection();
+
   }
 
 }

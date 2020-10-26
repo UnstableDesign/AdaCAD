@@ -443,7 +443,8 @@ export class WeaveDirective {
 
   /// PRIVATE FUNCTIONS
   /**
-   * Creates the copied pattern.
+   * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d arrray representing the 
+   * threading or treadling with "true" in the frame/threadle associated with that col/row. 
    * @extends WeaveDirective
    * @returns {void}
    */
@@ -554,20 +555,6 @@ export class WeaveDirective {
       }
 
 
-      // var fontsize = 12;
-      // var interval = this.render.getTextInterval(0);
-      // cx.fillStyle = "white";
-      // cx.font =fontsize+"px Arial";
-
-      // cx.fillText(0, dims.w, margin+top);
-
-      // for(var i:number = interval; i < this.weave.wefts; i+= interval){
-      //   cx.fillText(i, dims.w, dims.h*i+margin+top);
-      // }
-
-      // cx.fillText(this.weave.wefts, dims.w, dims.h*this.weave.wefts+top);
-
-
   }
 
   private drawWarpSelectorCell(cx, j){
@@ -595,21 +582,7 @@ export class WeaveDirective {
 
     for(var j = 0; j < this.weave.warps; j++){
       this.drawWarpSelectorCell(cx, j);
-    }
-
-      // var fontsize = 12;
-      // var interval = this.render.getTextInterval(0);
-      // cx.fillStyle = "white";
-      // cx.font =fontsize+"px Arial";
-
-      // cx.fillText(0, left-margin, dims.h);
-
-      // for(var i = interval; i < this.weave.warps; i+= interval){
-      //   cx.fillText(i, left+dims.w*i-margin, dims.h);
-      // }
-
-      // cx.fillText(this.weave.warps, left+dims.w*this.weave.warps, dims.h);
-      
+    } 
 
   }
 
@@ -627,7 +600,7 @@ export class WeaveDirective {
     cx.fillStyle = "white";
     cx.fillRect(0,0,canvas.width,canvas.height);
     cx.lineWidth = 2;
-    cx.lineCap = 'round';
+    //cx.lineCap = 'round';
     cx.strokeStyle = '#000';
 
     //only draw the lines if the zoom is big enough to render them well
