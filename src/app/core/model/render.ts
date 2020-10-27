@@ -59,8 +59,14 @@ export class Render {
   getTextInterval(){
     if(this.zoom > 90) return 1;
     if(this.zoom > 85) return 2;
-    if(this.zoom > 75) return 5; 
+    if(this.zoom > 80) return 4;
+    if(this.zoom > 75) return 5;
+    if(this.zoom > 60) return 8; 
     if(this.zoom > 50) return 10;
+    if(this.zoom > 45) return 12;
+    if(this.zoom > 40) return 15;
+    if(this.zoom > 35) return 20;
+    if(this.zoom > 30) return 30; 
     if(this.zoom > 25) return 50; 
     return 100;
   }

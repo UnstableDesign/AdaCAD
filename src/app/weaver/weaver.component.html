@@ -25,10 +25,7 @@
         (onMask)="onMask($event);" 
         (onPaste)="onPaste($event);"
         (onConnectionCreate)="openConnectionDialog();"
-        (onLabelCreate)="openLabelDialog()"></app-design> 
-      </mat-tab>
-      <mat-tab label="Materials">
-        <app-shuttles *ngIf="selected === 1" 
+        (onLabelCreate)="openLabelDialog()"
         [shuttles]="draft?.shuttles" 
         [warp_systems]="draft?.warp_systems" 
         [warps]="draft?.warps" 
@@ -41,12 +38,11 @@
         (onShowShuttle)="showShuttle($event);"
         (onWarpNumChange) = "warpNumChange($event)"
         (onEpiNumChange) = "epiChange($event)">
-          
-        </app-shuttles> 
-
+    
+        </app-design> 
       </mat-tab>
       <mat-tab label="Patterns">
-        <app-patterns *ngIf="selected === 2" [patterns]="draft?.patterns"
+        <app-patterns *ngIf="selected === 1" [patterns]="draft?.patterns"
         (onChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"
         (onRemovePattern)="removePattern($event);"></app-patterns>  

@@ -4,7 +4,7 @@
     <h3>Interlacement Tools</h3>
     <div class="buttons">
       <button matTooltip="draw in filled cells to draft" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Draw
-</button>
+      </button>
 
       <button matTooltip="erase filled cells to draft" name="erase" class="button is-primary brush" [class.is-active]="brush === 'erase'" (click)="brushChange($event)">Erase</button>
 
@@ -93,12 +93,148 @@
   <mat-divider></mat-divider>
   </section>
 
-  <!--Hidden for Deploy -->
-  <section *ngIf="view === 'visual'" class="section-container">
-    <h3>Render options</h3>
-    <div class="buttons">
+
+<mat-expansion-panel >
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Weft Systems
+    </mat-panel-title>
+    <mat-panel-description>
+    
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+
+<button mat-raised-button class="is-fullwidth" (click)="openDialog('weft', null)">
+  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
+  Create Weft System
+</button>
+<mat-list>
+  <ng-container *ngFor="let shuttle of shuttles">
+  <mat-list-item (click)="selected = shuttle.id;" class="level" [class.selected]="selected === shuttle.id" [disableRipple]="false">
+    <div class="level-item">
+      <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
+        <i aria-label="Favorite button" class="fas" [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
+      </button>
+
+
+
+      <input class="colorpicker shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
+       [cpPosition]="'bottom'"
+       [style.background]="shuttle.color"/>
+
+      <!-- <input class="thickness shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
+       [cpPosition]="'bottom'"
+       [style.background]="shuttle.color"/> -->
+
+     </div>
+     <div class="level-item center-item fill-remaining-space">
+      <span class="">{{ shuttle.name }}</span>
     </div>
-  <mat-divider></mat-divider>
-  </section>
+    <div class="level-item level-right">
+      <button mat-icon-button class="edit-button" (click)="openDialog('weft', shuttle)">
+        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+      </button>
+
+<!--       <button mat-icon-button class="trash-button">
+        <i aria-label="Favorite button" class="fas fa-trash"></i>
+      </button> -->
+    </div>
+  </mat-list-item>  
+  </ng-container>
+</mat-list>
+</mat-expansion-panel>
+
+
+
+<mat-expansion-panel >
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Warp Systems
+    </mat-panel-title>
+    <mat-panel-description>
+    
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+
+<button mat-raised-button class="is-fullwidth" (click)="openDialog('warp', null)">
+  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
+  Create Warp System
+</button>
+<mat-list>
+  <ng-container *ngFor="let warp_system of warp_systems">
+  <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
+    <div class="level-item">
+
+      <input class="colorpicker shuttle-cp" [(colorPicker)]="warp_system.color" (colorPickerChange)="colorChange($event)"
+       [cpPosition]="'bottom'"
+       [style.background]="warp_system.color"/>
+
+      <!-- <input class="thickness shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
+       [cpPosition]="'bottom'"
+       [style.background]="shuttle.color"/> -->
+
+     </div>
+     <div class="level-item center-item fill-remaining-space">
+      <span class="">{{ warp_system.name }}</span>
+    </div>
+    <div class="level-item level-right">
+      <button mat-icon-button class="edit-button" (click)="openDialog('warp', warp_system)">
+        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+      </button>
+
+<!--       <button mat-icon-button class="trash-button">
+        <i aria-label="Favorite button" class="fas fa-trash"></i>
+      </button> -->
+    </div>
+  </mat-list-item>  
+  </ng-container>
+</mat-list>
+</mat-expansion-panel>
+
+
+
+<mat-expansion-panel >
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Loom Settings
+    </mat-panel-title>
+    <mat-panel-description>
+    
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+
+ <form #envt="ngForm" novalidate>
+      <mat-form-field>
+
+        <input matInput name="warps" 
+        [readonly]="warp_locked" 
+        [(ngModel)]="warps" 
+        type="number" 
+        min="2" 
+        placeholder="Warps" 
+        (change)="warpChange(envt)"> 
+         <button mat-icon-button>
+        <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput  
+        name="epi" 
+        [(ngModel)]="epi" 
+        type="number" 
+        min= "0" 
+        placeholder="Ends Per Inch" 
+        (change)="epiChange(envt)">  
+        <span matSuffix>epi</span>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput name="width" [(ngModel)]="width" step="0.125" type="number" min= "0.25" max ="60" placeholder="Width" (change)="widthChange(envt)"> 
+         <span matSuffix>inches</span> 
+       </mat-form-field>
+
+</form>
+</mat-expansion-panel>
   
 </div>
