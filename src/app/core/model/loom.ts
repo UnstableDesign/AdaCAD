@@ -469,35 +469,40 @@ updating the frame size. It also needs to update the tie up
         console.log(frame_status);
         //compress the frames so they are in continuous rows
         var unused = -1;
+        
         for(var i = 0; i < frame_status.length; i++){
-          if(frame_status[i] === 0) unused = i;
-          else{
-            if(unused !== -1){
+         
+          if(frame_status[i] === 0 && unused === -1){
+             unused = i;
+          }else if(frame_status[i] !== 0 && unused === -1){
+             unused = -1;
+          }else if(frame_status[i] === 0 && unused !== -1){
+            //do nothing
+          }else{
+            //if frame status isn't zero and unusued isn't zero, swap rows
+              
               condensed = true;
 
-              //update threading
+              //update threading down a row
               for(var j = 0; j < this.threading.length; j++){
-                if(this.threading[j] == i){ 
+                if(this.threading[j] === i){ 
                   this.threading[j] = unused;
                 };
               }
 
               //update tieups
-              for(var i = 0; i < this.tieup.length; i++){
+              for(var j = 0; j < this.tieup[0].length; j++){
                   this.tieup[unused][j] = this.tieup[i][j];
               }
 
-              frame_status[unused] = 1;
-              frame_status[i] = 0
+              frame_status[unused] = frame_status[i];
+              frame_status[i] = 0;
               unused = i;
 
-
-
-            }
           }
+          
         }
-        console.log(frame_status);
-        console.log("unusued", unused);
+
 
         //if there were no unusued frames, go back
          if(unused === -1 || !condensed) return false;
@@ -511,8 +516,6 @@ updating the frame size. It also needs to update the tie up
               }
           }
 
-        console.log("threading", this.threading);
-        console.log("num frames", this.num_frames);
         
 
         return true;
@@ -523,30 +526,7 @@ This is broken because it needs to delete the affected drawdown cells before
 updating the treadling size. It also needs to update the tie up
 */
     updateUnusedTreadles(){
-      return false;
-        // var removed = [];
-        
-        // //don't remove anything if we are at or under the minimum frame number
-        // if(this.num_treadles <= this.min_treadles) return false;
-
-
-        // for(var j = 0; j < this.num_treadles; j++){
-        //   if(countOccurrences(this.treadling, j) == 0){
-        //     removed.push(j);
-        //   }
-        // }
-
-        // if(removed.length == 0) return false;
-
-
-        // for(var j = 0; j < removed.length; j++){
-        //     //reset the frame ids in the threading list (in case this is in the middle)
-        //     for(var i = 0; i < this.treadling.length; i++){
-        //       if(this.treadling[i] > removed[j]) this.threading[i]--;    
-        //     }
-        // }
-
-        // return true;
+       return false;
 
     }
 
