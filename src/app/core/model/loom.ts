@@ -289,7 +289,9 @@ and returns an associated value for threading frames and treadles
         }
       }
 
-      if(this.updateUnusedFrames()) return [{reset: true}];
+      var u_threading = this.updateUnused(this.threading, this.min_frames, this.num_frames, "threading");
+      var u_treadling = this.updateUnused(this.treadling, this.min_treadles, this.num_treadles, "treadling");
+      if(u_threading || u_treadling) return [{reset: true}];
       return updates;
 
     }
@@ -425,7 +427,7 @@ and returns an associated value for threading frames and treadles
       else this.threading[j] = -1;
 
 
-      if(this.updateUnusedFrames()) return [{reset: true}]
+      if(this.updateUnused(this.threading, this.min_frames, this.num_frames, "threading")) return [{reset: true}]
       
       return updates;
     }
@@ -441,94 +443,112 @@ and returns an associated value for threading frames and treadles
       if(val) this.treadling[i] = j;
       else this.treadling[i] = -1;
 
-      if(this.updateUnusedTreadles()) return [{reset: true}]
+
+      if(this.updateUnused(this.treadling, this.min_treadles, this.num_treadles, "treadling")) return [{reset: true}]
 
       return updates;
     }
 
 
-    
-
-
-
-/*
-This is broken because it needs to delete the affected drawdown cells before 
-updating the frame size. It also needs to update the tie up
-*/
-    updateUnusedFrames(){
-        console.log("update unusued frames");
-
-        var frame_status = [];
-        var condensed = false;
-
-        //first check if the frames are being used or not
-        for(var i = 0; i < this.num_frames; i++){
-          frame_status[i] = countOccurrences(this.threading, i);
+    clearTieupCol(i){
+       for(var j = 0; j < this.tieup.length; j++){
+            this.tieup[j][i] = false;
         }
-
-        console.log(frame_status);
-        //compress the frames so they are in continuous rows
-        var unused = -1;
-        
-        for(var i = 0; i < frame_status.length; i++){
-         
-          if(frame_status[i] === 0 && unused === -1){
-             unused = i;
-          }else if(frame_status[i] !== 0 && unused === -1){
-             unused = -1;
-          }else if(frame_status[i] === 0 && unused !== -1){
-            //do nothing
-          }else{
-            //if frame status isn't zero and unusued isn't zero, swap rows
-              
-              condensed = true;
-
-              //update threading down a row
-              for(var j = 0; j < this.threading.length; j++){
-                if(this.threading[j] === i){ 
-                  this.threading[j] = unused;
-                };
-              }
-
-              //update tieups
-              for(var j = 0; j < this.tieup[0].length; j++){
-                  this.tieup[unused][j] = this.tieup[i][j];
-              }
-
-              frame_status[unused] = frame_status[i];
-              frame_status[i] = 0;
-              unused = i;
-
-          }
-          
-        }
-
-
-        //if there were no unusued frames, go back
-         if(unused === -1 || !condensed) return false;
-
-         //unusued will be the frame id of the last unused frame
-         //an unusued frame was found
-          for(var i = unused; i > (this.min_frames-1); i--){
-              if(frame_status[i] === 0){ 
-                this.num_frames--;
-                this.tieup.splice(i, 1);
-              }
-          }
-
-        
-
-        return true;
     }
+
+      clearTieupRow(i){
+       for(var j = 0; j < this.tieup[0].length; j++){
+            this.tieup[i][j] = false;
+       }
+    }
+  
 
 /*
 This is broken because it needs to delete the affected drawdown cells before 
 updating the treadling size. It also needs to update the tie up
 */
-    updateUnusedTreadles(){
-       return false;
+    updateUnused(struct:Array<number>, min:number, num:number, type:string){
+        console.log("update unusued", type);
 
-    }
+        var status = [];
+        var condensed = false;
 
+        //first check if the frames are being used or not
+        for(var i = 0; i < num; i++){
+          status[i] = countOccurrences(struct, i);
+        }
+        
+
+
+        //compress the frames so they are in continuous rows
+        var unused = -1;
+        
+        for(var i = 0; i < status.length; i++){
+          if(status[i] === 0 && unused === -1){
+             unused = i;
+             if(type === "threading") this.clearTieupRow(i);
+             else this.clearTieupCol(i);
+          }else if(status[i] !== 0 && unused === -1){
+             unused = -1;
+          }else if(status[i] === 0 && unused !== -1){
+             if(type === "threading") this.clearTieupRow(i);
+             else this.clearTieupCol(i);
+          }else{
+            //if frame/treadle status isn't zero and unusued isn't zero, swap rows
+              condensed = true;
+
+              //go through the structure and adjust
+              for(var j = 0; j < struct.length; j++){
+                if(struct[j] === i){ 
+                  struct[j] = unused;
+                };
+              }
+
+              if(type === "threading"){
+                //update tieups rows
+                for(var j = 0; j < this.tieup[0].length; j++){
+                    this.tieup[unused][j] = this.tieup[i][j];
+                    this.tieup[i][j] = false;
+                }
+
+
+              }else{
+                for(var j = 0; j < this.tieup.length; j++){
+                    this.tieup[j][unused] = this.tieup[j][i];
+                    this.tieup[j][i] = false;
+                }
+              }
+
+              ///struct[unused] = status[i];
+              status[i] = 0
+              unused = i;
+
+          }
+          
+        }
+      
+
+
+            //if there were no unusued frames, go back
+            if(unused === -1 || !condensed) return false;
+
+           //unusued will be the frame id of the last unused frame
+            for(var i = unused; i > (min-1); i--){
+                if(status[i] === 0){ 
+                  if(type ==="threading"){
+                    this.num_frames--;
+                    this.tieup.splice(i, 1);
+
+                  } else{
+                    this.num_treadles--;
+                    for(var j = 0; j < this.tieup.length; j++){
+                      this.tieup[j].splice(i, 1);
+                    }
+                  }
+                }
+            }
+
+          return true;
+      }
 
 }//end class
