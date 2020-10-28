@@ -163,9 +163,6 @@ export class WeaveDirective {
    *
    */
   ngOnInit() {  
-
-
-
     console.log("element", this.el.nativeElement.children[3]);
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
@@ -536,6 +533,7 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawOnThreading( currentPos: Point ) {
+    console.log("this.weave.loom:", this.weave.loom);
     if (!this.cxThreading || !currentPos) { return; }
 
     if (this.weave.loom.inThreadingRange(currentPos.i, currentPos.j)){
@@ -956,7 +954,6 @@ export class WeaveDirective {
 
   //called on resize
   public redrawLoom() {
-
     var base_dims = this.render.getCellDims("base");
 
     this.cxThreading.canvas.width = base_dims.w * this.weave.loom.threading.length;
@@ -978,6 +975,11 @@ export class WeaveDirective {
     this.cxThreading.fillStyle = '#FF0000';
     this.cxTreadling.fillStyle = '#00FF00';
     this.cxTieups.fillStyle = '#0000FF';
+
+    console.log("this.weave.loom in weave.directive.ts", this.weave.loom);
+    console.log("this.weave.loom.threading.length:", this.weave.loom.threading.length);
+    console.log("this.weave.loom.treadling.length", this.weave.loom.treadling.length);
+    console.log("this.weave.loom.tieup.length",this.weave.loom.tieup.length);
 
     for (var j = 0; j < this.weave.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading", true);
@@ -1016,7 +1018,7 @@ export class WeaveDirective {
 
     var color = '#000000';
     this.cx.fillStyle = color;
-    
+    console.log("this.weave.visibleRows:", this.weave.visibleRows);
       for (i = 0; i < this.weave.visibleRows.length; i++) {
         var row = this.weave.visibleRows[i];
         this.redrawRow(i * base_dims.h, i, this.cx);
@@ -1209,6 +1211,15 @@ export class WeaveDirective {
     link.download = fileName + ".ada";
   }
 
+  /**
+   * Saves the draft as a .wif file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   */
+  public saveWIF(fileName, obj) {
+
+  }
   // // History
   // private onAdd(segment: DraftSegment) {
   //   this.store.dispatch(new AddAction(segment));

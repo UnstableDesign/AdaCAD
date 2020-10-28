@@ -56,6 +56,8 @@ export class Draft implements DraftInterface {
   constructor({...params}) {
     console.log("Draft Constructor", params);
 
+    console.log("params in draft constructor:", params);
+
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 20 : params.warps;
     this.epi = (params.warps === undefined) ? 10 : params.epi;
@@ -96,13 +98,13 @@ export class Draft implements DraftInterface {
 
     if(params.rowShuttleMapping === undefined){
       this.rowShuttleMapping = [];
-    for(var ii = 0; ii < this.wefts; ii++) {
+      for(var ii = 0; ii < this.wefts; ii++) {
           this.rowShuttleMapping.push(0);
           this.visibleRows.push(ii);
-        }
-      }else{
-        this.rowShuttleMapping = params.rowShuttleMapping;
       }
+    }else{
+        this.rowShuttleMapping = params.rowShuttleMapping;
+    }
 
     if(params.colShuttleMapping === undefined){
       this. colShuttleMapping = [];
@@ -136,14 +138,17 @@ export class Draft implements DraftInterface {
       this.pattern = params.pattern;
     } 
 
-    //Creating the Threading, Treadling, and TieUps objects
-    // this.threading = new Threading(this.wefts, this.warps);
-    // this.treadling = new Treadling(this.wefts, this.pattern);
-    this.loom = new Loom(this.wefts, this.warps, 8, 10);
-    // this.threading = new Threading(8, this.warps);
-    // this.treadling = new Treadling(this.wefts, this.pattern);
-    // this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
-
+    if(params.loom === undefined) {
+      //Creating the Threading, Treadling, and TieUps objects
+      // this.threading = new Threading(this.wefts, this.warps);
+      // this.treadling = new Treadling(this.wefts, this.pattern);
+      this.loom = new Loom(this.wefts, this.warps, 8, 10);
+      // this.threading = new Threading(8, this.warps);
+      // this.treadling = new Treadling(this.wefts, this.pattern);
+      // this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
+    } else {
+      this.loom = params.loom;
+    }
     console.log(this);
 
   }
@@ -472,4 +477,27 @@ export class Draft implements DraftInterface {
       return idxs;
   }
 
+  
+/***
+   * recalculates all of drawdown from tieup, treadling, and threading.
+   * @param i: the tieups array, j: the treadling array, the threading array
+   * @returns (nothing) in the future - this can return the specific points to update on the draft
+   */  
+  recalculateDraft(tieup, treadling, threading) {
+    for (var i = 0; i < treadling.length;i++) {
+      var active_treadle = treadling[i];
+      if (active_treadle != -1) {
+        for (var j = 0; j < tieup.length; j++) {
+          if (tieup[j][active_treadle]) {
+            for (var k = 0; k < threading.length;k++) {
+              if (threading[k] == j) {
+                this.pattern[i][k] =true;
+              }
+            }
+          }
+        }
+      }
+    }
+    console.log("finsihed recalculating draft fthis.pattern:",this.pattern);
+  }
 }

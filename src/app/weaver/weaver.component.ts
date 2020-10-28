@@ -104,8 +104,11 @@ export class WeaverComponent implements OnInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
+      console.log("result in weaver.component constructor:", result);
       this.draft = new Draft(result);
-      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns; 
+      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
+      console.log("this.draft.loom:", this.draft.loom);
+      this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
    });
 
   }
@@ -124,8 +127,12 @@ export class WeaverComponent implements OnInit {
       this.redoItem = redoItem;
     });
     
-    
   }
+
+  // ngAfterViewInit() {
+  //   this.weaveRef.redraw();
+  //   this.weaveRef.redrawLoom();
+  // }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
