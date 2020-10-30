@@ -294,7 +294,7 @@ export class WeaverComponent implements OnInit {
   public onMask(e) {
     console.log(e);
     var p = this.draft.patterns[e.id].pattern;
-    this.weaveRef.fillArea(this.weaveRef.selection, p, 'mask');
+    this.weaveRef.maskArea(p);
   }
 
   /**

@@ -1014,6 +1014,48 @@ export class WeaveDirective {
 
   }
 
+
+
+  /**
+   * Fills in the Mask area of canvas.
+   * @extends WeaveDirective
+   * @param {Selection} selection - defined user selected area to fill.
+   * @param {Array<Array<boolean>>} - the pattern used to fill the area.
+   * @param {string} - the type of logic used to fill selected area.
+   * @returns {void}
+   */
+
+   
+  private maskArea(pattern: Array<Array<boolean>>) {
+
+    var dims = this.render.getCellDims("base");
+    var updates = [];
+
+    const rows = pattern.length;
+    const cols = pattern[0].length;
+
+
+    for (var i = 0; i < rows; i++ ) {
+      for (var j = 0; j < cols; j++ ) {
+        var row = this.weave.visibleRows[i + si];
+        var col = j + sj;
+        var temp = pattern[i % rows][j % cols];
+        var prev = this.weave.mask[row][col];
+        var val = temp && prev;
+
+        var p = new Point(); 
+        p.x = (j)*dims.w;
+        p.y = (i)*dims.h;
+        p.i = row;
+        p.j = col;
+        this.drawOnDrawdown(p, val);
+      }
+    }
+
+    this.redraw();
+
+  }
+
   private undoRedoSegment() {
 
     // console.log(this.prevSegment);
