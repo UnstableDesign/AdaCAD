@@ -93,6 +93,38 @@
   <mat-divider></mat-divider>
   </section>
 
+  <section *ngIf="view === 'pattern'" class="section-container">
+    <h3>Mask Tools</h3>
+    <div class="buttons">
+      <button matTooltip="add cells to mask" name="maskpoint" class="button is-primary brush" [class.is-active]="brush === 'maskpoint'" (click)="brushChange($event)">Draw on Mask
+      </button>
+
+      <button matTooltip="erase cells on mask" name="maskerase" class="button is-primary brush" [class.is-active]="brush === 'maskerase'" (click)="brushChange($event)">Erase Mask</button>
+
+       <button matTooltip="invert the state of one cell" name="maskinvert" class="button is-primary brush  " [class.is-active]="brush === 'maskinvert'" (click)="brushChange($event)">Invert Mask</button>
+    
+      <div class="dropdown is-hoverable">
+        <div class="dropdown-trigger">
+          <button id="mask" class="button is-primary codehilite  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu">
+            <span class="brush-type">Fill Mask</span>
+            <span class="icon is-small">
+              <i class="fas fa-angle-down" aria-hidden="true"></i>
+            </span>
+          </button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-menu" role="menu" >
+          <div class="dropdown-content">
+            <ng-container *ngFor="let pat of favorites">
+            <a id="{{pat.id}}" name="fill" (click)="maskEvent($event, pat.id)" class="dropdown-item brush">{{ pat.name }}</a>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <mat-divider></mat-divider>
+  </section>
+
   <!--Hidden for Deploy -->
   <section *ngIf="view === 'visual'" class="section-container">
     <h3>Render options</h3>
