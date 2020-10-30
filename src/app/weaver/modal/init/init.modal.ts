@@ -112,6 +112,15 @@ export class InitModal implements OnInit {
       this.draft.loom.tieup = tieups;
 
     }
+    if (this.getBool("COLOR TABLE",e)) {
+      if (this.getString("Form", e) === "RGB") {
+        console.log("color form is RGB");
+        //thinking that I will add shuttles to the draft object that correspond to the correct colors
+        //will need to adjust the shuttles col and row mapping according to which weft and warp threads
+      } else {
+        //TODO: Look into whether or not other color forms are used in WIFs
+      }
+    }
   }
 
   onNoClick(): void {
@@ -160,6 +169,22 @@ export class InitModal implements OnInit {
       }
     } else {
       return false;
+    }
+  }
+
+  getString(val, e) {
+    var index = e.search(val);
+    if (index != -1) {
+      var substring = e.substring(index, e.length);
+      var endOfLineChar = '\n';
+      var endIndex = substring.indexOf(endOfLineChar);
+      if (endIndex != -1) {
+        return substring.substring(val.length+1, endIndex);
+      } else {
+        return "";
+      }
+    } else {
+      return "";
     }
   }
 
@@ -257,7 +282,22 @@ export class InitModal implements OnInit {
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
     }
+    var color = "=220,20,60";
 
+    var colorR = color.match(/=[0-9]*/);
+    var colorsGB = color.match(/,[0-9]*/g);
+  
+    var colorRNum = +(colorR[0].substring(1,));
+    var colorGNum = +(colorsGB[0].substring(1,));
+    var colorBNum = +(colorsGB[1].substring(1,));
+
+    var hex = "0x";
+    hex += colorRNum.toString(16);
+    hex += colorGNum.toString(16);
+    hex += colorBNum.toString(16);
+
+
+      
     return tieups;
   }
 }

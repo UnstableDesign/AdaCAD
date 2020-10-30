@@ -49,6 +49,20 @@ export class Shuttle {
     this.color = color;
   }
 
+  setColorFromRGB(color: string) {
+    var colorR = color.match(/\([0-9]*/);
+    var colorG = color.match(/,[0-9]*/);
+    var colorB = color.match(/,[0-9]*\)/);
+
+    var colorRNum = +(colorR[0].substring(1,));
+    var colorGNum = +(colorG[0].substring(1,));
+    var colorBNum = +(colorB[0].substring(1, colorB.length-2));
+
+    console.log("colorRNum", colorRNum);
+    console.log("colorGNum", colorGNum);
+    console.log("colorBNum", colorBNum);
+  }
+
   setThickness(n: number) {
     this.thickness = n;
   }

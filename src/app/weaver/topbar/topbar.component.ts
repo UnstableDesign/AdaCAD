@@ -22,9 +22,11 @@ export class TopbarComponent implements OnInit {
 
   @ViewChild('bmpLink', {static: true}) bmpLink: any;
   @ViewChild('adaLink', {static: true}) adaLink: any;
+  @ViewChild('wifLink', {static: true}) wifLink: any;
 
   downloadBmp: ElementRef;
   downloadAda: ElementRef;
+  downloadWif: ElementRef;
 
 
   constructor(private dialog: MatDialog) { }
@@ -33,6 +35,7 @@ export class TopbarComponent implements OnInit {
   ngOnInit() {
     this.downloadBmp = this.bmpLink._elementRef;
     this.downloadAda = this.adaLink._elementRef;
+    this.downloadWif = this.wifLink._elementRef;
   }
 
   public saveAsBmp(e: any) {
@@ -48,6 +51,15 @@ export class TopbarComponent implements OnInit {
     var obj: any = {
       downloadLink: this.downloadAda,
       type: "ada"
+    }
+    console.log(obj);
+    this.onSave.emit(obj);
+  }
+
+  public saveAsWif(e: any) {
+    var obj: any = {
+      downloadLink: this.downloadWif,
+      type: "wif"
     }
     console.log(obj);
     this.onSave.emit(obj);

@@ -191,8 +191,6 @@ and returns an associated value for threading frames and treadles
    */   
       
     updateConfig(config){
-      console.log("config:", config);
-
       var updates = {
         threading: [],
         treadling: [],

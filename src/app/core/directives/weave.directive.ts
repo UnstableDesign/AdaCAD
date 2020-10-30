@@ -1187,6 +1187,8 @@ export class WeaveDirective {
 
     let link = obj.downloadLink.nativeElement;
 
+    console.log("link", link);
+
     link.href = CanvasToBMP.toDataURL(b);
     link.download = fileName + ".bmp";
   }
@@ -1218,7 +1220,15 @@ export class WeaveDirective {
    * @returns {void}
    */
   public saveWIF(fileName, obj) {
+    //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
+    var fileContents = "testing";
+    var fileType = "text/plain";
 
+    let link = obj.downloadLink.nativeElement;
+    link.href= "data:" + fileType +";base64," + btoa(fileContents);
+
+    console.log("link:", link);
+    link.download = fileName +".wif";
   }
   // // History
   // private onAdd(segment: DraftSegment) {

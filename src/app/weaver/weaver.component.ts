@@ -292,6 +292,7 @@ export class WeaverComponent implements OnInit {
     e.bitmap = this.bitmap;
     if (e.type === "bmp") this.weaveRef.saveBMP("weave_draft", e);
     else if (e.type === "ada") this.weaveRef.saveADA("weave_draft", e);
+    else if (e.type === "wif") this.weaveRef.saveWIF("weave_draft", e);
     
   }
 
