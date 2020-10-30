@@ -38,7 +38,7 @@ export class UploadFormComponent implements OnInit {
     p.subscribe((e) => {
       var progress = this.currentUpload.progress;
       if (progress && progress === 100) {
-        if (fileType != "ada") {
+        if (fileType != "ada" && fileType!= "wif") {
           this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
             var image = new Image();
             image.src = url;
@@ -80,6 +80,17 @@ export class UploadFormComponent implements OnInit {
               var obj = {
                 data: data,
                 type: 'ada',
+              }
+              this.onData.emit(obj);
+            });
+          });
+        }
+        else if (fileType === "wif") {
+          this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
+            this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
+             var obj = {
+                data: data,
+                type: 'wif',
               }
               this.onData.emit(obj);
             });

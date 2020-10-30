@@ -192,7 +192,7 @@ and returns an associated value for threading frames and treadles
    */   
       
     updateConfig(config){
-
+      console.log("config:", config);
 
       var updates = {
         threading: [],
@@ -313,7 +313,7 @@ and returns an associated value for threading frames and treadles
     
 
 
-          //get any treadles that are connected to this frame in teh tieup
+          //get any treadles that are connected to this frame in the tieup
           for(var j = 0; j < this.num_treadles; j++){
             if(this.tieup[obj.frame][j]){
               active_tieup_cols.push(j);
