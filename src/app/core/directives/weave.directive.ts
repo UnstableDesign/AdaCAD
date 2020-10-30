@@ -305,6 +305,11 @@ export class WeaveDirective {
             this.drawOnDrawdown(currentPos, null);
           }
           break;
+        case 'invertmask':
+        case 'pointmask':
+        case'erasemask':
+          this.drawOnMask(currentPos, null);
+          break;
         case 'select':
 
           this.selection.start = currentPos;
@@ -690,7 +695,36 @@ export class WeaveDirective {
 
   }
 
+ /**
+   * Draws or erases a single rectangle on the mask. 
+   * @extends WeaveDirective
+   * @param {Point} currentPos - the current position of the mouse within draft.
+   * @returns {void}
+   */
+  private drawOnMask( currentPos: Point ) {
 
+    var updates;
+
+    if (!this.cx || !currentPos) { return; }
+
+    // Set the heddles based on the brush.
+    switch (this.brush) {
+      case 'pointmask':
+        val = true;
+        break;
+      case 'erasemask':
+        val = false;
+        break;
+      case 'invertmask':
+         val = !this.weave.isMask(currentPos.i,currentPos.j);
+        break;        
+      default:
+        break;
+    }
+
+    this.weave.setMask(currentPos.i,currentPos.j,val);
+    this.drawCell(this.cx,currentPos.i, currentPos.j, "mask", null);
+  }
 
   /**
    * Draws or erases a single rectangle on the canvas. Updates the weave draft.
@@ -1025,7 +1059,7 @@ export class WeaveDirective {
    * @returns {void}
    */
 
-   
+
   private maskArea(pattern: Array<Array<boolean>>) {
 
     var dims = this.render.getCellDims("base");
@@ -1086,32 +1120,47 @@ export class WeaveDirective {
     // this.brush = oldBrush;
   }
 
+ //draw cell should only update from state - not from other events? 
   private drawCell(cx, i, j, type, val){
 
     var base_dims = this.render.getCellDims("base");
     var base_fill = this.render.getCellDims("base_fill");
-    var color = "#333333";
+    var has_mask = false;
+    var is_up = false;
+    var color = "#FFFFFF";
 
-    if(type =="drawdown"){
-       color = this.weave.getColor(i);
-       if (this.weave.isUp(i, j)) cx.fillStyle = color;
-       else cx.fillStyle = "#FFFFFF";
-    
-    }else if(type=="threading"){
-       if(val) cx.fillStyle = this.weave.getColorCol(j);
-       else cx.fillStyle = "#FFFFFF"; 
 
-    }else if(type=="treadling"){
-      if(val) cx.fillStyle = this.weave.getColor(i);
-      else cx.fillStyle = "#FFFFFF"; 
-    }else if(type =="tieup"){
-      if(val) cx.fillStyle = "#333333";
-      else cx.fillStyle = "#FFFFFF"; 
+    switch(type){
+      case 'drawdown':
+      case 'mask':
+        is_up = this.weave.isUp(i,j);
+        has_mask = this.weave.isMask(i,j);
+        if(is_up) color = this.weave.getColor(i);
+        else if(has_mask) color = "#CCCCCC";
+      break;
+      case 'threading':
+        is_up = (this.weave.loom.threading[j] == i);
+        has_mask = false;
+        if(is_up) color = "#333333";
+
+      break;
+      case 'tieup':
+        is_up = (this.weave.loom.tieup[i][j]);
+        has_mask = false;
+        if(is_up) color = "#333333";
+
+      break;
+      case 'treadling':
+        is_up = (this.weave.loom.treadling[i] == j);
+        has_mask = false;
+        if(is_up) color = "#333333";
+
+      break;
+
     }
-
+    cx.fillStyle = color;
     cx.fillRect(j*base_dims.w + base_fill.x, i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
-
-
+   
   }
 
   /**
@@ -1121,10 +1170,8 @@ export class WeaveDirective {
    */
   private redrawRow(y, i, cx) {
  
-    // draw row
-
     for (var j = 0; j < this.weave.warps; j++) {
-      this.drawCell(this.cx, i, j, "drawdown", null);
+      this.drawCell(this.cx, i, j, "drawdown", null) 
     }
   }
 
