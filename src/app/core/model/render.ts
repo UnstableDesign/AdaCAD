@@ -4,6 +4,8 @@
  */
 export class Render {
 
+  view_frames: boolean;
+
   zoom: number;
 
   base_cell: {
@@ -24,6 +26,7 @@ export class Render {
 
     //max values
     this.zoom = 100;
+    this.view_frames = true;
 
 
     this.base_cell = {
@@ -52,6 +55,22 @@ export class Render {
 
   }
 
+
+  getTextInterval(){
+    if(this.zoom > 90) return 1;
+    if(this.zoom > 85) return 2;
+    if(this.zoom > 80) return 4;
+    if(this.zoom > 75) return 5;
+    if(this.zoom > 60) return 8; 
+    if(this.zoom > 50) return 10;
+    if(this.zoom > 45) return 12;
+    if(this.zoom > 40) return 15;
+    if(this.zoom > 35) return 20;
+    if(this.zoom > 30) return 30; 
+    if(this.zoom > 25) return 50; 
+    return 100;
+  }
+
   getCellDims(type: string){
     // console.log("get cell dims", type);
     var x = this.interpolate(this.getOffset(type+"_x"));
@@ -75,6 +94,17 @@ export class Render {
     return this.zoom;
   }
 
+   zoomOut(){
+    this.zoom -= 10; 
+    if(this.zoom < 1) this.zoom = 1;
+  }
+
+  zoomIn(){
+    this.zoom += 10; 
+    if(this.zoom > 100) this.zoom = 100;
+
+  }
+
   private getOffset(type) {
      // console.log("get offset", type);
     if(type ==="select_x") return this.select.offset_x;
@@ -84,6 +114,10 @@ export class Render {
     if(type ==="base_fill_x") return this.base_cell.margin_fill_x;
     if(type ==="base_fill_y") return this.base_cell.margin_fill_y;
     else return {max: 0, min: 0};
+  }
+
+  toggleViewFrames(){
+    this.view_frames = !this.view_frames;
   }
 
 
