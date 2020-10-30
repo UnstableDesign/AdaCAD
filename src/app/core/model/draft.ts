@@ -14,6 +14,7 @@ import { active } from 'd3';
  */
 export interface DraftInterface {
   pattern: Array<Array<boolean>>; // the single design pattern
+  mask: Array<Array<boolean>>; //regions to remember for filling
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar
   shuttles: Array<Shuttle>;
   warp_systems: Array<Shuttle>;
@@ -37,6 +38,7 @@ export interface DraftInterface {
  */
 export class Draft implements DraftInterface {
   pattern: Array<Array<boolean>>;
+  mask: Array<Array<boolean>>; //regions to remember for filling
   patterns: Array<Pattern>;
   shuttles: Array<Shuttle>;
   warp_systems: Array<Shuttle>;
@@ -63,6 +65,7 @@ export class Draft implements DraftInterface {
     this.epi = (params.warps === undefined) ? 10 : params.epi;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
+    this.mask = (params.mask === undefined) ? [] : params.mask;
     this.connections = (params.connections === undefined)? [] : params.connections;
     this.labels = (params.labels === undefined)? [] : params.labels;
 
@@ -126,6 +129,8 @@ export class Draft implements DraftInterface {
     }
 
 
+
+
     if (params.pattern === undefined) {
       this.pattern = [];
       for(var ii = 0; ii < this.wefts; ii++) {
@@ -138,34 +143,27 @@ export class Draft implements DraftInterface {
       this.pattern = params.pattern;
     } 
 
+
+    if (params.mask === undefined) {
+      this.mask = [];
+      for(var ii = 0; ii < this.wefts; ii++) {
+        this.mask.push([]);
+        for (var j = 0; j < this.warps; j++)
+          this.mask[ii].push(false);
+      }
+    }
+    else{
+      this.mask = params.mask;
+    } 
+
     if(params.loom === undefined) {
-      //Creating the Threading, Treadling, and TieUps objects
-      // this.threading = new Threading(this.wefts, this.warps);
-      // this.treadling = new Treadling(this.wefts, this.pattern);
       this.loom = new Loom(this.wefts, this.warps, 8, 10);
-      // this.threading = new Threading(8, this.warps);
-      // this.treadling = new Treadling(this.wefts, this.pattern);
-      // this.tieups = new TieUps(this.threading.threading, this.threading.usedFrames.length, this.treadling.treadling, this.pattern, this.treadling.treadle_count);
     } else {
       this.loom = params.loom;
     }
     console.log(this);
 
   }
-
-  // loadAdaFile(draft) {
-  //   this.shuttles = draft.shuttles;
-  //   this.rowShuttleMapping = draft.rowShuttleMapping;
-  //   this.wefts = draft.wefts;
-  //   this.warps = draft.warps;
-  //   this.visibleRows = draft.visibleRows;
-  //   this.epi = draft.epi;
-  //   this.pattern = draft.pattern;
-  //   this.patterns = draft.patterns;
-  //   this.connections = draft.connections;
-  //   this.labels = draft.labels;
-  //   return this.pattern;
-  // }
 
   isUp(i:number, j:number) : boolean{
     var row = this.visibleRows[i];
@@ -175,7 +173,20 @@ export class Draft implements DraftInterface {
       return false;
     }
   }
-  
+
+  isMask(i:number, j:number) : boolean{
+    var row = this.visibleRows[i];
+    if ( row > -1 && row < this.mask.length && j > -1 && j < this.mask[0].length) {
+      return this.mask[row][j];
+    } else {
+      return false;
+    }
+  }
+
+  setMask(i:number, j:number, bool:boolean) {
+    var row = this.visibleRows[i];
+    this.mask[row][j] = bool;
+  }  
   setHeddle(i:number, j:number, bool:boolean) {
     var row = this.visibleRows[i];
     this.pattern[row][j] = bool;
@@ -224,47 +235,48 @@ export class Draft implements DraftInterface {
 
 
 //update this to take dims into account;
-  updateSelection(selection: any, pattern: any, type: string) {
-    console.log("update selection", selection, pattern, type);
-    const sj = Math.min(selection.start.j, selection.end.j);
-    const si = Math.min(selection.start.i, selection.end.i);
+  // updateDrawdownSelection(selection: any, pattern: any, type: string) {
+   
+  //   const sj = Math.min(selection.start.j, selection.end.j);
+  //   const si = Math.min(selection.start.i, selection.end.i);
 
-    const rows = pattern.length;
-    const cols = pattern[0].length;
 
-    var w,h;
+  //   const rows = pattern.length;
+  //   const cols = pattern[0].length;
 
-    w = selection.width / 20;
-    h = selection.height / 20;
+  //   var w,h;
 
-    for (var i = 0; i < h; i++ ) {
-      for (var j = 0; j < w; j++ ) {
-        var row = this.visibleRows[i + si];
-        var temp = pattern[i % rows][j % cols];
-        var prev = this.pattern[row][j + sj];
+  //   w = selection.width / 20;
+  //   h = selection.height / 20;
 
-        switch (type) {
-          case 'invert':
-            this.pattern[row][j + sj] = !temp;
-            break;
-          case 'mask':
-            this.pattern[row][j + sj] = temp && prev;
-            break;
-          case 'mirrorX':
-            temp = pattern[(h - i - 1) % rows][j % cols];
-            this.pattern[row][j + sj] = temp;
-            break;
-          case 'mirrorY':
-            temp = pattern[i % rows][(w - j - 1) % cols];
-            this.pattern[row][j + sj] = temp;
-            break;
-          default:
-            this.pattern[row][j + sj] = temp;
-            break;
-        }
-      }
-    }
-  }
+  //   for (var i = 0; i < h; i++ ) {
+  //     for (var j = 0; j < w; j++ ) {
+  //       var row = this.visibleRows[i + si];
+  //       var temp = pattern[i % rows][j % cols];
+  //       var prev = this.pattern[row][j + sj];
+
+  //       switch (type) {
+  //         case 'invert':
+  //           this.pattern[row][j + sj] = !temp;
+  //           break;
+  //         case 'mask':
+  //           this.pattern[row][j + sj] = temp && prev;
+  //           break;
+  //         case 'mirrorX':
+  //           temp = pattern[(h - i - 1) % rows][j % cols];
+  //           this.pattern[row][j + sj] = temp;
+  //           break;
+  //         case 'mirrorY':
+  //           temp = pattern[i % rows][(w - j - 1) % cols];
+  //           this.pattern[row][j + sj] = temp;
+  //           break;
+  //         default:
+  //           this.pattern[row][j + sj] = temp;
+  //           break;
+  //       }
+  //     }
+  //   }
+  // }
 
   insertRow(i: number, shuttleId: number) {
     var col = [];
@@ -277,6 +289,7 @@ export class Draft implements DraftInterface {
 
     this.rowShuttleMapping.splice(i,0,shuttleId);
     this.pattern.splice(i,0,col);
+    this.mask.splice(i,0,col);
 
     this.loom.treadling.splice(i, 0, -1);
 
@@ -293,8 +306,8 @@ export class Draft implements DraftInterface {
 
     this.rowShuttleMapping.splice(i, 0, shuttleId);
     this.pattern.splice(i, 0, col);
+    this.mask.splice(i, 0, col);
     this.loom.treadling.splice(i, 0, this.loom.treadling[i-1]);
-    console.log(i, 0, this.loom.treadling[i-1]);
 
     this.updateVisible();
   }
@@ -304,6 +317,7 @@ export class Draft implements DraftInterface {
     this.wefts -= 1;
     this.rowShuttleMapping.splice(i, 1);
     this.pattern.splice(i, 1);
+    this.mask.splice(i, 1);
     this.loom.treadling.splice(i,1);
 
     this.updateVisible();
@@ -331,6 +345,7 @@ export class Draft implements DraftInterface {
     //push one false to the end of each row
     for (var j = 0; j < this.wefts; j++) {
       this.pattern[j].push(false);
+      this.mask[j].push(false);
     }
 
     this.warps += 1;
@@ -349,6 +364,7 @@ export class Draft implements DraftInterface {
     //remove one from the end of each row
     for (var j = 0; j < this.wefts; j++) {
       this.pattern[j].splice(i, 1);
+      this.mask[j].splice(i, 1);
     }
 
 
@@ -380,13 +396,14 @@ export class Draft implements DraftInterface {
 
   }
 
+  //image adds to mask
   insertImage(shuttle) {
     var max = this.rowShuttleMapping.length;
     var data = shuttle.image;
     for (var i=data.length; i > 0; i--) {
       var idx = Math.min(max, i);
       this.rowShuttleMapping.splice(idx,0,shuttle.id);
-      this.pattern.splice(idx,0,data[i - 1]);
+      this.mask.splice(idx,0,data[i - 1]);
     }
   }
 
@@ -399,8 +416,9 @@ export class Draft implements DraftInterface {
   }
 
   getColorCol(index) {
-    var row = this.colShuttleMapping[index];
-    var shuttle = this.warp_systems[row];
+
+    var col = this.colShuttleMapping[index];
+    var shuttle = this.warp_systems[col];
 
     return shuttle.color;
   }

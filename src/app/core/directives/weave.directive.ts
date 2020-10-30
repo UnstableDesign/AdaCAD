@@ -67,6 +67,8 @@ export class WeaveDirective {
    */
   copy: Array<Array<boolean>>;
 
+
+
   /**
    * The 2D context of the canvas
    * @property {any}
@@ -92,6 +94,21 @@ export class WeaveDirective {
   cxTieups: any;
 
   /**
+   * The 2D context of the weft_systems canvas
+   * @property {any}
+   */
+  cxWeftSystems: any;
+
+  /**
+   * The 2D context of the warp_systems canvas
+   * @property {any}
+   */
+  cxWarpSystems: any;
+
+
+
+
+  /**
    * The current selection within the weave canvas.
    * @property {Selection}
    */
@@ -114,7 +131,7 @@ export class WeaveDirective {
    * The HTML div element used to position the drawdown.
    * @property {HTMLElement}
    */
-  divEl: HTMLElement;
+  //divEl: HTMLElement;
 
 
   /**
@@ -137,6 +154,11 @@ export class WeaveDirective {
    * 
    */
   tieupsCanvas: HTMLCanvasElement;
+
+
+
+  weftSystemsCanvas: HTMLCanvasElement;
+  warpSystemsCanvas: HTMLCanvasElement;
 
   private segments$: Observable<DraftSegment[]>;
   private prevSegment = null;
@@ -163,22 +185,30 @@ export class WeaveDirective {
    *
    */
   ngOnInit() {  
-    console.log("element", this.el.nativeElement.children[3]);
+
+
+
+    console.log("element", this.el.nativeElement.children);
     this.segments$ = this.store.pipe(select(selectAll));
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[3].firstElementChild;
-    this.divEl = this.el.nativeElement.children[3];
+    //this.divEl = this.el.nativeElement.children[3];
+
+    //this is the selection
     this.svgEl = this.el.nativeElement.children[0].lastElementChild;
-    console.log(this.svgEl);
     
     this.threadingCanvas = this.el.nativeElement.children[1].firstElementChild;
     this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
     this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
+    this.weftSystemsCanvas = this.el.nativeElement.children[0].children[1].firstElementChild;
+    this.warpSystemsCanvas = this.el.nativeElement.children[0].children[3].firstElementChild;
     
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
     this.cxTreadling = this.treadlingCanvas.getContext('2d');
     this.cxTieups = this.tieupsCanvas.getContext('2d');
+    this.cxWarpSystems = this.warpSystemsCanvas.getContext('2d');
+    this.cxWeftSystems = this.weftSystemsCanvas.getContext('2d');
 
     // set the width and height
     var dims = this.render.getCellDims("base");
@@ -193,6 +223,15 @@ export class WeaveDirective {
     this.treadlingCanvas.width = this.weave.loom.min_treadles * dims.w;
     this.tieupsCanvas.width = this.weave.loom.min_treadles*dims.w;
     this.tieupsCanvas.height = this.weave.loom.min_frames * dims.h;
+
+
+    this.weftSystemsCanvas.width =  dims.w;
+    this.weftSystemsCanvas.height = this.weave.wefts * dims.h;
+
+    this.warpSystemsCanvas.width =  this.weave.warps * dims.w;
+    this.warpSystemsCanvas.height = dims.h;
+
+
 
     // Set up the initial grid.
     this.redraw();
@@ -258,16 +297,37 @@ export class WeaveDirective {
             this.drawOnTieups(currentPos);
           } else if (event.target && event.target.closest('.threading-container')) {
             this.drawOnThreading(currentPos);
-          } else {
-            this.drawOnDrawdown(currentPos);
+          } else if(event.target && event.target.closest('.shuttles')){
+            this.drawOnShuttles(currentPos);
+          }else if(event.target && event.target.closest('.warp-systems')){
+            this.drawOnWarpSelectors(currentPos);
+          } else{
+            this.drawOnDrawdown(currentPos, null);
           }
           break;
         case 'select':
+
           this.selection.start = currentPos;
           this.selection.end = currentPos;
           this.selection.width = 0;
           this.selection.height = 0;
           d3.select(this.svgEl).style('display', 'none');
+
+          if (event.target && event.target.closest('.treadling-container')) {
+            this.selection.setTarget(this.treadlingCanvas);
+          } else if (event.target && event.target.closest('.tieups-container')) {
+            this.selection.setTarget(this.tieupsCanvas);
+          } else if (event.target && event.target.closest('.threading-container')) {
+            this.selection.setTarget(this.threadingCanvas);
+          } else if(event.target && event.target.closest('.shuttles')){
+            this.selection.width = 1;
+            this.selection.setTarget(this.weftSystemsCanvas);
+          }else if(event.target && event.target.closest('.warp-systems')){
+            this.selection.setTarget(this.warpSystemsCanvas);
+            this.selection.height = 1;
+          } else{
+            this.selection.setTarget(this.canvasEl);
+          }
           break;
         default:
           break;
@@ -290,7 +350,6 @@ export class WeaveDirective {
   private onMove(event) {
     var dims = this.render.getCellDims("base");
     var offset = this.render.getCellDims(this.brush);
-
   
     // set up the point based on touched square.
     const currentPos: Point = {
@@ -311,14 +370,20 @@ export class WeaveDirective {
           this.drawOnTieups(currentPos);
         } else if (event.target && event.target.closest('.threading-container')) {
           this.drawOnThreading(currentPos);
-        } else {
-          this.drawOnDrawdown(currentPos);
+        }else if(event.target && event.target.closest('.shuttles')){
+            this.drawOnShuttles(currentPos);
+        }else if(event.target && event.target.closest('.warp-systems')){
+            this.drawOnWarpSelectors(currentPos);
+        } else{
+            this.drawOnDrawdown(currentPos, null);
         }
         break;
       case 'select':
         this.selection.end = currentPos;
         this.selection.setParameters();
         this.selectArea();
+
+
         break;
       case 'invert':
       default:
@@ -378,30 +443,146 @@ export class WeaveDirective {
 
   /// PRIVATE FUNCTIONS
   /**
-   * Creates the copied pattern.
+   * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d arrray representing the 
+   * threading or treadling with "true" in the frame/threadle associated with that col/row. 
    * @extends WeaveDirective
    * @returns {void}
    */
   private copyArea() {
+
+
+
     var dims = this.render.getCellDims("copy");
-
-
     const si = Math.min(this.selection.start.i, this.selection.end.i);
     const sj = Math.min(this.selection.start.j, this.selection.end.j);
-    var w = this.selection.width / dims.w;
-    var h = this.selection.height / dims.h;
+    var w = this.selection.width;
+    var h = this.selection.height;
+
 
     var copy = [];
+    
+    if(this.selection.target.id === 'weft-systems'){
+      for(var i = 0; i < h; i++){
+        copy.push([]);
+        for(var j = 0; j < this.weave.shuttles.length; j++){
+          copy[i].push(false);
+        }
+      }
+    }else if(this.selection.target.id === 'warp-systems'){
+      for(var i = 0; i < this.weave.warp_systems.length; i++){
+        copy.push([]);
+        for(var j = 0; j < w; j++){
+          copy[i].push(false);
+        }
+      }
+    }else{
+       for (var i = 0; i < h; i++){
+        copy.push([]);
+        for (var j = 0; j < w; j++){
+          copy[i].push(false);
+        }
+       }
+    }
 
-    // Create the pattern based on weave draft.
-    for (var i = 0; i < h; i++) {
-      copy.push([]);
-      for(var j = 0; j < w; j++) {
-        copy[i].push(this.weave.isUp(si + i, sj + j));
+
+
+    for (var i = 0; i < copy.length; i++) {
+      for(var j = 0; j < copy[0].length; j++) {
+        var row = si + i;
+        var col = sj + j;
+        switch(this.selection.target.id){
+          case 'drawdown':
+              copy[i][j]=this.weave.isUp(row, col);
+          break;
+          case 'threading':
+              copy[i][j]=this.weave.loom.isInFrame(row,col);
+          break;
+          case 'treadling':
+              copy[i][j] = this.weave.loom.isInTreadle(row,col);
+          case 'tieups':
+              copy[i][j] = this.weave.loom.hasTieup(row, col);;
+          break;  
+          case 'warp-systems':
+              copy[i][j]= (this.weave.colShuttleMapping[col] == i);
+          break;
+          case 'weft-systems':
+              var adj_row = this.weave.visibleRows[row];
+              copy[i][j]= (this.weave.rowShuttleMapping[adj_row] == j);
+          break;
+          default:
+          break;
+        }
+
       }
     }
 
     this.copy = copy;
+
+  }
+
+
+
+
+  private drawWeftSelectorCell(cx, i){
+        var dims = this.render.getCellDims("base");
+        var margin = this.render.zoom/50;
+
+        cx.fillStyle = this.weave.getColor(i);
+        if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
+        else cx.fillRect( margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
+  
+  }
+
+
+  private drawWeftSystems(cx,canvas){
+
+
+      var dims = this.render.getCellDims("base");
+      var margin = this.render.zoom/50;
+      var top = dims.h;
+
+      this.weftSystemsCanvas.width =  dims.w;
+      this.weftSystemsCanvas.height = this.weave.wefts * dims.h;
+
+
+
+      cx.fillStyle = "white";
+      cx.fillRect(0,0,canvas.width,canvas.height);
+
+
+      for(var i = 0 ; i < this.weave.wefts; i++){
+          this.drawWeftSelectorCell(cx, i);        
+      }
+
+
+  }
+
+  private drawWarpSelectorCell(cx, j){
+
+
+        var dims = this.render.getCellDims("base");
+        var margin = this.render.zoom/50;
+        cx.fillStyle = this.weave.getColorCol(j);
+
+        if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
+        else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+  
+  }
+
+  private drawWarpSystems(cx,canvas){
+    var dims = this.render.getCellDims("base");
+    var margin = this.render.zoom/50;
+
+    this.warpSystemsCanvas.width =  this.weave.warps * dims.w;
+    this.warpSystemsCanvas.height = dims.h;
+
+    cx.fillStyle = "white";
+    cx.fillRect(0,0,canvas.width,canvas.height);
+  
+
+    for(var j = 0; j < this.weave.warps; j++){
+      this.drawWarpSelectorCell(cx, j);
+    } 
 
   }
 
@@ -419,7 +600,7 @@ export class WeaveDirective {
     cx.fillStyle = "white";
     cx.fillRect(0,0,canvas.width,canvas.height);
     cx.lineWidth = 2;
-    cx.lineCap = 'round';
+    //cx.lineCap = 'round';
     cx.strokeStyle = '#000';
 
     //only draw the lines if the zoom is big enough to render them well
@@ -451,6 +632,64 @@ export class WeaveDirective {
   }
 
 
+  /**
+   * Change shuttle of row to next in list.
+   * @extends WeaveComponent
+   * @param {Point} the point of the interaction
+   * @returns {void}
+   */
+  private drawOnShuttles( currentPos: Point ) {
+    var dims = this.render.getCellDims("base");
+
+    var updates;
+
+    if (!this.cx || !currentPos) { return; }
+
+    var row = (currentPos.i); //need to offset this due to canvas padding
+
+    if(row < 0){ return; }
+
+    const len = this.weave.shuttles.length;
+    var shuttle = this.weave.rowShuttleMapping[row];
+
+
+    var newShuttle = (shuttle + 1) % len;
+    while (!this.weave.shuttles[newShuttle].visible) {
+      var newShuttle = (newShuttle + 1) % len;
+    }
+
+    this.weave.rowShuttleMapping[row] = newShuttle;
+    this.drawWeftSelectorCell(this.cxWeftSystems,(row));
+    this.redrawRow(row*dims.h, row, this.cx);
+  }
+
+  /**
+   * Change column to next row in the list
+   * @extends WeaveComponent
+   * @param {Point} the point of the interaction
+   * @returns {void}
+   */
+  private drawOnWarpSelectors( currentPos: Point ) {
+    var dims = this.render.getCellDims("base");
+
+    if (!this.cxWarpSystems || !currentPos) { return; }
+
+    var col = currentPos.j; //need to offset this due to canvas padding
+
+    if(col < 0){ return; }
+
+
+    const len = this.weave.warp_systems.length;
+    var shuttle_id = this.weave.colShuttleMapping[col];
+
+    var newShuttle_id = (shuttle_id + 1) % len;
+
+
+    this.weave.colShuttleMapping[col] = newShuttle_id;
+    this.drawWarpSelectorCell(this.cxWarpSystems,(col));
+
+  }
+
 
 
   /**
@@ -459,37 +698,47 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnDrawdown( currentPos: Point ) {
+  private drawOnDrawdown( currentPos: Point, val:boolean ) {
 
     // console.log("draw on drawdown", currentPos);
     // incase the context is not set
     //var color = this.weave.getColor(currentPos.i);
     var updates;
 
+
+
+
     if (!this.cx || !currentPos) { return; }
 
     // Set the heddles based on the brush.
     switch (this.brush) {
       case 'point':
-        this.weave.setHeddle(currentPos.i,currentPos.j,true);
-        updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
+        val = true;
         break;
       case 'erase':
-        this.weave.setHeddle(currentPos.i,currentPos.j,false);
-        updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
+        val = false;
         break;
       case 'invert':
-        const val = !this.weave.isUp(currentPos.i,currentPos.j);
-        this.weave.setHeddle(currentPos.i,currentPos.j,val);
-        updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern)
-
-        break;
+         val = !this.weave.isUp(currentPos.i,currentPos.j);
+        break;        
       default:
         break;
     }
 
+    this.weave.setHeddle(currentPos.i,currentPos.j,val);
     this.drawCell(this.cx,currentPos.i, currentPos.j, "drawdown", null);
-    this.drawLoomStates(updates);
+
+
+    //to save cpu, only compute this while frames are visible
+    if(this.render.view_frames){
+      updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern);
+      console.log("updates", updates);
+      this.drawLoomStates(updates);
+      for(var u in updates){
+         if(updates[u].reset !== undefined) this.redrawLoom();
+      }
+     
+    }
   }
 
   /**
@@ -604,7 +853,6 @@ export class WeaveDirective {
     }
 
     var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
-    console.log(updates);
     for(var u in updates){
       if(updates[u].reset !== undefined){
         this.redrawLoom();
@@ -630,33 +878,139 @@ export class WeaveDirective {
     pattern: Array<Array<boolean>>, 
     type: string
   ) {
-    const si = Math.min(selection.start.y, selection.end.y);
-    const sj = Math.min(selection.start.x, selection.end.x);
 
-    this.weave.updateSelection(selection, pattern, type);
-
-    let segmentPattern = [];
-    for (var i = this.segment.start[0]; i < this.segment.end[0] + 1; i++) {
-      segmentPattern.push([])
-      var index = i - this.segment.start[0];
-      for (var j = this.segment.start[1]; j < this.segment.end[1] + 1; j++) {
-        var past, present;
-        past = this.tempPattern[i][j];
-        present = this.weave.pattern[i][j];
-        segmentPattern[index].push(past ? !present : present)
-      }
-    }
-    this.segment.pattern = segmentPattern;
-    //this.onAdd(this.segment);
-
-    var base_dims = this.render.getCellDims("base");
+    var dims = this.render.getCellDims("base");
+    var updates = [];
+    const si = Math.min(selection.start.i, selection.end.i);
+    const sj = Math.min(selection.start.j, selection.end.j);
 
   
-    for (var i = 0; i < Math.ceil(selection.height / base_dims.h); i++) {    
-      for (var j = 0; j < Math.ceil(selection.width / base_dims.w); j ++) {
-        this.drawCell(this.cx, i, j, "drawdown", null)        
+    const rows = pattern.length;
+    const cols = pattern[0].length;
+
+    var w,h;
+
+    w = Math.ceil(selection.width);
+    h = Math.ceil(selection.height);
+
+    if(selection.target.id === "warp-systems") h = pattern.length;
+    if(selection.target.id === "weft-systems") w = pattern[0].length;
+
+
+    for (var i = 0; i < h; i++ ) {
+      for (var j = 0; j < w; j++ ) {
+        var row = this.weave.visibleRows[i + si];
+        var col = j + sj;
+        var temp = pattern[i % rows][j % cols];
+       
+        var prev = false; 
+        switch(selection.target.id){
+          case 'drawdown':
+              prev = this.weave.pattern[row][col];
+          break;
+          case 'threading':
+              prev = this.weave.loom.isInFrame(col, row);
+          break;
+          case 'treadling':
+              prev = (this.weave.loom.isInTreadle(col,row)); 
+          case 'tieups':
+              prev = this.weave.loom.hasTieup(row,col); 
+          break;
+          default:
+          break;
+        }
+
+        if (prev !== null){
+
+          var val;
+          switch (type) {
+            case 'invert':
+             val = !temp;
+              break;
+            case 'mask':
+             val = temp && prev;
+              break;
+            case 'mirrorX':
+              val = pattern[(h - i - 1) % rows][j % cols];
+              break;
+            case 'mirrorY':
+              val = pattern[i % rows][(w - j - 1) % cols];
+              break;
+            default:
+              val = temp;
+              break;
+          }
+
+
+          var updates = [];
+
+          switch(selection.target.id){
+           
+           case 'drawdown':
+                var p = new Point(); 
+                p.x = (col+sj)*dims.w;
+                p.y = (row+si)*dims.h;
+                p.i = row;
+                p.j = col;
+                this.drawOnDrawdown(p, val);
+
+            break;
+            case 'threading':
+              if(val && this.weave.loom.inThreadingRange(row,col)){
+                  
+                  updates = this.weave.loom.updateThreading(row, col, val);
+
+                  for(var u in updates){
+                    if(updates[u].reset !== undefined){
+                      this.redrawLoom();
+                    } else{
+                      this.drawCell(this.cxThreading,updates[u].i, updates[u].j, "threading", updates[u].val);
+                    }
+                  }
+                  this.weave.updateDraftFromThreading(updates); 
+              }
+            break;
+
+            case 'treadling':
+             if(val && this.weave.loom.inTreadlingRange){ 
+                updates = this.weave.loom.updateTreadling(row, col, val);
+                for(var u in updates){
+                  if(updates[u].reset !== undefined){
+                    this.redrawLoom();
+                  } else{
+                    this.drawCell(this.cxTreadling,updates[u].i, updates[u].j, "treadling", updates[u].val);
+                  }
+                }
+                this.weave.updateDraftFromTreadling(updates);
+              }
+            break;
+            case 'tieups':
+              if(this.weave.loom.inTieupRange(row, col)){
+                this.weave.loom.updateTieup(row, col, val);
+                this.drawCell(this.cxTieups, row, col, "tieup", val);            
+                this.weave.updateDraftFromTieup(row, col, val);
+              }
+            break;
+            case 'weft-systems':
+              val = pattern[i % rows][j % cols];
+              if(val && col < this.weave.shuttles.length) this.weave.rowShuttleMapping[row] = col;
+            break;
+            case 'warp-systems':
+              val = pattern[i % rows][j % cols];
+              if(val && row < this.weave.warp_systems.length){
+                  this.weave.colShuttleMapping[col] = row;
+              }
+            break;
+            default:
+            break;
+          }
+        }
+
+
       }
     }
+
+    this.redraw();
 
   }
 
@@ -752,53 +1106,11 @@ export class WeaveDirective {
    * @returns {void}
    */
   private selectArea() {
-    var left, top, x, y, anchor;
+    
+     var base_dims = this.render.getCellDims("base");
+     this.redrawSelection(base_dims);
 
-    var base_dims = this.render.getCellDims("base");
-
-    x = base_dims.w / 4;
-    y = base_dims.h;
-
-    anchor = 'start';
-
-    if (this.selection.start.x < this.selection.end.x) {
-        x = this.selection.width -  base_dims.w/2;
-        anchor = 'end';
-     }
-
-     if (this.selection.start.y < this.selection.end.y) {
-       y = this.selection.height -  base_dims.h/2;
-     }
-
-    // define the left and top offsets
-    left = Math.min(this.selection.start.x, this.selection.end.x);
-    top = Math.min(this.selection.start.y, this.selection.end.y);
-
-    // updates the size of the selection
-    d3.select(this.svgEl)
-      .attr("width", this.selection.width)
-      .attr("height",this.selection.height)
-      .style('display', 'initial')
-      .style('left', left + this.divEl.offsetLeft)
-      .style('top', top + this.divEl.offsetTop);
-
-    var rows = Math.ceil(this.selection.height / base_dims.h);
-    var cols = Math.ceil(this.selection.width / base_dims.w);
-    var fs = this.render.zoom * .18;
-    var fw = this.render.zoom * 9;
-
-    // updates the text within the selection
-    d3.select(this.svgEl)
-      .select('text')
-      .attr('fill', '#424242')
-      .attr('font-weight', 900)
-      .attr('font-size', fs)
-      .attr('stroke', 'white')
-      .attr('stroke-width', 1)
-      .attr('x', x)
-      .attr('y', y)
-      .attr('text-anchor', anchor)
-      .text(cols +' x '+ rows);
+      
 
   }
 
@@ -811,6 +1123,7 @@ export class WeaveDirective {
   public functional() {
 
     var base_dims = this.render.getCellDims("base");
+    this.unsetSelection();
 
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
     // this.drawGrid();
@@ -902,7 +1215,7 @@ export class WeaveDirective {
  //draws any updates from a change in a part of the drawdown on the threading, tieup, and treadling
  //will update height if a new row/column is added but for zoom, call redrawLoomSize
   public drawLoomStates(updates) {
-
+    console.log("draw loom states");
     var dims = this.render.getCellDims("base");
     var base_fill = this.render.getCellDims("base_fill");
 
@@ -946,7 +1259,7 @@ export class WeaveDirective {
 
     for(var u in updates.tieup){
       for(var j in updates.tieup[u]){
-        this.drawCell( this.cxTieups, updates.tieup[u][j].i, updates.tieup[u][j].j, "threading", updates.tieup[u][j].val);
+        this.drawCell( this.cxTieups, updates.tieup[u][j].i, updates.tieup[u][j].j, "tieup", updates.tieup[u][j].val);
       }
     }
   }
@@ -954,6 +1267,7 @@ export class WeaveDirective {
 
   //called on resize
   public redrawLoom() {
+
     var base_dims = this.render.getCellDims("base");
 
     this.cxThreading.canvas.width = base_dims.w * this.weave.loom.threading.length;
@@ -999,7 +1313,147 @@ export class WeaveDirective {
 
   }
 
+//callled when frames become visible or drawdown without frame info is loaded
+  public recomputeLoom(){
+    var mock = [];
+    var updates = [];
+    console.log("recompute");
 
+    //pretendd that we are computing the values as though they were added one by one
+    for (var i = 0; i < this.weave.pattern.length; i++) {
+        mock.push([]);
+      for(var j = 0; j < this.weave.pattern[0].length; j++){
+        mock[i].push(false);
+      }
+    }
+
+
+    for (var i = 0; i < this.weave.pattern.length; i++) {
+      for(var j = 0; j < this.weave.pattern[0].length; j++){
+          if(this.weave.pattern[i][j]){
+            mock[i][j] = this.weave.pattern[i][j];
+            updates = this.weave.loom.updateFromDrawdown(i,j, mock);
+            this.drawLoomStates(updates);
+          }
+      }
+    }
+  }
+
+ public redrawSelection(dims){
+  console.log("redraw selection", dims);
+ 
+ if(this.selection.start !== undefined){
+      
+      var left, top, x, y, anchor;
+
+
+
+      x = dims.w / 4;
+      y = dims.h;
+
+      anchor = 'start';
+
+      if (this.selection.start.j < this.selection.end.j) {
+          x = this.selection.width*dims.w -  dims.w/2;
+          anchor = 'end';
+       }
+
+       if (this.selection.start.y < this.selection.end.y) {
+         y = this.selection.height*dims.h -  dims.h/2;
+       }
+
+
+      // define the left and top offsets
+      left = Math.min(this.selection.start.j, this.selection.end.j);
+      top = Math.min(this.selection.start.i, this.selection.end.i);
+
+
+      var cx = this.selection.getTarget();
+      var div = cx.parentElement;
+      console.log(div.offsetTop, this.render.zoom);
+
+    //  var rows = Math.ceil(this.selection.height / dims.h);
+    //  var cols = Math.ceil(this.selection.width / dims.w);
+
+      var fs = this.render.zoom * .18;
+      var fw = this.render.zoom * 9;
+
+      if(cx.id === "warp-systems"){
+
+        d3.select(this.svgEl)
+          .attr("width",this.selection.width*dims.h)
+          .attr("height",dims.h)
+          .style('display', 'initial')
+          .style('left', left*dims.w + div.offsetLeft)
+          .style('top', div.offsetTop);
+
+
+        d3.select(this.svgEl)
+          .select('text')
+          .attr('fill', '#424242')
+          .attr('font-weight', 900)
+          .attr('font-size', fs)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1)
+          .attr('x', x)
+          .attr('y', y)
+          .attr('text-anchor', anchor)
+          .text(this.selection.width);
+
+      }else if(cx.id === "weft-systems"){
+         d3.select(this.svgEl)
+          .attr("width", dims.w)
+          .attr("height",this.selection.height*dims.w)
+          .style('display', 'initial')
+          .style('left', div.offsetLeft)
+          .style('top', top*dims.h+ div.offsetTop);
+
+        // updates the text within the selection
+        d3.select(this.svgEl)
+          .select('text')
+          .attr('fill', '#424242')
+          .attr('font-weight', 900)
+          .attr('font-size', fs)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1)
+          .attr('x', x)
+          .attr('y', y)
+          .attr('text-anchor', anchor)
+          .text(this.selection.height);
+
+      }else{
+        // updates the size of the selection
+        d3.select(this.svgEl)
+          .attr("width", this.selection.width*dims.w)
+          .attr("height",this.selection.height*dims.h)
+          .style('display', 'initial')
+          .style('left', left*dims.w + div.offsetLeft)
+          .style('top', top*dims.h + div.offsetTop);
+
+        // updates the text within the selection
+        d3.select(this.svgEl)
+          .select('text')
+          .attr('fill', '#424242')
+          .attr('font-weight', 900)
+          .attr('font-size', fs)
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1)
+          .attr('x', x)
+          .attr('y', y)
+          .attr('text-anchor', anchor)
+          .text(this.selection.width +' x '+ this.selection.height);
+
+      }
+
+    }
+ }
+
+
+public unsetSelection(){
+  console.log("unset selection");
+ d3.select(this.svgEl).style('display', 'none');
+
+}
   
 
   /**
@@ -1008,13 +1462,21 @@ export class WeaveDirective {
    * @returns {void}
    */
   public redraw() {
+
     var i,j;
 
-    var base_dims = this.render.getCellDims("base");
+    console.log("in redraw", this.selection);
 
+    var base_dims = this.render.getCellDims("base");
+   
     this.cx.canvas.width = base_dims.w * this.weave.pattern[0].length;
     this.cx.canvas.height = base_dims.h * this.weave.pattern.length;
     this.drawGrid(this.cx,this.canvasEl);
+    this.drawWeftSystems(this.cxWeftSystems, this.weftSystemsCanvas);
+    this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);
+    this.redrawSelection(base_dims); // make sure to do this after the others are updated
+
+
 
     var color = '#000000';
     this.cx.fillStyle = color;
@@ -1038,9 +1500,11 @@ export class WeaveDirective {
    */
   public simulate() {
     var base_dims = this.render.getCellDims("base");
+    this.unsetSelection();
 
 
     console.log("simulate");
+
 
     var color = '#000000';
     var offset;
@@ -1209,7 +1673,7 @@ export class WeaveDirective {
     let link = obj.downloadLink.nativeElement;
     link.href = uri;
     link.download = fileName + ".ada";
-  }
+  } 
 
   /**
    * Saves the draft as a .wif file
