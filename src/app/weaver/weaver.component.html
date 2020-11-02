@@ -17,7 +17,13 @@
 
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
       <mat-tab label="Design">
-        <app-design [brush]="brush" [favorites]="draft?.patterns | filter: {favorite: true}"
+        <app-design [brush]="brush" 
+        [favorites]="draft?.patterns | filter: {favorite: true}"
+        [shuttles]="draft?.shuttles" 
+        [warp_systems]="draft?.warp_systems" 
+        [warps]="draft?.warps" 
+        [epi]="draft?.epi" 
+        [view_frames] = "render?.view_frames"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
@@ -26,11 +32,6 @@
         (onPaste)="onPaste($event);"
         (onConnectionCreate)="openConnectionDialog();"
         (onLabelCreate)="openLabelDialog()"
-        [shuttles]="draft?.shuttles" 
-        [warp_systems]="draft?.warp_systems" 
-        [warps]="draft?.warps" 
-        [epi]="draft?.epi" 
-        [show_frames] = "show_frames"
         (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
         (onCreateWarpSystem)="createWarpSystem($event);"

@@ -1,7 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { color } from 'd3';
 import { rest } from 'lodash';
 import { Loom } from '../../../core/model/loom';
+import { Shuttle } from "../../../core/model/shuttle";
 
 
 interface StartOptions {
@@ -90,7 +92,7 @@ export class InitModal implements OnInit {
     this.draft.wefts = this.getInt("Threads",this.getSubstringAfter("[WEFT]",stringWithoutMetadata));
     var data = [];
 
-    for (var i = 0; i< this.draft.warps; i++) {
+    for (var i = 0; i < this.draft.warps; i++) {
       data.push([]);
       for (var j = 0; j < this.draft.wefts; j++) {
         data[i].push(false);
@@ -102,6 +104,10 @@ export class InitModal implements OnInit {
     if (this.getBool("TREADLING", stringWithoutMetadata)) {
       var treadling = this.getTreadling(stringWithoutMetadata);
       this.draft.loom.treadling = treadling;
+      this.draft.visibleRows = [];
+      for (var i = 0; i < this.draft.warps; i++) {
+        this.draft.visibleRows.push(i);
+      }
     }
     if (this.getBool("THREADING", stringWithoutMetadata)) {
       var threading = this.getThreading(stringWithoutMetadata);
@@ -114,9 +120,18 @@ export class InitModal implements OnInit {
     }
     if (this.getBool("COLOR TABLE",e)) {
       if (this.getString("Form", e) === "RGB") {
-        console.log("color form is RGB");
+        var color_table = this.getColorTable(e);
+        var rowToShuttleMapping = this.getRowToShuttleMapping(e);
+        var colToShuttleMapping = this.getColToShuttleMapping(e);
+        var shuttles = color_table;
+        var warp_systems = color_table;
+        this.draft.shuttles = shuttles;
+        this.draft.warp_systems = warp_systems;
+        this.draft.rowShuttleMapping = rowToShuttleMapping;
+        this.draft.colShuttleMapping = colToShuttleMapping;
         //thinking that I will add shuttles to the draft object that correspond to the correct colors
         //will need to adjust the shuttles col and row mapping according to which weft and warp threads
+
       } else {
         //TODO: Look into whether or not other color forms are used in WIFs
       }
@@ -249,7 +264,7 @@ export class InitModal implements OnInit {
     return threading;
   }
 
-  getTieups(e){
+  getTieups(e) {
     var tieups = [];
     var frames = this.getInt("Shafts", e);
     var treadles = this.getInt("Treadles", e);
@@ -282,22 +297,125 @@ export class InitModal implements OnInit {
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
     }
-    var color = "=220,20,60";
+    
+    // var color = "=220,20,60";
 
-    var colorR = color.match(/=[0-9]*/);
-    var colorsGB = color.match(/,[0-9]*/g);
+    // var colorR = color.match(/=[0-9]*/);
+    // var colorsGB = color.match(/,[0-9]*/g);
   
-    var colorRNum = +(colorR[0].substring(1,));
-    var colorGNum = +(colorsGB[0].substring(1,));
-    var colorBNum = +(colorsGB[1].substring(1,));
+    // var colorRNum = +(colorR[0].substring(1,));
+    // var colorGNum = +(colorsGB[0].substring(1,));
+    // var colorBNum = +(colorsGB[1].substring(1,));
 
-    var hex = "0x";
-    hex += colorRNum.toString(16);
-    hex += colorGNum.toString(16);
-    hex += colorBNum.toString(16);
+    // var hex = "0x";
+    // hex += colorRNum.toString(16);
+    // hex += colorGNum.toString(16);
+    // hex += colorBNum.toString(16);
 
 
       
     return tieups;
+  }
+
+  //can likely simplify this as it is mostlyy like the function above but with different variable names for the respective applications
+  getColorTable(e) {
+    var color_table = [];
+    var originalShuttle = new Shuttle();
+    originalShuttle.setColor("#3d3d3d");
+    color_table.push(originalShuttle);
+
+    var indexOfLabel = e.search("COLOR TABLE]");
+    var startIndex = indexOfLabel + "COLOR TABLE]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*,[0-9]*,[0-9]*/) != null) {
+      // var index = +(line.match(/[0-9]*/));
+      var redNum = +(line.match(/=[0-9]*/)[0].substring(1));
+      var greenAndBlue = line.match(/,[0-9]*/g);
+      var greenNum = +(greenAndBlue[0].substring(1));
+      var blueNum = +(greenAndBlue[1].substring(1));
+
+      var hex = "#";
+      var hexr = redNum.toString(16);
+      if(hexr.length ==1 ){
+        hex += "0"+hexr;
+      } else {
+        hex += hexr;
+      }
+      var hexg= greenNum.toString(16);
+      if(hexg.length ==1 ){
+        hex += "0"+hexg;
+      } else {
+        hex += hexg;
+      }
+      var hexb= blueNum.toString(16);
+      if(hexb.length ==1 ){
+        hex += "0"+hexb;
+      } else {
+        hex += hexb;
+      }
+
+      var shuttle = new Shuttle();
+      shuttle.setColor(hex);
+
+      color_table.push(shuttle);
+
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+    return color_table;
+  }
+
+  getColToShuttleMapping(e) {
+    var colToShuttleMapping = [];
+
+    for (var i = 0; i < this.draft.warps; i++) {
+      colToShuttleMapping.push(0);
+    }
+
+    var indexOfLabel = e.search("WARP COLORS]");
+    var startIndex = indexOfLabel + "WARP COLORS]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+      var warp = +(line.match(/[0-9]*/));
+      var color = +(line.match(/=[0-9]*/)[0].substring(1));
+      colToShuttleMapping[warp-1] = color;
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+
+    return colToShuttleMapping;
+  }
+
+  getRowToShuttleMapping(e) {
+    var rowToShuttleMapping = [];
+
+    for (var i = 0; i < this.draft.wefts; i++) {
+      rowToShuttleMapping.push(0);
+    }
+
+    var indexOfLabel = e.search("WEFT COLORS]");
+    var startIndex = indexOfLabel + "WEFT COLORS]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+      var weft = +(line.match(/[0-9]*/));
+      var color = +(line.match(/=[0-9]*/)[0].substring(1));
+      rowToShuttleMapping[weft-1] = color;
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+
+    return rowToShuttleMapping;
   }
 }

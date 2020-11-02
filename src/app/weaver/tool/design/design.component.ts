@@ -14,6 +14,11 @@ import { NgForm } from '@angular/forms';
 export class DesignComponent implements OnInit {
   @Input() brush;
   @Input() favorites;
+  @Input() shuttles;
+  @Input() warp_systems;
+  @Input() warps;
+  @Input() epi;
+  @Input() view_frames;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onMask: any = new EventEmitter();
@@ -22,11 +27,6 @@ export class DesignComponent implements OnInit {
   @Output() onClear: any = new EventEmitter();
   @Output() onConnectionCreate: any = new EventEmitter();
   @Output() onLabelCreate: any = new EventEmitter();
-  @Input() shuttles;
-  @Input() warp_systems;
-  @Input() warps;
-  @Input() epi;
-  @Input() show_frames;
   @Output() onWarpNumChange: any = new EventEmitter();
   @Output() onEpiNumChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();
@@ -49,6 +49,7 @@ export class DesignComponent implements OnInit {
     console.log('favs', this.favorites);
     console.log('copy', this.copy);
     console.log('favs', this.view);
+    console.log('frames', this.view_frames);
     this.width = this.warps / this.epi;
 
 
