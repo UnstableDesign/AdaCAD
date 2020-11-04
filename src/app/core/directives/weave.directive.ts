@@ -286,7 +286,7 @@ export class WeaveDirective {
       this.tempPattern = cloneDeep(this.weave.pattern);
 
       // determine action based on brush type.
-
+      console.log(this.brush);
       switch (this.brush) {
         case 'invert':
         case 'point':
@@ -305,9 +305,9 @@ export class WeaveDirective {
             this.drawOnDrawdown(currentPos);
           }
           break;
-        case 'invertmask':
-        case 'pointmask':
-        case'erasemask':
+        case 'maskpoint':
+        case 'maskerase':
+        case'maskinvert':
           this.drawOnMask(currentPos);
           break;
         case 'select':
@@ -382,6 +382,12 @@ export class WeaveDirective {
         } else{
             this.drawOnDrawdown(currentPos);
         }
+        break;
+
+      case 'maskpoint':
+      case 'maskerase':
+      case'maskinvert':
+        this.drawOnMask(currentPos);
         break;
       case 'select':
         this.selection.end = currentPos;
@@ -524,7 +530,6 @@ export class WeaveDirective {
     this.copy = copy;
 
   }
-
 
 
 
@@ -696,13 +701,12 @@ export class WeaveDirective {
   }
 
  /**
-   * Draws or erases a single rectangle on the mask. 
+   * Draws, inverts, or erases a single rectangle on the mask. 
    * @extends WeaveDirective
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
   private drawOnMask( currentPos: Point ) {
-
     var updates;
     var val;
 
@@ -710,13 +714,13 @@ export class WeaveDirective {
 
     // Set the heddles based on the brush.
     switch (this.brush) {
-      case 'pointmask':
+      case 'maskpoint':
         val = true;
         break;
-      case 'erasemask':
+      case 'maskerase':
         val = false;
         break;
-      case 'invertmask':
+      case 'maskinvert':
          val = !this.weave.isMask(currentPos.i,currentPos.j);
         break;        
       default:
@@ -724,7 +728,7 @@ export class WeaveDirective {
     }
 
     this.weave.setMask(currentPos.i,currentPos.j,val);
-    this.drawCell(this.cx,currentPos.i, currentPos.j, "mask", null);
+    this.drawCell(this.cx,currentPos.i, currentPos.j, "mask", val);
   }
 
 
@@ -1063,11 +1067,9 @@ export class WeaveDirective {
 
 
   /**
-   * Fills in the Mask area of canvas.
+   * Fills the visible regions of the mask with the stitch
    * @extends WeaveDirective
-   * @param {Selection} selection - defined user selected area to fill.
    * @param {Array<Array<boolean>>} - the pattern used to fill the area.
-   * @param {string} - the type of logic used to fill selected area.
    * @returns {void}
    */
 
@@ -1075,31 +1077,35 @@ export class WeaveDirective {
   private maskArea(pattern: Array<Array<boolean>>) {
    
 
-  //   var dims = this.render.getCellDims("base");
-  //   var updates = [];
+    var dims = this.render.getCellDims("base");
+    var updates = [];
 
-  //   const rows = pattern.length;
-  //   const cols = pattern[0].length;
+    const rows = pattern.length;
+    const cols = pattern[0].length;
 
 
-  //   for (var i = 0; i < rows; i++ ) {
-  //     for (var j = 0; j < cols; j++ ) {
-  //       var row = this.weave.visibleRows[i + si];
-  //       var col = j + sj;
-  //       var temp = pattern[i % rows][j % cols];
-  //       var prev = this.weave.mask[row][col];
-  //       var val = temp && prev;
+    //iterate through every visible cell
+    for (var i = 0; i < this.weave.visibleRows.length; i++ ) {
+      for (var j = 0; j < this.weave.pattern[0].length; j++ ) {
+        
+        var row = this.weave.visibleRows[i];
+        var col = j;
+        var temp = pattern[i % rows][j % cols];
+        var prev = this.weave.mask[row][col];
+        var val = temp && prev;
 
-  //       var p = new Point(); 
-  //       p.x = (j)*dims.w;
-  //       p.y = (i)*dims.h;
-  //       p.i = row;
-  //       p.j = col;
-  //       this.drawOnDrawdown(p, val);
-  //     }
-  //   }
+        var p = new Point(); 
+        p.x = (j)*dims.w;
+        p.y = (i)*dims.h;
+        p.i = row;
+        p.j = col;
+        
+        this.weave.setHeddle(p.i,p.j,val);
+        this.drawCell(this.cx,p.i, p.j, "drawdown", val);
+      }
+    }
 
-  //   this.redraw();
+    this.redraw();
 
    }
 
