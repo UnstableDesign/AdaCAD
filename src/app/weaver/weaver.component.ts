@@ -442,14 +442,14 @@ export class WeaverComponent implements OnInit {
   public createShuttle(e: any) {
     this.draft.addShuttle(e.shuttle);
     if (e.shuttle.image) {
-    this.weaveRef.redraw();
+      this.weaveRef.redraw();
     }
   }
 
   public createWarpSystem(e: any) {
     this.draft.addWarpSystem(e.shuttle);
     if (e.shuttle.image) {
-    this.weaveRef.redraw();
+      this.weaveRef.redraw();
     }
   }
 
@@ -457,11 +457,13 @@ export class WeaverComponent implements OnInit {
   public hideShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
   }
 
   public showShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
   }
 
   public epiChange(e:any){
