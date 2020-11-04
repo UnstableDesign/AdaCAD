@@ -157,7 +157,13 @@ export class Draft implements DraftInterface {
     if(params.loom === undefined) {
       this.loom = new Loom(this.wefts, this.warps, 8, 10);
     } else {
-      this.loom = params.loom;
+
+      this.loom = new Loom(params.wefts, params.warps, params.loom.num_frames, params.loom.num_treadles);
+      this.loom.min_frames = params.loom.min_frames;
+      this.loom.min_treadles = params.loom.min_treadles;
+      this.loom.threading = params.loom.threading;
+      this.loom.tieup = params.loom.tieup;
+      this.loom.treadling = params.loom.treadling;
     }
     console.log(this);
 

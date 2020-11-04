@@ -104,7 +104,6 @@ export class WeaverComponent implements OnInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log("result in weaver.component constructor:", result);
       this.draft = new Draft(result);
       if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
       this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);

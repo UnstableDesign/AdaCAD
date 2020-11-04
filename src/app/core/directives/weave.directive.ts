@@ -1393,9 +1393,9 @@ export class WeaveDirective {
     this.cxTieups.canvas.height = base_dims.h * this.weave.loom.num_frames;
     this.drawGrid(this.cxTieups,this.tieupsCanvas);
 
-    this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
-    this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
-    this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
+    // this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
+    // this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
+    // this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
 
     this.cxThreading.fillStyle = '#FF0000';
     this.cxTreadling.fillStyle = '#00FF00';
