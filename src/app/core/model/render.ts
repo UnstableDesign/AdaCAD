@@ -22,11 +22,11 @@ export class Render {
     offset_y: {max: number, min: number};
   }
 
-  constructor() {
+  constructor(view_frames) {
 
     //max values
     this.zoom = 100;
-    this.view_frames = true;
+    this.view_frames = view_frames;
 
 
     this.base_cell = {

@@ -57,7 +57,7 @@ export class WeaverComponent implements OnInit {
    * The weave Render object.
    * @property {Render}
    */
-  render: Render = new Render();
+  render: Render = new Render(false);
 
 
 
@@ -104,9 +104,21 @@ export class WeaverComponent implements OnInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
+      var is_frame = true;
+
       this.draft = new Draft(result);
+
+
+      if(this.draft.loom.type != undefined){
+          is_frame = (this.draft.loom.type === 'frame') ? true : false;
+          this.render.view_frames = is_frame;
+      } 
+       
+
       if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
-      this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
+      
+
+      if(is_frame) this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
    });
 
   }

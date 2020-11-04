@@ -9,6 +9,7 @@ const countOccurrences = (blah, val) => blah.reduce((a, v) => (v === val ? a + 1
 
  
 export class Loom{
+    type: string;
 
     //1-d array the same size as warps that has the id for the frame it is associated with or -1. 
     threading: Array<number>; 
@@ -24,7 +25,8 @@ export class Loom{
     tieup: Array<Array<Boolean>>; 
 
 
-    constructor(wefts: number, warps: number, frames: number, treadles:number) {
+    constructor(type: string, wefts: number, warps: number, frames: number, treadles:number) {
+        this.type = type;
         this.min_frames = frames;
         this.min_treadles = treadles;
         this.num_frames = frames;

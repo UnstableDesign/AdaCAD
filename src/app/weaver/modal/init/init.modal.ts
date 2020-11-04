@@ -99,7 +99,10 @@ export class InitModal implements OnInit {
       }
     }
     this.draft.pattern = data;
-    this.draft.loom = new Loom(this.draft.wefts, this.draft.warps, this.getInt("Shafts", e),this.getInt("Treadles", e));
+    //LD comment - this might be causing a problem as the draft object is in charge of constructing the loom
+    //I think its better to have draft declare it because that way it will work with adaCAD uploads 
+    //what you can do instead is make a draft.loom = {} and and add relevant feilds to that, then they will be fed into the constructor
+    this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, this.getInt("Shafts", e),this.getInt("Treadles", e));
 
     if (this.getBool("TREADLING", stringWithoutMetadata)) {
       var treadling = this.getTreadling(stringWithoutMetadata);
@@ -143,10 +146,34 @@ export class InitModal implements OnInit {
     //this.dialogRef.close(this.draft);
   }
 
-  save(f) {
-    if(this.draft.epi == undefined) this.draft.epi = f.value.epi;
-    if(this.draft.warps == undefined) this.draft.warps = f.value.warps; 
+  save(f, loom, frame_num, treadle_num) {
+    console.log(loom, frame_num, treadle_num);
 
+    if(this.draft.warps === undefined) this.draft.warps = f.value.warps; 
+    if(loom === undefined) loom = 'frame';
+    if(frame_num === undefined) frame_num = 8;
+    if(treadle_num === undefined) treadle_num = 10;
+    if(f.value.epi === undefined) f.value.epi = 10;
+
+
+    if(this.draft.epi === undefined) this.draft.epi = f.value.epi;
+
+    if(this.draft.render === undefined){
+      this.draft.render = {};
+      if(loom === "frame") this.draft.render.view_frames = true;
+      else this.draft.render.view_frames = false;
+    }
+
+    if(this.draft.loom === undefined){
+
+      this.draft.loom = {};
+      this.draft.loom.type = loom;
+      this.draft.loom.min_frames = frame_num;
+      this.draft.loom.num_frames = frame_num;
+      this.draft.loom.min_treadles = treadle_num;
+      this.draft.loom.num_treadles = treadle_num;
+    }   
+   
 
     this.dialogRef.close(this.draft);
   }
