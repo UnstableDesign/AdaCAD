@@ -302,13 +302,13 @@ export class WeaveDirective {
           }else if(event.target && event.target.closest('.warp-systems')){
             this.drawOnWarpSelectors(currentPos);
           } else{
-            this.drawOnDrawdown(currentPos, null);
+            this.drawOnDrawdown(currentPos);
           }
           break;
         case 'invertmask':
         case 'pointmask':
         case'erasemask':
-          this.drawOnMask(currentPos, null);
+          this.drawOnMask(currentPos);
           break;
         case 'select':
 
@@ -380,7 +380,7 @@ export class WeaveDirective {
         }else if(event.target && event.target.closest('.warp-systems')){
             this.drawOnWarpSelectors(currentPos);
         } else{
-            this.drawOnDrawdown(currentPos, null);
+            this.drawOnDrawdown(currentPos);
         }
         break;
       case 'select':
@@ -704,6 +704,7 @@ export class WeaveDirective {
   private drawOnMask( currentPos: Point ) {
 
     var updates;
+    var val;
 
     if (!this.cx || !currentPos) { return; }
 
@@ -726,19 +727,24 @@ export class WeaveDirective {
     this.drawCell(this.cx,currentPos.i, currentPos.j, "mask", null);
   }
 
+
+
+
+
   /**
-   * Draws or erases a single rectangle on the canvas. Updates the weave draft.
+   * Called when a single point "draw" event is called on the
    * @extends WeaveDirective
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnDrawdown( currentPos: Point, val:boolean ) {
+
+  private drawOnDrawdown( currentPos: Point) {
 
     // console.log("draw on drawdown", currentPos);
     // incase the context is not set
     //var color = this.weave.getColor(currentPos.i);
     var updates;
-
+    var val  = false;
 
 
 
@@ -761,18 +767,7 @@ export class WeaveDirective {
 
     this.weave.setHeddle(currentPos.i,currentPos.j,val);
     this.drawCell(this.cx,currentPos.i, currentPos.j, "drawdown", null);
-
-
-    //to save cpu, only compute this while frames are visible
-    if(this.render.view_frames){
-      updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern);
-      console.log("updates", updates);
-      this.drawLoomStates(updates);
-      for(var u in updates){
-         if(updates[u].reset !== undefined) this.redrawLoom();
-      }
-     
-    }
+    this.updateLoomFromDraft(currentPos);
   }
 
   /**
@@ -898,6 +893,18 @@ export class WeaveDirective {
     this.redraw();
    }
 
+
+   private updateLoomFromDraft(currentPos){
+     //to save cpu, only compute this while frames are visible
+    if(this.render.view_frames){
+      var updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern);
+      this.drawLoomStates(updates);
+      for(var u in updates){
+         if(updates[u].reset !== undefined) this.redrawLoom();
+      }
+    }
+   }
+
   /**
    * Fills in selected area of canvas. Updates the pattern within selection.
    * @extends WeaveDirective
@@ -911,6 +918,8 @@ export class WeaveDirective {
     pattern: Array<Array<boolean>>, 
     type: string
   ) {
+
+    console.log("Fill Area", selection, pattern, type);
 
     var dims = this.render.getCellDims("base");
     var updates = [];
@@ -985,7 +994,11 @@ export class WeaveDirective {
                 p.y = (row+si)*dims.h;
                 p.i = row;
                 p.j = col;
-                this.drawOnDrawdown(p, val);
+              
+
+                this.weave.setHeddle(p.i,p.j,val);
+                this.drawCell(this.cx,p.i, p.j, "drawdown", val);
+                this.updateLoomFromDraft(p);
 
             break;
             case 'threading':
@@ -1088,7 +1101,7 @@ export class WeaveDirective {
 
   //   this.redraw();
 
-  // }
+   }
 
   private undoRedoSegment() {
 
@@ -1304,7 +1317,6 @@ export class WeaveDirective {
  //draws any updates from a change in a part of the drawdown on the threading, tieup, and treadling
  //will update height if a new row/column is added but for zoom, call redrawLoomSize
   public drawLoomStates(updates) {
-    console.log("draw loom states");
     var dims = this.render.getCellDims("base");
     var base_fill = this.render.getCellDims("base_fill");
 
@@ -1401,7 +1413,6 @@ export class WeaveDirective {
   public recomputeLoom(){
     var mock = [];
     var updates = [];
-    console.log("recompute");
 
     //pretendd that we are computing the values as though they were added one by one
     for (var i = 0; i < this.weave.pattern.length; i++) {
@@ -1424,7 +1435,6 @@ export class WeaveDirective {
   }
 
  public redrawSelection(dims){
-  console.log("redraw selection", dims);
  
  if(this.selection.start !== undefined){
       
@@ -1454,7 +1464,6 @@ export class WeaveDirective {
 
       var cx = this.selection.getTarget();
       var div = cx.parentElement;
-      console.log(div.offsetTop, this.render.zoom);
 
     //  var rows = Math.ceil(this.selection.height / dims.h);
     //  var cols = Math.ceil(this.selection.width / dims.w);
@@ -1534,7 +1543,6 @@ export class WeaveDirective {
 
 
 public unsetSelection(){
-  console.log("unset selection");
  d3.select(this.svgEl).style('display', 'none');
 
 }
@@ -1583,8 +1591,6 @@ public unsetSelection(){
     var base_dims = this.render.getCellDims("base");
     this.unsetSelection();
 
-
-    console.log("simulate");
 
 
     var color = '#000000';

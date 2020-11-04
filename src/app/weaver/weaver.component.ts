@@ -281,7 +281,7 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onClear() {
-    this.weaveRef.fillArea(this.weaveRef.selection, [[null]], 'original')
+    this.weaveRef.fillArea(this.weaveRef.selection, [[false]], 'original')
   }
 
   /**

@@ -466,7 +466,6 @@ This is broken because it needs to delete the affected drawdown cells before
 updating the treadling size. It also needs to update the tie up
 */
     updateUnused(struct:Array<number>, min:number, num:number, type:string){
-        console.log("update unusued", type);
 
         var status = [];
         var condensed = false;
