@@ -107,7 +107,6 @@ export class WeaverComponent implements OnInit {
       console.log("result in weaver.component constructor:", result);
       this.draft = new Draft(result);
       if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
-      console.log("this.draft.loom:", this.draft.loom);
       this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
    });
 
@@ -328,6 +327,7 @@ export class WeaverComponent implements OnInit {
     e.bitmap = this.bitmap;
     if (e.type === "bmp") this.weaveRef.saveBMP("weave_draft", e);
     else if (e.type === "ada") this.weaveRef.saveADA("weave_draft", e);
+    else if (e.type === "wif") this.weaveRef.saveWIF("weave_draft", e);
     
   }
 

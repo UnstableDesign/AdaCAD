@@ -58,8 +58,6 @@ export class Draft implements DraftInterface {
   constructor({...params}) {
     console.log("Draft Constructor", params);
 
-    console.log("params in draft constructor:", params);
-
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 20 : params.warps;
     this.epi = (params.warps === undefined) ? 10 : params.epi;
@@ -393,7 +391,6 @@ export class Draft implements DraftInterface {
       shuttle.setThickness(this.epi);
     }
     this.warp_systems.push(shuttle);
-
   }
 
   //image adds to mask
@@ -516,6 +513,5 @@ export class Draft implements DraftInterface {
         }
       }
     }
-    console.log("finsihed recalculating draft fthis.pattern:",this.pattern);
   }
 }

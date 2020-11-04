@@ -816,7 +816,6 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawOnThreading( currentPos: Point ) {
-    console.log("this.weave.loom:", this.weave.loom);
     if (!this.cxThreading || !currentPos) { return; }
 
     if (this.weave.loom.inThreadingRange(currentPos.i, currentPos.j)){
@@ -1061,34 +1060,35 @@ export class WeaveDirective {
 
 
   private maskArea(pattern: Array<Array<boolean>>) {
+   
 
-    var dims = this.render.getCellDims("base");
-    var updates = [];
+  //   var dims = this.render.getCellDims("base");
+  //   var updates = [];
 
-    const rows = pattern.length;
-    const cols = pattern[0].length;
+  //   const rows = pattern.length;
+  //   const cols = pattern[0].length;
 
 
-    for (var i = 0; i < rows; i++ ) {
-      for (var j = 0; j < cols; j++ ) {
-        var row = this.weave.visibleRows[i + si];
-        var col = j + sj;
-        var temp = pattern[i % rows][j % cols];
-        var prev = this.weave.mask[row][col];
-        var val = temp && prev;
+  //   for (var i = 0; i < rows; i++ ) {
+  //     for (var j = 0; j < cols; j++ ) {
+  //       var row = this.weave.visibleRows[i + si];
+  //       var col = j + sj;
+  //       var temp = pattern[i % rows][j % cols];
+  //       var prev = this.weave.mask[row][col];
+  //       var val = temp && prev;
 
-        var p = new Point(); 
-        p.x = (j)*dims.w;
-        p.y = (i)*dims.h;
-        p.i = row;
-        p.j = col;
-        this.drawOnDrawdown(p, val);
-      }
-    }
+  //       var p = new Point(); 
+  //       p.x = (j)*dims.w;
+  //       p.y = (i)*dims.h;
+  //       p.i = row;
+  //       p.j = col;
+  //       this.drawOnDrawdown(p, val);
+  //     }
+  //   }
 
-    this.redraw();
+  //   this.redraw();
 
-  }
+  // }
 
   private undoRedoSegment() {
 
@@ -1379,11 +1379,6 @@ export class WeaveDirective {
     this.cxTreadling.fillStyle = '#00FF00';
     this.cxTieups.fillStyle = '#0000FF';
 
-    console.log("this.weave.loom in weave.directive.ts", this.weave.loom);
-    console.log("this.weave.loom.threading.length:", this.weave.loom.threading.length);
-    console.log("this.weave.loom.treadling.length", this.weave.loom.treadling.length);
-    console.log("this.weave.loom.tieup.length",this.weave.loom.tieup.length);
-
     for (var j = 0; j < this.weave.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading", true);
     }
@@ -1554,8 +1549,6 @@ public unsetSelection(){
 
     var i,j;
 
-    console.log("in redraw", this.selection);
-
     var base_dims = this.render.getCellDims("base");
    
     this.cx.canvas.width = base_dims.w * this.weave.pattern[0].length;
@@ -1569,7 +1562,6 @@ public unsetSelection(){
 
     var color = '#000000';
     this.cx.fillStyle = color;
-    console.log("this.weave.visibleRows:", this.weave.visibleRows);
       for (i = 0; i < this.weave.visibleRows.length; i++) {
         var row = this.weave.visibleRows[i];
         this.redrawRow(i * base_dims.h, i, this.cx);
@@ -1740,6 +1732,8 @@ public unsetSelection(){
 
     let link = obj.downloadLink.nativeElement;
 
+    console.log("link", link);
+
     link.href = CanvasToBMP.toDataURL(b);
     link.download = fileName + ".bmp";
   }
@@ -1771,7 +1765,15 @@ public unsetSelection(){
    * @returns {void}
    */
   public saveWIF(fileName, obj) {
+    //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
+    var fileContents = "testing";
+    var fileType = "text/plain";
 
+    let link = obj.downloadLink.nativeElement;
+    link.href= "data:" + fileType +";base64," + btoa(fileContents);
+
+    console.log("link:", link);
+    link.download = fileName +".wif";
   }
   // // History
   // private onAdd(segment: DraftSegment) {
