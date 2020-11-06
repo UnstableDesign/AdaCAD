@@ -1,51 +1,113 @@
-.section-container {
-  margin: 10px;
 
-  h1,h2,h3,h4,h5,h6 {
-    margin-bottom: 10px;
-  }
-}
-
-.colorpicker {
-  border: 1px solid white;
-  outline: none;
-  width: 17px;
-  margin: 0 .8rem 0 .375rem;
+.mat-expansion-panel-body {
+    padding: 0px !important;
 }
 
 
-.thickness {
-  border: 1px dashed white;
-  outline: none;
-  width: 17px;
-  margin: 0 .8rem 0 .375rem;
-}
+.design-container{
 
-.center-item {
-  justify-content: right;
-}
+  width:310px;
 
-.mat-list-item {
-  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 
-              0 2px 2px 0 rgba(0,0,0,.14), 
-              0 1px 5px 0 rgba(0,0,0,.12);
-  margin-bottom: 5px;
-
-  .edit-button, .trash-button {
-    display: none;
+  h3{
+    padding: 10px 0px;
   }
 
-  &:hover {
+  .button{
+    justify-content: left;
+
+    i{
+      width: 1.5em;
+      margin-right: 1em;
+    }
+
+    .fill_name{
+      border: thin solid white;
+      overflow: hidden;
+      font-weight: bold;
+      font-style: small-caps;
+    }
+  }
+
+
+  .colorpicker {
+    border: 1px solid white;
+    outline: none;
+    width: 17px;
+    margin: 0 .8rem 0 .375rem;
+  }
+
+
+  .thickness {
+    border: 1px dashed white;
+    outline: none;
+    width: 17px;
+    margin: 0 .8rem 0 .375rem;
+  }
+
+  .center-item {
+    justify-content: right;
+  }
+
+
+  .mat-list-item {
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 
+                0 2px 2px 0 rgba(0,0,0,.14), 
+                0 1px 5px 0 rgba(0,0,0,.12);
+    margin-bottom: 5px;
+
     .edit-button, .trash-button {
-      display: block;
+      display: none;
     }
-  }
 
-  &.selected {
-    border-left: 2px solid #c2185b;
+    &:hover {
+      .edit-button, .trash-button {
+        display: block;
+      }
+    }
 
-    .mat-list-item-content {
-      padding-left: 14px;
+    &.selected {
+      border-left: 2px solid #c2185b;
+
+      .mat-list-item-content {
+        padding-left: 14px;
+      }
     }
   }
 }
+
+
+.collapsed{
+  width: 50px;
+
+
+  .mat-drawer{
+    width: 70px !important;
+  }
+
+
+  h3{
+    display:none;
+  }
+
+  .button{
+    justify-content: left;
+
+    i{
+      width: 1.5em;
+      margin-right: 1em;
+    }
+
+    span{
+      display: none;
+    }
+
+    .fill_name{
+      border: thin solid white;
+      overflow: hidden;
+      font-weight: bold;
+      font-style: small-caps;
+    }
+  }
+
+}
+

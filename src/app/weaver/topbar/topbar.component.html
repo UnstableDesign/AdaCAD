@@ -1,9 +1,8 @@
 <mat-toolbar color="primary">
   <span>AdaCAD</span>
   <span style="color:white; font-size: 80%;" (click)="openAboutDialog(null)">&nbsp; | &nbsp; About</span>
-  <!-- This fills the remaining space of the current row -->
-
-<span>
+  
+<span class="right">
    <!--  <button #undoEvent mat-raised-button [disabled]="!undoItem" (click)="undoClicked($event);">Undo</button>
     <button #redoEvent mat-raised-button [disabled]="!redoItem" (click)="redoClicked($event);">Redo</button> -->
     <button mat-raised-button [matMenuTriggerFor]="downloadDropdown">Download Weave</button>

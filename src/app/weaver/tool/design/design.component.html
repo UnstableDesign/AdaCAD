@@ -1,39 +1,33 @@
-<div class="example-container">
+<div class="design-container"  [class.collapsed]="collapsed">
 
-<mat-accordion multi>
+<mat-accordion multi  [class.collapsed]="collapsed">
 
-<mat-expansion-panel>
+<mat-expansion-panel  [class.collapsed]="collapsed" open>
     <mat-expansion-panel-header>
       <mat-panel-title>
-       View
+      View
       </mat-panel-title>
       <mat-panel-description>
-        {{view}}, {{render?.zoom}} %
+     
       </mat-panel-description>
     </mat-expansion-panel-header>
-    
+ 
 
 
-    Zoom: 
     <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100" value="{{render?.zoom}}" (change)="zoomChange($event)"></mat-slider>
-    
-
-    View Mode: 
-    <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
+       
+   
+  <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
       <mat-button-toggle value="pattern">
         <i class="fa fa-chess-board" aria-hidden="true"></i>
-        Draft
       </mat-button-toggle>
       <mat-button-toggle value="yarn">
         <i class="fa fa-project-diagram" aria-hidden="true"></i>
-        Yarn
       </mat-button-toggle>
       <mat-button-toggle value="visual">
         <i class="fa fa-image" aria-hidden="true"></i>
-        Visual
       </mat-button-toggle>
-    </mat-button-toggle-group>
-
+    </mat-button-toggle-group>      
 
 
   </mat-expansion-panel>
@@ -41,65 +35,124 @@
 
 
 
-  <mat-expansion-panel>
+  <mat-expansion-panel open>
     <mat-expansion-panel-header>
       <mat-panel-title>
        Draft
       </mat-panel-title>
       <mat-panel-description>
-        {{brush}}
+       
       </mat-panel-description>
     </mat-expansion-panel-header>
     
     <div class="buttons">
-      <button matTooltip="draw in filled cells to draft" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Draw
+      
+      <button matTooltip="draw in filled cells to draft" 
+      name="point" 
+      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'point'" 
+      (click)="brushChange($event)">
+      <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+      <span>Draw</span>
+        
+
       </button>
 
-      <button matTooltip="erase filled cells to draft" name="erase" class="button is-primary brush" [class.is-active]="brush === 'erase'" (click)="brushChange($event)">Erase</button>
+      <button matTooltip="erase filled cells to draft" 
+      name="erase" 
+      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'erase'" 
+      (click)="brushChange($event)">
+        <i class="fas fa-eraser" aria-hidden="true"></i>
+        <span>Erase</span>
+          
+      </button>
 
-      <button matTooltip="invert the state of one cell" name="invert" class="button is-primary brush  " [class.is-active]="brush === 'invert'" (click)="brushChange($event)">Invert</button>
+      <button matTooltip="invert the state of one cell" 
+      name="invert" 
+      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'invert'" 
+      (click)="brushChange($event)">
+        <i class="fas fa-random" aria-hidden="true"></i>
+        <span>Invert></span>
+      </button>
      
-      <button matTooltip="select a region of the draft" name="select" id="select" class="button is-primary codehilite brush" [class.is-active]="brush === 'select'" (click)="brushChange($event)">Select</button>
+      <button  matTooltip="select a region of the draft" 
+      name="select" 
+      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'select'" 
+      (click)="brushChange($event)">
+         <i class="fa fa-hand-pointer" aria-hidden="true"></i>
+        <span>Select</span>
+      </button>
 
-      <div class="dropdown is-hoverable">
-        <div class="dropdown-trigger">
-          <button id="fill" [disabled] = "brush !=='select'" class="button is-primary codehilite brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu">
-            <span class="brush-type">Fill</span>
-            <span class="icon is-small">
-              <i class="fas fa-angle-down" aria-hidden="true"></i>
-            </span>
-          </button>
-        </div>
-        <div class="dropdown-menu" id="dropdown-menu" role="menu">
-          <div class="dropdown-content">
-            <ng-container *ngFor="let pat of favorites">
-            <a id="{{pat.id}}" name="fill" (click)="fillEvent($event, pat.id)" class="dropdown-item brush">{{ pat.name }}</a>
-            </ng-container>
-          </div>
-        </div>
-      </div>
-     <!--  <div class="dropdown is-hoverable">
-        <div class="dropdown-trigger">
-          <button id="mask" class="button is-primary codehilite  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu" [disabled] = "brush !=='select'">
-            <span class="brush-type">Mask</span>
-            <span class="icon is-small">
-              <i class="fas fa-angle-down" aria-hidden="true"></i>
-            </span>
-          </button>
-        </div>
-        <div class="dropdown-menu" id="dropdown-menu" role="menu" >
-          <div class="dropdown-content">
-            <ng-container *ngFor="let pat of favorites">
-            <a id="{{pat.id}}" name="fill" (click)="maskEvent($event, pat.id)" class="dropdown-item brush">{{ pat.name }}</a>
-            </ng-container>
-          </div>
-        </div>
-      </div> -->
-       <button name="clear" [disabled] = "brush !=='select'" class="button is-primary  brush" (click)="clearEvent($event);">Clear</button>
-      
-      <button name="copy" [disabled] = "brush !=='select'" (click)="copyEvent($event);" class="button is-primary  brush">Copy</button>
+      <h3 class="is-fullwidth">Selection Operations </h3>
 
-      <div class="dropdown" [class.is-hoverable]="copy">
+       <button name="clear" 
+       [disabled] = "brush !=='select'" 
+       class="button is-primary is-small" [class.is-fullwidth]="!collapsed" 
+       (click)="clearEvent($event);"> 
+       <i class="fa fa-square" aria-hidden="true"></i>
+        <span>Clear</span>
+       </button>
+
+      <ng-container *ngFor="let pat of favorites">
+         <button  matTooltip="" 
+         [disabled] = "brush !=='select'" 
+         name="fill_{{pat.id}}" 
+         class="button is-primary is-small" [class.is-fullwidth]="!collapsed" 
+         (click)="fillEvent($event, pat.id)">
+          <i class="fill_name">{{ pat.name }}</i>
+          <span> Fill {{ pat.name }}</span>
+         </button>
+     </ng-container>
+
+
+      <h3 [class.is-fullwidth]="!collapsed" > </h3>
+
+      <button name="copy" 
+      [disabled] = "brush !=='select'" 
+      (click)="copyEvent($event);" 
+      class="button is-primary is-small" [class.is-fullwidth]="!collapsed" >
+           <i class="fa fa-clone" aria-hidden="true"></i>
+           <span>Copy</span>
+      </button>
+   
+
+
+        <button  matTooltip="" 
+        [disabled] = "!copy" 
+        class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
+        (click)="pasteEvent($event, 'original')">
+           <i class="fa fa-paste" aria-hidden="true"></i>
+          <span>Paste Original</span>
+        </button>
+
+        <button  matTooltip="" 
+        [disabled] = "!copy" 
+        class="button is-small is-primary" [class.is-fullwidth]="!collapsed" 
+        (click)="pasteEvent($event, 'invert')">
+           <i class="fa fa-paste" aria-hidden="true"></i>
+          <span>Paste Inverted</span>
+        </button>
+
+        <button  matTooltip="" 
+        [disabled] = "!copy" 
+        class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
+        (click)="pasteEvent($event, 'mirrorY')">
+           <i class="fa fa-grip-lines-horizontal"></i>
+           <span>Paste Horizontal Mirror</span>
+           
+
+        </button>
+
+        <button  matTooltip="" 
+        [disabled] = "!copy" 
+        class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
+        (click)="pasteEvent($event, 'mirrorX')">  
+          <i class="fa fa-grip-lines-vertical"></i>
+         <span> Paste Vertical Mirror</span>
+          
+        </button>
+
+
+     <!--  <div class="dropdown" [class.is-hoverable]="copy">
         <div class="dropdown-trigger">
           <button id="paste" class="button is-primary  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu" [disabled]="!copy">
             <span class="brush-type">Paste</span>
@@ -125,13 +178,14 @@
           </div>
         </div>
       </div>
+ -->
     </div>
 
 
 
   </mat-expansion-panel>
 
-  <mat-expansion-panel>
+  <!-- <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
        Blocks
@@ -167,7 +221,7 @@
         </div>
       </div>
     </div>
-  </mat-expansion-panel>
+  </mat-expansion-panel> -->
 
 
 <mat-expansion-panel >
@@ -321,6 +375,9 @@
          <span matSuffix>inches</span> 
        </mat-form-field>
 
+
+      <ng-container *ngIf="loomtype == 'frame'">
+
       <mat-form-field>
         <input matInput name="frames" [(ngModel)]="frames"  step="1" type="number" min= "2" max ="60" placeholder="Number of Frames" (change)="frameChange(envt)"> 
          <span matSuffix>frames</span> 
@@ -330,7 +387,7 @@
         <input matInput name="treadles" [(ngModel)]="treadles" step="1" type="number" min= "2" max ="60" placeholder=" Number of Treadles" (change)="frameChange(envt)"> 
          <span matSuffix>treadles</span> 
        </mat-form-field>
-
+      </ng-container>
 
 
 </form>

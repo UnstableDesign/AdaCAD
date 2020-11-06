@@ -98,6 +98,9 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
+  collapsed:boolean = false;
+
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
@@ -565,6 +568,11 @@ export class WeaverComponent implements OnInit {
     if(this.render.view_frames){
       this.weaveRef.recomputeLoom();
     }
+  }
+
+
+  public toggleCollapsed(){
+    this.collapsed = !this.collapsed;
   }
 
   public styleViewFrames(ctx){

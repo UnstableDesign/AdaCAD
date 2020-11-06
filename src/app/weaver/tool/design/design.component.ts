@@ -19,6 +19,7 @@ import { NgForm } from '@angular/forms';
 
 export class DesignComponent implements OnInit {
   @Input() brush;
+  @Input() collapsed;
   @Input() favorites;
   @Input() shuttles;
   @Input() warp_systems;
