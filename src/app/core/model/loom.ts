@@ -280,8 +280,54 @@ and returns an associated value for threading frames and treadles
             //iterate through the row in question and update tieups
             for(var jj = 0; jj < config.drawdown[idx].length; jj++){
               if(config.drawdown[idx][jj]){
-                this.tieup[this.threading[jj]][j] = true;
-                updates.tieup[this.threading[jj]][j].val = true; 
+                // console.log("this.tieup:", this.tieup);
+                // console.log("updates:", updates);
+                // console.log("jj", jj);
+                // console.log("this.threading:", this.threading);
+                // console.log("j:", j);
+                if (updates.tieup[this.threading[jj]]) {
+                  if (updates.tieup[this.threading[jj][j]]) {
+                    updates.tieup[this.threading[jj]][j].val = true;
+                    this.tieup[this.threading[jj]][j]=true;
+
+                  } else {
+                    while (updates.tieup[this.threading[jj]].length < updates.tieup[0].length) {
+                      this.tieup[this.threading[jj]].push(false);
+                      updates.tieup[this.threading[jj]].push({i: this.threading[jj],j: updates.tieup[this.threading[jj]].length, val: false});
+                    }
+                    console.log("updates.tieup[this.threading[jj]][j]", updates.tieup[this.threading[jj]][j]);
+                    console.log("j", j);
+                    console.log("this.threading[jj]", this.threading[jj]);
+                    console.log("updates.tieup",updates.tieup);
+                    updates.tieup[this.threading[jj]][j].val = true;
+                    this.tieup[this.threading[jj]][j]=true;
+
+                  }
+                } else {
+                  while(updates.tieup.length < this.threading[jj]+1) {
+                    updates.tieup.push([]);
+                    this.tieup.push([]);
+                    for (var i = 0; i < this.tieup[0].length; i++) {
+                      console.log("i:", i);
+                      updates.tieup[updates.tieup.length-1].push({i: updates.tieup.length-1, j:i, val: false});
+                      this.tieup[this.tieup.length-1].push(false);
+                    }
+                  }
+                  console.log("updates.tieup.length:", updates.tieup.length);
+                  // var sizeDiff = (this.threading[jj]-this.tieup.length)+1;
+                  // console.log("sizeDiff:", sizeDiff);
+                  // for (var i =0; i < sizeDiff; i++) {
+                  //   this.tieup.push([]);
+                  //   for (var k = 0; k < this.tieup[0].length; k++) {
+                  //     this.tieup[i].push(false);
+                  //   }
+                  // }
+                  this.tieup[this.threading[jj]][j]=true;
+                  console.log("updates.tieup[this.threading[jj]][j]", updates.tieup[this.threading[jj]][j]);
+                  updates.tieup[this.threading[jj]][j].val = true; 
+                }
+                console.log("this.tieup:", this.tieup);
+                // if (this.tieup[this.threading[]])
               }
             }
         }
