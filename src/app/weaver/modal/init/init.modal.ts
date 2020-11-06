@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { color } from 'd3';
 import { rest } from 'lodash';
@@ -24,26 +24,32 @@ interface StartOptions {
 export class InitModal implements OnInit {
 
 
-
+  // opts: StartOptions[] = [
+  //     {value: 'new', viewValue: 'Begin New Draft'},
+  //     {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
+  //     {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'},
+  //     {value: 'wif', viewValue: 'Load a WIF (.wif) File'}
+  //   ];
   opts: StartOptions[] = [
       {value: 'new', viewValue: 'Begin New Draft'},
       {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
-      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'},
-      {value: 'wif', viewValue: 'Load a WIF (.wif) File'}
-    ];
-
+      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'}    ];
 
   //form: any = {};
   selected:string = null;
+  loom:string = null;
   valid:boolean = false; 
   draft: any = {};
+  loomtypes: any;
 
 
-  constructor(private dialogRef: MatDialogRef<InitModal>) {
+  constructor(private dialogRef: MatDialogRef<InitModal>, 
+    @Inject(MAT_DIALOG_DATA) private data: any) {
+      console.log(data);
+      this.loomtypes = data;
   }
 
   ngOnInit() {
-
 
   }
 
@@ -102,7 +108,7 @@ export class InitModal implements OnInit {
     //LD comment - this might be causing a problem as the draft object is in charge of constructing the loom
     //I think its better to have draft declare it because that way it will work with adaCAD uploads 
     //what you can do instead is make a draft.loom = {} and and add relevant feilds to that, then they will be fed into the constructor
-    this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, this.getInt("Shafts", e),this.getInt("Treadles", e));
+    this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, 10, this.getInt("Shafts", e),this.getInt("Treadles", e));
 
     if (this.getBool("TREADLING", stringWithoutMetadata)) {
       var treadling = this.getTreadling(stringWithoutMetadata);
@@ -146,18 +152,20 @@ export class InitModal implements OnInit {
     //this.dialogRef.close(this.draft);
   }
 
-  save(f, loom, frame_num, treadle_num) {
-    console.log(loom, frame_num, treadle_num);
+  save(f) {
 
-    if(this.draft.warps === undefined) this.draft.warps = f.value.warps; 
-    if(loom === undefined) loom = 'frame';
-    if(frame_num === undefined) frame_num = 8;
-    if(treadle_num === undefined) treadle_num = 10;
-    if(f.value.epi === undefined) f.value.epi = 10;
+    console.log(f.value);
+
+    //set default values
+    var warps = (f.value.warps === undefined) ? 20 : f.value.warps;
+    var loom = (f.value.loom === undefined) ? "jacquard" : f.value.loom;
+    var frame_num = (f.value.frame_num === undefined) ? 2 : f.value.frame_num;
+    var treadle_num = (f.value.treadle_num === undefined) ? 2 : f.value.treadle_num;
+    var epi = (f.value.epi === undefined) ? 10 : f.value.epi;
 
 
-    if(this.draft.epi === undefined) this.draft.epi = f.value.epi;
-
+    if(this.draft.warps === undefined) this.draft.warps = warps; 
+    
     if(this.draft.render === undefined){
       this.draft.render = {};
       if(loom === "frame") this.draft.render.view_frames = true;
@@ -167,14 +175,15 @@ export class InitModal implements OnInit {
     if(this.draft.loom === undefined){
 
       this.draft.loom = {};
-      this.draft.loom.type = loom;
+      this.draft.loom.epi = epi;
+      this.draft.loom.type =  loom;
       this.draft.loom.min_frames = frame_num;
       this.draft.loom.num_frames = frame_num;
       this.draft.loom.min_treadles = treadle_num;
       this.draft.loom.num_treadles = treadle_num;
     }   
    
-
+    console.log(this.draft);
     this.dialogRef.close(this.draft);
   }
 

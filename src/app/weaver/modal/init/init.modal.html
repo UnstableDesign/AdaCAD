@@ -15,13 +15,37 @@
     </mat-form-field>
 
     <ng-container *ngIf="(selected == 'new')">
+
       <mat-form-field appearance="fill">
-      <input matInput  type="number" placeholder="Weave Warps" name="warps" min="2" step="1" [(ngModel)]="warps"  required (change) = "valid = 1">
-    </mat-form-field>
+          <mat-label>Which type of loom are you designing for?</mat-label>
+          <mat-select [(value)]="loom" [(ngModel)]="loom" name="loom">
+          <mat-option *ngFor="let type of loomtypes" [value]="type.value">
+            {{type.viewValue}}
+          </mat-option>
+        </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+        <input matInput  type="number" placeholder="Weave Warps" name="warps" min="2" step="1" [(ngModel)]="warps"  required (change) = "valid = 1">
+        </mat-form-field>
+
+       <mat-form-field appearance="fill">
+        <input matInput  type ="number" placeholder="Weave EPI" name="epi" value="10" [(ngModel)]="epi">
+       </mat-form-field> 
+
+
+      <ng-container *ngIf="(loom == 'frame')">
+        <mat-form-field appearance="fill">
+         <input matInput  type="number" placeholder="Number of Frames" name="frame_num" min="2" step="1" value="8" [(ngModel)]="frame_num">
+        </mat-form-field>
 
      <mat-form-field appearance="fill">
-      <input matInput  type ="number" placeholder="Weave EPI" name="epi" value="10" [(ngModel)]="epi">
+      <input matInput  type ="number" placeholder="Number of Treadles" name="treadle_num" [(ngModel)]="treadle_num" min="2" step="1" value="10">
      </mat-form-field> 
+    </ng-container>
+
+   
+
     </ng-container>
 
     
@@ -33,32 +57,10 @@
 </form>
 
 
-  <ng-container *ngIf="(selected == 'new')">
-      <label>Loom Type: </label>
-      <mat-radio-group [(ngModel)]="loom">
-        <mat-radio-button selected  value="jacquard">
-          Jacquard
-        </mat-radio-button>
-        <mat-radio-button value="frame">
-          Frame Loom
-        </mat-radio-button>
-      </mat-radio-group>
-    </ng-container> 
-
-    <ng-container *ngIf="(loom == 'frame')">
-      <mat-form-field appearance="fill">
-      <input matInput  type="number" placeholder="Number of Frames" name="frame_num" min="2" step="1" value="8" [(ngModel)]="frame_num">
-    </mat-form-field>
-
-     <mat-form-field appearance="fill">
-      <input matInput  type ="number" placeholder="Number of Treadles" name="treadle_num" [(ngModel)]="treadle_num" min="2" step="1" value="10">
-     </mat-form-field> 
-    </ng-container>
-
 </mat-dialog-content>
 
  <ng-container>
     <mat-dialog-actions>
-        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loom, frame_num, treadle_num)">Start</button>
+        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loom, epi, frame_num, treadle_num)">Start</button>
     </mat-dialog-actions>
  </ng-container>

@@ -6,19 +6,30 @@ import { Shuttle } from '../../../core/model/shuttle';
 import { Draft } from '../../../core/model/draft';
 import { NgForm } from '@angular/forms';
 
+
+
+
+
 @Component({
   selector: 'app-design',
   templateUrl: './design.component.html',
   styleUrls: ['./design.component.scss']
 })
+
+
 export class DesignComponent implements OnInit {
   @Input() brush;
   @Input() favorites;
   @Input() shuttles;
   @Input() warp_systems;
-  @Input() warps;
   @Input() epi;
-  @Input() view_frames;
+  @Input() warps;
+  @Input() zoom;
+  @Input() view;
+  @Input() frames;
+  @Input() treadles;
+  @Input() loomtype;
+  @Input() loomtypes;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onMask: any = new EventEmitter();
@@ -34,24 +45,23 @@ export class DesignComponent implements OnInit {
   @Output() onCreateWarpSystem: any = new EventEmitter();
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
+  @Output() onViewChange: any = new EventEmitter();
+  @Output() onZoomChange: any = new EventEmitter();
+  @Output() onLoomTypeChange = new EventEmitter();
+  @Output() onFrameChange = new EventEmitter();
+  @Output() onTreadleChange = new EventEmitter();
 
   width = 0;
   selected = 0;
   warp_locked = false;
+  loom = ""; 
 
 
-  view = 'pattern';
   copy = false;
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
-    console.log('favs', this.favorites);
-    console.log('copy', this.copy);
-    console.log('favs', this.view);
-    console.log('frames', this.view_frames);
-    this.width = this.warps / this.epi;
-
 
   }
 
@@ -160,6 +170,32 @@ export class DesignComponent implements OnInit {
     }
    
 
+  }
+
+
+
+  viewChange(e:any){
+    this.onViewChange.emit(e.value);
+  }
+
+  zoomChange(e:any){
+    console.log("zoom change", e);
+    this.onZoomChange.emit(e.value);
+  }
+
+  loomChange(e:any){
+    console.log("loom change", e);
+    this.onLoomTypeChange.emit(e.value);
+  }
+
+  frameChange(e:any){
+    console.log("frame change", e);
+    this.onFrameChange.emit(e.value);
+  }
+
+  treadleChange(e:any){
+    console.log("treadle change", e);
+    this.onTreadleChange.emit(e.value);
   }
 
 

@@ -1,7 +1,56 @@
 <div class="example-container">
 
-  <section *ngIf="view === 'pattern'" class="section-container">
-    <h3>Interlacement Tools</h3>
+<mat-accordion multi>
+
+<mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+       View
+      </mat-panel-title>
+      <mat-panel-description>
+        {{view}}, {{render?.zoom}} %
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    
+
+
+    Zoom: 
+    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100" value="{{render?.zoom}}" (change)="zoomChange($event)"></mat-slider>
+    
+
+    View Mode: 
+    <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
+      <mat-button-toggle value="pattern">
+        <i class="fa fa-chess-board" aria-hidden="true"></i>
+        Draft
+      </mat-button-toggle>
+      <mat-button-toggle value="yarn">
+        <i class="fa fa-project-diagram" aria-hidden="true"></i>
+        Yarn
+      </mat-button-toggle>
+      <mat-button-toggle value="visual">
+        <i class="fa fa-image" aria-hidden="true"></i>
+        Visual
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+
+
+  </mat-expansion-panel>
+
+
+
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+       Draft
+      </mat-panel-title>
+      <mat-panel-description>
+        {{brush}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    
     <div class="buttons">
       <button matTooltip="draw in filled cells to draft" name="point" class="button is-primary brush" [class.is-active]="brush === 'point'" (click)="brushChange($event)">Draw
       </button>
@@ -10,16 +59,8 @@
 
       <button matTooltip="invert the state of one cell" name="invert" class="button is-primary brush  " [class.is-active]="brush === 'invert'" (click)="brushChange($event)">Invert</button>
      
-    </div>
-  <mat-divider></mat-divider>
-  </section>
-  <section *ngIf="view === 'pattern'" class="section-container">
-    <h3>Pattern Tools</h3>
-    <div class="buttons">
-       <button matTooltip="select a region of the draft" name="select" id="select" class="button is-primary codehilite brush" [class.is-active]="brush === 'select'" (click)="brushChange($event)">Select Region</button>
-     </div>
+      <button matTooltip="select a region of the draft" name="select" id="select" class="button is-primary codehilite brush" [class.is-active]="brush === 'select'" (click)="brushChange($event)">Select</button>
 
-  <div class="buttons">
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
           <button id="fill" [disabled] = "brush !=='select'" class="button is-primary codehilite brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -37,7 +78,7 @@
           </div>
         </div>
       </div>
-      <div class="dropdown is-hoverable">
+     <!--  <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
           <button id="mask" class="button is-primary codehilite  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu" [disabled] = "brush !=='select'">
             <span class="brush-type">Mask</span>
@@ -53,7 +94,7 @@
             </ng-container>
           </div>
         </div>
-      </div>
+      </div> -->
        <button name="clear" [disabled] = "brush !=='select'" class="button is-primary  brush" (click)="clearEvent($event);">Clear</button>
       
       <button name="copy" [disabled] = "brush !=='select'" (click)="copyEvent($event);" class="button is-primary  brush">Copy</button>
@@ -85,23 +126,28 @@
         </div>
       </div>
     </div>
-    <!-- <div class="label is-fullwidth">Create</div>
-    <div class="buttons">
-      <a name="button" class="button is-primary is-outline brush">Button</a>
-      <a name="qrcode" class="button is-primary is-outline brush">QR Code</a>
-    </div> -->
-  <mat-divider></mat-divider>
-  </section>
 
-  <section *ngIf="view === 'pattern'" class="section-container">
-    <h3>Mask Tools</h3>
+
+
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+       Blocks
+      </mat-panel-title>
+      <mat-panel-description>
+        {{brush}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+  
     <div class="buttons">
-      <button matTooltip="add cells to mask" name="maskpoint" class="button is-primary brush" [class.is-active]="brush === 'maskpoint'" [disabled] = "view_frames" (click)="brushChange($event)">Draw on Mask
+      <button matTooltip="add cells to mask" name="maskpoint" class="button is-primary brush" [class.is-active]="brush === 'maskpoint'" [disabled] = "draft?.loom.type === 'frame'" (click)="brushChange($event)">Draw on Mask
       </button>
 
-      <button matTooltip="erase cells on mask" name="maskerase" class="button is-primary brush" [class.is-active]="brush === 'maskerase'" [disabled] = "view_frames" (click)="brushChange($event)">Erase Mask</button>
+      <button matTooltip="erase cells on mask" name="maskerase" class="button is-primary brush" [class.is-active]="brush === 'maskerase'" [disabled] = "draft?.loom.type === 'frame'" (click)="brushChange($event)">Erase Mask</button>
 
-       <button matTooltip="invert the state of one cell" name="maskinvert" class="button is-primary brush  " [class.is-active]="brush === 'maskinvert'" [disabled] = "view_frames" (click)="brushChange($event)">Invert Mask</button>
+       <button matTooltip="invert the state of one cell" name="maskinvert" class="button is-primary brush  " [class.is-active]="brush === 'maskinvert'" [disabled] = "draft?.loom.type === 'frame'" (click)="brushChange($event)">Invert Mask</button>
     
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
@@ -121,9 +167,8 @@
         </div>
       </div>
     </div>
+  </mat-expansion-panel>
 
-  <mat-divider></mat-divider>
-  </section>
 
 <mat-expansion-panel >
   <mat-expansion-panel-header>
@@ -132,19 +177,17 @@
     </mat-panel-title>
     <mat-panel-description>
     
+
+
     </mat-panel-description>
   </mat-expansion-panel-header>
 
-
-<button mat-raised-button class="is-fullwidth" (click)="openDialog('weft', null)">
-  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-  Create Weft System
-</button>
-<mat-list>
+  <mat-list>
   <ng-container *ngFor="let shuttle of shuttles">
   <mat-list-item (click)="selected = shuttle.id;" class="level" [class.selected]="selected === shuttle.id" [disableRipple]="false">
     <div class="level-item">
       <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
+       
         <i aria-label="Favorite button" class="fas" [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
       </button>
 
@@ -166,14 +209,16 @@
       <button mat-icon-button class="edit-button" (click)="openDialog('weft', shuttle)">
         <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
       </button>
-
-<!--       <button mat-icon-button class="trash-button">
-        <i aria-label="Favorite button" class="fas fa-trash"></i>
-      </button> -->
     </div>
   </mat-list-item>  
   </ng-container>
 </mat-list>
+
+  <button mat-raised-button class="is-fullwidth" (click)="openDialog('weft', null)">
+    <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
+    Add Weft System
+  </button>
+
 </mat-expansion-panel>
 
 
@@ -188,11 +233,6 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
 
-
-<button mat-raised-button class="is-fullwidth" (click)="openDialog('warp', null)">
-  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-  Create Warp System
-</button>
 <mat-list>
   <ng-container *ngFor="let warp_system of warp_systems">
   <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
@@ -222,6 +262,12 @@
   </mat-list-item>  
   </ng-container>
 </mat-list>
+
+<button mat-raised-button class="is-fullwidth" (click)="openDialog('warp', null)">
+  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
+  Create Warp System
+</button>
+
 </mat-expansion-panel>
 
 
@@ -238,8 +284,18 @@
 
 
  <form #envt="ngForm" novalidate>
-      <mat-form-field>
 
+        <mat-form-field>
+          <mat-label>Loom Type</mat-label>
+          <mat-select [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
+            <mat-option *ngFor="let type of loomtypes" [value]="type.value">
+              {{type.viewValue}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      
+
+      <mat-form-field>
         <input matInput name="warps" 
         [readonly]="warp_locked" 
         [(ngModel)]="warps" 
@@ -261,11 +317,23 @@
         <span matSuffix>epi</span>
       </mat-form-field>
       <mat-form-field>
-        <input matInput name="width" [(ngModel)]="width" step="0.125" type="number" min= "0.25" max ="60" placeholder="Width" (change)="widthChange(envt)"> 
+        <input matInput name="width" [(ngModel)]="width" [(value)] = "warps / epi" step="0.125" type="number" min= "0.25" max ="60" placeholder="Width" (change)="widthChange(envt)"> 
          <span matSuffix>inches</span> 
        </mat-form-field>
 
+      <mat-form-field>
+        <input matInput name="frames" [(ngModel)]="frames"  step="1" type="number" min= "2" max ="60" placeholder="Number of Frames" (change)="frameChange(envt)"> 
+         <span matSuffix>frames</span> 
+       </mat-form-field>
+
+      <mat-form-field>
+        <input matInput name="treadles" [(ngModel)]="treadles" step="1" type="number" min= "2" max ="60" placeholder=" Number of Treadles" (change)="frameChange(envt)"> 
+         <span matSuffix>treadles</span> 
+       </mat-form-field>
+
+
+
 </form>
 </mat-expansion-panel>
-  
+  </mat-accordion>
 </div>

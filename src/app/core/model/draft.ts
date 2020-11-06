@@ -25,7 +25,6 @@ export interface DraftInterface {
   labels: Array<any>;
   wefts: number;
   warps: number;
-  epi: number;
   loom: Loom;
   // threading: Threading;
   // treadling: Treadling;
@@ -49,7 +48,6 @@ export class Draft implements DraftInterface {
   labels: Array<any>;
   wefts: number;
   warps: number;
-  epi: number;
   loom: Loom;
   // threading: Threading;
   // treadling: Treadling;
@@ -60,12 +58,12 @@ export class Draft implements DraftInterface {
 
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 20 : params.warps;
-    this.epi = (params.warps === undefined) ? 10 : params.epi;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
     this.mask = (params.mask === undefined) ? [] : params.mask;
     this.connections = (params.connections === undefined)? [] : params.connections;
     this.labels = (params.labels === undefined)? [] : params.labels;
+
 
     if(params.shuttles === undefined){
       let s = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#3d3d3d'});
@@ -155,10 +153,10 @@ export class Draft implements DraftInterface {
     } 
 
     if(params.loom === undefined) {
-      this.loom = new Loom('frame', this.wefts, this.warps, 8, 10);
+      this.loom = new Loom('frame', this.wefts, this.warps, 10, 8, 10);
     } else {
 
-      this.loom = new Loom(params.loom.type, params.wefts, params.warps, params.loom.num_frames, params.loom.num_treadles);
+      this.loom = new Loom(params.loom.type, params.wefts, params.warps, params.loom.epi, params.loom.num_frames, params.loom.num_treadles);
       if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
       if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
       if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
@@ -378,7 +376,7 @@ export class Draft implements DraftInterface {
     shuttle.setID(this.shuttles.length);
     shuttle.setVisible(true);
     if (!shuttle.thickness) {
-      shuttle.setThickness(this.epi);
+      shuttle.setThickness(this.loom.epi);
     }
     this.shuttles.push(shuttle);
 
@@ -392,7 +390,7 @@ export class Draft implements DraftInterface {
     shuttle.setID(this.shuttles.length);
     shuttle.setVisible(true);
     if (!shuttle.thickness) {
-      shuttle.setThickness(this.epi);
+      shuttle.setThickness(this.loom.epi);
     }
     this.warp_systems.push(shuttle);
   }

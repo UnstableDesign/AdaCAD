@@ -1,10 +1,6 @@
 <app-topbar 
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
-[zoom] = "render?.zoom"
-[view] = "view"
-  (onViewChange) ="viewChange($event);"
-  (onZoomChange) ="renderChange($event);"
   (onUndo)="undo();" 
   (onRedo)="redo();"
   (onSave)="onSave($event);">
@@ -18,12 +14,19 @@
     <mat-tab-group #group (click)="selected = group.selectedIndex;">
       <mat-tab label="Design">
         <app-design [brush]="brush" 
+        [view] = "view"
+        [zoom] = "render?.zoom"
         [favorites]="draft?.patterns | filter: {favorite: true}"
         [shuttles]="draft?.shuttles" 
         [warp_systems]="draft?.warp_systems" 
-        [warps]="draft?.warps" 
-        [epi]="draft?.epi" 
-        [view_frames] = "render?.view_frames"
+        [epi] = "draft?.loom.epi"
+        [warps] = "draft?.warps"
+        [frames] = "draft?.loom.min_frames"
+        [treadles] = "draft?.loom.min_treadles"
+        [loomtypes] = "loomtypes"
+        [loomtype] = "draft?.loom.type"
+        (onViewChange) ="viewChange($event);"
+        (onZoomChange) ="renderChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
@@ -38,7 +41,10 @@
         (onHideShuttle)="hideShuttle($event);"
         (onShowShuttle)="showShuttle($event);"
         (onWarpNumChange) = "warpNumChange($event)"
-        (onEpiNumChange) = "epiChange($event)">
+        (onEpiNumChange) = "epiChange($event)"
+        (onLoomTypeChange) = "loomChange($event)"
+        (onFrameChange) = "frameChange($event)"
+        (onTreadleChange) = "treadleChange($event)">
     
         </app-design> 
       </mat-tab>
