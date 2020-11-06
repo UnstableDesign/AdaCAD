@@ -57,7 +57,7 @@ export class WeaverComponent implements OnInit {
    * The weave Render object.
    * @property {Render}
    */
-  render: Render = new Render();
+  render: Render = new Render(false);
 
 
 
@@ -104,10 +104,21 @@ export class WeaverComponent implements OnInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log("result in weaver.component constructor:", result);
+      var is_frame = true;
+
       this.draft = new Draft(result);
+
+
+      if(this.draft.loom.type != undefined){
+          is_frame = (this.draft.loom.type === 'frame') ? true : false;
+          this.render.view_frames = is_frame;
+      } 
+       
+
       if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
-      this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
+      
+
+      if(is_frame) this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
    });
 
   }
@@ -281,7 +292,7 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onClear() {
-    this.weaveRef.fillArea(this.weaveRef.selection, [[null]], 'original')
+    this.weaveRef.fillArea(this.weaveRef.selection, [[false]], 'original')
   }
 
   /**
@@ -442,14 +453,14 @@ export class WeaverComponent implements OnInit {
   public createShuttle(e: any) {
     this.draft.addShuttle(e.shuttle);
     if (e.shuttle.image) {
-    this.weaveRef.redraw();
+      this.weaveRef.redraw();
     }
   }
 
   public createWarpSystem(e: any) {
     this.draft.addWarpSystem(e.shuttle);
     if (e.shuttle.image) {
-    this.weaveRef.redraw();
+      this.weaveRef.redraw();
     }
   }
 
@@ -457,11 +468,13 @@ export class WeaverComponent implements OnInit {
   public hideShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
   }
 
   public showShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
   }
 
   public epiChange(e:any){
