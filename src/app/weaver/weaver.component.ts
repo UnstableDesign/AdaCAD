@@ -98,7 +98,7 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
-  collapsed:boolean = false;
+  collapsed:boolean = true;
 
 
   /// ANGULAR FUNCTIONS
@@ -661,7 +661,9 @@ public getTransform(j){
   }
 
   public renderChange(value: any){
-     this.render.setZoom(value);
+     if(value.source == 'slider') this.render.setZoom(value);
+     if(value.source == 'in') this.render.zoomIn();
+     if(value.source == 'out') this.render.zoomOut();
      this.redraw();
      this.weaveRef.unsetSelection();
 

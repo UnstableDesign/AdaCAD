@@ -11,15 +11,15 @@
 <mat-sidenav-container class="example-container"  [class.collapsed]="collapsed">
   <mat-sidenav mode="side" position="end" [class.collapsed]="collapsed" opened>
       
-         <mat-button-toggle 
-            (click)="toggleCollapsed();" 
+         <button
+            (click)="toggleCollapsed();accordion.openAll()"
             class="collapse" 
             value="collapsed">
          <i class="fa"
            [class.fa-angle-double-right]="!collapsed" 
            [class.fa-angle-double-left]="collapsed"
          aria-hidden="true"></i>
-        </mat-button-toggle>
+        </button>
 
 <!-- 
     <mat-tab-group #group (click)="selected = group.selectedIndex;">

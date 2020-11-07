@@ -20,6 +20,10 @@ svg {
   display: none !important;
 }
 
+.mat-expansion-panel-body{
+  padding: 0px !important;
+}
+
 .mat-focused .mat-form-field-label {
   color: rgba(255,255,255,.7);
 }

@@ -2,10 +2,11 @@
 
 <mat-accordion multi  [class.collapsed]="collapsed">
 
-<mat-expansion-panel  [class.collapsed]="collapsed" open>
+<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
     <mat-expansion-panel-header>
       <mat-panel-title>
-      View
+      <i class="fas fa-binoculars" aria-hidden="true"></i>
+      <span> View</span>
       </mat-panel-title>
       <mat-panel-description>
      
@@ -14,10 +15,35 @@
  
 
 
-    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100" value="{{render?.zoom}}" (change)="zoomChange($event)"></mat-slider>
+    <ng-container *ngIf="!collapsed">
+    <mat-slider 
+    thumbLabel 
+    [displayWith]="formatLabel" 
+    tickInterval="1" min="1" max="100" 
+    value="{{zoom}}" 
+    (change)="zoomChange($event, 'slider')"></mat-slider>
+    </ng-container>
+
+    <ng-container *ngIf="collapsed">
+      <button matTooltip="zoom in" 
+      name="zoom_in" 
+      class="button is-small"
+      (click)="zoomChange($event, 'in')">
+      <i class="fas fa-search-plus" aria-hidden="true"></i>        
+      </button>
+      <button matTooltip="zoom out" 
+      name="zoom_out" 
+      class="button is-small"
+      (click)="zoomChange($event, 'out')">
+      <i class="fas fa-search-minus" aria-hidden="true"></i>    
+       </button>    
+    </ng-container>
        
    
-  <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
+  <mat-button-toggle-group #group 
+  [class.collapsed] = "collapsed"
+  [value]="view" 
+  (change)="viewChange($event);">
       <mat-button-toggle value="pattern">
         <i class="fa fa-chess-board" aria-hidden="true"></i>
       </mat-button-toggle>
@@ -35,10 +61,17 @@
 
 
 
-  <mat-expansion-panel open>
+  <mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
     <mat-expansion-panel-header>
       <mat-panel-title>
-       Draft
+      
+      <i class="fas fa-pencil-alt" aria-hidden="true" [class.hide]="brush !== 'point'"></i>
+      <i class="fas fa-eraser" aria-hidden="true" [class.hide]="brush !== 'erase'"></i>
+      <i class="fas fa-random" aria-hidden="true" [class.hide]="brush !== 'invert'"></i>
+      <i class="fa fa-hand-pointer" aria-hidden="true" [class.hide]="brush !== 'select'"></i>
+
+
+       <span>Draft</span>
       </mat-panel-title>
       <mat-panel-description>
        
@@ -136,7 +169,7 @@
         [disabled] = "!copy" 
         class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
         (click)="pasteEvent($event, 'mirrorY')">
-           <i class="fa fa-grip-lines-horizontal"></i>
+         <i class="fas fa-arrows-alt-h"  aria-hidden="true"></i> 
            <span>Paste Horizontal Mirror</span>
            
 
@@ -145,8 +178,8 @@
         <button  matTooltip="" 
         [disabled] = "!copy" 
         class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
-        (click)="pasteEvent($event, 'mirrorX')">  
-          <i class="fa fa-grip-lines-vertical"></i>
+        (click)="pasteEvent($event, 'mirrorX')"> 
+         <i class="fas fa-arrows-alt-v"  aria-hidden="true"></i> 
          <span> Paste Vertical Mirror</span>
           
         </button>
@@ -224,10 +257,11 @@
   </mat-expansion-panel> -->
 
 
-<mat-expansion-panel >
+<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
-      Weft Systems
+      <i class="fas fa-equals" aria-hidden="true"></i>
+      <span>Weft Systems</span>
     </mat-panel-title>
     <mat-panel-description>
     
@@ -236,18 +270,25 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
 
+
+<ng-container *ngIf="!collapsed">
+
   <mat-list>
   <ng-container *ngFor="let shuttle of shuttles">
-  <mat-list-item (click)="selected = shuttle.id;" class="level" [class.selected]="selected === shuttle.id" [disableRipple]="false">
-    <div class="level-item">
+  <mat-list-item 
+  (click)="selected = shuttle.id;" 
+  class="level" 
+  [class.selected]="selected === shuttle.id" 
+  [disableRipple]="false">
+
       <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
-       
-        <i aria-label="Favorite button" class="fas" [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
+        <i aria-label="hide" class="fas"  [style.background]="shuttle.color" [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
       </button>
 
 
-
-      <input class="colorpicker shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
+      <input class="colorpicker shuttle-cp" [class.hide] = "collapsed"
+      [(colorPicker)]="shuttle.color" 
+      (colorPickerChange)="colorChange($event)"
        [cpPosition]="'bottom'"
        [style.background]="shuttle.color"/>
 
@@ -255,11 +296,11 @@
        [cpPosition]="'bottom'"
        [style.background]="shuttle.color"/> -->
 
-     </div>
-     <div class="level-item center-item fill-remaining-space">
+
+     <div class="level-item center-item fill-remaining-space" [class.hide] = "collapsed">
       <span class="">{{ shuttle.name }}</span>
     </div>
-    <div class="level-item level-right">
+    <div class="level-item level-right" [class.hide] = "collapsed">
       <button mat-icon-button class="edit-button" (click)="openDialog('weft', shuttle)">
         <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
       </button>
@@ -267,26 +308,47 @@
   </mat-list-item>  
   </ng-container>
 </mat-list>
+</ng-container>
+<ng-container *ngIf="collapsed">
 
-  <button mat-raised-button class="is-fullwidth" (click)="openDialog('weft', null)">
-    <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-    Add Weft System
+    <ng-container *ngFor="let shuttle of shuttles">
+
+      <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
+        <i aria-label="hide" 
+        class="fas"  
+        [style.color]="shuttle.color" 
+        [class.fa-eye-slash]="!shuttle.visible" 
+        [class.fa-eye]="shuttle.visible" 
+        (click)="shuttle.visible = !shuttle.visible;"></i>
+      </button>
+    </ng-container>
+
+</ng-container>
+
+
+
+  <button class="addsystem is-fullwidth" (click)="openDialog('weft', null)">
+    <i aria-label="" class="fa fa-plus"></i>
+    <span> Add Weft System</span>
   </button>
 
 </mat-expansion-panel>
 
 
 
-<mat-expansion-panel >
+<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
-      Warp Systems
+      <i class="warpicon fas fa-equals" aria-hidden="true"></i>
+     <span>Warp Systems</span>
     </mat-panel-title>
     <mat-panel-description>
     
     </mat-panel-description>
   </mat-expansion-panel-header>
 
+
+<ng-container *ngIf="!collapsed">
 <mat-list>
   <ng-container *ngFor="let warp_system of warp_systems">
   <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
@@ -316,20 +378,31 @@
   </mat-list-item>  
   </ng-container>
 </mat-list>
+</ng-container>
+<ng-container *ngIf="collapsed">
+    <ng-container *ngFor="let warp_system of warp_systems">
+      <button mat-icon-button>
+        <i aria-label="hide" 
+        class="fas fa-square"  
+        [style.color] = "warp_system.color"> </i>
+      </button>
 
-<button mat-raised-button class="is-fullwidth" (click)="openDialog('warp', null)">
-  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-  Create Warp System
+     </ng-container>
+</ng-container>
+<button class="addsystem is-fullwidth" (click)="openDialog('warp', null)">
+  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>
+  <span>Add Warp System</span>
 </button>
 
 </mat-expansion-panel>
 
 
 
-<mat-expansion-panel >
+<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
-      Loom Settings
+      <i class="fab fa-slack-hash"></i>
+      <span>Loom Settings</span>
     </mat-panel-title>
     <mat-panel-description>
     
@@ -357,7 +430,7 @@
         min="2" 
         placeholder="Warps" 
         (change)="warpChange(envt)"> 
-         <button mat-icon-button>
+      <button mat-icon-button [class.hide]="collapsed">
         <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
       </mat-form-field>
       <mat-form-field>

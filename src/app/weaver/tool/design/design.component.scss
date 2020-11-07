@@ -1,15 +1,29 @@
-
-.mat-expansion-panel-body {
-    padding: 0px !important;
+.hide{
+  display:none;
 }
 
+.warpicon{
+    text-orientation: sideways;
+
+}
+
+.addsystem{
+    color: white;
+    background: none;
+    border: none;
+    padding: 5px 0px 0px 0px;
+}
 
 .design-container{
 
   width:310px;
 
   h3{
-    padding: 10px 0px;
+    padding: 10px 5px;
+  }
+
+  .mat-expansion-panel-header-title i{
+    width:50px;
   }
 
   .button{
@@ -76,13 +90,60 @@
 }
 
 
-.collapsed{
-  width: 50px;
+.design-container.collapsed{
+  width: 55px;
 
-
-  .mat-drawer{
-    width: 70px !important;
+  span{
+    display: none;
   }
+
+  .mat-form-field-infix{
+    width:44px !important;
+  }
+
+  .mat-expansion-panel{
+    width: 44px;
+  }
+
+  .mat-expansion-panel-body{
+    justify-content: center;
+  }
+
+  .mat-expansion-panel-header{
+    height: 25px !important;
+    padding: 2px 0px 5px 0px;
+    margin-left: 15px;
+  }
+
+  .mat-form-field{
+     width: 40px !important;
+     margin-left: 4px;
+  }
+
+  .mat-expansion-panel-header-title i{
+    width:50px;
+  }
+
+  .mat-expansion-panel-header-description, 
+  .mat-expansion-panel-header-title{
+    margin: 0px;
+  }
+
+  .mat-icon-button{
+    background: white;
+    width: 25px;
+    height: 25px;
+    line-height: 24px;
+    margin: 0px 0px 10px 10px;
+  }
+
+  .mat-button-toggle-group{
+    flex-direction: column;
+  }
+
+/*  .mat-drawer{
+    width: 70px !important;
+  }*/
 
 
   h3{
@@ -94,11 +155,7 @@
 
     i{
       width: 1.5em;
-      margin-right: 1em;
-    }
-
-    span{
-      display: none;
+      margin-right: 0em;
     }
 
     .fill_name{

@@ -179,8 +179,9 @@ export class DesignComponent implements OnInit {
     this.onViewChange.emit(e.value);
   }
 
-  zoomChange(e:any){
+  zoomChange(e:any, source: string){
     console.log("zoom change", e);
+    e.source = source;
     this.onZoomChange.emit(e.value);
   }
 
