@@ -2,7 +2,8 @@
 
 <mat-accordion multi  [class.collapsed]="collapsed">
 
-<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
+<!-- [expanded]="collapsed" -->
+<mat-expansion-panel [hideToggle] = "collapsed">
     <mat-expansion-panel-header>
       <mat-panel-title>
       <i class="fas fa-binoculars" aria-hidden="true"></i>
@@ -12,34 +13,39 @@
      
       </mat-panel-description>
     </mat-expansion-panel-header>
- 
 
+    <div class="is-fullwidth panel-content">
 
-    <ng-container *ngIf="!collapsed">
-    <mat-slider 
-    thumbLabel 
-    [displayWith]="formatLabel" 
-    tickInterval="1" min="1" max="100" 
-    value="{{zoom}}" 
-    (change)="zoomChange($event, 'slider')"></mat-slider>
-    </ng-container>
+      <ng-container *ngIf="!collapsed">
 
+      <span><mat-label>Zoom</mat-label></span>
+
+      <mat-slider 
+      thumbLabel 
+      [displayWith]="formatLabel" 
+      tickInterval="1" min="1" max="100" 
+      value="{{zoom}}" 
+      (change)="zoomChange($event, 'slider')"></mat-slider>
+
+      </ng-container>
     <ng-container *ngIf="collapsed">
-      <button matTooltip="zoom in" 
-      name="zoom_in" 
-      class="button is-small"
-      (click)="zoomChange($event, 'in')">
-      <i class="fas fa-search-plus" aria-hidden="true"></i>        
-      </button>
+
+        <button matTooltip="zoom in" 
+        name="zoom_in" 
+        class="button is-small  is-primary"
+        (click)="zoomChange($event, 'in')">
+        <i class="fas fa-search-plus" aria-hidden="true"></i>        
+        </button>
+
       <button matTooltip="zoom out" 
       name="zoom_out" 
-      class="button is-small"
+      class="button is-small  is-primary"
       (click)="zoomChange($event, 'out')">
       <i class="fas fa-search-minus" aria-hidden="true"></i>    
-       </button>    
+       </button>  
     </ng-container>
-       
-   
+  
+      <span><mat-label>View Mode: </mat-label></span>
   <mat-button-toggle-group #group 
   [class.collapsed] = "collapsed"
   [value]="view" 
@@ -53,15 +59,15 @@
       <mat-button-toggle value="visual">
         <i class="fa fa-image" aria-hidden="true"></i>
       </mat-button-toggle>
-    </mat-button-toggle-group>      
-
+    </mat-button-toggle-group>  
+    </div>
 
   </mat-expansion-panel>
 
 
 
 
-  <mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
+  <mat-expansion-panel [hideToggle] = "collapsed">
     <mat-expansion-panel-header>
       <mat-panel-title>
       
@@ -78,7 +84,7 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
     
-    <div class="buttons">
+    <div class="buttons is-fullwidth panel-content">
       
       <button matTooltip="draw in filled cells to draft" 
       name="point" 
@@ -104,7 +110,7 @@
       class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'invert'" 
       (click)="brushChange($event)">
         <i class="fas fa-random" aria-hidden="true"></i>
-        <span>Invert></span>
+        <span>Invert</span>
       </button>
      
       <button  matTooltip="select a region of the draft" 
@@ -257,7 +263,7 @@
   </mat-expansion-panel> -->
 
 
-<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
+<mat-expansion-panel [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
       <i class="fas fa-equals" aria-hidden="true"></i>
@@ -265,7 +271,10 @@
     </mat-panel-title>
     <mat-panel-description>
     
-
+  <button class="addsystem is-fullwidth" (click)="openDialog('weft', null)">
+    <i aria-label="" class="fa fa-plus"></i>
+    <span> Add</span>
+  </button>
 
     </mat-panel-description>
   </mat-expansion-panel-header>
@@ -282,7 +291,7 @@
   [disableRipple]="false">
 
       <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
-        <i aria-label="hide" class="fas"  [style.background]="shuttle.color" [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
+        <i aria-label="hide" class="fas"  [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
       </button>
 
 
@@ -326,23 +335,21 @@
 </ng-container>
 
 
-
-  <button class="addsystem is-fullwidth" (click)="openDialog('weft', null)">
-    <i aria-label="" class="fa fa-plus"></i>
-    <span> Add Weft System</span>
-  </button>
-
 </mat-expansion-panel>
 
 
 
-<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
+<mat-expansion-panel  [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
       <i class="warpicon fas fa-equals" aria-hidden="true"></i>
      <span>Warp Systems</span>
     </mat-panel-title>
     <mat-panel-description>
+      <button class="addsystem is-fullwidth" (click)="openDialog('warp', null)">
+  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>
+  <span> Add</span>
+</button>
     
     </mat-panel-description>
   </mat-expansion-panel-header>
@@ -389,16 +396,12 @@
 
      </ng-container>
 </ng-container>
-<button class="addsystem is-fullwidth" (click)="openDialog('warp', null)">
-  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>
-  <span>Add Warp System</span>
-</button>
 
 </mat-expansion-panel>
 
 
 
-<mat-expansion-panel [expanded]="collapsed" [hideToggle] = "collapsed">
+<mat-expansion-panel  [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
       <i class="fab fa-slack-hash"></i>
@@ -409,7 +412,7 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
 
-
+<div class="panel-content">
  <form #envt="ngForm" novalidate>
 
         <mat-form-field>
@@ -420,7 +423,7 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-      
+
 
       <mat-form-field>
         <input matInput name="warps" 
@@ -433,6 +436,7 @@
       <button mat-icon-button [class.hide]="collapsed">
         <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
       </mat-form-field>
+
       <mat-form-field>
         <input matInput  
         name="epi" 
@@ -443,10 +447,12 @@
         (change)="epiChange(envt)">  
         <span matSuffix>epi</span>
       </mat-form-field>
+
       <mat-form-field>
         <input matInput name="width" [(ngModel)]="width" [(value)] = "warps / epi" step="0.125" type="number" min= "0.25" max ="60" placeholder="Width" (change)="widthChange(envt)"> 
          <span matSuffix>inches</span> 
        </mat-form-field>
+
 
 
       <ng-container *ngIf="loomtype == 'frame'">
@@ -456,14 +462,31 @@
          <span matSuffix>frames</span> 
        </mat-form-field>
 
+
       <mat-form-field>
         <input matInput name="treadles" [(ngModel)]="treadles" step="1" type="number" min= "2" max ="60" placeholder=" Number of Treadles" (change)="frameChange(envt)"> 
          <span matSuffix>treadles</span> 
        </mat-form-field>
+
       </ng-container>
 
-
 </form>
+</div>
 </mat-expansion-panel>
+<mat-expansion-panel [hideToggle]="collapsed">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <i class="fa fa-chess-board"></i>
+        <span>Patterns</span>
+      </mat-panel-title>
+      <mat-panel-description>
+        <button class="addsystem is-fullwidth">
+          <i aria-label="" class="fa fa-plus"></i>
+          <span> Add</span>
+        </button>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+  </mat-expansion-panel>
+
   </mat-accordion>
 </div>

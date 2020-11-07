@@ -98,7 +98,7 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
-  collapsed:boolean = true;
+  collapsed:boolean = false;
 
 
   /// ANGULAR FUNCTIONS

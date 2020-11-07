@@ -1,9 +1,15 @@
+
+
 .hide{
   display:none;
 }
 
 .warpicon{
-    text-orientation: sideways;
+    display: block;
+    fill: rgb(255, 255, 255);
+    text-anchor: start;
+    transform-origin: 11% 35%;
+    transform: rotate(90deg);
 
 }
 
@@ -17,13 +23,38 @@
 .design-container{
 
   width:310px;
+  line-height: 1.5;
+
 
   h3{
     padding: 10px 5px;
   }
 
+  .panel-content{
+    padding: 15px;
+    width: 90%;
+  }
+
+
+  .mat-slider{
+    width: 80%;
+  }
+
+  .mat-expansion-panel-header{
+    background: #303030;
+  }
+
+  
+  .mat-expansion-panel-body{
+    padding: 8px 23px 16px  
+  }
+
   .mat-expansion-panel-header-title i{
     width:50px;
+  }
+
+  .mat-expansion-panel-body {
+    margin: 0px 12px !important;
   }
 
   .button{
@@ -64,10 +95,6 @@
 
 
   .mat-list-item {
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 
-                0 2px 2px 0 rgba(0,0,0,.14), 
-                0 1px 5px 0 rgba(0,0,0,.12);
-    margin-bottom: 5px;
 
     .edit-button, .trash-button {
       display: none;
@@ -80,7 +107,6 @@
     }
 
     &.selected {
-      border-left: 2px solid #c2185b;
 
       .mat-list-item-content {
         padding-left: 14px;
@@ -91,10 +117,16 @@
 
 
 .design-container.collapsed{
-  width: 55px;
+    width: 75px;
+    padding-left: 14px;
+    line-height: 1.5;
 
   span{
     display: none;
+  }
+
+  .panel-content{
+    padding: 0px;
   }
 
   .mat-form-field-infix{
@@ -112,7 +144,10 @@
   .mat-expansion-panel-header{
     height: 25px !important;
     padding: 2px 0px 5px 0px;
-    margin-left: 15px;
+  }
+
+  .mat-expansion-panel-header i{
+    margin-left: 15px
   }
 
   .mat-form-field{
@@ -133,7 +168,7 @@
     background: white;
     width: 25px;
     height: 25px;
-    line-height: 24px;
+  /*  line-height: 24px;*/
     margin: 0px 0px 10px 10px;
   }
 
@@ -152,6 +187,7 @@
 
   .button{
     justify-content: left;
+    margin-bottom:4px;
 
     i{
       width: 1.5em;
