@@ -1433,7 +1433,14 @@ export class WeaveDirective {
       }
     }
 
-
+    var showingTieup = [];
+    for (var i = 0; i < this.weave.loom.tieup.length; i++) {
+      showingTieup.push([]);
+      for (var j = 0; j < this.weave.loom.tieup[i].length; j++) {
+        showingTieup[i].push(this.weave.loom.tieup[j]);
+      }
+    }
+    console.log("showingTieup:", showingTieup);
     for (var i = 0; i < this.weave.pattern.length; i++) {
       for(var j = 0; j < this.weave.pattern[0].length; j++){
           if(this.weave.pattern[i][j]){
@@ -1783,8 +1790,55 @@ public unsetSelection(){
    */
   public saveWIF(fileName, obj) {
     //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
-    var fileContents = "testing";
+    var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
     var fileType = "text/plain";
+    
+    fileContents += "\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\n";
+    fileContents += "[WEAVING]\nShafts=";
+    fileContents += this.weave.loom.num_frames.toString();
+    fileContents += "\nTreadles=";
+    fileContents += this.weave.loom.num_treadles.toString();
+    fileContents += "\nRising Shed=yes\n";
+    fileContents += "[WARP]\nThreads=";
+    fileContents += this.weave.warps.toString();
+    fileContents += "\n[WEFT]\nThreads=";
+    fileContents += this.weave.wefts.toString();
+    fileContents += "\n[TIEUP]\n";
+    var treadles = [];
+    for (var i =0; i < this.weave.loom.tieup.length;i++) { //this is flipped which is a little bit of a pain, so I'll have to figure out how to resolve that
+      for (var j = 0; j < this.weave.loom.tieup[i].length;j++) {
+        if (this.weave.loom.tieup[i][j] && !treadles.includes(j)) {
+          treadles.push(j);
+        }
+      }
+    }
+    for (var i =0; i < treadles.length; i++) {//which way are we reading?? might need to test this with other software capable of reading WIFs?
+      fileContents += (treadles[i]+1).toString() + "=";
+      var lineMarked = false;
+      for (var j = 0; j < this.weave.loom.tieup.length; j++){
+        if (this.weave.loom.tieup[j][treadles[i]]) { 
+          if (lineMarked) {
+            fileContents += ",";
+          }
+          fileContents += (this.weave.loom.tieup.length-j).toString();
+          lineMarked=true;
+        }
+      }
+      fileContents += "\n";
+    }
+
+    fileContents += "[THREADING]\n";
+    for (var i=0; i <this.weave.loom.threading.length; i++) {
+      var frame = this.weave.loom.threading[i];
+      if (frame != -1) {
+        fileContents += (i+1).toString() + "=" + (this.weave.loom.num_frames-frame).toString() + "\n";
+      }
+    }
+
+    fileContents += "[TREADLING]\n";
+    for (var i = 0; i < this.weave.loom.treadling.length; i++) {
+      fileContents += (i+1).toString() + "=" + (this.weave.loom.treadling[i]+1).toString() + "\n";
+    }
 
     let link = obj.downloadLink.nativeElement;
     link.href= "data:" + fileType +";base64," + btoa(fileContents);
