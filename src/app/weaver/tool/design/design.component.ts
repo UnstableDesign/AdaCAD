@@ -31,6 +31,7 @@ export class DesignComponent implements OnInit {
   @Input() treadles;
   @Input() loomtype;
   @Input() loomtypes;
+  @Input()  patterns;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onMask: any = new EventEmitter();
@@ -51,6 +52,9 @@ export class DesignComponent implements OnInit {
   @Output() onLoomTypeChange = new EventEmitter();
   @Output() onFrameChange = new EventEmitter();
   @Output() onTreadleChange = new EventEmitter();
+  @Output() onPatternChange: any = new EventEmitter();
+  @Output() onCreatePattern: any = new EventEmitter();
+  @Output() onRemovePattern: any = new EventEmitter();
 
   width = 0;
   selected = 0;
@@ -214,6 +218,51 @@ export class DesignComponent implements OnInit {
   handleFile(e: any) {
     console.log(e);
    
+  }
+
+  openPatternDialog(pattern) {
+    console.log("open dialog")
+    var create = false;
+
+    if (!pattern) {
+      pattern = new Pattern();
+      create = true;
+    }
+
+    const dialogRef = this.dialog.open(PatternModal, 
+      {data: pattern });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!create) {
+        this.patterns[result.id] = result;
+      } else {
+        this.onCreatePattern.emit({pattern: result});
+      }
+
+      var obj: any = {};
+      obj.patterns = _.cloneDeep(this.patterns);
+      this.onChange.emit(obj);
+    });
+  }
+
+  print(e) {
+    console.log(e);
+  }
+
+  updateFavorite(p) {
+
+    this.patterns[p].favorite = !this.patterns[p].favorite;
+
+    var obj:any = {};
+    obj.patterns = _.cloneDeep(this.patterns);
+
+    this.onChange.emit(obj);
+  }
+
+
+  removePattern(pattern) {
+    console.log("remove pattern", pattern);
+    this.onRemovePattern.emit({pattern: pattern});
   }
 
 

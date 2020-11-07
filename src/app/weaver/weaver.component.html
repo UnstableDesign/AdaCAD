@@ -12,7 +12,7 @@
   <mat-sidenav mode="side" position="end" [class.collapsed]="collapsed" opened>
       
          <button
-            (click)="toggleCollapsed();accordion.openAll()"
+           (click)="toggleCollapsed()"
             class="collapse" 
             value="collapsed">
          <i class="fa"
@@ -21,9 +21,7 @@
          aria-hidden="true"></i>
         </button>
 
-<!-- 
-    <mat-tab-group #group (click)="selected = group.selectedIndex;">
-      <mat-tab label="Design"> -->
+
         <app-design [brush]="brush" 
         [collapsed] = "collapsed"
         [view] = "view"
@@ -37,6 +35,7 @@
         [treadles] = "draft?.loom.min_treadles"
         [loomtypes] = "loomtypes"
         [loomtype] = "draft?.loom.type"
+        [patterns]="draft?.patterns"
         (onViewChange) ="viewChange($event);"
         (onZoomChange) ="renderChange($event);"
         (onBrushChange)="onBrushChange($event)" 
@@ -56,17 +55,12 @@
         (onEpiNumChange) = "epiChange($event)"
         (onLoomTypeChange) = "loomChange($event)"
         (onFrameChange) = "frameChange($event)"
-        (onTreadleChange) = "treadleChange($event)">
+        (onTreadleChange) = "treadleChange($event)"
+        (onPatternChange)="updatePatterns($event);"
+        (onCreatePattern)="createPattern($event);"
+        (onRemovePattern)="removePattern($event);">
    
         </app-design> 
-     <!--  </mat-tab>
-      <mat-tab label="Patterns">  -->
-        <app-patterns *ngIf="selected === 1" [patterns]="draft?.patterns"
-        (onChange)="updatePatterns($event);"
-        (onCreatePattern)="createPattern($event);"
-        (onRemovePattern)="removePattern($event);"></app-patterns>  
- <!--      </mat-tab>
-    </mat-tab-group> -->
 
 
 

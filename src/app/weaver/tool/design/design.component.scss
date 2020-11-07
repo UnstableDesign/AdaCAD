@@ -113,6 +113,58 @@
       }
     }
   }
+
+
+  .level-with-title {
+  display: flex;
+  flex-direction: column;  
+}
+
+.level-title {
+  margin: 0;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+
+  .mat-icon-button {
+    margin-left: -40px;
+  }
+}
+
+  .mat-subtitle {
+    opacity: .7;
+  }
+
+  .mat-card-actions {
+    // text-align: right;
+  }
+
+  .mat-card {
+    margin-bottom: 10px;
+
+    .pattern-edit-button, .pattern-trash-button {
+      display: none;
+    }
+
+    &:hover {
+      .pattern-edit-button, .pattern-trash-button {
+        display: block;
+      }
+    }
+
+    .pattern-edit-button {
+      position: absolute;
+      top: 0;
+      right: 40px;
+    }
+
+    .pattern-trash-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+
 }
 
 
@@ -168,7 +220,6 @@
     background: white;
     width: 25px;
     height: 25px;
-  /*  line-height: 24px;*/
     margin: 0px 0px 10px 10px;
   }
 
