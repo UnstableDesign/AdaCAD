@@ -132,11 +132,6 @@ export class InitModal implements OnInit {
         this.draft.warp_systems = warp_systems;
         this.draft.rowShuttleMapping = rowToShuttleMapping;
         this.draft.colShuttleMapping = colToShuttleMapping;
-        //thinking that I will add shuttles to the draft object that correspond to the correct colors
-        //will need to adjust the shuttles col and row mapping according to which weft and warp threads
-
-      } else {
-        //TODO: Look into whether or not other color forms are used in WIFs
       }
     }
   }

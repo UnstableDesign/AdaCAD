@@ -50,7 +50,6 @@ export class Loom{
 
       this.tieup = [];
         for (var i = 0; i < frames; i++) {
-          console.log("this.tieup.push in resetTieup");
             this.tieup.push([]);
             for(var j = 0; j < treadles; j++){
               this.tieup[i].push(false);
@@ -82,7 +81,6 @@ export class Loom{
    * @returns {a list of updates made}
    */
     updateFromDrawdown(i, j, drawdown){
-      console.log("drawdown in updateFromDrawdown",drawdown);
       return this.updateConfig(this.getConfig({i: i, j:j, drawdown: drawdown}));
     }
 
@@ -203,9 +201,7 @@ and returns an associated value for threading frames and treadles
       }
 
       for(var i = 0; i < this.tieup.length; i++){
-        console.log("i:", i);
         updates.tieup.push([]);
-        console.log("this.tieup[i].length;", this.tieup[i].length);
         for(var j = 0; j < this.tieup[i].length; j++){
             updates.tieup[i].push({i: i, j:j, val: this.tieup[i][j]});
         }
@@ -229,7 +225,6 @@ and returns an associated value for threading frames and treadles
         updates.threading.push({i: config.frame, j: config.j, val: true})
 
         this.tieup.push([]); //add a new row to the tieup, fill it with false
-        console.log("pushing to this.tieup in else of updateConfig");
         updates.tieup.push([]);
         for(var t = 0; t < this.num_treadles; t++){
           this.tieup[config.frame].push(false);
@@ -304,7 +299,6 @@ and returns an associated value for threading frames and treadles
                   while(updates.tieup.length < this.threading[jj]+1) {
                     updates.tieup.push([]);
                     this.tieup.push([]);
-                    console.log("this.tieup.push in while of updateConfig");
                     for (var i = 0; i < this.tieup[0].length; i++) {
                       updates.tieup[updates.tieup.length-1].push({i: updates.tieup.length-1, j:i, val: false});
                       this.tieup[this.tieup.length-1].push(false);
