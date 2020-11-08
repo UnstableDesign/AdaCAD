@@ -660,10 +660,12 @@ public getTransform(j){
 
   }
 
-  public renderChange(value: any){
-     if(value.source == 'slider') this.render.setZoom(value);
-     if(value.source == 'in') this.render.zoomIn();
-     if(value.source == 'out') this.render.zoomOut();
+  public renderChange(e: any){
+    console.log('render change', e);
+     if(e.source === "slider") this.render.setZoom(e.value);
+     if(e.source === "in") this.render.zoomIn();
+     if(e.source === "out") this.render.zoomOut();
+     
      this.redraw();
      this.weaveRef.unsetSelection();
 

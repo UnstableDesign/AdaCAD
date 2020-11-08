@@ -81,8 +81,7 @@ export class DesignComponent implements OnInit {
   }
 
   brushChange(e: any) {
-    console.log(this.favorites);
-    if (e.target.name) {
+     if (e.target.name) {
       this.brush = e.target.name;
     }
 
@@ -184,9 +183,9 @@ export class DesignComponent implements OnInit {
   }
 
   zoomChange(e:any, source: string){
-    console.log("zoom change", e);
+    console.log("source", source)
     e.source = source;
-    this.onZoomChange.emit(e.value);
+    this.onZoomChange.emit(e);
   }
 
   loomChange(e:any){
@@ -241,7 +240,7 @@ export class DesignComponent implements OnInit {
 
       var obj: any = {};
       obj.patterns = _.cloneDeep(this.patterns);
-      this.onChange.emit(obj);
+      this.onPatternChange.emit(obj);
     });
   }
 
@@ -256,7 +255,7 @@ export class DesignComponent implements OnInit {
     var obj:any = {};
     obj.patterns = _.cloneDeep(this.patterns);
 
-    this.onChange.emit(obj);
+    this.onPatternChange.emit(obj);
   }
 
 

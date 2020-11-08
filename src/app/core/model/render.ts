@@ -87,6 +87,7 @@ export class Render {
   }
 
   setZoom(z: number){
+    console.log("set zoom", z)
     this.zoom = z;
   }
 

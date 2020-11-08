@@ -45,7 +45,7 @@
        </button>  
     </ng-container>
   
-      <span><mat-label>View Mode: </mat-label></span>
+      <span><mat-label>View Mode </mat-label></span>
   <mat-button-toggle-group #group 
   [class.collapsed] = "collapsed"
   [value]="view" 
@@ -86,108 +86,81 @@
     
     <div class="buttons is-fullwidth panel-content">
       
-      <button matTooltip="draw in filled cells to draft" 
+      <button matTooltip="draw in filled cells to draft (shortcut: d)" 
       name="point" 
-      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'point'" 
+      class="button is-small is-primary fas fa-pencil-alt"  [class.is-active]="brush === 'point'" 
       (click)="brushChange($event)">
-      <i class="fas fa-pencil-alt" aria-hidden="true"></i>
-      <span>Draw</span>
-        
-
       </button>
 
-      <button matTooltip="erase filled cells to draft" 
+      <button matTooltip="erase filled cells to draft (shortcut: e)" 
       name="erase" 
-      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'erase'" 
+      class="button is-small is-primary fas fa-eraser" [class.is-active]="brush === 'erase'" 
       (click)="brushChange($event)">
-        <i class="fas fa-eraser" aria-hidden="true"></i>
-        <span>Erase</span>
-          
       </button>
 
       <button matTooltip="invert the state of one cell" 
       name="invert" 
-      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'invert'" 
+      class="button is-small is-primary fas fa-random" [class.is-active]="brush === 'invert'" 
       (click)="brushChange($event)">
-        <i class="fas fa-random" aria-hidden="true"></i>
-        <span>Invert</span>
       </button>
      
-      <button  matTooltip="select a region of the draft" 
+      <button  matTooltip="select a region of the draft (shortcut: s)" 
       name="select" 
-      class="button is-small is-primary" [class.is-fullwidth]="!collapsed" [class.is-active]="brush === 'select'" 
+      class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === 'select'" 
       (click)="brushChange($event)">
-         <i class="fa fa-hand-pointer" aria-hidden="true"></i>
-        <span>Select</span>
       </button>
 
       <h3 class="is-fullwidth">Selection Operations </h3>
 
-       <button name="clear" 
+       <button matTooltip="clear all valules in selected region" 
+       name="clear" 
        [disabled] = "brush !=='select'" 
-       class="button is-primary is-small" [class.is-fullwidth]="!collapsed" 
+       class="button is-primary is-small fa fa-square" 
        (click)="clearEvent($event);"> 
-       <i class="fa fa-square" aria-hidden="true"></i>
-        <span>Clear</span>
        </button>
 
       <ng-container *ngFor="let pat of favorites">
-         <button  matTooltip="" 
+         <button  matTooltip="fill sellection with {{ pat.name }}" 
          [disabled] = "brush !=='select'" 
          name="fill_{{pat.id}}" 
-         class="button is-primary is-small" [class.is-fullwidth]="!collapsed" 
+         class="button is-primary is-small" 
          (click)="fillEvent($event, pat.id)">
           <i class="fill_name">{{ pat.name }}</i>
-          <span> Fill {{ pat.name }}</span>
          </button>
      </ng-container>
 
 
-      <h3 [class.is-fullwidth]="!collapsed" > </h3>
+      <h3 [class.is-fullwidth]="!collapsed" > Copy / Paste </h3>
 
-      <button name="copy" 
-      [disabled] = "brush !=='select'" 
-      (click)="copyEvent($event);" 
-      class="button is-primary is-small" [class.is-fullwidth]="!collapsed" >
-           <i class="fa fa-clone" aria-hidden="true"></i>
-           <span>Copy</span>
-      </button>
-   
+        <button  matTooltip="copy selection (shortcut: c)"
+         name="copy" 
+        [disabled] = "brush !=='select'" 
+        (click)="copyEvent($event);" 
+        class="button is-primary is-small fa fa-clone" >
+        </button>
 
-
-        <button  matTooltip="" 
+        <button  matTooltip="paste selection (shortcut: p)"
         [disabled] = "!copy" 
-        class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
+        class="button is-small is-primary fa fa-paste" 
         (click)="pasteEvent($event, 'original')">
-           <i class="fa fa-paste" aria-hidden="true"></i>
-          <span>Paste Original</span>
         </button>
 
-        <button  matTooltip="" 
+        <button  matTooltip="paste selection inverted" 
         [disabled] = "!copy" 
-        class="button is-small is-primary" [class.is-fullwidth]="!collapsed" 
+        class="button is-small is-primary fa fa-paste" 
         (click)="pasteEvent($event, 'invert')">
-           <i class="fa fa-paste" aria-hidden="true"></i>
-          <span>Paste Inverted</span>
         </button>
 
-        <button  matTooltip="" 
+        <button  matTooltip="paste selection mirrored (horizontal)" 
         [disabled] = "!copy" 
-        class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
-        (click)="pasteEvent($event, 'mirrorY')">
-         <i class="fas fa-arrows-alt-h"  aria-hidden="true"></i> 
-           <span>Paste Horizontal Mirror</span>
-           
-
+        class="button is-small is-primary fas fa-arrows-alt-h" 
+        (click)="pasteEvent($event, 'mirrorY')">           
         </button>
 
-        <button  matTooltip="" 
+        <button  matTooltip="paste selection mirrored (vertical)" 
         [disabled] = "!copy" 
-        class="button is-small is-primary" [class.is-fullwidth]="!collapsed"
-        (click)="pasteEvent($event, 'mirrorX')"> 
-         <i class="fas fa-arrows-alt-v"  aria-hidden="true"></i> 
-         <span> Paste Vertical Mirror</span>
-          
+        class="button is-small is-primary fas fa-arrows-alt-v"
+        (click)="pasteEvent($event, 'mirrorX')">           
         </button>
 
 
@@ -488,32 +461,52 @@
 
 
     </mat-expansion-panel-header>
+  <div class="panel-content">
 
   <ng-container *ngFor="let pattern of patterns;">
+  
   <mat-card class="example-card">
     <mat-card-header style="margin-bottom:5px;">
      
-      <button mat-icon-button (click)="openPatternDialog(pattern)" class="pattern-edit-button">
-        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-      </button>
+     <ng-container *ngIf="!collapsed">
+        <button mat-icon-button (click)="openPatternDialog(pattern)" class="pattern-edit-button">
+          <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+        </button>
 
       <button mat-icon-button (click)="removePattern(pattern)"class="pattern-trash-button">
         <i aria-label="Favorite button" class="fas fa-trash"></i>
       </button>
+     </ng-container>
+
     </mat-card-header>
 
     <mat-card-content>
       <div class="level">
         <div class="level-item level-with-title">
           <div class="mat-title level-title">
-           <!--  <i class="fill_name">{{ pattern.name }}</i> -->
+            
+          <ng-container *ngIf="collapsed">
+              <button class="button is-small" [class.is-primary]="pattern.favorite" (click)="updateFavorite(pattern.id)">
+              <i aria-label="Favorite button" class="fill_name"> 
+               {{ pattern.name }}</i>
+              </button>
+          </ng-container>
+          <ng-container *ngIf="!collapsed">
+
             <button mat-icon-button>
               <i aria-label="Favorite button" class="fa-star" [class.far]="!pattern.favorite" [class.fas]="pattern.favorite" (click)="updateFavorite(pattern.id)"></i>
             </button>
             {{ pattern.name }}
+           </ng-container>
+
           </div>
-          <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
+        
+         <ng-container *ngIf="!collapsed">
+           <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
+        </ng-container>
         </div>
+
+        <ng-container *ngIf="!collapsed">
         <div class="level-item">
           <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
             <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
@@ -523,6 +516,7 @@
             </g>
           </svg>
         </div>
+        </ng-container>
       </div>
     </mat-card-content>
     <!-- <mat-card-actions>
@@ -535,6 +529,7 @@
     </mat-card-actions> -->
   </mat-card>
 </ng-container>
+</div>
 
 
 

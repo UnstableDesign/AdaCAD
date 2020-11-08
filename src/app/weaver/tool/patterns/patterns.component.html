@@ -1,47 +1,47 @@
-<button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
-  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-  Create Pattern
-</button>
-<ng-container *ngFor="let pattern of patterns;">
-<mat-card class="example-card">
-  <mat-card-header style="margin-bottom:5px;">
-    <button mat-icon-button (click)="openDialog(pattern)" class="pattern-edit-button">
-      <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-    </button>
-   <!--  Commented as it was not working -->
-    <button mat-icon-button (click)="removePattern(pattern)"class="pattern-trash-button">
-      <i aria-label="Favorite button" class="fas fa-trash"></i>
-    </button>
-  </mat-card-header>
-  <mat-card-content>
-    <div class="level">
-      <div class="level-item level-with-title">
-        <div class="mat-title level-title">
-          <button mat-icon-button>
-            <i aria-label="Favorite button" class="fa-star" [class.far]="!pattern.favorite" [class.fas]="pattern.favorite" (click)="updateFavorite(pattern.id)"></i>
-          </button>
-          {{ pattern.name }}
+  <button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
+    <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
+    Create Pattern
+  </button>
+  <ng-container *ngFor="let pattern of patterns;">
+  <mat-card class="example-card">
+    <mat-card-header style="margin-bottom:5px;">
+      <button mat-icon-button (click)="openDialog(pattern)" class="pattern-edit-button">
+        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+      </button>
+     <!--  Commented as it was not working -->
+      <button mat-icon-button (click)="removePattern(pattern)"class="pattern-trash-button">
+        <i aria-label="Favorite button" class="fas fa-trash"></i>
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="level">
+        <div class="level-item level-with-title">
+          <div class="mat-title level-title">
+            <button mat-icon-button>
+              <i aria-label="Favorite button" class="fa-star" [class.far]="!pattern.favorite" [class.fas]="pattern.favorite" (click)="updateFavorite(pattern.id)"></i>
+            </button>
+            {{ pattern.name }}
+          </div>
+          <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
         </div>
-        <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
+        <div class="level-item">
+          <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
+            <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
+              <ng-container *ngFor="let up of row; let j = index">
+              <rect *ngIf="up" [attr.x]="j * 10" [attr.y]="i * 10" width="10" height="10" fill="#000"/>
+              </ng-container>
+            </g>
+          </svg>
+        </div>
       </div>
-      <div class="level-item">
-        <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
-          <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
-            <ng-container *ngFor="let up of row; let j = index">
-            <rect *ngIf="up" [attr.x]="j * 10" [attr.y]="i * 10" width="10" height="10" fill="#000"/>
-            </ng-container>
-          </g>
-        </svg>
-      </div>
-    </div>
-  </mat-card-content>
-  <!-- <mat-card-actions>
-    <button mat-icon-button>
-      <i aria-label="Example icon-button with a heart icon" class="fa fa-pencil-alt"></i>
-    </button>
-    <button mat-icon-button>
-      <i aria-label="Example icon-button with a heart icon" class="fa fa-trash"></i>
-    </button>
-  </mat-card-actions> -->
-</mat-card>
+    </mat-card-content>
+    <!-- <mat-card-actions>
+      <button mat-icon-button>
+        <i aria-label="Example icon-button with a heart icon" class="fa fa-pencil-alt"></i>
+      </button>
+      <button mat-icon-button>
+        <i aria-label="Example icon-button with a heart icon" class="fa fa-trash"></i>
+      </button>
+    </mat-card-actions> -->
+  </mat-card>
 </ng-container>
