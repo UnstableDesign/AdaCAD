@@ -458,20 +458,20 @@ export class Draft implements DraftInterface {
   updateDraftFromTreadling(updates){
 
     for(var u in updates){
+      
       if(updates[u].i !== undefined){
 
         var idxs = this.loom.getAffectedDrawdownPoints({weft: updates[u].i, treadle: updates[u].j});
+        
         for(var i = 0; i < idxs.wefts.length; i++){
           for (var j = 0; j < idxs.warps.length; j++){
              this.pattern[idxs.wefts[i]][idxs.warps[j]] = updates[u].val;
           }
         }
-
       }
-
     }
 
-      //return idxs;
+    //return idxs;
       
   }
 

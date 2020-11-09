@@ -754,6 +754,7 @@ export class WeaveDirective {
 
     if (!this.cx || !currentPos) { return; }
 
+
     // Set the heddles based on the brush.
     switch (this.brush) {
       case 'point':
@@ -800,12 +801,16 @@ export class WeaveDirective {
         default:
           break;
       }
-    }
     
     this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
-    this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, val);
     this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup");
+    this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, val);
     this.redraw();
+    
+    var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
+    var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
+    if(u_threading || u_treadling) this.redrawLoom();
+    }
   }
 
   /**
@@ -818,8 +823,6 @@ export class WeaveDirective {
     if (!this.cxThreading || !currentPos) { return; }
 
     if (this.weave.loom.inThreadingRange(currentPos.i, currentPos.j)){
-      
-
 
       var val = false;
 
@@ -836,22 +839,19 @@ export class WeaveDirective {
         default:
           break;
       }
-    }
-    
 
-    var updates = this.weave.loom.updateThreading(currentPos.i, currentPos.j, val);
+  
+      var updates = this.weave.loom.updateThreading(currentPos.i, currentPos.j, val);
+      this.weave.updateDraftFromThreading(updates);
+      this.redraw();
 
-
-    for(var u in updates){
-      if(updates[u].reset !== undefined){
-        this.redrawLoom();
-      } else{
+      for(var u in updates){
         this.drawCell(this.cxThreading,updates[u].i, updates[u].j, "threading");
       }
+          
+      var unused = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
+      if(unused) this.redrawLoom();
     }
-
-    this.weave.updateDraftFromThreading(updates);
-    this.redraw();
   }
 
 
@@ -882,29 +882,34 @@ export class WeaveDirective {
         default:
           break;
       }
-    }
 
-    var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
-    for(var u in updates){
-      if(updates[u].reset !== undefined){
-        this.redrawLoom();
-      } else{
+      //this updates the value in the treadling
+      var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
+      this.weave.updateDraftFromTreadling(updates);
+      this.redraw();
+
+      for(var u in updates){
         this.drawCell(this.cxTreadling,updates[u].i, updates[u].j, "treadling");
       }
-    }
 
-    this.weave.updateDraftFromTreadling(updates);
-    this.redraw();
+      var unused = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling")
+      if(unused) this.redrawLoom();
+    }
    }
 
 
    private updateLoomFromDraft(currentPos){
-     //to save cpu, only compute this while frames are visible
+
     if(this.render.view_frames){
+
       var updates = this.weave.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.weave.pattern);
       this.drawLoomStates(updates);
-      for(var u in updates){
-         if(updates[u].reset !== undefined) this.redrawLoom();
+
+      var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
+      var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
+     
+      if(u_threading || u_treadling){
+         this.redrawLoom();
       }
     }
    }
@@ -1323,16 +1328,11 @@ export class WeaveDirective {
 
 
 
-
  //draws any updates from a change in a part of the drawdown on the threading, tieup, and treadling
  //will update height if a new row/column is added but for zoom, call redrawLoomSize
   public drawLoomStates(updates) {
     var dims = this.render.getCellDims("base");
-    var base_fill = this.render.getCellDims("base_fill");
 
-    this.cxThreading.fillStyle = "#FF0000";
-    this.cxTreadling.fillStyle = "#00FF00";
-    this.cxTieups.fillStyle = "#0000FF";
 
     //check how many frames of the threading are in use
     for(var u in updates.threading){
@@ -1347,8 +1347,6 @@ export class WeaveDirective {
     }
 
     for(var u in updates.threading){    
-       if(updates.threading[u].val)  this.cxThreading.fillStyle = "#FF0000";
-       else  this.cxThreading.fillStyle = "#ffffff";
        this.drawCell( this.cxThreading, updates.threading[u].i, updates.threading[u].j, "threading");
     }
 
@@ -1376,10 +1374,15 @@ export class WeaveDirective {
   }
 
 
-  //called on resize
+
   public redrawLoom() {
 
     var base_dims = this.render.getCellDims("base");
+
+    this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
+    this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
+    this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
+
 
     this.cxThreading.canvas.width = base_dims.w * this.weave.loom.threading.length;
     this.cxThreading.canvas.height = base_dims.h * this.weave.loom.num_frames;
@@ -1393,14 +1396,7 @@ export class WeaveDirective {
     this.cxTieups.canvas.height = base_dims.h * this.weave.loom.num_frames;
     this.drawGrid(this.cxTieups,this.tieupsCanvas);
 
-    // this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
-    // this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
-    // this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
-
-    this.cxThreading.fillStyle = '#FF0000';
-    this.cxTreadling.fillStyle = '#00FF00';
-    this.cxTieups.fillStyle = '#0000FF';
-
+    
     for (var j = 0; j < this.weave.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading");
     }

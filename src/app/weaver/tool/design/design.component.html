@@ -431,13 +431,13 @@
       <ng-container *ngIf="loomtype == 'frame'">
 
       <mat-form-field>
-        <input matInput name="frames" [(ngModel)]="frames"  step="1" type="number" min= "2" max ="60" placeholder="Number of Frames" (change)="frameChange(envt)"> 
+        <input matInput name="frames" [(ngModel)]="frames"  step="1" type="number" min= "2" max ="60" placeholder="Number of Frames" readonly> 
          <span matSuffix>frames</span> 
        </mat-form-field>
 
 
       <mat-form-field>
-        <input matInput name="treadles" [(ngModel)]="treadles" step="1" type="number" min= "2" max ="60" placeholder=" Number of Treadles" (change)="frameChange(envt)"> 
+        <input matInput name="treadles" [(ngModel)]="treadles" step="1" type="number" min= "2" max ="60" placeholder=" Number of Treadles" readonly> 
          <span matSuffix>treadles</span> 
        </mat-form-field>
 
