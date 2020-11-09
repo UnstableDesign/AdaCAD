@@ -5,7 +5,10 @@ import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../../../core/model/shuttle';
 import { Draft } from '../../../core/model/draft';
 import { NgForm } from '@angular/forms';
-
+import { PatternModal } from '../../modal/pattern/pattern.modal';
+import { Pattern } from '../../../core/model/pattern';
+import { PatternService } from '../../../core/provider/pattern.service';
+import * as _ from 'lodash';
 
 
 
@@ -177,7 +180,6 @@ export class DesignComponent implements OnInit {
   }
 
 
-
   viewChange(e:any){
     this.onViewChange.emit(e.value);
   }
@@ -189,7 +191,7 @@ export class DesignComponent implements OnInit {
   }
 
   loomChange(e:any){
-    console.log("loom change", e);
+    console.log("loom change", e.value.loomtype);
     this.onLoomTypeChange.emit(e.value);
   }
 

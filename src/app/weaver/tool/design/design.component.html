@@ -390,7 +390,7 @@
 
         <mat-form-field>
           <mat-label>Loom Type</mat-label>
-          <mat-select [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
+          <mat-select (selectionChange) ="loomChange(envt)" [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
             <mat-option *ngFor="let type of loomtypes" [value]="type.value">
               {{type.viewValue}}
             </mat-option>

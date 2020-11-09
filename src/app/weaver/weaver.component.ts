@@ -74,7 +74,6 @@ export class WeaverComponent implements OnInit {
    * @property {LoomType}
    */
   loomtypes: LoomTypes[] = [
-    {value: 'tapestry', viewValue: 'Tapestry'},
     {value: 'frame', viewValue: 'Floor'},
     {value: 'jacquard', viewValue: 'Jacquard'}
   ];
@@ -98,7 +97,7 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
-  collapsed:boolean = false;
+  collapsed:boolean = true;
 
 
   /// ANGULAR FUNCTIONS
@@ -508,7 +507,15 @@ export class WeaverComponent implements OnInit {
 
   public loomChange(e:any){
     
-    //this.weaveRef.redraw();
+    this.draft.loom.type = e.loomtype;
+    if(this.draft.loom.type == 'jacquard'){
+      this.render.view_frames = false;
+    }else{
+      this.render.view_frames = true;
+      this.weaveRef.recomputeLoom();
+      this.weaveRef.redrawLoom();
+    }
+    this.weaveRef.redraw();
 
   }
 
@@ -565,7 +572,7 @@ export class WeaverComponent implements OnInit {
   public toggleViewFrames(){
     this.render.toggleViewFrames();
 
-    if(this.render.view_frames){
+    if(this.render.view_frames && this.draft.loom.type == "frame"){
       this.weaveRef.recomputeLoom();
     }
   }
