@@ -178,8 +178,6 @@ and returns an associated value for threading frames and treadles
           config.frame = this.threading[obj.j];
         }else{
           config.frame = this.getEmptyFrame();
-          console.log("got new frame at ", config.frame);
-
         }
       }
 
@@ -206,9 +204,6 @@ and returns an associated value for threading frames and treadles
       }
 
 
-      console.log("update config", config.i, config.j);
-
-
       //recreate the tieup for updates
       for(var i = 0; i < this.tieup.length; i++){
         updates.tieup.push([]);
@@ -220,7 +215,6 @@ and returns an associated value for threading frames and treadles
 
       //if this is within the existing frames
       if(config.frame < this.num_frames){
-        console.log("In Frame Range", config.frame);
         
         if(this.threading[config.j] != -1){
           updates.threading.push({i: this.threading[config.j], j: config.j, val: false});
@@ -231,8 +225,6 @@ and returns an associated value for threading frames and treadles
 
 
       }else{
-        //this may be by more than one extra frame
-        console.log("Out of Frame Range", config.frame);
         
         //add a frame and then assign this to it
         this.threading[config.j] = config.frame;
@@ -249,7 +241,6 @@ and returns an associated value for threading frames and treadles
         }
 
         this.num_frames = (config.frame+1);
-        console.log(this.tieup);
 
       }
 
@@ -487,7 +478,6 @@ and returns an associated value for threading frames and treadles
 
 
     updateUnused(struct:Array<number>, min:number, num:number, type:string){
-        console.log("UPDATE UNUSED", type);
 
         var status = [];
         var zeros = []; 

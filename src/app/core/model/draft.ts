@@ -165,6 +165,12 @@ export class Draft implements DraftInterface {
 
   }
 
+  hasCell(i:number, j:number) : boolean{
+    if(i < 0 || i > this.wefts) return false;
+    if(j < 0 || j > this.warps) return false;
+    return true;
+  }
+
   isUp(i:number, j:number) : boolean{
     var row = this.visibleRows[i];
     if ( row > -1 && row < this.pattern.length && j > -1 && j < this.pattern[0].length) {
