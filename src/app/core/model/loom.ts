@@ -502,8 +502,7 @@ and returns an associated value for threading frames and treadles
           status[i] = occurances;
           if(occurances === 0) zeros.push(i);
         }
-        console.log("status", status);
-        console.log("zeros", zeros);
+
         
         //if all the frames/treadles have assignments- don't do anything
         if(zeros.length == 0) return false;
@@ -520,8 +519,6 @@ and returns an associated value for threading frames and treadles
           map.push(zeros[i]);
         }
 
-        console.log("map", map);
-
         var swap_happened = false;
         var old_struct = struct.slice();
         var old_tieup = [];
@@ -530,7 +527,6 @@ and returns an associated value for threading frames and treadles
           old_tieup.push(this.tieup[i].slice());
         }
 
-        //assert (map.length === num);
         
         //reassign the frames/treadles and tieup 
         for(var i = 0; i < map.length; i++){
@@ -541,9 +537,6 @@ and returns an associated value for threading frames and treadles
 
             swap_happened = true;
 
-            console.log(type+" swapped ", old_ndx, "-->", new_ndx);
-            console.log(" struct before: ", struct);
-
 
             for(var j = 0; j < struct.length; j++){
               
@@ -551,28 +544,55 @@ and returns an associated value for threading frames and treadles
                 struct[j] = new_ndx;
               }
             }
-            console.log(" struct after: ", struct);
 
-             if(type === "threading"){
-
-                for(var j = 0; j < this.tieup[old_ndx].length; j++){
-                    this.tieup[new_ndx][j] = old_tieup[old_ndx][j]; 
-                }
-              }else{
-                for(var j = 0; j < this.tieup.length; j++){
-                  this.tieup[j][new_ndx] = old_tieup[j][old_ndx];
-                }
+            if(type === "threading"){
+              for(var j = 0; j < this.tieup[old_ndx].length; j++){
+                this.tieup[new_ndx][j] = old_tieup[old_ndx][j]; 
               }
+            }else{
+              for(var j = 0; j < this.tieup.length; j++){
+                this.tieup[j][new_ndx] = old_tieup[j][old_ndx];
+              }
+            }
           }
         }
 
-        console.log(num, min, map, status);
+
+        for(var i = 0; i < num; i++){
+
+           var old_index = map[i];
+
+           if(status[old_index] === 0){
+
+              if(type === "threading"){
+                
+                if(i > (min-1)){
+                  //delete a frame
+                  this.num_frames--;
+                  this.tieup.splice(i, 1);
+                }else{
+                  this.clearTieupRow(i);
+                }
+
+              } else{
+
+                if(i > (min-1)){
+                  this.num_treadles--;
+                  for(var j = 0; j < this.tieup.length; j++){
+                    this.tieup[j].splice(i, 1);
+                  }
+                }else{
+                  this.clearTieupCol(i)
+                }
+              }
+           }
+        }
+
+
         for(var i = (num-1); i > (min-1); i--){
            
            var old_index = map[i];
            
-           console.log("checking frame id", i);
-           console.log("value", old_index, status[old_index]);
            
            if(status[old_index] === 0){
               if(type === "threading"){
