@@ -26,9 +26,7 @@ export interface DraftInterface {
   wefts: number;
   warps: number;
   loom: Loom;
-  // threading: Threading;
-  // treadling: Treadling;
-  // tieups: TieUps;
+
 }
 
 /**
@@ -165,37 +163,40 @@ export class Draft implements DraftInterface {
 
   }
 
+  //assumes i is the draft row
   hasCell(i:number, j:number) : boolean{
+    //var row = this.visibleRows[i];
     if(i < 0 || i > this.wefts) return false;
     if(j < 0 || j > this.warps) return false;
     return true;
   }
-
+  //assumes i is the draft row
   isUp(i:number, j:number) : boolean{
-    var row = this.visibleRows[i];
-    if ( row > -1 && row < this.pattern.length && j > -1 && j < this.pattern[0].length) {
-      return this.pattern[row][j];
+    //var row = this.visibleRows[i];
+    if ( i > -1 && i < this.pattern.length && j > -1 && j < this.pattern[0].length) {
+      return this.pattern[i][j];
     } else {
       return false;
     }
   }
 
+  //assumes i is the draft row
   isMask(i:number, j:number) : boolean{
-    var row = this.visibleRows[i];
-    if ( row > -1 && row < this.mask.length && j > -1 && j < this.mask[0].length) {
-      return this.mask[row][j];
+    //var row = this.visibleRows[i];
+    if ( i > -1 && i < this.mask.length && j > -1 && j < this.mask[0].length) {
+      return this.mask[i][j];
     } else {
       return false;
     }
   }
 
   setMask(i:number, j:number, bool:boolean) {
-    var row = this.visibleRows[i];
-    this.mask[row][j] = bool;
+    //var row = this.visibleRows[i];
+    this.mask[i][j] = bool;
   }  
   setHeddle(i:number, j:number, bool:boolean) {
-    var row = this.visibleRows[i];
-    this.pattern[row][j] = bool;
+    //var row = this.visibleRows[i];
+    this.pattern[i][j] = bool;
   }
 
 
@@ -240,50 +241,7 @@ export class Draft implements DraftInterface {
   }
 
 
-//update this to take dims into account;
-  // updateDrawdownSelection(selection: any, pattern: any, type: string) {
-   
-  //   const sj = Math.min(selection.start.j, selection.end.j);
-  //   const si = Math.min(selection.start.i, selection.end.i);
-
-
-  //   const rows = pattern.length;
-  //   const cols = pattern[0].length;
-
-  //   var w,h;
-
-  //   w = selection.width / 20;
-  //   h = selection.height / 20;
-
-  //   for (var i = 0; i < h; i++ ) {
-  //     for (var j = 0; j < w; j++ ) {
-  //       var row = this.visibleRows[i + si];
-  //       var temp = pattern[i % rows][j % cols];
-  //       var prev = this.pattern[row][j + sj];
-
-  //       switch (type) {
-  //         case 'invert':
-  //           this.pattern[row][j + sj] = !temp;
-  //           break;
-  //         case 'mask':
-  //           this.pattern[row][j + sj] = temp && prev;
-  //           break;
-  //         case 'mirrorX':
-  //           temp = pattern[(h - i - 1) % rows][j % cols];
-  //           this.pattern[row][j + sj] = temp;
-  //           break;
-  //         case 'mirrorY':
-  //           temp = pattern[i % rows][(w - j - 1) % cols];
-  //           this.pattern[row][j + sj] = temp;
-  //           break;
-  //         default:
-  //           this.pattern[row][j + sj] = temp;
-  //           break;
-  //       }
-  //     }
-  //   }
-  // }
-
+  //assumes i is the screen index
   insertRow(i: number, shuttleId: number) {
     var col = [];
 
@@ -304,6 +262,7 @@ export class Draft implements DraftInterface {
 
   }
 
+  //assumes i is the screen index
   cloneRow(i: number, c: number, shuttleId: number) {
     var row = this.visibleRows[c];
     const col = _.clone(this.pattern[c]);
@@ -318,6 +277,7 @@ export class Draft implements DraftInterface {
     this.updateVisible();
   }
 
+  //assumes i is the screen index
   deleteRow(i: number) {
     var row = this.visibleRows[i];
     this.wefts -= 1;
@@ -357,7 +317,6 @@ export class Draft implements DraftInterface {
     this.warps += 1;
     this.colShuttleMapping.push(0);
     this.loom.threading.push(-1);
-    //this.updateVisible();
 
   }
 
@@ -486,14 +445,19 @@ export class Draft implements DraftInterface {
    * @param i: the tieup frame, j: the tieup treadle, value: true or false
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
-  updateDraftFromTieup(i, j, value){
+  updateDraftFromTieup(updates){
 
+      for(var u in updates){
+      
+        if(updates[u].i !== undefined){
 
-      //this doesn't appear to be working
-      var idxs = this.loom.getAffectedDrawdownPoints({frame: i, treadle: j});
-      for(var wi = 0; wi < idxs.wefts.length; wi++){
-          for (var wj = 0; wj < idxs.warps.length; wj++){
-           this.pattern[idxs.wefts[wi]][idxs.warps[wj]] = value;
+          var idxs = this.loom.getAffectedDrawdownPoints({frame: updates[u].i, treadle: updates[u].j});
+       
+          for(var wi = 0; wi < idxs.wefts.length; wi++){
+            for (var wj = 0; wj < idxs.warps.length; wj++){
+             this.pattern[idxs.wefts[wi]][idxs.warps[wj]] = updates[u].val;
+            }
+          }
         }
       }
 

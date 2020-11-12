@@ -65,6 +65,7 @@
   user-select: none;
   width: 20px;
   height:100%;
+  z-index: -1;
 
 }
 
@@ -80,6 +81,7 @@
   user-select: none;
   height: 20px;
   width:100%;
+  z-index: -1; /* keep from interfering with warp selection" */
 
 }
 

@@ -120,7 +120,7 @@ export class Loom{
 
 
 
-   /* This function takes a point from the draw down [i,j] representing rows and columns 
+   /* This function takes a point from the draw down [i,j] in the current view representing rows and columns 
 and returns an associated value for threading frames and treadles
    * @param obj{i: i,j: j} the Row, Column of the changed pixel.
    * @returns {obj{i: i, j: j, frame: number, treadle: number}}
@@ -405,9 +405,11 @@ and returns an associated value for threading frames and treadles
       return false;
     }
 
-    isInFrame(i, j){
-      if(!this.inThreadingRange(i, j)) return null;
-      else return (this.threading[j] ==i); 
+    isInFrame(warp, frame){
+      if(!this.inThreadingRange(frame, warp)){
+        return null;
+      } 
+      else return (this.threading[warp] === frame); 
 
     }
 
@@ -417,16 +419,18 @@ and returns an associated value for threading frames and treadles
       return false;
     }
 
-    isInTreadle(i, j){
-      if(!this.inTreadlingRange(i, j)) return null;
-      else return (this.treadling[i] ==j); 
+    isInTreadle(weft, treadle){
+      if(!this.inTreadlingRange(weft, treadle)) return null;
+      else return (this.treadling[weft] === treadle); 
 
     }
 
 
     updateTieup(i, j, val){
-        if(!this.inTieupRange(i,j)) return;
+       var updates = [];
         this.tieup[i][j] = val;
+        updates.push({i:i, j:j, val:val});
+        return updates;
     }
 
     updateThreading(i, j, val){
