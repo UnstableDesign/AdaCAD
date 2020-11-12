@@ -1440,7 +1440,6 @@ export class WeaveDirective {
         showingTieup[i].push(this.weave.loom.tieup[j]);
       }
     }
-    console.log("showingTieup:", showingTieup);
     for (var i = 0; i < this.weave.pattern.length; i++) {
       for(var j = 0; j < this.weave.pattern[0].length; j++){
           if(this.weave.pattern[i][j]){
@@ -1796,10 +1795,6 @@ public unsetSelection(){
     fileContents += "\nCOLOR PALETTE=yes\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\nCOLOR TABLE=yes\nTHREADING=yes\nWARP COLORS=yes\nTREADLING=yes\nWEFT COLORS=yes\n";
     
     fileContents += "[COLOR PALETTE]\n";
-    console.log("this.weave.shuttles:", this.weave.shuttles);
-    console.log("this.weave.rowShuttleMapping:", this.weave.rowShuttleMapping);
-    console.log("this.weave.colShuttleMapping:", this.weave.colShuttleMapping);
-    console.log("this.weave.warp_systems", this.weave.warp_systems);
     fileContents += "Entries=" + (this.weave.shuttles.length+this.weave.warp_systems.length).toString() +"\n";
     fileContents += "Form=RGB\nRange=0,255\n";
 
@@ -1855,7 +1850,7 @@ public unsetSelection(){
     }
 
     fileContents+= "[COLOR TABLE]\n";
-    console.log("this.weave.shuttles:", this.weave.shuttles);
+    //Reference: https://css-tricks.com/converting-color-spaces-in-javascript/ for conversion for hex to RGB
     var counter = 1;
     for (var i = 0; i < this.weave.shuttles.length; i++) {
       fileContents+= (counter).toString();
@@ -1898,7 +1893,6 @@ public unsetSelection(){
     }
 
     fileContents += "[TREADLING]\n";
-    console.log(this.weave.loom.treadling);
     for (var i = 0; i < this.weave.loom.treadling.length; i++) {
       if (this.weave.loom.treadling[i] != null && this.weave.loom.treadling[i] != -1){
         fileContents += (i+1).toString() + "=" + (this.weave.loom.treadling[i]+1).toString() + "\n";

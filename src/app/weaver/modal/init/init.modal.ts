@@ -88,8 +88,8 @@ export class InitModal implements OnInit {
 
   processWifData(e: any) {
     var stringWithoutMetadata = this.getSubstringAfter("CONTENTS", e);
-    this.draft.warps = this.getInt("Threads",this.getSubstringAfter("[WARP]",stringWithoutMetadata));
-    this.draft.wefts = this.getInt("Threads",this.getSubstringAfter("[WEFT]",stringWithoutMetadata));
+    this.draft.warps = this.getInt("Threads",this.getSubstringAfter("WARP]",stringWithoutMetadata));
+    this.draft.wefts = this.getInt("Threads",this.getSubstringAfter("WEFT]",stringWithoutMetadata));
     var data = [];
 
     for (var i = 0; i < this.draft.warps; i++) {

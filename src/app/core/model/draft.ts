@@ -59,7 +59,9 @@ export class Draft implements DraftInterface {
     console.log("Draft Constructor", params);
 
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
+    console.log("params.wefts:", params.wefts);
     this.warps = (params.warps === undefined) ? 20 : params.warps;
+    console.log("params.warps:", params.warps);
     this.epi = (params.warps === undefined) ? 10 : params.epi;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
@@ -503,6 +505,7 @@ export class Draft implements DraftInterface {
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
   recalculateDraft(tieup, treadling, threading) {
+    console.log("this.pattern:",this.pattern);
     for (var i = 0; i < treadling.length;i++) {
       var active_treadle = treadling[i];
       if (active_treadle != -1) {
