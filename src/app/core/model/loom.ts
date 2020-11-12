@@ -10,6 +10,7 @@ const countOccurrences = (blah, val) => blah.reduce((a, v) => (v === val ? a + 1
  
 export class Loom{
     type: string;
+    epi: number;
 
     //1-d array the same size as warps that has the id for the frame it is associated with or -1. 
     threading: Array<number>; 
@@ -25,8 +26,10 @@ export class Loom{
     tieup: Array<Array<Boolean>>; 
 
 
-    constructor(type: string, wefts: number, warps: number, frames: number, treadles:number) {
+    constructor(type: string, wefts: number, warps: number, epi:number, frames: number, treadles:number) {
+
         this.type = type;
+        this.epi = epi;
         this.min_frames = frames;
         this.min_treadles = treadles;
         this.num_frames = frames;
@@ -175,7 +178,6 @@ and returns an associated value for threading frames and treadles
           config.frame = this.threading[obj.j];
         }else{
           config.frame = this.getEmptyFrame();
-
         }
       }
 
@@ -187,7 +189,8 @@ and returns an associated value for threading frames and treadles
 
 
 /***
-   /* This function updates the values of the treadles, threading and tie up based on a returned value 
+   /* This function updates the values of the treadles, 
+   threading and tie up based on a returned value 
    from getConfig
    * @param obj{i: i,j: j} the Row, Column of the changed pixel.
    * @returns a list of the updated points {obj{threading: array<{i,j}>, treadling: array<{i,j}>, tieup  array<{i,j}}}
@@ -200,16 +203,19 @@ and returns an associated value for threading frames and treadles
         tieup: []
       }
 
+
+      //recreate the tieup for updates
       for(var i = 0; i < this.tieup.length; i++){
         updates.tieup.push([]);
         for(var j = 0; j < this.tieup[i].length; j++){
             updates.tieup[i].push({i: i, j:j, val: this.tieup[i][j]});
         }
       }
-      
+
 
       //if this is within the existing frames
       if(config.frame < this.num_frames){
+        
         if(this.threading[config.j] != -1){
           updates.threading.push({i: this.threading[config.j], j: config.j, val: false});
         }
@@ -219,19 +225,27 @@ and returns an associated value for threading frames and treadles
 
 
       }else{
-        this.num_frames++;
-        this.threading[config.j] = config.frame;
         
+        //add a frame and then assign this to it
+        this.threading[config.j] = config.frame;
         updates.threading.push({i: config.frame, j: config.j, val: true})
 
-        this.tieup.push([]); //add a new row to the tieup, fill it with false
-        updates.tieup.push([]);
-        for(var t = 0; t < this.num_treadles; t++){
-          this.tieup[config.frame].push(false);
-          updates.tieup[config.frame].push({i: config.frame, j: t, val: false});
-
+        for(var d = this.num_frames; d <= config.frame; d++){
+          this.tieup.push([]); //add a new row to the tieup, fill it with false
+          updates.tieup.push([]);
+          
+          for(var t = 0; t < this.num_treadles; t++){
+            this.tieup[d].push(false);
+            updates.tieup[d].push({i: d, j: t, val: false});
+          }
         }
+
+        this.num_frames = (config.frame+1);
+
       }
+
+
+
 
       if(config.treadle < this.num_treadles){
         if(this.treadling[config.i] != -1){
@@ -244,86 +258,49 @@ and returns an associated value for threading frames and treadles
         updates.treadling.push({i: config.i, j:  config.treadle, val: true});
 
       }else{
-        this.num_treadles++;
+
+        var diff = config.treadle - (this.num_treadles-1);
+
+
         this.treadling[config.i] = config.treadle;
         updates.treadling.push({i: config.i, j:  config.treadle, val: true});
 
-        for(var f = 0; f < this.num_frames; f++){
-          this.tieup[f].push(false);
-          updates.tieup[f].push({i: f, j: config.treadle, val: false});
+        for(var d = this.num_treadles; d <= config.treadle; d++){
+          for(var f = 0; f < this.num_frames; f++){
+            this.tieup[f].push(false);
+            updates.tieup[f].push({i: f, j: d, val: false});
 
+          }
         }
+
+        this.num_treadles = (config.treadle+1);
+
       }
-
-
-      //set all tie ups in this treadle column to false
-      // for(var i = 0; i < this.tieup.length; i++){
-      //   for(var j = 0; j < this.tieup[i].length; j++){
-      //     this.tieup[i][j] = false;
-      //     updates.tieup[i][j] = {i: i, j: config.treadle, val: false};
-      //   }
-
-      // }
 
       
       //look through each treadle, and see if the tie up needs to be updated
       for(var j = 0; j < this.num_treadles; j++){
-        const idx = this.treadling.findIndex(element => element === j);
+          const idx = this.treadling.findIndex(element => element === j);
+
         if(idx !== -1){
             //clear the tieup associated with this treadle
             for(var i = 0; i < this.num_frames; i++){
                 this.tieup[i][j] = false;
                 updates.tieup[i][j].val = false; 
             }
-
-
-
             //iterate through the row in question and update tieups
             for(var jj = 0; jj < config.drawdown[idx].length; jj++){
+              
+
               if(config.drawdown[idx][jj]){
-                if (updates.tieup[this.threading[jj]]) {
-                  if (updates.tieup[this.threading[jj][j]]) {
-                    updates.tieup[this.threading[jj]][j].val = true;
-                    this.tieup[this.threading[jj]][j]=true;
 
-                  } else {
-                    while (updates.tieup[this.threading[jj]].length < updates.tieup[0].length) {
-                      this.tieup[this.threading[jj]].push(false);
-                      updates.tieup[this.threading[jj]].push({i: this.threading[jj],j: updates.tieup[this.threading[jj]].length, val: false});
-                    }
-                    updates.tieup[this.threading[jj]][j].val = true;
-                    this.tieup[this.threading[jj]][j]=true;
-
-                  }
-                } else {
-                  while(updates.tieup.length < this.threading[jj]+1) {
-                    updates.tieup.push([]);
-                    this.tieup.push([]);
-                    for (var i = 0; i < this.tieup[0].length; i++) {
-                      updates.tieup[updates.tieup.length-1].push({i: updates.tieup.length-1, j:i, val: false});
-                      this.tieup[this.tieup.length-1].push(false);
-                    }
-                  }
-                  // var sizeDiff = (this.threading[jj]-this.tieup.length)+1;
-                  // console.log("sizeDiff:", sizeDiff);
-                  // for (var i =0; i < sizeDiff; i++) {
-                  //   this.tieup.push([]);
-                  //   for (var k = 0; k < this.tieup[0].length; k++) {
-                  //     this.tieup[i].push(false);
-                  //   }
-                  // }
-                  this.tieup[this.threading[jj]][j]=true;
+                  this.tieup[this.threading[jj]][j] = true;                  
                   updates.tieup[this.threading[jj]][j].val = true; 
-                }
-                // if (this.tieup[this.threading[]])
               }
             }
         }
       }
 
-      var u_threading = this.updateUnused(this.threading, this.min_frames, this.num_frames, "threading");
-      var u_treadling = this.updateUnused(this.treadling, this.min_treadles, this.num_treadles, "treadling");
-      if(u_threading || u_treadling) return [{reset: true}];
       return updates;
 
     }
@@ -339,6 +316,7 @@ and returns an associated value for threading frames and treadles
           var active_tieup_rows = [];
           var active_tieup_cols = [];
           var active_treadle_rows = [];
+
 
       //this is a point in the threading
       if(obj.frame !== undefined && obj.warp !== undefined){
@@ -379,7 +357,6 @@ and returns an associated value for threading frames and treadles
       if(obj.treadle !== undefined && obj.weft !== undefined){
 
 
-
           //whcih frames are associated with this treadle via tie up?
           for(var i = 0; i < this.tieup.length; i++){
             if(this.tieup[i][obj.treadle]){
@@ -387,12 +364,14 @@ and returns an associated value for threading frames and treadles
             }
           }
 
+
           //get the cells linked with these frames
           for(var ii = 0; ii < active_tieup_rows.length; ii++){
               for(var j = 0; j < this.threading.length; j++){
                 if(this.threading[j] == active_tieup_rows[ii]) active_thread_cols.push(j);
               }
           }
+
 
           return {wefts: [obj.weft], warps: active_thread_cols};
       }
@@ -437,13 +416,16 @@ and returns an associated value for threading frames and treadles
 
 
     updateTieup(i, j, val){
+        if(!this.inTieupRange(i,j)) return;
         this.tieup[i][j] = val;
     }
 
     updateThreading(i, j, val){
-      console.log("update threading");
       var updates = [];
       var frame = this.threading[j];
+
+      if(!this.inThreadingRange(i, j)) return updates;
+
 
       //nothing is assigned to this frame
       if(frame == -1){
@@ -457,9 +439,6 @@ and returns an associated value for threading frames and treadles
 
       if(val) this.threading[j] = i;
       else this.threading[j] = -1;
-
-
-      if(this.updateUnused(this.threading, this.min_frames, this.num_frames, "threading")) return [{reset: true}]
       
       return updates;
     }
@@ -468,6 +447,8 @@ and returns an associated value for threading frames and treadles
       var updates = [];
       var treadle = this.treadling[i];
 
+      if(!this.inTreadlingRange(i, j)) return updates;
+
       //if this treadle is assigned && the value is true
       if(treadle != -1 && val) updates.push({i:i, j: treadle, val:false});
       updates.push({i:i, j: j, val:val});
@@ -475,10 +456,8 @@ and returns an associated value for threading frames and treadles
       if(val) this.treadling[i] = j;
       else this.treadling[i] = -1;
 
-
-      if(this.updateUnused(this.treadling, this.min_treadles, this.num_treadles, "treadling")) return [{reset: true}]
-
       return updates;
+
     }
 
 
@@ -495,91 +474,130 @@ and returns an associated value for threading frames and treadles
     }
   
 
-/*
-This is broken because it needs to delete the affected drawdown cells before 
-updating the treadling size. It also needs to update the tie up
-*/
+
+
     updateUnused(struct:Array<number>, min:number, num:number, type:string){
 
         var status = [];
+        var zeros = []; 
         var condensed = false;
+        var map = [];        //map [new-index] = old-index
 
-        //first check if the frames are being used or not
+
+        //first check if the frames/treadles are being used or not
+        //push unusued frames to zero:
         for(var i = 0; i < num; i++){
-          status[i] = countOccurrences(struct, i);
+          var occurances = countOccurrences(struct, i);
+          status[i] = occurances;
+          if(occurances === 0) zeros.push(i);
         }
+
         
-
-
-        //compress the frames so they are in continuous rows
-        var unused = -1;
+        //if all the frames/treadles have assignments- don't do anything
+        if(zeros.length == 0) return false;
         
-        for(var i = 0; i < status.length; i++){
-          if(status[i] === 0 && unused === -1){
-             unused = i;
-             if(type === "threading") this.clearTieupRow(i);
-             else this.clearTieupCol(i);
-          }else if(status[i] !== 0 && unused === -1){
-             unused = -1;
-          }else if(status[i] === 0 && unused !== -1){
-             if(type === "threading") this.clearTieupRow(i);
-             else this.clearTieupCol(i);
-          }else{
-            //if frame/treadle status isn't zero and unusued isn't zero, swap rows
-              condensed = true;
-
-              //go through the structure and adjust
-              for(var j = 0; j < struct.length; j++){
-                if(struct[j] === i){ 
-                  struct[j] = unused;
-                };
-              }
-
-              if(type === "threading"){
-                //update tieups rows
-                for(var j = 0; j < this.tieup[0].length; j++){
-                    this.tieup[unused][j] = this.tieup[i][j];
-                    this.tieup[i][j] = false;
-                }
-
-
-              }else{
-                for(var j = 0; j < this.tieup.length; j++){
-                    this.tieup[j][unused] = this.tieup[j][i];
-                    this.tieup[j][i] = false;
-                }
-              }
-
-              ///struct[unused] = status[i];
-              status[i] = 0
-              unused = i;
-
+        //push non-zero rows in order to map first
+        for(var i = 0; i < num; i++){
+          if(countOccurrences(zeros, i) == 0){
+            map.push(i);
           }
-          
         }
-      
+
+        //then add zero rows
+        for(var i = 0; i < zeros.length; i++){
+          map.push(zeros[i]);
+        }
+
+        var swap_happened = false;
+        var old_struct = struct.slice();
+        var old_tieup = [];
+        
+        for(var i = 0; i < this.tieup.length; i++){
+          old_tieup.push(this.tieup[i].slice());
+        }
+
+        
+        //reassign the frames/treadles and tieup 
+        for(var i = 0; i < map.length; i++){
+          var new_ndx = i; 
+          var old_ndx = map[i];
+
+          if(new_ndx != old_ndx){
+
+            swap_happened = true;
 
 
-            //if there were no unusued frames, go back
-            if(unused === -1 || !condensed) return false;
-
-           //unusued will be the frame id of the last unused frame
-            for(var i = unused; i > (min-1); i--){
-                if(status[i] === 0){ 
-                  if(type ==="threading"){
-                    this.num_frames--;
-                    this.tieup.splice(i, 1);
-
-                  } else{
-                    this.num_treadles--;
-                    for(var j = 0; j < this.tieup.length; j++){
-                      this.tieup[j].splice(i, 1);
-                    }
-                  }
-                }
+            for(var j = 0; j < struct.length; j++){
+              
+              if(old_struct[j] === old_ndx){ 
+                struct[j] = new_ndx;
+              }
             }
 
-          return true;
-      }
+            if(type === "threading"){
+              for(var j = 0; j < this.tieup[old_ndx].length; j++){
+                this.tieup[new_ndx][j] = old_tieup[old_ndx][j]; 
+              }
+            }else{
+              for(var j = 0; j < this.tieup.length; j++){
+                this.tieup[j][new_ndx] = old_tieup[j][old_ndx];
+              }
+            }
+          }
+        }
+
+
+        for(var i = 0; i < num; i++){
+
+           var old_index = map[i];
+
+           if(status[old_index] === 0){
+
+              if(type === "threading"){
+                
+                if(i > (min-1)){
+                  //delete a frame
+                  this.num_frames--;
+                  this.tieup.splice(i, 1);
+                }else{
+                  this.clearTieupRow(i);
+                }
+
+              } else{
+
+                if(i > (min-1)){
+                  this.num_treadles--;
+                  for(var j = 0; j < this.tieup.length; j++){
+                    this.tieup[j].splice(i, 1);
+                  }
+                }else{
+                  this.clearTieupCol(i)
+                }
+              }
+           }
+        }
+
+
+        for(var i = (num-1); i > (min-1); i--){
+           
+           var old_index = map[i];
+           
+           
+           if(status[old_index] === 0){
+              if(type === "threading"){
+                this.num_frames--;
+                this.tieup.splice(i, 1);
+
+              } else{
+                this.num_treadles--;
+                for(var j = 0; j < this.tieup.length; j++){
+                  this.tieup[j].splice(i, 1);
+                }
+              }
+           }
+        }
+
+        return (swap_happened || this.num_frames < num);
+  }
 
 }//end class

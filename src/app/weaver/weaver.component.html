@@ -1,10 +1,6 @@
 <app-topbar 
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
-[zoom] = "render?.zoom"
-[view] = "view"
-  (onViewChange) ="viewChange($event);"
-  (onZoomChange) ="renderChange($event);"
   (onUndo)="undo();" 
   (onRedo)="redo();"
   (onSave)="onSave($event);">
@@ -12,18 +8,36 @@
 </app-topbar>
 
 
-<mat-sidenav-container class="example-container">
-  <mat-sidenav mode="side" position="end" opened>
+<mat-sidenav-container class="example-container"  [class.collapsed]="collapsed">
+  <mat-sidenav mode="side" position="end" [class.collapsed]="collapsed" opened>
+      
+         <button
+           (click)="toggleCollapsed()"
+            class="collapse" 
+            value="collapsed">
+         <i class="fa"
+           [class.fa-angle-double-right]="!collapsed" 
+           [class.fa-angle-double-left]="collapsed"
+         aria-hidden="true"></i>
+        </button>
 
-    <mat-tab-group #group (click)="selected = group.selectedIndex;">
-      <mat-tab label="Design">
+
         <app-design [brush]="brush" 
+        [collapsed] = "collapsed"
+        [view] = "view"
+        [zoom] = "render?.zoom"
         [favorites]="draft?.patterns | filter: {favorite: true}"
         [shuttles]="draft?.shuttles" 
         [warp_systems]="draft?.warp_systems" 
-        [warps]="draft?.warps" 
-        [epi]="draft?.epi" 
-        [view_frames] = "render?.view_frames"
+        [epi] = "draft?.loom.epi"
+        [warps] = "draft?.warps"
+        [frames] = "draft?.loom.min_frames"
+        [treadles] = "draft?.loom.min_treadles"
+        [loomtypes] = "loomtypes"
+        [loomtype] = "draft?.loom.type"
+        [patterns]="draft?.patterns"
+        (onViewChange) ="viewChange($event);"
+        (onZoomChange) ="renderChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
@@ -38,17 +52,18 @@
         (onHideShuttle)="hideShuttle($event);"
         (onShowShuttle)="showShuttle($event);"
         (onWarpNumChange) = "warpNumChange($event)"
-        (onEpiNumChange) = "epiChange($event)">
-    
-        </app-design> 
-      </mat-tab>
-      <mat-tab label="Patterns">
-        <app-patterns *ngIf="selected === 1" [patterns]="draft?.patterns"
-        (onChange)="updatePatterns($event);"
+        (onEpiNumChange) = "epiChange($event)"
+        (onLoomTypeChange) = "loomChange($event)"
+        (onFrameChange) = "frameChange($event)"
+        (onTreadleChange) = "treadleChange($event)"
+        (onPatternChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"
-        (onRemovePattern)="removePattern($event);"></app-patterns>  
-      </mat-tab>
-    </mat-tab-group>
+        (onRemovePattern)="removePattern($event);">
+   
+        </app-design> 
+
+
+
   </mat-sidenav>
 
 
@@ -60,9 +75,9 @@
 
       <div class="weftSelections">
 
-        <div  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
+        <div [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
         [ngStyle]="styleViewFrames(threading)" (click)="toggleViewFrames(); styleDrawdown(threading)">
-        <span><i class="fas" [class.fa-eye-slash]="!render?.view_frames" [class.fa-eye]="render?.view_frames"> 
+        <span><i class="fas" [class.fa-eye-slash]="!render?.view_frames" [class.fa-eye]="render?.view_frames">
         </i></span>
         </div>
 

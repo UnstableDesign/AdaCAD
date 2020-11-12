@@ -16,13 +16,10 @@ export class TopbarComponent implements OnInit {
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
   @Output() onAboutCreate: any = new EventEmitter();
-  @Output() onViewChange: any = new EventEmitter();
-  @Output() onZoomChange: any = new EventEmitter();
+
 
   @Input() undoItem;
   @Input() redoItem;
-  @Input() zoom;
-  @Input() view;
 
   @ViewChild('bmpLink', {static: true}) bmpLink: any;
   @ViewChild('adaLink', {static: true}) adaLink: any;
@@ -39,7 +36,7 @@ export class TopbarComponent implements OnInit {
   ngOnInit() {
     this.downloadBmp = this.bmpLink._elementRef;
     this.downloadAda = this.adaLink._elementRef;
-    this.downloadWif = this.wifLink._elementRef;
+    //this.downloadWif = this.wifLink._elementRef;
   }
 
   public saveAsBmp(e: any) {
@@ -75,16 +72,6 @@ export class TopbarComponent implements OnInit {
 
   redoClicked(e:any) {
     this.onRedo.emit();
-  }
-
-
-  viewChange(e:any){
-    this.onViewChange.emit(e.value);
-  }
-
-  zoomChange(e:any){
-    console.log("zoom change", e);
-    this.onZoomChange.emit(e.value);
   }
 
   openAboutDialog() {

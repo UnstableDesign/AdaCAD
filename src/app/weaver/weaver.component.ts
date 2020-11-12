@@ -20,6 +20,15 @@ import {select, Store} from '@ngrx/store';
  * Controller of the Weaver component.
  * @class
  */
+
+
+interface LoomTypes {
+  value: string;
+  viewValue: string;
+}
+
+
+
 @Component({
   selector: 'app-weaver',
   templateUrl: './weaver.component.html',
@@ -60,6 +69,14 @@ export class WeaverComponent implements OnInit {
   render: Render = new Render(false);
 
 
+ /**
+   * The types of looms this version will support.
+   * @property {LoomType}
+   */
+  loomtypes: LoomTypes[] = [
+    {value: 'frame', viewValue: 'Floor'},
+    {value: 'jacquard', viewValue: 'Jacquard'}
+  ];
 
   /**
    * The list of all patterns saved. Provided by pattern service.
@@ -80,6 +97,9 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
+  collapsed:boolean = true;
+
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
@@ -92,7 +112,9 @@ export class WeaverComponent implements OnInit {
               private store: Store<AppState>) {
 
 
-    const dialogRef = this.dialog.open(InitModal);
+    const dialogRef = this.dialog.open(InitModal, {
+      data: this.loomtypes
+    });
 
     var default_patterns = [];
 
@@ -478,7 +500,32 @@ export class WeaverComponent implements OnInit {
   }
 
   public epiChange(e:any){
-    this.draft.epi = e.epi;
+    this.draft.loom.epi = e.epi;
+
+  }
+
+
+  public loomChange(e:any){
+    
+    this.draft.loom.type = e.loomtype;
+    if(this.draft.loom.type == 'jacquard'){
+      this.render.view_frames = false;
+    }else{
+      this.render.view_frames = true;
+      this.weaveRef.recomputeLoom();
+      this.weaveRef.redrawLoom();
+    }
+    this.weaveRef.redraw();
+
+  }
+
+  public frameChange(e:any){
+ 
+
+  }
+
+  public treadleChange(e:any){
+ 
 
   }
 
@@ -525,9 +572,14 @@ export class WeaverComponent implements OnInit {
   public toggleViewFrames(){
     this.render.toggleViewFrames();
 
-    if(this.render.view_frames){
+    if(this.render.view_frames && this.draft.loom.type == "frame"){
       this.weaveRef.recomputeLoom();
     }
+  }
+
+
+  public toggleCollapsed(){
+    this.collapsed = !this.collapsed;
   }
 
   public styleViewFrames(ctx){
@@ -615,8 +667,12 @@ public getTransform(j){
 
   }
 
-  public renderChange(value: any){
-     this.render.setZoom(value);
+  public renderChange(e: any){
+    console.log('render change', e);
+     if(e.source === "slider") this.render.setZoom(e.value);
+     if(e.source === "in") this.render.zoomIn();
+     if(e.source === "out") this.render.zoomOut();
+     
      this.redraw();
      this.weaveRef.unsetSelection();
 

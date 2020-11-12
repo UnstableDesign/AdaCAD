@@ -5,20 +5,36 @@ import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../../../core/model/shuttle';
 import { Draft } from '../../../core/model/draft';
 import { NgForm } from '@angular/forms';
+import { PatternModal } from '../../modal/pattern/pattern.modal';
+import { Pattern } from '../../../core/model/pattern';
+import { PatternService } from '../../../core/provider/pattern.service';
+import * as _ from 'lodash';
+
+
+
 
 @Component({
   selector: 'app-design',
   templateUrl: './design.component.html',
   styleUrls: ['./design.component.scss']
 })
+
+
 export class DesignComponent implements OnInit {
   @Input() brush;
+  @Input() collapsed;
   @Input() favorites;
   @Input() shuttles;
   @Input() warp_systems;
-  @Input() warps;
   @Input() epi;
-  @Input() view_frames;
+  @Input() warps;
+  @Input() zoom;
+  @Input() view;
+  @Input() frames;
+  @Input() treadles;
+  @Input() loomtype;
+  @Input() loomtypes;
+  @Input()  patterns;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onMask: any = new EventEmitter();
@@ -34,24 +50,26 @@ export class DesignComponent implements OnInit {
   @Output() onCreateWarpSystem: any = new EventEmitter();
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
+  @Output() onViewChange: any = new EventEmitter();
+  @Output() onZoomChange: any = new EventEmitter();
+  @Output() onLoomTypeChange = new EventEmitter();
+  @Output() onFrameChange = new EventEmitter();
+  @Output() onTreadleChange = new EventEmitter();
+  @Output() onPatternChange: any = new EventEmitter();
+  @Output() onCreatePattern: any = new EventEmitter();
+  @Output() onRemovePattern: any = new EventEmitter();
 
   width = 0;
   selected = 0;
   warp_locked = false;
+  loom = ""; 
 
 
-  view = 'pattern';
   copy = false;
 
   constructor(private dialog: MatDialog) { }
 
   ngOnInit() {
-    console.log('favs', this.favorites);
-    console.log('copy', this.copy);
-    console.log('favs', this.view);
-    console.log('frames', this.view_frames);
-    this.width = this.warps / this.epi;
-
 
   }
 
@@ -66,8 +84,7 @@ export class DesignComponent implements OnInit {
   }
 
   brushChange(e: any) {
-    console.log(this.favorites);
-    if (e.target.name) {
+     if (e.target.name) {
       this.brush = e.target.name;
     }
 
@@ -163,6 +180,32 @@ export class DesignComponent implements OnInit {
   }
 
 
+  viewChange(e:any){
+    this.onViewChange.emit(e.value);
+  }
+
+  zoomChange(e:any, source: string){
+    console.log("source", source)
+    e.source = source;
+    this.onZoomChange.emit(e);
+  }
+
+  loomChange(e:any){
+    console.log("loom change", e.value.loomtype);
+    this.onLoomTypeChange.emit(e.value);
+  }
+
+  frameChange(e:any){
+    console.log("frame change", e);
+    this.onFrameChange.emit(e.value);
+  }
+
+  treadleChange(e:any){
+    console.log("treadle change", e);
+    this.onTreadleChange.emit(e.value);
+  }
+
+
 
 
   visibleButton(id, visible) {
@@ -176,6 +219,51 @@ export class DesignComponent implements OnInit {
   handleFile(e: any) {
     console.log(e);
    
+  }
+
+  openPatternDialog(pattern) {
+    console.log("open dialog")
+    var create = false;
+
+    if (!pattern) {
+      pattern = new Pattern();
+      create = true;
+    }
+
+    const dialogRef = this.dialog.open(PatternModal, 
+      {data: pattern });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!create) {
+        this.patterns[result.id] = result;
+      } else {
+        this.onCreatePattern.emit({pattern: result});
+      }
+
+      var obj: any = {};
+      obj.patterns = _.cloneDeep(this.patterns);
+      this.onPatternChange.emit(obj);
+    });
+  }
+
+  print(e) {
+    console.log(e);
+  }
+
+  updateFavorite(p) {
+
+    this.patterns[p].favorite = !this.patterns[p].favorite;
+
+    var obj:any = {};
+    obj.patterns = _.cloneDeep(this.patterns);
+
+    this.onPatternChange.emit(obj);
+  }
+
+
+  removePattern(pattern) {
+    console.log("remove pattern", pattern);
+    this.onRemovePattern.emit({pattern: pattern});
   }
 
 
