@@ -41,6 +41,14 @@ export class Loom{
       
     }
 
+    clearAllData(warps, wefts){
+      this.num_frames = this.min_frames;
+      this.num_treadles = this.min_treadles;
+      this.resetThreading(warps);
+      this.resetTreadling(wefts);
+      this.resetTieup(this.min_frames, this.min_treadles);
+    }
+
 
     resetThreading(warps){
       this.threading = [];
@@ -460,6 +468,7 @@ and returns an associated value for threading frames and treadles
       return updates;
 
     }
+
 
 
     clearTieupCol(i){

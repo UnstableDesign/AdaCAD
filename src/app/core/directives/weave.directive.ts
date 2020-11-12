@@ -538,23 +538,25 @@ export class WeaveDirective {
         var margin = this.render.zoom/50;
 
         cx.fillStyle = this.weave.getColor(i);
+
         if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
-        else cx.fillRect( margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
+        else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
   
   }
 
 
-  private drawWeftSystems(cx,canvas){
-
+  private drawWeftSystems(cx, canvas){
+      console.log("draw weft systems");
 
       var dims = this.render.getCellDims("base");
       var margin = this.render.zoom/50;
       var top = dims.h;
 
-      this.weftSystemsCanvas.width =  dims.w;
-      this.weftSystemsCanvas.height = this.weave.wefts * dims.h;
+      cx.clearRect(0,0, cx.canvas.width, cx.canvas.height);
 
 
+      canvas.width =  dims.w;
+      canvas.height = this.weave.visibleRows.length * dims.h;
 
       cx.fillStyle = "white";
       cx.fillRect(0,0,canvas.width,this.weave.visibleRows.length*dims.h);
@@ -807,9 +809,9 @@ export class WeaveDirective {
     this.weave.updateDraftFromTieup(currentPos.i, currentPos.j, val);
     this.redraw();
     
-    var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
-    var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
-    if(u_threading || u_treadling) this.redrawLoom();
+    // var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
+    // var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
+    // if(u_threading || u_treadling) this.redrawLoom();
     
     }
   }
@@ -1408,8 +1410,11 @@ export class WeaveDirective {
 
 //callled when frames become visible or drawdown without frame info is loaded
   public recomputeLoom(){
+
     var mock = [];
     var updates = [];
+
+    this.weave.loom.clearAllData(this.weave.warps, this.weave.wefts);
 
     //pretendd that we are computing the values as though they were added one by one
     for (var i = 0; i < this.weave.pattern.length; i++) {
@@ -1419,16 +1424,22 @@ export class WeaveDirective {
       }
     }
 
-
+    //compute full rows and for speed
     for (var i = 0; i < this.weave.pattern.length; i++) {
       for(var j = 0; j < this.weave.pattern[0].length; j++){
+            
           if(this.weave.pattern[i][j]){
-            mock[i][j] = this.weave.pattern[i][j];
-            updates = this.weave.loom.updateFromDrawdown(i,j, mock);
-            this.drawLoomStates(updates);
+              mock[i][j] = this.weave.pattern[i][j];
+              updates = this.weave.loom.updateFromDrawdown(i,j, mock);
+              var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
+              var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
           }
       }
     }
+
+    console.log(this.weave.loom);
+    this.redraw();
+    this.redrawLoom();
   }
 
  public redrawSelection(dims){
@@ -1558,6 +1569,7 @@ public unsetSelection(){
    
     this.cx.canvas.width = base_dims.w * this.weave.pattern[0].length;
     this.cx.canvas.height = base_dims.h * this.weave.visibleRows.length;
+   
     this.drawGrid(this.cx,this.canvasEl);
     this.drawWeftSystems(this.cxWeftSystems, this.weftSystemsCanvas);
     this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);

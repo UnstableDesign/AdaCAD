@@ -513,7 +513,6 @@ export class WeaverComponent implements OnInit {
     }else{
       this.render.view_frames = true;
       this.weaveRef.recomputeLoom();
-      this.weaveRef.redrawLoom();
     }
     this.weaveRef.redraw();
 
@@ -571,9 +570,11 @@ export class WeaverComponent implements OnInit {
 
   public toggleViewFrames(){
     this.render.toggleViewFrames();
+    this.weaveRef.unsetSelection();
 
     if(this.render.view_frames && this.draft.loom.type == "frame"){
       this.weaveRef.recomputeLoom();
+
     }
   }
 

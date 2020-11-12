@@ -87,14 +87,15 @@
 
          <div class="shuttles-text">
           <svg class="shuttle-text" [ngStyle]="styleWeftShuttleText(threading)">
-          <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
-          <text class="weft_text" 
-          text-anchor="middle" x="0" [attr.y]="styleShuttleRow(j)" style="font-size:12px;"     fill="#fff" 
-          [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{i}}</text> 
-          </g>
+            <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
+            
+            <text class="weft_text" 
+            text-anchor="middle" x="0" [attr.y]="styleShuttleRow(j)" style="font-size:12px;"     fill="#fff" 
+            [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{i}}</text> 
+            </g>
 
           <text class="weft_text" 
-          text-anchor="middle" x="0" [attr.y]="styleShuttleRow(draft?.visibleRows.length)" style="font-size:12px;" fill="#fff" >{{draft?.visibleRows.length}}</text> 
+          text-anchor="middle" x="0" [attr.y]="styleShuttleRow(draft?.visibleRows.length)" style="font-size:12px;" fill="#fff" >{{draft?.visibleRows[draft?.visibleRows.length-1]+1}}</text> 
         </svg> 
 
         </div>
