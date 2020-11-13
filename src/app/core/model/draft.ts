@@ -1,8 +1,6 @@
 import { Shuttle } from './shuttle';
 import { Loom } from './loom';
-// import { Threading } from './threading';
-// import { Treadling } from './treadling';
-// import { TieUps }  from "./tieups";
+import { Cell } from './cell';
 import { Pattern } from './pattern';
 
 import * as _ from 'lodash';
@@ -13,13 +11,18 @@ import { active } from 'd3';
  * @interface
  */
 export interface DraftInterface {
-  pattern: Array<Array<boolean>>; // the single design pattern
-  mask: Array<Array<boolean>>; //regions to remember for filling
-  patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar
+  pattern: Array<Array<Cell>>; // the single design pattern
+  //mask: Array<Array<boolean>>; //regions to remember for filling
+
+  rowShuttleMapping: Array<number>;
+  colShuttleMapping: Array<number>;  
+
+  patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
+  masks: Array<number>
+  
   shuttles: Array<Shuttle>;
   warp_systems: Array<Shuttle>;
-  rowShuttleMapping: Array<number>;
-  colShuttleMapping: Array<number>;
+  
   visibleRows: Array<number>;
   connections: Array<any>;
   labels: Array<any>;
@@ -34,10 +37,10 @@ export interface DraftInterface {
  * @class
  */
 export class Draft implements DraftInterface {
-  pattern: Array<Array<boolean>>;
-  mask: Array<Array<boolean>>; //regions to remember for filling
+  pattern: Array<Array<Cell>>;
   patterns: Array<Pattern>;
   shuttles: Array<Shuttle>;
+  masks: Array<number>; 
   warp_systems: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;
@@ -47,9 +50,7 @@ export class Draft implements DraftInterface {
   wefts: number;
   warps: number;
   loom: Loom;
-  // threading: Threading;
-  // treadling: Treadling;
-  // tieups: TieUps;
+
 
   constructor({...params}) {
     console.log("Draft Constructor", params);
@@ -58,7 +59,7 @@ export class Draft implements DraftInterface {
     this.warps = (params.warps === undefined) ? 20 : params.warps;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
-    this.mask = (params.mask === undefined) ? [] : params.mask;
+    this.masks = (params.masks === undefined) ? [] : params.masks;
     this.connections = (params.connections === undefined)? [] : params.connections;
     this.labels = (params.labels === undefined)? [] : params.labels;
 
@@ -125,29 +126,45 @@ export class Draft implements DraftInterface {
 
 
 
-    if (params.pattern === undefined) {
-      this.pattern = [];
-      for(var ii = 0; ii < this.wefts; ii++) {
+    this.pattern = [];
+    for(var ii = 0; ii < this.wefts; ii++) {
         this.pattern.push([]);
-        for (var j = 0; j < this.warps; j++)
-          this.pattern[ii].push(false);
-      }
+
+        for (var j = 0; j < this.warps; j++){
+          
+          if (params.pattern === undefined) {
+            this.pattern[ii].push(new Cell());
+          }else{
+            this.pattern[ii][j]= new Cell();
+            
+            if(params.pattern[ii][j].is_up === undefined){
+              this.pattern[ii][j].setHeddle(params.pattern[ii][j]);
+            }else{
+              this.pattern[ii][j].setHeddle(params.pattern[ii][j].is_up);
+            }
+
+            if(params.pattern[ii][j].mask_id !== undefined){
+              this.pattern[ii][j].setMaskId(params.pattern[ii][j].mask_id);
+            }
+
+            if(params.pattern[ii][j].poles !== undefined){
+              this.pattern[ii][j].setPoles(params.pattern[ii][j].poles);
+            }
+
+          }
+        }
     }
-    else{
-      this.pattern = params.pattern;
-    } 
 
 
-    if (params.mask === undefined) {
-      this.mask = [];
-      for(var ii = 0; ii < this.wefts; ii++) {
-        this.mask.push([]);
-        for (var j = 0; j < this.warps; j++)
-          this.mask[ii].push(false);
-      }
-    }
-    else{
-      this.mask = params.mask;
+    if (params.masks === undefined) {
+      // this.mask = [];
+      // for(var ii = 0; ii < this.wefts; ii++) {
+      //   this.mask.push([]);
+      //   for (var j = 0; j < this.warps; j++)
+      //     this.mask[ii].push(false);
+      // }
+    }else{
+      this.masks = params.masks;
     } 
 
     if(params.loom === undefined) {
@@ -172,9 +189,8 @@ export class Draft implements DraftInterface {
   }
   //assumes i is the draft row
   isUp(i:number, j:number) : boolean{
-    //var row = this.visibleRows[i];
     if ( i > -1 && i < this.pattern.length && j > -1 && j < this.pattern[0].length) {
-      return this.pattern[i][j];
+      return this.pattern[i][j].isUp();
     } else {
       return false;
     }
@@ -182,22 +198,23 @@ export class Draft implements DraftInterface {
 
   //assumes i is the draft row
   isMask(i:number, j:number) : boolean{
-    //var row = this.visibleRows[i];
-    if ( i > -1 && i < this.mask.length && j > -1 && j < this.mask[0].length) {
-      return this.mask[i][j];
-    } else {
-      return false;
-    }
+    // //var row = this.visibleRows[i];
+    // if ( i > -1 && i < this.mask.length && j > -1 && j < this.mask[0].length) {
+    //   return this.mask[i][j];
+    // } else {
+    //   return false;
+    // }
+    return false;
   }
 
   setMask(i:number, j:number, bool:boolean) {
     //var row = this.visibleRows[i];
-    this.mask[i][j] = bool;
+    //this.mask[i][j] = bool;
   }  
 
+  //everytime we set a heddle - update the poles 
   setHeddle(i:number, j:number, bool:boolean) {
-    //var row = this.visibleRows[i];
-    this.pattern[i][j] = bool;
+    this.pattern[i][j].setHeddle(bool);
   }
 
 
@@ -244,17 +261,18 @@ export class Draft implements DraftInterface {
 
   //assumes i is the screen index
   insertRow(i: number, shuttleId: number) {
+    
     var col = [];
 
     for (var j = 0; j < this.warps; j++) {
-      col.push(false);
+      col.push(new Cell());
     }
 
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i,0,shuttleId);
     this.pattern.splice(i,0,col);
-    this.mask.splice(i,0,col);
+    //this.mask.splice(i,0,col);
 
     this.loom.treadling.splice(i, 0, -1);
 
@@ -266,13 +284,19 @@ export class Draft implements DraftInterface {
   //assumes i is the screen index
   cloneRow(i: number, c: number, shuttleId: number) {
     var row = this.visibleRows[c];
-    const col = _.clone(this.pattern[c]);
+    var col = [];
+
+    //copy the selected row
+    for(var ndx = 0; ndx < this.warps; ndx++){
+      col[ndx] = new Cell();
+      col[ndx].setHeddle(this.pattern[c][ndx]);
+    }
 
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i, 0, shuttleId);
     this.pattern.splice(i, 0, col);
-    this.mask.splice(i, 0, col);
+    //this.mask.splice(i, 0, col);
     this.loom.treadling.splice(i, 0, this.loom.treadling[i-1]);
 
     this.updateVisible();
@@ -284,25 +308,25 @@ export class Draft implements DraftInterface {
     this.wefts -= 1;
     this.rowShuttleMapping.splice(i, 1);
     this.pattern.splice(i, 1);
-    this.mask.splice(i, 1);
+    //this.mask.splice(i, 1);
     this.loom.treadling.splice(i,1);
 
     this.updateVisible();
   }
 
-  updateConnections(index: number, offset: number) {
-    var i = 0;
+  // updateConnections(index: number, offset: number) {
+  //   var i = 0;
 
-    for (i = 0; i < this.connections.length; i++) {
-      var c = this.connections[i];
-      if (c.start.y > index) {
-        c.start.y += offset;
-      }
-      if (c.end.y > index) {
-        c.end.y += offset;
-      }
-    }
-  }
+  //   for (i = 0; i < this.connections.length; i++) {
+  //     var c = this.connections[i];
+  //     if (c.start.y > index) {
+  //       c.start.y += offset;
+  //     }
+  //     if (c.end.y > index) {
+  //       c.end.y += offset;
+  //     }
+  //   }
+  // }
 
 
   //alwasy adds to end
@@ -311,8 +335,8 @@ export class Draft implements DraftInterface {
 
     //push one false to the end of each row
     for (var j = 0; j < this.wefts; j++) {
-      this.pattern[j].push(false);
-      this.mask[j].push(false);
+      this.pattern[j].push(new Cell());
+      //this.mask[j].push(false);
     }
 
     this.warps += 1;
@@ -330,7 +354,7 @@ export class Draft implements DraftInterface {
     //remove one from the end of each row
     for (var j = 0; j < this.wefts; j++) {
       this.pattern[j].splice(i, 1);
-      this.mask[j].splice(i, 1);
+      // this.masks[j].splice(i, 1);
     }
 
 
@@ -346,9 +370,9 @@ export class Draft implements DraftInterface {
     }
     this.shuttles.push(shuttle);
 
-    if (shuttle.image) {
-      this.insertImage(shuttle);
-    }
+    // if (shuttle.image) {
+    //   this.insertImage(shuttle);
+    // }
 
   }
 
@@ -362,15 +386,15 @@ export class Draft implements DraftInterface {
   }
 
   //image adds to mask
-  insertImage(shuttle) {
-    var max = this.rowShuttleMapping.length;
-    var data = shuttle.image;
-    for (var i=data.length; i > 0; i--) {
-      var idx = Math.min(max, i);
-      this.rowShuttleMapping.splice(idx,0,shuttle.id);
-      this.mask.splice(idx,0,data[i - 1]);
-    }
-  }
+  // insertImage(shuttle) {
+  //   var max = this.rowShuttleMapping.length;
+  //   var data = shuttle.image;
+  //   for (var i=data.length; i > 0; i--) {
+  //     var idx = Math.min(max, i);
+  //     this.rowShuttleMapping.splice(idx,0,shuttle.id);
+  //     this.mask.splice(idx,0,data[i - 1]);
+  //   }
+  // }
 
   getColor(index) {
     var row = this.visibleRows[index];
@@ -405,7 +429,7 @@ export class Draft implements DraftInterface {
 
         for(var i = 0; i < idxs.wefts.length; i++){
           for (var j = 0; j < idxs.warps.length; j++){
-             this.pattern[idxs.wefts[i]][idxs.warps[j]] = updates[u].val;
+             this.pattern[idxs.wefts[i]][idxs.warps[j]].setHeddle(updates[u].val);
           }
         }
 
@@ -431,7 +455,7 @@ export class Draft implements DraftInterface {
         
         for(var i = 0; i < idxs.wefts.length; i++){
           for (var j = 0; j < idxs.warps.length; j++){
-             this.pattern[idxs.wefts[i]][idxs.warps[j]] = updates[u].val;
+             this.pattern[idxs.wefts[i]][idxs.warps[j]].setHeddle(updates[u].val);
           }
         }
       }
@@ -456,7 +480,7 @@ export class Draft implements DraftInterface {
        
           for(var wi = 0; wi < idxs.wefts.length; wi++){
             for (var wj = 0; wj < idxs.warps.length; wj++){
-             this.pattern[idxs.wefts[wi]][idxs.warps[wj]] = updates[u].val;
+             this.pattern[idxs.wefts[wi]][idxs.warps[wj]].setHeddle(updates[u].val);
             }
           }
         }
@@ -479,7 +503,7 @@ export class Draft implements DraftInterface {
           if (tieup[j][active_treadle]) {
             for (var k = 0; k < threading.length;k++) {
               if (threading[k] == j) {
-                this.pattern[i][k] =true;
+                this.pattern[i][k].setHeddle(true);
               }
             }
           }
@@ -500,6 +524,12 @@ export class Draft implements DraftInterface {
 
   }
 
+
+  updatePoles(i: number, j: number){
+
+
+  }
+
 /***
    * determines the directionality of the yarn at this particular point in the cell
    * it considers each draft cell having four poles (NESW) and determines which of those are active
@@ -509,41 +539,117 @@ export class Draft implements DraftInterface {
 
   pingNeighbors(i:number, j:number): number{
 
-    let poles:number = 0b0000;
+    let cell:Cell = new Cell();
     let shuttle_id: number = this.rowShuttleMapping[i];
 
 
-    if(this.hasNorthNeighbor(i,j,shuttle_id)) poles = poles | 0b1000; //8
-    if(this.hasEastNeighbor(i,j)) poles = poles | 0b0100;             //4
-    if(this.hasSouthNeighbor(i,j,shuttle_id)) poles = poles | 0b0010; //2
-    if(this.hasWestNeighbor(i,j)) poles = poles | 0b0001;             //1
+    if(this.hasNorthNeighbor(i,j,shuttle_id)) cell.setNorth(); 
+    if(this.hasEastNeighbor(i,j)) cell.setEast();             
+    if(this.hasSouthNeighbor(i,j,shuttle_id)) cell.setSouth(); 
+    if(this.hasWestNeighbor(i,j)) cell.setWest();            
 
-    return poles;
+    return cell.getPoles();
   }
 
   //searches to the west (on this row only) for an interlacement
   hasWestNeighbor(i:number, j:number): boolean{
 
       for(var ndx = j-1; ndx >= 0; ndx--){
-        if(this.pattern[i][ndx]) return true;
+        if(this.pattern[i][ndx].isUp()) return true;
       }
       return false;
   }
+
+
+  /***
+  If this doesn't have east set, then there is nothing to the west
+  */
+  setWestNeighbors(i:number, j:number){
+
+      for(var ndx = j-1; ndx >= 0; ndx--){
+        this.pattern[i][ndx].setEast();
+        if(this.pattern[i][ndx].isUp()) return;
+      }
+
+      return;
+  }
+
+  unsetWestNeighbors(i:number, j:number){
+
+      //there is something else for the western cells to reference
+      if(this.hasEastNeighbor(i,j)) return; 
+
+      //unset until you find the next set cell
+      for(var ndx = j-1; ndx >= 0; ndx--){
+        this.pattern[i][ndx].unsetEast(); 
+        if(this.pattern[i][ndx].isUp()) return;
+      }
+
+      return;
+  }
+
 
   //searches to the east (on this row only) for an interlacement
   hasEastNeighbor(i:number, j:number): boolean{
       
       for(var ndx = j+1; ndx < this.warps; ndx++){
-        if(this.pattern[i][ndx]) return true;
+        if(this.pattern[i][ndx].isUp()) return true;
       }
       return false;
+  }
+
+
+  //walks to the east until it hits another set cell, adds "west" to each 
+  setEastNeighbors(i:number, j:number){
+
+      for(var ndx = j+1; ndx < this.warps; ndx++){
+        this.pattern[i][ndx].setWest();
+        if(this.pattern[i][ndx].isUp()) return;
+      }
+
+      return;
+  }
+
+  unsetEastNeighbors(i:number, j:number){
+
+      //there is something else for the western cells to reference
+      if(this.hasWestNeighbor(i,j)) return; 
+
+      //unset until you find the next set cell
+       for(var ndx = j+1; ndx < this.warps; ndx++){
+        this.pattern[i][ndx].unsetWest(); 
+        if(this.pattern[i][ndx].isUp()) return;
+      }
+
+      return;
   }
 
   //searches rows to the north for any interlacement on the same shuttle
   hasNorthNeighbor(i:number, j:number, shuttle_id: number): boolean{
       for(var ndx = i-1; ndx >= 0; ndx--){
         if(this.rowShuttleMapping[ndx] === shuttle_id){
-          if(this.pattern[ndx][j]) return true;
+          if(this.pattern[ndx][j].isUp()) return true;
+          if(this.hasWestNeighbor(ndx,j)) return true;
+          if(this.hasEastNeighbor(ndx,j)) return true;
+        }
+      }
+      return false;
+  }
+
+  //searches rows to the north for any interlacement on the same shuttle
+  setNorthNeighbors(i:number, j:number, shuttle_id: number): boolean{
+      var c: Cell;
+
+      for(var ndx = i-1; ndx >= 0; ndx--){
+        if(this.rowShuttleMapping[ndx] === shuttle_id){
+          
+             
+
+          for(var col = 0; col < this.warps; col++){
+            
+          }
+
+          if(this.pattern[ndx][j].isUp()) return true;
           if(this.hasWestNeighbor(ndx,j)) return true;
           if(this.hasEastNeighbor(ndx,j)) return true;
         }
@@ -555,7 +661,7 @@ export class Draft implements DraftInterface {
   hasSouthNeighbor(i:number, j:number, shuttle_id:number): boolean{
       for(var ndx = i+1; ndx < this.wefts; ndx++){
         if(this.rowShuttleMapping[ndx] === shuttle_id){
-          if(this.pattern[ndx][j]) return true;
+          if(this.pattern[ndx][j].isUp()) return true;
           if(this.hasWestNeighbor(ndx,j)) return true;
           if(this.hasEastNeighbor(ndx,j)) return true;
         }

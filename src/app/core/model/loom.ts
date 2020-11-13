@@ -76,16 +76,6 @@ export class Loom{
         }
     }
 
-    // repopulateLoomFromDrawdown(drawdown){
-
-    //   for(var i in drawdown){
-    //     for(var j in drawdown[i]){
-    //       this.updateConfig(this.getConfig({i: i, j:j, drawdown: drawdown}));
-    //     }
-    //   }
-
-    // }
-
 
    /* updates the threading, tieup, and treadling based on a point in the drawdown
    * @param {i,j} the Row, Column of the changed pixel.
@@ -137,9 +127,10 @@ and returns an associated value for threading frames and treadles
         drawdown: obj.drawdown
       }
 
+
       var j_pattern = obj.drawdown.map(element => element[obj.j]);
       var i_pattern = obj.drawdown[obj.i];
-
+      
 
       //(1) check if the row is unique
       var found = false;
@@ -147,8 +138,8 @@ and returns an associated value for threading frames and treadles
         
         //don't check the row we are currently in
         if(i != obj.i){
-          //need a way to check here if it is the ONLY one assigned to this frame, or if others are as well
-          const idx = obj.drawdown[i].find((element, ndx) => element !== i_pattern[ndx]);
+
+          const idx = obj.drawdown[i].find((element, ndx) => element.isUp() !== i_pattern[ndx].isUp());
           if(idx === undefined){
               found = true;
               config.treadle = this.treadling[i];
@@ -170,7 +161,7 @@ and returns an associated value for threading frames and treadles
       for(var j = 0; j < obj.drawdown[0].length && !found; j++){
         if(j != obj.j){
           const col = obj.drawdown.map(element => element[j]);
-          const idx = col.find((element, ndx) => element !== j_pattern[ndx]);
+          const idx = col.find((element, ndx) => element.isUp() !== j_pattern[ndx].isUp());
 
           if(idx === undefined){
               found = true;
@@ -205,6 +196,7 @@ and returns an associated value for threading frames and treadles
    */   
       
     updateConfig(config){
+      
       var updates = {
         threading: [],
         treadling: [],
@@ -297,12 +289,10 @@ and returns an associated value for threading frames and treadles
                 this.tieup[i][j] = false;
                 updates.tieup[i][j].val = false; 
             }
+
             //iterate through the row in question and update tieups
             for(var jj = 0; jj < config.drawdown[idx].length; jj++){
-              
-
-              if(config.drawdown[idx][jj]){
-
+              if(config.drawdown[idx][jj].isUp()){
                   this.tieup[this.threading[jj]][j] = true;                  
                   updates.tieup[this.threading[jj]][j].val = true; 
               }
@@ -388,8 +378,8 @@ and returns an associated value for threading frames and treadles
     }
 
     inTieupRange(i, j){
-      if(j >= 0 && j < this.tieup.length) return true;
-      if(i >= 0 && i < this.tieup[0].length) return true;
+      if(i >= 0 && i < this.tieup.length) return true;
+      if(j >= 0 && j < this.tieup[0].length) return true;
       return false;
     }
 
@@ -434,6 +424,7 @@ and returns an associated value for threading frames and treadles
     }
 
     updateThreading(i, j, val){
+      console.log("update threading", i, j, val);
       var updates = [];
       var frame = this.threading[j];
 
@@ -481,7 +472,7 @@ and returns an associated value for threading frames and treadles
         }
     }
 
-      clearTieupRow(i){
+    clearTieupRow(i){
        for(var j = 0; j < this.tieup[0].length; j++){
             this.tieup[i][j] = false;
        }

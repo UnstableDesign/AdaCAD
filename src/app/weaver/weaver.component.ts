@@ -263,18 +263,7 @@ export class WeaverComponent implements OnInit {
    */
   public viewChange(value: any) {
     this.render.setCurrentView(value);
-
-    switch (this.render.getCurrentView()) {
-      case 'visual':
-        this.weaveRef.simulate();
-        break;
-      case 'yarn':
-        this.weaveRef.functional();
-        break;
-      default:
-        this.weaveRef.redraw();
-        break;
-    }
+    this.weaveRef.redraw();
   }
 
   /**
@@ -410,7 +399,7 @@ export class WeaverComponent implements OnInit {
    */
   public insertRow(i, shuttle) {
     this.draft.insertRow(i, shuttle);
-    this.draft.updateConnections(i, 1);
+    //this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
     console.log('send emit - insert');
@@ -419,7 +408,7 @@ export class WeaverComponent implements OnInit {
 
   public cloneRow(i, c, shuttle) {
     this.draft.cloneRow(i, c, shuttle);
-    this.draft.updateConnections(i, 1);
+   // this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
@@ -429,14 +418,13 @@ export class WeaverComponent implements OnInit {
 
   public deleteRow(i) {
     this.draft.deleteRow(i);
-    this.draft.updateConnections(i, -1);
+   // this.draft.updateConnections(i, -1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
    console.log('send emit - delete');
 
     //this.onAddRow.emit();
-
   }
 
     /**
@@ -453,7 +441,7 @@ export class WeaverComponent implements OnInit {
 
   public deleteCol(i) {
     this.draft.deleteCol(i);
-    this.draft.updateConnections(i, -1);
+    //this.draft.updateConnections(i, -1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
@@ -467,17 +455,13 @@ export class WeaverComponent implements OnInit {
   }
 
   public createShuttle(e: any) {
-    this.draft.addShuttle(e.shuttle);
-    if (e.shuttle.image) {
-      this.weaveRef.redraw();
-    }
+    this.draft.addShuttle(e.shuttle); 
+    this.weaveRef.redraw();
   }
 
   public createWarpSystem(e: any) {
     this.draft.addWarpSystem(e.shuttle);
-    if (e.shuttle.image) {
-      this.weaveRef.redraw();
-    }
+    this.weaveRef.redraw();
   }
 
 
