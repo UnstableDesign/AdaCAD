@@ -523,6 +523,7 @@ export class WeaveDirective {
           break;
           case 'treadling':
               copy[i][j] = this.weave.loom.isInTreadle(screen_row,col);
+          break;
           case 'tieups':
               copy[i][j] = this.weave.loom.hasTieup(screen_row, col);;
           break;  

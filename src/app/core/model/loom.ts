@@ -423,6 +423,9 @@ and returns an associated value for threading frames and treadles
         return updates;
     }
 
+
+
+
     updateThreading(i, j, val){
       console.log("update threading", i, j, val);
       var updates = [];
@@ -430,19 +433,23 @@ and returns an associated value for threading frames and treadles
 
       if(!this.inThreadingRange(i, j)) return updates;
 
+      //a new value is coming in
+      if(val){
 
-      //nothing is assigned to this frame
-      if(frame == -1){
-          if(val) this.threading[j] = i;
-          else this.threading[j] = -1;
+        //nothing is assigned to this frame, send an update to unset the pixel
+        if(frame !== -1) updates.push({i:frame, j: j, val:false});
+
+        updates.push({i:i, j: j, val:val});
+        this.threading[j] = i;
+
       }else{
-         updates.push({i:frame, j: j, val:false});
+
+        if(frame === i){
+          updates.push({i:i, j: j, val:val});
+          this.threading[j] = -1;
+        }
+
       }
-
-      updates.push({i:i, j: j, val:val});
-
-      if(val) this.threading[j] = i;
-      else this.threading[j] = -1;
       
       return updates;
     }
@@ -453,12 +460,20 @@ and returns an associated value for threading frames and treadles
 
       if(!this.inTreadlingRange(i, j)) return updates;
 
-      //if this treadle is assigned && the value is true
-      if(treadle != -1 && val) updates.push({i:i, j: treadle, val:false});
-      updates.push({i:i, j: j, val:val});
-      
-      if(val) this.treadling[i] = j;
-      else this.treadling[i] = -1;
+      if(val){
+        if(treadle !== -1) updates.push({i:i, j: treadle, val:false});
+        updates.push({i:i, j: j, val:true});
+        this.treadling[i] = j;
+
+      }else{
+
+        if(treadle === j){
+          updates.push({i:i, j: j, val:false});
+          this.treadling[j] = -1;
+        }
+
+      }
+
 
       return updates;
 
