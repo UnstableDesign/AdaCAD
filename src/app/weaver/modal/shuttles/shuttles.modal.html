@@ -6,13 +6,13 @@
     <mat-form-field class="is-fullwidth">
       <input matInput placeholder="{{type}} System Name" name="name" [(ngModel)]="shuttle.name">
     </mat-form-field>
-   <!--  <mat-form-field class="is-fullwidth">
+    <mat-form-field class="is-fullwidth">
       <mat-select placeholder="Yarn Type" name="type" [(ngModel)]="shuttle.type">
         <mat-option *ngFor="let type of types" [value]="type">
           {{ type }}
         </mat-option>
       </mat-select>
-    </mat-form-field> -->
+    </mat-form-field>
 <!--     <div class="is-fullwidth">
       <mat-form-field >
         <input matInput  type="text" placeholder="Start Label" name="labelStart" [(ngModel)]="shuttle.startLabel">
@@ -21,10 +21,10 @@
         <input matInput  type="text" placeholder="End Label" name="labelEnd" [(ngModel)]="shuttle.endLabel">
       </mat-form-field>
     </div> -->
-<!--     <mat-form-field >
+    <mat-form-field >
       <input matInput  type="number" placeholder="Yarn Thickness" name="thickness" [(ngModel)]="shuttle.thickness"> 
-      <span *ngIf="shuttle.thickness">&nbsp;&nbsp;wraps/inch</span>
-    </mat-form-field> -->
+      <span *ngIf="shuttle.thickness">&nbsp;&nbsp;%</span>
+    </mat-form-field>
     <mat-form-field>
       <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
        [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>

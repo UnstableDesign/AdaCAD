@@ -5,6 +5,7 @@
 export class Render {
 
   view_frames: boolean;
+  current_view: string;
 
   zoom: number;
 
@@ -27,6 +28,7 @@ export class Render {
     //max values
     this.zoom = 100;
     this.view_frames = view_frames;
+    this.current_view = 'pattern';
 
 
     this.base_cell = {
@@ -119,6 +121,14 @@ export class Render {
 
   toggleViewFrames(){
     this.view_frames = !this.view_frames;
+  }
+
+  getCurrentView(): string{
+    return this.current_view;
+  }
+
+  setCurrentView(view:string){
+    this.current_view = view;
   }
 
 

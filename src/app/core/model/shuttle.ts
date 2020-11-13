@@ -5,7 +5,7 @@
 export class Shuttle {
   color: string;
   id: number;
-  thickness: number;
+  thickness: number; //percentage of base dims
   name: string;
   type: string;
   visible: boolean;

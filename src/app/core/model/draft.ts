@@ -194,6 +194,7 @@ export class Draft implements DraftInterface {
     //var row = this.visibleRows[i];
     this.mask[i][j] = bool;
   }  
+
   setHeddle(i:number, j:number, bool:boolean) {
     //var row = this.visibleRows[i];
     this.pattern[i][j] = bool;
@@ -486,4 +487,86 @@ export class Draft implements DraftInterface {
       }
     }
   }
+
+
+
+  getDirection(neighbors:number, is_up:boolean) : string{
+
+    var is_up_dirs =     ["ew","ew", "ns", "sw", "ew", "ew", "se", "ew", "ns", "nw", "ns", "ew", "ne", "ew", "ew", "ew"];
+    var not_is_up_dirs = ["x", "x", "x",  "sw", "x",  "ew", "se", "ew", "x",  "nw", "ns", "sw", "ne", "ew", "sw", "ew"];
+    
+    if(is_up) return is_up_dirs[neighbors];
+    else return not_is_up_dirs[neighbors];
+
+  }
+
+/***
+   * determines the directionality of the yarn at this particular point in the cell
+   * it considers each draft cell having four poles (NESW) and determines which of those are active
+   * @param i: the draft row, j: the draft column
+   * @returns a bit string value created by adding a 1 on the string n,e,s,w where the direction is true
+   */ 
+
+  pingNeighbors(i:number, j:number): number{
+
+    let poles:number = 0b0000;
+    let shuttle_id: number = this.rowShuttleMapping[i];
+
+
+    if(this.hasNorthNeighbor(i,j,shuttle_id)) poles = poles | 0b1000; //8
+    if(this.hasEastNeighbor(i,j)) poles = poles | 0b0100;             //4
+    if(this.hasSouthNeighbor(i,j,shuttle_id)) poles = poles | 0b0010; //2
+    if(this.hasWestNeighbor(i,j)) poles = poles | 0b0001;             //1
+
+    return poles;
+  }
+
+  //searches to the west (on this row only) for an interlacement
+  hasWestNeighbor(i:number, j:number): boolean{
+
+      for(var ndx = j-1; ndx >= 0; ndx--){
+        if(this.pattern[i][ndx]) return true;
+      }
+      return false;
+  }
+
+  //searches to the east (on this row only) for an interlacement
+  hasEastNeighbor(i:number, j:number): boolean{
+      
+      for(var ndx = j+1; ndx < this.warps; ndx++){
+        if(this.pattern[i][ndx]) return true;
+      }
+      return false;
+  }
+
+  //searches rows to the north for any interlacement on the same shuttle
+  hasNorthNeighbor(i:number, j:number, shuttle_id: number): boolean{
+      for(var ndx = i-1; ndx >= 0; ndx--){
+        if(this.rowShuttleMapping[ndx] === shuttle_id){
+          if(this.pattern[ndx][j]) return true;
+          if(this.hasWestNeighbor(ndx,j)) return true;
+          if(this.hasEastNeighbor(ndx,j)) return true;
+        }
+      }
+      return false;
+  }
+
+  //searches rows to the south for any interlacement on the same shuttle
+  hasSouthNeighbor(i:number, j:number, shuttle_id:number): boolean{
+      for(var ndx = i+1; ndx < this.wefts; ndx++){
+        if(this.rowShuttleMapping[ndx] === shuttle_id){
+          if(this.pattern[ndx][j]) return true;
+          if(this.hasWestNeighbor(ndx,j)) return true;
+          if(this.hasEastNeighbor(ndx,j)) return true;
+        }
+      }
+      return false;
+  }
+
+
+
+
+
+
+
 }

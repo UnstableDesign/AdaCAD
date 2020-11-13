@@ -24,7 +24,6 @@
 
         <app-design [brush]="brush" 
         [collapsed] = "collapsed"
-        [view] = "view"
         [zoom] = "render?.zoom"
         [favorites]="draft?.patterns | filter: {favorite: true}"
         [shuttles]="draft?.shuttles" 
@@ -53,6 +52,7 @@
         (onShowShuttle)="showShuttle($event);"
         (onWarpNumChange) = "warpNumChange($event)"
         (onEpiNumChange) = "epiChange($event)"
+        (onThicknessChange) = "thicknessChange($event)"
         (onLoomTypeChange) = "loomChange($event)"
         (onFrameChange) = "frameChange($event)"
         (onTreadleChange) = "treadleChange($event)"

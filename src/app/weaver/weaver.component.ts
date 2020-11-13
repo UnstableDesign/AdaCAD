@@ -84,11 +84,6 @@ export class WeaverComponent implements OnInit {
    */
   //patterns;
 
-  /**
-   * The name of the current view being shown.
-   * @property {string}
-   */
-  view: string = 'pattern';
 
   selected;
 
@@ -267,10 +262,9 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public viewChange(value: any) {
-    console.log("view change", value);
-    this.view = value;
+    this.render.setCurrentView(value);
 
-    switch (this.view) {
+    switch (this.render.getCurrentView()) {
       case 'visual':
         this.weaveRef.simulate();
         break;
@@ -501,6 +495,12 @@ export class WeaverComponent implements OnInit {
 
   public epiChange(e:any){
     this.draft.loom.epi = e.epi;
+
+  }
+
+  public thicknessChange(e:any){
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
 
   }
 

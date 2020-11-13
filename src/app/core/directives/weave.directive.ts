@@ -285,7 +285,6 @@ export class WeaveDirective {
       };
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
-      console.log(currentPos, event.target.closest("div"));
       switch (this.brush) {
         case 'invert':
         case 'point':
@@ -623,18 +622,22 @@ export class WeaveDirective {
     var i,j;
     cx.fillStyle = "white";
     cx.fillRect(0,0,canvas.width,canvas.height);
+
+    cx.fillStyle="black";
     cx.lineWidth = 2;
-    //cx.lineCap = 'round';
+    cx.lineCap = 'round';
     cx.strokeStyle = '#000';
 
     //only draw the lines if the zoom is big enough to render them well
     if(this.render.zoom > 25){
 
-      cx.lineWidth = this.render.zoom/50;
+     cx.lineWidth = this.render.zoom/50;
 
-      cx.setLineDash([dims.w/20,dims.w/4]);
+     cx.setLineDash([dims.w/20,dims.w/4]);
 
-      cx.beginPath();
+     cx.beginPath();
+
+
 
       // draw vertical lines
       for (i = 0; i <= canvas.width; i += dims.w) {
@@ -697,7 +700,7 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawOnWarpSelectors( currentPos: Point ) {
-    console.log("draw on warp", currentPos);
+
     var dims = this.render.getCellDims("base");
 
     if (!this.cxWarpSystems || !currentPos) { return; }
@@ -770,7 +773,10 @@ export class WeaveDirective {
 
     if (!this.cx || !currentPos) { return; }
 
+
     if(this.weave.hasCell(currentPos.i, currentPos.j)){
+      let n:number = this.weave.pingNeighbors(currentPos.i,currentPos.j);
+
       // Set the heddles based on the brush.
       switch (this.brush) {
         case 'point':
@@ -802,7 +808,6 @@ export class WeaveDirective {
   private drawOnTieups( currentPos: Point ) {
     var updates;
     var val = false;
-    console.log("draw on tieup", currentPos);
     
     if (!this.cxTieups || !currentPos) { return; }
 
@@ -1191,7 +1196,7 @@ export class WeaveDirective {
   }
 
 
-//This function draws whatever the current value is at cell i, J
+//This function draws whatever the current value is at screen coordinates cell i, J
   private drawCell(cx, i, j, type){
 
     var base_dims = this.render.getCellDims("base");
@@ -1233,9 +1238,88 @@ export class WeaveDirective {
       break;
 
     }
-    cx.fillStyle = color;
-    cx.fillRect(j*base_dims.w + base_fill.x, i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
-   
+
+    var view = this.render.getCurrentView();
+
+    if (view == 'pattern' || type !== 'drawdown'){
+         cx.fillStyle = color;
+         cx.fillRect(j*base_dims.w + base_fill.x, i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+    
+    }else if(view === 'yarn'){
+        let neighbors:number = this.weave.pingNeighbors(i, j);
+        let direction:string = this.weave.getDirection(neighbors, is_up);
+
+        cx.strokeStyle = color;
+
+
+        var topleft = {x: base_dims.w*j + base_fill.x, y: i*base_dims.h + base_fill.y};
+
+
+          switch(direction){
+
+            //EW
+            case "ew":
+              cx.moveTo(topleft.x, topleft.y + base_dims.h/2);
+              cx.lineTo(topleft.x+ base_dims.w, topleft.y + base_dims.h/2);
+              cx.stroke();
+            break;
+            case "ns":
+              cx.moveTo(topleft.x + base_dims.w/2, topleft.y);
+              cx.lineTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h);
+              cx.stroke();
+            break;
+            case "ne":
+              cx.moveTo(topleft.x + base_dims.w/2, topleft.y);
+              cx.lineTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.stroke();
+
+              cx.moveTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.lineTo(topleft.x + base_dims.w,   topleft.y + base_dims.h/2);
+              cx.stroke();
+            break;
+            case "se":
+
+              cx.moveTo(topleft.x + base_dims.w, topleft.y + base_dims.h/2);
+              cx.lineTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.stroke();
+
+              cx.moveTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.lineTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h);
+              cx.stroke();
+            break;
+
+            case "nw":
+
+              cx.moveTo(topleft.x + base_dims.w/2, topleft.y);
+              cx.lineTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.stroke();
+
+              cx.moveTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.lineTo(topleft.x, topleft.y + base_dims.h/2);
+              cx.stroke();
+            break;
+
+            case "sw":
+
+              cx.moveTo(topleft.x + base_dims.w, topleft.y + base_dims.h/2);
+              cx.lineTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.stroke();
+
+              cx.moveTo(topleft.x + base_dims.w/2, topleft.y + base_dims.h/2);
+              cx.lineTo(topleft.x, topleft.y + base_dims.h/2);
+              cx.stroke();
+            break;
+
+
+
+
+
+          }  
+
+    }else if(view==="visual"){
+
+    }
+
   }
 
   /**
@@ -1623,14 +1707,13 @@ public unsetSelection(){
     var color = '#000000';
     this.cx.fillStyle = color;
       for (i = 0; i < this.weave.visibleRows.length; i++) {
-        var row = this.weave.visibleRows[i];
-        this.redrawRow(i * base_dims.h, row, this.cx);
+        this.redrawRow(i * base_dims.h, i, this.cx);
       }
 
-      for (j = 0; j < this.weave.pattern[0].length; j++) {
-        var col = this.weave.colShuttleMapping[j];
-        this.redrawCol(j, j*base_dims.h, this.cx);
-      }
+      // for (j = 0; j < this.weave.pattern[0].length; j++) {
+      //   var col = this.weave.colShuttleMapping[j];
+      //   this.redrawCol(j, j*base_dims.h, this.cx);
+      // }
     
   }
 
@@ -1652,7 +1735,7 @@ public unsetSelection(){
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);
 
     this.cx.beginPath();
-    this.cx.strokeStyle = "#FFFFFF"; // Green path
+    this.cx.strokeStyle = "#FFFFFF"; 
     this.cx.moveTo(0, 0);
     this.cx.lineTo(0, height);
     this.cx.stroke(); 
