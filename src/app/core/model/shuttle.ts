@@ -18,7 +18,7 @@ export class Shuttle {
     if (shuttleDict) this.updateVariables(shuttleDict);
     else this.insert = 0;
 
-    this.thickness = 1;
+    this.thickness = 100;
   }
 
   updateVariables({color, id, thickness, name, type, visible, insert, image, startLabel, endLabel}) {

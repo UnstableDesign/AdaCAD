@@ -275,7 +275,7 @@
        [cpPosition]="'bottom'"
        [style.background]="shuttle.color"/>
 
-        <input matInput
+      <input matInput
         class="thickness"
         [class.hide] = "collapsed"
         type="number" 
@@ -339,16 +339,21 @@
 <mat-list>
   <ng-container *ngFor="let warp_system of warp_systems">
   <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
-    <div class="level-item">
+    <div class="shuttle level-item">
 
       <input class="colorpicker shuttle-cp" [(colorPicker)]="warp_system.color" (colorPickerChange)="colorChange($event)"
        [cpPosition]="'bottom'"
        [style.background]="warp_system.color"/>
 
-      <!-- <input class="thickness shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
-       [cpPosition]="'bottom'"
-       [style.background]="shuttle.color"/> -->
-
+      <input matInput
+        class="thickness"
+        [class.hide] = "collapsed"
+        type="number" 
+        [(ngModel)]="warp_system.thickness" 
+        min="0" 
+        max="100" 
+        step="10"
+        (change)="thicknessChange(warp_system.id, warp_system.thickness)" />
      </div>
      <div class="level-item center-item fill-remaining-space">
       <span class="">{{ warp_system.name }}</span>

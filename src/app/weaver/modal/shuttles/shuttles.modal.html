@@ -22,8 +22,15 @@
       </mat-form-field>
     </div> -->
     <mat-form-field >
-      <input matInput  type="number" placeholder="Yarn Thickness" name="thickness" [(ngModel)]="shuttle.thickness"> 
-      <span *ngIf="shuttle.thickness">&nbsp;&nbsp;%</span>
+      <input matInput  
+      type="number" 
+      placeholder="Yarn Thickness" 
+      name="thickness" 
+      min="0"
+      max="100"
+      step="10"
+      [(ngModel)]="shuttle.thickness"> 
+      <span>&nbsp;&nbsp;%</span>
     </mat-form-field>
     <mat-form-field>
       <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 

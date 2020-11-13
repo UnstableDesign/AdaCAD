@@ -169,7 +169,7 @@ export class DesignComponent implements OnInit {
 
   }
 
-  thicknessChange(id: any, value: any) {
+  thicknessChange(id: any, value: number) {
     console.log(id, value);
     this.onThicknessChange.emit();
 
