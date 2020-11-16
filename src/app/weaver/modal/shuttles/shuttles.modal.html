@@ -21,6 +21,9 @@
         <input matInput  type="text" placeholder="End Label" name="labelEnd" [(ngModel)]="shuttle.endLabel">
       </mat-form-field>
     </div> -->
+
+
+   <div class="is-fullwidth">
     <mat-form-field >
       <input matInput  
       type="number" 
@@ -32,16 +35,22 @@
       [(ngModel)]="shuttle.thickness"> 
       <span>&nbsp;&nbsp;%</span>
     </mat-form-field>
+  </div>
+  <div class="is-fullwidth">
     <mat-form-field>
       <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
        [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
     </mat-form-field>
-    <ng-container *ngIf="(type == 'weft')">
+  </div>
+  {{type}}
+    <ng-container *ngIf="(type === 'Weft')">
+
     <mat-radio-group [(ngModel)]="shuttle.insert" name="insert">
       <label class="mat-form-radio-label">Yarn In: </label>
       <mat-radio-button value="1">Left</mat-radio-button>
       <mat-radio-button value="0">Right</mat-radio-button>
     </mat-radio-group>
+
   </ng-container>
    <!--  <upload-form [type]="shuttle" [warps]="warps" (onImageData)="processData($event)" class="button"></upload-form> -->
   </form>

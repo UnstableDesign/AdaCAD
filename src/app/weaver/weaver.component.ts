@@ -256,6 +256,30 @@ export class WeaverComponent implements OnInit {
   }
 
   /**
+   * Sets key to copy 
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + x
+   * @returns {void}
+   */
+  @HostListener('window:keydown.c', ['$event'])
+  private keyEventCopy(e) {
+    this.weaveRef.copyArea();
+    
+  }
+
+    /**
+   * Sets key to copy 
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + x
+   * @returns {void}
+   */
+  @HostListener('window:keydown.p', ['$event'])
+  private keyEventPaste(e) {
+    var p = this.weaveRef.copy;
+    this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
+  }
+
+  /**
    * Updates the canvas based on the weave view.
    * @extends WeaveComponent
    * @param {Event} e - view change event from design component.

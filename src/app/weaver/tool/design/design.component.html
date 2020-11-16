@@ -339,7 +339,7 @@
 <mat-list>
   <ng-container *ngFor="let warp_system of warp_systems">
   <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
-    <div class="shuttle level-item">
+    <div class="level-item">
 
       <input class="colorpicker shuttle-cp" [(colorPicker)]="warp_system.color" (colorPickerChange)="colorChange($event)"
        [cpPosition]="'bottom'"
@@ -355,7 +355,7 @@
         step="10"
         (change)="thicknessChange(warp_system.id, warp_system.thickness)" />
      </div>
-     <div class="level-item center-item fill-remaining-space">
+     <div class="shuttles level-item center-item fill-remaining-space">
       <span class="">{{ warp_system.name }}</span>
     </div>
     <div class="level-item level-right">
