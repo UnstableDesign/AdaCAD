@@ -285,6 +285,8 @@ setPosAndDraw(target, currentPos:Point){
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+    console.log(event.shiftKey);
+
     var dims = this.render.getCellDims("base");
     var offset = this.render.getCellDims(this.brush)
 
@@ -305,6 +307,7 @@ setPosAndDraw(target, currentPos:Point){
         i: screen_row, //row
         j: Math.floor((event.offsetX + offset.x) / dims.w), //col
       };
+
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
       switch (this.brush) {
@@ -320,32 +323,45 @@ setPosAndDraw(target, currentPos:Point){
           break;
         case 'select':
 
-          this.selection.start = currentPos;
-          this.selection.end = currentPos;
-          this.selection.width = 0;
-          this.selection.height = 0;
+          if(event.shiftKey){
 
-          d3.select(this.svgEl).style('display', 'none');
+            this.selection.end = currentPos;
+            this.selection.setParameters();
+            this.selectArea();
 
-          if (event.target && event.target.closest('.treadling-container')) {
-            this.selection.setTarget(this.treadlingCanvas);
-          } else if (event.target && event.target.closest('.tieups-container')) {
-            this.selection.setTarget(this.tieupsCanvas);
-          } else if (event.target && event.target.closest('.threading-container')) {
-            this.selection.setTarget(this.threadingCanvas);
-          } else if(event.target && event.target.closest('.shuttles')){
-            this.selection.width = 1;
-            this.selection.setTarget(this.weftSystemsCanvas);
-          }else if(event.target && event.target.closest('.warp-systems')){
-            this.selection.setTarget(this.warpSystemsCanvas);
-            this.selection.height = 1;
-          } else{
-            this.selection.setTarget(this.canvasEl);
+          }else{
+
+
+            this.selection.start = currentPos;
+            this.selection.end = currentPos;
+            this.selection.width = 0;
+            this.selection.height = 0;
+
+            d3.select(this.svgEl).style('display', 'none');
+
+            if (event.target && event.target.closest('.treadling-container')) {
+              this.selection.setTarget(this.treadlingCanvas);
+            } else if (event.target && event.target.closest('.tieups-container')) {
+              this.selection.setTarget(this.tieupsCanvas);
+            } else if (event.target && event.target.closest('.threading-container')) {
+              this.selection.setTarget(this.threadingCanvas);
+            } else if(event.target && event.target.closest('.shuttles')){
+              this.selection.width = 1;
+              this.selection.setTarget(this.weftSystemsCanvas);
+            }else if(event.target && event.target.closest('.warp-systems')){
+              this.selection.setTarget(this.warpSystemsCanvas);
+              this.selection.height = 1;
+            } else{
+              this.selection.setTarget(this.canvasEl);
+            }
           }
           break;
-        default:
+          default:
           break;
       }
+
+
+
 
       // this.segment = {
       //   start: [currentPos.si, currentPos.i, currentPos.j],
@@ -622,7 +638,6 @@ setPosAndDraw(target, currentPos:Point){
     cx.fillRect(0,0,canvas.width,canvas.height);
 
     cx.fillStyle = "#cccccc";
-
     if(canvas.id=== "threading"){
       cx.fillRect(0, 0, canvas.width, (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h);
     }
@@ -1236,6 +1251,7 @@ setPosAndDraw(target, currentPos:Point){
       case 'drawdown':
       case 'mask':
         var row = this.weave.visibleRows[i];
+        
         is_up = this.weave.isUp(row,j);
         has_mask = this.weave.isMask(row,j);
 

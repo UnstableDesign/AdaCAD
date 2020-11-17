@@ -130,7 +130,7 @@ export class DesignComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(ShuttlesModal, 
-      {data: { shuttle: shuttle, warps: this.warps, type: type}, width: '650px' });
+      {data: { shuttle: shuttle, warps: this.warps, type: type, }, width: '650px' });
 
     dialogRef.afterClosed().subscribe(result => {
       if (type == "weft"){
