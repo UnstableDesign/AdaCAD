@@ -65,7 +65,7 @@ export class Draft implements DraftInterface {
 
 
     if(params.shuttles === undefined){
-      let s = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#3d3d3d'});
+      let s = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#666666'});
       this.shuttles = [s];
     }else{
       var shuttles = params.shuttles
