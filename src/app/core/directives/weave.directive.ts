@@ -33,6 +33,11 @@ const generateId = () => (Date.now().toString(36) + Math.random().toString(36).s
 
 
 export class WeaveDirective {
+
+  @Input('timeline') timeline:any;
+
+
+
   /// ATTRIBUTES
   /**
    * Contains the name of the brush being used to manipulate the weave draft.
@@ -169,7 +174,7 @@ export class WeaveDirective {
   private segment: DraftSegment;
   private unsubscribe$ = new Subject();
 
-
+  private lastPos: Point;
   private shuttleLocation: number;
 
   /// ANGULAR FUNCTIONS
@@ -233,6 +238,7 @@ export class WeaveDirective {
     this.warpSystemsCanvas.height = dims.h;
 
 
+    this.addHistoryState();
 
     // Set up the initial grid.
     this.redraw();
@@ -254,7 +260,7 @@ export class WeaveDirective {
      this.removeSubscription();
    }
 
-setPosAndDraw(target, currentPos:Point){
+  setPosAndDraw(target, currentPos:Point){
 
       if (target && target.closest('.treadling-container')) {
         currentPos.i = this.weave.visibleRows[currentPos.i];
@@ -274,7 +280,7 @@ setPosAndDraw(target, currentPos:Point){
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnDrawdown(currentPos);
       }
-  }
+    }
    /// EVENTS
   /**
    * Touch start event. Subscribes to the move event.
@@ -285,7 +291,6 @@ setPosAndDraw(target, currentPos:Point){
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
-    console.log(event.shiftKey);
 
     var dims = this.render.getCellDims("base");
     var offset = this.render.getCellDims(this.brush)
@@ -315,6 +320,7 @@ setPosAndDraw(target, currentPos:Point){
         case 'point':
         case 'erase':
           this.setPosAndDraw(event.target, currentPos);
+
           break;
         case 'maskpoint':
         case 'maskerase':
@@ -362,7 +368,11 @@ setPosAndDraw(target, currentPos:Point){
 
 
 
-
+      this.lastPos = {
+        si: currentPos.si,
+        i: currentPos.i, //row
+        j: currentPos.j //col
+      };
       // this.segment = {
       //   start: [currentPos.si, currentPos.i, currentPos.j],
       //   end: [currentPos.si, currentPos.i, currentPos.j],
@@ -396,7 +406,8 @@ setPosAndDraw(target, currentPos:Point){
     switch (this.brush) {
       case 'point':
       case 'erase':
-        this.setPosAndDraw(event.target, currentPos);
+        if(!(this.lastPos.i === currentPos.i && this.lastPos.j === currentPos.j))
+            this.setPosAndDraw(event.target, currentPos);
         break;
 
       case 'maskpoint':
@@ -434,6 +445,11 @@ setPosAndDraw(target, currentPos:Point){
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
+     this.lastPos = {
+      si: -1,
+      i: -1,
+      j: -1
+     }
 
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && this.brush === 'select')) {
@@ -728,6 +744,9 @@ setPosAndDraw(target, currentPos:Point){
 
     this.weave.rowShuttleMapping[draft_row] = newShuttle;
     //this.drawWeftSelectorCell(this.cxWeftSystems,(screen_row));
+
+    this.addHistoryState();
+
     this.redraw();
   }
 
@@ -756,6 +775,7 @@ setPosAndDraw(target, currentPos:Point){
 
     this.weave.colShuttleMapping[col] = newShuttle_id;
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
+    this.addHistoryState();
     this.redraw();
   }
 
@@ -804,7 +824,6 @@ setPosAndDraw(target, currentPos:Point){
 
   private drawOnDrawdown( currentPos: Point) {
 
-   
     var updates;
     var val  = false;
 
@@ -833,15 +852,18 @@ setPosAndDraw(target, currentPos:Point){
       this.weave.setHeddle(currentPos.i,currentPos.j,val);
       this.updateLoomFromDraft(currentPos);
 
-      if(this.render.getCurrentView() == 'pattern'){
-         this.drawCell(this.cx,currentPos.si, currentPos.j, "drawdown");
-       }else{
-         this.redraw();
-       }
+    //   if(this.render.getCurrentView() == 'pattern'){
+    //      this.drawCell(this.cx,currentPos.si, currentPos.j, "drawdown");
+    //    }else{
+    //      this.redraw();
+    //    }
     }
 
     var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
     var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
+    
+    this.addHistoryState();
+    this.redraw();
     this.redrawLoom();
 
   }
@@ -876,6 +898,7 @@ setPosAndDraw(target, currentPos:Point){
     updates = this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
     this.weave.updateDraftFromTieup(updates);
     //this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup");
+    this.addHistoryState();
     this.redraw();
     this.redrawLoom();
     
@@ -916,6 +939,8 @@ setPosAndDraw(target, currentPos:Point){
   
       var updates = this.weave.loom.updateThreading(currentPos.i, currentPos.j, val);
       this.weave.updateDraftFromThreading(updates);
+      var unused = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
+      this.addHistoryState();
       this.redraw();
 
       //temporarily disabled, as it causes errors, for now, just redraw the whole state
@@ -923,9 +948,7 @@ setPosAndDraw(target, currentPos:Point){
       //   this.drawCell(this.cxThreading,updates[u].i, updates[u].j, "threading");
       // }
           
-      var unused = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
      // if(unused) this.redrawLoom();
-
       this.redrawLoom();
     }
   }
@@ -968,7 +991,7 @@ setPosAndDraw(target, currentPos:Point){
 
       var unused = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling")
       //if(unused) this.redrawLoom();
-
+      this.addHistoryState();
       this.redraw();
       this.redrawLoom();
 
@@ -1156,7 +1179,7 @@ setPosAndDraw(target, currentPos:Point){
 
     var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
     var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
-
+    this.addHistoryState();
     this.redraw();
     this.redrawLoom();
 
@@ -1539,7 +1562,7 @@ setPosAndDraw(target, currentPos:Point){
           }
       }
     }
-
+    this.addHistoryState();
     this.redraw();
     this.redrawLoom();
   }
@@ -1659,6 +1682,7 @@ public unsetSelection(){
 
 
 public redraw(){
+
 
     var base_dims = this.render.getCellDims("base");
     this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
@@ -1818,8 +1842,7 @@ public redraw(){
 
 
   public onUndoRedo() {
-    console.log("undoredo-weave directive")
-    this.undoRedoSegment();
+
   }
 
   /**
@@ -1929,9 +1952,70 @@ public redraw(){
     console.log("link:", link);
     link.download = fileName +".wif";
   }
-  // // History
-  // private onAdd(segment: DraftSegment) {
-  //   this.store.dispatch(new AddAction(segment));
-  // }
+
+  public getActiveTimelineId(): number{
+      for(var i = 0; i < this.timeline.length; i++){
+        if(this.timeline[i].is_active) return i;
+      }
+      return -1;
+  }
+
+
+  public restoreNextHistoryState(){
+    
+      var active_id = this.getActiveTimelineId();
+
+      if(active_id-1 >= 0){
+        this.timeline[active_id].is_active = false;
+        this.timeline[active_id-1].is_active = true;
+        this.weave = cloneDeep(this.timeline[active_id-1].draft);
+        this.redrawLoom();
+        this.redraw();
+      }
+
+  }
+
+  public restorePreviousHistoryState(){
+    
+      var active_id = this.getActiveTimelineId();
+
+      if(active_id+1 < this.timeline.length){
+        this.timeline[active_id].is_active = false;
+        this.timeline[active_id+1].is_active = true;
+        this.weave = cloneDeep(this.timeline[active_id+1].draft);
+        this.redrawLoom();
+        this.redraw();
+      }
+
+  }
+
+
+  public addHistoryState(){
+
+    var active_id = this.getActiveTimelineId();
+
+    var state = {
+      draft: cloneDeep(this.weave),
+      is_active: false
+    }
+
+    if(this.timeline.length > 0){
+
+      if(active_id == 0){
+        this.timeline[0].is_active = false;
+        state.is_active = true;
+      }else{
+
+        //erase all states until you get to the active row
+        this.timeline.splice(0, active_id);
+        if(this.timeline.length > 0) this.timeline[0].is_active = false;
+        state.is_active = true;
+      }
+    }
+
+    //add the enw element
+    var len = this.timeline.unshift(state);
+    if(len > 10) this.timeline.pop();
+  }
 
 }
