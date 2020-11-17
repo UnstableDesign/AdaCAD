@@ -272,5 +272,18 @@ export class DesignComponent implements OnInit {
     this.onRemovePattern.emit({pattern: pattern});
   }
 
+  updateMinTreadles(value: number){
+    //validate the input
+    if(value < 2 || value === undefined) value = 2; 
+
+
+    value = Math.ceil(value);
+    this.onTreadleChange.emit({value: value});
+  }
+
+  updateMinFrames(value: number){
+    this.onFrameChange.emit({value: value});
+  }
+
 
 }

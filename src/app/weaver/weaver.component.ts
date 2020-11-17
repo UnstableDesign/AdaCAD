@@ -527,13 +527,13 @@ export class WeaverComponent implements OnInit {
   }
 
   public frameChange(e:any){
- 
-
+    this.draft.loom.setMinFrames(e.value);
+    this.weaveRef.redrawLoom();
   }
 
   public treadleChange(e:any){
- 
-
+    this.draft.loom.setMinTreadles(e.value);
+    this.weaveRef.redrawLoom();
   }
 
 

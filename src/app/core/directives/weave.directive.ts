@@ -615,12 +615,29 @@ setPosAndDraw(target, currentPos:Point){
    * @returns {void}
    */
   private drawGrid(cx,canvas) {
+    var i,j;
 
     var dims = this.render.getCellDims("base");
     cx.fillStyle = "white";
     cx.fillRect(0,0,canvas.width,canvas.height);
 
-    var i,j;
+    cx.fillStyle = "#cccccc";
+
+    if(canvas.id=== "threading"){
+      cx.fillRect(0, 0, canvas.width, (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h);
+    }
+    else if (canvas.id=== "treadling"){
+      var start = this.weave.loom.min_treadles * dims.w;
+      cx.fillRect(start, 0, canvas.width - start, canvas.height);
+
+    }
+    else if (canvas.id=== "tieups"){
+      var start = this.weave.loom.min_treadles * dims.w;
+      cx.fillRect(start, 0, canvas.width - start, canvas.height);
+      cx.fillRect(0, 0, canvas.width, (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h);
+
+    }
+
 
     cx.fillStyle="black";
     cx.lineWidth = 2;
@@ -634,23 +651,30 @@ setPosAndDraw(target, currentPos:Point){
 
      cx.setLineDash([dims.w/20,dims.w/4]);
 
-     cx.beginPath();
-
-
-
       // draw vertical lines
       for (i = 0; i <= canvas.width; i += dims.w) {
+        if(canvas.id === "treadling" && i === (this.weave.loom.min_treadles)*dims.w) cx.setLineDash([0]);
+        else if(canvas.id === "tieups" && i === (this.weave.loom.min_treadles)*dims.w) cx.setLineDash([0]);
+        else  cx.setLineDash([dims.w/20,dims.w/4]);
+        cx.beginPath();
         cx.moveTo(i, 0);
         cx.lineTo(i, canvas.height);
+        cx.stroke();
+
       }
 
       // draw horizontal lines
       for (i = 0; i <= canvas.height; i += dims.h) {
+        if(canvas.id === "threading" && i === (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h) cx.setLineDash([0]);
+        else if(canvas.id === "tieups" && i === (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h) cx.setLineDash([0]);
+        else  cx.setLineDash([dims.w/20,dims.w/4]);
+
+        cx.beginPath();
         cx.moveTo(0, i);
         cx.lineTo(canvas.width, i);
+        cx.stroke();
       }
 
-      cx.stroke();
 
       // reset the line dash.
       cx.setLineDash([0]);
@@ -1223,8 +1247,8 @@ setPosAndDraw(target, currentPos:Point){
         is_up = (frame == i);
         beyond = frame > this.weave.loom.min_frames; 
         has_mask = false;
-        if(is_up && beyond) color = "#CCCCCC";
-        else if(is_up)  color = "#333333";
+        
+        if(is_up)  color = "#333333";
         i = this.weave.loom.frame_mapping[frame];
 
       break;
@@ -1232,8 +1256,7 @@ setPosAndDraw(target, currentPos:Point){
         is_up = (this.weave.loom.tieup[i][j]);
         beyond = i > this.weave.loom.min_frames; 
         has_mask = false;
-        if(is_up && (beyond || (j > this.weave.loom.min_treadles))) color = "#CCCCCC";
-        else if(is_up) color = "#333333";
+        if(is_up) color = "#333333";
         i = this.weave.loom.frame_mapping[i];
 
 
@@ -1244,8 +1267,7 @@ setPosAndDraw(target, currentPos:Point){
         beyond = this.weave.loom.treadling[row] > this.weave.loom.min_treadles; 
         is_up = (this.weave.loom.treadling[row] == j);
         has_mask = false;
-        if(is_up && beyond) color = "#CCCCCC";
-        else if(is_up)  color = "#333333";
+        if(is_up)  color = "#333333";
 
       break;
 
@@ -1452,13 +1474,7 @@ setPosAndDraw(target, currentPos:Point){
     this.drawGrid(this.cxTieups,this.tieupsCanvas);
 
     
-    // //draw solid lie at max frames
-    // this.cxTreadling.strokeStyle = "#000000";
-    // this.cxTreadling.setLineDash([0]);
-    // this.cxTreadling.beginPath();
-    // this.cxThreading.moveTo(0, base_dims.h * this.weave.loom.min_frames);
-    // this.cxThreading.lineTo(base_dims.w * this.weave.loom.threading.length,base_dims.h * this.weave.loom.min_frames );
-    // this.cxThreading.stroke();
+
 
     for (var j = 0; j < this.weave.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading");
@@ -1711,7 +1727,7 @@ public redraw(){
       this.cx.moveTo(x*base_dims.w+w_margin-1, 0);
       this.cx.lineTo(x*base_dims.w+w_margin-1, base_dims.h*this.weave.visibleRows.length);
       this.cx.stroke();
-      
+
       this.cx.beginPath();
       this.cx.moveTo((x+1)*base_dims.w-w_margin, 0);
       this.cx.lineTo((x+1)*base_dims.w-w_margin, base_dims.h*this.weave.visibleRows.length);

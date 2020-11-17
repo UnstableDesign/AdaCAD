@@ -45,6 +45,70 @@ export class Loom{
       
     }
 
+    setMinFrames(frames:number){
+
+      //get the max frame being used
+      this.updateNumFramesFromThreading();
+
+      if(frames >= this.num_frames){
+        this.min_frames = frames;
+        this.num_frames = frames;
+        this.resetFrameMapping(frames);
+      }else{
+        this.min_frames = frames;
+      }
+     this.updateTieupSize();
+
+
+    }
+
+    setMinTreadles(treadles:number){
+
+      this.updateNumTreadlesFromTreadling();
+
+      if(treadles >= this.num_treadles){
+        this.min_treadles = treadles;
+        this.num_treadles = treadles;
+      }else{
+        this.min_treadles = treadles;
+      }
+
+      this.updateTieupSize();
+
+    }
+
+    updateTieupSize(){
+
+      //if the tieup is larger than the num frames or treadles, trim it
+      if(this.num_frames < this.tieup.length){
+        var diff = this.tieup.length - this.num_frames;
+        this.tieup.splice(this.num_frames-1, diff);
+      }
+
+      if(this.num_treadles < this.tieup[0].length){
+        var diff = this.tieup[0].length - this.num_treadles;
+        for(var i = 0; i < this.num_frames; i++){
+          this.tieup[i].splice(this.num_treadles-1, diff);
+        }
+      }
+
+      //if it got bigger, than add new values
+      for(var i = 0; i < this.num_frames; i++){
+        for(var j = 0; j < this.num_treadles; j++){
+          if(i < this.tieup.length && j < this.tieup[0].length){
+            //do nothing
+          }else if(i < this.tieup.length && j >= this.tieup[0].length){
+            this.tieup[i][j] = false;
+          }else if(i >= this.tieup.length && j < this.tieup[0].length){
+            this.tieup[i] = [];
+            this.tieup[i][j] = false;
+          }else{
+            this.tieup[i] = [];
+            this.tieup[i][j] = false;
+          }
+        }
+      }
+    }
 
     //always sets in reverse order (for now)
     resetFrameMapping(frames: number){
@@ -219,13 +283,7 @@ and returns an associated value for threading frames and treadles
       }
 
 
-      //recreate the tieup for updates
-      // for(var i = 0; i < this.tieup.length; i++){
-      //   updates.tieup.push([]);
-      //   for(var j = 0; j < this.tieup[i].length; j++){
-      //       updates.tieup[i].push({i: i, j:j, val: this.tieup[i][j]});
-      //   }
-      // }
+
 
 
       //if this is within the existing frames
@@ -248,19 +306,6 @@ and returns an associated value for threading frames and treadles
         this.updateNumFramesFromThreading();
         this.resetFrameMapping(this.num_frames);
 
-
-
-        // for(var d = this.num_frames; d <= config.frame; d++){
-        //   this.tieup.push([]); //add a new row to the tieup, fill it with false
-        //   updates.tieup.push([]);
-          
-        //   for(var t = 0; t < this.num_treadles; t++){
-        //     this.tieup[d].push(false);
-        //     updates.tieup[d].push({i: d, j: t, val: false});
-        //   }
-        // }
-
-        //this.num_frames = (config.frame+1);
 
       }
 

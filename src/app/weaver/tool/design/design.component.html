@@ -451,7 +451,7 @@
         min= "2" 
         max ="1000" 
         placeholder="Number of Frames"
-        (click)="updateMinFrames(value)"> 
+        (ngModelChange)="updateMinFrames($event)"> 
          <span matSuffix>frames</span> 
        </mat-form-field>
 
@@ -465,7 +465,7 @@
         min= "2" 
         max ="1000" 
         placeholder="Number of Treadles"
-        (click)="updateMinTreadles(value)"> 
+        (ngModelChange)="updateMinTreadles($event)"> 
          <span matSuffix>treadles</span> 
        </mat-form-field>
 
