@@ -130,7 +130,7 @@ export class DesignComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(ShuttlesModal, 
-      {data: { shuttle: shuttle, warps: this.warps, type: type}, width: '650px' });
+      {data: { shuttle: shuttle, warps: this.warps, type: type, }, width: '650px' });
 
     dialogRef.afterClosed().subscribe(result => {
       if (type == "weft"){
@@ -270,6 +270,19 @@ export class DesignComponent implements OnInit {
   removePattern(pattern) {
     console.log("remove pattern", pattern);
     this.onRemovePattern.emit({pattern: pattern});
+  }
+
+  updateMinTreadles(value: number){
+    //validate the input
+    if(value < 2 || value === undefined) value = 2; 
+
+
+    value = Math.ceil(value);
+    this.onTreadleChange.emit({value: value});
+  }
+
+  updateMinFrames(value: number){
+    this.onFrameChange.emit({value: value});
   }
 
 

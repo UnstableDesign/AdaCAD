@@ -285,6 +285,8 @@ setPosAndDraw(target, currentPos:Point){
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+    console.log(event.shiftKey);
+
     var dims = this.render.getCellDims("base");
     var offset = this.render.getCellDims(this.brush)
 
@@ -305,6 +307,7 @@ setPosAndDraw(target, currentPos:Point){
         i: screen_row, //row
         j: Math.floor((event.offsetX + offset.x) / dims.w), //col
       };
+
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
       switch (this.brush) {
@@ -320,32 +323,45 @@ setPosAndDraw(target, currentPos:Point){
           break;
         case 'select':
 
-          this.selection.start = currentPos;
-          this.selection.end = currentPos;
-          this.selection.width = 0;
-          this.selection.height = 0;
+          if(event.shiftKey){
 
-          d3.select(this.svgEl).style('display', 'none');
+            this.selection.end = currentPos;
+            this.selection.setParameters();
+            this.selectArea();
 
-          if (event.target && event.target.closest('.treadling-container')) {
-            this.selection.setTarget(this.treadlingCanvas);
-          } else if (event.target && event.target.closest('.tieups-container')) {
-            this.selection.setTarget(this.tieupsCanvas);
-          } else if (event.target && event.target.closest('.threading-container')) {
-            this.selection.setTarget(this.threadingCanvas);
-          } else if(event.target && event.target.closest('.shuttles')){
-            this.selection.width = 1;
-            this.selection.setTarget(this.weftSystemsCanvas);
-          }else if(event.target && event.target.closest('.warp-systems')){
-            this.selection.setTarget(this.warpSystemsCanvas);
-            this.selection.height = 1;
-          } else{
-            this.selection.setTarget(this.canvasEl);
+          }else{
+
+
+            this.selection.start = currentPos;
+            this.selection.end = currentPos;
+            this.selection.width = 0;
+            this.selection.height = 0;
+
+            d3.select(this.svgEl).style('display', 'none');
+
+            if (event.target && event.target.closest('.treadling-container')) {
+              this.selection.setTarget(this.treadlingCanvas);
+            } else if (event.target && event.target.closest('.tieups-container')) {
+              this.selection.setTarget(this.tieupsCanvas);
+            } else if (event.target && event.target.closest('.threading-container')) {
+              this.selection.setTarget(this.threadingCanvas);
+            } else if(event.target && event.target.closest('.shuttles')){
+              this.selection.width = 1;
+              this.selection.setTarget(this.weftSystemsCanvas);
+            }else if(event.target && event.target.closest('.warp-systems')){
+              this.selection.setTarget(this.warpSystemsCanvas);
+              this.selection.height = 1;
+            } else{
+              this.selection.setTarget(this.canvasEl);
+            }
           }
           break;
-        default:
+          default:
           break;
       }
+
+
+
 
       // this.segment = {
       //   start: [currentPos.si, currentPos.i, currentPos.j],
@@ -615,12 +631,28 @@ setPosAndDraw(target, currentPos:Point){
    * @returns {void}
    */
   private drawGrid(cx,canvas) {
+    var i,j;
 
     var dims = this.render.getCellDims("base");
     cx.fillStyle = "white";
     cx.fillRect(0,0,canvas.width,canvas.height);
 
-    var i,j;
+    cx.fillStyle = "#cccccc";
+    if(canvas.id=== "threading"){
+      cx.fillRect(0, 0, canvas.width, (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h);
+    }
+    else if (canvas.id=== "treadling"){
+      var start = this.weave.loom.min_treadles * dims.w;
+      cx.fillRect(start, 0, canvas.width - start, canvas.height);
+
+    }
+    else if (canvas.id=== "tieups"){
+      var start = this.weave.loom.min_treadles * dims.w;
+      cx.fillRect(start, 0, canvas.width - start, canvas.height);
+      cx.fillRect(0, 0, canvas.width, (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h);
+
+    }
+
 
     cx.fillStyle="black";
     cx.lineWidth = 2;
@@ -634,23 +666,30 @@ setPosAndDraw(target, currentPos:Point){
 
      cx.setLineDash([dims.w/20,dims.w/4]);
 
-     cx.beginPath();
-
-
-
       // draw vertical lines
       for (i = 0; i <= canvas.width; i += dims.w) {
+        if(canvas.id === "treadling" && i === (this.weave.loom.min_treadles)*dims.w) cx.setLineDash([0]);
+        else if(canvas.id === "tieups" && i === (this.weave.loom.min_treadles)*dims.w) cx.setLineDash([0]);
+        else  cx.setLineDash([dims.w/20,dims.w/4]);
+        cx.beginPath();
         cx.moveTo(i, 0);
         cx.lineTo(i, canvas.height);
+        cx.stroke();
+
       }
 
       // draw horizontal lines
       for (i = 0; i <= canvas.height; i += dims.h) {
+        if(canvas.id === "threading" && i === (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h) cx.setLineDash([0]);
+        else if(canvas.id === "tieups" && i === (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h) cx.setLineDash([0]);
+        else  cx.setLineDash([dims.w/20,dims.w/4]);
+
+        cx.beginPath();
         cx.moveTo(0, i);
         cx.lineTo(canvas.width, i);
+        cx.stroke();
       }
 
-      cx.stroke();
 
       // reset the line dash.
       cx.setLineDash([0]);
@@ -1212,6 +1251,7 @@ setPosAndDraw(target, currentPos:Point){
       case 'drawdown':
       case 'mask':
         var row = this.weave.visibleRows[i];
+        
         is_up = this.weave.isUp(row,j);
         has_mask = this.weave.isMask(row,j);
 
@@ -1223,8 +1263,8 @@ setPosAndDraw(target, currentPos:Point){
         is_up = (frame == i);
         beyond = frame > this.weave.loom.min_frames; 
         has_mask = false;
-        if(is_up && beyond) color = "#CCCCCC";
-        else if(is_up)  color = "#333333";
+        
+        if(is_up)  color = "#333333";
         i = this.weave.loom.frame_mapping[frame];
 
       break;
@@ -1232,8 +1272,7 @@ setPosAndDraw(target, currentPos:Point){
         is_up = (this.weave.loom.tieup[i][j]);
         beyond = i > this.weave.loom.min_frames; 
         has_mask = false;
-        if(is_up && (beyond || (j > this.weave.loom.min_treadles))) color = "#CCCCCC";
-        else if(is_up) color = "#333333";
+        if(is_up) color = "#333333";
         i = this.weave.loom.frame_mapping[i];
 
 
@@ -1244,8 +1283,7 @@ setPosAndDraw(target, currentPos:Point){
         beyond = this.weave.loom.treadling[row] > this.weave.loom.min_treadles; 
         is_up = (this.weave.loom.treadling[row] == j);
         has_mask = false;
-        if(is_up && beyond) color = "#CCCCCC";
-        else if(is_up)  color = "#333333";
+        if(is_up)  color = "#333333";
 
       break;
 
@@ -1312,6 +1350,7 @@ setPosAndDraw(target, currentPos:Point){
       // Each shuttle.
       this.cx.strokeStyle = this.weave.shuttles[l].getColor();
       this.cx.lineWidth = 7*base_dims.h/8 * this.weave.shuttles[l].getThickness()/100;
+      this.cx.lineCap = 'square';
       var first = true;
       var left = !this.weave.shuttles[l].insert;
       var py = null;
@@ -1330,6 +1369,7 @@ setPosAndDraw(target, currentPos:Point){
           if (this.weave.isUp(i - 1,x)) {
 
             if (first && this.weave.rowShuttleMapping[r] === l) {
+              
               this.cx.beginPath();
               this.cx.moveTo(x * base_dims.w + base_dims.w/4, y);
               this.cx.lineTo((x + 1)* base_dims.w - base_dims.w/4, y)
@@ -1342,6 +1382,7 @@ setPosAndDraw(target, currentPos:Point){
                 s2 = (x * base_dims.w) + base_dims.w/4;
                 e2 = (x + 1) * base_dims.w - base_dims.w/4;
               }
+
             } else if (this.weave.rowShuttleMapping[r] === l) {
               this.cx.lineTo((x + 1) * base_dims.w - base_dims.w/4, y);
 
@@ -1354,6 +1395,7 @@ setPosAndDraw(target, currentPos:Point){
             }
           }
         }
+
         if (first === false) {
           this.cx.stroke();
         }
@@ -1386,6 +1428,8 @@ setPosAndDraw(target, currentPos:Point){
     }
 
     this.cx.strokeStyle = "#000";
+    this.cx.lineCap = 'butt';
+
   }
 
 
@@ -1446,6 +1490,8 @@ setPosAndDraw(target, currentPos:Point){
     this.drawGrid(this.cxTieups,this.tieupsCanvas);
 
     
+
+
     for (var j = 0; j < this.weave.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading");
     }
@@ -1693,10 +1739,12 @@ public redraw(){
 
       this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.weave.visibleRows.length);
 
+      this.cx.beginPath();
       this.cx.moveTo(x*base_dims.w+w_margin-1, 0);
       this.cx.lineTo(x*base_dims.w+w_margin-1, base_dims.h*this.weave.visibleRows.length);
       this.cx.stroke();
-      
+
+      this.cx.beginPath();
       this.cx.moveTo((x+1)*base_dims.w-w_margin, 0);
       this.cx.lineTo((x+1)*base_dims.w-w_margin, base_dims.h*this.weave.visibleRows.length);
       this.cx.stroke();

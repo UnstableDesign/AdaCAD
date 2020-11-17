@@ -79,7 +79,7 @@ export class Draft implements DraftInterface {
 
 
     if(params.warp_systems === undefined){
-      let s = new Shuttle({id: 0, name: 'Warp System 1', visible: true, color: '#3d3d3d'});
+      let s = new Shuttle({id: 0, name: 'Warp System 1', visible: true, color: '#666666'});
       this.warp_systems = [s];
     }else{
       var systems = params.warp_systems

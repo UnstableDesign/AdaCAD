@@ -88,34 +88,34 @@
       
       <button matTooltip="draw in filled cells to draft (shortcut: d)" 
       name="point" 
-      class="button is-small is-primary fas fa-pencil-alt"  [class.is-active]="brush === 'point'" 
+      class="button is-small is-primary fas fa-pencil-alt is-fullwidth"  [class.is-active]="brush === 'point'" 
       (click)="brushChange($event)">
       </button>
 
       <button matTooltip="erase filled cells to draft (shortcut: e)" 
       name="erase" 
-      class="button is-small is-primary fas fa-eraser" [class.is-active]="brush === 'erase'" 
+      class="button is-small is-primary fas fa-eraser is-fullwidth" [class.is-active]="brush === 'erase'" 
       (click)="brushChange($event)">
       </button>
 
       <button matTooltip="invert the state of one cell" 
       name="invert" 
-      class="button is-small is-primary fas fa-random" [class.is-active]="brush === 'invert'" 
+      class="button is-small is-primary fas fa-random is-fullwidth" [class.is-active]="brush === 'invert'" 
       (click)="brushChange($event)">
       </button>
      
       <button  matTooltip="select a region of the draft (shortcut: s)" 
       name="select" 
-      class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === 'select'" 
+      class="button is-small is-primary fa fa-hand-pointer is-fullwidth" [class.is-active]="brush === 'select'" 
       (click)="brushChange($event)">
       </button>
 
       <h3 class="is-fullwidth">Selection Operations </h3>
 
-       <button matTooltip="clear all valules in selected region" 
+       <button matTooltip="clear all valules in selected region (shortcut: delete)" 
        name="clear" 
        [disabled] = "brush !=='select'" 
-       class="button is-primary is-small fa fa-square" 
+       class="button is-primary is-small fa fa-times is-fullwidth" 
        (click)="clearEvent($event);"> 
        </button>
 
@@ -123,7 +123,7 @@
          <button  matTooltip="fill sellection with {{ pat.name }}" 
          [disabled] = "brush !=='select'" 
          name="fill_{{pat.id}}" 
-         class="button is-primary is-small" 
+         class="button is-primary is-small is-fullwidth" 
          (click)="fillEvent($event, pat.id)">
           <i class="fill_name">{{ pat.name }}</i>
          </button>
@@ -136,30 +136,30 @@
          name="copy" 
         [disabled] = "brush !=='select'" 
         (click)="copyEvent($event);" 
-        class="button is-primary is-small fa fa-clone" >
+        class="button is-primary is-small fa fa-clone is-fullwidth" >
         </button>
 
         <button  matTooltip="paste selection (shortcut: p)"
         [disabled] = "!copy" 
-        class="button is-small is-primary fa fa-paste" 
+        class="button is-small is-primary fa fa-paste is-fullwidth" 
         (click)="pasteEvent($event, 'original')">
         </button>
 
         <button  matTooltip="paste selection inverted" 
         [disabled] = "!copy" 
-        class="button is-small is-primary fa fa-paste" 
+        class="button is-small is-primary fa fa-random is-fullwidth" 
         (click)="pasteEvent($event, 'invert')">
         </button>
 
         <button  matTooltip="paste selection mirrored (horizontal)" 
         [disabled] = "!copy" 
-        class="button is-small is-primary fas fa-arrows-alt-h" 
+        class="button is-small is-primary fas fa-arrows-alt-h is-fullwidth" 
         (click)="pasteEvent($event, 'mirrorY')">           
         </button>
 
         <button  matTooltip="paste selection mirrored (vertical)" 
         [disabled] = "!copy" 
-        class="button is-small is-primary fas fa-arrows-alt-v"
+        class="button is-small is-primary fas fa-arrows-alt-v is-fullwidth"
         (click)="pasteEvent($event, 'mirrorX')">           
         </button>
 
@@ -451,7 +451,7 @@
         min= "2" 
         max ="1000" 
         placeholder="Number of Frames"
-        (click)="updateMinFrames(value)"> 
+        (ngModelChange)="updateMinFrames($event)"> 
          <span matSuffix>frames</span> 
        </mat-form-field>
 
@@ -465,7 +465,7 @@
         min= "2" 
         max ="1000" 
         placeholder="Number of Treadles"
-        (click)="updateMinTreadles(value)"> 
+        (ngModelChange)="updateMinTreadles($event)"> 
          <span matSuffix>treadles</span> 
        </mat-form-field>
 

@@ -6,6 +6,7 @@ export class Render {
 
   view_frames: boolean;
   current_view: string;
+  view_back: boolean;
 
   zoom: number;
 
@@ -29,7 +30,7 @@ export class Render {
     this.zoom = 100;
     this.view_frames = view_frames;
     this.current_view = 'pattern';
-
+    this.view_back = true;
 
     this.base_cell = {
     w: {max: 20, min: .1},
