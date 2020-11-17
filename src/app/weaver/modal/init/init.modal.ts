@@ -33,7 +33,9 @@ export class InitModal implements OnInit {
   opts: StartOptions[] = [
       {value: 'new', viewValue: 'Begin New Draft'},
       {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
-      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'}    ];
+      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'},
+      {value: 'wif', viewValue: 'Load a WIF (.wif) File'}   
+    ];
 
   //form: any = {};
   selected:string = null;
@@ -316,11 +318,19 @@ export class InitModal implements OnInit {
     while (line.match(/[0-9]*=[0-9]*/) != null) {
       var treadle = +(line.match(/[0-9]*/));
       var firstFrame = +(line.match(/=[0-9]*/)[0].substring(1));
+      console.log("tieups:", tieups);
+      console.log("firstFrame:", firstFrame);
+      console.log("frames:", frames);
+      console.log("treadle-1", treadle-1);
+      console.log("frames-firstFrame", frames-firstFrame);
       tieups[frames-firstFrame][treadle-1] = true;
       var restOfFrames = line.match(/,[0-9]/g);
       if(restOfFrames != null) {
         for (var i = 0; i < restOfFrames.length; i++) {
           var currentFrame = +(restOfFrames[i].substring(1));
+          console.log("currentFrame:",currentFrame);
+          console.log("tieups[frames-currentFrame]", tieups[frames-currentFrame]);
+          console.log("tieups[0]", tieups[0]);
           tieups[frames-currentFrame][treadle-1] = true;
         }
       }

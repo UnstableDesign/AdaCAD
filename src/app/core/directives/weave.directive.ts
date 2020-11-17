@@ -1785,9 +1785,9 @@ public unsetSelection(){
     fileContents += "Form=RGB\nRange=0,255\n";
 
     fileContents += "[WEAVING]\nShafts=";
-    fileContents += this.weave.loom.num_frames.toString();
+    fileContents += this.weave.loom.min_frames.toString();
     fileContents += "\nTreadles=";
-    fileContents += this.weave.loom.num_treadles.toString();
+    fileContents += this.weave.loom.min_treadles.toString();
     fileContents += "\nRising Shed=yes\n";
     fileContents += "[WARP]\nThreads=";
     fileContents += this.weave.warps.toString();

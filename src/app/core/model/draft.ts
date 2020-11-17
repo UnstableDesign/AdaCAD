@@ -509,14 +509,18 @@ export class Draft implements DraftInterface {
    */  
   recalculateDraft(tieup, treadling, threading) {
     console.log("this.pattern:",this.pattern);
+    console.log("treadling.length:", treadling.length);
     for (var i = 0; i < treadling.length;i++) {
       var active_treadle = treadling[i];
       if (active_treadle != -1) {
+        console.log("treadle activated");
         for (var j = 0; j < tieup.length; j++) {
           if (tieup[j][active_treadle]) {
             for (var k = 0; k < threading.length;k++) {
+              console.log("k", k);
+              console.log("i", i)
               if (threading[k] == j) {
-                this.pattern[i][k] =true;
+                this.pattern[k][i] =true; //i swapped the order of k and i but i'm not sure this is how it is supposed to be...
               }
             }
           }
