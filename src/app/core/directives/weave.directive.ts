@@ -1312,6 +1312,7 @@ setPosAndDraw(target, currentPos:Point){
       // Each shuttle.
       this.cx.strokeStyle = this.weave.shuttles[l].getColor();
       this.cx.lineWidth = 7*base_dims.h/8 * this.weave.shuttles[l].getThickness()/100;
+      this.cx.lineCap = 'square';
       var first = true;
       var left = !this.weave.shuttles[l].insert;
       var py = null;
@@ -1330,6 +1331,7 @@ setPosAndDraw(target, currentPos:Point){
           if (this.weave.isUp(i - 1,x)) {
 
             if (first && this.weave.rowShuttleMapping[r] === l) {
+              
               this.cx.beginPath();
               this.cx.moveTo(x * base_dims.w + base_dims.w/4, y);
               this.cx.lineTo((x + 1)* base_dims.w - base_dims.w/4, y)
@@ -1342,6 +1344,7 @@ setPosAndDraw(target, currentPos:Point){
                 s2 = (x * base_dims.w) + base_dims.w/4;
                 e2 = (x + 1) * base_dims.w - base_dims.w/4;
               }
+
             } else if (this.weave.rowShuttleMapping[r] === l) {
               this.cx.lineTo((x + 1) * base_dims.w - base_dims.w/4, y);
 
@@ -1354,6 +1357,7 @@ setPosAndDraw(target, currentPos:Point){
             }
           }
         }
+
         if (first === false) {
           this.cx.stroke();
         }
@@ -1386,6 +1390,8 @@ setPosAndDraw(target, currentPos:Point){
     }
 
     this.cx.strokeStyle = "#000";
+    this.cx.lineCap = 'butt';
+
   }
 
 
@@ -1446,6 +1452,14 @@ setPosAndDraw(target, currentPos:Point){
     this.drawGrid(this.cxTieups,this.tieupsCanvas);
 
     
+    // //draw solid lie at max frames
+    // this.cxTreadling.strokeStyle = "#000000";
+    // this.cxTreadling.setLineDash([0]);
+    // this.cxTreadling.beginPath();
+    // this.cxThreading.moveTo(0, base_dims.h * this.weave.loom.min_frames);
+    // this.cxThreading.lineTo(base_dims.w * this.weave.loom.threading.length,base_dims.h * this.weave.loom.min_frames );
+    // this.cxThreading.stroke();
+
     for (var j = 0; j < this.weave.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading");
     }
@@ -1693,10 +1707,12 @@ public redraw(){
 
       this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.weave.visibleRows.length);
 
+      this.cx.beginPath();
       this.cx.moveTo(x*base_dims.w+w_margin-1, 0);
       this.cx.lineTo(x*base_dims.w+w_margin-1, base_dims.h*this.weave.visibleRows.length);
       this.cx.stroke();
       
+      this.cx.beginPath();
       this.cx.moveTo((x+1)*base_dims.w-w_margin, 0);
       this.cx.lineTo((x+1)*base_dims.w-w_margin, base_dims.h*this.weave.visibleRows.length);
       this.cx.stroke();
