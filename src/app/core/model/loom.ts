@@ -328,7 +328,6 @@ and returns an associated value for threading frames and treadles
             for(var jj = 0; jj < config.drawdown[idx].length; jj++){
               if(config.drawdown[idx][jj].isUp()){
                   var frame = this.threading[jj];
-                  console.log(frame, this.num_frames);
                   this.tieup[frame][j] = true;                  
                   updates.tieup[this.threading[jj]][j].val = true; 
               }

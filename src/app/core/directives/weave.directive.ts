@@ -1205,6 +1205,7 @@ setPosAndDraw(target, currentPos:Point){
     var has_mask = false;
     var is_up = false;
     var color = "#FFFFFF";
+    var beyond = false;
 
 
     switch(type){
@@ -1220,15 +1221,19 @@ setPosAndDraw(target, currentPos:Point){
       case 'threading':
         var frame = this.weave.loom.threading[j];
         is_up = (frame == i);
+        beyond = frame > this.weave.loom.min_frames; 
         has_mask = false;
-        if(is_up) color = "#333333";
+        if(is_up && beyond) color = "#CCCCCC";
+        else if(is_up)  color = "#333333";
         i = this.weave.loom.frame_mapping[frame];
 
       break;
       case 'tieup':
         is_up = (this.weave.loom.tieup[i][j]);
+        beyond = i > this.weave.loom.min_frames; 
         has_mask = false;
-        if(is_up) color = "#333333";
+        if(is_up && (beyond || (j > this.weave.loom.min_treadles))) color = "#CCCCCC";
+        else if(is_up) color = "#333333";
         i = this.weave.loom.frame_mapping[i];
 
 
@@ -1236,9 +1241,11 @@ setPosAndDraw(target, currentPos:Point){
       case 'treadling':
         //i and j is going to come from the UI which is only showing visible rows
         var row = this.weave.visibleRows[i];
+        beyond = this.weave.loom.treadling[row] > this.weave.loom.min_treadles; 
         is_up = (this.weave.loom.treadling[row] == j);
         has_mask = false;
-        if(is_up) color = "#333333";
+        if(is_up && beyond) color = "#CCCCCC";
+        else if(is_up)  color = "#333333";
 
       break;
 
