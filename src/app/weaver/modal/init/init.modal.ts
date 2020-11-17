@@ -100,9 +100,9 @@ export class InitModal implements OnInit {
     this.draft.wefts = this.getInt("Threads",this.getSubstringAfter("WEFT]",stringWithoutMetadata));
     var data = [];
 
-    for (var i = 0; i < this.draft.warps; i++) {
+    for (var i = 0; i < this.draft.wefts; i++) {
       data.push([]);
-      for (var j = 0; j < this.draft.wefts; j++) {
+      for (var j = 0; j < this.draft.warps; j++) {
         data[i].push(false);
       }
     }
@@ -273,7 +273,6 @@ export class InitModal implements OnInit {
 
   getThreading(e) {
     var threading = [];
-    var frames = this.getInt("Shafts", e);
 
     for (var i = 0; i < this.draft.warps; i++) {
       threading.push(-1);
@@ -288,7 +287,7 @@ export class InitModal implements OnInit {
     while (line.match(/[0-9]*=[0-9]*/) != null) {
       var warp = +(line.match(/[0-9]*/));
       var frame = +(line.match(/=[0-9]*/)[0].substring(1));
-      threading[this.draft.warps-warp] = frames-frame;
+      threading[this.draft.warps - warp] = frame-1;
       startIndex = endIndex+1;
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
@@ -318,20 +317,12 @@ export class InitModal implements OnInit {
     while (line.match(/[0-9]*=[0-9]*/) != null) {
       var treadle = +(line.match(/[0-9]*/));
       var firstFrame = +(line.match(/=[0-9]*/)[0].substring(1));
-      console.log("tieups:", tieups);
-      console.log("firstFrame:", firstFrame);
-      console.log("frames:", frames);
-      console.log("treadle-1", treadle-1);
-      console.log("frames-firstFrame", frames-firstFrame);
-      tieups[frames-firstFrame][treadle-1] = true;
+      tieups[firstFrame-1][treadle-1] = true;
       var restOfFrames = line.match(/,[0-9]/g);
       if(restOfFrames != null) {
         for (var i = 0; i < restOfFrames.length; i++) {
           var currentFrame = +(restOfFrames[i].substring(1));
-          console.log("currentFrame:",currentFrame);
-          console.log("tieups[frames-currentFrame]", tieups[frames-currentFrame]);
-          console.log("tieups[0]", tieups[0]);
-          tieups[frames-currentFrame][treadle-1] = true;
+          tieups[currentFrame-1][treadle-1] = true;
         }
       }
       startIndex = endIndex+1;

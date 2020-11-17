@@ -1925,7 +1925,7 @@ public redraw(){
           if (lineMarked) {
             fileContents += ",";
           }
-          fileContents += (this.weave.loom.tieup.length-j).toString();
+          fileContents += (j+1).toString();
           lineMarked=true;
         }
       }
@@ -1966,7 +1966,7 @@ public redraw(){
     for (var i=0; i <this.weave.loom.threading.length; i++) {
       var frame = this.weave.loom.threading[i];
       if (frame != -1) {
-        fileContents += (this.weave.loom.threading.length-i).toString() + "=" + (this.weave.loom.num_frames-frame).toString() + "\n";
+        fileContents += (this.weave.loom.threading.length-i).toString() + "=" + (frame+1).toString() + "\n";
       }
     }
 

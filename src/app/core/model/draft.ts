@@ -53,10 +53,8 @@ export class Draft implements DraftInterface {
 
 
   constructor({...params}) {
-    console.log("Draft Constructor", params);
 
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
-    console.log("params.wefts:", params.wefts);
     this.warps = (params.warps === undefined) ? 20 : params.warps;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
@@ -132,7 +130,6 @@ export class Draft implements DraftInterface {
         this.pattern.push([]);
 
         for (var j = 0; j < this.warps; j++){
-          
           if (params.pattern === undefined) {
             this.pattern[ii].push(new Cell());
           }else{
@@ -497,17 +494,15 @@ export class Draft implements DraftInterface {
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
   recalculateDraft(tieup, treadling, threading) {
-    console.log("this.pattern:",this.pattern);
-    console.log("treadling.length:", treadling.length);
+    //this is where the issue was???
     for (var i = 0; i < treadling.length;i++) {
       var active_treadle = treadling[i];
       if (active_treadle != -1) {
-        console.log("treadle activated");
         for (var j = 0; j < tieup.length; j++) {
           if (tieup[j][active_treadle]) {
             for (var k = 0; k < threading.length;k++) {
-              console.log("k", k);
-              console.log("i", i)
+              // console.log("k", k);
+              // console.log("i", i)
               if (threading[k] == j) {
                 this.pattern[i][k].setHeddle(true);
               }
