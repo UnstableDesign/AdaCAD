@@ -116,7 +116,7 @@ export class InitModal implements OnInit {
       var treadling = this.getTreadling(stringWithoutMetadata);
       this.draft.loom.treadling = treadling;
       this.draft.visibleRows = [];
-      for (var i = 0; i < this.draft.warps; i++) {
+      for (var i = 0; i < this.draft.wefts; i++) {
         this.draft.visibleRows.push(i);
       }
     }

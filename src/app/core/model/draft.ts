@@ -494,15 +494,12 @@ export class Draft implements DraftInterface {
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
   recalculateDraft(tieup, treadling, threading) {
-    //this is where the issue was???
     for (var i = 0; i < treadling.length;i++) {
       var active_treadle = treadling[i];
       if (active_treadle != -1) {
         for (var j = 0; j < tieup.length; j++) {
           if (tieup[j][active_treadle]) {
             for (var k = 0; k < threading.length;k++) {
-              // console.log("k", k);
-              // console.log("i", i)
               if (threading[k] == j) {
                 this.pattern[i][k].setHeddle(true);
               }
