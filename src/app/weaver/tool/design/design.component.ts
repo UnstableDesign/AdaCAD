@@ -45,6 +45,7 @@ export class DesignComponent implements OnInit {
   @Output() onLabelCreate: any = new EventEmitter();
   @Output() onWarpNumChange: any = new EventEmitter();
   @Output() onEpiNumChange: any = new EventEmitter();
+  @Output() onThicknessChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();
   @Output() onCreateShuttle: any = new EventEmitter();
   @Output() onCreateWarpSystem: any = new EventEmitter();
@@ -165,6 +166,11 @@ export class DesignComponent implements OnInit {
   epiChange(f: NgForm) {
     f.controls['width'].setValue(f.value.warps / f.value.epi);   
     this.onEpiNumChange.emit({epi: f.value.epi});
+
+  }
+
+  thicknessChange(id: any, value: number) {
+    this.onThicknessChange.emit();
 
   }
 

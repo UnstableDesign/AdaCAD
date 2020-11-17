@@ -14,7 +14,7 @@ export class Selection {
 
   setParameters() {
     this.width = Math.abs(this.start.j - this.end.j);
-    this.height = Math.abs(this.start.i - this.end.i);
+    this.height = Math.abs(this.start.si - this.end.si);
   }
 
 

@@ -84,11 +84,6 @@ export class WeaverComponent implements OnInit {
    */
   //patterns;
 
-  /**
-   * The name of the current view being shown.
-   * @property {string}
-   */
-  view: string = 'pattern';
 
   selected;
 
@@ -263,26 +258,38 @@ export class WeaverComponent implements OnInit {
   }
 
   /**
+   * Sets key to copy 
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + x
+   * @returns {void}
+   */
+  @HostListener('window:keydown.c', ['$event'])
+  private keyEventCopy(e) {
+    this.weaveRef.copyArea();
+    
+  }
+
+    /**
+   * Sets key to copy 
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + x
+   * @returns {void}
+   */
+  @HostListener('window:keydown.p', ['$event'])
+  private keyEventPaste(e) {
+    var p = this.weaveRef.copy;
+    this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
+  }
+
+  /**
    * Updates the canvas based on the weave view.
    * @extends WeaveComponent
    * @param {Event} e - view change event from design component.
    * @returns {void}
    */
   public viewChange(value: any) {
-    console.log("view change", value);
-    this.view = value;
-
-    switch (this.view) {
-      case 'visual':
-        this.weaveRef.simulate();
-        break;
-      case 'yarn':
-        this.weaveRef.functional();
-        break;
-      default:
-        this.weaveRef.redraw();
-        break;
-    }
+    this.render.setCurrentView(value);
+    this.weaveRef.redraw();
   }
 
   /**
@@ -418,7 +425,7 @@ export class WeaverComponent implements OnInit {
    */
   public insertRow(i, shuttle) {
     this.draft.insertRow(i, shuttle);
-    this.draft.updateConnections(i, 1);
+    //this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
     console.log('send emit - insert');
@@ -427,7 +434,7 @@ export class WeaverComponent implements OnInit {
 
   public cloneRow(i, c, shuttle) {
     this.draft.cloneRow(i, c, shuttle);
-    this.draft.updateConnections(i, 1);
+   // this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
@@ -437,14 +444,13 @@ export class WeaverComponent implements OnInit {
 
   public deleteRow(i) {
     this.draft.deleteRow(i);
-    this.draft.updateConnections(i, -1);
+   // this.draft.updateConnections(i, -1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
    console.log('send emit - delete');
 
     //this.onAddRow.emit();
-
   }
 
     /**
@@ -461,7 +467,7 @@ export class WeaverComponent implements OnInit {
 
   public deleteCol(i) {
     this.draft.deleteCol(i);
-    this.draft.updateConnections(i, -1);
+    //this.draft.updateConnections(i, -1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
@@ -475,17 +481,13 @@ export class WeaverComponent implements OnInit {
   }
 
   public createShuttle(e: any) {
-    this.draft.addShuttle(e.shuttle);
-    if (e.shuttle.image) {
-      this.weaveRef.redraw();
-    }
+    this.draft.addShuttle(e.shuttle); 
+    this.weaveRef.redraw();
   }
 
   public createWarpSystem(e: any) {
     this.draft.addWarpSystem(e.shuttle);
-    if (e.shuttle.image) {
-      this.weaveRef.redraw();
-    }
+    this.weaveRef.redraw();
   }
 
 
@@ -506,6 +508,12 @@ export class WeaverComponent implements OnInit {
 
   }
 
+  public thicknessChange(e:any){
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+
+  }
+
 
   public loomChange(e:any){
     
@@ -515,7 +523,6 @@ export class WeaverComponent implements OnInit {
     }else{
       this.render.view_frames = true;
       this.weaveRef.recomputeLoom();
-      this.weaveRef.redrawLoom();
     }
     this.weaveRef.redraw();
 
@@ -573,9 +580,11 @@ export class WeaverComponent implements OnInit {
 
   public toggleViewFrames(){
     this.render.toggleViewFrames();
+    this.weaveRef.unsetSelection();
 
     if(this.render.view_frames && this.draft.loom.type == "frame"){
       this.weaveRef.recomputeLoom();
+
     }
   }
 
