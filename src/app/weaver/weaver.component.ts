@@ -179,9 +179,9 @@ export class WeaverComponent implements OnInit {
   /// EVENTS
 
 /**
-   * Sets brush to erase on key p.
+   * Call zoom in on Shift+p.
    * @extends WeaveComponent
-   * @param {Event} e - Press Control + e
+   * @param {Event} shift+p
    * @returns {void}
    */
   @HostListener('window:keydown.Shift.p', ['$event'])
@@ -193,26 +193,42 @@ export class WeaverComponent implements OnInit {
 
 
   }
-
+/**
+   * Call zoom out on Shift+o.
+   * @extends WeaveComponent
+   * @param {Event} shift+o
+   * @returns {void}
+   */
   @HostListener('window:keydown.Shift.o', ['$event'])
   private keyEventZoomOut(e) {
     console.log("zoom out");
     this.render.zoomOut();
     this.redraw();
     this.weaveRef.unsetSelection();
+  }
 
+  /**
+   * Sets selected area to clear
+   * @extends WeaveComponent
+   * @param {Event} delete key pressed
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Backspace', ['$event'])
+  private keyEventClear(e) {
+    
+  this.onClear()
 
   }
 
   /**
-   * Sets brush to erase on key control + e.
+   * Sets selected area to clear
    * @extends WeaveComponent
-   * @param {Event} e - Press Control + e
+   * @param {Event} delete key pressed
    * @returns {void}
    */
+
   @HostListener('window:keydown.e', ['$event'])
   private keyEventErase(e) {
-    console.log("erase");
     this.brush = 'erase';
     this.weaveRef.unsetSelection();
 
@@ -317,7 +333,7 @@ export class WeaverComponent implements OnInit {
   /**
    * Tell weave reference to clear selection.
    * @extends WeaveComponent
-   * @param {Event} e - clear event from design component.
+   * @param {Event} Delte - clear event from design component.
    * @returns {void}
    */
   public onClear() {
