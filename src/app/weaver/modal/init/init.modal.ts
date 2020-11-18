@@ -33,7 +33,9 @@ export class InitModal implements OnInit {
   opts: StartOptions[] = [
       {value: 'new', viewValue: 'Begin New Draft'},
       {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
-      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'}    ];
+      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'},
+      {value: 'wif', viewValue: 'Load a WIF (.wif) File'}   
+    ];
 
   //form: any = {};
   selected:string = null;
@@ -94,13 +96,13 @@ export class InitModal implements OnInit {
 
   processWifData(e: any) {
     var stringWithoutMetadata = this.getSubstringAfter("CONTENTS", e);
-    this.draft.warps = this.getInt("Threads",this.getSubstringAfter("[WARP]",stringWithoutMetadata));
-    this.draft.wefts = this.getInt("Threads",this.getSubstringAfter("[WEFT]",stringWithoutMetadata));
+    this.draft.warps = this.getInt("Threads",this.getSubstringAfter("WARP]",stringWithoutMetadata));
+    this.draft.wefts = this.getInt("Threads",this.getSubstringAfter("WEFT]",stringWithoutMetadata));
     var data = [];
 
-    for (var i = 0; i < this.draft.warps; i++) {
+    for (var i = 0; i < this.draft.wefts; i++) {
       data.push([]);
-      for (var j = 0; j < this.draft.wefts; j++) {
+      for (var j = 0; j < this.draft.warps; j++) {
         data[i].push(false);
       }
     }
@@ -114,7 +116,7 @@ export class InitModal implements OnInit {
       var treadling = this.getTreadling(stringWithoutMetadata);
       this.draft.loom.treadling = treadling;
       this.draft.visibleRows = [];
-      for (var i = 0; i < this.draft.warps; i++) {
+      for (var i = 0; i < this.draft.wefts; i++) {
         this.draft.visibleRows.push(i);
       }
     }
@@ -138,11 +140,6 @@ export class InitModal implements OnInit {
         this.draft.warp_systems = warp_systems;
         this.draft.rowShuttleMapping = rowToShuttleMapping;
         this.draft.colShuttleMapping = colToShuttleMapping;
-        //thinking that I will add shuttles to the draft object that correspond to the correct colors
-        //will need to adjust the shuttles col and row mapping according to which weft and warp threads
-
-      } else {
-        //TODO: Look into whether or not other color forms are used in WIFs
       }
     }
   }
@@ -276,7 +273,6 @@ export class InitModal implements OnInit {
 
   getThreading(e) {
     var threading = [];
-    var frames = this.getInt("Shafts", e);
 
     for (var i = 0; i < this.draft.warps; i++) {
       threading.push(-1);
@@ -291,7 +287,7 @@ export class InitModal implements OnInit {
     while (line.match(/[0-9]*=[0-9]*/) != null) {
       var warp = +(line.match(/[0-9]*/));
       var frame = +(line.match(/=[0-9]*/)[0].substring(1));
-      threading[this.draft.warps-warp] = frames-frame;
+      threading[this.draft.warps - warp] = frame-1;
       startIndex = endIndex+1;
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
@@ -321,12 +317,12 @@ export class InitModal implements OnInit {
     while (line.match(/[0-9]*=[0-9]*/) != null) {
       var treadle = +(line.match(/[0-9]*/));
       var firstFrame = +(line.match(/=[0-9]*/)[0].substring(1));
-      tieups[frames-firstFrame][treadle-1] = true;
+      tieups[firstFrame-1][treadle-1] = true;
       var restOfFrames = line.match(/,[0-9]/g);
       if(restOfFrames != null) {
         for (var i = 0; i < restOfFrames.length; i++) {
           var currentFrame = +(restOfFrames[i].substring(1));
-          tieups[frames-currentFrame][treadle-1] = true;
+          tieups[currentFrame-1][treadle-1] = true;
         }
       }
       startIndex = endIndex+1;

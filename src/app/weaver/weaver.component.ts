@@ -133,7 +133,6 @@ export class WeaverComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       
       var is_frame = true;
-
       this.draft = new Draft(result);
 
 

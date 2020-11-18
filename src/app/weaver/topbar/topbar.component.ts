@@ -36,7 +36,7 @@ export class TopbarComponent implements OnInit {
   ngOnInit() {
     this.downloadBmp = this.bmpLink._elementRef;
     this.downloadAda = this.adaLink._elementRef;
-    //this.downloadWif = this.wifLink._elementRef;
+    this.downloadWif = this.wifLink._elementRef;
   }
 
   public saveAsBmp(e: any) {

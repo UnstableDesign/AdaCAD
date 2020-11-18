@@ -53,7 +53,6 @@ export class Draft implements DraftInterface {
 
 
   constructor({...params}) {
-    console.log("Draft Constructor", params);
 
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 20 : params.warps;
@@ -131,7 +130,6 @@ export class Draft implements DraftInterface {
         this.pattern.push([]);
 
         for (var j = 0; j < this.warps; j++){
-          
           if (params.pattern === undefined) {
             this.pattern[ii].push(new Cell());
           }else{

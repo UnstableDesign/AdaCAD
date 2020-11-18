@@ -315,7 +315,6 @@ and returns an associated value for threading frames and treadles
 
 
       if(config.treadle < this.num_treadles){
-        
         if(this.treadling[config.i] != -1){
           updates.treadling.push({i: config.i, j: this.treadling[config.i], val: false});
           this.treadling[config.i] = -1;
