@@ -147,10 +147,6 @@ export class Draft implements DraftInterface {
               this.pattern[ii][j].setMaskId(params.pattern[ii][j].mask_id);
             }
 
-            if(params.pattern[ii][j].poles !== undefined){
-              this.pattern[ii][j].setPoles(params.pattern[ii][j].poles);
-            }
-
           }
         }
     }
@@ -168,10 +164,12 @@ export class Draft implements DraftInterface {
     } 
 
     if(params.loom === undefined) {
+      console.log("init loom from undefined");
       this.loom = new Loom('frame', this.wefts, this.warps, 10, 8, 10);
     } else {
+      console.log("init loom from defined", params);
 
-      this.loom = new Loom(params.loom.type, params.wefts, params.warps, params.loom.epi, params.loom.num_frames, params.loom.num_treadles);
+      this.loom = new Loom(params.loom.type, this.wefts, this.warps, params.loom.epi, params.loom.num_frames, params.loom.num_treadles);
       if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
       if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
       if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;

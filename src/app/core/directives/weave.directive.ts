@@ -264,6 +264,7 @@ export class WeaveDirective {
 
       if (target && target.closest('.treadling-container')) {
         currentPos.i = this.weave.visibleRows[currentPos.i];
+        console.log("set pos", currentPos);
         this.drawOnTreadling(currentPos);
       } else if (target && target.closest('.tieups-container')) {
         currentPos.i = this.weave.loom.frame_mapping[currentPos.i];
@@ -319,6 +320,7 @@ export class WeaveDirective {
         case 'invert':
         case 'point':
         case 'erase':
+          console.log("mouse down");
           this.setPosAndDraw(event.target, currentPos);
 
           break;
@@ -406,8 +408,12 @@ export class WeaveDirective {
     switch (this.brush) {
       case 'point':
       case 'erase':
-        if(!(this.lastPos.i === currentPos.i && this.lastPos.j === currentPos.j))
+
+        if(!(this.lastPos.i === currentPos.i && this.lastPos.j === currentPos.j)){
+            console.log("mouse move");
+
             this.setPosAndDraw(event.target, currentPos);
+          }
         break;
 
       case 'maskpoint':
@@ -981,8 +987,11 @@ export class WeaveDirective {
           break;
       }
 
+      console.log("update treadlling", currentPos.i, currentPos.j, val) ;
       //this updates the value in the treadling
       var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
+      console.log(updates)
+
       this.weave.updateDraftFromTreadling(updates);
 
       // for(var u in updates){
