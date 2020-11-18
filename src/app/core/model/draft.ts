@@ -164,10 +164,8 @@ export class Draft implements DraftInterface {
     } 
 
     if(params.loom === undefined) {
-      console.log("init loom from undefined");
       this.loom = new Loom('frame', this.wefts, this.warps, 10, 8, 10);
     } else {
-      console.log("init loom from defined", params);
 
       this.loom = new Loom(params.loom.type, this.wefts, this.warps, params.loom.epi, params.loom.num_frames, params.loom.num_treadles);
       if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;

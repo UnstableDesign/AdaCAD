@@ -31,7 +31,7 @@ export class Loom{
     constructor(type: string, wefts: number, warps: number, epi:number, frames: number, treadles:number) {
 
 
-        console.log(wefts, warps, frames, treadles);
+
         this.type = type;
         this.epi = epi;
         this.min_frames = frames;
@@ -394,7 +394,6 @@ and returns an associated value for threading frames and treadles
    */  
     getAffectedDrawdownPoints(obj){
 
-          console.log(obj);
 
           var active_thread_cols = [];
           var active_tieup_rows = [];
@@ -543,7 +542,6 @@ and returns an associated value for threading frames and treadles
       var updates = [];
       var treadle = this.treadling[i];
 
-      console.log('update treadling', this.treadling);
 
       if(!this.inTreadlingRange(i, j)) return updates;
 
@@ -613,7 +611,6 @@ and returns an associated value for threading frames and treadles
         var zeros = []; 
         var condensed = false;
         var map = [];        //map [new-index] = old-index
-
 
         //first check if the frames/treadles are being used or not
         //push unusued frames to zero:
