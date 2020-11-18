@@ -279,13 +279,14 @@ export class Draft implements DraftInterface {
 
   //assumes i is the screen index
   cloneRow(i: number, c: number, shuttleId: number) {
+    
     var row = this.visibleRows[c];
     var col = [];
 
     //copy the selected row
     for(var ndx = 0; ndx < this.warps; ndx++){
       col[ndx] = new Cell();
-      col[ndx].setHeddle(this.pattern[c][ndx]);
+      col[ndx].setHeddle(this.pattern[c][ndx].isUp());
     }
 
     this.wefts += 1;

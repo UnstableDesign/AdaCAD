@@ -319,7 +319,6 @@ export class WeaveDirective {
         case 'invert':
         case 'point':
         case 'erase':
-          console.log("mouse down");
           this.setPosAndDraw(event.target, currentPos);
 
           break;
@@ -409,8 +408,6 @@ export class WeaveDirective {
       case 'erase':
 
         if(!(this.lastPos.i === currentPos.i && this.lastPos.j === currentPos.j)){
-            console.log("mouse move");
-
             this.setPosAndDraw(event.target, currentPos);
           }
         break;
@@ -969,6 +966,7 @@ export class WeaveDirective {
    */
   private drawOnTreadling( currentPos: Point ) {
 
+
     if (!this.cxTreadling || !currentPos) { return; }
     
     var val = false;
@@ -987,6 +985,7 @@ export class WeaveDirective {
         default:
           break;
       }
+
 
       //this updates the value in the treadling
       var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
