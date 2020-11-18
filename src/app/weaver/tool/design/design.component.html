@@ -119,6 +119,8 @@
        (click)="clearEvent($event);"> 
        </button>
 
+
+
       <ng-container *ngFor="let pat of favorites">
          <button  matTooltip="fill sellection with {{ pat.name }}" 
          [disabled] = "brush !=='select'" 
@@ -127,6 +129,14 @@
          (click)="fillEvent($event, pat.id)">
           <i class="fill_name">{{ pat.name }}</i>
          </button>
+
+<!--           <button  matTooltip="mask filled cells in selection with {{ pat.name }}" 
+         [disabled] = "brush !=='select'" 
+         name="mask_{{pat.id}}" 
+         class="button is-primary is-small is-fullwidth" 
+         (click)="maskEvent($event, pat.id)">
+          <i class="fill_name">{{ pat.name }}</i>
+         </button> -->
      </ng-container>
 
 
