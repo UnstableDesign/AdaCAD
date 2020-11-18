@@ -10,16 +10,33 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
-import {RedoAction, UndoAction} from '../history/actions';
+//import {RedoAction, UndoAction} from '../history/actions';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {getRedoAction, getUndoAction} from '../history/selectors';
+//import {getRedoAction, getUndoAction} from '../history/selectors';
 import {AppState} from '../ngrx/app.state';
 import {select, Store} from '@ngrx/store';
+import {cloneDeep, now} from 'lodash';
+
 /**
  * Controller of the Weaver component.
  * @class
  */
+
+
+interface LoomTypes {
+  value: string;
+  viewValue: string;
+}
+
+interface HistoryState {
+  draft: Draft;
+  is_active: boolean;
+}
+
+
+
+
 @Component({
   selector: 'app-weaver',
   templateUrl: './weaver.component.html',
@@ -43,7 +60,7 @@ export class WeaverComponent implements OnInit {
    * The name of the variable for showing ONLY the draw-down or the other features
    * @property {boolean}
    */
-  view_frames = true;
+  // view_frames = true;
   
 
   /**
@@ -51,13 +68,24 @@ export class WeaverComponent implements OnInit {
    * @property {Draft}
    */
   draft: Draft;
-
+  timeline: HistoryState[] = [];
 
  /**
    * The weave Render object.
    * @property {Render}
    */
-  render: Render = new Render();
+  render: Render = new Render(false);
+
+
+ /**
+   * The types of looms this version will support.
+   * @property {LoomType}
+   */
+  loomtypes: LoomTypes[] = [
+    {value: 'frame', viewValue: 'Floor'},
+    {value: 'jacquard', viewValue: 'Jacquard'}
+  ];
+
 
 
 
@@ -67,11 +95,6 @@ export class WeaverComponent implements OnInit {
    */
   //patterns;
 
-  /**
-   * The name of the current view being shown.
-   * @property {string}
-   */
-  view: string = 'pattern';
 
   selected;
 
@@ -80,19 +103,23 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
+  collapsed:boolean = true;
+
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
    * ps - pattern service (variable name is initials). Subscribes to the patterns and used
    * to get and update stitches.
-   * history - undo history service, used to control the state of the woven pattern
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
   constructor(private ps: PatternService, private dialog: MatDialog, 
               private store: Store<AppState>) {
 
 
-    const dialogRef = this.dialog.open(InitModal);
+    const dialogRef = this.dialog.open(InitModal, {
+      data: this.loomtypes
+    });
 
     var default_patterns = [];
 
@@ -104,8 +131,21 @@ export class WeaverComponent implements OnInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
+      
+      var is_frame = true;
       this.draft = new Draft(result);
-      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns; 
+
+
+      if(this.draft.loom.type != undefined){
+          is_frame = (this.draft.loom.type === 'frame') ? true : false;
+          this.render.view_frames = is_frame;
+      } 
+       
+
+      if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
+      
+
+      if(is_frame) this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
    });
 
   }
@@ -117,15 +157,19 @@ export class WeaverComponent implements OnInit {
   ngOnInit() {
 
 
-    this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
-      this.undoItem = undoItem;
-    });
-    this.store.pipe(select(getRedoAction), takeUntil(this.unsubscribe$)).subscribe(redoItem => {
-      this.redoItem = redoItem;
-    });
-    
+    // this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
+    //   this.undoItem = undoItem;
+    // });
+    // this.store.pipe(select(getRedoAction), takeUntil(this.unsubscribe$)).subscribe(redoItem => {
+    //   this.redoItem = redoItem;
+    // });
     
   }
+
+  // ngAfterViewInit() {
+  //   this.weaveRef.redraw();
+  //   this.weaveRef.redrawLoom();
+  // }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
@@ -133,25 +177,67 @@ export class WeaverComponent implements OnInit {
   }
 
   undo() {
-    this.store.dispatch(new UndoAction());
-    this.weaveRef.onUndoRedo();
+    this.weaveRef.restorePreviousHistoryState();
   }
 
   redo() {
-    this.store.dispatch(new RedoAction());
-    this.weaveRef.onUndoRedo();
+    this.weaveRef.restoreNextHistoryState();
   }
 
   /// EVENTS
-  /**
-   * Sets brush to erase on key control + e.
+
+/**
+   * Call zoom in on Shift+p.
    * @extends WeaveComponent
-   * @param {Event} e - Press Control + e
+   * @param {Event} shift+p
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.e', ['$event'])
+  @HostListener('window:keydown.Shift.p', ['$event'])
+  private keyEventZoomIn(e) {
+    console.log("zoom in");
+    this.render.zoomIn();
+    this.redraw();
+    this.weaveRef.unsetSelection();
+
+
+  }
+/**
+   * Call zoom out on Shift+o.
+   * @extends WeaveComponent
+   * @param {Event} shift+o
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Shift.o', ['$event'])
+  private keyEventZoomOut(e) {
+    console.log("zoom out");
+    this.render.zoomOut();
+    this.redraw();
+    this.weaveRef.unsetSelection();
+  }
+
+  /**
+   * Sets selected area to clear
+   * @extends WeaveComponent
+   * @param {Event} delete key pressed
+   * @returns {void}
+   */
+  @HostListener('window:keydown.Backspace', ['$event'])
+  private keyEventClear(e) { 
+    this.onClear()
+  }
+
+  /**
+   * Sets selected area to clear
+   * @extends WeaveComponent
+   * @param {Event} delete key pressed
+   * @returns {void}
+   */
+
+  @HostListener('window:keydown.e', ['$event'])
   private keyEventErase(e) {
     this.brush = 'erase';
+    this.weaveRef.unsetSelection();
+
   }
 
   /**
@@ -160,9 +246,11 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - Press Control + d
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.d', ['$event'])
+  @HostListener('window:keydown.d', ['$event'])
   private keyEventPoint(e) {
     this.brush = 'point';
+    this.weaveRef.unsetSelection();
+
   }
 
   /**
@@ -171,7 +259,7 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - Press Control + s
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.s', ['$event'])
+  @HostListener('window:keydown.s', ['$event'])
   private keyEventSelect(e) {
     this.brush = 'select';
   }
@@ -182,9 +270,35 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - Press Control + x
    * @returns {void}
    */
-  @HostListener('window:keydown.Control.x', ['$event'])
+  @HostListener('window:keydown.x', ['$event'])
   private keyEventInvert(e) {
     this.brush = 'invert';
+    this.weaveRef.unsetSelection();
+
+  }
+
+  /**
+   * Sets key to copy 
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + x
+   * @returns {void}
+   */
+  @HostListener('window:keydown.c', ['$event'])
+  private keyEventCopy(e) {
+    this.weaveRef.copyArea();
+    
+  }
+
+    /**
+   * Sets key to copy 
+   * @extends WeaveComponent
+   * @param {Event} e - Press Control + x
+   * @returns {void}
+   */
+  @HostListener('window:keydown.p', ['$event'])
+  private keyEventPaste(e) {
+    var p = this.weaveRef.copy;
+    this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
   }
 
   /**
@@ -193,21 +307,9 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - view change event from design component.
    * @returns {void}
    */
-  public viewChange(e: any) {
-    console.log(e);
-    this.view = e.value;
-
-    switch (e.value) {
-      case 'visual':
-        this.weaveRef.simulate();
-        break;
-      case 'yarn':
-        this.weaveRef.functional();
-        break;
-      default:
-        this.weaveRef.redraw();
-        break;
-    }
+  public viewChange(value: any) {
+    this.render.setCurrentView(value);
+    this.weaveRef.redraw();
   }
 
   /**
@@ -218,6 +320,8 @@ export class WeaverComponent implements OnInit {
    */
   public onBrushChange(e:any) {
     this.brush = e.name;
+    this.weaveRef.unsetSelection();
+
   }
 
   /**
@@ -235,11 +339,11 @@ export class WeaverComponent implements OnInit {
   /**
    * Tell weave reference to clear selection.
    * @extends WeaveComponent
-   * @param {Event} e - clear event from design component.
+   * @param {Event} Delte - clear event from design component.
    * @returns {void}
    */
   public onClear() {
-    this.weaveRef.fillArea(this.weaveRef.selection, [[null]], 'original')
+    this.weaveRef.fillArea(this.weaveRef.selection, [[false]], 'original')
   }
 
   /**
@@ -251,7 +355,7 @@ export class WeaverComponent implements OnInit {
   public onMask(e) {
     console.log(e);
     var p = this.draft.patterns[e.id].pattern;
-    this.weaveRef.fillArea(this.weaveRef.selection, p, 'mask');
+    this.weaveRef.maskArea(p);
   }
 
   /**
@@ -285,6 +389,7 @@ export class WeaverComponent implements OnInit {
     e.bitmap = this.bitmap;
     if (e.type === "bmp") this.weaveRef.saveBMP("weave_draft", e);
     else if (e.type === "ada") this.weaveRef.saveADA("weave_draft", e);
+    else if (e.type === "wif") this.weaveRef.saveWIF("weave_draft", e);
     
   }
 
@@ -321,49 +426,7 @@ export class WeaverComponent implements OnInit {
     });
   }
 
-  /**
-   * Change shuttle of row to next in list.
-   * @extends WeaveComponent
-   * @param {number} shuttle - ID of previous shuttle
-   * @param {number} the index of row within the pattern.
-   * @returns {void}
-   */
-  public rowShuttleChange(row, index) {
 
-    const len = this.draft.shuttles.length;
-    var shuttle = this.draft.rowShuttleMapping[row];
-
-
-    var newShuttle = (shuttle + 1) % len;
-    while (!this.draft.shuttles[newShuttle].visible) {
-      var newShuttle = (newShuttle + 1) % len;
-    }
-
-    this.draft.rowShuttleMapping[row] = newShuttle;
-
-    this.weaveRef.redrawRow(index * 20, index);
-  }
-
-
-    /**
-   * Change shuttle of col to next in list.
-   * @extends WeaveComponent
-   * @param {number} shuttle - ID of previous shuttle
-   * @param {number} the index of column within the pattern.
-   * @returns {void}
-   */
-  public colShuttleChange(col) {
-
-    const len = this.draft.warp_systems.length;
-    var shuttle_id = this.draft.colShuttleMapping[col];
-
-    var newShuttle_id = (shuttle_id + 1) % len;
-
-
-    this.draft.colShuttleMapping[col] = newShuttle_id;
-
-    //this.weaveRef.redrawCol(col * 20, col);
-  }
 
   /// PUBLIC FUNCTIONS
   /**
@@ -382,7 +445,7 @@ export class WeaverComponent implements OnInit {
    */
   public insertRow(i, shuttle) {
     this.draft.insertRow(i, shuttle);
-    this.draft.updateConnections(i, 1);
+    //this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
     console.log('send emit - insert');
@@ -391,7 +454,7 @@ export class WeaverComponent implements OnInit {
 
   public cloneRow(i, c, shuttle) {
     this.draft.cloneRow(i, c, shuttle);
-    this.draft.updateConnections(i, 1);
+   // this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
@@ -401,14 +464,13 @@ export class WeaverComponent implements OnInit {
 
   public deleteRow(i) {
     this.draft.deleteRow(i);
-    this.draft.updateConnections(i, -1);
+   // this.draft.updateConnections(i, -1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
    console.log('send emit - delete');
 
     //this.onAddRow.emit();
-
   }
 
     /**
@@ -425,7 +487,7 @@ export class WeaverComponent implements OnInit {
 
   public deleteCol(i) {
     this.draft.deleteCol(i);
-    this.draft.updateConnections(i, -1);
+    //this.draft.updateConnections(i, -1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
 
@@ -439,33 +501,61 @@ export class WeaverComponent implements OnInit {
   }
 
   public createShuttle(e: any) {
-    this.draft.addShuttle(e.shuttle);
-    if (e.shuttle.image) {
+    this.draft.addShuttle(e.shuttle); 
     this.weaveRef.redraw();
-    }
   }
 
   public createWarpSystem(e: any) {
     this.draft.addWarpSystem(e.shuttle);
-    if (e.shuttle.image) {
     this.weaveRef.redraw();
-    }
   }
 
 
   public hideShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
   }
 
   public showShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
   }
 
   public epiChange(e:any){
-    this.draft.epi = e.epi;
+    this.draft.loom.epi = e.epi;
 
+  }
+
+  public thicknessChange(e:any){
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+
+  }
+
+
+  public loomChange(e:any){
+    
+    this.draft.loom.type = e.loomtype;
+    if(this.draft.loom.type == 'jacquard'){
+      this.render.view_frames = false;
+    }else{
+      this.render.view_frames = true;
+      this.weaveRef.recomputeLoom();
+    }
+    this.weaveRef.redraw();
+
+  }
+
+  public frameChange(e:any){
+    this.draft.loom.setMinFrames(e.value);
+    this.weaveRef.redrawLoom();
+  }
+
+  public treadleChange(e:any){
+    this.draft.loom.setMinTreadles(e.value);
+    this.weaveRef.redrawLoom();
   }
 
 
@@ -509,62 +599,115 @@ export class WeaverComponent implements OnInit {
   }
 
   public toggleViewFrames(){
-    this.view_frames = !this.view_frames;
+    this.render.toggleViewFrames();
+    this.weaveRef.unsetSelection();
+
+    if(this.render.view_frames && this.draft.loom.type == "frame"){
+      this.weaveRef.recomputeLoom();
+
+    }
+  }
+
+
+  public toggleCollapsed(){
+    this.collapsed = !this.collapsed;
   }
 
   public styleViewFrames(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.view_frames) return {'top.px': ctx.offsetTop + ctx.height  - (dims.h), 'left.px': ctx.offsetLeft-43};
-    return {'top.px': ctx.offsetTop+ ctx.height  - (dims.h), 'left.px': ctx.offsetLeft-43};
-  }
-
-  public styleRowButtons(ctx){
-     var dims = this.render.getCellDims("base");
-     return {'left.px': ctx.offsetLeft - 120, 'top.px': ctx.offsetTop + ctx.height + dims.h};
+    if(this.render.view_frames) return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
+    return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  (this.draft.warps + 1) *dims.w};
   }
 
   public styleThreading(){
-    return  {'top.px': 55, 'left.px':200};
+    return  {'top.px': 75, 'left.px':50};
   }
 
   public styleTieUps(ctx){
     var dims = this.render.getCellDims("base");
   //  var frames = this.draft.threading.threading.length;
-    return  {'left.px': ctx.offsetLeft + ctx.width + dims.w, 'top.px':ctx.offsetTop};
+    return  {'top.px':ctx.offsetTop, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w};
   }
 
   public styleDrawdown(ctx){
     var dims = this.render.getCellDims("base");
-      return  {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
+    if(this.render.view_frames) return  {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
+    else return  {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h}
   }
 
   public styleTreadling(ctx){
     var dims = this.render.getCellDims("base");
-    return {'top.px':ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft + ctx.width + dims.w}
+    return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w}
   }
 
   public styleWeftShuttles(ctx){
     var dims = this.render.getCellDims("base");
-     return {'top.px': ctx.offsetTop + ctx.height + dims.h, 'left.px': ctx.offsetLeft - 55};
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+1)* dims.w};
   }
 
+  public styleWeftShuttleText(ctx){
+    var dims = this.render.getCellDims("base");
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};  
+  }
+
+
+
+  public styleRowButtons(ctx){
+     var dims = this.render.getCellDims("base");
+    if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+5) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+4)* dims.w};
+  }
+
+
+public getButtonRowHeight(ctx){
+     var dims = this.render.getCellDims("base");
+     return dims.h;
+  }
+
+
+public getTransform(j){
+    var dims = this.render.getCellDims("base");
+    return "translate("+(this.draft.warps-j)*dims.w+", 0) rotate(-45)"
+}
 
 
   public styleWarpSystems(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.view_frames)    return {'top.px': ctx.offsetTop - 40, 'left.px': ctx.offsetLeft};
-    else  return {'top.px': ctx.offsetTop + ctx.height - 30, 'left.px': ctx.offsetLeft};
+    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 2*dims.h, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop - 2*dims.h, 'left.px': ctx.offsetLeft};
+  }  
+
+
+  public styleWarpSystemsText(ctx){
+    var dims = this.render.getCellDims("base");
+    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 2.5*dims.h, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop - 2.5*dims.h, 'left.px': ctx.offsetLeft};
   }
  
   public styleShuttleRow(j){
         var dims = this.render.getCellDims("base");
-        return (j*dims.h)+(dims.h/2);
+        return (j*dims.h + dims.h/4) ;
+
+  }
+
+  public styleWarpRow(j){
+        var dims = this.render.getCellDims("base");
+        return (j*dims.w) ;
 
   }
 
   public renderChange(e: any){
-     this.render.setZoom(e.value);
+    console.log('render change', e);
+     if(e.source === "slider") this.render.setZoom(e.value);
+     if(e.source === "in") this.render.zoomIn();
+     if(e.source === "out") this.render.zoomOut();
+     
      this.redraw();
+     this.weaveRef.unsetSelection();
+
   }
+
 
 }

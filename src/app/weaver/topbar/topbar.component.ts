@@ -17,14 +17,17 @@ export class TopbarComponent implements OnInit {
   @Output() onRedo: any = new EventEmitter();
   @Output() onAboutCreate: any = new EventEmitter();
 
+  @Input() timeline;
   @Input() undoItem;
   @Input() redoItem;
 
   @ViewChild('bmpLink', {static: true}) bmpLink: any;
   @ViewChild('adaLink', {static: true}) adaLink: any;
+  @ViewChild('wifLink', {static: true}) wifLink: any;
 
   downloadBmp: ElementRef;
   downloadAda: ElementRef;
+  downloadWif: ElementRef;
 
 
   constructor(private dialog: MatDialog) { }
@@ -33,6 +36,7 @@ export class TopbarComponent implements OnInit {
   ngOnInit() {
     this.downloadBmp = this.bmpLink._elementRef;
     this.downloadAda = this.adaLink._elementRef;
+    this.downloadWif = this.wifLink._elementRef;
   }
 
   public saveAsBmp(e: any) {
@@ -53,6 +57,15 @@ export class TopbarComponent implements OnInit {
     this.onSave.emit(obj);
   }
 
+  public saveAsWif(e: any) {
+    var obj: any = {
+      downloadLink: this.downloadWif,
+      type: "wif"
+    }
+    console.log(obj);
+    this.onSave.emit(obj);
+  }
+
   undoClicked(e:any) {
     this.onUndo.emit();
   }
@@ -60,7 +73,6 @@ export class TopbarComponent implements OnInit {
   redoClicked(e:any) {
     this.onRedo.emit();
   }
-
 
   openAboutDialog() {
     this.onAboutCreate.emit();

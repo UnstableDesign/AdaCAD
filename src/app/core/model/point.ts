@@ -3,8 +3,7 @@
  * @class
  */
 export class Point {
-  x: number;
-  y: number;
-  i: number;
-  j: number;
+  i: number;  //row on draft
+  j: number;  //column on draft 
+  si: number; //corresponding screen row
 }

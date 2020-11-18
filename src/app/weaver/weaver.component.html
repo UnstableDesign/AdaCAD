@@ -1,40 +1,43 @@
 <app-topbar 
+[timeline] = "timeline"
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
   (onUndo)="undo();" 
   (onRedo)="redo();"
   (onSave)="onSave($event);">
+
 </app-topbar>
 
 
-<mat-sidenav-container class="example-container">
-  <mat-sidenav mode="side" position="end" opened>
+<mat-sidenav-container class="example-container"  [class.collapsed]="collapsed">
+  <mat-sidenav mode="side" position="end" [class.collapsed]="collapsed" opened>
+      
+         <button
+           (click)="toggleCollapsed()"
+            class="collapse" 
+            value="collapsed">
+         <i class="fa"
+           [class.fa-angle-double-right]="!collapsed" 
+           [class.fa-angle-double-left]="collapsed"
+         aria-hidden="true"></i>
+        </button>
 
-    <div class="view-toggle">
-    
 
-    <mat-slider thumbLabel [displayWith]="formatLabel" tickInterval="1" min="1" max="100" value="{{render.zoom}}" (change)="renderChange($event)"></mat-slider>
-    
-
-    <mat-button-toggle-group #group [value]="view" (change)="viewChange($event);">
-      <mat-button-toggle value="pattern">
-        <i class="fa fa-chess-board" aria-hidden="true"></i>
-        Draft
-      </mat-button-toggle>
-      <mat-button-toggle value="yarn">
-        <i class="fa fa-project-diagram" aria-hidden="true"></i>
-        Yarn
-      </mat-button-toggle>
-      <mat-button-toggle value="visual">
-        <i class="fa fa-image" aria-hidden="true"></i>
-        Visual
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-
-    <mat-tab-group #group (click)="selected = group.selectedIndex;">
-      <mat-tab label="Design">
-        <app-design [brush]="brush" [favorites]="draft?.patterns | filter: {favorite: true}"
+        <app-design [brush]="brush"
+        [collapsed] = "collapsed"
+        [zoom] = "render?.zoom"
+        [favorites]="draft?.patterns | filter: {favorite: true}"
+        [shuttles]="draft?.shuttles" 
+        [warp_systems]="draft?.warp_systems" 
+        [epi] = "draft?.loom.epi"
+        [warps] = "draft?.warps"
+        [frames] = "draft?.loom.min_frames"
+        [treadles] = "draft?.loom.min_treadles"
+        [loomtypes] = "loomtypes"
+        [loomtype] = "draft?.loom.type"
+        [patterns]="draft?.patterns"
+        (onViewChange) ="viewChange($event);"
+        (onZoomChange) ="renderChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
@@ -42,65 +45,80 @@
         (onMask)="onMask($event);" 
         (onPaste)="onPaste($event);"
         (onConnectionCreate)="openConnectionDialog();"
-        (onLabelCreate)="openLabelDialog()"></app-design> 
-      </mat-tab>
-      <mat-tab label="Materials">
-        <app-shuttles *ngIf="selected === 1" 
-        [shuttles]="draft?.shuttles" 
-        [warp_systems]="draft?.warp_systems" 
-        [warps]="draft?.warps" 
-        [epi]="draft?.epi" 
-        [show_frames] = "show_frames"
+        (onLabelCreate)="openLabelDialog()"
         (onColorChange)="redraw()"
         (onCreateShuttle)="createShuttle($event);"
         (onCreateWarpSystem)="createWarpSystem($event);"
         (onHideShuttle)="hideShuttle($event);"
         (onShowShuttle)="showShuttle($event);"
         (onWarpNumChange) = "warpNumChange($event)"
-        (onEpiNumChange) = "epiChange($event)">
-          
-        </app-shuttles> 
-
-      </mat-tab>
-      <mat-tab label="Patterns">
-        <app-patterns *ngIf="selected === 2" [patterns]="draft?.patterns"
-        (onChange)="updatePatterns($event);"
+        (onEpiNumChange) = "epiChange($event)"
+        (onThicknessChange) = "thicknessChange($event)"
+        (onLoomTypeChange) = "loomChange($event)"
+        (onFrameChange) = "frameChange($event)"
+        (onTreadleChange) = "treadleChange($event)"
+        (onPatternChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"
-        (onRemovePattern)="removePattern($event);"></app-patterns>  
-      </mat-tab>
-    </mat-tab-group>
+        (onRemovePattern)="removePattern($event);">
+   
+        </app-design> 
+
+
+
   </mat-sidenav>
 
 
   <mat-sidenav-content>
 
 
-    <div *ngIf="draft" #weaveRef weave [render]="render" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
+    <div *ngIf="draft" #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
 
 
       <div class="weftSelections">
 
-        <div  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
-        [ngStyle]="styleViewFrames(threading)" (click)="view_frames = !view_frames; styleDrawdown(threading)">
-        <span><i class="fas" [class.fa-eye-slash]="!view_frames" [class.fa-eye]="view_frames"> 
+        <div [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
+        [ngStyle]="styleViewFrames(threading)" (click)="toggleViewFrames(); styleDrawdown(threading)">
+        <span><i class="fas" [class.fa-eye-slash]="!render?.view_frames" [class.fa-eye]="render?.view_frames">
         </i></span>
         </div>
 
+         <div class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
+          <canvas id="weft-systems" #weftSystems style="background:#fbfbfb;">  </canvas>
+         </div>
+
+         <div class="shuttles-text">
+          <svg class="shuttle-text" [ngStyle]="styleWeftShuttleText(threading)">
+            <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
+            
+            <text class="weft_text" 
+            text-anchor="middle" x="0" [attr.y]="styleShuttleRow(j)" style="font-size:12px;"     fill="#fff" 
+            [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{i}}</text> 
+            </g>
+
+          <text class="weft_text" 
+          text-anchor="middle" x="0" [attr.y]="styleShuttleRow(draft?.visibleRows.length)" style="font-size:12px;" fill="#fff" >{{draft?.visibleRows[draft?.visibleRows.length-1]+1}}</text> 
+        </svg> 
+
+        </div>
 
 
-        <svg #shuttles class="shuttles" [ngStyle]="styleWeftShuttles(threading)">
-          <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
-            <circle cx="20" [attr.cy]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.shuttles[draft.rowToShuttle(i)]?.color" (click)="rowShuttleChange(i, j)"/>
-            <text text-anchor="end" x="5" [attr.y]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ i + 1 }}</text>
-          </g>
-        </svg>
+        <div class="warp-systems" [ngStyle]="styleWarpSystems(threading)">
+          <canvas id="warp-systems"#warp_systems style="background:#fbfbfb;">  </canvas>
+        </div>
 
-        <svg #warp_systems class="warp_systems" [ngStyle]="styleWarpSystems(threading)">
-          <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-            <circle cy="20" [attr.cx]="styleShuttleRow(j)" r="7" stroke="white" stroke-width="1" [attr.fill]="draft?.warp_systems[i]?.color" (click)="colShuttleChange(j)"/>
-            <text text-anchor="end" y="5" [attr.x]="styleShuttleRow(j)" style="font-size:12px;" fill="#fff">{{ j + 1 }}</text>
-          </g>
-        </svg>  
+        <div class='warp-systems-text' [ngStyle]="styleWarpSystemsText(threading)">
+          
+            <svg class="warp-systems-text">
+
+            <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
+              <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
+               [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
+            </g>
+             <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
+              style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
+           </svg>  
+      </div> 
+
 
 
 
@@ -120,23 +138,22 @@
       </div>
         
 
-      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #threadref class="threading-container"  #threading>
-        <canvas #threading [ngStyle]="styleThreading()"></canvas>
+      <div  [style.visibility]="render?.view_frames ? 'visible' : 'hidden'" #threadref class="threading-container"  #threading [ngStyle]="styleThreading()">
+        <canvas id="threading"></canvas>
       </div>
 
 
-       <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #tieupsref class="tieups-container" [ngStyle]="styleTieUps(threading)">
-      <canvas #tieups style="background:#fbfbfb;"></canvas>
+       <div  [style.visibility]="render?.view_frames ? 'visible' : 'hidden'" #tieupsref class="tieups-container" [ngStyle]="styleTieUps(threading)">
+      <canvas id="tieups" #tieups style="background:#fbfbfb;"></canvas>
       </div>
 
       <div class='drawdown-container' [ngStyle]="styleDrawdown(threading)">
-      <canvas #drawDown style="background:#fbfbfb;">  </canvas>
+      <canvas id="drawdown" #drawDown style="background:#fbfbfb;">  </canvas>
       </div>
 
-
       
-      <div  [style.visibility]="view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="styleTreadling(threading)">
-      <canvas #treadling style="background:#fbfbfb;"></canvas>
+      <div  [style.visibility]="render?.view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="styleTreadling(threading)">
+      <canvas #treadling id="treadling" style="background:#fbfbfb;"></canvas>
     </div>
 
 
