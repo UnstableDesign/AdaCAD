@@ -553,7 +553,6 @@ and returns an associated value for threading frames and treadles
 
       }else{
 
-        console.log(treadle, j);
         if(treadle === j){
           updates.push({i:i, j: j, val:false});
           this.treadling[i] = -1;
