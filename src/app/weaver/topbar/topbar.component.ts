@@ -17,7 +17,7 @@ export class TopbarComponent implements OnInit {
   @Output() onRedo: any = new EventEmitter();
   @Output() onAboutCreate: any = new EventEmitter();
 
-
+  @Input() timeline;
   @Input() undoItem;
   @Input() redoItem;
 

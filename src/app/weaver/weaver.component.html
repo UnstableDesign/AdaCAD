@@ -1,4 +1,5 @@
 <app-topbar 
+[timeline] = "timeline"
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
   (onUndo)="undo();" 
@@ -22,7 +23,7 @@
         </button>
 
 
-        <app-design [brush]="brush" 
+        <app-design [brush]="brush"
         [collapsed] = "collapsed"
         [zoom] = "render?.zoom"
         [favorites]="draft?.patterns | filter: {favorite: true}"
@@ -70,7 +71,7 @@
   <mat-sidenav-content>
 
 
-    <div *ngIf="draft" #weaveRef weave [render]="render" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
+    <div *ngIf="draft" #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
 
 
       <div class="weftSelections">

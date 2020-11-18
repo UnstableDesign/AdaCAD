@@ -10,12 +10,14 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
-import {RedoAction, UndoAction} from '../history/actions';
+//import {RedoAction, UndoAction} from '../history/actions';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {getRedoAction, getUndoAction} from '../history/selectors';
+//import {getRedoAction, getUndoAction} from '../history/selectors';
 import {AppState} from '../ngrx/app.state';
 import {select, Store} from '@ngrx/store';
+import {cloneDeep, now} from 'lodash';
+
 /**
  * Controller of the Weaver component.
  * @class
@@ -26,6 +28,12 @@ interface LoomTypes {
   value: string;
   viewValue: string;
 }
+
+interface HistoryState {
+  draft: Draft;
+  is_active: boolean;
+}
+
 
 
 
@@ -60,7 +68,7 @@ export class WeaverComponent implements OnInit {
    * @property {Draft}
    */
   draft: Draft;
-
+  timeline: HistoryState[] = [];
 
  /**
    * The weave Render object.
@@ -77,6 +85,9 @@ export class WeaverComponent implements OnInit {
     {value: 'frame', viewValue: 'Floor'},
     {value: 'jacquard', viewValue: 'Jacquard'}
   ];
+
+
+
 
   /**
    * The list of all patterns saved. Provided by pattern service.
@@ -100,7 +111,6 @@ export class WeaverComponent implements OnInit {
    * @constructor
    * ps - pattern service (variable name is initials). Subscribes to the patterns and used
    * to get and update stitches.
-   * history - undo history service, used to control the state of the woven pattern
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
   constructor(private ps: PatternService, private dialog: MatDialog, 
@@ -121,6 +131,7 @@ export class WeaverComponent implements OnInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
+      
       var is_frame = true;
       this.draft = new Draft(result);
 
@@ -146,12 +157,12 @@ export class WeaverComponent implements OnInit {
   ngOnInit() {
 
 
-    this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
-      this.undoItem = undoItem;
-    });
-    this.store.pipe(select(getRedoAction), takeUntil(this.unsubscribe$)).subscribe(redoItem => {
-      this.redoItem = redoItem;
-    });
+    // this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
+    //   this.undoItem = undoItem;
+    // });
+    // this.store.pipe(select(getRedoAction), takeUntil(this.unsubscribe$)).subscribe(redoItem => {
+    //   this.redoItem = redoItem;
+    // });
     
   }
 
@@ -166,13 +177,11 @@ export class WeaverComponent implements OnInit {
   }
 
   undo() {
-    this.store.dispatch(new UndoAction());
-    this.weaveRef.onUndoRedo();
+    this.weaveRef.restorePreviousHistoryState();
   }
 
   redo() {
-    this.store.dispatch(new RedoAction());
-    this.weaveRef.onUndoRedo();
+    this.weaveRef.restoreNextHistoryState();
   }
 
   /// EVENTS
@@ -213,10 +222,8 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   @HostListener('window:keydown.Backspace', ['$event'])
-  private keyEventClear(e) {
-    
-  this.onClear()
-
+  private keyEventClear(e) { 
+    this.onClear()
   }
 
   /**
@@ -701,5 +708,6 @@ public getTransform(j){
      this.weaveRef.unsetSelection();
 
   }
+
 
 }
