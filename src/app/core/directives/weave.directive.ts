@@ -347,10 +347,19 @@ export class WeaveDirective {
 
             if (event.target && event.target.closest('.treadling-container')) {
               this.selection.setTarget(this.treadlingCanvas);
+              this.selection.start.j = 0;
+              this.selection.width = this.weave.loom.num_treadles;
+
             } else if (event.target && event.target.closest('.tieups-container')) {
               this.selection.setTarget(this.tieupsCanvas);
             } else if (event.target && event.target.closest('.threading-container')) {
               this.selection.setTarget(this.threadingCanvas);
+
+              this.selection.start.i = 0;
+              this.selection.start.si = 0;
+              this.selection.height = this.weave.loom.num_frames;
+
+
             } else if(event.target && event.target.closest('.shuttles')){
               this.selection.width = 1;
               this.selection.setTarget(this.weftSystemsCanvas);
@@ -419,6 +428,16 @@ export class WeaveDirective {
         break;
       case 'select':
         this.selection.end = currentPos;
+
+
+        if (event.target && event.target.closest('.treadling-container')) {
+          this.selection.end.j = this.weave.loom.num_treadles;
+        }else if(event.target && event.target.closest('.threading-container')){
+          this.selection.end.i = this.weave.loom.num_frames;
+          this.selection.end.si = this.weave.loom.num_frames;
+        }
+
+
         this.selection.setParameters();
         this.selectArea();
 
@@ -549,7 +568,8 @@ export class WeaveDirective {
           break;
           case 'threading':
               var frame = this.weave.loom.frame_mapping[screen_row];
-              copy[i][j]=this.weave.loom.isInFrame(frame,col);
+              copy[i][j]= this.weave.loom.isInFrame(col,frame);
+
           break;
           case 'treadling':
               copy[i][j] = this.weave.loom.isInTreadle(screen_row,col);
@@ -1037,7 +1057,7 @@ export class WeaveDirective {
     type: string
   ) {
 
-
+    console.log(selection, pattern, type);
 
     var dims = this.render.getCellDims("base");
     var updates = [];
@@ -1679,7 +1699,7 @@ export class WeaveDirective {
 
 
 public unsetSelection(){
- d3.select(this.svgEl).style('display', 'none');
+  d3.select(this.svgEl).style('display', 'none');
 
 }
 
@@ -1724,7 +1744,9 @@ public redraw(){
     var i,j;
 
     this.drawGrid(this.cx,this.canvasEl);
-    this.redrawSelection(base_dims); // make sure to do this after the others are updated
+    
+    if(this.brush === 'select')
+      this.redrawSelection(base_dims); // make sure to do this after the others are updated
 
 
 
