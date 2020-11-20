@@ -664,7 +664,8 @@ export class WeaverComponent implements OnInit {
 
   public styleSingleColButton(i){
     var dims = this.render.getCellDims("base");
-    return {'left.px':i*dims.w, 'width.px':dims.w}
+    var zoom = this.render.getZoom();
+    return {'left.px':i*dims.w, 'width.px':dims.w, 'font-size.em':zoom/100}
 
   }
 
@@ -677,7 +678,8 @@ export class WeaverComponent implements OnInit {
 
   public styleSingleRowButton(i){
     var dims = this.render.getCellDims("base");
-    return {'top.px':i*dims.h, 'height.px':dims.h}
+    var zoom = this.render.getZoom();
+    return {'top.px':i*dims.h, 'height.px':dims.h, 'font-size.em':zoom/100}
 
   }
 
