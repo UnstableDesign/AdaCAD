@@ -102,6 +102,7 @@
         </div>
 
 
+
         <div class="warp-systems" [ngStyle]="styleWarpSystems(threading)">
           <canvas id="warp-systems"#warp_systems style="background:#fbfbfb;">  </canvas>
         </div>
@@ -122,13 +123,26 @@
 
 
 
-        <div  #insertButtons class="insert-button-group" [ngStyle]="styleRowButtons(threading)" >
-          <div *ngFor="let i of (draft?.visibleRows)" class="insert-button">
+
+
+
+        <div  #shuttle_buttons class="insert-button-group-shuttles" [ngStyle]="styleRowButtons(threading, shuttle_buttons)" >
+          <div *ngFor="let i of (draft?.visibleRows)" class="insert-button" [ngStyle]="styleSingleRowButton(i)">
             <span (click)="insertRow(i + 1, draft?.rowToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
             <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i));"><i class="fa fa-clone"></i></span>
             <span (click)="deleteRow(i);"><i class="fa fa-trash"></i></span>
           </div>
         </div>
+
+        <div class="insert-button-group-warps" [ngStyle]="styleColButtons(threading)" >
+          <div *ngFor="let m of (draft?.colShuttleMapping); index as i;" class="insert-button" [ngStyle] = "styleSingleColButton(i)">
+            <span (click)="insertCol(i + 1, draft?.colToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
+            <span (click)="cloneCol(i + 1, i, draft?.colToShuttle(i));"><i class="fa fa-clone"></i></span>
+            <span (click)="deleteCol(i);"><i class="fa fa-trash"></i></span>
+          </div>
+        </div>
+
+
 
 
         <svg #mySelection class="selection">

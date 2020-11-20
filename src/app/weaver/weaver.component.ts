@@ -76,7 +76,6 @@ export class WeaverComponent implements OnInit {
    */
   render: Render = new Render(false);
 
-
  /**
    * The types of looms this version will support.
    * @property {LoomType}
@@ -104,7 +103,7 @@ export class WeaverComponent implements OnInit {
 
 
   collapsed:boolean = true;
-
+  dims:any;
 
   /// ANGULAR FUNCTIONS
   /**
@@ -116,6 +115,7 @@ export class WeaverComponent implements OnInit {
   constructor(private ps: PatternService, private dialog: MatDialog, 
               private store: Store<AppState>) {
 
+    this.dims = this.render.getCellDims("base");
 
     const dialogRef = this.dialog.open(InitModal, {
       data: this.loomtypes
@@ -620,7 +620,7 @@ export class WeaverComponent implements OnInit {
   }
 
   public styleThreading(){
-    return  {'top.px': 75, 'left.px':50};
+    return  {'top.px': 150, 'left.px':50};
   }
 
   public styleTieUps(ctx){
@@ -654,17 +654,38 @@ export class WeaverComponent implements OnInit {
 
 
 
-  public styleRowButtons(ctx){
+  public styleColButtons(ctx){
      var dims = this.render.getCellDims("base");
+    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 7*dims.h, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop - 7*dims.h, 'left.px': ctx.offsetLeft};
+   
+  }
+
+
+  public styleSingleColButton(i){
+    var dims = this.render.getCellDims("base");
+    return {'left.px':i*dims.w, 'width.px':dims.w}
+
+  }
+
+
+  public styleRowButtons(ctx){
+    var dims = this.render.getCellDims("base");
     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+5) * dims.w};
      else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+4)* dims.w};
   }
 
+  public styleSingleRowButton(i){
+    var dims = this.render.getCellDims("base");
+    return {'top.px':i*dims.h, 'height.px':dims.h}
 
-public getButtonRowHeight(ctx){
-     var dims = this.render.getCellDims("base");
-     return dims.h;
   }
+
+
+// public getButtonRowHeight(ctx){
+//      var dims = this.render.getCellDims("base");
+//      return dims.h;
+//   }
 
 
 public getTransform(j){

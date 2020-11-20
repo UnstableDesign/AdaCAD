@@ -86,23 +86,26 @@
 }
 
 
-.insert-button-group {
+.insert-button-group-shuttles{
+
   position: absolute;
   top: 0;
-  width: 20px;
+  width: 60px;
   height: 100%;
 
+
   .insert-button {
-    width: 60px;
-    height: 20px;
-    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    display: block;
+    width: 90px;
+    position:absolute;
 
     span {
       display: none;
       padding-right: 5px;
+
     }
 
     .fa-plus-circle {
@@ -119,7 +122,49 @@
 
     &:hover {
       span {
-        display: block;
+        display: inline;
+      }
+    }
+  }
+}
+
+
+
+.insert-button-group-warps {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 60px;
+
+
+  .insert-button {
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    display: block;
+    height: 90px;
+    position:absolute;
+
+
+    span {
+      display: none;
+    }
+
+    .fa-plus-circle {
+      color: hsl(141, 71%, 48%);
+    }
+
+    .fa-clone {
+      color: hsl(204, 86%, 53%)
+    }
+
+    .fa-trash {
+      color: hsl(348, 100%, 61%);
+    }
+
+    &:hover {
+      span {
+        display:  block;
       }
     }
   }
