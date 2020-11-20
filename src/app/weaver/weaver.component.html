@@ -137,7 +137,7 @@
         <div class="insert-button-group-warps" [ngStyle]="styleColButtons(threading)" >
           <div *ngFor="let m of (draft?.colShuttleMapping); index as i;" class="insert-button" [ngStyle] = "styleSingleColButton(i)">
             <span (click)="insertCol(i + 1, draft?.colToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
-            <span (click)="cloneCol(i + 1, i, draft?.colToShuttle(i));"><i class="fa fa-clone"></i></span>
+            <span (click)="cloneCol(i,draft?.colToShuttle(i));"><i class="fa fa-clone"></i></span>
             <span (click)="deleteCol(i);"><i class="fa fa-trash"></i></span>
           </div>
         </div>

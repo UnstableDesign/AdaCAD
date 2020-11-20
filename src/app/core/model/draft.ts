@@ -324,38 +324,78 @@ export class Draft implements DraftInterface {
   // }
 
 
-  //alwasy adds to end
-  insertCol() {
-    var row = [];
 
-    //push one false to the end of each row
-    for (var j = 0; j < this.wefts; j++) {
-      this.pattern[j].push(new Cell());
-      //this.mask[j].push(false);
+  // splicePatternCol(i: number, n:number, val:any){
+  //   for(var i = 0; i < this.wefts; i++){
+  //     this.pattern.splice(i,n,val);
+  //   }
+  // }
+
+
+  insertCol(i: number, shuttleId: number) {
+    
+    for (var ndx = 0; ndx < this.wefts; ndx++) {
+      this.pattern[ndx].splice(i,0, new Cell());
     }
 
     this.warps += 1;
-    this.colShuttleMapping.push(0);
-    this.loom.threading.push(-1);
+    this.colShuttleMapping.splice(i,0,shuttleId);
+    this.loom.threading.splice(i, 0, -1);
 
   }
 
 
-//always deletes from end
-  deleteCol(i: number) {
+//assumes i is the screen index
+  cloneCol(i: number, shuttleId: number) {
+    
+    var col = [];
 
-    this.warps -= 1;
-
-    //remove one from the end of each row
-    for (var j = 0; j < this.wefts; j++) {
-      this.pattern[j].splice(i, 1);
-      // this.masks[j].splice(i, 1);
+    //copy the selected column
+    for(var ndx = 0; ndx < this.wefts; ndx++){
+      var cell  = new Cell();
+      cell.setHeddle(this.pattern[ndx][i].isUp());
+      col.push(cell);
     }
 
 
-    this.colShuttleMapping.splice(i, 1);
-    this.loom.threading.splice(i, 1);
+    for(var ndx = 0; ndx < this.wefts; ndx++){
+      this.pattern[ndx].splice(i,0, col[ndx]);
+    }
+    
+     this.warps += 1;
+     this.colShuttleMapping.splice(i, 0, shuttleId);
+     this.loom.threading.splice(i, 0, this.loom.threading[i]);
+
   }
+
+
+  deleteCol(i: number) {
+    var col = i;
+
+    //copy the selected column
+    for(var ndx = 0; ndx < this.wefts; ndx++){
+          this.pattern[ndx].splice(i, 1);
+    }
+    this.warps -= 1;
+    this.colShuttleMapping.splice(i, 1);
+    this.loom.threading.splice(i,1);
+  }
+
+//always deletes from end
+  // deleteCol(i: number) {
+
+  //   this.warps -= 1;
+
+  //   //remove one from the end of each row
+  //   for (var j = 0; j < this.wefts; j++) {
+  //     this.pattern[j].splice(i, 1);
+  //     // this.masks[j].splice(i, 1);
+  //   }
+
+
+  //   this.colShuttleMapping.splice(i, 1);
+  //   this.loom.threading.splice(i, 1);
+  // }
 
   addShuttle(shuttle) {
     shuttle.setID(this.shuttles.length);

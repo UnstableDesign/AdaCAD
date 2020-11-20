@@ -479,7 +479,14 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public insertCol(i, shuttle) {
-    this.draft.insertCol();
+    this.draft.insertCol(i, shuttle);
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
+
+  public cloneCol(i, shuttle) {
+    console.log(i, shuttle);
+    this.draft.cloneCol(i, shuttle);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
