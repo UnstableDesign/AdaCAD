@@ -433,6 +433,15 @@
       </mat-form-field>
 
       <mat-form-field>
+        <input matInput name="wefts" 
+        [(ngModel)]="wefts" 
+        type="number" 
+        min="2" 
+        placeholder="Wefts" 
+        (change)="weftChange(envt)"> 
+      </mat-form-field>
+
+      <mat-form-field>
         <input matInput  
         name="epi" 
         [(ngModel)]="epi" 

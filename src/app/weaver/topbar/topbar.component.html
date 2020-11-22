@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  <span>AdaCAD</span>
+  <span>AdaCAD <i style="font-size: .6em;">alpha/testing version</i></span>
   <span style="color:white; font-size: 80%;" (click)="openAboutDialog(null)">&nbsp; | &nbsp; About</span>
   
 <span class="right">
@@ -11,11 +11,17 @@
       [disabled]="(timeline[0]?.is_active)"  
       (click)="redoClicked($event);">Redo</button> -->
 
+
+
+
     <button mat-raised-button [matMenuTriggerFor]="downloadDropdown">Download Weave</button>
     <mat-menu #downloadDropdown mat-raised-button>
       <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item>Save as Bitmap</a>
       <a #adaLink (click)="saveAsAda($event)" mat-menu-item>Save as AdaCAD file</a>
       <a #wifLink (click)="saveAsWif($event)" mat-menu-item>Save as Wif file</a>
     </mat-menu>
+
+    <!-- <button mat-icon-button (click)="draftelement.print()" style="width: 50px" ><i class="fas fa-print"></i></button> -->
+
   </span>
 </mat-toolbar>

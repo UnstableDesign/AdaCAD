@@ -105,6 +105,8 @@ export class WeaverComponent implements OnInit {
   collapsed:boolean = true;
   dims:any;
 
+  draftelement:any;
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
