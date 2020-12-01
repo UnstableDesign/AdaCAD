@@ -1057,6 +1057,7 @@ export class WeaveDirective {
     type: string
   ) {
 
+    console.log("fill area called");
     console.log(selection, pattern, type);
 
     var dims = this.render.getCellDims("base");

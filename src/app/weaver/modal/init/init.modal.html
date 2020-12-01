@@ -18,7 +18,7 @@
 
       <mat-form-field appearance="fill">
           <mat-label>Which type of loom are you designing for?</mat-label>
-          <mat-select [(value)]="loom" [(ngModel)]="loom" name="loom">
+          <mat-select [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
           <mat-option *ngFor="let type of loomtypes" [value]="type.value">
             {{type.viewValue}}
           </mat-option>
@@ -26,17 +26,33 @@
         </mat-form-field>
 
         <mat-form-field appearance="fill">
-        <input matInput  type="number" placeholder="Weave Warps" name="warps" min="2" step="1" [(ngModel)]="warps"  required (change) = "valid = 1">
+        <input matInput  type="number" placeholder="Number of Warp Ends" name="warps" min="2" step="1" [(ngModel)]="warps"  required (change) = "valid = 1">
         </mat-form-field>
 
        <mat-form-field appearance="fill">
-        <input matInput  type ="number" placeholder="Weave EPI" name="epi" value="10" [(ngModel)]="epi">
+        <input matInput  type="number" placeholder="Number of Weft Picks" name="wefts" min="2" step="1" [(ngModel)]="wefts"  required (change) = "valid = 1">
+        </mat-form-field>
+
+
+      <mat-form-field appearance="fill">
+          <mat-label>Density Units</mat-label>
+          <mat-select [(value)]="units" [(ngModel)]="units" name="units">
+          <mat-option *ngFor="let unit of density_units" [value]="unit.value">
+            {{unit.viewValue}}
+          </mat-option>
+        </mat-select>
+        </mat-form-field>
+
+       <mat-form-field appearance="fill">
+        <input matInput  type ="number" placeholder="Weave Density" name="epi" value="10" [(ngModel)]="epi">
        </mat-form-field> 
 
 
-      <ng-container *ngIf="(loom == 'frame')">
+
+
+      <ng-container *ngIf="(loomtype == 'frame')">
         <mat-form-field appearance="fill">
-         <input matInput  type="number" placeholder="Number of Frames" name="frame_num" min="2" step="1" value="8" [(ngModel)]="frame_num">
+         <input matInput  type="number" placeholder="Number of Shafts" name="frame_num" min="2" step="1" value="8" [(ngModel)]="frame_num">
         </mat-form-field>
 
      <mat-form-field appearance="fill">
@@ -61,6 +77,6 @@
 
  <ng-container>
     <mat-dialog-actions>
-        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loom, epi, frame_num, treadle_num)">Start</button>
+        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loomtype, epi, frame_num, treadle_num)">Start</button>
     </mat-dialog-actions>
  </ng-container>

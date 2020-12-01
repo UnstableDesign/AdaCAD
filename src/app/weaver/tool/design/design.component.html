@@ -411,7 +411,7 @@
  <form #envt="ngForm" novalidate>
 
         <mat-form-field>
-          <mat-label>Loom Type</mat-label>
+          <mat-label>Loom Type - {{loomtype}}</mat-label>
           <mat-select (selectionChange) ="loomChange(envt)" [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
             <mat-option *ngFor="let type of loomtypes" [value]="type.value">
               {{type.viewValue}}
@@ -426,8 +426,9 @@
         [(ngModel)]="warps" 
         type="number" 
         min="2" 
-        placeholder="Warps" 
-        (change)="warpChange(envt)"> 
+        placeholder="Warp Ends" 
+        (change)="warpChange(envt)"
+        (blur)="warpChange(envt)"> 
       <button mat-icon-button [class.hide]="collapsed">
         <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
       </mat-form-field>
@@ -437,9 +438,19 @@
         [(ngModel)]="wefts" 
         type="number" 
         min="2" 
-        placeholder="Wefts" 
-        (change)="weftChange(envt)"> 
+        placeholder="Weft Picks" 
+        (change)="weftChange(envt)"
+        (blur)="weftChange(envt)"> 
       </mat-form-field>
+
+      <mat-form-field>
+          <mat-label>Density Units</mat-label>
+          <mat-select [(value)]="units" [(ngModel)]="units" name="units" (selectionChange) ="unitChange(envt)">
+          <mat-option *ngFor="let unit of density_units" [value]="unit.value">
+            {{unit.viewValue}}
+          </mat-option>
+        </mat-select>
+        </mat-form-field>
 
       <mat-form-field>
         <input matInput  
@@ -447,16 +458,39 @@
         [(ngModel)]="epi" 
         type="number" 
         min= "0" 
-        placeholder="Ends Per Inch" 
-        (change)="epiChange(envt)">  
-        <span matSuffix>epi</span>
+        placeholder="Density" 
+        (change)="epiChange(envt)"
+        (blur)="epiChange(envt)">  
+
+        <ng-container *ngIf="units == 'cm'">
+          <span matSuffix>ends / 10cm</span>
+        </ng-container>
+        <ng-container *ngIf="units == 'in'">
+         <span matSuffix>epi</span> 
+        </ng-container>
       </mat-form-field>
 
-      <mat-form-field>
-        <input matInput name="width" [(ngModel)]="width" [(value)] = "warps / epi" step="0.125" type="number" min= "0.25" max ="60" placeholder="Width" (change)="widthChange(envt)"> 
-         <span matSuffix>inches</span> 
-       </mat-form-field>
+          <mat-form-field>
+            <input matInput 
+            name="width" 
+            [(ngModel)]="width" 
+            step="0.125" 
+            type="number" 
+            min= "0.25" 
+            max ="60" 
+            placeholder="Width" 
+            (change)="widthChange(envt)"
+            (blur)="widthChange(envt)"> 
 
+          <ng-container *ngIf="units === 'in'">
+           <span matSuffix>inches</span> 
+         </ng-container>
+
+          <ng-container *ngIf="units === 'cm'">
+           <span matSuffix>cm</span> 
+         </ng-container>
+
+         </mat-form-field>
 
 
       <ng-container *ngIf="loomtype == 'frame'">
@@ -470,7 +504,8 @@
         min= "2" 
         max ="1000" 
         placeholder="Number of Frames"
-        (ngModelChange)="updateMinFrames($event)"> 
+        (change)="updateMinFrames(envt)" 
+        (blur)="updateMinFrames(envt)"> 
          <span matSuffix>frames</span> 
        </mat-form-field>
 
@@ -484,7 +519,9 @@
         min= "2" 
         max ="1000" 
         placeholder="Number of Treadles"
-        (ngModelChange)="updateMinTreadles($event)"> 
+        (change)="updateMinTreadles(envt)"
+        (blur)="updateMinTreadles(envt)"
+        > 
          <span matSuffix>treadles</span> 
        </mat-form-field>
 

@@ -11,6 +11,8 @@ const countOccurrences = (blah, val) => blah.reduce((a, v) => (v === val ? a + 1
 export class Loom{
     type: string;
     epi: number;
+    units: string;
+    width: number;
 
 
     //1-d array the same size as warps that has the id for the frame it is associated with or -1. 
@@ -28,12 +30,13 @@ export class Loom{
     tieup: Array<Array<Boolean>>; 
 
 
-    constructor(type: string, wefts: number, warps: number, epi:number, frames: number, treadles:number) {
+    constructor(type: string, wefts: number, warps: number, frames: number, treadles:number) {
 
 
 
         this.type = type;
-        this.epi = epi;
+        
+
         this.min_frames = frames;
         this.min_treadles = treadles;
         this.num_frames = frames;
@@ -46,6 +49,10 @@ export class Loom{
         this.resetTieup(frames, treadles);
       
     }
+
+    // recomputeWidth(){
+    //   this.width = (this.units === 'in') ? this.treading.length/this.epi : 10 * warps/this.epi;
+    // }
 
     setMinFrames(frames:number){
 

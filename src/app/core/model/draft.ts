@@ -28,7 +28,11 @@ export interface DraftInterface {
   labels: Array<any>;
   wefts: number;
   warps: number;
+  width: number;
+  epi: number;
+  units: string;
   loom: Loom;
+
 
 }
 
@@ -50,12 +54,19 @@ export class Draft implements DraftInterface {
   wefts: number;
   warps: number;
   loom: Loom;
+  width: number;
+  epi: number;
+  units: string;
 
 
   constructor({...params}) {
 
+    console.log(params);
+
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 20 : params.warps;
+    this.epi = (params.epi === undefined) ? 10 : params.epi;
+    this.units = (params.units === undefined) ? "in" : params.units;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
     this.masks = (params.masks === undefined) ? [] : params.masks;
@@ -162,16 +173,22 @@ export class Draft implements DraftInterface {
     } 
 
     if(params.loom === undefined) {
-      this.loom = new Loom('frame', this.wefts, this.warps, 10, 8, 10);
+      this.loom = new Loom('frame', this.wefts, this.warps, 8, 10);
     } else {
 
-      this.loom = new Loom(params.loom.type, this.wefts, this.warps, params.loom.epi, params.loom.num_frames, params.loom.num_treadles);
+      this.loom = new Loom(params.loom.type, this.wefts, this.warps, params.loom.num_frames, params.loom.num_treadles);
       if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
       if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
       if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
     }
+
+    this.recomputeWidth();
     console.log(this);
 
+  }
+
+  recomputeWidth(){
+    this.width = (this.units === 'in') ? this.warps/this.epi : 10 * this.warps/this.epi;
   }
 
   //assumes i is the draft row

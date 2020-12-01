@@ -29,6 +29,11 @@ interface LoomTypes {
   viewValue: string;
 }
 
+interface DensityUnits {
+  value: string;
+  viewValue: string;
+}
+
 interface HistoryState {
   draft: Draft;
   is_active: boolean;
@@ -68,6 +73,7 @@ export class WeaverComponent implements OnInit {
    * @property {Draft}
    */
   draft: Draft;
+
   timeline: HistoryState[] = [];
 
  /**
@@ -81,10 +87,14 @@ export class WeaverComponent implements OnInit {
    * @property {LoomType}
    */
   loomtypes: LoomTypes[] = [
-    {value: 'frame', viewValue: 'Floor'},
+    {value: 'frame', viewValue: 'Shaft'},
     {value: 'jacquard', viewValue: 'Jacquard'}
   ];
 
+density_units: DensityUnits[] = [
+    {value: 'in', viewValue: 'Ends per Inch'},
+    {value: 'cm', viewValue: 'Ends per 10cm '}
+  ];
 
 
 
@@ -102,7 +112,7 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
-  collapsed:boolean = true;
+  collapsed:boolean = false;
   dims:any;
 
   draftelement:any;
@@ -120,7 +130,7 @@ export class WeaverComponent implements OnInit {
     this.dims = this.render.getCellDims("base");
 
     const dialogRef = this.dialog.open(InitModal, {
-      data: this.loomtypes
+      data: {loomtypes: this.loomtypes, density_units: this.density_units}
     });
 
     var default_patterns = [];
@@ -225,7 +235,7 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.Backspace', ['$event'])
   private keyEventClear(e) { 
-    this.onClear()
+    //this.onClear()
   }
 
   /**
@@ -533,7 +543,14 @@ export class WeaverComponent implements OnInit {
   }
 
   public epiChange(e:any){
-    this.draft.loom.epi = e.epi;
+    this.draft.epi = e.epi;
+    this.draft.recomputeWidth();
+
+  }
+
+  public unitChange(e:any){
+    this.draft.units = e.units;
+    this.draft.recomputeWidth();    
 
   }
 
@@ -581,6 +598,28 @@ export class WeaverComponent implements OnInit {
       var diff = this.draft.warps - e.warps;
       for(var i = 0; i < diff; i++){  
         this.deleteCol(this.draft.warps-1);
+      }
+
+    }
+
+    this.draft.recomputeWidth();
+
+  }
+
+    public weftNumChange(e:any) {
+      console.log("weft number change", e.wefts);
+    if(e.wefts === "" || e.wefts =="null") return;
+
+    if(e.wefts > this.draft.wefts){
+      var diff = e.wefts - this.draft.wefts;
+      
+      for(var i = 0; i < diff; i++){  
+        this.insertRow(e.wefts+i, 0);
+      }
+    }else{
+      var diff = this.draft.wefts - e.wefts;
+      for(var i = 0; i < diff; i++){  
+        this.deleteRow(this.draft.wefts-1);
       }
 
     }
