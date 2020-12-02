@@ -10,6 +10,11 @@ svg {
   overflow: visible;
 }
 
+.mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
+    color: #00d1b2;
+}
+
+
 .fill-remaining-space {
   /* This fills the remaining space, by using flexbox. 
      Every toolbar row uses a flexbox row layout. */
