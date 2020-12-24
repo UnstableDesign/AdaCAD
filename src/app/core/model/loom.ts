@@ -50,9 +50,7 @@ export class Loom{
       
     }
 
-    // recomputeWidth(){
-    //   this.width = (this.units === 'in') ? this.treading.length/this.epi : 10 * warps/this.epi;
-    // }
+
 
     setMinFrames(frames:number){
 

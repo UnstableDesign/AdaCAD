@@ -11,7 +11,27 @@ svg {
 }
 
 .mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
+  color: #00d1b2;
+}
+
+.mat-form-field-type-mat-select:not(.mat-form-field-disabled) 
+.mat-form-field-flex {
     color: #00d1b2;
+    cursor: pointer;
+    border: thick solid #00d1b2;
+}
+
+.mat-form-field-wrapper{
+  color: #00d1b2;
+
+}
+
+.mat-form-field-infix:active{
+   color: #00d1b2;
+
+}
+.mat-form-field-flex:active{
+   color: #00d1b2;
 }
 
 

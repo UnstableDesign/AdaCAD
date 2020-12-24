@@ -607,8 +607,10 @@ density_units: DensityUnits[] = [
   }
 
     public weftNumChange(e:any) {
-      console.log("weft number change", e.wefts);
+    console.log("weft number change", e.wefts);
     if(e.wefts === "" || e.wefts =="null") return;
+
+    console.log("passed check");
 
     if(e.wefts > this.draft.wefts){
       var diff = e.wefts - this.draft.wefts;

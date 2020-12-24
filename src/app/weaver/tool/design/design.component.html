@@ -429,10 +429,10 @@
         placeholder="Warp Ends" 
         (change)="warpChange(envt)"
         (blur)="warpChange(envt)"> 
-      <button mat-icon-button [class.hide]="collapsed">
-        <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
+     
       </mat-form-field>
-
+ <button mat-icon-button [class.hide]="collapsed">
+        <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
       <mat-form-field>
         <input matInput name="wefts" 
         [(ngModel)]="wefts" 
@@ -462,13 +462,15 @@
         (change)="epiChange(envt)"
         (blur)="epiChange(envt)">  
 
-        <ng-container *ngIf="units == 'cm'">
+      </mat-form-field>
+    <ng-container *ngIf="units == 'cm'">
           <span matSuffix>ends / 10cm</span>
         </ng-container>
         <ng-container *ngIf="units == 'in'">
          <span matSuffix>epi</span> 
         </ng-container>
-      </mat-form-field>
+
+
 
           <mat-form-field>
             <input matInput 
@@ -481,16 +483,15 @@
             placeholder="Width" 
             (change)="widthChange(envt)"
             (blur)="widthChange(envt)"> 
+          </mat-form-field>
 
-          <ng-container *ngIf="units === 'in'">
+        <ng-container *ngIf="units === 'in'">
            <span matSuffix>inches</span> 
          </ng-container>
 
           <ng-container *ngIf="units === 'cm'">
            <span matSuffix>cm</span> 
-         </ng-container>
-
-         </mat-form-field>
+        </ng-container>
 
 
       <ng-container *ngIf="loomtype == 'frame'">
