@@ -40,6 +40,12 @@ interface HistoryState {
 }
 
 
+interface DesignModes {
+  value: string;
+  viewValue: string;
+}
+
+
 
 
 @Component({
@@ -91,10 +97,17 @@ export class WeaverComponent implements OnInit {
     {value: 'jacquard', viewValue: 'Jacquard'}
   ];
 
-density_units: DensityUnits[] = [
+  density_units: DensityUnits[] = [
     {value: 'in', viewValue: 'Ends per Inch'},
     {value: 'cm', viewValue: 'Ends per 10cm '}
   ];
+
+  design_modes: DesignModes[] = [
+      {value: 'pattern', viewValue: 'Draft'},
+      {value: 'yarn', viewValue: 'Schematic'},
+      {value: 'mask', viewValue: 'Masks'},
+      {value: 'visual', viewValue: 'Visual'}
+    ];
 
 
 

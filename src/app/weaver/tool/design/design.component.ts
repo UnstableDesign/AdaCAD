@@ -38,6 +38,7 @@ export class DesignComponent implements OnInit {
   @Input() loomtype;
   @Input() loomtypes;
   @Input() density_units;
+  @Input() design_modes;
   @Input()  patterns;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
@@ -220,7 +221,7 @@ export class DesignComponent implements OnInit {
 
 
   viewChange(e:any){
-    this.onViewChange.emit(e.value);
+    this.onViewChange.emit(this.design_modes[e].value);
   }
 
   zoomChange(e:any, source: string){

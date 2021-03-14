@@ -1,24 +1,11 @@
+
 <div class="design-container"  [class.collapsed]="collapsed">
 
-<mat-accordion multi  [class.collapsed]="collapsed">
 
-<!-- [expanded]="collapsed" -->
-<mat-expansion-panel [hideToggle] = "collapsed">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-      <i class="fas fa-binoculars" aria-hidden="true"></i>
-      <span> View</span>
-      </mat-panel-title>
-      <mat-panel-description>
-     
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-
+<ng-container *ngIf="!collapsed">
     <div class="is-fullwidth panel-content">
 
-      <ng-container *ngIf="!collapsed">
-
-      <span><mat-label>Zoom</mat-label></span>
+      <i class="fas fa-binoculars" aria-hidden="true"></i>
 
       <mat-slider 
       thumbLabel 
@@ -26,9 +13,11 @@
       tickInterval="1" min="1" max="100" 
       value="{{zoom}}" 
       (change)="zoomChange($event, 'slider')"></mat-slider>
+    </div>
 
-      </ng-container>
-    <ng-container *ngIf="collapsed">
+</ng-container>
+
+<ng-container *ngIf="collapsed">
 
         <button matTooltip="zoom in" 
         name="zoom_in" 
@@ -43,9 +32,105 @@
       (click)="zoomChange($event, 'out')">
       <i class="fas fa-search-minus" aria-hidden="true"></i>    
        </button>  
-    </ng-container>
+
+</ng-container>
+
+
+<div class="buttons is-fullwidth panel-content">
   
-      <span><mat-label>View Mode </mat-label></span>
+  <button matTooltip="draw in filled cells to draft (shortcut: d)" 
+  name="point" 
+  class="button is-small is-primary fas fa-pencil-alt is-fullwidth"  [class.is-active]="brush === 'point'" 
+  (click)="brushChange($event)">
+  </button>
+
+  <button matTooltip="erase filled cells to draft (shortcut: e)" 
+  name="erase" 
+  class="button is-small is-primary fas fa-eraser is-fullwidth" [class.is-active]="brush === 'erase'" 
+  (click)="brushChange($event)">
+  </button>
+
+  <button matTooltip="invert the state of one cell" 
+  name="invert" 
+  class="button is-small is-primary fas fa-random is-fullwidth" [class.is-active]="brush === 'invert'" 
+  (click)="brushChange($event)">
+  </button>
+ 
+  <button  matTooltip="select a region of the draft (shortcut: s)" 
+  name="select" 
+  class="button is-small is-primary fa fa-hand-pointer is-fullwidth" [class.is-active]="brush === 'select'" 
+  (click)="brushChange($event)">
+  </button>
+
+  <h3 class="is-fullwidth">Selection Operations </h3>
+
+ <button matTooltip="clear all valules in selected region (shortcut: delete)" 
+ name="clear" 
+ [disabled] = "brush !=='select'" 
+ class="button is-primary is-small fa fa-times is-fullwidth" 
+ (click)="clearEvent($event);"> 
+ </button>
+
+
+
+  <ng-container *ngFor="let pat of favorites">
+     <button  matTooltip="fill sellection with {{ pat.name }}" 
+     [disabled] = "brush !=='select'" 
+     name="fill_{{pat.id}}" 
+     class="button is-primary is-small is-fullwidth" 
+     (click)="fillEvent($event, pat.id)">
+      <i class="fill_name">{{ pat.name }}</i>
+     </button>
+
+<!--           <button  matTooltip="mask filled cells in selection with {{ pat.name }}" 
+     [disabled] = "brush !=='select'" 
+     name="mask_{{pat.id}}" 
+     class="button is-primary is-small is-fullwidth" 
+     (click)="maskEvent($event, pat.id)">
+      <i class="fill_name">{{ pat.name }}</i>
+     </button> -->
+ </ng-container>
+
+
+  <h3 [class.is-fullwidth]="!collapsed" > Copy / Paste </h3>
+
+    <button  matTooltip="copy selection (shortcut: c)"
+     name="copy" 
+    [disabled] = "brush !=='select'" 
+    (click)="copyEvent($event);" 
+    class="button is-primary is-small fa fa-clone is-fullwidth" >
+    </button>
+
+    <button  matTooltip="paste selection (shortcut: p)"
+    [disabled] = "!copy" 
+    class="button is-small is-primary fa fa-paste is-fullwidth" 
+    (click)="pasteEvent($event, 'original')">
+    </button>
+
+    <button  matTooltip="paste selection inverted" 
+    [disabled] = "!copy" 
+    class="button is-small is-primary fa fa-random is-fullwidth" 
+    (click)="pasteEvent($event, 'invert')">
+    </button>
+
+    <button  matTooltip="paste selection mirrored (horizontal)" 
+    [disabled] = "!copy" 
+    class="button is-small is-primary fas fa-arrows-alt-h is-fullwidth" 
+    (click)="pasteEvent($event, 'mirrorY')">           
+    </button>
+
+    <button  matTooltip="paste selection mirrored (vertical)" 
+    [disabled] = "!copy" 
+    class="button is-small is-primary fas fa-arrows-alt-v is-fullwidth"
+    (click)="pasteEvent($event, 'mirrorX')">           
+    </button>
+
+
+
+</div>
+
+<mat-tab-group #group [selectedIndex]="view"  (selectedIndexChange)="viewChange($event);">
+<!--     <span><mat-label>View Mode </mat-label></span>
   <mat-button-toggle-group #group 
   [class.collapsed] = "collapsed"
   [value]="view" 
@@ -60,190 +145,11 @@
         <i class="fa fa-image" aria-hidden="true"></i>
       </mat-button-toggle>
     </mat-button-toggle-group>  
-    </div>
-
-  </mat-expansion-panel>
+    </div> -->
 
 
 
-
-  <mat-expansion-panel [hideToggle] = "collapsed">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-      
-      <i class="fas fa-pencil-alt" aria-hidden="true" [class.hide]="brush !== 'point'"></i>
-      <i class="fas fa-eraser" aria-hidden="true" [class.hide]="brush !== 'erase'"></i>
-      <i class="fas fa-random" aria-hidden="true" [class.hide]="brush !== 'invert'"></i>
-      <i class="fa fa-hand-pointer" aria-hidden="true" [class.hide]="brush !== 'select'"></i>
-
-
-       <span>Draft</span>
-      </mat-panel-title>
-      <mat-panel-description>
-       
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    
-    <div class="buttons is-fullwidth panel-content">
-      
-      <button matTooltip="draw in filled cells to draft (shortcut: d)" 
-      name="point" 
-      class="button is-small is-primary fas fa-pencil-alt is-fullwidth"  [class.is-active]="brush === 'point'" 
-      (click)="brushChange($event)">
-      </button>
-
-      <button matTooltip="erase filled cells to draft (shortcut: e)" 
-      name="erase" 
-      class="button is-small is-primary fas fa-eraser is-fullwidth" [class.is-active]="brush === 'erase'" 
-      (click)="brushChange($event)">
-      </button>
-
-      <button matTooltip="invert the state of one cell" 
-      name="invert" 
-      class="button is-small is-primary fas fa-random is-fullwidth" [class.is-active]="brush === 'invert'" 
-      (click)="brushChange($event)">
-      </button>
-     
-      <button  matTooltip="select a region of the draft (shortcut: s)" 
-      name="select" 
-      class="button is-small is-primary fa fa-hand-pointer is-fullwidth" [class.is-active]="brush === 'select'" 
-      (click)="brushChange($event)">
-      </button>
-
-      <h3 class="is-fullwidth">Selection Operations </h3>
-
-       <button matTooltip="clear all valules in selected region (shortcut: delete)" 
-       name="clear" 
-       [disabled] = "brush !=='select'" 
-       class="button is-primary is-small fa fa-times is-fullwidth" 
-       (click)="clearEvent($event);"> 
-       </button>
-
-
-
-      <ng-container *ngFor="let pat of favorites">
-         <button  matTooltip="fill sellection with {{ pat.name }}" 
-         [disabled] = "brush !=='select'" 
-         name="fill_{{pat.id}}" 
-         class="button is-primary is-small is-fullwidth" 
-         (click)="fillEvent($event, pat.id)">
-          <i class="fill_name">{{ pat.name }}</i>
-         </button>
-
-<!--           <button  matTooltip="mask filled cells in selection with {{ pat.name }}" 
-         [disabled] = "brush !=='select'" 
-         name="mask_{{pat.id}}" 
-         class="button is-primary is-small is-fullwidth" 
-         (click)="maskEvent($event, pat.id)">
-          <i class="fill_name">{{ pat.name }}</i>
-         </button> -->
-     </ng-container>
-
-
-      <h3 [class.is-fullwidth]="!collapsed" > Copy / Paste </h3>
-
-        <button  matTooltip="copy selection (shortcut: c)"
-         name="copy" 
-        [disabled] = "brush !=='select'" 
-        (click)="copyEvent($event);" 
-        class="button is-primary is-small fa fa-clone is-fullwidth" >
-        </button>
-
-        <button  matTooltip="paste selection (shortcut: p)"
-        [disabled] = "!copy" 
-        class="button is-small is-primary fa fa-paste is-fullwidth" 
-        (click)="pasteEvent($event, 'original')">
-        </button>
-
-        <button  matTooltip="paste selection inverted" 
-        [disabled] = "!copy" 
-        class="button is-small is-primary fa fa-random is-fullwidth" 
-        (click)="pasteEvent($event, 'invert')">
-        </button>
-
-        <button  matTooltip="paste selection mirrored (horizontal)" 
-        [disabled] = "!copy" 
-        class="button is-small is-primary fas fa-arrows-alt-h is-fullwidth" 
-        (click)="pasteEvent($event, 'mirrorY')">           
-        </button>
-
-        <button  matTooltip="paste selection mirrored (vertical)" 
-        [disabled] = "!copy" 
-        class="button is-small is-primary fas fa-arrows-alt-v is-fullwidth"
-        (click)="pasteEvent($event, 'mirrorX')">           
-        </button>
-
-
-     <!--  <div class="dropdown" [class.is-hoverable]="copy">
-        <div class="dropdown-trigger">
-          <button id="paste" class="button is-primary  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu" [disabled]="!copy">
-            <span class="brush-type">Paste</span>
-            <span class="icon is-small">
-              <i class="fa fa-angle-down" aria-hidden="true"></i>
-            </span>
-          </button>
-        </div>
-        <div class="dropdown-menu" id="dropdown-menu" role="menu">
-          <div class="dropdown-content">
-            <a id="original" (click)="pasteEvent($event, 'original')" name="paste" class="dropdown-item brush">
-              Original
-            </a>
-            <a id="invert" (click)="pasteEvent($event, 'invert')" name="paste" class="dropdown-item brush">
-              Invert
-            </a>
-            <a id="mirrorX" (click)="pasteEvent($event, 'mirrorX')" name="paste" class="dropdown-item brush">
-              Vertical Flip
-            </a>
-            <a id="mirrorY" (click)="pasteEvent($event, 'mirrorY')" name="paste" class="dropdown-item brush">
-              Horizontal Flip
-            </a>
-          </div>
-        </div>
-      </div>
- -->
-    </div>
-
-
-
-  </mat-expansion-panel>
-
-  <!-- <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-       Blocks
-      </mat-panel-title>
-      <mat-panel-description>
-        {{brush}}
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-  
-    <div class="buttons">
-      <button matTooltip="add cells to mask" name="maskpoint" class="button is-primary brush" [class.is-active]="brush === 'maskpoint'" [disabled] = "draft?.loom.type === 'frame'" (click)="brushChange($event)">Draw on Mask
-      </button>
-
-      <button matTooltip="erase cells on mask" name="maskerase" class="button is-primary brush" [class.is-active]="brush === 'maskerase'" [disabled] = "draft?.loom.type === 'frame'" (click)="brushChange($event)">Erase Mask</button>
-
-       <button matTooltip="invert the state of one cell" name="maskinvert" class="button is-primary brush  " [class.is-active]="brush === 'maskinvert'" [disabled] = "draft?.loom.type === 'frame'" (click)="brushChange($event)">Invert Mask</button>
-    
-      <div class="dropdown is-hoverable">
-        <div class="dropdown-trigger">
-          <button id="mask" class="button is-primary codehilite  brush-dropdown" aria-haspopup="true" aria-controls="dropdown-menu" [disabled] = "view_frames">
-            <span class="brush-type">Fill Mask</span>
-            <span class="icon is-small">
-              <i class="fas fa-angle-down" aria-hidden="true"></i>
-            </span>
-          </button>
-        </div>
-        <div class="dropdown-menu" id="dropdown-menu" role="menu" >
-          <div class="dropdown-content">
-            <ng-container *ngFor="let pat of favorites">
-            <a id="{{pat.id}}" name="fill" (click)="maskEvent($event, pat.id)" class="dropdown-item brush">{{ pat.name }}</a>
-            </ng-container>
-          </div>
-        </div>
-      </div>
-    </div>
-  </mat-expansion-panel> -->
+<mat-tab label="draft" value="pattern"> 
 
 
 <mat-expansion-panel [hideToggle] = "collapsed">
@@ -263,15 +169,15 @@
   </mat-expansion-panel-header>
 
 
-<ng-container *ngIf="!collapsed">
+  <ng-container *ngIf="!collapsed">
 
-  <mat-list>
-  <ng-container *ngFor="let shuttle of shuttles">
-  <mat-list-item 
-  (click)="selected = shuttle.id;" 
-  class="level" 
-  [class.selected]="selected === shuttle.id" 
-  [disableRipple]="false">
+    <mat-list>
+    <ng-container *ngFor="let shuttle of shuttles">
+    <mat-list-item 
+    (click)="selected = shuttle.id;" 
+    class="level" 
+    [class.selected]="selected === shuttle.id" 
+    [disableRipple]="false">
 
       <button mat-icon-button 
       (click)="visibleButton(shuttle.id, shuttle.visible)">
@@ -393,6 +299,11 @@
 </ng-container>
 
 </mat-expansion-panel>
+
+
+
+
+
 
 
 
@@ -531,11 +442,13 @@
 </form>
 </div>
 </mat-expansion-panel>
+
+
 <mat-expansion-panel [hideToggle]="collapsed">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <i class="fa fa-chess-board"></i>
-        <span>Patterns</span>
+        <span>Pattern Library</span>
       </mat-panel-title>
       <mat-panel-description>
         <button class="addsystem is-fullwidth" (click)="openPatternDialog(null)">
@@ -617,10 +530,34 @@
 </div>
 
 
-
-
-
   </mat-expansion-panel>
 
-  </mat-accordion>
+  </mat-tab>
+
+
+
+  <mat-tab label="schematic" value = "yarn"> 
+      <h3>Region Masks</h3>
+      <h3>Cut</h3>
+
+
+  </mat-tab>
+  
+
+  <mat-tab label="visual" value = "visual"> 
+      <h3>Colors</h3>
+      <h3>Spacing</h3>
+      <h3>Layers</h3>
+      <h3>Back</h3>
+  </mat-tab>
+
+
+
+
+
+
+</mat-tab-group>
+
+
+
 </div>
