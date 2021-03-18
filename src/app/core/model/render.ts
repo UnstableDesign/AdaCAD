@@ -29,7 +29,7 @@ export class Render {
     //max values
     this.zoom = 100;
     this.view_frames = view_frames;
-    this.current_view = 'pattern';
+    this.current_view = 'visual';
     this.view_back = true;
 
     this.base_cell = {

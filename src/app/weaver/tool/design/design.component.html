@@ -1,64 +1,37 @@
 
-<div class="design-container"  [class.collapsed]="collapsed">
+<mat-expansion-panel  [hideToggle] = "collapsed">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <i class="warpicon fas fa-pencil" aria-hidden="true"></i>
+     <span>Draw</span>
+    </mat-panel-title>
+    <mat-panel-description>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
 
 
-<ng-container *ngIf="!collapsed">
-    <div class="is-fullwidth panel-content">
-
-      <i class="fas fa-binoculars" aria-hidden="true"></i>
-
-      <mat-slider 
-      thumbLabel 
-      [displayWith]="formatLabel" 
-      tickInterval="1" min="1" max="100" 
-      value="{{zoom}}" 
-      (change)="zoomChange($event, 'slider')"></mat-slider>
-    </div>
-
-</ng-container>
-
-<ng-container *ngIf="collapsed">
-
-        <button matTooltip="zoom in" 
-        name="zoom_in" 
-        class="button is-small  is-primary"
-        (click)="zoomChange($event, 'in')">
-        <i class="fas fa-search-plus" aria-hidden="true"></i>        
-        </button>
-
-      <button matTooltip="zoom out" 
-      name="zoom_out" 
-      class="button is-small  is-primary"
-      (click)="zoomChange($event, 'out')">
-      <i class="fas fa-search-minus" aria-hidden="true"></i>    
-       </button>  
-
-</ng-container>
-
-
-<div class="buttons is-fullwidth panel-content">
   
   <button matTooltip="draw in filled cells to draft (shortcut: d)" 
   name="point" 
-  class="button is-small is-primary fas fa-pencil-alt is-fullwidth"  [class.is-active]="brush === 'point'" 
+  class="button is-small is-primary fas fa-pencil-alt"  [class.is-active]="brush === 'point'" 
   (click)="brushChange($event)">
   </button>
 
   <button matTooltip="erase filled cells to draft (shortcut: e)" 
   name="erase" 
-  class="button is-small is-primary fas fa-eraser is-fullwidth" [class.is-active]="brush === 'erase'" 
+  class="button is-small is-primary fas fa-eraser" [class.is-active]="brush === 'erase'" 
   (click)="brushChange($event)">
   </button>
 
   <button matTooltip="invert the state of one cell" 
   name="invert" 
-  class="button is-small is-primary fas fa-random is-fullwidth" [class.is-active]="brush === 'invert'" 
+  class="button is-small is-primary fas fa-random" [class.is-active]="brush === 'invert'" 
   (click)="brushChange($event)">
   </button>
  
   <button  matTooltip="select a region of the draft (shortcut: s)" 
   name="select" 
-  class="button is-small is-primary fa fa-hand-pointer is-fullwidth" [class.is-active]="brush === 'select'" 
+  class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === 'select'" 
   (click)="brushChange($event)">
   </button>
 
@@ -67,7 +40,7 @@
  <button matTooltip="clear all valules in selected region (shortcut: delete)" 
  name="clear" 
  [disabled] = "brush !=='select'" 
- class="button is-primary is-small fa fa-times is-fullwidth" 
+ class="button is-primary is-small fa fa-times" 
  (click)="clearEvent($event);"> 
  </button>
 
@@ -77,18 +50,12 @@
      <button  matTooltip="fill sellection with {{ pat.name }}" 
      [disabled] = "brush !=='select'" 
      name="fill_{{pat.id}}" 
-     class="button is-primary is-small is-fullwidth" 
+     class="button is-primary is-small" 
      (click)="fillEvent($event, pat.id)">
       <i class="fill_name">{{ pat.name }}</i>
      </button>
 
-<!--           <button  matTooltip="mask filled cells in selection with {{ pat.name }}" 
-     [disabled] = "brush !=='select'" 
-     name="mask_{{pat.id}}" 
-     class="button is-primary is-small is-fullwidth" 
-     (click)="maskEvent($event, pat.id)">
-      <i class="fill_name">{{ pat.name }}</i>
-     </button> -->
+
  </ng-container>
 
 
@@ -98,466 +65,32 @@
      name="copy" 
     [disabled] = "brush !=='select'" 
     (click)="copyEvent($event);" 
-    class="button is-primary is-small fa fa-clone is-fullwidth" >
+    class="button is-primary is-small fa fa-clone" >
     </button>
 
     <button  matTooltip="paste selection (shortcut: p)"
     [disabled] = "!copy" 
-    class="button is-small is-primary fa fa-paste is-fullwidth" 
+    class="button is-small is-primary fa fa-paste" 
     (click)="pasteEvent($event, 'original')">
     </button>
 
     <button  matTooltip="paste selection inverted" 
     [disabled] = "!copy" 
-    class="button is-small is-primary fa fa-random is-fullwidth" 
+    class="button is-small is-primary fa fa-random" 
     (click)="pasteEvent($event, 'invert')">
     </button>
 
     <button  matTooltip="paste selection mirrored (horizontal)" 
     [disabled] = "!copy" 
-    class="button is-small is-primary fas fa-arrows-alt-h is-fullwidth" 
+    class="button is-small is-primary fas fa-arrows-alt-h" 
     (click)="pasteEvent($event, 'mirrorY')">           
     </button>
 
     <button  matTooltip="paste selection mirrored (vertical)" 
     [disabled] = "!copy" 
-    class="button is-small is-primary fas fa-arrows-alt-v is-fullwidth"
+    class="button is-small is-primary fas fa-arrows-alt-v"
     (click)="pasteEvent($event, 'mirrorX')">           
     </button>
 
 
-
-</div>
-
-<mat-tab-group #group [selectedIndex]="view"  (selectedIndexChange)="viewChange($event);">
-<!--     <span><mat-label>View Mode </mat-label></span>
-  <mat-button-toggle-group #group 
-  [class.collapsed] = "collapsed"
-  [value]="view" 
-  (change)="viewChange($event);">
-      <mat-button-toggle value="pattern">
-        <i class="fa fa-chess-board" aria-hidden="true"></i>
-      </mat-button-toggle>
-      <mat-button-toggle value="yarn">
-        <i class="fa fa-project-diagram" aria-hidden="true"></i>
-      </mat-button-toggle>
-      <mat-button-toggle value="visual">
-        <i class="fa fa-image" aria-hidden="true"></i>
-      </mat-button-toggle>
-    </mat-button-toggle-group>  
-    </div> -->
-
-
-
-<mat-tab label="draft" value="pattern"> 
-
-
-<mat-expansion-panel [hideToggle] = "collapsed">
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-      <i class="fas fa-equals" aria-hidden="true"></i>
-      <span>Weft Systems</span>
-    </mat-panel-title>
-    <mat-panel-description>
-    
-  <button class="addsystem is-fullwidth" (click)="openDialog('weft', null)">
-    <i aria-label="" class="fa fa-plus"></i>
-    <span> Add</span>
-  </button>
-
-    </mat-panel-description>
-  </mat-expansion-panel-header>
-
-
-  <ng-container *ngIf="!collapsed">
-
-    <mat-list>
-    <ng-container *ngFor="let shuttle of shuttles">
-    <mat-list-item 
-    (click)="selected = shuttle.id;" 
-    class="level" 
-    [class.selected]="selected === shuttle.id" 
-    [disableRipple]="false">
-
-      <button mat-icon-button 
-      (click)="visibleButton(shuttle.id, shuttle.visible)">
-        <i aria-label="hide" class="fas"  [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
-      </button>
-
-
-      <input class="colorpicker shuttle-cp" [class.hide] = "collapsed"
-      [(colorPicker)]="shuttle.color" 
-      (colorPickerChange)="colorChange($event)"
-       [cpPosition]="'bottom'"
-       [style.background]="shuttle.color"/>
-
-      <input matInput
-        class="thickness"
-        [class.hide] = "collapsed"
-        type="number" 
-        [(ngModel)]="shuttle.thickness" 
-        min="0" 
-        max="100" 
-        step="10"
-        (change)="thicknessChange(shuttle.id, shuttle.thickness)" />
-
-
-     <div class="shuttles level-item center-item fill-remaining-space" [class.hide] = "collapsed">
-      <span class="">{{ shuttle.name }}</span>
-      <div class="level-item level-right" [class.hide] = "collapsed">
-        <button mat-icon-button class="edit-button" (click)="openDialog('weft', shuttle)">
-        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-      </button>
-     </div>
-    </div>
-  </mat-list-item>  
-  </ng-container>
-</mat-list>
-</ng-container>
-<ng-container *ngIf="collapsed">
-
-    <ng-container *ngFor="let shuttle of shuttles">
-
-      <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
-        <i aria-label="hide" 
-        class="fas"  
-        [style.color]="shuttle.color" 
-        [class.fa-eye-slash]="!shuttle.visible" 
-        [class.fa-eye]="shuttle.visible" 
-        (click)="shuttle.visible = !shuttle.visible;"></i>
-      </button>
-    </ng-container>
-
-</ng-container>
-
-
 </mat-expansion-panel>
-
-
-
-<mat-expansion-panel  [hideToggle] = "collapsed">
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-      <i class="warpicon fas fa-equals" aria-hidden="true"></i>
-     <span>Warp Systems</span>
-    </mat-panel-title>
-    <mat-panel-description>
-      <button class="addsystem is-fullwidth" (click)="openDialog('warp', null)">
-  <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>
-  <span> Add</span>
-</button>
-    
-    </mat-panel-description>
-  </mat-expansion-panel-header>
-
-
-<ng-container *ngIf="!collapsed">
-<mat-list>
-  <ng-container *ngFor="let warp_system of warp_systems">
-  <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
-    <div class="level-item">
-
-      <input class="colorpicker shuttle-cp" [(colorPicker)]="warp_system.color" (colorPickerChange)="colorChange($event)"
-       [cpPosition]="'bottom'"
-       [style.background]="warp_system.color"/>
-
-      <input matInput
-        class="thickness"
-        [class.hide] = "collapsed"
-        type="number" 
-        [(ngModel)]="warp_system.thickness" 
-        min="0" 
-        max="100" 
-        step="10"
-        (change)="thicknessChange(warp_system.id, warp_system.thickness)" />
-     </div>
-     <div class="shuttles level-item center-item fill-remaining-space">
-      <span class="">{{ warp_system.name }}</span>
-    </div>
-    <div class="level-item level-right">
-      <button mat-icon-button class="edit-button" (click)="openDialog('warp', warp_system)">
-        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-      </button>
-
-<!--       <button mat-icon-button class="trash-button">
-        <i aria-label="Favorite button" class="fas fa-trash"></i>
-      </button> -->
-    </div>
-  </mat-list-item>  
-  </ng-container>
-</mat-list>
-</ng-container>
-<ng-container *ngIf="collapsed">
-    <ng-container *ngFor="let warp_system of warp_systems">
-      <button mat-icon-button>
-        <i aria-label="hide" 
-        class="fas fa-square"  
-        [style.color] = "warp_system.color"> </i>
-      </button>
-
-     </ng-container>
-</ng-container>
-
-</mat-expansion-panel>
-
-
-
-
-
-
-
-
-<mat-expansion-panel  [hideToggle] = "collapsed">
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-      <i class="fab fa-slack-hash"></i>
-      <span>Loom Settings</span>
-    </mat-panel-title>
-    <mat-panel-description>
-    
-    </mat-panel-description>
-  </mat-expansion-panel-header>
-
-<div class="panel-content">
- <form #envt="ngForm" novalidate>
-
-        <mat-form-field>
-          <mat-label>Loom Type - {{loomtype}}</mat-label>
-          <mat-select (selectionChange) ="loomChange(envt)" [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
-            <mat-option *ngFor="let type of loomtypes" [value]="type.value">
-              {{type.viewValue}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-
-      <mat-form-field>
-        <input matInput name="warps" 
-        [readonly]="warp_locked" 
-        [(ngModel)]="warps" 
-        type="number" 
-        min="2" 
-        placeholder="Warp Ends" 
-        (change)="warpChange(envt)"
-        (blur)="warpChange(envt)"> 
-     
-      </mat-form-field>
- <button mat-icon-button [class.hide]="collapsed">
-        <i aria-label="warp lock button" class="fa" [class.fa-lock]="warp_locked" [class.fa-unlock]="!warp_locked" (click)="warp_locked = !warp_locked"></i></button>
-      <mat-form-field>
-        <input matInput name="wefts" 
-        [(ngModel)]="wefts" 
-        type="number" 
-        min="2" 
-        placeholder="Weft Picks" 
-        (change)="weftChange(envt)"
-        (blur)="weftChange(envt)"> 
-      </mat-form-field>
-
-      <mat-form-field>
-          <mat-label>Density Units</mat-label>
-          <mat-select [(value)]="units" [(ngModel)]="units" name="units" (selectionChange) ="unitChange(envt)">
-          <mat-option *ngFor="let unit of density_units" [value]="unit.value">
-            {{unit.viewValue}}
-          </mat-option>
-        </mat-select>
-        </mat-form-field>
-
-      <mat-form-field>
-        <input matInput  
-        name="epi" 
-        [(ngModel)]="epi" 
-        type="number" 
-        min= "0" 
-        placeholder="Density" 
-        (change)="epiChange(envt)"
-        (blur)="epiChange(envt)">  
-
-      </mat-form-field>
-    <ng-container *ngIf="units == 'cm'">
-          <span matSuffix>ends / 10cm</span>
-        </ng-container>
-        <ng-container *ngIf="units == 'in'">
-         <span matSuffix>epi</span> 
-        </ng-container>
-
-
-
-          <mat-form-field>
-            <input matInput 
-            name="width" 
-            [(ngModel)]="width" 
-            step="0.125" 
-            type="number" 
-            min= "0.25" 
-            max ="60" 
-            placeholder="Width" 
-            (change)="widthChange(envt)"
-            (blur)="widthChange(envt)"> 
-          </mat-form-field>
-
-        <ng-container *ngIf="units === 'in'">
-           <span matSuffix>inches</span> 
-         </ng-container>
-
-          <ng-container *ngIf="units === 'cm'">
-           <span matSuffix>cm</span> 
-        </ng-container>
-
-
-      <ng-container *ngIf="loomtype == 'frame'">
-
-      <mat-form-field>
-        <input matInput 
-        name="frames" 
-        [(ngModel)]="frames"  
-        step="1" 
-        type="number" 
-        min= "2" 
-        max ="1000" 
-        placeholder="Number of Frames"
-        (change)="updateMinFrames(envt)" 
-        (blur)="updateMinFrames(envt)"> 
-         <span matSuffix>frames</span> 
-       </mat-form-field>
-
-
-      <mat-form-field>
-        <input matInput 
-        name="treadles" 
-        [(ngModel)]="treadles" 
-        step="1" 
-        type="number" 
-        min= "2" 
-        max ="1000" 
-        placeholder="Number of Treadles"
-        (change)="updateMinTreadles(envt)"
-        (blur)="updateMinTreadles(envt)"
-        > 
-         <span matSuffix>treadles</span> 
-       </mat-form-field>
-
-      </ng-container>
-
-</form>
-</div>
-</mat-expansion-panel>
-
-
-<mat-expansion-panel [hideToggle]="collapsed">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <i class="fa fa-chess-board"></i>
-        <span>Pattern Library</span>
-      </mat-panel-title>
-      <mat-panel-description>
-        <button class="addsystem is-fullwidth" (click)="openPatternDialog(null)">
-          <i aria-label="" class="fa fa-plus"></i>
-          <span> Add</span>
-        </button>
-      </mat-panel-description>
-
-
-    </mat-expansion-panel-header>
-  <div class="panel-content">
-
-  <ng-container *ngFor="let pattern of patterns;">
-  
-  <mat-card class="example-card">
-    <mat-card-header style="margin-bottom:5px;">
-     
-     <ng-container *ngIf="!collapsed">
-        <button mat-icon-button (click)="openPatternDialog(pattern)" class="pattern-edit-button">
-          <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-        </button>
-
-      <button mat-icon-button (click)="removePattern(pattern)"class="pattern-trash-button">
-        <i aria-label="Favorite button" class="fas fa-trash"></i>
-      </button>
-     </ng-container>
-
-    </mat-card-header>
-
-    <mat-card-content>
-      <div class="level">
-        <div class="level-item level-with-title">
-          <div class="mat-title level-title">
-            
-          <ng-container *ngIf="collapsed">
-              <button class="button is-small" [class.is-primary]="pattern.favorite" (click)="updateFavorite(pattern.id)">
-              <i aria-label="Favorite button" class="fill_name"> 
-               {{ pattern.name }}</i>
-              </button>
-          </ng-container>
-          <ng-container *ngIf="!collapsed">
-
-            <button mat-icon-button>
-              <i aria-label="Favorite button" class="fa-star" [class.far]="!pattern.favorite" [class.fas]="pattern.favorite" (click)="updateFavorite(pattern.id)"></i>
-            </button>
-            {{ pattern.name }}
-           </ng-container>
-
-          </div>
-        
-         <ng-container *ngIf="!collapsed">
-           <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
-        </ng-container>
-        </div>
-
-        <ng-container *ngIf="!collapsed">
-        <div class="level-item">
-          <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
-            <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
-              <ng-container *ngFor="let up of row; let j = index">
-              <rect *ngIf="up" [attr.x]="j * 10" [attr.y]="i * 10" width="10" height="10" fill="#000"/>
-              </ng-container>
-            </g>
-          </svg>
-        </div>
-        </ng-container>
-      </div>
-    </mat-card-content>
-    <!-- <mat-card-actions>
-      <button mat-icon-button>
-        <i aria-label="Example icon-button with a heart icon" class="fa fa-pencil-alt"></i>
-      </button>
-      <button mat-icon-button>
-        <i aria-label="Example icon-button with a heart icon" class="fa fa-trash"></i>
-      </button>
-    </mat-card-actions> -->
-  </mat-card>
-</ng-container>
-</div>
-
-
-  </mat-expansion-panel>
-
-  </mat-tab>
-
-
-
-  <mat-tab label="schematic" value = "yarn"> 
-      <h3>Region Masks</h3>
-      <h3>Cut</h3>
-
-
-  </mat-tab>
-  
-
-  <mat-tab label="visual" value = "visual"> 
-      <h3>Colors</h3>
-      <h3>Spacing</h3>
-      <h3>Layers</h3>
-      <h3>Back</h3>
-  </mat-tab>
-
-
-
-
-
-
-</mat-tab-group>
-
-
-
-</div>

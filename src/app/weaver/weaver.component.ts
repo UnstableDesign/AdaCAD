@@ -4,7 +4,6 @@ import { PatternService } from '../core/provider/pattern.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
 import { Draft } from '../core/model/draft';
 import { Render } from '../core/model/render';
-import { Shuttle } from '../core/model/shuttle';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
@@ -40,7 +39,7 @@ interface HistoryState {
 }
 
 
-interface DesignModes {
+interface ViewModes {
   value: string;
   viewValue: string;
 }
@@ -102,11 +101,12 @@ export class WeaverComponent implements OnInit {
     {value: 'cm', viewValue: 'Ends per 10cm '}
   ];
 
-  design_modes: DesignModes[] = [
+  view_modes: ViewModes[] = [
+      {value: 'visual', viewValue: 'Visual'},
       {value: 'pattern', viewValue: 'Draft'},
-      {value: 'yarn', viewValue: 'Schematic'},
-      {value: 'mask', viewValue: 'Masks'},
-      {value: 'visual', viewValue: 'Visual'}
+      {value: 'yarn', viewValue: 'Circuit'},
+      {value: 'mask', viewValue: 'Masks'}
+
     ];
 
 

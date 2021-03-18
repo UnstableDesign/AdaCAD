@@ -10,10 +10,16 @@
 </app-topbar>
 
 
-<mat-sidenav-container class="example-container"  [class.collapsed]="collapsed">
-  <mat-sidenav mode="side" position="end" [class.collapsed]="collapsed" opened>
-      
-         <button
+<mat-sidenav-container class="example-container">
+  
+  <mat-sidenav mode="side" position="end" opened>
+    
+      <div class ="design-container" [class.collapsed]="collapsed">
+        <mat-accordion multi>
+
+
+
+<!--         <button
            (click)="toggleCollapsed()"
             class="collapse" 
             value="collapsed">
@@ -22,56 +28,98 @@
            [class.fa-angle-double-left]="collapsed"
          aria-hidden="true"></i>
         </button>
+ -->
 
 
-        <app-design [brush]="brush"
-        [collapsed] = "collapsed"
-        [zoom] = "render?.zoom"
+          <app-view 
+            [view_modes] = "view_modes"
+            [zoom] = "render?.zoom"
+            [view] ="render?.current_view"
+            (onViewChange) ="viewChange($event);"
+            (onZoomChange) ="renderChange($event);"
+          >
+          </app-view>
+
+
+        <app-design [hidden] = "render?.current_view == 'mask'"
+        [brush]="brush"
         [favorites]="draft?.patterns | filter: {favorite: true}"
-        [shuttles]="draft?.shuttles" 
-        [warp_systems]="draft?.warp_systems" 
-        [epi] = "draft?.epi"
-        [warps] = "draft?.warps"
-        [wefts] = "draft?.wefts"
-        [frames] = "draft?.loom.min_frames"
-        [treadles] = "draft?.loom.min_treadles"
-        [loomtypes] = "loomtypes"
-        [loomtype] = "draft?.loom.type"
-        [density_units] = "density_units"
-        [design_modes] = "design_modes"
-        [units] = "draft?.units"
-        [width] = "draft?.width"
-        [patterns]="draft?.patterns"
-        (onViewChange) ="viewChange($event);"
-        (onZoomChange) ="renderChange($event);"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
         (onClear)="onClear();" 
-        (onMask)="onMask($event);" 
         (onPaste)="onPaste($event);"
+      
+        >
+        </app-design> 
+ 
+
+
+        <app-weftsystems [hidden] = "render?.current_view != 'pattern'"
+          [shuttles] = "draft?.shuttles"
+          [warps]="warps" 
+          (onCreateShuttle)="createShuttle($event);"
+          (onHideShuttle)="hideShuttle($event);"
+          (onShowShuttle)="showShuttle($event);"
+          (onColorChange)="redraw()" >
+        </app-weftsystems>
+
+
+        <app-warpsystems [hidden] = "render?.current_view != 'pattern'"
+          [warp_systems]="draft?.warp_systems" 
+          [warps]="warps" 
+          (onCreateWarpSystem)="createWarpSystem($event);"
+          (onHideShuttle)="hideShuttle($event);"
+          (onShowShuttle)="showShuttle($event);">
+        </app-warpsystems>
+
+        <app-materials >
+        </app-materials>
+
+        <app-masks [hidden] = "render?.current_view != 'mask'"
+          (onMask)="onMask($event);" >
+        </app-masks>
+
+        <app-patterns [hidden] = "render?.current_view != 'pattern'"
+          [patterns]="draft?.patterns"
+          (onPatternChange)="updatePatterns($event);"
+          (onCreatePattern)="createPattern($event);"
+          (onRemovePattern)="removePattern($event);"
+          (onChange) = "onChange($event);">
+          >
+        </app-patterns>
+
+        <app-loom 
+          [epi] = "draft?.epi"
+          [warps] = "draft?.warps"
+          [wefts] = "draft?.wefts"
+          [frames] = "draft?.loom.min_frames"
+          [treadles] = "draft?.loom.min_treadles"
+          [loomtypes] = "loomtypes"
+          [loomtype] = "draft?.loom.type"
+          [density_units] = "density_units"
+          [units] = "draft?.units"
+          [width] = "draft?.width"
+          (onWarpNumChange) = "warpNumChange($event)"
+          (onWeftNumChange) = "weftNumChange($event)"
+          (onEpiNumChange) = "epiChange($event)"
+          (onUnitChange) = "unitChange($event)"
+          (onThicknessChange) = "thicknessChange($event)"
+          (onLoomTypeChange) = "loomChange($event)"
+          (onFrameChange) = "frameChange($event)"
+          (onTreadleChange) = "treadleChange($event)"
+          >
+        </app-loom>
+
+        <app-schematic  [hidden] = "render?.current_view != 'yarn'"
         (onConnectionCreate)="openConnectionDialog();"
         (onLabelCreate)="openLabelDialog()"
-        (onColorChange)="redraw()"
-        (onCreateShuttle)="createShuttle($event);"
-        (onCreateWarpSystem)="createWarpSystem($event);"
-        (onHideShuttle)="hideShuttle($event);"
-        (onShowShuttle)="showShuttle($event);"
-        (onWarpNumChange) = "warpNumChange($event)"
-        (onWeftNumChange) = "weftNumChange($event)"
-        (onEpiNumChange) = "epiChange($event)"
-        (onUnitChange) = "unitChange($event)"
-        (onThicknessChange) = "thicknessChange($event)"
-        (onLoomTypeChange) = "loomChange($event)"
-        (onFrameChange) = "frameChange($event)"
-        (onTreadleChange) = "treadleChange($event)"
-        (onPatternChange)="updatePatterns($event);"
-        (onCreatePattern)="createPattern($event);"
-        (onRemovePattern)="removePattern($event);">
-   
-        </app-design> 
+        >
 
+      </app-schematic> 
+    </mat-accordion>
 
+    </div>
 
   </mat-sidenav>
 

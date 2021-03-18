@@ -12,7 +12,6 @@ import * as _ from 'lodash';
 
 
 
-
 @Component({
   selector: 'app-design',
   templateUrl: './design.component.html',
@@ -54,7 +53,6 @@ export class DesignComponent implements OnInit {
   @Output() onUnitChange: any = new EventEmitter();
   @Output() onThicknessChange: any = new EventEmitter();
   @Output() onColorChange: any = new EventEmitter();
-  @Output() onCreateShuttle: any = new EventEmitter();
   @Output() onCreateWarpSystem: any = new EventEmitter();
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
@@ -128,37 +126,37 @@ export class DesignComponent implements OnInit {
     this.onPaste.emit(obj);
   }
 
-  openDialog(type, shuttle) {
-    var create = false;
+  // openDialog(type, shuttle) {
+  //   var create = false;
 
-    if (!shuttle) {
-      shuttle = new Shuttle();
-      create = true;
-    }
+  //   if (!shuttle) {
+  //     shuttle = new Shuttle();
+  //     create = true;
+  //   }
 
-    const dialogRef = this.dialog.open(ShuttlesModal, 
-      {data: { shuttle: shuttle, warps: this.warps, type: type, }, width: '650px' });
+  //   const dialogRef = this.dialog.open(ShuttlesModal, 
+  //     {data: { shuttle: shuttle, warps: this.warps, type: type, }, width: '650px' });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (type == "weft"){
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (type == "weft"){
 
-        if (!create) {
-          this.shuttles[result.id] = result;
-        } else {
-          this.onCreateShuttle.emit({shuttle: result});
-        }
+  //       if (!create) {
+  //         this.shuttles[result.id] = result;
+  //       } else {
+  //         this.onCreateShuttle.emit({shuttle: result});
+  //       }
 
-      }else{
+  //     }else{
 
-        if (!create) {
-          this.warp_systems[result.id] = result;
-        } else {
-          this.onCreateWarpSystem.emit({shuttle: result});
-        }
+  //       if (!create) {
+  //         this.warp_systems[result.id] = result;
+  //       } else {
+  //         this.onCreateWarpSystem.emit({shuttle: result});
+  //       }
 
-      }
-    });
-  }
+  //     }
+  //   });
+  // }
 
 
 
