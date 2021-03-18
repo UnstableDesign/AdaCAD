@@ -158,6 +158,7 @@ export class WeaverComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       
       var is_frame = true;
+
       this.draft = new Draft(result);
 
 
@@ -170,7 +171,12 @@ export class WeaverComponent implements OnInit {
       if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
       
 
-      if(is_frame) this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
+      // if(is_frame){ 
+      //     console.log("recalculatinig draft");
+      //     this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
+      //     this.weaveRef.redraw();
+
+      //  }
    });
 
   }

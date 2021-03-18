@@ -74,6 +74,18 @@ export class Draft implements DraftInterface {
     this.labels = (params.labels === undefined)? [] : params.labels;
 
 
+
+    if(params.loom === undefined) {
+      this.loom = new Loom('frame', this.wefts, this.warps, 8, 10);
+
+    } else {
+
+      this.loom = new Loom(params.loom.type, this.wefts, this.warps, params.loom.num_frames, params.loom.num_treadles);
+      if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
+      if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
+      if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
+    }
+
     if(params.shuttles === undefined){
       let s = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#666666'});
       this.shuttles = [s];
@@ -135,6 +147,7 @@ export class Draft implements DraftInterface {
 
 
 
+    var fill_pattern = this.makeRandomPattern(this.loom.num_frames, this.loom.num_treadles);
 
     this.pattern = [];
     for(var ii = 0; ii < this.wefts; ii++) {
@@ -143,7 +156,10 @@ export class Draft implements DraftInterface {
         for (var j = 0; j < this.warps; j++){
           if (params.pattern === undefined) {
             this.pattern[ii].push(new Cell());
+            this.pattern[ii][j].setHeddle(fill_pattern[ii%fill_pattern.length][j%fill_pattern[0].length]);
+
           }else{
+
             this.pattern[ii][j]= new Cell();
             
             if(params.pattern[ii][j].is_up === undefined){
@@ -172,19 +188,24 @@ export class Draft implements DraftInterface {
       this.masks = params.masks;
     } 
 
-    if(params.loom === undefined) {
-      this.loom = new Loom('frame', this.wefts, this.warps, 8, 10);
-    } else {
-
-      this.loom = new Loom(params.loom.type, this.wefts, this.warps, params.loom.num_frames, params.loom.num_treadles);
-      if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
-      if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
-      if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
+    if(this.loom.type == "frame"){
+      this.recomputeLoom();
     }
 
     this.recomputeWidth();
-    console.log(this);
 
+  }
+
+  //this just makes a random pattern of a given size;
+  makeRandomPattern(w: number, h: number){
+      var random = Array<number>();
+      for(var i = 0; i < h; i++) {
+         random.push([]);
+        for(var j = 0; j < w; j++) {
+          random[i].push(Math.random()*10%2 < 1);
+        }
+      }
+      return random;
   }
 
   recomputeWidth(){
@@ -719,6 +740,37 @@ export class Draft implements DraftInterface {
         }
       }
       return false;
+  }
+
+
+  //this recomputes the state of the frames, treadles and threading from the draft
+  public recomputeLoom(){
+
+    var mock = [];
+    var updates = [];
+
+    this.loom.clearAllData(this.warps, this.wefts);
+
+    //pretendd that we are computing the values as though they were added one by one
+    for (var i = 0; i < this.pattern.length; i++) {
+        mock.push([]);
+      for(var j = 0; j < this.pattern[0].length; j++){
+        mock[i].push(new Cell());
+      }
+    }
+
+    //compute full rows and for speed
+    for (var i = 0; i < this.pattern.length; i++) {
+      for(var j = 0; j < this.pattern[0].length; j++){
+            
+          if(this.pattern[i][j].isUp()){
+              mock[i][j].setHeddle(this.pattern[i][j].isUp());
+              updates = this.loom.updateFromDrawdown(i,j, mock);
+              var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
+              var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
+          }
+      }
+    }
   }
 
 

@@ -1561,31 +1561,8 @@ export class WeaveDirective {
 //callled when frames become visible or drawdown without frame info is loaded
   public recomputeLoom(){
 
-    var mock = [];
-    var updates = [];
+    this.weave.recomputeLoom();
 
-    this.weave.loom.clearAllData(this.weave.warps, this.weave.wefts);
-
-    //pretendd that we are computing the values as though they were added one by one
-    for (var i = 0; i < this.weave.pattern.length; i++) {
-        mock.push([]);
-      for(var j = 0; j < this.weave.pattern[0].length; j++){
-        mock[i].push(new Cell());
-      }
-    }
-
-    //compute full rows and for speed
-    for (var i = 0; i < this.weave.pattern.length; i++) {
-      for(var j = 0; j < this.weave.pattern[0].length; j++){
-            
-          if(this.weave.pattern[i][j].isUp()){
-              mock[i][j].setHeddle(this.weave.pattern[i][j].isUp());
-              updates = this.weave.loom.updateFromDrawdown(i,j, mock);
-              var u_threading = this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading");
-              var u_treadling = this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling");
-          }
-      }
-    }
     this.addHistoryState();
     this.redraw();
     this.redrawLoom();
