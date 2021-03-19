@@ -21,7 +21,6 @@ export class WeftsystemsComponent implements OnInit {
   @Output() onCreateShuttle: any = new EventEmitter();
   @Output() onShowShuttle: any = new EventEmitter();
   @Output() onHideShuttle: any = new EventEmitter();
-  @Output() onColorChange: any = new EventEmitter();
 
 
   constructor(private dialog: MatDialog) { }
@@ -38,7 +37,7 @@ export class WeftsystemsComponent implements OnInit {
     }
   }
 
-  openDialog(shuttle) {
+  openDialog(type, shuttle) {
 
     var create = false;
 
@@ -59,13 +58,5 @@ export class WeftsystemsComponent implements OnInit {
         }
     });
   }
-
-  colorChange(e) {
-    this.onColorChange.emit();
-  }
-
-
-
-
 
 }

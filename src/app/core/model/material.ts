@@ -9,6 +9,7 @@ export class Material {
   name: string;
   type: number;
   notes: string;
+  insert:boolean;
 
   constructor(materialDict = null) {
 
@@ -21,17 +22,20 @@ export class Material {
     this.name = "New Yarn";
     this.type = 0;
     this.notes = "";
+    this.insert = false;
+
 
 
    }
   }
 
-  updateVariables({color, thickness, name, type, notes}) {
+  updateVariables({color, thickness, name, type, notes, insert}) {
     this.color = color;
     this.thickness = thickness;
     this.name = name;
     this.type = type;
     this.notes = notes;
+    this.insert= insert;
   }
 
   setID(id: number) {

@@ -3,14 +3,15 @@
   <mat-expansion-panel-header>
     <mat-panel-title>
       <i class="warpicon fas fa-pencil" aria-hidden="true"></i>
-     <span>Draw</span>
+     <span>Design</span>
     </mat-panel-title>
     <mat-panel-description>
     </mat-panel-description>
   </mat-expansion-panel-header>
 
 
-  
+  <h3 class="is-fullwidth">Cell Brushes</h3>
+
   <button matTooltip="draw in filled cells to draft (shortcut: d)" 
   name="point" 
   class="button is-small is-primary fas fa-pencil-alt"  [class.is-active]="brush === 'point'" 
@@ -29,13 +30,14 @@
   (click)="brushChange($event)">
   </button>
  
+  <h3 class="is-fullwidth">Region Brushes</h3>
+
   <button  matTooltip="select a region of the draft (shortcut: s)" 
   name="select" 
   class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === 'select'" 
   (click)="brushChange($event)">
   </button>
 
-  <h3 class="is-fullwidth">Selection Operations </h3>
 
  <button matTooltip="clear all valules in selected region (shortcut: delete)" 
  name="clear" 
@@ -59,7 +61,6 @@
  </ng-container>
 
 
-  <h3 [class.is-fullwidth]="!collapsed" > Copy / Paste </h3>
 
     <button  matTooltip="copy selection (shortcut: c)"
      name="copy" 

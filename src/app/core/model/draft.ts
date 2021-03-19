@@ -145,8 +145,10 @@ export class Draft implements DraftInterface {
 
 
     if(params.shuttles === undefined){
-      let s = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#666666'});
-      this.shuttles = [s];
+      let s0 = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#666666', notes: ""});
+      let s1 = new Shuttle({id: 1, name: 'Weft System 2', visible: true, color: '#666666', notes: ""});
+      let s2 = new Shuttle({id: 2, name: 'Weft System 3', visible: true, color: '#666666', notes: ""});
+      this.shuttles = [s0, s1, s2];
     }else{
       var shuttles = params.shuttles
           var sd = [];
@@ -557,7 +559,7 @@ addMaterial(material) {
     var id = this.rowShuttleMapping[row];
     var shuttle = this.shuttles[id];
 
-    return shuttle.id;
+    return String.fromCharCode(97 + shuttle.id);
   }
 
   getWarpSystemCode(index) {
@@ -565,7 +567,7 @@ addMaterial(material) {
      var col = this.colShuttleMapping[index];
      var shuttle = this.warp_systems[col];
 
-    return shuttle.id;
+    return  String.fromCharCode(97 + shuttle.id);
   }
 
   getColor(index) {

@@ -1,7 +1,6 @@
 <mat-expansion-panel  [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
-      <i class="warpicon fas fa-equals" aria-hidden="true"></i>
      <span>Warp Systems</span>
     </mat-panel-title>
     <mat-panel-description>
@@ -18,6 +17,11 @@
 <mat-list>
   <ng-container *ngFor="let warp_system of warp_systems">
   <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
+
+
+      <div class="shuttles level-item center-item" [class.hide] = "collapsed">
+        <span>{{warp_system.getChar()}}</span>
+      </div>
 
      <div class="shuttles level-item center-item fill-remaining-space">
       <span class="">{{ warp_system.name }}</span>
@@ -37,8 +41,7 @@
     <ng-container *ngFor="let warp_system of warp_systems">
       <button mat-icon-button>
         <i aria-label="hide" 
-        class="fas fa-square"  
-        [style.color] = "warp_system.color"> </i>
+        class="fas fa-square" > </i>
       </button>
 
      </ng-container>

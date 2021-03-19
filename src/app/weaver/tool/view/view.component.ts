@@ -20,12 +20,10 @@ export class ViewComponent implements OnInit {
   }
 
   viewChange(e:any){
-    console.log(e);
     this.onViewChange.emit(e.value);
   }
 
   zoomChange(e:any, source: string){
-    console.log("source", source)
     e.source = source;
     this.onZoomChange.emit(e);
   }

@@ -112,6 +112,8 @@ export class WeaveDirective {
   cxWarpSystems: any;
 
 
+  cxWarpMaterials: any;
+  cxWeftMaterials: any;
 
 
   /**
@@ -166,6 +168,11 @@ export class WeaveDirective {
   weftSystemsCanvas: HTMLCanvasElement;
   warpSystemsCanvas: HTMLCanvasElement;
 
+
+
+  weftMaterialsCanvas: HTMLCanvasElement;
+  warpMaterialsCanvas: HTMLCanvasElement;
+
   // private segments$: Observable<DraftSegment[]>;
   private prevSegment = null;
   private currSegment = null;
@@ -207,7 +214,9 @@ export class WeaveDirective {
     this.tieupsCanvas = this.el.nativeElement.children[2].firstElementChild;
     this.treadlingCanvas = this.el.nativeElement.children[4].firstElementChild;
     this.weftSystemsCanvas = this.el.nativeElement.children[0].children[1].firstElementChild;
-    this.warpSystemsCanvas = this.el.nativeElement.children[0].children[3].firstElementChild;
+    this.warpSystemsCanvas = this.el.nativeElement.children[0].children[4].firstElementChild;
+    this.weftMaterialsCanvas = this.el.nativeElement.children[0].children[2].firstElementChild;
+    this.warpMaterialsCanvas = this.el.nativeElement.children[0].children[5].firstElementChild;
     
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
@@ -215,7 +224,8 @@ export class WeaveDirective {
     this.cxTieups = this.tieupsCanvas.getContext('2d');
     this.cxWarpSystems = this.warpSystemsCanvas.getContext('2d');
     this.cxWeftSystems = this.weftSystemsCanvas.getContext('2d');
-
+    this.cxWarpMaterials = this.warpMaterialsCanvas.getContext('2d');
+    this.cxWeftMaterials = this.weftMaterialsCanvas.getContext('2d');
     // set the width and height
     var dims = this.render.getCellDims("base");
 
@@ -233,9 +243,13 @@ export class WeaveDirective {
 
     this.weftSystemsCanvas.width =  dims.w;
     this.weftSystemsCanvas.height = this.weave.wefts * dims.h;
+    this.weftMaterialsCanvas.width =  dims.w;
+    this.weftMaterialsCanvas.height = this.weave.wefts * dims.h;
 
     this.warpSystemsCanvas.width =  this.weave.warps * dims.w;
     this.warpSystemsCanvas.height = dims.h;
+    this.warpMaterialsCanvas.width =  this.weave.warps * dims.w;
+    this.warpMaterialsCanvas.height = dims.h;
 
 
     this.addHistoryState();
@@ -261,7 +275,6 @@ export class WeaveDirective {
    }
 
   setPosAndDraw(target, currentPos:Point){
-
       if (target && target.closest('.treadling-container')) {
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
@@ -276,6 +289,11 @@ export class WeaveDirective {
         this.drawOnShuttles(currentPos);
       }else if(target && target.closest('.warp-systems')){
         this.drawOnWarpSelectors(currentPos);
+      }else if(target && target.closest('.weft-materials')){
+        currentPos.i = this.weave.visibleRows[currentPos.i];
+        this.drawOnWeftMaterials(currentPos);
+      }else if(target && target.closest('.warp-materials')){
+        this.drawOnWarpMaterials(currentPos);
       } else{
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnDrawdown(currentPos);
@@ -365,6 +383,12 @@ export class WeaveDirective {
               this.selection.setTarget(this.weftSystemsCanvas);
             }else if(event.target && event.target.closest('.warp-systems')){
               this.selection.setTarget(this.warpSystemsCanvas);
+              this.selection.height = 1;
+            } else if(event.target && event.target.closest('.weft-materials')){
+              this.selection.width = 1;
+              this.selection.setTarget(this.weftMaterialsCanvas);
+            }else if(event.target && event.target.closest('.warp-materials')){
+              this.selection.setTarget(this.warpMaterialsCanvas);
               this.selection.height = 1;
             } else{
               this.selection.setTarget(this.canvasEl);
@@ -529,15 +553,29 @@ export class WeaveDirective {
 
 
     var copy = [];
-    
+     
     if(this.selection.target.id === 'weft-systems'){
+      for(var i = 0; i < h; i++){
+        copy.push([]);
+        for(var j = 0; j < this.weave.shuttles.length; j++){
+          copy[i].push(false);
+        }
+      }
+    }else if(this.selection.target.id === 'warp-systems'){
+      for(var i = 0; i < this.weave.warp_systems.length; i++){
+        copy.push([]);
+        for(var j = 0; j < w; j++){
+          copy[i].push(false);
+        }
+      }
+    }else if(this.selection.target.id === 'weft-materials'){
       for(var i = 0; i < h; i++){
         copy.push([]);
         for(var j = 0; j < this.weave.materials.length; j++){
           copy[i].push(false);
         }
       }
-    }else if(this.selection.target.id === 'warp-systems'){
+    }else if(this.selection.target.id === 'warp-materials'){
       for(var i = 0; i < this.weave.materials.length; i++){
         copy.push([]);
         for(var j = 0; j < w; j++){
@@ -579,9 +617,15 @@ export class WeaveDirective {
               copy[i][j] = this.weave.loom.hasTieup(frame, col);;
           break;  
           case 'warp-systems':
-              copy[i][j]= (this.weave.colMaterialMap[col] == i);
+              copy[i][j]= (this.weave.colShuttleMapping[col] == i);
           break;
           case 'weft-systems':
+              copy[i][j]= (this.weave.rowShuttleMapping[draft_row] == j);
+          break;
+          case 'warp-materials':
+              copy[i][j]= (this.weave.colMaterialMap[col] == i);
+          break;
+          case 'weft-materials':
               copy[i][j]= (this.weave.rowMaterialMap[draft_row] == j);
           break;
           default:
@@ -598,7 +642,9 @@ export class WeaveDirective {
 
 
 
-  private drawWeftSelectorCell(cx, i){
+
+
+  private drawWeftMaterialCell(cx, i){
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom/50;
 
@@ -607,6 +653,77 @@ export class WeaveDirective {
         if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
         else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
   
+  }
+
+
+  private drawWeftMaterials(cx, canvas){
+
+      var dims = this.render.getCellDims("base");
+      var margin = this.render.zoom/50;
+      var top = dims.h;
+
+      cx.clearRect(0,0, cx.canvas.width, cx.canvas.height);
+
+
+      canvas.width =  dims.w;
+      canvas.height = this.weave.visibleRows.length * dims.h;
+
+      cx.fillStyle = "white";
+      cx.fillRect(0,0,canvas.width,this.weave.visibleRows.length*dims.h);
+
+      for(var i = 0 ; i < this.weave.visibleRows.length; i++){
+          this.drawWeftMaterialCell(cx, i);        
+      }
+
+
+  }
+
+  private drawWarpMaterialCell(cx, j){
+
+
+        var dims = this.render.getCellDims("base");
+        var margin = this.render.zoom/50;
+        cx.fillStyle = this.weave.getColorCol(j);
+
+        if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
+        else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+  
+  }
+
+
+  private drawWarpMaterials(cx,canvas){
+
+    var dims = this.render.getCellDims("base");
+    var margin = this.render.zoom/50;
+
+    this.warpMaterialsCanvas.width =  this.weave.warps * dims.w;
+    this.warpMaterialsCanvas.height = dims.h;
+
+    cx.fillStyle = "white";
+    cx.fillRect(0,0,canvas.width,canvas.height);
+  
+
+    for(var j = 0; j < this.weave.warps; j++){
+      this.drawWarpMaterialCell(cx, j);
+    } 
+
+  }
+
+
+
+
+  private drawWeftSelectorCell(cx, i){
+        var dims = this.render.getCellDims("base");
+        var margin = this.render.zoom/50;
+
+        cx.fillStyle = "#303030";
+        if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
+        else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
+         
+         cx.fillStyle = "#ffffff";  
+         cx.font = "14px Arial";
+         cx.fillText(this.weave.getWeftSystemCode(i), dims.w/3, (dims.h*i)+3*dims.h/4);
+
   }
 
 
@@ -637,11 +754,16 @@ export class WeaveDirective {
 
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom/50;
-        cx.fillStyle = this.weave.getColorCol(j);
+        cx.fillStyle = "#303030";
 
         if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
         else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
   
+         cx.fillStyle = "#ffffff";  
+         cx.font = "14px Arial";
+         cx.fillText(this.weave.getWarpSystemCode(j),(dims.w*j)+dims.w/3, dims.w-(margin*3));
+
+
   }
 
 
@@ -755,6 +877,39 @@ export class WeaveDirective {
 
     if(screen_row < 0){ return; }
 
+    const len = this.weave.shuttles.length;
+    var mat_id = this.weave.rowShuttleMapping[draft_row];
+
+
+    var newMaterial = (mat_id + 1) % len;
+
+    this.weave.rowShuttleMapping[draft_row] = newMaterial;
+    //this.drawWeftSelectorCell(this.cxWeftSystems,(screen_row));
+
+    this.addHistoryState();
+
+    this.redraw();
+  }
+
+
+    /**
+   * Change shuttle of row to next in list.
+   * @extends WeaveComponent
+   * @param {Point} the point of the interaction
+   * @returns {void}
+   */
+  private drawOnWeftMaterials( currentPos: Point ) {
+    var dims = this.render.getCellDims("base");
+
+    var updates;
+
+    if (!this.cx || !currentPos) { return; }
+
+    var draft_row = currentPos.i; //need to offset this due to canvas padding
+    var screen_row = currentPos.si;
+
+    if(screen_row < 0){ return; }
+
     const len = this.weave.materials.length;
     var mat_id = this.weave.rowMaterialMap[draft_row];
 
@@ -786,6 +941,36 @@ export class WeaveDirective {
     if(col < 0){ return; }
 
 
+    const len = this.weave.warp_systems.length;
+    var mat_id = this.weave.colShuttleMapping[col];
+
+    var newMat_id = (mat_id + 1) % len;
+
+
+    this.weave.colShuttleMapping[col] = newMat_id;
+    this.drawWarpSelectorCell(this.cxWarpSystems,(col));
+    this.addHistoryState();
+    this.redraw();
+  }
+
+
+  /**
+   * Change column to next row in the list
+   * @extends WeaveComponent
+   * @param {Point} the point of the interaction
+   * @returns {void}
+   */
+  private drawOnWarpMaterials( currentPos: Point ) {
+
+    var dims = this.render.getCellDims("base");
+
+    if (!this.cxWarpSystems || !currentPos) { return; }
+
+    var col = currentPos.j; //need to offset this due to canvas padding
+
+    if(col < 0){ return; }
+
+
     const len = this.weave.materials.length;
     var mat_id = this.weave.colMaterialMap[col];
 
@@ -793,7 +978,7 @@ export class WeaveDirective {
 
 
     this.weave.colMaterialMap[col] = newMat_id;
-    this.drawWarpSelectorCell(this.cxWarpSystems,(col));
+    this.drawWarpSelectorCell(this.cxWarpMaterials,(col));
     this.addHistoryState();
     this.redraw();
   }
@@ -1075,6 +1260,8 @@ export class WeaveDirective {
 
     if(selection.target.id === "warp-systems") h = pattern.length;
     if(selection.target.id === "weft-systems") w = pattern[0].length;
+    if(selection.target.id === "warp-materials") h = pattern.length;
+    if(selection.target.id === "weft-materials") w = pattern[0].length;
 
     //cycle through each visible row/column of the selection
     for (var i = 0; i < h; i++ ) {
@@ -1180,10 +1367,22 @@ export class WeaveDirective {
             case 'weft-systems':
               var draft_row = this.weave.visibleRows[row];
               val = pattern[i % rows][j % cols];
-              if(val && col < this.weave.materials.length) this.weave.rowMaterialMap[draft_row] = col;
+              if(val && col < this.weave.shuttles.length) this.weave.rowShuttleMapping[draft_row] = col;
             
             break;
             case 'warp-systems':
+              val = pattern[i % rows][j % cols];
+              if(val && row < this.weave.warp_systems.length){
+                  this.weave.colShuttleMapping[col] = row;
+              }
+            break;
+            case 'weft-materials':
+              var draft_row = this.weave.visibleRows[row];
+              val = pattern[i % rows][j % cols];
+              if(val && col < this.weave.materials.length) this.weave.rowMaterialMap[draft_row] = col;
+            
+            break;
+            case 'warp-materials':
               val = pattern[i % rows][j % cols];
               if(val && row < this.weave.materials.length){
                   this.weave.colMaterialMap[col] = row;
@@ -1380,13 +1579,15 @@ export class WeaveDirective {
 
   }
 
+  
+
   /// PUBLIC FUNCTIONS
   /**
    * Visualizes the path of the yarns within the weave.
    * @extends WeaveDirective
    * @returns {void}
    */
-  public redrawYarnView() {
+  public redrawYarnView(schematic) {
 
     var base_dims = this.render.getCellDims("base");
     this.cx.setLineDash([0]);
@@ -1396,7 +1597,7 @@ export class WeaveDirective {
      
       this.cx.lineCap = 'square';
       var first = true;
-      var left = false;
+      var left = !this.weave.materials[l].insert;
       var py = null;
       var s,e;
       var s1 = null;
@@ -1404,20 +1605,31 @@ export class WeaveDirective {
       var e1 = null;
       var e2 = null;
 
+
+
       for (var i = this.weave.visibleRows.length; i > 0 ; i--) {
         //this is the row_id
         var r = this.weave.visibleRows[i - 1];
 
         var material_id = this.weave.rowMaterialMap[r];
+        var material = this.weave.materials[material_id];
 
-        this.cx.strokeStyle = this.weave.materials[material_id].getColor();
-        this.cx.lineWidth = 7*base_dims.h/8 * this.weave.materials[material_id].getThickness()/100;
+        if(material.type > 0 || !schematic){
+          this.cx.strokeStyle = material.getColor();
+        }else{
+          this.cx.strokeStyle = material.getColor()+"10";
+        }
+
+
+
+        this.cx.lineWidth = 7*base_dims.h/8 * material.getThickness()/100;
         var y = ((i - 1) * base_dims.h) + base_dims.h/2;
         first = true;
         for (var x = 0; x < this.weave.pattern[r].length; x++) {
 
           if (this.weave.isUp(i - 1,x)) {
 
+            //make sure this is the same material we are looking at
             if (first && this.weave.rowMaterialMap[r] === l) {
               
               this.cx.beginPath();
@@ -1434,108 +1646,6 @@ export class WeaveDirective {
               }
 
             } else if (this.weave.rowMaterialMap[r] === l) {
-              this.cx.lineTo((x + 1) * base_dims.w - base_dims.w/4, y);
-
-              if (py === y) {
-                e1 = (x + 1) *  base_dims.w - base_dims.w/4;
-              } else {
-                e2 = (x + 1) * base_dims.w - base_dims.w/4;
-              }
-
-            }
-          }
-        }
-
-        if (first === false) {
-          this.cx.stroke();
-        }
-
-        if (s2 !== null && e2 !== null) {
-          e = Math.max(e1,e2);
-          s = Math.min(s1,s2);
-          this.cx.beginPath();
-          if (left) {
-            this.cx.moveTo(s1, py);
-            this.cx.lineTo(s, py);
-            this.cx.lineTo(s, y);
-            this.cx.lineTo(s2, y);
-          } else if (!left) {
-            this.cx.moveTo(e1, py);
-            this.cx.lineTo(e, py);
-            this.cx.lineTo(e, y);
-            this.cx.lineTo(e2, y);
-          }
-          this.cx.stroke();
-          s1 = s2;
-          e1 = e2;
-          s2 = null;
-          e2 = null;
-          py = y;
-          left = !left;
-        }
-
-      }
-    }
-
-    this.cx.strokeStyle = "#000";
-    this.cx.lineCap = 'butt';
-
-  }
-
-  /// PUBLIC FUNCTIONS
-  /**
-   * Visualizes the path of the yarns within the weave.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public drawSchematicView() {
-
-    var base_dims = this.render.getCellDims("base");
-    this.cx.setLineDash([0]);
-
-    for (var l = 0; l < this.weave.shuttles.length; l++) {
-      // Each shuttle.
-     
-      this.cx.lineCap = 'square';
-      var first = true;
-      var left = !this.weave.shuttles[l].insert;
-      var py = null;
-      var s,e;
-      var s1 = null;
-      var s2 = null;
-      var e1 = null;
-      var e2 = null;
-
-      for (var i = this.weave.visibleRows.length; i > 0 ; i--) {
-        //this is the row_id
-        var r = this.weave.visibleRows[i - 1];
-
-        var material_id = this.weave.rowMaterialMap[r];
-
-        this.cx.strokeStyle = this.weave.materials[material_id].getColor();
-        this.cx.lineWidth = 7*base_dims.h/8 * this.weave.materials[material_id].getThickness()/100;
-        var y = ((i - 1) * base_dims.h) + base_dims.h/2;
-        first = true;
-        for (var x = 0; x < this.weave.pattern[r].length; x++) {
-
-          if (this.weave.isUp(i - 1,x)) {
-
-            if (first && this.weave.rowShuttleMapping[r] === l) {
-              
-              this.cx.beginPath();
-              this.cx.moveTo(x * base_dims.w + base_dims.w/4, y);
-              this.cx.lineTo((x + 1)* base_dims.w - base_dims.w/4, y)
-              first = false;
-              if (s1 === null) {
-                s1 = (x * base_dims.w) + base_dims.w/4;
-                e1 = (x + 1) * base_dims.w - base_dims.w/4;
-                py = y;
-              } else {
-                s2 = (x * base_dims.w) + base_dims.w/4;
-                e2 = (x + 1) * base_dims.w - base_dims.w/4;
-              }
-
-            } else if (this.weave.rowShuttleMapping[r] === l) {
               this.cx.lineTo((x + 1) * base_dims.w - base_dims.w/4, y);
 
               if (py === y) {
@@ -1797,6 +1907,9 @@ public redraw(){
     this.cx.fillStyle = "white";
     this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
 
+    this.drawWeftMaterials(this.cxWeftMaterials, this.weftMaterialsCanvas);
+    this.drawWarpMaterials(this.cxWarpMaterials, this.warpMaterialsCanvas);
+
     this.drawWeftSystems(this.cxWeftSystems, this.weftSystemsCanvas);
     this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);
 
@@ -1806,11 +1919,11 @@ public redraw(){
       break;
 
       case 'yarn':
-      this.redrawYarnView();
+      this.redrawVisualView(true);
       break;
 
       case 'visual':
-      this.redrawVisualView();
+      this.redrawVisualView(false);
       break;
     }
 }
@@ -1851,19 +1964,28 @@ public redraw(){
    * @extends WeaveDirective
    * @returns {void}
    */
-  public redrawVisualView() {
+  public redrawVisualView(schematic) {
     var base_dims = this.render.getCellDims("base");
 
     //draw all the warps
     for (var x = 0; x < this.weave.colMaterialMap.length; x++) {
+     
+
       var id = this.weave.colMaterialMap[x];
-      var c = this.weave.materials[id].getColor();
-      var t = this.weave.materials[id].getThickness();
+      var material = this.weave.materials[id];
+
+
+      var c = material.getColor();
+      var t = material.getThickness();
 
       var width = 7*base_dims.w/8 * t/100;
       var w_margin = (base_dims.w - width)/2;
-      this.cx.fillStyle = c;
 
+      if(material.type > 0 || !schematic){
+        this.cx.fillStyle = c;
+      }else{
+        this.cx.fillStyle = c+"10";
+      }
       this.cx.strokeStyle = "#FFFFFF";
       this.cx.lineWidth = 1 * t/100;
 
@@ -1882,48 +2004,50 @@ public redraw(){
     }
 
     //start by drawing the yarn view
-    this.redrawYarnView();
+    this.redrawYarnView(schematic);
     this.cx.strokeStyle = "#FFFFFF";
     this.cx.lineWidth = .1;
 
+    if(!schematic){
 
-    //draw warp rectangles over the top
-    for (var x = 0; x < this.weave.colMaterialMap.length; x++) {
-      var id = this.weave.colMaterialMap[x];
-      var c = this.weave.materials[id].getColor();
-      var t = this.weave.materials[id].getThickness();
-      var width = 7*base_dims.w/8 * t/100;
-      var w_margin = (base_dims.w - width)/2;
-      this.cx.fillStyle = c;
-      
-      for(var i = 0; i < this.weave.visibleRows.length; i++){
+      //draw warp rectangles over the top
+      for (var x = 0; x < this.weave.colMaterialMap.length; x++) {
+        var id = this.weave.colMaterialMap[x];
+        var c = this.weave.materials[id].getColor();
+        var t = this.weave.materials[id].getThickness();
+        var width = 7*base_dims.w/8 * t/100;
+        var w_margin = (base_dims.w - width)/2;
+        this.cx.fillStyle = c;
+        
+        for(var i = 0; i < this.weave.visibleRows.length; i++){
 
-         var draft_id = this.weave.visibleRows[i];
-         var material_id = this.weave.rowMaterialMap[draft_id];
+           var draft_id = this.weave.visibleRows[i];
+           var material_id = this.weave.rowMaterialMap[draft_id];
 
-         var s_thickness = this.weave.materials[material_id].getThickness();
-         var height = base_dims.h * s_thickness/100;
-         var h_margin = (base_dims.h - height)/2;
-          this.cx.strokeStyle = "#FFFFFF";
-          this.cx.lineWidth = 1 * t/100;
+           var s_thickness = this.weave.materials[material_id].getThickness();
+           var height = base_dims.h * s_thickness/100;
+           var h_margin = (base_dims.h - height)/2;
+            this.cx.strokeStyle = "#FFFFFF";
+            this.cx.lineWidth = 1 * t/100;
 
-         if(this.weave.isUp(draft_id, x)){
-            // this.cx.moveTo(x*base_dims.w+w_margin, i*base_dims.h);
-            // this.cx.lineTo(x*base_dims.w+w_margin, (i+1)*base_dims.h);
-            // this.cx.stroke();
-            
-            // this.cx.moveTo((x+1)*base_dims.w-w_margin, i*base_dims.h);
-            // this.cx.lineTo((x+1)*base_dims.w-w_margin, (i+1)*base_dims.h);
-            // this.cx.stroke();
+           if(this.weave.isUp(draft_id, x)){
+              // this.cx.moveTo(x*base_dims.w+w_margin, i*base_dims.h);
+              // this.cx.lineTo(x*base_dims.w+w_margin, (i+1)*base_dims.h);
+              // this.cx.stroke();
+              
+              // this.cx.moveTo((x+1)*base_dims.w-w_margin, i*base_dims.h);
+              // this.cx.lineTo((x+1)*base_dims.w-w_margin, (i+1)*base_dims.h);
+              // this.cx.stroke();
 
-            this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, base_dims.h);
+              this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, base_dims.h);
 
 
-         }else{
+           }else{
 
-             // this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, h_margin);
-             // this.cx.fillRect(x*base_dims.w+w_margin, (i+1)*base_dims.h-h_margin, width, h_margin);
-         }
+               // this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, h_margin);
+               // this.cx.fillRect(x*base_dims.w+w_margin, (i+1)*base_dims.h-h_margin, width, h_margin);
+           }
+        }
       }
       
     }

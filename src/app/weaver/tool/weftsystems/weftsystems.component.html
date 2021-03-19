@@ -27,15 +27,19 @@
 			    [class.selected]="selected === shuttle.id" 
 			    [disableRipple]="false">
 
+
+			    <div class="shuttles level-item center-item" [class.hide] = "collapsed">
+			      <span>{{shuttle.getChar()}}</span>
+		    	</div>
+
 			      <button mat-icon-button 
 			      (click)="visibleButton(shuttle.id, shuttle.visible)">
 			        <i aria-label="hide" class="fas"  [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
 			      </button>
 
-
+				
 			     <div class="shuttles level-item center-item fill-remaining-space" [class.hide] = "collapsed">
-			      <span class="">{{shuttle.id}}</span>
-			      <span class="">{{ shuttle.name }}</span>
+			      <span class="name">{{ shuttle.name }}</span>
 				      <div class="level-item level-right" [class.hide] = "collapsed">
 				        <button mat-icon-button class="edit-button" (click)="openDialog('weft', shuttle)">
 				        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
@@ -55,7 +59,6 @@
 	      <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
 	        <i aria-label="hide" 
 	        class="fas"  
-	        [style.color]="shuttle.color" 
 	        [class.fa-eye-slash]="!shuttle.visible" 
 	        [class.fa-eye]="shuttle.visible" 
 	        (click)="shuttle.visible = !shuttle.visible;"></i>

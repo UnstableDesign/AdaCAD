@@ -13,6 +13,7 @@ export class Shuttle {
   image?: any;
   startLabel?: string;
   endLabel?: string;
+  notes: string;
 
   constructor(shuttleDict = null) {
     if (shuttleDict) this.updateVariables(shuttleDict);
@@ -21,7 +22,7 @@ export class Shuttle {
     this.thickness = 100;
   }
 
-  updateVariables({color, id, thickness, name, type, visible, insert, image, startLabel, endLabel}) {
+  updateVariables({color, id, thickness, name, type, visible, insert, image, startLabel, endLabel, notes}) {
     this.color = color;
     this.id = id;
     this.thickness = thickness;
@@ -32,6 +33,7 @@ export class Shuttle {
     this.image = image;
     this.startLabel = startLabel;
     this.endLabel = endLabel;
+    this.notes = notes;
   }
 
   setID(id: number) {
@@ -59,6 +61,10 @@ export class Shuttle {
 
   getColor() {
     return this.color;
+  }
+
+  getChar(){
+    return String.fromCharCode(97 + this.id)
   }
 
   getThickness() {

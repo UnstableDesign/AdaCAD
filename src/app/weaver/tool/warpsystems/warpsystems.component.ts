@@ -23,7 +23,7 @@ export class WarpsystemsComponent implements OnInit {
   }
 
 
-  openDialog(shuttle) {
+  openDialog(type, shuttle) {
     var create = false;
 
     if (!shuttle) {

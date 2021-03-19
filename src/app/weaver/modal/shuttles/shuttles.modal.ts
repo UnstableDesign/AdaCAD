@@ -14,19 +14,13 @@ export class ShuttlesModal {
   shuttle: Shuttle;
   warps: number;
   type: string;
-  // shuttle = {
-  //   name: 'Shuttle 0',
-  //   id: 0,
-  //   thickness: 0,
-  //   color: '#000000',
-  //   type: 'regular',
-  // }
 
-  types = ['regular', 'conductive', 'thermo'];
 
   constructor(
       private dialogRef: MatDialogRef<ShuttlesModal>,
       @Inject(MAT_DIALOG_DATA) public data: any) {
+
+     console.log("in constructor", data);
 
       this.type = (data.type).charAt(0).toUpperCase() + (data.type).slice(1);
       if (!data.shuttle) {
@@ -39,28 +33,28 @@ export class ShuttlesModal {
 
   }
 
-  processData(e: any) {
-    var img = e.data;
-    var data = [];
+  // processData(e: any) {
+  //   var img = e.data;
+  //   var data = [];
 
-    for (var i=0; i< e.height; i++) {
-      data.push([]);
-      for (var j=0; j< e.width; j++) {
-        var idx = (i * 4 * this.warps) + (j * 4);
-        var threshold = (img[idx] + img[idx+1] + img[idx+2]);
-        var alpha = img[idx + 3];
+  //   for (var i=0; i< e.height; i++) {
+  //     data.push([]);
+  //     for (var j=0; j< e.width; j++) {
+  //       var idx = (i * 4 * this.warps) + (j * 4);
+  //       var threshold = (img[idx] + img[idx+1] + img[idx+2]);
+  //       var alpha = img[idx + 3];
 
-        if (threshold < 750 && alpha != 0) {
-          data[i].push(true);
-        } else {
-          data[i].push(false);
-        }
-      }
-    }
+  //       if (threshold < 750 && alpha != 0) {
+  //         data[i].push(true);
+  //       } else {
+  //         data[i].push(false);
+  //       }
+  //     }
+  //   }
     
-    this.shuttle.image = data;
-    console.log(data);
-  }
+  //   this.shuttle.image = data;
+  //   console.log(data);
+  // }
 
   close() {
     this.dialogRef.close(null);
