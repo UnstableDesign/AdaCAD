@@ -486,8 +486,8 @@ export class WeaverComponent implements OnInit {
    * @extends WeaveComponent
    * @returns {void}
    */
-  public insertRow(i, shuttle) {
-    this.draft.insertRow(i, shuttle);
+  public insertRow(i, shuttle, material) {
+    this.draft.insertRow(i, shuttle, material);
     //this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
@@ -495,8 +495,8 @@ export class WeaverComponent implements OnInit {
     //this.onAddRow.emit();
   }
 
-  public cloneRow(i, c, shuttle) {
-    this.draft.cloneRow(i, c, shuttle);
+  public cloneRow(i, c, shuttle, material) {
+    this.draft.cloneRow(i, c, shuttle, material);
    // this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
@@ -521,15 +521,15 @@ export class WeaverComponent implements OnInit {
    * @extends WeaveComponent
    * @returns {void}
    */
-  public insertCol(i, shuttle) {
-    this.draft.insertCol(i, shuttle);
+  public insertCol(i, shuttle,material) {
+    this.draft.insertCol(i, shuttle,material);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
 
-  public cloneCol(i, shuttle) {
+  public cloneCol(i, shuttle,material) {
     console.log(i, shuttle);
-    this.draft.cloneCol(i, shuttle);
+    this.draft.cloneCol(i, shuttle,material);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
@@ -628,7 +628,7 @@ export class WeaverComponent implements OnInit {
       var diff = e.warps - this.draft.warps;
       
       for(var i = 0; i < diff; i++){  
-        this.insertCol(this.draft.warps, 0);
+        this.insertCol(this.draft.warps, 0, 0);
       }
     }else{
       var diff = this.draft.warps - e.warps;
@@ -652,7 +652,7 @@ export class WeaverComponent implements OnInit {
       var diff = e.wefts - this.draft.wefts;
       
       for(var i = 0; i < diff; i++){  
-        this.insertRow(e.wefts+i, 0);
+        this.insertRow(e.wefts+i, 0, 0);
       }
     }else{
       var diff = this.draft.wefts - e.wefts;

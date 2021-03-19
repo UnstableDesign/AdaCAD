@@ -191,16 +191,16 @@
 
         <div  #shuttle_buttons class="insert-button-group-shuttles" [ngStyle]="styleRowButtons(threading, shuttle_buttons)" >
           <div *ngFor="let i of (draft?.visibleRows)" class="insert-button" [ngStyle]="styleSingleRowButton(i)">
-            <span (click)="insertRow(i + 1, draft?.rowToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
-            <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i));"><i class="fa fa-clone"></i></span>
+            <span (click)="insertRow(i + 1, draft?.rowToShuttle(i), draft?.rowToMaterial(i));"><i class="fa fa-plus-circle"></i></span>
+            <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i),draft?.rowToMaterial(i));"><i class="fa fa-clone"></i></span>
             <span (click)="deleteRow(i);"><i class="fa fa-trash"></i></span>
           </div>
         </div>
 
         <div class="insert-button-group-warps" [ngStyle]="styleColButtons(threading)" >
           <div *ngFor="let m of (draft?.colShuttleMapping); index as i;" class="insert-button" [ngStyle] = "styleSingleColButton(i)">
-            <span (click)="insertCol(i + 1, draft?.colToShuttle(i));"><i class="fa fa-plus-circle"></i></span>
-            <span (click)="cloneCol(i,draft?.colToShuttle(i));"><i class="fa fa-clone"></i></span>
+            <span (click)="insertCol(i + 1, draft?.colToShuttle(i),draft?.colToMaterial(i));"><i class="fa fa-plus-circle"></i></span>
+            <span (click)="cloneCol(i,draft?.colToShuttle(i), draft?.colToMaterial(i));"><i class="fa fa-clone"></i></span>
             <span (click)="deleteCol(i);"><i class="fa fa-trash"></i></span>
           </div>
         </div>

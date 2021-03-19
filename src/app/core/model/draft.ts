@@ -308,11 +308,17 @@ export class Draft implements DraftInterface {
   }
 
 
+
+  rowToMaterial(row: number) {
+    return this.rowMaterialMap[row];
+  }
   rowToShuttle(row: number) {
     return this.rowShuttleMapping[row];
   }
 
-
+  colToMaterial(col: number) {
+    return this.colMaterialMap[col];
+  }
   colToShuttle(col: number) {
     return this.colShuttleMapping[col];
   }
@@ -321,6 +327,7 @@ export class Draft implements DraftInterface {
     var i = 0;
     var shuttles = [];
     var visible = [];
+
     for (i = 0; i < this.shuttles.length; i++) {
       shuttles.push(this.shuttles[i].visible);
     }
@@ -350,7 +357,7 @@ export class Draft implements DraftInterface {
 
 
   //assumes i is the screen index
-  insertRow(i: number, shuttleId: number) {
+  insertRow(i: number, shuttleId: number, materialId:number) {
     
     var col = [];
 
@@ -361,6 +368,8 @@ export class Draft implements DraftInterface {
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i,0,shuttleId);
+    this.rowMaterialMap.splice(i,0,materialId);
+    
     this.pattern.splice(i,0,col);
     //this.mask.splice(i,0,col);
 
@@ -372,7 +381,7 @@ export class Draft implements DraftInterface {
   }
 
   //assumes i is the screen index
-  cloneRow(i: number, c: number, shuttleId: number) {
+  cloneRow(i: number, c: number, shuttleId: number, materialId:number) {
     
     var row = this.visibleRows[c];
     var col = [];
@@ -386,6 +395,7 @@ export class Draft implements DraftInterface {
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i, 0, shuttleId);
+    this.rowMaterialMap.splice(i, 0, materialId);
     this.pattern.splice(i, 0, col);
     //this.mask.splice(i, 0, col);
     this.loom.treadling.splice(i, 0, this.loom.treadling[i-1]);
@@ -398,6 +408,7 @@ export class Draft implements DraftInterface {
     var row = this.visibleRows[i];
     this.wefts -= 1;
     this.rowShuttleMapping.splice(i, 1);
+    this.rowMaterialMap.splice(i, 1);
     this.pattern.splice(i, 1);
     //this.mask.splice(i, 1);
     this.loom.treadling.splice(i,1);
@@ -428,7 +439,7 @@ export class Draft implements DraftInterface {
   // }
 
 
-  insertCol(i: number, shuttleId: number) {
+  insertCol(i: number, shuttleId: number, materialId:number) {
     
     for (var ndx = 0; ndx < this.wefts; ndx++) {
       this.pattern[ndx].splice(i,0, new Cell());
@@ -436,13 +447,14 @@ export class Draft implements DraftInterface {
 
     this.warps += 1;
     this.colShuttleMapping.splice(i,0,shuttleId);
+    this.colMaterialMap.splice(i,0,materialId);
     this.loom.threading.splice(i, 0, -1);
 
   }
 
 
 //assumes i is the screen index
-  cloneCol(i: number, shuttleId: number) {
+  cloneCol(i: number, shuttleId: number, materialId: number) {
     
     var col = [];
 
@@ -460,6 +472,7 @@ export class Draft implements DraftInterface {
     
      this.warps += 1;
      this.colShuttleMapping.splice(i, 0, shuttleId);
+     this.colMaterialMap.splice(i, 0, materialId);
      this.loom.threading.splice(i, 0, this.loom.threading[i]);
 
   }
@@ -474,6 +487,7 @@ export class Draft implements DraftInterface {
     }
     this.warps -= 1;
     this.colShuttleMapping.splice(i, 1);
+    this.colMaterialMap.splice(i, 1);
     this.loom.threading.splice(i,1);
   }
 

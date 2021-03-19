@@ -533,12 +533,12 @@ export class WeaveDirective {
     if(this.selection.target.id === 'weft-systems'){
       for(var i = 0; i < h; i++){
         copy.push([]);
-        for(var j = 0; j < this.weave.shuttles.length; j++){
+        for(var j = 0; j < this.weave.materials.length; j++){
           copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'warp-systems'){
-      for(var i = 0; i < this.weave.warp_systems.length; i++){
+      for(var i = 0; i < this.weave.materials.length; i++){
         copy.push([]);
         for(var j = 0; j < w; j++){
           copy[i].push(false);
@@ -579,10 +579,10 @@ export class WeaveDirective {
               copy[i][j] = this.weave.loom.hasTieup(frame, col);;
           break;  
           case 'warp-systems':
-              copy[i][j]= (this.weave.colShuttleMapping[col] == i);
+              copy[i][j]= (this.weave.colMaterialMap[col] == i);
           break;
           case 'weft-systems':
-              copy[i][j]= (this.weave.rowShuttleMapping[draft_row] == j);
+              copy[i][j]= (this.weave.rowMaterialMap[draft_row] == j);
           break;
           default:
           break;
@@ -755,16 +755,13 @@ export class WeaveDirective {
 
     if(screen_row < 0){ return; }
 
-    const len = this.weave.shuttles.length;
-    var shuttle = this.weave.rowShuttleMapping[draft_row];
+    const len = this.weave.materials.length;
+    var mat_id = this.weave.rowMaterialMap[draft_row];
 
 
-    var newShuttle = (shuttle + 1) % len;
-    while (!this.weave.shuttles[newShuttle].visible) {
-      var newShuttle = (newShuttle + 1) % len;
-    }
+    var newMaterial = (mat_id + 1) % len;
 
-    this.weave.rowShuttleMapping[draft_row] = newShuttle;
+    this.weave.rowMaterialMap[draft_row] = newMaterial;
     //this.drawWeftSelectorCell(this.cxWeftSystems,(screen_row));
 
     this.addHistoryState();
@@ -789,13 +786,13 @@ export class WeaveDirective {
     if(col < 0){ return; }
 
 
-    const len = this.weave.warp_systems.length;
-    var shuttle_id = this.weave.colShuttleMapping[col];
+    const len = this.weave.materials.length;
+    var mat_id = this.weave.colMaterialMap[col];
 
-    var newShuttle_id = (shuttle_id + 1) % len;
+    var newMat_id = (mat_id + 1) % len;
 
 
-    this.weave.colShuttleMapping[col] = newShuttle_id;
+    this.weave.colMaterialMap[col] = newMat_id;
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
     this.addHistoryState();
     this.redraw();
@@ -1183,13 +1180,13 @@ export class WeaveDirective {
             case 'weft-systems':
               var draft_row = this.weave.visibleRows[row];
               val = pattern[i % rows][j % cols];
-              if(val && col < this.weave.shuttles.length) this.weave.rowShuttleMapping[draft_row] = col;
+              if(val && col < this.weave.materials.length) this.weave.rowMaterialMap[draft_row] = col;
             
             break;
             case 'warp-systems':
               val = pattern[i % rows][j % cols];
-              if(val && row < this.weave.warp_systems.length){
-                  this.weave.colShuttleMapping[col] = row;
+              if(val && row < this.weave.materials.length){
+                  this.weave.colMaterialMap[col] = row;
               }
             break;
             default:
@@ -1390,6 +1387,108 @@ export class WeaveDirective {
    * @returns {void}
    */
   public redrawYarnView() {
+
+    var base_dims = this.render.getCellDims("base");
+    this.cx.setLineDash([0]);
+
+    for (var l = 0; l < this.weave.materials.length; l++) {
+      // Each shuttle.
+     
+      this.cx.lineCap = 'square';
+      var first = true;
+      var left = false;
+      var py = null;
+      var s,e;
+      var s1 = null;
+      var s2 = null;
+      var e1 = null;
+      var e2 = null;
+
+      for (var i = this.weave.visibleRows.length; i > 0 ; i--) {
+        //this is the row_id
+        var r = this.weave.visibleRows[i - 1];
+
+        var material_id = this.weave.rowMaterialMap[r];
+
+        this.cx.strokeStyle = this.weave.materials[material_id].getColor();
+        this.cx.lineWidth = 7*base_dims.h/8 * this.weave.materials[material_id].getThickness()/100;
+        var y = ((i - 1) * base_dims.h) + base_dims.h/2;
+        first = true;
+        for (var x = 0; x < this.weave.pattern[r].length; x++) {
+
+          if (this.weave.isUp(i - 1,x)) {
+
+            if (first && this.weave.rowMaterialMap[r] === l) {
+              
+              this.cx.beginPath();
+              this.cx.moveTo(x * base_dims.w + base_dims.w/4, y);
+              this.cx.lineTo((x + 1)* base_dims.w - base_dims.w/4, y)
+              first = false;
+              if (s1 === null) {
+                s1 = (x * base_dims.w) + base_dims.w/4;
+                e1 = (x + 1) * base_dims.w - base_dims.w/4;
+                py = y;
+              } else {
+                s2 = (x * base_dims.w) + base_dims.w/4;
+                e2 = (x + 1) * base_dims.w - base_dims.w/4;
+              }
+
+            } else if (this.weave.rowMaterialMap[r] === l) {
+              this.cx.lineTo((x + 1) * base_dims.w - base_dims.w/4, y);
+
+              if (py === y) {
+                e1 = (x + 1) *  base_dims.w - base_dims.w/4;
+              } else {
+                e2 = (x + 1) * base_dims.w - base_dims.w/4;
+              }
+
+            }
+          }
+        }
+
+        if (first === false) {
+          this.cx.stroke();
+        }
+
+        if (s2 !== null && e2 !== null) {
+          e = Math.max(e1,e2);
+          s = Math.min(s1,s2);
+          this.cx.beginPath();
+          if (left) {
+            this.cx.moveTo(s1, py);
+            this.cx.lineTo(s, py);
+            this.cx.lineTo(s, y);
+            this.cx.lineTo(s2, y);
+          } else if (!left) {
+            this.cx.moveTo(e1, py);
+            this.cx.lineTo(e, py);
+            this.cx.lineTo(e, y);
+            this.cx.lineTo(e2, y);
+          }
+          this.cx.stroke();
+          s1 = s2;
+          e1 = e2;
+          s2 = null;
+          e2 = null;
+          py = y;
+          left = !left;
+        }
+
+      }
+    }
+
+    this.cx.strokeStyle = "#000";
+    this.cx.lineCap = 'butt';
+
+  }
+
+  /// PUBLIC FUNCTIONS
+  /**
+   * Visualizes the path of the yarns within the weave.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public drawSchematicView() {
 
     var base_dims = this.render.getCellDims("base");
     this.cx.setLineDash([0]);
@@ -1800,9 +1899,9 @@ public redraw(){
       for(var i = 0; i < this.weave.visibleRows.length; i++){
 
          var draft_id = this.weave.visibleRows[i];
-         var shuttle = this.weave.rowShuttleMapping[draft_id];
+         var material_id = this.weave.rowMaterialMap[draft_id];
 
-         var s_thickness = this.weave.shuttles[shuttle].getThickness();
+         var s_thickness = this.weave.materials[material_id].getThickness();
          var height = base_dims.h * s_thickness/100;
          var h_margin = (base_dims.h - height)/2;
           this.cx.strokeStyle = "#FFFFFF";
@@ -1924,6 +2023,9 @@ public redraw(){
     link.download = fileName + ".bmp";
   }
 
+
+
+//UPDATE THIS TO INCLUDE THE MATERIALS INFORMATION - 3/19
   /**
    * Saves the draft as a .ada file
    * @extends WeaveDirective
