@@ -61,7 +61,7 @@
           (onCreateShuttle)="createShuttle($event);"
           (onHideShuttle)="hideShuttle($event);"
           (onShowShuttle)="showShuttle($event);"
-          (onColorChange)="redraw()" >
+           >
         </app-weftsystems>
 
 
@@ -73,7 +73,14 @@
           (onShowShuttle)="showShuttle($event);">
         </app-warpsystems>
 
-        <app-materials >
+        <app-materials 
+          [material_types]="material_types"
+          [materials]="draft?.materials"
+          (onColorChange)="redraw()" 
+          (onThicknessChange) ="thicknessChange($event)"
+          (onCreateMaterial) ="createMaterial($event)"
+        >
+
         </app-materials>
 
         <app-masks [hidden] = "render?.current_view != 'mask'"

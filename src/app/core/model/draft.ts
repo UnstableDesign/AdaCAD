@@ -2,6 +2,7 @@ import { Shuttle } from './shuttle';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
+import { Material } from './material';
 
 import * as _ from 'lodash';
 import { active } from 'd3';
@@ -11,21 +12,29 @@ import { active } from 'd3';
  * @interface
  */
 export interface DraftInterface {
+
   pattern: Array<Array<Cell>>; // the single design pattern
-  //mask: Array<Array<boolean>>; //regions to remember for filling
 
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;  
+  visibleRows: Array<number>;
 
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
+ 
+  mask: Array<Array<number>>; //regions to remember for filling
   masks: Array<number>
   
-  shuttles: Array<Shuttle>;
-  warp_systems: Array<Shuttle>;
-  
-  visibleRows: Array<number>;
+  shuttles: Array<Shuttle>; //weft-systems
+  warp_systems: Array<Shuttle>; //warp-systems
+
+
+  materials: Array<Material>; //warp-systems
+  rowMaterialMap: Array<number>;
+  colMaterialMap: Array<number>;
+
   connections: Array<any>;
   labels: Array<any>;
+  
   wefts: number;
   warps: number;
   width: number;
@@ -44,10 +53,16 @@ export class Draft implements DraftInterface {
   pattern: Array<Array<Cell>>;
   patterns: Array<Pattern>;
   shuttles: Array<Shuttle>;
+  mask: Array<Array<number>>;
   masks: Array<number>; 
   warp_systems: Array<Shuttle>;
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;
+  
+  materials: Array<Material>;
+  rowMaterialMap: Array<number>;
+  colMaterialMap: Array<number>;
+
   visibleRows: Array<number>;
   connections: Array<any>;
   labels: Array<any>;
@@ -84,6 +99,24 @@ export class Draft implements DraftInterface {
       if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
       if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
       if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
+    }
+
+    this.materials = [];
+    if(params.materials === undefined){
+      let m1 = new Material({name: 'Black Yarn', color: '#666666', type:0, thickness:100});
+      let m2 = new Material({name: 'Grey Yarn', color: '#3d3d3d', type:0, thickness:100});
+      this.addMaterial(m1);
+      this.addMaterial(m2);
+
+    }else{
+      var materials = params.materials
+          var ms = [];
+          for (var i in materials) {
+            var m = new Material(materials[i]);
+            ms.push(m);
+          }
+
+        this.materials = ms;
     }
 
     if(params.shuttles === undefined){
@@ -198,7 +231,7 @@ export class Draft implements DraftInterface {
 
   //this just makes a random pattern of a given size;
   makeRandomPattern(w: number, h: number){
-      var random = Array<number>();
+      var random = Array<Array<boolean>>();
       for(var i = 0; i < h; i++) {
          random.push([]);
         for(var j = 0; j < w; j++) {
@@ -434,6 +467,16 @@ export class Draft implements DraftInterface {
   //   this.colShuttleMapping.splice(i, 1);
   //   this.loom.threading.splice(i, 1);
   // }
+
+
+addMaterial(material) {
+    material.setID(this.materials.length);
+    if (!material.thickness) {
+      material.setThickness(this.loom.epi);
+    }
+    this.materials.push(material);
+}
+
 
   addShuttle(shuttle) {
     shuttle.setID(this.shuttles.length);
@@ -744,10 +787,9 @@ export class Draft implements DraftInterface {
 
 
   //this recomputes the state of the frames, treadles and threading from the draft
-  public recomputeLoom(){
+  recomputeLoom(){
 
-    var mock = [];
-    var updates = [];
+    let mock = [];
 
     this.loom.clearAllData(this.warps, this.wefts);
 
@@ -765,7 +807,7 @@ export class Draft implements DraftInterface {
             
           if(this.pattern[i][j].isUp()){
               mock[i][j].setHeddle(this.pattern[i][j].isUp());
-              updates = this.loom.updateFromDrawdown(i,j, mock);
+              this.loom.updateFromDrawdown(i,j, mock);
               var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
               var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
           }

@@ -2,7 +2,6 @@
 
 	<mat-expansion-panel-header>
 	    <mat-panel-title>
-	      <i class="fas fa-equals" aria-hidden="true"></i>
 	      <span>Weft Systems</span>
 	    </mat-panel-title>
     	
@@ -34,14 +33,8 @@
 			      </button>
 
 
-			      <!-- <input class="colorpicker shuttle-cp" [class.hide] = "collapsed"
-			      [(colorPicker)]="shuttle.color" 
-			      (colorPickerChange)="colorChange($event)"
-			       [cpPosition]="'bottom'"
-			       [style.background]="shuttle.color"/> -->
-
-
 			     <div class="shuttles level-item center-item fill-remaining-space" [class.hide] = "collapsed">
+			      <span class="">{{shuttle.id}}</span>
 			      <span class="">{{ shuttle.name }}</span>
 				      <div class="level-item level-right" [class.hide] = "collapsed">
 				        <button mat-icon-button class="edit-button" (click)="openDialog('weft', shuttle)">

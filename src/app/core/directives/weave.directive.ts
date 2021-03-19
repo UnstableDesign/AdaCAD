@@ -1302,7 +1302,7 @@ export class WeaveDirective {
         is_up = this.weave.isUp(row,j);
         has_mask = this.weave.isMask(row,j);
 
-        if(is_up) color = this.weave.getColor(i);
+        if(is_up) color = "#333333";
         else if(has_mask) color = "#CCCCCC";
       break;
       case 'threading':
@@ -1336,6 +1336,7 @@ export class WeaveDirective {
 
     }
 
+     //cx.fillStyle = color;
      cx.fillStyle = color;
      cx.fillRect(j*base_dims.w + base_fill.x, i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 

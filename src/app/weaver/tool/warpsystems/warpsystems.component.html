@@ -18,13 +18,7 @@
 <mat-list>
   <ng-container *ngFor="let warp_system of warp_systems">
   <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
-    <div class="level-item">
 
-      <input class="colorpicker shuttle-cp" [(colorPicker)]="warp_system.color" (colorPickerChange)="colorChange($event)"
-       [cpPosition]="'bottom'"
-       [style.background]="warp_system.color"/>
-
-     </div>
      <div class="shuttles level-item center-item fill-remaining-space">
       <span class="">{{ warp_system.name }}</span>
     </div>
@@ -33,9 +27,7 @@
         <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
       </button>
 
-<!--       <button mat-icon-button class="trash-button">
-        <i aria-label="Favorite button" class="fas fa-trash"></i>
-      </button> -->
+
     </div>
   </mat-list-item>  
   </ng-container>

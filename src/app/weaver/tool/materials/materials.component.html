@@ -1,12 +1,11 @@
 <mat-expansion-panel  [hideToggle] = "collapsed">
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <i class="warpicon fas fa-equals" aria-hidden="true"></i>
-          <span>Materials</span>
+          <span>Materials </span>
         </mat-panel-title>
       
         <mat-panel-description>
-          <button class="addsystem is-fullwidth" (click)="openDialog('warp', null)">
+          <button class="addsystem is-fullwidth" (click)="openDialog(null)">
             <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>
             <span> Add</span>
           </button>
@@ -16,51 +15,51 @@
 
       <ng-container *ngIf="!collapsed">
         <mat-list>
-          <ng-container *ngFor="let warp_system of warp_systems">
-             <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
+          <ng-container *ngFor="let material of materials">
+             <mat-list-item (click)="selected = material.id;" class="level" [class.selected]="selected === material.id" [disableRipple]="false">
                <div class="level-item">
 
-                  <input class="colorpicker shuttle-cp" [(colorPicker)]="warp_system.color" (colorPickerChange)="colorChange($event)"
+                  <input class="colorpicker shuttle-cp" [(colorPicker)]="material.color" (colorPickerChange)="colorChange($event)"
                    [cpPosition]="'bottom'"
-                   [style.background]="warp_system.color"/>
+                   [style.background]="material.color"/>
 
                   <input matInput
                     class="thickness"
                     [class.hide] = "collapsed"
                     type="number" 
-                    [(ngModel)]="warp_system.thickness" 
+                    [(ngModel)]="material.thickness" 
                     min="0" 
                     max="100" 
                     step="10"
-                    (change)="thicknessChange(warp_system.id, warp_system.thickness)" />
+                    (change)="thicknessChange(material.id, material.thickness)" />
                 </div>
 
                 <div class="shuttles level-item center-item fill-remaining-space">
-                  <span class="">{{ warp_system.name }}</span>
+                  <span class="">{{ material.name }}</span>
                 </div>
           
                 <div class="level-item level-right">
-                  <button mat-icon-button class="edit-button" (click)="openDialog('warp', warp_system)">
+                  <button mat-icon-button class="edit-button" (click)="openDialog( material)">
                    <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-                </button>
+                  </button>
 
-          <!--       <button mat-icon-button class="trash-button">
+                  <button mat-icon-button class="trash-button">
                   <i aria-label="Favorite button" class="fas fa-trash"></i>
-                </button> -->
+                  </button>  
                 </div>
               </mat-list-item>  
             </ng-container>
          </mat-list>
       </ng-container>
       
-      <ng-container *ngIf="collapsed">
-          <ng-container *ngFor="let warp_system of warp_systems">
+<!--       <ng-container *ngIf="collapsed">
+          <ng-container *ngFor="let material of materials">
             <button mat-icon-button>
               <i aria-label="hide" 
               class="fas fa-square"  
-              [style.color] = "warp_system.color"> </i>
+              [style.color] = "material.color"> </i>
             </button>
            </ng-container>
-      </ng-container>
+      </ng-container>  -->
 
       </mat-expansion-panel>

@@ -27,26 +27,33 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { WeaverComponent } from './weaver.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { DesignComponent } from './tool/design/design.component';
-import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { PatternsComponent } from './tool/patterns/patterns.component';
 import { HistoryComponent } from './tool/history/history.component';
-
-import { CoreModule } from '../core/core.module';
-import { HistoryModule } from '../history/history.module';
-import { NgrxModule } from '../ngrx/ngrx.module';
-import { AboutModal } from './modal/about/about.modal';
-import { PatternModal } from './modal/pattern/pattern.modal';
-import { ConnectionModal } from './modal/connection/connection.modal';
-import { InitModal } from './modal/init/init.modal';
-import { LabelModal } from './modal/label/label.modal';
+import { MaterialsComponent } from './tool/materials/materials.component';
 import { WeftsystemsComponent } from './tool/weftsystems/weftsystems.component';
 import { WarpsystemsComponent } from './tool/warpsystems/warpsystems.component';
 import { LoomComponent } from './tool/loom/loom.component';
-import { MaterialsComponent } from './tool/materials/materials.component';
 import { MasksComponent } from './tool/masks/masks.component';
 import { SchematicComponent } from './tool/schematic/schematic.component';
 import { PrintComponent } from './tool/print/print.component';
 import { ViewComponent } from './tool/view/view.component';
+
+
+import { CoreModule } from '../core/core.module';
+import { HistoryModule } from '../history/history.module';
+import { NgrxModule } from '../ngrx/ngrx.module';
+
+
+import { AboutModal } from './modal/about/about.modal';
+import { PatternModal } from './modal/pattern/pattern.modal';
+import { MaterialModal} from './modal/material/material.modal';
+import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
+import { ConnectionModal } from './modal/connection/connection.modal';
+import { InitModal } from './modal/init/init.modal';
+import { LabelModal } from './modal/label/label.modal';
+
+
+
 
 
 @NgModule({
@@ -92,6 +99,7 @@ import { ViewComponent } from './tool/view/view.component';
     ConnectionModal,
     InitModal,
     LabelModal,
+    MaterialModal,
     WeftsystemsComponent,
     WarpsystemsComponent,
     LoomComponent,
@@ -107,6 +115,7 @@ import { ViewComponent } from './tool/view/view.component';
     PatternModal,
     ConnectionModal,
     InitModal,
+    MaterialModal,
     LabelModal
   ],
 })

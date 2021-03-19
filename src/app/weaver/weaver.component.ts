@@ -28,6 +28,11 @@ interface LoomTypes {
   viewValue: string;
 }
 
+interface MaterialTypes {
+  value: number;
+  viewValue: string;
+}
+
 interface DensityUnits {
   value: string;
   viewValue: string;
@@ -94,6 +99,13 @@ export class WeaverComponent implements OnInit {
   loomtypes: LoomTypes[] = [
     {value: 'frame', viewValue: 'Shaft'},
     {value: 'jacquard', viewValue: 'Jacquard'}
+  ];
+
+
+  material_types: MaterialTypes[] = [
+    {value: 0, viewValue: 'Non-Conductive'},
+    {value: 1, viewValue: 'Conductive'},
+    {value: 2, viewValue: 'Resistive'}
   ];
 
   density_units: DensityUnits[] = [
@@ -536,6 +548,11 @@ export class WeaverComponent implements OnInit {
     // this.draft.patterns = this.patterns;
     this.draft.patterns = e.patterns;
 
+  }
+
+  public createMaterial(e: any) {
+    this.draft.addMaterial(e.material); 
+    this.weaveRef.redraw();
   }
 
   public createShuttle(e: any) {
