@@ -1396,8 +1396,7 @@ export class WeaveDirective {
 
     for (var l = 0; l < this.weave.shuttles.length; l++) {
       // Each shuttle.
-      this.cx.strokeStyle = this.weave.shuttles[l].getColor();
-      this.cx.lineWidth = 7*base_dims.h/8 * this.weave.shuttles[l].getThickness()/100;
+     
       this.cx.lineCap = 'square';
       var first = true;
       var left = !this.weave.shuttles[l].insert;
@@ -1409,8 +1408,14 @@ export class WeaveDirective {
       var e2 = null;
 
       for (var i = this.weave.visibleRows.length; i > 0 ; i--) {
-        var y = ((i - 1) * base_dims.h) + base_dims.h/2;
+        //this is the row_id
         var r = this.weave.visibleRows[i - 1];
+
+        var material_id = this.weave.rowMaterialMap[r];
+
+        this.cx.strokeStyle = this.weave.materials[material_id].getColor();
+        this.cx.lineWidth = 7*base_dims.h/8 * this.weave.materials[material_id].getThickness()/100;
+        var y = ((i - 1) * base_dims.h) + base_dims.h/2;
         first = true;
         for (var x = 0; x < this.weave.pattern[r].length; x++) {
 
@@ -1751,12 +1756,10 @@ public redraw(){
     var base_dims = this.render.getCellDims("base");
 
     //draw all the warps
-    for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
-      var id = this.weave.colShuttleMapping[x];
-      var c = this.weave.warp_systems[id].getColor();
-      var t = this.weave.warp_systems[id].getThickness();
-
-
+    for (var x = 0; x < this.weave.colMaterialMap.length; x++) {
+      var id = this.weave.colMaterialMap[x];
+      var c = this.weave.materials[id].getColor();
+      var t = this.weave.materials[id].getThickness();
 
       var width = 7*base_dims.w/8 * t/100;
       var w_margin = (base_dims.w - width)/2;
@@ -1783,11 +1786,13 @@ public redraw(){
     this.redrawYarnView();
     this.cx.strokeStyle = "#FFFFFF";
     this.cx.lineWidth = .1;
+
+
     //draw warp rectangles over the top
-    for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
-      var id = this.weave.colShuttleMapping[x];
-      var c = this.weave.warp_systems[id].getColor();
-      var t = this.weave.warp_systems[id].getThickness();
+    for (var x = 0; x < this.weave.colMaterialMap.length; x++) {
+      var id = this.weave.colMaterialMap[x];
+      var c = this.weave.materials[id].getColor();
+      var t = this.weave.materials[id].getThickness();
       var width = 7*base_dims.w/8 * t/100;
       var w_margin = (base_dims.w - width)/2;
       this.cx.fillStyle = c;

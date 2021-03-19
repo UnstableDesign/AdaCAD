@@ -119,6 +119,31 @@ export class Draft implements DraftInterface {
         this.materials = ms;
     }
 
+    if(params.rowMaterialMap === undefined){
+      this.rowMaterialMap = [];
+      for(var ii = 0; ii < this.wefts; ii++) {
+          this.rowMaterialMap.push(0);
+      }
+    }else{
+        this.rowMaterialMap = params.rowMaterialMap;
+    }
+
+
+    if(params.colMaterialMap === undefined){
+      this.colMaterialMap = [];
+    for(var ii = 0; ii < this.warps; ii++) {
+          let id = this.materials.length -1;
+          this.colMaterialMap.push(id);
+        }
+      }else{
+        this.colMaterialMap = params.colMaterialMap;
+      }
+
+
+
+
+
+
     if(params.shuttles === undefined){
       let s = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#666666'});
       this.shuttles = [s];
@@ -512,20 +537,43 @@ addMaterial(material) {
   //   }
   // }
 
-  getColor(index) {
+
+  getWeftSystemCode(index) {
     var row = this.visibleRows[index];
     var id = this.rowShuttleMapping[row];
     var shuttle = this.shuttles[id];
 
-    return shuttle.color;
+    return shuttle.id;
+  }
+
+  getWarpSystemCode(index) {
+
+     var col = this.colShuttleMapping[index];
+     var shuttle = this.warp_systems[col];
+
+    return shuttle.id;
+  }
+
+  getColor(index) {
+    var row = this.visibleRows[index];
+    var id = this.rowMaterialMap[row];
+    var material = this.materials[id];
+
+   // var id = this.rowShuttleMapping[row];
+   // var shuttle = this.shuttles[id];
+
+    return material.color;
   }
 
   getColorCol(index) {
 
-    var col = this.colShuttleMapping[index];
-    var shuttle = this.warp_systems[col];
+    var col = this.colMaterialMap[index];
+    var material = this.materials[col];
 
-    return shuttle.color;
+    // var col = this.colShuttleMapping[index];
+    // var shuttle = this.warp_systems[col];
+
+    return material.color;
   }
 
 /***
