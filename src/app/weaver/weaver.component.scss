@@ -1,6 +1,3 @@
-.shuttles{
-  font-size: .8em;
-}
 
 .addsystem{
     color: white;
@@ -275,11 +272,6 @@
 
 
 
-.weftSelections{
-  width:200px;
-}
-
-
 .drawdown-container{
   position: absolute;
 }
@@ -307,15 +299,20 @@
   z-index: 1;
 }
 
-.shuttles,
+
 .weft-materials {
   position: absolute;
   cursor: pointer;
   width: 50px;
 }
 
+.weft-systems{
+  position: absolute;
+  cursor: pointer;
+  width: 50px;
+}
 
-.shuttle-text {
+.weft-systems-text {
   position: absolute;
   cursor: pointer;
   user-select: none;

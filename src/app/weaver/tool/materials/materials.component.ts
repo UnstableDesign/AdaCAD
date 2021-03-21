@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { MaterialModal } from '../../modal/material/material.modal';
 import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
-import { Material } from '../../../core/model/material';
+import { Shuttle } from '../../../core/model/shuttle';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 
 @Component({
@@ -12,46 +12,45 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 export class MaterialsComponent implements OnInit {
 
 
-  @Input() materials: any;
+  @Input() shuttles: any;
   @Input() material_types: any;
   @Output() onColorChange: any = new EventEmitter();
   @Output() onThicknessChange: any = new EventEmitter();
-  @Output() onCreateMaterial: any = new EventEmitter();
+  @Output() onCreateShuttle: any = new EventEmitter();
 
   constructor(private dialog: MatDialog) { 
-  
+   
   }
 
   ngOnInit() {
   }
 
-  openDialog(material) {
+  openDialog(shuttle) {
 
-  	console.log("open material", material);
 
     var create = false;
 
-    if (!material) {
-      material = new Material();
+    if (!shuttle) {
+      shuttle = new Shuttle();
       create = true;
     }
 
     const dialogRef = this.dialog.open(MaterialModal, 
-      {data: { material: material, material_types:this.material_types}, width: '650px' });
+      {data: {shuttle: shuttle, material_types:this.material_types}, width: '650px' });
 
     dialogRef.afterClosed().subscribe(result => {
 
     	console.log(result);
         if (!create) {
-          this.materials[result.id] = result;
+          this.shuttles[result.id] = result;
         } else {
-          this.onCreateMaterial.emit({material: result});
+          this.onCreateShuttle.emit({shuttle: result});
         }
     });
   }
 
   thicknessChange(id:number, thickness:number) {
-  	this.materials[id].setThickness(thickness);
+  	this.shuttles[id].setThickness(thickness);
     this.onThicknessChange.emit();
   }
 

@@ -4,30 +4,45 @@
      <span>Warp Systems</span>
     </mat-panel-title>
     <mat-panel-description>
-      <button class="addsystem is-fullwidth" (click)="openDialog('warp', null)">
+<!--       <button class="addsystem is-fullwidth" (click)="openDialog('warp', null)">
   <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>
-  <span> Add</span>
-</button>
+  <span> Add</span> -->
+<!-- </button> -->
     
     </mat-panel-description>
   </mat-expansion-panel-header>
 
 
+  <ng-container *ngFor="let system of systems">
+      <span>{{system.getChar()}}</span>
+      <button mat-icon-button (click)="visibleButton(system.id, system.visible)">
+        <i aria-label="hide" 
+        class="fas"  
+        [class.fa-eye-slash]="!system.visible" 
+        [class.fa-eye]="system.visible" 
+        (click)="system.visible = !system.visible;"></i>
+      </button>
+    </ng-container>
+<!-- 
+
+
 <ng-container *ngIf="!collapsed">
 <mat-list>
-  <ng-container *ngFor="let warp_system of warp_systems">
-  <mat-list-item (click)="selected = warp_system.id;" class="level" [class.selected]="selected === warp_system.id" [disableRipple]="false">
+  <ng-container *ngFor="let system of systems">
+
+
+  <mat-list-item (click)="selected = systems.id;" class="level" [class.selected]="selected === systems.id" [disableRipple]="false">
 
 
       <div class="shuttles level-item center-item" [class.hide] = "collapsed">
-        <span>{{warp_system.getChar()}}</span>
+        <span>{{system.getChar()}}</span>
       </div>
 
      <div class="shuttles level-item center-item fill-remaining-space">
-      <span class="">{{ warp_system.name }}</span>
+      <span class="">{{ system.name }}</span>
     </div>
     <div class="level-item level-right">
-      <button mat-icon-button class="edit-button" (click)="openDialog('warp', warp_system)">
+      <button mat-icon-button class="edit-button" (click)="openDialog('warp', systems)">
         <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
       </button>
 
@@ -38,13 +53,13 @@
 </mat-list>
 </ng-container>
 <ng-container *ngIf="collapsed">
-    <ng-container *ngFor="let warp_system of warp_systems">
+    <ng-container *ngFor="let systems of systems">
       <button mat-icon-button>
         <i aria-label="hide" 
         class="fas fa-square" > </i>
       </button>
 
      </ng-container>
-</ng-container>
+</ng-container> -->
 
 </mat-expansion-panel>

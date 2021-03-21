@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms';
-import { Material } from '../../../core/model/material';
+import { Shuttle } from '../../../core/model/shuttle';
 
 
 @Component({
@@ -12,18 +12,16 @@ import { Material } from '../../../core/model/material';
 
 
 export class MaterialModal{
-  material: Material;
+  shuttle: Shuttle;
   types: any;
 
   constructor(
       private dialogRef: MatDialogRef<MaterialModal>,
       @Inject(MAT_DIALOG_DATA) public data: any) {
 
-  	  this.material = data.material;
+  	  this.shuttle = data.shuttle;
   	  this.types = data.material_types;
 
-  	  console.log(this.material);
-  	  console.log(this.types);
   }
 
 
@@ -38,7 +36,7 @@ export class MaterialModal{
   }
 
   save() {
-    this.dialogRef.close(this.material);
+    this.dialogRef.close(this.shuttle);
   }
 
 }

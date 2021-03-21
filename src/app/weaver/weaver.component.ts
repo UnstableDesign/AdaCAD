@@ -486,8 +486,8 @@ export class WeaverComponent implements OnInit {
    * @extends WeaveComponent
    * @returns {void}
    */
-  public insertRow(i, shuttle, material) {
-    this.draft.insertRow(i, shuttle, material);
+  public insertRow(i, shuttle, system) {
+    this.draft.insertRow(i, shuttle, system);
     //this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
@@ -495,8 +495,8 @@ export class WeaverComponent implements OnInit {
     //this.onAddRow.emit();
   }
 
-  public cloneRow(i, c, shuttle, material) {
-    this.draft.cloneRow(i, c, shuttle, material);
+  public cloneRow(i, c, shuttle, system) {
+    this.draft.cloneRow(i, c, shuttle, system);
    // this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
@@ -521,15 +521,15 @@ export class WeaverComponent implements OnInit {
    * @extends WeaveComponent
    * @returns {void}
    */
-  public insertCol(i, shuttle,material) {
-    this.draft.insertCol(i, shuttle,material);
+  public insertCol(i, shuttle,system) {
+    this.draft.insertCol(i, shuttle,system);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
 
-  public cloneCol(i, shuttle,material) {
+  public cloneCol(i, shuttle,system) {
     console.log(i, shuttle);
-    this.draft.cloneCol(i, shuttle,material);
+    this.draft.cloneCol(i, shuttle,system);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
@@ -550,10 +550,10 @@ export class WeaverComponent implements OnInit {
 
   }
 
-  public createMaterial(e: any) {
-    this.draft.addMaterial(e.material); 
-    this.weaveRef.redraw();
-  }
+  // public createMaterial(e: any) {
+  //   this.draft.addMaterial(e.material); 
+  //   this.weaveRef.redraw();
+  // }
 
   public createShuttle(e: any) {
     this.draft.addShuttle(e.shuttle); 
@@ -561,11 +561,38 @@ export class WeaverComponent implements OnInit {
   }
 
   public createWarpSystem(e: any) {
-    this.draft.addWarpSystem(e.shuttle);
+    this.draft.addWarpSystem(e.system);
     this.weaveRef.redraw();
   }
 
+  public createWeftSystem(e: any) {
+    this.draft.addWarpSystem(e.system);
+    this.weaveRef.redraw();
+  }
 
+  public hideWarpSystem(e:any) {
+   // this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
+
+  public showWarpSystem(e:any) {
+  //  this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }  
+
+  public hideWeftSystem(e:any) {
+    this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
+
+  public showWeftSystem(e:any) {
+    this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
   public hideShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
@@ -706,7 +733,7 @@ export class WeaverComponent implements OnInit {
   }
 
   public styleThreading(){
-    return  {'top.px': 150, 'left.px':50};
+    return  {'top.px': 180, 'left.px':50};
   }
 
   public styleTieUps(ctx){
@@ -732,13 +759,13 @@ export class WeaverComponent implements OnInit {
      else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+2)* dims.w};
   }
 
-  public styleWeftShuttles(ctx){
+  public styleWeftSystems(ctx){
     var dims = this.render.getCellDims("base");
      if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
      else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+1)* dims.w};
   }
 
-  public styleWeftShuttleText(ctx){
+  public styleWeftSystemsText(ctx){
     var dims = this.render.getCellDims("base");
      if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+5) * dims.w};
      else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+4)* dims.w};  
@@ -806,7 +833,7 @@ export class WeaverComponent implements OnInit {
     else  return {'top.px': ctx.offsetTop - 3.5*dims.h, 'left.px': ctx.offsetLeft};
   }
  
-  public styleShuttleRow(j){
+  public styleWeftSystemsRow(j){
         var dims = this.render.getCellDims("base");
         return (j*dims.h + dims.h/4) ;
 

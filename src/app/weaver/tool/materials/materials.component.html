@@ -8,7 +8,7 @@
 
             <button class="addsystem is-fullwidth" (click)="openDialog(null)">
               <i aria-label="" class="fa fa-plus"></i>
-              <span> Add</span>
+              <span> Add </span>
             </button>
         </mat-panel-description>
       </mat-expansion-panel-header>
@@ -16,31 +16,32 @@
 
       <ng-container *ngIf="!collapsed">
         <mat-list>
-          <ng-container *ngFor="let material of materials">
-             <mat-list-item (click)="selected = material.id;" class="level" [class.selected]="selected === material.id" [disableRipple]="false">
+
+          <ng-container *ngFor="let shuttle of shuttles">
+             <mat-list-item (click)="selected = shuttle.id;" class="level" [class.selected]="selected === shuttle.id" [disableRipple]="false">
                <div class="level-item">
 
-                  <input class="colorpicker shuttle-cp" [(colorPicker)]="material.color" (colorPickerChange)="colorChange($event)"
+                  <input class="colorpicker shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
                    [cpPosition]="'bottom'"
-                   [style.background]="material.color"/>
+                   [style.background]="shuttle.color"/>
 
                   <input matInput
                     class="thickness"
                     [class.hide] = "collapsed"
                     type="number" 
-                    [(ngModel)]="material.thickness" 
+                    [(ngModel)]="shuttle.thickness" 
                     min="0" 
                     max="100" 
                     step="10"
-                    (change)="thicknessChange(material.id, material.thickness)" />
+                    (change)="thicknessChange(shuttle.id, shuttle.thickness)" />
                 </div>
 
                 <div class="shuttles level-item center-item fill-remaining-space">
-                  <span class="">{{ material.name }}</span>
+                  <span class="">{{ shuttle.name }}</span>
                 </div>
           
                 <div class="level-item level-right">
-                  <button mat-icon-button class="edit-button" (click)="openDialog( material)">
+                  <button mat-icon-button class="edit-button" (click)="openDialog(shuttle)">
                    <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
                   </button>
 

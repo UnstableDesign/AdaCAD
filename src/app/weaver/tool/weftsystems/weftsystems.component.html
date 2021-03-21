@@ -7,65 +7,31 @@
     	
     	<mat-panel-description>
     
-		  <button class="addsystem is-fullwidth" (click)="openDialog('weft', null)">
+<!-- 		  <button class="addsystem is-fullwidth" (click)="openDialog('weft', null)">
 		    <i aria-label="" class="fa fa-plus"></i>
 		    <span> Add</span>
-		  </button>
+		  </button> -->
 
     	</mat-panel-description>
   	</mat-expansion-panel-header>
 
 
-	<ng-container *ngIf="!collapsed">
+    <ng-container *ngFor="let system of systems">
+			<span>{{system.getChar()}}</span>
+      <button mat-icon-button (click)="visibleButton(system.id, system.visible)">
+        <i aria-label="hide" 
+        class="fas"  
+        [class.fa-eye-slash]="!system.visible" 
+        [class.fa-eye]="system.visible" 
+        (click)="system.visible = !system.visible;"></i>
+      </button>
+    </ng-container>
 
-	   	<mat-list>
 
-		    <ng-container *ngFor="let shuttle of shuttles">
-			    <mat-list-item 
-			    (click)="selected = shuttle.id;" 
-			    class="level" 
-			    [class.selected]="selected === shuttle.id" 
-			    [disableRipple]="false">
-
-
-			    <div class="shuttles level-item center-item" [class.hide] = "collapsed">
-			      <span>{{shuttle.getChar()}}</span>
-		    	</div>
-
-			      <button mat-icon-button 
-			      (click)="visibleButton(shuttle.id, shuttle.visible)">
-			        <i aria-label="hide" class="fas"  [class.fa-eye-slash]="!shuttle.visible" [class.fa-eye]="shuttle.visible" (click)="shuttle.visible = !shuttle.visible;"></i>
-			      </button>
-
-				
-			     <div class="shuttles level-item center-item fill-remaining-space" [class.hide] = "collapsed">
-			      <span class="name">{{ shuttle.name }}</span>
-				      <div class="level-item level-right" [class.hide] = "collapsed">
-				        <button mat-icon-button class="edit-button" (click)="openDialog('weft', shuttle)">
-				        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-				      </button>
-				     </div>
-		    	</div>
-		  		</mat-list-item>  
-	  		</ng-container>
-		</mat-list>
-	</ng-container>
 
 	
-	<ng-container *ngIf="collapsed">
 
-	    <ng-container *ngFor="let shuttle of shuttles">
 
-	      <button mat-icon-button (click)="visibleButton(shuttle.id, shuttle.visible)">
-	        <i aria-label="hide" 
-	        class="fas"  
-	        [class.fa-eye-slash]="!shuttle.visible" 
-	        [class.fa-eye]="shuttle.visible" 
-	        (click)="shuttle.visible = !shuttle.visible;"></i>
-	      </button>
-	    </ng-container>
-
-	</ng-container>
 
 
 </mat-expansion-panel>

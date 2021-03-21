@@ -1,8 +1,8 @@
 import { Shuttle } from './shuttle';
+import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
-import { Material } from './material';
 
 import * as _ from 'lodash';
 import { active } from 'd3';
@@ -14,23 +14,27 @@ import { active } from 'd3';
 export interface DraftInterface {
 
   pattern: Array<Array<Cell>>; // the single design pattern
+  shuttles: Array<Shuttle>;    //the shuttles used in this draft 
 
+  //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;  
+  
+
+  rowSystemMapping: Array<number>;
+  colSystemMapping: Array<number>;
   visibleRows: Array<number>;
 
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
  
-  mask: Array<Array<number>>; //regions to remember for filling
-  masks: Array<number>
+  masks: Array<String>; //associates a mask id with a name
   
-  shuttles: Array<Shuttle>; //weft-systems
-  warp_systems: Array<Shuttle>; //warp-systems
+  weft_systems: Array<System>; //weft-systems
+  warp_systems: Array<System>; //warp-systems
 
 
-  materials: Array<Material>; //warp-systems
-  rowMaterialMap: Array<number>;
-  colMaterialMap: Array<number>;
+  // rowMaterialMap: Array<number>;
+  // colMaterialMap: Array<number>;
 
   connections: Array<any>;
   labels: Array<any>;
@@ -50,28 +54,38 @@ export interface DraftInterface {
  * @class
  */
 export class Draft implements DraftInterface {
-  pattern: Array<Array<Cell>>;
-  patterns: Array<Pattern>;
-  shuttles: Array<Shuttle>;
-  mask: Array<Array<number>>;
-  masks: Array<number>; 
-  warp_systems: Array<Shuttle>;
-  rowShuttleMapping: Array<number>;
-  colShuttleMapping: Array<number>;
-  
-  materials: Array<Material>;
-  rowMaterialMap: Array<number>;
-  colMaterialMap: Array<number>;
+  pattern: Array<Array<Cell>>; // the single design pattern
+  shuttles: Array<Shuttle>;    //the shuttles used in this draft 
 
+  //tracks stores row/col index, shuttle index
+  rowShuttleMapping: Array<number>;
+  colShuttleMapping: Array<number>;  
+  
+
+  rowSystemMapping: Array<number>;
+  colSystemMapping: Array<number>;
   visibleRows: Array<number>;
+
+  patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
+ 
+  masks: Array<String>; //associates a mask id with a name
+  
+  weft_systems: Array<System>; //weft-systems
+  warp_systems: Array<System>; //warp-systems
+
+  // rowMaterialMap: Array<number>;
+  // colMaterialMap: Array<number>;
+
+
   connections: Array<any>;
   labels: Array<any>;
+  
   wefts: number;
   warps: number;
-  loom: Loom;
   width: number;
   epi: number;
   units: string;
+  loom: Loom;
 
 
   constructor({...params}) {
@@ -84,9 +98,9 @@ export class Draft implements DraftInterface {
     this.units = (params.units === undefined) ? "in" : params.units;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
-    this.masks = (params.masks === undefined) ? [] : params.masks;
     this.connections = (params.connections === undefined)? [] : params.connections;
     this.labels = (params.labels === undefined)? [] : params.labels;
+    this.masks = (params.masks === undefined)? [] : params.masks;
 
 
 
@@ -101,86 +115,82 @@ export class Draft implements DraftInterface {
       if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
     }
 
-    this.materials = [];
-    if(params.materials === undefined){
-      let m1 = new Material({name: 'Black Yarn', color: '#666666', type:0, thickness:100});
-      let m2 = new Material({name: 'Grey Yarn', color: '#3d3d3d', type:0, thickness:100});
-      this.addMaterial(m1);
-      this.addMaterial(m2);
+  
 
-    }else{
-      var materials = params.materials
-          var ms = [];
-          for (var i in materials) {
-            var m = new Material(materials[i]);
-            ms.push(m);
-          }
-
-        this.materials = ms;
-    }
-
-    if(params.rowMaterialMap === undefined){
-      this.rowMaterialMap = [];
-      for(var ii = 0; ii < this.wefts; ii++) {
-          this.rowMaterialMap.push(0);
-      }
-    }else{
-        this.rowMaterialMap = params.rowMaterialMap;
-    }
-
-
-    if(params.colMaterialMap === undefined){
-      this.colMaterialMap = [];
-    for(var ii = 0; ii < this.warps; ii++) {
-          let id = this.materials.length -1;
-          this.colMaterialMap.push(id);
-        }
-      }else{
-        this.colMaterialMap = params.colMaterialMap;
-      }
-
-
-
-
-
-
+    //nothing has been added, load with 2 mateials and 1 shuttle on each material
     if(params.shuttles === undefined){
-      let s0 = new Shuttle({id: 0, name: 'Weft System 1', visible: true, color: '#666666', notes: ""});
-      let s1 = new Shuttle({id: 1, name: 'Weft System 2', visible: true, color: '#666666', notes: ""});
-      let s2 = new Shuttle({id: 2, name: 'Weft System 3', visible: true, color: '#666666', notes: ""});
-      this.shuttles = [s0, s1, s2];
-    }else{
-      var shuttles = params.shuttles
-          var sd = [];
-          for (var i in shuttles) {
-            var s = new Shuttle(shuttles[i]);
-            sd.push(s);
-          }
 
-        this.shuttles = sd;
+      let s0 = new Shuttle({id: 0, name: 'Black', type: 0,  thickness:100, color: '#333333', visible: true, insert:false, notes: ""});
+      let s1 = new Shuttle({id: 1, name: 'Grey', type: 0, thickness:100, color: '#999999', visible:true, insert:false, notes: ""});
+      this.shuttles = [s0, s1];
+
+    }else{
+
+      var shuttles = params.shuttles
+      var sd = [];
+      for (var i in shuttles) {
+        var s = new Shuttle(shuttles[i]);
+        sd.push(s);
+      }
+      this.shuttles = sd;
     }
 
 
     if(params.warp_systems === undefined){
-      let s = new Shuttle({id: 0, name: 'Warp System 1', visible: true, color: '#3d3d3d'});
-      this.warp_systems = [s];
+      let s0 = new System({id: 0, name: 'Warp System 1', visible: true, notes: ""});
+      let s1 = new System({id: 1, name: 'Warp System 2', visible: true, notes: ""});
+      let s2 = new System({id: 2, name: 'Warp System 3', visible: true, notes: ""});
+      let s3 = new System({id: 3, name: 'Warp System 4', visible: true, notes: ""});
+      this.warp_systems = [s0, s1, s2, s3];
     }else{
       var systems = params.warp_systems
           var sd = [];
           for (var i in systems) {
-            var s = new Shuttle(systems[i]);
-            sd.push(s);
+            var sys = new System(systems[i]);
+            sd.push(sys);
           }
-
         this.warp_systems = sd;
     }
 
+    if(params.weft_systems === undefined){
+      let s0 = new System({id: 0, name: 'Weft System 1', visible: true, notes: ""});
+      let s1 = new System({id: 1, name: 'Weft System 2', visible: true, notes: ""});
+      let s2 = new System({id: 2, name: 'Weft System 3', visible: true, notes: ""});
+      let s3 = new System({id: 3, name: 'Weft System 4', visible: true, notes: ""});
+      this.weft_systems = [s0, s1, s2, s3];
+    }else{
+      var systems = params.weft_systems
+      var sd = [];
+      for (var i in systems) {
+        var sys = new System(systems[i]);
+        sd.push(sys);
+      }
+      this.weft_systems = sd;
+    }
+
+    if(params.rowSystemMapping === undefined){
+      this.rowSystemMapping = [];
+      for(var ii = 0; ii < this.wefts; ii++) {
+          this.rowSystemMapping.push(0); 
+      }
+    }else{
+        this.rowSystemMapping = params.rowSystemMapping;
+    }
+
+    if(params.colSystemMapping === undefined){
+      this. colSystemMapping = [];
+    for(var ii = 0; ii < this.warps; ii++) {
+          this.colSystemMapping.push(0);
+        }
+      }else{
+        this.colSystemMapping = params.colSystemMapping;
+      }
 
     if(params.rowShuttleMapping === undefined){
       this.rowShuttleMapping = [];
       for(var ii = 0; ii < this.wefts; ii++) {
-          this.rowShuttleMapping.push(0);
-          this.visibleRows.push(ii);
+          this.rowShuttleMapping.push(1); 
+          this.visibleRows.push(ii); //curious why this is here - LD 3/20
       }
     }else{
         this.rowShuttleMapping = params.rowShuttleMapping;
@@ -236,17 +246,16 @@ export class Draft implements DraftInterface {
         }
     }
 
-
-    if (params.masks === undefined) {
-      // this.mask = [];
-      // for(var ii = 0; ii < this.wefts; ii++) {
-      //   this.mask.push([]);
-      //   for (var j = 0; j < this.warps; j++)
-      //     this.mask[ii].push(false);
-      // }
-    }else{
-      this.masks = params.masks;
-    } 
+    // if (params.masks === undefined) {
+    //   // this.masks = [];
+    //   // for(var ii = 0; ii < this.wefts; ii++) {
+    //   //   this.masks.push([]);
+    //   //   for (var j = 0; j < this.warps; j++)
+    //   //     this.masks[ii].push(0);
+    //   // }
+    // }else{
+    //   this.masks = params.masks;
+    // } 
 
     if(this.loom.type == "frame"){
       this.recomputeLoom();
@@ -311,31 +320,32 @@ export class Draft implements DraftInterface {
 
 
 
-  rowToMaterial(row: number) {
-    return this.rowMaterialMap[row];
+  rowToSystem(row: number) {
+    return this.rowSystemMapping[row];
   }
   rowToShuttle(row: number) {
     return this.rowShuttleMapping[row];
   }
 
-  colToMaterial(col: number) {
-    return this.colMaterialMap[col];
+  colToSystem(col: number){
+     return this.colSystemMapping[col];
   }
+
   colToShuttle(col: number) {
     return this.colShuttleMapping[col];
   }
 
   updateVisible() {
     var i = 0;
-    var shuttles = [];
+    var systems = [];
     var visible = [];
 
-    for (i = 0; i < this.shuttles.length; i++) {
-      shuttles.push(this.shuttles[i].visible);
+    for (i = 0; i < this.weft_systems.length; i++) {
+      systems.push(this.weft_systems[i].visible);
     }
 
-    for (i = 0; i< this.rowShuttleMapping.length; i++) {
-      var show = shuttles[this.rowShuttleMapping[i]];
+    for (i = 0; i< this.rowSystemMapping.length; i++) {
+      var show = systems[this.rowSystemMapping[i]];
 
       if (show) {
         visible.push(i);
@@ -359,7 +369,7 @@ export class Draft implements DraftInterface {
 
 
   //assumes i is the screen index
-  insertRow(i: number, shuttleId: number, materialId:number) {
+  insertRow(i: number, shuttleId: number, systemId:number) {
     
     var col = [];
 
@@ -370,7 +380,7 @@ export class Draft implements DraftInterface {
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i,0,shuttleId);
-    this.rowMaterialMap.splice(i,0,materialId);
+    this.rowSystemMapping.splice(i,0,systemId);
     
     this.pattern.splice(i,0,col);
     //this.mask.splice(i,0,col);
@@ -383,7 +393,7 @@ export class Draft implements DraftInterface {
   }
 
   //assumes i is the screen index
-  cloneRow(i: number, c: number, shuttleId: number, materialId:number) {
+  cloneRow(i: number, c: number, shuttleId: number, systemId:number) {
     
     var row = this.visibleRows[c];
     var col = [];
@@ -397,7 +407,7 @@ export class Draft implements DraftInterface {
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i, 0, shuttleId);
-    this.rowMaterialMap.splice(i, 0, materialId);
+    this.rowSystemMapping.splice(i, 0, systemId);
     this.pattern.splice(i, 0, col);
     //this.mask.splice(i, 0, col);
     this.loom.treadling.splice(i, 0, this.loom.treadling[i-1]);
@@ -410,7 +420,7 @@ export class Draft implements DraftInterface {
     var row = this.visibleRows[i];
     this.wefts -= 1;
     this.rowShuttleMapping.splice(i, 1);
-    this.rowMaterialMap.splice(i, 1);
+    this.rowSystemMapping.splice(i, 1);
     this.pattern.splice(i, 1);
     //this.mask.splice(i, 1);
     this.loom.treadling.splice(i,1);
@@ -441,7 +451,7 @@ export class Draft implements DraftInterface {
   // }
 
 
-  insertCol(i: number, shuttleId: number, materialId:number) {
+  insertCol(i: number, shuttleId: number, systemId:number) {
     
     for (var ndx = 0; ndx < this.wefts; ndx++) {
       this.pattern[ndx].splice(i,0, new Cell());
@@ -449,14 +459,14 @@ export class Draft implements DraftInterface {
 
     this.warps += 1;
     this.colShuttleMapping.splice(i,0,shuttleId);
-    this.colMaterialMap.splice(i,0,materialId);
+    this.colSystemMapping.splice(i,0,systemId);
     this.loom.threading.splice(i, 0, -1);
 
   }
 
 
 //assumes i is the screen index
-  cloneCol(i: number, shuttleId: number, materialId: number) {
+  cloneCol(i: number, shuttleId: number, systemId: number) {
     
     var col = [];
 
@@ -474,7 +484,7 @@ export class Draft implements DraftInterface {
     
      this.warps += 1;
      this.colShuttleMapping.splice(i, 0, shuttleId);
-     this.colMaterialMap.splice(i, 0, materialId);
+     this.colSystemMapping.splice(i, 0, systemId);
      this.loom.threading.splice(i, 0, this.loom.threading[i]);
 
   }
@@ -489,7 +499,7 @@ export class Draft implements DraftInterface {
     }
     this.warps -= 1;
     this.colShuttleMapping.splice(i, 1);
-    this.colMaterialMap.splice(i, 1);
+    this.colSystemMapping.splice(i, 1);
     this.loom.threading.splice(i,1);
   }
 
@@ -510,13 +520,13 @@ export class Draft implements DraftInterface {
   // }
 
 
-addMaterial(material) {
-    material.setID(this.materials.length);
-    if (!material.thickness) {
-      material.setThickness(this.loom.epi);
-    }
-    this.materials.push(material);
-}
+// addMaterial(material) {
+//     material.setID(this.materials.length);
+//     if (!material.thickness) {
+//       material.setThickness(this.loom.epi);
+//     }
+//     this.materials.push(material);
+// }
 
 
   addShuttle(shuttle) {
@@ -533,13 +543,16 @@ addMaterial(material) {
 
   }
 
-  addWarpSystem(shuttle) {
-    shuttle.setID(this.shuttles.length);
-    shuttle.setVisible(true);
-    if (!shuttle.thickness) {
-      shuttle.setThickness(this.loom.epi);
-    }
-    this.warp_systems.push(shuttle);
+  addWeftSystem(system) {
+    system.setID(this.weft_systems.length);
+    system.setVisible(true);
+    this.weft_systems.push(system);
+  }
+
+  addWarpSystem(system) {
+    system.setID(this.warp_systems.length);
+    system.setVisible(true);
+    this.warp_systems.push(system);
   }
 
   //image adds to mask
@@ -556,40 +569,36 @@ addMaterial(material) {
 
   getWeftSystemCode(index) {
     var row = this.visibleRows[index];
-    var id = this.rowShuttleMapping[row];
-    var shuttle = this.shuttles[id];
+    var id = this.rowSystemMapping[row];
+    var system = this.weft_systems[id];
 
-    return String.fromCharCode(97 + shuttle.id);
+    return String.fromCharCode(97 + system.id);
   }
 
   getWarpSystemCode(index) {
 
-     var col = this.colShuttleMapping[index];
-     var shuttle = this.warp_systems[col];
+     var col = this.colSystemMapping[index];
+     var system = this.warp_systems[col];
 
-    return  String.fromCharCode(97 + shuttle.id);
+    return  String.fromCharCode(97 + system.id);
   }
+
 
   getColor(index) {
     var row = this.visibleRows[index];
-    var id = this.rowMaterialMap[row];
-    var material = this.materials[id];
+    var id = this.rowShuttleMapping[row];
+    var shuttle = this.shuttles[id];
 
-   // var id = this.rowShuttleMapping[row];
-   // var shuttle = this.shuttles[id];
-
-    return material.color;
+    return shuttle.color;
   }
 
   getColorCol(index) {
 
-    var col = this.colMaterialMap[index];
-    var material = this.materials[col];
 
-    // var col = this.colShuttleMapping[index];
-    // var shuttle = this.warp_systems[col];
+    var col = this.colShuttleMapping[index];
+    var shuttle = this.shuttles[col];
 
-    return material.color;
+    return shuttle.color;
   }
 
 /***

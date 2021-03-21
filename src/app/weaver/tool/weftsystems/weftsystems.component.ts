@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
-import { Shuttle } from '../../../core/model/shuttle';
+import { System } from '../../../core/model/system';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 
 
@@ -15,12 +15,12 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 export class WeftsystemsComponent implements OnInit {
 
 
-  @Input() shuttles: any;
+  @Input() systems: any;
   @Input() warps: number;
 
-  @Output() onCreateShuttle: any = new EventEmitter();
-  @Output() onShowShuttle: any = new EventEmitter();
-  @Output() onHideShuttle: any = new EventEmitter();
+  @Output() onCreateWeftSystem: any = new EventEmitter();
+  @Output() onShowWeftSystem: any = new EventEmitter();
+  @Output() onHideWeftSystem: any = new EventEmitter();
 
 
   constructor(private dialog: MatDialog) { }
@@ -29,32 +29,32 @@ export class WeftsystemsComponent implements OnInit {
   }
 
 
-   visibleButton(id, visible) {
+  visibleButton(id, visible) {
     if (visible) {
-      this.onShowShuttle.emit({shuttleId: id});
+      this.onShowWeftSystem.emit({systemId: id});
     } else {
-      this.onHideShuttle.emit({shuttleId: id});
+      this.onHideWeftSystem.emit({systemId: id});
     }
   }
 
-  openDialog(type, shuttle) {
+  openDialog(type, system) {
 
     var create = false;
 
-    if (!shuttle) {
-      shuttle = new Shuttle();
+    if (!system) {
+      system = new System();
       create = true;
     }
 
     const dialogRef = this.dialog.open(ShuttlesModal, 
-      {data: { shuttle: shuttle, warps: this.warps, type: "weft"}, width: '650px' });
+      {data: { system: system, warps: this.warps, type: "weft"}, width: '650px' });
 
     dialogRef.afterClosed().subscribe(result => {
 
         if (!create) {
-          this.shuttles[result.id] = result;
+          this.systems[result.id] = result;
         } else {
-          this.onCreateShuttle.emit({shuttle: result});
+          this.onCreateWeftSystem.emit({system: result});
         }
     });
   }

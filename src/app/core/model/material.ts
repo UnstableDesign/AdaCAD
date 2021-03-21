@@ -1,71 +1,73 @@
-/**
- * Definition of Material
- * @class
- */
-export class Material {
-  color: string;
-  id: number;
-  thickness: number; //percentage of base dims
-  name: string;
-  type: number;
-  notes: string;
-  insert:boolean;
-
-  constructor(materialDict = null) {
-
-  if (materialDict) {
-    this.updateVariables(materialDict);
-   }else{
-    //this is called when the "add" - initialize defaults
-    this.color = "666666";
-    this.thickness = 100;
-    this.name = "New Yarn";
-    this.type = 0;
-    this.notes = "";
-    this.insert = false;
+// /**
+//  * Definition of Material - all shuttles are assigned to a material
+//  * @class
+//  */
+// export class Material {
+//   color: string;
+//   id: number;
+//   thickness: number; //percentage of base dims
+//   name: string;
+//   type: number;
+//   notes: string;
 
 
+//   constructor(materialDict = null) {
 
-   }
-  }
+//     //defaults
+//     this.id = -1;
+//     this.color = "666666";
+//     this.thickness = 100;
+//     this.name = "New Material";
+//     this.type = 0;
+//     this.notes = ""; 
 
-  updateVariables({color, thickness, name, type, notes, insert}) {
-    this.color = color;
-    this.thickness = thickness;
-    this.name = name;
-    this.type = type;
-    this.notes = notes;
-    this.insert= insert;
-  }
+//     if (materialDict) this.updateVariables(materialDict);
+//   }
 
-  setID(id: number) {
-    this.id = id;
-  }
+//   updateVariables({id, color, thickness, name, type, notes, insert}) {
+//     this.id = id;
+//     this.color = color;
+//     this.thickness = thickness;
+//     this.name = name;
+//     this.type = type;
+//     this.notes = notes;
+//     this.insert= insert;
+//   }
+
+
+//   //sets for associated materials as well
+//   setID(id: number) {
+//     this.id = id;
+//   }
 
 
 
-  setColor(color: string) {
-    this.color = color;
-  }
+//   setColor(color: string) {
+//     this.color = color;
+//   }
 
-  setThickness(n: number) {
-    this.thickness = n;
-  }
+//   setThickness(n: number) {
+//     this.thickness = n;
+//   }
 
-  //indexs into type list
-  setType(type: number) {
-    this.type = type;
-  }
+//   //indexs into type list
+//   setType(type: number) {
+//     this.type = type;
+//   }
 
-  getColor() {
-    return this.color;
-  }
+//   getColor() {
+//     return this.color;
+//   }
 
-  getThickness() {
-    return this.thickness;
-  }
+//   getThickness() {
+//     return this.thickness;
+//   }
 
-  getType() {
-    return this.type;
-  }
-}
+//   getType() {
+//     return this.type;
+//   }
+
+//   getShuttles(){
+//     return this.shuttles;
+//   }
+// }
