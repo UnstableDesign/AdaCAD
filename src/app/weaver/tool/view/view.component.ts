@@ -7,7 +7,6 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class ViewComponent implements OnInit {
   
-  @Input() collapsed;
   @Input() zoom;
   @Input() view;
   @Input() view_modes;
@@ -38,11 +37,12 @@ export class ViewComponent implements OnInit {
   }
   
  visibleButton(id, visible, type) {
+    console.log("called", id, visible, type);
     if(type == "weft"){
       if (visible) {
-        this.onShowWarpSystem.emit({systemId: id});
+        this.onShowWeftSystem.emit({systemId: id});
       } else {
-        this.onHideWarpSystem.emit({systemId: id});
+        this.onHideWeftSystem.emit({systemId: id});
       }
     }else{
       if (visible) {

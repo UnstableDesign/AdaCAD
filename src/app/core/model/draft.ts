@@ -138,9 +138,9 @@ export class Draft implements DraftInterface {
 
     if(params.warp_systems === undefined){
       let s0 = new System({id: 0, name: 'Warp System 1', visible: true, notes: ""});
-      let s1 = new System({id: 1, name: 'Warp System 2', visible: true, notes: ""});
-      let s2 = new System({id: 2, name: 'Warp System 3', visible: true, notes: ""});
-      let s3 = new System({id: 3, name: 'Warp System 4', visible: true, notes: ""});
+      let s1 = new System({id: 1, name: 'Warp System 2', visible: false, notes: ""});
+      let s2 = new System({id: 2, name: 'Warp System 3', visible: false, notes: ""});
+      let s3 = new System({id: 3, name: 'Warp System 4', visible: false, notes: ""});
       this.warp_systems = [s0, s1, s2, s3];
     }else{
       var systems = params.warp_systems
@@ -154,9 +154,9 @@ export class Draft implements DraftInterface {
 
     if(params.weft_systems === undefined){
       let s0 = new System({id: 0, name: 'Weft System 1', visible: true, notes: ""});
-      let s1 = new System({id: 1, name: 'Weft System 2', visible: true, notes: ""});
-      let s2 = new System({id: 2, name: 'Weft System 3', visible: true, notes: ""});
-      let s3 = new System({id: 3, name: 'Weft System 4', visible: true, notes: ""});
+      let s1 = new System({id: 1, name: 'Weft System 2', visible: false, notes: ""});
+      let s2 = new System({id: 2, name: 'Weft System 3', visible: false, notes: ""});
+      let s3 = new System({id: 3, name: 'Weft System 4', visible: false, notes: ""});
       this.weft_systems = [s0, s1, s2, s3];
     }else{
       var systems = params.weft_systems
