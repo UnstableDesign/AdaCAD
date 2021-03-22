@@ -11,17 +11,7 @@
 
 
 
- <ng-container *ngIf="!collapsed">
-        Zoom: 
-        <mat-slider 
-        thumbLabel 
-        [displayWith]="formatLabel" 
-        tickInterval="1" min="1" max="100" 
-        value="{{zoom}}" 
-        (change)="zoomChange($event, 'slider')"></mat-slider>
-     
-
-      <mat-button-toggle-group value = "{{view}}"(change)="viewChange($event)" name="fontStyle" aria-label="Font Style">
+      <mat-button-toggle-group [vertical] = "collapsed" value = "{{view}}"(change)="viewChange($event)" name="fontStyle" aria-label="Font Style">
 
         <ng-container *ngFor="let mode of view_modes">
           <mat-button-toggle 
@@ -32,7 +22,19 @@
       </mat-button-toggle-group>
 
 
+ <ng-container *ngIf="!collapsed">
+        Zoom: 
+        <mat-slider 
+        thumbLabel 
+        [displayWith]="formatLabel" 
+        tickInterval="1" min="1" max="100" 
+        value="{{zoom}}" 
+        (change)="zoomChange($event, 'slider')"></mat-slider>
+
+
+
   </ng-container>
+
 
   <ng-container *ngIf="collapsed">
 

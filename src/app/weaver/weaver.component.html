@@ -10,36 +10,37 @@
 </app-topbar>
 
 
-<mat-sidenav-container class="example-container">
+<mat-drawer-container class="mat-drawer-container">
   
-  <mat-sidenav mode="side" position="end" opened>
-    
+  <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
+
       <div class ="design-container" [class.collapsed]="collapsed">
         <mat-accordion multi>
 
 
 
-<!--         <button
-           (click)="toggleCollapsed()"
-            class="collapse" 
-            value="collapsed">
-         <i class="fa"
-           [class.fa-angle-double-right]="!collapsed" 
-           [class.fa-angle-double-left]="collapsed"
-         aria-hidden="true"></i>
-        </button>
- -->
 
 
         <app-view 
+          [collapsed] = "collapsed"
+          [weft_systems] = "draft?.weft_systems"
+          [warp_systems]="draft?.warp_systems" 
           [view_modes] = "view_modes"
           [zoom] = "render?.zoom"
           [view] ="render?.current_view"
           (onViewChange) ="viewChange($event);"
           (onZoomChange) ="renderChange($event);"
+          (onHideWeftSystem)="hideWeftSystem($event);"
+          (onShowWeftSystem)="showWeftSystem($event);"
+          (onHideWarpSystem)="hideWarpSystem($event);"
+          (onShowWarpSystem)="showWarpSystem($event);"
         >
 
-        <app-weftsystems 
+
+        </app-view>
+
+
+<!--         <app-weftsystems 
           [systems] = "draft?.weft_systems"
           (onCreateWeftSystem)="createWeftSystem($event);"
           (onHideWeftSystem)="hideWeftSystem($event);"
@@ -53,11 +54,7 @@
           (onCreateWarpSystem)="createWarpSystem($event);"
           (onHideWarpSystem)="hideWarpSystem($event);"
           (onShowWarpSystem)="showWarpSystem($event);">
-        </app-warpsystems>
-
-
-        </app-view>
-
+        </app-warpsystems> -->
        
         <app-design
         [brush]="brush"
@@ -126,10 +123,19 @@
 
     </div>
 
-  </mat-sidenav>
+  </mat-drawer>
+
+          <button
+           (click)="drawer.toggle(); collapsed = !collapsed"
+            class="collapse" 
+            value="collapsed">
+         <i class="fa"
+           [class.fa-angle-double-right]="!collapsed" 
+           [class.fa-angle-double-left]="collapsed"
+         aria-hidden="true"></i>
+        </button>
 
 
-  <mat-sidenav-content>
 
 
   <div *ngIf="draft" #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
@@ -258,5 +264,4 @@
   </div>
 
 
-  </mat-sidenav-content>
-</mat-sidenav-container>
+</mat-drawer-container>

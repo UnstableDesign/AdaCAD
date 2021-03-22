@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/prebuilt-themes/pink-bluegrey.css';
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
 @import '~bulma/bulma';
 
 body {
@@ -10,29 +10,9 @@ svg {
   overflow: visible;
 }
 
-.mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
-  color: #00d1b2;
+mat-sidenav {
+  width: 200px;
 }
-
-.mat-form-field-type-mat-select:not(.mat-form-field-disabled) 
-.mat-form-field-flex {
-    color: #00d1b2;
-    cursor: pointer;
-}
-
-/*.mat-form-field-wrapper{
-  color: #00d1b2;
-
-}*/
-
-.mat-form-field-infix:active{
-   color: #00d1b2;
-
-}
-.mat-form-field-flex:active{
-   color: #00d1b2;
-}
-
 
 .fill-remaining-space {
   /* This fills the remaining space, by using flexbox. 
@@ -43,6 +23,11 @@ svg {
 .hidden {
   display: none !important;
 }
+
+.mat-drawer-content{
+    background: #3d3d3d;
+}
+
 
 
 .mat-focused .mat-form-field-label {
@@ -59,31 +44,16 @@ svg {
 }
 
 
-.mat-drawer-content {
+
+.mat-drawer-container {
+  width: 100%;
   height: calc(100vh - 64px) !important;
 }
 
-.mat-tab-label {
-  min-width: 103px !important;
+mat-drawer{
+  width: 310px;
 }
 
-.mat-tab-group {
-  height: 100% !important;
-}
-
-.mat-tab-body-wrapper {
-  height: 100% !important;
-}
-
-.buttons .dropdown {
-  margin-right: .5rem;
-  flex-direction: column;
-
-  &:hover .button {
-    color: #ebebeb !important;
-    background-color: #00c4a7;
-    }
-}
 
 .is-outlined.is-active {
   background-color: #00d1b2 !important;
@@ -91,13 +61,6 @@ svg {
   color: #fff !important;
 }
 
-.dropdown-menu {
-  min-width: auto;
-
-  a.dropdown-item {
-    padding-right: 2rem;
-  }
-}
 
 .is-fullwidth {
   width: 100%;
@@ -106,15 +69,3 @@ svg {
 .mat-form-field-infix.mat-form-field-infix {
   display: flex;
 }
-
-// .mat-toolbar .mat-raised-button {
-//   color: #424242 !important;
-// }
-
-// .button {
-//   color: #424242 !important;
-
-//   &:hover {
-//     color: #ebebeb !important;
-//   }
-// }

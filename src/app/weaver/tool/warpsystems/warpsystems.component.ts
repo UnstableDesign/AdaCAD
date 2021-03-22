@@ -11,7 +11,6 @@ import { System } from '../../../core/model/system';
 })
 export class WarpsystemsComponent implements OnInit {
 	
-	@Input() warps; 
 	@Input() systems;
 	@Output() onCreateWarpSystem: any = new EventEmitter();
   @Output() onShowWarpSystem: any = new EventEmitter();
@@ -25,26 +24,26 @@ export class WarpsystemsComponent implements OnInit {
   }
 
 
-  openDialog(type, system) {
-    var create = false;
+  // openDialog(type, system) {
+  //   var create = false;
 
-    if (!system) {
-      system = new System();
-      create = true;
-    }
+  //   if (!system) {
+  //     system = new System();
+  //     create = true;
+  //   }
 
-    const dialogRef = this.dialog.open(ShuttlesModal, 
-      {data: { system: system, warps: this.warps, type: "warp"}, width: '650px' });
+  //   const dialogRef = this.dialog.open(ShuttlesModal, 
+  //     {data: { system: system, type: "warp"}, width: '650px' });
 
-    dialogRef.afterClosed().subscribe(result => {
+  //   dialogRef.afterClosed().subscribe(result => {
 
-        if (!create) {
-          this.systems[result.id] = result;
-        } else {
-          this.onCreateWarpSystem.emit({system: result});
-        }
-    });
-  }
+  //       if (!create) {
+  //         this.systems[result.id] = result;
+  //       } else {
+  //         this.onCreateWarpSystem.emit({system: result});
+  //       }
+  //   });
+  // }
 
   visibleButton(id, visible) {
     if (visible) {
