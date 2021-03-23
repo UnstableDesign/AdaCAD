@@ -335,6 +335,7 @@ export class WeaveDirective {
 
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
+
       switch (this.brush) {
         case 'invert':
         case 'point':
@@ -380,7 +381,7 @@ export class WeaveDirective {
               this.selection.height = this.weave.loom.num_frames;
 
 
-            } else if(event.target && event.target.closest('.shuttles')){
+            } else if(event.target && event.target.closest('.weft-systems')){
               this.selection.width = 1;
               this.selection.setTarget(this.weftSystemsCanvas);
             }else if(event.target && event.target.closest('.warp-systems')){
@@ -889,7 +890,8 @@ export class WeaveDirective {
     var newSystem = (system_id + 1) % len;
 
     this.weave.rowSystemMapping[draft_row] = newSystem;
-   // this.drawWeftSelectorCell(this.cxWeftSystems,(screen_row));
+
+    this.weave.updateSystemVisibility('weft');
 
     this.addHistoryState();
 
@@ -947,11 +949,10 @@ export class WeaveDirective {
 
     const len = this.weave.warp_systems.length;
     var system_id = this.weave.colSystemMapping[col];
-
     var newSys_id = (system_id + 1) % len;
-
-
     this.weave.colSystemMapping[col] = newSys_id;
+
+    this.weave.updateSystemVisibility('warp');
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
     this.addHistoryState();
     this.redraw();
@@ -1249,7 +1250,7 @@ export class WeaveDirective {
     var dims = this.render.getCellDims("base");
     var updates = [];
     
-    const screen_i = Math.min(selection.start.si, selection.end.si)
+    var screen_i = Math.min(selection.start.si, selection.end.si)
     const draft_i = Math.min(selection.start.i, selection.end.i);
     const draft_j = Math.min(selection.start.j, selection.end.j);
 
@@ -1262,16 +1263,31 @@ export class WeaveDirective {
     w = Math.ceil(selection.width);
     h = Math.ceil(selection.height);
 
-    if(selection.target.id === "warp-systems") h = pattern.length;
-    if(selection.target.id === "weft-systems") w = pattern[0].length;
-    if(selection.target.id === "warp-materials") h = pattern.length;
-    if(selection.target.id === "weft-materials") w = pattern[0].length;
+
+    if(selection.target.id === "warp-systems"){
+      h = pattern.length;
+      screen_i = 0;
+    } 
+    if(selection.target.id === "weft-systems"){
+      w = pattern[0].length;
+    } 
+
+    if(selection.target.id === "warp-materials"){
+       h = pattern.length;
+       screen_i = 0;
+    }
+    if(selection.target.id === "weft-materials"){
+      w = pattern[0].length;
+    } 
 
     //cycle through each visible row/column of the selection
     for (var i = 0; i < h; i++ ) {
       for (var j = 0; j < w; j++ ) {
+
         var row = i + screen_i;
         var col = j + draft_j;
+
+
         var temp = pattern[i % rows][j % cols];
        
         var prev = false; 
@@ -1371,7 +1387,7 @@ export class WeaveDirective {
             case 'weft-systems':
               var draft_row = this.weave.visibleRows[row];
               val = pattern[i % rows][j % cols];
-              if(val && col < this.weave.shuttles.length) this.weave.rowSystemMapping[draft_row] = col;
+              if(val && col < this.weave.weft_systems.length) this.weave.rowSystemMapping[draft_row] = col;
             
             break;
             case 'warp-systems':
@@ -1976,33 +1992,37 @@ public redraw(){
     for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
      
       var id = this.weave.colShuttleMapping[x];
+      var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
       var shuttle = this.weave.shuttles[id];
-      var c = shuttle.getColor();
-      var t = shuttle.getThickness();
 
-      var width = 7*base_dims.w/8 * t/100;
-      var w_margin = (base_dims.w - width)/2;
+        if(system.visible){
+          var c = shuttle.getColor();
+          var t = shuttle.getThickness();
 
-      if(shuttle.type > 0 || !schematic){
-        this.cx.fillStyle = c;
-      }else{
-        this.cx.fillStyle = c+"10";
+          var width = 7*base_dims.w/8 * t/100;
+          var w_margin = (base_dims.w - width)/2;
 
-      }
-      this.cx.strokeStyle = "#FFFFFF";
-      this.cx.lineWidth = 1 * t/100;
+          if(shuttle.type > 0 || !schematic){
+            this.cx.fillStyle = c;
+          }else{
+            this.cx.fillStyle = c+"10";
 
-      this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.weave.visibleRows.length);
-      this.cx.beginPath();
-      this.cx.moveTo(x*base_dims.w+w_margin-1, 0);
-      this.cx.lineTo(x*base_dims.w+w_margin-1, base_dims.h*this.weave.visibleRows.length);
-      this.cx.stroke();
+          }
 
-      this.cx.beginPath();
-      this.cx.moveTo((x+1)*base_dims.w-w_margin, 0);
-      this.cx.lineTo((x+1)*base_dims.w-w_margin, base_dims.h*this.weave.visibleRows.length);
-      this.cx.stroke();
+          this.cx.strokeStyle = "#FFFFFF";
+          this.cx.lineWidth = 1 * t/100;
 
+          this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.weave.visibleRows.length);
+          this.cx.beginPath();
+          this.cx.moveTo(x*base_dims.w+w_margin-1, 0);
+          this.cx.lineTo(x*base_dims.w+w_margin-1, base_dims.h*this.weave.visibleRows.length);
+          this.cx.stroke();
+
+          this.cx.beginPath();
+          this.cx.moveTo((x+1)*base_dims.w-w_margin, 0);
+          this.cx.lineTo((x+1)*base_dims.w-w_margin, base_dims.h*this.weave.visibleRows.length);
+          this.cx.stroke();
+        }
     }
 
    //start by drawing the yarn view
@@ -2015,40 +2035,44 @@ public redraw(){
       //draw warp rectangles over the top
       for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
         var id = this.weave.colShuttleMapping[x];
-        var c = this.weave.shuttles[id].getColor();
-        var t = this.weave.shuttles[id].getThickness();
-        var width = 7*base_dims.w/8 * t/100;
-        var w_margin = (base_dims.w - width)/2;
-        this.cx.fillStyle = c;
+        var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
+
+        if(system.visible){
+          var c = this.weave.shuttles[id].getColor();
+          var t = this.weave.shuttles[id].getThickness();
+          var width = 7*base_dims.w/8 * t/100;
+          var w_margin = (base_dims.w - width)/2;
+          this.cx.fillStyle = c;
         
-        for(var i = 0; i < this.weave.visibleRows.length; i++){
+          for(var i = 0; i < this.weave.visibleRows.length; i++){
 
-           var draft_id = this.weave.visibleRows[i];
-           var shuttle_id = this.weave.rowShuttleMapping[draft_id];
+             var draft_id = this.weave.visibleRows[i];
+             var shuttle_id = this.weave.rowShuttleMapping[draft_id];
 
-           var s_thickness = this.weave.shuttles[shuttle_id].getThickness();
-           var height = base_dims.h * s_thickness/100;
-           var h_margin = (base_dims.h - height)/2;
-            this.cx.strokeStyle = "#FFFFFF";
-            this.cx.lineWidth = 1 * t/100;
+             var s_thickness = this.weave.shuttles[shuttle_id].getThickness();
+             var height = base_dims.h * s_thickness/100;
+             var h_margin = (base_dims.h - height)/2;
+              this.cx.strokeStyle = "#FFFFFF";
+              this.cx.lineWidth = 1 * t/100;
 
-           if(this.weave.isUp(draft_id, x)){
-              // this.cx.moveTo(x*base_dims.w+w_margin, i*base_dims.h);
-              // this.cx.lineTo(x*base_dims.w+w_margin, (i+1)*base_dims.h);
-              // this.cx.stroke();
-              
-              // this.cx.moveTo((x+1)*base_dims.w-w_margin, i*base_dims.h);
-              // this.cx.lineTo((x+1)*base_dims.w-w_margin, (i+1)*base_dims.h);
-              // this.cx.stroke();
+             if(this.weave.isUp(draft_id, x)){
+                // this.cx.moveTo(x*base_dims.w+w_margin, i*base_dims.h);
+                // this.cx.lineTo(x*base_dims.w+w_margin, (i+1)*base_dims.h);
+                // this.cx.stroke();
+                
+                // this.cx.moveTo((x+1)*base_dims.w-w_margin, i*base_dims.h);
+                // this.cx.lineTo((x+1)*base_dims.w-w_margin, (i+1)*base_dims.h);
+                // this.cx.stroke();
 
-              this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, base_dims.h);
+                this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, base_dims.h);
 
 
-           }else{
+             }else{
 
-               // this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, h_margin);
-               // this.cx.fillRect(x*base_dims.w+w_margin, (i+1)*base_dims.h-h_margin, width, h_margin);
-           }
+                 // this.cx.fillRect(x*base_dims.w+w_margin, i*base_dims.h, width, h_margin);
+                 // this.cx.fillRect(x*base_dims.w+w_margin, (i+1)*base_dims.h-h_margin, width, h_margin);
+             }
+          }
         }
       }
       

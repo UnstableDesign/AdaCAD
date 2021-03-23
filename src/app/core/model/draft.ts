@@ -889,6 +889,31 @@ export class Draft implements DraftInterface {
   }
 
 
+  //checks system assignments and updates visibility of systems that are being used
+  updateSystemVisibility(type:string){
+
+    var mapping;
+    var systems;
+
+    if(type == "weft"){
+      mapping = this.rowSystemMapping;
+      systems = this.weft_systems;
+    } else {
+      mapping = this.colSystemMapping;
+      systems = this.warp_systems;
+    }
+
+
+    for(var i =0; i < systems.length; i++){
+      systems[i].setVisible(mapping.includes(systems[i].id));
+    }
+
+    if(type == "weft") this.updateVisible();
+
+  }
+
+
+
 
 
 
