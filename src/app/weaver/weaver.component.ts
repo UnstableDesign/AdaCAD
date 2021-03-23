@@ -593,17 +593,17 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
-  public hideShuttle(e:any) {
-    this.draft.updateVisible();
-    this.weaveRef.redraw();
-    this.weaveRef.redrawLoom();
-  }
+  // public hideShuttle(e:any) {
+  //   this.draft.updateVisible();
+  //   this.weaveRef.redraw();
+  //   this.weaveRef.redrawLoom();
+  // }
 
-  public showShuttle(e:any) {
-    this.draft.updateVisible();
-    this.weaveRef.redraw();
-    this.weaveRef.redrawLoom();
-  }
+  // public showShuttle(e:any) {
+  //   this.draft.updateVisible();
+  //   this.weaveRef.redraw();
+  //   this.weaveRef.redrawLoom();
+  // }
 
   public epiChange(e:any){
     this.draft.epi = e.epi;
@@ -670,7 +670,6 @@ export class WeaverComponent implements OnInit {
   }
 
     public weftNumChange(e:any) {
-    console.log("weft number change", e.wefts);
     if(e.wefts === "" || e.wefts =="null") return;
 
     console.log("passed check");
@@ -846,7 +845,7 @@ export class WeaverComponent implements OnInit {
   }
 
   public renderChange(e: any){
-    console.log('render change', e);
+     console.log('render change', e);
      if(e.source === "slider") this.render.setZoom(e.value);
      if(e.source === "in") this.render.zoomIn();
      if(e.source === "out") this.render.zoomOut();

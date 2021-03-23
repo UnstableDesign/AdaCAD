@@ -24,11 +24,13 @@
         <app-view 
           [weft_systems] = "draft?.weft_systems"
           [warp_systems]="draft?.warp_systems" 
+          [back] = "render?.view_back"
           [view_modes] = "view_modes"
           [zoom] = "render?.zoom"
           [view] ="render?.current_view"
           (onViewChange) ="viewChange($event);"
           (onZoomChange) ="renderChange($event);"
+          (onViewBack) ="renderChange($event);"
           (onHideWeftSystem)="hideWeftSystem($event);"
           (onShowWeftSystem)="showWeftSystem($event);"
           (onHideWarpSystem)="hideWarpSystem($event);"

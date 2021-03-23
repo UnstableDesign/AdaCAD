@@ -31,6 +31,13 @@
       (change)="zoomChange($event, 'slider')"></mat-slider>
 
 
+      View Back
+      <mat-slide-toggle
+          [checked]="!back"
+          (change)="viewBack($event, 'back')">
+      </mat-slide-toggle>
+      View Front
+
     <h4>Show/Hide Weft Systems</h4>
     <ng-container *ngFor="let system of weft_systems">
       <button  mat-icon-button  [class.selected]="system.visible" (click)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'weft')"> {{system.getChar()}}
@@ -38,12 +45,23 @@
       
     </ng-container>
 
+
+<!-- <mat-expansion-panel >
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     Advanced
+    </mat-panel-title>
+    <mat-panel-description>
+    
+    </mat-panel-description>
+  </mat-expansion-panel-header>
     <h4>Show/Hide Warp Systems</h4>
     <ng-container *ngFor="let system of warp_systems">
       <button  mat-icon-button   [class.selected]="system.visible" (click)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'warp')"> {{system.getChar()}}
       </button>
     </ng-container>
-
+</mat-expansion-panel>
+ -->
 
 <!-- 
   <ng-container *ngIf="collapsed">

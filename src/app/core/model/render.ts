@@ -30,7 +30,7 @@ export class Render {
     this.zoom = 100;
     this.view_frames = view_frames;
     this.current_view = 'visual';
-    this.view_back = true;
+    this.view_back = false;
 
     this.base_cell = {
     w: {max: 20, min: .1},
@@ -130,6 +130,10 @@ export class Render {
 
   setCurrentView(view:string){
     this.current_view = view;
+  }
+
+  isFront(){
+    return !this.view_back;
   }
 
 
