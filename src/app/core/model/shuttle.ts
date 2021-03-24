@@ -12,8 +12,8 @@ export class Shuttle {
   thickness: number; //percentage of base dims
   type: number;
   // image?: any;
-  // startLabel?: string;
-  // endLabel?: string;
+  startLabel?: string;
+  endLabel?: string;
   notes: string;
 
 
