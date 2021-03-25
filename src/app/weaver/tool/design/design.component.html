@@ -120,5 +120,19 @@
     </button>
  -->
 
+        <app-patterns 
+          [patterns]="patterns"
+          [selection] = "copy"
+          (onPatternChange)="updatePatterns($event);"
+          (onCreatePattern)="createPattern($event);"
+          (onRemovePattern)="removePattern($event);"
+          (onChange) = "onChange($event);">
+          >
+        </app-patterns>
+
+
 
 </mat-expansion-panel>
+
+
+

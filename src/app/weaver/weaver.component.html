@@ -65,6 +65,12 @@
         (onCopy)="onCopy();"
         (onClear)="onClear($event);" 
         (onPaste)="onPaste($event);"
+        [patterns]="draft?.patterns"
+        [selection] = "weaveRef?.copy"
+        (onPatternChange)="updatePatterns($event);"
+        (onCreatePattern)="createPattern($event);"
+        (onRemovePattern)="removePattern($event);"
+        (onChange) = "onChange($event);"
       
         >
         </app-design> 
@@ -83,15 +89,6 @@
           (onMask)="onMask($event);" >
         </app-masks>
 
-        <app-patterns 
-          [patterns]="draft?.patterns"
-          [selection] = "weaveRef?.copy"
-          (onPatternChange)="updatePatterns($event);"
-          (onCreatePattern)="createPattern($event);"
-          (onRemovePattern)="removePattern($event);"
-          (onChange) = "onChange($event);">
-          >
-        </app-patterns>
 
         <app-loom 
           [epi] = "draft?.epi"

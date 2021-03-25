@@ -21,7 +21,14 @@ export class DesignComponent implements OnInit {
   @Output() onPaste: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
+  @Input()  patterns;
+  @Input()  selection;
+  @Output() onPatternChange: any = new EventEmitter();
+  @Output() onCreatePattern: any = new EventEmitter();
+  @Output() onRemovePattern: any = new EventEmitter();
+  @Output() onChange: any = new EventEmitter();
 
+  
 
   selected = 0;
 
