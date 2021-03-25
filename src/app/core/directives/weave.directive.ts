@@ -301,6 +301,7 @@ export class WeaveDirective {
       }else if(target && target.closest('.warp-materials')){
         this.drawOnWarpMaterials(currentPos);
       } else{
+        currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnDrawdown(currentPos);
       }
     }
@@ -347,6 +348,8 @@ export class WeaveDirective {
         if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
         if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
       }
+
+      console.log("current", currentPos);
 
 
       // Save temp pattern
@@ -1615,8 +1618,6 @@ export class WeaveDirective {
         has_mask = false;
         if(is_up) color = "#333333";
         i = this.weave.loom.frame_mapping[i];
-
-
 
       break;
       case 'treadling':
