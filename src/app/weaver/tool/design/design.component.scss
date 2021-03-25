@@ -1,11 +1,11 @@
 button{
-    background: white;
-    color: #ff4081;
-    border: thin solid #ff4081;
+    background: white  !important;
+    border: thin solid #ff4081 !important;
     width: 30px;
     height: 30px;
     line-height: 1em;
     margin: 2px;
+    color: #ff4081 !important ;
 
 
 
@@ -23,12 +23,23 @@ button{
 
 }
 
-button.selected{
-
-  background: #ff4081;
-  color: white;
+.select_slider{
+  width: 100%;
+  padding: 8px 0 16px 0;
+  font-size: .9em;
 }
 
+button.is-active{
+
+  background: #ff4081 !important;
+  color: white !important;
+}
+
+.button.is-primary.is-active{
+   background: #ff408150 !important;
+  color: #ff4081 !important;
+}
+/*
 
 .button{
     justify-content: center;
@@ -46,4 +57,4 @@ button.selected{
       font-style: small-caps;
       width:20px;
     }
-  }
+  }*/

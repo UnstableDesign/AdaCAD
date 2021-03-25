@@ -63,7 +63,7 @@
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
-        (onClear)="onClear();" 
+        (onClear)="onClear($event);" 
         (onPaste)="onPaste($event);"
       
         >
@@ -85,6 +85,7 @@
 
         <app-patterns 
           [patterns]="draft?.patterns"
+          [selection] = "weaveRef?.copy"
           (onPatternChange)="updatePatterns($event);"
           (onCreatePattern)="createPattern($event);"
           (onRemovePattern)="removePattern($event);"

@@ -25,9 +25,6 @@ export class DesignComponent implements OnInit {
 
   selected = 0;
 
-
-  copy = false;
-
   constructor(private dialog: MatDialog) { 
   }
 
@@ -35,14 +32,39 @@ export class DesignComponent implements OnInit {
 
   }
 
-  brushChange(e: any) {
-     if (e.target.name) {
-      this.brush = e.target.name;
+
+  toggleChange(e: any) {
+    if(e.checked) this.brush = "select";
+    else{
+      this.brush = "point";
     }
 
     var obj: any = {};
     obj.name = this.brush;
     this.onBrushChange.emit(obj);
+  }
+
+  brushChange(e: any) {
+
+    console.log(e.target.name);
+
+
+
+     if(this.brush !== "select" || e.target.name == "copy"){
+
+        if (e.target.name) {
+          this.brush = e.target.name;
+        }
+
+        var obj: any = {};
+        obj.name = this.brush;
+        this.onBrushChange.emit(obj);
+     }else{
+
+      if(e.target.name == "point") this.clearEvent(true);
+      else if(e.target.name == "erase") this.clearEvent(false);
+      else if(e.target.name == "invert") this.pasteEvent(e, 'invert');
+     }
   }
 
   fillEvent(e, id) {
@@ -51,16 +73,13 @@ export class DesignComponent implements OnInit {
     this.onFill.emit(obj);
   }
 
-  copyEvent(e) {
-    this.onCopy.emit();
-    this.copy = true;
+  // copyEvent(e) {
+  //   this.onCopy.emit();
+  // }
+
+  clearEvent(b:boolean) {
+    this.onClear.emit(b);
   }
-
-  clearEvent(e) {
-    this.onClear.emit();
-  }
-
-
 
   pasteEvent(e, type) {
     var obj: any = {};

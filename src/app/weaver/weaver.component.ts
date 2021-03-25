@@ -69,14 +69,7 @@ export class WeaverComponent implements OnInit {
    * The name of the current selected brush.
    * @property {string}
    */
-  brush = 'point';
-
-  /**
-   * The name of the variable for showing ONLY the draw-down or the other features
-   * @property {boolean}
-   */
-  // view_frames = true;
-  
+  brush = 'invert';
 
   /**
    * The weave Draft object.
@@ -328,7 +321,8 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.c', ['$event'])
   private keyEventCopy(e) {
-    this.weaveRef.copyArea();
+    this.brush = 'copy';
+    //this.weaveRef.copyArea();
     
   }
 
@@ -351,7 +345,6 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public viewChange(value: any) {
-    console.log(value);
     this.render.setCurrentView(value);
     this.weaveRef.redraw();
   }
@@ -364,7 +357,7 @@ export class WeaverComponent implements OnInit {
    */
   public onBrushChange(e:any) {
     this.brush = e.name;
-    this.weaveRef.unsetSelection();
+    //this.weaveRef.unsetSelection();
 
   }
 
@@ -376,7 +369,6 @@ export class WeaverComponent implements OnInit {
    */
   public onFill(e) {
     var p = this.draft.patterns[e.id].pattern;
-    console.log("fill", p)
     this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
   }
 
@@ -386,8 +378,8 @@ export class WeaverComponent implements OnInit {
    * @param {Event} Delte - clear event from design component.
    * @returns {void}
    */
-  public onClear() {
-    this.weaveRef.fillArea(this.weaveRef.selection, [[false]], 'original')
+  public onClear(b:boolean) {
+    this.weaveRef.fillArea(this.weaveRef.selection, [[b]], 'original')
   }
 
   /**
@@ -421,7 +413,8 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onCopy() {
-    this.weaveRef.copyArea();
+    this.weaveRef.selection.setExplicit();
+    //this.weaveRef.copyArea();
   }
 
   /**

@@ -2,6 +2,7 @@
  * Definition of pattern object.
  * @class
  */
+
 export class Pattern {
   height: number;
   width: number;
@@ -16,6 +17,7 @@ export class Pattern {
     this.width = 0;
     this.pattern = [];
   }
+
 
   setPattern(pattern) {
     this.height = pattern.length;

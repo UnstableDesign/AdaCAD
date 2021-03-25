@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 })
 export class PatternsComponent implements OnInit {
   @Input()  patterns;
+  @Input()  selection;
   @Output() onPatternChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
@@ -24,32 +25,6 @@ export class PatternsComponent implements OnInit {
   ngOnInit() {
 
   }
-
-  openDialog(pattern) {
-    var create = false;
-
-    if (!pattern) {
-      pattern = new Pattern();
-      create = true;
-    }
-
-    const dialogRef = this.dialog.open(PatternModal, 
-      {data: pattern });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (!create) {
-        this.patterns[result.id] = result;
-      } else {
-        this.onCreatePattern.emit({pattern: result});
-      }
-
-      var obj: any = {};
-      obj.patterns = _.cloneDeep(this.patterns);
-      this.onChange.emit(obj);
-    });
-  }
-
-
 
   updateFavorite(p) {
 
@@ -66,12 +41,16 @@ export class PatternsComponent implements OnInit {
     this.onRemovePattern.emit({pattern: pattern});
   }
 
-    openPatternDialog(pattern) {
-    console.log("open dialog")
+  openPatternDialog(pattern) {
+    console.log("open dialog", this.selection);
     var create = false;
 
     if (!pattern) {
       pattern = new Pattern();
+      pattern.setPattern(this.selection);
+
+      console.log(pattern);
+
       create = true;
     }
 

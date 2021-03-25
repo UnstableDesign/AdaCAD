@@ -41,7 +41,7 @@ export class ViewComponent implements OnInit {
   viewFront(e:any, value:any, source: string){
     console.log("value", value, "source", source);
     e.source = source;
-    e.value = !value;
+    e.value = value;
     this.onViewFront.emit(e);
   }
   

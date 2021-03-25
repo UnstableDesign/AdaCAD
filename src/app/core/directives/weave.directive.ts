@@ -269,6 +269,7 @@ export class WeaveDirective {
   }
 
   clearSelection(){
+        this.selection.unsetParameters();
         d3.select(this.svgEl).style('display', 'none');
   }
 
@@ -349,8 +350,6 @@ export class WeaveDirective {
         if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
       }
 
-      console.log("current", currentPos);
-
 
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
@@ -368,6 +367,7 @@ export class WeaveDirective {
           this.drawOnMask(currentPos);
           break;
         case 'select':
+        case 'copy':
 
           if(event.shiftKey){
 
@@ -483,6 +483,7 @@ export class WeaveDirective {
         this.drawOnMask(currentPos);
         break;
       case 'select':
+      case 'copy':
         this.selection.end = currentPos;
 
 
@@ -529,8 +530,10 @@ export class WeaveDirective {
      }
 
     // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && this.brush === 'select')) {
+    if (!(event.type === 'mouseleave' && (this.brush === 'select' || this.brush ==='copy'))) {
       this.removeSubscription();
+      console.log(this.selection, this.brush);
+      if(this.brush != "copy" && this.selection.start !== undefined) this.copyArea();
 
       // if (event.type === 'mouseup' && this.brush != 'select' && this.segment !== undefined) {
       //   let segmentPattern = [];
@@ -2371,7 +2374,7 @@ public redraw(){
 
     this.drawGrid(this.cx,this.canvasEl);
     
-    if(this.brush === 'select')
+    if(this.brush === 'select' || this.brush === 'copy')
       this.redrawSelection(base_dims); // make sure to do this after the others are updated
 
 
