@@ -1,26 +1,36 @@
 .addsystem{
-    color: white;
+    color: black;
     background: none;
     border: none;
     padding: 5px 0px 0px 0px;
 }
 
 
-  .colorpicker {
-    border: 1px solid white;
-    outline: none;
-    width: 17px;
-    margin: 0 .8rem 0 .375rem;
+.colorpicker {
+  border: 1px solid grey;
+  outline: none;
+  width: 17px;
+  margin: 0 .8rem 0 .375rem;
+}
+
+
+.thickness {
+  border: 1px solid grey;
+  outline: none;
+  width: 40px;
+  font-size: 0.8em;
+  padding-left: .2rem;
+  margin: 0 0.8rem 0 0.375rem;
+}
+
+
+.mat-list-item-content{
+  padding:0px !important;
+   font-size: .8em;
+ 
   }
 
 
-  .thickness {
-    border: 1px dashed white;
-    outline: none;
-    width: 40px;
-    font-size: 0.8em;
-    padding-left: .2rem;
-    margin: 0 0.8rem 0 0.375rem;
-  }
+
 
 

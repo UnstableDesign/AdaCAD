@@ -9,12 +9,12 @@ export class ViewComponent implements OnInit {
   
   @Input() zoom;
   @Input() view;
-  @Input() back;
+  @Input() front;
   @Input() view_modes;
   @Input() warp_systems;
   @Input() weft_systems;
   @Output() onViewChange: any = new EventEmitter();
-  @Output() onViewBack: any = new EventEmitter();
+  @Output() onViewFront: any = new EventEmitter();
   @Output() onZoomChange: any = new EventEmitter();
   @Output() onCreateWarpSystem: any = new EventEmitter();
   @Output() onShowWarpSystem: any = new EventEmitter();
@@ -38,9 +38,11 @@ export class ViewComponent implements OnInit {
     this.onZoomChange.emit(e);
   }
 
-  viewBack(e:any, source: string){
+  viewFront(e:any, value:any, source: string){
+    console.log("value", value, "source", source);
     e.source = source;
-    this.onViewBack.emit(e);
+    e.value = !value;
+    this.onViewFront.emit(e);
   }
   
  visibleButton(id, visible, type) {

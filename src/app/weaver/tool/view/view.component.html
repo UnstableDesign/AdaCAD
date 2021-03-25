@@ -31,19 +31,40 @@
       (change)="zoomChange($event, 'slider')"></mat-slider>
 
 
-      View Back
-      <mat-slide-toggle
-          [checked]="!back"
-          (change)="viewBack($event, 'back')">
-      </mat-slide-toggle>
-      View Front
+      <div class="view_slider">
+      View Fabric Back
+        <mat-slide-toggle
+            [checked]="front"
+            (change)="front = !front; viewFront($event, front, 'front')">
+        </mat-slide-toggle>
+      View Fabric Front
+    </div>
 
-    <h4>Show/Hide Weft Systems</h4>
+
+
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     System Visibility
+    </mat-panel-title>
+    <mat-panel-description>
+    
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+    <h4>Weft System Visibility</h4>
+
     <ng-container *ngFor="let system of weft_systems">
       <button  mat-icon-button  [class.selected]="system.visible" (click)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'weft')"> {{system.getChar()}}
-      </button>
+    </button>
       
     </ng-container>
+    <h4>Warp System Visbibility</h4>
+    <ng-container *ngFor="let system of warp_systems">
+      <button  mat-icon-button   [class.selected]="system.visible" (click)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'warp')"> {{system.getChar()}}
+      </button>
+    </ng-container>
+</mat-expansion-panel>
+
 
 
 <!-- <mat-expansion-panel >

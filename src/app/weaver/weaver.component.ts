@@ -351,6 +351,7 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public viewChange(value: any) {
+    console.log(value);
     this.render.setCurrentView(value);
     this.weaveRef.redraw();
   }
@@ -846,9 +847,12 @@ export class WeaverComponent implements OnInit {
 
   public renderChange(e: any){
      console.log('render change', e);
+
+     
      if(e.source === "slider") this.render.setZoom(e.value);
      if(e.source === "in") this.render.zoomIn();
      if(e.source === "out") this.render.zoomOut();
+     if(e.source === "front") this.render.setFront(e.checked);
      
      this.redraw();
      this.weaveRef.unsetSelection();
