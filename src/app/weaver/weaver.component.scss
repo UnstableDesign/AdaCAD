@@ -1,3 +1,255 @@
+
+.addsystem{
+    color: white;
+    background: none;
+    border: none;
+    padding: 5px 0px 0px 0px;
+}
+
+
+
+
+.design-container{
+
+  width:310px;
+  line-height: 1.5;
+
+
+  h3{
+    padding: 10px 5px;
+  }
+
+  .panel-content{
+    padding: 15px;
+    width: 90%;
+  }
+
+
+  .mat-slider{
+    width: 80%;
+  }
+
+  .mat-expansion-panel-header{
+    background: #303030;
+  }
+
+
+  .mat-expansion-panel-header-title i{
+    width:50px;
+  }
+
+  .button{
+    justify-content: center;
+    width: 1.2em;
+    margin: 4px;
+
+    i{
+      margin-right: 0px;
+    }
+
+    .fill_name{
+      border: thin solid white;
+      overflow: hidden;
+      font-weight: bold;
+      font-style: small-caps;
+      width:20px;
+    }
+  }
+
+
+  .center-item {
+    justify-content: right;
+  }
+
+
+  .mat-list-item {
+
+    .edit-button, .trash-button {
+      display: none;
+    }
+
+    &:hover {
+      .edit-button, .trash-button {
+        display: block;
+      }
+    }
+
+    &.selected {
+
+      .mat-list-item-content {
+        padding-left: 14px;
+      }
+    }
+  }
+
+
+  .level-with-title {
+  display: flex;
+  flex-direction: column;  
+  }
+
+   .level-with-title {
+  display: flex;
+  flex-direction: column;  
+  }
+
+  .level-title {
+  margin: 0;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+
+    .mat-icon-button {
+      margin-left: -40px;
+    }
+  }
+
+  .mat-subtitle {
+    opacity: .7;
+  }
+
+  .mat-card-actions {
+    // text-align: right;
+  }
+
+  .mat-card {
+    margin-bottom: 10px;
+
+    .pattern-edit-button, .pattern-trash-button {
+      display: none;
+    }
+
+    &:hover {
+      .pattern-edit-button, .pattern-trash-button {
+        display: block;
+      }
+    }
+
+    .pattern-edit-button {
+      position: absolute;
+      top: 0;
+      right: 40px;
+    }
+
+    .pattern-trash-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+
+}
+
+
+
+.design-container.collapsed{
+    width: 75px;
+    padding-left: 14px;
+    line-height: 1.5;
+
+  span{
+    display: none;
+  }
+
+    h3{
+    display:none;
+  }
+
+
+  .panel-content{
+    padding: 0px;
+  }
+
+  .mat-form-field-infix{
+    width:44px !important;
+  }
+
+  .mat-expansion-panel{
+    width: 44px;
+  }
+
+  .mat-expansion-panel-body{
+    justify-content: center;
+  }
+
+  .mat-expansion-panel-header{
+    height: 25px !important;
+    padding: 2px 0px 5px 0px;
+  }
+
+  .mat-expansion-panel-header i{
+    margin-left: 15px
+  }
+
+  .mat-form-field{
+     width: 40px !important;
+     margin-left: 4px;
+  }
+
+  .mat-expansion-panel-header-title i{
+    width:50px;
+  }
+
+  .mat-expansion-panel-header-description, 
+  .mat-expansion-panel-header-title{
+    margin: 0px;
+  }
+
+  .mat-icon-button{
+    background: white;
+    width: 25px;
+    height: 25px;
+    margin: 0px 0px 10px 10px;
+  }
+
+  .mat-icon-button i{
+   height: 38px;
+  }
+
+  .mat-button-toggle-group{
+    flex-direction: column;
+  }
+
+/*  .mat-drawer{
+    width: 70px !important;
+  }*/
+
+  .mat-card{
+    padding: 0px;
+    margin-bottom:0px;
+  }
+  
+  .button{
+    justify-content: center;
+    width: 1.2em;
+    margin:0px 0px 4px 0px;
+
+
+    i{
+      margin-right: 0em;
+    }
+
+    .fill_name{
+      border: thin solid white;
+      overflow: hidden;
+      font-weight: bold;
+      font-style: small-caps;
+      width:20px;
+    }
+  }
+
+  .level-title {
+  margin: 0;
+  display: flex;
+
+  .mat-icon-button {
+    margin-left: 0px;
+  }
+}
+
+}
+
+
 .draft-container {
   position: relative;
   height: 100%;
@@ -18,11 +270,6 @@
   height: 48px;
 }
 
-
-
-.weftSelections{
-  width:200px;
-}
 
 
 .drawdown-container{
@@ -52,14 +299,20 @@
   z-index: 1;
 }
 
-.shuttles {
+
+.weft-materials {
   position: absolute;
   cursor: pointer;
   width: 50px;
 }
 
+.weft-systems{
+  position: absolute;
+  cursor: pointer;
+  width: 50px;
+}
 
-.shuttle-text {
+.weft-systems-text {
   position: absolute;
   cursor: pointer;
   user-select: none;
@@ -69,9 +322,9 @@
 
 }
 
-.warp-systems {
+.warp-systems,
+.warp-materials {
   position: absolute;
-  height: 50px;
   cursor: pointer;
 }
 
@@ -86,23 +339,26 @@
 }
 
 
-.insert-button-group {
+.insert-button-group-shuttles{
+
   position: absolute;
   top: 0;
-  width: 20px;
+  width: 60px;
   height: 100%;
 
+
   .insert-button {
-    width: 60px;
-    height: 20px;
-    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    display: block;
+    width: 90px;
+    position:absolute;
 
     span {
       display: none;
       padding-right: 5px;
+
     }
 
     .fa-plus-circle {
@@ -119,7 +375,49 @@
 
     &:hover {
       span {
-        display: block;
+        display: inline;
+      }
+    }
+  }
+}
+
+
+
+.insert-button-group-warps {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 60px;
+
+
+  .insert-button {
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    display: block;
+    height: 90px;
+    position:absolute;
+
+
+    span {
+      display: none;
+    }
+
+    .fa-plus-circle {
+      color: hsl(141, 71%, 48%);
+    }
+
+    .fa-clone {
+      color: hsl(204, 86%, 53%)
+    }
+
+    .fa-trash {
+      color: hsl(348, 100%, 61%);
+    }
+
+    &:hover {
+      span {
+        display:  block;
       }
     }
   }

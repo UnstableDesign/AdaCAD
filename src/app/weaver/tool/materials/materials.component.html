@@ -1,0 +1,67 @@
+<mat-expansion-panel  [hideToggle] = "collapsed">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <span>Materials</span>
+        </mat-panel-title>
+      
+        <mat-panel-description>
+
+            <button class="addsystem is-fullwidth" (click)="openDialog(null)">
+              <i aria-label="" class="fa fa-plus"></i>
+              <span> Add </span>
+            </button>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+
+      <ng-container *ngIf="!collapsed">
+        <mat-list>
+
+          <ng-container *ngFor="let shuttle of shuttles">
+             <mat-list-item (click)="selected = shuttle.id;" class="level" [class.selected]="selected === shuttle.id" [disableRipple]="false">
+               <div class="level-item">
+
+                  <input class="colorpicker shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"
+                   [cpPosition]="'bottom'"
+                   [style.background]="shuttle.color"/>
+
+                  <input matInput
+                    class="thickness"
+                    [class.hide] = "collapsed"
+                    type="number" 
+                    [(ngModel)]="shuttle.thickness" 
+                    min="0" 
+                    max="100" 
+                    step="10"
+                    (change)="thicknessChange(shuttle.id, shuttle.thickness)" />
+                </div>
+
+                <div class="shuttles level-item center-item fill-remaining-space">
+                  <span class="">{{ shuttle.name }}</span>
+                </div>
+          
+                <div class="level-item level-right">
+                  <button mat-icon-button class="edit-button" (click)="openDialog(shuttle)">
+                   <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+                  </button>
+
+                  <button mat-icon-button class="trash-button">
+                  <i aria-label="Favorite button" class="fas fa-trash"></i>
+                  </button>  
+                </div>
+              </mat-list-item>  
+            </ng-container>
+         </mat-list>
+      </ng-container>
+      
+<!--       <ng-container *ngIf="collapsed">
+          <ng-container *ngFor="let material of materials">
+            <button mat-icon-button>
+              <i aria-label="hide" 
+              class="fas fa-square"  
+              [style.color] = "material.color"> </i>
+            </button>
+           </ng-container>
+      </ng-container>  -->
+
+      </mat-expansion-panel>

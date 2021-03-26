@@ -20,7 +20,8 @@ export class TopbarComponent implements OnInit {
   @Input() timeline;
   @Input() undoItem;
   @Input() redoItem;
-
+  @Input() draftelement;
+  
   @ViewChild('bmpLink', {static: true}) bmpLink: any;
   @ViewChild('adaLink', {static: true}) adaLink: any;
   @ViewChild('wifLink', {static: true}) wifLink: any;

@@ -4,7 +4,6 @@ import { PatternService } from '../core/provider/pattern.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
 import { Draft } from '../core/model/draft';
 import { Render } from '../core/model/render';
-import { Shuttle } from '../core/model/shuttle';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
@@ -29,9 +28,25 @@ interface LoomTypes {
   viewValue: string;
 }
 
+interface MaterialTypes {
+  value: number;
+  viewValue: string;
+}
+
+interface DensityUnits {
+  value: string;
+  viewValue: string;
+}
+
 interface HistoryState {
   draft: Draft;
   is_active: boolean;
+}
+
+
+interface ViewModes {
+  value: string;
+  viewValue: string;
 }
 
 
@@ -68,6 +83,7 @@ export class WeaverComponent implements OnInit {
    * @property {Draft}
    */
   draft: Draft;
+
   timeline: HistoryState[] = [];
 
  /**
@@ -76,16 +92,34 @@ export class WeaverComponent implements OnInit {
    */
   render: Render = new Render(false);
 
-
  /**
    * The types of looms this version will support.
    * @property {LoomType}
    */
   loomtypes: LoomTypes[] = [
-    {value: 'frame', viewValue: 'Floor'},
+    {value: 'frame', viewValue: 'Shaft'},
     {value: 'jacquard', viewValue: 'Jacquard'}
   ];
 
+
+  material_types: MaterialTypes[] = [
+    {value: 0, viewValue: 'Non-Conductive'},
+    {value: 1, viewValue: 'Conductive'},
+    {value: 2, viewValue: 'Resistive'}
+  ];
+
+  density_units: DensityUnits[] = [
+    {value: 'in', viewValue: 'Ends per Inch'},
+    {value: 'cm', viewValue: 'Ends per 10cm '}
+  ];
+
+  view_modes: ViewModes[] = [
+      {value: 'visual', viewValue: 'Visual'},
+      {value: 'pattern', viewValue: 'Draft'},
+      {value: 'yarn', viewValue: 'Circuit'},
+      {value: 'mask', viewValue: 'Masks'}
+
+    ];
 
 
 
@@ -103,8 +137,10 @@ export class WeaverComponent implements OnInit {
   private redoItem;
 
 
-  collapsed:boolean = true;
+  collapsed:boolean = false;
+  dims:any;
 
+  draftelement:any;
 
   /// ANGULAR FUNCTIONS
   /**
@@ -116,9 +152,10 @@ export class WeaverComponent implements OnInit {
   constructor(private ps: PatternService, private dialog: MatDialog, 
               private store: Store<AppState>) {
 
+    this.dims = this.render.getCellDims("base");
 
     const dialogRef = this.dialog.open(InitModal, {
-      data: this.loomtypes
+      data: {loomtypes: this.loomtypes, density_units: this.density_units}
     });
 
     var default_patterns = [];
@@ -133,6 +170,7 @@ export class WeaverComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       
       var is_frame = true;
+
       this.draft = new Draft(result);
 
 
@@ -145,7 +183,12 @@ export class WeaverComponent implements OnInit {
       if (this.draft.patterns === undefined) this.draft.patterns = default_patterns;
       
 
-      if(is_frame) this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
+      // if(is_frame){ 
+      //     console.log("recalculatinig draft");
+      //     this.draft.recalculateDraft(this.draft.loom.tieup, this.draft.loom.treadling, this.draft.loom.threading);
+      //     this.weaveRef.redraw();
+
+      //  }
    });
 
   }
@@ -223,7 +266,7 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.Backspace', ['$event'])
   private keyEventClear(e) { 
-    this.onClear()
+    //this.onClear()
   }
 
   /**
@@ -443,8 +486,8 @@ export class WeaverComponent implements OnInit {
    * @extends WeaveComponent
    * @returns {void}
    */
-  public insertRow(i, shuttle) {
-    this.draft.insertRow(i, shuttle);
+  public insertRow(i, shuttle, system) {
+    this.draft.insertRow(i, shuttle, system);
     //this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
@@ -452,8 +495,8 @@ export class WeaverComponent implements OnInit {
     //this.onAddRow.emit();
   }
 
-  public cloneRow(i, c, shuttle) {
-    this.draft.cloneRow(i, c, shuttle);
+  public cloneRow(i, c, shuttle, system) {
+    this.draft.cloneRow(i, c, shuttle, system);
    // this.draft.updateConnections(i, 1);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
@@ -478,8 +521,15 @@ export class WeaverComponent implements OnInit {
    * @extends WeaveComponent
    * @returns {void}
    */
-  public insertCol(i, shuttle) {
-    this.draft.insertCol();
+  public insertCol(i, shuttle,system) {
+    this.draft.insertCol(i, shuttle,system);
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
+
+  public cloneCol(i, shuttle,system) {
+    console.log(i, shuttle);
+    this.draft.cloneCol(i, shuttle,system);
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
@@ -500,17 +550,49 @@ export class WeaverComponent implements OnInit {
 
   }
 
+  // public createMaterial(e: any) {
+  //   this.draft.addMaterial(e.material); 
+  //   this.weaveRef.redraw();
+  // }
+
   public createShuttle(e: any) {
     this.draft.addShuttle(e.shuttle); 
     this.weaveRef.redraw();
   }
 
   public createWarpSystem(e: any) {
-    this.draft.addWarpSystem(e.shuttle);
+    this.draft.addWarpSystem(e.system);
     this.weaveRef.redraw();
   }
 
+  public createWeftSystem(e: any) {
+    this.draft.addWarpSystem(e.system);
+    this.weaveRef.redraw();
+  }
 
+  public hideWarpSystem(e:any) {
+   // this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
+
+  public showWarpSystem(e:any) {
+  //  this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }  
+
+  public hideWeftSystem(e:any) {
+    this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
+
+  public showWeftSystem(e:any) {
+    this.draft.updateVisible();
+    this.weaveRef.redraw();
+    this.weaveRef.redrawLoom();
+  }
   public hideShuttle(e:any) {
     this.draft.updateVisible();
     this.weaveRef.redraw();
@@ -524,7 +606,14 @@ export class WeaverComponent implements OnInit {
   }
 
   public epiChange(e:any){
-    this.draft.loom.epi = e.epi;
+    this.draft.epi = e.epi;
+    this.draft.recomputeWidth();
+
+  }
+
+  public unitChange(e:any){
+    this.draft.units = e.units;
+    this.draft.recomputeWidth();    
 
   }
 
@@ -566,12 +655,36 @@ export class WeaverComponent implements OnInit {
       var diff = e.warps - this.draft.warps;
       
       for(var i = 0; i < diff; i++){  
-        this.insertCol(this.draft.warps, 0);
+        this.insertCol(this.draft.warps, 0, 0);
       }
     }else{
       var diff = this.draft.warps - e.warps;
       for(var i = 0; i < diff; i++){  
         this.deleteCol(this.draft.warps-1);
+      }
+
+    }
+
+    this.draft.recomputeWidth();
+
+  }
+
+    public weftNumChange(e:any) {
+    console.log("weft number change", e.wefts);
+    if(e.wefts === "" || e.wefts =="null") return;
+
+    console.log("passed check");
+
+    if(e.wefts > this.draft.wefts){
+      var diff = e.wefts - this.draft.wefts;
+      
+      for(var i = 0; i < diff; i++){  
+        this.insertRow(e.wefts+i, 0, 0);
+      }
+    }else{
+      var diff = this.draft.wefts - e.wefts;
+      for(var i = 0; i < diff; i++){  
+        this.deleteRow(this.draft.wefts-1);
       }
 
     }
@@ -620,7 +733,7 @@ export class WeaverComponent implements OnInit {
   }
 
   public styleThreading(){
-    return  {'top.px': 75, 'left.px':50};
+    return  {'top.px': 180, 'left.px':50};
   }
 
   public styleTieUps(ctx){
@@ -640,37 +753,66 @@ export class WeaverComponent implements OnInit {
     return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w}
   }
 
-  public styleWeftShuttles(ctx){
+  public styleWeftMaterials(ctx){
+    var dims = this.render.getCellDims("base");
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+3) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+2)* dims.w};
+  }
+
+  public styleWeftSystems(ctx){
     var dims = this.render.getCellDims("base");
      if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
      else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+1)* dims.w};
   }
 
-  public styleWeftShuttleText(ctx){
+  public styleWeftSystemsText(ctx){
     var dims = this.render.getCellDims("base");
-     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
-     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};  
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+5) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+4)* dims.w};  
   }
 
+
+
+  public styleColButtons(ctx){
+     var dims = this.render.getCellDims("base");
+    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 8*dims.h, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop - 8*dims.h, 'left.px': ctx.offsetLeft};
+   
+  }
+
+
+  public styleSingleColButton(i){
+    var dims = this.render.getCellDims("base");
+    var zoom = this.render.getZoom();
+    return {'left.px':i*dims.w, 'width.px':dims.w, 'font-size.em':zoom/100}
+
+  }
 
 
   public styleRowButtons(ctx){
-     var dims = this.render.getCellDims("base");
-    if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+5) * dims.w};
-     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+4)* dims.w};
-  }
-
-
-public getButtonRowHeight(ctx){
-     var dims = this.render.getCellDims("base");
-     return dims.h;
-  }
-
-
-public getTransform(j){
     var dims = this.render.getCellDims("base");
-    return "translate("+(this.draft.warps-j)*dims.w+", 0) rotate(-45)"
-}
+    if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+6) * dims.w};
+     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+5)* dims.w};
+  }
+
+  public styleSingleRowButton(i){
+    var dims = this.render.getCellDims("base");
+    var zoom = this.render.getZoom();
+    return {'top.px':i*dims.h, 'height.px':dims.h, 'font-size.em':zoom/100}
+
+  }
+
+
+// public getButtonRowHeight(ctx){
+//      var dims = this.render.getCellDims("base");
+//      return dims.h;
+//   }
+
+
+  public getTransform(j){
+      var dims = this.render.getCellDims("base");
+      return "translate("+(this.draft.warps-j)*dims.w+", 0) rotate(-45)"
+  }
 
 
   public styleWarpSystems(ctx){
@@ -679,14 +821,19 @@ public getTransform(j){
     else  return {'top.px': ctx.offsetTop - 2*dims.h, 'left.px': ctx.offsetLeft};
   }  
 
+  public styleWarpMaterials(ctx){
+    var dims = this.render.getCellDims("base");
+    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 3*dims.h, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop - 3*dims.h, 'left.px': ctx.offsetLeft};
+  }  
 
   public styleWarpSystemsText(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 2.5*dims.h, 'left.px': ctx.offsetLeft};
-    else  return {'top.px': ctx.offsetTop - 2.5*dims.h, 'left.px': ctx.offsetLeft};
+    if(this.render.view_frames)    return {'top.px': ctx.offsetTop - 3.5*dims.h, 'left.px': ctx.offsetLeft};
+    else  return {'top.px': ctx.offsetTop - 3.5*dims.h, 'left.px': ctx.offsetLeft};
   }
  
-  public styleShuttleRow(j){
+  public styleWeftSystemsRow(j){
         var dims = this.render.getCellDims("base");
         return (j*dims.h + dims.h/4) ;
 

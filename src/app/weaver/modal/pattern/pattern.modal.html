@@ -1,15 +1,15 @@
-<h2 mat-dialog-title>Edit Structure</h2>
+<h2 mat-dialog-title>Edit Pattern</h2>
 
 <mat-dialog-content>
   <form #patternForm="ngForm">
       <mat-form-field class="is-fullwidth">
-        <input matInput placeholder="Structure Name" name="name" [(ngModel)]="pattern.name">
+        <input matInput placeholder="Pattern Name" name="name" [(ngModel)]="pattern.name">
       </mat-form-field>
       <mat-form-field >
-        <input matInput  type="number" placeholder="Structure Height" name="height" (change)="updatePatternSize($event);" [(ngModel)]="pattern.height">
+        <input matInput  type="number" placeholder="Pattern Height" name="height" (change)="updatePatternSize($event);" [(ngModel)]="pattern.height">
       </mat-form-field>
       <mat-form-field >
-        <input matInput  type="number" placeholder="Structure Width" name="width" (change)="updatePatternSize($event);" [(ngModel)]="pattern.width">
+        <input matInput  type="number" placeholder="Pattern Width" name="width" (change)="updatePatternSize($event);" [(ngModel)]="pattern.width">
       </mat-form-field>
       <mat-checkbox name="favorite" [(ngModel)]="pattern.favorite">Favorite</mat-checkbox>
 

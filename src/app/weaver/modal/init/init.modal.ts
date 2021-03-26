@@ -39,16 +39,18 @@ export class InitModal implements OnInit {
 
   //form: any = {};
   selected:string = null;
-  loom:string = null;
+  loomtype:string = null;
   valid:boolean = false; 
   draft: any = {};
   loomtypes: any;
+  density_units: any;
 
 
   constructor(private dialogRef: MatDialogRef<InitModal>, 
     @Inject(MAT_DIALOG_DATA) private data: any) {
       console.log(data);
-      this.loomtypes = data;
+      this.loomtypes = data.loomtypes;
+      this.density_units = data.density_units;
   }
 
   ngOnInit() {
@@ -110,7 +112,7 @@ export class InitModal implements OnInit {
     //LD comment - this might be causing a problem as the draft object is in charge of constructing the loom
     //I think its better to have draft declare it because that way it will work with adaCAD uploads 
     //what you can do instead is make a draft.loom = {} and and add relevant feilds to that, then they will be fed into the constructor
-    this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, 10, this.getInt("Shafts", e),this.getInt("Treadles", e));
+    this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, this.getInt("Shafts", e),this.getInt("Treadles", e));
 
     if (this.getBool("TREADLING", stringWithoutMetadata)) {
       var treadling = this.getTreadling(stringWithoutMetadata);
@@ -151,36 +153,35 @@ export class InitModal implements OnInit {
 
   save(f) {
 
-    console.log(f.value);
-
     //set default values
     var warps = (f.value.warps === undefined) ? 20 : f.value.warps;
-    var loom = (f.value.loom === undefined) ? "jacquard" : f.value.loom;
+    var wefts = (f.value.wefts === undefined) ? 30 : f.value.wefts;
+    var loomtype = (f.value.loomtype === undefined || !f.value.loomtype) ? "frame" : f.value.loomtype;
     var frame_num = (f.value.frame_num === undefined) ? 2 : f.value.frame_num;
     var treadle_num = (f.value.treadle_num === undefined) ? 2 : f.value.treadle_num;
     var epi = (f.value.epi === undefined) ? 10 : f.value.epi;
+    var units = (f.value.units === undefined || ! f.value.units) ? "in" : f.value.units;
 
+    this.draft.warps = warps;
+    this.draft.wefts = wefts;
 
-    if(this.draft.warps === undefined) this.draft.warps = warps; 
     
     if(this.draft.render === undefined){
       this.draft.render = {};
-      if(loom === "frame") this.draft.render.view_frames = true;
+      if(loomtype === "frame") this.draft.render.view_frames = true;
       else this.draft.render.view_frames = false;
     }
 
     if(this.draft.loom === undefined){
 
       this.draft.loom = {};
-      this.draft.loom.epi = epi;
-      this.draft.loom.type =  loom;
+      this.draft.loom.type = loomtype;
       this.draft.loom.min_frames = frame_num;
       this.draft.loom.num_frames = frame_num;
       this.draft.loom.min_treadles = treadle_num;
       this.draft.loom.num_treadles = treadle_num;
     }   
    
-    console.log(this.draft);
     this.dialogRef.close(this.draft);
   }
 

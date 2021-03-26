@@ -1,0 +1,37 @@
+<mat-expansion-panel  [hideToggle] = "collapsed">
+
+	<mat-expansion-panel-header>
+	    <mat-panel-title>
+	      <span>Weft Systems</span>
+	    </mat-panel-title>
+    	
+    	<mat-panel-description>
+    
+<!-- 		  <button class="addsystem is-fullwidth" (click)="openDialog('weft', null)">
+		    <i aria-label="" class="fa fa-plus"></i>
+		    <span> Add</span>
+		  </button> -->
+
+    	</mat-panel-description>
+  	</mat-expansion-panel-header>
+
+
+    <ng-container *ngFor="let system of systems">
+			<span>{{system.getChar()}}</span>
+      <button mat-icon-button (click)="visibleButton(system.id, system.visible)">
+        <i aria-label="hide" 
+        class="fas"  
+        [class.fa-eye-slash]="!system.visible" 
+        [class.fa-eye]="system.visible" 
+        (click)="system.visible = !system.visible;"></i>
+      </button>
+    </ng-container>
+
+
+
+	
+
+
+
+
+</mat-expansion-panel>

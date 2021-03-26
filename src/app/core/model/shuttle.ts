@@ -1,48 +1,57 @@
 /**
  * Definition of Shuttle object.
+* a shuttle inhertis from a material. 
  * @class
  */
 export class Shuttle {
-  color: string;
   id: number;
-  thickness: number; //percentage of base dims
   name: string;
-  type: string;
+  insert: boolean;
   visible: boolean;
-  insert: number;
-  image?: any;
-  startLabel?: string;
-  endLabel?: string;
+  color: string;
+  thickness: number; //percentage of base dims
+  type: number;
+  // image?: any;
+  // startLabel?: string;
+  // endLabel?: string;
+  notes: string;
+
 
   constructor(shuttleDict = null) {
-    if (shuttleDict) this.updateVariables(shuttleDict);
-    else this.insert = 0;
 
-    this.thickness = 100;
+    //defaults
+    this.id = -1;
+    this.name="new shuttle";
+    this.insert = false;
+    this.visible = true;
+    this.color="#666666";
+    this.thickness=100;
+    this.type = 0;
+    this.notes = "";
+
+    if (shuttleDict) this.updateVariables(shuttleDict);
+
   }
 
-  updateVariables({color, id, thickness, name, type, visible, insert, image, startLabel, endLabel}) {
-    this.color = color;
+  updateVariables({id, name, insert, visible, color, thickness, type, notes}) {
     this.id = id;
-    this.thickness = thickness;
     this.name = name;
-    this.type = type;
-    this.visible = visible;
     this.insert = insert;
-    this.image = image;
-    this.startLabel = startLabel;
-    this.endLabel = endLabel;
+    this.visible = visible;
+    this.color = color;
+    this.thickness = thickness;
+    this.type = type;
+  // this.image = image;
+    // this.startLabel = startLabel;
+    // this.endLabel = endLabel;
+    this.notes = notes;
   }
 
   setID(id: number) {
     this.id = id;
     if (!this.name) {
-      this.name = 'System ' + (id + 1);
+      this.name = 'Shuttle ' + (id + 1);
     }
-  }
-
-  setVisible(bool: boolean) {
-    this.visible = bool;
   }
 
   setColor(color: string) {
@@ -53,8 +62,13 @@ export class Shuttle {
     this.thickness = n;
   }
 
-  setType(type: string) {
+  //indexs into type list
+  setType(type: number) {
     this.type = type;
+  }
+
+  setVisible(visible:boolean){
+    this.visible = visible;
   }
 
   getColor() {
@@ -68,4 +82,5 @@ export class Shuttle {
   getType() {
     return this.type;
   }
+
 }

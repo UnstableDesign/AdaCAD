@@ -1,29 +1,64 @@
-  <button mat-raised-button class="is-fullwidth" (click)="openDialog(null)">
-    <i aria-label="Example icon-button with a heart icon" class="fa fa-plus"></i>&nbsp;&nbsp;
-    Create Pattern
-  </button>
+
+<mat-expansion-panel [hideToggle]="collapsed">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span>Pattern Library</span>
+      </mat-panel-title>
+      <mat-panel-description>
+        <button class="addsystem is-fullwidth" (click)="openPatternDialog(null)">
+          <i aria-label="" class="fa fa-plus"></i>
+          <span> Add</span>
+        </button>
+      </mat-panel-description>
+
+
+    </mat-expansion-panel-header>
+  <div class="panel-content">
+
   <ng-container *ngFor="let pattern of patterns;">
+  
   <mat-card class="example-card">
     <mat-card-header style="margin-bottom:5px;">
-      <button mat-icon-button (click)="openDialog(pattern)" class="pattern-edit-button">
-        <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
-      </button>
-     <!--  Commented as it was not working -->
+     
+     <ng-container *ngIf="!collapsed">
+        <button mat-icon-button (click)="openPatternDialog(pattern)" class="pattern-edit-button">
+          <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>
+        </button>
+
       <button mat-icon-button (click)="removePattern(pattern)"class="pattern-trash-button">
         <i aria-label="Favorite button" class="fas fa-trash"></i>
       </button>
+     </ng-container>
+
     </mat-card-header>
+
     <mat-card-content>
       <div class="level">
         <div class="level-item level-with-title">
           <div class="mat-title level-title">
+            
+          <ng-container *ngIf="collapsed">
+              <button class="button is-small" [class.is-primary]="pattern.favorite" (click)="updateFavorite(pattern.id)">
+              <i aria-label="Favorite button" class="fill_name"> 
+               {{ pattern.name }}</i>
+              </button>
+          </ng-container>
+          <ng-container *ngIf="!collapsed">
+
             <button mat-icon-button>
               <i aria-label="Favorite button" class="fa-star" [class.far]="!pattern.favorite" [class.fas]="pattern.favorite" (click)="updateFavorite(pattern.id)"></i>
             </button>
             {{ pattern.name }}
+           </ng-container>
+
           </div>
-          <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
+        
+         <ng-container *ngIf="!collapsed">
+           <div class="mat-subtitle">{{ pattern.height }} x {{ pattern.width }}</div>
+        </ng-container>
         </div>
+
+        <ng-container *ngIf="!collapsed">
         <div class="level-item">
           <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
             <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
@@ -33,6 +68,7 @@
             </g>
           </svg>
         </div>
+        </ng-container>
       </div>
     </mat-card-content>
     <!-- <mat-card-actions>
@@ -45,3 +81,7 @@
     </mat-card-actions> -->
   </mat-card>
 </ng-container>
+</div>
+
+
+  </mat-expansion-panel>

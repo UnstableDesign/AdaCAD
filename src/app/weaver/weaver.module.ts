@@ -27,19 +27,33 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { WeaverComponent } from './weaver.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { DesignComponent } from './tool/design/design.component';
-import { ShuttlesComponent } from './tool/shuttles/shuttles.component';
-import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { PatternsComponent } from './tool/patterns/patterns.component';
 import { HistoryComponent } from './tool/history/history.component';
+import { MaterialsComponent } from './tool/materials/materials.component';
+import { WeftsystemsComponent } from './tool/weftsystems/weftsystems.component';
+import { WarpsystemsComponent } from './tool/warpsystems/warpsystems.component';
+import { LoomComponent } from './tool/loom/loom.component';
+import { MasksComponent } from './tool/masks/masks.component';
+import { SchematicComponent } from './tool/schematic/schematic.component';
+import { PrintComponent } from './tool/print/print.component';
+import { ViewComponent } from './tool/view/view.component';
+
 
 import { CoreModule } from '../core/core.module';
 import { HistoryModule } from '../history/history.module';
 import { NgrxModule } from '../ngrx/ngrx.module';
+
+
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
+import { MaterialModal} from './modal/material/material.modal';
+import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
+
+
+
 
 
 @NgModule({
@@ -77,7 +91,6 @@ import { LabelModal } from './modal/label/label.modal';
     WeaverComponent, 
     TopbarComponent, 
     DesignComponent, 
-    ShuttlesComponent, 
     PatternsComponent,
     HistoryComponent,
     ShuttlesModal,
@@ -85,7 +98,16 @@ import { LabelModal } from './modal/label/label.modal';
     PatternModal,
     ConnectionModal,
     InitModal,
-    LabelModal
+    LabelModal,
+    MaterialModal,
+    WeftsystemsComponent,
+    WarpsystemsComponent,
+    LoomComponent,
+    MaterialsComponent,
+    MasksComponent,
+    SchematicComponent,
+    PrintComponent,
+    ViewComponent
   ],
   entryComponents: [
     ShuttlesModal,
@@ -93,6 +115,7 @@ import { LabelModal } from './modal/label/label.modal';
     PatternModal,
     ConnectionModal,
     InitModal,
+    MaterialModal,
     LabelModal
   ],
 })
