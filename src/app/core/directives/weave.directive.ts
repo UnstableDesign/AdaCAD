@@ -2519,6 +2519,57 @@ public redraw(){
     console.log(link);
   }
 
+
+   /**
+   * Saves the draft as a bitmap file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   */
+  public savePrintableDraft(fileName, obj) {
+
+    //switch to
+    this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
+    this.cx.fillStyle = "#FFFFFF";
+    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
+    
+    //add options for what to print here: 
+    this.redrawDrawdown();
+
+    let dims = this.render.getCellDims("base");
+    dims.h = dims.h/2;
+    dims.w = dims.w/2;
+
+    let b = obj.bitmap.nativeElement;
+    let context = b.getContext('2d');
+
+    b.width = (this.weave.warps + this.weave.loom.num_treadles + 4) * dims.w;
+    b.height = (this.weave.wefts + this.weave.loom.num_frames + 4) * dims.h;
+    
+    context.fillStyle = "white";
+    context.fillRect(0,0,b.width,b.height);
+    
+    //systems
+    context.drawImage(this.warpSystemsCanvas, 0, 0);
+    context.drawImage(this.warpMaterialsCanvas, 0, dims.h);
+
+    context.drawImage(this.threadingCanvas, 0, dims.h*3);
+    context.drawImage(this.tieupsCanvas, (this.weave.warps +1)* dims.w, 3*dims.h);
+    context.drawImage(this.canvasEl, -dims.w, (this.weave.loom.num_frames+3)*dims.h);
+   
+    context.drawImage(this.treadlingCanvas, (this.weave.warps +1)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
+
+    context.drawImage(this.weftMaterialsCanvas,(this.weave.warps+ this.weave.loom.num_treadles +1)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
+    context.drawImage(this.weftSystemsCanvas,(this.weave.warps+ this.weave.loom.num_treadles +2)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
+
+
+    let link = obj.downloadLink.nativeElement;
+    link.href = b.toDataURL("image/jpg");
+    link.download = fileName + ".jpg";
+
+
+  }
+
   /**
    * Saves the draft as a bitmap file
    * @extends WeaveDirective

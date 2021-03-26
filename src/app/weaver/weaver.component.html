@@ -15,11 +15,8 @@
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
 
       <div class ="design-container" [class.collapsed]="collapsed">
+       
         <mat-accordion multi>
-
-
-
-
 
         <app-view 
           [weft_systems] = "draft?.weft_systems"
@@ -137,7 +134,7 @@
 
 
 
-  <div *ngIf="draft" #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container">
+  <div *ngIf="draft" #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container">
 
 
   <div [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 

@@ -6,11 +6,9 @@ h4{
 
 svg{
   border: thin solid black;
+  margin-right: 4px;
 }
 
-mat-card-title{
-  font-size: .8em;
-}
 
 .addsystem{
     color: black;
@@ -21,10 +19,14 @@ mat-card-title{
 }
 
 
+.level-item{
+  font-size: .8em;
+}
 
 .level-with-title {
   display: flex;
   flex-direction: column;  
+
 }
 
 .level-title {
@@ -39,6 +41,7 @@ mat-card-title{
 }
 
 .mat-subtitle {
+  display:block;
   opacity: .7;
 }
 

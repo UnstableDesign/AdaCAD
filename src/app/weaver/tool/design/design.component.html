@@ -42,6 +42,8 @@
   </button>
 
 
+<mat-divider></mat-divider>
+
   <button  matTooltip="paste selection mirrored (horizontal)" 
     [disabled] = "brush !=='select' && brush !=='copy'" 
     class="button is-small is-primary fas fa-arrows-alt-h" 
@@ -54,13 +56,13 @@
     (click)="pasteEvent($event, 'mirrorX')">           
     </button>
 
-    <button  matTooltip="paste selection mirrored (vertical)" 
+    <button  matTooltip="shift by one cell to the right" 
     [disabled] = "brush !=='select' && brush !=='copy'" 
     class="button is-small is-primary fas fa-arrow-right"
     (click)="pasteEvent($event, 'shiftX')">           
     </button>
 
-    <button  matTooltip="paste selection mirrored (vertical)" 
+    <button  matTooltip="shift by one cell up" 
     [disabled] = "brush !=='select' && brush !=='copy'"  
     class="button is-small is-primary fas fa-arrow-up"
     (click)="pasteEvent($event, 'shiftY')">           
@@ -97,7 +99,7 @@
  </ng-container>
  -->
 
-<mat-divider></mat-divider>
+<mat-divider> </mat-divider>
 
     <button  matTooltip="copy selection (shortcut: c)"
      name="copy" 
@@ -119,6 +121,7 @@
     (click)="pasteEvent($event, 'invert')">
     </button>
  -->
+<mat-divider> </mat-divider>
 
         <app-patterns 
           [patterns]="patterns"
