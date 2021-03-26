@@ -125,11 +125,11 @@
 
         <app-patterns 
           [patterns]="patterns"
-          [selection] = "copy"
+          [selection] = "selection"
           (onPatternChange)="updatePatterns($event);"
           (onCreatePattern)="createPattern($event);"
           (onRemovePattern)="removePattern($event);"
-          (onChange) = "onChange($event);">
+          (onFill) = "fillEvent($event)">
           >
         </app-patterns>
 

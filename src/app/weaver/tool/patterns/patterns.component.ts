@@ -11,12 +11,16 @@ import * as _ from 'lodash';
   styleUrls: ['./patterns.component.scss']
 })
 export class PatternsComponent implements OnInit {
+  
+  all_patterns;
+
   @Input()  patterns;
   @Input()  selection;
   @Output() onPatternChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
-  @Output() onChange: any = new EventEmitter();
+  @Output() onFill: any = new EventEmitter();
+
 
   
   constructor(private dialog: MatDialog) { 
@@ -33,6 +37,7 @@ export class PatternsComponent implements OnInit {
     var obj:any = {};
     obj.patterns = _.cloneDeep(this.patterns);
 
+     if(this.selection !== undefined) this.onFill.emit(p);
     this.onPatternChange.emit(obj);
   }
 
@@ -47,7 +52,7 @@ export class PatternsComponent implements OnInit {
 
     if (!pattern) {
       pattern = new Pattern();
-      pattern.setPattern(this.selection);
+      if(this.selection !== undefined) pattern.setPattern(this.selection);
 
       console.log(pattern);
 

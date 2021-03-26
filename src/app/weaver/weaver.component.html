@@ -56,7 +56,6 @@
        
         <app-design
         [brush]="brush"
-        [favorites]="draft?.patterns | filter: {favorite: true}"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"

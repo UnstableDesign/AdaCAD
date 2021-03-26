@@ -15,18 +15,16 @@ import * as _ from 'lodash';
 export class DesignComponent implements OnInit {
   @Input() collapsed;
   @Input() brush;
-  @Input() favorites;
+  @Input()  patterns;
+  @Input()  selection;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onPaste: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
-  @Input()  patterns;
-  @Input()  selection;
   @Output() onPatternChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
-  @Output() onChange: any = new EventEmitter();
 
   
 
@@ -74,7 +72,7 @@ export class DesignComponent implements OnInit {
      }
   }
 
-  fillEvent(e, id) {
+  fillEvent(id) {
     var obj: any = {};
     obj.id = id;
     this.onFill.emit(obj);
@@ -93,6 +91,23 @@ export class DesignComponent implements OnInit {
     obj.type = type;
     this.onPaste.emit(obj);
   }
+
+
+  updatePatterns(obj: any){
+    this.onPatternChange.emit(obj);
+  }
+
+  removePattern(pattern) {
+    this.onRemovePattern.emit(pattern);
+  }
+
+
+  createPattern(obj){
+    this.onCreatePattern.emit(obj);
+  }
+
+
+
 
 
 
