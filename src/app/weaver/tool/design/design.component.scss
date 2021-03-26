@@ -1,4 +1,51 @@
+mat-divider{
+  padding: 2px 0px;
+  border: none;
+}
 
+
+button{
+    background: white  !important;
+    border: thin solid #ff4081 !important;
+    width: 30px;
+    height: 30px;
+    line-height: 1em;
+    margin: 2px;
+    color: #ff4081 !important ;
+
+
+
+     i{
+      margin-right: 0px;
+    }
+
+    .fill_name{
+      border: thin solid white;
+      overflow: hidden;
+      font-weight: bold;
+      font-style: small-caps;
+      width:20px;
+    }
+
+}
+
+.select_slider{
+  width: 100%;
+  padding: 8px 0 16px 0;
+  font-size: .9em;
+}
+
+button.is-active{
+
+  background: #ff4081 !important;
+  color: white !important;
+}
+
+.button.is-primary.is-active{
+   background: #ff408150 !important;
+  color: #ff4081 !important;
+}
+/*
 
 .button{
     justify-content: center;
@@ -16,4 +63,4 @@
       font-style: small-caps;
       width:20px;
     }
-  }
+  }*/

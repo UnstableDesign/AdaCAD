@@ -10,45 +10,83 @@
   </mat-expansion-panel-header>
 
 
-  <h3 class="is-fullwidth">Cell Brushes</h3>
+
+ <div class="select_slider">
+    Select Cell
+      <mat-slide-toggle
+          [checked]="brush === 'select' || brush === 'copy'"
+          (change)="toggleChange($event)">
+      </mat-slide-toggle>
+    Select Region
+  </div>
+
+
+
+  <button matTooltip="invert the state of one cell" 
+  name="invert" 
+  class="button is-small is-primary fas fa-adjust" 
+  [class.is-active]="brush === 'invert'"
+  (click)="brushChange($event)">
+  </button>
 
   <button matTooltip="draw in filled cells to draft (shortcut: d)" 
   name="point" 
-  class="button is-small is-primary fas fa-pencil-alt"  [class.is-active]="brush === 'point'" 
+  class="button is-small is-primary fas fa-square"  [class.is-active]="brush === 'point'" 
   (click)="brushChange($event)">
   </button>
 
   <button matTooltip="erase filled cells to draft (shortcut: e)" 
   name="erase" 
-  class="button is-small is-primary fas fa-eraser" [class.is-active]="brush === 'erase'" 
+  class="button is-small is-primary far fa-square" [class.is-active]="brush === 'erase'" 
   (click)="brushChange($event)">
   </button>
 
-  <button matTooltip="invert the state of one cell" 
-  name="invert" 
-  class="button is-small is-primary fas fa-random" [class.is-active]="brush === 'invert'" 
-  (click)="brushChange($event)">
-  </button>
+
+<mat-divider></mat-divider>
+
+  <button  matTooltip="paste selection mirrored (horizontal)" 
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    class="button is-small is-primary fas fa-arrows-alt-h" 
+    (click)="pasteEvent($event, 'mirrorY')">           
+    </button>
+
+    <button  matTooltip="paste selection mirrored (vertical)" 
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    class="button is-small is-primary fas fa-arrows-alt-v"
+    (click)="pasteEvent($event, 'mirrorX')">           
+    </button>
+
+    <button  matTooltip="shift by one cell to the right" 
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    class="button is-small is-primary fas fa-arrow-right"
+    (click)="pasteEvent($event, 'shiftX')">           
+    </button>
+
+    <button  matTooltip="shift by one cell up" 
+    [disabled] = "brush !=='select' && brush !=='copy'"  
+    class="button is-small is-primary fas fa-arrow-up"
+    (click)="pasteEvent($event, 'shiftY')">           
+    </button>
+
  
-  <h3 class="is-fullwidth">Region Brushes</h3>
 
-  <button  matTooltip="select a region of the draft (shortcut: s)" 
+<!--   <button  matTooltip="select a region of the draft (shortcut: s)" 
   name="select" 
   class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === 'select'" 
   (click)="brushChange($event)">
-  </button>
+  </button> -->
 
 
- <button matTooltip="clear all valules in selected region (shortcut: delete)" 
+<!--  <button matTooltip="clear all valules in selected region (shortcut: delete)" 
  name="clear" 
  [disabled] = "brush !=='select'" 
  class="button is-primary is-small fa fa-times" 
  (click)="clearEvent($event);"> 
- </button>
+ </button> -->
 
 
 
-  <ng-container *ngFor="let pat of favorites">
+<!--   <ng-container *ngFor="let pat of favorites">
      <button  matTooltip="fill sellection with {{ pat.name }}" 
      [disabled] = "brush !=='select'" 
      name="fill_{{pat.id}}" 
@@ -59,39 +97,45 @@
 
 
  </ng-container>
+ -->
 
-
+<mat-divider> </mat-divider>
 
     <button  matTooltip="copy selection (shortcut: c)"
      name="copy" 
-    [disabled] = "brush !=='select'" 
-    (click)="copyEvent($event);" 
+    [class.is-active]="brush ==='copy'"
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    (click)="brushChange($event)" 
     class="button is-primary is-small fa fa-clone" >
     </button>
 
     <button  matTooltip="paste selection (shortcut: p)"
-    [disabled] = "!copy" 
+    [disabled] = "brush !=='copy'" 
     class="button is-small is-primary fa fa-paste" 
     (click)="pasteEvent($event, 'original')">
     </button>
 
-    <button  matTooltip="paste selection inverted" 
+<!--     <button  matTooltip="paste selection inverted" 
     [disabled] = "!copy" 
     class="button is-small is-primary fa fa-random" 
     (click)="pasteEvent($event, 'invert')">
     </button>
+ -->
+<mat-divider> </mat-divider>
 
-    <button  matTooltip="paste selection mirrored (horizontal)" 
-    [disabled] = "!copy" 
-    class="button is-small is-primary fas fa-arrows-alt-h" 
-    (click)="pasteEvent($event, 'mirrorY')">           
-    </button>
+        <app-patterns 
+          [patterns]="patterns"
+          [selection] = "selection"
+          (onPatternChange)="updatePatterns($event);"
+          (onCreatePattern)="createPattern($event);"
+          (onRemovePattern)="removePattern($event);"
+          (onFill) = "fillEvent($event)">
+          >
+        </app-patterns>
 
-    <button  matTooltip="paste selection mirrored (vertical)" 
-    [disabled] = "!copy" 
-    class="button is-small is-primary fas fa-arrows-alt-v"
-    (click)="pasteEvent($event, 'mirrorX')">           
-    </button>
 
 
 </mat-expansion-panel>
+
+
+

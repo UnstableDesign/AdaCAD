@@ -11,11 +11,16 @@ import * as _ from 'lodash';
   styleUrls: ['./patterns.component.scss']
 })
 export class PatternsComponent implements OnInit {
+  
+  all_patterns;
+
   @Input()  patterns;
+  @Input()  selection;
   @Output() onPatternChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
-  @Output() onChange: any = new EventEmitter();
+  @Output() onFill: any = new EventEmitter();
+
 
   
   constructor(private dialog: MatDialog) { 
@@ -25,32 +30,6 @@ export class PatternsComponent implements OnInit {
 
   }
 
-  openDialog(pattern) {
-    var create = false;
-
-    if (!pattern) {
-      pattern = new Pattern();
-      create = true;
-    }
-
-    const dialogRef = this.dialog.open(PatternModal, 
-      {data: pattern });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (!create) {
-        this.patterns[result.id] = result;
-      } else {
-        this.onCreatePattern.emit({pattern: result});
-      }
-
-      var obj: any = {};
-      obj.patterns = _.cloneDeep(this.patterns);
-      this.onChange.emit(obj);
-    });
-  }
-
-
-
   updateFavorite(p) {
 
     this.patterns[p].favorite = !this.patterns[p].favorite;
@@ -58,6 +37,7 @@ export class PatternsComponent implements OnInit {
     var obj:any = {};
     obj.patterns = _.cloneDeep(this.patterns);
 
+     if(this.selection !== undefined) this.onFill.emit(p);
     this.onPatternChange.emit(obj);
   }
 
@@ -66,12 +46,16 @@ export class PatternsComponent implements OnInit {
     this.onRemovePattern.emit({pattern: pattern});
   }
 
-    openPatternDialog(pattern) {
-    console.log("open dialog")
+  openPatternDialog(pattern) {
+    console.log("open dialog", this.selection);
     var create = false;
 
     if (!pattern) {
       pattern = new Pattern();
+      if(this.selection !== undefined) pattern.setPattern(this.selection);
+
+      console.log(pattern);
+
       create = true;
     }
 

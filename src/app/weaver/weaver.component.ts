@@ -69,14 +69,7 @@ export class WeaverComponent implements OnInit {
    * The name of the current selected brush.
    * @property {string}
    */
-  brush = 'point';
-
-  /**
-   * The name of the variable for showing ONLY the draw-down or the other features
-   * @property {boolean}
-   */
-  // view_frames = true;
-  
+  brush = 'invert';
 
   /**
    * The weave Draft object.
@@ -328,7 +321,8 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.c', ['$event'])
   private keyEventCopy(e) {
-    this.weaveRef.copyArea();
+    this.brush = 'copy';
+    //this.weaveRef.copyArea();
     
   }
 
@@ -363,7 +357,7 @@ export class WeaverComponent implements OnInit {
    */
   public onBrushChange(e:any) {
     this.brush = e.name;
-    this.weaveRef.unsetSelection();
+    //this.weaveRef.unsetSelection();
 
   }
 
@@ -375,7 +369,6 @@ export class WeaverComponent implements OnInit {
    */
   public onFill(e) {
     var p = this.draft.patterns[e.id].pattern;
-    console.log("fill", p)
     this.weaveRef.fillArea(this.weaveRef.selection, p, 'original');
   }
 
@@ -385,8 +378,8 @@ export class WeaverComponent implements OnInit {
    * @param {Event} Delte - clear event from design component.
    * @returns {void}
    */
-  public onClear() {
-    this.weaveRef.fillArea(this.weaveRef.selection, [[false]], 'original')
+  public onClear(b:boolean) {
+    this.weaveRef.fillArea(this.weaveRef.selection, [[b]], 'original')
   }
 
   /**
@@ -420,7 +413,8 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onCopy() {
-    this.weaveRef.copyArea();
+    this.weaveRef.selection.setExplicit();
+    //this.weaveRef.copyArea();
   }
 
   /**
@@ -433,6 +427,7 @@ export class WeaverComponent implements OnInit {
     if (e.type === "bmp") this.weaveRef.saveBMP("weave_draft", e);
     else if (e.type === "ada") this.weaveRef.saveADA("weave_draft", e);
     else if (e.type === "wif") this.weaveRef.saveWIF("weave_draft", e);
+    else if (e.type === "jpg") this.weaveRef.savePrintableDraft("weave_draft", e);
     
   }
 
@@ -593,17 +588,17 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.redraw();
     this.weaveRef.redrawLoom();
   }
-  public hideShuttle(e:any) {
-    this.draft.updateVisible();
-    this.weaveRef.redraw();
-    this.weaveRef.redrawLoom();
-  }
+  // public hideShuttle(e:any) {
+  //   this.draft.updateVisible();
+  //   this.weaveRef.redraw();
+  //   this.weaveRef.redrawLoom();
+  // }
 
-  public showShuttle(e:any) {
-    this.draft.updateVisible();
-    this.weaveRef.redraw();
-    this.weaveRef.redrawLoom();
-  }
+  // public showShuttle(e:any) {
+  //   this.draft.updateVisible();
+  //   this.weaveRef.redraw();
+  //   this.weaveRef.redrawLoom();
+  // }
 
   public epiChange(e:any){
     this.draft.epi = e.epi;
@@ -670,7 +665,6 @@ export class WeaverComponent implements OnInit {
   }
 
     public weftNumChange(e:any) {
-    console.log("weft number change", e.wefts);
     if(e.wefts === "" || e.wefts =="null") return;
 
     console.log("passed check");
@@ -728,47 +722,47 @@ export class WeaverComponent implements OnInit {
 
   public styleViewFrames(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.render.view_frames) return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
-    return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  (this.draft.warps + 1) *dims.w};
+    if(this.render.view_frames) return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+3) * dims.w};
+    return {'top.px': ctx.offsetTop  - 2*(dims.h), 'left.px': ctx.offsetLeft +  (this.draft.warps + 2) *dims.w};
   }
 
   public styleThreading(){
-    return  {'top.px': 180, 'left.px':50};
+    return  {'top.px': 120, 'left.px':50};
   }
 
   public styleTieUps(ctx){
     var dims = this.render.getCellDims("base");
   //  var frames = this.draft.threading.threading.length;
-    return  {'top.px':ctx.offsetTop, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w};
+    return  {'top.px':ctx.offsetTop, 'left.px': ctx.offsetLeft + (this.draft.warps+2)*dims.w};
   }
 
   public styleDrawdown(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.render.view_frames) return  {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h};
-    else return  {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft, 'width': this.draft.warps * dims.w, 'height':this.draft.wefts * dims.h}
+    if(this.render.view_frames) return  {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft - dims.w, 'width': (this.draft.warps+2) * dims.w, 'height':(this.draft.wefts+2) * dims.h};
+    else return  {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft - dims.w, 'width': (this.draft.warps+2) * dims.w, 'height':(this.draft.wefts+2) * dims.h}
   }
 
   public styleTreadling(ctx){
     var dims = this.render.getCellDims("base");
-    return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft + (this.draft.warps+1)*dims.w}
+    return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+2)*dims.h, 'left.px': ctx.offsetLeft + (this.draft.warps+2)*dims.w}
   }
 
   public styleWeftMaterials(ctx){
     var dims = this.render.getCellDims("base");
-     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+3) * dims.w};
-     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+2)* dims.w};
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+2)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+4) * dims.w};
+     else  return {'top.px': ctx.offsetTop + dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+3)* dims.w};
   }
 
   public styleWeftSystems(ctx){
     var dims = this.render.getCellDims("base");
-     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+2) * dims.w};
-     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+1)* dims.w};
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+2)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+3) * dims.w};
+     else  return {'top.px': ctx.offsetTop+dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+2)* dims.w};
   }
 
   public styleWeftSystemsText(ctx){
     var dims = this.render.getCellDims("base");
-     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+5) * dims.w};
-     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+4)* dims.w};  
+     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+2)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+6) * dims.w};
+     else  return {'top.px': ctx.offsetTop+dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+5)* dims.w};  
   }
 
 
@@ -791,8 +785,8 @@ export class WeaverComponent implements OnInit {
 
   public styleRowButtons(ctx){
     var dims = this.render.getCellDims("base");
-    if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+1)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+6) * dims.w};
-     else  return {'top.px': ctx.offsetTop, 'left.px': ctx.offsetLeft +  (this.draft.warps+5)* dims.w};
+    if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+2)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+7) * dims.w};
+     else  return {'top.px': ctx.offsetTop + dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+6)* dims.w};
   }
 
   public styleSingleRowButton(i){
@@ -846,10 +840,13 @@ export class WeaverComponent implements OnInit {
   }
 
   public renderChange(e: any){
-    console.log('render change', e);
+     console.log('render change', e);
+
+     
      if(e.source === "slider") this.render.setZoom(e.value);
      if(e.source === "in") this.render.zoomIn();
      if(e.source === "out") this.render.zoomOut();
+     if(e.source === "front") this.render.setFront(e.checked);
      
      this.redraw();
      this.weaveRef.unsetSelection();

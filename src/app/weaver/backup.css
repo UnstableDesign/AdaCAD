@@ -1,7 +1,15 @@
 
+.addsystem{
+    color: black;
+    background: none;
+    border: none;
+    padding: 5px 0px 0px 0px;
+}
 
 
 .design-container{
+
+  width:280px;
   line-height: 1.5;
 
 
@@ -248,13 +256,11 @@
 
 
 .collapse{
-    border: none;
-    background: #3d3d3d;
-    color: white;
-    padding: 0 30px;
-    height: 48px;
-    position: relative;
-    left: 95%;
+  border: none;
+  background: #424242;
+  color: white;
+  padding: 0 30px;
+  height: 48px;
 }
 
 

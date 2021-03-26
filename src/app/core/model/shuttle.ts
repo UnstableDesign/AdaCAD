@@ -6,14 +6,14 @@
 export class Shuttle {
   id: number;
   name: string;
-  insert: boolean;
+  insert: boolean; //true is left, false is right
   visible: boolean;
   color: string;
   thickness: number; //percentage of base dims
   type: number;
   // image?: any;
-  // startLabel?: string;
-  // endLabel?: string;
+  startLabel?: string;
+  endLabel?: string;
   notes: string;
 
 
@@ -22,7 +22,7 @@ export class Shuttle {
     //defaults
     this.id = -1;
     this.name="new shuttle";
-    this.insert = false;
+    this.insert = true;
     this.visible = true;
     this.color="#666666";
     this.thickness=100;

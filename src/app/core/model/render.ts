@@ -6,7 +6,7 @@ export class Render {
 
   view_frames: boolean;
   current_view: string;
-  view_back: boolean;
+  view_front: boolean;
 
   zoom: number;
 
@@ -30,7 +30,7 @@ export class Render {
     this.zoom = 100;
     this.view_frames = view_frames;
     this.current_view = 'visual';
-    this.view_back = true;
+    this.view_front = true;
 
     this.base_cell = {
     w: {max: 20, min: .1},
@@ -132,5 +132,12 @@ export class Render {
     this.current_view = view;
   }
 
+  isFront(){
+    return this.view_front;
+  }
+
+  setFront(value:boolean){
+    return this.view_front = value;
+  }
 
 }

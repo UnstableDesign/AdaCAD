@@ -15,18 +15,20 @@ import * as _ from 'lodash';
 export class DesignComponent implements OnInit {
   @Input() collapsed;
   @Input() brush;
-  @Input() favorites;
+  @Input()  patterns;
+  @Input()  selection;
   @Output() onBrushChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onPaste: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
+  @Output() onPatternChange: any = new EventEmitter();
+  @Output() onCreatePattern: any = new EventEmitter();
+  @Output() onRemovePattern: any = new EventEmitter();
 
+  
 
   selected = 0;
-
-
-  copy = false;
 
   constructor(private dialog: MatDialog) { 
   }
@@ -35,9 +37,11 @@ export class DesignComponent implements OnInit {
 
   }
 
-  brushChange(e: any) {
-     if (e.target.name) {
-      this.brush = e.target.name;
+
+  toggleChange(e: any) {
+    if(e.checked) this.brush = "select";
+    else{
+      this.brush = "point";
     }
 
     var obj: any = {};
@@ -45,28 +49,65 @@ export class DesignComponent implements OnInit {
     this.onBrushChange.emit(obj);
   }
 
-  fillEvent(e, id) {
+  brushChange(e: any) {
+
+    console.log(e.target.name);
+
+
+
+     if(this.brush !== "select" || e.target.name == "copy"){
+
+        if (e.target.name) {
+          this.brush = e.target.name;
+        }
+
+        var obj: any = {};
+        obj.name = this.brush;
+        this.onBrushChange.emit(obj);
+     }else{
+
+      if(e.target.name == "point") this.clearEvent(true);
+      else if(e.target.name == "erase") this.clearEvent(false);
+      else if(e.target.name == "invert") this.pasteEvent(e, 'invert');
+     }
+  }
+
+  fillEvent(id) {
     var obj: any = {};
     obj.id = id;
     this.onFill.emit(obj);
   }
 
-  copyEvent(e) {
-    this.onCopy.emit();
-    this.copy = true;
+  // copyEvent(e) {
+  //   this.onCopy.emit();
+  // }
+
+  clearEvent(b:boolean) {
+    this.onClear.emit(b);
   }
-
-  clearEvent(e) {
-    this.onClear.emit();
-  }
-
-
 
   pasteEvent(e, type) {
     var obj: any = {};
     obj.type = type;
     this.onPaste.emit(obj);
   }
+
+
+  updatePatterns(obj: any){
+    this.onPatternChange.emit(obj);
+  }
+
+  removePattern(pattern) {
+    this.onRemovePattern.emit(pattern);
+  }
+
+
+  createPattern(obj){
+    this.onCreatePattern.emit(obj);
+  }
+
+
+
 
 
 
