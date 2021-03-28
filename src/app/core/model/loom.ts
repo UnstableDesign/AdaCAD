@@ -485,7 +485,6 @@ and returns an associated value for threading frames and treadles
     }
 
     isInFrame(warp, frame){
-      console.log("warp", warp, "frame", frame);
       if(!this.inThreadingRange(frame, warp)){
         return null;
       } 

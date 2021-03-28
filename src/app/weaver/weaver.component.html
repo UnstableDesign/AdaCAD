@@ -1,10 +1,14 @@
 <app-topbar 
+[drawer] = "drawer"
+[loomtypes] = "loomtypes"
+[density_units] = "density_units"
 [timeline] = "timeline"
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
 [draftelement]="draftelement"
   (onUndo)="undo();" 
   (onRedo)="redo();"
+  (onReInit)="reInit($event);"
   (onSave)="onSave($event);">
 
 </app-topbar>
@@ -14,7 +18,7 @@
   
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
 
-      <div class ="design-container" [class.collapsed]="collapsed">
+      <div class ="design-container">
        
         <mat-accordion multi>
 
@@ -56,13 +60,13 @@
        
         <app-design
         [brush]="brush"
+        [patterns]="draft?.patterns"
+        [selection] = "weaveRef?.copy"
         (onBrushChange)="onBrushChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
         (onClear)="onClear($event);" 
         (onPaste)="onPaste($event);"
-        [patterns]="draft?.patterns"
-        [selection] = "weaveRef?.copy"
         (onPatternChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"
         (onRemovePattern)="removePattern($event);"
@@ -120,20 +124,17 @@
 
   </mat-drawer>
 
-          <button
-           (click)="drawer.toggle(); collapsed = !collapsed"
-            class="collapse" 
-            value="collapsed">
-         <i class="fa"
-           [class.fa-angle-double-right]="!collapsed" 
-           [class.fa-angle-double-left]="collapsed"
-         aria-hidden="true"></i>
-        </button>
-
-
-
 
   <div *ngIf="draft" #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container">
+
+  
+   <canvas id="weft-systems" #weft_systems style="background:#fbfbfb;">  </canvas>
+   <canvas id="weft-materials" #weft_materials style="background:#fbfbfb;">  </canvas>
+   <canvas id="warp-systems" #warp_systems style="background:#fbfbfb;">  </canvas>
+   <canvas id="warp-materials" #warp_materials style="background:#fbfbfb;">  </canvas>
+  <canvas id="threading"></canvas>
+  <canvas id="tieups" #tieups style="background:#fbfbfb;"></canvas><canvas id="drawdown" #drawDown style="background:#fbfbfb;">  </canvas>
+  <canvas #treadling id="treadling" style="background:#fbfbfb;"></canvas>
 
 
   <div [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
@@ -145,11 +146,11 @@
   </div>
 
   <div class="weft-systems" [ngStyle]="styleWeftSystems(threading)">
-    <canvas id="weft-systems" #weft_systems style="background:#fbfbfb;">  </canvas>
+    <!-- <canvas id="weft-systems" #weft_systems style="background:#fbfbfb;">  </canvas> -->
   </div>
 
    <div class="weft-materials" [ngStyle]="styleWeftMaterials(threading)">
-    <canvas id="weft-materials" #weft_materials style="background:#fbfbfb;">  </canvas>
+    <!-- <canvas id="weft-materials" #weft_materials style="background:#fbfbfb;">  </canvas> -->
    </div>
          
    <div class="weft-systems-text">
@@ -169,12 +170,14 @@
 
 
     <div class="warp-systems" [ngStyle]="styleWarpSystems(threading)">
-      <canvas id="warp-systems"#warp_systems style="background:#fbfbfb;">  </canvas>
+
+    
+     <!--  <canvas id="warp-systems"#warp_systems style="background:#fbfbfb;">  </canvas> -->
     </div>
 
     <div class="warp-materials" [ngStyle]="styleWarpMaterials(threading)">
-      <canvas id="warp-materials" #warp_materials style="background:#fbfbfb;">  </canvas>
-    </div>
+      <!-- <canvas id="warp-materials" #warp_materials style="background:#fbfbfb;">  </canvas>-->
+    </div> 
 
     <div class='warp-systems-text' [ngStyle]="styleWarpSystemsText(threading)">
       
@@ -183,9 +186,12 @@
         <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
           <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
            [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
+
+        
         </g>
-         <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
-          style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
+
+       <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
+        style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
        </svg>  
     </div> 
 
@@ -208,27 +214,27 @@
     </div>
 
 
-    <svg #mySelection class="selection">
+    <svg #mySelection class="selection" [ngStyle]="styleSelection(threading)">
       <text x="5" y="5" text-anchor="start"></text>
     </svg>
               
 
     <div  [style.visibility]="render?.view_frames ? 'visible' : 'hidden'" #threadref class="threading-container"  #threading [ngStyle]="styleThreading()">
-      <canvas id="threading"></canvas>
+      <!-- <canvas id="threading"></canvas> -->
     </div>
 
 
      <div  [style.visibility]="render?.view_frames ? 'visible' : 'hidden'" #tieupsref class="tieups-container" [ngStyle]="styleTieUps(threading)">
-      <canvas id="tieups" #tieups style="background:#fbfbfb;"></canvas>
+     <!--  <canvas id="tieups" #tieups style="background:#fbfbfb;"></canvas> -->
     </div>
 
     <div class='drawdown-container' [ngStyle]="styleDrawdown(threading)">
-      <canvas id="drawdown" #drawDown style="background:#fbfbfb;">  </canvas>
-    </div>
+<!--       <canvas id="drawdown" #drawDown style="background:#fbfbfb;">  </canvas>
+ -->    </div>
 
       
     <div  [style.visibility]="render?.view_frames ? 'visible' : 'hidden'" #treadref class="treadling-container" [ngStyle]="styleTreadling(threading)">
-      <canvas #treadling id="treadling" style="background:#fbfbfb;"></canvas>
+  <!--     <canvas #treadling id="treadling" style="background:#fbfbfb;"></canvas> -->
     </div>
 
 

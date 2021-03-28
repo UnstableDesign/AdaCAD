@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { AboutModal } from '../modal/about/about.modal';
+import { InitModal } from '../modal/init/init.modal';
 
 @Component({
   selector: 'app-topbar',
@@ -16,11 +17,15 @@ export class TopbarComponent implements OnInit {
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
   @Output() onAboutCreate: any = new EventEmitter();
+  @Output() onReInit: any = new EventEmitter();
 
+  @Input() drawer;
   @Input() timeline;
   @Input() undoItem;
   @Input() redoItem;
   @Input() draftelement;
+  @Input() loomtypes;
+  @Input() density_units;
   
   @ViewChild('bmpLink', {static: true}) bmpLink: any;
   @ViewChild('adaLink', {static: true}) adaLink: any;
@@ -75,7 +80,6 @@ export class TopbarComponent implements OnInit {
       downloadLink: this.downloadPrint,
       type: "jpg"
     }
-    console.log(obj);
     this.onSave.emit(obj);
   }
 
@@ -88,8 +92,24 @@ export class TopbarComponent implements OnInit {
   }
 
   openAboutDialog() {
-    this.onAboutCreate.emit();
     const dialogRef = this.dialog.open(AboutModal);
+
+  }
+
+  //need to handle this and load the file somehow
+  openNewFileDialog() {
+
+
+    const dialogRef = this.dialog.open(InitModal, {
+      data: {loomtypes: this.loomtypes, density_units: this.density_units}
+    });
+
+     dialogRef.afterClosed().subscribe(result => {
+      
+      this.onReInit.emit(result);
+      
+
+   });
 
   }
 

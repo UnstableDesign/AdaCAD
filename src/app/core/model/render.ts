@@ -27,14 +27,15 @@ export class Render {
   constructor(view_frames) {
 
     //max values
-    this.zoom = 100;
+    this.zoom = 50;
     this.view_frames = view_frames;
     this.current_view = 'visual';
     this.view_front = true;
 
+    //renders at min -  expands to max
     this.base_cell = {
-    w: {max: 20, min: .1},
-    h: {max: 20, min: .1},
+    w: {max: 20, min: 10},
+    h: {max: 20, min: 10},
     margin_fill_x: {max: 1, min: 0},
     margin_fill_y: {max: 1, min: 0},
     margin_clear_x: {max: 2, min: 0},
@@ -52,8 +53,11 @@ export class Render {
     // console.log("interp", base);
       var r1 = base.max - base.min; 
       if(r1 == 0) return 0;
-      // console.log("i", r1, this.zoom/100, base.min);
-      return r1 * (this.zoom/100) + base.min;
+     //console.log("i", r1, this.zoom/100, base.min);
+
+     var diff = this.zoom - 50; //difference from base zoom
+
+      return r1 * (diff/50) + base.min;
 
 
   }
@@ -75,9 +79,19 @@ export class Render {
   }
 
   getCellDims(type: string){
-    // console.log("get cell dims", type);
-    var x = this.interpolate(this.getOffset(type+"_x"));
-    var y = this.interpolate(this.getOffset(type+"_y"));
+
+    return {
+      x: this.getOffset(type+"_x"),
+      y: this.getOffset(type+"_y"),
+      w: this.base_cell.w.min,
+      h: this.base_cell.h.min
+    };
+
+  }
+
+  getInterpolationDims(type: string){
+    var x = this.interpolate({max: this.getOffset(type+"_x"), min: this.getOffset(type+"_x")});
+    var y = this.interpolate({max: this.getOffset(type+"_y"), min: this.getOffset(type+"_y")});
 
 
     return {
@@ -90,7 +104,6 @@ export class Render {
   }
 
   setZoom(z: number){
-    console.log("set zoom", z)
     this.zoom = z;
   }
 
@@ -110,14 +123,13 @@ export class Render {
   }
 
   private getOffset(type) {
-     // console.log("get offset", type);
-    if(type ==="select_x") return this.select.offset_x;
-    if(type ==="select_y") return this.select.offset_y;
-    if(type ==="base_clear_x") return this.base_cell.margin_clear_x;
-    if(type ==="base_clear_y") return this.base_cell.margin_clear_y;
-    if(type ==="base_fill_x") return this.base_cell.margin_fill_x;
-    if(type ==="base_fill_y") return this.base_cell.margin_fill_y;
-    else return {max: 0, min: 0};
+    if(type ==="select_x") return this.select.offset_x.min;
+    if(type ==="select_y") return this.select.offset_y.min;
+    if(type ==="base_clear_x") return this.base_cell.margin_clear_x.min;
+    if(type ==="base_clear_y") return this.base_cell.margin_clear_y.min;
+    if(type ==="base_fill_x") return this.base_cell.margin_fill_x.min;
+    if(type ==="base_fill_y") return this.base_cell.margin_fill_y.min;
+    else return 0;
   }
 
   toggleViewFrames(){
