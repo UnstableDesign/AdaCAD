@@ -791,7 +791,6 @@ export class WeaverComponent implements OnInit {
 //      return dims.h;
 //   }
 
-
   public getTransform(j){
       var dims = this.render.getInterpolationDims("base");
       return "translate("+(this.draft.warps-j)*dims.w+", 0) rotate(-45)"
@@ -799,7 +798,14 @@ export class WeaverComponent implements OnInit {
 
   public getWarpSystemTransform(j){
       var dims = this.render.getInterpolationDims("base");
-      return "translate("+(this.draft.warps-j)*dims.w+", 0) rotate(-45)"
+      let top = dims.h*2 + dims.h/4;
+      let left = j*dims.w + dims.w/4;
+      return "translate("+left+", "+top+")";
+  }
+
+  public getSelectorFontSize(j){
+      var zoom = this.render.getZoom()/50;
+      return zoom+"em";
   }
 
   public styleWarpSystems(ctx){
@@ -826,6 +832,14 @@ export class WeaverComponent implements OnInit {
         return (j*dims.h + dims.h/4) ;
 
   }
+
+  public getWeftSystemTransform(j){
+      var dims = this.render.getInterpolationDims("base");
+      let left = -(dims.w*3 - dims.w/4);
+      let top = j*dims.h + 3*dims.h/4;
+      return "translate("+left+", "+top+")";
+  }
+
 
   public styleWarpRow(j){
         var dims = this.render.getInterpolationDims("base");

@@ -326,8 +326,6 @@ export class WeaveDirective {
       h: this.weftSystemsCanvas.height / this.weave.wefts
     }
 
-    console.log(event.target.id);
-
     if (event.target.localName === 'canvas') {
       this.removeSubscription();    
       this.subscription = 

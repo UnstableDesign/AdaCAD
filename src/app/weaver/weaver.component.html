@@ -160,6 +160,13 @@
         <text class="weft_text" 
         text-anchor="middle" x="0" [attr.y]="styleWeftSystemsRow(j)" style="font-size:12px;"     fill="#fff" 
         [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{i}}</text> 
+        
+        <text id='weft-systems' 
+          [attr.transform]="getWeftSystemTransform(j)" 
+          [attr.font-size]="getSelectorFontSize()"
+          text-anchor="start"  y="0"
+          fill="#fff">{{draft?.getWeftSystemCode(j)}}</text>
+
         </g>
 
       <text class="weft_text" 
@@ -187,8 +194,13 @@
           <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
            [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
 
-        
+          <text id='warp-systems' 
+          [attr.transform]="getWarpSystemTransform(j)" 
+          [attr.font-size]="getSelectorFontSize()"
+          text-anchor="start"  y="0"
+          fill="#fff">{{draft?.getWarpSystemCode(j)}}</text>
         </g>
+
 
        <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
         style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
