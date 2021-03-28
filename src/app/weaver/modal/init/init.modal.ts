@@ -67,8 +67,11 @@ export class InitModal implements OnInit {
   }
 
   processImageData(e: any) {
+    console.log(e);
+
     this.draft.warps = e.width;
     this.draft.wefts = e.height;
+
     var img = e.data;
     var data = [];
 
@@ -86,8 +89,9 @@ export class InitModal implements OnInit {
         }
       }
     }
+
+
     this.draft.pattern = data;
-    // console.log(this.form.pattern);
   }
 
   processDraftData(e: any) {
@@ -151,14 +155,30 @@ export class InitModal implements OnInit {
     //this.dialogRef.close(this.draft);
   }
 
+
+  //this might come in with data processed from the init form, 
   save(f) {
 
+    console.log(this.draft);
+
+    var warps = 20;
+    if(f.value.warps !== undefined) warps = f.value.warps;
+    if(this.draft.warps !== undefined) warps = this.draft.warps;
+
+
+    var wefts = 20;
+    if(f.value.wefts !== undefined) wefts = f.value.wefts;
+    if(this.draft.wefts !== undefined) wefts = this.draft.wefts;
     //set default values
-    var warps = (f.value.warps === undefined) ? 20 : f.value.warps;
-    var wefts = (f.value.wefts === undefined) ? 30 : f.value.wefts;
-    var loomtype = (f.value.loomtype === undefined || !f.value.loomtype) ? "frame" : f.value.loomtype;
+    
+    var loomtype = "jacquard";
+    if(f.value.loomtype !== undefined || f.value.loomtype) loomtype = f.value.loomtype;
+
+
+   // var loomtype = (f.value.loomtype === undefined || !f.value.loomtype) ? "frame" : f.value.loomtype;
     var frame_num = (f.value.frame_num === undefined) ? 2 : f.value.frame_num;
     var treadle_num = (f.value.treadle_num === undefined) ? 2 : f.value.treadle_num;
+    
     var epi = (f.value.epi === undefined) ? 10 : f.value.epi;
     var units = (f.value.units === undefined || ! f.value.units) ? "in" : f.value.units;
 

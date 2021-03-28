@@ -12,17 +12,35 @@
       (click)="redoClicked($event);">Redo</button> -->
 
 
+   <button mat-raised-button="Open" (click)="openNewFileDialog(null)">Open</button>
 
-
-    <button mat-raised-button [matMenuTriggerFor]="downloadDropdown">Download Weave</button>
+    <button mat-raised-button [matMenuTriggerFor]="downloadDropdown">Save</button>
+    
     <mat-menu #downloadDropdown mat-raised-button>
-      <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item>Save as Bitmap</a>
-      <a #adaLink (click)="saveAsAda($event)" mat-menu-item>Save as AdaCAD file</a>
-      <a #wifLink (click)="saveAsWif($event)" mat-menu-item>Save as Wif file</a>
-      <a #printLink (click)="saveAsPrint($event)" mat-menu-item>Save Printable File</a>
+      <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
+      <a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
+      <a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
+  <!--     <a #printLink (click)="saveAsPrint($event)" mat-menu-item>Print</a> -->
     </mat-menu>
 
-    <!-- <button mat-icon-button (click)="draftelement.print()" style="width: 50px" ><i class="fas fa-print"></i></button> -->
+<!--    <a #printLink (click)="saveAsPrint($event)" mat-menu-item>Print</a>
+ -->
+     <button mat-icon-button>
+      <a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>
+         <i class="fas fa-print"></i>
+      </a> 
+    </button>
+
+
+      <button mat-icon-button
+           (click)="drawer.toggle(); collapsed = !collapsed"
+            class="collapse" 
+            value="collapsed">
+         <i class="fa"
+           [class.fa-angle-double-right]="!collapsed" 
+           [class.fa-angle-double-left]="collapsed"
+         aria-hidden="true"></i>
+      </button>
 
   </span>
 </mat-toolbar>

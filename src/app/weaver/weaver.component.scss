@@ -1,4 +1,8 @@
-
+canvas{
+  position: absolute;
+  top: 120px;
+  left:50px;
+}
 
 
 .design-container{
@@ -370,7 +374,7 @@
   position: absolute;
   top: 0;
   width: 100%;
-  height: 60px;
+  height: 20px;
 
 
   .insert-button {
@@ -378,7 +382,7 @@
     justify-content: center;
     cursor: pointer;
     display: block;
-    height: 90px;
+    height: 20px;
     position:absolute;
 
 

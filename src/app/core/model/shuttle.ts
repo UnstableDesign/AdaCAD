@@ -21,7 +21,7 @@ export class Shuttle {
 
     //defaults
     this.id = -1;
-    this.name="new shuttle";
+    this.name="";
     this.insert = true;
     this.visible = true;
     this.color="#666666";
@@ -41,6 +41,7 @@ export class Shuttle {
     this.color = color;
     this.thickness = thickness;
     this.type = type;
+    if(this.type === undefined) this.type = 0;
   // this.image = image;
     // this.startLabel = startLabel;
     // this.endLabel = endLabel;

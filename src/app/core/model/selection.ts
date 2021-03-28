@@ -10,12 +10,17 @@ export class Selection {
   width: number;
   height: number;
   target: any;
-  explicit: boolean;
 
 
   setParameters() {
     this.width = Math.abs(this.start.j - this.end.j);
     this.height = Math.abs(this.start.si - this.end.si);
+
+    if(this.target.id == "weft-systems" || this.target.id == "weft-materials"){
+      this.width = 1;
+    }else if(this.target.id == "warp-systems" || this.target.id == "warp-materials"){
+      this.height = 1;
+    }
   }
 
   unsetParameters() {
@@ -23,6 +28,17 @@ export class Selection {
     this.height = -1;
   }
 
+  hasSelection(){
+    return (this.width >= 0 && this.height >= 0);
+  }
+
+  getTop(){
+    return Math.min(this.start.si, this.end.si);
+  }
+
+  getLeft(){
+    return Math.min(this.start.j, this.end.j);
+  }
 
   setTarget(t){
   	this.target = t;
@@ -32,16 +48,12 @@ export class Selection {
   	return this.target;
   }
 
-  //was this copy implicitly created with the selectio nor explicity through the copy button
-  setExplicit(){
-    this.explicit = true;
+  getTargetId(){
+    if(this.target !== undefined) return this.target.id;
+    return undefined;
   }
 
-  unsetExplicit(){
-    this.explicit = false;
-  }
 
-  getExplicit(){
-    return this.explicit;
-  }
+
+
 }
