@@ -45,6 +45,7 @@ export interface DraftInterface {
   epi: number;
   units: string;
   loom: Loom;
+  yarn_paths: Array<Array<Cell>>;
 
 
 }
@@ -87,8 +88,10 @@ export class Draft implements DraftInterface {
   units: string;
   loom: Loom;
 
+  yarn_paths: Array<Array<Cell>>;
 
   constructor({...params}) {
+    this.yarn_paths = [];
 
     console.log(params);
 
@@ -911,6 +914,240 @@ export class Draft implements DraftInterface {
     if(type == "weft") this.updateVisible();
 
   }
+
+
+  computeYarnPaths(){
+
+    this.yarn_paths = [];
+    //make an empty container
+    for(var i = 0; i < this.visibleRows.length;i++){
+        this.yarn_paths.push([]);
+        //add to for rendering edges
+        for(var j = 0; j < this.warps+2;j++){
+          this.yarn_paths[i].push(new Cell());
+        }
+
+    }
+
+    for (var l = 0; l < this.shuttles.length; l++) {
+
+      // Draw each shuttle on by one.
+      var shuttle = this.shuttles[l];
+
+      //acc is an array of row_ids that are assigned to this shuttle
+      const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
+
+
+      //screen rows are reversed to go from bottom to top
+      //[visible_row_ndx] -> (indexes where there is interlacement)
+      let path = [];
+      for (var i = 0; i < acc.length ; i++) {
+        //draw row tells us if this is visible
+        var visible_row_ndx = this.visibleRows.findIndex(v => v === acc[i]);
+        if(visible_row_ndx >= 0){
+          
+          const row_values = this.pattern[this.visibleRows[visible_row_ndx]];
+          const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
+          
+          if(overs.length > 0 && overs.length < row_values.length){
+            //index by the visible row id
+            path.push({draw_row: visible_row_ndx, overs:overs});
+          }
+        }
+      }
+
+      //read from bottom to top
+      path = path.reverse();
+
+      var rows = 0;
+      var started = false;
+      var last = {
+        row: 0,
+        ndx: 0
+      };
+
+
+      for(let k in path){
+        
+        var draw_row:number = parseInt(path[k].draw_row); 
+        var overs = path[k].overs;
+
+        var moving_left = (rows%2 === 0 && shuttle.insert) || (rows%2 !== 0 && !shuttle.insert);
+
+
+        if(moving_left) overs = overs.reverse();
+        
+        for(var o in overs){
+           
+          //shift o's by 1 to the right to range of indexs from -1 to length  
+          overs[o] += 1;
+
+          if(!started){
+
+            if(moving_left){
+                //this.drawWeftStart(draw_row, overs[o]+1, shuttle);
+                this.yarn_paths[draw_row][overs[o]+1].setShuttle(shuttle.id);
+                this.yarn_paths[draw_row][overs[o]+1].setEast();
+            } 
+            else{
+                //this.drawWeftStart(draw_row, overs[o]-1, shuttle)
+                this.yarn_paths[draw_row][overs[o]-1].setShuttle(shuttle.id);
+                this.yarn_paths[draw_row][overs[o]-1].setWest();
+            }  
+            
+            //this.drawWeftUnder(draw_row, overs[o], shuttle);
+            this.yarn_paths[draw_row][overs[o]].setShuttle(shuttle.id);
+            this.yarn_paths[draw_row][overs[o]].setEastWest();
+            this.yarn_paths[draw_row][overs[o]].setHeddleUp();
+
+            started = true;
+            last.row = draw_row;
+            last.ndx = overs[o];
+            
+          }else{
+            //if I'm on the same row
+            if(last.row === draw_row){
+              
+              if(moving_left){
+                for(var i = last.ndx-1; i > overs[o]; i--){
+                  //this.drawWeftOver(draw_row, i, shuttle);
+                  this.yarn_paths[draw_row][i].setShuttle(shuttle.id);
+                  this.yarn_paths[draw_row][i].setEastWest();
+                }
+              }else{
+                for(var i = last.ndx+1; i < overs[o]; i++){
+                  this.yarn_paths[draw_row][i].setShuttle(shuttle.id);
+                  this.yarn_paths[draw_row][i].setEastWest();
+                  //this.drawWeftOver(draw_row, i, shuttle);
+                }
+              }
+
+             // this.drawWeftUnder(draw_row, overs[o], shuttle);
+              this.yarn_paths[draw_row][overs[o]].setShuttle(shuttle.id);
+              this.yarn_paths[draw_row][overs[o]].setEastWest();
+              this.yarn_paths[draw_row][overs[o]].setHeddleUp();
+
+
+              last.row = draw_row;
+              last.ndx = overs[o];
+
+            }else{
+
+              //if this new row extends past the bounds of the old, extend those bounds
+              if(moving_left && overs[o] > last.ndx){
+                
+                for(var i = last.ndx+1; i <= overs[o]; i++){
+                  //this.drawWeftOver(last.row, i, shuttle); 
+                  this.yarn_paths[last.row][i].setShuttle(shuttle.id);
+                  this.yarn_paths[last.row][i].setEastWest(); 
+                }
+
+                this.yarn_paths[last.row][overs[o]+1].setShuttle(shuttle.id);
+                this.yarn_paths[last.row][overs[o]+1].setNorth();
+                this.yarn_paths[last.row][overs[o]+1].setWest();
+                //this.drawWeftLeftUp(last.row, overs[o]+1, shuttle);
+                last.ndx = overs[o]+1;
+
+              }else if(!moving_left && overs[o] < last.ndx){
+
+                for(var i = last.ndx -1; i >= overs[o]; i--){
+                  //this.drawWeftOver(last.row, i, shuttle);  
+                  this.yarn_paths[last.row][i].setShuttle(shuttle.id);
+                  this.yarn_paths[last.row][i].setEastWest();
+                }
+                //this.drawWeftRightUp(last.row, overs[o]-1, shuttle);
+                this.yarn_paths[last.row][overs[o]-1].setShuttle(shuttle.id);
+                this.yarn_paths[last.row][overs[o]-1].setNorth();
+                this.yarn_paths[last.row][overs[o]-1].setEast();
+
+                last.ndx = overs[o]-1;
+
+              }else if(moving_left && overs[o] <= last.ndx){
+               
+                //this.drawWeftLeftUp(last.row, last.ndx+1, shuttle);
+                this.yarn_paths[last.row][last.ndx+1].setShuttle(shuttle.id);
+                this.yarn_paths[last.row][last.ndx+1].setNorth();
+                this.yarn_paths[last.row][last.ndx+1].setWest();
+                last.ndx = last.ndx+1;
+
+              }else  if(!moving_left && overs[o] >= last.ndx){
+
+                //this.drawWeftRightUp(last.row, last.ndx-1, shuttle);
+                this.yarn_paths[last.row][last.ndx-1].setShuttle(shuttle.id);
+                this.yarn_paths[last.row][last.ndx-1].setNorth();
+                this.yarn_paths[last.row][last.ndx-1].setEast();
+
+                last.ndx = last.ndx-1;
+
+              }
+
+              for(var j = last.row-1; j > draw_row; j--){
+                //this.drawWeftUp(j, last.ndx, shuttle);
+                this.yarn_paths[j][last.ndx].setShuttle(shuttle.id);
+                this.yarn_paths[j][last.ndx].setNorthSouth();
+              }
+
+
+              if(moving_left){
+                  //this.drawWeftBottomLeft(draw_row, last.ndx, shuttle);
+                  this.yarn_paths[draw_row][last.ndx].setShuttle(shuttle.id);
+                  this.yarn_paths[draw_row][last.ndx].setWest();
+                  this.yarn_paths[draw_row][last.ndx].setSouth();
+
+                for(var i = last.ndx-1; i > overs[o]; i--){
+                  //this.drawWeftOver(draw_row, i, shuttle);
+                  this.yarn_paths[draw_row][i].setShuttle(shuttle.id);
+                  this.yarn_paths[draw_row][i].setEastWest();   
+                }
+
+                //this.drawWeftUnder(draw_row, overs[o], shuttle);
+                this.yarn_paths[draw_row][overs[o]].setShuttle(shuttle.id);
+                this.yarn_paths[draw_row][overs[o]].setEastWest();  
+                this.yarn_paths[draw_row][overs[o]].setHeddleUp();  
+
+                last.ndx = overs[o];
+                last.row = draw_row;
+
+              }else{
+
+                //this.drawWeftBottomRight(draw_row, last.ndx, shuttle);
+                this.yarn_paths[draw_row][last.ndx].setShuttle(shuttle.id);
+                this.yarn_paths[draw_row][last.ndx].setSouth();
+                this.yarn_paths[draw_row][last.ndx].setEast();
+
+                for(var i = last.ndx+1; i < overs[o]; i++){
+                  //this.drawWeftOver(draw_row, i, shuttle);  
+                  this.yarn_paths[draw_row][i].setShuttle(shuttle.id);
+                  this.yarn_paths[draw_row][i].setEastWest();  
+                }
+
+                //this.drawWeftUnder(draw_row, overs[o], shuttle);
+                this.yarn_paths[draw_row][overs[o]].setShuttle(shuttle.id);
+                this.yarn_paths[draw_row][overs[o]].setEastWest();  
+                this.yarn_paths[draw_row][overs[o]].setHeddleUp();  
+                last.ndx = overs[o];
+                last.row = draw_row;
+              }
+            }
+          }
+        } //end for overs
+      
+      rows++;
+      } //end for path rows
+
+    if(started){
+      if(moving_left){
+        this.yarn_paths[last.row][last.ndx].setShuttle(shuttle.id);
+        this.yarn_paths[last.row][last.ndx].setEast();
+        //this.drawWeftEnd(last.row, last.ndx, shuttle);
+      }else{
+        this.yarn_paths[last.row][last.ndx].setShuttle(shuttle.id);
+        this.yarn_paths[last.row][last.ndx].setWest();
+      }
+    } 
+  } //end for shuttles
+    
+}
 
 
 

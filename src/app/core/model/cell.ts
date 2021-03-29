@@ -6,11 +6,27 @@ export class Cell {
   poles: number;
   is_up: boolean;
   mask_id: number;
+  shuttle_id: number;
 
   constructor() {
     this.poles = 0b0000;
     this.is_up = false;
     this.mask_id = -1;
+    this.shuttle_id = -1;
+  }
+
+
+
+  setShuttle(id){
+    this.shuttle_id = id;
+  }
+
+  setHeddleUp(){
+    this.is_up = true;
+  }
+
+  setHeddleDown(){
+     this.is_up = false;
   }
 
   setNorth(){
@@ -20,6 +36,16 @@ export class Cell {
   setEast(){
     this.poles = this.poles | 0b0100;
 
+  }
+
+  setNorthSouth(){
+    this.setNorth();
+    this.setSouth();
+  }
+
+  setEastWest(){
+    this.setEast();
+    this.setWest();
   }
 
   setSouth(){
@@ -51,6 +77,38 @@ export class Cell {
   hasNorth():boolean{
     let p:number = this.poles >>> 3;
     return(p === 1);
+  }
+
+  isEastWest():boolean{
+    return (this.poles & 0b0101) === 0b0101;
+  }
+
+  isSouthEast():boolean{
+    return (this.poles & 0b0110) === 0b0110;
+  }
+
+  isSouthWest():boolean{
+    return (this.poles & 0b0011) === 0b0011;
+  }
+
+  isNorthSouth():boolean{
+    return (this.poles & 0b1010) === 0b1010;
+  }
+
+  isNorthEast():boolean{
+    return (this.poles & 0b1100) === 0b1100;
+  }
+
+  isNorthWest():boolean{
+    return (this.poles & 0b1001) === 0b1001;
+  }
+
+  isWest():boolean{
+    return (this.poles & 0b0001) === 0b0001;
+  }
+
+  isEast():boolean{
+    return (this.poles & 0b0100) === 0b0100;
   }
 
   hasEast():boolean{
@@ -101,6 +159,10 @@ export class Cell {
 
   unsetPoles(){
     this.poles = 0b0000;
+  }
+
+  getShuttle():number{
+    return this.shuttle_id;
   }
 
 

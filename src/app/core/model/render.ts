@@ -136,6 +136,10 @@ export class Render {
     this.view_frames = !this.view_frames;
   }
 
+  showingFrames():boolean{
+    return this.view_frames;
+  }
+
   getCurrentView(): string{
     return this.current_view;
   }

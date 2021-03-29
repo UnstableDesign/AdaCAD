@@ -338,7 +338,15 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public viewChange(value: any) {
+
+    let last:string = this.render.getCurrentView();
     this.render.setCurrentView(value);
+    
+    //only recompute when we switch to a view where we render the yarns
+    if(last == 'pattern' || last == "mask")
+      if(value == 'yarn' || value == 'visual') 
+        this.draft.computeYarnPaths();
+
     this.weaveRef.redraw();
   }
 
@@ -687,14 +695,14 @@ export class WeaverComponent implements OnInit {
   }
 
   public toggleViewFrames(){
+
     this.render.toggleViewFrames();
-    //this.weaveRef.unsetSelection();
 
     if(this.render.view_frames && this.draft.loom.type == "frame"){
       this.weaveRef.recomputeLoom();
       this.redraw();
     }else{
-      this.weaveRef.rerender();
+      this.weaveRef.rescale();
     }
 
    
@@ -843,20 +851,29 @@ export class WeaverComponent implements OnInit {
 
   public styleWarpRow(j){
         var dims = this.render.getInterpolationDims("base");
-        return (j*dims.w) ;
-
+        return (j*dims.w);
   }
 
   public renderChange(e: any){
      
-     if(e.source === "slider") this.render.setZoom(e.value);
-     if(e.source === "in") this.render.zoomIn();
-     if(e.source === "out") this.render.zoomOut();
-     if(e.source === "front") this.render.setFront(e.checked);
-     
-     // this.redraw();
-     this.weaveRef.rerender();
+     if(e.source === "slider"){
+        this.render.setZoom(e.value);
+     } 
 
+     if(e.source === "in"){
+        this.render.zoomIn();
+     } 
+
+     if(e.source === "out"){
+        this.render.zoomOut();
+     } 
+     if(e.source === "front"){
+        this.render.setFront(e.checked);
+        this.redraw();
+     } 
+      
+      this.weaveRef.rescale();
+     
   }
 
 
