@@ -208,7 +208,7 @@ export class WeaverComponent implements OnInit {
 
 
     dialogRef.afterClosed().subscribe(result => {
-      this.reInit(result);
+      if(result !== undefined) this.reInit(result);
    });
 
 

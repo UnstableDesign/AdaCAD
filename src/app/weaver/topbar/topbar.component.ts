@@ -106,7 +106,7 @@ export class TopbarComponent implements OnInit {
 
      dialogRef.afterClosed().subscribe(result => {
       
-      this.onReInit.emit(result);
+      if(result !== undefined) this.onReInit.emit(result);
       
 
    });
