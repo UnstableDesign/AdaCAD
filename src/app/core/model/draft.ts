@@ -91,7 +91,7 @@ export class Draft implements DraftInterface {
     
 
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
-    this.warps = (params.warps === undefined) ? 20 : params.warps;
+    this.warps = (params.warps === undefined) ? 40 : params.warps;
     this.epi = (params.epi === undefined) ? 10 : params.epi;
     this.units = (params.units === undefined) ? "in" : params.units;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;

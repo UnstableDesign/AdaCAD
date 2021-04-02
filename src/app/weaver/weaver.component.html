@@ -210,11 +210,10 @@
 
 
     <div  #shuttle_buttons class="insert-button-group-shuttles" [ngStyle]="styleRowButtons(threading, shuttle_buttons)" >
-      {{i}}
-      <div *ngFor="let i of (draft?.visibleRows)" class="insert-button" [ngStyle]="styleSingleRowButton(i)">
-        <span (click)="insertRow(i + 1, draft?.rowToShuttle(i), draft?.rowToSystem(i));"><i class="fa fa-plus-circle"></i></span>
-        <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i),draft?.rowToSystem(i));"><i class="fa fa-clone"></i></span>
-        <span (click)="deleteRow(i);"><i class="fa fa-trash"></i></span>
+      <div *ngFor="let r of (draft?.visibleRows); index as i; " class="insert-button"  [ngStyle]="styleSingleRowButton(i)">
+        <span (click)="insertRow(r + 1, draft?.rowToShuttle(r), draft?.rowToSystem(r));"><i class="fa fa-plus-circle"></i></span>
+        <span (click)="cloneRow(r + 1, r, draft?.rowToShuttle(r),draft?.rowToSystem(r));"><i class="fa fa-clone"></i></span>
+        <span (click)="deleteRow(r);"><i class="fa fa-trash"></i></span>
       </div>
     </div>
 

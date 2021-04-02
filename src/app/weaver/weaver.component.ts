@@ -871,16 +871,23 @@ export class WeaverComponent implements OnInit {
   }
 
 
+  //this styles the container that contains all the row buttons
   public styleRowButtons(ctx){
+
+
     var dims = this.render.getInterpolationDims("base");
     if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+2)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+7) * dims.w};
      else  return {'top.px': ctx.offsetTop + dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+6)* dims.w};
   }
 
   public styleSingleRowButton(i){
-    var dims = this.render.getInterpolationDims("base");
     var zoom = this.render.getZoom();
-    return {'top.px':i*dims.h, 'height.px':dims.h, 'font-size.em':zoom/100}
+    var dims = this.render.getInterpolationDims("base");
+    return {'top.px':(i*dims.h), 'font-size.em':zoom/100};
+
+    // var dims = this.render.getInterpolationDims("base");
+    // var zoom = this.render.getZoom();
+    // return {'top.px':i*dims.h, 'height.px':dims.h, 'font-size.em':zoom/100}
 
   }
 
