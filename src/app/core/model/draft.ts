@@ -61,13 +61,15 @@ export class Draft implements DraftInterface {
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;  
   
-
+  //tracks stores row/col index with the system index
   rowSystemMapping: Array<number>;
   colSystemMapping: Array<number>;
+  rowSystemRepeat: Array<number>; //stores a pattern used for rows
+  colSystemRepeat: Array<number>; //stores a pattern of ids of cols
+
   visibleRows: Array<number>;
 
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
- 
   masks: Array<String>; //associates a mask id with a name
   
   weft_systems: Array<System>; //weft-systems

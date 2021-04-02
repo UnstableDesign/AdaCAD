@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PrintComponent } from './print.component';
+import { SystemsComponent } from './systems.component';
 
-describe('PrintComponent', () => {
-  let component: PrintComponent;
-  let fixture: ComponentFixture<PrintComponent>;
+describe('WeftsystemsComponent', () => {
+  let component: SystemsComponent;
+  let fixture: ComponentFixture<SystemsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PrintComponent ]
+      declarations: [ SystemsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PrintComponent);
+    fixture = TestBed.createComponent(SystemsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

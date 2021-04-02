@@ -5,14 +5,14 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 
 
 @Component({
-  selector: 'app-weftsystems',
-  templateUrl: './weftsystems.component.html',
-  styleUrls: ['./weftsystems.component.scss']
+  selector: 'app-systems',
+  templateUrl: './systems.component.html',
+  styleUrls: ['./systems.component.scss']
 })
 
 
 
-export class WeftsystemsComponent implements OnInit {
+export class SystemsComponent implements OnInit {
 
 
   @Input() systems: any;

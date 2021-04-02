@@ -30,12 +30,10 @@ import { DesignComponent } from './tool/design/design.component';
 import { PatternsComponent } from './tool/patterns/patterns.component';
 import { HistoryComponent } from './tool/history/history.component';
 import { MaterialsComponent } from './tool/materials/materials.component';
-import { WeftsystemsComponent } from './tool/weftsystems/weftsystems.component';
-import { WarpsystemsComponent } from './tool/warpsystems/warpsystems.component';
+import { SystemsComponent } from './tool/systems/systems.component';
 import { LoomComponent } from './tool/loom/loom.component';
 import { MasksComponent } from './tool/masks/masks.component';
 import { SchematicComponent } from './tool/schematic/schematic.component';
-import { PrintComponent } from './tool/print/print.component';
 import { ViewComponent } from './tool/view/view.component';
 
 
@@ -100,13 +98,11 @@ import { LabelModal } from './modal/label/label.modal';
     InitModal,
     LabelModal,
     MaterialModal,
-    WeftsystemsComponent,
-    WarpsystemsComponent,
+    SystemsComponent,
     LoomComponent,
     MaterialsComponent,
     MasksComponent,
     SchematicComponent,
-    PrintComponent,
     ViewComponent
   ],
   entryComponents: [
