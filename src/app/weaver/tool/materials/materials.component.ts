@@ -43,6 +43,7 @@ export class MaterialsComponent implements OnInit {
     	console.log(result);
         if (!create) {
           this.shuttles[result.id] = result;
+          this.onColorChange.emit();
         } else {
           this.onCreateShuttle.emit({shuttle: result});
         }

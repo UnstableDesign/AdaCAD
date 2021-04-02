@@ -78,9 +78,9 @@ export class DesignComponent implements OnInit {
     this.onFill.emit(obj);
   }
 
-  // copyEvent(e) {
-  //   this.onCopy.emit();
-  // }
+  copyEvent(e) {
+    this.onCopy.emit();
+  }
 
   clearEvent(b:boolean) {
     this.onClear.emit(b);

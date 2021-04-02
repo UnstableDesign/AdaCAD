@@ -29,7 +29,7 @@ export class Render {
     //max values
     this.zoom = 50;
     this.view_frames = view_frames;
-    this.current_view = 'visual';
+    this.current_view = 'pattern';
     this.view_front = true;
 
     //renders at min -  expands to max
@@ -138,6 +138,10 @@ export class Render {
 
   showingFrames():boolean{
     return this.view_frames;
+  }
+
+  isYarnBasedView(): boolean{
+    return (this.current_view == 'visual' || this.current_view == 'yarn');
   }
 
   getCurrentView(): string{

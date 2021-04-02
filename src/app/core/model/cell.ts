@@ -6,20 +6,15 @@ export class Cell {
   poles: number;
   is_up: boolean;
   mask_id: number;
-  shuttle_id: number;
 
   constructor() {
     this.poles = 0b0000;
     this.is_up = false;
     this.mask_id = -1;
-    this.shuttle_id = -1;
   }
 
 
 
-  setShuttle(id){
-    this.shuttle_id = id;
-  }
 
   setHeddleUp(){
     this.is_up = true;
@@ -39,8 +34,10 @@ export class Cell {
   }
 
   setNorthSouth(){
+    console.log("before north south true", this.poles);
     this.setNorth();
     this.setSouth();
+    console.log("set north south true", this.poles);
   }
 
   setEastWest(){
@@ -159,10 +156,6 @@ export class Cell {
 
   unsetPoles(){
     this.poles = 0b0000;
-  }
-
-  getShuttle():number{
-    return this.shuttle_id;
   }
 
 
