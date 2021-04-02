@@ -13,6 +13,17 @@ export class Cell {
     this.mask_id = -1;
   }
 
+
+
+
+  setHeddleUp(){
+    this.is_up = true;
+  }
+
+  setHeddleDown(){
+     this.is_up = false;
+  }
+
   setNorth(){
     this.poles = this.poles | 0b1000;
   }
@@ -20,6 +31,18 @@ export class Cell {
   setEast(){
     this.poles = this.poles | 0b0100;
 
+  }
+
+  setNorthSouth(){
+    console.log("before north south true", this.poles);
+    this.setNorth();
+    this.setSouth();
+    console.log("set north south true", this.poles);
+  }
+
+  setEastWest(){
+    this.setEast();
+    this.setWest();
   }
 
   setSouth(){
@@ -51,6 +74,38 @@ export class Cell {
   hasNorth():boolean{
     let p:number = this.poles >>> 3;
     return(p === 1);
+  }
+
+  isEastWest():boolean{
+    return (this.poles & 0b0101) === 0b0101;
+  }
+
+  isSouthEast():boolean{
+    return (this.poles & 0b0110) === 0b0110;
+  }
+
+  isSouthWest():boolean{
+    return (this.poles & 0b0011) === 0b0011;
+  }
+
+  isNorthSouth():boolean{
+    return (this.poles & 0b1010) === 0b1010;
+  }
+
+  isNorthEast():boolean{
+    return (this.poles & 0b1100) === 0b1100;
+  }
+
+  isNorthWest():boolean{
+    return (this.poles & 0b1001) === 0b1001;
+  }
+
+  isWest():boolean{
+    return (this.poles & 0b0001) === 0b0001;
+  }
+
+  isEast():boolean{
+    return (this.poles & 0b0100) === 0b0100;
   }
 
   hasEast():boolean{

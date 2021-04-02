@@ -16,25 +16,29 @@
     </mat-form-field>
 
    <div class="is-fullwidth">
-    <mat-form-field >
-      <input matInput  
-      type="number" 
-      placeholder="Yarn Thickness" 
-      name="thickness" 
-      min="0"
-      max="100"
-      step="10"
-      [(ngModel)]="shuttle.thickness"> 
-      <span>&nbsp;&nbsp;%</span>
-    </mat-form-field>
+      <mat-form-field class="form-field">
+        <input matInput  
+        type="number" 
+        placeholder="Yarn Thickness" 
+        name="thickness" 
+        min="0"
+        max="100"
+        step="10"
+        [(ngModel)]="shuttle.thickness"> 
+        <span>&nbsp;&nbsp;%</span>
+      </mat-form-field>
 
-    <mat-form-field>
-      <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
-       [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
-    </mat-form-field>
+      <mat-form-field class="form-field">
+        <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
+         [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
+      </mat-form-field>
+    </div>
 
-       <mat-slide-toggle matInput [(ngModel)]="shuttle.insert" name="insert" required>Insert From {{(shuttle.insert)? "Left" : "Right"}}</mat-slide-toggle>
-
+    <div class="is-fullwidth">
+       Insert From Left
+       <mat-slide-toggle matInput [(ngModel)]="shuttle.insert" name="insert" required>
+       </mat-slide-toggle>
+       Insert From Right
   </div>
 
   <div class="is-fullwidth">

@@ -12,7 +12,6 @@ import * as _ from 'lodash';
 })
 export class PatternsComponent implements OnInit {
   
-  all_patterns;
 
   @Input()  patterns;
   @Input()  selection;
@@ -78,6 +77,13 @@ export class PatternsComponent implements OnInit {
   print(e) {
     console.log(e);
   }
+
+  fill(id){
+    this.onFill.emit(id);
+
+  }
+
+
 
 
 }

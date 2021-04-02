@@ -3,6 +3,8 @@ import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
+import { Selection } from './selection';
+import { Point } from '../model/point';
 
 import * as _ from 'lodash';
 import { active } from 'd3';
@@ -23,6 +25,7 @@ export interface DraftInterface {
 
   rowSystemMapping: Array<number>;
   colSystemMapping: Array<number>;
+
   visibleRows: Array<number>;
 
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
@@ -32,9 +35,6 @@ export interface DraftInterface {
   weft_systems: Array<System>; //weft-systems
   warp_systems: Array<System>; //warp-systems
 
-
-  // rowMaterialMap: Array<number>;
-  // colMaterialMap: Array<number>;
 
   connections: Array<any>;
   labels: Array<any>;
@@ -61,13 +61,15 @@ export class Draft implements DraftInterface {
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;  
   
-
+  //tracks stores row/col index with the system index
   rowSystemMapping: Array<number>;
   colSystemMapping: Array<number>;
+  rowSystemRepeat: Array<number>; //stores a pattern used for rows
+  colSystemRepeat: Array<number>; //stores a pattern of ids of cols
+
   visibleRows: Array<number>;
 
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
- 
   masks: Array<String>; //associates a mask id with a name
   
   weft_systems: Array<System>; //weft-systems
@@ -87,13 +89,11 @@ export class Draft implements DraftInterface {
   units: string;
   loom: Loom;
 
-
   constructor({...params}) {
-
-    console.log(params);
+    
 
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
-    this.warps = (params.warps === undefined) ? 20 : params.warps;
+    this.warps = (params.warps === undefined) ? 40 : params.warps;
     this.epi = (params.epi === undefined) ? 10 : params.epi;
     this.units = (params.units === undefined) ? "in" : params.units;
     this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
@@ -120,9 +120,12 @@ export class Draft implements DraftInterface {
     //nothing has been added, load with 2 mateials and 1 shuttle on each material
     if(params.shuttles === undefined){
 
-      let s0 = new Shuttle({id: 0, name: 'Black', type: 0,  thickness:100, color: '#333333', visible: true, insert:false, notes: ""});
-      let s1 = new Shuttle({id: 1, name: 'Grey', type: 0, thickness:100, color: '#999999', visible:true, insert:false, notes: ""});
-      this.shuttles = [s0, s1];
+      const randomColor = Math.floor(Math.random()*16777215).toString(16);
+
+      let s0 = new Shuttle({id: 0, name: 'Color 1', type: 0,  thickness:50, color: '#333333', visible: true, insert:false, notes: ""});
+      let s1 = new Shuttle({id: 1, name: 'Color 2', type: 0, thickness:50, color: '#'+randomColor, visible:true, insert:false, notes: ""});
+      let s2 = new Shuttle({id: 2, name: 'Conductive', type: 1, thickness:50, color: '#61c97d', visible:true, insert:false, notes: ""});
+      this.shuttles = [s0, s1, s2];
 
     }else{
 
@@ -136,7 +139,9 @@ export class Draft implements DraftInterface {
     }
 
 
+    //automatically create 4
     if(params.warp_systems === undefined){
+
       let s0 = new System({id: 0, name: 'Warp System 1', visible: true, notes: ""});
       let s1 = new System({id: 1, name: 'Warp System 2', visible: false, notes: ""});
       let s2 = new System({id: 2, name: 'Warp System 3', visible: false, notes: ""});
@@ -150,7 +155,13 @@ export class Draft implements DraftInterface {
             sd.push(sys);
           }
         this.warp_systems = sd;
+      
+      while(this.warp_systems.length < 4){
+        this.warp_systems.push( new System({id: this.warp_systems.length, name: 'Warp System '+this.warp_systems.length, visible: false, notes: ""}));
+      }
+
     }
+
 
     if(params.weft_systems === undefined){
       let s0 = new System({id: 0, name: 'Weft System 1', visible: true, notes: ""});
@@ -166,6 +177,10 @@ export class Draft implements DraftInterface {
         sd.push(sys);
       }
       this.weft_systems = sd;
+
+      while(this.weft_systems.length < 4){
+        this.weft_systems.push( new System({id: this.weft_systems.length, name: 'Weft System '+this.weft_systems.length, visible: false, notes: ""}));
+      }
     }
 
     if(params.rowSystemMapping === undefined){
@@ -261,6 +276,199 @@ export class Draft implements DraftInterface {
       this.recomputeLoom();
     }
 
+    this.computeYarnPaths();
+    this.recomputeWidth();
+
+  }
+
+  reload({...params}) {
+    
+
+    this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
+    this.warps = (params.warps === undefined) ? 40 : params.warps;
+    this.epi = (params.epi === undefined) ? 10 : params.epi;
+    this.units = (params.units === undefined) ? "in" : params.units;
+    this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
+    this.pattern = (params.pattern === undefined) ? [] : params.pattern;
+    this.connections = (params.connections === undefined)? [] : params.connections;
+    this.labels = (params.labels === undefined)? [] : params.labels;
+    this.masks = (params.masks === undefined)? [] : params.masks;
+
+
+
+    if(params.loom === undefined) {
+      this.loom = new Loom('frame', this.wefts, this.warps, 8, 10);
+
+    } else {
+
+      this.loom = new Loom(params.loom.type, this.wefts, this.warps, params.loom.num_frames, params.loom.num_treadles);
+      if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
+      if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
+      if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
+    }
+
+  
+
+    //nothing has been added, load with 2 mateials and 1 shuttle on each material
+    if(params.shuttles === undefined){
+
+      const randomColor = Math.floor(Math.random()*16777215).toString(16);
+
+      let s0 = new Shuttle({id: 0, name: 'Color 1', type: 0,  thickness:50, color: '#333333', visible: true, insert:false, notes: ""});
+      let s1 = new Shuttle({id: 1, name: 'Color 2', type: 0, thickness:50, color: '#'+randomColor, visible:true, insert:false, notes: ""});
+      let s2 = new Shuttle({id: 2, name: 'Conductive', type: 1, thickness:50, color: '#61c97d', visible:true, insert:false, notes: ""});
+      this.shuttles = [s0, s1, s2];
+
+    }else{
+
+      var shuttles = params.shuttles
+      var sd = [];
+      for (var i in shuttles) {
+        var s = new Shuttle(shuttles[i]);
+        sd.push(s);
+      }
+      this.shuttles = sd;
+    }
+
+
+    //automatically create 4
+    if(params.warp_systems === undefined){
+
+      let s0 = new System({id: 0, name: 'Warp System 1', visible: true, notes: ""});
+      let s1 = new System({id: 1, name: 'Warp System 2', visible: false, notes: ""});
+      let s2 = new System({id: 2, name: 'Warp System 3', visible: false, notes: ""});
+      let s3 = new System({id: 3, name: 'Warp System 4', visible: false, notes: ""});
+      this.warp_systems = [s0, s1, s2, s3];
+    }else{
+      var systems = params.warp_systems
+          var sd = [];
+          for (var i in systems) {
+            var sys = new System(systems[i]);
+            sd.push(sys);
+          }
+        this.warp_systems = sd;
+      
+      while(this.warp_systems.length < 4){
+        this.warp_systems.push( new System({id: this.warp_systems.length, name: 'Warp System '+this.warp_systems.length, visible: false, notes: ""}));
+      }
+
+    }
+
+
+    if(params.weft_systems === undefined){
+      let s0 = new System({id: 0, name: 'Weft System 1', visible: true, notes: ""});
+      let s1 = new System({id: 1, name: 'Weft System 2', visible: false, notes: ""});
+      let s2 = new System({id: 2, name: 'Weft System 3', visible: false, notes: ""});
+      let s3 = new System({id: 3, name: 'Weft System 4', visible: false, notes: ""});
+      this.weft_systems = [s0, s1, s2, s3];
+    }else{
+      var systems = params.weft_systems
+      var sd = [];
+      for (var i in systems) {
+        var sys = new System(systems[i]);
+        sd.push(sys);
+      }
+      this.weft_systems = sd;
+
+      while(this.weft_systems.length < 4){
+        this.weft_systems.push( new System({id: this.weft_systems.length, name: 'Weft System '+this.weft_systems.length, visible: false, notes: ""}));
+      }
+    }
+
+    if(params.rowSystemMapping === undefined){
+      this.rowSystemMapping = [];
+      for(var ii = 0; ii < this.wefts; ii++) {
+          this.rowSystemMapping.push(0); 
+      }
+    }else{
+        this.rowSystemMapping = params.rowSystemMapping;
+    }
+
+    if(params.colSystemMapping === undefined){
+      this. colSystemMapping = [];
+    for(var ii = 0; ii < this.warps; ii++) {
+          this.colSystemMapping.push(0);
+        }
+      }else{
+        this.colSystemMapping = params.colSystemMapping;
+      }
+
+    if(params.rowShuttleMapping === undefined){
+      this.rowShuttleMapping = [];
+      for(var ii = 0; ii < this.wefts; ii++) {
+          this.rowShuttleMapping.push(1); 
+          this.visibleRows.push(ii); //curious why this is here - LD 3/20
+      }
+    }else{
+        this.rowShuttleMapping = params.rowShuttleMapping;
+    }
+
+    if(params.colShuttleMapping === undefined){
+      this. colShuttleMapping = [];
+    for(var ii = 0; ii < this.warps; ii++) {
+          this.colShuttleMapping.push(0);
+        }
+      }else{
+        this.colShuttleMapping = params.colShuttleMapping;
+      }
+
+
+    if(params.patterns !== undefined){
+          var patterns = params.patterns
+          var pts = [];
+          for (i in patterns) {
+            pts.push(patterns[i]);
+          }
+        this.patterns = pts;
+    }
+
+
+
+    var fill_pattern = this.makeRandomPattern(this.loom.num_frames, this.loom.num_treadles);
+
+    this.pattern = [];
+    for(var ii = 0; ii < this.wefts; ii++) {
+        this.pattern.push([]);
+
+        for (var j = 0; j < this.warps; j++){
+          if (params.pattern === undefined) {
+            this.pattern[ii].push(new Cell());
+            this.pattern[ii][j].setHeddle(fill_pattern[ii%fill_pattern.length][j%fill_pattern[0].length]);
+
+          }else{
+
+            this.pattern[ii][j]= new Cell();
+            
+            if(params.pattern[ii][j].is_up === undefined){
+              this.pattern[ii][j].setHeddle(params.pattern[ii][j]);
+            }else{
+              this.pattern[ii][j].setHeddle(params.pattern[ii][j].is_up);
+            }
+
+            if(params.pattern[ii][j].mask_id !== undefined){
+              this.pattern[ii][j].setMaskId(params.pattern[ii][j].mask_id);
+            }
+
+          }
+        }
+    }
+
+    // if (params.masks === undefined) {
+    //   // this.masks = [];
+    //   // for(var ii = 0; ii < this.wefts; ii++) {
+    //   //   this.masks.push([]);
+    //   //   for (var j = 0; j < this.warps; j++)
+    //   //     this.masks[ii].push(0);
+    //   // }
+    // }else{
+    //   this.masks = params.masks;
+    // } 
+
+    if(this.loom.type == "frame"){
+      this.recomputeLoom();
+    }
+
+    this.computeYarnPaths();
     this.recomputeWidth();
 
   }
@@ -297,6 +505,7 @@ export class Draft implements DraftInterface {
     }
   }
 
+
   //assumes i is the draft row
   isMask(i:number, j:number) : boolean{
     // //var row = this.visibleRows[i];
@@ -320,11 +529,14 @@ export class Draft implements DraftInterface {
 
 
 
-  rowToSystem(row: number) {
-    return this.rowSystemMapping[row];
+  rowToSystem(screen_row: number) {
+    let index = this.visibleRows[screen_row];
+    return this.rowSystemMapping[index];
   }
-  rowToShuttle(row: number) {
-    return this.rowShuttleMapping[row];
+
+  rowToShuttle(screen_row: number) {
+    let index = this.visibleRows[screen_row];
+    return this.rowShuttleMapping[index];
   }
 
   colToSystem(col: number){
@@ -368,9 +580,10 @@ export class Draft implements DraftInterface {
   }
 
 
-  //assumes i is the screen index
+
   insertRow(i: number, shuttleId: number, systemId:number) {
     
+
     var col = [];
 
     for (var j = 0; j < this.warps; j++) {
@@ -916,7 +1129,391 @@ export class Draft implements DraftInterface {
 
 
 
+setNorthSouth(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setNorthSouth();
+  }
+}
+
+setEastWest(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setEastWest();
+  }
+}
+
+setSouth(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setSouth();
+  }
+}
+
+setNorth(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setNorth();
+  }
+}
+
+setEast(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setEast();
+  }
+}
+
+setWest(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setWest();
+  }
+}
+
+getNextPath(paths, i){
+  if(i+1 < paths.length){
+    return paths[i+1];
+  }
+
+  return {
+    row: null,
+    overs: []
+  }
+
+}
+
+computeYarnPaths(){
+
+    console.log("start clear");
+    //unset_all
+    for(let i = 0; i < this.pattern.length; i++){
+      for(let j = 0; j < this.pattern[i].length; j++){
+        this.pattern[i][j].unsetPoles();
+      }
+    }
+    console.log("end clear");
 
 
+    for (var l = 0; l < this.shuttles.length; l++) {
+
+      // Draw each shuttle on by one.
+      var shuttle = this.shuttles[l];
+
+      //acc is an array of row_ids that are assigned to this shuttle
+      const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
+
+
+      //screen rows are reversed to go from bottom to top
+      //[row index] -> (indexes where there is interlacement)
+      let path = [];
+      for (var i = 0; i < acc.length ; i++) {
+       
+        const row_values = this.pattern[acc[i]];
+        const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
+
+        //only push the rows with at least one interlacement     
+        if(overs.length > 0 && overs.length < row_values.length){
+          path.push({row: acc[i], overs:overs});
+        }
+      
+      }
+
+      var started = false;
+      var last = {
+        row: 0,
+        ndx: 0
+      };
+
+      path = path.reverse();
+
+      for(let k = 0; k < path.length; k++){
+
+        let row:number = parseInt(path[k].row); 
+        let overs:Array<number> = path[k].overs; 
+
+        let next_path = this.getNextPath(path, k);
+
+        let next_overs:Array<number> = [];
+
+
+        let min_ndx:number = overs.shift();
+        let max_ndx:number = overs.pop();
+        
+        let next_min_ndx:number;
+        let next_max_ndx:number;
+
+        if((k+1) < path.length){
+          next_overs = path[k+1].overs;
+          next_min_ndx = next_overs.shift();
+          next_max_ndx = next_overs.pop();
+        }else{
+          next_min_ndx = min_ndx;
+          next_max_ndx = max_ndx;
+        }  
+
+
+        // console.log("this min", min_ndx, max_ndx);
+        // console.log("next min", next_min_ndx, next_max_ndx);
+        // console.log("k", k);
+
+        let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
+
+        if(moving_left) min_ndx = Math.min(min_ndx, next_min_ndx);
+        else max_ndx = Math.max(max_ndx, next_max_ndx);
+
+        //draw upwards if required
+        if(started){
+
+           if(moving_left) max_ndx = Math.max(max_ndx, last.ndx);
+           else min_ndx = Math.min(min_ndx, last.ndx);
+          
+          for(let j = last.row+1; j < row-1; j++){
+           this.setNorthSouth(j, last.ndx);
+          }
+        }
+
+        //set by lookiing at the ends ends
+        if(moving_left){
+
+          if(started){
+             this.setSouth(row,max_ndx+1); //set where it came from
+          } 
+          
+          this.setWest(row, max_ndx+1);
+
+          //if(k < path.length-1) 
+          this.setNorth(row, min_ndx-1);
+          this.setEast(row, min_ndx-1);
+
+          last.ndx = min_ndx;
+
+        }else{
+
+          if(started){
+            this.setSouth(row, min_ndx-1);
+          }
+
+          this.setEast(row, min_ndx-1);
+          
+          
+          this.setNorth(row, max_ndx+1);
+          this.setWest(row, max_ndx+1);
+          
+          last.ndx = max_ndx;
+
+        } 
+
+        //set in between
+        for(i = min_ndx; i <= max_ndx; i++){
+           this.setEastWest(row, i); 
+        }
+
+        started = true;
+        last.row = row;
+       
+      } 
+    }
+    
+  }
+
+
+  /**
+   * Fills in selected area of canvas. Updates the pattern within selection.
+   * @extends WeaveDirective
+   * @param {Selection} selection - defined user selected area to fill.
+   * @param {Array<Array<boolean>>} - the pattern used to fill the area.
+   * @param {string} - the type of logic used to fill selected area.
+   * @returns {void}
+   */
+  public fillArea(
+    selection: Selection, 
+    pattern: Array<Array<boolean>>, 
+    type: string
+  ) {
+
+    console.log("fill area called");
+    console.log(selection, pattern, type);
+
+    var updates = [];
+    
+    var screen_i = Math.min(selection.start.si, selection.end.si)
+    const draft_i = Math.min(selection.start.i, selection.end.i);
+    const draft_j = Math.min(selection.start.j, selection.end.j);
+  
+    const rows = pattern.length;
+    const cols = pattern[0].length;
+
+    var w,h;
+
+    w = Math.ceil(selection.width);
+    h = Math.ceil(selection.height);
+
+
+    if(selection.target.id === "warp-systems"){
+      h = pattern.length;
+      screen_i = 0;
+    } 
+    if(selection.target.id === "weft-systems"){
+      w = pattern[0].length;
+    } 
+
+    if(selection.target.id === "warp-materials"){
+       h = pattern.length;
+       screen_i = 0;
+    }
+    if(selection.target.id === "weft-materials"){
+      w = pattern[0].length;
+    } 
+
+    //cycle through each visible row/column of the selection
+    for (var i = 0; i < h; i++ ) {
+      for (var j = 0; j < w; j++ ) {
+
+        var row = i + screen_i;
+        var col = j + draft_j;
+
+
+        var temp = pattern[i % rows][j % cols];
+       
+        var prev:boolean = false; 
+        switch(selection.target.id){
+
+          case 'drawdown':
+              var draft_row = this.visibleRows[row];
+              prev = this.pattern[draft_row][col].isUp();
+
+          break;
+          case 'threading':
+              var frame = this.loom.frame_mapping[row];
+              prev = this.loom.isInFrame(col, frame);
+          
+          break;
+          case 'treadling':
+              var draft_row = this.visibleRows[row];
+              prev = (this.loom.isInTreadle(draft_row, col)); 
+          break;
+          case 'tieups':
+              var frame = this.loom.frame_mapping[row];
+              prev = this.loom.hasTieup(frame,col); 
+          
+          break;
+          default:
+          break;
+        }
+
+        if (prev !== null){
+
+          var val = false;
+          switch (type) {
+            case 'invert':
+             val = !temp;
+              break;
+            case 'mask':
+             val = temp && prev;
+              break;
+            case 'mirrorX':
+              val = pattern[(h - i - 1) % rows][j % cols];
+              break;
+            case 'mirrorY':
+              val = pattern[i % rows][(w - j - 1) % cols];
+              break;
+            default:
+              val = temp;
+              break;
+          }
+
+
+          var updates = [];
+
+          switch(selection.target.id){
+           
+           case 'drawdown':
+           var draft_row = this.visibleRows[row];
+
+            if(this.hasCell(draft_row,col)){
+
+                var p = new Point(); 
+                p.si = row;
+                p.i = this.visibleRows[row];
+                p.j = col;
+              
+                this.setHeddle(p.i,p.j,val);
+                this.updateLoomFromDraft(p); //this is an area where we could be facing slowdown 
+              }
+
+            break;
+            
+            case 'threading':
+            var frame = this.loom.frame_mapping[row];
+
+              if(this.loom.inThreadingRange(frame,col)){ 
+                updates = this.loom.updateThreading(frame, col, val);
+                this.updateDraftFromThreading(updates); 
+              }
+            break;
+
+            case 'treadling':
+              
+             var draft_row = this.visibleRows[row];
+             if(this.loom.inTreadlingRange(draft_row,col)){ 
+                updates = this.loom.updateTreadling(draft_row, col, val);
+                this.updateDraftFromTreadling(updates);
+              }
+            break;
+            case 'tieups':
+              var frame = this.loom.frame_mapping[row];
+
+              if(this.loom.inTieupRange(frame, col)){
+                updates = this.loom.updateTieup(frame, col, val);
+                this.updateDraftFromTieup(updates);
+              }
+            break;
+            case 'weft-systems':
+              var draft_row = this.visibleRows[row];
+              val = pattern[i % rows][j % cols];
+              if(val && col < this.weft_systems.length) this.rowSystemMapping[draft_row] = col;
+            
+            break;
+            case 'warp-systems':
+              val = pattern[i % rows][j % cols];
+              if(val && row < this.warp_systems.length){
+                  this.colSystemMapping[col] = row;
+              }
+            break;
+            case 'weft-materials':
+              var draft_row = this.visibleRows[row];
+              val = pattern[i % rows][j % cols];
+              if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
+            
+            break;
+            case 'warp-materials':
+              val = pattern[i % rows][j % cols];
+              if(val && row < this.shuttles.length){
+                  this.colShuttleMapping[col] = row;
+              }
+            break;
+            default:
+            break;
+          }
+        }
+
+
+      }
+    }
+
+    var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
+    var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
+
+  }
+
+  /***
+   This function takes a point added to the draft and updates and redraws the loom states
+   It takes current position of a point on the currently visible draft
+   ***/
+   private updateLoomFromDraft(currentPos):boolean{
+
+
+    var updates = this.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.pattern);
+    var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
+    var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
+
+    return true;
+      
+   }
 
 }

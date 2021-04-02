@@ -78,7 +78,7 @@
         <app-materials 
           [material_types]="material_types"
           [shuttles]="draft?.shuttles"
-          (onColorChange)="redraw()" 
+          (onColorChange)="shuttleColorChange()" 
           (onThicknessChange) ="thicknessChange($event)"
           (onCreateShuttle) ="createShuttle($event)"
         >
@@ -125,16 +125,16 @@
   </mat-drawer>
 
 
-  <div *ngIf="draft" #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container">
+  <div #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container">
 
   
    <canvas id="weft-systems" #weft_systems style="background:#fbfbfb;">  </canvas>
    <canvas id="weft-materials" #weft_materials style="background:#fbfbfb;">  </canvas>
    <canvas id="warp-systems" #warp_systems style="background:#fbfbfb;">  </canvas>
    <canvas id="warp-materials" #warp_materials style="background:#fbfbfb;">  </canvas>
-  <canvas id="threading"></canvas>
-  <canvas id="tieups" #tieups style="background:#fbfbfb;"></canvas><canvas id="drawdown" #drawDown style="background:#fbfbfb;">  </canvas>
-  <canvas #treadling id="treadling" style="background:#fbfbfb;"></canvas>
+   <canvas id="threading"></canvas>
+   <canvas id="tieups" #tieups style="background:#fbfbfb;"></canvas><canvas id="drawdown" #drawDown style="background:#fbfbfb;">  </canvas>
+   <canvas #treadling id="treadling" style="background:#fbfbfb;"></canvas>
 
 
   <div [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
@@ -160,6 +160,13 @@
         <text class="weft_text" 
         text-anchor="middle" x="0" [attr.y]="styleWeftSystemsRow(j)" style="font-size:12px;"     fill="#fff" 
         [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{i}}</text> 
+        
+        <text id='weft-systems' 
+          [attr.transform]="getWeftSystemTransform(j)" 
+          [attr.font-size]="getSelectorFontSize()"
+          text-anchor="start"  y="0"
+          fill="#fff">{{draft?.getWeftSystemCode(j)}}</text>
+
         </g>
 
       <text class="weft_text" 
@@ -187,8 +194,13 @@
           <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
            [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
 
-        
+          <text id='warp-systems' 
+          [attr.transform]="getWarpSystemTransform(j)" 
+          [attr.font-size]="getSelectorFontSize()"
+          text-anchor="start"  y="0"
+          fill="#fff">{{draft?.getWarpSystemCode(j)}}</text>
         </g>
+
 
        <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
         style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
@@ -198,12 +210,13 @@
 
 
     <div  #shuttle_buttons class="insert-button-group-shuttles" [ngStyle]="styleRowButtons(threading, shuttle_buttons)" >
-      <div *ngFor="let i of (draft?.visibleRows)" class="insert-button" [ngStyle]="styleSingleRowButton(i)">
-        <span (click)="insertRow(i + 1, draft?.rowToShuttle(i), draft?.rowToSystem(i));"><i class="fa fa-plus-circle"></i></span>
-        <span (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i),draft?.rowToSystem(i));"><i class="fa fa-clone"></i></span>
-        <span (click)="deleteRow(i);"><i class="fa fa-trash"></i></span>
+      <div *ngFor="let r of (draft?.visibleRows); index as i; " class="insert-button"  [ngStyle]="styleSingleRowButton(i)">
+        <span (click)="insertRow(r + 1, draft?.rowToShuttle(r), draft?.rowToSystem(r));"><i class="fa fa-plus-circle"></i></span>
+        <span (click)="cloneRow(r + 1, r, draft?.rowToShuttle(r),draft?.rowToSystem(r));"><i class="fa fa-clone"></i></span>
+        <span (click)="deleteRow(r);"><i class="fa fa-trash"></i></span>
       </div>
     </div>
+
 
     <div class="insert-button-group-warps" [ngStyle]="styleColButtons(threading)" >
       <div *ngFor="let m of (draft?.colShuttleMapping); index as i;" class="insert-button" [ngStyle] = "styleSingleColButton(i)">

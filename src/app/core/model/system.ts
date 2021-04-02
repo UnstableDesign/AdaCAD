@@ -34,6 +34,10 @@ export class System {
     }
   }
 
+  isVisible(){
+    return this.visible;
+  }
+
   setVisible(bool: boolean) {
     this.visible = bool;
   }

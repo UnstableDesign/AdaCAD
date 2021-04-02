@@ -1,3 +1,9 @@
+
+.cdk-live-announcer-element{
+  display: none;
+}
+
+
 canvas{
   position: absolute;
   top: 120px;
@@ -303,9 +309,11 @@ canvas{
   position: absolute;
   cursor: pointer;
   user-select: none;
+  pointer-events: none;
   width: 20px;
   height:100%;
-  z-index: -1;
+  font-size: 10px;
+  z-index: 1;
 
 }
 
@@ -319,10 +327,12 @@ canvas{
   position: absolute;
   cursor: pointer;
   user-select: none;
+  pointer-events: none;
   height: 20px;
   width:100%;
-  z-index: -1; /* keep from interfering with warp selection" */
-
+  font-size: 10px;
+  z-index: 1; /* keep from interfering with warp selection" */
+ 
 }
 
 

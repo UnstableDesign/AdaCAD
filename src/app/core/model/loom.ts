@@ -27,7 +27,7 @@ export class Loom{
     num_treadles: number;
 
     // 2-d arraw of size frames x treadles
-    tieup: Array<Array<Boolean>>; 
+    tieup: Array<Array<boolean>>; 
 
 
     constructor(type: string, wefts: number, warps: number, frames: number, treadles:number) {
@@ -37,6 +37,25 @@ export class Loom{
         this.type = type;
         
 
+        this.min_frames = frames;
+        this.min_treadles = treadles;
+        this.num_frames = frames;
+        this.num_treadles = treadles;
+
+
+        this.resetFrameMapping(frames);
+        this.resetThreading(warps);
+        this.resetTreadling(wefts);
+        this.resetTieup(frames, treadles);
+      
+    }
+
+     loadNew(type: string, wefts: number, warps: number, frames: number, treadles:number) {
+
+
+
+        this.type = type;
+        
         this.min_frames = frames;
         this.min_treadles = treadles;
         this.num_frames = frames;
@@ -472,7 +491,7 @@ and returns an associated value for threading frames and treadles
       return false;
     }
 
-    hasTieup(i, j){
+    hasTieup(i, j):boolean{
       if(!this.inTieupRange(i, j)) return null;
       else return (this.tieup[i][j]); 
 
