@@ -305,6 +305,7 @@ export class WeaveDirective {
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnWeftMaterials(currentPos);
       }else if(target && target.id === ('warp-materials')){
+        console.log("warp materials");
         this.drawOnWarpMaterials(currentPos);
       } else{
         currentPos.i = this.weave.visibleRows[currentPos.i];
@@ -324,7 +325,7 @@ export class WeaveDirective {
     //get dimis based on zoom.
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.weftSystemsCanvas.height / this.weave.wefts
+      h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
     }
 
     if (event.target.localName === 'canvas') {
@@ -361,6 +362,7 @@ export class WeaveDirective {
         case 'point':
         case 'erase':
           this.setPosAndDraw(event.target, currentPos);
+          this.unsetSelection();
 
           break;
         case 'maskpoint':
@@ -447,7 +449,7 @@ export class WeaveDirective {
     
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.weftSystemsCanvas.height / this.weave.wefts
+      h: this.warpSystemsCanvas.width /this.weave.visibleRows.length
     };    
 
     var offset = this.render.getCellDims(this.brush);
@@ -477,6 +479,7 @@ export class WeaveDirective {
     switch (this.brush) {
       case 'point':
       case 'erase':
+        this.unsetSelection();
 
         if(!(this.lastPos.i === currentPos.i && this.lastPos.j === currentPos.j)){
             this.setPosAndDraw(event.target, currentPos);
@@ -1963,20 +1966,21 @@ public drawWeftEnd(top, left, shuttle){
   public rescale(){
   
     //var dims = this.render.getCellDims("base");
+
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.weftSystemsCanvas.height / this.weave.wefts
+      h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
     }
 
     let offset = this.render.getCellDims("select");
 
 
-    var scaleX = window.innerWidth / this.canvasEl.width;
-    var scaleY = window.innerHeight / this.canvasEl.height;
+    // var scaleX = window.innerWidth / this.canvasEl.width;
+    // var scaleY = window.innerHeight / this.canvasEl.height;
 
    // var scaleToFit = Math.min(scaleX, scaleY);
     var scaleToFit = this.render.getZoom() /50;
-    var scaleToCover = Math.max(scaleX, scaleY);
+  //  var scaleToCover = Math.max(scaleX, scaleY);
 
 
     if(!this.render.view_frames){
@@ -2350,6 +2354,8 @@ public drawDrawdown(){
 //takes inputs about what, exactly to redraw
 public redraw(flags:any){
 
+    console.log("redraw: "+flags);
+
     var base_dims = this.render.getCellDims("base");
 
     if(flags.drawdown !== undefined){
@@ -2374,7 +2380,7 @@ public redraw(flags:any){
       this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);
     }
 
-    if(flags.warp_systems !== undefined){
+    if(flags.warp_materials !== undefined){
       this.drawWarpMaterials(this.cxWarpMaterials, this.warpMaterialsCanvas);
     }
 
