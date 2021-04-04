@@ -449,8 +449,10 @@ export class WeaveDirective {
     
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.warpSystemsCanvas.width /this.weave.visibleRows.length
+      h: this.weftSystemsCanvas.height /this.weave.visibleRows.length
     };    
+
+    console.log("on move", dims);
 
     var offset = this.render.getCellDims(this.brush);
   
@@ -479,7 +481,7 @@ export class WeaveDirective {
     switch (this.brush) {
       case 'point':
       case 'erase':
-        this.unsetSelection();
+       //this.unsetSelection();
 
         if(!(this.lastPos.i === currentPos.i && this.lastPos.j === currentPos.j)){
             this.setPosAndDraw(event.target, currentPos);
@@ -1971,6 +1973,8 @@ public drawWeftEnd(top, left, shuttle){
       w: this.warpSystemsCanvas.width / this.weave.warps,
       h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
     }
+
+    console.log(dims);
 
     let offset = this.render.getCellDims("select");
 

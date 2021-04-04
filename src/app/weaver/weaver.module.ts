@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -23,6 +24,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { WeaverComponent } from './weaver.component';
 import { TopbarComponent } from './topbar/topbar.component';
@@ -62,7 +64,7 @@ import { LabelModal } from './modal/label/label.modal';
     NgrxModule,
     FormsModule,
     ReactiveFormsModule,
-
+    MatAutocompleteModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatSlideToggleModule,
@@ -84,6 +86,8 @@ import { LabelModal } from './modal/label/label.modal';
     MatToolbarModule,
     MatTooltipModule,
     ColorPickerModule,
+    MatChipsModule
+
   ],
   declarations: [
     WeaverComponent, 

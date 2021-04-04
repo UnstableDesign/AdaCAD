@@ -1,12 +1,32 @@
+.pattern-container{
+	display: flex;
+	flex-direction: row;
+}
 
-.addsystem{
+.upload{
+	padding: 12px 30px 0px 0px;
+
+}
+
+mat-chip {
+  max-width: 60px;
+}
+
+input.mat-chip-input{
+	flex: 1 0 27px !important;
+}
+
+/*.addsystem{
     color: white;
     background: none;
     border: none;
     padding: 5px 0px 0px 0px;
-}
+}*/
 
 .code{
 	padding-right: 10px;
 }
 
+/*.mat-input-element{
+	padding: 10px 0px 0px 0px;
+}*/

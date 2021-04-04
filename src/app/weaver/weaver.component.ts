@@ -347,10 +347,10 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - Press Control + x
    * @returns {void}
    */
-  @HostListener('window:keydown.c', ['$event'])
-  private keyEventCopy(e) {
-    this.onCopy();  
-  }
+  // @HostListener('window:keydown.c', ['$event'])
+  // private keyEventCopy(e) {
+  //   this.onCopy();  
+  // }
 
     /**
    * Sets key to copy 
@@ -403,6 +403,8 @@ export class WeaverComponent implements OnInit {
     var p = this.draft.patterns[e.id].pattern;
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original');
+
+    if(this.render.showingFrames()) this.draft.recomputeLoom();
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
     
@@ -597,6 +599,38 @@ export class WeaverComponent implements OnInit {
     // this.patterns = e.patterns;
     // this.draft.patterns = this.patterns;
     this.draft.patterns = e.patterns;
+
+  }
+
+  public updateWarpSystems(pattern: Array<number>) {
+    console.log("update warp sys", pattern);
+    this.draft.updateWarpSystemsFromPattern(pattern);
+    this.weaveRef.redraw({drawdown: true, warp_systems: true});
+
+  }
+
+  public updateWeftSystems(pattern: Array<number>) {
+    console.log("update weft sys", pattern);
+
+    this.draft.updateWeftSystemsFromPattern(pattern);
+    this.weaveRef.redraw({drawdown: true, weft_systems: true});
+
+  }
+
+  public updateWarpShuttles(pattern: Array<number>) {
+    console.log("update warp shut", pattern);
+
+    this.draft.updateWarpShuttlesFromPattern(pattern);
+    this.weaveRef.redraw({drawdown: true, warp_materials: true});
+
+  }
+
+  public updateWeftShuttles(pattern: Array<number>) {
+    console.log("update weft shutf", pattern);
+
+    this.draft.updateWeftShuttlesFromPattern(pattern);
+    this.draft.computeYarnPaths();
+    this.weaveRef.redraw({drawdown: true, weft_materials: true});
 
   }
 

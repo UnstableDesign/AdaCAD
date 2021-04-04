@@ -89,6 +89,21 @@
           (onMask)="onMask($event);" >
         </app-masks>
 
+        <app-systems
+         [weft_systems]="draft?.weft_systems"
+         [warp_systems]="draft?.warp_systems"
+         [weft_systems_pattern]="draft?.rowSystemPattern"
+         [warp_systems_pattern]="draft?.colSystemPattern"
+         [shuttles]="draft?.shuttles"
+         [warp_shuttles_pattern]="draft?.colShuttlePattern"
+         [weft_shuttles_pattern]="draft?.rowShuttlePattern"
+         (onUpdateWarpSystems) = "updateWarpSystems($event)"
+         (onUpdateWeftSystems) = "updateWeftSystems($event)"
+         (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
+         (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
+        >
+       </app-systems>
+
 
         <app-loom 
           [epi] = "draft?.epi"
