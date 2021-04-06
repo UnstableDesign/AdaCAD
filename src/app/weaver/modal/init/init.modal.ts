@@ -58,8 +58,7 @@ export class InitModal implements OnInit {
   }
 
   handleFile(e: any) {
-    console.log("handle file");
-    console.log(e);
+
     if (e.type === "image") this.processImageData(e.data);
     else if (e.type === "ada") this.processDraftData(e.data);
     else if (e.type === "wif") this.processWifData(e.data);

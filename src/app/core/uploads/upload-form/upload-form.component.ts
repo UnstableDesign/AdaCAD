@@ -79,8 +79,6 @@ export class UploadFormComponent implements OnInit {
           }
           else if (fileType === "ada") {
 
-            console.log("looking for file at ", this.currentUpload.name);
-
             this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
               this.httpClient.get(url).subscribe(data => {
                 var obj = {

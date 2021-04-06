@@ -44,7 +44,6 @@ export class UploadService {
     const id = Math.random().toString(36).substring(2);
     let storageRef = this.st.ref(id);
     let uploadTask = storageRef.put(upload.file);
-    console.log("push upload at", id);
 
 
     this.uploadProgress = uploadTask.percentageChanges();
@@ -62,7 +61,6 @@ export class UploadService {
 
   getDownloadURL(id) {
     let storageRef = this.st.ref('');
-    console.log("Storage Ref", storageRef.child(id).getDownloadURL());
     return storageRef.child(id).getDownloadURL();
   }
 
@@ -70,7 +68,6 @@ export class UploadService {
 
   // Writes the file details to the realtime db
   private saveFileData(upload: Upload) {
-    console.log("save file data of", upload);
     this.db.list(`${this.basePath}/`).push(upload);
   }
 

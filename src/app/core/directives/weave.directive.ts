@@ -236,9 +236,6 @@ export class WeaveDirective {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded() {  
 
-    console.log(this.weave);
-    console.log("on new draft", this.weave.warps);
-
     var dims = this.render.getCellDims("base");
 
     this.canvasEl.width = this.weave.warps * dims.w;
@@ -305,7 +302,6 @@ export class WeaveDirective {
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnWeftMaterials(currentPos);
       }else if(target && target.id === ('warp-materials')){
-        console.log("warp materials");
         this.drawOnWarpMaterials(currentPos);
       } else{
         currentPos.i = this.weave.visibleRows[currentPos.i];
@@ -451,8 +447,6 @@ export class WeaveDirective {
       w: this.warpSystemsCanvas.width / this.weave.warps,
       h: this.weftSystemsCanvas.height /this.weave.visibleRows.length
     };    
-
-    console.log("on move", dims);
 
     var offset = this.render.getCellDims(this.brush);
   
@@ -1974,10 +1968,7 @@ public drawWeftEnd(top, left, shuttle){
       h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
     }
 
-    console.log(dims);
-
     let offset = this.render.getCellDims("select");
-
 
     // var scaleX = window.innerWidth / this.canvasEl.width;
     // var scaleY = window.innerHeight / this.canvasEl.height;
@@ -2579,19 +2570,25 @@ public redraw(flags:any){
     context.fillStyle = "white";
     context.fillRect(0,0,b.width,b.height);
     
+    //use this to solve 0 width errors on drawIMage
+    if(this.render.showingFrames()){
+
+      context.drawImage(this.threadingCanvas, 0, dims.h*3);
+      context.drawImage(this.tieupsCanvas, (this.weave.warps +1)* dims.w, 3*dims.h);
+      context.drawImage(this.treadlingCanvas, (this.weave.warps +1)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
+
+    }
+
     //systems
     context.drawImage(this.warpSystemsCanvas, 0, 0);
     context.drawImage(this.warpMaterialsCanvas, 0, dims.h);
 
-    context.drawImage(this.threadingCanvas, 0, dims.h*3);
-    context.drawImage(this.tieupsCanvas, (this.weave.warps +1)* dims.w, 3*dims.h);
     context.drawImage(this.canvasEl, -dims.w, (this.weave.loom.num_frames+3)*dims.h);
    
-    context.drawImage(this.treadlingCanvas, (this.weave.warps +1)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
-
     context.drawImage(this.weftMaterialsCanvas,(this.weave.warps+ this.weave.loom.num_treadles +1)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
     context.drawImage(this.weftSystemsCanvas,(this.weave.warps+ this.weave.loom.num_treadles +2)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
 
+    //can add info here to add to the drawing about weft and warp systems, etc. 
 
     let link = obj.downloadLink.nativeElement;
     link.href = b.toDataURL("image/jpg");
