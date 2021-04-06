@@ -58,6 +58,7 @@ export class InitModal implements OnInit {
   }
 
   handleFile(e: any) {
+    console.log("handle file");
     console.log(e);
     if (e.type === "image") this.processImageData(e.data);
     else if (e.type === "ada") this.processDraftData(e.data);
@@ -95,6 +96,9 @@ export class InitModal implements OnInit {
   }
 
   processDraftData(e: any) {
+
+    console.log("process draft data", e);
+
    // this.form.type = "update";
     this.draft = e; //this is the data from the upload event
 
