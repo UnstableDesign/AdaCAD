@@ -70,6 +70,7 @@ export class UploadFormComponent implements OnInit {
 
                 var data = ctx.getImageData(0,0, canvas.width, canvas.height);
                 var obj = {
+                  name: file.name.split(".")[0],
                   data: data,
                   type: 'image',
                 }
@@ -82,9 +83,11 @@ export class UploadFormComponent implements OnInit {
             this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
               this.httpClient.get(url).subscribe(data => {
                 var obj = {
+                  name: file.name.split(".")[0],
                   data: data,
                   type: 'ada',
                 }
+                console.log(obj);
                 this.onData.emit(obj);
               });
             });
@@ -93,6 +96,7 @@ export class UploadFormComponent implements OnInit {
             this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
               this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
                var obj = {
+                  name: file.name.split(".")[0],
                   data: data,
                   type: 'wif',
                 }

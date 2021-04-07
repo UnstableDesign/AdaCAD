@@ -1,11 +1,27 @@
 .right{
-    width:100%;
+    width:33%;
     text-align: right;
+}
+.collapse{
+	padding-left: 37px;
+}
+
+.filename{
+    font-size: 0.6em;
+    width: 217px;
+    margin: 0px 0px 0 21px;
+}
+
+.left {
+    width:33%;
+    text-align: left;
 
 
-    button{
-    	margin: 4px;
-    }
+}
+
+.center{
+	width: 33%;
+	text-align: center;
 
 }
 

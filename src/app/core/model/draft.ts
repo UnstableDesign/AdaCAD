@@ -15,6 +15,8 @@ import { active } from 'd3';
  */
 export interface DraftInterface {
 
+  name: string;
+
   pattern: Array<Array<Cell>>; // the single design pattern
   shuttles: Array<Shuttle>;    //the shuttles used in this draft 
 
@@ -57,6 +59,8 @@ export interface DraftInterface {
  * @class
  */
 export class Draft implements DraftInterface {
+  name: string;
+
   pattern: Array<Array<Cell>>; // the single design pattern
   shuttles: Array<Shuttle>;    //the shuttles used in this draft 
 
@@ -97,6 +101,7 @@ export class Draft implements DraftInterface {
   constructor({...params}) {
     
 
+    this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 40 : params.warps;
     this.epi = (params.epi === undefined) ? 10 : params.epi;
@@ -330,7 +335,8 @@ export class Draft implements DraftInterface {
 
   //must keep old array references to keep links in tact
   reload({...params}) {
-    
+    this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
+
 
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 40 : params.warps;

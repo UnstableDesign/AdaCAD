@@ -20,6 +20,7 @@ export class TopbarComponent implements OnInit {
   @Output() onReInit: any = new EventEmitter();
 
   @Input() drawer;
+  @Input() filename;
   @Input() timeline;
   @Input() undoItem;
   @Input() redoItem;
@@ -50,6 +51,7 @@ export class TopbarComponent implements OnInit {
 
   public saveAsBmp(e: any) {
     var obj: any = {
+      name: this.filename,
       downloadLink: this.downloadBmp,
       type: "bmp"
     }
@@ -59,6 +61,7 @@ export class TopbarComponent implements OnInit {
 
   public saveAsAda(e: any) {
     var obj: any = {
+      name: this.filename,
       downloadLink: this.downloadAda,
       type: "ada"
     }
@@ -68,6 +71,7 @@ export class TopbarComponent implements OnInit {
 
   public saveAsWif(e: any) {
     var obj: any = {
+      name: this.filename,
       downloadLink: this.downloadWif,
       type: "wif"
     }
@@ -77,6 +81,7 @@ export class TopbarComponent implements OnInit {
 
   public saveAsPrint(e: any) {
     var obj: any = {
+      name: this.filename,
       downloadLink: this.downloadPrint,
       type: "jpg"
     }
