@@ -1800,7 +1800,7 @@ export class WeaveDirective {
 
 
   public drawWeftUp(top, left, shuttle){
-       // console.log("draw under", top, left);
+     //console.log("draw under", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1813,9 +1813,8 @@ export class WeaveDirective {
       left += dims.w/2
 
       var width = shuttle.getThickness()/100 * .9*dims.w;
-
+      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor()
       cx.lineWidth = width;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
       cx.shadowColor = 'white';
       cx.shadowOffsetX = .5;
       cx.shadowOffsetY = 0;
@@ -2206,27 +2205,12 @@ public drawWeftEnd(top, left, shuttle){
         
         let p = row_values[j];
 
-        if(p.isEastWest()){
-          this.drawWeftOver(i,j,s);
-        }else if(p.isSouthWest()){
-          this.drawWeftBottomLeft(i,j,s);
-        }else if(p.isNorthSouth()){
-          this.drawWeftUp(i, j, s);
-        }else if(p.isSouthEast()){
-          this.drawWeftBottomRight(i,j,s);
-        }else if(p.isNorthWest()){
-          this.drawWeftLeftUp(i,j,s);
-        }else if(p.isNorthEast()){
-          this.drawWeftRightUp(i, j, s);
-        }else if(p.isWest() || p.isEast()){
-          if(started) this.drawWeftEnd(i, j, s);
-          else{
-            this.drawWeftStart(i, j, s);
-            started = true;
-          } 
-        }else{
-          
-        }
+        if(p.isEastWest())  this.drawWeftOver(i,j,s);
+        if(p.isSouthWest()) this.drawWeftBottomLeft(i,j,s);
+        if(p.isNorthSouth())this.drawWeftUp(i, j, s);
+        if(p.isSouthEast()) this.drawWeftBottomRight(i,j,s);
+        if(p.isNorthWest()) this.drawWeftLeftUp(i,j,s);
+        if(p.isNorthEast()) this.drawWeftRightUp(i, j, s);
 
       }
     }
@@ -2349,7 +2333,6 @@ public drawDrawdown(){
 //takes inputs about what, exactly to redraw
 public redraw(flags:any){
 
-    console.log("redraw: "+flags);
 
     var base_dims = this.render.getCellDims("base");
 

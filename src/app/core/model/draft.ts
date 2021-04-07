@@ -1255,6 +1255,8 @@ export class Draft implements DraftInterface {
 
 
 setNorthSouth(row:number, i:number){
+
+  console.log("row", row, "ndx", i);
   if(i > 0 && i < this.warps){
     this.pattern[row][i].setNorthSouth();
   }
@@ -1296,7 +1298,7 @@ getNextPath(paths, i){
   }
 
   return {
-    row: null,
+    row: -1,
     overs: []
   }
 
@@ -1304,20 +1306,21 @@ getNextPath(paths, i){
 
 computeYarnPaths(){
 
-    console.log("start clear");
+    console.log("computing yarn paths");
     //unset_all
     for(let i = 0; i < this.pattern.length; i++){
       for(let j = 0; j < this.pattern[i].length; j++){
         this.pattern[i][j].unsetPoles();
       }
     }
-    console.log("end clear");
 
 
     for (var l = 0; l < this.shuttles.length; l++) {
 
       // Draw each shuttle on by one.
       var shuttle = this.shuttles[l];
+
+      console.log("SHUTTLE ", shuttle.name);
 
       //acc is an array of row_ids that are assigned to this shuttle
       const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
@@ -1346,26 +1349,31 @@ computeYarnPaths(){
 
       path = path.reverse();
 
+
       for(let k = 0; k < path.length; k++){
 
         let row:number = parseInt(path[k].row); 
         let overs:Array<number> = path[k].overs; 
 
+        console.log("row", row);
+        console.log("overs", overs);
+
         let next_path = this.getNextPath(path, k);
-
-        let next_overs:Array<number> = [];
-
 
         let min_ndx:number = overs.shift();
         let max_ndx:number = overs.pop();
         
         let next_min_ndx:number;
         let next_max_ndx:number;
+        
+        if(next_path.row !== -1 ){
+          console.log("next row", next_path.row);
+          console.log("next overs", next_path.overs);
 
-        if((k+1) < path.length){
-          next_overs = path[k+1].overs;
-          next_min_ndx = next_overs.shift();
-          next_max_ndx = next_overs.pop();
+          next_max_ndx = next_path.overs[next_path.overs.length-1];
+          next_min_ndx = next_path.overs[0];
+          console.log("next min ndx", next_min_ndx, next_max_ndx);
+
         }else{
           next_min_ndx = min_ndx;
           next_max_ndx = max_ndx;
@@ -1378,17 +1386,24 @@ computeYarnPaths(){
 
         let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
 
-        if(moving_left) min_ndx = Math.min(min_ndx, next_min_ndx);
-        else max_ndx = Math.max(max_ndx, next_max_ndx);
+        if(moving_left){
+          min_ndx = Math.min(min_ndx, next_min_ndx);
+          max_ndx = Math.max(max_ndx, last.ndx);
+        } else {
+          max_ndx = Math.max(max_ndx, next_max_ndx);
+          min_ndx = Math.min(min_ndx, last.ndx);
+
+        }
+        console.log("row ", row, "moving left", moving_left, "min/max", min_ndx, max_ndx);
 
         //draw upwards if required
         if(started){
 
-           if(moving_left) max_ndx = Math.max(max_ndx, last.ndx);
-           else min_ndx = Math.min(min_ndx, last.ndx);
           
-          for(let j = last.row+1; j < row-1; j++){
-           this.setNorthSouth(j, last.ndx);
+         // console.log("row/last.row", row, last.row);
+          for(let j = last.row-1; j > row; j--){
+           if(moving_left) this.setNorthSouth(j, last.ndx+1);
+           else this.setNorthSouth(j, last.ndx-1);
           }
         }
 
@@ -1401,7 +1416,6 @@ computeYarnPaths(){
           
           this.setWest(row, max_ndx+1);
 
-          //if(k < path.length-1) 
           this.setNorth(row, min_ndx-1);
           this.setEast(row, min_ndx-1);
 
@@ -1414,7 +1428,6 @@ computeYarnPaths(){
           }
 
           this.setEast(row, min_ndx-1);
-          
           
           this.setNorth(row, max_ndx+1);
           this.setWest(row, max_ndx+1);
@@ -1433,7 +1446,9 @@ computeYarnPaths(){
        
       } 
     }
-    
+        
+    console.log("end recompute");
+
   }
 
 
