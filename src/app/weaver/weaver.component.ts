@@ -120,6 +120,12 @@ export class WeaverComponent implements OnInit {
 
     ];
 
+    /**
+     * Boolean reepresenting if generative ML mode is on or off
+     * @property {boolean}
+     */
+    generativeMode = false;
+
 
 
   /**
@@ -390,6 +396,16 @@ export class WeaverComponent implements OnInit {
     this.brush = e.name;
     this.weaveRef.unsetSelection();
 
+  }
+
+  /**
+   * Change the name of the brush to reflect selected brush.
+   * @extends WeaveComponent
+   * @param {Event} e - generative mode change event from generative component.
+   * @returns {void}
+   */
+  public onGenerativeModeChange(e: any) {
+    this.generativeMode = !this.generativeMode;
   }
 
   /**

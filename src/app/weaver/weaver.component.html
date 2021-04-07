@@ -112,6 +112,10 @@
           >
         </app-loom>
 
+        <app-generative
+         (onGenerativeModeChange)="onGenerativeModeChange($event)">
+        </app-generative>
+
         <app-schematic  [hidden] = "render?.current_view != 'yarn'"
         (onConnectionCreate)="openConnectionDialog();"
         (onLabelCreate)="openLabelDialog()"

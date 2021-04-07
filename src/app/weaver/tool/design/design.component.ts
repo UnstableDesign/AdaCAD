@@ -51,9 +51,6 @@ export class DesignComponent implements OnInit {
 
   brushChange(e: any) {
 
-    console.log(e.target.name);
-
-
 
      if(this.brush !== "select" || e.target.name == "copy"){
 
