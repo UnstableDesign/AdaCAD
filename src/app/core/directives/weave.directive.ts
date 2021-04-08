@@ -2207,7 +2207,7 @@ public drawWeftEnd(top, left, shuttle){
 
         if(p.isEastWest())  this.drawWeftOver(i,j,s);
         if(p.isSouthWest()) this.drawWeftBottomLeft(i,j,s);
-        if(p.isNorthSouth())this.drawWeftUp(i, j, s);
+       // if(p.isNorthSouth())this.drawWeftUp(i, j, s);
         if(p.isSouthEast()) this.drawWeftBottomRight(i,j,s);
         if(p.isNorthWest()) this.drawWeftLeftUp(i,j,s);
         if(p.isNorthEast()) this.drawWeftRightUp(i, j, s);

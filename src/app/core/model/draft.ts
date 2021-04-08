@@ -1355,9 +1355,6 @@ computeYarnPaths(){
         let row:number = parseInt(path[k].row); 
         let overs:Array<number> = path[k].overs; 
 
-        console.log("row", row);
-        console.log("overs", overs);
-
         let next_path = this.getNextPath(path, k);
 
         let min_ndx:number = overs.shift();
@@ -1367,12 +1364,9 @@ computeYarnPaths(){
         let next_max_ndx:number;
         
         if(next_path.row !== -1 ){
-          console.log("next row", next_path.row);
-          console.log("next overs", next_path.overs);
-
+         
           next_max_ndx = next_path.overs[next_path.overs.length-1];
           next_min_ndx = next_path.overs[0];
-          console.log("next min ndx", next_min_ndx, next_max_ndx);
 
         }else{
           next_min_ndx = min_ndx;
@@ -1394,17 +1388,17 @@ computeYarnPaths(){
           min_ndx = Math.min(min_ndx, last.ndx);
 
         }
-        console.log("row ", row, "moving left", moving_left, "min/max", min_ndx, max_ndx);
+       //console.log("row ", row, "moving left", moving_left, "min/max", min_ndx, max_ndx);
 
         //draw upwards if required
         if(started){
 
           
          // console.log("row/last.row", row, last.row);
-          for(let j = last.row-1; j > row; j--){
-           if(moving_left) this.setNorthSouth(j, last.ndx+1);
-           else this.setNorthSouth(j, last.ndx-1);
-          }
+          // for(let j = last.row-1; j > row; j--){
+          //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
+          //  else this.setNorthSouth(j, last.ndx-1);
+          // }
         }
 
         //set by lookiing at the ends ends
