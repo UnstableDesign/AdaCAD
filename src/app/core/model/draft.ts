@@ -1381,11 +1381,11 @@ computeYarnPaths(){
         let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
 
         if(moving_left){
+          if(started) max_ndx = Math.max(max_ndx, last.ndx);
           min_ndx = Math.min(min_ndx, next_min_ndx);
-          max_ndx = Math.max(max_ndx, last.ndx);
         } else {
           max_ndx = Math.max(max_ndx, next_max_ndx);
-          min_ndx = Math.min(min_ndx, last.ndx);
+          if(started) min_ndx = Math.min(min_ndx, last.ndx);
 
         }
        //console.log("row ", row, "moving left", moving_left, "min/max", min_ndx, max_ndx);
