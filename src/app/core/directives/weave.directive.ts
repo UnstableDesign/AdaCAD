@@ -44,7 +44,7 @@ export class WeaveDirective {
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {string}
    */
-  @Input('brush') brush: any;
+  @Input('design_mode') design_mode: any;
 
   /**
    * The Draft object containing the pattern and shuttle information.
@@ -73,6 +73,11 @@ export class WeaveDirective {
    */
   copy: Array<Array<boolean>>;
 
+
+  /**
+   * flag defining if there needs to be a recomputation of the draft on Mouse Up
+   */
+  flag_recompute: boolean;
 
 
   /**
@@ -194,7 +199,7 @@ export class WeaveDirective {
    */
   constructor(private el: ElementRef, private store: Store<any>) {
 
-    this.shuttleLocation = 166;
+    this.flag_recompute = false;
   }
 
 
@@ -325,7 +330,9 @@ export class WeaveDirective {
     }
 
     if (event.target.localName === 'canvas') {
+    
       this.removeSubscription();    
+      
       this.subscription = 
         fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));   
 
@@ -338,27 +345,33 @@ export class WeaveDirective {
         j: Math.floor((event.offsetX) / dims.w), //col
       };
 
-      if(event.target && event.target.id==="drawdown"){
+      if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
+      if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
+      if(event.target && event.target.id==="drawdown"){
         currentPos.si -=1;
         currentPos.i -=1;
         currentPos.j -=1;
-
-        //reject out of bounds values
-        if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
-        if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
       }
 
-
+      if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
+      if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
+      
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
 
-      switch (this.brush) {
-        case 'invert':
-        case 'point':
-        case 'erase':
+      switch (this.design_mode.name) {
+        case 'toggle':
           this.setPosAndDraw(event.target, currentPos);
           this.unsetSelection();
+        break;
+
+        case 'up':
+        case 'down':
+        case 'material':
+          this.setPosAndDraw(event.target, currentPos);
+          this.unsetSelection();
+          this.flag_recompute = true;
 
           break;
         case 'maskpoint':
@@ -435,6 +448,12 @@ export class WeaveDirective {
     }
   }
 
+  private isSame(p1: Point, p2:Point){
+    if(p1 === undefined || p2 === undefined ) return false
+    return (p1.i == p2.i && p1.j === p2.j);
+
+  }
+
   /**
    * Event called when mouse down and moved within the canvas.
    * @extends WeaveDirective
@@ -448,7 +467,7 @@ export class WeaveDirective {
       h: this.weftSystemsCanvas.height /this.weave.visibleRows.length
     };    
 
-    var offset = this.render.getCellDims(this.brush);
+    var offset = this.render.getCellDims(this.design_mode.name);
   
     // set up the point based on touched square.
     var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
@@ -459,27 +478,36 @@ export class WeaveDirective {
       j:  Math.floor((event.offsetX + offset.x) / dims.w)
     };
 
+   
+
 
     if(event.target && event.target.id==="drawdown"){
       currentPos.si -=1;
       currentPos.i -=1;
       currentPos.j -=1;
-
-      //reject out of bounds values
-      if(currentPos.i < 0 || currentPos.i > this.weave.visibleRows.length) return;
-      if(currentPos.j < 0 || currentPos.j > this.weave.warps) return;
     }
 
+   
+
+    //don't call unless you've moved to a new spot
+    if(this.isSame(currentPos, this.lastPos)) return;
 
     // determine action based on brush type. invert inactive on move.
-    switch (this.brush) {
-      case 'point':
-      case 'erase':
+    switch (this.design_mode.name) {
+      case 'up':
+      case 'down':
+      case 'material':
        //this.unsetSelection();
 
-        if(!(this.lastPos.i === currentPos.i && this.lastPos.j === currentPos.j)){
-            this.setPosAndDraw(event.target, currentPos);
-          }
+        if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
+        if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
+
+
+        this.setPosAndDraw(event.target, currentPos);
+        this.flag_recompute = true;
+
+
+        
         break;
 
       case 'maskpoint':
@@ -487,12 +515,22 @@ export class WeaveDirective {
       case'maskinvert':
         this.drawOnMask(currentPos);
         break;
+
+
       case 'select':
       case 'copy':
+
         this.selection.end = currentPos;
+        if(currentPos.si < 0) currentPos.si = 0;
+        if(currentPos.si >= this.weave.visibleRows.length) currentPos.si = this.weave.visibleRows.length;
+      
+        if(currentPos.j < 0 ) currentPos.j = 0;
+        if(currentPos.j >= this.weave.warps) currentPos.j = this.weave.warps;
+
 
         if (event.target && event.target.id === ('treadling')) {
           this.selection.end.j = this.weave.loom.num_treadles;
+
         }else if(event.target && event.target.id === ('threading-container')){
           this.selection.end.i = this.weave.loom.num_frames;
           this.selection.end.si = this.weave.loom.num_frames;
@@ -506,6 +544,12 @@ export class WeaveDirective {
       default:
         break;
     }
+
+    this.lastPos = {
+        si: currentPos.si,
+        i: currentPos.i, //row
+        j: currentPos.j //col
+      };
 
     // var i = currentPos.i, j = currentPos.j, si = currentPos.si;
     // if (this.segment.start[0] > si) this.segment.start[0] = si;    
@@ -531,10 +575,17 @@ export class WeaveDirective {
       j: -1
      }
 
+     if(this.flag_recompute){
+      if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+      this.flag_recompute = false;
+     }
+
+
+
     // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && (this.brush === 'select' || this.brush ==='copy'))) {
+    if (!(event.type === 'mouseleave' && (this.design_mode.name === 'select' || this.design_mode.name ==='copy'))) {
       this.removeSubscription();
-      if(this.brush != "copy" && this.selection.start !== undefined) this.copyArea();
+      if(this.design_mode.name != "copy" && this.selection.start !== undefined) this.copyArea();
 
       // if (event.type === 'mouseup' && this.brush != 'select' && this.segment !== undefined) {
       //   let segmentPattern = [];
@@ -995,16 +1046,18 @@ export class WeaveDirective {
 
     if(screen_row < 0){ return; }
 
-    const len = this.weave.shuttles.length;
-    var shuttle_id = this.weave.rowShuttleMapping[draft_row];
+    if(this.design_mode.name === 'material'){
+      this.weave.rowShuttleMapping[draft_row] = parseInt(this.design_mode.id);
+    }else{
+      const len = this.weave.shuttles.length;
+      var shuttle_id = this.weave.rowShuttleMapping[draft_row];
+      var newShuttle = (shuttle_id + 1) % len;
+      this.weave.rowShuttleMapping[draft_row] = newShuttle;
+    }
 
-
-    var newShuttle = (shuttle_id + 1) % len;
-
-    this.weave.rowShuttleMapping[draft_row] = newShuttle;
+    
 
     this.addHistoryState();
-
     this.redraw({weft_materials: true, drawdown:true});
   }
 
@@ -1054,13 +1107,16 @@ export class WeaveDirective {
     if(col < 0){ return; }
 
 
-    const len = this.weave.shuttles.length;
-    var shuttle_id = this.weave.colShuttleMapping[col];
+    if(this.design_mode.name === 'material'){
+        this.weave.colShuttleMapping[col] = parseInt(this.design_mode.id);
+    }else{
+      const len = this.weave.shuttles.length;
+      var shuttle_id = this.weave.colShuttleMapping[col];
+      var newShuttle_id = (shuttle_id + 1) % len;
+      this.weave.colShuttleMapping[col] = newShuttle_id;
+    }
 
-    var newShuttle_id = (shuttle_id + 1) % len;
-
-
-    this.weave.colShuttleMapping[col] = newShuttle_id;
+  
     this.drawWarpSelectorCell(this.cxWarpMaterials,col);
     this.addHistoryState();
     this.redraw({warp_materials:true, drawdown:true}); //full redraw or just this column?
@@ -1079,7 +1135,7 @@ export class WeaveDirective {
     if (!this.cx || !currentPos) { return; }
 
     // Set the heddles based on the brush.
-    switch (this.brush) {
+    switch (this.design_mode.name) {
       case 'maskpoint':
         val = true;
         break;
@@ -1121,24 +1177,27 @@ export class WeaveDirective {
     if(this.weave.hasCell(currentPos.i, currentPos.j)){
 
       // Set the heddles based on the brush.
-      switch (this.brush) {
-        case 'point':
+      switch (this.design_mode.name) {
+        case 'up':
           val = true;
+          this.weave.setHeddle(currentPos.i,currentPos.j,val);
           break;
-        case 'erase':
+        case 'down':
           val = false;
+          this.weave.setHeddle(currentPos.i,currentPos.j,val);
           break;
-        case 'invert':
+        case 'toggle':
            val = !this.weave.isUp(currentPos.i,currentPos.j);
-          break;        
+           this.weave.setHeddle(currentPos.i,currentPos.j,val);
+
+          break;
+        case 'material':
+          this.drawOnWeftMaterials(currentPos);
+          this.drawOnWarpMaterials(currentPos)
+        break;        
         default:
           break;
       }
-
-
-      this.weave.setHeddle(currentPos.i,currentPos.j,val);
-
-      if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
 
 
       // if(this.render.getCurrentView() == 'pattern'){
@@ -1148,7 +1207,8 @@ export class WeaveDirective {
       // }
 
         
-      if(this.render.showingFrames()) this.updateLoomFromDraft(currentPos);
+      if(this.design_mode.name !== 'material')
+        if(this.render.showingFrames()) this.updateLoomFromDraft(currentPos);
       
       this.addHistoryState();        
     }
@@ -1170,14 +1230,14 @@ export class WeaveDirective {
     if (!this.cxTieups || !currentPos) { return; }
 
     if (this.weave.loom.inTieupRange(currentPos.i, currentPos.j)) {
-      switch (this.brush) {
-        case 'point':
+      switch (this.design_mode.name) {
+        case 'up':
             val = true;
           break;
-        case 'erase':
+        case 'down':
           val = false;
           break;
-        case 'invert':
+        case 'toggle':
           val = !this.weave.loom.tieup[currentPos.i][currentPos.j];
           break;
         default:
@@ -1207,14 +1267,14 @@ export class WeaveDirective {
 
       var val = false;
 
-      switch (this.brush) {
-        case 'point':
+      switch (this.design_mode.name) {
+        case 'up':
           val = true;
           break;
-        case 'erase':
+        case 'down':
           val = false;
           break;
-        case 'invert':
+        case 'toggle':
           val = !(this.weave.loom.threading[currentPos.j] == currentPos.i);
           break;
         default:
@@ -1257,14 +1317,14 @@ export class WeaveDirective {
     var val = false;
 
     if(this.weave.loom.inTreadlingRange(currentPos.i, currentPos.j)){
-      switch (this.brush) {
-        case 'point':
+      switch (this.design_mode.name) {
+        case 'up':
           val = true;
           break;
-        case 'erase':
+        case 'down':
           val = false;
           break;
-        case 'invert':
+        case 'toggle':
           val = !(this.weave.loom.treadling[currentPos.i] === currentPos.j);
           break;
         default:

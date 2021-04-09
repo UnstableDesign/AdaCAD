@@ -48,12 +48,27 @@ interface HistoryState {
   is_active: boolean;
 }
 
-
 interface ViewModes {
   value: string;
   viewValue: string;
 }
 
+interface ToolModes{
+  value: string; 
+  viewValue: string;
+}
+
+interface DesignActions{
+  value: string;
+  viewValue: string;
+  icon: string;
+}
+
+interface DesignModes{
+  value: string;
+  viewValue: string;
+  icon: string;
+}
 
 
 
@@ -70,11 +85,36 @@ export class WeaverComponent implements OnInit {
   @ViewChild(WeaveDirective, {static: false}) weaveRef;
   @ViewChild('bitmapImage', {static: false}) bitmap;
 
+
+
+  design_modes: DesignModes[]=[
+    {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
+    {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
+    {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"}
+  ];
+
+  
+  //operations you can perform on a selection 
+  design_actions: DesignActions[] = [
+    {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
+    {value: 'up', viewValue: 'Set Region Heddles Up', icon: "fas fa-square"},
+    {value: 'down', viewValue: 'Set Region Heddles Down', icon: "far fa-square"},
+    {value: 'flip_x', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
+    {value: 'flip_y', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
+    {value: 'shift_right', viewValue: 'Shift 1 Warp Right', icon: "fas fa-arrow-right"},
+    {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
+    {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
+    {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
+  ];
+
   /**
    * The name of the current selected brush.
    * @property {string}
    */
-  brush = 'invert';
+  design_mode = {
+    name:'toggle',
+    id: -1
+  }
 
   /**
    * The weave Draft object.
@@ -119,6 +159,8 @@ export class WeaverComponent implements OnInit {
       {value: 'mask', viewValue: 'Masks'}
 
     ];
+
+
 
 
 
@@ -297,7 +339,10 @@ export class WeaverComponent implements OnInit {
 
   @HostListener('window:keydown.e', ['$event'])
   private keyEventErase(e) {
-    this.brush = 'erase';
+    this.design_mode = {
+      name: 'down',
+      id: -1
+    };
     this.weaveRef.unsetSelection();
 
   }
@@ -310,7 +355,9 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.d', ['$event'])
   private keyEventPoint(e) {
-    this.brush = 'point';
+    this.design_mode = {
+      name: 'up',
+      id: -1};
     this.weaveRef.unsetSelection();
 
   }
@@ -323,7 +370,9 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.s', ['$event'])
   private keyEventSelect(e) {
-    this.brush = 'select';
+    this.design_mode = {
+      name: 'select',
+      id: -1};
     this.weaveRef.unsetSelection();
 
   }
@@ -336,7 +385,10 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.x', ['$event'])
   private keyEventInvert(e) {
-    this.brush = 'invert';
+    this.design_mode = {
+      name: 'toggle',
+      id: -1
+    };
     this.weaveRef.unsetSelection();
 
   }
@@ -386,8 +438,14 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - brush change event from design component.
    * @returns {void}
    */
-  public onBrushChange(e:any) {
-    this.brush = e.name;
+  public onDesignModeChange(e:any) {
+
+    this.design_mode = {
+      name: e.name,
+      id: e.id
+    }
+
+    console.log("design mode", this.design_mode.name, this.design_mode.id);
     this.weaveRef.unsetSelection();
 
   }
@@ -470,8 +528,10 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onCopy() {
-
-    this.weaveRef.selection.setExplicit();
+    this.design_mode = {
+      name: 'copy',
+      id: -1
+    };
   }
 
   /**

@@ -1,6 +1,5 @@
-mat-divider{
-  padding: 2px 0px;
-  border: none;
+h3{
+  padding: 8px 0px 4px 0px;
 }
 
 
@@ -11,7 +10,6 @@ button{
     height: 30px;
     line-height: 1em;
     margin: 2px;
-    color: #ff4081 !important ;
 
 
 
@@ -29,6 +27,15 @@ button{
 
 }
 
+.button.material{
+    background: white  !important;
+    border: thin solid #ff4081 !important;
+    width: 30px;
+    height: 30px;
+    line-height: 1em;
+    margin: 2px;
+}
+
 .select_slider{
   width: 100%;
   padding: 8px 0 16px 0;
@@ -43,7 +50,7 @@ button.is-active{
 
 .button.is-primary.is-active{
    background: #ff408150 !important;
-  color: #ff4081 !important;
+   color: #ff4081 !important;
 }
 /*
 

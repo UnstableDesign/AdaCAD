@@ -1325,7 +1325,7 @@ computeYarnPaths(){
       //acc is an array of row_ids that are assigned to this shuttle
       const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
 
-
+      console.log(acc);
       //screen rows are reversed to go from bottom to top
       //[row index] -> (indexes where there is interlacement)
       let path = [];

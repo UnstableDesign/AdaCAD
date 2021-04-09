@@ -43,27 +43,15 @@
         </app-view>
 
 
-<!--         <app-weftsystems 
-          [systems] = "draft?.weft_systems"
-          (onCreateWeftSystem)="createWeftSystem($event);"
-          (onHideWeftSystem)="hideWeftSystem($event);"
-          (onShowWeftSystem)="showWeftSystem($event);"
-           >
-        </app-weftsystems>
-
-
-        <app-warpsystems
-          [systems]="draft?.warp_systems" 
-          (onCreateWarpSystem)="createWarpSystem($event);"
-          (onHideWarpSystem)="hideWarpSystem($event);"
-          (onShowWarpSystem)="showWarpSystem($event);">
-        </app-warpsystems> -->
-       
         <app-design
-        [brush]="brush"
+        [design_mode]="design_mode"
+        [design_modes]="design_modes"
+        [design_actions]="design_actions"
+        [view_mode] = "render?.current_view"
+        [materials]="draft?.shuttles"
         [patterns]="draft?.patterns"
         [selection] = "weaveRef?.copy"
-        (onBrushChange)="onBrushChange($event)" 
+        (onDesignModeChange)="onDesignModeChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
         (onClear)="onClear($event);" 
@@ -141,7 +129,7 @@
   </mat-drawer>
 
 
-  <div #weaveRef weave [render]="render" [timeline]="timeline" [(brush)]="brush" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container">
+  <div #weaveRef weave [render]="render" [timeline]="timeline" [(design_mode)]="design_mode" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container">
 
   
    <canvas id="weft-systems" #weft_systems style="background:#fbfbfb;">  </canvas>
