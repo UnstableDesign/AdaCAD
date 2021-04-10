@@ -12,9 +12,10 @@ import { Shuttle } from '../model/shuttle';
 import { Pattern } from '../model/pattern';
 import { Point } from '../model/point';
 import { Selection } from '../model/selection';
+import { Timeline } from '../model/timeline';
 import { CanvasToBMP } from '../model/canvas2image';
-import { DraftSegment } from '../../ngrx/draft/segment';
-import { AddAction } from '../../ngrx/draft/actions';
+//import { DraftSegment } from '../../ngrx/draft/segment';
+//import { AddAction } from '../../ngrx/draft/actions';
 import {select, Store} from '@ngrx/store';
 import {getCurrentDraft, selectAll} from '../../ngrx/draft/selectors';
 import {Subject} from 'rxjs';
@@ -33,8 +34,6 @@ const generateId = () => (Date.now().toString(36) + Math.random().toString(36).s
 
 
 export class WeaveDirective {
-
-  @Input('timeline') timeline:any;
 
 
 
@@ -60,11 +59,21 @@ export class WeaveDirective {
    * @property {Render}
   */
   @Input('render') render: any;
-  /**
+
+
+
+/**
+   * The Timeline object containing state histories for undo and redo
+   * @property {Render}
+  */
+  @Input('timeline') timeline: any;
+
+
+
 /**
    * The HTML canvas element within the weave draft.
    * @property {HTMLCanvasElement}
-   */
+  */ 
   canvasEl: HTMLCanvasElement;
 
   /**
@@ -174,21 +183,19 @@ export class WeaveDirective {
   warpSystemsCanvas: HTMLCanvasElement;
 
 
-
   weftMaterialsCanvas: HTMLCanvasElement;
   warpMaterialsCanvas: HTMLCanvasElement;
 
   // private segments$: Observable<DraftSegment[]>;
-  private prevSegment = null;
-  private currSegment = null;
+  // private prevSegment = null;
+  // private currSegment = null;
 
   private tempPattern: Array<Array<boolean>>;
-  private segment: DraftSegment;
+  //private segment: DraftSegment;
   private unsubscribe$ = new Subject();
 
   private lastPos: Point;
   private shuttleLocation: number;
-
 
 
 
@@ -208,6 +215,8 @@ export class WeaveDirective {
 
     console.log("element", this.el.nativeElement.children);
     //this.segments$ = this.store.pipe(select(selectAll));
+    
+
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[6];
     //this.divEl = this.el.nativeElement.children[3];
@@ -263,8 +272,6 @@ export class WeaveDirective {
     this.warpMaterialsCanvas.width =  this.weave.warps * dims.w;
     this.warpMaterialsCanvas.height = dims.h;
 
-
-   // this.addHistoryState();
 
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
@@ -1023,7 +1030,7 @@ export class WeaveDirective {
     this.redraw({weft_systems: true});
 
 
-    this.addHistoryState();
+    this.timeline.addHistoryState();
 
   }
 
@@ -1057,7 +1064,7 @@ export class WeaveDirective {
 
     
 
-    this.addHistoryState();
+    this.timeline.addHistoryState();
     this.redraw({weft_materials: true, drawdown:true});
   }
 
@@ -1085,7 +1092,7 @@ export class WeaveDirective {
 
     this.weave.updateSystemVisibility('warp');
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
-    this.addHistoryState();
+    this.timeline.addHistoryState();
     this.redraw({warp_systems: true});
   }
 
@@ -1118,7 +1125,7 @@ export class WeaveDirective {
 
   
     this.drawWarpSelectorCell(this.cxWarpMaterials,col);
-    this.addHistoryState();
+    this.timeline.addHistoryState();
     this.redraw({warp_materials:true, drawdown:true}); //full redraw or just this column?
   }
 
@@ -1210,11 +1217,11 @@ export class WeaveDirective {
       if(this.design_mode.name !== 'material')
         if(this.render.showingFrames()) this.updateLoomFromDraft(currentPos);
       
-      this.addHistoryState();        
+      this.timeline.addHistoryState();  
+      this.redraw({drawdown:true, loom:true});
+      
     }
     
-    this.redraw({drawdown:true, loom:true});
-
   }
 
   /**
@@ -1247,7 +1254,7 @@ export class WeaveDirective {
     updates = this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
     this.weave.updateDraftFromTieup(updates);
     //this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup");
-    this.addHistoryState();
+    this.timeline.addHistoryState();
     this.redraw({drawdown:true, loom:true});
     
     
@@ -1289,7 +1296,7 @@ export class WeaveDirective {
         this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
       }  
 
-      this.addHistoryState();
+      this.timeline.addHistoryState();
       this.redraw({drawdown:true, loom:true});
 
       //temporarily disabled, as it causes errors, for now, just redraw the whole state
@@ -1343,7 +1350,7 @@ export class WeaveDirective {
         this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling")
       }
       //if(unused) this.redrawLoom();
-      this.addHistoryState();
+      this.timeline.addHistoryState();
       this.redraw({drawdown:true, loom:true});
 
     }
@@ -2365,7 +2372,6 @@ public drawWeftEnd(top, left, shuttle){
   public recomputeLoom(){
 
     this.weave.recomputeLoom();
-    this.addHistoryState();
   }
 
 
@@ -2831,65 +2837,12 @@ public redraw(flags:any){
     link.download = fileName +".wif";
   }
 
-  public getActiveTimelineId(): number{
-      for(var i = 0; i < this.timeline.length; i++){
-        if(this.timeline[i].is_active) return i;
-      }
-      return -1;
-  }
 
 
-  public restoreNextHistoryState(){
-    
-      var active_id = this.getActiveTimelineId();
-
-      if(active_id-1 >= 0){
-        this.timeline[active_id].is_active = false;
-        this.timeline[active_id-1].is_active = true;
-        this.weave = cloneDeep(this.timeline[active_id-1].draft);
-      }
-
-  }
-
-  public restorePreviousHistoryState(){
-    
-      var active_id = this.getActiveTimelineId();
-
-      if(active_id+1 < this.timeline.length){
-        this.timeline[active_id].is_active = false;
-        this.timeline[active_id+1].is_active = true;
-        this.weave = cloneDeep(this.timeline[active_id+1].draft);
-      }
-
-  }
 
 
-  public addHistoryState(){
 
-    var active_id = this.getActiveTimelineId();
 
-    var state = {
-      draft: cloneDeep(this.weave),
-      is_active: false
-    }
 
-    if(this.timeline.length > 0){
-
-      if(active_id == 0){
-        this.timeline[0].is_active = false;
-        state.is_active = true;
-      }else{
-
-        //erase all states until you get to the active row
-        this.timeline.splice(0, active_id);
-        if(this.timeline.length > 0) this.timeline[0].is_active = false;
-        state.is_active = true;
-      }
-    }
-
-    //add the enw element
-    var len = this.timeline.unshift(state);
-    if(len > 10) this.timeline.pop();
-  }
 
 }

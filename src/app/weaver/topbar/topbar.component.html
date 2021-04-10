@@ -1,17 +1,18 @@
 <mat-toolbar color="primary">
 
 <span class="left">
+{{timeline.timeline.length}}
 
-<button mat-icon-button 
-      [disabled]="(timeline.length <= 1) || (timeline[timeline.length-1]?.is_active)" 
+<button #undoEvent mat-icon-button 
       (click)="undoClicked($event);"
+      [disabled]="timeline.timeline.length <= 1"
       matTooltip ="undo">
-        <i class="fas fa-undo"></i>
+      <i class="fas fa-undo"></i>
       </button>
     
     <button #redoEvent mat-icon-button 
-      [disabled]="(timeline[0]?.is_active)"  
       (click)="redoClicked($event);"
+      [disabled]="timeline.timeline.length <= 1"
       matTooltip ="redo">
       <i class="fas fa-redo"></i>
     </button>
@@ -19,7 +20,6 @@
 
 <span class="center">
    <button mat-icon-button
-      [disabled]="(timeline[0]?.is_active)"  
       (click)="openAboutDialog(null)"
       matTooltip ="about AdaCAD"
       >

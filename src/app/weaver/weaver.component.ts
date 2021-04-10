@@ -3,6 +3,7 @@ import {enableProdMode} from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
+import { Timeline } from '../core/model/timeline';
 import { Draft } from '../core/model/draft';
 import { Render } from '../core/model/render';
 import { Pattern } from '../core/model/pattern';
@@ -10,7 +11,7 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
-//import {RedoAction, UndoAction} from '../history/actions';
+import {RedoAction, UndoAction} from '../history/actions';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 //import {getRedoAction, getUndoAction} from '../history/selectors';
@@ -43,10 +44,6 @@ interface DensityUnits {
   viewValue: string;
 }
 
-interface HistoryState {
-  draft: Draft;
-  is_active: boolean;
-}
 
 interface ViewModes {
   value: string;
@@ -82,7 +79,7 @@ export class WeaverComponent implements OnInit {
    * The reference to the weave directive.
    * @property {WeaveDirective}
    */
-  @ViewChild(WeaveDirective, {static: false}) weaveRef;
+  @ViewChild(WeaveDirective, {static: true}) weaveRef;
   @ViewChild('bitmapImage', {static: false}) bitmap;
 
 
@@ -122,14 +119,21 @@ export class WeaverComponent implements OnInit {
    */
   draft: Draft;
 
-
-  timeline: HistoryState[] = [];
-
  /**
    * The weave Render object.
    * @property {Render}
    */
   render: Render = new Render(false);
+
+ /**
+   * The weave Timeline object.
+   * @property {Render}
+   */
+  timeline: Timeline = new Timeline();
+
+
+  
+
 
  /**
    * The types of looms this version will support.
@@ -206,7 +210,6 @@ export class WeaverComponent implements OnInit {
 
     this.render.view_frames = (this.draft.loom.type === 'frame') ? true : false;     
     if (this.draft.patterns === undefined) this.draft.patterns = this.default_patterns;
-    
 
   }
 
@@ -215,6 +218,7 @@ export class WeaverComponent implements OnInit {
   reInit(result){
 
     this.draft.reload(result);
+    this.timeline.addHistoryState(this.draft);
 
     this.render.view_frames = (this.draft.loom.type === 'frame') ? true : false;     
 
@@ -234,11 +238,11 @@ export class WeaverComponent implements OnInit {
     });
 
     this.weaveRef.rescale();
-  
+
   }
   
   ngOnInit(){
-
+    
   }
 
   ngAfterViewInit() {
@@ -254,10 +258,7 @@ export class WeaverComponent implements OnInit {
    });
 
 
-   
-
     this.weaveRef.onNewDraftLoaded();
-
 
     this.weaveRef.redraw({
       drawdown: true, 
@@ -293,11 +294,35 @@ export class WeaverComponent implements OnInit {
   }
 
   undo() {
-    this.weaveRef.restorePreviousHistoryState();
+    let d: Draft = this.timeline.restorePreviousHistoryState();
+    this.draft.reload(d);    
+    this.weaveRef.onNewDraftLoaded();
+    this.weaveRef.redraw({
+      drawdown: true, 
+      loom:true, 
+      warp_systems: true, 
+      weft_systems: true, 
+      warp_materials: true,
+      weft_materials:true
+    });
+
+    this.weaveRef.rescale(); 
   }
 
   redo() {
-    this.weaveRef.restoreNextHistoryState();
+    let d: Draft = this.timeline.restoreNextHistoryState();
+    this.draft.reload(d);    
+    this.weaveRef.onNewDraftLoaded();
+    this.weaveRef.redraw({
+      drawdown: true, 
+      loom:true, 
+      warp_systems: true, 
+      weft_systems: true, 
+      warp_materials: true,
+      weft_materials:true
+    });
+
+    this.weaveRef.rescale(); 
   }
 
   /// EVENTS
@@ -466,7 +491,9 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
     
-    this.weaveRef.redraw({drawdown:true, loom:true})
+    this.weaveRef.redraw({drawdown:true, loom:true});
+
+    this.timeline.addHistoryState(this.draft);
     
   }
 
@@ -483,6 +510,9 @@ export class WeaverComponent implements OnInit {
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
     this.weaveRef.redraw({drawdown:true, loom:true});
+
+    this.timeline.addHistoryState(this.draft);
+
   }
 
   /**
@@ -518,7 +548,11 @@ export class WeaverComponent implements OnInit {
     
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
+    this.timeline.addHistoryState(this.draft);
+
     this.weaveRef.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+ 
+
   }
 
   /**
@@ -600,6 +634,7 @@ export class WeaverComponent implements OnInit {
    */
   public shuttleColorChange() {
     this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
+    this.timeline.addHistoryState(this.draft);
   }
 
   /**
@@ -611,6 +646,8 @@ export class WeaverComponent implements OnInit {
     //this.draft.updateConnections(i, 1);
     
     this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.timeline.addHistoryState(this.draft);
+
   }
 
   public cloneRow(i, c, shuttle, system) {
@@ -618,6 +655,7 @@ export class WeaverComponent implements OnInit {
    // this.draft.updateConnections(i, 1);
 
     this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.timeline.addHistoryState(this.draft);
 
   }
 
@@ -625,6 +663,7 @@ export class WeaverComponent implements OnInit {
     this.draft.deleteRow(i);
    // this.draft.updateConnections(i, -1);
     this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.timeline.addHistoryState(this.draft);
 
     //this.onAddRow.emit();
   }
@@ -637,13 +676,16 @@ export class WeaverComponent implements OnInit {
   public insertCol(i, shuttle,system) {
     this.draft.insertCol(i, shuttle,system);
     this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+    this.draft.computeYarnPaths();
+    this.timeline.addHistoryState(this.draft);
 
   }
 
   public cloneCol(i, shuttle,system) {
-    console.log(i, shuttle);
     this.draft.cloneCol(i, shuttle,system);
     this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+    this.draft.computeYarnPaths();
+    this.timeline.addHistoryState(this.draft);
 
   }
 
@@ -652,6 +694,8 @@ export class WeaverComponent implements OnInit {
     this.draft.deleteCol(i);
     //this.draft.updateConnections(i, -1);
     this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+    this.draft.computeYarnPaths();
+    this.timeline.addHistoryState(this.draft);
 
 
   }
