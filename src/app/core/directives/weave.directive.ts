@@ -17,10 +17,8 @@ import { CanvasToBMP } from '../model/canvas2image';
 //import { DraftSegment } from '../../ngrx/draft/segment';
 //import { AddAction } from '../../ngrx/draft/actions';
 import {select, Store} from '@ngrx/store';
-import {getCurrentDraft, selectAll} from '../../ngrx/draft/selectors';
 import {Subject} from 'rxjs';
 import {takeLast, takeUntil} from 'rxjs/operators';
-import {AppState} from '../../ngrx/app.state';
 
 const generateId = () => (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
 

@@ -11,12 +11,8 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
-import {RedoAction, UndoAction} from '../history/actions';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-//import {getRedoAction, getUndoAction} from '../history/selectors';
-import {AppState} from '../ngrx/app.state';
-import {select, Store} from '@ngrx/store';
 import {cloneDeep, now} from 'lodash';
 
 
@@ -178,8 +174,6 @@ export class WeaverComponent implements OnInit {
   selected;
 
   private unsubscribe$ = new Subject();
-  private undoItem;
-  private redoItem;
 
   default_patterns:any;
   collapsed:boolean = false;
@@ -194,8 +188,7 @@ export class WeaverComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private ps: PatternService, private dialog: MatDialog, 
-              private store: Store<AppState>) {
+  constructor(private ps: PatternService, private dialog: MatDialog) {
 
     //initialize with a draft so that we can load some things faster. 
     this.draft = new Draft({});

@@ -30,7 +30,6 @@ import { WeaverComponent } from './weaver.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { DesignComponent } from './tool/design/design.component';
 import { PatternsComponent } from './tool/patterns/patterns.component';
-import { HistoryComponent } from './tool/history/history.component';
 import { MaterialsComponent } from './tool/materials/materials.component';
 import { SystemsComponent } from './tool/systems/systems.component';
 import { LoomComponent } from './tool/loom/loom.component';
@@ -40,9 +39,6 @@ import { ViewComponent } from './tool/view/view.component';
 
 
 import { CoreModule } from '../core/core.module';
-import { HistoryModule } from '../history/history.module';
-import { NgrxModule } from '../ngrx/ngrx.module';
-
 
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
@@ -60,8 +56,6 @@ import { LabelModal } from './modal/label/label.modal';
   imports: [
     CommonModule,
     CoreModule,
-    HistoryModule,
-    NgrxModule,
     FormsModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
@@ -94,7 +88,6 @@ import { LabelModal } from './modal/label/label.modal';
     TopbarComponent, 
     DesignComponent, 
     PatternsComponent,
-    HistoryComponent,
     ShuttlesModal,
     AboutModal,
     PatternModal,

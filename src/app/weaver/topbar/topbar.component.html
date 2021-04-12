@@ -5,14 +5,14 @@
 
 <button #undoEvent mat-icon-button 
       (click)="undoClicked($event);"
-      [disabled]="timeline.timeline.length <= 1"
+      [disabled]="timeline.undo_disabled"
       matTooltip ="undo">
       <i class="fas fa-undo"></i>
       </button>
     
     <button #redoEvent mat-icon-button 
       (click)="redoClicked($event);"
-      [disabled]="timeline.timeline.length <= 1"
+      [disabled]="redo_disabled"
       matTooltip ="redo">
       <i class="fas fa-redo"></i>
     </button>
