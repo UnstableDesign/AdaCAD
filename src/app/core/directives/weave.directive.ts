@@ -14,9 +14,6 @@ import { Point } from '../model/point';
 import { Selection } from '../model/selection';
 import { Timeline } from '../model/timeline';
 import { CanvasToBMP } from '../model/canvas2image';
-//import { DraftSegment } from '../../ngrx/draft/segment';
-//import { AddAction } from '../../ngrx/draft/actions';
-import {select, Store} from '@ngrx/store';
 import {Subject} from 'rxjs';
 import {takeLast, takeUntil} from 'rxjs/operators';
 
@@ -85,6 +82,12 @@ export class WeaveDirective {
    * flag defining if there needs to be a recomputation of the draft on Mouse Up
    */
   flag_recompute: boolean;
+
+
+  /**
+   * flag defining if there needs to be a recomputation of the draft on Mouse Up
+   */
+  flag_history: boolean;
 
 
   /**
@@ -184,16 +187,10 @@ export class WeaveDirective {
   weftMaterialsCanvas: HTMLCanvasElement;
   warpMaterialsCanvas: HTMLCanvasElement;
 
-  // private segments$: Observable<DraftSegment[]>;
-  // private prevSegment = null;
-  // private currSegment = null;
-
   private tempPattern: Array<Array<boolean>>;
-  //private segment: DraftSegment;
   private unsubscribe$ = new Subject();
 
   private lastPos: Point;
-  private shuttleLocation: number;
 
 
 
@@ -202,9 +199,10 @@ export class WeaveDirective {
    * Creates the element reference.
    * @constructor
    */
-  constructor(private el: ElementRef, private store: Store<any>) {
+  constructor(private el: ElementRef) {
 
     this.flag_recompute = false;
+    this.flag_history = false;
   }
 
 
@@ -212,12 +210,9 @@ export class WeaveDirective {
   ngOnInit() {  
 
     console.log("element", this.el.nativeElement.children);
-    //this.segments$ = this.store.pipe(select(selectAll));
-    
 
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[6];
-    //this.divEl = this.el.nativeElement.children[3];
 
     //this is the selection
     this.svgEl = this.el.nativeElement.children[17];
@@ -274,11 +269,6 @@ export class WeaveDirective {
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
 
-    // this.store.pipe(select(getCurrentDraft), takeUntil(this.unsubscribe$)).subscribe(undoredo => {
-    //   this.prevSegment = this.currSegment;
-    //   this.currSegment = undoredo;
-    // });
-
 
   }
 
@@ -317,6 +307,8 @@ export class WeaveDirective {
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnDrawdown(currentPos);
       }
+
+      this.flag_history = true;
     }
    /// EVENTS
   /**
@@ -555,14 +547,6 @@ export class WeaveDirective {
         i: currentPos.i, //row
         j: currentPos.j //col
       };
-
-    // var i = currentPos.i, j = currentPos.j, si = currentPos.si;
-    // if (this.segment.start[0] > si) this.segment.start[0] = si;    
-    // if (this.segment.start[1] > i) this.segment.start[1] = i;
-    // if (this.segment.start[2] > j) this.segment.start[2] = j;
-    // if (this.segment.end[0] < si) this.segment.end[0] = si;
-    // if (this.segment.end[1] < i) this.segment.end[1] = i;
-    // if (this.segment.end[2] < j) this.segment.end[2] = j;
   }
 
   /**
@@ -580,7 +564,14 @@ export class WeaveDirective {
       j: -1
      }
 
-     if(this.flag_recompute){
+     if(this.flag_history && event.type == 'mouseup'){
+      console.log("adding history state", event.type);
+        this.timeline.addHistoryState(this.weave);
+        this.flag_history = false;
+      } 
+
+
+     if(this.flag_recompute && event.type == 'mouseup'){
       if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
       this.flag_recompute = false;
      }
@@ -591,23 +582,6 @@ export class WeaveDirective {
     if (!(event.type === 'mouseleave' && (this.design_mode.name === 'select' || this.design_mode.name ==='copy'))) {
       this.removeSubscription();
       if(this.design_mode.name != "copy" && this.selection.start !== undefined) this.copyArea();
-
-      // if (event.type === 'mouseup' && this.brush != 'select' && this.segment !== undefined) {
-      //   let segmentPattern = [];
-
-      //   for (var i = this.segment.start[1]; i < this.segment.end[1] + 1; i++) {
-      //     segmentPattern.push([])
-      //     var index = i - this.segment.start[1];
-      //     for (var j = this.segment.start[2]; j < this.segment.end[2] + 1; j++) {
-      //       var past, present;
-      //       past = this.tempPattern[i][j];
-      //       present = this.weave.pattern[i][j];
-      //       segmentPattern[index].push(past ? !present : present)
-      //     }
-      //   }
-      //   this.segment.pattern = segmentPattern;
-      //   //this.onAdd(this.segment);
-      // }
     }
 
   }
@@ -1027,9 +1001,6 @@ export class WeaveDirective {
 
     this.redraw({weft_systems: true});
 
-
-    this.timeline.addHistoryState();
-
   }
 
 
@@ -1060,9 +1031,6 @@ export class WeaveDirective {
       this.weave.rowShuttleMapping[draft_row] = newShuttle;
     }
 
-    
-
-    this.timeline.addHistoryState();
     this.redraw({weft_materials: true, drawdown:true});
   }
 
@@ -1090,7 +1058,6 @@ export class WeaveDirective {
 
     this.weave.updateSystemVisibility('warp');
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
-    this.timeline.addHistoryState();
     this.redraw({warp_systems: true});
   }
 
@@ -1123,7 +1090,6 @@ export class WeaveDirective {
 
   
     this.drawWarpSelectorCell(this.cxWarpMaterials,col);
-    this.timeline.addHistoryState();
     this.redraw({warp_materials:true, drawdown:true}); //full redraw or just this column?
   }
 
@@ -1215,7 +1181,6 @@ export class WeaveDirective {
       if(this.design_mode.name !== 'material')
         if(this.render.showingFrames()) this.updateLoomFromDraft(currentPos);
       
-      this.timeline.addHistoryState();  
       this.redraw({drawdown:true, loom:true});
       
     }
@@ -1252,7 +1217,6 @@ export class WeaveDirective {
     updates = this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
     this.weave.updateDraftFromTieup(updates);
     //this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup");
-    this.timeline.addHistoryState();
     this.redraw({drawdown:true, loom:true});
     
     
@@ -1294,7 +1258,6 @@ export class WeaveDirective {
         this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
       }  
 
-      this.timeline.addHistoryState();
       this.redraw({drawdown:true, loom:true});
 
       //temporarily disabled, as it causes errors, for now, just redraw the whole state
@@ -1348,7 +1311,6 @@ export class WeaveDirective {
         this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling")
       }
       //if(unused) this.redrawLoom();
-      this.timeline.addHistoryState();
       this.redraw({drawdown:true, loom:true});
 
     }
@@ -1606,36 +1568,6 @@ export class WeaveDirective {
    // this.redraw();
 
    }
-
-  private undoRedoSegment() {
-
-    // console.log(this.prevSegment);
-    
-    // var start = this.prevSegment.start;
-    // var end = this.prevSegment.end;
-    // var segment = this.prevSegment.pattern;
-    // var dims = this.render.getCellDims("base");
-
-    // var oldBrush = this.brush;
-
-    // this.brush = 'invert';
-    // console.log(oldBrush);
-
-    // for (var i = start[0]; i <= end[0]; i++) {
-    //   for (var j = start[1]; j <= end[1]; j++ ) {
-    //     if (segment[i-start[0]][j-start[1]]) {
-    //       this.drawOnDrawdown({
-    //         x: j * dims.w,
-    //         y: i * dims.h,
-    //         i: i,
-    //         j: j
-    //       });
-    //     }
-    //   }
-    // }
-
-    // this.brush = oldBrush;
-  }
 
 
 //   //This function draws whatever the current value is at screen coordinates cell i, J

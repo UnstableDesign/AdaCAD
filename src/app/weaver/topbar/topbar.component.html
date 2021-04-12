@@ -1,7 +1,6 @@
 <mat-toolbar color="primary">
 
 <span class="left">
-{{timeline.timeline.length}}
 
 <button #undoEvent mat-icon-button 
       (click)="undoClicked($event);"
@@ -12,7 +11,7 @@
     
     <button #redoEvent mat-icon-button 
       (click)="redoClicked($event);"
-      [disabled]="redo_disabled"
+      [disabled]="timeline.redo_disabled"
       matTooltip ="redo">
       <i class="fas fa-redo"></i>
     </button>

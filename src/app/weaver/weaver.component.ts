@@ -192,6 +192,7 @@ export class WeaverComponent implements OnInit {
 
     //initialize with a draft so that we can load some things faster. 
     this.draft = new Draft({});
+    this.timeline.addHistoryState(this.draft);
     this.default_patterns = [];
 
 
@@ -209,6 +210,7 @@ export class WeaverComponent implements OnInit {
 
 
   reInit(result){
+    console.log("reinit");
 
     this.draft.reload(result);
     this.timeline.addHistoryState(this.draft);
@@ -264,19 +266,6 @@ export class WeaverComponent implements OnInit {
 
     this.weaveRef.rescale();
   
-    console.log("rendered ", this.draft);
-
-
-
-
-    // this.store.pipe(select(getUndoAction), takeUntil(this.unsubscribe$)).subscribe(undoItem => {
-    //   this.undoItem = undoItem;
-    // });
-    // this.store.pipe(select(getRedoAction), takeUntil(this.unsubscribe$)).subscribe(redoItem => {
-    //   this.redoItem = redoItem;
-    // });
-
-
     
   }
 
@@ -288,6 +277,9 @@ export class WeaverComponent implements OnInit {
 
   undo() {
     let d: Draft = this.timeline.restorePreviousHistoryState();
+    console.log("Prevous State is ", d);
+    if(d === undefined || d === null) return;
+
     this.draft.reload(d);    
     this.weaveRef.onNewDraftLoaded();
     this.weaveRef.redraw({
@@ -304,6 +296,12 @@ export class WeaverComponent implements OnInit {
 
   redo() {
     let d: Draft = this.timeline.restoreNextHistoryState();
+    console.log("Next State is ", d);
+
+    if(d === undefined || d === null) return;
+
+    console.log(d);
+
     this.draft.reload(d);    
     this.weaveRef.onNewDraftLoaded();
     this.weaveRef.redraw({
@@ -480,6 +478,7 @@ export class WeaverComponent implements OnInit {
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original');
 
+    console.log("ON FILL IS SHOWING FRAMES ", this.render.showingFrames());
     if(this.render.showingFrames()) this.draft.recomputeLoom();
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
@@ -499,6 +498,8 @@ export class WeaverComponent implements OnInit {
   public onClear(b:boolean) {
     
     this.draft.fillArea(this.weaveRef.selection, [[b]], 'original')
+
+    if(this.render.showingFrames()) this.draft.recomputeLoom();
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
