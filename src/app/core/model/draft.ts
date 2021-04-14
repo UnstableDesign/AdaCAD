@@ -19,6 +19,7 @@ export interface DraftInterface {
 
   pattern: Array<Array<Cell>>; // the single design pattern
   shuttles: Array<Shuttle>;    //the shuttles used in this draft 
+  notes: string;
 
   //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number>;
@@ -63,6 +64,7 @@ export class Draft implements DraftInterface {
 
   pattern: Array<Array<Cell>>; // the single design pattern
   shuttles: Array<Shuttle>;    //the shuttles used in this draft 
+  notes: string;
 
   //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number>;
@@ -111,6 +113,7 @@ export class Draft implements DraftInterface {
     this.connections = (params.connections === undefined)? [] : params.connections;
     this.labels = (params.labels === undefined)? [] : params.labels;
     this.masks = (params.masks === undefined)? [] : params.masks;
+    this.notes = (params.notes === undefined)? "" : params.notes;
 
 
 

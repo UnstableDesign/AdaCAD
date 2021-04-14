@@ -50,7 +50,7 @@
         [view_mode] = "render?.current_view"
         [materials]="draft?.shuttles"
         [patterns]="draft?.patterns"
-        [selection] = "weaveRef?.copy"
+        [selection] = "copy"
         (onDesignModeChange)="onDesignModeChange($event)" 
         (onFill)="onFill($event)" 
         (onCopy)="onCopy();"
@@ -116,12 +116,20 @@
           >
         </app-loom>
 
+        <app-notes
+         [notes] = "draft?.notes"
+         (onChange) = "notesChanged($event)"
+         >
+        </app-notes>
+
         <app-schematic  [hidden] = "render?.current_view != 'yarn'"
         (onConnectionCreate)="openConnectionDialog();"
         (onLabelCreate)="openLabelDialog()"
         >
 
       </app-schematic> 
+
+
     </mat-accordion>
 
     </div>
@@ -129,7 +137,7 @@
   </mat-drawer>
 
 
-  <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [timeline]="timeline" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container">
+  <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
 
   
    <canvas id="weft-systems" #weft_systems style="background:#fbfbfb;">  </canvas>

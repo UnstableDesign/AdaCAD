@@ -27,6 +27,8 @@ export class PatternsComponent implements OnInit {
 
   ngOnInit() {
 
+    console.log("selection", this.selection);
+
   }
 
   updateFavorite(p) {

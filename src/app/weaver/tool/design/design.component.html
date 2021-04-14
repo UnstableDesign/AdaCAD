@@ -11,6 +11,7 @@
 
 
 
+
 <!--  <div class="select_slider">
      Select Cell
       <mat-slide-toggle
@@ -27,6 +28,9 @@
       [class.is-active]="design_mode.name === select"
       [style.color]="button_color"
       (click)="designModeChange($event)">
+</button>
+
+<button [matTooltip]= "selection.length">
 </button>
 
 <h3> Interlacement Tools</h3>
@@ -48,7 +52,6 @@
        class="button material is-small is-primary fas fa-square"
       [class.is-active]="design_mode.id === shuttle.id"
       [style.color]="shuttle.color"
-      [disabled] = "view_mode !== 'visual'"
       (click)="drawWithMaterial($event)">
       </button>
   </ng-container>
@@ -88,7 +91,6 @@
   </button>
 
  -->
-<mat-divider></mat-divider>
 
 <!--   <button  matTooltip="paste selection mirrored (horizontal)" 
     [disabled] = "brush !=='select' && brush !=='copy'" 
@@ -145,7 +147,6 @@
  </ng-container>
  -->
 
-<mat-divider> </mat-divider>
 
 <!--     <button  matTooltip="copy selection (shortcut: c)"
      name="copy" 
@@ -167,7 +168,6 @@
     (click)="pasteEvent($event, 'invert')">
     </button>
  -->
-<mat-divider> </mat-divider>
 
         <app-patterns 
           [patterns]="patterns"

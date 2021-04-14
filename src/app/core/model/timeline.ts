@@ -54,6 +54,7 @@ export class Timeline {
     if(this.timeline.length > 1) this.undo_disabled = false;
 
     console.log("ON ADD", this.timeline);
+    this.logState(draft);
 
   }
 
@@ -93,9 +94,12 @@ export class Timeline {
       
   }
 
-
-
-
+   public logState(draft: Draft){
+    var timestamp = Math.floor(Date.now() / 1000);
+    var theJSON = JSON.stringify(draft);
+    localStorage.setItem("draft", theJSON);
+   
+ }
 
 
 }

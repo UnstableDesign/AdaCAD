@@ -75,7 +75,7 @@ export class WeaverComponent implements OnInit {
    * The reference to the weave directive.
    * @property {WeaveDirective}
    */
-  @ViewChild(WeaveDirective, {static: true}) weaveRef;
+  @ViewChild(WeaveDirective, {static: false}) weaveRef;
   @ViewChild('bitmapImage', {static: false}) bitmap;
 
 
@@ -92,8 +92,8 @@ export class WeaverComponent implements OnInit {
     {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
     {value: 'up', viewValue: 'Set Region Heddles Up', icon: "fas fa-square"},
     {value: 'down', viewValue: 'Set Region Heddles Down', icon: "far fa-square"},
-    {value: 'flip_x', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
-    {value: 'flip_y', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
+    {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
+    {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
     {value: 'shift_right', viewValue: 'Shift 1 Warp Right', icon: "fas fa-arrow-right"},
     {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
     {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
@@ -128,7 +128,11 @@ export class WeaverComponent implements OnInit {
   timeline: Timeline = new Timeline();
 
 
-  
+
+  /**
+  The current selection, as boolean array 
+  **/
+  copy: Array<Array<boolean>>;
 
 
  /**
@@ -155,8 +159,8 @@ export class WeaverComponent implements OnInit {
   view_modes: ViewModes[] = [
       {value: 'visual', viewValue: 'Visual'},
       {value: 'pattern', viewValue: 'Draft'},
-      {value: 'yarn', viewValue: 'Circuit'},
-      {value: 'mask', viewValue: 'Masks'}
+      {value: 'yarn', viewValue: 'Circuit'}
+     // {value: 'mask', viewValue: 'Masks'}
 
     ];
 
@@ -191,8 +195,18 @@ export class WeaverComponent implements OnInit {
   constructor(private ps: PatternService, private dialog: MatDialog) {
 
     //initialize with a draft so that we can load some things faster. 
-    this.draft = new Draft({});
+    let d =  this.getDraftFromLocalStore();
+    
+    this.copy = [[false,true],[false,true]];
+
+
+
+    if(d !== undefined)
+
+    this.draft = new Draft(JSON.parse(d));
+    this.draft.name = this.draft.name;
     this.timeline.addHistoryState(this.draft);
+    
     this.default_patterns = [];
 
 
@@ -556,6 +570,9 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onCopy() {
+
+    console.log("on copy", this.copy);
+
     this.design_mode = {
       name: 'copy',
       id: -1
@@ -774,6 +791,13 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
   }
 
+
+  public notesChanged(e:any) {
+
+    console.log(e);
+   this.draft.notes = e;
+  }
+
   // public hideShuttle(e:any) {
   //   this.draft.updateVisible();
   //   this.weaveRef.redraw();
@@ -893,6 +917,11 @@ export class WeaverComponent implements OnInit {
     this.draft.patterns = this.draft.patterns.filter(pattern => pattern !== e.pattern);
   }
 
+
+  public updateSelection(e:any){
+    console.log("update selection", e);
+    this.copy = e;
+  }
 
 
   public toggleViewFrames(){
@@ -1084,6 +1113,97 @@ export class WeaverComponent implements OnInit {
         var dims = this.render.getInterpolationDims("base");
         return (j*dims.w);
   }
+
+
+
+
+//  //prints the size of each entry and total use of the local store
+// //each entry is ~ 0.000008 MB 
+// //store has max of 5MB
+// // we can safely store 625000 entries before we over run
+// public calculateLocalStoreUsage(){
+
+//   var total = 0;
+//   for(var x in localStorage) {
+//     var amount = (localStorage[x].length * 2) / 1024 / 1024;
+//     total += amount;
+//     console.log( x + " = " + amount.toFixed(8) + " MB");
+//   }
+//   //console.log( "Total: " + total.toFixed(8) + " MB");
+// }
+
+
+//careful! calling this from console will clear all data in local storage
+public clearLocalStorage(){
+
+  var total = 0;
+  for(var x in localStorage) {
+    localStorage.removeItem(x);
+  }
+  console.log( "LOCAL STORAGE CLEARED");
+  console.log("local storage size now "+localStorage.length);
+}
+
+
+//call this from console when you want to write a file of the data
+public downloadLocalStorage(){
+  // let d_log = loadRawLog();
+
+  // let oldest_stamp = d_log[0].timestamp;
+  //   let newest_stamp =   d_log[0].timestamp
+
+
+  // for(var d in d_log){
+  //   if(d_log[d].timestamp > newest_stamp) newest_stamp = d_log[d].timestamp;
+  //   if(d_log[d].timestamp < oldest_stamp) oldest_stamp = d_log[d].timestamp;
+  // }
+
+  //   console.log(oldest_stamp, newest_stamp);
+  // let writer = createWriter(oldest_stamp+"_"+newest_stamp+".csv");
+  // writer.write(["timestamp", "region", "value"]);
+  // writer.write('\n');
+
+  // for(var d in d_log){
+  //   writer.write([d_log[d].timestamp, d_log[d].region, d_log[d].value]);
+  //   writer.write('\n');
+  // }
+  // writer.close();
+
+
+}
+
+
+public getDraftFromLocalStore() : string{
+  var aValue = localStorage.getItem("draft");
+  return aValue;
+}
+
+//load raw log into memory so we can process it for the visualization
+//this will be called once everytime we switch into vis mode, though log entries may be
+//accumulated in the backgroudn that won't affect this
+public loadRawLog(){
+  //clear the log so we can load it fresh
+  // console.log(Date.now());
+
+   var d_log = [];
+  // //console.log(localStorage.length);
+
+  // for(var x in localStorage) {
+  //   if(typeof(localStorage[x]) == "string"){
+  //     time_region = split(x, ":")
+  //     value = localStorage[x];
+
+  //     d_log.push({
+  //     timestamp: time_region[0],
+  //     region: time_region[1],
+  //     value: value}
+  //   );
+  //   }
+  // }
+
+  return d_log;
+
+}
 
 
 

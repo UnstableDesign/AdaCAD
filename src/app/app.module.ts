@@ -17,8 +17,6 @@ import { CoreModule } from './core/core.module';
 import { WeaverModule } from './weaver/weaver.module';
 import { secrets } from '../environments/secrets';
 
-import { StoreModule } from '@ngrx/store';
-
 
 export const firebaseConfig = secrets;
 

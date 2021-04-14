@@ -1,4 +1,4 @@
-import { Directive, ElementRef, ViewChild, HostListener, Input, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, ViewChild, HostListener, Input, Output, EventEmitter, Renderer2 } from '@angular/core';
 
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
 import * as d3 from "d3";
@@ -65,6 +65,13 @@ export class WeaveDirective {
 
 
 
+  @Input() copy:  Array<Array<boolean>>;
+
+
+  @Output() onNewSelection = new EventEmitter();
+
+
+
 /**
    * The HTML canvas element within the weave draft.
    * @property {HTMLCanvasElement}
@@ -75,7 +82,7 @@ export class WeaveDirective {
    * The pattern that has been copied from the draft pattern.
    * @property {Array<Array<boolean>>}
    */
-  copy: Array<Array<boolean>>;
+  // copy: Array<Array<boolean>>;
 
 
   /**
@@ -607,7 +614,6 @@ export class WeaveDirective {
   private copyArea() {
 
 
-
     var dims = this.render.getCellDims("copy");
 
 
@@ -620,49 +626,49 @@ export class WeaveDirective {
     var h = this.selection.height;
 
 
-    var copy = [];
+    this.copy = [];
      
     if(this.selection.target.id === 'weft-systems'){
       for(var i = 0; i < h; i++){
-        copy.push([]);
+        this.copy.push([]);
         for(var j = 0; j < this.weave.weft_systems.length; j++){
-          copy[i].push(false);
+          this.copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'warp-systems'){
       for(var i = 0; i < this.weave.warp_systems.length; i++){
-        copy.push([]);
+        this.copy.push([]);
         for(var j = 0; j < w; j++){
-          copy[i].push(false);
+          this.copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'weft-materials'){
       for(var i = 0; i < h; i++){
-        copy.push([]);
+        this.copy.push([]);
         for(var j = 0; j < this.weave.shuttles.length; j++){
-          copy[i].push(false);
+          this.copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'warp-materials'){
       for(var i = 0; i < this.weave.shuttles.length; i++){
-        copy.push([]);
+        this.copy.push([]);
         for(var j = 0; j < w; j++){
-          copy[i].push(false);
+          this.copy[i].push(false);
         }
       }
     }else{
        for (var i = 0; i < h; i++){
-        copy.push([]);
+        this.copy.push([]);
         for (var j = 0; j < w; j++){
-          copy[i].push(false);
+          this.copy[i].push(false);
         }
        }
     }
 
 
     //iterate through the selection
-    for (var i = 0; i < copy.length; i++) {
-      for(var j = 0; j < copy[0].length; j++) {
+    for (var i = 0; i < this.copy.length; i++) {
+      for(var j = 0; j < this.copy[0].length; j++) {
 
         var screen_row = screen_i + i;
         var draft_row = this.weave.visibleRows[screen_row];
@@ -670,31 +676,31 @@ export class WeaveDirective {
 
         switch(this.selection.target.id){
           case 'drawdown':
-              copy[i][j]= this.weave.isUp(draft_row, col);
+              this.copy[i][j]= this.weave.isUp(draft_row, col);
           break;
           case 'threading':
               var frame = this.weave.loom.frame_mapping[screen_row];
-              copy[i][j]= this.weave.loom.isInFrame(col,frame);
+              this.copy[i][j]= this.weave.loom.isInFrame(col,frame);
 
           break;
           case 'treadling':
-              copy[i][j] = this.weave.loom.isInTreadle(screen_row,col);
+              this.copy[i][j] = this.weave.loom.isInTreadle(screen_row,col);
           break;
           case 'tieups':
               var frame = this.weave.loom.frame_mapping[screen_row];
-              copy[i][j] = this.weave.loom.hasTieup(frame, col);;
+              this.copy[i][j] = this.weave.loom.hasTieup(frame, col);;
           break;  
           case 'warp-systems':
-              copy[i][j]= (this.weave.colSystemMapping[col] == i);
+              this.copy[i][j]= (this.weave.colSystemMapping[col] == i);
           break;
           case 'weft-systems':
-              copy[i][j]= (this.weave.rowSystemMapping[draft_row] == j);
+              this.copy[i][j]= (this.weave.rowSystemMapping[draft_row] == j);
           break;
           case 'warp-materials':
-              copy[i][j]= (this.weave.colShuttleMapping[col] == i);
+              this.copy[i][j]= (this.weave.colShuttleMapping[col] == i);
           break;
           case 'weft-materials':
-              copy[i][j]= (this.weave.rowShuttleMapping[draft_row] == j);
+              this.copy[i][j]= (this.weave.rowShuttleMapping[draft_row] == j);
           break;
           default:
           break;
@@ -703,7 +709,8 @@ export class WeaveDirective {
       }
     }
 
-    this.copy = copy;
+    this.onNewSelection.emit(this.copy);
+
 
 
   }

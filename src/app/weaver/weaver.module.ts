@@ -47,6 +47,7 @@ import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
+import { NotesComponent } from './tool/notes/notes.component';
 
 
 
@@ -100,7 +101,8 @@ import { LabelModal } from './modal/label/label.modal';
     MaterialsComponent,
     MasksComponent,
     SchematicComponent,
-    ViewComponent
+    ViewComponent,
+    NotesComponent
   ],
   entryComponents: [
     ShuttlesModal,
