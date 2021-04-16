@@ -1,8 +1,9 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import {enableProdMode} from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
 import { WeaveDirective } from '../core/directives/weave.directive';
+import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
 import { Draft } from '../core/model/draft';
 import { Render } from '../core/model/render';
@@ -128,7 +129,6 @@ export class WeaverComponent implements OnInit {
   timeline: Timeline = new Timeline();
 
 
-
   /**
   The current selection, as boolean array 
   **/
@@ -184,6 +184,7 @@ export class WeaverComponent implements OnInit {
   dims:any;
 
   draftelement:any;
+  scrollingSubscription: any;
 
   /// ANGULAR FUNCTIONS
   /**
@@ -192,7 +193,15 @@ export class WeaverComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private ps: PatternService, private dialog: MatDialog) {
+  constructor(private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
+
+
+    this.scrollingSubscription = this.scroll
+          .scrolled()
+          .subscribe((data: any) => {
+            this.onWindowScroll(data);
+    });
+
 
     //initialize with a draft so that we can load some things faster. 
     let d =  this.getDraftFromLocalStore();
@@ -219,6 +228,10 @@ export class WeaverComponent implements OnInit {
     this.render.view_frames = (this.draft.loom.type === 'frame') ? true : false;     
     if (this.draft.patterns === undefined) this.draft.patterns = this.default_patterns;
 
+  }
+
+  private onWindowScroll(data: any) {
+    this.weaveRef.rescale();
   }
 
 

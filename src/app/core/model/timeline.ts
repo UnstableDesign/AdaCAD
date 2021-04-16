@@ -41,7 +41,6 @@ export class Timeline {
 
       //erase all states until you get to the active row
       this.timeline.splice(0, this.active_id);
-      console.log("DELETED FIRST", this.active_id, " elements");
       this.active_id = 0;
       this.redo_disabled = true;
 
@@ -68,8 +67,6 @@ export class Timeline {
     console.log('restoring state', this.active_id);
     if(this.active_id == 0) this.redo_disabled = true;
 
-    console.log(this.timeline);
-
     return this.timeline[this.active_id].draft;
     
 
@@ -93,15 +90,14 @@ export class Timeline {
       
   }
 
-   public logState(draft: Draft){
+  public logState(draft: Draft){
 
-    //this just lags on big drafts
-    if(draft.warps*draft.wefts > 10000) return;
+  //this just lags on big drafts
+  if(draft.warps*draft.wefts > 10000) return;
 
-    var timestamp = Math.floor(Date.now() / 1000);
-    var theJSON = JSON.stringify(draft);
-    console.log("JSON Size", theJSON.length);
-    if(theJSON.length < 5000000) localStorage.setItem("draft", theJSON);
+  var timestamp = Math.floor(Date.now() / 1000);
+  var theJSON = JSON.stringify(draft);
+  if(theJSON.length < 5000000) localStorage.setItem("draft", theJSON);
    
  }
 

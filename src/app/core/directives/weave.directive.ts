@@ -151,7 +151,7 @@ export class WeaveDirective {
    * Subscribes to move event after a touch event is started.
    * @property {Subscription}
    */
-  subscription: Subscription;
+  moveSubscription: Subscription;
 
   /**
    * The HTML SVG element used to show the selection.
@@ -252,12 +252,9 @@ export class WeaveDirective {
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[6];
     this.draftContainer = this.el.nativeElement;
-    console.log("container", this.draftContainer.offsetParent);
 
 
-
-
-    
+  
     //this is the selection
     this.svgEl = this.el.nativeElement.children[8];
     this.svgSelectRow = this.el.nativeElement.children[12];
@@ -361,15 +358,7 @@ export class WeaveDirective {
 
       this.flag_history = true;
     }
-   /// EVENTS
 
-
-  @HostListener('mousewheel', ['$event'])
-    private onScroll(event){
-      console.log("scrolling");
-      this.rescale();
-    }
-  
 
 
   /**
@@ -395,7 +384,7 @@ export class WeaveDirective {
     
       this.removeSubscription();    
       
-      this.subscription = 
+      this.moveSubscription = 
         fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));   
 
       // set up the Point to be used.
@@ -658,8 +647,8 @@ export class WeaveDirective {
    * @returns {void}
    */
  private removeSubscription() {    
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.moveSubscription) {
+      this.moveSubscription.unsubscribe();
     }
   }
 
@@ -2042,12 +2031,6 @@ public drawWeftEnd(top, left, shuttle){
     let top = 0;
     let left = 0;
 
-    //console.log("Left", scroll_left, "Top", scroll_top, "Width", draft_width);
-
-
-
-    // var scaleX = window.innerWidth / this.canvasEl.width;
-    // var scaleY = window.innerHeight / this.canvasEl.height;
 
    // var scaleToFit = Math.min(scaleX, scaleY);
     var scaleToFit = this.render.getZoom() /50;

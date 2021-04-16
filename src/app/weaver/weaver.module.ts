@@ -25,6 +25,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
+import {ScrollingModule} from '@angular/cdk/scrolling';
 
 import { WeaverComponent } from './weaver.component';
 import { TopbarComponent } from './topbar/topbar.component';
@@ -81,7 +82,8 @@ import { NotesComponent } from './tool/notes/notes.component';
     MatToolbarModule,
     MatTooltipModule,
     ColorPickerModule,
-    MatChipsModule
+    MatChipsModule,
+    ScrollingModule
 
   ],
   declarations: [
