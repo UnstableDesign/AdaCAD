@@ -11,25 +11,72 @@
 
 
 
- <div class="select_slider">
-    Select Cell
+
+<!--  <div class="select_slider">
+     Select Cell
       <mat-slide-toggle
-          [checked]="brush === 'select' || brush === 'copy'"
+          [checked]="design_mode === 'select'"
           (change)="toggleChange($event)">
       </mat-slide-toggle>
     Select Region
-  </div>
+  </div> -->
 
 
+<button matTooltip= "Select Region"
+      name="select" 
+      class="button is-small is-primary fas fa-expand"
+      [class.is-active]="design_mode.name === select"
+      [style.color]="button_color"
+      (click)="designModeChange($event)">
+</button>
 
-  <button matTooltip="invert the state of one cell" 
+
+<h3> Interlacement Tools</h3>
+
+  <ng-container *ngFor="let mode of design_modes">
+     <button [matTooltip]=mode.viewValue 
+      [name]=mode.value 
+      class="button is-small is-primary {{mode.icon}}"
+      [class.is-active]="design_mode.name === mode.value"
+      [style.color]="button_color"
+      (click)="designModeChange($event)">
+      </button>
+  </ng-container>
+
+<h3> Draw with Materials</h3>
+  <ng-container *ngFor="let shuttle of materials">
+     <button [matTooltip]=shuttle.name 
+      [name]=shuttle.id 
+       class="button material is-small is-primary fas fa-square"
+      [class.is-active]="design_mode.id === shuttle.id"
+      [style.color]="shuttle.color"
+      (click)="drawWithMaterial($event)">
+      </button>
+  </ng-container>
+
+
+<h3> Selection tools </h3>
+
+
+  <ng-container *ngFor="let action of design_actions">
+     <button [matTooltip]=action.viewValue 
+      [name]=action.value 
+      [disabled] = "!(design_mode.name === 'select' || design_mode.name === 'copy')"
+      class="button is-small is-primary {{action.icon}}"
+      [style.color]="button_color"
+      (click)="designActionChange($event)">
+      </button>
+  </ng-container>
+
+
+<!--   <button matTooltip="invert the state of one cell" 
   name="invert" 
   class="button is-small is-primary fas fa-adjust" 
-  [class.is-active]="brush === 'invert'"
+  [class.is-active]="design_ === 'invert'"
   (click)="brushChange($event)">
-  </button>
+  </button> -->
 
-  <button matTooltip="draw in filled cells to draft (shortcut: d)" 
+<!--   <button matTooltip="draw in filled cells to draft (shortcut: d)" 
   name="point" 
   class="button is-small is-primary fas fa-square"  [class.is-active]="brush === 'point'" 
   (click)="brushChange($event)">
@@ -41,33 +88,32 @@
   (click)="brushChange($event)">
   </button>
 
+ -->
 
-<mat-divider></mat-divider>
-
-  <button  matTooltip="paste selection mirrored (horizontal)" 
+<!--   <button  matTooltip="paste selection mirrored (horizontal)" 
     [disabled] = "brush !=='select' && brush !=='copy'" 
     class="button is-small is-primary fas fa-arrows-alt-h" 
     (click)="pasteEvent($event, 'mirrorY')">           
-    </button>
-
+    </button> -->
+<!-- 
     <button  matTooltip="paste selection mirrored (vertical)" 
     [disabled] = "brush !=='select' && brush !=='copy'" 
     class="button is-small is-primary fas fa-arrows-alt-v"
     (click)="pasteEvent($event, 'mirrorX')">           
-    </button>
-
+    </button> -->
+<!-- 
     <button  matTooltip="shift by one cell to the right" 
     [disabled] = "brush !=='select' && brush !=='copy'" 
     class="button is-small is-primary fas fa-arrow-right"
     (click)="pasteEvent($event, 'shiftX')">           
-    </button>
+    </button> -->
 
-    <button  matTooltip="shift by one cell up" 
+<!--     <button  matTooltip="shift by one cell up" 
     [disabled] = "brush !=='select' && brush !=='copy'"  
     class="button is-small is-primary fas fa-arrow-up"
     (click)="pasteEvent($event, 'shiftY')">           
     </button>
-
+ -->
  
 
 <!--   <button  matTooltip="select a region of the draft (shortcut: s)" 
@@ -99,9 +145,8 @@
  </ng-container>
  -->
 
-<mat-divider> </mat-divider>
 
-    <button  matTooltip="copy selection (shortcut: c)"
+<!--     <button  matTooltip="copy selection (shortcut: c)"
      name="copy" 
     [class.is-active]="brush ==='copy'"
     [disabled] = "brush !=='select' && brush !=='copy'" 
@@ -113,7 +158,7 @@
     [disabled] = "brush !=='copy'" 
     class="button is-small is-primary fa fa-paste" 
     (click)="pasteEvent($event, 'original')">
-    </button>
+    </button> -->
 
 <!--     <button  matTooltip="paste selection inverted" 
     [disabled] = "!copy" 
@@ -121,7 +166,6 @@
     (click)="pasteEvent($event, 'invert')">
     </button>
  -->
-<mat-divider> </mat-divider>
 
         <app-patterns 
           [patterns]="patterns"

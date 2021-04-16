@@ -13,11 +13,15 @@ import * as _ from 'lodash';
 
 
 export class DesignComponent implements OnInit {
-  @Input() collapsed;
-  @Input() brush;
+  @Input()  collapsed;
+  @Input()  design_mode;
+  @Input()  design_modes;
+  @Input()  design_actions;
+  @Input()  view_mode;
+  @Input()  materials;
   @Input()  patterns;
   @Input()  selection;
-  @Output() onBrushChange: any = new EventEmitter();
+  @Output() onDesignModeChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onPaste: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
@@ -26,7 +30,8 @@ export class DesignComponent implements OnInit {
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
 
-  
+  button_color = "#ff4081";
+
 
   selected = 0;
 
@@ -38,38 +43,67 @@ export class DesignComponent implements OnInit {
   }
 
 
-  toggleChange(e: any) {
-    if(e.checked) this.brush = "select";
-    else{
-      this.brush = "point";
-    }
+  // toggleChange(e: any) {
+  //   // if(e.checked) this.brush = "select";
+  //   // else{
+  //   //   this.brush = "point";
+  //   // }
 
-    var obj: any = {};
-    obj.name = this.brush;
-    this.onBrushChange.emit(obj);
-  }
+  //   // var obj: any = {};
+  //   // obj.name = this.brush;
+  //   // this.onBrushChange.emit(obj);
+  // }
 
-  brushChange(e: any) {
+  designModeChange(e: any) {
 
     console.log(e.target.name);
+    this.design_mode = e.target.name;
 
+     var obj: any = {};
+     obj.name = this.design_mode;
+     this.onDesignModeChange.emit(obj);
+  }
 
+  drawWithMaterial(e: any){
+    this.design_mode = 'material';
+    var obj: any = {};
+    obj.name = this.design_mode;
+    obj.id = e.target.name;
+    this.onDesignModeChange.emit(obj);
+  }
 
-     if(this.brush !== "select" || e.target.name == "copy"){
+  designActionChange(e){
+    console.log(e.target.name);
 
-        if (e.target.name) {
-          this.brush = e.target.name;
-        }
+    switch(e.target.name){
+      case 'up': this.clearEvent(true);
+      break;
 
-        var obj: any = {};
-        obj.name = this.brush;
-        this.onBrushChange.emit(obj);
-     }else{
+      case 'down': this.clearEvent(false);
+      break;
 
-      if(e.target.name == "point") this.clearEvent(true);
-      else if(e.target.name == "erase") this.clearEvent(false);
-      else if(e.target.name == "invert") this.pasteEvent(e, 'invert');
-     }
+      case 'copy': this.copyEvent(e);
+      break;
+
+      case 'paste': this.pasteEvent(e, 'original');
+      break;
+
+      case 'toggle': this.pasteEvent(e, 'invert');
+      break;
+
+      case 'flip_x': this.pasteEvent(e, 'mirrorX');
+      break;
+
+      case 'flip_y': this.pasteEvent(e, 'mirrorY');
+      break;
+
+      case 'shift_left': this.pasteEvent(e, 'shiftLeft');
+      break;
+
+      case 'shift_up': this.pasteEvent(e, 'shiftUp');
+      break;
+
+    }
   }
 
   fillEvent(id) {

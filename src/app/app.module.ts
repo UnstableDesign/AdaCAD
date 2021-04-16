@@ -17,6 +17,7 @@ import { CoreModule } from './core/core.module';
 import { WeaverModule } from './weaver/weaver.module';
 import { secrets } from '../environments/secrets';
 
+
 export const firebaseConfig = secrets;
 
 @NgModule({

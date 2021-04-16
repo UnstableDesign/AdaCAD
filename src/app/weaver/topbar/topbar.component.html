@@ -1,35 +1,70 @@
 <mat-toolbar color="primary">
-  <span>AdaCAD <i style="font-size: .6em;">alpha/testing version</i></span>
-  <span style="color:white; font-size: 80%;" (click)="openAboutDialog(null)">&nbsp; | &nbsp; About</span>
+
+<span class="left">
+
+<button #undoEvent mat-icon-button 
+      (click)="undoClicked($event);"
+      [disabled]="timeline.undo_disabled"
+      matTooltip ="undo">
+      <i class="fas fa-undo"></i>
+      </button>
+    
+    <button #redoEvent mat-icon-button 
+      (click)="redoClicked($event);"
+      [disabled]="timeline.redo_disabled"
+      matTooltip ="redo">
+      <i class="fas fa-redo"></i>
+    </button>
+</span>
+
+<span class="center">
+   <button mat-icon-button
+      (click)="openAboutDialog(null)"
+      matTooltip ="about AdaCAD"
+      >
+      <i class="fas fa-info-circle"></i>
+    </button>
+    <span>AdaCAD <i style="font-size: .6em;">alpha/testing version</i></span>
+</span>
   
 <span class="right">
-<!--     <button mat-raised-button 
-      [disabled]="(timeline.length <= 1) || (timeline[timeline.length-1]?.is_active)" 
-      (click)="undoClicked($event);">Undo</button>
+
+    <button mat-icon-button matTooltip ="print screen">
+      <a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>
+      <i class="fas fa-print"></i>
+      </a> 
+    </button>
+
     
-    <button #redoEvent mat-raised-button
-      [disabled]="(timeline[0]?.is_active)"  
-      (click)="redoClicked($event);">Redo</button> -->
-
-
-   <button mat-raised-button="Open" (click)="openNewFileDialog(null)">Open</button>
-
-    <button mat-raised-button [matMenuTriggerFor]="downloadDropdown">Save</button>
-    
+  <button mat-icon-button 
+  [matMenuTriggerFor]="downloadDropdown"
+  matTooltip ="save current file"
+  >
+    <i class="fas fa-download"></i>
+  </button> 
     <mat-menu #downloadDropdown mat-raised-button>
+
       <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
       <a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
       <a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
-  <!--     <a #printLink (click)="saveAsPrint($event)" mat-menu-item>Print</a> -->
     </mat-menu>
 
-<!--    <a #printLink (click)="saveAsPrint($event)" mat-menu-item>Print</a>
- -->
-     <button mat-icon-button>
-      <a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>
-         <i class="fas fa-print"></i>
-      </a> 
+
+     <button mat-icon-button="Open" 
+     matTooltip ="open or start a new draft"
+     (click)="openNewFileDialog(null)">
+     <i class="fas fa-folder-open"></i>
     </button>
+
+
+ <mat-form-field class="filename">
+        <mat-label>Filename</mat-label>
+        <input matInput type="text" [(ngModel)]="filename">
+      </mat-form-field>
+
+
+
+
 
 
       <button mat-icon-button

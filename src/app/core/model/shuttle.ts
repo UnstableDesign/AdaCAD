@@ -55,6 +55,10 @@ export class Shuttle {
     }
   }
 
+  getId(){
+    return this.id;
+  }
+
   setColor(color: string) {
     this.color = color;
   }
@@ -82,6 +86,10 @@ export class Shuttle {
 
   getType() {
     return this.type;
+  }
+
+  getName(){
+    return this.name;
   }
 
 }
