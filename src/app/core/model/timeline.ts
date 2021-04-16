@@ -53,7 +53,6 @@ export class Timeline {
 
     if(this.timeline.length > 1) this.undo_disabled = false;
 
-    console.log("ON ADD", this.timeline);
     this.logState(draft);
 
   }
@@ -95,9 +94,14 @@ export class Timeline {
   }
 
    public logState(draft: Draft){
+
+    //this just lags on big drafts
+    if(draft.warps*draft.wefts > 10000) return;
+
     var timestamp = Math.floor(Date.now() / 1000);
     var theJSON = JSON.stringify(draft);
-    localStorage.setItem("draft", theJSON);
+    console.log("JSON Size", theJSON.length);
+    if(theJSON.length < 5000000) localStorage.setItem("draft", theJSON);
    
  }
 

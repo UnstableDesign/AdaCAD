@@ -78,11 +78,11 @@ export class WeaveDirective {
   */ 
   canvasEl: HTMLCanvasElement;
 
-  /**
-   * The pattern that has been copied from the draft pattern.
-   * @property {Array<Array<boolean>>}
-   */
-  // copy: Array<Array<boolean>>;
+/**
+   * the window holding the draft.
+   * @property {HTMLCanvasElement}
+  */ 
+  draftContainer: HTMLElement;
 
 
   /**
@@ -135,6 +135,9 @@ export class WeaveDirective {
 
 
   cxWarpMaterials: any;
+
+
+
   cxWeftMaterials: any;
 
 
@@ -157,11 +160,33 @@ export class WeaveDirective {
   svgEl: HTMLElement;
 
 
+
   /**
-   * The HTML div element used to position the drawdown.
+   * The HTML SVG element used to show the weft-systems text.
    * @property {HTMLElement}
    */
-  //divEl: HTMLElement;
+  svgWesy: HTMLElement;
+
+  /**
+   * The HTML SVG element used to show the warp-systems text.
+   * @property {HTMLElement}
+   */
+  svgWasy: HTMLElement;
+
+
+
+  /**
+   * The HTML div element used to position the weft buttons.
+   * @property {HTMLElement}
+   */
+  weftButtons: HTMLElement;
+
+
+  /**
+   * The HTML div element used to position the warp buttons.
+   * @property {HTMLElement}
+   */
+  warpButtons: HTMLElement;
 
 
   /**
@@ -220,10 +245,21 @@ export class WeaveDirective {
 
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[6];
+    this.draftContainer = this.el.nativeElement;
+    console.log("container", this.draftContainer.offsetParent);
 
-    //this is the selection
-    this.svgEl = this.el.nativeElement.children[17];
+
+
+
     
+    //this is the selection
+    this.svgEl = this.el.nativeElement.children[8];
+    this.svgWesy = this.el.nativeElement.children[10];
+    this.svgWasy = this.el.nativeElement.children[11];
+
+    this.warpButtons = this.el.nativeElement.children[13];
+    this.weftButtons = this.el.nativeElement.children[12];
+
     this.threadingCanvas = this.el.nativeElement.children[4];
     this.tieupsCanvas = this.el.nativeElement.children[5];
     this.treadlingCanvas = this.el.nativeElement.children[7];
@@ -318,6 +354,16 @@ export class WeaveDirective {
       this.flag_history = true;
     }
    /// EVENTS
+
+
+  @HostListener('mousewheel', ['$event'])
+    private onScroll(event){
+      console.log("scrolling");
+      this.rescale();
+    }
+  
+
+
   /**
    * Touch start event. Subscribes to the move event.
    * @extends WeaveDirective
@@ -458,6 +504,8 @@ export class WeaveDirective {
 
   }
 
+
+
   /**
    * Event called when mouse down and moved within the canvas.
    * @extends WeaveDirective
@@ -465,7 +513,7 @@ export class WeaveDirective {
    * @returns {void}
    */
   private onMove(event) {
-    
+
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
       h: this.weftSystemsCanvas.height /this.weave.visibleRows.length
@@ -572,7 +620,6 @@ export class WeaveDirective {
      }
 
      if(this.flag_history && event.type == 'mouseup'){
-      console.log("adding history state", event.type);
         this.timeline.addHistoryState(this.weave);
         this.flag_history = false;
       } 
@@ -985,6 +1032,7 @@ export class WeaveDirective {
    * @returns {void}
    */
   private drawOnWeftSelectors( currentPos: Point ) {
+
     var dims = this.render.getCellDims("base");
 
     var updates;
@@ -1007,6 +1055,8 @@ export class WeaveDirective {
     this.weave.updateSystemVisibility('weft');
 
     this.redraw({weft_systems: true});
+
+
 
   }
 
@@ -1037,8 +1087,8 @@ export class WeaveDirective {
       var newShuttle = (shuttle_id + 1) % len;
       this.weave.rowShuttleMapping[draft_row] = newShuttle;
     }
-
     this.redraw({weft_materials: true, drawdown:true});
+
   }
 
   /**
@@ -1973,6 +2023,17 @@ public drawWeftEnd(top, left, shuttle){
 
     let offset = this.render.getCellDims("select");
 
+    let scroll_left = this.draftContainer.offsetParent.scrollLeft;
+    let scroll_top = this.draftContainer.offsetParent.scrollTop;
+    let draft_width = this.draftContainer.offsetWidth;
+
+    let top = 0;
+    let left = 0;
+
+    //console.log("Left", scroll_left, "Top", scroll_top, "Width", draft_width);
+
+
+
     // var scaleX = window.innerWidth / this.canvasEl.width;
     // var scaleY = window.innerHeight / this.canvasEl.height;
 
@@ -2035,12 +2096,14 @@ public drawWeftEnd(top, left, shuttle){
     }
 
 
-    //render threadiing
-    let top = 0;
-    let left= 0;
+    //render threading
+    let threading_top = dims.h*6;
+
+    top = threading_top;
+    left= dims.w;
 
     this.threadingCanvas.style.transformOrigin = '0 0';
-    this.threadingCanvas.style.transform = 'scale(' + scaleToFit + ')';
+    this.threadingCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
 
  
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'threading'){
@@ -2051,8 +2114,10 @@ public drawWeftEnd(top, left, shuttle){
     } 
 
     //render drawdown
-    top = this.threadingCanvas.height+dims.h;
-    left= dims.w*-1;
+    let drawdown_top = threading_top + this.threadingCanvas.height + dims.h;
+
+    top = drawdown_top;
+    left= 0;
 
     this.canvasEl.style.transformOrigin = '0 0'; //scale from top left
     this.canvasEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
@@ -2072,7 +2137,7 @@ public drawWeftEnd(top, left, shuttle){
     } 
 
     //render treadling
-    top = (this.threadingCanvas.height+dims.h*2);
+    top = drawdown_top + dims.h;
     left= this.canvasEl.width+dims.w;
 
     this.treadlingCanvas.style.transformOrigin = '0 0';
@@ -2085,7 +2150,7 @@ public drawWeftEnd(top, left, shuttle){
       } 
 
     //render tieups
-    top = 0;
+    top = threading_top;
     left= this.canvasEl.width+dims.w;
 
     this.tieupsCanvas.style.transformOrigin = '0 0';
@@ -2099,11 +2164,20 @@ public drawWeftEnd(top, left, shuttle){
     } 
 
     //render weft systems
-    top = (this.threadingCanvas.height+dims.h*2);
-    left= this.canvasEl.width+this.treadlingCanvas.width+dims.w*2;
+    // top = (this.threadingCanvas.height+dims.h*2);
+    // left= this.canvasEl.width+this.treadlingCanvas.width+dims.w*2;
+
+    top = drawdown_top+dims.h;
+    left = (scroll_left+draft_width) - (dims.w*7);
+    left /= scaleToFit;
+    left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3));
+
+
 
     this.weftSystemsCanvas.style.transformOrigin = '0 0';
     this.weftSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
+    this.svgWesy.style.transformOrigin = '0 0';
+    this.svgWesy.style.transform = 'scale(' + scaleToFit + ') translate('+(left)+'px,'+top+'px)';
     
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-systems'){
         
@@ -2112,9 +2186,16 @@ public drawWeftEnd(top, left, shuttle){
         this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
     } 
 
+
+
     //render weft materials
-    top = (this.threadingCanvas.height+dims.h*2);
-    left= (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3);
+     top = drawdown_top+dims.h;
+    // left= (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3);
+    
+    left = scroll_left+draft_width-(dims.w*8);
+    left /= scaleToFit;
+
+    left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*2));
 
     this.weftMaterialsCanvas.style.transformOrigin = '0 0';
     this.weftMaterialsCanvas.style.transform =  'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
@@ -2127,8 +2208,12 @@ public drawWeftEnd(top, left, shuttle){
     }
 
 
+
+    top = scroll_top+dims.h*2;
+    top /= scaleToFit;
+
   //render warp materials
-    top = (-dims.h*3);
+   // top = (-dims.h*3);
     left= 0;
 
     this.warpMaterialsCanvas.style.transformOrigin = '0 0';
@@ -2145,13 +2230,16 @@ public drawWeftEnd(top, left, shuttle){
 
 
     //render warp systems
-    top = (-dims.h*2);
+    top = scroll_top+dims.h;
+    top /= scaleToFit;
     left= 0;
 
 
     this.warpSystemsCanvas.style.transformOrigin = '0 0';
     this.warpSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    
+    this.svgWasy.style.transformOrigin = '0 0';
+    this.svgWasy.style.transform = 'scale(' + scaleToFit + ') translate('+(left)+'px,'+top+'px)';
+     
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-systems'){
           top +=  this.selection.getTop()*dims.h;
           left += this.selection.getLeft()*dims.w;

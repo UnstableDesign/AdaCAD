@@ -338,6 +338,10 @@ export class Draft implements DraftInterface {
 
   //must keep old array references to keep links in tact
   reload({...params}) {
+
+
+    console.log(params);
+
     this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
 
 
@@ -367,13 +371,15 @@ export class Draft implements DraftInterface {
 
     //nothing has been added, load with 2 mateials and 1 shuttle on each material
     if(params.shuttles === undefined){
-      //this would have already been declared 
-      //const randomColor = Math.floor(Math.random()*16777215).toString(16);
 
-      // let s0 = new Shuttle({id: 0, name: 'Color 1', type: 0,  thickness:50, color: '#333333', visible: true, insert:false, notes: ""});
-      // let s1 = new Shuttle({id: 1, name: 'Color 2', type: 0, thickness:50, color: '#'+randomColor, visible:true, insert:false, notes: ""});
-      // let s2 = new Shuttle({id: 2, name: 'Conductive', type: 1, thickness:50, color: '#61c97d', visible:true, insert:false, notes: ""});
-      // this.shuttles = [s0, s1, s2];
+      this.shuttles = [];
+      //this would have already been declared 
+      const randomColor = Math.floor(Math.random()*16777215).toString(16);
+
+      let s0 = new Shuttle({id: 0, name: 'Color 1', type: 0,  thickness:50, color: '#333333', visible: true, insert:false, notes: ""});
+      let s1 = new Shuttle({id: 1, name: 'Color 2', type: 0, thickness:50, color: '#'+randomColor, visible:true, insert:false, notes: ""});
+      let s2 = new Shuttle({id: 2, name: 'Conductive', type: 1, thickness:50, color: '#61c97d', visible:true, insert:false, notes: ""});
+      this.shuttles = [s0, s1, s2];
 
     }else{
 
@@ -1460,8 +1466,8 @@ computeYarnPaths(){
     type: string
   ) {
 
-    console.log("fill area called");
-    console.log(selection, pattern, type);
+    // console.log("fill area called");
+    // console.log(selection, pattern, type);
 
     var updates = [];
     
@@ -1545,6 +1551,12 @@ computeYarnPaths(){
               break;
             case 'mirrorY':
               val = pattern[i % rows][(w - j - 1) % cols];
+              break;
+            case 'shiftUp':
+              val = pattern[(i+1) % rows][j];
+              break;
+            case 'shiftLeft':
+              val = pattern[i][(j+1) % cols];
               break;
             default:
               val = temp;
@@ -1632,6 +1644,7 @@ computeYarnPaths(){
 
     var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
     var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
+
 
   }
 

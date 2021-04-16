@@ -94,7 +94,7 @@ export class WeaverComponent implements OnInit {
     {value: 'down', viewValue: 'Set Region Heddles Down', icon: "far fa-square"},
     {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
     {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
-    {value: 'shift_right', viewValue: 'Shift 1 Warp Right', icon: "fas fa-arrow-right"},
+    {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
     {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
     {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
     {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
@@ -332,6 +332,9 @@ export class WeaverComponent implements OnInit {
 
   /// EVENTS
 
+
+
+
 /**
    * Call zoom in on Shift+p.
    * @extends WeaveComponent
@@ -492,7 +495,6 @@ export class WeaverComponent implements OnInit {
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original');
 
-    console.log("ON FILL IS SHOWING FRAMES ", this.render.showingFrames());
     if(this.render.showingFrames()) this.draft.recomputeLoom();
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
@@ -517,10 +519,16 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
+    this.weaveRef.copyArea();
+
     this.weaveRef.redraw({drawdown:true, loom:true});
 
     this.timeline.addHistoryState(this.draft);
 
+  }
+
+  public onScroll(){
+    console.log("I has scroll");
   }
 
   /**
@@ -553,10 +561,14 @@ export class WeaverComponent implements OnInit {
     else type =  e.type;
 
     this.draft.fillArea(this.weaveRef.selection, p, type);
+
+    if(this.render.showingFrames()) this.draft.recomputeLoom();
     
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
     this.timeline.addHistoryState(this.draft);
+
+    this.weaveRef.copyArea();
 
     this.weaveRef.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
  
@@ -860,17 +872,19 @@ export class WeaverComponent implements OnInit {
       var diff = e.warps - this.draft.warps;
       
       for(var i = 0; i < diff; i++){  
-        this.insertCol(this.draft.warps, 0, 0);
+         this.draft.insertCol(i, 0,0);
       }
     }else{
       var diff = this.draft.warps - e.warps;
       for(var i = 0; i < diff; i++){  
-        this.deleteCol(this.draft.warps-1);
+        this.draft.deleteCol(this.draft.warps-1);
       }
 
     }
 
     this.draft.recomputeWidth();
+
+    this.timeline.addHistoryState(this.draft);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
@@ -886,15 +900,17 @@ export class WeaverComponent implements OnInit {
       var diff = e.wefts - this.draft.wefts;
       
       for(var i = 0; i < diff; i++){  
-        this.insertRow(e.wefts+i, 0, 0);
+        this.draft.insertRow(e.wefts+i, 0, 0);
       }
     }else{
       var diff = this.draft.wefts - e.wefts;
       for(var i = 0; i < diff; i++){  
-        this.deleteRow(this.draft.wefts-1);
+        this.draft.deleteRow(this.draft.wefts-1);
       }
 
     }
+
+    this.timeline.addHistoryState(this.draft);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
@@ -919,7 +935,6 @@ export class WeaverComponent implements OnInit {
 
 
   public updateSelection(e:any){
-    console.log("update selection", e);
     this.copy = e;
   }
 
@@ -1007,6 +1022,9 @@ export class WeaverComponent implements OnInit {
 
   public styleWeftSystems(ctx){
     var dims = this.render.getCellDims("base");
+    console.log("style systems", ctx);
+
+
      if(this.render.view_frames) return {'top.px': ctx.offsetTop + (this.draft.loom.num_frames+2)*dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps + this.draft.loom.num_treadles+3) * dims.w};
      else  return {'top.px': ctx.offsetTop+dims.h, 'left.px': ctx.offsetLeft +  (this.draft.warps+2)* dims.w};
   }
@@ -1054,10 +1072,6 @@ export class WeaverComponent implements OnInit {
   }
 
 
-// public getButtonRowHeight(ctx){
-//      var dims = this.render.getCellDims("base");
-//      return dims.h;
-//   }
 
   public getTransform(j){
       var dims = this.render.getInterpolationDims("base");
@@ -1072,8 +1086,9 @@ export class WeaverComponent implements OnInit {
   }
 
   public getSelectorFontSize(j){
-      var zoom = this.render.getZoom()/50;
-      return zoom+"em";
+      // var zoom = this.render.getZoom()/50;
+      // return zoom+"em";
+      return '1em'
   }
 
   public styleWarpSystems(ctx){
@@ -1103,7 +1118,7 @@ export class WeaverComponent implements OnInit {
 
   public getWeftSystemTransform(j){
       var dims = this.render.getInterpolationDims("base");
-      let left = -(dims.w*3 - dims.w/4);
+      let left = 0;
       let top = j*dims.h + 3*dims.h/4;
       return "translate("+left+", "+top+")";
   }
@@ -1116,21 +1131,6 @@ export class WeaverComponent implements OnInit {
 
 
 
-
-//  //prints the size of each entry and total use of the local store
-// //each entry is ~ 0.000008 MB 
-// //store has max of 5MB
-// // we can safely store 625000 entries before we over run
-// public calculateLocalStoreUsage(){
-
-//   var total = 0;
-//   for(var x in localStorage) {
-//     var amount = (localStorage[x].length * 2) / 1024 / 1024;
-//     total += amount;
-//     console.log( x + " = " + amount.toFixed(8) + " MB");
-//   }
-//   //console.log( "Total: " + total.toFixed(8) + " MB");
-// }
 
 
 //careful! calling this from console will clear all data in local storage

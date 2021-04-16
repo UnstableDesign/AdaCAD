@@ -94,7 +94,14 @@ export class DesignComponent implements OnInit {
       case 'flip_x': this.pasteEvent(e, 'mirrorX');
       break;
 
-      case 'flip_y': this.pasteEvent(e, 'mirrorY')
+      case 'flip_y': this.pasteEvent(e, 'mirrorY');
+      break;
+
+      case 'shift_left': this.pasteEvent(e, 'shiftLeft');
+      break;
+
+      case 'shift_up': this.pasteEvent(e, 'shiftUp');
+      break;
 
     }
   }
