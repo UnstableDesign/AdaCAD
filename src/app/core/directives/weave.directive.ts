@@ -162,31 +162,37 @@ export class WeaveDirective {
 
 
   /**
-   * The HTML SVG element used to show the weft-systems text.
+   * The HTML div element used to show the weft-systems text.
    * @property {HTMLElement}
    */
-  svgWesy: HTMLElement;
+  divWesy: HTMLElement;
 
   /**
-   * The HTML SVG element used to show the warp-systems text.
+   * The HTML div element used to show the warp-systems text.
    * @property {HTMLElement}
    */
-  svgWasy: HTMLElement;
-
-
-
-  /**
-   * The HTML div element used to position the weft buttons.
-   * @property {HTMLElement}
-   */
-  weftButtons: HTMLElement;
+  divWasy: HTMLElement;
 
 
   /**
-   * The HTML div element used to position the warp buttons.
+   * The HTML div element used to show and hide the frames.
    * @property {HTMLElement}
    */
-  warpButtons: HTMLElement;
+  divViewFrames: HTMLElement;
+
+
+ /**
+   * The HTML SVG element used to show the row
+   * @property {HTMLElement}
+   */
+  svgSelectRow: HTMLElement;
+
+
+ /**
+   * The HTML SVG element used to show the row
+   * @property {HTMLElement}
+   */
+  svgSelectCol: HTMLElement;
 
 
   /**
@@ -254,11 +260,11 @@ export class WeaveDirective {
     
     //this is the selection
     this.svgEl = this.el.nativeElement.children[8];
-    this.svgWesy = this.el.nativeElement.children[10];
-    this.svgWasy = this.el.nativeElement.children[11];
-
-    this.warpButtons = this.el.nativeElement.children[13];
-    this.weftButtons = this.el.nativeElement.children[12];
+    this.svgSelectRow = this.el.nativeElement.children[12];
+    this.svgSelectCol = this.el.nativeElement.children[13];
+    this.divWesy = this.el.nativeElement.children[10];
+    this.divWasy = this.el.nativeElement.children[11];
+    this.divViewFrames = this.el.nativeElement.children[9];
 
     this.threadingCanvas = this.el.nativeElement.children[4];
     this.tieupsCanvas = this.el.nativeElement.children[5];
@@ -318,6 +324,8 @@ export class WeaveDirective {
   clearSelection(){
         this.selection.unsetParameters();
         d3.select(this.svgEl).style('display', 'none');
+        d3.select(this.svgSelectCol).style('display', 'none');
+        d3.select(this.svgSelectRow).style('display', 'none');
   }
 
   ngOnDestroy() {
@@ -373,11 +381,15 @@ export class WeaveDirective {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+
     //get dimis based on zoom.
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
       h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
     }
+
+
+    console.log(event.target.id);
 
     if (event.target.localName === 'canvas') {
     
@@ -843,9 +855,9 @@ export class WeaveDirective {
         if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
         else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
          
-         // cx.fillStyle = "#ffffff";  
-         // cx.font = "14px Arial";
-         // cx.fillText(this.weave.getWeftSystemCode(i), dims.w/3, (dims.h*i)+3*dims.h/4);
+         cx.fillStyle = "#ffffff";  
+         cx.font = "10px Arial";
+         cx.fillText(this.weave.getWeftSystemCode(i), dims.w/3, (dims.h*i)+3*dims.h/4);
 
   }
 
@@ -884,9 +896,9 @@ export class WeaveDirective {
         if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
         else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
   
-         // cx.fillStyle = "#ffffff";  
-         // cx.font = "14px Arial";
-         // cx.fillText(this.weave.getWarpSystemCode(j),(dims.w*j)+dims.w/3, dims.w-(margin*3));
+         cx.fillStyle = "#ffffff";  
+         cx.font = "10px Arial";
+         cx.fillText(this.weave.getWarpSystemCode(j),(dims.w*j)+dims.w/3, dims.w-(margin*3));
 
 
   }
@@ -2097,7 +2109,7 @@ public drawWeftEnd(top, left, shuttle){
 
 
     //render threading
-    let threading_top = dims.h*6;
+    let threading_top = dims.h*10;
 
     top = threading_top;
     left= dims.w;
@@ -2161,7 +2173,16 @@ public drawWeftEnd(top, left, shuttle){
         top +=  this.selection.getTop()*dims.h;
         left += this.selection.getLeft()*dims.w;
         this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    } 
+    }
+
+    //render view frames button
+    top = threading_top - dims.h*2;
+    left= this.canvasEl.width+this.treadlingCanvas.width+dims.w*3;
+
+    this.divViewFrames.style.transformOrigin = '0 0';
+    this.divViewFrames.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px, '+top+'px)';
+
+
 
     //render weft systems
     // top = (this.threadingCanvas.height+dims.h*2);
@@ -2176,9 +2197,11 @@ public drawWeftEnd(top, left, shuttle){
 
     this.weftSystemsCanvas.style.transformOrigin = '0 0';
     this.weftSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    this.svgWesy.style.transformOrigin = '0 0';
-    this.svgWesy.style.transform = 'scale(' + scaleToFit + ') translate('+(left)+'px,'+top+'px)';
     
+    left += dims.w;
+    this.divWesy.style.transformOrigin = '0 0';
+    this.divWesy.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
+
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-systems'){
         
         top +=  this.selection.getTop()*dims.h;
@@ -2209,12 +2232,13 @@ public drawWeftEnd(top, left, shuttle){
 
 
 
-    top = scroll_top+dims.h*2;
+    top = scroll_top+dims.h*8;
     top /= scaleToFit;
+    top = Math.max(top, (threading_top-dims.h*2));
 
   //render warp materials
    // top = (-dims.h*3);
-    left= 0;
+    left= dims.w;
 
     this.warpMaterialsCanvas.style.transformOrigin = '0 0';
     this.warpMaterialsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
@@ -2229,17 +2253,21 @@ public drawWeftEnd(top, left, shuttle){
     }
 
 
+
+
+
     //render warp systems
     top = scroll_top+dims.h;
     top /= scaleToFit;
-    left= 0;
+    left= dims.w;
 
-
-    this.warpSystemsCanvas.style.transformOrigin = '0 0';
-    this.warpSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    this.svgWasy.style.transformOrigin = '0 0';
-    this.svgWasy.style.transform = 'scale(' + scaleToFit + ') translate('+(left)+'px,'+top+'px)';
+    this.divWasy.style.transformOrigin = '0 0';
+    this.divWasy.style.transform = 'scale(' + scaleToFit + ') translate('+(left)+'px,'+top+'px)';
      
+    this.warpSystemsCanvas.style.transformOrigin = '0 0';
+    this.warpSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+(top+6*dims.h)+'px)';
+   
+
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-systems'){
           top +=  this.selection.getTop()*dims.h;
           left += this.selection.getLeft()*dims.w;

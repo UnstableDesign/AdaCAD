@@ -161,8 +161,8 @@
 
 
 
-    <div [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
-   (click)="toggleViewFrames(); styleDrawdown(threading)">
+    <div id = 'view_frames' [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
+   (click)="toggleViewFrames();">
 
       <span><i class="fas" [class.fa-eye-slash]="!render?.view_frames" [class.fa-eye]="render?.view_frames">
       </i></span>
@@ -170,66 +170,69 @@
     </div>
 
          
-  <svg class="weft-systems-text">
-    <g *ngFor="let i of (draft?.visibleRows); let j = index;" >
-    
-      <text class="weft_text" 
-      text-anchor="middle" x="40" [attr.y]="styleWeftSystemsRow(j)" style="font-size:12px;"     fill="#fff" 
-      [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{i}}</text> 
-      
-      <text id='weft-systems' 
-        [attr.transform]="getWeftSystemTransform(j)" 
-        [attr.font-size]="getSelectorFontSize()"
-        text-anchor="start" 
-        fill="#fff">{{draft?.getWeftSystemCode(j)}}</text>
+  <div class="weft-systems-text">
 
-    </g>
-
-    <text class="weft_text" 
-    text-anchor="middle" x="0" [attr.y]="styleWeftSystemsRow(draft?.visibleRows.length)" style="font-size:12px;" fill="#fff" >{{draft?.visibleRows[draft?.visibleRows.length-1]+1}}</text> 
-   </svg> 
+    <div class="weft-system-row" *ngFor="let i of (draft?.visibleRows); let j = index;" >
 
 
+          <span class="weft_number" 
+          [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'" >
+          {{i}}
+          </span>
 
-      
-    <svg class="warp-systems-text">
+          <span class = "weft_insert" >
+          <i class="fa fa-plus-circle"></i>
+          </span>
 
-    <g *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-      <text  [attr.transform]="getTransform(j)" text-anchor="start" y="0"
-       [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'"style="font-size:12px;" fill="#fff">{{j}}</text>
-
-      <text id='warp-systems' 
-      [attr.transform]="getWarpSystemTransform(j)" 
-      [attr.font-size]="getSelectorFontSize()"
-      text-anchor="start"  y="0"
-      fill="#fff">{{draft?.getWarpSystemCode(j)}}</text>
-    </g>
-
-
-   <text class="warp_text" text-anchor="start" y="0" [attr.transform]="getTransform(draft?.colShuttleMapping.length)" 
-    style="font-size:12px;" fill="#fff">{{draft?.colShuttleMapping.length}}</text>
-   </svg>  
-
-
-
-    <div  #shuttle_buttons class="insert-button-group-shuttles" >
-      <div *ngFor="let r of (draft?.visibleRows); index as i; " class="insert-button"  [ngStyle]="styleSingleRowButton(i)">
-        <span (click)="insertRow(r + 1, draft?.rowToShuttle(r), draft?.rowToSystem(r));"><i class="fa fa-plus-circle"></i></span>
-        <span (click)="cloneRow(r + 1, r, draft?.rowToShuttle(r),draft?.rowToSystem(r));"><i class="fa fa-clone"></i></span>
-        <span (click)="deleteRow(r);"><i class="fa fa-trash"></i></span>
-      </div>
+          <span class = "weft_clone" 
+          (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i),draft?.rowToSystem(i));">
+          <i class="fa fa-clone"></i>
+          </span>
+          
+          <span class="weft_delete" 
+           (click)="deleteRow(r);">
+           <i class="fa fa-trash"></i>
+          </span>
     </div>
+  </div> 
 
 
-    <div class="insert-button-group-warps" >
-      <div *ngFor="let m of (draft?.colShuttleMapping); index as i;" class="insert-button" [ngStyle] = "styleSingleColButton(i)">
-        <span (click)="insertCol(i + 1, draft?.colToShuttle(i),draft?.colToSystem(i));"><i class="fa fa-plus-circle"></i></span>
-        <span (click)="cloneCol(i,draft?.colToShuttle(i), draft?.colToSystem(i));"><i class="fa fa-clone"></i></span>
-        <span (click)="deleteCol(i);"><i class="fa fa-trash"></i></span>
-      </div>
+
+      
+  <div class="warp-systems-text">
+
+    <div class="warp-system-col" 
+    *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
+
+      <span class="warp_delete" (click)="deleteCol(i);"><i class="fa fa-trash"></i>
+        </span>
+
+      <span class="warp_clone"
+      (click)="cloneCol(i,draft?.colToShuttle(i), draft?.colToSystem(i));">
+        <i class="fa fa-clone"></i>
+      </span>
+
+
+      <span class="warp_insert" 
+      (click)="insertCol(i + 1, draft?.colToShuttle(i),draft?.colToSystem(i));">
+      <i class="fa fa-plus-circle"></i></span>
+      
+      <span  class="warp_number"
+       [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{j}}</span>
+
+
     </div>
+   </div>  
 
 
+
+  
+    <svg #activeRow class="active_row">
+    </svg>
+
+    <svg #activeCol class="active_col">
+    </svg>
+              
 
 
     <canvas #bitmapImage hidden></canvas>
