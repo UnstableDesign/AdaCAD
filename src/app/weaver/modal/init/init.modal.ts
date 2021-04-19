@@ -58,16 +58,17 @@ export class InitModal implements OnInit {
   }
 
   handleFile(e: any) {
-    console.log(e);
-    if (e.type === "image") this.processImageData(e.data);
-    else if (e.type === "ada") this.processDraftData(e.data);
-    else if (e.type === "wif") this.processWifData(e.data);
+
+    if (e.type === "image") this.processImageData(e);
+    else if (e.type === "ada") this.processDraftData(e);
+    else if (e.type === "wif") this.processWifData(e);
     this.valid = true;
 
   }
 
-  processImageData(e: any) {
-    console.log(e);
+  processImageData(obj: any) {
+
+    let e = obj.data;
 
     this.draft.warps = e.width;
     this.draft.wefts = e.height;
@@ -90,17 +91,20 @@ export class InitModal implements OnInit {
       }
     }
 
-
+    this.draft.name = obj.name;
     this.draft.pattern = data;
   }
 
-  processDraftData(e: any) {
-   // this.form.type = "update";
-    this.draft = e; //this is the data from the upload event
+  processDraftData(obj: any) {
 
+   // this.form.type = "update";
+    this.draft = obj.data; //this is the data from the upload event
+    this.draft.name = obj.name;
   }
 
-  processWifData(e: any) {
+  processWifData(obj: any) {
+    let e = obj.data;
+
     var stringWithoutMetadata = this.getSubstringAfter("CONTENTS", e);
     this.draft.warps = this.getInt("Threads",this.getSubstringAfter("WARP]",stringWithoutMetadata));
     this.draft.wefts = this.getInt("Threads",this.getSubstringAfter("WEFT]",stringWithoutMetadata));
@@ -113,6 +117,8 @@ export class InitModal implements OnInit {
       }
     }
     this.draft.pattern = data;
+    this.draft.name = obj.name;
+
     //LD comment - this might be causing a problem as the draft object is in charge of constructing the loom
     //I think its better to have draft declare it because that way it will work with adaCAD uploads 
     //what you can do instead is make a draft.loom = {} and and add relevant feilds to that, then they will be fed into the constructor

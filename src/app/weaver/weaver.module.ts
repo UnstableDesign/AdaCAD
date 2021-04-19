@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -23,12 +24,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { MatChipsModule } from '@angular/material/chips';
+import {ScrollingModule} from '@angular/cdk/scrolling';
 
 import { WeaverComponent } from './weaver.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { DesignComponent } from './tool/design/design.component';
 import { PatternsComponent } from './tool/patterns/patterns.component';
-import { HistoryComponent } from './tool/history/history.component';
 import { MaterialsComponent } from './tool/materials/materials.component';
 import { SystemsComponent } from './tool/systems/systems.component';
 import { LoomComponent } from './tool/loom/loom.component';
@@ -39,9 +41,6 @@ import { ViewComponent } from './tool/view/view.component';
 
 
 import { CoreModule } from '../core/core.module';
-import { HistoryModule } from '../history/history.module';
-import { NgrxModule } from '../ngrx/ngrx.module';
-
 
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
@@ -50,6 +49,7 @@ import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
+import { NotesComponent } from './tool/notes/notes.component';
 
 
 
@@ -59,11 +59,9 @@ import { LabelModal } from './modal/label/label.modal';
   imports: [
     CommonModule,
     CoreModule,
-    HistoryModule,
-    NgrxModule,
     FormsModule,
     ReactiveFormsModule,
-
+    MatAutocompleteModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatSlideToggleModule,
@@ -85,13 +83,15 @@ import { LabelModal } from './modal/label/label.modal';
     MatToolbarModule,
     MatTooltipModule,
     ColorPickerModule,
+    MatChipsModule,
+    ScrollingModule
+
   ],
   declarations: [
     WeaverComponent, 
     TopbarComponent, 
     DesignComponent, 
     PatternsComponent,
-    HistoryComponent,
     ShuttlesModal,
     AboutModal,
     PatternModal,
@@ -105,7 +105,8 @@ import { LabelModal } from './modal/label/label.modal';
     MaterialsComponent,
     MasksComponent,
     SchematicComponent,
-    ViewComponent
+    ViewComponent,
+    NotesComponent
   ],
   entryComponents: [
     ShuttlesModal,

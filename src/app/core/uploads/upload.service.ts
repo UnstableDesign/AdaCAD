@@ -39,9 +39,13 @@ export class UploadService {
   }
 
   pushUpload(upload: Upload) {
+
+    //LD - Right now we're just writing an ID to the database, not sure why
     const id = Math.random().toString(36).substring(2);
     let storageRef = this.st.ref(id);
     let uploadTask = storageRef.put(upload.file);
+
+
     this.uploadProgress = uploadTask.percentageChanges();
 
     this.uploadProgress.subscribe((p) => {
@@ -49,6 +53,7 @@ export class UploadService {
     });
 
     upload.name = id;
+
     this.saveFileData(upload);
 
     return uploadTask.snapshotChanges();
@@ -56,7 +61,6 @@ export class UploadService {
 
   getDownloadURL(id) {
     let storageRef = this.st.ref('');
-
     return storageRef.child(id).getDownloadURL();
   }
 

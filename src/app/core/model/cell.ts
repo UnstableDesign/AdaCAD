@@ -34,10 +34,8 @@ export class Cell {
   }
 
   setNorthSouth(){
-    console.log("before north south true", this.poles);
     this.setNorth();
     this.setSouth();
-    console.log("set north south true", this.poles);
   }
 
   setEastWest(){
