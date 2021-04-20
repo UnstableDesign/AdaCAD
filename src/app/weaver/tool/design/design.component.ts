@@ -29,13 +29,22 @@ export class DesignComponent implements OnInit {
   @Output() onPatternChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
+  @Output() onGenerativeModeChange: any = new EventEmitter();
+
 
   button_color = "#ff4081";
 
 
   selected = 0;
 
+  //Temporary data structures until db access
+  collections = []
+  collection: any;
+  generativeMode = false;
+
   constructor(private dialog: MatDialog) { 
+    this.collection = {name: 'German Drafts'};
+    this.collections.push(this.collection);
   }
 
   ngOnInit() {
@@ -140,8 +149,10 @@ export class DesignComponent implements OnInit {
     this.onCreatePattern.emit(obj);
   }
 
-
-
+  generativeModeEvent(e:any) {
+    this.generativeMode = !this.generativeMode;
+    this.onGenerativeModeChange.emit(e);
+  }
 
 
 

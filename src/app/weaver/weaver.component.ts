@@ -201,7 +201,6 @@ export class WeaverComponent implements OnInit {
    */
   constructor(private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
 
-
     this.scrollingSubscription = this.scroll
           .scrolled()
           .subscribe((data: any) => {
@@ -243,7 +242,6 @@ export class WeaverComponent implements OnInit {
 
 
   reInit(result){
-    console.log("reinit");
 
     this.draft.reload(result);
     this.timeline.addHistoryState(this.draft);
@@ -270,7 +268,6 @@ export class WeaverComponent implements OnInit {
   }
   
   ngOnInit(){
-    
   }
 
   ngAfterViewInit() {
@@ -422,6 +419,7 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.s', ['$event'])
   private keyEventSelect(e) {
+    console.log('select');
     this.design_mode = {
       name: 'select',
       id: -1};
@@ -491,19 +489,17 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onDesignModeChange(e:any) {
-
     this.design_mode = {
       name: e.name,
       id: e.id
     }
 
-    console.log("design mode", this.design_mode.name, this.design_mode.id);
     this.weaveRef.unsetSelection();
 
   }
 
   /**
-   * Change the name of the brush to reflect selected brush.
+   * Changes the state of the generative machine learning depending on if engaged or not
    * @extends WeaveComponent
    * @param {Event} e - generative mode change event from generative component.
    * @returns {void}

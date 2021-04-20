@@ -58,7 +58,7 @@
         (onCreatePattern)="createPattern($event);"
         (onRemovePattern)="removePattern($event);"
         (onChange) = "onChange($event);"
-      
+        (onGenerativeModeChange)="onGenerativeModeChange($event)">
         >
         </app-design> 
  
@@ -113,10 +113,6 @@
           (onTreadleChange) = "treadleChange($event)"
           >
         </app-loom>
-
-        <app-generative
-         (onGenerativeModeChange)="onGenerativeModeChange($event)">
-        </app-generative>
         
         <app-notes
          [notes] = "draft?.notes"

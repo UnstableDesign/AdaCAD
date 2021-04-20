@@ -35,7 +35,6 @@ import { MaterialsComponent } from './tool/materials/materials.component';
 import { SystemsComponent } from './tool/systems/systems.component';
 import { LoomComponent } from './tool/loom/loom.component';
 import { MasksComponent } from './tool/masks/masks.component';
-import { GenerativeComponent } from './tool/generative/generative.component';
 import { SchematicComponent } from './tool/schematic/schematic.component';
 import { ViewComponent } from './tool/view/view.component';
 
@@ -101,7 +100,6 @@ import { NotesComponent } from './tool/notes/notes.component';
     MaterialModal,
     SystemsComponent,
     LoomComponent,
-    GenerativeComponent,
     MaterialsComponent,
     MasksComponent,
     SchematicComponent,
