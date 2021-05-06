@@ -58,7 +58,7 @@
         (onCreatePattern)="createPattern($event);"
         (onRemovePattern)="removePattern($event);"
         (onChange) = "onChange($event);"
-        (onGenerativeModeChange)="onGenerativeModeChange($event)">
+        (onGenerativeModeChange)="onGenerativeModeChange($event)"
         >
         </app-design> 
  
@@ -119,6 +119,15 @@
          (onChange) = "notesChanged($event)"
          >
         </app-notes>
+        <div class="generative-options" *ngIf="weaveRef.selected==false">
+          <h1>testing</h1>
+          <button matTooltip="start making changes" 
+          [name]='changesFromGenerative'
+          class="button material is-small is-primary fas fa-square"
+          >
+        </button>
+        </div>
+    
 
         <app-schematic  [hidden] = "render?.current_view != 'yarn'"
         (onConnectionCreate)="openConnectionDialog();"
@@ -136,7 +145,7 @@
 
 
 
-  <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
+  <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(generative_mode)]="generativeMode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
 
 
 
@@ -157,10 +166,10 @@
     <svg #mySelection class="selection">
       <text x="5" y="5" text-anchor="start"></text>
     </svg>
+
+
               
-
-
-
+    
     <div id = 'view_frames' [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
    (click)="toggleViewFrames();">
 

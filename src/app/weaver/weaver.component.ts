@@ -173,7 +173,6 @@ export class WeaverComponent implements OnInit {
 
 
 
-
   /**
    * The list of all patterns saved. Provided by pattern service.
    * @property {Array<Pattern>}
@@ -295,7 +294,7 @@ export class WeaverComponent implements OnInit {
     });
 
     this.weaveRef.rescale();
-  
+
     
   }
 

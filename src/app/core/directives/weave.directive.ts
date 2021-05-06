@@ -146,6 +146,12 @@ export class WeaveDirective {
 
   cxWeftMaterials: any;
 
+  /**
+     * Boolean reepresenting if selection has been made
+     * @property {boolean}
+     */
+   selected: boolean;
+
 
   /**
    * The current selection within the weave canvas.
@@ -252,6 +258,7 @@ export class WeaveDirective {
 
   //this is called when the HTML "weaveRef" Element is loaded
   ngOnInit() {  
+    this.selected = false;
 
     console.log("element", this.el.nativeElement.children);
 
@@ -262,6 +269,7 @@ export class WeaveDirective {
 
   
     //this is the selection
+    console.log('this.el.nativeElement', this.el.nativeElement);
     this.svgEl = this.el.nativeElement.children[8];
     this.svgSelectRow = this.el.nativeElement.children[12];
     this.svgSelectCol = this.el.nativeElement.children[13];
@@ -447,7 +455,7 @@ export class WeaveDirective {
             this.rescale();
 
           }else{
-
+            
             this.clearSelection();
 
             this.selection.start = currentPos;
@@ -635,6 +643,8 @@ export class WeaveDirective {
 
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && (this.design_mode.name === 'select' || this.design_mode.name ==='copy'))) {
+      if (this.design_mode.name === 'select'){
+      }
       this.removeSubscription();
       if(this.design_mode.name != "copy" && this.selection.start !== undefined) this.copyArea();
     }
@@ -1758,6 +1768,10 @@ public drawWeftEnd(top, left, shuttle){
     
     if(this.selection.hasSelection()){
 
+      if(this.generative_mode) {
+        this.selected = true;
+      }
+
         var x = dims.w / 4;
         var y = dims.h;
         var anchor = 'start';
@@ -1780,7 +1794,7 @@ public drawWeftEnd(top, left, shuttle){
         d3.select(this.svgEl)
           .style('display', 'initial')
           .style('width', (this.selection.width) * dims.w)
-          .style('height', (this.selection.height) * dims.h)
+          .style('height', (this.selection.height) * dims.h);
 
           d3.select(this.svgEl)
           .select('text')
@@ -1793,6 +1807,7 @@ public drawWeftEnd(top, left, shuttle){
           .attr('y', y)
           .attr('text-anchor', anchor)
           .text(this.selection.width +' x '+ this.selection.height);
+
     }
 
 

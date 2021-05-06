@@ -516,16 +516,6 @@ export class Draft implements DraftInterface {
         }
     }
 
-    // if (params.masks === undefined) {
-    //   // this.masks = [];
-    //   // for(var ii = 0; ii < this.wefts; ii++) {
-    //   //   this.masks.push([]);
-    //   //   for (var j = 0; j < this.warps; j++)
-    //   //     this.masks[ii].push(0);
-    //   // }
-    // }else{
-    //   this.masks = params.masks;
-    // } 
 
     if(this.loom.type == "frame"){
       this.recomputeLoom();
@@ -568,10 +558,6 @@ export class Draft implements DraftInterface {
     }
   }
 
-  // idFromString(s: string){
-  //   console.log("id from string: ", s);
-  //   return s.charCodeAt(0)-97;
-  // }
 
   //gets a string from interface and updates accordingly
   updateWarpSystemsFromPattern(pattern:Array<number>){
