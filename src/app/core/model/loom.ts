@@ -33,7 +33,6 @@ export class Loom{
     constructor(type: string, wefts: number, warps: number, frames: number, treadles:number) {
 
 
-
         this.type = type;
         
 
