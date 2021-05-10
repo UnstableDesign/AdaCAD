@@ -391,6 +391,7 @@ export class InitModal implements OnInit {
     var color_table = [];
     var originalShuttle = new Shuttle();
     originalShuttle.setColor("#3d3d3d");
+    originalShuttle.setID(0);
     color_table.push(originalShuttle);
 
     var indexOfLabel = e.search("COLOR TABLE]");
@@ -398,6 +399,7 @@ export class InitModal implements OnInit {
     var endOfLineChar = '\n';
     var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
     var line = e.substring(startIndex, endIndex);
+    var id = 1;
 
     while (line.match(/[0-9]*=[0-9]*,[0-9]*,[0-9]*/) != null) {
       // var index = +(line.match(/[0-9]*/));
@@ -428,6 +430,8 @@ export class InitModal implements OnInit {
 
       var shuttle = new Shuttle();
       shuttle.setColor(hex);
+      shuttle.setID(id);
+      id++;
 
       color_table.push(shuttle);
 
@@ -453,7 +457,7 @@ export class InitModal implements OnInit {
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
       var warp = +(line.match(/[0-9]*/));
-      var color = +(line.match(/=[0-9]*/)[0].substring(1));
+      var color = (+(line.match(/=[0-9]*/)[0].substring(1)))-1;
       colToShuttleMapping[warp-1] = color;
       startIndex = endIndex+1;
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
