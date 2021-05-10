@@ -25,13 +25,6 @@ interface StartOptions {
 
 export class InitModal implements OnInit {
 
-
-  // opts: StartOptions[] = [
-  //     {value: 'new', viewValue: 'Begin New Draft'},
-  //     {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
-  //     {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'},
-  //     {value: 'wif', viewValue: 'Load a WIF (.wif) File'}
-  //   ];
   opts: StartOptions[] = [
       {value: 'new', viewValue: 'Begin New Draft'},
       {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
@@ -158,14 +151,12 @@ export class InitModal implements OnInit {
     if (this.getBool("COLOR TABLE",e)) {
       if (this.getString("Form", e) === "RGB") {
         var color_table = this.getColorTable(e);
-        var rowToShuttleMapping = this.getRowToShuttleMapping(e);
-        var colToShuttleMapping = this.getColToShuttleMapping(e);
         var shuttles = color_table;
         var warp_systems = color_table;
         this.draft.shuttles = shuttles;
         this.draft.warp_systems = warp_systems;
-        this.draft.rowShuttleMapping = rowToShuttleMapping;
-        this.draft.colShuttleMapping = colToShuttleMapping;
+        this.draft.rowShuttleMapping = this.getRowToShuttleMapping(e);
+        this.draft.colShuttleMapping = this.getColToShuttleMapping(e);
       }
     }
   }
@@ -366,22 +357,6 @@ export class InitModal implements OnInit {
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
     }
-    
-    // var color = "=220,20,60";
-
-    // var colorR = color.match(/=[0-9]*/);
-    // var colorsGB = color.match(/,[0-9]*/g);
-  
-    // var colorRNum = +(colorR[0].substring(1,));
-    // var colorGNum = +(colorsGB[0].substring(1,));
-    // var colorBNum = +(colorsGB[1].substring(1,));
-
-    // var hex = "0x";
-    // hex += colorRNum.toString(16);
-    // hex += colorGNum.toString(16);
-    // hex += colorBNum.toString(16);
-
-
       
     return tieups;
   }
@@ -457,14 +432,19 @@ export class InitModal implements OnInit {
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
       var warp = +(line.match(/[0-9]*/));
-      var color = (+(line.match(/=[0-9]*/)[0].substring(1)))-1;
+      var color = +(line.match(/=[0-9]*/)[0].substring(1));
       colToShuttleMapping[warp-1] = color;
       startIndex = endIndex+1;
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
     }
 
-    return colToShuttleMapping;
+    var reversedMapping = [];
+    for (var i = colToShuttleMapping.length-1; i >= 0; i--) {
+      reversedMapping.push(colToShuttleMapping[i]);
+    }
+
+    return reversedMapping;
   }
 
   getRowToShuttleMapping(e) {

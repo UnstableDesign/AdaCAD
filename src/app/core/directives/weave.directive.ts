@@ -2826,21 +2826,7 @@ public redraw(flags:any){
         fileContents += (+r).toString() + "," + (+g).toString() + "," + (+b).toString() + "\n";
       }
     }
-    // ALL COlOR STORED in SHUTTLES NOW 
-    // for (var i = 0; i < this.weave.warp_systems.length; i++) {
-    //   fileContents+= (counter).toString();
-    //   counter = counter + 1;
-    //   fileContents+= "=";
-    //   var hex = this.weave.warp_systems[i].color;
-    //   if (hex.length == 7) {
-    //     var r = "0x" + hex[1] + hex[2];
-    //     var g = "0x" + hex[3] + hex[4];
-    //     var b = "0x" + hex[5] + hex[6];
-
-    //     fileContents += (+r).toString() + "," + (+g).toString() + "," + (+b).toString() + "\n";
-    //   }
-    // }
-
+    
     fileContents += "[THREADING]\n";
     for (var i=0; i <this.weave.loom.threading.length; i++) {
       var frame = this.weave.loom.threading[i];
@@ -2851,7 +2837,7 @@ public redraw(flags:any){
 
     fileContents += "[WARP COLORS]\n";
     for (var i = 0; i < this.weave.colShuttleMapping.length; i++) {
-      fileContents += (i+1).toString() + "=" + (this.weave.colShuttleMapping[i]+this.weave.shuttles.length+1).toString() + "\n";
+      fileContents += (i+1).toString() + "=" + (this.weave.colShuttleMapping[(this.weave.colShuttleMapping.length)-i]+1).toString() + "\n";
     }
 
     fileContents += "[TREADLING]\n";
