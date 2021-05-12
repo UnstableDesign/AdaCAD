@@ -2837,7 +2837,7 @@ public redraw(flags:any){
 
     fileContents += "[WARP COLORS]\n";
     for (var i = 0; i < this.weave.colShuttleMapping.length; i++) {
-      fileContents += (i+1).toString() + "=" + (this.weave.colShuttleMapping[(this.weave.colShuttleMapping.length)-i]+1).toString() + "\n";
+      fileContents += (i+1).toString() + "=" + (this.weave.colShuttleMapping[(this.weave.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
     }
 
     fileContents += "[TREADLING]\n";
