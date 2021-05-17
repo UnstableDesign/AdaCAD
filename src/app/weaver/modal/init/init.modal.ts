@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { color } from 'd3';
 import { rest } from 'lodash';
+import { Cell } from '../../../core/model/cell';
+
 import { Loom } from '../../../core/model/loom';
 import { Shuttle } from "../../../core/model/shuttle";
 
@@ -23,13 +25,6 @@ interface StartOptions {
 
 export class InitModal implements OnInit {
 
-
-  // opts: StartOptions[] = [
-  //     {value: 'new', viewValue: 'Begin New Draft'},
-  //     {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
-  //     {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'},
-  //     {value: 'wif', viewValue: 'Load a WIF (.wif) File'}
-  //   ];
   opts: StartOptions[] = [
       {value: 'new', viewValue: 'Begin New Draft'},
       {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
@@ -113,7 +108,8 @@ export class InitModal implements OnInit {
     for (var i = 0; i < this.draft.wefts; i++) {
       data.push([]);
       for (var j = 0; j < this.draft.warps; j++) {
-        data[i].push(false);
+        data[i].push(new Cell());
+        data[i][j].setHeddle(false);
       }
     }
     this.draft.pattern = data;
@@ -122,7 +118,18 @@ export class InitModal implements OnInit {
     //LD comment - this might be causing a problem as the draft object is in charge of constructing the loom
     //I think its better to have draft declare it because that way it will work with adaCAD uploads 
     //what you can do instead is make a draft.loom = {} and and add relevant feilds to that, then they will be fed into the constructor
-    this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, this.getInt("Shafts", e),this.getInt("Treadles", e));
+    let frames = this.getInt("Shafts", e);
+    let treadles = this.getInt("Treadles", e);
+    this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, frames, treadles);
+
+    this.draft.loom.tieup = []
+
+    for (var i = 0; i < frames; i++) {
+      this.draft.loom.tieup.push([]);
+      for (var j = 0; j < treadles; j++) {
+        this.draft.loom.tieup[i].push(false);
+      }
+    }
 
     if (this.getBool("TREADLING", stringWithoutMetadata)) {
       var treadling = this.getTreadling(stringWithoutMetadata);
@@ -144,14 +151,12 @@ export class InitModal implements OnInit {
     if (this.getBool("COLOR TABLE",e)) {
       if (this.getString("Form", e) === "RGB") {
         var color_table = this.getColorTable(e);
-        var rowToShuttleMapping = this.getRowToShuttleMapping(e);
-        var colToShuttleMapping = this.getColToShuttleMapping(e);
         var shuttles = color_table;
         var warp_systems = color_table;
         this.draft.shuttles = shuttles;
         this.draft.warp_systems = warp_systems;
-        this.draft.rowShuttleMapping = rowToShuttleMapping;
-        this.draft.colShuttleMapping = colToShuttleMapping;
+        this.draft.rowShuttleMapping = this.getRowToShuttleMapping(e);
+        this.draft.colShuttleMapping = this.getColToShuttleMapping(e);
       }
     }
   }
@@ -233,12 +238,8 @@ export class InitModal implements OnInit {
       var substring = e.substring(index, e.length);
       var endOfLineChar = '\n';
       var endIndex = substring.indexOf(endOfLineChar);
-      if (endIndex!= -1) {
-        if (substring.substring(val.length+1,endIndex) === "yes") {
-          return true;
-        } else {
-          return false;
-        }
+      if (endIndex!= -1 && substring.substring(val.length+1,endIndex) === "yes") {
+        return true;
       } else {
         return false;
       }
@@ -356,22 +357,6 @@ export class InitModal implements OnInit {
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
     }
-    
-    // var color = "=220,20,60";
-
-    // var colorR = color.match(/=[0-9]*/);
-    // var colorsGB = color.match(/,[0-9]*/g);
-  
-    // var colorRNum = +(colorR[0].substring(1,));
-    // var colorGNum = +(colorsGB[0].substring(1,));
-    // var colorBNum = +(colorsGB[1].substring(1,));
-
-    // var hex = "0x";
-    // hex += colorRNum.toString(16);
-    // hex += colorGNum.toString(16);
-    // hex += colorBNum.toString(16);
-
-
       
     return tieups;
   }
@@ -381,6 +366,7 @@ export class InitModal implements OnInit {
     var color_table = [];
     var originalShuttle = new Shuttle();
     originalShuttle.setColor("#3d3d3d");
+    originalShuttle.setID(0);
     color_table.push(originalShuttle);
 
     var indexOfLabel = e.search("COLOR TABLE]");
@@ -388,6 +374,7 @@ export class InitModal implements OnInit {
     var endOfLineChar = '\n';
     var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
     var line = e.substring(startIndex, endIndex);
+    var id = 1;
 
     while (line.match(/[0-9]*=[0-9]*,[0-9]*,[0-9]*/) != null) {
       // var index = +(line.match(/[0-9]*/));
@@ -418,6 +405,8 @@ export class InitModal implements OnInit {
 
       var shuttle = new Shuttle();
       shuttle.setColor(hex);
+      shuttle.setID(id);
+      id++;
 
       color_table.push(shuttle);
 
@@ -450,7 +439,12 @@ export class InitModal implements OnInit {
       line = e.substring(startIndex,endIndex);
     }
 
-    return colToShuttleMapping;
+    var reversedMapping = [];
+    for (var i = colToShuttleMapping.length-1; i >= 0; i--) {
+      reversedMapping.push(colToShuttleMapping[i]);
+    }
+
+    return reversedMapping;
   }
 
   getRowToShuttleMapping(e) {

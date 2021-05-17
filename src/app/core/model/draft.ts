@@ -483,6 +483,8 @@ export class Draft implements DraftInterface {
             pts.push(patterns[i]);
           }
         this.patterns = pts;
+    } else if (params.loom.threading !== undefined && params.loom.treadling !== undefined && params.loom.tieup !== undefined) {
+      this.recalculateDraft(params.loom.tieup, params.loom.treadling, params.loom.threading);
     }
 
 

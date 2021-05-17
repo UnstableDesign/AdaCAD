@@ -2525,7 +2525,7 @@ public redraw(flags:any){
         fileContents += (+r).toString() + "," + (+g).toString() + "," + (+b).toString() + "\n";
       }
     }
-
+    
     fileContents += "[THREADING]\n";
     for (var i=0; i <this.weave.loom.threading.length; i++) {
       var frame = this.weave.loom.threading[i];
@@ -2536,7 +2536,7 @@ public redraw(flags:any){
 
     fileContents += "[WARP COLORS]\n";
     for (var i = 0; i < this.weave.colShuttleMapping.length; i++) {
-      fileContents += (i+1).toString() + "=" + (this.weave.colShuttleMapping[i]+this.weave.shuttles.length+1).toString() + "\n";
+      fileContents += (i+1).toString() + "=" + (this.weave.colShuttleMapping[(this.weave.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
     }
 
     fileContents += "[TREADLING]\n";
