@@ -12,7 +12,7 @@ import { MixerComponent } from './mixer/mixer.component';
 const routes: Routes = [
   {
     path: '',
-    component: WeaverComponent,
+    component: MixerComponent,
     children: []
   }
 ];
