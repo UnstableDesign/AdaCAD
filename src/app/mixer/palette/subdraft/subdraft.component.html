@@ -1,0 +1,95 @@
+<div id="con-{{draft.id}}" class="subdraft-container" 
+	cdkDrag
+	[cdkDragDisabled] = "disable_drag"
+	[cdkDragData]="scale"
+	[cdkDragFreeDragPosition]="topleft"
+	(cdkDragMoved)="dragMove($event)"
+	(cdkDragEnded)="dragEnd($event)"
+	(cdkDragStarted)="dragStart($event)">
+
+  	<div class="subdraft-contents">
+
+
+		<canvas id="{{draft.id}}" width="{{size.w}}" height="{{size.h}}" >  
+		</canvas>
+
+		
+	</div>
+
+	<div class="subdraft-details"> 
+		<button 
+		matTooltip= "Filters"
+		class="button is-small is-primary fas fa-filter"
+		[matMenuTriggerFor]="filters">
+		</button>
+
+		<mat-menu #filters="matMenu">
+		 
+			<button [matTooltip]= "union" 
+			mat-menu-item
+			[name]="union"
+			(click)="filterActionChange('or')">
+			Union
+			</button>   
+			
+			<button 
+			mat-menu-item
+			[matTooltip]= "intersection" 
+			[name]="intersection"
+			(click)="filterActionChange('and')">
+			Intersection
+			</button>   
+
+			<button [matTooltip]= "difference" 
+			mat-menu-item
+			[name]="difference"
+			class="button is-small is-primary "
+			(click)="filterActionChange('neq')">
+			Overlay
+			</button>   
+
+
+		</mat-menu>
+
+		<button 
+		matTooltip= "Actions"
+		class="button is-small is-primary fas fa-magic"
+		[style.color]="button_color" 
+		[matMenuTriggerFor]="actions">
+		</button>
+		
+		<mat-menu #actions="matMenu">
+		  <ng-container *ngFor="let action of design_actions">
+			<button [matTooltip]=action.viewValue 
+			 mat-menu-item
+			[name]=action.value 
+			(click)="designActionChange(action.value)">
+			<mat-icon><i class="{{action.icon}}"></i></mat-icon> 
+			{{action.viewValue}}
+			</button>    
+		  </ng-container>
+		</mat-menu>
+
+
+		<button 
+		matTooltip= "Fill"
+		class="button is-small is-primary fas fa-fill"
+		[style.color]="button_color" 
+		[matMenuTriggerFor]="fills">
+		</button>
+		
+		<mat-menu #fills="matMenu">
+			<ng-container *ngFor="let pattern of patterns">
+				<button [matTooltip]=pattern.name 
+				mat-menu-item
+				[name]=pattern.name 
+				(click)="fill(pattern.id)">{{pattern.name }}
+				</button>    
+			  </ng-container>
+		</mat-menu>
+	
+	
+   </div>
+</div>
+	
+

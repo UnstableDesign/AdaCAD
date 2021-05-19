@@ -4,16 +4,16 @@ import { Observable, Subscription, fromEvent, from } from 'rxjs';
 import * as d3 from "d3";
 import {cloneDeep, now} from 'lodash';
 
-import { Draft } from '../model/draft';
-import { Render } from '../model/render';
-import { Loom } from '../model/loom';
-import { Cell } from '../model/cell';
-import { Shuttle } from '../model/shuttle';
-import { Pattern } from '../model/pattern';
-import { Point } from '../model/point';
-import { Selection } from '../model/selection';
-import { Timeline } from '../model/timeline';
-import { CanvasToBMP } from '../model/canvas2image';
+import { Draft } from '../../core/model/draft';
+import { Render } from '../../core/model/render';
+import { Loom } from '../../core/model/loom';
+import { Cell } from '../../core/model/cell';
+import { Shuttle } from '../../core/model/shuttle';
+import { Pattern } from '../../core/model/pattern';
+import { Point } from '../../core/model/point';
+import { Selection } from '../../core/model/selection';
+import { Timeline } from '../../core/model/timeline';
+import { CanvasToBMP } from '../../core/model/canvas2image';
 import {Subject} from 'rxjs';
 import {takeLast, takeUntil} from 'rxjs/operators';
 

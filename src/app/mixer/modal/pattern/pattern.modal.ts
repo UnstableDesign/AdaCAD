@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Cell } from '../../../core/model/cell';
 
 import { Pattern } from '../../../core/model/pattern';
-import { Cell } from '../../../core/model/cell';
 
 @Component({
   selector: 'app-pattern-modal',

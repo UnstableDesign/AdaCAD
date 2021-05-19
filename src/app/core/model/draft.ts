@@ -1583,7 +1583,7 @@ computeYarnPaths(){
    */
   public fillArea(
     selection: Selection, 
-    pattern: Array<Array<boolean>>, 
+    pattern: Array<Array<Cell>>, 
     type: string
   ) {
 
@@ -1668,19 +1668,19 @@ computeYarnPaths(){
              val = temp && prev;
               break;
             case 'mirrorX':
-              val = pattern[(h - i - 1) % rows][j % cols];
+              val = pattern[(h - i - 1) % rows][j % cols].isUp();
               break;
             case 'mirrorY':
-              val = pattern[i % rows][(w - j - 1) % cols];
+              val = pattern[i % rows][(w - j - 1) % cols].isUp();
               break;
             case 'shiftUp':
-              val = pattern[(i+1) % rows][j];
+              val = pattern[(i+1) % rows][j].isUp();
               break;
             case 'shiftLeft':
-              val = pattern[i][(j+1) % cols];
+              val = pattern[i][(j+1) % cols].isUp();
               break;
             default:
-              val = temp;
+              val = temp.isUp();
               break;
           }
 
@@ -1732,24 +1732,24 @@ computeYarnPaths(){
             break;
             case 'weft-systems':
               var draft_row = this.visibleRows[row];
-              val = pattern[i % rows][j % cols];
+              val = pattern[i % rows][j % cols].isUp();
               if(val && col < this.weft_systems.length) this.rowSystemMapping[draft_row] = col;
             
             break;
             case 'warp-systems':
-              val = pattern[i % rows][j % cols];
+              val = pattern[i % rows][j % cols].isUp();
               if(val && row < this.warp_systems.length){
                   this.colSystemMapping[col] = row;
               }
             break;
             case 'weft-materials':
               var draft_row = this.visibleRows[row];
-              val = pattern[i % rows][j % cols];
+              val = pattern[i % rows][j % cols].isUp();
               if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
             
             break;
             case 'warp-materials':
-              val = pattern[i % rows][j % cols];
+              val = pattern[i % rows][j % cols].isUp();
               if(val && row < this.shuttles.length){
                   this.colShuttleMapping[col] = row;
               }

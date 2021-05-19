@@ -1,0 +1,82 @@
+<h2 mat-dialog-title>Welcome To AdaCAD</h2>
+
+<mat-dialog-content>
+
+
+  <form #initForm="ngForm">
+
+    <mat-form-field appearance="fill">
+      <mat-label>Where would you like to start?</mat-label>
+    <mat-select [(value)]="selected">
+      <mat-option *ngFor="let opt of opts" [value]="opt.value">
+        {{opt.viewValue}}
+      </mat-option>
+    </mat-select>
+    </mat-form-field>
+
+    <ng-container *ngIf="(selected == 'new')">
+
+      <mat-form-field appearance="fill">
+          <mat-label>Which type of loom are you designing for?</mat-label>
+          <mat-select [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
+          <mat-option *ngFor="let type of loomtypes" [value]="type.value">
+            {{type.viewValue}}
+          </mat-option>
+        </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+        <input matInput  type="number" placeholder="Number of Warp Ends" name="warps" min="2" step="1" [(ngModel)]="warps"  required (change) = "valid = 1">
+        </mat-form-field>
+
+       <mat-form-field appearance="fill">
+        <input matInput  type="number" placeholder="Number of Weft Picks" name="wefts" min="2" step="1" [(ngModel)]="wefts"  required (change) = "valid = 1">
+        </mat-form-field>
+
+
+      <mat-form-field appearance="fill">
+          <mat-label>Density Units</mat-label>
+          <mat-select [(value)]="units" [(ngModel)]="units" name="units">
+          <mat-option *ngFor="let unit of density_units" [value]="unit.value">
+            {{unit.viewValue}}
+          </mat-option>
+        </mat-select>
+        </mat-form-field>
+
+       <mat-form-field appearance="fill">
+        <input matInput  type ="number" placeholder="Weave Density" name="epi" value="10" [(ngModel)]="epi">
+       </mat-form-field> 
+
+
+
+
+      <ng-container *ngIf="(loomtype == 'frame')">
+        <mat-form-field appearance="fill">
+         <input matInput  type="number" placeholder="Number of Shafts" name="frame_num" min="2" step="1" value="8" [(ngModel)]="frame_num">
+        </mat-form-field>
+
+     <mat-form-field appearance="fill">
+      <input matInput  type ="number" placeholder="Number of Treadles" name="treadle_num" [(ngModel)]="treadle_num" min="2" step="1" value="10">
+     </mat-form-field> 
+    </ng-container>
+
+   
+
+    </ng-container>
+
+    
+    <ng-container *ngIf="(selected == 'ada' || selected == 'bmp' || selected == 'wif')">
+    <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
+    </ng-container>
+
+
+</form>
+
+
+</mat-dialog-content>
+
+ <ng-container>
+    <mat-dialog-actions>
+        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loomtype, epi, frame_num, treadle_num)">Start</button>
+    </mat-dialog-actions>
+ </ng-container>

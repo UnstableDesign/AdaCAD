@@ -1,0 +1,57 @@
+.subdraft-container{
+
+	position: absolute;
+	color: grey;
+	display: flex;
+	flex-direction: row;
+	justify-content:flex-end;
+}
+
+.subdraft-container:hover,
+.subdraft-container:active{
+
+	svg{
+		color: #ff4081;
+	}
+
+	.subdraft-details{
+		display: flex;
+		color: #ff4081;
+	}
+
+	canvas{
+		border: thin solid #00d1b2;
+	}
+
+}
+
+.mat-icon{
+	height: auto;
+}
+
+.subdraft-details{
+	display:none;
+}
+
+.subdraft-contents{
+	display: block;
+}
+
+svg{
+	display: block;
+	color: black;
+}
+
+canvas{
+	display: block;
+	overflow:hidden;
+	border: thin solid white;
+}
+
+div.cdk-drag-dragging canvas{
+	border: thin solid #ff4081;
+}
+
+div.cdk-drag-dragging{
+	z-index: 10; 
+}
