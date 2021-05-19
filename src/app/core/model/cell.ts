@@ -1,28 +1,35 @@
 /**
- * Definition of pattern object.
- * @class
+ * A class that stores information about a single cell within the draft.
+ * @param poles a four bit number (corresponding to NSEW) that represents the path a yarn through this cell
  */
 export class Cell {
   poles: number;
   is_up: boolean;
+  is_set: boolean;
   mask_id: number;
 
+
+  /**
+   * 
+   */
   constructor() {
     this.poles = 0b0000;
+    this.is_set = false;
     this.is_up = false;
     this.mask_id = -1;
   }
 
 
-
-
   setHeddleUp(){
     this.is_up = true;
+    this.is_set = true;
   }
 
   setHeddleDown(){
      this.is_up = false;
+     this.is_set = true;
   }
+
 
   setNorth(){
     this.poles = this.poles | 0b1000;
@@ -150,6 +157,7 @@ export class Cell {
 
   unsetHeddle(){
     this.is_up = false;
+    this.is_set = false;
   }
 
   unsetPoles(){
