@@ -1,6 +1,8 @@
+import { thresholdFreedmanDiaconis } from "d3-array";
+
 /**
- * A class that stores information about a single cell within the draft.
- * @param poles a four bit number (corresponding to NSEW) that represents the path a yarn through this cell
+ * Definition of pattern object.
+ * @class
  */
 export class Cell {
   poles: number;
@@ -8,17 +10,24 @@ export class Cell {
   is_set: boolean;
   mask_id: number;
 
-
-  /**
-   * 
-   */
-  constructor() {
+  constructor(setting: boolean) {
     this.poles = 0b0000;
-    this.is_set = false;
-    this.is_up = false;
     this.mask_id = -1;
+    if(setting === null || setting === undefined){
+      this.is_set = false;
+      this.is_up = false;
+    } 
+    else {
+      this.is_set = true;
+      this.is_up = setting;
+    }
   }
 
+
+  
+  isSet(){
+    return this.is_set;
+  }
 
   setHeddleUp(){
     this.is_up = true;
@@ -26,10 +35,9 @@ export class Cell {
   }
 
   setHeddleDown(){
-     this.is_up = false;
      this.is_set = true;
+     this.is_up = false;
   }
-
 
   setNorth(){
     this.poles = this.poles | 0b1000;
@@ -141,6 +149,16 @@ export class Cell {
 
   setHeddle(value:boolean){
     this.is_up = value;
+    this.is_set = true;
+  }
+
+  toggleHeddle(){
+    if(!this.is_set){
+      this.is_set = true;
+      this.is_up = true;
+    }else{
+      this.is_up = !this.is_up;
+    }
   }
 
   setPoles(poles:number){
