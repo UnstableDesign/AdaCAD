@@ -1,0 +1,896 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>adacad-weaver documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	      <link rel="stylesheet" href="../styles/style.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">adacad-weaver documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+<ol class="breadcrumb">
+  <li>Components</li>
+  <li>MaterialsComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li >
+            <a href="#templateData" role="tab" id="templateData-tab" data-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li >
+            <a href="#styleData" role="tab" id="styleData-tab" data-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li >
+            <a href="#tree" role="tab" id="tree-tab" data-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="c-info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/weaver/tool/materials/materials.component.ts</code>
+</p>
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                    <code><a href="https://angular.io/api/core/OnInit" target="_blank" >OnInit</a></code>
+    </p>
+
+
+<section>
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-materials</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./materials.component.scss</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./materials.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#colorChange">colorChange</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit">ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#openDialog">openDialog</a>
+                            </li>
+                            <li>
+                                <a href="#thicknessChange">thicknessChange</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#material_types">material_types</a>
+                            </li>
+                            <li>
+                                <a href="#shuttles">shuttles</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#onColorChange">onColorChange</a>
+                            </li>
+                            <li>
+                                <a href="#onCreateShuttle">onCreateShuttle</a>
+                            </li>
+                            <li>
+                                <a href="#onThicknessChange">onThicknessChange</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(dialog: MatDialog)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:19</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>dialog</td>
+                                                  
+                                                        <td>
+                                                                    <code>MatDialog</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+    <section>
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="material_types"></a>
+                        <b>material_types</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:16</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="shuttles"></a>
+                        <b>shuttles</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:15</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <section>
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onColorChange"></a>
+                        <b>onColorChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:17</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onCreateShuttle"></a>
+                        <b>onCreateShuttle</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:19</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onThicknessChange"></a>
+                        <b>onThicknessChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:18</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section>
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="colorChange"></a>
+                    <span class="name">
+                        <b>
+                            colorChange
+                        </b>
+                        <a href="#colorChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>colorChange(e)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="58"
+                            class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:58</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <b>
+                            ngOnInit
+                        </b>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="25"
+                            class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:25</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="openDialog"></a>
+                    <span class="name">
+                        <b>
+                            openDialog
+                        </b>
+                        <a href="#openDialog"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>openDialog(shuttle)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="28"
+                            class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:28</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>shuttle</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="thicknessChange"></a>
+                    <span class="name">
+                        <b>
+                            thicknessChange
+                        </b>
+                        <a href="#thicknessChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>thicknessChange(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, thickness: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="53"
+                            class="link-to-prism">src/app/weaver/tool/materials/materials.component.ts:53</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>thickness</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="c-source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, Input, Output, EventEmitter, OnInit } from &#x27;@angular/core&#x27;;
+import { MaterialModal } from &#x27;../../modal/material/material.modal&#x27;;
+import { ShuttlesModal } from &#x27;../../modal/shuttles/shuttles.modal&#x27;;
+import { Shuttle } from &#x27;../../../core/model/shuttle&#x27;;
+import { MatDialog, MatDialogConfig } from &quot;@angular/material/dialog&quot;;
+
+@Component({
+  selector: &#x27;app-materials&#x27;,
+  templateUrl: &#x27;./materials.component.html&#x27;,
+  styleUrls: [&#x27;./materials.component.scss&#x27;]
+})
+export class MaterialsComponent implements OnInit {
+
+
+  @Input() shuttles: any;
+  @Input() material_types: any;
+  @Output() onColorChange: any &#x3D; new EventEmitter();
+  @Output() onThicknessChange: any &#x3D; new EventEmitter();
+  @Output() onCreateShuttle: any &#x3D; new EventEmitter();
+
+  constructor(private dialog: MatDialog) { 
+   
+  }
+
+  ngOnInit() {
+  }
+
+  openDialog(shuttle) {
+
+
+    var create &#x3D; false;
+
+    if (!shuttle) {
+      shuttle &#x3D; new Shuttle();
+      create &#x3D; true;
+    }
+
+    const dialogRef &#x3D; this.dialog.open(MaterialModal, 
+      {data: {shuttle: shuttle, material_types:this.material_types}, width: &#x27;650px&#x27; });
+
+    dialogRef.afterClosed().subscribe(result &#x3D;&gt; {
+
+    	console.log(result);
+        if (!create) {
+          this.shuttles[result.id] &#x3D; result;
+          this.onColorChange.emit();
+        } else {
+          this.onCreateShuttle.emit({shuttle: result});
+        }
+    });
+  }
+
+  thicknessChange(id:number, thickness:number) {
+  	this.shuttles[id].setThickness(thickness);
+    this.onThicknessChange.emit();
+  }
+
+  colorChange(e) {
+    this.onColorChange.emit();
+  }
+
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;mat-expansion-panel  [hideToggle] &#x3D; &quot;collapsed&quot;&gt;
+      &lt;mat-expansion-panel-header&gt;
+        &lt;mat-panel-title&gt;
+          &lt;span&gt;Materials&lt;/span&gt;
+        &lt;/mat-panel-title&gt;
+      
+        &lt;mat-panel-description&gt;
+
+            &lt;button class&#x3D;&quot;addsystem is-fullwidth&quot; (click)&#x3D;&quot;openDialog(null)&quot;&gt;
+              &lt;i aria-label&#x3D;&quot;&quot; class&#x3D;&quot;fa fa-plus&quot;&gt;&lt;/i&gt;
+              &lt;span&gt; Add &lt;/span&gt;
+            &lt;/button&gt;
+        &lt;/mat-panel-description&gt;
+      &lt;/mat-expansion-panel-header&gt;
+
+
+      &lt;ng-container *ngIf&#x3D;&quot;!collapsed&quot;&gt;
+        &lt;mat-list class&#x3D;&quot;mylist-style&quot;&gt;
+
+          &lt;ng-container *ngFor&#x3D;&quot;let shuttle of shuttles&quot;&gt;
+             &lt;mat-list-item (click)&#x3D;&quot;selected &#x3D; shuttle.id;&quot; class&#x3D;&quot;level&quot; [class.selected]&#x3D;&quot;selected &#x3D;&#x3D;&#x3D; shuttle.id&quot; [disableRipple]&#x3D;&quot;false&quot;&gt;
+              
+               &lt;div class&#x3D;&quot;level-item&quot;&gt;
+
+                  &lt;input class&#x3D;&quot;colorpicker shuttle-cp&quot; [(colorPicker)]&#x3D;&quot;shuttle.color&quot; (colorPickerChange)&#x3D;&quot;colorChange($event)&quot;
+                   [cpPosition]&#x3D;&quot;&#x27;bottom&#x27;&quot;
+                   [style.background]&#x3D;&quot;shuttle.color&quot;/&gt;
+                 &lt;/div&gt;
+                 &lt;div class&#x3D;&quot;level-item&quot;&gt;
+&lt;!--                   &lt;mat-form-field&gt;
+                  &lt;input matInput
+                    class&#x3D;&quot;thickness&quot;
+                    [class.hide] &#x3D; &quot;collapsed&quot;
+                    type&#x3D;&quot;number&quot; 
+                    [(ngModel)]&#x3D;&quot;shuttle.thickness&quot; 
+                    min&#x3D;&quot;0&quot; 
+                    max&#x3D;&quot;100&quot; 
+                    step&#x3D;&quot;10&quot;
+                    (change)&#x3D;&quot;thicknessChange(shuttle.id, shuttle.thickness)&quot; /&gt;
+                  &lt;/mat-form-field&gt; --&gt;
+
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;shuttles level-item center-item fill-remaining-space&quot;&gt;
+                  &lt;span class&#x3D;&quot;&quot;&gt;{{ shuttle.name }}&lt;/span&gt;
+                &lt;/div&gt;
+          
+                &lt;div class&#x3D;&quot;level-item level-right&quot;&gt;
+                  &lt;button mat-icon-button class&#x3D;&quot;edit-button&quot; (click)&#x3D;&quot;openDialog(shuttle)&quot;&gt;
+                   &lt;i aria-label&#x3D;&quot;Favorite button&quot; class&#x3D;&quot;fas fa-pencil-alt&quot;&gt;&lt;/i&gt;
+                  &lt;/button&gt;
+
+                  
+                &lt;/div&gt;
+              &lt;/mat-list-item&gt;  
+            &lt;/ng-container&gt;
+         &lt;/mat-list&gt;
+      &lt;/ng-container&gt;
+      
+&lt;!--       &lt;ng-container *ngIf&#x3D;&quot;collapsed&quot;&gt;
+          &lt;ng-container *ngFor&#x3D;&quot;let material of materials&quot;&gt;
+            &lt;button mat-icon-button&gt;
+              &lt;i aria-label&#x3D;&quot;hide&quot; 
+              class&#x3D;&quot;fas fa-square&quot;  
+              [style.color] &#x3D; &quot;material.color&quot;&gt; &lt;/i&gt;
+            &lt;/button&gt;
+           &lt;/ng-container&gt;
+      &lt;/ng-container&gt;  --&gt;
+
+      &lt;/mat-expansion-panel&gt;</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-styleData">
+                <p class="comment">
+                    <code>./materials.component.scss</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.addsystem{
+    color: black;
+    background: none;
+    border: none;
+    padding: 5px 0px 0px 0px;
+}
+
+.shuttles{
+  font-size: 0.8em;
+  overflow: hidden;
+}
+
+
+.colorpicker {
+  border: 1px solid grey;
+  outline: none;
+  width: 17px;
+  margin: 0 .8rem 0 .375rem;
+}
+
+
+.thickness {
+  font-size: 0.6em;
+  padding-right: 2px;
+  margin: 0 0 0 0;
+}
+
+.mat-form-field{
+  width: 40px;
+}
+
+
+
+
+
+
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><mat-expansion-panel  [hideToggle] = "collapsed">      <mat-expansion-panel-header>        <mat-panel-title>          <span>Materials</span>        </mat-panel-title>              <mat-panel-description>            <button class="addsystem is-fullwidth" (click)="openDialog(null)">              <i aria-label="" class="fa fa-plus"></i>              <span> Add </span>            </button>        </mat-panel-description>      </mat-expansion-panel-header>      <ng-container *ngIf="!collapsed">        <mat-list class="mylist-style">          <ng-container *ngFor="let shuttle of shuttles">             <mat-list-item (click)="selected = shuttle.id;" class="level" [class.selected]="selected === shuttle.id" [disableRipple]="false">                             <div class="level-item">                  <input class="colorpicker shuttle-cp" [(colorPicker)]="shuttle.color" (colorPickerChange)="colorChange($event)"                   [cpPosition]="\'bottom\'"                   [style.background]="shuttle.color"/>                 </div>                 <div class="level-item"><!--                   <mat-form-field>                  <input matInput                    class="thickness"                    [class.hide] = "collapsed"                    type="number"                     [(ngModel)]="shuttle.thickness"                     min="0"                     max="100"                     step="10"                    (change)="thicknessChange(shuttle.id, shuttle.thickness)" />                  </mat-form-field> -->                </div>                <div class="shuttles level-item center-item fill-remaining-space">                  <span class="">{{ shuttle.name }}</span>                </div>                          <div class="level-item level-right">                  <button mat-icon-button class="edit-button" (click)="openDialog(shuttle)">                   <i aria-label="Favorite button" class="fas fa-pencil-alt"></i>                  </button>                                  </div>              </mat-list-item>              </ng-container>         </mat-list>      </ng-container>      <!--       <ng-container *ngIf="collapsed">          <ng-container *ngFor="let material of materials">            <button mat-icon-button>              <i aria-label="hide"               class="fas fa-square"                [style.color] = "material.color"> </i>            </button>           </ng-container>      </ng-container>  -->      </mat-expansion-panel></div>'
+    var COMPONENTS = [{'name': 'AboutModal', 'selector': 'app-about'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConnectionModal', 'selector': 'app-connection'},{'name': 'DesignComponent', 'selector': 'app-design'},{'name': 'HistoryComponent', 'selector': 'app-history'},{'name': 'InitModal', 'selector': 'app-init'},{'name': 'LabelModal', 'selector': 'app-label'},{'name': 'LoomComponent', 'selector': 'app-loom'},{'name': 'MasksComponent', 'selector': 'app-masks'},{'name': 'MaterialModal', 'selector': 'app-material-modal'},{'name': 'MaterialsComponent', 'selector': 'app-materials'},{'name': 'NotesComponent', 'selector': 'app-notes'},{'name': 'PatternModal', 'selector': 'app-pattern-modal'},{'name': 'PatternsComponent', 'selector': 'app-patterns'},{'name': 'SchematicComponent', 'selector': 'app-schematic'},{'name': 'ShuttlesModal', 'selector': 'app-shuttles-modal'},{'name': 'SystemsComponent', 'selector': 'app-systems'},{'name': 'TopbarComponent', 'selector': 'app-topbar'},{'name': 'UploadFormComponent', 'selector': 'upload-form'},{'name': 'ViewComponent', 'selector': 'app-view'},{'name': 'WeaverComponent', 'selector': 'app-weaver'}];
+    var DIRECTIVES = [{'name': 'WeaveDirective', 'selector': '[weave]'}];
+    var ACTUAL_COMPONENT = {'name': 'MaterialsComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+                   
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'MaterialsComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
+       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
+       <script src="../js/menu-wc.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

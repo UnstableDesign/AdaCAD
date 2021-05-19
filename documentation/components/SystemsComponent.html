@@ -1,0 +1,2201 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>adacad-weaver documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	      <link rel="stylesheet" href="../styles/style.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">adacad-weaver documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+<ol class="breadcrumb">
+  <li>Components</li>
+  <li>SystemsComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li >
+            <a href="#templateData" role="tab" id="templateData-tab" data-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li >
+            <a href="#styleData" role="tab" id="styleData-tab" data-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li >
+            <a href="#tree" role="tab" id="tree-tab" data-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="c-info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/weaver/tool/systems/systems.component.ts</code>
+</p>
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                    <code><a href="https://angular.io/api/core/OnInit" target="_blank" >OnInit</a></code>
+    </p>
+
+
+<section>
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-systems</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./systems.component.scss</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./systems.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#matAutocompleteWash">matAutocompleteWash</a>
+                            </li>
+                            <li>
+                                <a href="#matAutocompleteWasy">matAutocompleteWasy</a>
+                            </li>
+                            <li>
+                                <a href="#matAutocompleteWesh">matAutocompleteWesh</a>
+                            </li>
+                            <li>
+                                <a href="#matAutocompleteWesy">matAutocompleteWesy</a>
+                            </li>
+                            <li>
+                                <a href="#removable">removable</a>
+                            </li>
+                            <li>
+                                <a href="#selectable">selectable</a>
+                            </li>
+                            <li>
+                                <a href="#separatorKeysCodes">separatorKeysCodes</a>
+                            </li>
+                            <li>
+                                <a href="#visible">visible</a>
+                            </li>
+                            <li>
+                                <a href="#warpShuttleCtrl">warpShuttleCtrl</a>
+                            </li>
+                            <li>
+                                <a href="#warpShuttleInput">warpShuttleInput</a>
+                            </li>
+                            <li>
+                                <a href="#warpSystemCtrl">warpSystemCtrl</a>
+                            </li>
+                            <li>
+                                <a href="#warpSystemInput">warpSystemInput</a>
+                            </li>
+                            <li>
+                                <a href="#weftShuttleCtrl">weftShuttleCtrl</a>
+                            </li>
+                            <li>
+                                <a href="#weftShuttleInput">weftShuttleInput</a>
+                            </li>
+                            <li>
+                                <a href="#weftSystemCtrl">weftSystemCtrl</a>
+                            </li>
+                            <li>
+                                <a href="#weftSystemInput">weftSystemInput</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#add">add</a>
+                            </li>
+                            <li>
+                                <a href="#idFromString">idFromString</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit">ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#remove">remove</a>
+                            </li>
+                            <li>
+                                <a href="#selected">selected</a>
+                            </li>
+                            <li>
+                                <a href="#sendUpdates">sendUpdates</a>
+                            </li>
+                            <li>
+                                <a href="#shuttleIdFromName">shuttleIdFromName</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#shuttles">shuttles</a>
+                            </li>
+                            <li>
+                                <a href="#warp_shuttles_pattern">warp_shuttles_pattern</a>
+                            </li>
+                            <li>
+                                <a href="#warp_systems">warp_systems</a>
+                            </li>
+                            <li>
+                                <a href="#warp_systems_pattern">warp_systems_pattern</a>
+                            </li>
+                            <li>
+                                <a href="#weft_shuttles_pattern">weft_shuttles_pattern</a>
+                            </li>
+                            <li>
+                                <a href="#weft_systems">weft_systems</a>
+                            </li>
+                            <li>
+                                <a href="#weft_systems_pattern">weft_systems_pattern</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#onUpdateWarpShuttles">onUpdateWarpShuttles</a>
+                            </li>
+                            <li>
+                                <a href="#onUpdateWarpSystems">onUpdateWarpSystems</a>
+                            </li>
+                            <li>
+                                <a href="#onUpdateWeftShuttles">onUpdateWeftShuttles</a>
+                            </li>
+                            <li>
+                                <a href="#onUpdateWeftSystems">onUpdateWeftSystems</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor()</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:74</a></div>
+                            </td>
+                        </tr>
+
+            </tbody>
+        </table>
+</section>
+
+    <section>
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="shuttles"></a>
+                        <b>shuttles</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:29</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="warp_shuttles_pattern"></a>
+                        <b>warp_shuttles_pattern</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:30</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="warp_systems"></a>
+                        <b>warp_systems</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:25</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="warp_systems_pattern"></a>
+                        <b>warp_systems_pattern</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:27</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="weft_shuttles_pattern"></a>
+                        <b>weft_shuttles_pattern</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:31</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="weft_systems"></a>
+                        <b>weft_systems</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:26</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="weft_systems_pattern"></a>
+                        <b>weft_systems_pattern</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:28</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <section>
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWarpShuttles"></a>
+                        <b>onUpdateWarpShuttles</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:73</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWarpSystems"></a>
+                        <b>onUpdateWarpSystems</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:71</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWeftShuttles"></a>
+                        <b>onUpdateWeftShuttles</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:74</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWeftSystems"></a>
+                        <b>onUpdateWeftSystems</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:72</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section>
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="add"></a>
+                    <span class="name">
+                        <b>
+                            add
+                        </b>
+                        <a href="#add"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>add(event: MatChipInputEvent)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="136"
+                            class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:136</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>event</td>
+                                    <td>
+                                            <code>MatChipInputEvent</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="idFromString"></a>
+                    <span class="name">
+                        <b>
+                            idFromString
+                        </b>
+                        <a href="#idFromString"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>idFromString(s: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="121"
+                            class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:121</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>s</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <b>
+                            ngOnInit
+                        </b>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="83"
+                            class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:83</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="remove"></a>
+                    <span class="name">
+                        <b>
+                            remove
+                        </b>
+                        <a href="#remove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>remove(caller: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, index: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="212"
+                            class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:212</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>caller</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>index</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="selected"></a>
+                    <span class="name">
+                        <b>
+                            selected
+                        </b>
+                        <a href="#selected"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>selected(source: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, event: MatAutocompleteSelectedEvent)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="274"
+                            class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:274</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>source</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>event</td>
+                                    <td>
+                                            <code>MatAutocompleteSelectedEvent</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendUpdates"></a>
+                    <span class="name">
+                        <b>
+                            sendUpdates
+                        </b>
+                        <a href="#sendUpdates"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>sendUpdates(source: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="252"
+                            class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:252</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>source</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="shuttleIdFromName"></a>
+                    <span class="name">
+                        <b>
+                            shuttleIdFromName
+                        </b>
+                        <a href="#shuttleIdFromName"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>shuttleIdFromName(s: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="126"
+                            class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:126</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>s</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section>
+    
+        <h3 id="inputs">
+            Properties
+        </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="matAutocompleteWash"></a>
+                        <span class="name">
+                            <b>
+                            matAutocompleteWash</b>
+                            <a href="#matAutocompleteWash"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>MatAutocomplete</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;auto_wash&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:67</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="matAutocompleteWasy"></a>
+                        <span class="name">
+                            <b>
+                            matAutocompleteWasy</b>
+                            <a href="#matAutocompleteWasy"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>MatAutocomplete</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;auto_wasy&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:65</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="matAutocompleteWesh"></a>
+                        <span class="name">
+                            <b>
+                            matAutocompleteWesh</b>
+                            <a href="#matAutocompleteWesh"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>MatAutocomplete</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;auto_wesh&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:68</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="matAutocompleteWesy"></a>
+                        <span class="name">
+                            <b>
+                            matAutocompleteWesy</b>
+                            <a href="#matAutocompleteWesy"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>MatAutocomplete</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;auto_wesy&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:66</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="removable"></a>
+                        <span class="name">
+                            <b>
+                            removable</b>
+                            <a href="#removable"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>true</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:36</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="selectable"></a>
+                        <span class="name">
+                            <b>
+                            selectable</b>
+                            <a href="#selectable"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>true</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:35</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="separatorKeysCodes"></a>
+                        <span class="name">
+                            <b>
+                            separatorKeysCodes</b>
+                            <a href="#separatorKeysCodes"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>number[]</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>[ENTER, COMMA]</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:37</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="visible"></a>
+                        <span class="name">
+                            <b>
+                            visible</b>
+                            <a href="#visible"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>true</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:34</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="warpShuttleCtrl"></a>
+                        <span class="name">
+                            <b>
+                            warpShuttleCtrl</b>
+                            <a href="#warpShuttleCtrl"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>new FormControl()</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:49</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="warpShuttleInput"></a>
+                        <span class="name">
+                            <b>
+                            warpShuttleInput</b>
+                            <a href="#warpShuttleInput"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>ElementRef&lt;HTMLInputElement&gt;</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;warpShuttleInput&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:62</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="warpSystemCtrl"></a>
+                        <span class="name">
+                            <b>
+                            warpSystemCtrl</b>
+                            <a href="#warpSystemCtrl"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>new FormControl()</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:40</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="warpSystemInput"></a>
+                        <span class="name">
+                            <b>
+                            warpSystemInput</b>
+                            <a href="#warpSystemInput"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>ElementRef&lt;HTMLInputElement&gt;</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;warpSystemInput&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:60</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="weftShuttleCtrl"></a>
+                        <span class="name">
+                            <b>
+                            weftShuttleCtrl</b>
+                            <a href="#weftShuttleCtrl"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>new FormControl()</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:53</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="weftShuttleInput"></a>
+                        <span class="name">
+                            <b>
+                            weftShuttleInput</b>
+                            <a href="#weftShuttleInput"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>ElementRef&lt;HTMLInputElement&gt;</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;weftShuttleInput&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:63</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="weftSystemCtrl"></a>
+                        <span class="name">
+                            <b>
+                            weftSystemCtrl</b>
+                            <a href="#weftSystemCtrl"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>new FormControl()</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:45</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="weftSystemInput"></a>
+                        <span class="name">
+                            <b>
+                            weftSystemInput</b>
+                            <a href="#weftSystemInput"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>ElementRef&lt;HTMLInputElement&gt;</code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;weftSystemInput&#x27;, {static: false})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/app/weaver/tool/systems/systems.component.ts:61</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="c-source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, Input, Output, EventEmitter, OnInit } from &#x27;@angular/core&#x27;;
+import { ShuttlesModal } from &#x27;../../modal/shuttles/shuttles.modal&#x27;;
+import { System } from &#x27;../../../core/model/system&#x27;;
+import { MatDialog, MatDialogConfig } from &quot;@angular/material/dialog&quot;;
+import {CdkDragDrop, moveItemInArray} from &#x27;@angular/cdk/drag-drop&#x27;;
+
+import {COMMA, ENTER} from &#x27;@angular/cdk/keycodes&#x27;;
+import {ElementRef, ViewChild} from &#x27;@angular/core&#x27;;
+import {FormControl} from &#x27;@angular/forms&#x27;;
+import {MatAutocompleteSelectedEvent, MatAutocomplete} from &#x27;@angular/material/autocomplete&#x27;;
+import {MatChipInputEvent} from &#x27;@angular/material/chips&#x27;;
+import {Observable} from &#x27;rxjs&#x27;;
+import {map, startWith} from &#x27;rxjs/operators&#x27;;
+
+@Component({
+  selector: &#x27;app-systems&#x27;,
+  templateUrl: &#x27;./systems.component.html&#x27;,
+  styleUrls: [&#x27;./systems.component.scss&#x27;]
+})
+
+
+
+export class SystemsComponent implements OnInit {
+
+  @Input() warp_systems: any;
+  @Input() weft_systems: any;
+  @Input() warp_systems_pattern: any;
+  @Input() weft_systems_pattern: any;
+  @Input() shuttles: any;
+  @Input() warp_shuttles_pattern: any;
+  @Input() weft_shuttles_pattern: any;
+
+  //chip params
+  visible &#x3D; true;
+  selectable &#x3D; true;
+  removable &#x3D; true;
+  separatorKeysCodes: number[] &#x3D; [ENTER, COMMA];
+
+
+  warpSystemCtrl &#x3D; new FormControl();
+  // warp_systems_pattern_strings: string[] &#x3D; [];
+  // allWarpSystems: string[] &#x3D; [];
+
+
+  weftSystemCtrl &#x3D; new FormControl();
+  // weft_systems_pattern_strings: string[] &#x3D; [];
+  // allWeftSystems: string[] &#x3D; [];
+
+  warpShuttleCtrl &#x3D; new FormControl();
+  // warp_shuttles_pattern_strings: any[] &#x3D; [];
+  // allWarpShuttles: any[] &#x3D; [];
+
+  weftShuttleCtrl &#x3D; new FormControl();
+  // weft_shuttles_pattern_strings: any[] &#x3D; [];
+  // allWeftShuttles: any[] &#x3D; [];
+
+  // fruits: string[] &#x3D; [&#x27;Lemon&#x27;];
+  // allFruits: string[] &#x3D; [&#x27;Apple&#x27;, &#x27;Lemon&#x27;, &#x27;Lime&#x27;, &#x27;Orange&#x27;, &#x27;Strawberry&#x27;];
+
+  @ViewChild(&#x27;warpSystemInput&#x27;, {static: false}) warpSystemInput: ElementRef&lt;HTMLInputElement&gt;;
+  @ViewChild(&#x27;weftSystemInput&#x27;, {static: false}) weftSystemInput: ElementRef&lt;HTMLInputElement&gt;;
+  @ViewChild(&#x27;warpShuttleInput&#x27;, {static: false}) warpShuttleInput: ElementRef&lt;HTMLInputElement&gt;;
+  @ViewChild(&#x27;weftShuttleInput&#x27;, {static: false}) weftShuttleInput: ElementRef&lt;HTMLInputElement&gt;;
+  
+  @ViewChild(&#x27;auto_wasy&#x27;, {static: false}) matAutocompleteWasy: MatAutocomplete;
+  @ViewChild(&#x27;auto_wesy&#x27;, {static: false}) matAutocompleteWesy: MatAutocomplete;
+  @ViewChild(&#x27;auto_wash&#x27;, {static: false}) matAutocompleteWash: MatAutocomplete;
+  @ViewChild(&#x27;auto_wesh&#x27;, {static: false}) matAutocompleteWesh: MatAutocomplete;
+
+
+   @Output() onUpdateWarpSystems: any &#x3D; new EventEmitter();
+   @Output() onUpdateWeftSystems: any &#x3D; new EventEmitter();
+   @Output() onUpdateWarpShuttles: any &#x3D; new EventEmitter();
+   @Output() onUpdateWeftShuttles: any &#x3D; new EventEmitter();
+
+
+  constructor() {
+
+
+
+  }
+
+  ngOnInit() {
+
+    console.log(this.warp_systems);
+
+    // for(let i &#x3D; 0; i &lt; this.warp_systems_pattern.length; i++){
+    //   this.warp_systems_pattern_strings.push(this.warp_systems[this.warp_systems_pattern[i]].getChar());
+    // }
+
+    // for(let i &#x3D; 0; i &lt; this.warp_systems.length; i++){
+    //   this.allWarpSystems.push(this.warp_systems[i].getChar());
+    // }
+
+
+    // for(let i &#x3D; 0; i &lt; this.weft_systems_pattern.length; i++){
+    //   this.weft_systems_pattern_strings.push(this.weft_systems[this.weft_systems_pattern[i]].getChar());
+    // }
+
+    // for(let i &#x3D; 0; i &lt; this.warp_systems.length; i++){
+    //   this.allWeftSystems.push(this.weft_systems[i].getChar());
+    // }
+
+    // for(let i &#x3D; 0; i &lt; this.weft_shuttles_pattern.length; i++){
+    //   let s &#x3D; this.shuttles[this.weft_shuttles_pattern[i]];
+    //   this.weft_shuttles_pattern_strings.push({color: s.getColor(), name: s.getName(), id: s.getId()});
+    // }
+
+    // for(let i &#x3D; 0; i &lt; this.warp_shuttles_pattern.length; i++){
+    //   let s &#x3D; this.shuttles[this.warp_shuttles_pattern[i]];
+    //   this.warp_shuttles_pattern_strings.push({color: s.getColor(), name: s.getName(), id: s.getId()});
+    // }
+
+    // for(let i &#x3D; 0; i &lt; this.shuttles.length; i++){
+    //   let s &#x3D; this.shuttles[i];
+    //   this.allWeftShuttles.push({color: s.getColor(), name: s.getName(), id: s.getId()});
+    //   this.allWarpShuttles.push({color: s.getColor(), name: s.getName(), id: s.getId()});
+    // }
+  }
+  
+  idFromString(s: string){
+    console.log(s);
+    return s.charCodeAt(0)-97;
+  }
+
+  shuttleIdFromName(s: string):number{
+
+
+    for(var i &#x3D; 0; i &lt; this.shuttles.length; i++){
+      let s_name &#x3D; this.shuttles[i].getName().toLowerCase();
+      if(s_name.localeCompare(s.toLowerCase()) &#x3D;&#x3D;&#x3D; 0) return i;
+    }
+    return -1;
+  }
+
+  add(event: MatChipInputEvent): void {
+
+
+    const input &#x3D; event.input;
+    const value &#x3D; event.value;
+    const name &#x3D; input.name;
+
+    console.log(&quot;adding to &quot;, name);
+    let shuttle_id &#x3D; this.shuttleIdFromName((value || &#x27;&#x27;).trim());
+
+
+    switch(name){
+      case &#x27;wasy&#x27;:
+
+        let warp_sys_id &#x3D; this.idFromString((value || &#x27;&#x27;).trim());
+        console.log(&quot;value is &quot;, warp_sys_id);
+        if (warp_sys_id &gt;&#x3D; 0 &amp;&amp; warp_sys_id &lt; this.warp_systems.length) {
+          this.warp_systems_pattern.push(this.idFromString(value.trim()));
+        }
+        this.warpSystemCtrl.setValue(null);
+      
+      break;
+
+      case &#x27;wash&#x27;:
+        console.log(&quot;value is &quot;, this.shuttleIdFromName(value.trim()));
+
+        if ((value || &#x27;&#x27;).trim() &amp;&amp; shuttle_id !&#x3D; -1) {
+          // let all &#x3D; {
+          //   id: shuttle_id,
+          //   color: this.shuttles[shuttle_id].getColor(),
+          //   name: this.shuttles[shuttle_id].getName()
+          // }
+          this.warp_shuttles_pattern.push(shuttle_id);
+        }
+        this.warpShuttleCtrl.setValue(null);
+
+      break;
+
+      case &#x27;wesy&#x27;:
+
+        let weft_sys_id &#x3D; this.idFromString((value || &#x27;&#x27;).trim());
+        if (weft_sys_id &gt;&#x3D; 0 &amp;&amp; weft_sys_id &lt; this.warp_systems.length) {
+          this.weft_systems_pattern.push(weft_sys_id);
+        }
+        this.weftSystemCtrl.setValue(null);
+      break;
+
+      case &#x27;wesh&#x27;:
+        console.log(&quot;value is &quot;, this.shuttleIdFromName(value.trim()));
+
+        if ((value || &#x27;&#x27;).trim() &amp;&amp; shuttle_id !&#x3D; -1) {
+          // let all &#x3D; {
+          //   id: shuttle_id,
+          //   color: this.shuttles[shuttle_id].getColor(),
+          //   name: this.shuttles[shuttle_id].getName()
+          // }
+          this.weft_shuttles_pattern.push(shuttle_id);
+        }
+        this.weftShuttleCtrl.setValue(null);
+
+
+      break;
+    }
+
+    
+
+    // Reset the input value
+    if (input) {
+      input.value &#x3D; &#x27;&#x27;;
+    }
+
+
+    //this.onUpdateWarpSystems.emit(this.warp_systems_pattern_strings);
+
+  }
+
+  remove(caller: string, index: number): void {
+
+    switch(caller){
+      case &#x27;wasy&#x27;:
+
+        if (index &gt;&#x3D; 0 &amp;&amp; this.warp_systems_pattern.length &gt; 1) {
+          this.warp_systems_pattern.splice(index, 1);
+        }
+          
+      
+      break;
+
+      case &#x27;wash&#x27;:
+
+        if (index &gt;&#x3D; 0 &amp;&amp; this.warp_shuttles_pattern.length &gt; 1) {
+          this.warp_shuttles_pattern.splice(index, 1);
+        }
+      
+
+      break;
+
+      case &#x27;wesy&#x27;:
+        
+
+        if (index &gt;&#x3D; 0 &amp;&amp; this.weft_systems_pattern.length &gt; 1) {
+          this.weft_systems_pattern.splice(index, 1);
+        }
+     
+      break;
+
+      case &#x27;wesh&#x27;:
+
+        if (index &gt;&#x3D; 0 &amp;&amp; this.weft_shuttles_pattern.length &gt; 1) {
+          this.weft_shuttles_pattern.splice(index, 1);
+        }
+      break;
+    }
+
+  }
+
+  sendUpdates(source: string){
+    console.log(&quot;send updates&quot;, source);
+  switch(source){
+      case &#x27;wasy&#x27;:
+      this.onUpdateWarpSystems.emit(this.warp_systems_pattern);
+      break;
+
+      case &#x27;wash&#x27;:
+      this.onUpdateWarpShuttles.emit(this.warp_shuttles_pattern);
+      break;
+
+      case &#x27;wesy&#x27;:
+      this.onUpdateWeftSystems.emit(this.weft_systems_pattern);
+      break;
+
+      case &#x27;wesh&#x27;:
+        this.onUpdateWeftShuttles.emit(this.weft_shuttles_pattern);
+      break;
+    }
+
+  }
+
+  selected(source: string, event: MatAutocompleteSelectedEvent): void {
+    console.log(&quot;selected&quot;, source);
+     switch(source){
+      case &#x27;wasy&#x27;:
+      let warp_sys_id &#x3D; this.idFromString(event.option.viewValue);
+      console.log(&quot;selected&quot;, warp_sys_id);
+
+      this.warp_systems_pattern.push(warp_sys_id);
+      this.warpSystemCtrl.setValue(null);
+      break;
+
+      case &#x27;wash&#x27;:
+
+      let warp_id &#x3D;  this.shuttleIdFromName(event.option.viewValue);
+
+      // let warp_obj &#x3D; {
+      //   id: warp_id, 
+      //   name: this.shuttles[warp_id].getName(), 
+      //   color: this.shuttles[warp_id].getColor()
+      // };
+
+      this.warp_shuttles_pattern.push(warp_id);
+      this.warpShuttleCtrl.setValue(null);
+      
+      break;
+
+      case &#x27;wesy&#x27;:
+      let weft_sys_id &#x3D; this.idFromString(event.option.viewValue);
+      this.weft_systems_pattern.push(weft_sys_id);
+      this.weftSystemCtrl.setValue(null);
+      break;
+
+      case &#x27;wesh&#x27;:
+
+
+      let weft_id &#x3D;  this.shuttleIdFromName(event.option.viewValue);
+
+      // let weft_obj &#x3D; {
+      //   id: weft_id, 
+      //   name: this.shuttles[weft_id].getName(), 
+      //   color: this.shuttles[weft_id].getColor()
+      // };
+
+      this.weft_shuttles_pattern.push(weft_id);
+      this.weftShuttleCtrl.setValue(null);
+      break;
+    }
+
+  
+  }
+
+  
+
+
+
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;mat-expansion-panel &gt;
+
+	&lt;mat-expansion-panel-header&gt;
+	    &lt;mat-panel-title&gt;
+	      &lt;span&gt;Actions&lt;/span&gt;
+	    &lt;/mat-panel-title&gt;
+    	 
+    	&lt;mat-panel-description&gt;
+
+    	&lt;/mat-panel-description&gt;
+  	&lt;/mat-expansion-panel-header&gt;
+
+
+&lt;div class&#x3D;&#x27;pattern-container&#x27;&gt;
+  &lt;div class&#x3D;&quot;upload&quot;&gt;
+
+   &lt;button mat-mini-fab matTooltip&#x3D;&quot;apply this pattern to the warp systems&quot;  (click)&#x3D;&quot;sendUpdates(&#x27;wasy&#x27;)&quot; color&#x3D;&quot;primary&quot; aria-label&#x3D;&quot;Add Warp Systems Pattern to Weave&quot;&gt;
+        &lt;mat-icon&gt;&lt;i class&#x3D;&quot;fas fa-arrow-circle-left&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;div class&#x3D;&quot;chips&quot;&gt;
+&lt;mat-form-field class&#x3D;&quot;example-chip-list&quot;&gt;
+  &lt;mat-label&gt;
+    Warp System Repeat Pattern
+&lt;/mat-label&gt;
+  &lt;mat-chip-list  class&#x3D;&quot;mat-chip-list-stacked&quot; #chipListWasy aria-label&#x3D;&quot;Warp System Repeat&quot;&gt;
+    &lt;mat-chip
+      *ngFor&#x3D;&quot;let sys of warp_systems_pattern; let j &#x3D; index;&quot;
+      [removable]&#x3D;&quot;removable&quot;
+      (removed)&#x3D;&quot;remove(&#x27;wasy&#x27;, j)&quot;&gt;
+      {{warp_systems[sys].getChar()}}
+      &lt;mat-icon matChipRemove *ngIf&#x3D;&quot;removable&quot;&gt;&lt;i class&#x3D;&quot;fas fa-times-circle&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+    &lt;/mat-chip&gt;
+    &lt;input
+      name&#x3D;&quot;wasy&quot;
+      placeholder&#x3D;&quot;Add System to Pattern...&quot;
+      #wasy
+      [formControl]&#x3D;&quot;warpSystemCtrl&quot;
+      [matAutocomplete]&#x3D;&quot;auto_wasy&quot;
+      [matChipInputFor]&#x3D;&quot;chipListWasy&quot;
+      [matChipInputSeparatorKeyCodes]&#x3D;&quot;separatorKeysCodes&quot;
+      (matChipInputTokenEnd)&#x3D;&quot;add($event)&quot;&gt;
+  &lt;/mat-chip-list&gt;
+  &lt;mat-autocomplete  #auto_wasy&#x3D;&quot;matAutocomplete&quot; (optionSelected)&#x3D;&quot;selected(&#x27;wasy&#x27;, $event)&quot;&gt;
+    &lt;mat-option *ngFor&#x3D;&quot;let sys of warp_systems&quot; [value]&#x3D;&quot;warp_system&quot;&gt;
+      {{sys.getChar()}}
+    &lt;/mat-option&gt;
+  &lt;/mat-autocomplete&gt;
+&lt;/mat-form-field&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class&#x3D;&#x27;pattern-container&#x27;&gt;
+  &lt;div class&#x3D;&quot;upload&quot;&gt;
+   &lt;button mat-mini-fab (click)&#x3D;&quot;sendUpdates(&#x27;wash&#x27;)&quot; matTooltip&#x3D;&quot;apply this pattern to the warp materials&quot; color&#x3D;&quot;primary&quot; aria-label&#x3D;&quot;Add Warp Materials Pattern to Weave&quot;&gt;
+        &lt;mat-icon&gt;&lt;i class&#x3D;&quot;fas fa-arrow-circle-left&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;div class&#x3D;&quot;chips&quot;&gt;
+&lt;mat-form-field class&#x3D;&quot;example-chip-list&quot;&gt;
+  &lt;mat-label&gt;
+    Warp Materials Repeat
+&lt;/mat-label&gt;
+  &lt;mat-chip-list  class&#x3D;&quot;mat-chip-list-stacked&quot; #chipListWash aria-label&#x3D;&quot;Warp Material Repeat&quot;&gt;
+    &lt;mat-chip
+      *ngFor&#x3D;&quot;let sys of warp_shuttles_pattern; let j &#x3D; index;&quot;
+      [selectable]&#x3D;&quot;selectable&quot;
+      [removable]&#x3D;&quot;removable&quot;
+      (removed)&#x3D;&quot;remove(&#x27;wash&#x27;, j)&quot;&gt;
+      &lt;i class&#x3D;&quot;fas fa-square-full&quot; [style.color]&#x3D;&quot;shuttles[sys].color&quot;&gt;&lt;/i&gt;
+      &lt;mat-icon matChipRemove *ngIf&#x3D;&quot;removable&quot;&gt;&lt;i class&#x3D;&quot;fas fa-times-circle&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+    &lt;/mat-chip&gt;
+    &lt;input
+      name&#x3D;&quot;wash&quot;
+      placeholder&#x3D;&quot;Add Material to Pattern...&quot;
+      #wash
+      [formControl]&#x3D;&quot;warpShuttleCtrl&quot;
+      [matAutocomplete]&#x3D;&quot;auto_wash&quot;
+      [matChipInputFor]&#x3D;&quot;chipListWash&quot;
+      [matChipInputSeparatorKeyCodes]&#x3D;&quot;separatorKeysCodes&quot;
+      (matChipInputTokenEnd)&#x3D;&quot;add($event)&quot;&gt;
+  &lt;/mat-chip-list&gt;
+  &lt;mat-autocomplete #auto_wash&#x3D;&quot;matAutocomplete&quot; (optionSelected)&#x3D;&quot;selected(&#x27;wash&#x27;, $event)&quot;&gt;
+    &lt;mat-option *ngFor&#x3D;&quot;let sys of shuttles&quot; [value]&#x3D;&quot;system&quot;&gt;
+      &lt;i class&#x3D;&quot;fas fa-square-full&quot; [style.color]&#x3D;&quot;sys.color&quot;&gt;&lt;/i&gt;
+      {{sys.name}}
+    &lt;/mat-option&gt;
+  &lt;/mat-autocomplete&gt;
+&lt;/mat-form-field&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+
+
+
+
+&lt;div class&#x3D;&#x27;pattern-container&#x27;&gt;
+  &lt;div class&#x3D;&quot;upload&quot;&gt;
+   &lt;button mat-mini-fab (click)&#x3D;&quot;sendUpdates(&#x27;wesy&#x27;)&quot; matTooltip&#x3D;&quot;apply this pattern to the weft systems&quot; color&#x3D;&quot;primary&quot; aria-label&#x3D;&quot;Add Weft Systems Pattern to Weave&quot;&gt;
+        &lt;mat-icon&gt;&lt;i class&#x3D;&quot;fas fa-arrow-circle-left&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;div class&#x3D;&quot;chips&quot;&gt;
+&lt;mat-form-field class&#x3D;&quot;example-chip-list&quot;&gt;
+  &lt;mat-label&gt;
+    Weft System Repeat Pattern
+&lt;/mat-label&gt;
+  &lt;mat-chip-list  class&#x3D;&quot;mat-chip-list-stacked&quot; #chipListWesy aria-label&#x3D;&quot;Weft System Repeat&quot;&gt;
+    &lt;mat-chip
+      *ngFor&#x3D;&quot;let sys of weft_systems_pattern; let j &#x3D; index;&quot;
+      [selectable]&#x3D;&quot;selectable&quot;
+      [removable]&#x3D;&quot;removable&quot;
+      (removed)&#x3D;&quot;remove(&#x27;wesy&#x27;, j)&quot;&gt;
+      {{weft_systems[sys].getChar()}}
+      &lt;mat-icon matChipRemove *ngIf&#x3D;&quot;removable&quot;&gt;&lt;i class&#x3D;&quot;fas fa-times-circle&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+    &lt;/mat-chip&gt;
+    &lt;input
+      name&#x3D;&quot;wesy&quot;
+      placeholder&#x3D;&quot;Add System to Pattern...&quot;
+      #wesy
+      [formControl]&#x3D;&quot;weftSystemCtrl&quot;
+      [matAutocomplete]&#x3D;&quot;auto_wesy&quot;
+      [matChipInputFor]&#x3D;&quot;chipListWesy&quot;
+      [matChipInputSeparatorKeyCodes]&#x3D;&quot;separatorKeysCodes&quot;
+      (matChipInputTokenEnd)&#x3D;&quot;add($event)&quot;&gt;
+  &lt;/mat-chip-list&gt;
+  &lt;mat-autocomplete #auto_wesy&#x3D;&quot;matAutocomplete&quot; (optionSelected)&#x3D;&quot;selected(&#x27;wesy&#x27;, $event)&quot;&gt;
+    &lt;mat-option *ngFor&#x3D;&quot;let sys of weft_systems&quot; [value]&#x3D;&quot;system&quot;&gt;
+      {{sys.getChar()}}
+    &lt;/mat-option&gt;
+  &lt;/mat-autocomplete&gt;
+&lt;/mat-form-field&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class&#x3D;&#x27;pattern-container&#x27;&gt;
+  &lt;div class&#x3D;&quot;upload&quot;&gt;
+   &lt;button mat-mini-fab 
+   (click)&#x3D;&quot;sendUpdates(&#x27;wesh&#x27;)&quot; 
+   color&#x3D;&quot;primary&quot; 
+   matTooltip&#x3D;&quot;apply this pattern to the weft materials&quot; 
+   aria-label&#x3D;&quot;Add Weft Materials Pattern to Weave&quot;&gt;
+        &lt;mat-icon&gt;&lt;i class&#x3D;&quot;fas fa-arrow-circle-left&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;div class&#x3D;&quot;chips&quot;&gt;
+&lt;mat-form-field class&#x3D;&quot;example-chip-list&quot;&gt;
+  &lt;mat-label&gt;
+    Weft Materials Repeat
+&lt;/mat-label&gt;
+  &lt;mat-chip-list  class&#x3D;&quot;mat-chip-list-stacked&quot; #chipListWesh aria-label&#x3D;&quot;Weft Material Repeat&quot;&gt;
+    &lt;mat-chip
+      *ngFor&#x3D;&quot;let sys of weft_shuttles_pattern; let j &#x3D; index; &quot;
+      [selectable]&#x3D;&quot;selectable&quot;
+      [removable]&#x3D;&quot;removable&quot;
+      (removed)&#x3D;&quot;remove(&#x27;wesh&#x27;, j)&quot;&gt;
+      &lt;i class&#x3D;&quot;fas fa-square-full&quot; [style.color]&#x3D;&quot;shuttles[sys].color&quot;&gt;&lt;/i&gt;
+      &lt;mat-icon matChipRemove *ngIf&#x3D;&quot;removable&quot;&gt;&lt;i class&#x3D;&quot;fas fa-times-circle&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt;
+    &lt;/mat-chip&gt;
+    &lt;input
+      name&#x3D;&quot;wesh&quot;
+      placeholder&#x3D;&quot;Add Shuttle to Pattern...&quot;
+      #wesh
+      [formControl]&#x3D;&quot;weftShuttleCtrl&quot;
+      [matAutocomplete]&#x3D;&quot;auto_wesh&quot;
+      [matChipInputFor]&#x3D;&quot;chipListWesh&quot;
+      [matChipInputSeparatorKeyCodes]&#x3D;&quot;separatorKeysCodes&quot;
+      (matChipInputTokenEnd)&#x3D;&quot;add($event)&quot;&gt;
+  &lt;/mat-chip-list&gt;
+  &lt;mat-autocomplete #auto_wesh&#x3D;&quot;matAutocomplete&quot; (optionSelected)&#x3D;&quot;selected(&#x27;wesh&#x27;, $event)&quot;&gt;
+    &lt;mat-option *ngFor&#x3D;&quot;let sys of shuttles&quot; [value]&#x3D;&quot;system&quot;&gt;
+      &lt;i class&#x3D;&quot;fas fa-square-full&quot; [style.color]&#x3D;&quot;sys.color&quot;&gt;&lt;/i&gt;
+      {{sys.name}}
+    &lt;/mat-option&gt;
+  &lt;/mat-autocomplete&gt;
+&lt;/mat-form-field&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+
+
+
+  
+
+	
+
+
+
+
+&lt;/mat-expansion-panel&gt;</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-styleData">
+                <p class="comment">
+                    <code>./systems.component.scss</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.pattern-container{
+	display: flex;
+	flex-direction: row;
+}
+
+.upload{
+	padding: 12px 30px 0px 0px;
+
+}
+
+mat-chip {
+  max-width: 60px;
+}
+
+input.mat-chip-input{
+	flex: 1 0 27px !important;
+}
+
+/*.addsystem{
+    color: white;
+    background: none;
+    border: none;
+    padding: 5px 0px 0px 0px;
+}*/
+
+.code{
+	padding-right: 10px;
+}
+
+/*.mat-input-element{
+	padding: 10px 0px 0px 0px;
+}*/
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><mat-expansion-panel >	<mat-expansion-panel-header>	    <mat-panel-title>	      <span>Actions</span>	    </mat-panel-title>    	     	<mat-panel-description>    	</mat-panel-description>  	</mat-expansion-panel-header><div class=\'pattern-container\'>  <div class="upload">   <button mat-mini-fab matTooltip="apply this pattern to the warp systems"  (click)="sendUpdates(\'wasy\')" color="primary" aria-label="Add Warp Systems Pattern to Weave">        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>  </button></div><div class="chips"><mat-form-field class="example-chip-list">  <mat-label>    Warp System Repeat Pattern</mat-label>  <mat-chip-list  class="mat-chip-list-stacked" #chipListWasy aria-label="Warp System Repeat">    <mat-chip      *ngFor="let sys of warp_systems_pattern; let j = index;"      [removable]="removable"      (removed)="remove(\'wasy\', j)">      {{warp_systems[sys].getChar()}}      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>    </mat-chip>    <input      name="wasy"      placeholder="Add System to Pattern..."      #wasy      [formControl]="warpSystemCtrl"      [matAutocomplete]="auto_wasy"      [matChipInputFor]="chipListWasy"      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"      (matChipInputTokenEnd)="add($event)">  </mat-chip-list>  <mat-autocomplete  #auto_wasy="matAutocomplete" (optionSelected)="selected(\'wasy\', $event)">    <mat-option *ngFor="let sys of warp_systems" [value]="warp_system">      {{sys.getChar()}}    </mat-option>  </mat-autocomplete></mat-form-field></div></div><div class=\'pattern-container\'>  <div class="upload">   <button mat-mini-fab (click)="sendUpdates(\'wash\')" matTooltip="apply this pattern to the warp materials" color="primary" aria-label="Add Warp Materials Pattern to Weave">        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>  </button></div><div class="chips"><mat-form-field class="example-chip-list">  <mat-label>    Warp Materials Repeat</mat-label>  <mat-chip-list  class="mat-chip-list-stacked" #chipListWash aria-label="Warp Material Repeat">    <mat-chip      *ngFor="let sys of warp_shuttles_pattern; let j = index;"      [selectable]="selectable"      [removable]="removable"      (removed)="remove(\'wash\', j)">      <i class="fas fa-square-full" [style.color]="shuttles[sys].color"></i>      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>    </mat-chip>    <input      name="wash"      placeholder="Add Material to Pattern..."      #wash      [formControl]="warpShuttleCtrl"      [matAutocomplete]="auto_wash"      [matChipInputFor]="chipListWash"      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"      (matChipInputTokenEnd)="add($event)">  </mat-chip-list>  <mat-autocomplete #auto_wash="matAutocomplete" (optionSelected)="selected(\'wash\', $event)">    <mat-option *ngFor="let sys of shuttles" [value]="system">      <i class="fas fa-square-full" [style.color]="sys.color"></i>      {{sys.name}}    </mat-option>  </mat-autocomplete></mat-form-field></div></div><div class=\'pattern-container\'>  <div class="upload">   <button mat-mini-fab (click)="sendUpdates(\'wesy\')" matTooltip="apply this pattern to the weft systems" color="primary" aria-label="Add Weft Systems Pattern to Weave">        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>  </button></div><div class="chips"><mat-form-field class="example-chip-list">  <mat-label>    Weft System Repeat Pattern</mat-label>  <mat-chip-list  class="mat-chip-list-stacked" #chipListWesy aria-label="Weft System Repeat">    <mat-chip      *ngFor="let sys of weft_systems_pattern; let j = index;"      [selectable]="selectable"      [removable]="removable"      (removed)="remove(\'wesy\', j)">      {{weft_systems[sys].getChar()}}      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>    </mat-chip>    <input      name="wesy"      placeholder="Add System to Pattern..."      #wesy      [formControl]="weftSystemCtrl"      [matAutocomplete]="auto_wesy"      [matChipInputFor]="chipListWesy"      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"      (matChipInputTokenEnd)="add($event)">  </mat-chip-list>  <mat-autocomplete #auto_wesy="matAutocomplete" (optionSelected)="selected(\'wesy\', $event)">    <mat-option *ngFor="let sys of weft_systems" [value]="system">      {{sys.getChar()}}    </mat-option>  </mat-autocomplete></mat-form-field></div></div><div class=\'pattern-container\'>  <div class="upload">   <button mat-mini-fab    (click)="sendUpdates(\'wesh\')"    color="primary"    matTooltip="apply this pattern to the weft materials"    aria-label="Add Weft Materials Pattern to Weave">        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>  </button></div><div class="chips"><mat-form-field class="example-chip-list">  <mat-label>    Weft Materials Repeat</mat-label>  <mat-chip-list  class="mat-chip-list-stacked" #chipListWesh aria-label="Weft Material Repeat">    <mat-chip      *ngFor="let sys of weft_shuttles_pattern; let j = index; "      [selectable]="selectable"      [removable]="removable"      (removed)="remove(\'wesh\', j)">      <i class="fas fa-square-full" [style.color]="shuttles[sys].color"></i>      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>    </mat-chip>    <input      name="wesh"      placeholder="Add Shuttle to Pattern..."      #wesh      [formControl]="weftShuttleCtrl"      [matAutocomplete]="auto_wesh"      [matChipInputFor]="chipListWesh"      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"      (matChipInputTokenEnd)="add($event)">  </mat-chip-list>  <mat-autocomplete #auto_wesh="matAutocomplete" (optionSelected)="selected(\'wesh\', $event)">    <mat-option *ngFor="let sys of shuttles" [value]="system">      <i class="fas fa-square-full" [style.color]="sys.color"></i>      {{sys.name}}    </mat-option>  </mat-autocomplete></mat-form-field></div></div>  	</mat-expansion-panel></div>'
+    var COMPONENTS = [{'name': 'AboutModal', 'selector': 'app-about'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConnectionModal', 'selector': 'app-connection'},{'name': 'DesignComponent', 'selector': 'app-design'},{'name': 'HistoryComponent', 'selector': 'app-history'},{'name': 'InitModal', 'selector': 'app-init'},{'name': 'LabelModal', 'selector': 'app-label'},{'name': 'LoomComponent', 'selector': 'app-loom'},{'name': 'MasksComponent', 'selector': 'app-masks'},{'name': 'MaterialModal', 'selector': 'app-material-modal'},{'name': 'MaterialsComponent', 'selector': 'app-materials'},{'name': 'NotesComponent', 'selector': 'app-notes'},{'name': 'PatternModal', 'selector': 'app-pattern-modal'},{'name': 'PatternsComponent', 'selector': 'app-patterns'},{'name': 'SchematicComponent', 'selector': 'app-schematic'},{'name': 'ShuttlesModal', 'selector': 'app-shuttles-modal'},{'name': 'SystemsComponent', 'selector': 'app-systems'},{'name': 'TopbarComponent', 'selector': 'app-topbar'},{'name': 'UploadFormComponent', 'selector': 'upload-form'},{'name': 'ViewComponent', 'selector': 'app-view'},{'name': 'WeaverComponent', 'selector': 'app-weaver'}];
+    var DIRECTIVES = [{'name': 'WeaveDirective', 'selector': '[weave]'}];
+    var ACTUAL_COMPONENT = {'name': 'SystemsComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+                   
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'SystemsComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
+       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
+       <script src="../js/menu-wc.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
