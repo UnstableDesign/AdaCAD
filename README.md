@@ -1,5 +1,18 @@
-# AdaCADWeaver
-Currently hosted on [https://adacad-weaver.firebaseapp.com/](https://adacad-weaver.firebaseapp.com/).
+# AdaCAD
+AdaCAD is a drafting tool for weavers. It is actively in development and offers specific supports for integrating electronics on jacquard looms. 
+
+You can use the last release of the tool at [https://adacad-weaver.firebaseapp.com/](https://adacad-weaver.firebaseapp.com/).
+More more information about the project and user guides, visit [https://unstabledesign.github.io](https://unstabledesign.github.io).
+
+## Development Notes
+The master branch is currently hosting two versions of AdaCAD, one called "Weaver" and the other "Mixer". Weaver is the version currently deployed to Firebase and Mixer is an experimental branch for designing drafts using components (modeled after ProWeave and MaxMSP). You can "switch" the mode that will load by modifying the file src/app/app.module.ts. Change "component" to read "WeaverModule" or "MixerModule" to determine which portion of code will be used. 
+
+Files in "src/app/core" are used by all versions of the software. Please check for updates in both modes when updating anything in core. 
+
+
+## Developer Documentation 
+You can use view automatically generated documentation of our project at [https://unstabledesign.github.io/AdaCAD](https://unstabledesign.github.io/AdaCAD).
+
 
 ## Development Setup
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
@@ -17,10 +30,6 @@ Run `ng generate component component-name` to generate a new component. You can 
 ### Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
-
-### Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
 ### Running end-to-end tests
 
