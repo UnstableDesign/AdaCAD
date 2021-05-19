@@ -108,7 +108,7 @@ export class InitModal implements OnInit {
     for (var i = 0; i < this.draft.wefts; i++) {
       data.push([]);
       for (var j = 0; j < this.draft.warps; j++) {
-        data[i].push(new Cell());
+        data[i].push(new Cell(null));
         data[i][j].setHeddle(false);
       }
     }

@@ -1,8 +1,10 @@
-import { thresholdFreedmanDiaconis } from "d3-array";
-
 /**
- * Definition of pattern object.
- * @class
+ * Definition of Cell object.
+ * @class Cell describes values assigned to one cell within a draft
+ * @param poles describes the path of the yarn through this cell as a 4-bit number corresponding to NSEW. 
+ * @params is_up describes if the heddle at this location is up or down
+ * @params is_set describes if a yarn will move over this heddle (used in inlay and shape weaving to draw boundaries) 
+ * @param mast_id describes the mask region for which this cell belongs (not currently used)
  */
 export class Cell {
   poles: number;
@@ -10,6 +12,10 @@ export class Cell {
   is_set: boolean;
   mask_id: number;
 
+  /**
+   * 
+   * @param setting describes if the Cell should be set to heddle up or not. Null value leaves cell unset. 
+   */
   constructor(setting: boolean) {
     this.poles = 0b0000;
     this.mask_id = -1;
