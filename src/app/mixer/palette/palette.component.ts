@@ -499,7 +499,7 @@ export class PaletteComponent implements OnInit{
     const temp: Draft = this.getCombinedDraft(i_bounds, sc, isect);
 
     sc.setNewDraft(bounds, temp);
-    sc.drawDraft(temp); //can't do this until the view is initiatied, might need to listed for that here. 
+    sc.drawDraft(bounds.topleft, temp); //can't do this until the view is initiatied, might need to listed for that here. 
 
     //write a function here to split drafts that the selection is intersecting.
     isect.forEach(element => {
@@ -523,13 +523,13 @@ export class PaletteComponent implements OnInit{
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
 
       if(isect.length == 0){
-        moving.drawDraft(moving.draft);
+        moving.drawDraft(moving.topleft, moving.draft);
         return;
       }   
 
-      const bounds: any = this.getMovingBounds(moving);
+      const bounds: any = this.getIntersectionBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
-      moving.drawDraft(temp);
+      moving.drawDraft(bounds.topleft, temp);
 
    }
 
@@ -548,7 +548,7 @@ export class PaletteComponent implements OnInit{
 
       const had_merge = this.mergeSubdrafts(moving);
       console.log("had merge", had_merge);
-      if(!had_merge) moving.drawDraft(moving.draft);
+      if(!had_merge) moving.drawDraft(moving.topleft, moving.draft);
 
   }
 
@@ -568,9 +568,7 @@ export class PaletteComponent implements OnInit{
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
       primary.setNewDraft(bounds, temp);
-      primary.drawDraft(temp);
-      console.log(bounds);
-      //primary.setPositionAndSize(bounds);
+      primary.drawDraft(bounds.topleft, temp);
 
     //remove the intersecting drafts from the view containier and from subrefts
     isect.forEach(element => {

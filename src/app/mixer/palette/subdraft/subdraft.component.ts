@@ -84,7 +84,7 @@ export class SubdraftComponent implements OnInit {
     this.cx = this.canvas.getContext("2d");
     this.canvas.width = this.draft.warps * this.scale;
     this.canvas.height = this.draft.wefts * this.scale;
-    this.drawDraft(this.draft);
+    this.drawDraft(this.topleft, this.draft);
 
 
   }
@@ -111,16 +111,22 @@ export class SubdraftComponent implements OnInit {
 
   public computeFilter(a: boolean, b: boolean):boolean{
 
-    if(a === null && b === null) return null;
 
-    if(a === null) return b;
-    if(b === null) return a;
+    if(this.filter == 'or'){
+      if(a === null) return b;
+      if(b === null) return a;
+      return (a || b);
+    }else if(this.filter ==="and"){
+      if(a === null || b === null) return null;
+      return (a && b)
+    }else if(this.filter === "neq"){
 
-    if(this.filter === "or")  return (a || b);
-    if(this.filter === "and")  return (a && b);
-    if(this.filter === "neq")  return (a !== b);
-    if(this.filter === "inv")  return (!b);
-
+      if(a === null) return b;
+      if(b === null) return a;
+      return (a !== b);
+    }else if(this.filter === "inv"){
+      return (!b);
+    }
 
   }
 
@@ -191,9 +197,13 @@ export class SubdraftComponent implements OnInit {
 
      
 
-  drawDraft(draft: Draft) {
+  drawDraft(topleft: Point, draft: Draft) {
 
     if(this.canvas === undefined) return;
+
+    this.canvas.width = draft.warps * this.scale;
+    this.canvas.height = draft.wefts * this.scale;
+    this.topleft = topleft;
 
 
     for (let i = 0; i < draft.visibleRows.length; i++) {
@@ -206,7 +216,7 @@ export class SubdraftComponent implements OnInit {
           this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         } else{
-          this.cx.fillStyle =  '#DD0000' ;
+          this.cx.fillStyle =  '#DDDDDD' ;
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         }
  
@@ -294,7 +304,7 @@ export class SubdraftComponent implements OnInit {
       var p = this.patterns[id].pattern;
       //need a way to specify an area within the fill
       this.draft.fill(p, 'original');
-      this.drawDraft(this.draft);
+      this.drawDraft(this.topleft, this.draft);
 
     }
 
@@ -313,7 +323,7 @@ export class SubdraftComponent implements OnInit {
       if(type === undefined) type = "original";
 
      this.draft.fill(p, type);
-     this.drawDraft(this.draft);
+     this.drawDraft(this.topleft, this.draft);
 
 
 
@@ -380,7 +390,7 @@ export class SubdraftComponent implements OnInit {
     else type =  e.type;
 
      this.draft.fill(p, type);
-     this.drawDraft(this.draft);
+     this.drawDraft(this.topleft, this.draft);
 
     // if(this.render.showingFrames()) this.draft.recomputeLoom();
     
