@@ -32,8 +32,6 @@ export class DesignmodesService {
     {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square",  children: [], selected: false}
   ];
 
-  console.log(drawChildren);
-
   this.modes = [
     {value: 'draw', viewValue: 'Draw', icon: "fas fa-pen", children: drawChildren, selected: false},
     {value: 'select', viewValue: 'Select', icon: "fas fa-expand", children: [], selected:false},
@@ -41,7 +39,9 @@ export class DesignmodesService {
     {value: 'operator', viewValue: 'Add Operation', icon: "fas fa-network-wired", children: [], selected:false}
   ];
 
-    this.select('toggle');
+  this.select('toggle');
+
+  console.log("selected", this.selected);
   
   }
 

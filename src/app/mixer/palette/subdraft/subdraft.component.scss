@@ -22,7 +22,18 @@
 	canvas{
 		border: thin solid #00d1b2;
 	}
+}
 
+.drawing{
+	z-index: -1;
+
+	.subdraft-details{
+		pointer-events: all;
+	}
+
+	canvas{
+		pointer-events: none;
+	}
 }
 
 .mat-icon{
@@ -30,7 +41,8 @@
 }
 
 .subdraft-details{
-	display:none;
+	display:flex;
+	flex-direction: column;
 }
 
 .subdraft-contents{
@@ -53,5 +65,5 @@ div.cdk-drag-dragging canvas{
 }
 
 div.cdk-drag-dragging{
-	z-index: 10; 
+	z-index: 1; 
 }

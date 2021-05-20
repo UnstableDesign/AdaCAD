@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@angular/core';
 import { Draft } from '../../../core/model/draft';
 import { ConnectionComponent } from '../connection/connection.component';
 
@@ -36,6 +36,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onSubdraftMove = new EventEmitter <any>(); 
   @Output() onSubdraftDrop = new EventEmitter <any>(); 
   @Output() onSubdraftStart = new EventEmitter <any>(); 
+  @Input()  id: number;
 
  //operations you can perform on a selection 
  design_actions: DesignActions[] = [
@@ -62,15 +63,11 @@ export class SubdraftComponent implements OnInit {
   counter:number  =  0; // only call functions every so often
   
   moving = false;
-  draw_mode = false;
   disable_drag = false;
 
 
-  constructor(private el: ElementRef) { 
-        //add random position for testing
-        this.topleft.x = Math.floor(Math.random() * 400 / this.scale)  * this.scale;
-        this.topleft.y = Math.floor(Math.random() * 400 / this.scale)  * this.scale;
-        
+  constructor() { 
+   
   }
 
   ngOnInit(){
@@ -82,27 +79,32 @@ export class SubdraftComponent implements OnInit {
 
   ngAfterViewInit() {
 
+
     this.canvas = <HTMLCanvasElement> document.getElementById(this.draft.id.toString());
     this.cx = this.canvas.getContext("2d");
+    this.canvas.width = this.draft.warps * this.scale;
+    this.canvas.height = this.draft.wefts * this.scale;
     this.drawDraft(this.draft);
 
-    console.log("after init");
 
   }
 
+  /**
+   * sets the size and position of this element (but does not resize the canvas! due to error)
+   * @param bounds an object including topleft, width, and height 
+   */
   public setPositionAndSize(bounds: any){
-    console.log("setting to", bounds);
+
     this.topleft = bounds.topleft;
     this.size.w = bounds.width;
     this.size.h = bounds.height;
-    console.log(this.size.h);
+  
   }
 
 
 
 
   public filterActionChange(event: any){
-    console.log(event);
     this.filter = event;
 
   }
@@ -122,6 +124,11 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+  /**
+   * does this subdraft exist at this point?
+   * @param p the absolute position of the coordinate (based on the screen)
+   * @returns true/false for yes or no
+   */
   public hasPoint(p:Point) : boolean{
 
       const endPosition = {
@@ -137,8 +144,12 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-
-  public resolvePoint(p:Point) : Interlacement{
+/**
+ * Takes an absolute coordinate and translates it to the row/column position in this subdraft
+ * @param p the screen coordinate
+ * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
+ */
+  public resolvePointToNdx(p:Point) : Interlacement{
     
     let i = Math.floor((p.y -this.topleft.y) / this.scale);
     let j = Math.floor((p.x - this.topleft.x) / this.scale);
@@ -150,11 +161,14 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-
-  //takes an absolute reference and returns boolean or null if its unset
+/**
+ * takes an absolute reference and returns the value at that cell boolean or null if its unset
+ * @param p a point of the absolute poistion of coordinate in question
+ * @returns true/false/or null representing the eddle value at this point
+ */
   public resolveToValue(p:Point) : boolean{
 
-    const coords = this.resolvePoint(p);
+    const coords = this.resolvePointToNdx(p);
 
     if(coords.i < 0 || coords.j < 0) return null; //this out of range
 
@@ -165,25 +179,24 @@ export class SubdraftComponent implements OnInit {
   }
 
   setNewDraft(bounds: any, temp: Draft) {
-    
+
+    //this breaks the rendering
     this.size.w = temp.warps * this.scale;
     this.size.h = temp.wefts * this.scale;
+    this.canvas.width = this.size.w;
+    this.canvas.height = this.size.h;
     this.topleft = bounds.topleft; //adjusts to the top left of the new bounding box
-    this.draft = temp;
-
+    this.draft.reload(temp);
   }
 
      
 
   drawDraft(draft: Draft) {
 
-    console.log("drawing", draft, this.canvas, this.cx);
-    
-    // this.canvas.width = this.size.w;
-    // this.canvas.height = this.size.h;
+    if(this.canvas === undefined) return;
+
 
     for (let i = 0; i < draft.visibleRows.length; i++) {
-      
       for (let j = 0; j < draft.warps; j++) {
         let row:number = draft.visibleRows[i];
     
@@ -193,7 +206,7 @@ export class SubdraftComponent implements OnInit {
           this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         } else{
-          this.cx.fillStyle =  '#DDDDDD' ;
+          this.cx.fillStyle =  '#DD0000' ;
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         }
  
@@ -251,7 +264,6 @@ export class SubdraftComponent implements OnInit {
 
 
   designActionChange(e){
-    console.log(e);
 
     switch(e){
       // case 'copy': this.copyEvent(e);
@@ -280,7 +292,6 @@ export class SubdraftComponent implements OnInit {
 
     fill(id) {
       var p = this.patterns[id].pattern;
-      console.log(p);
       //need a way to specify an area within the fill
       this.draft.fill(p, 'original');
       this.drawDraft(this.draft);
@@ -298,7 +309,6 @@ export class SubdraftComponent implements OnInit {
     pasteEvent(type) {
 
       var p = this.draft.pattern;
-      console.log("paste event", type, p);
 
       if(type === undefined) type = "original";
 
@@ -384,8 +394,5 @@ export class SubdraftComponent implements OnInit {
  
 
   }
-
-
-
 
 }

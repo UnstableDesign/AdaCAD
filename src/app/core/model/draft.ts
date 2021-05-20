@@ -342,10 +342,14 @@ export class Draft implements DraftInterface {
 
   }
 
-  //must keep old array references to keep links in tact
+/**
+ * a method to import the parameters from one draft into another
+ * used when we need to maintain the id of a parent draft, but load new values
+ * @param param0 
+ */
   reload({...params}) {
 
-
+    console.log("RELOADING");
     console.log(params);
 
     this.name = (params.name === undefined) ?  'adacad-draft' : params.name;

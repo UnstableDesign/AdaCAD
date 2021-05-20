@@ -1,5 +1,6 @@
 <div id="con-{{draft.id}}" class="subdraft-container" 
 	cdkDrag
+	[class.drawing] = "disable_drag"
 	[cdkDragDisabled] = "disable_drag"
 	[cdkDragData]="scale"
 	[cdkDragFreeDragPosition]="topleft"
@@ -10,7 +11,7 @@
   	<div class="subdraft-contents">
 
 
-		<canvas id="{{draft.id}}" width="{{size.w}}" height="{{size.h}}" >  
+		<canvas id="{{draft.id}}">  
 		</canvas>
 
 		
@@ -18,35 +19,46 @@
 
 	<div class="subdraft-details"> 
 		<button 
+		xPosition = "start"
 		matTooltip= "Filters"
 		class="button is-small is-primary fas fa-filter"
-		[matMenuTriggerFor]="filters">
+		[matMenuTriggerFor]="filters"
+		xPosition="after">
 		</button>
 
 		<mat-menu #filters="matMenu">
 		 
 			<button [matTooltip]= "union" 
 			mat-menu-item
+			selected
 			[name]="union"
 			(click)="filterActionChange('or')">
 			Union
 			</button>   
 			
 			<button 
-			mat-menu-item
 			[matTooltip]= "intersection" 
+			mat-menu-item
 			[name]="intersection"
 			(click)="filterActionChange('and')">
 			Intersection
 			</button>   
 
-			<button [matTooltip]= "difference" 
+			<button 
+			[matTooltip]= "overlay" 
 			mat-menu-item
-			[name]="difference"
+			[name]="overlay"
+			(click)="filterActionChange('neq')">
+			Overlay
+			</button>  
+
+			<!-- <button [matTooltip]= "overlay" 
+			mat-menu-item
+			[name]="overlay"
 			class="button is-small is-primary "
 			(click)="filterActionChange('neq')">
 			Overlay
-			</button>   
+			</button>    -->
 
 
 		</mat-menu>

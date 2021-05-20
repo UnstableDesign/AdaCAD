@@ -1,8 +1,7 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import * as _ from 'lodash';
-import { EventEmitter } from 'events';
 
 
 
@@ -14,7 +13,6 @@ import { EventEmitter } from 'events';
 
 
 export class DesignComponent implements OnInit {
-  @Input()  collapsed;
   @Input()  view_mode;
   @Input()  materials;
   @Output() onDesignModeChange: any = new EventEmitter();
