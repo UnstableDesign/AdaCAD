@@ -8,29 +8,886 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
-	      <link rel="stylesheet" href="../styles/style.css">
+	    <link rel="stylesheet" href="../styles/style.css">
     </head>
     <body>
 
         <div class="navbar navbar-default navbar-fixed-top visible-xs">
             <a href="../" class="navbar-brand">adacad-weaver documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+            <button type="button" class="btn btn-default btn-menu fa fa-bars" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
-                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+            <div id="book-search-input" role="search">
+                <input type="text" placeholder="Type to search">
+            </div>
+            <nav>
+            
+                <ul class="list">
+            
+                    <li class="title">
+                        <a href="../">adacad-weaver documentation</a>
+                    </li>
+            
+                    <li class="divider"></li>
+            
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                        <ul class="links">
+                                <li class="link">
+                                    <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                </li>
+                                <li class="link">
+                                    <a 
+                                        
+                                         href="../overview.html" 
+                                         href="../overview.html" 
+                                        >
+                                        <span class="fa fa-th"></span>Overview
+                                    </a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="./modules.html" >
+                            <span class="fa fa-archive"></span>
+                            <span>Modules</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-modules-links"
+                            ></span>
+                        </a>
+                        <ul class="links collapse in"
+                                id="xs-modules-links"
+                            >
+                                <li class="link">
+                                    <a href="../modules/AppModule.html" >AppModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/CoreModule.html" >CoreModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/MixerModule.html" >MixerModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-cogs"></span>
+                            <span>Components</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-components-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-components-links"
+                            >
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AppComponent.html" >AppComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html"  class="active" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html"  class="active" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-code"></span>
+                            <span>Directives</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-directives-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-directives-links"
+                            >
+                                <li class="link">
+                                    <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-file-code-o"></span>
+                            <span>Classes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-classes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-classes-links"
+                            >
+                                <li class="link">
+                                    <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Cell.html" >Cell</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Draft.html" >Draft</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Loom.html" >Loom</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Pattern.html" >Pattern</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Render.html" >Render</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Selection.html" >Selection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Shuttle.html" >Shuttle</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/System.html" >System</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Timeline.html" >Timeline</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Upload.html" >Upload</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Util.html" >Util</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-long-arrow-down"></span>
+                            <span>Injectables</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-injectables-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-injectables-links"
+                            >
+                                <li class="link">
+                                    <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/PatternService.html" >PatternService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/UploadService.html" >UploadService</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-info"></span>
+                            <span>Interfaces</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-interfaces-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-interfaces-links"
+                            >
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-plus"></span>
+                            <span>Pipes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-pipes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-pipes-links"
+                            >
+                                <li class="link">
+                                    <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                    </li>
+            
+                    <li class="divider"></li>
+                    <li class="copyright">
+                            Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                        <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                            </a>
+                    </li>
+            
+                </ul>
+            
+            </nav>
         </div>
 
         <div class="container-fluid main">
            <div class="row main">
                <div class="hidden-xs menu">
-                   <compodoc-menu mode="normal"></compodoc-menu>
+                   <nav>
+                   
+                       <ul class="list">
+                   
+                           <li class="title">
+                               <a href="../">adacad-weaver documentation</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                   
+                               <div id="book-search-input" role="search">
+                                   <input type="text" placeholder="Type to search">
+                               </div>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                               <ul class="links">
+                                       <li class="link">
+                                           <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                       </li>
+                                       <li class="link">
+                                           <a 
+                                               
+                                                href="../overview.html" 
+                                                href="../overview.html" 
+                                               >
+                                               <span class="fa fa-th"></span>Overview
+                                           </a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="./modules.html" >
+                                   <span class="fa fa-archive"></span>
+                                   <span>Modules</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#modules-links"
+                                   ></span>
+                               </a>
+                               <ul class="links collapse in"
+                                       id="modules-links"
+                   >
+                                       <li class="link">
+                                           <a href="../modules/AppModule.html" >AppModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/CoreModule.html" >CoreModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/MixerModule.html" >MixerModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-cogs"></span>
+                                   <span>Components</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#components-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="components-links"
+                   >
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AppComponent.html" >AppComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html"  class="active" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html"  class="active" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-code"></span>
+                                   <span>Directives</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#directives-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="directives-links"
+                   >
+                                       <li class="link">
+                                           <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-file-code-o"></span>
+                                   <span>Classes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#classes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="classes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Cell.html" >Cell</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Draft.html" >Draft</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Loom.html" >Loom</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Pattern.html" >Pattern</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Render.html" >Render</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Selection.html" >Selection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Shuttle.html" >Shuttle</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/System.html" >System</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Timeline.html" >Timeline</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Upload.html" >Upload</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Util.html" >Util</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-long-arrow-down"></span>
+                                   <span>Injectables</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#injectables-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="injectables-links"
+                   >
+                                       <li class="link">
+                                           <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/PatternService.html" >PatternService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/UploadService.html" >UploadService</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-info"></span>
+                                   <span>Interfaces</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#interfaces-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="interfaces-links"
+                   >
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-plus"></span>
+                                   <span>Pipes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#pipes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="pipes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                           <li class="copyright">
+                                   Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                               <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                                   </a>
+                           </li>
+                   
+                       </ul>
+                   
+                   </nav>
                </div>
-               <!-- START CONTENT -->
                <div class="content component">
                    <div class="content-data">
-
-
 
 
 <ol class="breadcrumb">
@@ -38,26 +895,18 @@
   <li>LabelModal</li>
 </ol>
 
-<ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
-        </li>
-        <li >
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
-        </li>
-        <li >
-            <a href="#templateData" role="tab" id="templateData-tab" data-toggle="tab" data-link="template">Template</a>
-        </li>
-        <li >
-            <a href="#styleData" role="tab" id="styleData-tab" data-toggle="tab" data-link="style">Styles</a>
-        </li>
-        <li >
-            <a href="#tree" role="tab" id="tree-tab" data-toggle="tab" data-link="dom-tree">DOM Tree</a>
-        </li>
-</ul>
 
-<div class="tab-content">
-    <div class="tab-pane fade active in" id="c-info"><p class="comment">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
+        </li>
+        <li>
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade active in" id="infos"><p class="comment">
     <h3>File</h3>
 </p>
 <p class="comment">
@@ -66,18 +915,11 @@
 
 
 
-    <p class="comment">
-        <h3>Implements</h3>
-    </p>
-    <p class="comment">
-                    <code><a href="https://angular.io/api/core/OnInit" target="_blank" >OnInit</a></code>
-    </p>
-
-
 <section>
     <h3>Metadata</h3>
     <table class="table table-sm table-hover">
         <tbody>
+
 
 
 
@@ -96,290 +938,110 @@
 
             <tr>
                 <td class="col-md-3">styleUrls</td>
-                <td class="col-md-9"><code>./label.modal.scss</code></td>
+                <td class="col-md-9"><code>label.modal.scss</code></td>
             </tr>
 
 
 
             <tr>
                 <td class="col-md-3">templateUrl</td>
-                <td class="col-md-9"><code>./label.modal.html</code></td>
+                <td class="col-md-9"><code>label.modal.html</code></td>
             </tr>
-
-
-
-
-
-
 
 
         </tbody>
     </table>
 </section>
 
-    <section>
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#label">label</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Methods</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#close">close</a>
-                            </li>
-                            <li>
-                                <a href="#ngOnInit">ngOnInit</a>
-                            </li>
-                            <li>
-                                <a href="#save">save</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-
-
-
-
-        </tbody>
-    </table>
-</section>
-
-    <section>
-    <h3 id="constructor">Constructor</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-<code>constructor(dialogRef: <a href="../components/LabelModal.html">MatDialogRef<LabelModal></a>)</code>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/app/weaver/modal/label/label.modal.ts:11</a></div>
-                            </td>
-                        </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                            <div>
-                                    <b>Parameters :</b>
-                                    <table class="params">
-                                        <thead>
-                                            <tr>
-                                                <td>Name</td>
-                                                    <td>Type</td>
-                                                <td>Optional</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                <tr>
-                                                        <td>dialogRef</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../components/LabelModal.html" target="_self" >MatDialogRef&lt;LabelModal&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                            </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-</section>
-
-
-
 
 
     <section>
-    
-    <h3 id="methods">
-        Methods
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="close"></a>
-                    <span class="name">
-                        <b>
-                            close
-                        </b>
-                        <a href="#close"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>close()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="23"
-                            class="link-to-prism">src/app/weaver/modal/label/label.modal.ts:23</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="ngOnInit"></a>
-                    <span class="name">
-                        <b>
-                            ngOnInit
-                        </b>
-                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>ngOnInit()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="14"
-                            class="link-to-prism">src/app/weaver/modal/label/label.modal.ts:14</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="save"></a>
-                    <span class="name">
-                        <b>
-                            save
-                        </b>
-                        <a href="#save"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>save()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="27"
-                            class="link-to-prism">src/app/weaver/modal/label/label.modal.ts:27</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>
-    <section>
-    
-        <h3 id="inputs">
-            Properties
-        </h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="label"></a>
-                        <span class="name">
-                            <b>
-                            label</b>
-                            <a href="#label"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
+        <h3 id="constructor">Constructor</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
+                            <code>constructor(dialogRef: any)</code>
                         </td>
                     </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/app/weaver/modal/label/label.modal.ts:11</a></div>
-                            </td>
-                        </tr>
+    
+                </tbody>
+            </table>
+    </section>
 
+    <section>
+        <h3 id="methods">Methods</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> close</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>close()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> save</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>save()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </section>
 
-            </tbody>
-        </table>
-</section>
-
+    <section>
+        <h3 id="inputs">Properties</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> label</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>label:     <code>any</code>
+    </bcode>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </section>
 </div>
-
-
-    <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit } from &#x27;@angular/core&#x27;;
+        <div class="tab-pane fade tab-source-code" id="source">
+            <pre><code class="hljs javascript">import { Component, OnInit } from &#x27;@angular/core&#x27;;
 import { MAT_DIALOG_DATA, MatDialogRef } from &quot;@angular/material/dialog&quot;;
 
 @Component({
@@ -411,99 +1073,21 @@ export class LabelModal implements OnInit {
 
 }
 </code></pre>
-    </div>
-
-    <div class="tab-pane fade " id="c-templateData">
-        <pre class="line-numbers"><code class="language-html">&lt;h2 mat-dialog-title&gt;Create Circuit Label&lt;/h2&gt;
-
-&lt;mat-dialog-content&gt;
-  &lt;form #connectionForm&#x3D;&quot;ngForm&quot;&gt;
-    &lt;mat-form-field&gt;
-      &lt;input matInput  type&#x3D;&quot;number&quot; placeholder&#x3D;&quot;Row&quot; name&#x3D;&quot;row&quot; [(ngModel)]&#x3D;&quot;label.row&quot;&gt; 
-    &lt;/mat-form-field&gt;
-    &lt;mat-form-field class&#x3D;&quot;is-fullwidth&quot;&gt;
-      &lt;mat-select placeholder&#x3D;&quot;Category&quot; name&#x3D;&quot;category&quot; [(ngModel)]&#x3D;&quot;label.category&quot;&gt;
-        &lt;mat-option value&#x3D;&quot;0&quot;&gt;Power&lt;/mat-option&gt;
-        &lt;mat-option value&#x3D;&quot;1&quot;&gt;Ground&lt;/mat-option&gt;
-        &lt;mat-option value&#x3D;&quot;2&quot;&gt;Analog&lt;/mat-option&gt;
-        &lt;mat-option value&#x3D;&quot;3&quot;&gt;Digital&lt;/mat-option&gt;
-      &lt;/mat-select&gt;
-    &lt;/mat-form-field&gt;
-    &lt;mat-form-field [class.hidden]&#x3D;&quot;label.category !&#x3D; 0&quot; class&#x3D;&quot;is-fullwidth&quot;&gt;
-      &lt;mat-select placeholder&#x3D;&quot;Type&quot; name&#x3D;&quot;type&quot; [(ngModel)]&#x3D;&quot;label.type&quot;&gt;
-        &lt;mat-option value&#x3D;&quot;PWR&quot;&gt;Regular&lt;/mat-option&gt;
-        &lt;mat-option value&#x3D;&quot;3.3V&quot;&gt;3.3V&lt;/mat-option&gt;
-        &lt;mat-option value&#x3D;&quot;5V&quot;&gt;5V&lt;/mat-option&gt;
-        &lt;mat-option value&#x3D;&quot;9V&quot;&gt;9V&lt;/mat-option&gt;
-      &lt;/mat-select&gt;
-    &lt;/mat-form-field&gt;
-    &lt;mat-form-field [class.hidden]&#x3D;&quot;label.category !&#x3D; 2 &amp;&amp; label.category !&#x3D; 3&quot; &gt;
-      &lt;input matInput  type&#x3D;&quot;number&quot; placeholder&#x3D;&quot;Number&quot; name&#x3D;&quot;num&quot; [(ngModel)]&#x3D;&quot;label.num&quot;&gt; 
-    &lt;/mat-form-field&gt;
-  &lt;/form&gt;
-&lt;/mat-dialog-content&gt;
-&lt;mat-dialog-actions&gt;
-  &lt;button class&#x3D;&quot;mat-raised-button&quot;(click)&#x3D;&quot;close()&quot;&gt;Close&lt;/button&gt;
-  &lt;button class&#x3D;&quot;mat-raised-button mat-primary&quot;(click)&#x3D;&quot;save()&quot;&gt;Save&lt;/button&gt;
-&lt;/mat-dialog-actions&gt;</code></pre>
-    </div>
-
-    <div class="tab-pane fade " id="c-styleData">
-                <p class="comment">
-                    <code>./label.modal.scss</code>
-                </p>
-                <pre class="line-numbers"><code class="language-scss"></code></pre>
-    </div>
-
-    <div class="tab-pane fade " id="c-tree">
-        <div id="tree-container"></div>
-        <div class="tree-legend">
-            <div class="title">
-                <b>Legend</b>
-            </div>
-            <div>
-                <div class="color htmlelement"></div><span>Html element</span>
-            </div>
-            <div>
-                <div class="color component"></div><span>Component</span>
-            </div>
-            <div>
-                <div class="color directive"></div><span>Html element with directive</span>
-            </div>
         </div>
     </div>
 
-    
-</div>
-
-<script src="../js/libs/vis.min.js"></script>
-<script src="../js/libs/htmlparser.js"></script>
-<script src="../js/libs/deep-iterator.js"></script>
-<script>
-        var COMPONENT_TEMPLATE = '<div><h2 mat-dialog-title>Create Circuit Label</h2><mat-dialog-content>  <form #connectionForm="ngForm">    <mat-form-field>      <input matInput  type="number" placeholder="Row" name="row" [(ngModel)]="label.row">     </mat-form-field>    <mat-form-field class="is-fullwidth">      <mat-select placeholder="Category" name="category" [(ngModel)]="label.category">        <mat-option value="0">Power</mat-option>        <mat-option value="1">Ground</mat-option>        <mat-option value="2">Analog</mat-option>        <mat-option value="3">Digital</mat-option>      </mat-select>    </mat-form-field>    <mat-form-field [class.hidden]="label.category != 0" class="is-fullwidth">      <mat-select placeholder="Type" name="type" [(ngModel)]="label.type">        <mat-option value="PWR">Regular</mat-option>        <mat-option value="3.3V">3.3V</mat-option>        <mat-option value="5V">5V</mat-option>        <mat-option value="9V">9V</mat-option>      </mat-select>    </mat-form-field>    <mat-form-field [class.hidden]="label.category != 2 && label.category != 3" >      <input matInput  type="number" placeholder="Number" name="num" [(ngModel)]="label.num">     </mat-form-field>  </form></mat-dialog-content><mat-dialog-actions>  <button class="mat-raised-button"(click)="close()">Close</button>  <button class="mat-raised-button mat-primary"(click)="save()">Save</button></mat-dialog-actions></div>'
-    var COMPONENTS = [{'name': 'AboutModal', 'selector': 'app-about'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConnectionModal', 'selector': 'app-connection'},{'name': 'DesignComponent', 'selector': 'app-design'},{'name': 'HistoryComponent', 'selector': 'app-history'},{'name': 'InitModal', 'selector': 'app-init'},{'name': 'LabelModal', 'selector': 'app-label'},{'name': 'LoomComponent', 'selector': 'app-loom'},{'name': 'MasksComponent', 'selector': 'app-masks'},{'name': 'MaterialModal', 'selector': 'app-material-modal'},{'name': 'MaterialsComponent', 'selector': 'app-materials'},{'name': 'NotesComponent', 'selector': 'app-notes'},{'name': 'PatternModal', 'selector': 'app-pattern-modal'},{'name': 'PatternsComponent', 'selector': 'app-patterns'},{'name': 'SchematicComponent', 'selector': 'app-schematic'},{'name': 'ShuttlesModal', 'selector': 'app-shuttles-modal'},{'name': 'SystemsComponent', 'selector': 'app-systems'},{'name': 'TopbarComponent', 'selector': 'app-topbar'},{'name': 'UploadFormComponent', 'selector': 'upload-form'},{'name': 'ViewComponent', 'selector': 'app-view'},{'name': 'WeaverComponent', 'selector': 'app-weaver'}];
-    var DIRECTIVES = [{'name': 'WeaveDirective', 'selector': '[weave]'}];
-    var ACTUAL_COMPONENT = {'name': 'LabelModal'};
-</script>
-<script src="../js/tree.js"></script>
 
 
 
 
 
-
-
-
-
-
-                   
 
 
 
 
                    </div><div class="search-results">
     <div class="has-results">
-        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
         <ul class="search-results-list"></ul>
     </div>
     <div class="no-results">
@@ -511,22 +1095,8 @@ export class LabelModal implements OnInit {
     </div>
 </div>
 </div>
-               <!-- END CONTENT -->
            </div>
        </div>
-
-       <script>
-            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
-            var COMPODOC_CURRENT_PAGE_URL = 'LabelModal.html';
-            var MAX_SEARCH_RESULTS = 15;
-       </script>
-
-       <script src="../js/libs/custom-elements.min.js"></script>
-       <script src="../js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="../js/menu-wc.js" defer></script>
 
        <script src="../js/libs/bootstrap-native.js"></script>
 
@@ -537,17 +1107,20 @@ export class LabelModal implements OnInit {
 
        <script src="../js/compodoc.js"></script>
 
-       <script src="../js/tabs.js"></script>
-       <script src="../js/menu.js"></script>
-       <script src="../js/libs/clipboard.min.js"></script>
-       <script src="../js/libs/prism.js"></script>
-       <script src="../js/sourceCode.js"></script>
-          <script src="../js/search/search.js"></script>
-          <script src="../js/search/lunr.min.js"></script>
-          <script src="../js/search/search-lunr.js"></script>
-          <script src="../js/search/search_index.js"></script>
-       <script src="../js/lazy-load-graphs.js"></script>
+       <script src="../js/search/search.js"></script>
+       <script src="../js/search/lunr.min.js"></script>
+       <script src="../js/search/search-lunr.js"></script>
 
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/highlight.pack.js"></script>
+       <script src="../js/libs/highlightjs-line-numbers.min.js"></script>
+       <script src="../js/search/search_index.js"></script>
+       <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                hljs.initHighlightingOnLoad();
+                hljs.initLineNumbersOnLoad();
+            });
+       </script>
 
     </body>
 </html>

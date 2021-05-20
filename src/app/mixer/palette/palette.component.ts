@@ -1,4 +1,5 @@
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { SelectionComponent } from './selection/selection.component';
@@ -8,7 +9,6 @@ import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point } from '../../core/model/point';
 import { Pattern } from '../../core/model/pattern';
-import { PatternService } from '../../core/provider/pattern.service';
 
 
 @Component({
@@ -16,13 +16,17 @@ import { PatternService } from '../../core/provider/pattern.service';
   templateUrl: './palette.component.html',
   styleUrls: ['./palette.component.scss']
 })
+
+
 export class PaletteComponent implements OnInit{
 
-  @Input()  subdrafts: any;
 
-  @Input()  design_mode: any;
+  /**
+   * a reference to the default patterns (used for fill operations)
+   * @property {Array<Pattern>}
+   */ 
+  @Input() patterns: Array<Pattern>;
 
-  @Input() timeline: any;
 
   /**
    * Subscribes to move event after a touch event is started.
@@ -30,47 +34,88 @@ export class PaletteComponent implements OnInit{
    */
   moveSubscription: Subscription;
 
+
+  /**
+   * A container that supports the automatic generation and removal of the components inside of it
+   */
   @ViewChild('vc', {read: ViewContainerRef, static: true}) vc: ViewContainerRef;
 
-  // variables to store the subdrafts contained in this view
+  /**
+   * holds a reference to the Subdraft Components within this view
+   * @property {Array<SubdraftComponent>}
+   */
   subdraft_refs: Array<SubdraftComponent>;
+
+  /**
+   * holds a reference to the selection component
+   * @property {Selection}
+   */
   selection = new SelectionComponent();
 
-// variables to handle on draw events that are not associated with any particular subdraft
+  /**
+   * holds the data of events drawn on this component (that are not associated with a subdraft)
+   * @property {Array<Array<Cell>>}
+   */
   scratch_pad: Array<Array<Cell>> = [];
+
+  /**
+   * HTML Canvas element that draws the selection and currently cells drawn on this component
+   * @property {Canvas}
+   */
   canvas: HTMLCanvasElement;
   cx: any;
+
+  /**
+   * stores an x and y of the last user selected location within the component
+   * @property {Point}
+   */
   last: Point;
 
 
-  // variable to control zoom across the palette, though, each subdraft can be sized as well
-  scale: number;
-  
-  // variable to store the default patterns loaded by the pattern service
-  patterns: Array<Pattern> = [];
+  /**
+   * a value to represent the current user defined scale for this component. 
+   * @property {number}
+   */
 
+   scale: number;
   
 
-  constructor(private ps: PatternService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
+  /**
+   * Constructs a palette object
+   * @param design_modes a reference to the service containing the current design modes and selections
+   * @param resolver a reference to the factory component for dynamically generating components
+   * @param _snackBar a reference to the snackbar component that shows data on move and select
+   */
+  constructor(private design_modes: DesignmodesService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
-    this.ps.getPatterns().subscribe((res) => {
-      for(var i in res.body){
-        this.patterns.push(new Pattern(res.body[i]));
-      }
-   }); 
   }
 
-
+/**
+ * Called when palette is initailized
+ */
   ngOnInit(){
     this.scale = 10;
     this.vc.clear();
-
-  
-    // this.subdrafts.forEach(element => {
-    //  this.createSubDraft(element);
-    // });
   }
 
+  /**
+   * unsubscribes to all open subscriptions and clears the view component
+   */
+  ngOnDestroy(){
+
+    this.subdraft_refs.forEach(element => {
+      element.onSubdraftStart.unsubscribe();
+      element.onSubdraftDrop.unsubscribe();
+      element.onSubdraftMove.unsubscribe();
+    });
+
+    this.vc.clear();
+    
+  }
+
+  /**
+   * Gets references to view items and adds to them after the view is initialized
+   */
   ngAfterViewInit(){
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
@@ -89,18 +134,12 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  ngOnDestroy(){
 
-    this.subdraft_refs.forEach(element => {
-      element.onSubdraftStart.unsubscribe();
-      element.onSubdraftDrop.unsubscribe();
-      element.onSubdraftMove.unsubscribe();
-    });
-
-    this.vc.clear();
-    
-  }
-
+  /**
+   * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
   createSubDraft(d: Draft):SubdraftComponent{
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -115,21 +154,32 @@ export class PaletteComponent implements OnInit{
     return subdraft.instance;
   }
 
-  // createSelection():SelectionComponent{
-  //   const factory = this.resolver.resolveComponentFactory(SelectionComponent);
-  //   const selection = this.vc.createComponent<SelectionComponent>(factory);
-  //   selection.instance.scale = this.scale;
-  //   // subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
-  //   // subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
-  //   // subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
+  /**
+   * Called from mixer when it receives a change from the design mode tool or keyboard press
+   * triggers view mode changes required for this mode
+   */
+  public designModeChanged(){
 
-  //   this.selection_ref = selection.hostView;
-  //   this.selection_instance = selection.instance;
-  //   return selection.instance;
-  // }
+    if(this.design_modes.isSelected('draw')){
 
-/// ON PALETTE MOUSE FUNCTIONS ///
+      this.subdraft_refs.forEach(sd => {
+        sd.disableDrag();
+      });
 
+    }else if(this.design_modes.isSelected('move')){
+
+      this.subdraft_refs.forEach(sd => {
+        sd.enableDrag();
+      });
+
+
+    }else if(this.design_modes.isSelected('select')){
+      this.subdraft_refs.forEach(sd => {
+        sd.disableDrag();
+      });
+    }
+
+  }
 
    private removeSubscription() {    
     if (this.moveSubscription) {
@@ -176,10 +226,12 @@ export class PaletteComponent implements OnInit{
 
 
   private drawCell(ndx: any){
+    
     const c: Cell = this.scratch_pad[ndx.i][ndx.j];
 
-    if(this.design_mode.name === "toggle") c.toggleHeddle();
-    else if(this.design_mode.name === "up") c.setHeddleUp();
+
+    if(this.design_modes.isSelected('toggle')) c.toggleHeddle();
+    else if(this.design_modes.isSelected('up')) c.setHeddleUp();
     else c.setHeddleDown();
 
     let is_set = c.isSet();
@@ -219,6 +271,8 @@ export class PaletteComponent implements OnInit{
     private onStart(event) {
 
 
+
+
       this.last = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
       this.selection.start = this.last;
     
@@ -228,7 +282,7 @@ export class PaletteComponent implements OnInit{
       this.moveSubscription = 
       fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e)); 
 
-      if(this.design_mode.name =="select" ){
+      if(this.design_modes.isSelected("select")){
           this.selectionStarted();
       }else{
                  
@@ -252,7 +306,7 @@ export class PaletteComponent implements OnInit{
 
     if(this.isSameNdx(this.last, ndx)) return;
 
-    if(this.design_mode.name == "select"){
+    if(this.design_modes.isSelected("select")){
 
      this.drawSelection(ndx);
      const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
@@ -278,7 +332,7 @@ export class PaletteComponent implements OnInit{
 
       this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      if(this.design_mode.name === "select"){
+      if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processMarquee();
       }else{
         this.processDrawingEnd();

@@ -8,32 +8,886 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
-	      <link rel="stylesheet" href="../styles/style.css">
+	    <link rel="stylesheet" href="../styles/style.css">
     </head>
     <body>
 
         <div class="navbar navbar-default navbar-fixed-top visible-xs">
             <a href="../" class="navbar-brand">adacad-weaver documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+            <button type="button" class="btn btn-default btn-menu fa fa-bars" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
-                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+            <div id="book-search-input" role="search">
+                <input type="text" placeholder="Type to search">
+            </div>
+            <nav>
+            
+                <ul class="list">
+            
+                    <li class="title">
+                        <a href="../">adacad-weaver documentation</a>
+                    </li>
+            
+                    <li class="divider"></li>
+            
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                        <ul class="links">
+                                <li class="link">
+                                    <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                </li>
+                                <li class="link">
+                                    <a 
+                                        
+                                         href="../overview.html" 
+                                         href="../overview.html" 
+                                        >
+                                        <span class="fa fa-th"></span>Overview
+                                    </a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="./modules.html" >
+                            <span class="fa fa-archive"></span>
+                            <span>Modules</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-modules-links"
+                            ></span>
+                        </a>
+                        <ul class="links collapse in"
+                                id="xs-modules-links"
+                            >
+                                <li class="link">
+                                    <a href="../modules/AppModule.html" >AppModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/CoreModule.html" >CoreModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/MixerModule.html" >MixerModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-cogs"></span>
+                            <span>Components</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-components-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-components-links"
+                            >
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AppComponent.html" >AppComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-code"></span>
+                            <span>Directives</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-directives-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-directives-links"
+                            >
+                                <li class="link">
+                                    <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-file-code-o"></span>
+                            <span>Classes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-classes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-classes-links"
+                            >
+                                <li class="link">
+                                    <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Cell.html"  class="active" >Cell</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Draft.html" >Draft</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Loom.html" >Loom</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Pattern.html" >Pattern</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Render.html" >Render</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Selection.html" >Selection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Shuttle.html" >Shuttle</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/System.html" >System</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Timeline.html" >Timeline</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Upload.html" >Upload</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Util.html" >Util</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-long-arrow-down"></span>
+                            <span>Injectables</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-injectables-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-injectables-links"
+                            >
+                                <li class="link">
+                                    <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/PatternService.html" >PatternService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/UploadService.html" >UploadService</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-info"></span>
+                            <span>Interfaces</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-interfaces-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-interfaces-links"
+                            >
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-plus"></span>
+                            <span>Pipes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-pipes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-pipes-links"
+                            >
+                                <li class="link">
+                                    <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                    </li>
+            
+                    <li class="divider"></li>
+                    <li class="copyright">
+                            Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                        <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                            </a>
+                    </li>
+            
+                </ul>
+            
+            </nav>
         </div>
 
         <div class="container-fluid main">
            <div class="row main">
                <div class="hidden-xs menu">
-                   <compodoc-menu mode="normal"></compodoc-menu>
+                   <nav>
+                   
+                       <ul class="list">
+                   
+                           <li class="title">
+                               <a href="../">adacad-weaver documentation</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                   
+                               <div id="book-search-input" role="search">
+                                   <input type="text" placeholder="Type to search">
+                               </div>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                               <ul class="links">
+                                       <li class="link">
+                                           <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                       </li>
+                                       <li class="link">
+                                           <a 
+                                               
+                                                href="../overview.html" 
+                                                href="../overview.html" 
+                                               >
+                                               <span class="fa fa-th"></span>Overview
+                                           </a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="./modules.html" >
+                                   <span class="fa fa-archive"></span>
+                                   <span>Modules</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#modules-links"
+                                   ></span>
+                               </a>
+                               <ul class="links collapse in"
+                                       id="modules-links"
+                   >
+                                       <li class="link">
+                                           <a href="../modules/AppModule.html" >AppModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/CoreModule.html" >CoreModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/MixerModule.html" >MixerModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-cogs"></span>
+                                   <span>Components</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#components-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="components-links"
+                   >
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AppComponent.html" >AppComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-code"></span>
+                                   <span>Directives</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#directives-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="directives-links"
+                   >
+                                       <li class="link">
+                                           <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-file-code-o"></span>
+                                   <span>Classes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#classes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="classes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Cell.html"  class="active" >Cell</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Draft.html" >Draft</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Loom.html" >Loom</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Pattern.html" >Pattern</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Render.html" >Render</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Selection.html" >Selection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Shuttle.html" >Shuttle</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/System.html" >System</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Timeline.html" >Timeline</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Upload.html" >Upload</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Util.html" >Util</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-long-arrow-down"></span>
+                                   <span>Injectables</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#injectables-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="injectables-links"
+                   >
+                                       <li class="link">
+                                           <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/PatternService.html" >PatternService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/UploadService.html" >UploadService</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-info"></span>
+                                   <span>Interfaces</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#interfaces-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="interfaces-links"
+                   >
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-plus"></span>
+                                   <span>Pipes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#pipes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="pipes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                           <li class="copyright">
+                                   Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                               <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                                   </a>
+                           </li>
+                   
+                       </ul>
+                   
+                   </nav>
                </div>
-               <!-- START CONTENT -->
                <div class="content class">
                    <div class="content-data">
-
-
-
-
-
 
 
 
@@ -46,16 +900,16 @@
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
-        </li>
-        <li >
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
-        </li>
+    <li class="active">
+        <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
+    </li>
+    <li>
+        <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
+    </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="c-info">
+    <div class="tab-pane fade active in" id="infos">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -67,1683 +921,988 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Definition of pattern object.</p>
+                <p>Definition of Cell object.</p>
 
             </p>
 
-
-
-            <p class="comment">
-                <h3>Example</h3>
-            </p>
-            <div class="io-description">
-            </div>
+            <section>
+                <h3 id="constructor">Constructor</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>constructor(setting: boolean)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>setting</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>describes if the Cell should be set to heddle up or not. Null value leaves cell unset. </p>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
 
             <section>
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#is_up">is_up</a>
-                            </li>
-                            <li>
-                                <a href="#mask_id">mask_id</a>
-                            </li>
-                            <li>
-                                <a href="#poles">poles</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+                <h3 id="methods">Methods</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isSet</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isSet()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setHeddleUp</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setHeddleUp()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setHeddleDown</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setHeddleDown()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setNorth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setNorth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setEast</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setEast()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setNorthSouth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setNorthSouth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setEastWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setEastWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setSouth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setSouth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> unsetNorth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>unsetNorth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> unsetEast</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>unsetEast()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> unsetSouth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>unsetSouth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> unsetWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>unsetWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> hasNorth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>hasNorth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isEastWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isEastWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isSouthEast</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isSouthEast()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isSouthWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isSouthWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isNorthSouth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isNorthSouth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isNorthEast</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isNorthEast()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isNorthWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isNorthWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isEast</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isEast()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> hasEast</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>hasEast()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> hasSouth</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>hasSouth()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> hasWest</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>hasWest()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isUp</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isUp()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getPoles</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getPoles()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getMaskId</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getMaskId()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setHeddle</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setHeddle(value: boolean)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> toggleHeddle</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>toggleHeddle()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setPoles</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setPoles(poles: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setMaskId</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setMaskId(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> unsetMaskId</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>unsetMaskId()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> unsetHeddle</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>unsetHeddle()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> unsetPoles</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>unsetPoles()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
 
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Methods</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#getMaskId">getMaskId</a>
-                            </li>
-                            <li>
-                                <a href="#getPoles">getPoles</a>
-                            </li>
-                            <li>
-                                <a href="#hasEast">hasEast</a>
-                            </li>
-                            <li>
-                                <a href="#hasNorth">hasNorth</a>
-                            </li>
-                            <li>
-                                <a href="#hasSouth">hasSouth</a>
-                            </li>
-                            <li>
-                                <a href="#hasWest">hasWest</a>
-                            </li>
-                            <li>
-                                <a href="#isEast">isEast</a>
-                            </li>
-                            <li>
-                                <a href="#isEastWest">isEastWest</a>
-                            </li>
-                            <li>
-                                <a href="#isNorthEast">isNorthEast</a>
-                            </li>
-                            <li>
-                                <a href="#isNorthSouth">isNorthSouth</a>
-                            </li>
-                            <li>
-                                <a href="#isNorthWest">isNorthWest</a>
-                            </li>
-                            <li>
-                                <a href="#isSouthEast">isSouthEast</a>
-                            </li>
-                            <li>
-                                <a href="#isSouthWest">isSouthWest</a>
-                            </li>
-                            <li>
-                                <a href="#isUp">isUp</a>
-                            </li>
-                            <li>
-                                <a href="#isWest">isWest</a>
-                            </li>
-                            <li>
-                                <a href="#setEast">setEast</a>
-                            </li>
-                            <li>
-                                <a href="#setEastWest">setEastWest</a>
-                            </li>
-                            <li>
-                                <a href="#setHeddle">setHeddle</a>
-                            </li>
-                            <li>
-                                <a href="#setHeddleDown">setHeddleDown</a>
-                            </li>
-                            <li>
-                                <a href="#setHeddleUp">setHeddleUp</a>
-                            </li>
-                            <li>
-                                <a href="#setMaskId">setMaskId</a>
-                            </li>
-                            <li>
-                                <a href="#setNorth">setNorth</a>
-                            </li>
-                            <li>
-                                <a href="#setNorthSouth">setNorthSouth</a>
-                            </li>
-                            <li>
-                                <a href="#setPoles">setPoles</a>
-                            </li>
-                            <li>
-                                <a href="#setSouth">setSouth</a>
-                            </li>
-                            <li>
-                                <a href="#setWest">setWest</a>
-                            </li>
-                            <li>
-                                <a href="#unsetEast">unsetEast</a>
-                            </li>
-                            <li>
-                                <a href="#unsetHeddle">unsetHeddle</a>
-                            </li>
-                            <li>
-                                <a href="#unsetMaskId">unsetMaskId</a>
-                            </li>
-                            <li>
-                                <a href="#unsetNorth">unsetNorth</a>
-                            </li>
-                            <li>
-                                <a href="#unsetPoles">unsetPoles</a>
-                            </li>
-                            <li>
-                                <a href="#unsetSouth">unsetSouth</a>
-                            </li>
-                            <li>
-                                <a href="#unsetWest">unsetWest</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-
-
-
-
-        </tbody>
-    </table>
-</section>
 
             <section>
-    <h3 id="constructor">Constructor</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-<code>constructor()</code>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/app/core/model/cell.ts:8</a></div>
-                            </td>
-                        </tr>
-
-            </tbody>
-        </table>
-</section>
-
-            <section>
-    
-        <h3 id="inputs">
-            Properties
-        </h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="is_up"></a>
-                        <span class="name">
-                            <b>
-                            is_up</b>
-                            <a href="#is_up"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="7" class="link-to-prism">src/app/core/model/cell.ts:7</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="mask_id"></a>
-                        <span class="name">
-                            <b>
-                            mask_id</b>
-                            <a href="#mask_id"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/app/core/model/cell.ts:8</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="poles"></a>
-                        <span class="name">
-                            <b>
-                            poles</b>
-                            <a href="#poles"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/app/core/model/cell.ts:6</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-</section>
-
-            <section>
-    
-    <h3 id="methods">
-        Methods
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getMaskId"></a>
-                    <span class="name">
-                        <b>
-                            getMaskId
-                        </b>
-                        <a href="#getMaskId"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getMaskId()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="131"
-                            class="link-to-prism">src/app/core/model/cell.ts:131</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getPoles"></a>
-                    <span class="name">
-                        <b>
-                            getPoles
-                        </b>
-                        <a href="#getPoles"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getPoles()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="127"
-                            class="link-to-prism">src/app/core/model/cell.ts:127</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="hasEast"></a>
-                    <span class="name">
-                        <b>
-                            hasEast
-                        </b>
-                        <a href="#hasEast"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasEast()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="109"
-                            class="link-to-prism">src/app/core/model/cell.ts:109</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="hasNorth"></a>
-                    <span class="name">
-                        <b>
-                            hasNorth
-                        </b>
-                        <a href="#hasNorth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasNorth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="72"
-                            class="link-to-prism">src/app/core/model/cell.ts:72</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="hasSouth"></a>
-                    <span class="name">
-                        <b>
-                            hasSouth
-                        </b>
-                        <a href="#hasSouth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasSouth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="114"
-                            class="link-to-prism">src/app/core/model/cell.ts:114</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="hasWest"></a>
-                    <span class="name">
-                        <b>
-                            hasWest
-                        </b>
-                        <a href="#hasWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="119"
-                            class="link-to-prism">src/app/core/model/cell.ts:119</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isEast"></a>
-                    <span class="name">
-                        <b>
-                            isEast
-                        </b>
-                        <a href="#isEast"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isEast()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="105"
-                            class="link-to-prism">src/app/core/model/cell.ts:105</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isEastWest"></a>
-                    <span class="name">
-                        <b>
-                            isEastWest
-                        </b>
-                        <a href="#isEastWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isEastWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="77"
-                            class="link-to-prism">src/app/core/model/cell.ts:77</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isNorthEast"></a>
-                    <span class="name">
-                        <b>
-                            isNorthEast
-                        </b>
-                        <a href="#isNorthEast"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isNorthEast()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="93"
-                            class="link-to-prism">src/app/core/model/cell.ts:93</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isNorthSouth"></a>
-                    <span class="name">
-                        <b>
-                            isNorthSouth
-                        </b>
-                        <a href="#isNorthSouth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isNorthSouth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="89"
-                            class="link-to-prism">src/app/core/model/cell.ts:89</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isNorthWest"></a>
-                    <span class="name">
-                        <b>
-                            isNorthWest
-                        </b>
-                        <a href="#isNorthWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isNorthWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="97"
-                            class="link-to-prism">src/app/core/model/cell.ts:97</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isSouthEast"></a>
-                    <span class="name">
-                        <b>
-                            isSouthEast
-                        </b>
-                        <a href="#isSouthEast"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isSouthEast()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="81"
-                            class="link-to-prism">src/app/core/model/cell.ts:81</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isSouthWest"></a>
-                    <span class="name">
-                        <b>
-                            isSouthWest
-                        </b>
-                        <a href="#isSouthWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isSouthWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="85"
-                            class="link-to-prism">src/app/core/model/cell.ts:85</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isUp"></a>
-                    <span class="name">
-                        <b>
-                            isUp
-                        </b>
-                        <a href="#isUp"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isUp()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="123"
-                            class="link-to-prism">src/app/core/model/cell.ts:123</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isWest"></a>
-                    <span class="name">
-                        <b>
-                            isWest
-                        </b>
-                        <a href="#isWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="101"
-                            class="link-to-prism">src/app/core/model/cell.ts:101</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setEast"></a>
-                    <span class="name">
-                        <b>
-                            setEast
-                        </b>
-                        <a href="#setEast"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setEast()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="31"
-                            class="link-to-prism">src/app/core/model/cell.ts:31</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setEastWest"></a>
-                    <span class="name">
-                        <b>
-                            setEastWest
-                        </b>
-                        <a href="#setEastWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setEastWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="41"
-                            class="link-to-prism">src/app/core/model/cell.ts:41</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setHeddle"></a>
-                    <span class="name">
-                        <b>
-                            setHeddle
-                        </b>
-                        <a href="#setHeddle"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setHeddle(value: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="135"
-                            class="link-to-prism">src/app/core/model/cell.ts:135</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>value</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setHeddleDown"></a>
-                    <span class="name">
-                        <b>
-                            setHeddleDown
-                        </b>
-                        <a href="#setHeddleDown"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setHeddleDown()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="23"
-                            class="link-to-prism">src/app/core/model/cell.ts:23</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setHeddleUp"></a>
-                    <span class="name">
-                        <b>
-                            setHeddleUp
-                        </b>
-                        <a href="#setHeddleUp"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setHeddleUp()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="19"
-                            class="link-to-prism">src/app/core/model/cell.ts:19</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setMaskId"></a>
-                    <span class="name">
-                        <b>
-                            setMaskId
-                        </b>
-                        <a href="#setMaskId"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setMaskId(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="143"
-                            class="link-to-prism">src/app/core/model/cell.ts:143</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>id</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setNorth"></a>
-                    <span class="name">
-                        <b>
-                            setNorth
-                        </b>
-                        <a href="#setNorth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setNorth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="27"
-                            class="link-to-prism">src/app/core/model/cell.ts:27</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setNorthSouth"></a>
-                    <span class="name">
-                        <b>
-                            setNorthSouth
-                        </b>
-                        <a href="#setNorthSouth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setNorthSouth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="36"
-                            class="link-to-prism">src/app/core/model/cell.ts:36</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setPoles"></a>
-                    <span class="name">
-                        <b>
-                            setPoles
-                        </b>
-                        <a href="#setPoles"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setPoles(poles: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="139"
-                            class="link-to-prism">src/app/core/model/cell.ts:139</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>poles</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setSouth"></a>
-                    <span class="name">
-                        <b>
-                            setSouth
-                        </b>
-                        <a href="#setSouth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setSouth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="46"
-                            class="link-to-prism">src/app/core/model/cell.ts:46</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setWest"></a>
-                    <span class="name">
-                        <b>
-                            setWest
-                        </b>
-                        <a href="#setWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="50"
-                            class="link-to-prism">src/app/core/model/cell.ts:50</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="unsetEast"></a>
-                    <span class="name">
-                        <b>
-                            unsetEast
-                        </b>
-                        <a href="#unsetEast"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>unsetEast()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="58"
-                            class="link-to-prism">src/app/core/model/cell.ts:58</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="unsetHeddle"></a>
-                    <span class="name">
-                        <b>
-                            unsetHeddle
-                        </b>
-                        <a href="#unsetHeddle"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>unsetHeddle()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="151"
-                            class="link-to-prism">src/app/core/model/cell.ts:151</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="unsetMaskId"></a>
-                    <span class="name">
-                        <b>
-                            unsetMaskId
-                        </b>
-                        <a href="#unsetMaskId"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>unsetMaskId()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="147"
-                            class="link-to-prism">src/app/core/model/cell.ts:147</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="unsetNorth"></a>
-                    <span class="name">
-                        <b>
-                            unsetNorth
-                        </b>
-                        <a href="#unsetNorth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>unsetNorth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="54"
-                            class="link-to-prism">src/app/core/model/cell.ts:54</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="unsetPoles"></a>
-                    <span class="name">
-                        <b>
-                            unsetPoles
-                        </b>
-                        <a href="#unsetPoles"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>unsetPoles()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="155"
-                            class="link-to-prism">src/app/core/model/cell.ts:155</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="unsetSouth"></a>
-                    <span class="name">
-                        <b>
-                            unsetSouth
-                        </b>
-                        <a href="#unsetSouth"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>unsetSouth()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="63"
-                            class="link-to-prism">src/app/core/model/cell.ts:63</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="unsetWest"></a>
-                    <span class="name">
-                        <b>
-                            unsetWest
-                        </b>
-                        <a href="#unsetWest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>unsetWest()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="67"
-                            class="link-to-prism">src/app/core/model/cell.ts:67</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>
-
-
-
-
-
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> is_set</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>is_set:     <code>boolean</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> is_up</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>is_up:     <code>boolean</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> mask_id</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>mask_id:     <code>number</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> poles</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>poles:     <code>number</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
     </div>
-
-
-    <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export class Cell {
+    <div class="tab-pane fade tab-source-code" id="source">
+        <pre><code class="hljs javascript">export class Cell {
   poles: number;
   is_up: boolean;
+  is_set: boolean;
   mask_id: number;
 
-  constructor() {
+  /**
+   * 
+   * @param setting describes if the Cell should be set to heddle up or not. Null value leaves cell unset. 
+   */
+  constructor(setting: boolean) {
     this.poles &#x3D; 0b0000;
-    this.is_up &#x3D; false;
     this.mask_id &#x3D; -1;
+    if(setting &#x3D;&#x3D;&#x3D; null || setting &#x3D;&#x3D;&#x3D; undefined){
+      this.is_set &#x3D; false;
+      this.is_up &#x3D; false;
+    } 
+    else {
+      this.is_set &#x3D; true;
+      this.is_up &#x3D; setting;
+    }
   }
 
 
-
+  
+  isSet(){
+    return this.is_set;
+  }
 
   setHeddleUp(){
     this.is_up &#x3D; true;
+    this.is_set &#x3D; true;
   }
 
   setHeddleDown(){
+     this.is_set &#x3D; true;
      this.is_up &#x3D; false;
   }
 
@@ -1857,6 +2016,16 @@
 
   setHeddle(value:boolean){
     this.is_up &#x3D; value;
+    this.is_set &#x3D; true;
+  }
+
+  toggleHeddle(){
+    if(!this.is_set){
+      this.is_set &#x3D; true;
+      this.is_up &#x3D; true;
+    }else{
+      this.is_up &#x3D; !this.is_up;
+    }
   }
 
   setPoles(poles:number){
@@ -1873,6 +2042,7 @@
 
   unsetHeddle(){
     this.is_up &#x3D; false;
+    this.is_set &#x3D; false;
   }
 
   unsetPoles(){
@@ -1889,14 +2059,11 @@
 
 
 
-                   
-
-
 
 
                    </div><div class="search-results">
     <div class="has-results">
-        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
         <ul class="search-results-list"></ul>
     </div>
     <div class="no-results">
@@ -1904,22 +2071,8 @@
     </div>
 </div>
 </div>
-               <!-- END CONTENT -->
            </div>
        </div>
-
-       <script>
-            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'Cell.html';
-            var MAX_SEARCH_RESULTS = 15;
-       </script>
-
-       <script src="../js/libs/custom-elements.min.js"></script>
-       <script src="../js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="../js/menu-wc.js" defer></script>
 
        <script src="../js/libs/bootstrap-native.js"></script>
 
@@ -1930,17 +2083,20 @@
 
        <script src="../js/compodoc.js"></script>
 
-       <script src="../js/tabs.js"></script>
-       <script src="../js/menu.js"></script>
-       <script src="../js/libs/clipboard.min.js"></script>
-       <script src="../js/libs/prism.js"></script>
-       <script src="../js/sourceCode.js"></script>
-          <script src="../js/search/search.js"></script>
-          <script src="../js/search/lunr.min.js"></script>
-          <script src="../js/search/search-lunr.js"></script>
-          <script src="../js/search/search_index.js"></script>
-       <script src="../js/lazy-load-graphs.js"></script>
+       <script src="../js/search/search.js"></script>
+       <script src="../js/search/lunr.min.js"></script>
+       <script src="../js/search/search-lunr.js"></script>
 
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/highlight.pack.js"></script>
+       <script src="../js/libs/highlightjs-line-numbers.min.js"></script>
+       <script src="../js/search/search_index.js"></script>
+       <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                hljs.initHighlightingOnLoad();
+                hljs.initLineNumbersOnLoad();
+            });
+       </script>
 
     </body>
 </html>

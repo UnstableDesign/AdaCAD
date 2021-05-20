@@ -51,4 +51,10 @@ export class Pattern {
 
     return this;
   }
+
+
+  toggleFavorite(){
+    this.favorite = !this.favorite;
+  }
+
 }

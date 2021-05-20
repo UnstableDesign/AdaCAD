@@ -8,32 +8,886 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
-	      <link rel="stylesheet" href="../styles/style.css">
+	    <link rel="stylesheet" href="../styles/style.css">
     </head>
     <body>
 
         <div class="navbar navbar-default navbar-fixed-top visible-xs">
             <a href="../" class="navbar-brand">adacad-weaver documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+            <button type="button" class="btn btn-default btn-menu fa fa-bars" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
-                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+            <div id="book-search-input" role="search">
+                <input type="text" placeholder="Type to search">
+            </div>
+            <nav>
+            
+                <ul class="list">
+            
+                    <li class="title">
+                        <a href="../">adacad-weaver documentation</a>
+                    </li>
+            
+                    <li class="divider"></li>
+            
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                        <ul class="links">
+                                <li class="link">
+                                    <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                </li>
+                                <li class="link">
+                                    <a 
+                                        
+                                         href="../overview.html" 
+                                         href="../overview.html" 
+                                        >
+                                        <span class="fa fa-th"></span>Overview
+                                    </a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="./modules.html" >
+                            <span class="fa fa-archive"></span>
+                            <span>Modules</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-modules-links"
+                            ></span>
+                        </a>
+                        <ul class="links collapse in"
+                                id="xs-modules-links"
+                            >
+                                <li class="link">
+                                    <a href="../modules/AppModule.html" >AppModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/CoreModule.html" >CoreModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/MixerModule.html" >MixerModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-cogs"></span>
+                            <span>Components</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-components-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-components-links"
+                            >
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AppComponent.html" >AppComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-code"></span>
+                            <span>Directives</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-directives-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-directives-links"
+                            >
+                                <li class="link">
+                                    <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-file-code-o"></span>
+                            <span>Classes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-classes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-classes-links"
+                            >
+                                <li class="link">
+                                    <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Cell.html" >Cell</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Draft.html" >Draft</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Loom.html" >Loom</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Pattern.html" >Pattern</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Render.html"  class="active" >Render</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Selection.html" >Selection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Shuttle.html" >Shuttle</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/System.html" >System</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Timeline.html" >Timeline</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Upload.html" >Upload</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Util.html" >Util</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-long-arrow-down"></span>
+                            <span>Injectables</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-injectables-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-injectables-links"
+                            >
+                                <li class="link">
+                                    <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/PatternService.html" >PatternService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/UploadService.html" >UploadService</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-info"></span>
+                            <span>Interfaces</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-interfaces-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-interfaces-links"
+                            >
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-plus"></span>
+                            <span>Pipes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-pipes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-pipes-links"
+                            >
+                                <li class="link">
+                                    <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                    </li>
+            
+                    <li class="divider"></li>
+                    <li class="copyright">
+                            Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                        <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                            </a>
+                    </li>
+            
+                </ul>
+            
+            </nav>
         </div>
 
         <div class="container-fluid main">
            <div class="row main">
                <div class="hidden-xs menu">
-                   <compodoc-menu mode="normal"></compodoc-menu>
+                   <nav>
+                   
+                       <ul class="list">
+                   
+                           <li class="title">
+                               <a href="../">adacad-weaver documentation</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                   
+                               <div id="book-search-input" role="search">
+                                   <input type="text" placeholder="Type to search">
+                               </div>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                               <ul class="links">
+                                       <li class="link">
+                                           <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                       </li>
+                                       <li class="link">
+                                           <a 
+                                               
+                                                href="../overview.html" 
+                                                href="../overview.html" 
+                                               >
+                                               <span class="fa fa-th"></span>Overview
+                                           </a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="./modules.html" >
+                                   <span class="fa fa-archive"></span>
+                                   <span>Modules</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#modules-links"
+                                   ></span>
+                               </a>
+                               <ul class="links collapse in"
+                                       id="modules-links"
+                   >
+                                       <li class="link">
+                                           <a href="../modules/AppModule.html" >AppModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/CoreModule.html" >CoreModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/MixerModule.html" >MixerModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-cogs"></span>
+                                   <span>Components</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#components-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="components-links"
+                   >
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AppComponent.html" >AppComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-code"></span>
+                                   <span>Directives</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#directives-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="directives-links"
+                   >
+                                       <li class="link">
+                                           <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-file-code-o"></span>
+                                   <span>Classes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#classes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="classes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Cell.html" >Cell</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Draft.html" >Draft</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Loom.html" >Loom</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Pattern.html" >Pattern</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Render.html"  class="active" >Render</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Selection.html" >Selection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Shuttle.html" >Shuttle</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/System.html" >System</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Timeline.html" >Timeline</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Upload.html" >Upload</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Util.html" >Util</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-long-arrow-down"></span>
+                                   <span>Injectables</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#injectables-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="injectables-links"
+                   >
+                                       <li class="link">
+                                           <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/PatternService.html" >PatternService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/UploadService.html" >UploadService</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-info"></span>
+                                   <span>Interfaces</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#interfaces-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="interfaces-links"
+                   >
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-plus"></span>
+                                   <span>Pipes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#pipes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="pipes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                           <li class="copyright">
+                                   Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                               <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                                   </a>
+                           </li>
+                   
+                       </ul>
+                   
+                   </nav>
                </div>
-               <!-- START CONTENT -->
                <div class="content class">
                    <div class="content-data">
-
-
-
-
-
 
 
 
@@ -46,16 +900,16 @@
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
-        </li>
-        <li >
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
-        </li>
+    <li class="active">
+        <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
+    </li>
+    <li>
+        <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
+    </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade active in" id="c-info">
+    <div class="tab-pane fade active in" id="infos">
         <p class="comment">
             <h3>File</h3>
         </p>
@@ -71,1186 +925,508 @@
 
             </p>
 
-
-
-            <p class="comment">
-                <h3>Example</h3>
-            </p>
-            <div class="io-description">
-            </div>
+            <section>
+                <h3 id="constructor">Constructor</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>constructor(view_frames: any)</code>
+                                </td>
+                            </tr>
+            
+                        </tbody>
+                    </table>
+            </section>
 
             <section>
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#base_cell">base_cell</a>
-                            </li>
-                            <li>
-                                <a href="#current_view">current_view</a>
-                            </li>
-                            <li>
-                                <a href="#select">select</a>
-                            </li>
-                            <li>
-                                <a href="#view_frames">view_frames</a>
-                            </li>
-                            <li>
-                                <a href="#view_front">view_front</a>
-                            </li>
-                            <li>
-                                <a href="#zoom">zoom</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+                <h3 id="methods">Methods</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> interpolate</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>interpolate(base: any)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getTextInterval</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getTextInterval()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getCellDims</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getCellDims(type: string)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getInterpolationDims</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getInterpolationDims(type: string)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setZoom</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setZoom(z: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getZoom</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getZoom()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> zoomOut</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>zoomOut()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> zoomIn</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>zoomIn()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b><span class="modifier">Private</span> getOffset</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <span class="modifier-icon method fa fa-play lock">
+                                            <span class="fa fa-lock"></span>
+                                        </span>
+                                    <code>getOffset(type: any)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> toggleViewFrames</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>toggleViewFrames()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> showingFrames</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>showingFrames()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isYarnBasedView</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isYarnBasedView()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getCurrentView</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getCurrentView()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>string</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setCurrentView</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setCurrentView(view: string)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isFront</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isFront()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> setFront</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>setFront(value: boolean)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
 
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Methods</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#getCellDims">getCellDims</a>
-                            </li>
-                            <li>
-                                <a href="#getCurrentView">getCurrentView</a>
-                            </li>
-                            <li>
-                                <a href="#getInterpolationDims">getInterpolationDims</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#getOffset">getOffset</a>
-                            </li>
-                            <li>
-                                <a href="#getTextInterval">getTextInterval</a>
-                            </li>
-                            <li>
-                                <a href="#getZoom">getZoom</a>
-                            </li>
-                            <li>
-                                <a href="#interpolate">interpolate</a>
-                            </li>
-                            <li>
-                                <a href="#isFront">isFront</a>
-                            </li>
-                            <li>
-                                <a href="#isYarnBasedView">isYarnBasedView</a>
-                            </li>
-                            <li>
-                                <a href="#setCurrentView">setCurrentView</a>
-                            </li>
-                            <li>
-                                <a href="#setFront">setFront</a>
-                            </li>
-                            <li>
-                                <a href="#setZoom">setZoom</a>
-                            </li>
-                            <li>
-                                <a href="#showingFrames">showingFrames</a>
-                            </li>
-                            <li>
-                                <a href="#toggleViewFrames">toggleViewFrames</a>
-                            </li>
-                            <li>
-                                <a href="#zoomIn">zoomIn</a>
-                            </li>
-                            <li>
-                                <a href="#zoomOut">zoomOut</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-
-
-
-
-        </tbody>
-    </table>
-</section>
 
             <section>
-    <h3 id="constructor">Constructor</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-<code>constructor(view_frames)</code>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/app/core/model/render.ts:25</a></div>
-                            </td>
-                        </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                            <div>
-                                    <b>Parameters :</b>
-                                    <table class="params">
-                                        <thead>
-                                            <tr>
-                                                <td>Name</td>
-                                                <td>Optional</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                <tr>
-                                                        <td>view_frames</td>
-                                                  
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                            </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-</section>
-
-            <section>
-    
-        <h3 id="inputs">
-            Properties
-        </h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="base_cell"></a>
-                        <span class="name">
-                            <b>
-                            base_cell</b>
-                            <a href="#base_cell"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>    <code>literal type</code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/app/core/model/render.ts:13</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="current_view"></a>
-                        <span class="name">
-                            <b>
-                            current_view</b>
-                            <a href="#current_view"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="8" class="link-to-prism">src/app/core/model/render.ts:8</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="select"></a>
-                        <span class="name">
-                            <b>
-                            select</b>
-                            <a href="#select"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>    <code>literal type</code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/app/core/model/render.ts:22</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="view_frames"></a>
-                        <span class="name">
-                            <b>
-                            view_frames</b>
-                            <a href="#view_frames"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="7" class="link-to-prism">src/app/core/model/render.ts:7</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="view_front"></a>
-                        <span class="name">
-                            <b>
-                            view_front</b>
-                            <a href="#view_front"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="9" class="link-to-prism">src/app/core/model/render.ts:9</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="zoom"></a>
-                        <span class="name">
-                            <b>
-                            zoom</b>
-                            <a href="#zoom"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                        </td>
-                    </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/app/core/model/render.ts:11</a></div>
-                            </td>
-                        </tr>
-
-
-            </tbody>
-        </table>
-</section>
-
-            <section>
-    
-    <h3 id="methods">
-        Methods
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCellDims"></a>
-                    <span class="name">
-                        <b>
-                            getCellDims
-                        </b>
-                        <a href="#getCellDims"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCellDims(type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="81"
-                            class="link-to-prism">src/app/core/model/render.ts:81</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>type</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>    <code>{ x: number; y: number; w: number; h: number; }</code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCurrentView"></a>
-                    <span class="name">
-                        <b>
-                            getCurrentView
-                        </b>
-                        <a href="#getCurrentView"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCurrentView()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="147"
-                            class="link-to-prism">src/app/core/model/render.ts:147</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getInterpolationDims"></a>
-                    <span class="name">
-                        <b>
-                            getInterpolationDims
-                        </b>
-                        <a href="#getInterpolationDims"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getInterpolationDims(type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="92"
-                            class="link-to-prism">src/app/core/model/render.ts:92</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>type</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>    <code>{ x: any; y: any; w: any; h: any; }</code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getOffset"></a>
-                    <span class="name">
-                        <b>
-                            <span class="modifier">Private</span>
-                            getOffset
-                        </b>
-                        <a href="#getOffset"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getOffset(type)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="125"
-                            class="link-to-prism">src/app/core/model/render.ts:125</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>type</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getTextInterval"></a>
-                    <span class="name">
-                        <b>
-                            getTextInterval
-                        </b>
-                        <a href="#getTextInterval"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getTextInterval()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="66"
-                            class="link-to-prism">src/app/core/model/render.ts:66</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>    <code>1 | 50 | 2 | 4 | 5 | 8 | 10 | 12 | 15 | 20 | 30 | 100</code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getZoom"></a>
-                    <span class="name">
-                        <b>
-                            getZoom
-                        </b>
-                        <a href="#getZoom"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getZoom()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="110"
-                            class="link-to-prism">src/app/core/model/render.ts:110</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="interpolate"></a>
-                    <span class="name">
-                        <b>
-                            interpolate
-                        </b>
-                        <a href="#interpolate"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>interpolate(base: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="52"
-                            class="link-to-prism">src/app/core/model/render.ts:52</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>base</td>
-                                    <td>
-                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isFront"></a>
-                    <span class="name">
-                        <b>
-                            isFront
-                        </b>
-                        <a href="#isFront"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isFront()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="155"
-                            class="link-to-prism">src/app/core/model/render.ts:155</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isYarnBasedView"></a>
-                    <span class="name">
-                        <b>
-                            isYarnBasedView
-                        </b>
-                        <a href="#isYarnBasedView"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isYarnBasedView()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="143"
-                            class="link-to-prism">src/app/core/model/render.ts:143</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setCurrentView"></a>
-                    <span class="name">
-                        <b>
-                            setCurrentView
-                        </b>
-                        <a href="#setCurrentView"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setCurrentView(view: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="151"
-                            class="link-to-prism">src/app/core/model/render.ts:151</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>view</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setFront"></a>
-                    <span class="name">
-                        <b>
-                            setFront
-                        </b>
-                        <a href="#setFront"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setFront(value: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="159"
-                            class="link-to-prism">src/app/core/model/render.ts:159</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>value</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="setZoom"></a>
-                    <span class="name">
-                        <b>
-                            setZoom
-                        </b>
-                        <a href="#setZoom"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>setZoom(z: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="106"
-                            class="link-to-prism">src/app/core/model/render.ts:106</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>z</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="showingFrames"></a>
-                    <span class="name">
-                        <b>
-                            showingFrames
-                        </b>
-                        <a href="#showingFrames"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>showingFrames()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="139"
-                            class="link-to-prism">src/app/core/model/render.ts:139</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="toggleViewFrames"></a>
-                    <span class="name">
-                        <b>
-                            toggleViewFrames
-                        </b>
-                        <a href="#toggleViewFrames"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>toggleViewFrames()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="135"
-                            class="link-to-prism">src/app/core/model/render.ts:135</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="zoomIn"></a>
-                    <span class="name">
-                        <b>
-                            zoomIn
-                        </b>
-                        <a href="#zoomIn"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>zoomIn()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="119"
-                            class="link-to-prism">src/app/core/model/render.ts:119</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="zoomOut"></a>
-                    <span class="name">
-                        <b>
-                            zoomOut
-                        </b>
-                        <a href="#zoomOut"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>zoomOut()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="114"
-                            class="link-to-prism">src/app/core/model/render.ts:114</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>
-
-
-
-
-
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> base_cell</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>base_cell:     <code>{ w: { max: number; min: number; }; h: { max: number; min: number; }; margin_fill_x: { max: numbe...</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> current_view</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>current_view:     <code>string</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> select</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>select:     <code>{ offset_x: { max: number; min: number; }; offset_y: { max: number; min: number; }; }</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> view_frames</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>view_frames:     <code>boolean</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> view_front</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>view_front:     <code>boolean</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> zoom</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>zoom:     <code>number</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
     </div>
-
-
-    <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export class Render {
+    <div class="tab-pane fade tab-source-code" id="source">
+        <pre><code class="hljs javascript">export class Render {
 
   view_frames: boolean;
   current_view: string;
@@ -1415,14 +1591,11 @@
 
 
 
-                   
-
-
 
 
                    </div><div class="search-results">
     <div class="has-results">
-        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
         <ul class="search-results-list"></ul>
     </div>
     <div class="no-results">
@@ -1430,22 +1603,8 @@
     </div>
 </div>
 </div>
-               <!-- END CONTENT -->
            </div>
        </div>
-
-       <script>
-            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'Render.html';
-            var MAX_SEARCH_RESULTS = 15;
-       </script>
-
-       <script src="../js/libs/custom-elements.min.js"></script>
-       <script src="../js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="../js/menu-wc.js" defer></script>
 
        <script src="../js/libs/bootstrap-native.js"></script>
 
@@ -1456,17 +1615,20 @@
 
        <script src="../js/compodoc.js"></script>
 
-       <script src="../js/tabs.js"></script>
-       <script src="../js/menu.js"></script>
-       <script src="../js/libs/clipboard.min.js"></script>
-       <script src="../js/libs/prism.js"></script>
-       <script src="../js/sourceCode.js"></script>
-          <script src="../js/search/search.js"></script>
-          <script src="../js/search/lunr.min.js"></script>
-          <script src="../js/search/search-lunr.js"></script>
-          <script src="../js/search/search_index.js"></script>
-       <script src="../js/lazy-load-graphs.js"></script>
+       <script src="../js/search/search.js"></script>
+       <script src="../js/search/lunr.min.js"></script>
+       <script src="../js/search/search-lunr.js"></script>
 
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/highlight.pack.js"></script>
+       <script src="../js/libs/highlightjs-line-numbers.min.js"></script>
+       <script src="../js/search/search_index.js"></script>
+       <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                hljs.initHighlightingOnLoad();
+                hljs.initLineNumbersOnLoad();
+            });
+       </script>
 
     </body>
 </html>

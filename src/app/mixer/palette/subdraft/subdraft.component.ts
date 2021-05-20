@@ -241,6 +241,14 @@ export class SubdraftComponent implements OnInit {
     this.counter++;
   }
 
+  disableDrag(){
+    this.disable_drag = true;
+  }
+
+  enableDrag(){
+    this.disable_drag = false;
+  }
+
 
   designActionChange(e){
     console.log(e);
