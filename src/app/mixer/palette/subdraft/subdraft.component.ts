@@ -284,8 +284,7 @@ export class SubdraftComponent implements OnInit {
     this.moving = true;
     this.counter = 0;  
     this.onSubdraftStart.emit({id: this.draft.id});
-
-    this.last_ndx = this.resolvePointToNdx(this.getAdjusted($event.pointerPosition));
+ 
 
   }
 
