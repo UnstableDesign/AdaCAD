@@ -70,7 +70,6 @@ export class SubdraftComponent implements OnInit {
   }
 
   ngOnInit(){
-    console.log("setting size on init");
     this.size.w = this.draft.warps * this.scale;
     this.size.h = this.draft.wefts * this.scale;
 
@@ -84,6 +83,8 @@ export class SubdraftComponent implements OnInit {
     this.cx = this.canvas.getContext("2d");
     this.canvas.width = this.draft.warps * this.scale;
     this.canvas.height = this.draft.wefts * this.scale;
+    this.size.w = this.draft.warps * this.scale;
+    this.size.h = this.draft.wefts * this.scale;
     this.drawDraft();
 
 
@@ -191,8 +192,6 @@ export class SubdraftComponent implements OnInit {
 
     this.size.w = temp.warps * this.scale;
     this.size.h = temp.wefts * this.scale;
-    this.canvas.width = this.size.w;
-    this.canvas.height = this.size.h;
     this.draft.reload(temp);
 
   }
@@ -201,7 +200,18 @@ export class SubdraftComponent implements OnInit {
     this.topleft = point;
   }
 
-     
+  /**
+   * manually sets the component size. While such an operation should be handled on init but there is a bug where this value is checked before the 
+   * component runds its init sequence. Manually adding the data makes it possible for check for intersections on selection and drawing end.
+   * @param width 
+   * @param height 
+   */
+  setComponentSize(width: number, height: number){
+    this.size.w = width;
+    this.size.h = height;
+  }
+
+
   /**
    * draw whetever is stored in the draft object to the screen
    * @returns 
@@ -210,7 +220,8 @@ export class SubdraftComponent implements OnInit {
 
     if(this.canvas === undefined) return;
    
-
+    this.canvas.width = this.size.w;
+    this.canvas.height = this.size.h;
 
     for (let i = 0; i < this.draft.visibleRows.length; i++) {
       for (let j = 0; j < this.draft.warps; j++) {
@@ -314,7 +325,6 @@ export class SubdraftComponent implements OnInit {
       break;
 
       case 'delete': 
-        console.log("delete");
         this.onDeleteCalled.emit({id: this.draft.id});
       break;
 

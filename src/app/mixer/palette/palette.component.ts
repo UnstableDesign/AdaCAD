@@ -9,6 +9,7 @@ import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point } from '../../core/model/point';
 import { Pattern } from '../../core/model/pattern';
+import { dsv } from 'd3-fetch';
 
 
 @Component({
@@ -136,7 +137,6 @@ export class PaletteComponent implements OnInit{
     this.canvas.width = 5000;
     this.canvas.height = 5000;
 
-    console.log(this.selection);
     this.selection.scale = this.scale;
     this.selection.active = false;
     this.designModeChanged();
@@ -179,7 +179,6 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
       const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
       subdraft.instance.draft = d;
-      console.log(subdraft);
       this.preview_ref = subdraft.hostView;
       this.preview = subdraft.instance;
     }
@@ -195,9 +194,7 @@ export class PaletteComponent implements OnInit{
    * @returns the created subdraft instance
    */
     removePreview(){
-      console.log(this.vc, this.preview_ref);
       const ndx = this.vc.indexOf(this.preview_ref);
-      console.log(this.vc, ndx);
       this.vc.remove(ndx);
       this.preview_ref = undefined;
       this.preview = undefined;
@@ -377,7 +374,7 @@ export class PaletteComponent implements OnInit{
 
 
  selectionStarted(){
-   console.log("selection started");
+
   this.selection.start = this.last;
   this.selection.active = true;
   this._snackBar.openFromComponent(SnackbarComponent, {
@@ -386,8 +383,8 @@ export class PaletteComponent implements OnInit{
  }
 
 drawStarted(){
-  console.log("draw started");
 
+  
   this.scratch_pad = [];
   for(let i = 0; i < this.canvas.height; i+=this.scale ){
       const row = [];
@@ -459,8 +456,8 @@ drawStarted(){
       height: wefts * this.scale
     }
 
-    console.log("setting to", pos);
-    sd.setComponentPosition(pos.topleft)
+    sd.setComponentPosition(pos.topleft);
+    sd.setComponentSize(pos.width, pos.height);
     sd.disableDrag();
 
     for(let i = 0; i < sd.draft.wefts; i++ ){
@@ -544,7 +541,7 @@ drawStarted(){
       this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
       if(this.design_modes.isSelected("select")){
-        if(this.selection.active)this.processMarquee();
+        if(this.selection.active)this.processSelection();
       }else if(this.design_modes.isSelected("draw")){
         this.processDrawingEnd();
       } 
@@ -557,14 +554,18 @@ drawStarted(){
   
  
 
-  processMarquee(){
+  processSelection(){
 
     this.closeSnackBar();
 
     //create the selection as a subdraft
     const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
-    sc.setComponentPosition(bounds);
+    sc.setComponentPosition(bounds.topleft);
+    
+    
+    
+    
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
 
 
@@ -621,7 +622,6 @@ drawStarted(){
     * @returns 
     */
   subdraftDropped(obj: any){
-    console.log("subdraft dropped");
 
     this.closeSnackBar();
 
@@ -649,7 +649,7 @@ drawStarted(){
 
     
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
-
+    console.log(isect);
 
 
       if(isect.length == 0){
@@ -787,6 +787,7 @@ drawStarted(){
    */
   getIntersectingSubdraftsForPoint(p: any){
 
+
     const primary_topleft = {x:  p.x, y: p.y };
     const primary_bottomright = {x:  p.x + this.scale, y: p.y + this.scale};
 
@@ -806,8 +807,8 @@ drawStarted(){
    * @returns 
    */
   getIntersectingSubdrafts(primary: SubdraftComponent){
-    const to_check:Array<SubdraftComponent> =  this.subdraft_refs.filter(sr => (sr.draft.id.toString() !== primary.draft.id.toString()));
 
+    const to_check:Array<SubdraftComponent> =  this.subdraft_refs.filter(sr => (sr.draft.id.toString() !== primary.draft.id.toString()));
     const primary_bottomright = {x:  primary.getTopleft().x + primary.size.w, y: primary.getTopleft().y + primary.size.h};
 
 
@@ -888,7 +889,6 @@ drawStarted(){
    */
   getCombinedDraft(bounds: any, moving: any, isect: Array<SubdraftComponent>):Draft{
     const temp: Draft = new Draft({id: moving.draft.id, name: moving.draft.name, warps: Math.floor(bounds.width / moving.scale), wefts: Math.floor(bounds.height / moving.scale)});
-    console.log(temp.wefts, temp.warps);
 
     for(var i = 0; i < temp.wefts; i++){
       const top: number = bounds.topleft.y + (i * moving.scale);
