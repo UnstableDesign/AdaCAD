@@ -146,6 +146,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
     subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
+    subdraft.instance.onDeleteCalled.subscribe(this.deleteSubdraft.bind(this));
     subdraft.instance.draft = d;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.filter = "or";
@@ -275,16 +276,31 @@ export class PaletteComponent implements OnInit{
   }
 
   /**
+   * Deletes the subdraft that called this function.
+   */
+    deleteSubdraft(obj: any){
+      console.log("deleting "+obj.id);
+  
+      if(obj === null) return;
+
+      const ndx = this.subdraft_refs.findIndex((sr) => (obj.id.toString() === sr.canvas.id.toString()));
+      this.vc.remove(ndx);
+      this.subdraft_refs.splice(ndx, 1);
+
+   }
+
+  /**
    * A mouse event, originated in a subdraft, has been started
    * checkes the design mode and handles the event as required
    * @param obj contains the id of the moving subdraft
    */
   subdraftStarted(obj: any){
   
+
     if(obj === null) return;
 
     if(this.design_modes.isSelected("move")){
-      const moving = this.getMovingSubdraft(obj.id);
+      const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
       this._snackBar.openFromComponent(SnackbarComponent, {
         data: moving
@@ -517,7 +533,7 @@ export class PaletteComponent implements OnInit{
       if(obj === null) return;
   
       //get the reference to the draft that's moving
-      const moving = this.getMovingSubdraft(obj.id);
+      const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
@@ -543,7 +559,7 @@ export class PaletteComponent implements OnInit{
      if(obj === null) return;
   
       //get the reference to the draft that's moving
-      const moving = this.getMovingSubdraft(obj.id);
+      const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
 
       const had_merge = this.mergeSubdrafts(moving);
@@ -662,7 +678,12 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  getMovingSubdraft(id:number): SubdraftComponent {
+  /**
+   * returns the subdraft component associated with this id
+   * @param id the unique draft id contined in the subdraft
+   * @returns the subdraft Component
+   */
+  getSubdraft(id:number): SubdraftComponent {
     return  this.subdraft_refs.find(sr => (sr.draft.id.toString() === id.toString()));
   }
 

@@ -36,7 +36,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onSubdraftMove = new EventEmitter <any>(); 
   @Output() onSubdraftDrop = new EventEmitter <any>(); 
   @Output() onSubdraftStart = new EventEmitter <any>(); 
-  @Input()  id: number;
+  @Output() onDeleteCalled = new EventEmitter <any>(); 
 
  //operations you can perform on a selection 
  design_actions: DesignActions[] = [
@@ -196,7 +196,12 @@ export class SubdraftComponent implements OnInit {
   }
 
      
-
+  /**
+   * draws the draft provided into the subdrraft window, repositioning if neccessary
+   * @param topleft a x,y coorddinate for the topleft corner
+   * @param draft the provided draft
+   * @returns 
+   */
   drawDraft(topleft: Point, draft: Draft) {
 
     if(this.canvas === undefined) return;
@@ -295,6 +300,11 @@ export class SubdraftComponent implements OnInit {
       break;
 
       case 'shift_up': this.pasteEvent('shiftUp');
+      break;
+
+      case 'delete': 
+        console.log("delete");
+        this.onDeleteCalled.emit({id: this.draft.id});
       break;
 
     }

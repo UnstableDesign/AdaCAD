@@ -121,7 +121,7 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
+  constructor(private design_modes: DesignmodesService, private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
 
 
     this.scrollingSubscription = this.scroll
@@ -141,7 +141,7 @@ export class MixerComponent implements OnInit {
   }
 
   private onWindowScroll(data: any) {
-    this.palette.rescale();
+    //this.palette.rescale();
   }
 
 
@@ -244,19 +244,36 @@ export class MixerComponent implements OnInit {
 
 
 /**
-   * Call zoom in on Shift+p.
-   * @extends WeaveComponent
-   * @param {Event} shift+p
+   * Change to draw mode on keypress d
    * @returns {void}
    */
-  // @HostListener('window:keydown.Shift.p', ['$event'])
-  // private keyEventZoomIn(e) {
-  //   console.log("zoom in");
-  //   this.render.zoomIn();
-  //   this.palette.rescale();
+  @HostListener('window:keydown.d', ['$event'])
+  private keyChangetoDrawMode(e) {
+    this.design_modes.select('toggle');
+    this.designModeChanged('toggle');
+  }
+
+  /**
+   * Change to draw mode on keypress s
+   * @returns {void}
+   */
+   @HostListener('window:keydown.s', ['$event'])
+   private keyChangeToSelect(e) {
+     this.design_modes.select('select');
+     this.designModeChanged('select');
+   }
 
 
-  // }
+     /**
+   * Change to draw mode on keypress s
+   * @returns {void}
+   */
+      @HostListener('window:keydown.m', ['$event'])
+      private keyChangeToMove(e) {
+        this.design_modes.select('move');
+        this.designModeChanged('move');
+      }
+   
 /**
    * Call zoom out on Shift+o.
    * @extends WeaveComponent

@@ -516,10 +516,12 @@ export class Draft implements DraftInterface {
             this.pattern[ii][j]= new Cell(null);
             
             if(params.pattern[ii][j].is_up === undefined){
-              this.pattern[ii][j].setHeddle(params.pattern[ii][j]);
+              this.pattern[ii][j].unsetHeddle();
             }else{
               this.pattern[ii][j].setHeddle(params.pattern[ii][j].is_up);
             }
+
+            if(!this.pattern[ii][j].is_set) this.pattern[ii][j].unsetHeddle();
 
             if(params.pattern[ii][j].mask_id !== undefined){
               this.pattern[ii][j].setMaskId(params.pattern[ii][j].mask_id);
