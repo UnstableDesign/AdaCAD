@@ -155,6 +155,20 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+
+/**
+ * Takes row/column position in this subdraft and translates it to an absolution position  
+ * @param ndx the index
+ * @returns the absolute position as nxy
+ */
+ public resolveNdxToPoint(ndx:Interlacement) : Point{
+  
+  let y = this.topleft.y + ndx.i * this.scale;
+  let x = this.topleft.x + ndx.j * this.scale;
+  return {x: x, y:y};
+
+}
+
 /**
  * Takes an absolute coordinate and translates it to the row/column position in this subdraft
  * @param p the screen coordinate
@@ -189,6 +203,11 @@ export class SubdraftComponent implements OnInit {
   
   }
 
+
+  /**
+   * sets a new draft
+   * @param temp the draft to set this component to
+   */
   setNewDraft(temp: Draft) {
 
     this.size.w = temp.warps * this.scale;
@@ -242,6 +261,20 @@ export class SubdraftComponent implements OnInit {
     }
   }
 
+
+  /**
+   * scans the draft and deletes any boundary rows or columns that are entirely unset. 
+   * Called after selection 
+   * @returns a boolean to say if this compoennt is empty or not after the scan
+   */
+  resize():boolean{
+    const hasrows:boolean = this.draft.trimUnsetRows();
+    if(!hasrows) return true;
+
+    const hascols = this.draft.trimUnsetCols();
+    return false;
+  }
+
   /**
    * gets the position of this elment on the canvas. Dyanic top left might be bigger due to scolling intersection
    * previews. Use static for all calculating of intersections, etc. 
@@ -251,7 +284,11 @@ export class SubdraftComponent implements OnInit {
     return this.topleft;
   }
 
-
+  /**
+   * takes an absolute point and returns the "cell" boundary that is closest. 
+   * @param p the absolute point
+   * @returns the snapped point 
+   */
   snapToGrid(p: Point):Point{
 
     p.x = Math.floor(p.x / this.scale) * this.scale;

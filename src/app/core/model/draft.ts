@@ -349,9 +349,6 @@ export class Draft implements DraftInterface {
  */
   reload({...params}) {
 
-    console.log("RELOADING");
-    console.log(params);
-
     this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
 
 
@@ -736,6 +733,81 @@ export class Draft implements DraftInterface {
   deleteConnection(lineId: number) {
 
   }
+
+
+
+  /**
+   * removes any boundary rows that are unset
+   * @return returns true if it deleted all the rows
+   */
+  trimUnsetRows() : boolean{
+
+    const rowmap: Array<number> = [];
+    const to_delete: Array<number> = [];
+
+    //make a list of rows that contains the number of set cells
+    this.pattern.forEach(row => {
+      const active_cells: Array<Cell> = row.filter(cell => (cell.isSet()));
+      rowmap.push(active_cells.length);
+    });
+
+    console.log("row map", rowmap);
+
+    let delete_top: number = 0;
+    let top_hasvalue: boolean = false;
+    
+    //scan from top and bottom to see how many rows we shoudl delete
+    for(let ndx = 0; ndx < rowmap.length; ndx++){
+        if(rowmap[ndx] == 0 && !top_hasvalue){
+          delete_top++;
+        }else{
+          top_hasvalue = true;
+        }
+    }
+    console.log("delete top", delete_top);
+
+    if(delete_top == rowmap.length) return true; //this is empty now
+   
+    let delete_bottom: number = 0;
+    let bottom_hasvalue:boolean = false;
+    for(let ndx = rowmap.length -1; ndx >= 0; ndx--){
+      if(rowmap[ndx] == 0 && !bottom_hasvalue){
+        delete_bottom++;
+      }else{
+        bottom_hasvalue = true;
+      }
+    }
+
+    return false;
+  }
+  /**
+   * removes any boundary cols that are unset
+   * @return returns true if it deleted all the cols
+   */
+  trimUnsetCols(){
+    return false;
+  }
+
+  deleteNRowsFromFront(n: number) {
+      this.wefts -= n;
+      this.rowShuttleMapping.splice(0, n);
+      this.rowSystemMapping.splice(0, n);
+      this.pattern.splice(0, n);
+      //this.mask.splice(i, n);
+      this.loom.treadling.splice(0,n);
+      this.updateVisible();
+  }
+
+  deleteNRowsFromBack(n: number) {
+    this.wefts -= n;
+    this.rowShuttleMapping.splice(-n, n);
+    this.rowSystemMapping.splice(-n, n);
+    this.pattern.splice(-n, n);
+    //this.mask.splice(i, n);
+    this.loom.treadling.splice(-n,n);
+    this.updateVisible();
+}
+  
 
     //insert a number of rows after the one shown at screen index si
   insertRows(amount: number) {

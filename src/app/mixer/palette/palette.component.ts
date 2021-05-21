@@ -160,7 +160,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
     subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
-    subdraft.instance.onDeleteCalled.subscribe(this.deleteSubdraft.bind(this));
+    subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.filter = "or";
@@ -168,6 +168,16 @@ export class PaletteComponent implements OnInit{
 
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
+  }
+
+  /**
+   * removes the subdraft sent to the function
+   * @param subdraft 
+   */
+  removeSubdraft(subdraft: SubdraftComponent){
+    const ndx = this.subdraft_refs.findIndex((sr) => (subdraft.canvas.id.toString() === sr.canvas.id.toString()));
+    this.vc.remove(ndx);
+    this.subdraft_refs.splice(ndx, 1);
   }
 
     /**
@@ -239,12 +249,6 @@ export class PaletteComponent implements OnInit{
     return {i: i, j: j};
   }
 
-  private resolveCoords(p: any) : any {   
-    return {
-      x: p.x,
-      y: p.y - 64
-    } 
-  }
 
   private isSameNdx(p1: any, p2:any) : boolean {    
     if(p1.i != p2.i ) return false;
@@ -322,15 +326,11 @@ export class PaletteComponent implements OnInit{
   /**
    * Deletes the subdraft that called this function.
    */
-    deleteSubdraft(obj: any){
+    onDeleteSubdraftCalled(obj: any){
       console.log("deleting "+obj.id);
-  
       if(obj === null) return;
-
-      const ndx = this.subdraft_refs.findIndex((sr) => (obj.id.toString() === sr.canvas.id.toString()));
-      this.vc.remove(ndx);
-      this.subdraft_refs.splice(ndx, 1);
-
+      const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
+      this.removeSubdraft(sd);
    }
 
   /**
@@ -553,41 +553,65 @@ drawStarted(){
   }
   
  
-
+  /**
+   * Called when a selection operation ends. Checks to see if this selection intersects with any subdrafts and 
+   * merges and or splits as required. 
+   */
   processSelection(){
 
     this.closeSnackBar();
 
-    //create the selection as a subdraft
+    //create the selection as subdraft
     const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
     sc.setComponentPosition(bounds.topleft);
+    sc.setComponentSize(bounds.width, bounds.height); //this is a hack to make sure it has a size before intersections are checked
+    sc.disableDrag();
     
     
-    
-    
+    //get any subdrafts that intersect the one we just made
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
 
-
-
     if(isect.length == 0) return;
-   
 
-    //expand the selection to include any intersecting drafts
-    const i_bounds: any = this.getCombinedBounds(sc, isect);
-    const temp: Draft = this.getCombinedDraft(i_bounds, sc, isect);
+    //get a draft that reflects only the poitns in the selection view
+    const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
+    sc.setNewDraft(new_draft);
+    sc.setComponentPosition(bounds.topleft);
+    sc.setComponentSize(bounds.width, bounds.height); 
+    sc.drawDraft();
 
-    sc.setNewDraft(temp);
-    sc.setComponentPosition(i_bounds.topleft);
-    sc.drawDraft(); //can't do this until the view is initiatied, might need to listed for that here. 
+    //get the bounding box of all the intersections
+    const expanded_bounds: any = this.getCombinedBounds(sc, isect);
 
-    //write a function here to split drafts that the selection is intersecting.
-    isect.forEach(element => {
+    if(expanded_bounds.width > bounds.width || expanded_bounds.height > bounds.height){
+
+      //unset any points in the intersecting drafts that are now in the selection
+      isect.forEach(element => {
+       const sd_draft = element.draft.pattern;
+       for(let i = 0; i < sd_draft.length; i++){
+         for(let j = 0; j < sd_draft[i].length; j++){
+            let p = element.resolveNdxToPoint({i: i, j: j});
+            //console.log("point, haspoint", i, j, p, sc.hasPoint(p));
+            if(sc.hasPoint(p)) sd_draft[i][j].unsetHeddle();
+         }
+       }
+       element.drawDraft();
+      });
+
+      //delete any
+      isect.forEach(element => {
+        const to_delete = element.resize();
+        console.log("delete this?", to_delete);
+       });
+
+    }else{
+      //if the boudns haven't changed with the expansion, than everything was within our selection and we should delete it
+      isect.forEach(element => {
         //this relies on my array having the same indexing as the view container. 
-        const ndx = this.subdraft_refs.findIndex((sr) => (element.canvas.id.toString() === sr.canvas.id.toString()));
-        this.vc.remove(ndx);
-        this.subdraft_refs.splice(ndx, 1);
-    });
+       this.removeSubdraft(element);
+      });
+    }
   
   }
 
@@ -665,10 +689,7 @@ drawStarted(){
 
     //remove the intersecting drafts from the view containier and from subrefts
     isect.forEach(element => {
-        //this relies on my array having the same indexing as the view container. 
-        const ndx = this.subdraft_refs.findIndex((sr) => (element.canvas.id.toString() === sr.canvas.id.toString()));
-        this.vc.remove(ndx);
-        this.subdraft_refs.splice(ndx, 1);
+      this.removeSubdraft(element);
     });
     return true;
   }
