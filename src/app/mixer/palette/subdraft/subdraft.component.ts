@@ -60,7 +60,8 @@ export class SubdraftComponent implements OnInit {
   scale = 10; 
   filter = 'or'; //can be or, and, neq, not, splice
   counter:number  =  0; // only call functions every so often
-  
+  last_ndx = {i: -1, j:-1}; //used to check if we should recalculate a move operation
+
   moving = false;
   disable_drag = false;
 
@@ -258,10 +259,24 @@ export class SubdraftComponent implements OnInit {
     return p;
 
   }
+
+  private isSameNdx(p1: any, p2:any) : boolean {    
+    if(p1.i != p2.i ) return false;
+    if(p1.j != p2.j) return false;
+    return true;
+  }
+
+  private getAdjusted(p: any) : any {   
+    return {
+      x: p.x,
+      y: p.y - 64
+    } 
+  }
   
   dragEnd($event: any) {
     this.moving = false;
     this.counter = 0;  
+    this.last_ndx = {i: -1, j:-1};
     this.onSubdraftDrop.emit({id: this.draft.id});
   }
 
@@ -269,26 +284,28 @@ export class SubdraftComponent implements OnInit {
     this.moving = true;
     this.counter = 0;  
     this.onSubdraftStart.emit({id: this.draft.id});
+
+    this.last_ndx = this.resolvePointToNdx(this.getAdjusted($event.pointerPosition));
+
   }
 
   dragMove($event: any) {
     //position of pointer of the page
     const pointer = $event.pointerPosition;
    
-    const relative = {
-      x: pointer.x, 
-      y: pointer.y - 64 //pointer position is relative to window, not this parent div.
-    }
+    const relative = this.getAdjusted(pointer);
 
     const adj = this.snapToGrid(relative);
     this.topleft = adj;
 
-
-    if(this.counter%1 === 0){
+    const ndx = this.resolvePointToNdx(relative);
+  
+    if(this.counter%1 === 0 || !this.isSameNdx(this.last_ndx, ndx)){
       this.onSubdraftMove.emit({id: this.draft.id});
       this.counter = 0;
     } 
     this.counter++;
+    this.last_ndx = ndx;
   }
 
   disableDrag(){
