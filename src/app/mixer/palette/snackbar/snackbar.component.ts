@@ -12,9 +12,7 @@ export class SnackbarComponent implements OnInit {
 
   subdraft: SubdraftComponent;
 
-
   constructor(@Inject(MAT_SNACK_BAR_DATA) public data: SubdraftComponent) { 
-    
     this.subdraft = data;
   }
 

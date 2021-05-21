@@ -2,11 +2,13 @@
 	cdkDrag
 	[class.drawing] = "disable_drag"
 	[cdkDragDisabled] = "disable_drag"
-	[cdkDragData]="scale"
 	[cdkDragFreeDragPosition]="topleft"
+	[cdkDragData]="scale"
 	(cdkDragMoved)="dragMove($event)"
 	(cdkDragEnded)="dragEnd($event)"
 	(cdkDragStarted)="dragStart($event)">
+
+
 
   	<div class="subdraft-contents">
 

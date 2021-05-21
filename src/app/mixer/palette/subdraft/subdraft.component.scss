@@ -22,6 +22,10 @@
 	canvas{
 		border: thin solid #00d1b2;
 	}
+
+	.subdraft-details{
+		display: flex;
+	}
 }
 
 .drawing{
@@ -41,7 +45,7 @@
 }
 
 .subdraft-details{
-	display:flex;
+	display:none;
 	flex-direction: column;
 }
 

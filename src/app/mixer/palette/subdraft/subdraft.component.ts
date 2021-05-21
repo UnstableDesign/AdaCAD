@@ -54,8 +54,7 @@ export class SubdraftComponent implements OnInit {
   canvas: HTMLCanvasElement;
   cx: any;
 
-  topleft = {x: 0, y: 0}; //this is an internal reprsentation of the top left point
-  
+  topleft = {x: 0, y: 0};  
   size = {w: 0, h: 0};
 
   scale = 10; 
@@ -71,6 +70,7 @@ export class SubdraftComponent implements OnInit {
   }
 
   ngOnInit(){
+    console.log("setting size on init");
     this.size.w = this.draft.warps * this.scale;
     this.size.h = this.draft.wefts * this.scale;
 
@@ -84,22 +84,25 @@ export class SubdraftComponent implements OnInit {
     this.cx = this.canvas.getContext("2d");
     this.canvas.width = this.draft.warps * this.scale;
     this.canvas.height = this.draft.wefts * this.scale;
-    this.drawDraft(this.topleft, this.draft);
+    this.drawDraft();
 
 
   }
 
-  /**
-   * sets the size and position of this element (but does not resize the canvas! due to error)
-   * @param bounds an object including topleft, width, and height 
-   */
-  public setPositionAndSize(bounds: any){
+  // /**
+  //  * sets the size and position of this element (but does not resize the canvas! due to error)
+  //  * @param bounds an object including topleft, width, and height 
+  //  */
+  // public setStaticPositionAndSize(bounds: any){
 
-    this.topleft = bounds.topleft;
-    this.size.w = bounds.width;
-    this.size.h = bounds.height;
+  //   this.static_tl = bounds.topleft;
+  //   this.dynamic_tl = this.static_tl;
+  //   console.log("setting size on set static");
+  //   this.size.w = bounds.width;
+  //   this.size.h = bounds.height;
+  //   this.dynamic_size = this.size;
   
-  }
+  // }
 
 
 
@@ -184,39 +187,37 @@ export class SubdraftComponent implements OnInit {
   
   }
 
-  setNewDraft(bounds: any, temp: Draft) {
+  setNewDraft(temp: Draft) {
 
-    //this breaks the rendering
     this.size.w = temp.warps * this.scale;
     this.size.h = temp.wefts * this.scale;
     this.canvas.width = this.size.w;
     this.canvas.height = this.size.h;
-    this.topleft = bounds.topleft; //adjusts to the top left of the new bounding box
     this.draft.reload(temp);
+
+  }
+
+  setComponentPosition(point: any){
+    this.topleft = point;
   }
 
      
   /**
-   * draws the draft provided into the subdrraft window, repositioning if neccessary
-   * @param topleft a x,y coorddinate for the topleft corner
-   * @param draft the provided draft
+   * draw whetever is stored in the draft object to the screen
    * @returns 
    */
-  drawDraft(topleft: Point, draft: Draft) {
+  drawDraft() {
 
     if(this.canvas === undefined) return;
-
-    this.canvas.width = draft.warps * this.scale;
-    this.canvas.height = draft.wefts * this.scale;
-    this.topleft = topleft;
+   
 
 
-    for (let i = 0; i < draft.visibleRows.length; i++) {
-      for (let j = 0; j < draft.warps; j++) {
-        let row:number = draft.visibleRows[i];
+    for (let i = 0; i < this.draft.visibleRows.length; i++) {
+      for (let j = 0; j < this.draft.warps; j++) {
+        let row:number = this.draft.visibleRows[i];
     
-        let is_up = draft.isUp(row,j);
-        let is_set = draft.isSet(row, j);
+        let is_up = this.draft.isUp(row,j);
+        let is_set = this.draft.isSet(row, j);
         if(is_set){
           this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
@@ -227,6 +228,15 @@ export class SubdraftComponent implements OnInit {
  
       }
     }
+  }
+
+  /**
+   * gets the position of this elment on the canvas. Dyanic top left might be bigger due to scolling intersection
+   * previews. Use static for all calculating of intersections, etc. 
+   * @returns 
+   */
+  getTopleft(){
+    return this.topleft;
   }
 
 
@@ -261,6 +271,7 @@ export class SubdraftComponent implements OnInit {
 
     const adj = this.snapToGrid(relative);
     this.topleft = adj;
+
 
     if(this.counter%1 === 0){
       this.onSubdraftMove.emit({id: this.draft.id});
@@ -314,7 +325,7 @@ export class SubdraftComponent implements OnInit {
       var p = this.patterns[id].pattern;
       //need a way to specify an area within the fill
       this.draft.fill(p, 'original');
-      this.drawDraft(this.topleft, this.draft);
+      this.drawDraft();
 
     }
 
@@ -333,7 +344,7 @@ export class SubdraftComponent implements OnInit {
       if(type === undefined) type = "original";
 
      this.draft.fill(p, type);
-     this.drawDraft(this.topleft, this.draft);
+     this.drawDraft();
 
 
 
@@ -400,7 +411,7 @@ export class SubdraftComponent implements OnInit {
     else type =  e.type;
 
      this.draft.fill(p, type);
-     this.drawDraft(this.topleft, this.draft);
+     this.drawDraft();
 
     // if(this.render.showingFrames()) this.draft.recomputeLoom();
     
