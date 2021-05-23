@@ -15,6 +15,7 @@ import { AppComponent } from './app.component';
 
 import { CoreModule } from './core/core.module';
 import { WeaverModule } from './weaver/weaver.module';
+import { MixerModule } from './mixer/mixer.module';
 import { secrets } from '../environments/secrets';
 
 
@@ -29,6 +30,7 @@ export const firebaseConfig = secrets;
     AppRoutingModule,
     HttpClientModule,
     WeaverModule,
+    MixerModule,
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,

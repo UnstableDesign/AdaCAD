@@ -1,0 +1,1710 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>adacad-weaver documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	      <link rel="stylesheet" href="../styles/style.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">adacad-weaver documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+<ol class="breadcrumb">
+  <li>Components</li>
+  <li>TopbarComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li >
+            <a href="#templateData" role="tab" id="templateData-tab" data-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li >
+            <a href="#styleData" role="tab" id="styleData-tab" data-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li >
+            <a href="#tree" role="tab" id="tree-tab" data-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="c-info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/weaver/topbar/topbar.component.ts</code>
+</p>
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                    <code><a href="https://angular.io/api/core/OnInit" target="_blank" >OnInit</a></code>
+    </p>
+
+
+<section>
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-topbar</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./topbar.component.scss</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./topbar.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#adaLink">adaLink</a>
+                            </li>
+                            <li>
+                                <a href="#bmpLink">bmpLink</a>
+                            </li>
+                            <li>
+                                <a href="#downloadAda">downloadAda</a>
+                            </li>
+                            <li>
+                                <a href="#downloadBmp">downloadBmp</a>
+                            </li>
+                            <li>
+                                <a href="#downloadPrint">downloadPrint</a>
+                            </li>
+                            <li>
+                                <a href="#downloadWif">downloadWif</a>
+                            </li>
+                            <li>
+                                <a href="#printLink">printLink</a>
+                            </li>
+                            <li>
+                                <a href="#wifLink">wifLink</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#ngOnInit">ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#openAboutDialog">openAboutDialog</a>
+                            </li>
+                            <li>
+                                <a href="#openNewFileDialog">openNewFileDialog</a>
+                            </li>
+                            <li>
+                                <a href="#redoClicked">redoClicked</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#saveAsAda">saveAsAda</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#saveAsBmp">saveAsBmp</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#saveAsPrint">saveAsPrint</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#saveAsWif">saveAsWif</a>
+                            </li>
+                            <li>
+                                <a href="#undoClicked">undoClicked</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#density_units">density_units</a>
+                            </li>
+                            <li>
+                                <a href="#draftelement">draftelement</a>
+                            </li>
+                            <li>
+                                <a href="#drawer">drawer</a>
+                            </li>
+                            <li>
+                                <a href="#filename">filename</a>
+                            </li>
+                            <li>
+                                <a href="#loomtypes">loomtypes</a>
+                            </li>
+                            <li>
+                                <a href="#redoItem">redoItem</a>
+                            </li>
+                            <li>
+                                <a href="#timeline">timeline</a>
+                            </li>
+                            <li>
+                                <a href="#undoItem">undoItem</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#onAboutCreate">onAboutCreate</a>
+                            </li>
+                            <li>
+                                <a href="#onRedo">onRedo</a>
+                            </li>
+                            <li>
+                                <a href="#onReInit">onReInit</a>
+                            </li>
+                            <li>
+                                <a href="#onSave">onSave</a>
+                            </li>
+                            <li>
+                                <a href="#onUndo">onUndo</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(dialog: MatDialog)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:39</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>dialog</td>
+                                                  
+                                                        <td>
+                                                                    <code>MatDialog</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+    <section>
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="density_units"></a>
+                        <b>density_units</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:29</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="draftelement"></a>
+                        <b>draftelement</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:27</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="drawer"></a>
+                        <b>drawer</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:22</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="filename"></a>
+                        <b>filename</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:23</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="loomtypes"></a>
+                        <b>loomtypes</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:28</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="redoItem"></a>
+                        <b>redoItem</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:26</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="timeline"></a>
+                        <b>timeline</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:24</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="undoItem"></a>
+                        <b>undoItem</b>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:25</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <section>
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onAboutCreate"></a>
+                        <b>onAboutCreate</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:19</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onRedo"></a>
+                        <b>onRedo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:18</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onReInit"></a>
+                        <b>onReInit</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:20</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onSave"></a>
+                        <b>onSave</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:16</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUndo"></a>
+                        <b>onUndo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:17</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section>
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <b>
+                            ngOnInit
+                        </b>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="45"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:45</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="openAboutDialog"></a>
+                    <span class="name">
+                        <b>
+                            openAboutDialog
+                        </b>
+                        <a href="#openAboutDialog"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>openAboutDialog()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="99"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:99</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="openNewFileDialog"></a>
+                    <span class="name">
+                        <b>
+                            openNewFileDialog
+                        </b>
+                        <a href="#openNewFileDialog"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>openNewFileDialog()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="105"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:105</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="redoClicked"></a>
+                    <span class="name">
+                        <b>
+                            redoClicked
+                        </b>
+                        <a href="#redoClicked"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>redoClicked(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="95"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:95</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="saveAsAda"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            saveAsAda
+                        </b>
+                        <a href="#saveAsAda"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>saveAsAda(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="62"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:62</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="saveAsBmp"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            saveAsBmp
+                        </b>
+                        <a href="#saveAsBmp"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>saveAsBmp(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="52"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:52</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="saveAsPrint"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            saveAsPrint
+                        </b>
+                        <a href="#saveAsPrint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>saveAsPrint(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="82"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:82</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="saveAsWif"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            saveAsWif
+                        </b>
+                        <a href="#saveAsWif"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>saveAsWif(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="72"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:72</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="undoClicked"></a>
+                    <span class="name">
+                        <b>
+                            undoClicked
+                        </b>
+                        <a href="#undoClicked"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>undoClicked(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="91"
+                            class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:91</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section>
+    
+        <h3 id="inputs">
+            Properties
+        </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="adaLink"></a>
+                        <span class="name">
+                            <b>
+                            adaLink</b>
+                            <a href="#adaLink"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;adaLink&#x27;, {static: true})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:32</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="bmpLink"></a>
+                        <span class="name">
+                            <b>
+                            bmpLink</b>
+                            <a href="#bmpLink"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;bmpLink&#x27;, {static: true})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:31</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="downloadAda"></a>
+                        <span class="name">
+                            <b>
+                            downloadAda</b>
+                            <a href="#downloadAda"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://angular.io/api/core/ElementRef" target="_blank" >ElementRef</a></code>
+
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:37</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="downloadBmp"></a>
+                        <span class="name">
+                            <b>
+                            downloadBmp</b>
+                            <a href="#downloadBmp"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://angular.io/api/core/ElementRef" target="_blank" >ElementRef</a></code>
+
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:36</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="downloadPrint"></a>
+                        <span class="name">
+                            <b>
+                            downloadPrint</b>
+                            <a href="#downloadPrint"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://angular.io/api/core/ElementRef" target="_blank" >ElementRef</a></code>
+
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:39</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="downloadWif"></a>
+                        <span class="name">
+                            <b>
+                            downloadWif</b>
+                            <a href="#downloadWif"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://angular.io/api/core/ElementRef" target="_blank" >ElementRef</a></code>
+
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:38</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="printLink"></a>
+                        <span class="name">
+                            <b>
+                            printLink</b>
+                            <a href="#printLink"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;printLink&#x27;, {static: true})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:34</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="wifLink"></a>
+                        <span class="name">
+                            <b>
+                            wifLink</b>
+                            <a href="#wifLink"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Decorators : </b>
+                            <br />
+                            <code>
+                                @ViewChild(&#x27;wifLink&#x27;, {static: true})<br />
+                            </code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/app/weaver/topbar/topbar.component.ts:33</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="c-source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from &#x27;@angular/core&#x27;;
+import { MatDialog, MatDialogConfig } from &quot;@angular/material/dialog&quot;;
+import { AboutModal } from &#x27;../modal/about/about.modal&#x27;;
+import { InitModal } from &#x27;../modal/init/init.modal&#x27;;
+
+@Component({
+  selector: &#x27;app-topbar&#x27;,
+  templateUrl: &#x27;./topbar.component.html&#x27;,
+  styleUrls: [&#x27;./topbar.component.scss&#x27;]
+})
+
+
+
+export class TopbarComponent implements OnInit {
+  
+  @Output() onSave: any &#x3D; new EventEmitter();
+  @Output() onUndo: any &#x3D; new EventEmitter();
+  @Output() onRedo: any &#x3D; new EventEmitter();
+  @Output() onAboutCreate: any &#x3D; new EventEmitter();
+  @Output() onReInit: any &#x3D; new EventEmitter();
+
+  @Input() drawer;
+  @Input() filename;
+  @Input() timeline;
+  @Input() undoItem;
+  @Input() redoItem;
+  @Input() draftelement;
+  @Input() loomtypes;
+  @Input() density_units;
+  
+  @ViewChild(&#x27;bmpLink&#x27;, {static: true}) bmpLink: any;
+  @ViewChild(&#x27;adaLink&#x27;, {static: true}) adaLink: any;
+  @ViewChild(&#x27;wifLink&#x27;, {static: true}) wifLink: any;
+  @ViewChild(&#x27;printLink&#x27;, {static: true}) printLink: any;
+
+  downloadBmp: ElementRef;
+  downloadAda: ElementRef;
+  downloadWif: ElementRef;
+  downloadPrint: ElementRef;
+
+
+  constructor(private dialog: MatDialog) { }
+
+
+  ngOnInit() {
+    this.downloadBmp &#x3D; this.bmpLink._elementRef;
+    this.downloadAda &#x3D; this.adaLink._elementRef;
+    this.downloadWif &#x3D; this.wifLink._elementRef;
+    this.downloadPrint &#x3D; this.printLink._elementRef;
+  }
+
+  public saveAsBmp(e: any) {
+    var obj: any &#x3D; {
+      name: this.filename,
+      downloadLink: this.downloadBmp,
+      type: &quot;bmp&quot;
+    }
+    console.log(obj);
+  	this.onSave.emit(obj);
+  }
+
+  public saveAsAda(e: any) {
+    var obj: any &#x3D; {
+      name: this.filename,
+      downloadLink: this.downloadAda,
+      type: &quot;ada&quot;
+    }
+    console.log(obj);
+    this.onSave.emit(obj);
+  }
+
+  public saveAsWif(e: any) {
+    var obj: any &#x3D; {
+      name: this.filename,
+      downloadLink: this.downloadWif,
+      type: &quot;wif&quot;
+    }
+    console.log(obj);
+    this.onSave.emit(obj);
+  }
+
+  public saveAsPrint(e: any) {
+    var obj: any &#x3D; {
+      name: this.filename,
+      downloadLink: this.downloadPrint,
+      type: &quot;jpg&quot;
+    }
+    this.onSave.emit(obj);
+  }
+
+  undoClicked(e:any) {
+    this.onUndo.emit();
+  }
+
+  redoClicked(e:any) {
+    this.onRedo.emit();
+  }
+
+  openAboutDialog() {
+    const dialogRef &#x3D; this.dialog.open(AboutModal);
+
+  }
+
+  //need to handle this and load the file somehow
+  openNewFileDialog() {
+
+
+    const dialogRef &#x3D; this.dialog.open(InitModal, {
+      data: {loomtypes: this.loomtypes, density_units: this.density_units}
+    });
+
+     dialogRef.afterClosed().subscribe(result &#x3D;&gt; {
+      
+      if(result !&#x3D;&#x3D; undefined) this.onReInit.emit(result);
+      
+
+   });
+
+  }
+
+
+
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;mat-toolbar color&#x3D;&quot;primary&quot;&gt;
+
+&lt;span class&#x3D;&quot;left&quot;&gt;
+
+&lt;button #undoEvent mat-icon-button 
+      (click)&#x3D;&quot;undoClicked($event);&quot;
+      [disabled]&#x3D;&quot;timeline.undo_disabled&quot;
+      matTooltip &#x3D;&quot;undo&quot;&gt;
+      &lt;i class&#x3D;&quot;fas fa-undo&quot;&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    
+    &lt;button #redoEvent mat-icon-button 
+      (click)&#x3D;&quot;redoClicked($event);&quot;
+      [disabled]&#x3D;&quot;timeline.redo_disabled&quot;
+      matTooltip &#x3D;&quot;redo&quot;&gt;
+      &lt;i class&#x3D;&quot;fas fa-redo&quot;&gt;&lt;/i&gt;
+    &lt;/button&gt;
+&lt;/span&gt;
+
+&lt;span class&#x3D;&quot;center&quot;&gt;
+   &lt;button mat-icon-button
+      (click)&#x3D;&quot;openAboutDialog(null)&quot;
+      matTooltip &#x3D;&quot;about AdaCAD&quot;
+      &gt;
+      &lt;i class&#x3D;&quot;fas fa-info-circle&quot;&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;span&gt;AdaCAD &lt;i style&#x3D;&quot;font-size: .6em;&quot;&gt;alpha/testing version&lt;/i&gt;&lt;/span&gt;
+&lt;/span&gt;
+  
+&lt;span class&#x3D;&quot;right&quot;&gt;
+
+    &lt;button mat-icon-button matTooltip &#x3D;&quot;print screen&quot;&gt;
+      &lt;a class&#x3D;&quot;print-link&quot; #printLink (click)&#x3D;&quot;saveAsPrint($event)&quot; mat-menu-item&gt;
+      &lt;i class&#x3D;&quot;fas fa-print&quot;&gt;&lt;/i&gt;
+      &lt;/a&gt; 
+    &lt;/button&gt;
+
+    
+  &lt;button mat-icon-button 
+  [matMenuTriggerFor]&#x3D;&quot;downloadDropdown&quot;
+  matTooltip &#x3D;&quot;save current file&quot;
+  &gt;
+    &lt;i class&#x3D;&quot;fas fa-download&quot;&gt;&lt;/i&gt;
+  &lt;/button&gt; 
+    &lt;mat-menu #downloadDropdown mat-raised-button&gt;
+
+      &lt;a #bmpLink (click)&#x3D;&quot;saveAsBmp($event)&quot; mat-menu-item&gt; as Bitmap&lt;/a&gt;
+      &lt;a #adaLink (click)&#x3D;&quot;saveAsAda($event)&quot; mat-menu-item&gt; as AdaCAD file&lt;/a&gt;
+      &lt;a #wifLink (click)&#x3D;&quot;saveAsWif($event)&quot; mat-menu-item&gt; as Wif file&lt;/a&gt;
+    &lt;/mat-menu&gt;
+
+
+     &lt;button mat-icon-button&#x3D;&quot;Open&quot; 
+     matTooltip &#x3D;&quot;open or start a new draft&quot;
+     (click)&#x3D;&quot;openNewFileDialog(null)&quot;&gt;
+     &lt;i class&#x3D;&quot;fas fa-folder-open&quot;&gt;&lt;/i&gt;
+    &lt;/button&gt;
+
+
+ &lt;mat-form-field class&#x3D;&quot;filename&quot;&gt;
+        &lt;mat-label&gt;Filename&lt;/mat-label&gt;
+        &lt;input matInput type&#x3D;&quot;text&quot; [(ngModel)]&#x3D;&quot;filename&quot;&gt;
+      &lt;/mat-form-field&gt;
+
+
+
+
+
+
+      &lt;button mat-icon-button
+           (click)&#x3D;&quot;drawer.toggle(); collapsed &#x3D; !collapsed&quot;
+            class&#x3D;&quot;collapse&quot; 
+            value&#x3D;&quot;collapsed&quot;&gt;
+         &lt;i class&#x3D;&quot;fa&quot;
+           [class.fa-angle-double-right]&#x3D;&quot;!collapsed&quot; 
+           [class.fa-angle-double-left]&#x3D;&quot;collapsed&quot;
+         aria-hidden&#x3D;&quot;true&quot;&gt;&lt;/i&gt;
+      &lt;/button&gt;
+
+  &lt;/span&gt;
+&lt;/mat-toolbar&gt;
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-styleData">
+                <p class="comment">
+                    <code>./topbar.component.scss</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.right{
+    width:33%;
+    text-align: right;
+}
+.collapse{
+	padding-left: 37px;
+}
+
+.filename{
+    font-size: 0.6em;
+    width: 217px;
+    margin: 0px 0px 0 21px;
+}
+
+.left {
+    width:33%;
+    text-align: left;
+
+
+}
+
+.center{
+	width: 33%;
+	text-align: center;
+
+}
+
+.fa-print{
+	color: white;
+}</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><mat-toolbar color="primary"><span class="left"><button #undoEvent mat-icon-button       (click)="undoClicked($event);"      [disabled]="timeline.undo_disabled"      matTooltip ="undo">      <i class="fas fa-undo"></i>      </button>        <button #redoEvent mat-icon-button       (click)="redoClicked($event);"      [disabled]="timeline.redo_disabled"      matTooltip ="redo">      <i class="fas fa-redo"></i>    </button></span><span class="center">   <button mat-icon-button      (click)="openAboutDialog(null)"      matTooltip ="about AdaCAD"      >      <i class="fas fa-info-circle"></i>    </button>    <span>AdaCAD <i style="font-size: .6em;">alpha/testing version</i></span></span>  <span class="right">    <button mat-icon-button matTooltip ="print screen">      <a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>      <i class="fas fa-print"></i>      </a>     </button>      <button mat-icon-button   [matMenuTriggerFor]="downloadDropdown"  matTooltip ="save current file"  >    <i class="fas fa-download"></i>  </button>     <mat-menu #downloadDropdown mat-raised-button>      <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>      <a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>      <a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>    </mat-menu>     <button mat-icon-button="Open"      matTooltip ="open or start a new draft"     (click)="openNewFileDialog(null)">     <i class="fas fa-folder-open"></i>    </button> <mat-form-field class="filename">        <mat-label>Filename</mat-label>        <input matInput type="text" [(ngModel)]="filename">      </mat-form-field>      <button mat-icon-button           (click)="drawer.toggle(); collapsed = !collapsed"            class="collapse"             value="collapsed">         <i class="fa"           [class.fa-angle-double-right]="!collapsed"            [class.fa-angle-double-left]="collapsed"         aria-hidden="true"></i>      </button>  </span></mat-toolbar></div>'
+    var COMPONENTS = [{'name': 'AboutModal', 'selector': 'app-about'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConnectionModal', 'selector': 'app-connection'},{'name': 'DesignComponent', 'selector': 'app-design'},{'name': 'HistoryComponent', 'selector': 'app-history'},{'name': 'InitModal', 'selector': 'app-init'},{'name': 'LabelModal', 'selector': 'app-label'},{'name': 'LoomComponent', 'selector': 'app-loom'},{'name': 'MasksComponent', 'selector': 'app-masks'},{'name': 'MaterialModal', 'selector': 'app-material-modal'},{'name': 'MaterialsComponent', 'selector': 'app-materials'},{'name': 'NotesComponent', 'selector': 'app-notes'},{'name': 'PatternModal', 'selector': 'app-pattern-modal'},{'name': 'PatternsComponent', 'selector': 'app-patterns'},{'name': 'SchematicComponent', 'selector': 'app-schematic'},{'name': 'ShuttlesModal', 'selector': 'app-shuttles-modal'},{'name': 'SystemsComponent', 'selector': 'app-systems'},{'name': 'TopbarComponent', 'selector': 'app-topbar'},{'name': 'UploadFormComponent', 'selector': 'upload-form'},{'name': 'ViewComponent', 'selector': 'app-view'},{'name': 'WeaverComponent', 'selector': 'app-weaver'}];
+    var DIRECTIVES = [{'name': 'WeaveDirective', 'selector': '[weave]'}];
+    var ACTUAL_COMPONENT = {'name': 'TopbarComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+                   
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'TopbarComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
+       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
+       <script src="../js/menu-wc.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

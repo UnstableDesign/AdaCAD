@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Create Circuit Label</h2>
+
+<mat-dialog-content>
+  <form #connectionForm="ngForm">
+    <mat-form-field>
+      <input matInput  type="number" placeholder="Row" name="row" [(ngModel)]="label.row"> 
+    </mat-form-field>
+    <mat-form-field class="is-fullwidth">
+      <mat-select placeholder="Category" name="category" [(ngModel)]="label.category">
+        <mat-option value="0">Power</mat-option>
+        <mat-option value="1">Ground</mat-option>
+        <mat-option value="2">Analog</mat-option>
+        <mat-option value="3">Digital</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field [class.hidden]="label.category != 0" class="is-fullwidth">
+      <mat-select placeholder="Type" name="type" [(ngModel)]="label.type">
+        <mat-option value="PWR">Regular</mat-option>
+        <mat-option value="3.3V">3.3V</mat-option>
+        <mat-option value="5V">5V</mat-option>
+        <mat-option value="9V">9V</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field [class.hidden]="label.category != 2 && label.category != 3" >
+      <input matInput  type="number" placeholder="Number" name="num" [(ngModel)]="label.num"> 
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+  <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
+</mat-dialog-actions>

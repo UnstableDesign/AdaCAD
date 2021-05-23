@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 import { Pattern } from '../../../core/model/pattern';
+import { Cell } from '../../../core/model/cell';
 
 @Component({
   selector: 'app-pattern-modal',
@@ -51,7 +52,7 @@ export class PatternModal implements OnInit {
     var w = this.pattern.pattern[0].length;
     for (var i = 0; i < this.pattern.height; i++) {
       for (var j = w; j < this.pattern.width; j++) {
-        this.pattern.pattern[i].push(false);
+        this.pattern.pattern[i].push(new Cell(false));
       }
     }
   }

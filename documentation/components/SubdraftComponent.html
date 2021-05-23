@@ -1,0 +1,2875 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>adacad-weaver documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	      <link rel="stylesheet" href="../styles/style.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top visible-xs">
+            <a href="../" class="navbar-brand">adacad-weaver documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+<ol class="breadcrumb">
+  <li>Components</li>
+  <li>SubdraftComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li >
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li >
+            <a href="#templateData" role="tab" id="templateData-tab" data-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li >
+            <a href="#styleData" role="tab" id="styleData-tab" data-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li >
+            <a href="#tree" role="tab" id="tree-tab" data-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="c-info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/weaver/palette/subdraft/subdraft.component.ts</code>
+</p>
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                    <code><a href="https://angular.io/api/core/OnInit" target="_blank" >OnInit</a></code>
+    </p>
+
+
+<section>
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-subdraft</code></td>
+            </tr>
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./subdraft.component.scss</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./subdraft.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#canvas">canvas</a>
+                            </li>
+                            <li>
+                                <a href="#counter">counter</a>
+                            </li>
+                            <li>
+                                <a href="#cx">cx</a>
+                            </li>
+                            <li>
+                                <a href="#design_actions">design_actions</a>
+                            </li>
+                            <li>
+                                <a href="#disable_drag">disable_drag</a>
+                            </li>
+                            <li>
+                                <a href="#draw_mode">draw_mode</a>
+                            </li>
+                            <li>
+                                <a href="#filter">filter</a>
+                            </li>
+                            <li>
+                                <a href="#moving">moving</a>
+                            </li>
+                            <li>
+                                <a href="#scale">scale</a>
+                            </li>
+                            <li>
+                                <a href="#size">size</a>
+                            </li>
+                            <li>
+                                <a href="#topleft">topleft</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#clearEvent">clearEvent</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#computeFilter">computeFilter</a>
+                            </li>
+                            <li>
+                                <a href="#designActionChange">designActionChange</a>
+                            </li>
+                            <li>
+                                <a href="#dragEnd">dragEnd</a>
+                            </li>
+                            <li>
+                                <a href="#dragMove">dragMove</a>
+                            </li>
+                            <li>
+                                <a href="#dragStart">dragStart</a>
+                            </li>
+                            <li>
+                                <a href="#drawDraft">drawDraft</a>
+                            </li>
+                            <li>
+                                <a href="#fill">fill</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#filterActionChange">filterActionChange</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#hasPoint">hasPoint</a>
+                            </li>
+                            <li>
+                                <a href="#ngAfterViewInit">ngAfterViewInit</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit">ngOnInit</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#onClear">onClear</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#onPaste">onPaste</a>
+                            </li>
+                            <li>
+                                <a href="#pasteEvent">pasteEvent</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#resolvePoint">resolvePoint</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#resolveToValue">resolveToValue</a>
+                            </li>
+                            <li>
+                                <a href="#setNewDraft">setNewDraft</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#setPositionAndSize">setPositionAndSize</a>
+                            </li>
+                            <li>
+                                <a href="#snapToGrid">snapToGrid</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#children">children</a>
+                            </li>
+                            <li>
+                                <a href="#draft">draft</a>
+                            </li>
+                            <li>
+                                <a href="#parent">parent</a>
+                            </li>
+                            <li>
+                                <a href="#patterns">patterns</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#onSubdraftDrop">onSubdraftDrop</a>
+                            </li>
+                            <li>
+                                <a href="#onSubdraftMove">onSubdraftMove</a>
+                            </li>
+                            <li>
+                                <a href="#onSubdraftStart">onSubdraftStart</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section>
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(el: <a href="https://angular.io/api/core/ElementRef" target="_blank">ElementRef</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:66</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>el</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="https://angular.io/api/core/ElementRef" target="_blank" >ElementRef</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+    <section>
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="children"></a>
+                        <b>children</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../classes/Connection.html" target="_self" >Array&lt;ConnectionComponent&gt;</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:35</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="draft"></a>
+                        <b>draft</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../classes/Draft.html" target="_self" >Draft</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:32</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="parent"></a>
+                        <b>parent</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../classes/Connection.html" target="_self" >ConnectionComponent</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:34</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="patterns"></a>
+                        <b>patterns</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:33</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <section>
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onSubdraftDrop"></a>
+                        <b>onSubdraftDrop</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://angular.io/api/core/EventEmitter" target="_blank" >EventEmitter</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:37</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onSubdraftMove"></a>
+                        <b>onSubdraftMove</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://angular.io/api/core/EventEmitter" target="_blank" >EventEmitter</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:36</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onSubdraftStart"></a>
+                        <b>onSubdraftStart</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://angular.io/api/core/EventEmitter" target="_blank" >EventEmitter</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:38</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section>
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="clearEvent"></a>
+                    <span class="name">
+                        <b>
+                            clearEvent
+                        </b>
+                        <a href="#clearEvent"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>clearEvent(b: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="286"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:286</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>b</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="computeFilter"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            computeFilter
+                        </b>
+                        <a href="#computeFilter"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>computeFilter(a: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>, b: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="110"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:110</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>a</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>b</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="designActionChange"></a>
+                    <span class="name">
+                        <b>
+                            designActionChange
+                        </b>
+                        <a href="#designActionChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>designActionChange(e)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="245"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:245</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dragEnd"></a>
+                    <span class="name">
+                        <b>
+                            dragEnd
+                        </b>
+                        <a href="#dragEnd"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>dragEnd($event: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="213"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:213</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>$event</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dragMove"></a>
+                    <span class="name">
+                        <b>
+                            dragMove
+                        </b>
+                        <a href="#dragMove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>dragMove($event: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="225"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:225</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>$event</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dragStart"></a>
+                    <span class="name">
+                        <b>
+                            dragStart
+                        </b>
+                        <a href="#dragStart"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>dragStart($event: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="219"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:219</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>$event</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="drawDraft"></a>
+                    <span class="name">
+                        <b>
+                            drawDraft
+                        </b>
+                        <a href="#drawDraft"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>drawDraft(draft: <a href="../classes/Draft.html">Draft</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="178"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:178</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>draft</td>
+                                    <td>
+                                                <code><a href="../classes/Draft.html" target="_self" >Draft</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="fill"></a>
+                    <span class="name">
+                        <b>
+                            fill
+                        </b>
+                        <a href="#fill"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>fill(id)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="273"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:273</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="filterActionChange"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            filterActionChange
+                        </b>
+                        <a href="#filterActionChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>filterActionChange(event: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="104"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:104</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>event</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="hasPoint"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            hasPoint
+                        </b>
+                        <a href="#hasPoint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>hasPoint(p: <a href="../interfaces/Point.html">Point</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="125"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:125</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>p</td>
+                                    <td>
+                                                <code><a href="../interfaces/Point.html" target="_self" >Point</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngAfterViewInit"></a>
+                    <span class="name">
+                        <b>
+                            ngAfterViewInit
+                        </b>
+                        <a href="#ngAfterViewInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngAfterViewInit()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="83"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:83</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <b>
+                            ngOnInit
+                        </b>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="76"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:76</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onClear"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            onClear
+                        </b>
+                        <a href="#onClear"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onClear(b: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="337"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:337</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>//  * Tell the weave directive to fill selection with pattern.
+//  * @extends WeaveComponent
+//  * @param {Event} e - fill event from design component.
+//  * @returns {void}
+//  </p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>b</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPaste"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            onPaste
+                        </b>
+                        <a href="#onPaste"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onPaste(e)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="356"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:356</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Tells weave reference to paste copied pattern.</p>
+</div>
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                    <td>Description</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                    <td>
+                                        <ul>
+<li>paste event from design component.</li>
+</ul>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="pasteEvent"></a>
+                    <span class="name">
+                        <b>
+                            pasteEvent
+                        </b>
+                        <a href="#pasteEvent"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>pasteEvent(type)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="290"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:290</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>type</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="resolvePoint"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            resolvePoint
+                        </b>
+                        <a href="#resolvePoint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>resolvePoint(p: <a href="../interfaces/Point.html">Point</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="141"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:141</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>p</td>
+                                    <td>
+                                                <code><a href="../interfaces/Point.html" target="_self" >Point</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="../interfaces/Interlacement.html" target="_self" >Interlacement</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="resolveToValue"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            resolveToValue
+                        </b>
+                        <a href="#resolveToValue"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>resolveToValue(p: <a href="../interfaces/Point.html">Point</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="155"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:155</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>p</td>
+                                    <td>
+                                                <code><a href="../interfaces/Point.html" target="_self" >Point</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setNewDraft"></a>
+                    <span class="name">
+                        <b>
+                            setNewDraft
+                        </b>
+                        <a href="#setNewDraft"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>setNewDraft(bounds: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, temp: <a href="../classes/Draft.html">Draft</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="167"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:167</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>bounds</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>temp</td>
+                                    <td>
+                                                <code><a href="../classes/Draft.html" target="_self" >Draft</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setPositionAndSize"></a>
+                    <span class="name">
+                        <b>
+                            <span class="modifier">Public</span>
+                            setPositionAndSize
+                        </b>
+                        <a href="#setPositionAndSize"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>setPositionAndSize(bounds: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="93"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:93</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>bounds</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="snapToGrid"></a>
+                    <span class="name">
+                        <b>
+                            snapToGrid
+                        </b>
+                        <a href="#snapToGrid"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>snapToGrid(p: <a href="../interfaces/Point.html">Point</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="205"
+                            class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:205</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>p</td>
+                                    <td>
+                                                <code><a href="../interfaces/Point.html" target="_self" >Point</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="../interfaces/Point.html" target="_self" >Point</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section>
+    
+        <h3 id="inputs">
+            Properties
+        </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="canvas"></a>
+                        <span class="name">
+                            <b>
+                            canvas</b>
+                            <a href="#canvas"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>    <code>HTMLCanvasElement</code>
+
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:53</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="counter"></a>
+                        <span class="name">
+                            <b>
+                            counter</b>
+                            <a href="#counter"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>0</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:62</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="cx"></a>
+                        <span class="name">
+                            <b>
+                            cx</b>
+                            <a href="#cx"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:54</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="design_actions"></a>
+                        <span class="name">
+                            <b>
+                            design_actions</b>
+                            <a href="#design_actions"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="../interfaces/DesignActions.html" target="_self" >DesignActions[]</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>[
+  {value: &#x27;toggle&#x27;, viewValue: &#x27;Invert Region&#x27;, icon: &quot;fas fa-adjust&quot;},
+  {value: &#x27;flip_x&#x27;, viewValue: &#x27;Vertical Flip&#x27;, icon: &quot;fas fa-arrows-alt-v&quot;},
+  {value: &#x27;flip_y&#x27;, viewValue: &#x27;Horizontal Flip&#x27;, icon: &quot;fas fa-arrows-alt-h&quot;},
+  {value: &#x27;shift_left&#x27;, viewValue: &#x27;Shift 1 Warp Left&#x27;, icon: &quot;fas fa-arrow-left&quot;},
+  {value: &#x27;shift_up&#x27;, viewValue: &#x27;Shift 1 Pic Up&#x27;, icon: &quot;fas fa-arrow-up&quot;},
+  {value: &#x27;copy&#x27;, viewValue: &#x27;Copy Selected Region&#x27;, icon: &quot;fa fa-clone&quot;},
+  {value: &#x27;paste&#x27;, viewValue: &#x27;Paste Copyed Pattern to Selected Region&#x27;, icon: &quot;fa fa-paste&quot;},
+  {value: &#x27;delete&#x27;, viewValue: &#x27;Delete this Draft&#x27;, icon: &quot;fa fa-trash&quot;}
+]</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:41</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="disable_drag"></a>
+                        <span class="name">
+                            <b>
+                            disable_drag</b>
+                            <a href="#disable_drag"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>false</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:66</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="draw_mode"></a>
+                        <span class="name">
+                            <b>
+                            draw_mode</b>
+                            <a href="#draw_mode"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>false</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:65</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="filter"></a>
+                        <span class="name">
+                            <b>
+                            filter</b>
+                            <a href="#filter"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>&#x27;or&#x27;</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:61</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="moving"></a>
+                        <span class="name">
+                            <b>
+                            moving</b>
+                            <a href="#moving"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>false</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:64</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="scale"></a>
+                        <span class="name">
+                            <b>
+                            scale</b>
+                            <a href="#scale"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>10</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:60</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="size"></a>
+                        <span class="name">
+                            <b>
+                            size</b>
+                            <a href="#size"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>{w: 0, h: 0}</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:58</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="topleft"></a>
+                        <span class="name">
+                            <b>
+                            topleft</b>
+                            <a href="#topleft"><span class="icon ion-ios-link"></span></a>
+                        </span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <i>Default value : </i><code>{x: 0, y: 0}</code>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/app/weaver/palette/subdraft/subdraft.component.ts:56</a></div>
+                            </td>
+                        </tr>
+
+
+            </tbody>
+        </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="c-source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit, Input, Output, EventEmitter, ElementRef} from &#x27;@angular/core&#x27;;
+import { Draft } from &#x27;../../../core/model/draft&#x27;;
+import { ConnectionComponent } from &#x27;../connection/connection.component&#x27;;
+
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface Interlacement {
+  i:number;
+  j:number;
+}
+
+interface DesignActions{
+  value: string;
+  viewValue: string;
+  icon: string;
+}
+
+@Component({
+  selector: &#x27;app-subdraft&#x27;,
+  templateUrl: &#x27;./subdraft.component.html&#x27;,
+  styleUrls: [&#x27;./subdraft.component.scss&#x27;]
+})
+
+
+
+export class SubdraftComponent implements OnInit {
+
+  @Input()  draft: Draft;
+  @Input()  patterns: any;
+  @Input()  parent: ConnectionComponent;
+  @Input()  children: Array&lt;ConnectionComponent&gt;;
+  @Output() onSubdraftMove &#x3D; new EventEmitter &lt;any&gt;(); 
+  @Output() onSubdraftDrop &#x3D; new EventEmitter &lt;any&gt;(); 
+  @Output() onSubdraftStart &#x3D; new EventEmitter &lt;any&gt;(); 
+
+ //operations you can perform on a selection 
+ design_actions: DesignActions[] &#x3D; [
+  {value: &#x27;toggle&#x27;, viewValue: &#x27;Invert Region&#x27;, icon: &quot;fas fa-adjust&quot;},
+  {value: &#x27;flip_x&#x27;, viewValue: &#x27;Vertical Flip&#x27;, icon: &quot;fas fa-arrows-alt-v&quot;},
+  {value: &#x27;flip_y&#x27;, viewValue: &#x27;Horizontal Flip&#x27;, icon: &quot;fas fa-arrows-alt-h&quot;},
+  {value: &#x27;shift_left&#x27;, viewValue: &#x27;Shift 1 Warp Left&#x27;, icon: &quot;fas fa-arrow-left&quot;},
+  {value: &#x27;shift_up&#x27;, viewValue: &#x27;Shift 1 Pic Up&#x27;, icon: &quot;fas fa-arrow-up&quot;},
+  {value: &#x27;copy&#x27;, viewValue: &#x27;Copy Selected Region&#x27;, icon: &quot;fa fa-clone&quot;},
+  {value: &#x27;paste&#x27;, viewValue: &#x27;Paste Copyed Pattern to Selected Region&#x27;, icon: &quot;fa fa-paste&quot;},
+  {value: &#x27;delete&#x27;, viewValue: &#x27;Delete this Draft&#x27;, icon: &quot;fa fa-trash&quot;}
+];
+
+
+  canvas: HTMLCanvasElement;
+  cx: any;
+
+  topleft &#x3D; {x: 0, y: 0}; //this is an internal reprsentation of the top left point
+  
+  size &#x3D; {w: 0, h: 0};
+
+  scale &#x3D; 10; 
+  filter &#x3D; &#x27;or&#x27;; //can be or, and, neq, not, splice
+  counter:number  &#x3D;  0; // only call functions every so often
+  
+  moving &#x3D; false;
+  draw_mode &#x3D; false;
+  disable_drag &#x3D; false;
+
+
+  constructor(private el: ElementRef) { 
+        //add random position for testing
+        this.topleft.x &#x3D; Math.floor(Math.random() * 400 / this.scale)  * this.scale;
+        this.topleft.y &#x3D; Math.floor(Math.random() * 400 / this.scale)  * this.scale;
+        
+  }
+
+  ngOnInit(){
+    this.size.w &#x3D; this.draft.warps * this.scale;
+    this.size.h &#x3D; this.draft.wefts * this.scale;
+
+  }
+
+
+  ngAfterViewInit() {
+
+    this.canvas &#x3D; &lt;HTMLCanvasElement&gt; document.getElementById(this.draft.id.toString());
+    this.cx &#x3D; this.canvas.getContext(&quot;2d&quot;);
+    this.drawDraft(this.draft);
+
+    console.log(&quot;after init&quot;);
+
+  }
+
+  public setPositionAndSize(bounds: any){
+    console.log(&quot;setting to&quot;, bounds);
+    this.topleft &#x3D; bounds.topleft;
+    this.size.w &#x3D; bounds.width;
+    this.size.h &#x3D; bounds.height;
+    console.log(this.size.h);
+  }
+
+
+
+
+  public filterActionChange(event: any){
+    console.log(event);
+    this.filter &#x3D; event;
+
+  }
+
+  public computeFilter(a: boolean, b: boolean):boolean{
+
+    if(a &#x3D;&#x3D;&#x3D; null &amp;&amp; b &#x3D;&#x3D;&#x3D; null) return null;
+
+    if(a &#x3D;&#x3D;&#x3D; null) return b;
+    if(b &#x3D;&#x3D;&#x3D; null) return a;
+
+    if(this.filter &#x3D;&#x3D;&#x3D; &quot;or&quot;)  return (a || b);
+    if(this.filter &#x3D;&#x3D;&#x3D; &quot;and&quot;)  return (a &amp;&amp; b);
+    if(this.filter &#x3D;&#x3D;&#x3D; &quot;neq&quot;)  return (a !&#x3D;&#x3D; b);
+    if(this.filter &#x3D;&#x3D;&#x3D; &quot;inv&quot;)  return (!b);
+
+
+  }
+
+  public hasPoint(p:Point) : boolean{
+
+      const endPosition &#x3D; {
+        x: this.topleft.x + this.size.w,
+        y: this.topleft.y + this.size.h,
+      };
+
+      if(p.x &lt; this.topleft.x || p.x &gt; endPosition.x) return false;
+      if(p.y &lt; this.topleft.y || p.y &gt; endPosition.y) return false;
+
+    
+    return true;
+
+  }
+
+
+  public resolvePoint(p:Point) : Interlacement{
+    
+    let i &#x3D; Math.floor((p.y -this.topleft.y) / this.scale);
+    let j &#x3D; Math.floor((p.x - this.topleft.x) / this.scale);
+
+    if(i &lt; 0 || i &gt;&#x3D; this.draft.wefts) i &#x3D; -1;
+    if(j &lt; 0 || j &gt;&#x3D; this.draft.warps) j &#x3D; -1;
+
+    return {i: i, j:j};
+
+  }
+
+
+  //takes an absolute reference and returns boolean or null if its unset
+  public resolveToValue(p:Point) : boolean{
+
+    const coords &#x3D; this.resolvePoint(p);
+
+    if(coords.i &lt; 0 || coords.j &lt; 0) return null; //this out of range
+
+    if(!this.draft.pattern[coords.i][coords.j].isSet()) return null;
+    
+    return this.draft.pattern[coords.i][coords.j].isUp();
+  
+  }
+
+  setNewDraft(bounds: any, temp: Draft) {
+    
+    this.size.w &#x3D; temp.warps * this.scale;
+    this.size.h &#x3D; temp.wefts * this.scale;
+    this.topleft &#x3D; bounds.topleft; //adjusts to the top left of the new bounding box
+    this.draft &#x3D; temp;
+
+  }
+
+     
+
+  drawDraft(draft: Draft) {
+
+    console.log(&quot;drawing&quot;, draft, this.canvas, this.cx);
+    
+    // this.canvas.width &#x3D; this.size.w;
+    // this.canvas.height &#x3D; this.size.h;
+
+    for (let i &#x3D; 0; i &lt; draft.visibleRows.length; i++) {
+      
+      for (let j &#x3D; 0; j &lt; draft.warps; j++) {
+        let row:number &#x3D; draft.visibleRows[i];
+    
+        let is_up &#x3D; draft.isUp(row,j);
+        let is_set &#x3D; draft.isSet(row, j);
+        if(is_set){
+          this.cx.fillStyle &#x3D; (is_up) ?  &#x27;#000000&#x27; :  &#x27;#ffffff&#x27;;
+          this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
+        } else{
+          this.cx.fillStyle &#x3D;  &#x27;#DDDDDD&#x27; ;
+          this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
+        }
+ 
+      }
+    }
+  }
+
+
+  snapToGrid(p: Point):Point{
+
+    p.x &#x3D; Math.floor(p.x / this.scale) * this.scale;
+    p.y &#x3D; Math.floor(p.y / this.scale) * this.scale;
+    return p;
+
+  }
+  
+  dragEnd($event: any) {
+    this.moving &#x3D; false;
+    this.counter &#x3D; 0;  
+    this.onSubdraftDrop.emit({id: this.draft.id});
+  }
+
+  dragStart($event: any) {
+    this.moving &#x3D; true;
+    this.counter &#x3D; 0;  
+    this.onSubdraftStart.emit({id: this.draft.id});
+  }
+
+  dragMove($event: any) {
+    //position of pointer of the page
+    const pointer &#x3D; $event.pointerPosition;
+   
+    const relative &#x3D; {
+      x: pointer.x, 
+      y: pointer.y - 64 //pointer position is relative to window, not this parent div.
+    }
+
+    const adj &#x3D; this.snapToGrid(relative);
+    this.topleft &#x3D; adj;
+
+    if(this.counter%1 &#x3D;&#x3D;&#x3D; 0){
+      this.onSubdraftMove.emit({id: this.draft.id});
+      this.counter &#x3D; 0;
+    } 
+    this.counter++;
+  }
+
+
+  designActionChange(e){
+    console.log(e);
+
+    switch(e){
+      // case &#x27;copy&#x27;: this.copyEvent(e);
+      // break;
+
+      // case &#x27;duplicate&#x27;: this.duplicate(e, &#x27;original&#x27;);
+      // break;
+
+      case &#x27;toggle&#x27;: this.pasteEvent(&#x27;invert&#x27;);
+      break;
+
+      case &#x27;flip_x&#x27;: this.pasteEvent(&#x27;mirrorX&#x27;);
+      break;
+
+      case &#x27;flip_y&#x27;: this.pasteEvent(&#x27;mirrorY&#x27;);
+      break;
+
+      case &#x27;shift_left&#x27;: this.pasteEvent(&#x27;shiftLeft&#x27;);
+      break;
+
+      case &#x27;shift_up&#x27;: this.pasteEvent(&#x27;shiftUp&#x27;);
+      break;
+
+    }
+  }
+
+    fill(id) {
+      var p &#x3D; this.patterns[id].pattern;
+      console.log(p);
+      //need a way to specify an area within the fill
+      this.draft.fill(p, &#x27;original&#x27;);
+      this.drawDraft(this.draft);
+
+    }
+
+    // copyEvent(e) {
+    //   this.onCopy();
+    // }
+
+    clearEvent(b:boolean) {
+     // this.onClear(b);
+    }
+
+    pasteEvent(type) {
+
+      var p &#x3D; this.draft.pattern;
+      console.log(&quot;paste event&quot;, type, p);
+
+      if(type &#x3D;&#x3D;&#x3D; undefined) type &#x3D; &quot;original&quot;;
+
+     this.draft.fill(p, type);
+     this.drawDraft(this.draft);
+
+
+
+    }
+    
+    /**
+  //  * Tell the weave directive to fill selection with pattern.
+  //  * @extends WeaveComponent
+  //  * @param {Event} e - fill event from design component.
+  //  * @returns {void}
+  //  */
+  // public onFill(e) {
+    
+  //   var p &#x3D; this.patterns[e.id].pattern;
+  //   console.log(p);
+    
+
+  //   //need a way to specify an area within the fill
+  //   this.draft.fill(p, &#x27;original&#x27;);
+  //   this.drawDraft(this.draft);
+
+
+  //   // if(this.render.showingFrames()) this.draft.recomputeLoom();
+
+  //   // if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+    
+  //   // this.palette.redraw({drawdown:true, loom:true});
+
+  //   // this.timeline.addHistoryState(this.draft);
+    
+  // }
+
+  /**
+   * Tell weave reference to clear selection.
+   * @extends WeaveComponent
+   * @param {Event} Delte - clear event from design component.
+   * @returns {void}
+   */
+  public onClear(b:boolean) {
+    
+    // this.draft.fillArea(this.palette.selection, [[b]], &#x27;original&#x27;)
+
+    // this.palette.copyArea();
+
+    // this.palette.redraw({drawdown:true, loom:true});
+
+    // this.timeline.addHistoryState(this.draft);
+
+  }
+
+ 
+  /**
+   * Tells weave reference to paste copied pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - paste event from design component.
+   * @returns {void}
+   */
+  public onPaste(e) {
+
+     var p &#x3D; this.draft.pattern;
+     var type;
+
+    if(e.type &#x3D;&#x3D;&#x3D; undefined) type &#x3D; &quot;original&quot;;
+    else type &#x3D;  e.type;
+
+     this.draft.fill(p, type);
+     this.drawDraft(this.draft);
+
+    // if(this.render.showingFrames()) this.draft.recomputeLoom();
+    
+    // if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+
+    // this.timeline.addHistoryState(this.draft);
+
+    // this.palette.copyArea();
+
+    // this.palette.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+ 
+
+  }
+
+
+
+
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div id&#x3D;&quot;con-{{draft.id}}&quot; class&#x3D;&quot;subdraft-container&quot; 
+	cdkDrag
+	[cdkDragDisabled] &#x3D; &quot;disable_drag&quot;
+	[cdkDragData]&#x3D;&quot;scale&quot;
+	[cdkDragFreeDragPosition]&#x3D;&quot;topleft&quot;
+	(cdkDragMoved)&#x3D;&quot;dragMove($event)&quot;
+	(cdkDragEnded)&#x3D;&quot;dragEnd($event)&quot;
+	(cdkDragStarted)&#x3D;&quot;dragStart($event)&quot;&gt;
+
+  	&lt;div class&#x3D;&quot;subdraft-contents&quot;&gt;
+
+
+		&lt;canvas id&#x3D;&quot;{{draft.id}}&quot; width&#x3D;&quot;{{size.w}}&quot; height&#x3D;&quot;{{size.h}}&quot; &gt;  
+		&lt;/canvas&gt;
+
+		
+	&lt;/div&gt;
+
+	&lt;div class&#x3D;&quot;subdraft-details&quot;&gt; 
+		&lt;button 
+		matTooltip&#x3D; &quot;Filters&quot;
+		class&#x3D;&quot;button is-small is-primary fas fa-filter&quot;
+		[matMenuTriggerFor]&#x3D;&quot;filters&quot;&gt;
+		&lt;/button&gt;
+
+		&lt;mat-menu #filters&#x3D;&quot;matMenu&quot;&gt;
+		 
+			&lt;button [matTooltip]&#x3D; &quot;union&quot; 
+			mat-menu-item
+			[name]&#x3D;&quot;union&quot;
+			(click)&#x3D;&quot;filterActionChange(&#x27;or&#x27;)&quot;&gt;
+			Union
+			&lt;/button&gt;   
+			
+			&lt;button 
+			mat-menu-item
+			[matTooltip]&#x3D; &quot;intersection&quot; 
+			[name]&#x3D;&quot;intersection&quot;
+			(click)&#x3D;&quot;filterActionChange(&#x27;and&#x27;)&quot;&gt;
+			Intersection
+			&lt;/button&gt;   
+
+			&lt;button [matTooltip]&#x3D; &quot;difference&quot; 
+			mat-menu-item
+			[name]&#x3D;&quot;difference&quot;
+			class&#x3D;&quot;button is-small is-primary &quot;
+			(click)&#x3D;&quot;filterActionChange(&#x27;neq&#x27;)&quot;&gt;
+			Overlay
+			&lt;/button&gt;   
+
+
+		&lt;/mat-menu&gt;
+
+		&lt;button 
+		matTooltip&#x3D; &quot;Actions&quot;
+		class&#x3D;&quot;button is-small is-primary fas fa-magic&quot;
+		[style.color]&#x3D;&quot;button_color&quot; 
+		[matMenuTriggerFor]&#x3D;&quot;actions&quot;&gt;
+		&lt;/button&gt;
+		
+		&lt;mat-menu #actions&#x3D;&quot;matMenu&quot;&gt;
+		  &lt;ng-container *ngFor&#x3D;&quot;let action of design_actions&quot;&gt;
+			&lt;button [matTooltip]&#x3D;action.viewValue 
+			 mat-menu-item
+			[name]&#x3D;action.value 
+			(click)&#x3D;&quot;designActionChange(action.value)&quot;&gt;
+			&lt;mat-icon&gt;&lt;i class&#x3D;&quot;{{action.icon}}&quot;&gt;&lt;/i&gt;&lt;/mat-icon&gt; 
+			{{action.viewValue}}
+			&lt;/button&gt;    
+		  &lt;/ng-container&gt;
+		&lt;/mat-menu&gt;
+
+
+		&lt;button 
+		matTooltip&#x3D; &quot;Fill&quot;
+		class&#x3D;&quot;button is-small is-primary fas fa-fill&quot;
+		[style.color]&#x3D;&quot;button_color&quot; 
+		[matMenuTriggerFor]&#x3D;&quot;fills&quot;&gt;
+		&lt;/button&gt;
+		
+		&lt;mat-menu #fills&#x3D;&quot;matMenu&quot;&gt;
+			&lt;ng-container *ngFor&#x3D;&quot;let pattern of patterns&quot;&gt;
+				&lt;button [matTooltip]&#x3D;pattern.name 
+				mat-menu-item
+				[name]&#x3D;pattern.name 
+				(click)&#x3D;&quot;fill(pattern.id)&quot;&gt;{{pattern.name }}
+				&lt;/button&gt;    
+			  &lt;/ng-container&gt;
+		&lt;/mat-menu&gt;
+	
+	
+   &lt;/div&gt;
+&lt;/div&gt;
+	
+
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-styleData">
+                <p class="comment">
+                    <code>./subdraft.component.scss</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.subdraft-container{
+
+	position: absolute;
+	color: grey;
+	display: flex;
+	flex-direction: row;
+	justify-content:flex-end;
+}
+
+.subdraft-container:hover,
+.subdraft-container:active{
+
+	svg{
+		color: #ff4081;
+	}
+
+	.subdraft-details{
+		display: flex;
+		color: #ff4081;
+	}
+
+	canvas{
+		border: thin solid #00d1b2;
+	}
+
+}
+
+.mat-icon{
+	height: auto;
+}
+
+.subdraft-details{
+	display:none;
+}
+
+.subdraft-contents{
+	display: block;
+}
+
+svg{
+	display: block;
+	color: black;
+}
+
+canvas{
+	display: block;
+	overflow:hidden;
+	border: thin solid white;
+}
+
+div.cdk-drag-dragging canvas{
+	border: thin solid #ff4081;
+}
+
+div.cdk-drag-dragging{
+	z-index: 10; 
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="c-tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div id="con-{{draft.id}}" class="subdraft-container" 	cdkDrag	[cdkDragDisabled] = "disable_drag"	[cdkDragData]="scale"	[cdkDragFreeDragPosition]="topleft"	(cdkDragMoved)="dragMove($event)"	(cdkDragEnded)="dragEnd($event)"	(cdkDragStarted)="dragStart($event)">  	<div class="subdraft-contents">		<canvas id="{{draft.id}}" width="{{size.w}}" height="{{size.h}}" >  		</canvas>			</div>	<div class="subdraft-details"> 		<button 		matTooltip= "Filters"		class="button is-small is-primary fas fa-filter"		[matMenuTriggerFor]="filters">		</button>		<mat-menu #filters="matMenu">		 			<button [matTooltip]= "union" 			mat-menu-item			[name]="union"			(click)="filterActionChange(\'or\')">			Union			</button>   						<button 			mat-menu-item			[matTooltip]= "intersection" 			[name]="intersection"			(click)="filterActionChange(\'and\')">			Intersection			</button>   			<button [matTooltip]= "difference" 			mat-menu-item			[name]="difference"			class="button is-small is-primary "			(click)="filterActionChange(\'neq\')">			Overlay			</button>   		</mat-menu>		<button 		matTooltip= "Actions"		class="button is-small is-primary fas fa-magic"		[style.color]="button_color" 		[matMenuTriggerFor]="actions">		</button>				<mat-menu #actions="matMenu">		  <ng-container *ngFor="let action of design_actions">			<button [matTooltip]=action.viewValue 			 mat-menu-item			[name]=action.value 			(click)="designActionChange(action.value)">			<mat-icon><i class="{{action.icon}}"></i></mat-icon> 			{{action.viewValue}}			</button>    		  </ng-container>		</mat-menu>		<button 		matTooltip= "Fill"		class="button is-small is-primary fas fa-fill"		[style.color]="button_color" 		[matMenuTriggerFor]="fills">		</button>				<mat-menu #fills="matMenu">			<ng-container *ngFor="let pattern of patterns">				<button [matTooltip]=pattern.name 				mat-menu-item				[name]=pattern.name 				(click)="fill(pattern.id)">{{pattern.name }}				</button>    			  </ng-container>		</mat-menu>		   </div></div>	</div>'
+    var COMPONENTS = [{'name': 'AboutModal', 'selector': 'app-about'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConnectionComponent', 'selector': 'app-connection'},{'name': 'ConnectionModal', 'selector': 'app-connection'},{'name': 'DesignComponent', 'selector': 'app-design'},{'name': 'HistoryComponent', 'selector': 'app-history'},{'name': 'InitModal', 'selector': 'app-init'},{'name': 'LabelModal', 'selector': 'app-label'},{'name': 'LoomComponent', 'selector': 'app-loom'},{'name': 'MasksComponent', 'selector': 'app-masks'},{'name': 'MaterialModal', 'selector': 'app-material-modal'},{'name': 'MaterialsComponent', 'selector': 'app-materials'},{'name': 'NotesComponent', 'selector': 'app-notes'},{'name': 'OperationComponent', 'selector': 'app-operation'},{'name': 'PaletteComponent', 'selector': 'app-palette'},{'name': 'PatternModal', 'selector': 'app-pattern-modal'},{'name': 'PatternsComponent', 'selector': 'app-patterns'},{'name': 'SchematicComponent', 'selector': 'app-schematic'},{'name': 'ShuttlesModal', 'selector': 'app-shuttles-modal'},{'name': 'SnackbarComponent', 'selector': 'app-snackbar'},{'name': 'SubdraftComponent', 'selector': 'app-subdraft'},{'name': 'SystemsComponent', 'selector': 'app-systems'},{'name': 'TopbarComponent', 'selector': 'app-topbar'},{'name': 'UploadFormComponent', 'selector': 'upload-form'},{'name': 'ViewComponent', 'selector': 'app-view'},{'name': 'WeaverComponent', 'selector': 'app-weaver'}];
+    var DIRECTIVES = [{'name': 'SelectionComponent', 'selector': 'app-selection'},{'name': 'WeaveDirective', 'selector': '[weave]'}];
+    var ACTUAL_COMPONENT = {'name': 'SubdraftComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+                   
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'SubdraftComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
+       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
+       <script src="../js/menu-wc.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

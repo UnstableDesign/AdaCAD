@@ -1,26 +1,47 @@
 /**
- * Definition of pattern object.
- * @class
+ * Definition of Cell object.
+ * @class Cell describes values assigned to one cell within a draft
+ * @param poles describes the path of the yarn through this cell as a 4-bit number corresponding to NSEW. 
+ * @params is_up describes if the heddle at this location is up or down
+ * @params is_set describes if a yarn will move over this heddle (used in inlay and shape weaving to draw boundaries) 
+ * @param mast_id describes the mask region for which this cell belongs (not currently used)
  */
 export class Cell {
   poles: number;
   is_up: boolean;
+  is_set: boolean;
   mask_id: number;
 
-  constructor() {
+  /**
+   * 
+   * @param setting describes if the Cell should be set to heddle up or not. Null value leaves cell unset. 
+   */
+  constructor(setting: boolean) {
     this.poles = 0b0000;
-    this.is_up = false;
     this.mask_id = -1;
+    if(setting === null || setting === undefined){
+      this.is_set = false;
+      this.is_up = false;
+    } 
+    else {
+      this.is_set = true;
+      this.is_up = setting;
+    }
   }
 
 
-
+  
+  isSet(){
+    return this.is_set;
+  }
 
   setHeddleUp(){
     this.is_up = true;
+    this.is_set = true;
   }
 
   setHeddleDown(){
+     this.is_set = true;
      this.is_up = false;
   }
 
@@ -134,6 +155,16 @@ export class Cell {
 
   setHeddle(value:boolean){
     this.is_up = value;
+    this.is_set = true;
+  }
+
+  toggleHeddle(){
+    if(!this.is_set){
+      this.is_set = true;
+      this.is_up = true;
+    }else{
+      this.is_up = !this.is_up;
+    }
   }
 
   setPoles(poles:number){
@@ -150,6 +181,7 @@ export class Cell {
 
   unsetHeddle(){
     this.is_up = false;
+    this.is_set = false;
   }
 
   unsetPoles(){

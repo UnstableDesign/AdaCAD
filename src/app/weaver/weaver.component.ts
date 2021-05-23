@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, Chan
 import {enableProdMode} from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
-import { WeaveDirective } from '../core/directives/weave.directive';
+import { WeaveDirective } from './directives/weave.directive';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
 import { Draft } from '../core/model/draft';
@@ -15,6 +15,7 @@ import { LabelModal } from './modal/label/label.modal';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {cloneDeep, now} from 'lodash';
+import { Cell } from '../core/model/cell';
 
 
 //disables some angular checking mechanisms
@@ -537,7 +538,9 @@ export class WeaverComponent implements OnInit {
    */
   public onClear(b:boolean) {
     
-    this.draft.fillArea(this.weaveRef.selection, [[b]], 'original')
+    const c: Cell = new Cell(b);
+
+    this.draft.fillArea(this.weaveRef.selection, [[c]], 'original')
 
     if(this.render.showingFrames()) this.draft.recomputeLoom();
 
