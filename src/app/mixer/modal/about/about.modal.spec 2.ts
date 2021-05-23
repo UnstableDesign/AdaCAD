@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AboutModal } from './about.component';
+import { AboutModal } from './about.modal';
 
 describe('AboutModal', () => {
   let about: AboutModal;
