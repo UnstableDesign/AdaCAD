@@ -1,6 +1,6 @@
-<div id="con-{{draft.id}}" class="subdraft-container" 
+<div id="con-{{draft.id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
-	[class.drawing] = "disable_drag"
+	[class.drawing] = "disable_drag && !is_preview"
 	[cdkDragDisabled] = "disable_drag"
 	[cdkDragFreeDragPosition]="bounds.topleft"
 	[cdkDragData]="scale"

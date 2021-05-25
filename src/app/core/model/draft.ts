@@ -546,6 +546,44 @@ export class Draft implements DraftInterface {
 
   }
 
+
+  /**
+ * reload for mixer runs when updating drafts on moves and is scaled down to its most limited functionality
+ * to ensure speed
+ * @param param0 
+ */
+   reloadForMixer({...params}) {
+
+    this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
+    this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
+    this.warps = (params.warps === undefined) ? 40 : params.warps;
+    this.pattern = (params.pattern === undefined) ? [] : params.pattern;
+
+
+    this.pattern = [];
+    for(var ii = 0; ii < this.wefts; ii++) {
+        this.pattern.push([]);
+
+        for (var j = 0; j < this.warps; j++){
+          if (params.pattern === undefined) {
+            this.pattern[ii].push(new Cell(null));
+            this.pattern[ii][j].unsetHeddle();
+
+          }else{
+
+            this.pattern[ii][j]= new Cell(null);
+
+            if(params.pattern[ii][j].isUp()) this.pattern[ii][j].setHeddle(true);
+            else this.pattern[ii][j].setHeddle(false);
+            
+            if(!params.pattern[ii][j].isSet()) this.pattern[ii][j].unsetHeddle();
+          }
+        }
+    }
+
+  }
+
+
   //this just makes a random pattern of a given size;
   makeRandomPattern(w: number, h: number){
       var random = Array<Array<boolean>>();

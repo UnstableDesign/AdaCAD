@@ -190,6 +190,8 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
       const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
       subdraft.instance.draft = d;
+      subdraft.instance.setAsPreview();
+      subdraft.instance.disableDrag();
       this.preview_ref = subdraft.hostView;
       this.preview = subdraft.instance;
     }
@@ -602,7 +604,6 @@ drawStarted(){
 
 
   subdraftMoved(obj: any){
-
       if(obj === null) return;
   
       //get the reference to the draft that's moving
@@ -610,18 +611,20 @@ drawStarted(){
       if(moving === null) return; 
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
+      
       if(isect.length == 0){
         if(this.hasPreview()) this.removePreview();
         return;
       } 
 
+      //const bounds: Bounds = this.getIntersectionBounds(moving, isect[0]);
       const bounds: Bounds = this.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
       
       this.preview.setComponentPosition(bounds.topleft);
-   
+      this.preview.drawDraft();
     }
 
 

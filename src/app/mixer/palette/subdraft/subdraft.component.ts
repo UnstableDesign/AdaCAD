@@ -54,12 +54,14 @@ export class SubdraftComponent implements OnInit {
   }
 
   scale = 10; 
-  filter = 'or'; //can be or, and, neq, not, splice
-  counter:number  =  0; // only call functions every so often
+  filter = 'neq'; //can be or, and, neq, not, splice
+  counter:number  =  0; // keeps track of how frequently to call the move functions
+  counter_limit: number = 50;  //this sets the threshold for move calls, lower number == more calls
   last_ndx:Interlacement = {i: -1, j:-1, si: -1}; //used to check if we should recalculate a move operation
 
-  moving = false;
-  disable_drag = false;
+  moving: boolean  = false;
+  disable_drag: boolean = false;
+  is_preview: boolean = false;
 
 
   constructor() { 
@@ -108,6 +110,10 @@ export class SubdraftComponent implements OnInit {
   public filterActionChange(event: any){
     this.filter = event;
 
+  }
+
+  public setAsPreview(){
+    this.is_preview = true;
   }
 
   public computeFilter(a: boolean, b: boolean):boolean{
@@ -166,7 +172,7 @@ export class SubdraftComponent implements OnInit {
 }
 
 /**
- * Takes an absolute coordinate and translates it to the row/column position in this subdraft
+ * Takes an absolute coordinate and translates it to the row/column position Relative to this subdraft
  * @param p the screen coordinate
  * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
  */
@@ -177,6 +183,21 @@ export class SubdraftComponent implements OnInit {
 
     if(i < 0 || i >= this.draft.wefts) i = -1;
     if(j < 0 || j >= this.draft.warps) j = -1;
+
+    return {i: i, j:j, si: i};
+
+  }
+
+  /**
+ * Takes an absolute coordinate and translates to a number that would represent its grid position on screen
+ * used only for testing if a new move calculation should be called
+ * @param p the screen coordinate
+ * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
+ */
+   public resolvePointToAbsoluteNdx(p:Point) : Interlacement{
+    
+    let i = Math.floor((p.y) / this.scale);
+    let j = Math.floor((p.x) / this.scale);
 
     return {i: i, j:j, si: i};
 
@@ -208,7 +229,7 @@ export class SubdraftComponent implements OnInit {
 
     this.bounds.width = temp.warps * this.scale;
     this.bounds.height = temp.wefts * this.scale;
-    this.draft.reload(temp);
+    this.draft.reloadForMixer(temp);
 
   }
 
@@ -336,19 +357,19 @@ export class SubdraftComponent implements OnInit {
 
   dragMove($event: any) {
     //position of pointer of the page
-    const pointer = $event.pointerPosition;
-   
-    const relative = this.getAdjusted(pointer);
+    const pointer:Point = $event.pointerPosition;
+    const relative:Point = this.getAdjusted(pointer);
+    const adj:Point = this.snapToGrid(relative);
 
-    const adj = this.snapToGrid(relative);
     this.bounds.topleft = adj;
 
-    const ndx = this.resolvePointToNdx(relative);
-  
-    if(this.counter%1 === 0 || !this.isSameNdx(this.last_ndx, ndx)){
+    const ndx = this.resolvePointToAbsoluteNdx(relative);
+    
+    if(this.counter%this.counter_limit === 0 || !this.isSameNdx(this.last_ndx, ndx)){
       this.onSubdraftMove.emit({id: this.draft.id});
       this.counter = 0;
     } 
+
     this.counter++;
     this.last_ndx = ndx;
   }
