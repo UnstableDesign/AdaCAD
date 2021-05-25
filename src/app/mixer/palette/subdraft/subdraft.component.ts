@@ -212,10 +212,14 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  setComponentPosition(point: any){
+  setComponentPosition(point: Point){
     this.bounds.topleft = point;
   }
 
+
+  setComponentBounds(bounds: Bounds){
+    this.bounds = bounds;
+  }
   /**
    * manually sets the component size. While such an operation should be handled on init but there is a bug where this value is checked before the 
    * component runds its init sequence. Manually adding the data makes it possible for check for intersections on selection and drawing end.
@@ -293,19 +297,28 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  private isSameNdx(p1: any, p2:any) : boolean {    
+  private isSameNdx(p1: Interlacement, p2:Interlacement) : boolean {    
     if(p1.i != p2.i ) return false;
     if(p1.j != p2.j) return false;
     return true;
   }
 
-  private getAdjusted(p: any) : any {   
+  private getAdjusted(p: Point) : any {   
     return {
       x: p.x,
       y: p.y - 64
     } 
   }
   
+  isSameBoundsAs(bounds: Bounds) : boolean {   
+    if(bounds.topleft.x != this.bounds.topleft.x) return false;
+    if(bounds.topleft.y != this.bounds.topleft.y) return false;
+    if(bounds.width != this.bounds.width) return false;
+    if(bounds.height != this.bounds.height) return false;
+    return true;
+  }
+  
+
   dragEnd($event: any) {
     this.moving = false;
     this.counter = 0;  

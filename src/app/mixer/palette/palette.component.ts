@@ -244,10 +244,10 @@ export class PaletteComponent implements OnInit{
     }
   }
 
-  private resolveCoordsToNdx(p: any) : any {    
+  private resolveCoordsToNdx(p: Point) : Interlacement {    
     const i = Math.floor((p.y - 64) / this.scale);
     const j = Math.floor((p.x) / this.scale);
-    return {i: i, j: j};
+    return {i: i, j: j, si: i};
   }
 
 
@@ -258,7 +258,7 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  private drawSelection(ndx: any){
+  private drawSelection(ndx: Interlacement){
 
 
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -279,7 +279,7 @@ export class PaletteComponent implements OnInit{
    * sets the value of the scratchpad cell at ndx 
    * @param ndx (i,j)
    */
-  private setCell(ndx: any){
+  private setCell(ndx: Interlacement){
     const c: Cell = this.scratch_pad[ndx.i][ndx.j];
   
     if(this.design_modes.isSelected('toggle')){
@@ -307,7 +307,7 @@ export class PaletteComponent implements OnInit{
    * draw the cell at position ndx
    * @param ndx (i,j)
    */
-  private drawCell(ndx: any){
+  private drawCell(ndx: Interlacement){
     
     const c: Cell = this.scratch_pad[ndx.i][ndx.j];
 
@@ -401,7 +401,7 @@ drawStarted(){
    * gets the bounds of a drawing on the scratchpad
    * @returns an object representing the bounds in the format of i, j (the row, column index of the pad)
    */
-  getScratchPadBounds(): any{
+  getScratchPadBounds(): Array<Interlacement>{
     let bottom: number = 0;
     let right: number = 0;
     let top: number = this.scratch_pad.length-1;
@@ -418,12 +418,8 @@ drawStarted(){
       }
     }
 
-    return {
-      top: top,
-      bottom: bottom,
-      left: left,
-      right: right
-    }
+    return [{i: top, j: left, si: -1}, {i: bottom, j: right, si: -1}];
+
   }
 
   /**
@@ -437,11 +433,10 @@ drawStarted(){
     if(this.scratch_pad === undefined) return;
     if(this.scratch_pad[0] === undefined) return;
     
-    //get bounds
-    const bounds: any = this.getScratchPadBounds();
+    const corners: Array<Interlacement> = this.getScratchPadBounds();
 
-    const warps = bounds.right - bounds.left + 1;
-    const wefts = bounds.bottom - bounds.top + 1;
+    const warps = corners[1].j - corners[0].j + 1;
+    const wefts = corners[1].i - corners[0].i + 1;
 
     //there must be at least one cell selected
     if(warps < 1 || wefts < 1){
@@ -452,7 +447,7 @@ drawStarted(){
     //if this drawing does not intersect with any existing subdrafts, 
     const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
     const pos = {
-      topleft: {x: bounds.left * this.scale, y: bounds.top * this.scale},
+      topleft: {x: corners[0].j * this.scale, y: corners[0].i * this.scale},
       width: warps * this.scale,
       height: wefts * this.scale
     }
@@ -463,7 +458,7 @@ drawStarted(){
 
     for(let i = 0; i < sd.draft.wefts; i++ ){
       for(let j = 0; j< sd.draft.warps; j++){
-        const c = this.scratch_pad[bounds.top+i][bounds.left+j];
+        const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
         sd.draft.pattern[i][j].setHeddle(c.isUp());
         if(!c.isSet()) sd.draft.pattern[i][j].unsetHeddle();
       }
@@ -507,7 +502,7 @@ drawStarted(){
    */
   onMove(event){
 
-    const ndx:any = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+    const ndx:Interlacement = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
 
     if(this.isSameNdx(this.last, ndx)) return;
 
@@ -563,12 +558,10 @@ drawStarted(){
     this.closeSnackBar();
 
     //create the selection as subdraft
-    const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+    const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
-    sc.setComponentPosition(bounds.topleft);
-    sc.setComponentSize(bounds.width, bounds.height); //this is a hack to make sure it has a size before intersections are checked
+    sc.setComponentBounds(bounds);
     sc.disableDrag();
-    
     
     //get any subdrafts that intersect the one we just made
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
@@ -580,41 +573,32 @@ drawStarted(){
     sc.setNewDraft(new_draft);
     sc.drawDraft();
 
-    //get the bounding box of all the intersections
-    const expanded_bounds: any = this.getCombinedBounds(sc, isect);
+    isect.forEach(el => {
+      const ibound = this.getIntersectionBounds(sc, el);
 
-    if(expanded_bounds.width > bounds.width || expanded_bounds.height > bounds.height){
-
-      //unset any points in the intersecting drafts that are now in the selection
-      isect.forEach(element => {
-       const sd_draft = element.draft.pattern;
-       for(let i = 0; i < sd_draft.length; i++){
-         for(let j = 0; j < sd_draft[i].length; j++){
-         
-            let p = element.resolveNdxToPoint({i: i, j: j, si: -1});
-            p.x += this.scale/2;
-            p.y += this.scale/2;
-            if(sc.hasPoint(p)) sd_draft[i][j].unsetHeddle();
+      if(el.isSameBoundsAs(ibound)){
+         console.log("Component had same Bounds as Intersection, Consumed");
+         this.removeSubdraft(el);
+      }else{
+         const sd_draft = el.draft.pattern;
+         for(let i = 0; i < sd_draft.length; i++){
+           for(let j = 0; j < sd_draft[i].length; j++){
+           
+              let p:Point = el.resolveNdxToPoint({i: i, j: j, si: -1});
+              p.x += this.scale/2;
+              p.y += this.scale/2;
+              if(sc.hasPoint(p)) sd_draft[i][j].unsetHeddle();
+           }
          }
-       }
-       element.drawDraft();
-      });
-
-      //delete any
-      isect.forEach(element => {
-        const to_delete = element.resize();
-        console.log("delete this?", to_delete);
-       });
-
-    }else{
-      //if the boudns haven't changed with the expansion, than everything was within our selection and we should delete it
-      isect.forEach(element => {
-        //this relies on my array having the same indexing as the view container. 
-       this.removeSubdraft(element);
-      });
-    }
-  
+         
+        el.drawDraft();
+        }
+    });
   }
+
+
+
+
 
 
   subdraftMoved(obj: any){
@@ -631,7 +615,7 @@ drawStarted(){
         return;
       } 
 
-      const bounds: any = this.getCombinedBounds(moving, isect);
+      const bounds: Bounds = this.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
@@ -681,7 +665,7 @@ drawStarted(){
         return false;
       }   
 
-      const bounds: any = this.getCombinedBounds(primary, isect);
+      const bounds: Bounds = this.getCombinedBounds(primary, isect);
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
       primary.setNewDraft(temp);
@@ -695,7 +679,7 @@ drawStarted(){
     return true;
   }
 
-  computeHeddleValue(p:any, main: any, isect: Array<SubdraftComponent>):boolean{
+  computeHeddleValue(p:Point, main: SubdraftComponent, isect: Array<SubdraftComponent>):boolean{
     const a:boolean = main.resolveToValue(p);
 
     //this may return an empty array, because the intersection might not have the point
@@ -709,8 +693,15 @@ drawStarted(){
     return main.computeFilter(a, val);
   }
 
-
-  doOverlap(l1:any,  r1:any,  l2:any,  r2:any){
+/**
+ * check if the rectangles defined by the points overlap
+ * @param l1 top left point of rectangle 1
+ * @param r1 bottom right point of rectangle 1
+ * @param l2 top left point of rectangle 2
+ * @param r2 bottom right point of rectanble 2
+ * @returns true or false in accordance to whether or not they overlap
+ */
+  doOverlap(l1:Point,  r1:Point,  l2:Point,  r2:Point){
 
     if (l1.x == r1.x || l1.y == r2.y || l2.x == r2.x
         || l2.y == r2.y) {
@@ -844,9 +835,9 @@ drawStarted(){
     return isect;
   }
 
-  getSelectionBounds(c1: any, c2: any): any{
+  getSelectionBounds(c1: any, c2: any): Bounds{
       let bottomright = {x: 0, y:0};
-      let bounds:any = {
+      let bounds:Bounds = {
         topleft:{x: 0, y:0},
         width: 0,
         height: 0
@@ -870,27 +861,27 @@ drawStarted(){
       bounds.width = bottomright.x - bounds.topleft.x;
       bounds.height = bottomright.y - bounds.topleft.y;
 
-     
-  
       return bounds;
   }
 
-  getIntersectionBounds(primary: SubdraftComponent, isect: Array<SubdraftComponent>):Array<Bounds>{
-    const bounds: Array<Bounds> = [];
-    bounds.push();
+  /**
+   * returns a Bounds type that represents the intersection between primary and one intersecting subdraft
+   * @param primary the rectangular area we are checking for intersections
+   * @param isect an array of all the components that intersect
+   * @returns the array of bounds of all intersections
+   */
+  getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
 
+    const left: number = Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
+    const top: number = Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
+    const right: number = Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
+    const bottom: number = Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
 
-    // const lefts: Array<SubdraftComponent> = isect.map(el => (Math.max(primary.topleft.x, el.topleft.x)));
-    // const tops: Array<SubdraftComponent> = isect.map(el => (Math.max(primary.topleft.y, el.topleft.y)));
-    // const rights: Array<SubdraftComponent> = isect.map(el => (Math.max((primary.topleft.x + primary.bounds.width), (el.topleft.x + el.bounds.width))));
-    // const bottoms: Array<SubdraftComponent> = isect.map(el => (Math.max((primary.topleft.y + primary.bounds.height), (el.topleft.y + el.bounds.height))));
-
-   
-  
-    // bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
-    // bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
-
-    return bounds;
+    return {
+      topleft: {x: left, y: top},
+      width: right - left,
+      height: bottom - top
+    };
 
   }
 
@@ -900,9 +891,9 @@ drawStarted(){
    * @param isect  Any subdrafts that intersect with this component 
    * @returns the bounds of a rectangle that holds both components
    */
-  getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):any{
+  getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):Bounds{
     
-    const bounds = {
+    const bounds: Bounds = {
       topleft: {x: 0, y:0},
       width: 0,
       height: 0
@@ -924,20 +915,20 @@ drawStarted(){
   /**
    * creates a draft in size bounds that contains all of the computed points of its intersections
    * @param bounds the boundary of all the intersections
-   * @param moving the primary draft
+   * @param primary the primary draft that we are checking for intersections
    * @param isect an Array of the intersecting components
    * @returns 
    */
-  getCombinedDraft(bounds: any, moving: any, isect: Array<SubdraftComponent>):Draft{
-    const temp: Draft = new Draft({id: moving.draft.id, name: moving.draft.name, warps: Math.floor(bounds.width / moving.scale), wefts: Math.floor(bounds.height / moving.scale)});
+  getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
+    const temp: Draft = new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
 
     for(var i = 0; i < temp.wefts; i++){
-      const top: number = bounds.topleft.y + (i * moving.scale);
+      const top: number = bounds.topleft.y + (i * primary.scale);
       for(var j = 0; j < temp.warps; j++){
-        const left: number = bounds.topleft.x + (j * moving.scale);
+        const left: number = bounds.topleft.x + (j * primary.scale);
 
         const p = {x: left, y: top};
-        const val = this.computeHeddleValue(p, moving, isect);
+        const val = this.computeHeddleValue(p, primary, isect);
 
         if(val != null) temp.pattern[i][j].setHeddle(val);
         else temp.pattern[i][j].unsetHeddle();

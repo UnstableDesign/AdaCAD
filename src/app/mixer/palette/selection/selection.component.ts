@@ -1,4 +1,5 @@
 import { Directive, OnInit } from '@angular/core';
+import { Draft } from '../../../core/model/draft';
 import { Point, Bounds, Interlacement } from '../../../core/model/point';
 
 @Directive({
@@ -9,9 +10,7 @@ import { Point, Bounds, Interlacement } from '../../../core/model/point';
 export class SelectionComponent implements OnInit{
 
 
-  draft = {
-    id: "selection"
-  };
+  draft: Draft = new Draft({name: "selection"});
 
   bounds:Bounds = {
     topleft: {x: 0, y:0},
@@ -22,7 +21,7 @@ export class SelectionComponent implements OnInit{
   start:Interlacement = {i: 0, j:0, si: 0};
   active = false;
   scale: number; 
-  filter = "marquee"
+  filter = "or"
 
   ngOnInit(){
     console.log(this.draft.id);
