@@ -222,7 +222,7 @@ export class WeaverComponent implements OnInit {
 
     this.ps.getPatterns().subscribe((res) => {
        for(var i in res.body){
-          this.default_patterns.push(res.body[i]);
+          this.default_patterns.push(new Pattern(res.body[i]));
        }
     }); 
 

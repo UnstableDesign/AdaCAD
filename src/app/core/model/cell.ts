@@ -17,6 +17,7 @@ export class Cell {
    * @param setting describes if the Cell should be set to heddle up or not. Null value leaves cell unset. 
    */
   constructor(setting: boolean) {
+
     this.poles = 0b0000;
     this.mask_id = -1;
     if(setting === null || setting === undefined){
@@ -27,6 +28,18 @@ export class Cell {
       this.is_set = true;
       this.is_up = setting;
     }
+  }
+
+  /**
+   * this is called from the reload file. it takes a cell in the form of a list of params and sets the variables that are present
+   * @param params 
+   */
+  reloadCell(params: any){
+    this.is_up = (params.is_up === undefined) ? false : params.is_up;
+    this.is_set = (params.is_set === undefined) ? false : params.is_set;
+    this.mask_id = (params.mask_id === undefined) ? false : params.mask_id;
+    this.poles = (params.poles === undefined) ? 0 : params.poles;
+
   }
 
 

@@ -14,6 +14,7 @@ export class Pattern {
   name: string;
 
   constructor(obj: any) {
+
     this.favorite = (obj.favorite !== undefined) ? obj.favorite : false;
     this.id = (obj.id !== undefined) ? obj.id : -1;
     this.name = (obj.name !== undefined) ? obj.name : "unnamed";
@@ -34,8 +35,8 @@ export class Pattern {
       this.width = 0;
       this.height = 0;
     }
-    
-  }
+
+ }
 
 
   setPattern(pattern) {

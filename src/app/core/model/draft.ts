@@ -280,19 +280,20 @@ export class Draft implements DraftInterface {
         this.colShuttleMapping = params.colShuttleMapping;
       }
 
-
     if(params.patterns !== undefined){
           var patterns = params.patterns
           var pts = [];
           for (i in patterns) {
-            pts.push(patterns[i]);
+            const single_pattern: Array<Pattern> = patterns[i];
+            const formatted: Pattern = new Pattern(single_pattern); 
+            pts.push(formatted);
           }
         this.patterns = pts;
     }
 
 
-
-    var fill_pattern = this.makeRandomPattern(this.loom.num_frames, this.loom.num_treadles);
+    //turn this off for now
+   // var fill_pattern = this.makeRandomPattern(this.loom.num_frames, this.loom.num_treadles);
 
     this.pattern = [];
     for(var ii = 0; ii < this.wefts; ii++) {
@@ -300,23 +301,11 @@ export class Draft implements DraftInterface {
 
         for (var j = 0; j < this.warps; j++){
           if (params.pattern === undefined) {
-            this.pattern[ii].push(new Cell(null));
-            this.pattern[ii][j].setHeddle(fill_pattern[ii%fill_pattern.length][j%fill_pattern[0].length]);
-            this.pattern[ii][j].unsetHeddle(); //unset all the patterns
+            this.pattern[ii].push(new Cell(false));
             
           }else{
-
             this.pattern[ii][j]= new Cell(null);
-            
-            if(params.pattern[ii][j].is_up === undefined){
-              this.pattern[ii][j].setHeddle(params.pattern[ii][j]);
-            }else{
-              this.pattern[ii][j].setHeddle(params.pattern[ii][j].is_up);
-            }
-
-            if(params.pattern[ii][j].mask_id !== undefined){
-              this.pattern[ii][j].setMaskId(params.pattern[ii][j].mask_id);
-            }
+            this.pattern[ii][j].reloadCell(params.pattern[ii][j]); //this takes a cell param and updates from there   
 
           }
         }
@@ -348,11 +337,12 @@ export class Draft implements DraftInterface {
  * @param param0 
  */
   reload({...params}) {
+
     this.visibleRows = [];
 
     this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
 
-
+    this.id = (params.id === undefined) ?  -1 : params.id;
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 40 : params.warps;
     this.epi = (params.epi === undefined) ? 10 : params.epi;
@@ -486,9 +476,9 @@ export class Draft implements DraftInterface {
 
     if(params.patterns !== undefined){
           var patterns = params.patterns
-          var pts = [];
+          var pts:Array<Pattern> = [];
           for (i in patterns) {
-            pts.push(patterns[i]);
+            pts.push(new Pattern(patterns[i]));
           }
         this.patterns = pts;
     } else if (params.loom.threading !== undefined && params.loom.treadling !== undefined && params.loom.tieup !== undefined) {
@@ -498,35 +488,20 @@ export class Draft implements DraftInterface {
 
 
   
-    var fill_pattern = this.makeRandomPattern(this.loom.num_frames, this.loom.num_treadles);
-
     this.pattern = [];
     for(var ii = 0; ii < this.wefts; ii++) {
         this.pattern.push([]);
 
         for (var j = 0; j < this.warps; j++){
           if (params.pattern === undefined) {
-            this.pattern[ii].push(new Cell(null));
-            this.pattern[ii][j].setHeddle(fill_pattern[ii%fill_pattern.length][j%fill_pattern[0].length]);
-
+            this.pattern[ii].push(new Cell(false));
           }else{
 
             this.pattern[ii][j]= new Cell(null);
-
-            if(params.pattern[ii][j].isUp()) this.pattern[ii][j].setHeddle(true);
-            else this.pattern[ii][j].setHeddle(false);
-            
-            if(!params.pattern[ii][j].isSet()) this.pattern[ii][j].unsetHeddle();
-
-           
-            if(params.pattern[ii][j].mask_id !== undefined){
-              this.pattern[ii][j].setMaskId(params.pattern[ii][j].mask_id);
-            }
-
+            this.pattern[ii][j].reloadCell(params.pattern[ii][j]); //this takes a cell param and updates from there
           }
         }
     }
-
     // if (params.masks === undefined) {
     //   // this.masks = [];
     //   // for(var ii = 0; ii < this.wefts; ii++) {
@@ -1741,6 +1716,8 @@ computeYarnPaths(){
       w = pattern[0].length;
     } 
 
+    console.log(pattern);
+
     //cycle through each visible row/column of the selection
     for (var i = 0; i < h; i++ ) {
       for (var j = 0; j < w; j++ ) {
@@ -1749,7 +1726,7 @@ computeYarnPaths(){
         var col = j + draft_j;
 
 
-        var temp = pattern[i % rows][j % cols];
+        let temp:Cell = pattern[i % rows][j % cols];
        
         var prev:boolean = false; 
         switch(selection.target.id){
@@ -1814,11 +1791,7 @@ computeYarnPaths(){
 
             if(this.hasCell(draft_row,col)){
 
-                var p:Interlacement; 
-                p.si = row;
-                p.i = this.visibleRows[row];
-                p.j = col;
-              
+                let p:Interlacement = {i: this.visibleRows[row], j: col, si: row};     
                 this.setHeddle(p.i,p.j,val);
                // this.updateLoomFromDraft(p); //this is an area where we could be facing slowdown 
               }
