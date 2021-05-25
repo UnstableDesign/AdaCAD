@@ -164,9 +164,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
     subdraft.instance.patterns = this.patterns;
-    subdraft.instance.filter = "or";
-    
-
+  
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
   }
@@ -919,7 +917,6 @@ drawStarted(){
   getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
 
     const temp: Draft = new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
-    console.log("warps, wefts",temp.warps, temp.wefts);
 
     for(var i = 0; i < temp.wefts; i++){
       const top: number = bounds.topleft.y + (i * primary.scale);
@@ -928,7 +925,6 @@ drawStarted(){
 
         const p = {x: left, y: top};
         const val = this.computeHeddleValue(p, primary, isect);
-
         if(val != null) temp.pattern[i][j].setHeddle(val);
         else temp.pattern[i][j].unsetHeddle();
       }

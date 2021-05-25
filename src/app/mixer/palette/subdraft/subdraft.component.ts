@@ -274,7 +274,7 @@ export class SubdraftComponent implements OnInit {
           this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         } else{
-          this.cx.fillStyle =  '#DDDDDD' ;
+          this.cx.fillStyle =  '#999999' ;
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         }
  

@@ -348,6 +348,7 @@ export class Draft implements DraftInterface {
  * @param param0 
  */
   reload({...params}) {
+    this.visibleRows = [];
 
     this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
 
@@ -554,11 +555,12 @@ export class Draft implements DraftInterface {
  */
    reloadForMixer({...params}) {
 
+    this.visibleRows = [];
+
     this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
     this.wefts = (params.wefts === undefined) ?  30 : params.wefts;
     this.warps = (params.warps === undefined) ? 40 : params.warps;
     this.pattern = (params.pattern === undefined) ? [] : params.pattern;
-
 
     this.pattern = [];
     for(var ii = 0; ii < this.wefts; ii++) {
@@ -581,6 +583,10 @@ export class Draft implements DraftInterface {
         }
     }
 
+    for(var ii = 0; ii < this.wefts; ii++) {
+      this.visibleRows.push(ii); 
+    }
+  
   }
 
 
