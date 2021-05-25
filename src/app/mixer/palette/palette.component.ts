@@ -7,9 +7,10 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point } from '../../core/model/point';
-import { Pattern } from '../../core/model/pattern';
+import { Point, Interlacement, Bounds } from '../../core/model/point';
+import { Pattern } from '../../core/model/pattern'; 
 import { dsv } from 'd3-fetch';
+import { sampleSize } from 'lodash';
 
 
 @Component({
@@ -80,10 +81,10 @@ export class PaletteComponent implements OnInit{
   cx: any;
 
   /**
-   * stores an x and y of the last user selected location within the component
+   * stores an i and j of the last user selected location within the component
    * @property {Point}
    */
-  last: Point;
+  last: Interlacement;
 
 
   /**
@@ -577,8 +578,6 @@ drawStarted(){
     //get a draft that reflects only the poitns in the selection view
     const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
     sc.setNewDraft(new_draft);
-    sc.setComponentPosition(bounds.topleft);
-    sc.setComponentSize(bounds.width, bounds.height); 
     sc.drawDraft();
 
     //get the bounding box of all the intersections
@@ -591,8 +590,10 @@ drawStarted(){
        const sd_draft = element.draft.pattern;
        for(let i = 0; i < sd_draft.length; i++){
          for(let j = 0; j < sd_draft[i].length; j++){
-            let p = element.resolveNdxToPoint({i: i, j: j});
-            //console.log("point, haspoint", i, j, p, sc.hasPoint(p));
+         
+            let p = element.resolveNdxToPoint({i: i, j: j, si: -1});
+            p.x += this.scale/2;
+            p.y += this.scale/2;
             if(sc.hasPoint(p)) sd_draft[i][j].unsetHeddle();
          }
        }
@@ -758,7 +759,7 @@ drawStarted(){
   getRightMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
     return isects.reduce((acc, isect) => {
-      if((isect.getTopleft().x + isect.size.w) > (acc.getTopleft().x + acc.size.w)) {
+      if((isect.getTopleft().x + isect.bounds.width) > (acc.getTopleft().x + acc.bounds.width)) {
         acc = isect;
       }
       return acc;
@@ -768,7 +769,7 @@ drawStarted(){
   getBottomMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
     return isects.reduce((acc, isect) => {
-      if((isect.getTopleft().y + isect.size.h)> (acc.getTopleft().y + acc.size.h)) {
+      if((isect.getTopleft().y + isect.bounds.height)> (acc.getTopleft().y + acc.bounds.height)) {
         acc = isect;
       }
       return acc;
@@ -790,10 +791,10 @@ drawStarted(){
 
     //find intersections between main and the others
     const isect:Array<SubdraftComponent> = this.subdraft_refs.filter(sr => (this.doOverlap(
-      selection.topleft, 
-      {x:  selection.topleft.x + selection.size.w, y: selection.topleft.y + selection.size.h}, 
+      selection.bounds.topleft, 
+      {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
       sr.getTopleft(), 
-      {x: sr.getTopleft().x + sr.size.w, y: sr.getTopleft().y + sr.size.h}
+      {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height}
       ) ? sr : null));
 
     return isect;
@@ -814,7 +815,7 @@ drawStarted(){
 
     const isect:Array<SubdraftComponent> = [];
      this.subdraft_refs.forEach(sr => {
-      let sr_bottomright = {x: sr.getTopleft().x + sr.size.w, y: sr.getTopleft().y + sr.size.h};
+      let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
       const b: boolean = this.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
       if(b) isect.push(sr);
      });
@@ -830,12 +831,12 @@ drawStarted(){
   getIntersectingSubdrafts(primary: SubdraftComponent){
 
     const to_check:Array<SubdraftComponent> =  this.subdraft_refs.filter(sr => (sr.draft.id.toString() !== primary.draft.id.toString()));
-    const primary_bottomright = {x:  primary.getTopleft().x + primary.size.w, y: primary.getTopleft().y + primary.size.h};
+    const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
 
 
      const isect:Array<SubdraftComponent> = [];
      to_check.forEach(sr => {
-      let sr_bottomright = {x: sr.getTopleft().x + sr.size.w, y: sr.getTopleft().y + sr.size.h};
+      let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
       const b: boolean = this.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
       if(b) isect.push(sr);
      });
@@ -874,6 +875,25 @@ drawStarted(){
       return bounds;
   }
 
+  getIntersectionBounds(primary: SubdraftComponent, isect: Array<SubdraftComponent>):Array<Bounds>{
+    const bounds: Array<Bounds> = [];
+    bounds.push();
+
+
+    // const lefts: Array<SubdraftComponent> = isect.map(el => (Math.max(primary.topleft.x, el.topleft.x)));
+    // const tops: Array<SubdraftComponent> = isect.map(el => (Math.max(primary.topleft.y, el.topleft.y)));
+    // const rights: Array<SubdraftComponent> = isect.map(el => (Math.max((primary.topleft.x + primary.bounds.width), (el.topleft.x + el.bounds.width))));
+    // const bottoms: Array<SubdraftComponent> = isect.map(el => (Math.max((primary.topleft.y + primary.bounds.height), (el.topleft.y + el.bounds.height))));
+
+   
+  
+    // bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
+    // bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
+
+    return bounds;
+
+  }
+
   /**
    * gets the combined boundary of a Subdraft and any of its intersections
    * @param moving A SubdraftComponent that is our primary subdraft
@@ -894,8 +914,8 @@ drawStarted(){
     const rm =  this.getRightMost(moving, isect);
     const bm =  this.getBottomMost(moving, isect);
 
-    bounds.width = (rm.getTopleft().x + rm.size.w) - bounds.topleft.x;
-    bounds.height =(bm.getTopleft().y + bm.size.h) - bounds.topleft.y;
+    bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
+    bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
 
     return bounds;
 

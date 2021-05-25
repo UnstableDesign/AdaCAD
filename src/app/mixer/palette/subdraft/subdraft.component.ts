@@ -1,17 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@angular/core';
 import { Draft } from '../../../core/model/draft';
+import { Point, Interlacement, Bounds } from '../../../core/model/point';
 import { ConnectionComponent } from '../connection/connection.component';
 
 
-interface Point {
-  x: number;
-  y: number;
-}
 
-interface Interlacement {
-  i:number;
-  j:number;
-}
 
 interface DesignActions{
   value: string;
@@ -54,13 +47,16 @@ export class SubdraftComponent implements OnInit {
   canvas: HTMLCanvasElement;
   cx: any;
 
-  topleft = {x: 0, y: 0};  
-  size = {w: 0, h: 0};
+  bounds: Bounds = {
+    topleft: {x: 0, y: 0},
+    width: 0, 
+    height: 0
+  }
 
   scale = 10; 
   filter = 'or'; //can be or, and, neq, not, splice
   counter:number  =  0; // only call functions every so often
-  last_ndx = {i: -1, j:-1}; //used to check if we should recalculate a move operation
+  last_ndx:Interlacement = {i: -1, j:-1, si: -1}; //used to check if we should recalculate a move operation
 
   moving = false;
   disable_drag = false;
@@ -71,8 +67,8 @@ export class SubdraftComponent implements OnInit {
   }
 
   ngOnInit(){
-    this.size.w = this.draft.warps * this.scale;
-    this.size.h = this.draft.wefts * this.scale;
+    this.bounds.width = this.draft.warps * this.scale;
+    this.bounds.height = this.draft.wefts * this.scale;
 
   }
 
@@ -84,8 +80,8 @@ export class SubdraftComponent implements OnInit {
     this.cx = this.canvas.getContext("2d");
     this.canvas.width = this.draft.warps * this.scale;
     this.canvas.height = this.draft.wefts * this.scale;
-    this.size.w = this.draft.warps * this.scale;
-    this.size.h = this.draft.wefts * this.scale;
+    this.bounds.width = this.draft.warps * this.scale;
+    this.bounds.height = this.draft.wefts * this.scale;
     this.drawDraft();
 
 
@@ -100,8 +96,8 @@ export class SubdraftComponent implements OnInit {
   //   this.static_tl = bounds.topleft;
   //   this.dynamic_tl = this.static_tl;
   //   console.log("setting size on set static");
-  //   this.size.w = bounds.width;
-  //   this.size.h = bounds.height;
+  //   this.bounds.width = bounds.width;
+  //   this.bounds.height = bounds.height;
   //   this.dynamic_size = this.size;
   
   // }
@@ -143,12 +139,12 @@ export class SubdraftComponent implements OnInit {
   public hasPoint(p:Point) : boolean{
 
       const endPosition = {
-        x: this.topleft.x + this.size.w,
-        y: this.topleft.y + this.size.h,
+        x: this.bounds.topleft.x + this.bounds.width,
+        y: this.bounds.topleft.y + this.bounds.height,
       };
 
-      if(p.x < this.topleft.x || p.x > endPosition.x) return false;
-      if(p.y < this.topleft.y || p.y > endPosition.y) return false;
+      if(p.x < this.bounds.topleft.x || p.x > endPosition.x) return false;
+      if(p.y < this.bounds.topleft.y || p.y > endPosition.y) return false;
 
     
     return true;
@@ -163,8 +159,8 @@ export class SubdraftComponent implements OnInit {
  */
  public resolveNdxToPoint(ndx:Interlacement) : Point{
   
-  let y = this.topleft.y + ndx.i * this.scale;
-  let x = this.topleft.x + ndx.j * this.scale;
+  let y = this.bounds.topleft.y + ndx.i * this.scale;
+  let x = this.bounds.topleft.x + ndx.j * this.scale;
   return {x: x, y:y};
 
 }
@@ -176,13 +172,13 @@ export class SubdraftComponent implements OnInit {
  */
   public resolvePointToNdx(p:Point) : Interlacement{
     
-    let i = Math.floor((p.y -this.topleft.y) / this.scale);
-    let j = Math.floor((p.x - this.topleft.x) / this.scale);
+    let i = Math.floor((p.y -this.bounds.topleft.y) / this.scale);
+    let j = Math.floor((p.x - this.bounds.topleft.x) / this.scale);
 
     if(i < 0 || i >= this.draft.wefts) i = -1;
     if(j < 0 || j >= this.draft.warps) j = -1;
 
-    return {i: i, j:j};
+    return {i: i, j:j, si: i};
 
   }
 
@@ -210,14 +206,14 @@ export class SubdraftComponent implements OnInit {
    */
   setNewDraft(temp: Draft) {
 
-    this.size.w = temp.warps * this.scale;
-    this.size.h = temp.wefts * this.scale;
+    this.bounds.width = temp.warps * this.scale;
+    this.bounds.height = temp.wefts * this.scale;
     this.draft.reload(temp);
 
   }
 
   setComponentPosition(point: any){
-    this.topleft = point;
+    this.bounds.topleft = point;
   }
 
   /**
@@ -227,8 +223,8 @@ export class SubdraftComponent implements OnInit {
    * @param height 
    */
   setComponentSize(width: number, height: number){
-    this.size.w = width;
-    this.size.h = height;
+    this.bounds.width = width;
+    this.bounds.height = height;
   }
 
 
@@ -240,8 +236,8 @@ export class SubdraftComponent implements OnInit {
 
     if(this.canvas === undefined) return;
    
-    this.canvas.width = this.size.w;
-    this.canvas.height = this.size.h;
+    this.canvas.width = this.bounds.width;
+    this.canvas.height = this.bounds.height;
 
     for (let i = 0; i < this.draft.visibleRows.length; i++) {
       for (let j = 0; j < this.draft.warps; j++) {
@@ -280,8 +276,8 @@ export class SubdraftComponent implements OnInit {
    * previews. Use static for all calculating of intersections, etc. 
    * @returns 
    */
-  getTopleft(){
-    return this.topleft;
+  getTopleft(): Point{
+    return this.bounds.topleft;
   }
 
   /**
@@ -313,7 +309,7 @@ export class SubdraftComponent implements OnInit {
   dragEnd($event: any) {
     this.moving = false;
     this.counter = 0;  
-    this.last_ndx = {i: -1, j:-1};
+    this.last_ndx = {i: -1, j:-1, si: -1};
     this.onSubdraftDrop.emit({id: this.draft.id});
   }
 
@@ -332,7 +328,7 @@ export class SubdraftComponent implements OnInit {
     const relative = this.getAdjusted(pointer);
 
     const adj = this.snapToGrid(relative);
-    this.topleft = adj;
+    this.bounds.topleft = adj;
 
     const ndx = this.resolvePointToNdx(relative);
   

@@ -10,7 +10,7 @@ import { Loom } from '../../core/model/loom';
 import { Cell } from '../../core/model/cell';
 import { Shuttle } from '../../core/model/shuttle';
 import { Pattern } from '../../core/model/pattern';
-import { Point } from '../../core/model/point';
+import { Point, Interlacement } from '../../core/model/point';
 import { Selection } from '../../core/model/selection';
 import { Timeline } from '../../core/model/timeline';
 import { CanvasToBMP } from '../../core/model/canvas2image';
@@ -228,7 +228,7 @@ export class WeaveDirective {
   private tempPattern: Array<Array<boolean>>;
   private unsubscribe$ = new Subject();
 
-  private lastPos: Point;
+  private lastPos: Interlacement;
 
 
 
@@ -330,7 +330,7 @@ export class WeaveDirective {
   }
 
 
-  setPosAndDraw(target, currentPos:Point){
+  setPosAndDraw(target, currentPos:Interlacement){
 
       if (target && target.id =='treadling') {
         currentPos.i = this.weave.visibleRows[currentPos.i];
@@ -377,9 +377,6 @@ export class WeaveDirective {
       h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
     }
 
-
-    console.log(event.target.id);
-
     if (event.target.localName === 'canvas') {
     
       this.removeSubscription();    
@@ -390,7 +387,7 @@ export class WeaveDirective {
       // set up the Point to be used.
       var screen_row = Math.floor(event.offsetY / dims.h);
 
-      const currentPos: Point = {
+      const currentPos: Interlacement = {
         si: screen_row,
         i: screen_row, //row
         j: Math.floor((event.offsetX) / dims.w), //col
@@ -499,7 +496,7 @@ export class WeaveDirective {
     }
   }
 
-  private isSame(p1: Point, p2:Point){
+  private isSame(p1: Interlacement, p2:Interlacement){
     if(p1 === undefined || p2 === undefined ) return false
     return (p1.i == p2.i && p1.j === p2.j);
 
@@ -525,7 +522,7 @@ export class WeaveDirective {
     // set up the point based on touched square.
     var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
 
-    const currentPos: Point = {
+    const currentPos: Interlacement = {
       si: screen_row,
       i:  screen_row,
       j:  Math.floor((event.offsetX + offset.x) / dims.w)
@@ -1032,7 +1029,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWeftSelectors( currentPos: Point ) {
+  private drawOnWeftSelectors( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
 
@@ -1068,7 +1065,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWeftMaterials( currentPos: Point ) {
+  private drawOnWeftMaterials( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
     var updates;
@@ -1098,7 +1095,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWarpSelectors( currentPos: Point ) {
+  private drawOnWarpSelectors( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
 
@@ -1126,7 +1123,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWarpMaterials( currentPos: Point ) {
+  private drawOnWarpMaterials( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
 
@@ -1157,7 +1154,7 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnMask( currentPos: Point ) {
+  private drawOnMask( currentPos: Interlacement ) {
     var updates;
     var val;
 
@@ -1194,7 +1191,7 @@ export class WeaveDirective {
    * @returns {void}
    */
 
-  private drawOnDrawdown( currentPos: Point) {
+  private drawOnDrawdown( currentPos: Interlacement) {
 
     var updates;
     var val  = false;
@@ -1251,7 +1248,7 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnTieups( currentPos: Point ) {
+  private drawOnTieups( currentPos: Interlacement ) {
     var updates;
     var val = false;
     
@@ -1287,7 +1284,7 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnThreading( currentPos: Point ) {
+  private drawOnThreading( currentPos: Interlacement ) {
     if (!this.cxThreading || !currentPos) { return; }
 
     if (this.weave.loom.inThreadingRange(currentPos.i, currentPos.j)){
@@ -1335,7 +1332,7 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnTreadling( currentPos: Point ) {
+  private drawOnTreadling( currentPos: Interlacement ) {
 
 
     if (!this.cxTreadling || !currentPos) { return; }

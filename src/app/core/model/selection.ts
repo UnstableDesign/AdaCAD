@@ -1,12 +1,12 @@
-import { Point } from './point';
+import { Interlacement } from './point';
 
 /**
  * Definition of selection object.
  * @class
  */
 export class Selection {
-  start: Point;
-  end: Point;
+  start: Interlacement;
+  end: Interlacement;
   width: number;
   height: number;
   target: any;

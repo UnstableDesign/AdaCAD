@@ -4,7 +4,7 @@ import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
 import { Selection } from './selection';
-import { Point } from '../model/point';
+import { Point, Interlacement } from '../model/point';
 
 import * as _ from 'lodash';
 
@@ -1770,7 +1770,7 @@ computeYarnPaths(){
 
             if(this.hasCell(draft_row,col)){
 
-                var p = new Point(); 
+                var p:Interlacement; 
                 p.si = row;
                 p.i = this.visibleRows[row];
                 p.j = col;
