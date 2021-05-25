@@ -342,18 +342,19 @@ export class PaletteComponent implements OnInit{
    * @param obj contains the id of the moving subdraft
    */
   subdraftStarted(obj: any){
-  
+    console.log("started");
 
     if(obj === null) return;
 
     if(this.design_modes.isSelected("move")){
-
-      if(obj === null) return;
+      console.log("moving");
   
       //get the reference to the draft that's moving
       const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
-
+      this._snackBar.openFromComponent(SnackbarComponent, {
+        data: moving
+      });
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
 
       if(isect.length == 0) return;
@@ -364,9 +365,6 @@ export class PaletteComponent implements OnInit{
       this.preview.drawDraft();
       this.preview.setComponentPosition(bounds.topleft);
      
-      this._snackBar.openFromComponent(SnackbarComponent, {
-        data: moving
-      });
     }else if(this.design_modes.isSelected("select")){
       this.selectionStarted();
     }else if(this.design_modes.isSelected("draw")){
@@ -657,12 +655,8 @@ drawStarted(){
    */
   mergeSubdrafts(primary: SubdraftComponent): boolean{
     
-    //reposition the primary subdraft to its original 
-
-    
+    console.log("Merging");
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
-    console.log(isect);
-
 
       if(isect.length == 0){
         return false;
@@ -923,7 +917,9 @@ drawStarted(){
    * @returns 
    */
   getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
+
     const temp: Draft = new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
+    console.log("warps, wefts",temp.warps, temp.wefts);
 
     for(var i = 0; i < temp.wefts; i++){
       const top: number = bounds.topleft.y + (i * primary.scale);
