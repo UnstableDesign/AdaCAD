@@ -859,7 +859,7 @@ export class Draft implements DraftInterface {
     var col = [];
 
     for (var j = 0; j < this.warps; j++) {
-      col.push(new Cell(null));
+      col.push(new Cell(false));
     }
 
     this.wefts += 1;

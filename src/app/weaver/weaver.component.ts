@@ -504,7 +504,7 @@ export class WeaverComponent implements OnInit {
    */
   public onFill(e) {
     
-    var p = this.draft.patterns[e.id];
+    let p:Pattern = this.draft.patterns[e.id];
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original');
 
@@ -512,6 +512,8 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
     
+    this.weaveRef.copyArea();
+
     this.weaveRef.redraw({drawdown:true, loom:true});
 
     this.timeline.addHistoryState(this.draft);
@@ -678,14 +680,19 @@ export class WeaverComponent implements OnInit {
   }
 
   /**
-   * Inserts an empty row on system, system
+   * inserts an empty row just below the clicked row
+   * @param i the absolute (not screen) index of the row we'll insert
+   * @param shuttle the shuttle id this will be assigned to
+   * @param system the system id to which this row will be assigned
    */
-  public insertRow(i, shuttle, system) {
+  public insertRow(i:number, shuttle:number, system:number) {
 
+    console.log(i);
     this.draft.insertRow(i, shuttle, system);
     //this.draft.updateConnections(i, 1);
     
     this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    
     this.timeline.addHistoryState(this.draft);
 
   }
@@ -918,6 +925,7 @@ export class WeaverComponent implements OnInit {
       
       for(var i = 0; i < diff; i++){  
         this.draft.insertRow(e.wefts+i, 0, 0);
+        console.log("inserting row");
       }
     }else{
       var diff = this.draft.wefts - e.wefts;
@@ -931,7 +939,7 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
-    this.weaveRef.redraw({drawdown: true, loom: true, warp_systems: true, warp_materials:true});
+    this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true});
 
 
   }
