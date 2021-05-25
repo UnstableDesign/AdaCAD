@@ -79,9 +79,9 @@ export class InitModal implements OnInit {
         var alpha = img[idx + 3];
 
         if (threshold < 750 && alpha != 0) {
-          data[i].push(true);
+          data[i].push(new Cell(true));
         } else {
-          data[i].push(false);
+          data[i].push(new Cell(false));
         }
       }
     }

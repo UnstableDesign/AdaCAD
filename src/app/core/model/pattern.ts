@@ -38,19 +38,20 @@ export class Pattern {
 
  }
 
-
-  setPattern(pattern) {
+ /**
+  * takes a 2D array of booleans and converts to a pattern object (replacing boolean with Cells)
+  * @param pattern 
+  */
+setPattern(pattern: Array<Array<boolean>>) {
     this.height = pattern.length;
+    if(this.height > 0) this.width = pattern[0].length
 
-    if (this.height > 0) {
-      this.width = pattern[0].length;
-    } else {
-      this.width = 0;
+    for(let i = 0; i < this.height; i++){
+      this.pattern[i] = [];
+      for(let j = 0; j < this.width; j++){
+        this.pattern[i][j] = new Cell(pattern[i][j]);
+      }
     }
-
-    this.pattern = pattern;
-
-    return this;
   }
 
 

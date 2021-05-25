@@ -26,7 +26,6 @@ export class PatternsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log("on Inits", this.patterns);
 
   }
 

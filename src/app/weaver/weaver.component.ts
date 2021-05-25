@@ -205,15 +205,14 @@ export class WeaverComponent implements OnInit {
 
 
     //initialize with a draft so that we can load some things faster. 
-    let d =  this.getDraftFromLocalStore();
+    //let d =  this.getDraftFromLocalStore();
     
     this.copy = [[false,true],[false,true]];
 
 
 
-    if(d !== undefined)
-
-    this.draft = new Draft(JSON.parse(d));
+    //if(d !== undefined) this.draft = new Draft(JSON.parse(d));
+    this.draft = new Draft({wefts: 80, warps: 100});
     this.draft.name = this.draft.name;
     this.timeline.addHistoryState(this.draft);
     
@@ -505,7 +504,7 @@ export class WeaverComponent implements OnInit {
    */
   public onFill(e) {
     
-    var p = this.draft.patterns[e.id].pattern;
+    var p = this.draft.patterns[e.id];
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original');
 
@@ -528,8 +527,9 @@ export class WeaverComponent implements OnInit {
   public onClear(b:boolean) {
     
     const c: Cell = new Cell(b);
+    const p: Pattern = new Pattern({width: 1, height: 1, pattern: [[c]]});
 
-    this.draft.fillArea(this.weaveRef.selection, [[c]], 'original')
+    this.draft.fillArea(this.weaveRef.selection, p, 'original')
 
     if(this.render.showingFrames()) this.draft.recomputeLoom();
 
@@ -569,6 +569,7 @@ export class WeaverComponent implements OnInit {
   public onPaste(e) {
 
     var p = this.weaveRef.copy;
+    console.log("on paste", e, p);
 
 
     var type;

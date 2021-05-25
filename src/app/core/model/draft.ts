@@ -338,7 +338,9 @@ export class Draft implements DraftInterface {
  */
   reload({...params}) {
 
+    //clear out any variables that were storing dynamic arrays linked to the draft
     this.visibleRows = [];
+    this.patterns = [];
 
     this.name = (params.name === undefined) ?  'adacad-draft' : params.name;
 
@@ -347,8 +349,6 @@ export class Draft implements DraftInterface {
     this.warps = (params.warps === undefined) ? 40 : params.warps;
     this.epi = (params.epi === undefined) ? 10 : params.epi;
     this.units = (params.units === undefined) ? "in" : params.units;
-    this.visibleRows = (params.visibleRows === undefined) ? [] : params.visibleRows;
-    this.pattern = (params.pattern === undefined) ? [] : params.pattern;
     this.connections = (params.connections === undefined)? [] : params.connections;
     this.labels = (params.labels === undefined)? [] : params.labels;
     this.masks = (params.masks === undefined)? [] : params.masks;
@@ -1678,7 +1678,7 @@ computeYarnPaths(){
    */
   public fillArea(
     selection: Selection, 
-    pattern: Array<Array<Cell>>, 
+    pattern: Pattern, 
     type: string
   ) {
 
@@ -1688,11 +1688,10 @@ computeYarnPaths(){
     var updates = [];
     
     var screen_i = Math.min(selection.start.si, selection.end.si)
-    const draft_i = Math.min(selection.start.i, selection.end.i);
     const draft_j = Math.min(selection.start.j, selection.end.j);
   
-    const rows = pattern.length;
-    const cols = pattern[0].length;
+    const rows = pattern.height;
+    const cols = pattern.width;
 
     var w,h;
 
@@ -1701,22 +1700,20 @@ computeYarnPaths(){
 
 
     if(selection.target.id === "warp-systems"){
-      h = pattern.length;
+      h = pattern.height;
       screen_i = 0;
     } 
     if(selection.target.id === "weft-systems"){
-      w = pattern[0].length;
+      w = pattern.width;
     } 
 
     if(selection.target.id === "warp-materials"){
-       h = pattern.length;
+       h = pattern.height;
        screen_i = 0;
     }
     if(selection.target.id === "weft-materials"){
-      w = pattern[0].length;
+      w = pattern.width;
     } 
-
-    console.log(pattern);
 
     //cycle through each visible row/column of the selection
     for (var i = 0; i < h; i++ ) {
@@ -1726,7 +1723,7 @@ computeYarnPaths(){
         var col = j + draft_j;
 
 
-        let temp:Cell = pattern[i % rows][j % cols];
+        let temp:Cell = pattern.pattern[i % rows][j % cols];
        
         var prev:boolean = false; 
         switch(selection.target.id){
@@ -1759,22 +1756,22 @@ computeYarnPaths(){
           var val = false;
           switch (type) {
             case 'invert':
-             val = !temp;
+             val = !temp.isUp();
               break;
             case 'mask':
              val = temp && prev;
               break;
             case 'mirrorX':
-              val = pattern[(h - i - 1) % rows][j % cols].isUp();
+              val = pattern.pattern[(h - i - 1) % rows][j % cols].isUp();
               break;
             case 'mirrorY':
-              val = pattern[i % rows][(w - j - 1) % cols].isUp();
+              val = pattern.pattern[i % rows][(w - j - 1) % cols].isUp();
               break;
             case 'shiftUp':
-              val = pattern[(i+1) % rows][j].isUp();
+              val = pattern.pattern[(i+1) % rows][j].isUp();
               break;
             case 'shiftLeft':
-              val = pattern[i][(j+1) % cols].isUp();
+              val = pattern.pattern[i][(j+1) % cols].isUp();
               break;
             default:
               val = temp.isUp();
