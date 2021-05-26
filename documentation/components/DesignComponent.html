@@ -8,29 +8,892 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
-	      <link rel="stylesheet" href="../styles/style.css">
+	    <link rel="stylesheet" href="../styles/style.css">
     </head>
     <body>
 
         <div class="navbar navbar-default navbar-fixed-top visible-xs">
             <a href="../" class="navbar-brand">adacad-weaver documentation</a>
-            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+            <button type="button" class="btn btn-default btn-menu fa fa-bars" id="btn-menu"></button>
         </div>
 
         <div class="xs-menu menu" id="mobile-menu">
-                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+            <div id="book-search-input" role="search">
+                <input type="text" placeholder="Type to search">
+            </div>
+            <nav>
+            
+                <ul class="list">
+            
+                    <li class="title">
+                        <a href="../">adacad-weaver documentation</a>
+                    </li>
+            
+                    <li class="divider"></li>
+            
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                        <ul class="links">
+                                <li class="link">
+                                    <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                </li>
+                                <li class="link">
+                                    <a 
+                                        
+                                         href="../overview.html" 
+                                         href="../overview.html" 
+                                        >
+                                        <span class="fa fa-th"></span>Overview
+                                    </a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="./modules.html" >
+                            <span class="fa fa-archive"></span>
+                            <span>Modules</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-modules-links"
+                            ></span>
+                        </a>
+                        <ul class="links collapse in"
+                                id="xs-modules-links"
+                            >
+                                <li class="link">
+                                    <a href="../modules/AppModule.html" >AppModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/CoreModule.html" >CoreModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/MixerModule.html" >MixerModule</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-cogs"></span>
+                            <span>Components</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-components-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-components-links"
+                            >
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AboutModal.html" >AboutModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/AppComponent.html" >AppComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html"  class="active" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/DesignComponent.html"  class="active" >DesignComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/InitModal.html" >InitModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LabelModal.html" >LabelModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternModal.html" >PatternModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-code"></span>
+                            <span>Directives</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-directives-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-directives-links"
+                            >
+                                <li class="link">
+                                    <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-file-code-o"></span>
+                            <span>Classes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-classes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-classes-links"
+                            >
+                                <li class="link">
+                                    <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Cell.html" >Cell</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Connection.html" >Connection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Draft.html" >Draft</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Loom.html" >Loom</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Pattern.html" >Pattern</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Render.html" >Render</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Selection.html" >Selection</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Shuttle.html" >Shuttle</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/System.html" >System</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Timeline.html" >Timeline</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Upload.html" >Upload</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../classes/Util.html" >Util</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-long-arrow-down"></span>
+                            <span>Injectables</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-injectables-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-injectables-links"
+                            >
+                                <li class="link">
+                                    <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/PatternService.html" >PatternService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/UploadService.html" >UploadService</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-info"></span>
+                            <span>Interfaces</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-interfaces-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-interfaces-links"
+                            >
+                                <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Point.html" >Point</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <div class="simple">
+                            <span class="fa fa-plus"></span>
+                            <span>Pipes</span>
+                            <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                    data-target="#xs-pipes-links"
+                                ></span>
+                        </div>
+                        <ul class="links collapse in"
+                                id="xs-pipes-links"
+                            >
+                                <li class="link">
+                                    <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                </li>
+                        </ul>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                    </li>
+            
+                    <li class="chapter">
+                        <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                    </li>
+            
+                    <li class="divider"></li>
+                    <li class="copyright">
+                            Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                        <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                            </a>
+                    </li>
+            
+                </ul>
+            
+            </nav>
         </div>
 
         <div class="container-fluid main">
            <div class="row main">
                <div class="hidden-xs menu">
-                   <compodoc-menu mode="normal"></compodoc-menu>
+                   <nav>
+                   
+                       <ul class="list">
+                   
+                           <li class="title">
+                               <a href="../">adacad-weaver documentation</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                   
+                               <div id="book-search-input" role="search">
+                                   <input type="text" placeholder="Type to search">
+                               </div>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../"><span class="fa fa-home"></span>Getting started</a>
+                               <ul class="links">
+                                       <li class="link">
+                                           <a href="../" ><span class="fa fa-file-text-o"></span>README</a>
+                                       </li>
+                                       <li class="link">
+                                           <a 
+                                               
+                                                href="../overview.html" 
+                                                href="../overview.html" 
+                                               >
+                                               <span class="fa fa-th"></span>Overview
+                                           </a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="./modules.html" >
+                                   <span class="fa fa-archive"></span>
+                                   <span>Modules</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#modules-links"
+                                   ></span>
+                               </a>
+                               <ul class="links collapse in"
+                                       id="modules-links"
+                   >
+                                       <li class="link">
+                                           <a href="../modules/AppModule.html" >AppModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/AppRoutingModule.html" >AppRoutingModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/CoreModule.html" >CoreModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/MixerModule.html" >MixerModule</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../modules/WeaverModule.html" >WeaverModule</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-cogs"></span>
+                                   <span>Components</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#components-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="components-links"
+                   >
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AboutModal.html" >AboutModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/AppComponent.html" >AppComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html"  class="active" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/DesignComponent.html"  class="active" >DesignComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/HistoryComponent.html" >HistoryComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/InitModal.html" >InitModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LabelModal.html" >LabelModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/LoomComponent.html" >LoomComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MasksComponent.html" >MasksComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialModal.html" >MaterialModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MaterialsComponent.html" >MaterialsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/MixerComponent.html" >MixerComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/OperationComponent.html" >OperationComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PaletteComponent.html" >PaletteComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternModal.html" >PatternModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/PatternsComponent.html" >PatternsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SchematicComponent.html" >SchematicComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ShuttlesModal.html" >ShuttlesModal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SnackbarComponent.html" >SnackbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SubdraftComponent.html" >SubdraftComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/SystemsComponent.html" >SystemsComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/ViewComponent.html" >ViewComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/WeaverComponent.html" >WeaverComponent</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-code"></span>
+                                   <span>Directives</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#directives-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="directives-links"
+                   >
+                                       <li class="link">
+                                           <a href="../directives/SelectionComponent.html" >SelectionComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../directives/WeaveDirective.html" >WeaveDirective</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-file-code-o"></span>
+                                   <span>Classes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#classes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="classes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../classes/AdaCADWeaverPage.html" >AdaCADWeaverPage</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Cell.html" >Cell</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Connection.html" >Connection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Draft.html" >Draft</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Loom.html" >Loom</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Pattern.html" >Pattern</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Render.html" >Render</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Selection.html" >Selection</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Shuttle.html" >Shuttle</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/System.html" >System</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Timeline.html" >Timeline</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Upload.html" >Upload</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../classes/Util.html" >Util</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../routes.html" ><span class="fa fa-code-fork"></span>Routes</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-long-arrow-down"></span>
+                                   <span>Injectables</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#injectables-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="injectables-links"
+                   >
+                                       <li class="link">
+                                           <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/PatternService.html" >PatternService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/UploadService.html" >UploadService</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-info"></span>
+                                   <span>Interfaces</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#interfaces-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="interfaces-links"
+                   >
+                                       <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignActions.html" >DesignActions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignMode.html" >DesignMode</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DesignModes.html" >DesignModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/HistoryState.html" >HistoryState</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Interlacement.html" >Interlacement</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Point.html" >Point</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <div class="simple">
+                                   <span class="fa fa-plus"></span>
+                                   <span>Pipes</span>
+                                   <span class="menu-toggler fa fa-angle-up" data-toggle="collapse"
+                                           data-target="#pipes-links"
+                   ></span>
+                               </div>
+                               <ul class="links collapse in"
+                                       id="pipes-links"
+                   >
+                                       <li class="link">
+                                           <a href="../pipes/FilterPipe.html" >FilterPipe</a>
+                                       </li>
+                               </ul>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../miscellaneous.html" ><span class="fa fa-cubes"></span>Miscellaneous</a>
+                           </li>
+                   
+                           <li class="chapter">
+                               <a data-type="chapter-link" href="../coverage.html" ><span class="fa fa-tasks"></span>Documentation coverage</a>
+                           </li>
+                   
+                           <li class="divider"></li>
+                           <li class="copyright">
+                                   Documentation generated using <a href="https://compodoc.github.io/compodoc/" target="_blank">
+                                               <img src="..//images/compodoc-vectorise.svg" class="img-responsive">
+                                   </a>
+                           </li>
+                   
+                       </ul>
+                   
+                   </nav>
                </div>
-               <!-- START CONTENT -->
                <div class="content component">
                    <div class="content-data">
-
-
 
 
 <ol class="breadcrumb">
@@ -38,26 +901,18 @@
   <li>DesignComponent</li>
 </ol>
 
-<ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#info" role="tab" id="info-tab" data-toggle="tab" data-link="info">Info</a>
-        </li>
-        <li >
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab" data-link="source">Source</a>
-        </li>
-        <li >
-            <a href="#templateData" role="tab" id="templateData-tab" data-toggle="tab" data-link="template">Template</a>
-        </li>
-        <li >
-            <a href="#styleData" role="tab" id="styleData-tab" data-toggle="tab" data-link="style">Styles</a>
-        </li>
-        <li >
-            <a href="#tree" role="tab" id="tree-tab" data-toggle="tab" data-link="dom-tree">DOM Tree</a>
-        </li>
-</ul>
 
-<div class="tab-content">
-    <div class="tab-pane fade active in" id="c-info"><p class="comment">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
+        </li>
+        <li>
+            <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade active in" id="infos"><p class="comment">
     <h3>File</h3>
 </p>
 <p class="comment">
@@ -66,18 +921,11 @@
 
 
 
-    <p class="comment">
-        <h3>Implements</h3>
-    </p>
-    <p class="comment">
-                    <code><a href="https://angular.io/api/core/OnInit" target="_blank" >OnInit</a></code>
-    </p>
-
-
 <section>
     <h3>Metadata</h3>
     <table class="table table-sm table-hover">
         <tbody>
+
 
 
 
@@ -96,1323 +944,525 @@
 
             <tr>
                 <td class="col-md-3">styleUrls</td>
-                <td class="col-md-9"><code>./design.component.scss</code></td>
+                <td class="col-md-9"><code>design.component.scss</code></td>
             </tr>
 
 
 
             <tr>
                 <td class="col-md-3">templateUrl</td>
-                <td class="col-md-9"><code>./design.component.html</code></td>
+                <td class="col-md-9"><code>design.component.html</code></td>
             </tr>
 
 
-
-
-
-
-
-
         </tbody>
     </table>
 </section>
 
     <section>
-    <h3 id="index">Index</h3>
-    <table class="table table-sm table-bordered index-table">
-        <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#button_color">button_color</a>
-                            </li>
-                            <li>
-                                <a href="#selected">selected</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Methods</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#clearEvent">clearEvent</a>
-                            </li>
-                            <li>
-                                <a href="#copyEvent">copyEvent</a>
-                            </li>
-                            <li>
-                                <a href="#createPattern">createPattern</a>
-                            </li>
-                            <li>
-                                <a href="#designActionChange">designActionChange</a>
-                            </li>
-                            <li>
-                                <a href="#designModeChange">designModeChange</a>
-                            </li>
-                            <li>
-                                <a href="#drawWithMaterial">drawWithMaterial</a>
-                            </li>
-                            <li>
-                                <a href="#fillEvent">fillEvent</a>
-                            </li>
-                            <li>
-                                <a href="#ngOnInit">ngOnInit</a>
-                            </li>
-                            <li>
-                                <a href="#pasteEvent">pasteEvent</a>
-                            </li>
-                            <li>
-                                <a href="#removePattern">removePattern</a>
-                            </li>
-                            <li>
-                                <a href="#updatePatterns">updatePatterns</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Inputs</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#collapsed">collapsed</a>
-                            </li>
-                            <li>
-                                <a href="#design_actions">design_actions</a>
-                            </li>
-                            <li>
-                                <a href="#design_mode">design_mode</a>
-                            </li>
-                            <li>
-                                <a href="#design_modes">design_modes</a>
-                            </li>
-                            <li>
-                                <a href="#materials">materials</a>
-                            </li>
-                            <li>
-                                <a href="#patterns">patterns</a>
-                            </li>
-                            <li>
-                                <a href="#selection">selection</a>
-                            </li>
-                            <li>
-                                <a href="#view_mode">view_mode</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Outputs</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                <a href="#onClear">onClear</a>
-                            </li>
-                            <li>
-                                <a href="#onCopy">onCopy</a>
-                            </li>
-                            <li>
-                                <a href="#onCreatePattern">onCreatePattern</a>
-                            </li>
-                            <li>
-                                <a href="#onDesignModeChange">onDesignModeChange</a>
-                            </li>
-                            <li>
-                                <a href="#onFill">onFill</a>
-                            </li>
-                            <li>
-                                <a href="#onPaste">onPaste</a>
-                            </li>
-                            <li>
-                                <a href="#onPatternChange">onPatternChange</a>
-                            </li>
-                            <li>
-                                <a href="#onRemovePattern">onRemovePattern</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-
-
-
-        </tbody>
-    </table>
-</section>
+        <h3 id="inputs">Inputs</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>collapsed</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>design_actions</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>design_mode</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>design_modes</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>materials</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>patterns</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>selection</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>view_mode</code>
+                        </td>
+                        <td class="col-md-10">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </section>
 
     <section>
-    <h3 id="constructor">Constructor</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-<code>constructor(dialog: MatDialog)</code>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:36</a></div>
-                            </td>
-                        </tr>
+        <h3 id="outputs">Outputs</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onClear</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                <tr>
-                    <td class="col-md-4">
-                            <div>
-                                    <b>Parameters :</b>
-                                    <table class="params">
-                                        <thead>
-                                            <tr>
-                                                <td>Name</td>
-                                                    <td>Type</td>
-                                                <td>Optional</td>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                <tr>
-                                                        <td>dialog</td>
-                                                  
-                                                        <td>
-                                                                    <code>MatDialog</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                        </tbody>
-                                    </table>
-                            </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-</section>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onCopy</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-    <section>
-    <h3 id="inputs">Inputs</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="collapsed"></a>
-                        <b>collapsed</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:16</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="design_actions"></a>
-                        <b>design_actions</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:19</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="design_mode"></a>
-                        <b>design_mode</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:17</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="design_modes"></a>
-                        <b>design_modes</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:18</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="materials"></a>
-                        <b>materials</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:21</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="patterns"></a>
-                        <b>patterns</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:22</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="selection"></a>
-                        <b>selection</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:23</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="view_mode"></a>
-                        <b>view_mode</b>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:20</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-</section>
-    <section>
-    <h3 id="outputs">Outputs</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onClear"></a>
-                        <b>onClear</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onCreatePattern</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:28</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onCopy"></a>
-                        <b>onCopy</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onDesignModeChange</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:27</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onCreatePattern"></a>
-                        <b>onCreatePattern</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onFill</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:30</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onDesignModeChange"></a>
-                        <b>onDesignModeChange</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onPaste</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:24</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onFill"></a>
-                        <b>onFill</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onPatternChange</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:25</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onPaste"></a>
-                        <b>onPaste</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
+                            <code>onRemovePattern</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:26</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onPatternChange"></a>
-                        <b>onPatternChange</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:29</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="onRemovePattern"></a>
-                        <b>onRemovePattern</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-2" colspan="2">
-                                    <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:31</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-</section>
-
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </section>
 
     <section>
+        <h3 id="constructor">Constructor</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>constructor(dialog: MatDialog)</code>
+                        </td>
+                    </tr>
     
-    <h3 id="methods">
-        Methods
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="clearEvent"></a>
-                    <span class="name">
-                        <b>
-                            clearEvent
-                        </b>
-                        <a href="#clearEvent"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>clearEvent(b: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>)</code>
-                </td>
-            </tr>
+                </tbody>
+            </table>
+    </section>
 
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="119"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:119</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>b</td>
-                                    <td>
-                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="copyEvent"></a>
-                    <span class="name">
-                        <b>
-                            copyEvent
-                        </b>
-                        <a href="#copyEvent"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>copyEvent(e)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="115"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:115</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>e</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="createPattern"></a>
-                    <span class="name">
-                        <b>
-                            createPattern
-                        </b>
-                        <a href="#createPattern"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>createPattern(obj)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="139"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:139</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>obj</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="designActionChange"></a>
-                    <span class="name">
-                        <b>
-                            designActionChange
-                        </b>
-                        <a href="#designActionChange"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>designActionChange(e)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="75"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:75</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>e</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="designModeChange"></a>
-                    <span class="name">
-                        <b>
-                            designModeChange
-                        </b>
-                        <a href="#designModeChange"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>designModeChange(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="57"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:57</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>e</td>
-                                    <td>
-                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="drawWithMaterial"></a>
-                    <span class="name">
-                        <b>
-                            drawWithMaterial
-                        </b>
-                        <a href="#drawWithMaterial"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>drawWithMaterial(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="67"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:67</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>e</td>
-                                    <td>
-                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="fillEvent"></a>
-                    <span class="name">
-                        <b>
-                            fillEvent
-                        </b>
-                        <a href="#fillEvent"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>fillEvent(id)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="109"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:109</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>id</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="ngOnInit"></a>
-                    <span class="name">
-                        <b>
-                            ngOnInit
-                        </b>
-                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>ngOnInit()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="41"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:41</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="pasteEvent"></a>
-                    <span class="name">
-                        <b>
-                            pasteEvent
-                        </b>
-                        <a href="#pasteEvent"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>pasteEvent(e, type)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="123"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:123</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>e</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                                <tr>
-                                    <td>type</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="removePattern"></a>
-                    <span class="name">
-                        <b>
-                            removePattern
-                        </b>
-                        <a href="#removePattern"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>removePattern(pattern)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="134"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:134</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>pattern</td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="updatePatterns"></a>
-                    <span class="name">
-                        <b>
-                            updatePatterns
-                        </b>
-                        <a href="#updatePatterns"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>updatePatterns(obj: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="130"
-                            class="link-to-prism">src/app/weaver/tool/design/design.component.ts:130</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Parameters :</b>
-                        <table class="params">
-                            <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Type</td>
-                                    <td>Optional</td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>obj</td>
-                                    <td>
-                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                    </td>
-
-                                    <td>
-                                        No
-                                    </td>
-
-
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                    </div>
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                    </div>
-                    <div class="io-description">
-                        
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>
     <section>
+        <h3 id="methods">Methods</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> designModeChange</b>
+                        </td>
+                    </tr>
     
-        <h3 id="inputs">
-            Properties
-        </h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="button_color"></a>
-                        <span class="name">
-                            <b>
-                            button_color</b>
-                            <a href="#button_color"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
                     <tr>
                         <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+    <code>designModeChange(e: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> drawWithMaterial</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>drawWithMaterial(e: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> designActionChange</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>designActionChange(e: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> fillEvent</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>fillEvent(id: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> copyEvent</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>copyEvent(e: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> clearEvent</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>clearEvent(b: boolean)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> pasteEvent</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>pasteEvent(e: any, type: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> updatePatterns</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>updatePatterns(obj: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> removePattern</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>removePattern(pattern: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> createPattern</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>createPattern(obj: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </section>
 
+    <section>
+        <h3 id="inputs">Properties</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> button_color</b>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <i>Default value : </i><code>&quot;#ff4081&quot;</code>
+                            <code>button_color:     <code>string</code>
+    </bcode>
                         </td>
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:33</a></div>
+                                <i>Default value: </i><code>#ff4081</code>
                             </td>
                         </tr>
-
-
-            </tbody>
-        </table>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="selected"></a>
-                        <span class="name">
-                            <b>
-                            selected</b>
-                            <a href="#selected"><span class="icon ion-ios-link"></span></a>
-                        </span>
-                    </td>
-                </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
-
+                            <b> selected</b>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <i>Default value : </i><code>0</code>
+                            <code>selected:     <code>number</code>
+    </bcode>
                         </td>
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/weaver/tool/design/design.component.ts:36</a></div>
+                                <i>Default value: </i><code>0</code>
                             </td>
                         </tr>
-
-
-            </tbody>
-        </table>
-</section>
-
+                </tbody>
+            </table>
+    </section>
 </div>
-
-
-    <div class="tab-pane fade  tab-source-code" id="c-source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit, Input, Output, EventEmitter, HostListener } from &#x27;@angular/core&#x27;;
+        <div class="tab-pane fade tab-source-code" id="source">
+            <pre><code class="hljs javascript">import { Component, OnInit, Input, Output, EventEmitter, HostListener } from &#x27;@angular/core&#x27;;
 import { MatDialog, MatDialogConfig } from &quot;@angular/material/dialog&quot;;
 import { NgForm } from &#x27;@angular/forms&#x27;;
 import * as _ from &#x27;lodash&#x27;;
@@ -1575,325 +1625,21 @@ export class DesignComponent implements OnInit {
 
 }
 </code></pre>
-    </div>
-
-    <div class="tab-pane fade " id="c-templateData">
-        <pre class="line-numbers"><code class="language-html">
-&lt;mat-expansion-panel  [hideToggle] &#x3D; &quot;collapsed&quot;&gt;
-  &lt;mat-expansion-panel-header&gt;
-    &lt;mat-panel-title&gt;
-      &lt;i class&#x3D;&quot;warpicon fas fa-pencil&quot; aria-hidden&#x3D;&quot;true&quot;&gt;&lt;/i&gt;
-     &lt;span&gt;Design&lt;/span&gt;
-    &lt;/mat-panel-title&gt;
-    &lt;mat-panel-description&gt;
-    &lt;/mat-panel-description&gt;
-  &lt;/mat-expansion-panel-header&gt;
-
-
-
-
-&lt;!--  &lt;div class&#x3D;&quot;select_slider&quot;&gt;
-     Select Cell
-      &lt;mat-slide-toggle
-          [checked]&#x3D;&quot;design_mode &#x3D;&#x3D;&#x3D; &#x27;select&#x27;&quot;
-          (change)&#x3D;&quot;toggleChange($event)&quot;&gt;
-      &lt;/mat-slide-toggle&gt;
-    Select Region
-  &lt;/div&gt; --&gt;
-
-
-&lt;button matTooltip&#x3D; &quot;Select Region&quot;
-      name&#x3D;&quot;select&quot; 
-      class&#x3D;&quot;button is-small is-primary fas fa-expand&quot;
-      [class.is-active]&#x3D;&quot;design_mode.name &#x3D;&#x3D;&#x3D; select&quot;
-      [style.color]&#x3D;&quot;button_color&quot;
-      (click)&#x3D;&quot;designModeChange($event)&quot;&gt;
-&lt;/button&gt;
-
-
-&lt;h3&gt; Interlacement Tools&lt;/h3&gt;
-
-  &lt;ng-container *ngFor&#x3D;&quot;let mode of design_modes&quot;&gt;
-     &lt;button [matTooltip]&#x3D;mode.viewValue 
-      [name]&#x3D;mode.value 
-      class&#x3D;&quot;button is-small is-primary {{mode.icon}}&quot;
-      [class.is-active]&#x3D;&quot;design_mode.name &#x3D;&#x3D;&#x3D; mode.value&quot;
-      [style.color]&#x3D;&quot;button_color&quot;
-      (click)&#x3D;&quot;designModeChange($event)&quot;&gt;
-      &lt;/button&gt;
-  &lt;/ng-container&gt;
-
-&lt;h3&gt; Draw with Materials&lt;/h3&gt;
-  &lt;ng-container *ngFor&#x3D;&quot;let shuttle of materials&quot;&gt;
-     &lt;button [matTooltip]&#x3D;shuttle.name 
-      [name]&#x3D;shuttle.id 
-       class&#x3D;&quot;button material is-small is-primary fas fa-square&quot;
-      [class.is-active]&#x3D;&quot;design_mode.id &#x3D;&#x3D;&#x3D; shuttle.id&quot;
-      [style.color]&#x3D;&quot;shuttle.color&quot;
-      (click)&#x3D;&quot;drawWithMaterial($event)&quot;&gt;
-      &lt;/button&gt;
-  &lt;/ng-container&gt;
-
-
-&lt;h3&gt; Selection tools &lt;/h3&gt;
-
-
-  &lt;ng-container *ngFor&#x3D;&quot;let action of design_actions&quot;&gt;
-     &lt;button [matTooltip]&#x3D;action.viewValue 
-      [name]&#x3D;action.value 
-      [disabled] &#x3D; &quot;!(design_mode.name &#x3D;&#x3D;&#x3D; &#x27;select&#x27; || design_mode.name &#x3D;&#x3D;&#x3D; &#x27;copy&#x27;)&quot;
-      class&#x3D;&quot;button is-small is-primary {{action.icon}}&quot;
-      [style.color]&#x3D;&quot;button_color&quot;
-      (click)&#x3D;&quot;designActionChange($event)&quot;&gt;
-      &lt;/button&gt;
-  &lt;/ng-container&gt;
-
-
-&lt;!--   &lt;button matTooltip&#x3D;&quot;invert the state of one cell&quot; 
-  name&#x3D;&quot;invert&quot; 
-  class&#x3D;&quot;button is-small is-primary fas fa-adjust&quot; 
-  [class.is-active]&#x3D;&quot;design_ &#x3D;&#x3D;&#x3D; &#x27;invert&#x27;&quot;
-  (click)&#x3D;&quot;brushChange($event)&quot;&gt;
-  &lt;/button&gt; --&gt;
-
-&lt;!--   &lt;button matTooltip&#x3D;&quot;draw in filled cells to draft (shortcut: d)&quot; 
-  name&#x3D;&quot;point&quot; 
-  class&#x3D;&quot;button is-small is-primary fas fa-square&quot;  [class.is-active]&#x3D;&quot;brush &#x3D;&#x3D;&#x3D; &#x27;point&#x27;&quot; 
-  (click)&#x3D;&quot;brushChange($event)&quot;&gt;
-  &lt;/button&gt;
-
-  &lt;button matTooltip&#x3D;&quot;erase filled cells to draft (shortcut: e)&quot; 
-  name&#x3D;&quot;erase&quot; 
-  class&#x3D;&quot;button is-small is-primary far fa-square&quot; [class.is-active]&#x3D;&quot;brush &#x3D;&#x3D;&#x3D; &#x27;erase&#x27;&quot; 
-  (click)&#x3D;&quot;brushChange($event)&quot;&gt;
-  &lt;/button&gt;
-
- --&gt;
-
-&lt;!--   &lt;button  matTooltip&#x3D;&quot;paste selection mirrored (horizontal)&quot; 
-    [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;select&#x27; &amp;&amp; brush !&#x3D;&#x3D;&#x27;copy&#x27;&quot; 
-    class&#x3D;&quot;button is-small is-primary fas fa-arrows-alt-h&quot; 
-    (click)&#x3D;&quot;pasteEvent($event, &#x27;mirrorY&#x27;)&quot;&gt;           
-    &lt;/button&gt; --&gt;
-&lt;!-- 
-    &lt;button  matTooltip&#x3D;&quot;paste selection mirrored (vertical)&quot; 
-    [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;select&#x27; &amp;&amp; brush !&#x3D;&#x3D;&#x27;copy&#x27;&quot; 
-    class&#x3D;&quot;button is-small is-primary fas fa-arrows-alt-v&quot;
-    (click)&#x3D;&quot;pasteEvent($event, &#x27;mirrorX&#x27;)&quot;&gt;           
-    &lt;/button&gt; --&gt;
-&lt;!-- 
-    &lt;button  matTooltip&#x3D;&quot;shift by one cell to the right&quot; 
-    [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;select&#x27; &amp;&amp; brush !&#x3D;&#x3D;&#x27;copy&#x27;&quot; 
-    class&#x3D;&quot;button is-small is-primary fas fa-arrow-right&quot;
-    (click)&#x3D;&quot;pasteEvent($event, &#x27;shiftX&#x27;)&quot;&gt;           
-    &lt;/button&gt; --&gt;
-
-&lt;!--     &lt;button  matTooltip&#x3D;&quot;shift by one cell up&quot; 
-    [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;select&#x27; &amp;&amp; brush !&#x3D;&#x3D;&#x27;copy&#x27;&quot;  
-    class&#x3D;&quot;button is-small is-primary fas fa-arrow-up&quot;
-    (click)&#x3D;&quot;pasteEvent($event, &#x27;shiftY&#x27;)&quot;&gt;           
-    &lt;/button&gt;
- --&gt;
- 
-
-&lt;!--   &lt;button  matTooltip&#x3D;&quot;select a region of the draft (shortcut: s)&quot; 
-  name&#x3D;&quot;select&quot; 
-  class&#x3D;&quot;button is-small is-primary fa fa-hand-pointer&quot; [class.is-active]&#x3D;&quot;brush &#x3D;&#x3D;&#x3D; &#x27;select&#x27;&quot; 
-  (click)&#x3D;&quot;brushChange($event)&quot;&gt;
-  &lt;/button&gt; --&gt;
-
-
-&lt;!--  &lt;button matTooltip&#x3D;&quot;clear all valules in selected region (shortcut: delete)&quot; 
- name&#x3D;&quot;clear&quot; 
- [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;select&#x27;&quot; 
- class&#x3D;&quot;button is-primary is-small fa fa-times&quot; 
- (click)&#x3D;&quot;clearEvent($event);&quot;&gt; 
- &lt;/button&gt; --&gt;
-
-
-
-&lt;!--   &lt;ng-container *ngFor&#x3D;&quot;let pat of favorites&quot;&gt;
-     &lt;button  matTooltip&#x3D;&quot;fill sellection with {{ pat.name }}&quot; 
-     [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;select&#x27;&quot; 
-     name&#x3D;&quot;fill_{{pat.id}}&quot; 
-     class&#x3D;&quot;button is-primary is-small&quot; 
-     (click)&#x3D;&quot;fillEvent($event, pat.id)&quot;&gt;
-      &lt;i class&#x3D;&quot;fill_name&quot;&gt;{{ pat.name }}&lt;/i&gt;
-     &lt;/button&gt;
-
-
- &lt;/ng-container&gt;
- --&gt;
-
-
-&lt;!--     &lt;button  matTooltip&#x3D;&quot;copy selection (shortcut: c)&quot;
-     name&#x3D;&quot;copy&quot; 
-    [class.is-active]&#x3D;&quot;brush &#x3D;&#x3D;&#x3D;&#x27;copy&#x27;&quot;
-    [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;select&#x27; &amp;&amp; brush !&#x3D;&#x3D;&#x27;copy&#x27;&quot; 
-    (click)&#x3D;&quot;brushChange($event)&quot; 
-    class&#x3D;&quot;button is-primary is-small fa fa-clone&quot; &gt;
-    &lt;/button&gt;
-
-    &lt;button  matTooltip&#x3D;&quot;paste selection (shortcut: p)&quot;
-    [disabled] &#x3D; &quot;brush !&#x3D;&#x3D;&#x27;copy&#x27;&quot; 
-    class&#x3D;&quot;button is-small is-primary fa fa-paste&quot; 
-    (click)&#x3D;&quot;pasteEvent($event, &#x27;original&#x27;)&quot;&gt;
-    &lt;/button&gt; --&gt;
-
-&lt;!--     &lt;button  matTooltip&#x3D;&quot;paste selection inverted&quot; 
-    [disabled] &#x3D; &quot;!copy&quot; 
-    class&#x3D;&quot;button is-small is-primary fa fa-random&quot; 
-    (click)&#x3D;&quot;pasteEvent($event, &#x27;invert&#x27;)&quot;&gt;
-    &lt;/button&gt;
- --&gt;
-
-        &lt;app-patterns 
-          [patterns]&#x3D;&quot;patterns&quot;
-          [selection] &#x3D; &quot;selection&quot;
-          (onPatternChange)&#x3D;&quot;updatePatterns($event);&quot;
-          (onCreatePattern)&#x3D;&quot;createPattern($event);&quot;
-          (onRemovePattern)&#x3D;&quot;removePattern($event);&quot;
-          (onFill) &#x3D; &quot;fillEvent($event)&quot;&gt;
-          &gt;
-        &lt;/app-patterns&gt;
-
-
-
-&lt;/mat-expansion-panel&gt;
-
-
-
-</code></pre>
-    </div>
-
-    <div class="tab-pane fade " id="c-styleData">
-                <p class="comment">
-                    <code>./design.component.scss</code>
-                </p>
-                <pre class="line-numbers"><code class="language-scss">h3{
-  padding: 8px 0px 4px 0px;
-}
-
-
-button{
-    background: white  !important;
-    border: thin solid #ff4081 !important;
-    width: 30px;
-    height: 30px;
-    line-height: 1em;
-    margin: 2px;
-
-
-
-     i{
-      margin-right: 0px;
-    }
-
-    .fill_name{
-      border: thin solid white;
-      overflow: hidden;
-      font-weight: bold;
-      font-style: small-caps;
-      width:20px;
-    }
-
-}
-
-.button.material{
-    background: white  !important;
-    border: thin solid #ff4081 !important;
-    width: 30px;
-    height: 30px;
-    line-height: 1em;
-    margin: 2px;
-}
-
-.select_slider{
-  width: 100%;
-  padding: 8px 0 16px 0;
-  font-size: .9em;
-}
-
-button.is-active{
-
-  background: #ff4081 !important;
-  color: white !important;
-}
-
-.button.is-primary.is-active{
-   background: #ff408150 !important;
-   color: #ff4081 !important;
-}
-/*
-
-.button{
-    justify-content: center;
-    width: 1.2em;
-    margin: 4px;
-
-    i{
-      margin-right: 0px;
-    }
-
-    .fill_name{
-      border: thin solid white;
-      overflow: hidden;
-      font-weight: bold;
-      font-style: small-caps;
-      width:20px;
-    }
-  }*/</code></pre>
-    </div>
-
-    <div class="tab-pane fade " id="c-tree">
-        <div id="tree-container"></div>
-        <div class="tree-legend">
-            <div class="title">
-                <b>Legend</b>
-            </div>
-            <div>
-                <div class="color htmlelement"></div><span>Html element</span>
-            </div>
-            <div>
-                <div class="color component"></div><span>Component</span>
-            </div>
-            <div>
-                <div class="color directive"></div><span>Html element with directive</span>
-            </div>
         </div>
     </div>
 
-    
-</div>
-
-<script src="../js/libs/vis.min.js"></script>
-<script src="../js/libs/htmlparser.js"></script>
-<script src="../js/libs/deep-iterator.js"></script>
-<script>
-        var COMPONENT_TEMPLATE = '<div><mat-expansion-panel  [hideToggle] = "collapsed">  <mat-expansion-panel-header>    <mat-panel-title>      <i class="warpicon fas fa-pencil" aria-hidden="true"></i>     <span>Design</span>    </mat-panel-title>    <mat-panel-description>    </mat-panel-description>  </mat-expansion-panel-header><!--  <div class="select_slider">     Select Cell      <mat-slide-toggle          [checked]="design_mode === \'select\'"          (change)="toggleChange($event)">      </mat-slide-toggle>    Select Region  </div> --><button matTooltip= "Select Region"      name="select"       class="button is-small is-primary fas fa-expand"      [class.is-active]="design_mode.name === select"      [style.color]="button_color"      (click)="designModeChange($event)"></button><h3> Interlacement Tools</h3>  <ng-container *ngFor="let mode of design_modes">     <button [matTooltip]=mode.viewValue       [name]=mode.value       class="button is-small is-primary {{mode.icon}}"      [class.is-active]="design_mode.name === mode.value"      [style.color]="button_color"      (click)="designModeChange($event)">      </button>  </ng-container><h3> Draw with Materials</h3>  <ng-container *ngFor="let shuttle of materials">     <button [matTooltip]=shuttle.name       [name]=shuttle.id        class="button material is-small is-primary fas fa-square"      [class.is-active]="design_mode.id === shuttle.id"      [style.color]="shuttle.color"      (click)="drawWithMaterial($event)">      </button>  </ng-container><h3> Selection tools </h3>  <ng-container *ngFor="let action of design_actions">     <button [matTooltip]=action.viewValue       [name]=action.value       [disabled] = "!(design_mode.name === \'select\' || design_mode.name === \'copy\')"      class="button is-small is-primary {{action.icon}}"      [style.color]="button_color"      (click)="designActionChange($event)">      </button>  </ng-container><!--   <button matTooltip="invert the state of one cell"   name="invert"   class="button is-small is-primary fas fa-adjust"   [class.is-active]="design_ === \'invert\'"  (click)="brushChange($event)">  </button> --><!--   <button matTooltip="draw in filled cells to draft (shortcut: d)"   name="point"   class="button is-small is-primary fas fa-square"  [class.is-active]="brush === \'point\'"   (click)="brushChange($event)">  </button>  <button matTooltip="erase filled cells to draft (shortcut: e)"   name="erase"   class="button is-small is-primary far fa-square" [class.is-active]="brush === \'erase\'"   (click)="brushChange($event)">  </button> --><!--   <button  matTooltip="paste selection mirrored (horizontal)"     [disabled] = "brush !==\'select\' && brush !==\'copy\'"     class="button is-small is-primary fas fa-arrows-alt-h"     (click)="pasteEvent($event, \'mirrorY\')">               </button> --><!--     <button  matTooltip="paste selection mirrored (vertical)"     [disabled] = "brush !==\'select\' && brush !==\'copy\'"     class="button is-small is-primary fas fa-arrows-alt-v"    (click)="pasteEvent($event, \'mirrorX\')">               </button> --><!--     <button  matTooltip="shift by one cell to the right"     [disabled] = "brush !==\'select\' && brush !==\'copy\'"     class="button is-small is-primary fas fa-arrow-right"    (click)="pasteEvent($event, \'shiftX\')">               </button> --><!--     <button  matTooltip="shift by one cell up"     [disabled] = "brush !==\'select\' && brush !==\'copy\'"      class="button is-small is-primary fas fa-arrow-up"    (click)="pasteEvent($event, \'shiftY\')">               </button> --> <!--   <button  matTooltip="select a region of the draft (shortcut: s)"   name="select"   class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === \'select\'"   (click)="brushChange($event)">  </button> --><!--  <button matTooltip="clear all valules in selected region (shortcut: delete)"  name="clear"  [disabled] = "brush !==\'select\'"  class="button is-primary is-small fa fa-times"  (click)="clearEvent($event);">  </button> --><!--   <ng-container *ngFor="let pat of favorites">     <button  matTooltip="fill sellection with {{ pat.name }}"      [disabled] = "brush !==\'select\'"      name="fill_{{pat.id}}"      class="button is-primary is-small"      (click)="fillEvent($event, pat.id)">      <i class="fill_name">{{ pat.name }}</i>     </button> </ng-container> --><!--     <button  matTooltip="copy selection (shortcut: c)"     name="copy"     [class.is-active]="brush ===\'copy\'"    [disabled] = "brush !==\'select\' && brush !==\'copy\'"     (click)="brushChange($event)"     class="button is-primary is-small fa fa-clone" >    </button>    <button  matTooltip="paste selection (shortcut: p)"    [disabled] = "brush !==\'copy\'"     class="button is-small is-primary fa fa-paste"     (click)="pasteEvent($event, \'original\')">    </button> --><!--     <button  matTooltip="paste selection inverted"     [disabled] = "!copy"     class="button is-small is-primary fa fa-random"     (click)="pasteEvent($event, \'invert\')">    </button> -->        <app-patterns           [patterns]="patterns"          [selection] = "selection"          (onPatternChange)="updatePatterns($event);"          (onCreatePattern)="createPattern($event);"          (onRemovePattern)="removePattern($event);"          (onFill) = "fillEvent($event)">          >        </app-patterns></mat-expansion-panel></div>'
-    var COMPONENTS = [{'name': 'AboutModal', 'selector': 'app-about'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConnectionModal', 'selector': 'app-connection'},{'name': 'DesignComponent', 'selector': 'app-design'},{'name': 'HistoryComponent', 'selector': 'app-history'},{'name': 'InitModal', 'selector': 'app-init'},{'name': 'LabelModal', 'selector': 'app-label'},{'name': 'LoomComponent', 'selector': 'app-loom'},{'name': 'MasksComponent', 'selector': 'app-masks'},{'name': 'MaterialModal', 'selector': 'app-material-modal'},{'name': 'MaterialsComponent', 'selector': 'app-materials'},{'name': 'NotesComponent', 'selector': 'app-notes'},{'name': 'PatternModal', 'selector': 'app-pattern-modal'},{'name': 'PatternsComponent', 'selector': 'app-patterns'},{'name': 'SchematicComponent', 'selector': 'app-schematic'},{'name': 'ShuttlesModal', 'selector': 'app-shuttles-modal'},{'name': 'SystemsComponent', 'selector': 'app-systems'},{'name': 'TopbarComponent', 'selector': 'app-topbar'},{'name': 'UploadFormComponent', 'selector': 'upload-form'},{'name': 'ViewComponent', 'selector': 'app-view'},{'name': 'WeaverComponent', 'selector': 'app-weaver'}];
-    var DIRECTIVES = [{'name': 'WeaveDirective', 'selector': '[weave]'}];
-    var ACTUAL_COMPONENT = {'name': 'DesignComponent'};
-</script>
-<script src="../js/tree.js"></script>
 
 
 
 
 
-
-
-
-
-
-                   
 
 
 
 
                    </div><div class="search-results">
     <div class="has-results">
-        <h1 class="search-results-title"><span class='search-results-count'></span> result-matching "<span class='search-query'></span>"</h1>
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
         <ul class="search-results-list"></ul>
     </div>
     <div class="no-results">
@@ -1901,22 +1647,8 @@ button.is-active{
     </div>
 </div>
 </div>
-               <!-- END CONTENT -->
            </div>
        </div>
-
-       <script>
-            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
-            var COMPODOC_CURRENT_PAGE_URL = 'DesignComponent.html';
-            var MAX_SEARCH_RESULTS = 15;
-       </script>
-
-       <script src="../js/libs/custom-elements.min.js"></script>
-       <script src="../js/libs/lit-html.js"></script>
-       <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-       <script src="../js/libs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
-       <script src="../js/menu-wc.js" defer></script>
 
        <script src="../js/libs/bootstrap-native.js"></script>
 
@@ -1927,17 +1659,20 @@ button.is-active{
 
        <script src="../js/compodoc.js"></script>
 
-       <script src="../js/tabs.js"></script>
-       <script src="../js/menu.js"></script>
-       <script src="../js/libs/clipboard.min.js"></script>
-       <script src="../js/libs/prism.js"></script>
-       <script src="../js/sourceCode.js"></script>
-          <script src="../js/search/search.js"></script>
-          <script src="../js/search/lunr.min.js"></script>
-          <script src="../js/search/search-lunr.js"></script>
-          <script src="../js/search/search_index.js"></script>
-       <script src="../js/lazy-load-graphs.js"></script>
+       <script src="../js/search/search.js"></script>
+       <script src="../js/search/lunr.min.js"></script>
+       <script src="../js/search/search-lunr.js"></script>
 
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/highlight.pack.js"></script>
+       <script src="../js/libs/highlightjs-line-numbers.min.js"></script>
+       <script src="../js/search/search_index.js"></script>
+       <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                hljs.initHighlightingOnLoad();
+                hljs.initLineNumbersOnLoad();
+            });
+       </script>
 
     </body>
 </html>

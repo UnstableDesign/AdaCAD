@@ -1,11 +1,21 @@
 
-<h4>Pattern Library
-  <button class="addsystem" (click)="openPatternDialog(null)">
-    <i aria-label="" class="fa fa-plus"></i>
-    <span> Add</span>
-</button>
+<mat-expansion-panel  [hideToggle] = "collapsed">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     <span>Pattern Library</span>
+    </mat-panel-title>
+    <mat-panel-description>
+      <button class="addsystem" (click)="openPatternDialog(null)">
+        <i aria-label="" class="fa fa-plus"></i>
+        <span> Add</span>
+    </button>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
 
-</h4>
+
+
+
+
 
 
 <div class="panel-content">
@@ -17,9 +27,11 @@
   
         <mat-list-item>
 
+
+
             <div class="level-item fill-icon">
               <button mat-icon-button>
-                <i aria-label="Fill button" class="fas fa-fill" (click)="fill(pattern.id)"></i>
+                <i aria-label="Favorite button" [class.fas] = "pattern.favorite" [class.far] = "!pattern.favorite" class="fa-star" (click)="toggleFavorite(pattern.id)"></i>
               </button>
             </div>
 
@@ -27,8 +39,8 @@
             <div class="pattern-swatch">
               <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
                 <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
-                  <ng-container *ngFor="let up of row; let j = index">
-                  <rect *ngIf="up" [attr.x]="j * 10" [attr.y]="i * 10" width="10" height="10" fill="#000"/>
+                  <ng-container *ngFor="let cell of row; let j = index">
+                  <rect *ngIf="cell.is_up" [attr.x]="j * 10" [attr.y]="i * 10" width="10" height="10" fill="#000"/>
                   </ng-container>
                 </g>
               </svg>
@@ -58,5 +70,5 @@
 
 </mat-list>
 </div>
-
+</mat-expansion-panel>
 

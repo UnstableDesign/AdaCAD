@@ -10,7 +10,7 @@ import { Loom } from '../../core/model/loom';
 import { Cell } from '../../core/model/cell';
 import { Shuttle } from '../../core/model/shuttle';
 import { Pattern } from '../../core/model/pattern';
-import { Point } from '../../core/model/point';
+import { Point, Interlacement, LoomUpdate } from '../../core/model/datatypes';
 import { Selection } from '../../core/model/selection';
 import { Timeline } from '../../core/model/timeline';
 import { CanvasToBMP } from '../../core/model/canvas2image';
@@ -65,7 +65,7 @@ export class WeaveDirective {
 
 
 
-  @Input() copy:  Array<Array<boolean>>;
+  @Input() copy: Pattern;
 
 
   @Output() onNewSelection = new EventEmitter();
@@ -228,7 +228,7 @@ export class WeaveDirective {
   private tempPattern: Array<Array<boolean>>;
   private unsubscribe$ = new Subject();
 
-  private lastPos: Point;
+  private lastPos: Interlacement;
 
 
 
@@ -330,8 +330,7 @@ export class WeaveDirective {
   }
 
 
-  setPosAndDraw(target, currentPos:Point){
-
+  setPosAndDraw(target, currentPos:Interlacement){
       if (target && target.id =='treadling') {
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
@@ -377,9 +376,6 @@ export class WeaveDirective {
       h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
     }
 
-
-    console.log(event.target.id);
-
     if (event.target.localName === 'canvas') {
     
       this.removeSubscription();    
@@ -390,7 +386,7 @@ export class WeaveDirective {
       // set up the Point to be used.
       var screen_row = Math.floor(event.offsetY / dims.h);
 
-      const currentPos: Point = {
+      const currentPos: Interlacement = {
         si: screen_row,
         i: screen_row, //row
         j: Math.floor((event.offsetX) / dims.w), //col
@@ -410,7 +406,6 @@ export class WeaveDirective {
       
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
-
       switch (this.design_mode.name) {
         case 'toggle':
           this.setPosAndDraw(event.target, currentPos);
@@ -499,7 +494,7 @@ export class WeaveDirective {
     }
   }
 
-  private isSame(p1: Point, p2:Point){
+  private isSame(p1: Interlacement, p2:Interlacement){
     if(p1 === undefined || p2 === undefined ) return false
     return (p1.i == p2.i && p1.j === p2.j);
 
@@ -525,7 +520,7 @@ export class WeaveDirective {
     // set up the point based on touched square.
     var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
 
-    const currentPos: Point = {
+    const currentPos: Interlacement = {
       si: screen_row,
       i:  screen_row,
       j:  Math.floor((event.offsetX + offset.x) / dims.w)
@@ -584,7 +579,7 @@ export class WeaveDirective {
         if (event.target && event.target.id === ('treadling')) {
           this.selection.end.j = this.weave.loom.num_treadles;
 
-        }else if(event.target && event.target.id === ('threading-container')){
+        }else if(event.target && event.target.id === ('threading')){
           this.selection.end.i = this.weave.loom.num_frames;
           this.selection.end.si = this.weave.loom.num_frames;
         }
@@ -652,7 +647,6 @@ export class WeaveDirective {
     }
   }
 
-  /// PRIVATE FUNCTIONS
   /**
    * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d arrray representing the 
    * threading or treadling with "true" in the frame/threadle associated with that col/row. 
@@ -661,62 +655,57 @@ export class WeaveDirective {
    */
   private copyArea() {
 
-
-    var dims = this.render.getCellDims("copy");
-
-
     const screen_i = Math.min(this.selection.start.si, this.selection.end.si);    
-    const draft_i = Math.min(this.selection.start.i, this.selection.end.i);
     const draft_j = Math.min(this.selection.start.j, this.selection.end.j);
     
 
     var w = this.selection.width;
     var h = this.selection.height;
 
+    this.copy = new Pattern({name: 'copy', width: w, height: h});
+    const temp_copy: Array<Array<boolean>> = [];
 
-    this.copy = [];
-     
     if(this.selection.target.id === 'weft-systems'){
       for(var i = 0; i < h; i++){
-        this.copy.push([]);
+        temp_copy.push([]);
         for(var j = 0; j < this.weave.weft_systems.length; j++){
-          this.copy[i].push(false);
+          temp_copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'warp-systems'){
       for(var i = 0; i < this.weave.warp_systems.length; i++){
-        this.copy.push([]);
+        temp_copy.push([]);
         for(var j = 0; j < w; j++){
-          this.copy[i].push(false);
+          temp_copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'weft-materials'){
       for(var i = 0; i < h; i++){
-        this.copy.push([]);
+        temp_copy.push([]);
         for(var j = 0; j < this.weave.shuttles.length; j++){
-          this.copy[i].push(false);
+          temp_copy[i].push(false);
         }
       }
     }else if(this.selection.target.id === 'warp-materials'){
       for(var i = 0; i < this.weave.shuttles.length; i++){
-        this.copy.push([]);
+        temp_copy.push([]);
         for(var j = 0; j < w; j++){
-          this.copy[i].push(false);
+          temp_copy[i].push(false);
         }
       }
     }else{
        for (var i = 0; i < h; i++){
-        this.copy.push([]);
+        temp_copy.push([]);
         for (var j = 0; j < w; j++){
-          this.copy[i].push(false);
+          temp_copy[i].push(false);
         }
        }
     }
 
 
     //iterate through the selection
-    for (var i = 0; i < this.copy.length; i++) {
-      for(var j = 0; j < this.copy[0].length; j++) {
+    for (var i = 0; i < temp_copy.length; i++) {
+      for(var j = 0; j < temp_copy[0].length; j++) {
 
         var screen_row = screen_i + i;
         var draft_row = this.weave.visibleRows[screen_row];
@@ -724,31 +713,31 @@ export class WeaveDirective {
 
         switch(this.selection.target.id){
           case 'drawdown':
-              this.copy[i][j]= this.weave.isUp(draft_row, col);
+            temp_copy[i][j]= this.weave.isUp(draft_row, col);
           break;
           case 'threading':
               var frame = this.weave.loom.frame_mapping[screen_row];
-              this.copy[i][j]= this.weave.loom.isInFrame(col,frame);
+              temp_copy[i][j]= this.weave.loom.isInFrame(col,frame);
 
           break;
           case 'treadling':
-              this.copy[i][j] = this.weave.loom.isInTreadle(screen_row,col);
+            temp_copy[i][j] = this.weave.loom.isInTreadle(screen_row,col);
           break;
           case 'tieups':
               var frame = this.weave.loom.frame_mapping[screen_row];
-              this.copy[i][j] = this.weave.loom.hasTieup(frame, col);;
+              temp_copy[i][j] = this.weave.loom.hasTieup(frame, col);;
           break;  
           case 'warp-systems':
-              this.copy[i][j]= (this.weave.colSystemMapping[col] == i);
+            temp_copy[i][j]= (this.weave.colSystemMapping[col] == i);
           break;
           case 'weft-systems':
-              this.copy[i][j]= (this.weave.rowSystemMapping[draft_row] == j);
+            temp_copy[i][j]= (this.weave.rowSystemMapping[draft_row] == j);
           break;
           case 'warp-materials':
-              this.copy[i][j]= (this.weave.colShuttleMapping[col] == i);
+            temp_copy[i][j]= (this.weave.colShuttleMapping[col] == i);
           break;
           case 'weft-materials':
-              this.copy[i][j]= (this.weave.rowShuttleMapping[draft_row] == j);
+            temp_copy[i][j]= (this.weave.rowShuttleMapping[draft_row] == j);
           break;
           default:
           break;
@@ -757,6 +746,7 @@ export class WeaveDirective {
       }
     }
 
+    this.copy.setPattern(temp_copy);
     this.onNewSelection.emit(this.copy);
 
 
@@ -1032,7 +1022,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWeftSelectors( currentPos: Point ) {
+  private drawOnWeftSelectors( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
 
@@ -1068,7 +1058,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWeftMaterials( currentPos: Point ) {
+  private drawOnWeftMaterials( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
     var updates;
@@ -1098,7 +1088,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWarpSelectors( currentPos: Point ) {
+  private drawOnWarpSelectors( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
 
@@ -1126,7 +1116,7 @@ export class WeaveDirective {
    * @param {Point} the point of the interaction
    * @returns {void}
    */
-  private drawOnWarpMaterials( currentPos: Point ) {
+  private drawOnWarpMaterials( currentPos: Interlacement ) {
 
     var dims = this.render.getCellDims("base");
 
@@ -1157,7 +1147,7 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnMask( currentPos: Point ) {
+  private drawOnMask( currentPos: Interlacement ) {
     var updates;
     var val;
 
@@ -1194,7 +1184,7 @@ export class WeaveDirective {
    * @returns {void}
    */
 
-  private drawOnDrawdown( currentPos: Point) {
+  private drawOnDrawdown( currentPos: Interlacement) {
 
     var updates;
     var val  = false;
@@ -1251,13 +1241,13 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnTieups( currentPos: Point ) {
+  private drawOnTieups( currentPos: Interlacement ) {
     var updates;
     var val = false;
     
     if (!this.cxTieups || !currentPos) { return; }
 
-    if (this.weave.loom.inTieupRange(currentPos.i, currentPos.j)) {
+    if (this.weave.loom.inTieupRange(currentPos)) {
       switch (this.design_mode.name) {
         case 'up':
             val = true;
@@ -1272,7 +1262,7 @@ export class WeaveDirective {
           break;
       }
     
-    updates = this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
+    updates = this.weave.loom.updateTieup({i:currentPos.i,j: currentPos.j, val:val});
     this.weave.updateDraftFromTieup(updates);
     //this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup");
     this.redraw({drawdown:true, loom:true});
@@ -1287,11 +1277,11 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnThreading( currentPos: Point ) {
+  private drawOnThreading( currentPos: Interlacement ) {
     if (!this.cxThreading || !currentPos) { return; }
+    
 
-    if (this.weave.loom.inThreadingRange(currentPos.i, currentPos.j)){
-
+    if (this.weave.loom.inThreadingRange(currentPos)){
       var val = false;
 
       switch (this.design_mode.name) {
@@ -1309,9 +1299,9 @@ export class WeaveDirective {
       }
 
   
-      var updates = this.weave.loom.updateThreading(currentPos.i, currentPos.j, val);
+      const updates:LoomUpdate = this.weave.loom.updateThreading({i:currentPos.i, j:currentPos.j, val:val});
       this.weave.updateDraftFromThreading(updates);
-      
+
       if(this.weave.loom.min_frames < this.weave.loom.num_frames){
         this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
       }  
@@ -1335,14 +1325,14 @@ export class WeaveDirective {
    * @param {Point} currentPos - the current position of the mouse within draft.
    * @returns {void}
    */
-  private drawOnTreadling( currentPos: Point ) {
+  private drawOnTreadling( currentPos: Interlacement ) {
 
 
     if (!this.cxTreadling || !currentPos) { return; }
     
     var val = false;
 
-    if(this.weave.loom.inTreadlingRange(currentPos.i, currentPos.j)){
+    if(this.weave.loom.inTreadlingRange(currentPos)){
       switch (this.design_mode.name) {
         case 'up':
           val = true;
@@ -1359,7 +1349,7 @@ export class WeaveDirective {
 
 
       //this updates the value in the treadling
-      var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
+      var updates = this.weave.loom.updateTreadling({i:currentPos.i, j:currentPos.j, val:val});
       this.weave.updateDraftFromTreadling(updates);
 
       // for(var u in updates){

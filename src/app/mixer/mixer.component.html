@@ -40,27 +40,22 @@
 
         </app-view>
 
-
         <app-design
-        [design_mode]="design_mode"
-        [design_modes]="design_modes"
-        [design_actions]="design_actions"
         [view_mode] = "render?.current_view"
         [materials]="draft?.shuttles"
-        [patterns]="draft?.patterns"
-        [selection] = "copy"
-        (onDesignModeChange)="onDesignModeChange($event)" 
-        (onFill)="onFill($event)" 
-        (onCopy)="onCopy();"
-        (onClear)="onClear($event);" 
-        (onPaste)="onPaste($event);"
+        (onDesignModeChange)="designModeChanged($event);"
+      >
+        </app-design> 
+
+        <app-patterns 
+        [patterns]="default_patterns"
+        [selection] = "selection"
         (onPatternChange)="updatePatterns($event);"
         (onCreatePattern)="createPattern($event);"
         (onRemovePattern)="removePattern($event);"
-        (onChange) = "onChange($event);"
-      
+        (onFill) = "fillEvent($event)">
         >
-        </app-design> 
+       </app-patterns>
  
         <app-materials 
           [material_types]="material_types"
@@ -72,10 +67,8 @@
 
         </app-materials>
 
-        <app-masks [hidden] = "render?.current_view != 'mask'"
-          (onMask)="onMask($event);" >
-        </app-masks>
-
+       
+<!-- 
         <app-systems
          [weft_systems]="draft?.weft_systems"
          [warp_systems]="draft?.warp_systems"
@@ -89,10 +82,10 @@
          (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
          (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
         >
-       </app-systems>
+       </app-systems> -->
 
 
-        <app-loom 
+        <!-- <app-loom 
           [epi] = "draft?.epi"
           [warps] = "draft?.warps"
           [wefts] = "draft?.wefts"
@@ -112,7 +105,7 @@
           (onFrameChange) = "frameChange($event)"
           (onTreadleChange) = "treadleChange($event)"
           >
-        </app-loom>
+        </app-loom> -->
 
         <app-notes
          [notes] = "draft?.notes"
@@ -134,11 +127,8 @@
 
   </mat-drawer>
 
-  <app-palette #palette  
-  [subdrafts] = "subdrafts" 
-  [design_mode]="design_mode"  
-  [timeline]="timeline">
-
+  <app-palette #palette 
+  [patterns] = "default_patterns" >
   </app-palette>
 
 

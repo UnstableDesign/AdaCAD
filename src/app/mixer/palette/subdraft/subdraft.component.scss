@@ -7,6 +7,12 @@
 	justify-content:flex-end;
 }
 
+.is_preview{
+	z-index: 10;
+}
+
+
+
 .subdraft-container:hover,
 .subdraft-container:active{
 
@@ -23,6 +29,21 @@
 		border: thin solid #00d1b2;
 	}
 
+	.subdraft-details{
+		display: flex;
+	}
+}
+
+.drawing{
+	z-index: -1;
+
+	.subdraft-details{
+		pointer-events: all;
+	}
+
+	canvas{
+		pointer-events: none;
+	}
 }
 
 .mat-icon{
@@ -31,6 +52,7 @@
 
 .subdraft-details{
 	display:none;
+	flex-direction: column;
 }
 
 .subdraft-contents{
@@ -53,5 +75,5 @@ div.cdk-drag-dragging canvas{
 }
 
 div.cdk-drag-dragging{
-	z-index: 10; 
+	z-index: 1; 
 }

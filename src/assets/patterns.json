@@ -60,5 +60,25 @@
                 [true, false, true, true],
                 [false, false, true, false]
                ]
+  },
+  {
+    "name": "Heddles Down",
+    "id": 5,
+    "favorite": true,
+    "height": 1,
+    "width": 1,
+    "pattern": [
+                [false]
+               ]
+  },
+  {
+    "name": "Heddles Up",
+    "id": 6,
+    "favorite": true,
+    "height": 1,
+    "width": 1,
+    "pattern": [
+                [true]
+               ]
   }
 ]
