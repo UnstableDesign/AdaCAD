@@ -1,8 +1,11 @@
 /**
- * Definition of Util class
+ * A collection of functions that are heplful within many areas of the tool
  * @class
  */
+
+
 class Util {
+
     /*Input: two arrays
     Result: a boolean value for if they are equal or not
     */
@@ -19,7 +22,16 @@ class Util {
         return true;
       }
     }
-  
+
+    /**
+     * A function to count the number of occurances of a give value within an array
+     * @param arr the arary to search
+     * @param val the value we are seeking
+     * @returns number of occurances
+     */
+    public countOccurrences = (arr, val) => arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
+
+      
     /*Input: an array of booleans
     Result: the number of "ones" in the "bitstring" (in this context, returns the number of true valued booleans in the array of booleans)
     */

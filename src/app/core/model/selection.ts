@@ -1,4 +1,4 @@
-import { Interlacement } from './point';
+import { Interlacement } from './datatypes';
 
 /**
  * Definition of selection object.

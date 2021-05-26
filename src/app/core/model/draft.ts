@@ -4,7 +4,7 @@ import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
 import { Selection } from './selection';
-import { Point, Interlacement } from '../model/point';
+import { Point, Interlacement } from './datatypes';
 
 import * as _ from 'lodash';
 
@@ -338,6 +338,8 @@ export class Draft implements DraftInterface {
  */
   reload({...params}) {
 
+    console.log("within reload", params);
+
     //clear out any variables that were storing dynamic arrays linked to the draft
     this.visibleRows = [];
     this.patterns = [];
@@ -360,9 +362,9 @@ export class Draft implements DraftInterface {
         this.loom.loadNew('frame', this.wefts, this.warps, 8, 10);
     } else {
         this.loom.loadNew(params.loom.type, this.wefts, this.warps, params.loom.num_frames, params.loom.num_treadles);
-        if(params.loom.threading != undefined) this.loom.threading = params.loom.threading;
-        if(params.loom.tieup != undefined) this.loom.tieup = params.loom.tieup;
-        if(params.loom.treadling != undefined) this.loom.treadling = params.loom.treadling;
+        if(params.loom.threading !== undefined) this.loom.threading = params.loom.threading;
+        if(params.loom.tieup !== undefined) this.loom.tieup = params.loom.tieup;
+        if(params.loom.treadling !== undefined) this.loom.treadling = params.loom.treadling;
     }
 
   
@@ -513,13 +515,18 @@ export class Draft implements DraftInterface {
     //   this.masks = params.masks;
     // } 
 
-    if(this.loom.type == "frame"){
+    //this is probably the case if we uploaded a wif, but need to add a variable to check the origin to be sure
+    if(params.loom !== undefined){
+      this.recalculateDraft(this.loom.tieup, this.loom.treadling, this.loom.threading.reverse());
+      this.colShuttleMapping = this.colShuttleMapping.reverse(); //reverse these to match
+      this.colSystemMapping = this.colSystemMapping.reverse();
+    }else if(this.loom.type == "frame"){
       this.recomputeLoom();
     }
 
     this.computeYarnPaths();
     this.recomputeWidth();
-
+    this.updateVisible();
   }
 
 
@@ -725,6 +732,7 @@ export class Draft implements DraftInterface {
     var i = 0;
     var systems = [];
     var visible = [];
+
 
     for (i = 0; i < this.weft_systems.length; i++) {
       systems.push(this.weft_systems[i].visible);
@@ -1450,7 +1458,7 @@ export class Draft implements DraftInterface {
             
           if(this.pattern[i][j].isUp()){
               mock[i][j].setHeddle(this.pattern[i][j].isUp());
-              this.loom.updateFromDrawdown(i,j, mock);
+              this.loom.updateFromDrawdown({i:i,j:j, si:-1}, mock);
               var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
               var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
           }
@@ -1682,8 +1690,8 @@ computeYarnPaths(){
     type: string
   ) {
 
-    // console.log("fill area called");
-    // console.log(selection, pattern, type);
+    console.log("fill area called");
+    console.log(selection, pattern, type);
 
     var updates = [];
     
@@ -1734,8 +1742,10 @@ computeYarnPaths(){
 
           break;
           case 'threading':
+
               var frame = this.loom.frame_mapping[row];
               prev = this.loom.isInFrame(col, frame);
+              console.log(frame, prev);
           
           break;
           case 'treadling':
@@ -1744,7 +1754,7 @@ computeYarnPaths(){
           break;
           case 'tieups':
               var frame = this.loom.frame_mapping[row];
-              prev = this.loom.hasTieup(frame,col); 
+              prev = this.loom.hasTieup({i:frame,j:col, si:-1}); 
           
           break;
           default:
@@ -1798,8 +1808,8 @@ computeYarnPaths(){
             case 'threading':
             var frame = this.loom.frame_mapping[row];
 
-              if(this.loom.inThreadingRange(frame,col)){ 
-                updates = this.loom.updateThreading(frame, col, val);
+              if(this.loom.inThreadingRange({i:frame,j:col,si:-1})){ 
+                updates = this.loom.updateThreading({i:frame, j:col, val:val});
                 this.updateDraftFromThreading(updates); 
               }
             break;
@@ -1807,19 +1817,19 @@ computeYarnPaths(){
             case 'treadling':
               
              var draft_row = this.visibleRows[row];
-             if(this.loom.inTreadlingRange(draft_row,col)){ 
-                updates = this.loom.updateTreadling(draft_row, col, val);
+             if(this.loom.inTreadlingRange({i:draft_row,j:col, si: -1})){ 
+                updates = this.loom.updateTreadling({i: draft_row, j:col, val:val});
                 this.updateDraftFromTreadling(updates);
               }
             break;
             case 'tieups':
               var frame = this.loom.frame_mapping[row];
 
-              if(this.loom.inTieupRange(frame, col)){
-                updates = this.loom.updateTieup(frame, col, val);
+              if(this.loom.inTieupRange({i:frame, j:col, si: -1})){
+                updates = this.loom.updateTieup({i:frame, j:col, val:val});
                 this.updateDraftFromTieup(updates);
               }
-            break;
+            break; 
             case 'weft-systems':
               var draft_row = this.visibleRows[row];
               val = pattern[i % rows][j % cols].isUp();
@@ -1949,7 +1959,7 @@ computeYarnPaths(){
    private updateLoomFromDraft(currentPos):boolean{
 
 
-    var updates = this.loom.updateFromDrawdown(currentPos.i,currentPos.j, this.pattern);
+    var updates = this.loom.updateFromDrawdown({i:currentPos.i,j:currentPos.j,si:currentPos.si}, this.pattern);
     var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
     var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
 

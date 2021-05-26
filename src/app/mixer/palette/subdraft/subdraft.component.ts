@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@angular/core';
 import { Draft } from '../../../core/model/draft';
-import { Point, Interlacement, Bounds } from '../../../core/model/point';
+import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
 import { ConnectionComponent } from '../connection/connection.component';
 
 

@@ -7,7 +7,7 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds } from '../../core/model/point';
+import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { dsv } from 'd3-fetch';
 import { sampleSize } from 'lodash';

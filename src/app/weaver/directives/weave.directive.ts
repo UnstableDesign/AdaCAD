@@ -10,7 +10,7 @@ import { Loom } from '../../core/model/loom';
 import { Cell } from '../../core/model/cell';
 import { Shuttle } from '../../core/model/shuttle';
 import { Pattern } from '../../core/model/pattern';
-import { Point, Interlacement } from '../../core/model/point';
+import { Point, Interlacement } from '../../core/model/datatypes';
 import { Selection } from '../../core/model/selection';
 import { Timeline } from '../../core/model/timeline';
 import { CanvasToBMP } from '../../core/model/canvas2image';
@@ -649,7 +649,6 @@ export class WeaveDirective {
     }
   }
 
-  /// PRIVATE FUNCTIONS
   /**
    * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d arrray representing the 
    * threading or treadling with "true" in the frame/threadle associated with that col/row. 

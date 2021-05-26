@@ -1,6 +1,6 @@
 import { Directive, OnInit } from '@angular/core';
 import { Draft } from '../../../core/model/draft';
-import { Point, Bounds, Interlacement } from '../../../core/model/point';
+import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 
 @Directive({
   selector: 'app-selection'
