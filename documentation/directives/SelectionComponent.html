@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -975,7 +981,7 @@
                                         <span class="modifier-icon method fa fa-play circle">
                                             <span class="fa fa-circle"></span>
                                         </span>
-                                    <code>setPositionAndSize(bounds: any)</code>
+                                    <code>setPositionAndSize(bounds: Bounds)</code>
                                 </td>
                             </tr>
             
@@ -1017,12 +1023,27 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
+                                    <b> bounds</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>bounds:     <code>Bounds</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
                                     <b> draft</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>draft:     <code>{ id: string; }</code>
+                                    <code>draft:     <code><a href="../classes/Draft.html" target="_self" >Draft</a></code>
             </bcode>
                                 </td>
                             </tr>
@@ -1043,7 +1064,7 @@
                             </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <i>Default value: </i><code>marquee</code>
+                                        <i>Default value: </i><code>or</code>
                                     </td>
                                 </tr>
                         </tbody>
@@ -1067,42 +1088,12 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> size</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>size:     <code>{ w: number; h: number; }</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
                                     <b> start</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>start:     <code>{ i: number; j: number; }</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> topleft</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>topleft:     <code><a href="../classes/Point.html" target="_self" >Point</a></code>
+                                    <code>start:     <code>Interlacement</code>
             </bcode>
                                 </td>
                             </tr>
@@ -1113,15 +1104,8 @@
     </div>
     <div class="tab-pane fade tab-source-code" id="source">
         <pre><code class="hljs javascript">import { Directive, OnInit } from &#x27;@angular/core&#x27;;
-
-
-interface Point {
-  x: number;
-  y: number;
-}
-
-
-
+import { Draft } from &#x27;../../../core/model/draft&#x27;;
+import { Point, Bounds, Interlacement } from &#x27;../../../core/model/datatypes&#x27;;
 
 @Directive({
   selector: &#x27;app-selection&#x27;
@@ -1131,16 +1115,18 @@ interface Point {
 export class SelectionComponent implements OnInit{
 
 
-  draft &#x3D; {
-    id: &quot;selection&quot;
-  };
+  draft: Draft &#x3D; new Draft({name: &quot;selection&quot;});
 
-  start &#x3D; {i: 0, j:0};
+  bounds:Bounds &#x3D; {
+    topleft: {x: 0, y:0},
+    width: 0,
+    height: 0
+  }
+
+  start:Interlacement &#x3D; {i: 0, j:0, si: 0};
   active &#x3D; false;
-  topleft: Point &#x3D; {x: 0, y:0};
   scale: number; 
-  size &#x3D; {w: 0, h: 0};
-  filter &#x3D; &quot;marquee&quot;
+  filter &#x3D; &quot;or&quot;
 
   ngOnInit(){
     console.log(this.draft.id);
@@ -1152,10 +1138,8 @@ export class SelectionComponent implements OnInit{
   }
 
 
-  public setPositionAndSize(bounds: any){
-    this.topleft &#x3D; bounds.topleft;
-    this.size.w &#x3D; bounds.width;
-    this.size.h &#x3D; bounds.height;
+  public setPositionAndSize(bounds: Bounds){
+    this.bounds  &#x3D; bounds;
   }
 
 

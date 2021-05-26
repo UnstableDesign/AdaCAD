@@ -516,6 +516,7 @@ getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
 
     }
 
+
     inThreadingRange(ndx: Interlacement):boolean{
       if(ndx.j >= 0 && ndx.j < this.threading.length) return true;
       if(ndx.i >= 0 && ndx.i < this.num_frames) return true;
@@ -583,7 +584,6 @@ getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
         if(frame !== -1) updates.push({i:frame, j: ndx.j, val:false});
 
         updates.push({i:ndx.i, j: ndx.j, val:ndx.val});
-        this.threading[ndx.j] = ndx.i;
 
       }else{
 

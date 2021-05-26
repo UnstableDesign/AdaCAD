@@ -19,7 +19,7 @@ import { Cell } from '../core/model/cell';
 
 
 //disables some angular checking mechanisms
-//enableProdMode();
+enableProdMode();
 
 
 /**
@@ -45,11 +45,6 @@ interface DensityUnits {
 
 interface ViewModes {
   value: string;
-  viewValue: string;
-}
-
-interface ToolModes{
-  value: string; 
   viewValue: string;
 }
 
@@ -581,7 +576,14 @@ export class WeaverComponent implements OnInit {
 
     this.draft.fillArea(this.weaveRef.selection, p, type);
 
-    if(this.render.showingFrames()) this.draft.recomputeLoom();
+    switch(this.weaveRef.selection.target.id){    
+      case 'drawdown':
+        //if you do this when updates come from loom, it will erase those updates
+        if(this.render.showingFrames()) this.draft.recomputeLoom();
+       break;
+      
+    }
+
     
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 

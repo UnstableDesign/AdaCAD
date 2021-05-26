@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -921,7 +927,7 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Definition of Util class</p>
+                <p>A collection of functions that are heplful within many areas of the tool</p>
 
             </p>
 
@@ -1099,9 +1105,34 @@
             </section>
 
 
+            <section>
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b><span class="modifier">Public</span> countOccurrences</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <span class="modifier-icon fa fa-circle"></span><code>countOccurrences:     <code>(arr: any, val: any) &#x3D;&gt; any</code>
+            </bcode>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>A function to count the number of occurances of a give value within an array</p>
+            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
     </div>
     <div class="tab-pane fade tab-source-code" id="source">
         <pre><code class="hljs javascript">class Util {
+
     /*Input: two arrays
     Result: a boolean value for if they are equal or not
     */
@@ -1118,7 +1149,16 @@
         return true;
       }
     }
-  
+
+    /**
+     * A function to count the number of occurances of a give value within an array
+     * @param arr the arary to search
+     * @param val the value we are seeking
+     * @returns number of occurances
+     */
+    public countOccurrences &#x3D; (arr, val) &#x3D;&gt; arr.reduce((a, v) &#x3D;&gt; (v &#x3D;&#x3D;&#x3D; val ? a + 1 : a), 0);
+
+      
     /*Input: an array of booleans
     Result: the number of &quot;ones&quot; in the &quot;bitstring&quot; (in this context, returns the number of true valued booleans in the array of booleans)
     */

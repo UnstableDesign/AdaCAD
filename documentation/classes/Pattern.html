@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -951,16 +957,34 @@
             
                             <tr>
                                 <td class="col-md-4">
-            <code>setPattern(pattern: any)</code>
+            <code>setPattern(pattern: boolean[][])</code>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
+                                        <div class="io-description"><p>takes a 2D array of booleans and converts to a pattern object (replacing boolean with Cells)</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>pattern</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
                                         <div class="io-description">
                                             <b>Returns: </b>    <code>void</code>
             
                                         </div>
+                                            <div class="io-description">
+                                                
+                                            </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -1103,6 +1127,7 @@ export class Pattern {
   name: string;
 
   constructor(obj: any) {
+
     this.favorite &#x3D; (obj.favorite !&#x3D;&#x3D; undefined) ? obj.favorite : false;
     this.id &#x3D; (obj.id !&#x3D;&#x3D; undefined) ? obj.id : -1;
     this.name &#x3D; (obj.name !&#x3D;&#x3D; undefined) ? obj.name : &quot;unnamed&quot;;
@@ -1123,22 +1148,23 @@ export class Pattern {
       this.width &#x3D; 0;
       this.height &#x3D; 0;
     }
-    
-  }
 
+ }
 
-  setPattern(pattern) {
+ /**
+  * takes a 2D array of booleans and converts to a pattern object (replacing boolean with Cells)
+  * @param pattern 
+  */
+setPattern(pattern: Array&lt;Array&lt;boolean&gt;&gt;) {
     this.height &#x3D; pattern.length;
+    if(this.height &gt; 0) this.width &#x3D; pattern[0].length
 
-    if (this.height &gt; 0) {
-      this.width &#x3D; pattern[0].length;
-    } else {
-      this.width &#x3D; 0;
+    for(let i &#x3D; 0; i &lt; this.height; i++){
+      this.pattern[i] &#x3D; [];
+      for(let j &#x3D; 0; j &lt; this.width; j++){
+        this.pattern[i][j] &#x3D; new Cell(pattern[i][j]);
+      }
     }
-
-    this.pattern &#x3D; pattern;
-
-    return this;
   }
 
 

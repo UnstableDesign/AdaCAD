@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -961,7 +967,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <code>constructor(data: SubdraftComponent)</code>
+                            <code>constructor(data: <a href="../classes/Selection.html" >SubdraftComponent | SelectionComponent</a>)</code>
                         </td>
                     </tr>
     
@@ -981,7 +987,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <code>data:     <code>SubdraftComponent</code>
+                            <code>data:     <code><a href="../classes/Selection.html" target="_self" >SubdraftComponent | SelectionComponent</a></code>
     </bcode>
                         </td>
                     </tr>
@@ -996,7 +1002,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <code>subdraft:     <code>SubdraftComponent</code>
+                            <code>subdraft:     <code><a href="../classes/Selection.html" target="_self" >SubdraftComponent | SelectionComponent</a></code>
     </bcode>
                         </td>
                     </tr>
@@ -1008,6 +1014,7 @@
             <pre><code class="hljs javascript">import { Component, OnInit, Inject } from &#x27;@angular/core&#x27;;
 import {MAT_SNACK_BAR_DATA} from &#x27;@angular/material/snack-bar&#x27;;
 import { Draft } from &#x27;../../../core/model/draft&#x27;;
+import { SelectionComponent } from &#x27;../selection/selection.component&#x27;;
 import { SubdraftComponent} from &#x27;../subdraft/subdraft.component&#x27;
 
 @Component({
@@ -1017,11 +1024,9 @@ import { SubdraftComponent} from &#x27;../subdraft/subdraft.component&#x27;
 })
 export class SnackbarComponent implements OnInit {
 
-  subdraft: SubdraftComponent;
+  subdraft: SubdraftComponent|SelectionComponent;
 
-
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: SubdraftComponent) { 
-    
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: SubdraftComponent|SelectionComponent) { 
     this.subdraft &#x3D; data;
   }
 

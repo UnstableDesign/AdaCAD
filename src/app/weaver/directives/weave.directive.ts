@@ -10,7 +10,7 @@ import { Loom } from '../../core/model/loom';
 import { Cell } from '../../core/model/cell';
 import { Shuttle } from '../../core/model/shuttle';
 import { Pattern } from '../../core/model/pattern';
-import { Point, Interlacement } from '../../core/model/datatypes';
+import { Point, Interlacement, LoomUpdate } from '../../core/model/datatypes';
 import { Selection } from '../../core/model/selection';
 import { Timeline } from '../../core/model/timeline';
 import { CanvasToBMP } from '../../core/model/canvas2image';
@@ -331,7 +331,6 @@ export class WeaveDirective {
 
 
   setPosAndDraw(target, currentPos:Interlacement){
-
       if (target && target.id =='treadling') {
         currentPos.i = this.weave.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
@@ -407,7 +406,6 @@ export class WeaveDirective {
       
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
-
       switch (this.design_mode.name) {
         case 'toggle':
           this.setPosAndDraw(event.target, currentPos);
@@ -581,7 +579,7 @@ export class WeaveDirective {
         if (event.target && event.target.id === ('treadling')) {
           this.selection.end.j = this.weave.loom.num_treadles;
 
-        }else if(event.target && event.target.id === ('threading-container')){
+        }else if(event.target && event.target.id === ('threading')){
           this.selection.end.i = this.weave.loom.num_frames;
           this.selection.end.si = this.weave.loom.num_frames;
         }
@@ -1249,7 +1247,7 @@ export class WeaveDirective {
     
     if (!this.cxTieups || !currentPos) { return; }
 
-    if (this.weave.loom.inTieupRange(currentPos.i, currentPos.j)) {
+    if (this.weave.loom.inTieupRange(currentPos)) {
       switch (this.design_mode.name) {
         case 'up':
             val = true;
@@ -1264,7 +1262,7 @@ export class WeaveDirective {
           break;
       }
     
-    updates = this.weave.loom.updateTieup(currentPos.i, currentPos.j, val);
+    updates = this.weave.loom.updateTieup({i:currentPos.i,j: currentPos.j, val:val});
     this.weave.updateDraftFromTieup(updates);
     //this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup");
     this.redraw({drawdown:true, loom:true});
@@ -1281,9 +1279,9 @@ export class WeaveDirective {
    */
   private drawOnThreading( currentPos: Interlacement ) {
     if (!this.cxThreading || !currentPos) { return; }
+    
 
-    if (this.weave.loom.inThreadingRange(currentPos.i, currentPos.j)){
-
+    if (this.weave.loom.inThreadingRange(currentPos)){
       var val = false;
 
       switch (this.design_mode.name) {
@@ -1301,9 +1299,9 @@ export class WeaveDirective {
       }
 
   
-      var updates = this.weave.loom.updateThreading(currentPos.i, currentPos.j, val);
+      const updates:LoomUpdate = this.weave.loom.updateThreading({i:currentPos.i, j:currentPos.j, val:val});
       this.weave.updateDraftFromThreading(updates);
-      
+
       if(this.weave.loom.min_frames < this.weave.loom.num_frames){
         this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
       }  
@@ -1334,7 +1332,7 @@ export class WeaveDirective {
     
     var val = false;
 
-    if(this.weave.loom.inTreadlingRange(currentPos.i, currentPos.j)){
+    if(this.weave.loom.inTreadlingRange(currentPos)){
       switch (this.design_mode.name) {
         case 'up':
           val = true;
@@ -1351,7 +1349,7 @@ export class WeaveDirective {
 
 
       //this updates the value in the treadling
-      var updates = this.weave.loom.updateTreadling(currentPos.i, currentPos.j, val);
+      var updates = this.weave.loom.updateTreadling({i:currentPos.i, j:currentPos.j, val:val});
       this.weave.updateDraftFromTreadling(updates);
 
       // for(var u in updates){

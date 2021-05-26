@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -985,6 +991,44 @@
                         </td>
                     </tr>
     
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Constructs a palette object</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>design_modes</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>a reference to the service containing the current design modes and selections</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>resolver</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>a reference to the factory component for dynamically generating components</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>_snackBar</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>a reference to the snackbar component that shows data on move and select</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
     </section>
@@ -1031,8 +1075,211 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>d</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>a Draft object for this component to contain</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>SubdraftComponent</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>the created subdraft instance</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> removeSubdraft</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>removeSubdraft(subdraft: SubdraftComponent)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>removes the subdraft sent to the function</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>subdraft</b>
+                                                    </div>
+                                                    <div>
+                                                        
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> createAndSetPreview</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>createAndSetPreview(d: <a href="../classes/Draft.html" >Draft</a>)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>dynamically creates a subdraft component with specific requirements of the intersection, adds its inputs and event listeners, pushes the subdraft to the list of references</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>d</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>a Draft object for this component to contain</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>the created subdraft instance</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> hasPreview</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>hasPreview()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>boolean</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> removePreview</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>removePreview()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>destorys the </p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>d</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>a Draft object for this component to contain</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>the created subdraft instance</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Public</span> designModeChanged</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play circle">
+                                    <span class="fa fa-circle"></span>
+                                </span>
+                            <code>designModeChanged()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Called from mixer when it receives a change from the design mode tool or keyboard press<br>triggers view mode changes required for this mode</p>
+    </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
     
                                 </div>
                         </td>
@@ -1079,41 +1326,14 @@
                                 <span class="modifier-icon method fa fa-play lock">
                                     <span class="fa fa-lock"></span>
                                 </span>
-                            <code>resolveCoordsToNdx(p: any)</code>
+                            <code>resolveCoordsToNdx(p: <a href="../classes/Point.html" >Point</a>)</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
                                 <div class="io-description">
-                                    <b>Returns: </b>    <code>any</code>
-    
-                                </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b><span class="modifier">Private</span> resolveCoords</b>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
-                                <span class="modifier-icon method fa fa-play lock">
-                                    <span class="fa fa-lock"></span>
-                                </span>
-                            <code>resolveCoords(p: any)</code>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-description">
-                                    <b>Returns: </b>    <code>any</code>
+                                    <b>Returns: </b>    <code>Interlacement</code>
     
                                 </div>
                         </td>
@@ -1160,7 +1380,7 @@
                                 <span class="modifier-icon method fa fa-play lock">
                                     <span class="fa fa-lock"></span>
                                 </span>
-                            <code>drawSelection(ndx: any)</code>
+                            <code>drawSelection(ndx: Interlacement)</code>
                         </td>
                     </tr>
     
@@ -1178,6 +1398,52 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
+                            <b><span class="modifier">Private</span> setCell</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play lock">
+                                    <span class="fa fa-lock"></span>
+                                </span>
+                            <code>setCell(ndx: Interlacement)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>sets the value of the scratchpad cell at ndx </p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>ndx</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>(i,j)</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
                             <b><span class="modifier">Private</span> drawCell</b>
                         </td>
                     </tr>
@@ -1187,12 +1453,57 @@
                                 <span class="modifier-icon method fa fa-play lock">
                                     <span class="fa fa-lock"></span>
                                 </span>
-                            <code>drawCell(ndx: any)</code>
+                            <code>drawCell(ndx: Interlacement)</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>draw the cell at position ndx</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>ndx</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>(i,j)</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> onDeleteSubdraftCalled</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>onDeleteSubdraftCalled(obj: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Deletes the subdraft that called this function.</p>
+    </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
@@ -1217,10 +1528,29 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>A mouse event, originated in a subdraft, has been started<br>checkes the design mode and handles the event as required</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>obj</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>contains the id of the moving subdraft</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1253,6 +1583,93 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
+                            <b> drawStarted</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>drawStarted()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> getScratchPadBounds</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>getScratchPadBounds()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>gets the bounds of a drawing on the scratchpad</p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>Interlacement[]</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>an object representing the bounds in the format of i, j (the row, column index of the pad)</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> processDrawingEnd</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>processDrawingEnd()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>handles checks and actions to take when drawing event ends<br>gets the boudary of drawn segment and creates a subdraft containing that drawing<br>if the drawing sits on top of an existing subdraft, merge the drawing into that subdraft (extending the original if neccessary)</p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
                             <b><span class="modifier">Private</span> onStart</b>
                         </td>
                     </tr>
@@ -1268,10 +1685,29 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>handles actions to take when the mouse is down inside of the palette</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>event</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the mousedown event</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1292,10 +1728,29 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>called form the subscription created on start, checks the index of the location and returns null if its the same</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>event</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the event object</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1319,10 +1774,28 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>Called when the mouse is up or leaves the boundary of the view</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>event</b>
+                                                    </div>
+                                                    <div>
+                                                        
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1331,42 +1804,20 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> processMarquee</b>
+                            <b> processSelection</b>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
-    <code>processMarquee()</code>
+    <code>processSelection()</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-description">
-                                    <b>Returns: </b>    <code>void</code>
-    
-                                </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b> processDrawingEnd</b>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
-    <code>processDrawingEnd()</code>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
+                                <div class="io-description"><p>Called when a selection operation ends. Checks to see if this selection intersects with any subdrafts and<br>merges and or splits as required. </p>
+    </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
@@ -1415,10 +1866,72 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>checks if this subdraft has been dropped onto of another and merges them accordingly </p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>obj</b>
+                                                    </div>
+                                                    <div>
+                                                        
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> mergeSubdrafts</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>mergeSubdrafts(primary: SubdraftComponent)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>merges a collection of subdraft components into the primary component, deletes the merged components</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>primary</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the draft to merge into</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>boolean</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>true or false to describe if a merge took place. </p>
+    
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1433,7 +1946,7 @@
     
                     <tr>
                         <td class="col-md-4">
-    <code>computeHeddleValue(p: any, main: any, isect: SubdraftComponent[])</code>
+    <code>computeHeddleValue(p: <a href="../classes/Point.html" >Point</a>, main: SubdraftComponent, isect: SubdraftComponent[])</code>
                         </td>
                     </tr>
     
@@ -1457,16 +1970,63 @@
     
                     <tr>
                         <td class="col-md-4">
-    <code>doOverlap(l1: any, r1: any, l2: any, r2: any)</code>
+    <code>doOverlap(l1: <a href="../classes/Point.html" >Point</a>, r1: <a href="../classes/Point.html" >Point</a>, l2: <a href="../classes/Point.html" >Point</a>, r2: <a href="../classes/Point.html" >Point</a>)</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>check if the rectangles defined by the points overlap</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>l1</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>top left point of rectangle 1</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>r1</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>bottom right point of rectangle 1</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>l2</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>top left point of rectangle 2</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>r2</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>bottom right point of rectanble 2</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        <p>true or false in accordance to whether or not they overlap</p>
+    
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1571,22 +2131,42 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> getMovingSubdraft</b>
+                            <b> getSubdraft</b>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
-    <code>getMovingSubdraft(id: number)</code>
+    <code>getSubdraft(id: number)</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>returns the subdraft component associated with this id</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>id</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the unique draft id contined in the subdraft</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>SubdraftComponent</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        <p>the subdraft Component</p>
+    
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1619,22 +2199,83 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
+                            <b> getIntersectingSubdraftsForPoint</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>getIntersectingSubdraftsForPoint(p: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>get any subdrafts that intersect a given screen position</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>p</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the x, y position of this cell </p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
                             <b> getIntersectingSubdrafts</b>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
-    <code>getIntersectingSubdrafts(moving: SubdraftComponent)</code>
+    <code>getIntersectingSubdrafts(primary: SubdraftComponent)</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>get any subdrafts that intersect primary based on checks on their boundaries</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>primary</b>
+                                                    </div>
+                                                    <div>
+                                                        
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1656,31 +2297,7 @@
                     <tr>
                         <td class="col-md-4">
                                 <div class="io-description">
-                                    <b>Returns: </b>    <code>any</code>
-    
-                                </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b> getMovingBounds</b>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
-    <code>getMovingBounds(moving: SubdraftComponent)</code>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-description">
-                                    <b>Returns: </b>    <code>any</code>
+                                    <b>Returns: </b>    <code>Bounds</code>
     
                                 </div>
                         </td>
@@ -1697,16 +2314,98 @@
     
                     <tr>
                         <td class="col-md-4">
-    <code>getIntersectionBounds(moving: SubdraftComponent, isect: SubdraftComponent[])</code>
+    <code>getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent)</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>returns a Bounds type that represents the intersection between primary and one intersecting subdraft</p>
+    </div>
                                 <div class="io-description">
-                                    <b>Returns: </b>    <code>any</code>
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>primary</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the rectangular area we are checking for intersections</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>isect</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>an array of all the components that intersect</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>Bounds</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        <p>the array of bounds of all intersections</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> getCombinedBounds</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>getCombinedBounds(moving: SubdraftComponent, isect: SubdraftComponent[])</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>gets the combined boundary of a Subdraft and any of its intersections</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>moving</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>A SubdraftComponent that is our primary subdraft</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>isect</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>Any subdrafts that intersect with this component </p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>Bounds</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>the bounds of a rectangle that holds both components</p>
+    
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1721,16 +2420,53 @@
     
                     <tr>
                         <td class="col-md-4">
-    <code>getCombinedDraft(bounds: any, moving: any, isect: SubdraftComponent[])</code>
+    <code>getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: SubdraftComponent[])</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>creates a draft in size bounds that contains all of the computed points of its intersections</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>bounds</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the boundary of all the intersections</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>primary</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the primary draft that we are checking for intersections</p>
+    
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>isect</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>an Array of the intersecting components</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code><a href="../classes/Draft.html" target="_self" >Draft</a></code>
     
                                 </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1784,13 +2520,13 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <code>last:     <code><a href="../classes/Point.html" target="_self" >Point</a></code>
+                            <code>last:     <code>Interlacement</code>
     </bcode>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-description"><p>stores an x and y of the last user selected location within the component</p>
+                            <div class="io-description"><p>stores an i and j of the last user selected location within the component</p>
     </div>
                         </td>
                     </tr>
@@ -1812,6 +2548,48 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-description"><p>Subscribes to move event after a touch event is started.</p>
+    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> preview</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>preview:     <code>SubdraftComponent</code>
+    </bcode>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>a placeholder to reference a temporary rendering of an union between subdrafts<br>used to preview the changes that will happen if the subdraft is to be dropped at that point</p>
+    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> preview_ref</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>preview_ref:     <code><a href="https://angular.io/docs/ts/latest/api/core/index/ViewRef-class.html" target="_blank" >ViewRef</a></code>
+    </bcode>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>a reference to the viewref for the intersection component to ease addign and deleting</p>
     </div>
                         </td>
                     </tr>
@@ -1934,8 +2712,10 @@ import { SnackbarComponent } from &#x27;./snackbar/snackbar.component&#x27;;
 import { Draft } from &#x27;./../../core/model/draft&#x27;;
 import { Cell } from &#x27;./../../core/model/cell&#x27;;
 import {MatSnackBar} from &#x27;@angular/material/snack-bar&#x27;;
-import { Point } from &#x27;../../core/model/point&#x27;;
-import { Pattern } from &#x27;../../core/model/pattern&#x27;;
+import { Point, Interlacement, Bounds } from &#x27;../../core/model/datatypes&#x27;;
+import { Pattern } from &#x27;../../core/model/pattern&#x27;; 
+import { dsv } from &#x27;d3-fetch&#x27;;
+import { sampleSize } from &#x27;lodash&#x27;;
 
 
 @Component({
@@ -1973,6 +2753,19 @@ export class PaletteComponent implements OnInit{
    */
   subdraft_refs: Array&lt;SubdraftComponent&gt;;
 
+    /**
+   * a placeholder to reference a temporary rendering of an union between subdrafts
+   * used to preview the changes that will happen if the subdraft is to be dropped at that point
+   * @property {SubdraftComponent}
+   */
+  preview: SubdraftComponent;
+
+  /**
+   * a reference to the viewref for the intersection component to ease addign and deleting
+   * @property {ViewRef}
+   */
+  preview_ref: ViewRef;
+     
   /**
    * holds a reference to the selection component
    * @property {Selection}
@@ -1993,10 +2786,10 @@ export class PaletteComponent implements OnInit{
   cx: any;
 
   /**
-   * stores an x and y of the last user selected location within the component
+   * stores an i and j of the last user selected location within the component
    * @property {Point}
    */
-  last: Point;
+  last: Interlacement;
 
 
   /**
@@ -2007,32 +2800,52 @@ export class PaletteComponent implements OnInit{
    scale: number;
   
 
-  
+  /**
+   * Constructs a palette object
+   * @param design_modes a reference to the service containing the current design modes and selections
+   * @param resolver a reference to the factory component for dynamically generating components
+   * @param _snackBar a reference to the snackbar component that shows data on move and select
+   */
   constructor(private design_modes: DesignmodesService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs &#x3D; [];
   }
 
-
+/**
+ * Called when palette is initailized
+ */
   ngOnInit(){
     this.scale &#x3D; 10;
     this.vc.clear();
-
-  
-    // this.subdrafts.forEach(element &#x3D;&gt; {
-    //  this.createSubDraft(element);
-    // });
   }
 
+  /**
+   * unsubscribes to all open subscriptions and clears the view component
+   */
+  ngOnDestroy(){
+
+    this.subdraft_refs.forEach(element &#x3D;&gt; {
+      element.onSubdraftStart.unsubscribe();
+      element.onSubdraftDrop.unsubscribe();
+      element.onSubdraftMove.unsubscribe();
+      element.onDeleteCalled.unsubscribe();
+    });
+
+    this.vc.clear();
+    
+  }
+
+  /**
+   * Gets references to view items and adds to them after the view is initialized
+   */
   ngAfterViewInit(){
     this.canvas &#x3D; &lt;HTMLCanvasElement&gt; document.getElementById(&quot;scratch&quot;);
     this.cx &#x3D; this.canvas.getContext(&quot;2d&quot;);
-    this.canvas.width &#x3D; 1000;
-    this.canvas.height &#x3D; 1000;
+    this.canvas.width &#x3D; 5000;
+    this.canvas.height &#x3D; 5000;
 
-    console.log(this.selection);
     this.selection.scale &#x3D; this.scale;
     this.selection.active &#x3D; false;
-    console.log(this.selection.getDraftId());
+    this.designModeChanged();
 
   }
 
@@ -2041,47 +2854,94 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  ngOnDestroy(){
 
-    this.subdraft_refs.forEach(element &#x3D;&gt; {
-      element.onSubdraftStart.unsubscribe();
-      element.onSubdraftDrop.unsubscribe();
-      element.onSubdraftMove.unsubscribe();
-    });
-
-    this.vc.clear();
-    
-  }
-
+  /**
+   * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
   createSubDraft(d: Draft):SubdraftComponent{
     const factory &#x3D; this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft &#x3D; this.vc.createComponent&lt;SubdraftComponent&gt;(factory);
     subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
     subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
+    subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.draft &#x3D; d;
-    console.log(this.patterns);
     subdraft.instance.patterns &#x3D; this.patterns;
-
+  
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
   }
 
-  // createSelection():SelectionComponent{
-  //   const factory &#x3D; this.resolver.resolveComponentFactory(SelectionComponent);
-  //   const selection &#x3D; this.vc.createComponent&lt;SelectionComponent&gt;(factory);
-  //   selection.instance.scale &#x3D; this.scale;
-  //   // subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
-  //   // subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
-  //   // subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
+  /**
+   * removes the subdraft sent to the function
+   * @param subdraft 
+   */
+  removeSubdraft(subdraft: SubdraftComponent){
+    const ndx &#x3D; this.subdraft_refs.findIndex((sr) &#x3D;&gt; (subdraft.canvas.id.toString() &#x3D;&#x3D;&#x3D; sr.canvas.id.toString()));
+    this.vc.remove(ndx);
+    this.subdraft_refs.splice(ndx, 1);
+  }
 
-  //   this.selection_ref &#x3D; selection.hostView;
-  //   this.selection_instance &#x3D; selection.instance;
-  //   return selection.instance;
-  // }
+    /**
+   * dynamically creates a subdraft component with specific requirements of the intersection, adds its inputs and event listeners, pushes the subdraft to the list of references
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
+    createAndSetPreview(d: Draft){
+      const factory &#x3D; this.resolver.resolveComponentFactory(SubdraftComponent);
+      const subdraft &#x3D; this.vc.createComponent&lt;SubdraftComponent&gt;(factory);
+      subdraft.instance.draft &#x3D; d;
+      subdraft.instance.setAsPreview();
+      subdraft.instance.disableDrag();
+      this.preview_ref &#x3D; subdraft.hostView;
+      this.preview &#x3D; subdraft.instance;
+    }
 
-/// ON PALETTE MOUSE FUNCTIONS ///
+    hasPreview():boolean{
+      if(this.preview_ref &#x3D;&#x3D;&#x3D; undefined) return false;
+      return true;
+    }
 
+  /**
+   * destorys the 
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
+    removePreview(){
+      const ndx &#x3D; this.vc.indexOf(this.preview_ref);
+      this.vc.remove(ndx);
+      this.preview_ref &#x3D; undefined;
+      this.preview &#x3D; undefined;
+  }
+
+  /**
+   * Called from mixer when it receives a change from the design mode tool or keyboard press
+   * triggers view mode changes required for this mode
+   */
+  public designModeChanged(){
+
+    if(this.design_modes.isSelected(&#x27;draw&#x27;)){
+
+      this.subdraft_refs.forEach(sd &#x3D;&gt; {
+        sd.disableDrag();
+      });
+
+    }else if(this.design_modes.isSelected(&#x27;move&#x27;)){
+
+      this.subdraft_refs.forEach(sd &#x3D;&gt; {
+        sd.enableDrag();
+      });
+
+
+    }else if(this.design_modes.isSelected(&#x27;select&#x27;)){
+      this.subdraft_refs.forEach(sd &#x3D;&gt; {
+        sd.disableDrag();
+      });
+    }
+
+  }
 
    private removeSubscription() {    
     if (this.moveSubscription) {
@@ -2089,18 +2949,12 @@ export class PaletteComponent implements OnInit{
     }
   }
 
-  private resolveCoordsToNdx(p: any) : any {    
+  private resolveCoordsToNdx(p: Point) : Interlacement {    
     const i &#x3D; Math.floor((p.y - 64) / this.scale);
     const j &#x3D; Math.floor((p.x) / this.scale);
-    return {i: i, j: j};
+    return {i: i, j: j, si: i};
   }
 
-  private resolveCoords(p: any) : any {   
-    return {
-      x: p.x,
-      y: p.y - 64
-    } 
-  }
 
   private isSameNdx(p1: any, p2:any) : boolean {    
     if(p1.i !&#x3D; p2.i ) return false;
@@ -2109,7 +2963,7 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  private drawSelection(ndx: any){
+  private drawSelection(ndx: Interlacement){
 
 
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -2126,15 +2980,41 @@ export class PaletteComponent implements OnInit{
       
   }
 
+  /**
+   * sets the value of the scratchpad cell at ndx 
+   * @param ndx (i,j)
+   */
+  private setCell(ndx: Interlacement){
+    const c: Cell &#x3D; this.scratch_pad[ndx.i][ndx.j];
+  
+    if(this.design_modes.isSelected(&#x27;toggle&#x27;)){
 
-  private drawCell(ndx: any){
+      const p &#x3D; {x: ndx.i * this.scale, y: ndx.j * this.scale};
+      const isect &#x3D; this.getIntersectingSubdraftsForPoint(p);
+
+      if(isect.length &gt; 0){
+        const prev: boolean &#x3D; isect[0].resolveToValue(p);
+        if(prev !&#x3D; null) c.setHeddle(!prev);
+        else c.toggleHeddle();
+      }else{
+        c.toggleHeddle();
+      }
+
+    }else if(this.design_modes.isSelected(&#x27;up&#x27;)){
+      c.setHeddleUp();
+    }else{
+      c.setHeddleDown();
+    }
+
+  }
+
+  /**
+   * draw the cell at position ndx
+   * @param ndx (i,j)
+   */
+  private drawCell(ndx: Interlacement){
     
     const c: Cell &#x3D; this.scratch_pad[ndx.i][ndx.j];
-
-
-    if(this.design_modes.isSelected(&#x27;toggle&#x27;)) c.toggleHeddle();
-    else if(this.design_modes.isSelected(&#x27;up&#x27;)) c.setHeddleUp();
-    else c.setHeddleDown();
 
     let is_set &#x3D; c.isSet();
     let is_up &#x3D; c.isUp();
@@ -2149,19 +3029,56 @@ export class PaletteComponent implements OnInit{
       
   }
 
+  /**
+   * Deletes the subdraft that called this function.
+   */
+    onDeleteSubdraftCalled(obj: any){
+      console.log(&quot;deleting &quot;+obj.id);
+      if(obj &#x3D;&#x3D;&#x3D; null) return;
+      const sd &#x3D; this.subdraft_refs.find((sr) &#x3D;&gt; (obj.id.toString() &#x3D;&#x3D;&#x3D; sr.canvas.id.toString()));
+      this.removeSubdraft(sd);
+   }
 
+  /**
+   * A mouse event, originated in a subdraft, has been started
+   * checkes the design mode and handles the event as required
+   * @param obj contains the id of the moving subdraft
+   */
   subdraftStarted(obj: any){
-    
+    console.log(&quot;started&quot;);
+
     if(obj &#x3D;&#x3D;&#x3D; null) return;
-    const moving &#x3D; this.getMovingSubdraft(obj.id);
-    if(moving &#x3D;&#x3D;&#x3D; null) return; 
-    this._snackBar.openFromComponent(SnackbarComponent, {
-      data: moving
-    });
+
+    if(this.design_modes.isSelected(&quot;move&quot;)){
+      console.log(&quot;moving&quot;);
+  
+      //get the reference to the draft that&#x27;s moving
+      const moving &#x3D; this.getSubdraft(obj.id);
+      if(moving &#x3D;&#x3D;&#x3D; null) return; 
+      this._snackBar.openFromComponent(SnackbarComponent, {
+        data: moving
+      });
+      const isect:Array&lt;SubdraftComponent&gt; &#x3D; this.getIntersectingSubdrafts(moving);
+
+      if(isect.length &#x3D;&#x3D; 0) return;
+      
+      const bounds: any &#x3D; this.getCombinedBounds(moving, isect);
+      const temp: Draft &#x3D; this.getCombinedDraft(bounds, moving, isect);
+      this.createAndSetPreview(temp);
+      this.preview.drawDraft();
+      this.preview.setComponentPosition(bounds.topleft);
+     
+    }else if(this.design_modes.isSelected(&quot;select&quot;)){
+      this.selectionStarted();
+    }else if(this.design_modes.isSelected(&quot;draw&quot;)){
+      this.drawStarted();
+    }
 
  }
 
+
  selectionStarted(){
+
   this.selection.start &#x3D; this.last;
   this.selection.active &#x3D; true;
   this._snackBar.openFromComponent(SnackbarComponent, {
@@ -2169,125 +3086,29 @@ export class PaletteComponent implements OnInit{
   });
  }
 
-  @HostListener(&#x27;mousedown&#x27;, [&#x27;$event&#x27;])
-    private onStart(event) {
+drawStarted(){
 
-
-      this.last &#x3D; this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
-      this.selection.start &#x3D; this.last;
-    
-
-      this.removeSubscription();    
-      
-      this.moveSubscription &#x3D; 
-      fromEvent(event.target, &#x27;mousemove&#x27;).subscribe(e &#x3D;&gt; this.onMove(e)); 
-
-      if(this.design_modes.isSelected(&quot;select&quot;)){
-          this.selectionStarted();
-      }else{
-                 
-        this.scratch_pad &#x3D; [];
-        for(let i &#x3D; 0; i &lt; this.canvas.height; i+&#x3D;this.scale ){
-          const row &#x3D; [];
-          for(let j &#x3D; 0; j&lt; this.canvas.width; j+&#x3D;this.scale ){
-            row.push(new Cell(null));
-          }
-          this.scratch_pad.push(row);
+  
+  this.scratch_pad &#x3D; [];
+  for(let i &#x3D; 0; i &lt; this.canvas.height; i+&#x3D;this.scale ){
+      const row &#x3D; [];
+      for(let j &#x3D; 0; j&lt; this.canvas.width; j+&#x3D;this.scale ){
+          row.push(new Cell(null));
       }
+    this.scratch_pad.push(row);
     }
   }
 
 
-
-  onMove(event){
-
-
-    const ndx:any &#x3D; this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
-
-    if(this.isSameNdx(this.last, ndx)) return;
-
-    if(this.design_modes.isSelected(&quot;select&quot;)){
-
-     this.drawSelection(ndx);
-     const bounds &#x3D; this.getSelectionBounds(this.selection.start,  this.last);    
-     this.selection.setPositionAndSize(bounds);
-    
-    }else{
-      this.drawCell(ndx);
-    }
-    
-    this.last &#x3D; ndx;
-  }
-
-  
-
-
-  @HostListener(&#x27;mouseleave&#x27;, [&#x27;$event&#x27;])
-  @HostListener(&#x27;mouseup&#x27;, [&#x27;$event&#x27;])
-     private onEnd(event) {
-
-      if(this.last &#x3D;&#x3D;&#x3D; undefined) return;
-
-      this.removeSubscription();   
-
-      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      if(this.design_modes.isSelected(&quot;select&quot;)){
-        if(this.selection.active)this.processMarquee();
-      }else{
-        this.processDrawingEnd();
-      } 
-
-      //unset vars that would have been created on press
-      this.scratch_pad &#x3D; undefined;
-      this.last &#x3D; undefined;
-      this.selection.active &#x3D; false;
-  }
-  
- 
-
-  processMarquee(){
-
-    this.closeSnackBar();
-
-    //create the selection as a subdraft
-    const bounds &#x3D; this.getSelectionBounds(this.selection.start,  this.last);    
-    const sc:SubdraftComponent &#x3D; this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
-    sc.setPositionAndSize(bounds);
-    const isect:Array&lt;SubdraftComponent&gt; &#x3D; this.getIntersectingSubdrafts(sc);
-
-
-
-    if(isect.length &#x3D;&#x3D; 0) return;
-   
-
-    //expand the selection to include any intersecting drafts
-    const i_bounds: any &#x3D; this.getIntersectionBounds(sc, isect);
-    const temp: Draft &#x3D; this.getCombinedDraft(i_bounds, sc, isect);
-
-    sc.setNewDraft(bounds, temp);
-    sc.drawDraft(temp); //can&#x27;t do this until the view is initiatied, might need to listed for that here. 
-
-    //write a function here to split drafts that the selection is intersecting.
-    isect.forEach(element &#x3D;&gt; {
-        //this relies on my array having the same indexing as the view container. 
-        const ndx &#x3D; this.subdraft_refs.findIndex((sr) &#x3D;&gt; (element.canvas.id &#x3D;&#x3D;&#x3D; sr.canvas.id));
-        this.vc.remove(ndx);
-        this.subdraft_refs.splice(ndx, 1);
-    });
-  
-  }
-
-  processDrawingEnd(){
-
-    if(this.scratch_pad &#x3D;&#x3D;&#x3D; undefined) return;
-    if(this.scratch_pad[0] &#x3D;&#x3D;&#x3D; undefined) return;
-    
+  /**
+   * gets the bounds of a drawing on the scratchpad
+   * @returns an object representing the bounds in the format of i, j (the row, column index of the pad)
+   */
+  getScratchPadBounds(): Array&lt;Interlacement&gt;{
     let bottom: number &#x3D; 0;
     let right: number &#x3D; 0;
     let top: number &#x3D; this.scratch_pad.length-1;
     let left: number &#x3D; this.scratch_pad[0].length-1;
-
 
     for(let i &#x3D; 0; i &lt; this.scratch_pad.length; i++ ){
       for(let j &#x3D; 0; j&lt;  this.scratch_pad[0].length; j++){
@@ -2300,91 +3121,266 @@ export class PaletteComponent implements OnInit{
       }
     }
 
+    return [{i: top, j: left, si: -1}, {i: bottom, j: right, si: -1}];
 
-    const warps &#x3D; right - left + 1;
-    const wefts &#x3D; bottom - top + 1;
+  }
 
+  /**
+   * handles checks and actions to take when drawing event ends
+   * gets the boudary of drawn segment and creates a subdraft containing that drawing
+   * if the drawing sits on top of an existing subdraft, merge the drawing into that subdraft (extending the original if neccessary)
+   * @returns 
+   */
+  processDrawingEnd(){
 
+    if(this.scratch_pad &#x3D;&#x3D;&#x3D; undefined) return;
+    if(this.scratch_pad[0] &#x3D;&#x3D;&#x3D; undefined) return;
+    
+    const corners: Array&lt;Interlacement&gt; &#x3D; this.getScratchPadBounds();
 
+    const warps &#x3D; corners[1].j - corners[0].j + 1;
+    const wefts &#x3D; corners[1].i - corners[0].i + 1;
+
+    //there must be at least one cell selected
     if(warps &lt; 1 || wefts &lt; 1){
       this.scratch_pad &#x3D; undefined;
       return;
     } 
 
+    //if this drawing does not intersect with any existing subdrafts, 
     const sd:SubdraftComponent &#x3D; this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
-    sd.topleft &#x3D; {x: left * this.scale, y: top * this.scale};
+    const pos &#x3D; {
+      topleft: {x: corners[0].j * this.scale, y: corners[0].i * this.scale},
+      width: warps * this.scale,
+      height: wefts * this.scale
+    }
+
+    sd.setComponentPosition(pos.topleft);
+    sd.setComponentSize(pos.width, pos.height);
+    sd.disableDrag();
 
     for(let i &#x3D; 0; i &lt; sd.draft.wefts; i++ ){
       for(let j &#x3D; 0; j&lt; sd.draft.warps; j++){
-        const c &#x3D; this.scratch_pad[top+i][left+j];
+        const c &#x3D; this.scratch_pad[corners[0].i+i][corners[0].j+j];
         sd.draft.pattern[i][j].setHeddle(c.isUp());
         if(!c.isSet()) sd.draft.pattern[i][j].unsetHeddle();
       }
     }
 
+    const had_merge &#x3D; this.mergeSubdrafts(sd);
+    console.log(&quot;had a merge?&quot;, had_merge);
+
   }
 
 
-  subdraftMoved(obj: any){
+ /**
+  * handles actions to take when the mouse is down inside of the palette
+  * @param event the mousedown event
+  */
+  @HostListener(&#x27;mousedown&#x27;, [&#x27;$event&#x27;])
+    private onStart(event) {
 
+      const ndx:any &#x3D; this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+      this.last &#x3D; ndx;
+      this.selection.start &#x3D; this.last;
+      this.removeSubscription();    
+      
+      this.moveSubscription &#x3D; 
+      fromEvent(event.target, &#x27;mousemove&#x27;).subscribe(e &#x3D;&gt; this.onMove(e)); 
+
+      if(this.design_modes.isSelected(&quot;select&quot;)){
+          this.selectionStarted();
+      }else if(this.design_modes.isSelected(&quot;draw&quot;)){
+          this.drawStarted();    
+          this.setCell(ndx);
+          this.drawCell(ndx); 
+        
+      }
+  }
+
+
+  /**
+   * called form the subscription created on start, checks the index of the location and returns null if its the same
+   * @param event the event object
+   */
+  onMove(event){
+
+    const ndx:Interlacement &#x3D; this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+
+    if(this.isSameNdx(this.last, ndx)) return;
+
+    if(this.design_modes.isSelected(&quot;select&quot;)){
+
+     this.drawSelection(ndx);
+     const bounds &#x3D; this.getSelectionBounds(this.selection.start,  this.last);    
+     this.selection.setPositionAndSize(bounds);
+    
+    }else if(this.design_modes.isSelected(&quot;draw&quot;)){
+      this.setCell(ndx);
+      this.drawCell(ndx);
+    }
+    
+    this.last &#x3D; ndx;
+  }
+
+  
+
+/**
+ * Called when the mouse is up or leaves the boundary of the view
+ * @param event 
+ * @returns 
+ */
+  @HostListener(&#x27;mouseleave&#x27;, [&#x27;$event&#x27;])
+  @HostListener(&#x27;mouseup&#x27;, [&#x27;$event&#x27;])
+     private onEnd(event) {
+      //if this.last is null, we have a mouseleave with no mousestart
+      if(this.last &#x3D;&#x3D;&#x3D; undefined) return;
+
+      this.removeSubscription();   
+      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      if(this.design_modes.isSelected(&quot;select&quot;)){
+        if(this.selection.active)this.processSelection();
+      }else if(this.design_modes.isSelected(&quot;draw&quot;)){
+        this.processDrawingEnd();
+      } 
+
+      //unset vars that would have been created on press
+      this.scratch_pad &#x3D; undefined;
+      this.last &#x3D; undefined;
+      this.selection.active &#x3D; false;
+  }
+  
+ 
+  /**
+   * Called when a selection operation ends. Checks to see if this selection intersects with any subdrafts and 
+   * merges and or splits as required. 
+   */
+  processSelection(){
+
+    this.closeSnackBar();
+
+    //create the selection as subdraft
+    const bounds:Bounds &#x3D; this.getSelectionBounds(this.selection.start,  this.last);    
+    const sc:SubdraftComponent &#x3D; this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
+    sc.setComponentBounds(bounds);
+    sc.disableDrag();
+    
+    //get any subdrafts that intersect the one we just made
+    const isect:Array&lt;SubdraftComponent&gt; &#x3D; this.getIntersectingSubdrafts(sc);
+
+    if(isect.length &#x3D;&#x3D; 0) return;
+
+    //get a draft that reflects only the poitns in the selection view
+    const new_draft: Draft &#x3D; this.getCombinedDraft(bounds, sc, isect);
+    sc.setNewDraft(new_draft);
+    sc.drawDraft();
+
+    isect.forEach(el &#x3D;&gt; {
+      const ibound &#x3D; this.getIntersectionBounds(sc, el);
+
+      if(el.isSameBoundsAs(ibound)){
+         console.log(&quot;Component had same Bounds as Intersection, Consumed&quot;);
+         this.removeSubdraft(el);
+      }else{
+         const sd_draft &#x3D; el.draft.pattern;
+         for(let i &#x3D; 0; i &lt; sd_draft.length; i++){
+           for(let j &#x3D; 0; j &lt; sd_draft[i].length; j++){
+           
+              let p:Point &#x3D; el.resolveNdxToPoint({i: i, j: j, si: -1});
+              p.x +&#x3D; this.scale/2;
+              p.y +&#x3D; this.scale/2;
+              if(sc.hasPoint(p)) sd_draft[i][j].unsetHeddle();
+           }
+         }
+         
+        el.drawDraft();
+        }
+    });
+  }
+
+
+
+
+
+
+  subdraftMoved(obj: any){
       if(obj &#x3D;&#x3D;&#x3D; null) return;
   
       //get the reference to the draft that&#x27;s moving
-      const moving &#x3D; this.getMovingSubdraft(obj.id);
+      const moving &#x3D; this.getSubdraft(obj.id);
       if(moving &#x3D;&#x3D;&#x3D; null) return; 
 
       const isect:Array&lt;SubdraftComponent&gt; &#x3D; this.getIntersectingSubdrafts(moving);
-
+      
       if(isect.length &#x3D;&#x3D; 0){
-        //moving.drawDraft(moving.draft);
+        if(this.hasPreview()) this.removePreview();
         return;
-      }   
+      } 
 
-      const bounds: any &#x3D; this.getMovingBounds(moving);
+      //const bounds: Bounds &#x3D; this.getIntersectionBounds(moving, isect[0]);
+      const bounds: Bounds &#x3D; this.getCombinedBounds(moving, isect);
       const temp: Draft &#x3D; this.getCombinedDraft(bounds, moving, isect);
-      moving.drawDraft(temp);
+      if(this.hasPreview()) this.preview.setNewDraft(temp);
+      else this.createAndSetPreview(temp);
+      
+      this.preview.setComponentPosition(bounds.topleft);
+      this.preview.drawDraft();
+    }
 
-   }
 
-
-  //check intersections
+   /**
+    * checks if this subdraft has been dropped onto of another and merges them accordingly 
+    * @param obj 
+    * @returns 
+    */
   subdraftDropped(obj: any){
 
     this.closeSnackBar();
 
      if(obj &#x3D;&#x3D;&#x3D; null) return;
   
+      if(this.hasPreview()) this.removePreview();
       //get the reference to the draft that&#x27;s moving
-      const moving &#x3D; this.getMovingSubdraft(obj.id);
+      const moving &#x3D; this.getSubdraft(obj.id);
       if(moving &#x3D;&#x3D;&#x3D; null) return; 
 
-      const isect:Array&lt;SubdraftComponent&gt; &#x3D; this.getIntersectingSubdrafts(moving);
-
-      if(isect.length &#x3D;&#x3D; 0){
-        moving.drawDraft(moving.draft);
-        return;
-      }   
-
-      const bounds: any &#x3D; this.getIntersectionBounds(moving, isect);
-      const temp: Draft &#x3D; this.getCombinedDraft(bounds, moving, isect);
-
-      moving.setNewDraft(bounds, temp);
-      moving.drawDraft(temp);
-
-    //remove the intersecting drafts from the view containier and from subrefts
-    isect.forEach(element &#x3D;&gt; {
-        //this relies on my array having the same indexing as the view container. 
-        const ndx &#x3D; this.subdraft_refs.findIndex((sr) &#x3D;&gt; (element.canvas.id &#x3D;&#x3D;&#x3D; sr.canvas.id));
-        this.vc.remove(ndx);
-        this.subdraft_refs.splice(ndx, 1);
-    });
+      const had_merge &#x3D; this.mergeSubdrafts(moving);
+      console.log(&quot;had merge&quot;, had_merge);
+      if(!had_merge) moving.drawDraft();
 
   }
 
-  computeHeddleValue(p:any, main: any, isect: Array&lt;SubdraftComponent&gt;):boolean{
-    //return  this.subdraft_refs.find(sr &#x3D;&gt; (sr.draft.id.toString() &#x3D;&#x3D;&#x3D; id.toString()));
-    const a:boolean &#x3D; main.resolveToValue(p);
+  /**
+   * merges a collection of subdraft components into the primary component, deletes the merged components
+   * @param primary the draft to merge into
+   * @returns true or false to describe if a merge took place. 
+   */
+  mergeSubdrafts(primary: SubdraftComponent): boolean{
+    
+    console.log(&quot;Merging&quot;);
+    const isect:Array&lt;SubdraftComponent&gt; &#x3D; this.getIntersectingSubdrafts(primary);
 
+      if(isect.length &#x3D;&#x3D; 0){
+        return false;
+      }   
+
+      const bounds: Bounds &#x3D; this.getCombinedBounds(primary, isect);
+      const temp: Draft &#x3D; this.getCombinedDraft(bounds, primary, isect);
+
+      primary.setNewDraft(temp);
+      primary.setComponentPosition(bounds.topleft);
+      primary.drawDraft();
+
+    //remove the intersecting drafts from the view containier and from subrefts
+    isect.forEach(element &#x3D;&gt; {
+      this.removeSubdraft(element);
+    });
+    return true;
+  }
+
+  computeHeddleValue(p:Point, main: SubdraftComponent, isect: Array&lt;SubdraftComponent&gt;):boolean{
+    const a:boolean &#x3D; main.resolveToValue(p);
 
     //this may return an empty array, because the intersection might not have the point
     const b_array:Array&lt;SubdraftComponent&gt; &#x3D; isect.filter(el &#x3D;&gt; el.hasPoint(p));
@@ -2397,8 +3393,16 @@ export class PaletteComponent implements OnInit{
     return main.computeFilter(a, val);
   }
 
+/**
+ * check if the rectangles defined by the points overlap
+ * @param l1 top left point of rectangle 1
+ * @param r1 bottom right point of rectangle 1
+ * @param l2 top left point of rectangle 2
+ * @param r2 bottom right point of rectanble 2
+ * @returns true or false in accordance to whether or not they overlap
+ */
+  doOverlap(l1:Point,  r1:Point,  l2:Point,  r2:Point){
 
-  doOverlap(l1:any,  r1:any,  l2:any,  r2:any){
     if (l1.x &#x3D;&#x3D; r1.x || l1.y &#x3D;&#x3D; r2.y || l2.x &#x3D;&#x3D; r2.x
         || l2.y &#x3D;&#x3D; r2.y) {
         // the line cannot have positive overlap
@@ -2422,7 +3426,7 @@ export class PaletteComponent implements OnInit{
   getLeftMost(main:SubdraftComponent,  isects:Array&lt;SubdraftComponent&gt;):SubdraftComponent{
 
     return isects.reduce((acc, isect) &#x3D;&gt; {
-      if(isect.topleft.x &lt; acc.topleft.x) {
+      if(isect.getTopleft().x &lt; acc.getTopleft().x) {
         acc &#x3D; isect;
       }
       return acc;
@@ -2434,7 +3438,7 @@ export class PaletteComponent implements OnInit{
   getTopMost(main:SubdraftComponent,  isects:Array&lt;SubdraftComponent&gt;):SubdraftComponent{
 
     return isects.reduce((acc, isect) &#x3D;&gt; {
-      if(isect.topleft.y &lt; acc.topleft.y) {
+      if(isect.getTopleft().y &lt; acc.getTopleft().y) {
         acc &#x3D; isect;
       }
       return acc;
@@ -2446,7 +3450,7 @@ export class PaletteComponent implements OnInit{
   getRightMost(main:SubdraftComponent,  isects:Array&lt;SubdraftComponent&gt;):SubdraftComponent{
 
     return isects.reduce((acc, isect) &#x3D;&gt; {
-      if((isect.topleft.x + isect.size.w) &gt; (acc.topleft.x + acc.size.w)) {
+      if((isect.getTopleft().x + isect.bounds.width) &gt; (acc.getTopleft().x + acc.bounds.width)) {
         acc &#x3D; isect;
       }
       return acc;
@@ -2456,7 +3460,7 @@ export class PaletteComponent implements OnInit{
   getBottomMost(main:SubdraftComponent,  isects:Array&lt;SubdraftComponent&gt;):SubdraftComponent{
 
     return isects.reduce((acc, isect) &#x3D;&gt; {
-      if((isect.topleft.y + isect.size.h)&gt; (acc.topleft.y + acc.size.h)) {
+      if((isect.getTopleft().y + isect.bounds.height)&gt; (acc.getTopleft().y + acc.bounds.height)) {
         acc &#x3D; isect;
       }
       return acc;
@@ -2464,7 +3468,12 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  getMovingSubdraft(id:number): SubdraftComponent {
+  /**
+   * returns the subdraft component associated with this id
+   * @param id the unique draft id contined in the subdraft
+   * @returns the subdraft Component
+   */
+  getSubdraft(id:number): SubdraftComponent {
     return  this.subdraft_refs.find(sr &#x3D;&gt; (sr.draft.id.toString() &#x3D;&#x3D;&#x3D; id.toString()));
   }
 
@@ -2473,10 +3482,10 @@ export class PaletteComponent implements OnInit{
 
     //find intersections between main and the others
     const isect:Array&lt;SubdraftComponent&gt; &#x3D; this.subdraft_refs.filter(sr &#x3D;&gt; (this.doOverlap(
-      selection.topleft, 
-      {x:  selection.topleft.x + selection.size.w, y: selection.topleft.y + selection.size.h}, 
-      sr.topleft, 
-      {x: sr.topleft.x + sr.size.w, y: sr.topleft.y + sr.size.h}
+      selection.bounds.topleft, 
+      {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
+      sr.getTopleft(), 
+      {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height}
       ) ? sr : null));
 
     return isect;
@@ -2484,24 +3493,51 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  getIntersectingSubdrafts(moving: SubdraftComponent){
-    const to_check:Array&lt;SubdraftComponent&gt; &#x3D;  this.subdraft_refs.filter(sr &#x3D;&gt; (sr.draft.id.toString() !&#x3D;&#x3D; moving.draft.id.toString()));
+ /**
+   * get any subdrafts that intersect a given screen position
+   * @param p the x, y position of this cell 
+   * @returns 
+   */
+  getIntersectingSubdraftsForPoint(p: any){
 
-    //find intersections between main and the others
-    const isect:Array&lt;SubdraftComponent&gt; &#x3D; to_check.filter(sr &#x3D;&gt; (this.doOverlap(
-      moving.topleft, 
-      {x:  moving.topleft.x + moving.size.w, y: moving.topleft.y + moving.size.h}, 
-      sr.topleft, 
-      {x: sr.topleft.x + sr.size.w, y: sr.topleft.y + sr.size.h}
-      ) ? sr : null));
+
+    const primary_topleft &#x3D; {x:  p.x, y: p.y };
+    const primary_bottomright &#x3D; {x:  p.x + this.scale, y: p.y + this.scale};
+
+    const isect:Array&lt;SubdraftComponent&gt; &#x3D; [];
+     this.subdraft_refs.forEach(sr &#x3D;&gt; {
+      let sr_bottomright &#x3D; {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
+      const b: boolean &#x3D; this.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
+      if(b) isect.push(sr);
+     });
 
     return isect;
-  
   }
 
-  getSelectionBounds(c1: any, c2: any): any{
+  /**
+   * get any subdrafts that intersect primary based on checks on their boundaries
+   * @param primary 
+   * @returns 
+   */
+  getIntersectingSubdrafts(primary: SubdraftComponent){
+
+    const to_check:Array&lt;SubdraftComponent&gt; &#x3D;  this.subdraft_refs.filter(sr &#x3D;&gt; (sr.draft.id.toString() !&#x3D;&#x3D; primary.draft.id.toString()));
+    const primary_bottomright &#x3D; {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
+
+
+     const isect:Array&lt;SubdraftComponent&gt; &#x3D; [];
+     to_check.forEach(sr &#x3D;&gt; {
+      let sr_bottomright &#x3D; {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
+      const b: boolean &#x3D; this.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
+      if(b) isect.push(sr);
+     });
+
+    return isect;
+  }
+
+  getSelectionBounds(c1: any, c2: any): Bounds{
       let bottomright &#x3D; {x: 0, y:0};
-      let bounds:any &#x3D; {
+      let bounds:Bounds &#x3D; {
         topleft:{x: 0, y:0},
         width: 0,
         height: 0
@@ -2525,57 +3561,75 @@ export class PaletteComponent implements OnInit{
       bounds.width &#x3D; bottomright.x - bounds.topleft.x;
       bounds.height &#x3D; bottomright.y - bounds.topleft.y;
 
-     
-  
       return bounds;
   }
 
+  /**
+   * returns a Bounds type that represents the intersection between primary and one intersecting subdraft
+   * @param primary the rectangular area we are checking for intersections
+   * @param isect an array of all the components that intersect
+   * @returns the array of bounds of all intersections
+   */
+  getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
 
-  getMovingBounds(moving: SubdraftComponent):any{
+    const left: number &#x3D; Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
+    const top: number &#x3D; Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
+    const right: number &#x3D; Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
+    const bottom: number &#x3D; Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
 
-    const bounds &#x3D; {
-      topleft: moving.topleft,
-      width: moving.size.w,
-      height: moving.size.h
-    }
+    return {
+      topleft: {x: left, y: top},
+      width: right - left,
+      height: bottom - top
+    };
 
-    return bounds;
   }
 
-  getIntersectionBounds(moving: SubdraftComponent, isect: Array&lt;SubdraftComponent&gt;):any{
-    const bounds &#x3D; {
+  /**
+   * gets the combined boundary of a Subdraft and any of its intersections
+   * @param moving A SubdraftComponent that is our primary subdraft
+   * @param isect  Any subdrafts that intersect with this component 
+   * @returns the bounds of a rectangle that holds both components
+   */
+  getCombinedBounds(moving: SubdraftComponent, isect: Array&lt;SubdraftComponent&gt;):Bounds{
+    
+    const bounds: Bounds &#x3D; {
       topleft: {x: 0, y:0},
       width: 0,
       height: 0
     }
 
-    bounds.topleft.x &#x3D; this.getLeftMost(moving, isect).topleft.x;
-    bounds.topleft.y &#x3D; this.getTopMost(moving, isect).topleft.y;
+    bounds.topleft.x &#x3D; this.getLeftMost(moving, isect).getTopleft().x;
+    bounds.topleft.y &#x3D; this.getTopMost(moving, isect).getTopleft().y;
 
     const rm &#x3D;  this.getRightMost(moving, isect);
     const bm &#x3D;  this.getBottomMost(moving, isect);
 
-    bounds.width &#x3D; (rm.topleft.x + rm.size.w) - bounds.topleft.x;
-    bounds.height &#x3D;(bm.topleft.y + bm.size.h) - bounds.topleft.y;
+    bounds.width &#x3D; (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
+    bounds.height &#x3D;(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
 
     return bounds;
 
   }
 
+  /**
+   * creates a draft in size bounds that contains all of the computed points of its intersections
+   * @param bounds the boundary of all the intersections
+   * @param primary the primary draft that we are checking for intersections
+   * @param isect an Array of the intersecting components
+   * @returns 
+   */
+  getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array&lt;SubdraftComponent&gt;):Draft{
 
-  getCombinedDraft(bounds: any, moving: any, isect: Array&lt;SubdraftComponent&gt;):Draft{
-
-    const temp: Draft &#x3D; new Draft({name: &quot;combined&quot;, warps: Math.floor(bounds.width / moving.scale), wefts: Math.floor(bounds.height / moving.scale)});
-    //iterate over the combined area
+    const temp: Draft &#x3D; new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
 
     for(var i &#x3D; 0; i &lt; temp.wefts; i++){
-      const top: number &#x3D; bounds.topleft.y + (i * moving.scale);
+      const top: number &#x3D; bounds.topleft.y + (i * primary.scale);
       for(var j &#x3D; 0; j &lt; temp.warps; j++){
-        const left: number &#x3D; bounds.topleft.x + (j * moving.scale);
+        const left: number &#x3D; bounds.topleft.x + (j * primary.scale);
 
         const p &#x3D; {x: left, y: top};
-        const val &#x3D; this.computeHeddleValue(p, moving, isect);
-
+        const val &#x3D; this.computeHeddleValue(p, primary, isect);
         if(val !&#x3D; null) temp.pattern[i][j].setHeddle(val);
         else temp.pattern[i][j].unsetHeddle();
       }

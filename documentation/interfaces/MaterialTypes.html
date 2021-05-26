@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html"  class="active" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html"  class="active" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -1000,7 +1006,7 @@ import { Cell } from &#x27;../core/model/cell&#x27;;
 
 
 //disables some angular checking mechanisms
-//enableProdMode();
+enableProdMode();
 
 
 /**
@@ -1026,11 +1032,6 @@ interface DensityUnits {
 
 interface ViewModes {
   value: string;
-  viewValue: string;
-}
-
-interface ToolModes{
-  value: string; 
   viewValue: string;
 }
 
@@ -1186,15 +1187,14 @@ export class WeaverComponent implements OnInit {
 
 
     //initialize with a draft so that we can load some things faster. 
-    let d &#x3D;  this.getDraftFromLocalStore();
+    //let d &#x3D;  this.getDraftFromLocalStore();
     
     this.copy &#x3D; [[false,true],[false,true]];
 
 
 
-    if(d !&#x3D;&#x3D; undefined)
-
-    this.draft &#x3D; new Draft(JSON.parse(d));
+    //if(d !&#x3D;&#x3D; undefined) this.draft &#x3D; new Draft(JSON.parse(d));
+    this.draft &#x3D; new Draft({wefts: 80, warps: 100});
     this.draft.name &#x3D; this.draft.name;
     this.timeline.addHistoryState(this.draft);
     
@@ -1203,7 +1203,7 @@ export class WeaverComponent implements OnInit {
 
     this.ps.getPatterns().subscribe((res) &#x3D;&gt; {
        for(var i in res.body){
-          this.default_patterns.push(res.body[i]);
+          this.default_patterns.push(new Pattern(res.body[i]));
        }
     }); 
 
@@ -1486,7 +1486,7 @@ export class WeaverComponent implements OnInit {
    */
   public onFill(e) {
     
-    var p &#x3D; this.draft.patterns[e.id].pattern;
+    let p:Pattern &#x3D; this.draft.patterns[e.id];
     
     this.draft.fillArea(this.weaveRef.selection, p, &#x27;original&#x27;);
 
@@ -1494,6 +1494,8 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
     
+    this.weaveRef.copyArea();
+
     this.weaveRef.redraw({drawdown:true, loom:true});
 
     this.timeline.addHistoryState(this.draft);
@@ -1509,8 +1511,9 @@ export class WeaverComponent implements OnInit {
   public onClear(b:boolean) {
     
     const c: Cell &#x3D; new Cell(b);
+    const p: Pattern &#x3D; new Pattern({width: 1, height: 1, pattern: [[c]]});
 
-    this.draft.fillArea(this.weaveRef.selection, [[c]], &#x27;original&#x27;)
+    this.draft.fillArea(this.weaveRef.selection, p, &#x27;original&#x27;)
 
     if(this.render.showingFrames()) this.draft.recomputeLoom();
 
@@ -1550,6 +1553,7 @@ export class WeaverComponent implements OnInit {
   public onPaste(e) {
 
     var p &#x3D; this.weaveRef.copy;
+    console.log(&quot;on paste&quot;, e, p);
 
 
     var type;
@@ -1559,7 +1563,14 @@ export class WeaverComponent implements OnInit {
 
     this.draft.fillArea(this.weaveRef.selection, p, type);
 
-    if(this.render.showingFrames()) this.draft.recomputeLoom();
+    switch(this.weaveRef.selection.target.id){    
+      case &#x27;drawdown&#x27;:
+        //if you do this when updates come from loom, it will erase those updates
+        if(this.render.showingFrames()) this.draft.recomputeLoom();
+       break;
+      
+    }
+
     
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
@@ -1658,14 +1669,19 @@ export class WeaverComponent implements OnInit {
   }
 
   /**
-   * Inserts an empty row on system, system
+   * inserts an empty row just below the clicked row
+   * @param i the absolute (not screen) index of the row we&#x27;ll insert
+   * @param shuttle the shuttle id this will be assigned to
+   * @param system the system id to which this row will be assigned
    */
-  public insertRow(i, shuttle, system) {
+  public insertRow(i:number, shuttle:number, system:number) {
 
+    console.log(i);
     this.draft.insertRow(i, shuttle, system);
     //this.draft.updateConnections(i, 1);
     
     this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    
     this.timeline.addHistoryState(this.draft);
 
   }
@@ -1898,6 +1914,7 @@ export class WeaverComponent implements OnInit {
       
       for(var i &#x3D; 0; i &lt; diff; i++){  
         this.draft.insertRow(e.wefts+i, 0, 0);
+        console.log(&quot;inserting row&quot;);
       }
     }else{
       var diff &#x3D; this.draft.wefts - e.wefts;
@@ -1911,7 +1928,7 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
 
-    this.weaveRef.redraw({drawdown: true, loom: true, warp_systems: true, warp_materials:true});
+    this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true});
 
 
   }

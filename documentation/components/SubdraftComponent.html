@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -1023,6 +1029,19 @@
                 <tbody>
                     <tr>
                         <td class="col-md-2">
+                            <code>onDeleteCalled</code>
+                        </td>
+                        <td class="col-md-10">
+                            <em><code>$event</code> type:</em>    <code><a href="https://angular.io/docs/ts/latest/api/core/index/EventEmitter-class.html" target="_blank" >EventEmitter</a></code>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-2">
                             <code>onSubdraftDrop</code>
                         </td>
                         <td class="col-md-10">
@@ -1066,7 +1085,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <code>constructor(el: any)</code>
+                            <code>constructor()</code>
                         </td>
                     </tr>
     
@@ -1080,7 +1099,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b><span class="modifier">Public</span> setPositionAndSize</b>
+                            <b><span class="modifier">Public</span> filterActionChange</b>
                         </td>
                     </tr>
     
@@ -1089,7 +1108,7 @@
                                 <span class="modifier-icon method fa fa-play circle">
                                     <span class="fa fa-circle"></span>
                                 </span>
-                            <code>setPositionAndSize(bounds: any)</code>
+                            <code>filterActionChange(event: any)</code>
                         </td>
                     </tr>
     
@@ -1107,7 +1126,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b><span class="modifier">Public</span> filterActionChange</b>
+                            <b><span class="modifier">Public</span> setAsPreview</b>
                         </td>
                     </tr>
     
@@ -1116,7 +1135,7 @@
                                 <span class="modifier-icon method fa fa-play circle">
                                     <span class="fa fa-circle"></span>
                                 </span>
-                            <code>filterActionChange(event: any)</code>
+                            <code>setAsPreview()</code>
                         </td>
                     </tr>
     
@@ -1176,10 +1195,30 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>does this subdraft exist at this point?</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>p</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the absolute position of the coordinate (based on the screen)</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>boolean</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        <p>true/false for yes or no</p>
+    
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1188,7 +1227,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b><span class="modifier">Public</span> resolvePoint</b>
+                            <b><span class="modifier">Public</span> resolveNdxToPoint</b>
                         </td>
                     </tr>
     
@@ -1197,16 +1236,130 @@
                                 <span class="modifier-icon method fa fa-play circle">
                                     <span class="fa fa-circle"></span>
                                 </span>
-                            <code>resolvePoint(p: <a href="../classes/Point.html" >Point</a>)</code>
+                            <code>resolveNdxToPoint(ndx: Interlacement)</code>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>Takes row/column position in this subdraft and translates it to an absolution position  </p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>ndx</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the index</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code><a href="../classes/Point.html" target="_self" >Point</a></code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>the absolute position as nxy</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Public</span> resolvePointToNdx</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play circle">
+                                    <span class="fa fa-circle"></span>
+                                </span>
+                            <code>resolvePointToNdx(p: <a href="../classes/Point.html" >Point</a>)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Takes an absolute coordinate and translates it to the row/column position Relative to this subdraft</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>p</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the screen coordinate</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>Interlacement</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        <p>the row and column within the draft (i = row, j=col), returns -1 if out of bounds</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Public</span> resolvePointToAbsoluteNdx</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play circle">
+                                    <span class="fa fa-circle"></span>
+                                </span>
+                            <code>resolvePointToAbsoluteNdx(p: <a href="../classes/Point.html" >Point</a>)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Takes an absolute coordinate and translates to a number that would represent its grid position on screen<br>used only for testing if a new move calculation should be called</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>p</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the screen coordinate</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>Interlacement</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>the row and column within the draft (i = row, j=col), returns -1 if out of bounds</p>
+    
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1230,10 +1383,30 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>takes an absolute reference and returns the value at that cell boolean or null if its unset</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>p</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>a point of the absolute poistion of coordinate in question</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code>boolean</code>
     
                                 </div>
+                                    <div class="io-description">
+                                        <p>true/false/or null representing the eddle value at this point</p>
+    
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1248,7 +1421,50 @@
     
                     <tr>
                         <td class="col-md-4">
-    <code>setNewDraft(bounds: any, temp: <a href="../classes/Draft.html" >Draft</a>)</code>
+    <code>setNewDraft(temp: <a href="../classes/Draft.html" >Draft</a>)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>sets a new draft</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>temp</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the draft to set this component to</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> setComponentPosition</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>setComponentPosition(point: <a href="../classes/Point.html" >Point</a>)</code>
                         </td>
                     </tr>
     
@@ -1266,13 +1482,13 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> drawDraft</b>
+                            <b> setComponentBounds</b>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
-    <code>drawDraft(draft: <a href="../classes/Draft.html" >Draft</a>)</code>
+    <code>setComponentBounds(bounds: Bounds)</code>
                         </td>
                     </tr>
     
@@ -1282,6 +1498,150 @@
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> setComponentSize</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>setComponentSize(width: number, height: number)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>manually sets the component size. While such an operation should be handled on init but there is a bug where this value is checked before the<br>component runds its init sequence. Manually adding the data makes it possible for check for intersections on selection and drawing end.</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>width</b>
+                                                    </div>
+                                                    <div>
+                                                        
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <div>
+                                                        <b>height</b>
+                                                    </div>
+                                                    <div>
+                                                        
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> drawDraft</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>drawDraft()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>draw whetever is stored in the draft object to the screen</p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> resize</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>resize()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>scans the draft and deletes any boundary rows or columns that are entirely unset.<br>Called after selection </p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>boolean</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>a boolean to say if this compoennt is empty or not after the scan</p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> getTopleft</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>getTopleft()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>gets the position of this elment on the canvas. Dyanic top left might be bigger due to scolling intersection<br>previews. Use static for all calculating of intersections, etc. </p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code><a href="../classes/Point.html" target="_self" >Point</a></code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1302,8 +1662,106 @@
     
                     <tr>
                         <td class="col-md-4">
+                                <div class="io-description"><p>takes an absolute point and returns the &quot;cell&quot; boundary that is closest. </p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>p</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the absolute point</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
                                 <div class="io-description">
                                     <b>Returns: </b>    <code><a href="../classes/Point.html" target="_self" >Point</a></code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        <p>the snapped point </p>
+    
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Private</span> isSameNdx</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play lock">
+                                    <span class="fa fa-lock"></span>
+                                </span>
+                            <code>isSameNdx(p1: Interlacement, p2: Interlacement)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>boolean</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Private</span> getAdjusted</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play lock">
+                                    <span class="fa fa-lock"></span>
+                                </span>
+                            <code>getAdjusted(p: <a href="../classes/Point.html" >Point</a>)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>any</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> isSameBoundsAs</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>isSameBoundsAs(bounds: Bounds)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>boolean</code>
     
                                 </div>
                         </td>
@@ -1369,6 +1827,54 @@
                     <tr>
                         <td class="col-md-4">
     <code>dragMove($event: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> disableDrag</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>disableDrag()</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> enableDrag</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>enableDrag()</code>
                         </td>
                     </tr>
     
@@ -1565,6 +2071,21 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
+                            <b> bounds</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>bounds:     <code>Bounds</code>
+    </bcode>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
                             <b> canvas</b>
                         </td>
                     </tr>
@@ -1592,6 +2113,26 @@
                         <tr>
                             <td class="col-md-4">
                                 <i>Default value: </i><code>0</code>
+                            </td>
+                        </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> counter_limit</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>counter_limit:     <code>number</code>
+    </bcode>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Default value: </i><code>50</code>
                             </td>
                         </tr>
                 </tbody>
@@ -1650,12 +2191,32 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> draw_mode</b>
+                            <b> filter</b>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <code>draw_mode:     <code>boolean</code>
+                            <code>filter:     <code>string</code>
+    </bcode>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Default value: </i><code>neq</code>
+                            </td>
+                        </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> is_preview</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>is_preview:     <code>boolean</code>
     </bcode>
                         </td>
                     </tr>
@@ -1670,20 +2231,15 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> filter</b>
+                            <b> last_ndx</b>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <code>filter:     <code>string</code>
+                            <code>last_ndx:     <code>Interlacement</code>
     </bcode>
                         </td>
                     </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <i>Default value: </i><code>or</code>
-                            </td>
-                        </tr>
                 </tbody>
             </table>
             <table class="table table-sm table-bordered">
@@ -1726,53 +2282,16 @@
                         </tr>
                 </tbody>
             </table>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b> size</b>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <code>size:     <code>{ w: number; h: number; }</code>
-    </bcode>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b> topleft</b>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <code>topleft:     <code>{ x: number; y: number; }</code>
-    </bcode>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
     </section>
 </div>
         <div class="tab-pane fade tab-source-code" id="source">
-            <pre><code class="hljs javascript">import { Component, OnInit, Input, Output, EventEmitter, ElementRef} from &#x27;@angular/core&#x27;;
+            <pre><code class="hljs javascript">import { Component, OnInit, Input, Output, EventEmitter, HostListener} from &#x27;@angular/core&#x27;;
 import { Draft } from &#x27;../../../core/model/draft&#x27;;
+import { Point, Interlacement, Bounds } from &#x27;../../../core/model/datatypes&#x27;;
 import { ConnectionComponent } from &#x27;../connection/connection.component&#x27;;
 
 
-interface Point {
-  x: number;
-  y: number;
-}
 
-interface Interlacement {
-  i:number;
-  j:number;
-}
 
 interface DesignActions{
   value: string;
@@ -1797,6 +2316,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onSubdraftMove &#x3D; new EventEmitter &lt;any&gt;(); 
   @Output() onSubdraftDrop &#x3D; new EventEmitter &lt;any&gt;(); 
   @Output() onSubdraftStart &#x3D; new EventEmitter &lt;any&gt;(); 
+  @Output() onDeleteCalled &#x3D; new EventEmitter &lt;any&gt;(); 
 
  //operations you can perform on a selection 
  design_actions: DesignActions[] &#x3D; [
@@ -1814,84 +2334,110 @@ export class SubdraftComponent implements OnInit {
   canvas: HTMLCanvasElement;
   cx: any;
 
-  topleft &#x3D; {x: 0, y: 0}; //this is an internal reprsentation of the top left point
-  
-  size &#x3D; {w: 0, h: 0};
+  bounds: Bounds &#x3D; {
+    topleft: {x: 0, y: 0},
+    width: 0, 
+    height: 0
+  }
 
   scale &#x3D; 10; 
-  filter &#x3D; &#x27;or&#x27;; //can be or, and, neq, not, splice
-  counter:number  &#x3D;  0; // only call functions every so often
-  
-  moving &#x3D; false;
-  draw_mode &#x3D; false;
-  disable_drag &#x3D; false;
+  filter &#x3D; &#x27;neq&#x27;; //can be or, and, neq, not, splice
+  counter:number  &#x3D;  0; // keeps track of how frequently to call the move functions
+  counter_limit: number &#x3D; 50;  //this sets the threshold for move calls, lower number &#x3D;&#x3D; more calls
+  last_ndx:Interlacement &#x3D; {i: -1, j:-1, si: -1}; //used to check if we should recalculate a move operation
+
+  moving: boolean  &#x3D; false;
+  disable_drag: boolean &#x3D; false;
+  is_preview: boolean &#x3D; false;
 
 
-  constructor(private el: ElementRef) { 
-        //add random position for testing
-        this.topleft.x &#x3D; Math.floor(Math.random() * 400 / this.scale)  * this.scale;
-        this.topleft.y &#x3D; Math.floor(Math.random() * 400 / this.scale)  * this.scale;
-        
+  constructor() { 
+   
   }
 
   ngOnInit(){
-    this.size.w &#x3D; this.draft.warps * this.scale;
-    this.size.h &#x3D; this.draft.wefts * this.scale;
+    this.bounds.width &#x3D; this.draft.warps * this.scale;
+    this.bounds.height &#x3D; this.draft.wefts * this.scale;
 
   }
 
 
   ngAfterViewInit() {
 
+
     this.canvas &#x3D; &lt;HTMLCanvasElement&gt; document.getElementById(this.draft.id.toString());
     this.cx &#x3D; this.canvas.getContext(&quot;2d&quot;);
-    this.drawDraft(this.draft);
+    this.canvas.width &#x3D; this.draft.warps * this.scale;
+    this.canvas.height &#x3D; this.draft.wefts * this.scale;
+    this.bounds.width &#x3D; this.draft.warps * this.scale;
+    this.bounds.height &#x3D; this.draft.wefts * this.scale;
+    this.drawDraft();
 
-    console.log(&quot;after init&quot;);
 
   }
 
-  public setPositionAndSize(bounds: any){
-    console.log(&quot;setting to&quot;, bounds);
-    this.topleft &#x3D; bounds.topleft;
-    this.size.w &#x3D; bounds.width;
-    this.size.h &#x3D; bounds.height;
-    console.log(this.size.h);
-  }
+  // /**
+  //  * sets the size and position of this element (but does not resize the canvas! due to error)
+  //  * @param bounds an object including topleft, width, and height 
+  //  */
+  // public setStaticPositionAndSize(bounds: any){
+
+  //   this.static_tl &#x3D; bounds.topleft;
+  //   this.dynamic_tl &#x3D; this.static_tl;
+  //   console.log(&quot;setting size on set static&quot;);
+  //   this.bounds.width &#x3D; bounds.width;
+  //   this.bounds.height &#x3D; bounds.height;
+  //   this.dynamic_size &#x3D; this.size;
+  
+  // }
 
 
 
 
   public filterActionChange(event: any){
-    console.log(event);
     this.filter &#x3D; event;
 
   }
 
+  public setAsPreview(){
+    this.is_preview &#x3D; true;
+  }
+
   public computeFilter(a: boolean, b: boolean):boolean{
 
-    if(a &#x3D;&#x3D;&#x3D; null &amp;&amp; b &#x3D;&#x3D;&#x3D; null) return null;
 
-    if(a &#x3D;&#x3D;&#x3D; null) return b;
-    if(b &#x3D;&#x3D;&#x3D; null) return a;
+    if(this.filter &#x3D;&#x3D; &#x27;or&#x27;){
+      if(a &#x3D;&#x3D;&#x3D; null) return b;
+      if(b &#x3D;&#x3D;&#x3D; null) return a;
+      return (a || b);
+    }else if(this.filter &#x3D;&#x3D;&#x3D;&quot;and&quot;){
+      if(a &#x3D;&#x3D;&#x3D; null || b &#x3D;&#x3D;&#x3D; null) return null;
+      return (a &amp;&amp; b)
+    }else if(this.filter &#x3D;&#x3D;&#x3D; &quot;neq&quot;){
 
-    if(this.filter &#x3D;&#x3D;&#x3D; &quot;or&quot;)  return (a || b);
-    if(this.filter &#x3D;&#x3D;&#x3D; &quot;and&quot;)  return (a &amp;&amp; b);
-    if(this.filter &#x3D;&#x3D;&#x3D; &quot;neq&quot;)  return (a !&#x3D;&#x3D; b);
-    if(this.filter &#x3D;&#x3D;&#x3D; &quot;inv&quot;)  return (!b);
-
+      if(a &#x3D;&#x3D;&#x3D; null) return b;
+      if(b &#x3D;&#x3D;&#x3D; null) return a;
+      return (a !&#x3D;&#x3D; b);
+    }else if(this.filter &#x3D;&#x3D;&#x3D; &quot;inv&quot;){
+      return (!b);
+    }
 
   }
 
+  /**
+   * does this subdraft exist at this point?
+   * @param p the absolute position of the coordinate (based on the screen)
+   * @returns true/false for yes or no
+   */
   public hasPoint(p:Point) : boolean{
 
       const endPosition &#x3D; {
-        x: this.topleft.x + this.size.w,
-        y: this.topleft.y + this.size.h,
+        x: this.bounds.topleft.x + this.bounds.width,
+        y: this.bounds.topleft.y + this.bounds.height,
       };
 
-      if(p.x &lt; this.topleft.x || p.x &gt; endPosition.x) return false;
-      if(p.y &lt; this.topleft.y || p.y &gt; endPosition.y) return false;
+      if(p.x &lt; this.bounds.topleft.x || p.x &gt; endPosition.x) return false;
+      if(p.y &lt; this.bounds.topleft.y || p.y &gt; endPosition.y) return false;
 
     
     return true;
@@ -1899,23 +2445,59 @@ export class SubdraftComponent implements OnInit {
   }
 
 
-  public resolvePoint(p:Point) : Interlacement{
+/**
+ * Takes row/column position in this subdraft and translates it to an absolution position  
+ * @param ndx the index
+ * @returns the absolute position as nxy
+ */
+ public resolveNdxToPoint(ndx:Interlacement) : Point{
+  
+  let y &#x3D; this.bounds.topleft.y + ndx.i * this.scale;
+  let x &#x3D; this.bounds.topleft.x + ndx.j * this.scale;
+  return {x: x, y:y};
+
+}
+
+/**
+ * Takes an absolute coordinate and translates it to the row/column position Relative to this subdraft
+ * @param p the screen coordinate
+ * @returns the row and column within the draft (i &#x3D; row, j&#x3D;col), returns -1 if out of bounds
+ */
+  public resolvePointToNdx(p:Point) : Interlacement{
     
-    let i &#x3D; Math.floor((p.y -this.topleft.y) / this.scale);
-    let j &#x3D; Math.floor((p.x - this.topleft.x) / this.scale);
+    let i &#x3D; Math.floor((p.y -this.bounds.topleft.y) / this.scale);
+    let j &#x3D; Math.floor((p.x - this.bounds.topleft.x) / this.scale);
 
     if(i &lt; 0 || i &gt;&#x3D; this.draft.wefts) i &#x3D; -1;
     if(j &lt; 0 || j &gt;&#x3D; this.draft.warps) j &#x3D; -1;
 
-    return {i: i, j:j};
+    return {i: i, j:j, si: i};
 
   }
 
+  /**
+ * Takes an absolute coordinate and translates to a number that would represent its grid position on screen
+ * used only for testing if a new move calculation should be called
+ * @param p the screen coordinate
+ * @returns the row and column within the draft (i &#x3D; row, j&#x3D;col), returns -1 if out of bounds
+ */
+   public resolvePointToAbsoluteNdx(p:Point) : Interlacement{
+    
+    let i &#x3D; Math.floor((p.y) / this.scale);
+    let j &#x3D; Math.floor((p.x) / this.scale);
 
-  //takes an absolute reference and returns boolean or null if its unset
+    return {i: i, j:j, si: i};
+
+  }
+
+/**
+ * takes an absolute reference and returns the value at that cell boolean or null if its unset
+ * @param p a point of the absolute poistion of coordinate in question
+ * @returns true/false/or null representing the eddle value at this point
+ */
   public resolveToValue(p:Point) : boolean{
 
-    const coords &#x3D; this.resolvePoint(p);
+    const coords &#x3D; this.resolvePointToNdx(p);
 
     if(coords.i &lt; 0 || coords.j &lt; 0) return null; //this out of range
 
@@ -1925,36 +2507,61 @@ export class SubdraftComponent implements OnInit {
   
   }
 
-  setNewDraft(bounds: any, temp: Draft) {
-    
-    this.size.w &#x3D; temp.warps * this.scale;
-    this.size.h &#x3D; temp.wefts * this.scale;
-    this.topleft &#x3D; bounds.topleft; //adjusts to the top left of the new bounding box
-    this.draft &#x3D; temp;
+
+  /**
+   * sets a new draft
+   * @param temp the draft to set this component to
+   */
+  setNewDraft(temp: Draft) {
+
+    this.bounds.width &#x3D; temp.warps * this.scale;
+    this.bounds.height &#x3D; temp.wefts * this.scale;
+    this.draft.reloadForMixer(temp);
 
   }
 
-     
+  setComponentPosition(point: Point){
+    this.bounds.topleft &#x3D; point;
+  }
 
-  drawDraft(draft: Draft) {
 
-    console.log(&quot;drawing&quot;, draft, this.canvas, this.cx);
+  setComponentBounds(bounds: Bounds){
+    this.bounds &#x3D; bounds;
+  }
+  /**
+   * manually sets the component size. While such an operation should be handled on init but there is a bug where this value is checked before the 
+   * component runds its init sequence. Manually adding the data makes it possible for check for intersections on selection and drawing end.
+   * @param width 
+   * @param height 
+   */
+  setComponentSize(width: number, height: number){
+    this.bounds.width &#x3D; width;
+    this.bounds.height &#x3D; height;
+  }
+
+
+  /**
+   * draw whetever is stored in the draft object to the screen
+   * @returns 
+   */
+  drawDraft() {
+
+    if(this.canvas &#x3D;&#x3D;&#x3D; undefined) return;
+   
+    this.canvas.width &#x3D; this.bounds.width;
+    this.canvas.height &#x3D; this.bounds.height;
+
+    for (let i &#x3D; 0; i &lt; this.draft.visibleRows.length; i++) {
+      for (let j &#x3D; 0; j &lt; this.draft.warps; j++) {
+        let row:number &#x3D; this.draft.visibleRows[i];
     
-    // this.canvas.width &#x3D; this.size.w;
-    // this.canvas.height &#x3D; this.size.h;
-
-    for (let i &#x3D; 0; i &lt; draft.visibleRows.length; i++) {
-      
-      for (let j &#x3D; 0; j &lt; draft.warps; j++) {
-        let row:number &#x3D; draft.visibleRows[i];
-    
-        let is_up &#x3D; draft.isUp(row,j);
-        let is_set &#x3D; draft.isSet(row, j);
+        let is_up &#x3D; this.draft.isUp(row,j);
+        let is_set &#x3D; this.draft.isSet(row, j);
         if(is_set){
           this.cx.fillStyle &#x3D; (is_up) ?  &#x27;#000000&#x27; :  &#x27;#ffffff&#x27;;
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         } else{
-          this.cx.fillStyle &#x3D;  &#x27;#DDDDDD&#x27; ;
+          this.cx.fillStyle &#x3D;  &#x27;#999999&#x27; ;
           this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
         }
  
@@ -1963,6 +2570,33 @@ export class SubdraftComponent implements OnInit {
   }
 
 
+  /**
+   * scans the draft and deletes any boundary rows or columns that are entirely unset. 
+   * Called after selection 
+   * @returns a boolean to say if this compoennt is empty or not after the scan
+   */
+  resize():boolean{
+    const hasrows:boolean &#x3D; this.draft.trimUnsetRows();
+    if(!hasrows) return true;
+
+    const hascols &#x3D; this.draft.trimUnsetCols();
+    return false;
+  }
+
+  /**
+   * gets the position of this elment on the canvas. Dyanic top left might be bigger due to scolling intersection
+   * previews. Use static for all calculating of intersections, etc. 
+   * @returns 
+   */
+  getTopleft(): Point{
+    return this.bounds.topleft;
+  }
+
+  /**
+   * takes an absolute point and returns the &quot;cell&quot; boundary that is closest. 
+   * @param p the absolute point
+   * @returns the snapped point 
+   */
   snapToGrid(p: Point):Point{
 
     p.x &#x3D; Math.floor(p.x / this.scale) * this.scale;
@@ -1970,10 +2604,33 @@ export class SubdraftComponent implements OnInit {
     return p;
 
   }
+
+  private isSameNdx(p1: Interlacement, p2:Interlacement) : boolean {    
+    if(p1.i !&#x3D; p2.i ) return false;
+    if(p1.j !&#x3D; p2.j) return false;
+    return true;
+  }
+
+  private getAdjusted(p: Point) : any {   
+    return {
+      x: p.x,
+      y: p.y - 64
+    } 
+  }
   
+  isSameBoundsAs(bounds: Bounds) : boolean {   
+    if(bounds.topleft.x !&#x3D; this.bounds.topleft.x) return false;
+    if(bounds.topleft.y !&#x3D; this.bounds.topleft.y) return false;
+    if(bounds.width !&#x3D; this.bounds.width) return false;
+    if(bounds.height !&#x3D; this.bounds.height) return false;
+    return true;
+  }
+  
+
   dragEnd($event: any) {
     this.moving &#x3D; false;
     this.counter &#x3D; 0;  
+    this.last_ndx &#x3D; {i: -1, j:-1, si: -1};
     this.onSubdraftDrop.emit({id: this.draft.id});
   }
 
@@ -1981,30 +2638,39 @@ export class SubdraftComponent implements OnInit {
     this.moving &#x3D; true;
     this.counter &#x3D; 0;  
     this.onSubdraftStart.emit({id: this.draft.id});
+ 
+
   }
 
   dragMove($event: any) {
     //position of pointer of the page
-    const pointer &#x3D; $event.pointerPosition;
-   
-    const relative &#x3D; {
-      x: pointer.x, 
-      y: pointer.y - 64 //pointer position is relative to window, not this parent div.
-    }
+    const pointer:Point &#x3D; $event.pointerPosition;
+    const relative:Point &#x3D; this.getAdjusted(pointer);
+    const adj:Point &#x3D; this.snapToGrid(relative);
 
-    const adj &#x3D; this.snapToGrid(relative);
-    this.topleft &#x3D; adj;
+    this.bounds.topleft &#x3D; adj;
 
-    if(this.counter%1 &#x3D;&#x3D;&#x3D; 0){
+    const ndx &#x3D; this.resolvePointToAbsoluteNdx(relative);
+    
+    if(this.counter%this.counter_limit &#x3D;&#x3D;&#x3D; 0 || !this.isSameNdx(this.last_ndx, ndx)){
       this.onSubdraftMove.emit({id: this.draft.id});
       this.counter &#x3D; 0;
     } 
+
     this.counter++;
+    this.last_ndx &#x3D; ndx;
+  }
+
+  disableDrag(){
+    this.disable_drag &#x3D; true;
+  }
+
+  enableDrag(){
+    this.disable_drag &#x3D; false;
   }
 
 
   designActionChange(e){
-    console.log(e);
 
     switch(e){
       // case &#x27;copy&#x27;: this.copyEvent(e);
@@ -2028,15 +2694,18 @@ export class SubdraftComponent implements OnInit {
       case &#x27;shift_up&#x27;: this.pasteEvent(&#x27;shiftUp&#x27;);
       break;
 
+      case &#x27;delete&#x27;: 
+        this.onDeleteCalled.emit({id: this.draft.id});
+      break;
+
     }
   }
 
     fill(id) {
       var p &#x3D; this.patterns[id].pattern;
-      console.log(p);
       //need a way to specify an area within the fill
       this.draft.fill(p, &#x27;original&#x27;);
-      this.drawDraft(this.draft);
+      this.drawDraft();
 
     }
 
@@ -2051,12 +2720,11 @@ export class SubdraftComponent implements OnInit {
     pasteEvent(type) {
 
       var p &#x3D; this.draft.pattern;
-      console.log(&quot;paste event&quot;, type, p);
 
       if(type &#x3D;&#x3D;&#x3D; undefined) type &#x3D; &quot;original&quot;;
 
      this.draft.fill(p, type);
-     this.drawDraft(this.draft);
+     this.drawDraft();
 
 
 
@@ -2123,7 +2791,7 @@ export class SubdraftComponent implements OnInit {
     else type &#x3D;  e.type;
 
      this.draft.fill(p, type);
-     this.drawDraft(this.draft);
+     this.drawDraft();
 
     // if(this.render.showingFrames()) this.draft.recomputeLoom();
     
@@ -2137,9 +2805,6 @@ export class SubdraftComponent implements OnInit {
  
 
   }
-
-
-
 
 }
 </code></pre>

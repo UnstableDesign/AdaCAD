@@ -1745,7 +1745,6 @@ computeYarnPaths(){
 
               var frame = this.loom.frame_mapping[row];
               prev = this.loom.isInFrame(col, frame);
-              console.log(frame, prev);
           
           break;
           case 'treadling':
@@ -1800,13 +1799,13 @@ computeYarnPaths(){
 
                 let p:Interlacement = {i: this.visibleRows[row], j: col, si: row};     
                 this.setHeddle(p.i,p.j,val);
-               // this.updateLoomFromDraft(p); //this is an area where we could be facing slowdown 
               }
 
             break;
             
             case 'threading':
             var frame = this.loom.frame_mapping[row];
+
 
               if(this.loom.inThreadingRange({i:frame,j:col,si:-1})){ 
                 updates = this.loom.updateThreading({i:frame, j:col, val:val});
@@ -1865,6 +1864,7 @@ computeYarnPaths(){
 
     var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
     var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
+
 
 
   }

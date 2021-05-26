@@ -287,9 +287,6 @@
                                     <a href="../classes/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../classes/Render.html" >Render</a>
                                 </li>
                                 <li class="link">
@@ -352,6 +349,9 @@
                                 id="xs-interfaces-links"
                             >
                                 <li class="link">
+                                    <a href="../interfaces/Bounds.html" >Bounds</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
@@ -379,10 +379,19 @@
                                     <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -394,16 +403,10 @@
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Point.html" >Point</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -723,9 +726,6 @@
                                            <a href="../classes/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../classes/Render.html" >Render</a>
                                        </li>
                                        <li class="link">
@@ -788,6 +788,9 @@
                                        id="interfaces-links"
                    >
                                        <li class="link">
+                                           <a href="../interfaces/Bounds.html" >Bounds</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
@@ -815,10 +818,19 @@
                                            <a href="../interfaces/Interlacement.html" >Interlacement</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/InterlacementVal.html" >InterlacementVal</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomCoords.html" >LoomCoords</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -830,16 +842,10 @@
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Point.html" >Point</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ToolModes.html" >ToolModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -961,7 +967,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <code>constructor(ps: <a href="../injectables/PatternService.html" >PatternService</a>, dialog: MatDialog, scroll: ScrollDispatcher)</code>
+                            <code>constructor(design_modes: <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>, ps: <a href="../injectables/PatternService.html" >PatternService</a>, dialog: MatDialog, scroll: ScrollDispatcher)</code>
                         </td>
                     </tr>
     
@@ -1000,6 +1006,52 @@
                                     <b>Returns: </b>    <code>void</code>
     
                                 </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Private</span> designModeChanged</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play lock">
+                                    <span class="fa fa-lock"></span>
+                                </span>
+                            <code>designModeChanged(name: string)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>A function originating in the deisgn tool that signals a design mode change and communicates it to the palette</p>
+    </div>
+                                <div class="io-description">
+                                        <b>Parameters :</b>
+                                        <ul class="jsdoc-params">
+                                                <li>
+                                                    <div>
+                                                        <b>name</b>
+                                                    </div>
+                                                    <div>
+                                                        <p>the name of the current design mode</p>
+    
+                                                    </div>
+                                                </li>
+                                        </ul>
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
                         </td>
                     </tr>
                 </tbody>
@@ -1056,6 +1108,108 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
+                            <b><span class="modifier">Private</span> keyChangetoDrawMode</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play lock">
+                                    <span class="fa fa-lock"></span>
+                                </span>
+                            <code>keyChangetoDrawMode(e: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Change to draw mode on keypress d</p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Private</span> keyChangeToSelect</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play lock">
+                                    <span class="fa fa-lock"></span>
+                                </span>
+                            <code>keyChangeToSelect(e: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Change to draw mode on keypress s</p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b><span class="modifier">Private</span> keyChangeToMove</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <span class="modifier-icon method fa fa-play lock">
+                                    <span class="fa fa-lock"></span>
+                                </span>
+                            <code>keyChangeToMove(e: any)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Change to draw mode on keypress s</p>
+    </div>
+                                <div class="io-description">
+                                </div>
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                                    <div class="io-description">
+                                        
+                                    </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
                             <b><span class="modifier">Public</span> viewChange</b>
                         </td>
                     </tr>
@@ -1071,7 +1225,7 @@
     
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-description"><p>Call zoom in on Shift+p.<br>Call zoom out on Shift+o.<br>Sets selected area to clear<br>Sets brush to point on key control + d.<br>Sets brush to select on key control + s<br>Sets key control to invert on control + x<br>Sets key to copy<br>Sets key to copy<br>Updates the canvas based on the weave view.</p>
+                                <div class="io-description"><p>Call zoom out on Shift+o.<br>Sets selected area to clear<br>Sets brush to point on key control + d.<br>Sets brush to select on key control + s<br>Sets key control to invert on control + x<br>Sets key to copy<br>Sets key to copy<br>Updates the canvas based on the weave view.</p>
     </div>
                                 <div class="io-description">
                                         <b>Parameters :</b>
@@ -1083,7 +1237,7 @@
     
                                                     </div>
                                                     <div>
-                                                        <p>+p</p>
+                                                        <p>+o</p>
     
                                                     </div>
                                                 </li>
@@ -1619,7 +1773,7 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
+  constructor(private design_modes: DesignmodesService, private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
 
 
     this.scrollingSubscription &#x3D; this.scroll
@@ -1639,7 +1793,16 @@ export class MixerComponent implements OnInit {
   }
 
   private onWindowScroll(data: any) {
-    this.palette.rescale();
+    //this.palette.rescale();
+  }
+
+
+  /**
+   * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
+   * @param name the name of the current design mode
+   */
+  private designModeChanged(name: string){
+    this.palette.designModeChanged();
   }
 
 
@@ -1733,19 +1896,36 @@ export class MixerComponent implements OnInit {
 
 
 /**
-   * Call zoom in on Shift+p.
-   * @extends WeaveComponent
-   * @param {Event} shift+p
+   * Change to draw mode on keypress d
    * @returns {void}
    */
-  // @HostListener(&#x27;window:keydown.Shift.p&#x27;, [&#x27;$event&#x27;])
-  // private keyEventZoomIn(e) {
-  //   console.log(&quot;zoom in&quot;);
-  //   this.render.zoomIn();
-  //   this.palette.rescale();
+  @HostListener(&#x27;window:keydown.d&#x27;, [&#x27;$event&#x27;])
+  private keyChangetoDrawMode(e) {
+    this.design_modes.select(&#x27;toggle&#x27;);
+    this.designModeChanged(&#x27;toggle&#x27;);
+  }
+
+  /**
+   * Change to draw mode on keypress s
+   * @returns {void}
+   */
+   @HostListener(&#x27;window:keydown.s&#x27;, [&#x27;$event&#x27;])
+   private keyChangeToSelect(e) {
+     this.design_modes.select(&#x27;select&#x27;);
+     this.designModeChanged(&#x27;select&#x27;);
+   }
 
 
-  // }
+     /**
+   * Change to draw mode on keypress s
+   * @returns {void}
+   */
+      @HostListener(&#x27;window:keydown.m&#x27;, [&#x27;$event&#x27;])
+      private keyChangeToMove(e) {
+        this.design_modes.select(&#x27;move&#x27;);
+        this.designModeChanged(&#x27;move&#x27;);
+      }
+   
 /**
    * Call zoom out on Shift+o.
    * @extends WeaveComponent
