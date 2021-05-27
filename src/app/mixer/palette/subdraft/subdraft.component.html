@@ -1,5 +1,6 @@
 <div id="con-{{draft.id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
+	[style.z-index] = "zndx"
 	[class.drawing] = "disable_drag && !is_preview"
 	[cdkDragDisabled] = "disable_drag"
 	[cdkDragFreeDragPosition]="bounds.topleft"
@@ -23,7 +24,7 @@
 		<button 
 		xPosition = "start"
 		matTooltip= "Filters"
-		class="button is-small is-primary fas fa-filter"
+		class="button is-small is-primary fas fa-tint"
 		[matMenuTriggerFor]="filters"
 		xPosition="after">
 		</button>
@@ -33,10 +34,10 @@
 			<ng-container *ngFor="let ink of inks.inks">
 			  <button 
 			  mat-menu-item
-			  [matTooltip]=ink.viewValue
+			  [matTooltip]=ink.dx
 			  [name]=ink.value 
 			  [class.is-active]="inks.isSelected(ink.value)"
-			  (click)="filterActionChange(ink.value)">
+			  (click)="inkActionChange(ink.value)">
 			  {{ink.viewValue}}
 			  </button> 
 			  </ng-container>  

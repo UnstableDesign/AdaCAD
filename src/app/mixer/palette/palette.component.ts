@@ -172,7 +172,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
     subdraft.instance.patterns = this.patterns;
-    subdraft.instance.filter = this.inks.getSelected(); //default to the currently selected ink
+    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
   
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
@@ -315,7 +315,8 @@ export class PaletteComponent implements OnInit{
   private computeCellColor(ink: string, over: Cell, under: boolean): string{
 
     const res: boolean = this.computeCellValue(ink, over, under);
-    if(res ===null) return "#dddddd";
+    if(ink === 'unset' && res == true) return "#cccccc"; 
+    if(res ===null) return "#fafafa";
     if(res) return "#000000";
     return "#ffffff";      
   }
@@ -826,7 +827,7 @@ drawStarted(){
 
     const val:boolean = b_array.reduce((acc:boolean, arr) => arr.resolveToValue(p), null);   
     
-    return this.computeFilter(main.filter, a, val);
+    return this.computeFilter(main.ink, a, val);
   }
 
 /**

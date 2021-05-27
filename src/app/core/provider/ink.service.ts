@@ -23,12 +23,12 @@ export class InkService {
 
 
     this.inks = [
-      {value: 'neq', viewValue: 'Cutting Ink', dx: "inverts the state of the heddle underneith it", icon: "fas fa-adjust", selected: false},
-      {value: 'up', viewValue: 'Setting Ink', dx: "sets this heddle within the draft no matter what it was before", icon: "fas fa-square",  selected: false},
-      {value: 'down', viewValue: 'Erasing Ink', dx: "unsets this heddle within the draft no matter what it was before", icon: "far fa-square",  selected: false},
+      {value: 'neq', viewValue: 'Reversing Ink', dx: "compares this pattern with what is underneight and draws black square when they are not equal", icon: "fas fa-adjust", selected: false},
+      {value: 'up', viewValue: 'Setting Ink', dx: "sets this pattern within the draft no matter what is under it", icon: "fas fa-square",  selected: false},
+      {value: 'down', viewValue: 'Erasing Ink', dx: "places all the heddle downs atop the draft underneith it", icon: "far fa-square",  selected: false},
       {value: 'unset', viewValue: 'Removing Ink', dx: "removes the use of this heddle in the draft (for shape and inlay weaving)", icon: "fas fa-times", selected: false},
-      {value: 'and', viewValue: 'Masking Ink', dx: "only adds this pattern on top of set cells", icon: "fas fa-mask", selected: false},
-      {value: 'or', viewValue: 'Overlaying Ink', dx: "overlays on top of whatever is underneight it", icon: "fas fa-plus", selected: false}
+      {value: 'and', viewValue: 'Masking Ink', dx: "only reveals bottom pattern in areas where this pattern is black", icon: "fas fa-mask", selected: false},
+      {value: 'or', viewValue: 'Overlaying Ink', dx: "copies all black pattern cells atop the draft", icon: "fas fa-plus", selected: false}
     ];
   
     this.select('neq');

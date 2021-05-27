@@ -10,7 +10,7 @@
   </mat-expansion-panel-header>
 
 
-  <h3>Inks</h3>
+  <h3><i class="fas fa-tint"></i>Inks</h3>
   <ng-container *ngFor="let ink of inks.inks">
     <button 
     [matTooltip]=ink.viewValue
@@ -22,7 +22,7 @@
     </button> 
     </ng-container>    
   
-  <h3>Tools</h3>
+  <h3>Drawing Tools</h3>
   <ng-container *ngFor="let mode of design_modes.modes">
     <button 
     [matTooltip]=mode.viewValue

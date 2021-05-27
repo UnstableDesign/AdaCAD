@@ -3,6 +3,7 @@ import { Draft } from '../../../core/model/draft';
 import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
 import { ConnectionComponent } from '../connection/connection.component';
 import { InkService } from '../../../core/provider/ink.service';
+import { LayersService } from '../../../core/provider/layers.service';
 
 
 
@@ -40,8 +41,7 @@ export class SubdraftComponent implements OnInit {
   {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
   {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
   {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
-  {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"},
-  {value: 'delete', viewValue: 'Delete this Draft', icon: "fa fa-trash"}
+  {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
 ];
 
 
@@ -55,7 +55,7 @@ export class SubdraftComponent implements OnInit {
   }
 
   scale = 10; 
-  filter = 'neq'; //can be or, and, neq, not, splice
+  ink = 'neq'; //can be or, and, neq, not, splice
   counter:number  =  0; // keeps track of how frequently to call the move functions
   counter_limit: number = 50;  //this sets the threshold for move calls, lower number == more calls
   last_ndx:Interlacement = {i: -1, j:-1, si: -1}; //used to check if we should recalculate a move operation
@@ -63,15 +63,18 @@ export class SubdraftComponent implements OnInit {
   moving: boolean  = false;
   disable_drag: boolean = false;
   is_preview: boolean = false;
+  zndx = 0;
 
 
-  constructor(private inks: InkService) { 
-   
+  constructor(private inks: InkService, private layer: LayersService) { 
+    this.zndx = layer.createLayer();
+    console.log(this.zndx);
   }
 
   ngOnInit(){
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
+
 
   }
 
@@ -108,13 +111,16 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  public filterActionChange(event: any){
-    this.filter = event;
-
+  public inkActionChange(event: any){
+    this.ink = event;
+    this.drawDraft();
   }
 
+  /**
+   * gets the next z-ndx to place this in front
+   */
   public setAsPreview(){
-    this.is_preview = true;
+     this.zndx = this.layer.createLayer();
   }
 
  
@@ -249,17 +255,18 @@ export class SubdraftComponent implements OnInit {
     for (let i = 0; i < this.draft.visibleRows.length; i++) {
       for (let j = 0; j < this.draft.warps; j++) {
         let row:number = this.draft.visibleRows[i];
-    
         let is_up = this.draft.isUp(row,j);
         let is_set = this.draft.isSet(row, j);
         if(is_set){
-          this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
-          this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
+          if(this.ink === 'unset' && is_up){
+            this.cx.fillStyle = "#999999"; 
+          }else{
+            this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
+          }
         } else{
-          // this.cx.fillStyle =  '#cccccc' ;
-          // this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
+          this.cx.fillStyle =  '#cccccc';
         }
- 
+        this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
       }
     }
   }
