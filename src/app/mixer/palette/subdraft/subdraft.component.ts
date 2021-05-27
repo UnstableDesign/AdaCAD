@@ -26,6 +26,7 @@ export class SubdraftComponent implements OnInit {
 
   @Input()  draft: Draft;
   @Input()  patterns: any;
+  @Input()  viewport: Bounds;
   @Input()  parent: ConnectionComponent;
   @Input()  children: Array<ConnectionComponent>;
   @Output() onSubdraftMove = new EventEmitter <any>(); 
@@ -273,18 +274,7 @@ export class SubdraftComponent implements OnInit {
   }
 
 
-  /**
-   * scans the draft and deletes any boundary rows or columns that are entirely unset. 
-   * Called after selection 
-   * @returns a boolean to say if this compoennt is empty or not after the scan
-   */
-  resize():boolean{
-    const hasrows:boolean = this.draft.trimUnsetRows();
-    if(!hasrows) return true;
 
-    const hascols = this.draft.trimUnsetCols();
-    return false;
-  }
 
   /**
    * gets the position of this elment on the canvas. Dyanic top left might be bigger due to scolling intersection
@@ -316,8 +306,8 @@ export class SubdraftComponent implements OnInit {
 
   private getAdjusted(p: Point) : any {   
     return {
-      x: p.x,
-      y: p.y - 64
+      x: p.x + this.viewport.topleft.x,
+      y: p.y + this.viewport.topleft.y -62
     } 
   }
   
@@ -348,12 +338,13 @@ export class SubdraftComponent implements OnInit {
   dragMove($event: any) {
     //position of pointer of the page
     const pointer:Point = $event.pointerPosition;
+
     const relative:Point = this.getAdjusted(pointer);
     const adj:Point = this.snapToGrid(relative);
 
     this.bounds.topleft = adj;
 
-    const ndx = this.resolvePointToAbsoluteNdx(relative);
+    const ndx = this.resolvePointToAbsoluteNdx(adj);
     
     if(this.counter%this.counter_limit === 0 || !this.isSameNdx(this.last_ndx, ndx)){
       this.onSubdraftMove.emit({id: this.draft.id});

@@ -143,7 +143,7 @@ export class MixerComponent implements OnInit {
   }
 
   private onWindowScroll(data: any) {
-    //this.palette.rescale();
+    this.palette.handleScroll(data);
   }
 
 

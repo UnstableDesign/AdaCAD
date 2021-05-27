@@ -104,6 +104,13 @@ export class PaletteComponent implements OnInit{
   
 
   /**
+   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
+   */
+   viewport:Bounds;
+  
+
+
+  /**
    * Constructs a palette object
    * @param design_modes a reference to the service containing the current design modes and selections
    * @param resolver a reference to the factory component for dynamically generating components
@@ -111,6 +118,11 @@ export class PaletteComponent implements OnInit{
    */
   constructor(private design_modes: DesignmodesService, private inks: InkService, private layers: LayersService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
+    this.viewport = {
+      topleft: {x:0, y:0}, 
+      width: 0, 
+      height:0
+    };
   }
 
 /**
@@ -153,6 +165,11 @@ export class PaletteComponent implements OnInit{
 
   }
 
+  handleScroll(data: any){
+    const div:HTMLElement = document.getElementById('scrollable-container');
+    this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
+  }
+
   closeSnackBar(){
     this._snackBar.dismiss();
   }
@@ -182,6 +199,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
     subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
+    subdraft.instance.viewport = this.viewport;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
   
@@ -524,7 +542,7 @@ export class PaletteComponent implements OnInit{
  */
 drawStarted(){
 
-  this.canvas_zndx = this.layers.createLayer(); 
+  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
   this.scratch_pad = [];
   for(let i = 0; i < this.canvas.height; i+=this.scale ){
       const row = [];
@@ -620,7 +638,7 @@ drawStarted(){
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
 
-      const ndx:any = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+      const ndx:any = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
       this.last = ndx;
       this.selection.start = this.last;
       this.removeSubscription();    
@@ -645,7 +663,7 @@ drawStarted(){
    */
   onMove(event){
 
-    const ndx:Interlacement = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+    const ndx:Interlacement = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
 
     if(this.isSameNdx(this.last, ndx)) return;
 
