@@ -12,6 +12,7 @@ import { Pattern } from '../../core/model/pattern';
 import { dsv } from 'd3-fetch';
 import { sampleSize } from 'lodash';
 import { InkService } from '../../core/provider/ink.service';
+import {cloneDeep} from 'lodash';
 
 
 @Component({
@@ -314,9 +315,9 @@ export class PaletteComponent implements OnInit{
   private computeCellColor(ink: string, over: Cell, under: boolean): string{
 
     const res: boolean = this.computeCellValue(ink, over, under);
-    if(res ===null) return "#cccccc";
-    if(res) return "#000000"
-    return "#ffffff"      
+    if(res ===null) return "#dddddd";
+    if(res) return "#000000";
+    return "#ffffff";      
   }
 
   /**
@@ -465,12 +466,10 @@ export class PaletteComponent implements OnInit{
    * @param obj contains the id of the moving subdraft
    */
   subdraftStarted(obj: any){
-    console.log("started");
 
     if(obj === null) return;
 
     if(this.design_modes.isSelected("move")){
-      console.log("moving");
   
       //get the reference to the draft that's moving
       const moving = this.getSubdraft(obj.id);
@@ -593,8 +592,8 @@ drawStarted(){
       }
     }
 
-    const had_merge = this.mergeSubdrafts(sd);
-    console.log("had a merge?", had_merge);
+    // const had_merge = this.mergeSubdrafts(sd);
+    // console.log("had a merge?", had_merge);
 
   }
 
@@ -689,6 +688,7 @@ drawStarted(){
 
     //create the selection as subdraft
     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+    
     const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
     sc.setComponentBounds(bounds);
     sc.disableDrag();
@@ -767,14 +767,25 @@ drawStarted(){
 
      if(obj === null) return;
   
-      if(this.hasPreview()) this.removePreview();
+      //creaet a subdraft of this intersection
+      if(this.hasPreview()){
+        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}));
+        sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
+        sd.setComponentPosition(this.preview.bounds.topleft);
+        sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
+        sd.setAsPreview(); //this is a hack - get better way of brining tot fronott
+        this.removePreview();
+      } 
+      
       //get the reference to the draft that's moving
       const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
 
-      const had_merge = this.mergeSubdrafts(moving);
-      console.log("had merge", had_merge);
-      if(!had_merge) moving.drawDraft();
+      //disable this too see what happens
+      // const had_merge = this.mergeSubdrafts(moving);
+      // console.log("had merge", had_merge);
+      // if(!had_merge) 
+      // moving.drawDraft();
 
   }
 

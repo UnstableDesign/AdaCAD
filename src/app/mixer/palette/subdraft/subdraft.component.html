@@ -84,6 +84,14 @@
 				</button>    
 			  </ng-container>
 		</mat-menu>
+
+		<button 
+		matTooltip= "Delete"
+		class="button is-small is-primary fas fa-times"
+		[style.color]="button_color" 
+		[name]="delete"
+		(click)="designActionChange('delete')">
+		</button>
 	
 	
    </div>
