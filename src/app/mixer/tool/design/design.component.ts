@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { InkService } from '../../../core/provider/ink.service';
 import * as _ from 'lodash';
 
 
@@ -22,11 +23,15 @@ export class DesignComponent implements OnInit {
 
   selected = 0;
 
-  constructor(private design_modes: DesignmodesService, private dialog: MatDialog) { 
+  constructor(private design_modes: DesignmodesService, private inks: InkService, private dialog: MatDialog) { 
   }
 
   ngOnInit() {
 
+  }
+
+  inkChanged(e:any){
+    this.inks.select(e.target.name);
   }
 
 

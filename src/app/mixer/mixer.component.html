@@ -128,7 +128,8 @@
   </mat-drawer>
 
   <app-palette #palette 
-  [patterns] = "default_patterns" >
+  [patterns] = "default_patterns"
+  (onDesignModeChange)="designModeChanged($event)" >
   </app-palette>
 
 

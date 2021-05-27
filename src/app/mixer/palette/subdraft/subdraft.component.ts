@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@an
 import { Draft } from '../../../core/model/draft';
 import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
 import { ConnectionComponent } from '../connection/connection.component';
+import { InkService } from '../../../core/provider/ink.service';
 
 
 
@@ -64,7 +65,7 @@ export class SubdraftComponent implements OnInit {
   is_preview: boolean = false;
 
 
-  constructor() { 
+  constructor(private inks: InkService) { 
    
   }
 
@@ -116,26 +117,7 @@ export class SubdraftComponent implements OnInit {
     this.is_preview = true;
   }
 
-  public computeFilter(a: boolean, b: boolean):boolean{
-
-
-    if(this.filter == 'or'){
-      if(a === null) return b;
-      if(b === null) return a;
-      return (a || b);
-    }else if(this.filter ==="and"){
-      if(a === null || b === null) return null;
-      return (a && b)
-    }else if(this.filter === "neq"){
-
-      if(a === null) return b;
-      if(b === null) return a;
-      return (a !== b);
-    }else if(this.filter === "inv"){
-      return (!b);
-    }
-
-  }
+ 
 
   /**
    * does this subdraft exist at this point?

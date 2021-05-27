@@ -25,21 +25,18 @@ export class DesignmodesService {
 
     this.selected = [];
 
-  
-  const drawChildren: Array<DesignMode> = [
-    {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust",  children: [], selected: false},
-    {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square",  children: [], selected: false},
-    {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square",  children: [], selected: false}
-  ];
 
+    
+  
   this.modes = [
-    {value: 'draw', viewValue: 'Draw', icon: "fas fa-pen", children: drawChildren, selected: false},
+    {value: 'draw', viewValue: 'Draw', icon: "fas fa-pen", children: [], selected: false},
+    {value: 'shape', viewValue: 'Shape', icon: "fas fa-shapes", children: [], selected: false},
     {value: 'select', viewValue: 'Select', icon: "fas fa-expand", children: [], selected:false},
     {value: 'move', viewValue: 'Move Drafts', icon: "fas fa-arrows-alt", children: [], selected:false},
-    {value: 'operator', viewValue: 'Add Operation', icon: "fas fa-network-wired", children: [], selected:false}
+    {value: 'operator', viewValue: 'Add Operation', icon: "fas fa-network-wired", children: [], selected:false},
   ];
 
-  this.select('toggle');
+  this.select('draw');
 
   console.log("selected", this.selected);
   

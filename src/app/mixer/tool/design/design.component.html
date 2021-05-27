@@ -10,56 +10,31 @@
   </mat-expansion-panel-header>
 
 
-
-
-<!--  <div class="select_slider">
-     Select Cell
-      <mat-slide-toggle
-          [checked]="design_mode === 'select'"
-          (change)="toggleChange($event)">
-      </mat-slide-toggle>
-    Select Region
-  </div> -->
-
-
-    <button matTooltip= "Drawing Tools"
-    [matMenuTriggerFor]="drawTools"
-    name="Drawing Tools" 
-    class="button is-small is-primary fas fa-pen"
-    [class.is-active]="design_modes.isSelected('draw')"
+  <h3>Inks</h3>
+  <ng-container *ngFor="let ink of inks.inks">
+    <button 
+    [matTooltip]=ink.viewValue
+    [name]=ink.value 
+    class="button is-small is-primary {{ink.icon}}"
+    [class.is-active]="inks.isSelected(ink.value)"
+    [style.color]="button_color"
+    (click)="inkChanged($event)">
+    </button> 
+    </ng-container>    
+  
+  <h3>Tools</h3>
+  <ng-container *ngFor="let mode of design_modes.modes">
+    <button 
+    [matTooltip]=mode.viewValue
+    [name]=mode.value 
+    class="button is-small is-primary {{mode.icon}}"
+    [class.is-active]="design_modes.isSelected(mode.value)"
     [style.color]="button_color"
     (click)="designModeChange($event)">
-  </button> 
-
-  <mat-menu #drawTools="matMenu">
-    <ng-container *ngFor="let mode of design_modes.getMode('draw').children">
-      <button mat-menu-item
-      [matTooltip]=mode.viewValue 
-      [name]=mode.value 
-      class="button is-small is-primary {{mode.icon}}"
-      [class.is-active]="design_modes.isSelected(mode.value)"
-      [style.color]="button_color"
-      (click)="designModeChange($event)">
-      </button> 
-      </ng-container>     
- </mat-menu>
+    </button> 
+    </ng-container>   
 
 
-<button matTooltip= "Select Region"
-      name="select" 
-      class="button is-small is-primary fas fa-expand"
-      [class.is-active]="design_modes.isSelected('select')"
-      [style.color]="button_color"
-      (click)="designModeChange($event)">
-</button>
-
-<button matTooltip= "Move Subdrafts"
-      name="move" 
-      class="button is-small is-primary fas fa-arrows-alt"
-      [class.is-active]="design_modes.isSelected('move')"
-      [style.color]="button_color"
-      (click)="designModeChange($event)">
-</button>
 
 
 

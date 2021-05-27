@@ -249,8 +249,8 @@ export class MixerComponent implements OnInit {
    */
   @HostListener('window:keydown.d', ['$event'])
   private keyChangetoDrawMode(e) {
-    this.design_modes.select('toggle');
-    this.designModeChanged('toggle');
+    this.design_modes.select('draw');
+    this.designModeChanged('draw');
   }
 
   /**

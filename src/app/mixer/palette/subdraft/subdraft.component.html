@@ -29,38 +29,21 @@
 		</button>
 
 		<mat-menu #filters="matMenu">
+
+			<ng-container *ngFor="let ink of inks.inks">
+			  <button 
+			  mat-menu-item
+			  [matTooltip]=ink.viewValue
+			  [name]=ink.value 
+			  [class.is-active]="inks.isSelected(ink.value)"
+			  (click)="filterActionChange(ink.value)">
+			  {{ink.viewValue}}
+			  </button> 
+			  </ng-container>  
 		 
-			<button [matTooltip]= "union" 
-			mat-menu-item
-			selected
-			[name]="union"
-			(click)="filterActionChange('or')">
-			Union
-			</button>   
 			
-			<button 
-			[matTooltip]= "intersection" 
-			mat-menu-item
-			[name]="intersection"
-			(click)="filterActionChange('and')">
-			Intersection
-			</button>   
 
-			<button 
-			[matTooltip]= "overlay" 
-			mat-menu-item
-			[name]="overlay"
-			(click)="filterActionChange('neq')">
-			Overlay
-			</button>  
-
-			<!-- <button [matTooltip]= "overlay" 
-			mat-menu-item
-			[name]="overlay"
-			class="button is-small is-primary "
-			(click)="filterActionChange('neq')">
-			Overlay
-			</button>    -->
+	
 
 
 		</mat-menu>
