@@ -1,8 +1,8 @@
  <!--render each of the subdrafts as an SVG Element to take advantage of intersection-->
 
 <ng-container #vc (mousedown)="onMouseDown($event)">
-<div class="palette-container">
-<canvas id="scratch"></canvas>
+<div class="palette-container" [style.z-index]="div_zndx" [class.is-mask]="inks.selectedHasMask()">
+ <canvas id="scratch" [style.z-index]="canvas_zndx"></canvas>
 </div>
 </ng-container>
 

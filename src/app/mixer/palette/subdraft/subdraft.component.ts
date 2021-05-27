@@ -111,8 +111,9 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  public inkActionChange(event: any){
-    this.ink = event;
+  public inkActionChange(name: any){
+    this.ink = name;
+    this.inks.select(name);
     this.drawDraft();
   }
 
@@ -264,7 +265,7 @@ export class SubdraftComponent implements OnInit {
             this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
           }
         } else{
-          this.cx.fillStyle =  '#cccccc';
+          this.cx.fillStyle =  '#00000070';
         }
         this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
       }

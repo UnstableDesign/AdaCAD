@@ -9,6 +9,7 @@ import { ConnectionModal } from './modal/connection/connection.modal';
 import { LabelModal } from './modal/label/label.modal';
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
+import { DesignComponent } from './tool/design/design.component';
 
 
 //disables some angular checking mechanisms
@@ -60,6 +61,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild('bitmapImage', {static: false}) bitmap;
   @ViewChild(PaletteComponent, {static: false}) palette;
+  @ViewChild(DesignComponent, {static: false}) design_tool;
 
  /**
    * The weave Timeline object.
@@ -153,6 +155,15 @@ export class MixerComponent implements OnInit {
     this.palette.designModeChanged();
   }
 
+  /**
+   * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
+   * @param name the name of the current design mode
+   */
+  private inkChanged(name: string){
+     this.palette.inkChanged();
+  }
+  
+  
 
 
   // reInit(result){

@@ -40,11 +40,10 @@
 
         </app-view>
 
-        <app-design
+        <app-design #design_tool
         [view_mode] = "render?.current_view"
-        [materials]="draft?.shuttles"
         (onDesignModeChange)="designModeChanged($event);"
-      >
+        (onInkChange)="inkChanged($event)">
         </app-design> 
 
         <app-patterns 

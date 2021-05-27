@@ -13,6 +13,7 @@ import { dsv } from 'd3-fetch';
 import { sampleSize } from 'lodash';
 import { InkService } from '../../core/provider/ink.service';
 import {cloneDeep} from 'lodash';
+import { LayersService } from '../../core/provider/layers.service';
 
 
 @Component({
@@ -30,8 +31,6 @@ export class PaletteComponent implements OnInit{
    * @property {Array<Pattern>}
    */ 
   @Input() patterns: Array<Pattern>;
-
-
   @Output() onDesignModeChange: any = new EventEmitter();
 
   /**
@@ -97,6 +96,11 @@ export class PaletteComponent implements OnInit{
    */
 
    scale: number;
+
+  /**
+   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
+   */
+   canvas_zndx:number = -1;
   
 
   /**
@@ -105,7 +109,7 @@ export class PaletteComponent implements OnInit{
    * @param resolver a reference to the factory component for dynamically generating components
    * @param _snackBar a reference to the snackbar component that shows data on move and select
    */
-  constructor(private design_modes: DesignmodesService, private inks: InkService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
+  constructor(private design_modes: DesignmodesService, private inks: InkService, private layers: LayersService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
   }
 
@@ -115,6 +119,7 @@ export class PaletteComponent implements OnInit{
   ngOnInit(){
     this.scale = 10;
     this.vc.clear();
+    console.log(this.inks);
   }
 
   /**
@@ -152,9 +157,15 @@ export class PaletteComponent implements OnInit{
     this._snackBar.dismiss();
   }
 
-  //called when the palette needs to change the design mode
+  //called when the palette needs to change the design mode, emits output to parent
   changeDesignmode(name: string) {
     this.design_modes.select(name);
+    const mode = this.design_modes.getMode(name);
+    if(!mode.enable_inks){
+        this.inks.select('neq');
+    }
+
+    
     this.onDesignModeChange.emit(name);
   }
 
@@ -246,6 +257,7 @@ export class PaletteComponent implements OnInit{
     }
 
   }
+
 
    private removeSubscription() {    
     if (this.moveSubscription) {
@@ -512,7 +524,7 @@ export class PaletteComponent implements OnInit{
  */
 drawStarted(){
 
-  
+  this.canvas_zndx = this.layers.createLayer(); 
   this.scratch_pad = [];
   for(let i = 0; i < this.canvas.height; i+=this.scale ){
       const row = [];
@@ -556,6 +568,8 @@ drawStarted(){
    * @returns 
    */
   processDrawingEnd(){
+
+    this.canvas_zndx = -1;
 
     if(this.scratch_pad === undefined) return;
     if(this.scratch_pad[0] === undefined) return;
@@ -670,6 +684,8 @@ drawStarted(){
         this.changeDesignmode('move');
       }else if(this.design_modes.isSelected("draw")){
         this.processDrawingEnd();
+        this.changeDesignmode('move');
+
       } 
 
       //unset vars that would have been created on press
@@ -771,8 +787,10 @@ drawStarted(){
       //creaet a subdraft of this intersection
       if(this.hasPreview()){
         const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}));
+        const to_right: Point = this.preview.getTopleft();
+        to_right.x += this.preview.bounds.width + 20;
         sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
-        sd.setComponentPosition(this.preview.bounds.topleft);
+        sd.setComponentPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
         sd.setAsPreview(); //this is a hack - get better way of brining tot fronott
         this.removePreview();

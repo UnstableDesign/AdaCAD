@@ -6,6 +6,7 @@ interface DesignMode{
   viewValue: string;
   icon: string;
   children: Array<DesignMode>;
+  enable_inks: boolean;
   selected: boolean;
 }
 
@@ -29,11 +30,10 @@ export class DesignmodesService {
     
   
   this.modes = [
-    {value: 'draw', viewValue: 'Draw', icon: "fas fa-pen", children: [], selected: false},
-    {value: 'shape', viewValue: 'Shape', icon: "fas fa-shapes", children: [], selected: false},
-    {value: 'select', viewValue: 'Select', icon: "fas fa-expand", children: [], selected:false},
-    {value: 'move', viewValue: 'Move Drafts', icon: "fas fa-arrows-alt", children: [], selected:false},
-    {value: 'operator', viewValue: 'Add Operation', icon: "fas fa-network-wired", children: [], selected:false},
+    {value: 'draw', viewValue: 'Draw', icon: "fas fa-pen", children: [], enable_inks: true, selected: false},
+    {value: 'shape', viewValue: 'Shape', icon: "fas fa-shapes", children: [], enable_inks: true, selected: false},
+    {value: 'select', viewValue: 'Merge', icon: "fas fa-expand", children: [], enable_inks: false, selected:false},
+    {value: 'move', viewValue: 'Move', icon: "fas fa-arrows-alt", children: [], enable_inks: false, selected:false},
   ];
 
   this.select('draw');
@@ -102,6 +102,7 @@ export class DesignmodesService {
   }
 
 
+
   /**
    * Get the current modes that are selected
    * @returns returns the collection of selected modes
@@ -118,6 +119,15 @@ export class DesignmodesService {
   isSelected(name:string):boolean{
     const found:DesignMode = this.selected.find(el => el.value == name);
     return (found === undefined) ? false : true;
+  }
+
+  selectedHasInkEnabled():boolean{
+    let enabled:boolean = false;
+    const modes: Array<DesignMode> = this.getSelected();
+    modes.forEach(mode =>{
+     enabled = mode.enable_inks;
+    });
+    return enabled;
   }
  
 

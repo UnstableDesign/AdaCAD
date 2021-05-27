@@ -15,15 +15,15 @@ import * as _ from 'lodash';
 
 export class DesignComponent implements OnInit {
   @Input()  view_mode;
-  @Input()  materials;
   @Output() onDesignModeChange: any = new EventEmitter();
+  @Output() onInkChange: any = new EventEmitter();
 
   button_color = "#ff4081";
 
 
   selected = 0;
 
-  constructor(private design_modes: DesignmodesService, private inks: InkService, private dialog: MatDialog) { 
+  constructor(private design_modes: DesignmodesService, private inks: InkService) { 
   }
 
   ngOnInit() {
@@ -31,8 +31,12 @@ export class DesignComponent implements OnInit {
   }
 
   inkChanged(e:any){
+    console.log("changing to", e.target.name);
     this.inks.select(e.target.name);
+    this.onInkChange.emit(e.target.name);
   }
+
+
 
 
   designModeChange(e: any) {

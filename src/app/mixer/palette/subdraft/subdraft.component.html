@@ -21,31 +21,27 @@
 	</div>
 
 	<div class="subdraft-details"> 
+		<div class ="align-top">
 		<button 
 		xPosition = "start"
-		matTooltip= "Filters"
+		matTooltip= "Inks"
 		class="button is-small is-primary fas fa-tint"
 		[matMenuTriggerFor]="filters"
 		xPosition="after">
 		</button>
 
 		<mat-menu #filters="matMenu">
-
-			<ng-container *ngFor="let ink of inks.inks">
-			  <button 
+			<ng-container *ngFor="let i of inks.getInks()">
+			<button 
 			  mat-menu-item
-			  [matTooltip]=ink.dx
-			  [name]=ink.value 
-			  [class.is-active]="inks.isSelected(ink.value)"
-			  (click)="inkActionChange(ink.value)">
-			  {{ink.viewValue}}
+			  [matTooltip]=i.dx
+			  [name]=i.viewValue 
+			  [class.is-active]=i.selected
+			  (click)="inkActionChange(i.value)">
+			  {{i.viewValue}}
 			  </button> 
 			  </ng-container>  
-		 
-			
-
-	
-
+		
 
 		</mat-menu>
 
@@ -85,7 +81,8 @@
 				</button>    
 			  </ng-container>
 		</mat-menu>
-
+		</div>
+		<div class="align-bottom">
 		<button 
 		matTooltip= "Delete"
 		class="button is-small is-primary fas fa-times"
@@ -93,6 +90,7 @@
 		[name]="delete"
 		(click)="designActionChange('delete')">
 		</button>
+	</div>
 	
 	
    </div>

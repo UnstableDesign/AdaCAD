@@ -8,6 +8,7 @@ interface Ink{
   dx: string;
   icon: string;
   selected: boolean;
+  uses_mask: boolean;
 }
 
 
@@ -15,20 +16,20 @@ interface Ink{
   providedIn: 'root'
 })
 export class InkService {
-  inks: Array<Ink>;
-  selected: Ink;
+  private inks: Array<Ink>;
+  private selected: Ink;
 
 
   constructor() { 
 
 
     this.inks = [
-      {value: 'neq', viewValue: 'Reversing Ink', dx: "compares this pattern with what is underneight and draws black square when they are not equal", icon: "fas fa-adjust", selected: false},
-      {value: 'up', viewValue: 'Setting Ink', dx: "sets this pattern within the draft no matter what is under it", icon: "fas fa-square",  selected: false},
-      {value: 'down', viewValue: 'Erasing Ink', dx: "places all the heddle downs atop the draft underneith it", icon: "far fa-square",  selected: false},
-      {value: 'unset', viewValue: 'Removing Ink', dx: "removes the use of this heddle in the draft (for shape and inlay weaving)", icon: "fas fa-times", selected: false},
-      {value: 'and', viewValue: 'Masking Ink', dx: "only reveals bottom pattern in areas where this pattern is black", icon: "fas fa-mask", selected: false},
-      {value: 'or', viewValue: 'Overlaying Ink', dx: "copies all black pattern cells atop the draft", icon: "fas fa-plus", selected: false}
+      {value: 'neq', viewValue: 'Reversing Ink', dx: "REVERSING INK compares this pattern with what is underneight and draws black square when they are not equal", icon: "fas fa-adjust", selected: false, uses_mask:false},
+      {value: 'up', viewValue: 'Setting Ink', dx: "SETTING INK sets this pattern within the draft no matter what is under it", icon: "fas fa-square",  selected: false, uses_mask:false},
+      {value: 'down', viewValue: 'Erasing Ink', dx: "ERASING INK places all the heddle downs atop the draft underneith it", icon: "far fa-square",  selected: false, uses_mask:false},
+      {value: 'unset', viewValue: 'Removing Ink', dx: "REMOVING INK removes the use of this heddle in the draft (for shape and inlay weaving)", icon: "fas fa-times", selected: false, uses_mask:false},
+      {value: 'and', viewValue: 'Masking Ink', dx: "MASKING INK only reveals bottom pattern in areas where this pattern is black", icon: "fas fa-mask", selected: false, uses_mask:true},
+      {value: 'or', viewValue: 'Overlaying Ink', dx: "OVERLAYING INK copies all black pattern cells atop the draft", icon: "fas fa-plus", selected: false, uses_mask:false}
     ];
   
     this.select('neq');
@@ -37,6 +38,14 @@ export class InkService {
   
   }
 
+  getInks():Array<Ink>{
+    return this.inks;
+  }
+
+  selectedHasMask():boolean{
+    const mode:Ink = this.getInk(this.getSelected());
+    return mode.uses_mask;
+  }
 
   /**
    * A function to retreive an ink by name. 
@@ -75,7 +84,9 @@ export class InkService {
          ink.selected = true;
          found = true;
          this.selected = ink;
-       } 
+       } else{
+         ink.selected = false;
+       }
     });
  
     return found;
