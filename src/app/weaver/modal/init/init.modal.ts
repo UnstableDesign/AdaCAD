@@ -79,9 +79,9 @@ export class InitModal implements OnInit {
         var alpha = img[idx + 3];
 
         if (threshold < 750 && alpha != 0) {
-          data[i].push(true);
+          data[i].push(new Cell(true));
         } else {
-          data[i].push(false);
+          data[i].push(new Cell(false));
         }
       }
     }
@@ -115,9 +115,9 @@ export class InitModal implements OnInit {
     this.draft.pattern = data;
     this.draft.name = obj.name;
 
-    //LD comment - this might be causing a problem as the draft object is in charge of constructing the loom
-    //I think its better to have draft declare it because that way it will work with adaCAD uploads 
-    //what you can do instead is make a draft.loom = {} and and add relevant feilds to that, then they will be fed into the constructor
+    console.log(this.draft);
+
+   
     let frames = this.getInt("Shafts", e);
     let treadles = this.getInt("Treadles", e);
     this.draft.loom = new Loom('frame', this.draft.wefts, this.draft.warps, frames, treadles);
@@ -134,10 +134,7 @@ export class InitModal implements OnInit {
     if (this.getBool("TREADLING", stringWithoutMetadata)) {
       var treadling = this.getTreadling(stringWithoutMetadata);
       this.draft.loom.treadling = treadling;
-      this.draft.visibleRows = [];
-      for (var i = 0; i < this.draft.wefts; i++) {
-        this.draft.visibleRows.push(i);
-      }
+      
     }
     if (this.getBool("THREADING", stringWithoutMetadata)) {
       var threading = this.getThreading(stringWithoutMetadata);
@@ -152,9 +149,9 @@ export class InitModal implements OnInit {
       if (this.getString("Form", e) === "RGB") {
         var color_table = this.getColorTable(e);
         var shuttles = color_table;
-        var warp_systems = color_table;
+        //var warp_systems = color_table;
         this.draft.shuttles = shuttles;
-        this.draft.warp_systems = warp_systems;
+        //this.draft.warp_systems = warp_systems;
         this.draft.rowShuttleMapping = this.getRowToShuttleMapping(e);
         this.draft.colShuttleMapping = this.getColToShuttleMapping(e);
       }
@@ -295,7 +292,6 @@ export class InitModal implements OnInit {
       endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
       line = e.substring(startIndex,endIndex);
     }
-
     return treadling;
   }
 

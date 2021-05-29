@@ -1,4 +1,5 @@
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { SelectionComponent } from './selection/selection.component';
@@ -6,9 +7,10 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point } from '../../core/model/point';
-import { Pattern } from '../../core/model/pattern';
-import { PatternService } from '../../core/provider/pattern.service';
+import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
+import { Pattern } from '../../core/model/pattern'; 
+import { dsv } from 'd3-fetch';
+import { sampleSize } from 'lodash';
 
 
 @Component({
@@ -16,13 +18,17 @@ import { PatternService } from '../../core/provider/pattern.service';
   templateUrl: './palette.component.html',
   styleUrls: ['./palette.component.scss']
 })
+
+
 export class PaletteComponent implements OnInit{
 
-  @Input()  subdrafts: any;
 
-  @Input()  design_mode: any;
+  /**
+   * a reference to the default patterns (used for fill operations)
+   * @property {Array<Pattern>}
+   */ 
+  @Input() patterns: Array<Pattern>;
 
-  @Input() timeline: any;
 
   /**
    * Subscribes to move event after a touch event is started.
@@ -30,57 +36,111 @@ export class PaletteComponent implements OnInit{
    */
   moveSubscription: Subscription;
 
+
+  /**
+   * A container that supports the automatic generation and removal of the components inside of it
+   */
   @ViewChild('vc', {read: ViewContainerRef, static: true}) vc: ViewContainerRef;
 
-  // variables to store the subdrafts contained in this view
+  /**
+   * holds a reference to the Subdraft Components within this view
+   * @property {Array<SubdraftComponent>}
+   */
   subdraft_refs: Array<SubdraftComponent>;
+
+    /**
+   * a placeholder to reference a temporary rendering of an union between subdrafts
+   * used to preview the changes that will happen if the subdraft is to be dropped at that point
+   * @property {SubdraftComponent}
+   */
+  preview: SubdraftComponent;
+
+  /**
+   * a reference to the viewref for the intersection component to ease addign and deleting
+   * @property {ViewRef}
+   */
+  preview_ref: ViewRef;
+     
+  /**
+   * holds a reference to the selection component
+   * @property {Selection}
+   */
   selection = new SelectionComponent();
 
-// variables to handle on draw events that are not associated with any particular subdraft
+  /**
+   * holds the data of events drawn on this component (that are not associated with a subdraft)
+   * @property {Array<Array<Cell>>}
+   */
   scratch_pad: Array<Array<Cell>> = [];
+
+  /**
+   * HTML Canvas element that draws the selection and currently cells drawn on this component
+   * @property {Canvas}
+   */
   canvas: HTMLCanvasElement;
   cx: any;
-  last: Point;
+
+  /**
+   * stores an i and j of the last user selected location within the component
+   * @property {Point}
+   */
+  last: Interlacement;
 
 
-  // variable to control zoom across the palette, though, each subdraft can be sized as well
-  scale: number;
+  /**
+   * a value to represent the current user defined scale for this component. 
+   * @property {number}
+   */
+
+   scale: number;
   
-  // variable to store the default patterns loaded by the pattern service
-  patterns: Array<Pattern> = [];
 
-  
-
-  constructor(private ps: PatternService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
+  /**
+   * Constructs a palette object
+   * @param design_modes a reference to the service containing the current design modes and selections
+   * @param resolver a reference to the factory component for dynamically generating components
+   * @param _snackBar a reference to the snackbar component that shows data on move and select
+   */
+  constructor(private design_modes: DesignmodesService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
-    this.ps.getPatterns().subscribe((res) => {
-      for(var i in res.body){
-        this.patterns.push(new Pattern(res.body[i]));
-      }
-   }); 
   }
 
-
+/**
+ * Called when palette is initailized
+ */
   ngOnInit(){
     this.scale = 10;
     this.vc.clear();
-
-  
-    // this.subdrafts.forEach(element => {
-    //  this.createSubDraft(element);
-    // });
   }
 
+  /**
+   * unsubscribes to all open subscriptions and clears the view component
+   */
+  ngOnDestroy(){
+
+    this.subdraft_refs.forEach(element => {
+      element.onSubdraftStart.unsubscribe();
+      element.onSubdraftDrop.unsubscribe();
+      element.onSubdraftMove.unsubscribe();
+      element.onDeleteCalled.unsubscribe();
+    });
+
+    this.vc.clear();
+    
+  }
+
+  /**
+   * Gets references to view items and adds to them after the view is initialized
+   */
   ngAfterViewInit(){
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
-    this.canvas.width = 1000;
-    this.canvas.height = 1000;
+    this.canvas.width = 5000;
+    this.canvas.height = 5000;
 
-    console.log(this.selection);
     this.selection.scale = this.scale;
     this.selection.active = false;
-    console.log(this.selection.getDraftId());
+    this.designModeChanged();
 
   }
 
@@ -89,47 +149,94 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  ngOnDestroy(){
 
-    this.subdraft_refs.forEach(element => {
-      element.onSubdraftStart.unsubscribe();
-      element.onSubdraftDrop.unsubscribe();
-      element.onSubdraftMove.unsubscribe();
-    });
-
-    this.vc.clear();
-    
-  }
-
+  /**
+   * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
   createSubDraft(d: Draft):SubdraftComponent{
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
     subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
+    subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
-    console.log(this.patterns);
     subdraft.instance.patterns = this.patterns;
-
+  
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
   }
 
-  // createSelection():SelectionComponent{
-  //   const factory = this.resolver.resolveComponentFactory(SelectionComponent);
-  //   const selection = this.vc.createComponent<SelectionComponent>(factory);
-  //   selection.instance.scale = this.scale;
-  //   // subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
-  //   // subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
-  //   // subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
+  /**
+   * removes the subdraft sent to the function
+   * @param subdraft 
+   */
+  removeSubdraft(subdraft: SubdraftComponent){
+    const ndx = this.subdraft_refs.findIndex((sr) => (subdraft.canvas.id.toString() === sr.canvas.id.toString()));
+    this.vc.remove(ndx);
+    this.subdraft_refs.splice(ndx, 1);
+  }
 
-  //   this.selection_ref = selection.hostView;
-  //   this.selection_instance = selection.instance;
-  //   return selection.instance;
-  // }
+    /**
+   * dynamically creates a subdraft component with specific requirements of the intersection, adds its inputs and event listeners, pushes the subdraft to the list of references
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
+    createAndSetPreview(d: Draft){
+      const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
+      const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+      subdraft.instance.draft = d;
+      subdraft.instance.setAsPreview();
+      subdraft.instance.disableDrag();
+      this.preview_ref = subdraft.hostView;
+      this.preview = subdraft.instance;
+    }
 
-/// ON PALETTE MOUSE FUNCTIONS ///
+    hasPreview():boolean{
+      if(this.preview_ref === undefined) return false;
+      return true;
+    }
 
+  /**
+   * destorys the 
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
+    removePreview(){
+      const ndx = this.vc.indexOf(this.preview_ref);
+      this.vc.remove(ndx);
+      this.preview_ref = undefined;
+      this.preview = undefined;
+  }
+
+  /**
+   * Called from mixer when it receives a change from the design mode tool or keyboard press
+   * triggers view mode changes required for this mode
+   */
+  public designModeChanged(){
+
+    if(this.design_modes.isSelected('draw')){
+
+      this.subdraft_refs.forEach(sd => {
+        sd.disableDrag();
+      });
+
+    }else if(this.design_modes.isSelected('move')){
+
+      this.subdraft_refs.forEach(sd => {
+        sd.enableDrag();
+      });
+
+
+    }else if(this.design_modes.isSelected('select')){
+      this.subdraft_refs.forEach(sd => {
+        sd.disableDrag();
+      });
+    }
+
+  }
 
    private removeSubscription() {    
     if (this.moveSubscription) {
@@ -137,18 +244,12 @@ export class PaletteComponent implements OnInit{
     }
   }
 
-  private resolveCoordsToNdx(p: any) : any {    
+  private resolveCoordsToNdx(p: Point) : Interlacement {    
     const i = Math.floor((p.y - 64) / this.scale);
     const j = Math.floor((p.x) / this.scale);
-    return {i: i, j: j};
+    return {i: i, j: j, si: i};
   }
 
-  private resolveCoords(p: any) : any {   
-    return {
-      x: p.x,
-      y: p.y - 64
-    } 
-  }
 
   private isSameNdx(p1: any, p2:any) : boolean {    
     if(p1.i != p2.i ) return false;
@@ -157,7 +258,7 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  private drawSelection(ndx: any){
+  private drawSelection(ndx: Interlacement){
 
 
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -174,13 +275,41 @@ export class PaletteComponent implements OnInit{
       
   }
 
-
-  private drawCell(ndx: any){
+  /**
+   * sets the value of the scratchpad cell at ndx 
+   * @param ndx (i,j)
+   */
+  private setCell(ndx: Interlacement){
     const c: Cell = this.scratch_pad[ndx.i][ndx.j];
+  
+    if(this.design_modes.isSelected('toggle')){
 
-    if(this.design_mode.name === "toggle") c.toggleHeddle();
-    else if(this.design_mode.name === "up") c.setHeddleUp();
-    else c.setHeddleDown();
+      const p = {x: ndx.i * this.scale, y: ndx.j * this.scale};
+      const isect = this.getIntersectingSubdraftsForPoint(p);
+
+      if(isect.length > 0){
+        const prev: boolean = isect[0].resolveToValue(p);
+        if(prev != null) c.setHeddle(!prev);
+        else c.toggleHeddle();
+      }else{
+        c.toggleHeddle();
+      }
+
+    }else if(this.design_modes.isSelected('up')){
+      c.setHeddleUp();
+    }else{
+      c.setHeddleDown();
+    }
+
+  }
+
+  /**
+   * draw the cell at position ndx
+   * @param ndx (i,j)
+   */
+  private drawCell(ndx: Interlacement){
+    
+    const c: Cell = this.scratch_pad[ndx.i][ndx.j];
 
     let is_set = c.isSet();
     let is_up = c.isUp();
@@ -195,19 +324,56 @@ export class PaletteComponent implements OnInit{
       
   }
 
+  /**
+   * Deletes the subdraft that called this function.
+   */
+    onDeleteSubdraftCalled(obj: any){
+      console.log("deleting "+obj.id);
+      if(obj === null) return;
+      const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
+      this.removeSubdraft(sd);
+   }
 
+  /**
+   * A mouse event, originated in a subdraft, has been started
+   * checkes the design mode and handles the event as required
+   * @param obj contains the id of the moving subdraft
+   */
   subdraftStarted(obj: any){
-    
+    console.log("started");
+
     if(obj === null) return;
-    const moving = this.getMovingSubdraft(obj.id);
-    if(moving === null) return; 
-    this._snackBar.openFromComponent(SnackbarComponent, {
-      data: moving
-    });
+
+    if(this.design_modes.isSelected("move")){
+      console.log("moving");
+  
+      //get the reference to the draft that's moving
+      const moving = this.getSubdraft(obj.id);
+      if(moving === null) return; 
+      this._snackBar.openFromComponent(SnackbarComponent, {
+        data: moving
+      });
+      const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
+
+      if(isect.length == 0) return;
+      
+      const bounds: any = this.getCombinedBounds(moving, isect);
+      const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
+      this.createAndSetPreview(temp);
+      this.preview.drawDraft();
+      this.preview.setComponentPosition(bounds.topleft);
+     
+    }else if(this.design_modes.isSelected("select")){
+      this.selectionStarted();
+    }else if(this.design_modes.isSelected("draw")){
+      this.drawStarted();
+    }
 
  }
 
+
  selectionStarted(){
+
   this.selection.start = this.last;
   this.selection.active = true;
   this._snackBar.openFromComponent(SnackbarComponent, {
@@ -215,125 +381,29 @@ export class PaletteComponent implements OnInit{
   });
  }
 
-  @HostListener('mousedown', ['$event'])
-    private onStart(event) {
+drawStarted(){
 
-
-      this.last = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
-      this.selection.start = this.last;
-    
-
-      this.removeSubscription();    
-      
-      this.moveSubscription = 
-      fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e)); 
-
-      if(this.design_mode.name =="select" ){
-          this.selectionStarted();
-      }else{
-                 
-        this.scratch_pad = [];
-        for(let i = 0; i < this.canvas.height; i+=this.scale ){
-          const row = [];
-          for(let j = 0; j< this.canvas.width; j+=this.scale ){
-            row.push(new Cell(null));
-          }
-          this.scratch_pad.push(row);
+  
+  this.scratch_pad = [];
+  for(let i = 0; i < this.canvas.height; i+=this.scale ){
+      const row = [];
+      for(let j = 0; j< this.canvas.width; j+=this.scale ){
+          row.push(new Cell(null));
       }
+    this.scratch_pad.push(row);
     }
   }
 
 
-
-  onMove(event){
-
-
-    const ndx:any = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
-
-    if(this.isSameNdx(this.last, ndx)) return;
-
-    if(this.design_mode.name == "select"){
-
-     this.drawSelection(ndx);
-     const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
-     this.selection.setPositionAndSize(bounds);
-    
-    }else{
-      this.drawCell(ndx);
-    }
-    
-    this.last = ndx;
-  }
-
-  
-
-
-  @HostListener('mouseleave', ['$event'])
-  @HostListener('mouseup', ['$event'])
-     private onEnd(event) {
-
-      if(this.last === undefined) return;
-
-      this.removeSubscription();   
-
-      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      if(this.design_mode.name === "select"){
-        if(this.selection.active)this.processMarquee();
-      }else{
-        this.processDrawingEnd();
-      } 
-
-      //unset vars that would have been created on press
-      this.scratch_pad = undefined;
-      this.last = undefined;
-      this.selection.active = false;
-  }
-  
- 
-
-  processMarquee(){
-
-    this.closeSnackBar();
-
-    //create the selection as a subdraft
-    const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
-    const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
-    sc.setPositionAndSize(bounds);
-    const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
-
-
-
-    if(isect.length == 0) return;
-   
-
-    //expand the selection to include any intersecting drafts
-    const i_bounds: any = this.getIntersectionBounds(sc, isect);
-    const temp: Draft = this.getCombinedDraft(i_bounds, sc, isect);
-
-    sc.setNewDraft(bounds, temp);
-    sc.drawDraft(temp); //can't do this until the view is initiatied, might need to listed for that here. 
-
-    //write a function here to split drafts that the selection is intersecting.
-    isect.forEach(element => {
-        //this relies on my array having the same indexing as the view container. 
-        const ndx = this.subdraft_refs.findIndex((sr) => (element.canvas.id === sr.canvas.id));
-        this.vc.remove(ndx);
-        this.subdraft_refs.splice(ndx, 1);
-    });
-  
-  }
-
-  processDrawingEnd(){
-
-    if(this.scratch_pad === undefined) return;
-    if(this.scratch_pad[0] === undefined) return;
-    
+  /**
+   * gets the bounds of a drawing on the scratchpad
+   * @returns an object representing the bounds in the format of i, j (the row, column index of the pad)
+   */
+  getScratchPadBounds(): Array<Interlacement>{
     let bottom: number = 0;
     let right: number = 0;
     let top: number = this.scratch_pad.length-1;
     let left: number = this.scratch_pad[0].length-1;
-
 
     for(let i = 0; i < this.scratch_pad.length; i++ ){
       for(let j = 0; j<  this.scratch_pad[0].length; j++){
@@ -346,91 +416,266 @@ export class PaletteComponent implements OnInit{
       }
     }
 
+    return [{i: top, j: left, si: -1}, {i: bottom, j: right, si: -1}];
 
-    const warps = right - left + 1;
-    const wefts = bottom - top + 1;
+  }
 
+  /**
+   * handles checks and actions to take when drawing event ends
+   * gets the boudary of drawn segment and creates a subdraft containing that drawing
+   * if the drawing sits on top of an existing subdraft, merge the drawing into that subdraft (extending the original if neccessary)
+   * @returns 
+   */
+  processDrawingEnd(){
 
+    if(this.scratch_pad === undefined) return;
+    if(this.scratch_pad[0] === undefined) return;
+    
+    const corners: Array<Interlacement> = this.getScratchPadBounds();
 
+    const warps = corners[1].j - corners[0].j + 1;
+    const wefts = corners[1].i - corners[0].i + 1;
+
+    //there must be at least one cell selected
     if(warps < 1 || wefts < 1){
       this.scratch_pad = undefined;
       return;
     } 
 
+    //if this drawing does not intersect with any existing subdrafts, 
     const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
-    sd.topleft = {x: left * this.scale, y: top * this.scale};
+    const pos = {
+      topleft: {x: corners[0].j * this.scale, y: corners[0].i * this.scale},
+      width: warps * this.scale,
+      height: wefts * this.scale
+    }
+
+    sd.setComponentPosition(pos.topleft);
+    sd.setComponentSize(pos.width, pos.height);
+    sd.disableDrag();
 
     for(let i = 0; i < sd.draft.wefts; i++ ){
       for(let j = 0; j< sd.draft.warps; j++){
-        const c = this.scratch_pad[top+i][left+j];
+        const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
         sd.draft.pattern[i][j].setHeddle(c.isUp());
         if(!c.isSet()) sd.draft.pattern[i][j].unsetHeddle();
       }
     }
 
+    const had_merge = this.mergeSubdrafts(sd);
+    console.log("had a merge?", had_merge);
+
   }
 
 
-  subdraftMoved(obj: any){
+ /**
+  * handles actions to take when the mouse is down inside of the palette
+  * @param event the mousedown event
+  */
+  @HostListener('mousedown', ['$event'])
+    private onStart(event) {
 
+      const ndx:any = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+      this.last = ndx;
+      this.selection.start = this.last;
+      this.removeSubscription();    
+      
+      this.moveSubscription = 
+      fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e)); 
+
+      if(this.design_modes.isSelected("select")){
+          this.selectionStarted();
+      }else if(this.design_modes.isSelected("draw")){
+          this.drawStarted();    
+          this.setCell(ndx);
+          this.drawCell(ndx); 
+        
+      }
+  }
+
+
+  /**
+   * called form the subscription created on start, checks the index of the location and returns null if its the same
+   * @param event the event object
+   */
+  onMove(event){
+
+    const ndx:Interlacement = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+
+    if(this.isSameNdx(this.last, ndx)) return;
+
+    if(this.design_modes.isSelected("select")){
+
+     this.drawSelection(ndx);
+     const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+     this.selection.setPositionAndSize(bounds);
+    
+    }else if(this.design_modes.isSelected("draw")){
+      this.setCell(ndx);
+      this.drawCell(ndx);
+    }
+    
+    this.last = ndx;
+  }
+
+  
+
+/**
+ * Called when the mouse is up or leaves the boundary of the view
+ * @param event 
+ * @returns 
+ */
+  @HostListener('mouseleave', ['$event'])
+  @HostListener('mouseup', ['$event'])
+     private onEnd(event) {
+      //if this.last is null, we have a mouseleave with no mousestart
+      if(this.last === undefined) return;
+
+      this.removeSubscription();   
+      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      if(this.design_modes.isSelected("select")){
+        if(this.selection.active)this.processSelection();
+      }else if(this.design_modes.isSelected("draw")){
+        this.processDrawingEnd();
+      } 
+
+      //unset vars that would have been created on press
+      this.scratch_pad = undefined;
+      this.last = undefined;
+      this.selection.active = false;
+  }
+  
+ 
+  /**
+   * Called when a selection operation ends. Checks to see if this selection intersects with any subdrafts and 
+   * merges and or splits as required. 
+   */
+  processSelection(){
+
+    this.closeSnackBar();
+
+    //create the selection as subdraft
+    const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+    const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
+    sc.setComponentBounds(bounds);
+    sc.disableDrag();
+    
+    //get any subdrafts that intersect the one we just made
+    const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
+
+    if(isect.length == 0) return;
+
+    //get a draft that reflects only the poitns in the selection view
+    const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
+    sc.setNewDraft(new_draft);
+    sc.drawDraft();
+
+    isect.forEach(el => {
+      const ibound = this.getIntersectionBounds(sc, el);
+
+      if(el.isSameBoundsAs(ibound)){
+         console.log("Component had same Bounds as Intersection, Consumed");
+         this.removeSubdraft(el);
+      }else{
+         const sd_draft = el.draft.pattern;
+         for(let i = 0; i < sd_draft.length; i++){
+           for(let j = 0; j < sd_draft[i].length; j++){
+           
+              let p:Point = el.resolveNdxToPoint({i: i, j: j, si: -1});
+              p.x += this.scale/2;
+              p.y += this.scale/2;
+              if(sc.hasPoint(p)) sd_draft[i][j].unsetHeddle();
+           }
+         }
+         
+        el.drawDraft();
+        }
+    });
+  }
+
+
+
+
+
+
+  subdraftMoved(obj: any){
       if(obj === null) return;
   
       //get the reference to the draft that's moving
-      const moving = this.getMovingSubdraft(obj.id);
+      const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-
+      
       if(isect.length == 0){
-        //moving.drawDraft(moving.draft);
+        if(this.hasPreview()) this.removePreview();
         return;
-      }   
+      } 
 
-      const bounds: any = this.getMovingBounds(moving);
+      //const bounds: Bounds = this.getIntersectionBounds(moving, isect[0]);
+      const bounds: Bounds = this.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
-      moving.drawDraft(temp);
+      if(this.hasPreview()) this.preview.setNewDraft(temp);
+      else this.createAndSetPreview(temp);
+      
+      this.preview.setComponentPosition(bounds.topleft);
+      this.preview.drawDraft();
+    }
 
-   }
 
-
-  //check intersections
+   /**
+    * checks if this subdraft has been dropped onto of another and merges them accordingly 
+    * @param obj 
+    * @returns 
+    */
   subdraftDropped(obj: any){
 
     this.closeSnackBar();
 
      if(obj === null) return;
   
+      if(this.hasPreview()) this.removePreview();
       //get the reference to the draft that's moving
-      const moving = this.getMovingSubdraft(obj.id);
+      const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
 
-      const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-
-      if(isect.length == 0){
-        moving.drawDraft(moving.draft);
-        return;
-      }   
-
-      const bounds: any = this.getIntersectionBounds(moving, isect);
-      const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
-
-      moving.setNewDraft(bounds, temp);
-      moving.drawDraft(temp);
-
-    //remove the intersecting drafts from the view containier and from subrefts
-    isect.forEach(element => {
-        //this relies on my array having the same indexing as the view container. 
-        const ndx = this.subdraft_refs.findIndex((sr) => (element.canvas.id === sr.canvas.id));
-        this.vc.remove(ndx);
-        this.subdraft_refs.splice(ndx, 1);
-    });
+      const had_merge = this.mergeSubdrafts(moving);
+      console.log("had merge", had_merge);
+      if(!had_merge) moving.drawDraft();
 
   }
 
-  computeHeddleValue(p:any, main: any, isect: Array<SubdraftComponent>):boolean{
-    //return  this.subdraft_refs.find(sr => (sr.draft.id.toString() === id.toString()));
-    const a:boolean = main.resolveToValue(p);
+  /**
+   * merges a collection of subdraft components into the primary component, deletes the merged components
+   * @param primary the draft to merge into
+   * @returns true or false to describe if a merge took place. 
+   */
+  mergeSubdrafts(primary: SubdraftComponent): boolean{
+    
+    console.log("Merging");
+    const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
 
+      if(isect.length == 0){
+        return false;
+      }   
+
+      const bounds: Bounds = this.getCombinedBounds(primary, isect);
+      const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
+
+      primary.setNewDraft(temp);
+      primary.setComponentPosition(bounds.topleft);
+      primary.drawDraft();
+
+    //remove the intersecting drafts from the view containier and from subrefts
+    isect.forEach(element => {
+      this.removeSubdraft(element);
+    });
+    return true;
+  }
+
+  computeHeddleValue(p:Point, main: SubdraftComponent, isect: Array<SubdraftComponent>):boolean{
+    const a:boolean = main.resolveToValue(p);
 
     //this may return an empty array, because the intersection might not have the point
     const b_array:Array<SubdraftComponent> = isect.filter(el => el.hasPoint(p));
@@ -443,8 +688,16 @@ export class PaletteComponent implements OnInit{
     return main.computeFilter(a, val);
   }
 
+/**
+ * check if the rectangles defined by the points overlap
+ * @param l1 top left point of rectangle 1
+ * @param r1 bottom right point of rectangle 1
+ * @param l2 top left point of rectangle 2
+ * @param r2 bottom right point of rectanble 2
+ * @returns true or false in accordance to whether or not they overlap
+ */
+  doOverlap(l1:Point,  r1:Point,  l2:Point,  r2:Point){
 
-  doOverlap(l1:any,  r1:any,  l2:any,  r2:any){
     if (l1.x == r1.x || l1.y == r2.y || l2.x == r2.x
         || l2.y == r2.y) {
         // the line cannot have positive overlap
@@ -468,7 +721,7 @@ export class PaletteComponent implements OnInit{
   getLeftMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
     return isects.reduce((acc, isect) => {
-      if(isect.topleft.x < acc.topleft.x) {
+      if(isect.getTopleft().x < acc.getTopleft().x) {
         acc = isect;
       }
       return acc;
@@ -480,7 +733,7 @@ export class PaletteComponent implements OnInit{
   getTopMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
     return isects.reduce((acc, isect) => {
-      if(isect.topleft.y < acc.topleft.y) {
+      if(isect.getTopleft().y < acc.getTopleft().y) {
         acc = isect;
       }
       return acc;
@@ -492,7 +745,7 @@ export class PaletteComponent implements OnInit{
   getRightMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
     return isects.reduce((acc, isect) => {
-      if((isect.topleft.x + isect.size.w) > (acc.topleft.x + acc.size.w)) {
+      if((isect.getTopleft().x + isect.bounds.width) > (acc.getTopleft().x + acc.bounds.width)) {
         acc = isect;
       }
       return acc;
@@ -502,7 +755,7 @@ export class PaletteComponent implements OnInit{
   getBottomMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
     return isects.reduce((acc, isect) => {
-      if((isect.topleft.y + isect.size.h)> (acc.topleft.y + acc.size.h)) {
+      if((isect.getTopleft().y + isect.bounds.height)> (acc.getTopleft().y + acc.bounds.height)) {
         acc = isect;
       }
       return acc;
@@ -510,7 +763,12 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  getMovingSubdraft(id:number): SubdraftComponent {
+  /**
+   * returns the subdraft component associated with this id
+   * @param id the unique draft id contined in the subdraft
+   * @returns the subdraft Component
+   */
+  getSubdraft(id:number): SubdraftComponent {
     return  this.subdraft_refs.find(sr => (sr.draft.id.toString() === id.toString()));
   }
 
@@ -519,10 +777,10 @@ export class PaletteComponent implements OnInit{
 
     //find intersections between main and the others
     const isect:Array<SubdraftComponent> = this.subdraft_refs.filter(sr => (this.doOverlap(
-      selection.topleft, 
-      {x:  selection.topleft.x + selection.size.w, y: selection.topleft.y + selection.size.h}, 
-      sr.topleft, 
-      {x: sr.topleft.x + sr.size.w, y: sr.topleft.y + sr.size.h}
+      selection.bounds.topleft, 
+      {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
+      sr.getTopleft(), 
+      {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height}
       ) ? sr : null));
 
     return isect;
@@ -530,24 +788,51 @@ export class PaletteComponent implements OnInit{
   }
 
 
-  getIntersectingSubdrafts(moving: SubdraftComponent){
-    const to_check:Array<SubdraftComponent> =  this.subdraft_refs.filter(sr => (sr.draft.id.toString() !== moving.draft.id.toString()));
+ /**
+   * get any subdrafts that intersect a given screen position
+   * @param p the x, y position of this cell 
+   * @returns 
+   */
+  getIntersectingSubdraftsForPoint(p: any){
 
-    //find intersections between main and the others
-    const isect:Array<SubdraftComponent> = to_check.filter(sr => (this.doOverlap(
-      moving.topleft, 
-      {x:  moving.topleft.x + moving.size.w, y: moving.topleft.y + moving.size.h}, 
-      sr.topleft, 
-      {x: sr.topleft.x + sr.size.w, y: sr.topleft.y + sr.size.h}
-      ) ? sr : null));
+
+    const primary_topleft = {x:  p.x, y: p.y };
+    const primary_bottomright = {x:  p.x + this.scale, y: p.y + this.scale};
+
+    const isect:Array<SubdraftComponent> = [];
+     this.subdraft_refs.forEach(sr => {
+      let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
+      const b: boolean = this.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
+      if(b) isect.push(sr);
+     });
 
     return isect;
-  
   }
 
-  getSelectionBounds(c1: any, c2: any): any{
+  /**
+   * get any subdrafts that intersect primary based on checks on their boundaries
+   * @param primary 
+   * @returns 
+   */
+  getIntersectingSubdrafts(primary: SubdraftComponent){
+
+    const to_check:Array<SubdraftComponent> =  this.subdraft_refs.filter(sr => (sr.draft.id.toString() !== primary.draft.id.toString()));
+    const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
+
+
+     const isect:Array<SubdraftComponent> = [];
+     to_check.forEach(sr => {
+      let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
+      const b: boolean = this.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
+      if(b) isect.push(sr);
+     });
+
+    return isect;
+  }
+
+  getSelectionBounds(c1: any, c2: any): Bounds{
       let bottomright = {x: 0, y:0};
-      let bounds:any = {
+      let bounds:Bounds = {
         topleft:{x: 0, y:0},
         width: 0,
         height: 0
@@ -571,57 +856,75 @@ export class PaletteComponent implements OnInit{
       bounds.width = bottomright.x - bounds.topleft.x;
       bounds.height = bottomright.y - bounds.topleft.y;
 
-     
-  
       return bounds;
   }
 
+  /**
+   * returns a Bounds type that represents the intersection between primary and one intersecting subdraft
+   * @param primary the rectangular area we are checking for intersections
+   * @param isect an array of all the components that intersect
+   * @returns the array of bounds of all intersections
+   */
+  getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
 
-  getMovingBounds(moving: SubdraftComponent):any{
+    const left: number = Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
+    const top: number = Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
+    const right: number = Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
+    const bottom: number = Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
 
-    const bounds = {
-      topleft: moving.topleft,
-      width: moving.size.w,
-      height: moving.size.h
-    }
+    return {
+      topleft: {x: left, y: top},
+      width: right - left,
+      height: bottom - top
+    };
 
-    return bounds;
   }
 
-  getIntersectionBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):any{
-    const bounds = {
+  /**
+   * gets the combined boundary of a Subdraft and any of its intersections
+   * @param moving A SubdraftComponent that is our primary subdraft
+   * @param isect  Any subdrafts that intersect with this component 
+   * @returns the bounds of a rectangle that holds both components
+   */
+  getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):Bounds{
+    
+    const bounds: Bounds = {
       topleft: {x: 0, y:0},
       width: 0,
       height: 0
     }
 
-    bounds.topleft.x = this.getLeftMost(moving, isect).topleft.x;
-    bounds.topleft.y = this.getTopMost(moving, isect).topleft.y;
+    bounds.topleft.x = this.getLeftMost(moving, isect).getTopleft().x;
+    bounds.topleft.y = this.getTopMost(moving, isect).getTopleft().y;
 
     const rm =  this.getRightMost(moving, isect);
     const bm =  this.getBottomMost(moving, isect);
 
-    bounds.width = (rm.topleft.x + rm.size.w) - bounds.topleft.x;
-    bounds.height =(bm.topleft.y + bm.size.h) - bounds.topleft.y;
+    bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
+    bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
 
     return bounds;
 
   }
 
+  /**
+   * creates a draft in size bounds that contains all of the computed points of its intersections
+   * @param bounds the boundary of all the intersections
+   * @param primary the primary draft that we are checking for intersections
+   * @param isect an Array of the intersecting components
+   * @returns 
+   */
+  getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
 
-  getCombinedDraft(bounds: any, moving: any, isect: Array<SubdraftComponent>):Draft{
-
-    const temp: Draft = new Draft({name: "combined", warps: Math.floor(bounds.width / moving.scale), wefts: Math.floor(bounds.height / moving.scale)});
-    //iterate over the combined area
+    const temp: Draft = new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
 
     for(var i = 0; i < temp.wefts; i++){
-      const top: number = bounds.topleft.y + (i * moving.scale);
+      const top: number = bounds.topleft.y + (i * primary.scale);
       for(var j = 0; j < temp.warps; j++){
-        const left: number = bounds.topleft.x + (j * moving.scale);
+        const left: number = bounds.topleft.x + (j * primary.scale);
 
         const p = {x: left, y: top};
-        const val = this.computeHeddleValue(p, moving, isect);
-
+        const val = this.computeHeddleValue(p, primary, isect);
         if(val != null) temp.pattern[i][j].setHeddle(val);
         else temp.pattern[i][j].unsetHeddle();
       }

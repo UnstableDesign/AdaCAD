@@ -1,13 +1,6 @@
 import { Directive, OnInit } from '@angular/core';
-
-
-interface Point {
-  x: number;
-  y: number;
-}
-
-
-
+import { Draft } from '../../../core/model/draft';
+import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 
 @Directive({
   selector: 'app-selection'
@@ -17,16 +10,18 @@ interface Point {
 export class SelectionComponent implements OnInit{
 
 
-  draft = {
-    id: "selection"
-  };
+  draft: Draft = new Draft({name: "selection"});
 
-  start = {i: 0, j:0};
+  bounds:Bounds = {
+    topleft: {x: 0, y:0},
+    width: 0,
+    height: 0
+  }
+
+  start:Interlacement = {i: 0, j:0, si: 0};
   active = false;
-  topleft: Point = {x: 0, y:0};
   scale: number; 
-  size = {w: 0, h: 0};
-  filter = "marquee"
+  filter = "or"
 
   ngOnInit(){
     console.log(this.draft.id);
@@ -38,10 +33,8 @@ export class SelectionComponent implements OnInit{
   }
 
 
-  public setPositionAndSize(bounds: any){
-    this.topleft = bounds.topleft;
-    this.size.w = bounds.width;
-    this.size.h = bounds.height;
+  public setPositionAndSize(bounds: Bounds){
+    this.bounds  = bounds;
   }
 
 

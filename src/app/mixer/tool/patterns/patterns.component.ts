@@ -78,8 +78,10 @@ export class PatternsComponent implements OnInit {
     console.log(e);
   }
 
-  fill(id){
-    this.onFill.emit(id);
+  toggleFavorite(id){
+
+  const ndx: number = this.patterns.findIndex(el => el.id === id);
+  this.patterns[ndx].toggleFavorite();
 
   }
 

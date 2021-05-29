@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { WeaveDirective } from '../weaver/directives/weave.directive';
 import { PatternService } from './provider/pattern.service';
+import { DesignmodesService } from './provider/designmodes.service';
 import { UploadService } from './uploads/upload.service';
 import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
@@ -12,7 +13,7 @@ import { UploadFormComponent } from './uploads/upload-form/upload-form.component
     CommonModule
   ],
   declarations: [WeaveDirective, FilterPipe, UploadFormComponent],
-  providers: [PatternService, UploadService],
+  providers: [PatternService, DesignmodesService, UploadService],
   exports: [WeaveDirective, FilterPipe, UploadFormComponent]
 })
 export class CoreModule { }
