@@ -251,7 +251,7 @@
                                     <a href="../classes/Timeline.html" >Timeline</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Upload.html"  class="active" >Upload</a>
+                                    <a href="../classes/Upload.html" >Upload</a>
                                 </li>
                                 <li class="link">
                                     <a href="../classes/Util.html" >Util</a>
@@ -278,7 +278,7 @@
                                     <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../injectables/InkService.html" >InkService</a>
+                                    <a href="../injectables/InkService.html"  class="active" >InkService</a>
                                 </li>
                                 <li class="link">
                                     <a href="../injectables/LayersService.html" >LayersService</a>
@@ -645,7 +645,7 @@
                                            <a href="../classes/Timeline.html" >Timeline</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Upload.html"  class="active" >Upload</a>
+                                           <a href="../classes/Upload.html" >Upload</a>
                                        </li>
                                        <li class="link">
                                            <a href="../classes/Util.html" >Util</a>
@@ -672,7 +672,7 @@
                                            <a href="../injectables/DesignmodesService.html" >DesignmodesService</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../injectables/InkService.html" >InkService</a>
+                                           <a href="../injectables/InkService.html"  class="active" >InkService</a>
                                        </li>
                                        <li class="link">
                                            <a href="../injectables/LayersService.html" >LayersService</a>
@@ -802,17 +802,15 @@
                    
                    </nav>
                </div>
-               <div class="content class">
+               <div class="content injectable">
                    <div class="content-data">
 
 
 
 
-
-
 <ol class="breadcrumb">
-  <li>Classes</li>
-  <li>Upload</li>
+  <li>Injectables</li>
+  <li>InkService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -830,7 +828,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/app/core/uploads/upload.ts</code>
+            <code>src/app/mixer/provider/ink.service.ts</code>
         </p>
 
 
@@ -840,7 +838,7 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>constructor(file: File)</code>
+                                    <code>constructor()</code>
                                 </td>
                             </tr>
             
@@ -848,7 +846,247 @@
                     </table>
             </section>
 
-
+            <section>
+                <h3 id="methods">Methods</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getInks</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getInks()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>Ink[]</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> selectedHasMask</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>selectedHasMask()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getInk</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getInk(name: string)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>A function to retreive an ink by name. </p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>name</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>the name of the ink we&#39;re looking to retreive</p>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>Ink</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>the Ink associated with that name, or null if nothing was found</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> clearSelection</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>clearSelection()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>sets false to the selection parameter on all the modes. </p>
+            </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> select</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>select(name: string)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>clears previous selections and selects ink associated with name</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>name</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>a string corresponding to the name of this ink</p>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>boolean cooresponding to whether or not a selection was made </p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getSelected</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getSelected()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>Get the current ink name that is selected</p>
+            </div>
+                                        <div class="io-description">
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>string</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>returns the selected ink name</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> isSelected</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>isSelected(name: string)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>checks if a user specified ink is selected</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>name</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>the name of the mode we are asking about</p>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>boolean</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>boolean describing if it was selected or not</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
 
             <section>
                 <h3 id="inputs">Properties</h3>
@@ -856,12 +1094,12 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> $key</b>
+                                    <b><span class="modifier">Private</span> inks</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>$key:     <code>string</code>
+                                    <span class="modifier-icon fa fa-lock"></span><code>inks:     <code>Ink[]</code>
             </bcode>
                                 </td>
                             </tr>
@@ -871,72 +1109,12 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> createdAt</b>
+                                    <b><span class="modifier">Private</span> selected</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>createdAt:     <code>Date</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> file</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>file:     <code>File</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> name</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>name:     <code>string</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> progress</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>progress:     <code>number</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> url</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>url:     <code>string</code>
+                                    <span class="modifier-icon fa fa-lock"></span><code>selected:     <code>Ink</code>
             </bcode>
                                 </td>
                             </tr>
@@ -945,21 +1123,123 @@
             </section>
     </div>
     <div class="tab-pane fade tab-source-code" id="source">
-        <pre><code class="hljs javascript">export class Upload {
-  $key: string;
-  file:File;
-  name:string;
-  url:string;
-  progress:number;
-  createdAt: Date &#x3D; new Date();
+        <pre><code class="hljs javascript">import { Injectable } from &#x27;@angular/core&#x27;;
 
-  constructor(file:File) {
-    this.file &#x3D; file;
+
+
+interface Ink{
+  value: string;
+  viewValue: string;
+  dx: string;
+  icon: string;
+  selected: boolean;
+  uses_mask: boolean;
+}
+
+
+@Injectable({
+  providedIn: &#x27;root&#x27;
+})
+export class InkService {
+  private inks: Array&lt;Ink&gt;;
+  private selected: Ink;
+
+
+  constructor() { 
+
+
+    this.inks &#x3D; [
+      {value: &#x27;neq&#x27;, viewValue: &#x27;Reversing Ink&#x27;, dx: &quot;REVERSING INK compares this pattern with what is underneight and draws black square when they are not equal&quot;, icon: &quot;fas fa-adjust&quot;, selected: false, uses_mask:false},
+      {value: &#x27;up&#x27;, viewValue: &#x27;Setting Ink&#x27;, dx: &quot;SETTING INK sets this pattern within the draft no matter what is under it&quot;, icon: &quot;fas fa-square&quot;,  selected: false, uses_mask:false},
+      {value: &#x27;down&#x27;, viewValue: &#x27;Erasing Ink&#x27;, dx: &quot;ERASING INK places all the heddle downs atop the draft underneith it&quot;, icon: &quot;far fa-square&quot;,  selected: false, uses_mask:false},
+      {value: &#x27;unset&#x27;, viewValue: &#x27;Removing Ink&#x27;, dx: &quot;REMOVING INK removes the use of this heddle in the draft (for shape and inlay weaving)&quot;, icon: &quot;fas fa-times&quot;, selected: false, uses_mask:false},
+      {value: &#x27;and&#x27;, viewValue: &#x27;Masking Ink&#x27;, dx: &quot;MASKING INK only reveals bottom pattern in areas where this pattern is black&quot;, icon: &quot;fas fa-mask&quot;, selected: false, uses_mask:true},
+      {value: &#x27;or&#x27;, viewValue: &#x27;Overlaying Ink&#x27;, dx: &quot;OVERLAYING INK copies all black pattern cells atop the draft&quot;, icon: &quot;fas fa-plus&quot;, selected: false, uses_mask:false}
+    ];
+  
+    this.select(&#x27;neq&#x27;);
+
+    
+  
   }
+
+  getInks():Array&lt;Ink&gt;{
+    return this.inks;
+  }
+
+  selectedHasMask():boolean{
+    const mode:Ink &#x3D; this.getInk(this.getSelected());
+    return mode.uses_mask;
+  }
+
+  /**
+   * A function to retreive an ink by name. 
+   * @param name the name of the ink we&#x27;re looking to retreive
+   * @returns the Ink associated with that name, or null if nothing was found
+   */
+
+   getInk(name: string): Ink {
+    let found: Ink &#x3D; null;
+ 
+    this.inks.forEach( ink &#x3D;&gt; {
+       if(ink.value &#x3D;&#x3D;&#x3D; name) found &#x3D;  ink;
+    });
+    return found;
+   }
+ 
+   /**
+    * sets false to the selection parameter on all the modes. 
+    */
+   clearSelection(){
+     this.selected &#x3D; null
+   }
+ 
+ /**
+  * clears previous selections and selects ink associated with name
+  * @param name a string corresponding to the name of this ink
+  * @returns boolean cooresponding to whether or not a selection was made 
+  */
+   select(name: string): boolean{
+ 
+     let found: boolean &#x3D; false;
+     this.clearSelection();
+ 
+     this.inks.forEach(ink &#x3D;&gt; {
+       if(ink.value &#x3D;&#x3D;&#x3D; name){
+         ink.selected &#x3D; true;
+         found &#x3D; true;
+         this.selected &#x3D; ink;
+       } else{
+         ink.selected &#x3D; false;
+       }
+    });
+ 
+    return found;
+   }
+ 
+ 
+   /**
+    * Get the current ink name that is selected
+    * @returns returns the selected ink name
+    */
+   getSelected():string{
+     return this.selected.value;
+   }
+ 
+   /**
+    * checks if a user specified ink is selected
+    * @param name the name of the mode we are asking about
+    * @returns boolean describing if it was selected or not
+    */
+   isSelected(name:string):boolean{
+     return(name &#x3D;&#x3D; this.selected.value);
+   }
 }
 </code></pre>
     </div>
 </div>
+
+
 
 
 

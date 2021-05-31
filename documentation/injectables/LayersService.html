@@ -251,7 +251,7 @@
                                     <a href="../classes/Timeline.html" >Timeline</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Upload.html"  class="active" >Upload</a>
+                                    <a href="../classes/Upload.html" >Upload</a>
                                 </li>
                                 <li class="link">
                                     <a href="../classes/Util.html" >Util</a>
@@ -281,7 +281,7 @@
                                     <a href="../injectables/InkService.html" >InkService</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../injectables/LayersService.html" >LayersService</a>
+                                    <a href="../injectables/LayersService.html"  class="active" >LayersService</a>
                                 </li>
                                 <li class="link">
                                     <a href="../injectables/PatternService.html" >PatternService</a>
@@ -645,7 +645,7 @@
                                            <a href="../classes/Timeline.html" >Timeline</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Upload.html"  class="active" >Upload</a>
+                                           <a href="../classes/Upload.html" >Upload</a>
                                        </li>
                                        <li class="link">
                                            <a href="../classes/Util.html" >Util</a>
@@ -675,7 +675,7 @@
                                            <a href="../injectables/InkService.html" >InkService</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../injectables/LayersService.html" >LayersService</a>
+                                           <a href="../injectables/LayersService.html"  class="active" >LayersService</a>
                                        </li>
                                        <li class="link">
                                            <a href="../injectables/PatternService.html" >PatternService</a>
@@ -802,17 +802,15 @@
                    
                    </nav>
                </div>
-               <div class="content class">
+               <div class="content injectable">
                    <div class="content-data">
 
 
 
 
-
-
 <ol class="breadcrumb">
-  <li>Classes</li>
-  <li>Upload</li>
+  <li>Injectables</li>
+  <li>LayersService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -830,9 +828,16 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/app/core/uploads/upload.ts</code>
+            <code>src/app/mixer/provider/layers.service.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>a service that keeps track of how many elements are on the screen so that new<br>layers can always be drawn in front</p>
+
+            </p>
 
             <section>
                 <h3 id="constructor">Constructor</h3>
@@ -840,7 +845,7 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>constructor(file: File)</code>
+                                    <code>constructor()</code>
                                 </td>
                             </tr>
             
@@ -848,7 +853,81 @@
                     </table>
             </section>
 
-
+            <section>
+                <h3 id="methods">Methods</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> createLayer</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>createLayer()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> clearLayers</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>clearLayers()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getFrontLayer</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getFrontLayer()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
 
             <section>
                 <h3 id="inputs">Properties</h3>
@@ -856,87 +935,12 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> $key</b>
+                                    <b> count</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>$key:     <code>string</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> createdAt</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>createdAt:     <code>Date</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> file</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>file:     <code>File</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> name</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>name:     <code>string</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> progress</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>progress:     <code>number</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> url</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>url:     <code>string</code>
+                                    <code>count:     <code>number</code>
             </bcode>
                                 </td>
                             </tr>
@@ -945,21 +949,43 @@
             </section>
     </div>
     <div class="tab-pane fade tab-source-code" id="source">
-        <pre><code class="hljs javascript">export class Upload {
-  $key: string;
-  file:File;
-  name:string;
-  url:string;
-  progress:number;
-  createdAt: Date &#x3D; new Date();
+        <pre><code class="hljs javascript">import { Injectable } from &#x27;@angular/core&#x27;;
 
-  constructor(file:File) {
-    this.file &#x3D; file;
+
+/**
+ * a service that keeps track of how many elements are on the screen so that new 
+ * layers can always be drawn in front
+ */
+@Injectable({
+  providedIn: &#x27;root&#x27;
+})
+export class LayersService {
+
+  count: number;
+
+  constructor() {
+    this.count &#x3D; 0;
+   }
+
+   createLayer(): number{
+     this.count++;
+     return this.count;
+   }
+
+   clearLayers(){
+     this.count &#x3D; 0;
+   }
+
+  getFrontLayer():number{
+    return this.count;
   }
+
 }
 </code></pre>
     </div>
 </div>
+
+
 
 
 
