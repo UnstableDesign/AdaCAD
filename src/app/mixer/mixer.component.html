@@ -21,7 +21,7 @@
        
         <mat-accordion multi>
 
-        <app-view 
+        <app-mixerview 
           [weft_systems] = "draft?.weft_systems"
           [warp_systems]="draft?.warp_systems" 
           [front] = "render?.view_front"
@@ -38,15 +38,15 @@
         >
 
 
-        </app-view>
+        </app-mixerview>
 
-        <app-design #design_tool
+        <app-mixerdesign #design_tool
         [view_mode] = "render?.current_view"
         (onDesignModeChange)="designModeChanged($event);"
         (onInkChange)="inkChanged($event)">
-        </app-design> 
+        </app-mixerdesign> 
 
-        <app-patterns 
+        <app-mixerpatterns 
         [patterns]="default_patterns"
         [selection] = "selection"
         (onPatternChange)="updatePatterns($event);"
@@ -54,7 +54,7 @@
         (onRemovePattern)="removePattern($event);"
         (onFill) = "fillEvent($event)">
         >
-       </app-patterns>
+       </app-mixerpatterns>
  
         <app-materials 
           [material_types]="material_types"
@@ -111,13 +111,6 @@
          (onChange) = "notesChanged($event)"
          >
         </app-notes>
-
-        <app-schematic  [hidden] = "render?.current_view != 'yarn'"
-        (onConnectionCreate)="openConnectionDialog();"
-        (onLabelCreate)="openLabelDialog()"
-        >
-
-      </app-schematic> 
 
 
     </mat-accordion>

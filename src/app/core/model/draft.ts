@@ -3,7 +3,7 @@ import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
-import { Selection } from './selection';
+import { Selection } from '../../weaver/model/selection';
 import { Point, Interlacement } from './datatypes';
 
 import * as _ from 'lodash';
@@ -16,13 +16,11 @@ export interface DraftInterface {
 
   id: number;
   name: string;
-
-
+  notes: string;
 
   pattern: Array<Array<Cell>>; // the single design pattern
   shuttles: Array<Shuttle>;    //the shuttles used in this draft 
-  notes: string;
-
+  
   //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;  
@@ -34,8 +32,7 @@ export interface DraftInterface {
   rowSystemPattern: Array<number>;
   colSystemPattern: Array<number>;
 
-  visibleRows: Array<number>;
-
+  visibleRows: Array<number>; //this seems to be something that can belong to the renderer
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
  
   masks: Array<String>; //associates a mask id with a name

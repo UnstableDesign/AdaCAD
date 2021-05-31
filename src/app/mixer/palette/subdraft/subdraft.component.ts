@@ -2,8 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@an
 import { Draft } from '../../../core/model/draft';
 import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
 import { ConnectionComponent } from '../connection/connection.component';
-import { InkService } from '../../../core/provider/ink.service';
-import { LayersService } from '../../../core/provider/layers.service';
+import { InkService } from '../../provider/ink.service';
+import { LayersService } from '../../provider/layers.service';
 
 
 

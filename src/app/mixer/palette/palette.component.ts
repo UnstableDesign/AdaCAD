@@ -1,5 +1,5 @@
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
-import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { DesignmodesService } from '../../mixer/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { SelectionComponent } from './selection/selection.component';
@@ -11,9 +11,9 @@ import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { dsv } from 'd3-fetch';
 import { sampleSize } from 'lodash';
-import { InkService } from '../../core/provider/ink.service';
+import { InkService } from '../../mixer/provider/ink.service';
 import {cloneDeep} from 'lodash';
-import { LayersService } from '../../core/provider/layers.service';
+import { LayersService } from '../../mixer/provider/layers.service';
 
 
 @Component({

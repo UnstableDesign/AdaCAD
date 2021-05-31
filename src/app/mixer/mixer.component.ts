@@ -1,15 +1,14 @@
 import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
-import { DesignmodesService } from '../core/provider/designmodes.service';
+import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
-import { ConnectionModal } from './modal/connection/connection.modal';
-import { LabelModal } from './modal/label/label.modal';
+import {MatExpansionModule} from "@angular/material/expansion"
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
-import { DesignComponent } from './tool/design/design.component';
+import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 
 
 //disables some angular checking mechanisms
@@ -61,7 +60,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild('bitmapImage', {static: false}) bitmap;
   @ViewChild(PaletteComponent, {static: false}) palette;
-  @ViewChild(DesignComponent, {static: false}) design_tool;
+  @ViewChild(MixerDesignComponent, {static: false}) design_tool;
 
  /**
    * The weave Timeline object.

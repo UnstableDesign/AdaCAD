@@ -11,8 +11,13 @@ import { MixerComponent } from './mixer/mixer.component';
  */
 const routes: Routes = [
   {
-    path: '',
+    path: 'mixer',
     component: MixerComponent,
+    children: []
+  },
+  {
+    path: 'weaver',
+    component: WeaverComponent,
     children: []
   }
 ];
