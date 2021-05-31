@@ -21,7 +21,7 @@
        
         <mat-accordion multi>
 
-        <app-view 
+        <app-mixerview 
           [weft_systems] = "draft?.weft_systems"
           [warp_systems]="draft?.warp_systems" 
           [front] = "render?.view_front"
@@ -38,16 +38,15 @@
         >
 
 
-        </app-view>
+        </app-mixerview>
 
-        <app-design
+        <app-mixerdesign #design_tool
         [view_mode] = "render?.current_view"
-        [materials]="draft?.shuttles"
         (onDesignModeChange)="designModeChanged($event);"
-      >
-        </app-design> 
+        (onInkChange)="inkChanged($event)">
+        </app-mixerdesign> 
 
-        <app-patterns 
+        <app-mixerpatterns 
         [patterns]="default_patterns"
         [selection] = "selection"
         (onPatternChange)="updatePatterns($event);"
@@ -55,7 +54,7 @@
         (onRemovePattern)="removePattern($event);"
         (onFill) = "fillEvent($event)">
         >
-       </app-patterns>
+       </app-mixerpatterns>
  
         <app-materials 
           [material_types]="material_types"
@@ -113,13 +112,6 @@
          >
         </app-notes>
 
-        <app-schematic  [hidden] = "render?.current_view != 'yarn'"
-        (onConnectionCreate)="openConnectionDialog();"
-        (onLabelCreate)="openLabelDialog()"
-        >
-
-      </app-schematic> 
-
 
     </mat-accordion>
 
@@ -127,8 +119,9 @@
 
   </mat-drawer>
 
-  <app-palette #palette 
-  [patterns] = "default_patterns" >
+  <app-palette #palette  id="scrollable-container"
+  [patterns] = "default_patterns"
+  (onDesignModeChange)="designModeChanged($event)" >
   </app-palette>
 
 

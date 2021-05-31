@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@an
 import { Draft } from '../../../core/model/draft';
 import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
 import { ConnectionComponent } from '../connection/connection.component';
+import { InkService } from '../../provider/ink.service';
+import { LayersService } from '../../provider/layers.service';
 
 
 
@@ -24,6 +26,7 @@ export class SubdraftComponent implements OnInit {
 
   @Input()  draft: Draft;
   @Input()  patterns: any;
+  @Input()  viewport: Bounds;
   @Input()  parent: ConnectionComponent;
   @Input()  children: Array<ConnectionComponent>;
   @Output() onSubdraftMove = new EventEmitter <any>(); 
@@ -39,8 +42,7 @@ export class SubdraftComponent implements OnInit {
   {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
   {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
   {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
-  {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"},
-  {value: 'delete', viewValue: 'Delete this Draft', icon: "fa fa-trash"}
+  {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
 ];
 
 
@@ -54,7 +56,7 @@ export class SubdraftComponent implements OnInit {
   }
 
   scale = 10; 
-  filter = 'neq'; //can be or, and, neq, not, splice
+  ink = 'neq'; //can be or, and, neq, not, splice
   counter:number  =  0; // keeps track of how frequently to call the move functions
   counter_limit: number = 50;  //this sets the threshold for move calls, lower number == more calls
   last_ndx:Interlacement = {i: -1, j:-1, si: -1}; //used to check if we should recalculate a move operation
@@ -62,15 +64,18 @@ export class SubdraftComponent implements OnInit {
   moving: boolean  = false;
   disable_drag: boolean = false;
   is_preview: boolean = false;
+  zndx = 0;
 
 
-  constructor() { 
-   
+  constructor(private inks: InkService, private layer: LayersService) { 
+    this.zndx = layer.createLayer();
+    console.log(this.zndx);
   }
 
   ngOnInit(){
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
+
 
   }
 
@@ -107,35 +112,20 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  public filterActionChange(event: any){
-    this.filter = event;
-
+  public inkActionChange(name: any){
+    this.ink = name;
+    this.inks.select(name);
+    this.drawDraft();
   }
 
+  /**
+   * gets the next z-ndx to place this in front
+   */
   public setAsPreview(){
-    this.is_preview = true;
+     this.zndx = this.layer.createLayer();
   }
 
-  public computeFilter(a: boolean, b: boolean):boolean{
-
-
-    if(this.filter == 'or'){
-      if(a === null) return b;
-      if(b === null) return a;
-      return (a || b);
-    }else if(this.filter ==="and"){
-      if(a === null || b === null) return null;
-      return (a && b)
-    }else if(this.filter === "neq"){
-
-      if(a === null) return b;
-      if(b === null) return a;
-      return (a !== b);
-    }else if(this.filter === "inv"){
-      return (!b);
-    }
-
-  }
+ 
 
   /**
    * does this subdraft exist at this point?
@@ -267,34 +257,24 @@ export class SubdraftComponent implements OnInit {
     for (let i = 0; i < this.draft.visibleRows.length; i++) {
       for (let j = 0; j < this.draft.warps; j++) {
         let row:number = this.draft.visibleRows[i];
-    
         let is_up = this.draft.isUp(row,j);
         let is_set = this.draft.isSet(row, j);
         if(is_set){
-          this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
-          this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
+          if(this.ink === 'unset' && is_up){
+            this.cx.fillStyle = "#999999"; 
+          }else{
+            this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
+          }
         } else{
-          this.cx.fillStyle =  '#999999' ;
-          this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
+          this.cx.fillStyle =  '#00000070';
         }
- 
+        this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
       }
     }
   }
 
 
-  /**
-   * scans the draft and deletes any boundary rows or columns that are entirely unset. 
-   * Called after selection 
-   * @returns a boolean to say if this compoennt is empty or not after the scan
-   */
-  resize():boolean{
-    const hasrows:boolean = this.draft.trimUnsetRows();
-    if(!hasrows) return true;
 
-    const hascols = this.draft.trimUnsetCols();
-    return false;
-  }
 
   /**
    * gets the position of this elment on the canvas. Dyanic top left might be bigger due to scolling intersection
@@ -326,8 +306,8 @@ export class SubdraftComponent implements OnInit {
 
   private getAdjusted(p: Point) : any {   
     return {
-      x: p.x,
-      y: p.y - 64
+      x: p.x + this.viewport.topleft.x,
+      y: p.y + this.viewport.topleft.y -62
     } 
   }
   
@@ -358,12 +338,13 @@ export class SubdraftComponent implements OnInit {
   dragMove($event: any) {
     //position of pointer of the page
     const pointer:Point = $event.pointerPosition;
+
     const relative:Point = this.getAdjusted(pointer);
     const adj:Point = this.snapToGrid(relative);
 
     this.bounds.topleft = adj;
 
-    const ndx = this.resolvePointToAbsoluteNdx(relative);
+    const ndx = this.resolvePointToAbsoluteNdx(adj);
     
     if(this.counter%this.counter_limit === 0 || !this.isSameNdx(this.last_ndx, ndx)){
       this.onSubdraftMove.emit({id: this.draft.id});

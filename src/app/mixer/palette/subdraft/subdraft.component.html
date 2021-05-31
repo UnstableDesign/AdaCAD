@@ -1,5 +1,6 @@
 <div id="con-{{draft.id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
+	[style.z-index] = "zndx"
 	[class.drawing] = "disable_drag && !is_preview"
 	[cdkDragDisabled] = "disable_drag"
 	[cdkDragFreeDragPosition]="bounds.topleft"
@@ -20,48 +21,27 @@
 	</div>
 
 	<div class="subdraft-details"> 
+		<div class ="align-top">
 		<button 
 		xPosition = "start"
-		matTooltip= "Filters"
-		class="button is-small is-primary fas fa-filter"
+		matTooltip= "Inks"
+		class="button is-small is-primary fas fa-tint"
 		[matMenuTriggerFor]="filters"
 		xPosition="after">
 		</button>
 
 		<mat-menu #filters="matMenu">
-		 
-			<button [matTooltip]= "union" 
-			mat-menu-item
-			selected
-			[name]="union"
-			(click)="filterActionChange('or')">
-			Union
-			</button>   
-			
+			<ng-container *ngFor="let i of inks.getInks()">
 			<button 
-			[matTooltip]= "intersection" 
-			mat-menu-item
-			[name]="intersection"
-			(click)="filterActionChange('and')">
-			Intersection
-			</button>   
-
-			<button 
-			[matTooltip]= "overlay" 
-			mat-menu-item
-			[name]="overlay"
-			(click)="filterActionChange('neq')">
-			Overlay
-			</button>  
-
-			<!-- <button [matTooltip]= "overlay" 
-			mat-menu-item
-			[name]="overlay"
-			class="button is-small is-primary "
-			(click)="filterActionChange('neq')">
-			Overlay
-			</button>    -->
-
+			  mat-menu-item
+			  [matTooltip]=i.dx
+			  [name]=i.viewValue 
+			  [class.is-active]=i.selected
+			  (click)="inkActionChange(i.value)">
+			  {{i.viewValue}}
+			  </button> 
+			  </ng-container>  
+		
 
 		</mat-menu>
 
@@ -101,6 +81,16 @@
 				</button>    
 			  </ng-container>
 		</mat-menu>
+		</div>
+		<div class="align-bottom">
+		<button 
+		matTooltip= "Delete"
+		class="button is-small is-primary fas fa-times"
+		[style.color]="button_color" 
+		[name]="delete"
+		(click)="designActionChange('delete')">
+		</button>
+	</div>
 	
 	
    </div>

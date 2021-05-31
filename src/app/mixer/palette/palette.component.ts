@@ -1,6 +1,6 @@
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
-import { DesignmodesService } from '../../core/provider/designmodes.service';
-import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef } from '@angular/core';
+import { DesignmodesService } from '../../mixer/provider/designmodes.service';
+import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { SelectionComponent } from './selection/selection.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
@@ -11,6 +11,9 @@ import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { dsv } from 'd3-fetch';
 import { sampleSize } from 'lodash';
+import { InkService } from '../../mixer/provider/ink.service';
+import {cloneDeep} from 'lodash';
+import { LayersService } from '../../mixer/provider/layers.service';
 
 
 @Component({
@@ -28,7 +31,7 @@ export class PaletteComponent implements OnInit{
    * @property {Array<Pattern>}
    */ 
   @Input() patterns: Array<Pattern>;
-
+  @Output() onDesignModeChange: any = new EventEmitter();
 
   /**
    * Subscribes to move event after a touch event is started.
@@ -93,7 +96,19 @@ export class PaletteComponent implements OnInit{
    */
 
    scale: number;
+
+  /**
+   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
+   */
+   canvas_zndx:number = -1;
   
+
+  /**
+   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
+   */
+   viewport:Bounds;
+  
+
 
   /**
    * Constructs a palette object
@@ -101,8 +116,13 @@ export class PaletteComponent implements OnInit{
    * @param resolver a reference to the factory component for dynamically generating components
    * @param _snackBar a reference to the snackbar component that shows data on move and select
    */
-  constructor(private design_modes: DesignmodesService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
+  constructor(private design_modes: DesignmodesService, private inks: InkService, private layers: LayersService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
+    this.viewport = {
+      topleft: {x:0, y:0}, 
+      width: 0, 
+      height:0
+    };
   }
 
 /**
@@ -111,6 +131,7 @@ export class PaletteComponent implements OnInit{
   ngOnInit(){
     this.scale = 10;
     this.vc.clear();
+    console.log(this.inks);
   }
 
   /**
@@ -144,11 +165,26 @@ export class PaletteComponent implements OnInit{
 
   }
 
+  handleScroll(data: any){
+    const div:HTMLElement = document.getElementById('scrollable-container');
+    this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
+  }
+
   closeSnackBar(){
     this._snackBar.dismiss();
   }
 
+  //called when the palette needs to change the design mode, emits output to parent
+  changeDesignmode(name: string) {
+    this.design_modes.select(name);
+    const mode = this.design_modes.getMode(name);
+    if(!mode.enable_inks){
+        this.inks.select('neq');
+    }
 
+    
+    this.onDesignModeChange.emit(name);
+  }
 
   /**
    * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
@@ -163,7 +199,9 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
     subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
+    subdraft.instance.viewport = this.viewport;
     subdraft.instance.patterns = this.patterns;
+    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
   
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
@@ -238,6 +276,7 @@ export class PaletteComponent implements OnInit{
 
   }
 
+
    private removeSubscription() {    
     if (this.moveSubscription) {
       this.moveSubscription.unsubscribe();
@@ -276,31 +315,134 @@ export class PaletteComponent implements OnInit{
   }
 
   /**
-   * sets the value of the scratchpad cell at ndx 
+   * sets the value of the scratchpad cell at ndx
+   * checks for self interselcting 
    * @param ndx (i,j)
    */
   private setCell(ndx: Interlacement){
     const c: Cell = this.scratch_pad[ndx.i][ndx.j];
+    if(this.inks.getSelected() === "down") c.setHeddle(false);
+    else c.setHeddle(true);
+    //use the code below to use past scratchpad values, but this seems wrong
+    // console.log(c);
+    // const val: boolean = c.isSet(); //check for a previous value
+    // c.setHeddle(true);
+
+    // if(val){
+    //   const newval:boolean = this.computeCellValue(this.inks.getSelected(), c, val);
+    //   console.log("setting to", newval);
+    //   c.setHeddle(newval);
+    // } 
+  }
+
+  /**
+   * called by drawcell. Draws on screen based on the current ink
+   * @param ink 
+   * @param over 
+   * @param under 
+   * @returns 
+   */
+  private computeCellColor(ink: string, over: Cell, under: boolean): string{
+
+    const res: boolean = this.computeCellValue(ink, over, under);
+    if(ink === 'unset' && res == true) return "#cccccc"; 
+    if(res ===null) return "#fafafa";
+    if(res) return "#000000";
+    return "#ffffff";      
+  }
+
+  /**
+   * applies the filter betetween over and under and returns the result
+   * @param ink the ink with which to compute the transition
+   * @param over the value of the primary (top) cell
+   * @param under the value of the intersecting (bottom) cell 
+   * @returns 
+   */
+  private computeCellValue(ink: string, over: Cell, under: boolean): boolean{
+    
+    let res: boolean = this.computeFilter(ink, over.getHeddle(), under);
+    return res;   
+  }
+
+  /**
+   * called when creating a subdraft from the drawing on the screen. Computes the resulting value based on
+   * all intersections with the drawing
+   * @param ndx the i,j location of the cell we are checking
+   * @param ink the currently selected ink
+   * @param over the Cell we are checking against
+   * @returns true/false or null
+   */
+  private getScratchpadProduct(ndx: Interlacement, ink: string, over: Cell): boolean{
+    
+    switch(ink){
+      case 'neq':
+      case 'and':
+      case 'or':
+
+        const p = {x: ndx.j * this.scale, y: ndx.i * this.scale};
+        const isect = this.getIntersectingSubdraftsForPoint(p);
   
-    if(this.design_modes.isSelected('toggle')){
+        if(isect.length > 0){
+          const prev: boolean = isect[0].resolveToValue(p);
+          return this.computeCellValue(ink, over, prev);
+        }else{
+          return this.computeCellValue(ink, over, null);
+        }
+      break;
 
-      const p = {x: ndx.i * this.scale, y: ndx.j * this.scale};
-      const isect = this.getIntersectingSubdraftsForPoint(p);
-
-      if(isect.length > 0){
-        const prev: boolean = isect[0].resolveToValue(p);
-        if(prev != null) c.setHeddle(!prev);
-        else c.toggleHeddle();
-      }else{
-        c.toggleHeddle();
-      }
-
-    }else if(this.design_modes.isSelected('up')){
-      c.setHeddleUp();
-    }else{
-      c.setHeddleDown();
+      default: 
+        return this.computeCellValue(ink, over, null);
+      break;
     }
+   return null; 
+  }
+  /**
+   * takes two booleans and returns their result based on the ink assigned
+   * @param ink the name of the ink in question 
+   * @param a the first (top) value 
+   * @param b the second (under) value
+   * @returns boolean result
+   */
+  public computeFilter(ink: string, a: boolean, b: boolean):boolean{
+    switch(ink){
+      case 'neq':
+        if(a === null) return b;
+        if(b === null) return a;
+        return (a !== b);
+      break;
 
+      case 'up':
+        if(a === null) return b;
+        if(a === true) return true;
+        return false;
+      break;
+
+      case 'down':
+        if(a === null) return b;
+        if(b === null) return a;
+        if(a === false) return false;
+        return b;
+      break;
+
+      case 'unset':
+        if(a === null) return b;
+        if(b === null) return a;
+        if(a === true) return null;
+        else return b;
+      break;
+
+      case 'and':
+      if(a === null || b === null) return null;
+      return (a && b)
+      break;
+
+      case 'or':
+        if(a === null) return b;
+        if(b === null) return a;
+        return (a || b);
+      break;
+
+    }
   }
 
   /**
@@ -308,20 +450,35 @@ export class PaletteComponent implements OnInit{
    * @param ndx (i,j)
    */
   private drawCell(ndx: Interlacement){
-    
-    const c: Cell = this.scratch_pad[ndx.i][ndx.j];
 
-    let is_set = c.isSet();
-    let is_up = c.isUp();
+    const c: Cell = this.scratch_pad[ndx.i][ndx.j];
+    this.cx.fillStyle = "#cccccc";
   
-    if(is_set){
-      this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
-      this.cx.fillRect(ndx.j*this.scale, ndx.i*this.scale, this.scale, this.scale);
-    } else{
-      this.cx.fillStyle =  '#DDDDDD' ;
-      this.cx.fillRect(ndx.j*this.scale, ndx.i*this.scale, this.scale, this.scale);
+    const selected_ink:string = this.inks.getSelected();
+
+    switch(selected_ink){
+      case 'neq':
+      case 'and':
+      case 'or':
+
+        const p = {x: ndx.j * this.scale, y: ndx.i * this.scale};
+        const isect = this.getIntersectingSubdraftsForPoint(p);
+
+        if(isect.length > 0){
+          const prev: boolean = isect[0].resolveToValue(p);
+          this.cx.fillStyle = this.computeCellColor(selected_ink, c, prev);
+        }else{
+          this.cx.fillStyle =  this.computeCellColor(selected_ink, c, null);;
+        }
+      break;
+
+      default: 
+        this.cx.fillStyle = this.computeCellColor(selected_ink, c, null);
+      break;
+
     }
-      
+
+      this.cx.fillRect(ndx.j*this.scale, ndx.i*this.scale, this.scale, this.scale);      
   }
 
   /**
@@ -340,12 +497,10 @@ export class PaletteComponent implements OnInit{
    * @param obj contains the id of the moving subdraft
    */
   subdraftStarted(obj: any){
-    console.log("started");
 
     if(obj === null) return;
 
     if(this.design_modes.isSelected("move")){
-      console.log("moving");
   
       //get the reference to the draft that's moving
       const moving = this.getSubdraft(obj.id);
@@ -381,9 +536,13 @@ export class PaletteComponent implements OnInit{
   });
  }
 
+
+/**
+ * clears the scratchpad for the new drawing event
+ */
 drawStarted(){
 
-  
+  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
   this.scratch_pad = [];
   for(let i = 0; i < this.canvas.height; i+=this.scale ){
       const row = [];
@@ -396,7 +555,7 @@ drawStarted(){
 
 
   /**
-   * gets the bounds of a drawing on the scratchpad
+   * gets the bounds of a drawing on the scratchpad, a drawing is represented by set cells
    * @returns an object representing the bounds in the format of i, j (the row, column index of the pad)
    */
   getScratchPadBounds(): Array<Interlacement>{
@@ -407,7 +566,7 @@ drawStarted(){
 
     for(let i = 0; i < this.scratch_pad.length; i++ ){
       for(let j = 0; j<  this.scratch_pad[0].length; j++){
-        if(this.scratch_pad[i][j].isSet()){
+        if((this.scratch_pad[i][j].isSet())){
           if(i < top) top = i;
           if(j < left) left = j;
           if(i > bottom) bottom = i;
@@ -428,6 +587,8 @@ drawStarted(){
    */
   processDrawingEnd(){
 
+    this.canvas_zndx = -1;
+
     if(this.scratch_pad === undefined) return;
     if(this.scratch_pad[0] === undefined) return;
     
@@ -436,6 +597,7 @@ drawStarted(){
     const warps = corners[1].j - corners[0].j + 1;
     const wefts = corners[1].i - corners[0].i + 1;
 
+  
     //there must be at least one cell selected
     if(warps < 1 || wefts < 1){
       this.scratch_pad = undefined;
@@ -454,16 +616,17 @@ drawStarted(){
     sd.setComponentSize(pos.width, pos.height);
     sd.disableDrag();
 
+
     for(let i = 0; i < sd.draft.wefts; i++ ){
       for(let j = 0; j< sd.draft.warps; j++){
         const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
-        sd.draft.pattern[i][j].setHeddle(c.isUp());
-        if(!c.isSet()) sd.draft.pattern[i][j].unsetHeddle();
+        const b = this.getScratchpadProduct({i:i, j:j, si:-1}, this.inks.getSelected(),c);
+        sd.draft.pattern[i][j].setHeddle(b); 
       }
     }
 
-    const had_merge = this.mergeSubdrafts(sd);
-    console.log("had a merge?", had_merge);
+    // const had_merge = this.mergeSubdrafts(sd);
+    // console.log("had a merge?", had_merge);
 
   }
 
@@ -475,7 +638,7 @@ drawStarted(){
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
 
-      const ndx:any = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+      const ndx:any = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
       this.last = ndx;
       this.selection.start = this.last;
       this.removeSubscription();    
@@ -500,7 +663,7 @@ drawStarted(){
    */
   onMove(event){
 
-    const ndx:Interlacement = this.resolveCoordsToNdx({x: event.clientX, y:event.clientY});
+    const ndx:Interlacement = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
 
     if(this.isSameNdx(this.last, ndx)) return;
 
@@ -536,8 +699,11 @@ drawStarted(){
 
       if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processSelection();
+        this.changeDesignmode('move');
       }else if(this.design_modes.isSelected("draw")){
         this.processDrawingEnd();
+        this.changeDesignmode('move');
+
       } 
 
       //unset vars that would have been created on press
@@ -557,6 +723,7 @@ drawStarted(){
 
     //create the selection as subdraft
     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+    
     const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
     sc.setComponentBounds(bounds);
     sc.disableDrag();
@@ -635,14 +802,27 @@ drawStarted(){
 
      if(obj === null) return;
   
-      if(this.hasPreview()) this.removePreview();
+      //creaet a subdraft of this intersection
+      if(this.hasPreview()){
+        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}));
+        const to_right: Point = this.preview.getTopleft();
+        to_right.x += this.preview.bounds.width + 20;
+        sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
+        sd.setComponentPosition(to_right);
+        sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
+        sd.setAsPreview(); //this is a hack - get better way of brining tot fronott
+        this.removePreview();
+      } 
+      
       //get the reference to the draft that's moving
       const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
 
-      const had_merge = this.mergeSubdrafts(moving);
-      console.log("had merge", had_merge);
-      if(!had_merge) moving.drawDraft();
+      //disable this too see what happens
+      // const had_merge = this.mergeSubdrafts(moving);
+      // console.log("had merge", had_merge);
+      // if(!had_merge) 
+      // moving.drawDraft();
 
   }
 
@@ -653,7 +833,6 @@ drawStarted(){
    */
   mergeSubdrafts(primary: SubdraftComponent): boolean{
     
-    console.log("Merging");
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
 
       if(isect.length == 0){
@@ -676,7 +855,6 @@ drawStarted(){
 
   computeHeddleValue(p:Point, main: SubdraftComponent, isect: Array<SubdraftComponent>):boolean{
     const a:boolean = main.resolveToValue(p);
-
     //this may return an empty array, because the intersection might not have the point
     const b_array:Array<SubdraftComponent> = isect.filter(el => el.hasPoint(p));
 
@@ -685,7 +863,7 @@ drawStarted(){
 
     const val:boolean = b_array.reduce((acc:boolean, arr) => arr.resolveToValue(p), null);   
     
-    return main.computeFilter(a, val);
+    return this.computeFilter(main.ink, a, val);
   }
 
 /**

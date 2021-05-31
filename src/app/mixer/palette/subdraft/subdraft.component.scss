@@ -53,10 +53,21 @@
 .subdraft-details{
 	display:none;
 	flex-direction: column;
+	justify-content: space-between;
+}
+
+.align-top{
+	display: flex;
+	flex-direction: column;
 }
 
 .subdraft-contents{
 	display: block;
+}
+
+.is-active{
+	background: #00d1b2;
+	background: #00000070
 }
 
 svg{

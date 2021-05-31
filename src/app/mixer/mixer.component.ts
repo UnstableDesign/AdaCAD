@@ -1,14 +1,14 @@
 import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
-import { DesignmodesService } from '../core/provider/designmodes.service';
+import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
-import { ConnectionModal } from './modal/connection/connection.modal';
-import { LabelModal } from './modal/label/label.modal';
+import {MatExpansionModule} from "@angular/material/expansion"
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
+import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 
 
 //disables some angular checking mechanisms
@@ -60,6 +60,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild('bitmapImage', {static: false}) bitmap;
   @ViewChild(PaletteComponent, {static: false}) palette;
+  @ViewChild(MixerDesignComponent, {static: false}) design_tool;
 
  /**
    * The weave Timeline object.
@@ -141,7 +142,7 @@ export class MixerComponent implements OnInit {
   }
 
   private onWindowScroll(data: any) {
-    //this.palette.rescale();
+    this.palette.handleScroll(data);
   }
 
 
@@ -153,6 +154,15 @@ export class MixerComponent implements OnInit {
     this.palette.designModeChanged();
   }
 
+  /**
+   * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
+   * @param name the name of the current design mode
+   */
+  private inkChanged(name: string){
+     this.palette.inkChanged();
+  }
+  
+  
 
 
   // reInit(result){
@@ -249,8 +259,8 @@ export class MixerComponent implements OnInit {
    */
   @HostListener('window:keydown.d', ['$event'])
   private keyChangetoDrawMode(e) {
-    this.design_modes.select('toggle');
-    this.designModeChanged('toggle');
+    this.design_modes.select('draw');
+    this.designModeChanged('draw');
   }
 
   /**
@@ -379,7 +389,13 @@ export class MixerComponent implements OnInit {
    * @param {Event} e - view change event from design component.
    * @returns {void}
    */
-  public viewChange(value: any) {
+  public renderChange(value: any) {
+
+    //need to render the scale change to the parent and child subdrafts
+    // const scale = value / 50;
+    // const div = document.getElementById('scrollable-container');
+    // div.style.transform = 'scale(' + scale + ')';
+
     
     // this.render.setCurrentView(value);
 
