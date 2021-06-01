@@ -3,6 +3,7 @@ import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
+import { LoomTypes, DensityUnits,MaterialTypes, ViewModes } from '../core/model/datatypes';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import {Subject} from 'rxjs';
@@ -19,34 +20,6 @@ import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
  * @class
  */
 
- interface LoomTypes {
-  value: string;
-  viewValue: string;
-}
-
-interface MaterialTypes {
-  value: number;
-  viewValue: string;
-}
-
-interface DensityUnits {
-  value: string;
-  viewValue: string;
-}
-
-
-interface ViewModes {
-  value: string;
-  viewValue: string;
-}
-
-// interface ToolModes{
-//   value: string; 
-//   viewValue: string;
-//   icon: string;
-//   menu: string;
-
-// }
 
 
 @Component({
@@ -66,12 +39,6 @@ export class MixerComponent implements OnInit {
    * @property {Timeline}
    */
    timeline: Timeline = new Timeline();
-
-
-  /**
-  The current selection, as boolean array 
-  **/
-  //copy: Array<Array<boolean>>;
 
 
  /**

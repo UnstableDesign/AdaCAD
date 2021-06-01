@@ -26,12 +26,20 @@ export class DesignmodesService {
 
     this.selected = [];
 
+    const shapes:Array<DesignMode> = [
+      {value: 'line', viewValue: 'Line', icon: "fas fa-slash", children: [], enable_inks: true, selected: false},
+      {value: 'fill_circle', viewValue: 'Filled Circle', icon: "fas fa-circle", children: [], enable_inks: true, selected: false},
+      {value: 'stroke_circle', viewValue: 'Circle Outline', icon: "far fa-circle", children: [], enable_inks: true, selected: false},
+      {value: 'fill_rect', viewValue: 'Filled Rectangle', icon: "fas fa-square", children: [], enable_inks: true, selected: false},
+      {value: 'stroke_rect', viewValue: 'Rectangle Outline', icon: "fas fa-square", children: [], enable_inks: true, selected: false},
+      {value: 'free', viewValue: 'Freehand', icon: "fas fa-draw-polygon", children: [], enable_inks: true, selected: false},
+    ]
 
     
   
   this.modes = [
     {value: 'draw', viewValue: 'Draw', icon: "fas fa-pen", children: [], enable_inks: true, selected: false},
-    {value: 'shape', viewValue: 'Shape', icon: "fas fa-shapes", children: [], enable_inks: true, selected: false},
+    {value: 'shape', viewValue: 'Shape', icon: "fas fa-shapes", children: shapes, enable_inks: true, selected: false},
     {value: 'select', viewValue: 'Merge', icon: "fas fa-expand", children: [], enable_inks: false, selected:false},
     {value: 'move', viewValue: 'Move', icon: "fas fa-arrows-alt", children: [], enable_inks: false, selected:false},
   ];

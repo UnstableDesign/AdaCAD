@@ -9,11 +9,10 @@ import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
-import { dsv } from 'd3-fetch';
-import { sampleSize } from 'lodash';
 import { InkService } from '../../mixer/provider/ink.service';
-import {cloneDeep} from 'lodash';
+import {cloneDeep, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
+import { Shape } from '../model/shape';
 
 
 @Component({
@@ -104,17 +103,24 @@ export class PaletteComponent implements OnInit{
   
 
   /**
-   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
+   * used to manage the area of the screen that is in view based on scrolling and zooming
    */
    viewport:Bounds;
   
-
+  /**
+   * stores the location in which a shape drawing activity began
+   */
+   shape_start:Point;
+  
 
   /**
-   * Constructs a palette object
-   * @param design_modes a reference to the service containing the current design modes and selections
+   * Constructs a palette object. The palette supports drawing without components and dynamically
+   * creates components from shapes and scribbles on the canvas. 
+   * @param design_modes  a reference to the service containing the current design modes and selections
+   * @param inks a reference to the service manaing the available inks
+   * @param layers a reference to the sercie managing the view layers (z-indexes) of components
    * @param resolver a reference to the factory component for dynamically generating components
-   * @param _snackBar a reference to the snackbar component that shows data on move and select
+   * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
    */
   constructor(private design_modes: DesignmodesService, private inks: InkService, private layers: LayersService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
@@ -309,6 +315,7 @@ export class PaletteComponent implements OnInit{
       right: ndx.i*this.scale
     };
 
+    //will draw on outside of selection
     this.cx.strokeStyle = "#ff4081";
     this.cx.strokeRect(bounds.top, bounds.left, bounds.bottom-bounds.top, bounds.right-bounds.left);
       
@@ -536,6 +543,79 @@ export class PaletteComponent implements OnInit{
   });
  }
 
+ /**
+ * brings the base canvas to view and begins to render the
+ * @param mouse the absolute position of the mouse on screen
+ */
+shapeStarted(mouse: Point){
+
+  this.shape_start = mouse;
+  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+  this.cx.fillStyle = "#ff4081";
+  //this.cx.strokeRect(mouse.x, mouse.y,this.scale,this.scale);
+  this.cx.fillRect(mouse.x, mouse.y,this.scale,this.scale);
+  }
+
+  /**
+   * resizes and redraws the shape between the the current mouse and where the shape started
+   * @param mouse the absolute position of the mouse on screen
+   */
+shapeDragged(mouse: Point){
+
+  const bounds:Bounds = {
+    topleft: this.shape_start,
+    width: (mouse.x - this.shape_start.x),
+    height: (mouse.y - this.shape_start.y)
+  }
+
+  // if(mouse.x < this.shape_start.x) bounds.topleft.x = mouse.x;
+  // if(mouse.y < this.shape_start.y) bounds.topleft.y = mouse.y;
+  
+  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  this.cx.beginPath();
+  this.cx.fillStyle = "#ff4081";
+  this.cx.strokeStyle = "#ff4081";
+  this.cx.lineWidth = this.scale;
+  // this.cx.fillRect(bounds.topleft.x, bounds.topleft.y,bounds.width,bounds.height);
+  
+  // this.cx.fillStyle = "#FFFFFF";
+  // this.cx.fillRect(bounds.topleft.x+this.scale, bounds.topleft.y+this.scale,bounds.width-this.scale*2,bounds.height-this.scale*2);
+  
+  this.cx.moveTo(bounds.topleft.x, bounds.topleft.y);
+  this.cx.lineTo(bounds.topleft.x + bounds.width, bounds.topleft.y + bounds.height);
+  this.cx.stroke();
+
+}
+
+/**
+ * converts the shape on screen to a component
+ */
+processShapeEnd(mouse: Point){
+  const bounds:Bounds = {
+    topleft: this.shape_start,
+    width: Math.abs(mouse.x - this.shape_start.x),
+    height: Math.abs(mouse.y - this.shape_start.y)
+  }
+
+  if(mouse.x < this.shape_start.x) bounds.topleft.x = mouse.x;
+  if(mouse.y < this.shape_start.y) bounds.topleft.y = mouse.y;
+  
+  const shape: Shape = new Shape(this.canvas, bounds, this.scale); 
+  //const img_data = shape.getImageData();
+  // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  // this.cx.putImageData(img_data, 0, 0);
+  const pattern: Array<Array<Cell>> = shape.getDraft();
+
+  const wefts: number = pattern.length;
+  if(wefts <= 0) return;
+  const warps: number = pattern[0].length;
+
+  const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
+  sd.setComponentPosition(bounds.topleft);
+  sd.setComponentSize(bounds.width, bounds.height);
+  sd.disableDrag();
+  
+}
 
 /**
  * clears the scratchpad for the new drawing event
@@ -638,7 +718,14 @@ drawStarted(){
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
 
-      const ndx:any = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
+      const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const ndx:any = this.resolveCoordsToNdx(mouse);
+
+      //use this to snap the mouse to the nearest coord
+      mouse.x = ndx.j * this.scale;
+      mouse.y = ndx.i * this.scale;
+
+      
       this.last = ndx;
       this.selection.start = this.last;
       this.removeSubscription();    
@@ -652,7 +739,8 @@ drawStarted(){
           this.drawStarted();    
           this.setCell(ndx);
           this.drawCell(ndx); 
-        
+      }else if(this.design_modes.isSelected("shape")){
+          this.shapeStarted(mouse);
       }
   }
 
@@ -663,7 +751,11 @@ drawStarted(){
    */
   onMove(event){
 
-    const ndx:Interlacement = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
+    const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+    const ndx:Interlacement = this.resolveCoordsToNdx(mouse);
+    //use this to snap the mouse to the nearest coord
+    mouse.x = ndx.j * this.scale;
+    mouse.y = ndx.i * this.scale;
 
     if(this.isSameNdx(this.last, ndx)) return;
 
@@ -676,6 +768,8 @@ drawStarted(){
     }else if(this.design_modes.isSelected("draw")){
       this.setCell(ndx);
       this.drawCell(ndx);
+    }else if(this.design_modes.isSelected("shape")){
+      this.shapeDragged(mouse);
     }
     
     this.last = ndx;
@@ -693,9 +787,13 @@ drawStarted(){
      private onEnd(event) {
       //if this.last is null, we have a mouseleave with no mousestart
       if(this.last === undefined) return;
+      const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const ndx:Interlacement = this.resolveCoordsToNdx(mouse);
+      //use this to snap the mouse to the nearest coord
+      mouse.x = ndx.j * this.scale;
+      mouse.y = ndx.i * this.scale;
 
       this.removeSubscription();   
-      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
       if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processSelection();
@@ -704,8 +802,14 @@ drawStarted(){
         this.processDrawingEnd();
         this.changeDesignmode('move');
 
+      }else if(this.design_modes.isSelected("shape")){
+        this.processShapeEnd(mouse);
+        this.changeDesignmode('move');
+
       } 
 
+      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.shape_start = {x: 0, y:0};
       //unset vars that would have been created on press
       this.scratch_pad = undefined;
       this.last = undefined;
