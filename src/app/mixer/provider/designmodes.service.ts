@@ -31,7 +31,7 @@ export class DesignmodesService {
       {value: 'fill_circle', viewValue: 'Filled Circle', icon: "fas fa-circle", children: [], enable_inks: true, selected: false},
       {value: 'stroke_circle', viewValue: 'Circle Outline', icon: "far fa-circle", children: [], enable_inks: true, selected: false},
       {value: 'fill_rect', viewValue: 'Filled Rectangle', icon: "fas fa-square", children: [], enable_inks: true, selected: false},
-      {value: 'stroke_rect', viewValue: 'Rectangle Outline', icon: "fas fa-square", children: [], enable_inks: true, selected: false},
+      {value: 'stroke_rect', viewValue: 'Rectangle Outline', icon: "far fa-square", children: [], enable_inks: true, selected: false},
       {value: 'free', viewValue: 'Freehand', icon: "fas fa-draw-polygon", children: [], enable_inks: true, selected: false},
     ]
 

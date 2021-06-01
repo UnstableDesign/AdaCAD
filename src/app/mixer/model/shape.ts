@@ -29,7 +29,6 @@ export class Shape {
 
 
     this.img_data = context.getImageData(bounds.topleft.x, bounds.topleft.y, bounds.width, bounds.height);
-    //this.read();
     this.draft = this.resample(Math.floor(bounds.height/scale), Math.floor(bounds.width/scale));
   };
 

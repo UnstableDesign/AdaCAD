@@ -108,10 +108,16 @@ export class PaletteComponent implements OnInit{
    viewport:Bounds;
   
   /**
-   * stores the location in which a shape drawing activity began
+   * stores the bounds of the shape being drawn
    */
-   shape_start:Point;
+   shape_bounds:Bounds;
   
+  /**
+   * stores the vtx for freehand shapes
+   */
+   shape_vtxs:Array<Point>;
+  
+
 
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
@@ -124,6 +130,7 @@ export class PaletteComponent implements OnInit{
    */
   constructor(private design_modes: DesignmodesService, private inks: InkService, private layers: LayersService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
+    this.shape_vtxs = [];
     this.viewport = {
       topleft: {x:0, y:0}, 
       width: 0, 
@@ -548,59 +555,119 @@ export class PaletteComponent implements OnInit{
  * @param mouse the absolute position of the mouse on screen
  */
 shapeStarted(mouse: Point){
+  
+  this.shape_bounds = {
+    topleft: mouse,
+    width: this.scale,
+    height: this.scale
+  };
 
-  this.shape_start = mouse;
+
+  this.shape_vtxs = [];
   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
   this.cx.fillStyle = "#ff4081";
-  //this.cx.strokeRect(mouse.x, mouse.y,this.scale,this.scale);
-  this.cx.fillRect(mouse.x, mouse.y,this.scale,this.scale);
-  }
+  this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
+
+
+}
 
   /**
    * resizes and redraws the shape between the the current mouse and where the shape started
    * @param mouse the absolute position of the mouse on screen
    */
-shapeDragged(mouse: Point){
+shapeDragged(mouse: Point, shift: boolean){
 
-  const bounds:Bounds = {
-    topleft: this.shape_start,
-    width: (mouse.x - this.shape_start.x),
-    height: (mouse.y - this.shape_start.y)
+  this.shape_bounds.width =  (mouse.x - this.shape_bounds.topleft.x);
+  this.shape_bounds.height =  (mouse.y - this.shape_bounds.topleft.y);
+
+  if(shift){
+    const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
+    this.shape_bounds.width = max;
+    this.shape_bounds.height = max;    
   }
 
-  // if(mouse.x < this.shape_start.x) bounds.topleft.x = mouse.x;
-  // if(mouse.y < this.shape_start.y) bounds.topleft.y = mouse.y;
-  
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.cx.beginPath();
   this.cx.fillStyle = "#ff4081";
   this.cx.strokeStyle = "#ff4081";
   this.cx.lineWidth = this.scale;
-  // this.cx.fillRect(bounds.topleft.x, bounds.topleft.y,bounds.width,bounds.height);
-  
-  // this.cx.fillStyle = "#FFFFFF";
-  // this.cx.fillRect(bounds.topleft.x+this.scale, bounds.topleft.y+this.scale,bounds.width-this.scale*2,bounds.height-this.scale*2);
-  
-  this.cx.moveTo(bounds.topleft.x, bounds.topleft.y);
-  this.cx.lineTo(bounds.topleft.x + bounds.width, bounds.topleft.y + bounds.height);
-  this.cx.stroke();
 
+  if(this.design_modes.isSelected('line')){
+    this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
+    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+    this.cx.stroke();
+  }else if(this.design_modes.isSelected('fill_circle')){
+    this.shape_bounds.width = Math.abs(this.shape_bounds.width);
+    this.shape_bounds.height = Math.abs(this.shape_bounds.height);
+    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+    this.cx.fill();
+  }else if(this.design_modes.isSelected('stroke_circle')){
+    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+    this.cx.stroke();
+  }else if(this.design_modes.isSelected('fill_rect')){
+    this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
+  
+  }else if(this.design_modes.isSelected('stroke_rect')){
+    this.cx.strokeRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
+
+  }else{
+
+    if(this.shape_vtxs.length > 1){
+      this.cx.moveTo(this.shape_vtxs[0].x, this.shape_vtxs[0].y);
+
+      for(let i = 1; i < this.shape_vtxs.length; i++){
+        this.cx.lineTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+        this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+      }
+
+    }else{
+      this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
+    }
+    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+    this.cx.stroke();
+  }
 }
 
 /**
  * converts the shape on screen to a component
  */
-processShapeEnd(mouse: Point){
-  const bounds:Bounds = {
-    topleft: this.shape_start,
-    width: Math.abs(mouse.x - this.shape_start.x),
-    height: Math.abs(mouse.y - this.shape_start.y)
-  }
+processShapeEnd(){
 
-  if(mouse.x < this.shape_start.x) bounds.topleft.x = mouse.x;
-  if(mouse.y < this.shape_start.y) bounds.topleft.y = mouse.y;
+  if(this.design_modes.isSelected('fill_circle') || this.design_modes.isSelected('stroke_circle')){
+    this.shape_bounds.topleft.x -=  this.shape_bounds.width;
+    this.shape_bounds.topleft.y -=  this.shape_bounds.height;
+    this.shape_bounds.width *=2;
+    this.shape_bounds.height *= 2;
+  }else if(this.design_modes.isSelected('free')){
+    if(this.shape_vtxs.length > 0){
+      let top = this.shape_bounds.topleft.y;
+      let left = this.shape_bounds.topleft.x;
+      let bottom = this.shape_bounds.topleft.y +this.shape_bounds.height;
+      let right = this.shape_bounds.topleft.x +this.shape_bounds.width;
+      //iteraate through the poitns and find the leftmost and topmost 
+      for(let i = 1; i < this.shape_vtxs.length; i++ ){
+          if(this.shape_vtxs[i].y < top) top = this.shape_vtxs[i].y;
+          if(this.shape_vtxs[i].x < left) left = this.shape_vtxs[i].x;
+          if(this.shape_vtxs[i].y > bottom) bottom = this.shape_vtxs[i].y;
+          if(this.shape_vtxs[i].x > right) right = this.shape_vtxs[i].x;
+      }
+
+      //keep adding here
+    }
+    
+  }else{
+    if( this.shape_bounds.width < 0){
+      this.shape_bounds.width = Math.abs(this.shape_bounds.width);
+      this.shape_bounds.topleft.x-= this.shape_bounds.width
+    }  
+
+    if( this.shape_bounds.height < 0){
+      this.shape_bounds.height = Math.abs(this.shape_bounds.height);
+      this.shape_bounds.topleft.y-= this.shape_bounds.height
+    }  
+  }
   
-  const shape: Shape = new Shape(this.canvas, bounds, this.scale); 
+  const shape: Shape = new Shape(this.canvas, this.shape_bounds, this.scale); 
   //const img_data = shape.getImageData();
   // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   // this.cx.putImageData(img_data, 0, 0);
@@ -611,8 +678,8 @@ processShapeEnd(mouse: Point){
   const warps: number = pattern[0].length;
 
   const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
-  sd.setComponentPosition(bounds.topleft);
-  sd.setComponentSize(bounds.width, bounds.height);
+  sd.setComponentPosition(this.shape_bounds.topleft);
+  sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
   sd.disableDrag();
   
 }
@@ -717,7 +784,7 @@ drawStarted(){
   */
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
-
+      const ctrl: boolean = event.ctrlKey;
       const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
       const ndx:any = this.resolveCoordsToNdx(mouse);
 
@@ -731,7 +798,7 @@ drawStarted(){
       this.removeSubscription();    
       
       this.moveSubscription = 
-      fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e)); 
+      fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
 
       if(this.design_modes.isSelected("select")){
           this.selectionStarted();
@@ -740,17 +807,43 @@ drawStarted(){
           this.setCell(ndx);
           this.drawCell(ndx); 
       }else if(this.design_modes.isSelected("shape")){
-          this.shapeStarted(mouse);
+
+        if(this.design_modes.isSelected('free')){
+          if(ctrl){
+            this.processShapeEnd();
+          }else{
+            if(this.shape_vtxs.length == 0) this.shapeStarted(mouse);
+            this.shape_vtxs.push(mouse);
+          }
+        }
       }
   }
+
+
+  @HostListener('mousemove', ['$event'])
+  private onMove(event) {
+
+    if(this.design_modes.isSelected('free') && this.shape_vtxs.length > 0){
+      const shift: boolean = event.shiftKey;
+      const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const ndx:any = this.resolveCoordsToNdx(mouse);
+      mouse.x = ndx.j * this.scale;
+      mouse.y = ndx.i * this.scale;
+      this.shapeDragged(mouse, shift);
+    }
+  }
+  
+
 
 
   /**
    * called form the subscription created on start, checks the index of the location and returns null if its the same
    * @param event the event object
    */
-  onMove(event){
+  onDrag(event){
 
+
+    const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
     const ndx:Interlacement = this.resolveCoordsToNdx(mouse);
     //use this to snap the mouse to the nearest coord
@@ -769,7 +862,7 @@ drawStarted(){
       this.setCell(ndx);
       this.drawCell(ndx);
     }else if(this.design_modes.isSelected("shape")){
-      this.shapeDragged(mouse);
+      this.shapeDragged(mouse, shift);
     }
     
     this.last = ndx;
@@ -785,6 +878,7 @@ drawStarted(){
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
      private onEnd(event) {
+
       //if this.last is null, we have a mouseleave with no mousestart
       if(this.last === undefined) return;
       const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
@@ -797,19 +891,23 @@ drawStarted(){
 
       if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processSelection();
+        this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
+
       }else if(this.design_modes.isSelected("draw")){
         this.processDrawingEnd();
+        this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
+
 
       }else if(this.design_modes.isSelected("shape")){
-        this.processShapeEnd(mouse);
-        this.changeDesignmode('move');
-
+        if(!this.design_modes.isSelected('free')){
+          this.processShapeEnd();
+          this.changeDesignmode('move');
+          this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
       } 
 
-      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.shape_start = {x: 0, y:0};
       //unset vars that would have been created on press
       this.scratch_pad = undefined;
       this.last = undefined;
