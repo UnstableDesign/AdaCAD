@@ -125,7 +125,7 @@ export class MixerComponent implements OnInit {
    * @param name the name of the current design mode
    */
   private inkChanged(name: string){
-     this.palette.inkChanged();
+    // this.palette.inkChanged();
   }
   
   

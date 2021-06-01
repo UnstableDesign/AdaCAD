@@ -1,4 +1,4 @@
-import { Observable, Subscription, fromEvent, from } from 'rxjs';
+import { Observable, Subscription, fromEvent, from, iif } from 'rxjs';
 import { DesignmodesService } from '../../mixer/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
@@ -13,6 +13,7 @@ import { InkService } from '../../mixer/provider/ink.service';
 import {cloneDeep, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
+import { thresholdFreedmanDiaconis } from 'd3-array';
 
 
 @Component({
@@ -268,7 +269,7 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    if(this.design_modes.isSelected('draw')){
+    if(this.design_modes.isSelected('draw') || this.design_modes.isSelected('shape')){
 
       this.subdraft_refs.forEach(sd => {
         sd.disableDrag();
@@ -582,8 +583,25 @@ shapeDragged(mouse: Point, shift: boolean){
 
   if(shift){
     const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
-    this.shape_bounds.width = max;
-    this.shape_bounds.height = max;    
+    
+    //allow lines to snap to coords
+    if(this.design_modes.isSelected('line')){
+        if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
+          this.shape_bounds.height = max;
+          this.shape_bounds.width = this.scale;
+        }else if(Math.abs(this.shape_bounds.height) < Math.abs(this.shape_bounds.width/2)){
+          this.shape_bounds.width = max;
+          this.shape_bounds.height = this.scale;
+        }else{
+          this.shape_bounds.width = max;
+          this.shape_bounds.height = max;  
+        }
+        
+    }else{
+      this.shape_bounds.width = max;
+      this.shape_bounds.height = max;    
+  
+    }
   }
 
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -593,7 +611,7 @@ shapeDragged(mouse: Point, shift: boolean){
   this.cx.lineWidth = this.scale;
 
   if(this.design_modes.isSelected('line')){
-    this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
+    this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
     this.cx.stroke();
   }else if(this.design_modes.isSelected('fill_circle')){
@@ -608,7 +626,7 @@ shapeDragged(mouse: Point, shift: boolean){
     this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
   
   }else if(this.design_modes.isSelected('stroke_rect')){
-    this.cx.strokeRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
+    this.cx.strokeRect(this.shape_bounds.topleft.x + this.scale, this.shape_bounds.topleft.y+ this.scale,this.shape_bounds.width- this.scale,this.shape_bounds.height-this.scale);
 
   }else{
 
@@ -617,14 +635,17 @@ shapeDragged(mouse: Point, shift: boolean){
 
       for(let i = 1; i < this.shape_vtxs.length; i++){
         this.cx.lineTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
-        this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+        //this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
       }
 
     }else{
       this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
     }
+
     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
     this.cx.stroke();
+    this.cx.fill();
+    
   }
 }
 
@@ -633,27 +654,34 @@ shapeDragged(mouse: Point, shift: boolean){
  */
 processShapeEnd(){
 
+  //if circle, the topleft functoins as the center and the bounsd need to expand to fit the entire shape 
   if(this.design_modes.isSelected('fill_circle') || this.design_modes.isSelected('stroke_circle')){
     this.shape_bounds.topleft.x -=  this.shape_bounds.width;
     this.shape_bounds.topleft.y -=  this.shape_bounds.height;
     this.shape_bounds.width *=2;
     this.shape_bounds.height *= 2;
   }else if(this.design_modes.isSelected('free')){
-    if(this.shape_vtxs.length > 0){
-      let top = this.shape_bounds.topleft.y;
-      let left = this.shape_bounds.topleft.x;
-      let bottom = this.shape_bounds.topleft.y +this.shape_bounds.height;
-      let right = this.shape_bounds.topleft.x +this.shape_bounds.width;
-      //iteraate through the poitns and find the leftmost and topmost 
-      for(let i = 1; i < this.shape_vtxs.length; i++ ){
-          if(this.shape_vtxs[i].y < top) top = this.shape_vtxs[i].y;
-          if(this.shape_vtxs[i].x < left) left = this.shape_vtxs[i].x;
-          if(this.shape_vtxs[i].y > bottom) bottom = this.shape_vtxs[i].y;
-          if(this.shape_vtxs[i].x > right) right = this.shape_vtxs[i].x;
-      }
-
-      //keep adding here
+    
+    if(this.shape_vtxs.length === 0) return;
+      //default to current segment
+    let top = this.shape_bounds.topleft.y;
+    let left = this.shape_bounds.topleft.x;
+    let bottom = this.shape_bounds.topleft.y +this.shape_bounds.height;
+    let right = this.shape_bounds.topleft.x +this.shape_bounds.width;
+    
+    //iteraate through the poitns and find the leftmost and topmost 
+    for(let i = 1; i < this.shape_vtxs.length; i++ ){
+        if(this.shape_vtxs[i].y < top) top = this.shape_vtxs[i].y;
+        if(this.shape_vtxs[i].x < left) left = this.shape_vtxs[i].x;
+        if(this.shape_vtxs[i].y > bottom) bottom = this.shape_vtxs[i].y;
+        if(this.shape_vtxs[i].x > right) right = this.shape_vtxs[i].x;
     }
+
+    this.shape_bounds.topleft = {x: left, y: top};
+    this.shape_bounds.width = right - left;
+    this.shape_bounds.height = bottom - top;
+
+    this.shape_vtxs = [];
     
   }else{
     if( this.shape_bounds.width < 0){
@@ -811,10 +839,16 @@ drawStarted(){
         if(this.design_modes.isSelected('free')){
           if(ctrl){
             this.processShapeEnd();
+            this.changeDesignmode('move');
+            this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
           }else{
             if(this.shape_vtxs.length == 0) this.shapeStarted(mouse);
             this.shape_vtxs.push(mouse);
           }
+            
+          
+        }else{
+          this.shapeStarted(mouse);
         }
       }
   }
