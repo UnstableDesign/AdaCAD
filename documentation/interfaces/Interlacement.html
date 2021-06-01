@@ -242,6 +242,9 @@
                                     <a href="../classes/Selection.html" >Selection</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../classes/Shape.html" >Shape</a>
+                                </li>
+                                <li class="link">
                                     <a href="../classes/Shuttle.html" >Shuttle</a>
                                 </li>
                                 <li class="link">
@@ -310,9 +313,6 @@
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                 </li>
                                 <li class="link">
@@ -346,13 +346,7 @@
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -362,9 +356,6 @@
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -636,6 +627,9 @@
                                            <a href="../classes/Selection.html" >Selection</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../classes/Shape.html" >Shape</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../classes/Shuttle.html" >Shuttle</a>
                                        </li>
                                        <li class="link">
@@ -704,9 +698,6 @@
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                        </li>
                                        <li class="link">
@@ -740,13 +731,7 @@
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -756,9 +741,6 @@
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -1002,13 +984,46 @@ interface LoomUpdate {
   tieup: Array&lt;Array&lt;InterlacementVal&gt;&gt;
 }
 
+interface LoomTypes {
+  value: string;
+  viewValue: string;
+}
+
+interface MaterialTypes {
+  value: number;
+  viewValue: string;
+}
+
+interface DensityUnits {
+  value: string;
+  viewValue: string;
+}
+
+
+interface ViewModes {
+  value: string;
+  viewValue: string;
+}
+
+// interface ToolModes{
+//   value: string; 
+//   viewValue: string;
+//   icon: string;
+//   menu: string;
+
+// }
+
 export{
   Point,
   Interlacement,
   InterlacementVal,
   Bounds,
   LoomCoords,
-  LoomUpdate
+  LoomUpdate,
+  LoomTypes,
+  DensityUnits,
+  ViewModes,
+  MaterialTypes
 }
 
 

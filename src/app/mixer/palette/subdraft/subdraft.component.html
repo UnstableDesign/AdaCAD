@@ -74,11 +74,13 @@
 		
 		<mat-menu #fills="matMenu">
 			<ng-container *ngFor="let pattern of patterns">
-				<button [matTooltip]=pattern.name 
-				mat-menu-item
-				[name]=pattern.name 
-				(click)="fill(pattern.id)">{{pattern.name }}
-				</button>    
+				<ng-container *ngIf="pattern.favorite">
+					<button [matTooltip]=pattern.name 
+					mat-menu-item
+					[name]=pattern.name 
+					(click)="fill(pattern.id)">{{pattern.name }}
+					</button>  
+				</ng-container>  
 			  </ng-container>
 		</mat-menu>
 		</div>

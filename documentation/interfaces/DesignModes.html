@@ -242,6 +242,9 @@
                                     <a href="../classes/Selection.html" >Selection</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../classes/Shape.html" >Shape</a>
+                                </li>
+                                <li class="link">
                                     <a href="../classes/Shuttle.html" >Shuttle</a>
                                 </li>
                                 <li class="link">
@@ -310,9 +313,6 @@
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                 </li>
                                 <li class="link">
@@ -346,13 +346,7 @@
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -362,9 +356,6 @@
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -636,6 +627,9 @@
                                            <a href="../classes/Selection.html" >Selection</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../classes/Shape.html" >Shape</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../classes/Shuttle.html" >Shuttle</a>
                                        </li>
                                        <li class="link">
@@ -704,9 +698,6 @@
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                        </li>
                                        <li class="link">
@@ -740,13 +731,7 @@
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -756,9 +741,6 @@
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -928,6 +910,7 @@ import { PatternService } from &#x27;../core/provider/pattern.service&#x27;;
 import { WeaveDirective } from &#x27;./directives/weave.directive&#x27;;
 import { ScrollDispatcher } from &#x27;@angular/cdk/overlay&#x27;;
 import { Timeline } from &#x27;../core/model/timeline&#x27;;
+import { LoomTypes, MaterialTypes, ViewModes, DensityUnits } from &#x27;../core/model/datatypes&#x27;;
 import { Draft } from &#x27;../core/model/draft&#x27;;
 import { Render } from &#x27;../weaver/model/render&#x27;;
 import { Pattern } from &#x27;../core/model/pattern&#x27;;
@@ -950,26 +933,6 @@ enableProdMode();
  * @class
  */
 
-interface LoomTypes {
-  value: string;
-  viewValue: string;
-}
-
-interface MaterialTypes {
-  value: number;
-  viewValue: string;
-}
-
-interface DensityUnits {
-  value: string;
-  viewValue: string;
-}
-
-
-interface ViewModes {
-  value: string;
-  viewValue: string;
-}
 
 interface DesignActions{
   value: string;
@@ -1043,7 +1006,7 @@ export class WeaverComponent implements OnInit {
 
  /**
    * The weave Timeline object.
-   * @property {Render}
+   * @property {Timeline}
    */
   timeline: Timeline &#x3D; new Timeline();
 

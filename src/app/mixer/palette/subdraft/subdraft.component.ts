@@ -4,6 +4,7 @@ import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
 import { ConnectionComponent } from '../connection/connection.component';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
+import { thresholdFreedmanDiaconis } from 'd3-array';
 
 
 
@@ -91,6 +92,14 @@ export class SubdraftComponent implements OnInit {
     this.bounds.height = this.draft.wefts * this.scale;
     this.drawDraft();
 
+
+  }
+
+  rescale(scale:number){
+    this.scale = scale;
+    this.bounds.width = this.draft.warps * this.scale;
+    this.bounds.height = this.draft.wefts * this.scale;
+    this.drawDraft();
 
   }
 
@@ -398,7 +407,7 @@ export class SubdraftComponent implements OnInit {
     fill(id) {
       var p = this.patterns[id].pattern;
       //need a way to specify an area within the fill
-      this.draft.fill(p, 'original');
+      this.draft.fill(p, 'mask');
       this.drawDraft();
 
     }

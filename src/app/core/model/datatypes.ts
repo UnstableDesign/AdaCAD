@@ -72,13 +72,46 @@ interface LoomUpdate {
   tieup: Array<Array<InterlacementVal>>
 }
 
+interface LoomTypes {
+  value: string;
+  viewValue: string;
+}
+
+interface MaterialTypes {
+  value: number;
+  viewValue: string;
+}
+
+interface DensityUnits {
+  value: string;
+  viewValue: string;
+}
+
+
+interface ViewModes {
+  value: string;
+  viewValue: string;
+}
+
+// interface ToolModes{
+//   value: string; 
+//   viewValue: string;
+//   icon: string;
+//   menu: string;
+
+// }
+
 export{
   Point,
   Interlacement,
   InterlacementVal,
   Bounds,
   LoomCoords,
-  LoomUpdate
+  LoomUpdate,
+  LoomTypes,
+  DensityUnits,
+  ViewModes,
+  MaterialTypes
 }
 
 

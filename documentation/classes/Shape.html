@@ -100,7 +100,7 @@
                                     <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../components/ConnectionModal.html"  class="active" >ConnectionModal</a>
+                                    <a href="../components/ConnectionModal.html" >ConnectionModal</a>
                                 </li>
                                 <li class="link">
                                     <a href="../components/InitModal.html" >InitModal</a>
@@ -242,7 +242,7 @@
                                     <a href="../classes/Selection.html" >Selection</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Shape.html" >Shape</a>
+                                    <a href="../classes/Shape.html"  class="active" >Shape</a>
                                 </li>
                                 <li class="link">
                                     <a href="../classes/Shuttle.html" >Shuttle</a>
@@ -485,7 +485,7 @@
                                            <a href="../components/ConnectionComponent.html" >ConnectionComponent</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../components/ConnectionModal.html"  class="active" >ConnectionModal</a>
+                                           <a href="../components/ConnectionModal.html" >ConnectionModal</a>
                                        </li>
                                        <li class="link">
                                            <a href="../components/InitModal.html" >InitModal</a>
@@ -627,7 +627,7 @@
                                            <a href="../classes/Selection.html" >Selection</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Shape.html" >Shape</a>
+                                           <a href="../classes/Shape.html"  class="active" >Shape</a>
                                        </li>
                                        <li class="link">
                                            <a href="../classes/Shuttle.html" >Shuttle</a>
@@ -784,161 +784,405 @@
                    
                    </nav>
                </div>
-               <div class="content component">
+               <div class="content class">
                    <div class="content-data">
 
 
+
+
+
+
 <ol class="breadcrumb">
-  <li>Components</li>
-  <li>ConnectionModal</li>
+  <li>Classes</li>
+  <li>Shape</li>
 </ol>
 
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active">
+        <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
+    </li>
+    <li>
+        <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
+    </li>
+</ul>
 
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
-        </li>
-        <li>
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div class="tab-pane fade active in" id="infos"><p class="comment">
-    <h3>File</h3>
-</p>
-<p class="comment">
-    <code>src/app/weaver/modal/connection/connection.modal.ts</code>
-</p>
-
-
-
-<section>
-    <h3>Metadata</h3>
-    <table class="table table-sm table-hover">
-        <tbody>
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="infos">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/app/mixer/model/shape.ts</code>
+        </p>
 
 
+            <section>
+                <h3 id="constructor">Constructor</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>constructor(shape_canvas: HTMLCanvasElement, bounds: Bounds, scale: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>shape_canvas</b>
+                                                            </div>
+                                                            <div>
+                                                                <ul>
+            <li>a canvas with the shape on it </li>
+            </ul>
+            
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                <b>bounds</b>
+                                                            </div>
+                                                            <div>
+                                                                <ul>
+            <li>the bounds of the shape we are converting</li>
+            </ul>
+            
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                <b>scale</b>
+                                                            </div>
+                                                            <div>
+                                                                <ul>
+            <li>the scale of each cell within the canvas. </li>
+            </ul>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
+
+            <section>
+                <h3 id="methods">Methods</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getImageData</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getImageData()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> resample</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>resample(rows: number, cols: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>rescale the draft in its current size to have this number of rows and cols</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>bounds</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code><a href="../classes/Cell.html" target="_self" >Cell[][]</a></code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> read</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>read()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>rescale the draft in its current size to have this number of rows and cols</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>bounds</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getDraft</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getDraft()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code><a href="../classes/Cell.html" target="_self" >Cell[][]</a></code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
 
 
+            <section>
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> draft</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>draft:     <code><a href="../classes/Cell.html" target="_self" >Cell[][]</a></code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> filled</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>filled:     <code>boolean</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> img_data</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>img_data:     <code>ImageData</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> scale</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <code>scale:     <code>number</code>
+            </bcode>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+    <div class="tab-pane fade tab-source-code" id="source">
+        <pre><code class="hljs javascript">import { Cell } from &quot;../../core/model/cell&quot;;
+import { Bounds } from &quot;../../core/model/datatypes&quot;;
+
+/**
+ * @class Shape
+ * This class manages drafts that are linked to a shaped region. 
+ * It offers functions to translate between shapes represented as HTML Elements 
+ * and converting them into 2D array&#x27;s of cells
+ */
+export class Shape {
+
+  img_data: ImageData;
+  scale: number;
+  draft: Array&lt;Array&lt;Cell&gt;&gt;;
+  filled: boolean;
+
+  
+/**
+ * @constructor takes a canvas element and bounds and converts it to data. 
+ * @param shape_canvas - a canvas with the shape on it 
+ * @param bounds - the bounds of the shape we are converting
+ * @param scale - the scale of each cell within the canvas. 
+ */
+  constructor(shape_canvas: HTMLCanvasElement, bounds:Bounds, scale:number) {
+    this.scale &#x3D; scale;
+    const context &#x3D; shape_canvas.getContext(&#x27;2d&#x27;);
+    const download &#x3D; shape_canvas.toDataURL(&quot;image/png&quot;);
+   // document.write(&#x27;&lt;img src&#x3D;&quot;&#x27;+download+&#x27;&quot;/&gt;&#x27;);
 
 
+    this.img_data &#x3D; context.getImageData(bounds.topleft.x, bounds.topleft.y, bounds.width, bounds.height);
+    this.draft &#x3D; this.resample(Math.floor(bounds.height/scale), Math.floor(bounds.width/scale));
+  };
 
-
-
-
-
-
-            <tr>
-                <td class="col-md-3">selector</td>
-                <td class="col-md-9"><code>app-connection</code></td>
-            </tr>
-
-            <tr>
-                <td class="col-md-3">styleUrls</td>
-                <td class="col-md-9"><code>connection.modal.scss</code></td>
-            </tr>
-
-
-
-            <tr>
-                <td class="col-md-3">templateUrl</td>
-                <td class="col-md-9"><code>connection.modal.html</code></td>
-            </tr>
-
-
-        </tbody>
-    </table>
-</section>
-
-
-
-
-
-    <section>
-        <h3 id="inputs">Properties</h3>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b> x</b>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <code>x:     <code>number</code>
-    </bcode>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b> y</b>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <code>y:     <code>number</code>
-    </bcode>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-    </section>
-</div>
-        <div class="tab-pane fade tab-source-code" id="source">
-            <pre><code class="hljs javascript">import { Component, OnInit, Inject } from &#x27;@angular/core&#x27;;
-import { MAT_DIALOG_DATA, MatDialogRef } from &quot;@angular/material/dialog&quot;;
-
-export class Point {
-  x: number;
-  y: number;
-}
-
-class Connection {
-  start: Point;
-  end: Point;
-  shuttleId: number;
-}
-
-@Component({
-  selector: &#x27;app-connection&#x27;,
-  templateUrl: &#x27;./connection.modal.html&#x27;,
-  styleUrls: [&#x27;./connection.modal.scss&#x27;]
-})
-export class ConnectionModal implements OnInit {
-  connection: Connection &#x3D; new Connection();
-  shuttles: any;
-
-  constructor(private dialogRef: MatDialogRef&lt;ConnectionModal&gt;,
-             @Inject(MAT_DIALOG_DATA) private data: any) { }
-
-  ngOnInit() {
-    this.connection.start &#x3D; new Point();
-    this.connection.end &#x3D; new Point();
-    this.shuttles &#x3D; this.data.shuttles;
+  getImageData(){
+    return this.img_data;
   }
 
-  close() {
-    this.dialogRef.close();
+
+  /**
+   * rescale the draft in its current size to have this number of rows and cols
+   * @param bounds 
+   */
+  resample(rows: number, cols: number):Array&lt;Array&lt;Cell&gt;&gt;{
+    this.draft &#x3D; [];
+    const margin: number &#x3D; this.scale/2; // used to check the center of cells
+
+    for(let i &#x3D; 0; i &lt; rows; i++){
+      this.draft.push([]);
+      const row_ndx &#x3D; (i * this.scale + margin) * (this.img_data.width*4);
+      for(let j &#x3D; 0; j &lt; cols; j++){
+        const col_ndx &#x3D; (j* this.scale + margin) * 4;
+        // const p_red &#x3D; this.img_data.data[row_ndx + col_ndx ];
+         const p_grn &#x3D; this.img_data.data[row_ndx + col_ndx + 1];
+        // const p_blue &#x3D; this.img_data.data[row_ndx + col_ndx + 2];
+        // const p &#x3D; this.img_data.data[row_ndx + col_ndx + 3];
+        // console.log(i, j, row_ndx, col_ndx, p_red, p_grn, p_blue,p);
+        if(p_grn &#x3D;&#x3D; 255){
+          this.draft[i][j] &#x3D; new Cell(false);
+        }else if(p_grn &#x3D;&#x3D; 64){
+          this.draft[i][j] &#x3D; new Cell(true);
+        }else{
+          this.draft[i][j] &#x3D; new Cell(null);
+        }
+      }
+    }
+    
+    return this.draft;
   }
 
-  save() {
-    this.dialogRef.close(this.connection);
+ /**
+   * rescale the draft in its current size to have this number of rows and cols
+   * @param bounds 
+   */
+  read(){
+
+    for(let i &#x3D; 0; i &lt; this.img_data.width; i++){
+      const row_ndx &#x3D; i * this.img_data.width * 4;
+      for(let j &#x3D; 0; j &lt; this.img_data.height; j++){
+        const col_ndx &#x3D; (j * 4);
+        const p_red &#x3D; this.img_data.data[row_ndx + col_ndx ];
+        const p_grn &#x3D; this.img_data.data[row_ndx + col_ndx + 1];
+        const p_blue &#x3D; this.img_data.data[row_ndx + col_ndx + 2];
+        const p &#x3D; this.img_data.data[row_ndx + col_ndx + 3];
+        console.log(i, j, p_red, p_grn, p_blue,p);
+
+        // if(p_grn &gt;&#x3D; 150){
+        //   console.log(i, j, &quot;set&quot;);
+        // }else if(p_grn &lt; 80){
+        // }else{
+        // }
+      }
+    }
+    
+    return this.draft;
   }
+
+  getDraft():Array&lt;Array&lt;Cell&gt;&gt;{
+    return this.draft;
+  }
+
+
+
+
 
 }
 </code></pre>
-        </div>
     </div>
-
-
-
-
-
+</div>
 
 
 

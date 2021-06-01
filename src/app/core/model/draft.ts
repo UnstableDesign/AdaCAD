@@ -298,7 +298,7 @@ export class Draft implements DraftInterface {
 
         for (var j = 0; j < this.warps; j++){
           if (params.pattern === undefined) {
-            this.pattern[ii].push(new Cell(false));
+            this.pattern[ii].push(new Cell(null));
             
           }else{
             this.pattern[ii][j]= new Cell(null);
@@ -1911,7 +1911,7 @@ computeYarnPaths(){
                 break;
               case 'mask':
                new_set = prev_set; 
-               new_heddle = temp.isUp() && prev_heddle;
+               new_heddle = temp.isUp() && prev_set;
                 break;
               case 'mirrorX':
                 new_set = pattern[(h - i - 1) % rows][j % cols].isSet();

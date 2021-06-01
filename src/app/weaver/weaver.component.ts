@@ -5,6 +5,7 @@ import { PatternService } from '../core/provider/pattern.service';
 import { WeaveDirective } from './directives/weave.directive';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
+import { LoomTypes, MaterialTypes, ViewModes, DensityUnits } from '../core/model/datatypes';
 import { Draft } from '../core/model/draft';
 import { Render } from '../weaver/model/render';
 import { Pattern } from '../core/model/pattern';
@@ -27,26 +28,6 @@ enableProdMode();
  * @class
  */
 
-interface LoomTypes {
-  value: string;
-  viewValue: string;
-}
-
-interface MaterialTypes {
-  value: number;
-  viewValue: string;
-}
-
-interface DensityUnits {
-  value: string;
-  viewValue: string;
-}
-
-
-interface ViewModes {
-  value: string;
-  viewValue: string;
-}
 
 interface DesignActions{
   value: string;
@@ -120,7 +101,7 @@ export class WeaverComponent implements OnInit {
 
  /**
    * The weave Timeline object.
-   * @property {Render}
+   * @property {Timeline}
    */
   timeline: Timeline = new Timeline();
 

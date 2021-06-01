@@ -242,6 +242,9 @@
                                     <a href="../classes/Selection.html" >Selection</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../classes/Shape.html" >Shape</a>
+                                </li>
+                                <li class="link">
                                     <a href="../classes/Shuttle.html" >Shuttle</a>
                                 </li>
                                 <li class="link">
@@ -310,9 +313,6 @@
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                 </li>
                                 <li class="link">
@@ -346,13 +346,7 @@
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -362,9 +356,6 @@
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -636,6 +627,9 @@
                                            <a href="../classes/Selection.html" >Selection</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../classes/Shape.html" >Shape</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../classes/Shuttle.html" >Shuttle</a>
                                        </li>
                                        <li class="link">
@@ -704,9 +698,6 @@
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                        </li>
                                        <li class="link">
@@ -740,13 +731,7 @@
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -756,9 +741,6 @@
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -829,7 +811,19 @@
     <code>src/app/mixer/mixer.component.ts</code>
 </p>
 
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>Controller of the Weaver component.</p>
 
+    </p>
+
+    <p class="comment">
+        <h3>Example</h3>
+    </p>
+    <div class="io-description">
+    </div>
 
 <section>
     <h3>Metadata</h3>
@@ -1175,7 +1169,7 @@
                                 <span class="modifier-icon method fa fa-play circle">
                                     <span class="fa fa-circle"></span>
                                 </span>
-                            <code>renderChange(value: any)</code>
+                            <code>renderChange(event: any)</code>
                         </td>
                     </tr>
     
@@ -1501,7 +1495,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-description"><p>The current selection, as boolean array<br>The types of looms this version will support.</p>
+                            <div class="io-description"><p>The types of looms this version will support.</p>
     </div>
                         </td>
                     </tr>
@@ -1626,9 +1620,9 @@ import { PatternService } from &#x27;../core/provider/pattern.service&#x27;;
 import { DesignmodesService } from &#x27;../mixer/provider/designmodes.service&#x27;;
 import { ScrollDispatcher } from &#x27;@angular/cdk/overlay&#x27;;
 import { Timeline } from &#x27;../core/model/timeline&#x27;;
+import { LoomTypes, DensityUnits,MaterialTypes, ViewModes } from &#x27;../core/model/datatypes&#x27;;
 import { Pattern } from &#x27;../core/model/pattern&#x27;;
 import { MatDialog, MatDialogConfig } from &quot;@angular/material/dialog&quot;;
-import {MatExpansionModule} from &quot;@angular/material/expansion&quot;
 import {Subject} from &#x27;rxjs&#x27;;
 import { PaletteComponent } from &#x27;./palette/palette.component&#x27;;
 import { MixerDesignComponent } from &#x27;./tool/mixerdesign/mixerdesign.component&#x27;;
@@ -1643,34 +1637,6 @@ import { MixerDesignComponent } from &#x27;./tool/mixerdesign/mixerdesign.compon
  * @class
  */
 
- interface LoomTypes {
-  value: string;
-  viewValue: string;
-}
-
-interface MaterialTypes {
-  value: number;
-  viewValue: string;
-}
-
-interface DensityUnits {
-  value: string;
-  viewValue: string;
-}
-
-
-interface ViewModes {
-  value: string;
-  viewValue: string;
-}
-
-// interface ToolModes{
-//   value: string; 
-//   viewValue: string;
-//   icon: string;
-//   menu: string;
-
-// }
 
 
 @Component({
@@ -1690,12 +1656,6 @@ export class MixerComponent implements OnInit {
    * @property {Timeline}
    */
    timeline: Timeline &#x3D; new Timeline();
-
-
-  /**
-  The current selection, as boolean array 
-  **/
-  //copy: Array&lt;Array&lt;boolean&gt;&gt;;
 
 
  /**
@@ -1782,7 +1742,7 @@ export class MixerComponent implements OnInit {
    * @param name the name of the current design mode
    */
   private inkChanged(name: string){
-     this.palette.inkChanged();
+    // this.palette.inkChanged();
   }
   
   
@@ -2012,10 +1972,13 @@ export class MixerComponent implements OnInit {
    * @param {Event} e - view change event from design component.
    * @returns {void}
    */
-  public renderChange(value: any) {
+  public renderChange(event: any) {
 
+
+    console.log(event.value);
     //need to render the scale change to the parent and child subdrafts
-    // const scale &#x3D; value / 50;
+     const scale &#x3D; event.value;
+     this.palette.rescale(scale);
     // const div &#x3D; document.getElementById(&#x27;scrollable-container&#x27;);
     // div.style.transform &#x3D; &#x27;scale(&#x27; + scale + &#x27;)&#x27;;
 

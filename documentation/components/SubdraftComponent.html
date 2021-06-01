@@ -242,6 +242,9 @@
                                     <a href="../classes/Selection.html" >Selection</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../classes/Shape.html" >Shape</a>
+                                </li>
+                                <li class="link">
                                     <a href="../classes/Shuttle.html" >Shuttle</a>
                                 </li>
                                 <li class="link">
@@ -310,9 +313,6 @@
                                     <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                 </li>
                                 <li class="link">
@@ -346,13 +346,7 @@
                                     <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                </li>
-                                <li class="link">
                                     <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -362,9 +356,6 @@
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                </li>
-                                <li class="link">
-                                    <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -636,6 +627,9 @@
                                            <a href="../classes/Selection.html" >Selection</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../classes/Shape.html" >Shape</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../classes/Shuttle.html" >Shuttle</a>
                                        </li>
                                        <li class="link">
@@ -704,9 +698,6 @@
                                            <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/DensityUnits.html" >DensityUnits</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/DesignActions.html" >DesignActions</a>
                                        </li>
                                        <li class="link">
@@ -740,13 +731,7 @@
                                            <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/LoomTypes.html" >LoomTypes</a>
-                                       </li>
-                                       <li class="link">
                                            <a href="../interfaces/LoomUpdate.html" >LoomUpdate</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
@@ -756,9 +741,6 @@
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
-                                       </li>
-                                       <li class="link">
-                                           <a href="../interfaces/ViewModes.html" >ViewModes</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -1020,6 +1002,30 @@
 
     <section>
         <h3 id="methods">Methods</h3>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> rescale</b>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+    <code>rescale(scale: number)</code>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description">
+                                    <b>Returns: </b>    <code>void</code>
+    
+                                </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             <table class="table table-sm table-bordered">
                 <tbody>
                     <tr>
@@ -2179,6 +2185,7 @@ import { Point, Interlacement, Bounds } from &#x27;../../../core/model/datatypes
 import { ConnectionComponent } from &#x27;../connection/connection.component&#x27;;
 import { InkService } from &#x27;../../provider/ink.service&#x27;;
 import { LayersService } from &#x27;../../provider/layers.service&#x27;;
+import { thresholdFreedmanDiaconis } from &#x27;d3-array&#x27;;
 
 
 
@@ -2266,6 +2273,14 @@ export class SubdraftComponent implements OnInit {
     this.bounds.height &#x3D; this.draft.wefts * this.scale;
     this.drawDraft();
 
+
+  }
+
+  rescale(scale:number){
+    this.scale &#x3D; scale;
+    this.bounds.width &#x3D; this.draft.warps * this.scale;
+    this.bounds.height &#x3D; this.draft.wefts * this.scale;
+    this.drawDraft();
 
   }
 
@@ -2573,7 +2588,7 @@ export class SubdraftComponent implements OnInit {
     fill(id) {
       var p &#x3D; this.patterns[id].pattern;
       //need a way to specify an area within the fill
-      this.draft.fill(p, &#x27;original&#x27;);
+      this.draft.fill(p, &#x27;mask&#x27;);
       this.drawDraft();
 
     }

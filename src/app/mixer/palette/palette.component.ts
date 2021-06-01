@@ -1,4 +1,4 @@
-import { Observable, Subscription, fromEvent, from } from 'rxjs';
+import { Observable, Subscription, fromEvent, from, iif } from 'rxjs';
 import { DesignmodesService } from '../../mixer/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
@@ -9,11 +9,11 @@ import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
-import { dsv } from 'd3-fetch';
-import { sampleSize } from 'lodash';
 import { InkService } from '../../mixer/provider/ink.service';
-import {cloneDeep} from 'lodash';
+import {cloneDeep, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
+import { Shape } from '../model/shape';
+import { thresholdFreedmanDiaconis } from 'd3-array';
 
 
 @Component({
@@ -104,20 +104,34 @@ export class PaletteComponent implements OnInit{
   
 
   /**
-   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
+   * used to manage the area of the screen that is in view based on scrolling and zooming
    */
    viewport:Bounds;
+  
+  /**
+   * stores the bounds of the shape being drawn
+   */
+   shape_bounds:Bounds;
+  
+  /**
+   * stores the vtx for freehand shapes
+   */
+   shape_vtxs:Array<Point>;
   
 
 
   /**
-   * Constructs a palette object
-   * @param design_modes a reference to the service containing the current design modes and selections
+   * Constructs a palette object. The palette supports drawing without components and dynamically
+   * creates components from shapes and scribbles on the canvas. 
+   * @param design_modes  a reference to the service containing the current design modes and selections
+   * @param inks a reference to the service manaing the available inks
+   * @param layers a reference to the sercie managing the view layers (z-indexes) of components
    * @param resolver a reference to the factory component for dynamically generating components
-   * @param _snackBar a reference to the snackbar component that shows data on move and select
+   * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
    */
   constructor(private design_modes: DesignmodesService, private inks: InkService, private layers: LayersService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
     this.subdraft_refs = [];
+    this.shape_vtxs = [];
     this.viewport = {
       topleft: {x:0, y:0}, 
       width: 0, 
@@ -170,6 +184,15 @@ export class PaletteComponent implements OnInit{
     this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
   }
 
+  rescale(scale:number){
+    this.scale = scale;
+    this.subdraft_refs.forEach(sd => {
+      sd.rescale(scale);
+    });
+
+    if(this.preview !== undefined) this.preview.scale = this.scale;
+  }
+
   closeSnackBar(){
     this._snackBar.dismiss();
   }
@@ -202,7 +225,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.viewport = this.viewport;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-  
+    subdraft.instance.scale = this.scale;
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
   }
@@ -230,6 +253,7 @@ export class PaletteComponent implements OnInit{
       subdraft.instance.disableDrag();
       this.preview_ref = subdraft.hostView;
       this.preview = subdraft.instance;
+      this.preview.scale = this.scale;
     }
 
     hasPreview():boolean{
@@ -255,7 +279,7 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    if(this.design_modes.isSelected('draw')){
+    if(this.design_modes.isSelected('draw') || this.design_modes.isSelected('shape')){
 
       this.subdraft_refs.forEach(sd => {
         sd.disableDrag();
@@ -309,6 +333,7 @@ export class PaletteComponent implements OnInit{
       right: ndx.i*this.scale
     };
 
+    //will draw on outside of selection
     this.cx.strokeStyle = "#ff4081";
     this.cx.strokeRect(bounds.top, bounds.left, bounds.bottom-bounds.top, bounds.right-bounds.left);
       
@@ -536,6 +561,166 @@ export class PaletteComponent implements OnInit{
   });
  }
 
+ /**
+ * brings the base canvas to view and begins to render the
+ * @param mouse the absolute position of the mouse on screen
+ */
+shapeStarted(mouse: Point){
+  
+  this.shape_bounds = {
+    topleft: mouse,
+    width: this.scale,
+    height: this.scale
+  };
+
+
+  this.shape_vtxs = [];
+  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+  this.cx.fillStyle = "#ff4081";
+  this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
+
+
+}
+
+  /**
+   * resizes and redraws the shape between the the current mouse and where the shape started
+   * @param mouse the absolute position of the mouse on screen
+   */
+shapeDragged(mouse: Point, shift: boolean){
+
+  this.shape_bounds.width =  (mouse.x - this.shape_bounds.topleft.x);
+  this.shape_bounds.height =  (mouse.y - this.shape_bounds.topleft.y);
+
+  if(shift){
+    const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
+    
+    //allow lines to snap to coords
+    if(this.design_modes.isSelected('line')){
+        if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
+          this.shape_bounds.height = max;
+          this.shape_bounds.width = this.scale;
+        }else if(Math.abs(this.shape_bounds.height) < Math.abs(this.shape_bounds.width/2)){
+          this.shape_bounds.width = max;
+          this.shape_bounds.height = this.scale;
+        }else{
+          this.shape_bounds.width = max;
+          this.shape_bounds.height = max;  
+        }
+        
+    }else{
+      this.shape_bounds.width = max;
+      this.shape_bounds.height = max;    
+  
+    }
+  }
+
+  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  this.cx.beginPath();
+  this.cx.fillStyle = "#ff4081";
+  this.cx.strokeStyle = "#ff4081";
+  this.cx.lineWidth = this.scale;
+
+  if(this.design_modes.isSelected('line')){
+    this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
+    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+    this.cx.stroke();
+  }else if(this.design_modes.isSelected('fill_circle')){
+    this.shape_bounds.width = Math.abs(this.shape_bounds.width);
+    this.shape_bounds.height = Math.abs(this.shape_bounds.height);
+    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+    this.cx.fill();
+  }else if(this.design_modes.isSelected('stroke_circle')){
+    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+    this.cx.stroke();
+  }else if(this.design_modes.isSelected('fill_rect')){
+    this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
+  
+  }else if(this.design_modes.isSelected('stroke_rect')){
+    this.cx.strokeRect(this.shape_bounds.topleft.x + this.scale, this.shape_bounds.topleft.y+ this.scale,this.shape_bounds.width- this.scale,this.shape_bounds.height-this.scale);
+
+  }else{
+
+    if(this.shape_vtxs.length > 1){
+      this.cx.moveTo(this.shape_vtxs[0].x, this.shape_vtxs[0].y);
+
+      for(let i = 1; i < this.shape_vtxs.length; i++){
+        this.cx.lineTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+        //this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+      }
+
+    }else{
+      this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
+    }
+
+    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+    this.cx.stroke();
+    this.cx.fill();
+    
+  }
+}
+
+/**
+ * converts the shape on screen to a component
+ */
+processShapeEnd(){
+
+  //if circle, the topleft functoins as the center and the bounsd need to expand to fit the entire shape 
+  if(this.design_modes.isSelected('fill_circle') || this.design_modes.isSelected('stroke_circle')){
+    this.shape_bounds.topleft.x -=  this.shape_bounds.width;
+    this.shape_bounds.topleft.y -=  this.shape_bounds.height;
+    this.shape_bounds.width *=2;
+    this.shape_bounds.height *= 2;
+  }else if(this.design_modes.isSelected('free')){
+    
+    if(this.shape_vtxs.length === 0) return;
+      //default to current segment
+    let top = this.shape_bounds.topleft.y;
+    let left = this.shape_bounds.topleft.x;
+    let bottom = this.shape_bounds.topleft.y +this.shape_bounds.height;
+    let right = this.shape_bounds.topleft.x +this.shape_bounds.width;
+    
+    //iteraate through the poitns and find the leftmost and topmost 
+    for(let i = 1; i < this.shape_vtxs.length; i++ ){
+        if(this.shape_vtxs[i].y < top) top = this.shape_vtxs[i].y;
+        if(this.shape_vtxs[i].x < left) left = this.shape_vtxs[i].x;
+        if(this.shape_vtxs[i].y > bottom) bottom = this.shape_vtxs[i].y;
+        if(this.shape_vtxs[i].x > right) right = this.shape_vtxs[i].x;
+    }
+
+    this.shape_bounds.topleft = {x: left, y: top};
+    this.shape_bounds.width = right - left;
+    this.shape_bounds.height = bottom - top;
+
+    this.shape_vtxs = [];
+    
+  }else{
+    if( this.shape_bounds.width < 0){
+      this.shape_bounds.width = Math.abs(this.shape_bounds.width);
+      this.shape_bounds.topleft.x-= this.shape_bounds.width
+    }  
+
+    if( this.shape_bounds.height < 0){
+      this.shape_bounds.height = Math.abs(this.shape_bounds.height);
+      this.shape_bounds.topleft.y-= this.shape_bounds.height
+    }  
+  }
+  
+  const shape: Shape = new Shape(this.canvas, this.shape_bounds, this.scale); 
+  //const img_data = shape.getImageData();
+  // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  // this.cx.putImageData(img_data, 0, 0);
+  const pattern: Array<Array<Cell>> = shape.getDraft();
+
+  const wefts: number = pattern.length;
+  if(wefts <= 0) return;
+  const warps: number = pattern[0].length;
+
+  const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
+  sd.setComponentPosition(this.shape_bounds.topleft);
+  sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
+  sd.disableDrag();
+  
+}
 
 /**
  * clears the scratchpad for the new drawing event
@@ -637,14 +822,21 @@ drawStarted(){
   */
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
+      const ctrl: boolean = event.ctrlKey;
+      const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const ndx:any = this.resolveCoordsToNdx(mouse);
 
-      const ndx:any = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
+      //use this to snap the mouse to the nearest coord
+      mouse.x = ndx.j * this.scale;
+      mouse.y = ndx.i * this.scale;
+
+      
       this.last = ndx;
       this.selection.start = this.last;
       this.removeSubscription();    
       
       this.moveSubscription = 
-      fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e)); 
+      fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
 
       if(this.design_modes.isSelected("select")){
           this.selectionStarted();
@@ -652,18 +844,55 @@ drawStarted(){
           this.drawStarted();    
           this.setCell(ndx);
           this.drawCell(ndx); 
-        
+      }else if(this.design_modes.isSelected("shape")){
+
+        if(this.design_modes.isSelected('free')){
+          if(ctrl){
+            this.processShapeEnd();
+            this.changeDesignmode('move');
+            this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          }else{
+            if(this.shape_vtxs.length == 0) this.shapeStarted(mouse);
+            this.shape_vtxs.push(mouse);
+          }
+            
+          
+        }else{
+          this.shapeStarted(mouse);
+        }
       }
   }
+
+
+  @HostListener('mousemove', ['$event'])
+  private onMove(event) {
+
+    if(this.design_modes.isSelected('free') && this.shape_vtxs.length > 0){
+      const shift: boolean = event.shiftKey;
+      const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const ndx:any = this.resolveCoordsToNdx(mouse);
+      mouse.x = ndx.j * this.scale;
+      mouse.y = ndx.i * this.scale;
+      this.shapeDragged(mouse, shift);
+    }
+  }
+  
+
 
 
   /**
    * called form the subscription created on start, checks the index of the location and returns null if its the same
    * @param event the event object
    */
-  onMove(event){
+  onDrag(event){
 
-    const ndx:Interlacement = this.resolveCoordsToNdx({x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY});
+
+    const shift: boolean = event.shiftKey;
+    const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+    const ndx:Interlacement = this.resolveCoordsToNdx(mouse);
+    //use this to snap the mouse to the nearest coord
+    mouse.x = ndx.j * this.scale;
+    mouse.y = ndx.i * this.scale;
 
     if(this.isSameNdx(this.last, ndx)) return;
 
@@ -676,6 +905,8 @@ drawStarted(){
     }else if(this.design_modes.isSelected("draw")){
       this.setCell(ndx);
       this.drawCell(ndx);
+    }else if(this.design_modes.isSelected("shape")){
+      this.shapeDragged(mouse, shift);
     }
     
     this.last = ndx;
@@ -691,19 +922,34 @@ drawStarted(){
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
      private onEnd(event) {
+
       //if this.last is null, we have a mouseleave with no mousestart
       if(this.last === undefined) return;
+      const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const ndx:Interlacement = this.resolveCoordsToNdx(mouse);
+      //use this to snap the mouse to the nearest coord
+      mouse.x = ndx.j * this.scale;
+      mouse.y = ndx.i * this.scale;
 
       this.removeSubscription();   
-      this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
       if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processSelection();
-        this.changeDesignmode('move');
-      }else if(this.design_modes.isSelected("draw")){
-        this.processDrawingEnd();
+        this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
 
+      }else if(this.design_modes.isSelected("draw")){
+        this.processDrawingEnd();
+        this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.changeDesignmode('move');
+
+
+      }else if(this.design_modes.isSelected("shape")){
+        if(!this.design_modes.isSelected('free')){
+          this.processShapeEnd();
+          this.changeDesignmode('move');
+          this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
       } 
 
       //unset vars that would have been created on press

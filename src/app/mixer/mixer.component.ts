@@ -3,9 +3,9 @@ import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
+import { LoomTypes, DensityUnits,MaterialTypes, ViewModes } from '../core/model/datatypes';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
-import {MatExpansionModule} from "@angular/material/expansion"
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
@@ -20,34 +20,6 @@ import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
  * @class
  */
 
- interface LoomTypes {
-  value: string;
-  viewValue: string;
-}
-
-interface MaterialTypes {
-  value: number;
-  viewValue: string;
-}
-
-interface DensityUnits {
-  value: string;
-  viewValue: string;
-}
-
-
-interface ViewModes {
-  value: string;
-  viewValue: string;
-}
-
-// interface ToolModes{
-//   value: string; 
-//   viewValue: string;
-//   icon: string;
-//   menu: string;
-
-// }
 
 
 @Component({
@@ -67,12 +39,6 @@ export class MixerComponent implements OnInit {
    * @property {Timeline}
    */
    timeline: Timeline = new Timeline();
-
-
-  /**
-  The current selection, as boolean array 
-  **/
-  //copy: Array<Array<boolean>>;
 
 
  /**
@@ -159,7 +125,7 @@ export class MixerComponent implements OnInit {
    * @param name the name of the current design mode
    */
   private inkChanged(name: string){
-     this.palette.inkChanged();
+    // this.palette.inkChanged();
   }
   
   
@@ -389,10 +355,13 @@ export class MixerComponent implements OnInit {
    * @param {Event} e - view change event from design component.
    * @returns {void}
    */
-  public renderChange(value: any) {
+  public renderChange(event: any) {
 
+
+    console.log(event.value);
     //need to render the scale change to the parent and child subdrafts
-    // const scale = value / 50;
+     const scale = event.value;
+     this.palette.rescale(scale);
     // const div = document.getElementById('scrollable-container');
     // div.style.transform = 'scale(' + scale + ')';
 
