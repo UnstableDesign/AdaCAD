@@ -298,7 +298,7 @@ export class Draft implements DraftInterface {
 
         for (var j = 0; j < this.warps; j++){
           if (params.pattern === undefined) {
-            this.pattern[ii].push(new Cell(false));
+            this.pattern[ii].push(new Cell(null));
             
           }else{
             this.pattern[ii][j]= new Cell(null);
