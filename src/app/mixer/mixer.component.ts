@@ -355,10 +355,13 @@ export class MixerComponent implements OnInit {
    * @param {Event} e - view change event from design component.
    * @returns {void}
    */
-  public renderChange(value: any) {
+  public renderChange(event: any) {
 
+
+    console.log(event.value);
     //need to render the scale change to the parent and child subdrafts
-    // const scale = value / 50;
+     const scale = event.value;
+     this.palette.rescale(scale);
     // const div = document.getElementById('scrollable-container');
     // div.style.transform = 'scale(' + scale + ')';
 

@@ -22,19 +22,8 @@
         <mat-accordion multi>
 
         <app-mixerview 
-          [weft_systems] = "draft?.weft_systems"
-          [warp_systems]="draft?.warp_systems" 
-          [front] = "render?.view_front"
-          [view_modes] = "view_modes"
-          [zoom] = "render?.zoom"
-          [view] ="render?.current_view"
-          (onViewChange) ="viewChange($event);"
+          [zoom] = "palette?.scale"
           (onZoomChange) ="renderChange($event);"
-          (onViewFront) ="renderChange($event);"
-          (onHideWeftSystem)="hideWeftSystem($event);"
-          (onShowWeftSystem)="showWeftSystem($event);"
-          (onHideWarpSystem)="hideWarpSystem($event);"
-          (onShowWarpSystem)="showWarpSystem($event);"
         >
 
 

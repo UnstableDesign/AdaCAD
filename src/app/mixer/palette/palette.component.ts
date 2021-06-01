@@ -184,6 +184,15 @@ export class PaletteComponent implements OnInit{
     this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
   }
 
+  rescale(scale:number){
+    this.scale = scale;
+    this.subdraft_refs.forEach(sd => {
+      sd.rescale(scale);
+    });
+
+    if(this.preview !== undefined) this.preview.scale = this.scale;
+  }
+
   closeSnackBar(){
     this._snackBar.dismiss();
   }
@@ -216,7 +225,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.viewport = this.viewport;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-  
+    subdraft.instance.scale = this.scale;
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
   }
@@ -244,6 +253,7 @@ export class PaletteComponent implements OnInit{
       subdraft.instance.disableDrag();
       this.preview_ref = subdraft.hostView;
       this.preview = subdraft.instance;
+      this.preview.scale = this.scale;
     }
 
     hasPreview():boolean{
