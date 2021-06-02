@@ -294,6 +294,23 @@ export class SubdraftComponent implements OnInit {
     return this.bounds.topleft;
   }
 
+    /**
+   * gets the position of this elment on the canvas represented as an interlacement based on this components scale
+   * @returns Interlacement describing the topleft cell
+   */
+  getTopleftAsInterlacement(): Interlacement{
+      return {i: this.bounds.topleft.y / this.scale, j: this.bounds.topleft.x / this.scale, si: null};
+  }
+
+  /**
+   * represents width as j component and height as i component
+   * @returns Interlacement describing the width and height
+   */
+  getBoundsAsInterlacement(): Interlacement{
+        return {i: this.draft.warps, j:  this.draft.wefts, si: null};
+    }
+    
+  
   /**
    * takes an absolute point and returns the "cell" boundary that is closest. 
    * @param p the absolute point

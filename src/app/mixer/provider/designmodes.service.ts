@@ -120,6 +120,18 @@ export class DesignmodesService {
   }
 
   /**
+   * Get the current shape that is selected or null if no shape is selected
+   * @returns returns the collection of selected modes
+   */
+    getSelectedShapeName():string{
+      const shapes:DesignMode = this.getMode('shape');
+      shapes.children.forEach(child => {
+        if(child.selected) return child.viewValue;
+      });
+      return "";
+  }
+  
+  /**
    * checks if a user specified mode is selected
    * @param name the name of the mode we are asking about
    * @returns boolean describing if it was selected or not

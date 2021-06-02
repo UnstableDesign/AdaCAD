@@ -31,11 +31,11 @@ import { ConnectionComponent } from './palette/connection/connection.component';
     SnackbarComponent,
     SelectionComponent,
     OperationComponent,
-    ConnectionComponent
+    ConnectionComponent,
     ],
   entryComponents: [
     SubdraftComponent,
-    SnackbarComponent  
+    SnackbarComponent,
   ]
 })
 export class MixerModule { }

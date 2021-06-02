@@ -6,14 +6,13 @@ import { SelectionComponent } from './selection/selection.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
 import {cloneDeep, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
-import { thresholdFreedmanDiaconis } from 'd3-array';
 
 
 @Component({
@@ -119,6 +118,12 @@ export class PaletteComponent implements OnInit{
    shape_vtxs:Array<Point>;
   
 
+  /**
+   * trackable inputs to snackbar
+   */
+   snack_message:string;
+   snack_bounds: Bounds;
+  
 
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
@@ -145,7 +150,6 @@ export class PaletteComponent implements OnInit{
   ngOnInit(){
     this.scale = 10;
     this.vc.clear();
-    console.log(this.inks);
   }
 
   /**
@@ -176,7 +180,6 @@ export class PaletteComponent implements OnInit{
     this.selection.scale = this.scale;
     this.selection.active = false;
     this.designModeChanged();
-
   }
 
   handleScroll(data: any){
@@ -191,6 +194,24 @@ export class PaletteComponent implements OnInit{
     });
 
     if(this.preview !== undefined) this.preview.scale = this.scale;
+  }
+
+  
+
+  startSnackBar(message: string, bounds:Bounds){
+    this.updateSnackBar(message, bounds);
+    this._snackBar.openFromComponent(SnackbarComponent, {
+      data: {
+        message: this.snack_message,
+        bounds: this.snack_bounds,
+        scale: this.scale
+      }
+    });
+  }
+
+  updateSnackBar(message: string, bounds:Bounds){
+    this.snack_bounds = bounds;
+    this.snack_message = message;
   }
 
   closeSnackBar(){
@@ -334,7 +355,10 @@ export class PaletteComponent implements OnInit{
     };
 
     //will draw on outside of selection
+    this.cx.beginPath();
     this.cx.strokeStyle = "#ff4081";
+    this.cx.lineWidth = 1;
+    this.cx.setLineDash([this.scale, 2]);
     this.cx.strokeRect(bounds.top, bounds.left, bounds.bottom-bounds.top, bounds.right-bounds.left);
       
   }
@@ -530,9 +554,10 @@ export class PaletteComponent implements OnInit{
       //get the reference to the draft that's moving
       const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
-      this._snackBar.openFromComponent(SnackbarComponent, {
-        data: moving
-      });
+
+
+      this.startSnackBar("Using Ink: "+moving.ink, moving.bounds);
+      
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
 
       if(isect.length == 0) return;
@@ -556,9 +581,7 @@ export class PaletteComponent implements OnInit{
 
   this.selection.start = this.last;
   this.selection.active = true;
-  this._snackBar.openFromComponent(SnackbarComponent, {
-    data: this.selection
-  });
+  this.startSnackBar("Select Drafts to Join", this.selection.bounds);
  }
 
  /**
@@ -578,7 +601,13 @@ shapeStarted(mouse: Point){
   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
   this.cx.fillStyle = "#ff4081";
   this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
-
+  
+  if(this.design_modes.isSelected('free')){
+    this.startSnackBar("CTRL+Click to end drawing", this.shape_bounds);
+  }else{
+    this.startSnackBar("Press SHIFT while dragging to constrain shape", this.shape_bounds);
+  }
+ 
 
 }
 
@@ -618,6 +647,7 @@ shapeDragged(mouse: Point, shift: boolean){
   this.cx.beginPath();
   this.cx.fillStyle = "#ff4081";
   this.cx.strokeStyle = "#ff4081";
+  this.cx.setLineDash([]);
   this.cx.lineWidth = this.scale;
 
   if(this.design_modes.isSelected('line')){
@@ -656,6 +686,12 @@ shapeDragged(mouse: Point, shift: boolean){
     this.cx.stroke();
     this.cx.fill();
     
+  }
+
+  if(this.design_modes.isSelected('free')){
+    this.updateSnackBar("CTRL+click to end drawing", this.shape_bounds);
+  }else{
+    this.updateSnackBar("Press SHIFT to contstrain shape", this.shape_bounds);
   }
 }
 
@@ -736,6 +772,8 @@ drawStarted(){
       }
     this.scratch_pad.push(row);
     }
+
+    this.startSnackBar("Drag to Draw", null);
   }
 
 
@@ -849,6 +887,7 @@ drawStarted(){
         if(this.design_modes.isSelected('free')){
           if(ctrl){
             this.processShapeEnd();
+            this.closeSnackBar();
             this.changeDesignmode('move');
             this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
           }else{
@@ -901,6 +940,8 @@ drawStarted(){
      this.drawSelection(ndx);
      const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
      this.selection.setPositionAndSize(bounds);
+     this.updateSnackBar("Select Drafts to Join",  this.selection.bounds);
+
     
     }else if(this.design_modes.isSelected("draw")){
       this.setCell(ndx);
@@ -935,11 +976,13 @@ drawStarted(){
 
       if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processSelection();
+        this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
 
       }else if(this.design_modes.isSelected("draw")){
         this.processDrawingEnd();
+        this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
 
@@ -1018,6 +1061,8 @@ drawStarted(){
       //get the reference to the draft that's moving
       const moving = this.getSubdraft(obj.id);
       if(moving === null) return; 
+
+      this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       

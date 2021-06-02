@@ -1,8 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import {MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
-import { Draft } from '../../../core/model/draft';
-import { SelectionComponent } from '../selection/selection.component';
-import { SubdraftComponent} from '../subdraft/subdraft.component'
+import { Bounds } from '../../../core/model/datatypes';
+
 
 @Component({
   selector: 'app-snackbar',
@@ -11,10 +10,14 @@ import { SubdraftComponent} from '../subdraft/subdraft.component'
 })
 export class SnackbarComponent implements OnInit {
 
-  subdraft: SubdraftComponent|SelectionComponent;
+  bounds: Bounds;
+  message: string;
+  scale: number;
 
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: SubdraftComponent|SelectionComponent) { 
-    this.subdraft = data;
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) { 
+    this.bounds = data.bounds;
+    this.message = data.message;
+    this.scale = data.scale;
   }
 
   ngOnInit() {
