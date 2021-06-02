@@ -717,6 +717,7 @@ shapeDragged(mouse: Point, shift: boolean){
  * converts the shape on screen to a component
  */
 processShapeEnd(){
+  this.closeSnackBar();
 
   //if circle, the topleft functoins as the center and the bounsd need to expand to fit the entire shape 
   if(this.design_modes.isSelected('fill_circle') || this.design_modes.isSelected('stroke_circle')){
@@ -905,7 +906,6 @@ drawStarted(){
         if(this.design_modes.isSelected('free')){
           if(ctrl){
             this.processShapeEnd();
-            this.closeSnackBar();
             this.changeDesignmode('move');
             this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
           }else{
@@ -1115,7 +1115,7 @@ drawStarted(){
       if(this.hasPreview()){
         const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}));
         const to_right: Point = this.preview.getTopleft();
-        to_right.x += this.preview.bounds.width + 20;
+       // to_right.x += this.preview.bounds.width + 20;
         sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
         sd.setComponentPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);

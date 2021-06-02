@@ -5,6 +5,7 @@ import { ConnectionComponent } from '../connection/connection.component';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import { thresholdFreedmanDiaconis } from 'd3-array';
+import { Cell } from '../../../core/model/cell';
 
 
 
@@ -43,7 +44,9 @@ export class SubdraftComponent implements OnInit {
   {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
   {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
   {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
-  {value: 'duplicate', viewValue: 'Duplicate this Draft', icon: "fa fa-clone"}
+  {value: 'duplicate', viewValue: 'Duplicate this Draft', icon: "fa fa-clone"},
+  {value: 'clear', viewValue: 'Clear', icon: "fas fa-eraser"}
+
 ];
 
 
@@ -276,6 +279,8 @@ export class SubdraftComponent implements OnInit {
           }
         } else{
           this.cx.fillStyle =  '#0000000d';
+         // this.cx.fillStyle =  '#ff0000';
+
         }
         this.cx.fillRect(j*this.scale, i*this.scale, this.scale, this.scale);
       }
@@ -382,6 +387,9 @@ export class SubdraftComponent implements OnInit {
       this.onDuplicateCalled.emit({id: this.draft.id});
       break;
 
+      case 'clear': this.clear();
+      break;
+
       case 'toggle': this.pasteEvent('invert');
       break;
 
@@ -412,7 +420,14 @@ export class SubdraftComponent implements OnInit {
 
     }
 
+    clear() {
+      const c:Cell = new Cell(false);
+      const pattern = [[c]];
+      //need a way to specify an area within the fill
+      this.draft.fill(pattern, 'clear');
+      this.drawDraft();
 
+    }
    
 
     pasteEvent(type) {

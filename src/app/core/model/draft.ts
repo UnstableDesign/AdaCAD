@@ -1881,6 +1881,7 @@ computeYarnPaths(){
       
       const rows = pattern.length;
       const cols = pattern[0].length;
+      const store: Array<Array<Cell>> = [];
   
       var w,h;
   
@@ -1890,8 +1891,9 @@ computeYarnPaths(){
   
       //cycle through each visible row/column of the draft
       for (var i = 0; i < h; i++ ) {
+        store.push([]);
         for (var j = 0; j < w; j++ ) {
-  
+          store[i].push(new Cell(null));
           var row = i;
           var col = j;
   
@@ -1905,6 +1907,10 @@ computeYarnPaths(){
           let new_heddle = true;
            
           switch (type) {
+              case 'clear':
+               new_set = false; 
+               new_heddle = false;
+                break;
               case 'invert':
                new_set = prev_set; 
                new_heddle = !prev_heddle;
@@ -1934,20 +1940,23 @@ computeYarnPaths(){
                 new_heddle = temp.isUp();
                 break;
             }
-  
-  
-            if(this.hasCell(draft_row,col)){
 
-                if(new_set){
-                  this.setHeddle(draft_row,j,new_heddle);
-                }else{
-                  this.pattern[draft_row][j].unsetHeddle();
-                }
-          }
+            if(new_set){
+              store[i][j].setHeddle(new_heddle);
+            }
         }
       }
+
+      store.forEach((row, i) =>{
+        row.forEach((cell,j) =>{
+          if(this.hasCell(i,j)){
+            if(cell.isSet) this.pattern[i][j].setHeddle(cell.getHeddle());
+          }
+        });
+      });     
+    
   
-    }
+  }
 
   /***
    This function takes a point added to the draft and updates and redraws the loom states
