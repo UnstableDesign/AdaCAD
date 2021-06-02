@@ -1908,16 +1908,20 @@ computeYarnPaths(){
            
           switch (type) {
               case 'clear':
-               new_set = false; 
-               new_heddle = false;
+               new_set = true; 
+               new_heddle = true;
                 break;
               case 'invert':
                new_set = prev_set; 
                new_heddle = !prev_heddle;
                 break;
+              case 'reset':
+                new_set = prev_set; 
+                new_heddle = true;
+                  break;
               case 'mask':
                new_set = prev_set; 
-               new_heddle = temp.isUp() && prev_set;
+               new_heddle = temp.isUp() && prev_heddle;
                 break;
               case 'mirrorX':
                 new_set = pattern[(h - i - 1) % rows][j % cols].isSet();

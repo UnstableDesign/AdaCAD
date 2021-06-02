@@ -81,10 +81,11 @@ canvas{
 	border: thin solid white;
 }
 
+.no-pointer{
+	pointer-events: none;
+}
+
 div.cdk-drag-dragging canvas{
 	border: thin solid #ff4081;
 }
 
-div.cdk-drag-dragging{
-	z-index: 1; 
-}

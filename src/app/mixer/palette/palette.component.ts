@@ -304,6 +304,7 @@ export class PaletteComponent implements OnInit{
 
     if(this.design_modes.isSelected('draw') || this.design_modes.isSelected('shape')){
 
+      console.log("disabling drag");
       this.subdraft_refs.forEach(sd => {
         sd.disableDrag();
       });
@@ -1119,7 +1120,7 @@ drawStarted(){
         sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
         sd.setComponentPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
-        sd.setAsPreview(); //this is a hack - get better way of brining tot fronott
+        sd.zndx = this.layers.createLayer();
         this.removePreview();
       } 
       
