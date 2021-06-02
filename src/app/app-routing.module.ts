@@ -11,7 +11,7 @@ const routes: Routes = [
     children: []
   },
   {
-    path: 'weaver',
+    path: '',
     component: WeaverComponent,
     children: []
   }
