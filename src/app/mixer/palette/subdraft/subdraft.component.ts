@@ -34,6 +34,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onSubdraftDrop = new EventEmitter <any>(); 
   @Output() onSubdraftStart = new EventEmitter <any>(); 
   @Output() onDeleteCalled = new EventEmitter <any>(); 
+  @Output() onDuplicateCalled = new EventEmitter <any>(); 
 
  //operations you can perform on a selection 
  design_actions: DesignActions[] = [
@@ -42,8 +43,7 @@ export class SubdraftComponent implements OnInit {
   {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
   {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
   {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
-  {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
-  {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
+  {value: 'duplicate', viewValue: 'Duplicate this Draft', icon: "fa fa-clone"}
 ];
 
 
@@ -294,23 +294,7 @@ export class SubdraftComponent implements OnInit {
     return this.bounds.topleft;
   }
 
-    /**
-   * gets the position of this elment on the canvas represented as an interlacement based on this components scale
-   * @returns Interlacement describing the topleft cell
-   */
-  getTopleftAsInterlacement(): Interlacement{
-      return {i: this.bounds.topleft.y / this.scale, j: this.bounds.topleft.x / this.scale, si: null};
-  }
 
-  /**
-   * represents width as j component and height as i component
-   * @returns Interlacement describing the width and height
-   */
-  getBoundsAsInterlacement(): Interlacement{
-        return {i: this.draft.warps, j:  this.draft.wefts, si: null};
-    }
-    
-  
   /**
    * takes an absolute point and returns the "cell" boundary that is closest. 
    * @param p the absolute point
@@ -390,14 +374,13 @@ export class SubdraftComponent implements OnInit {
   }
 
 
+
   designActionChange(e){
 
     switch(e){
-      // case 'copy': this.copyEvent(e);
-      // break;
-
-      // case 'duplicate': this.duplicate(e, 'original');
-      // break;
+      case 'duplicate':   
+      this.onDuplicateCalled.emit({id: this.draft.id});
+      break;
 
       case 'toggle': this.pasteEvent('invert');
       break;
@@ -429,13 +412,8 @@ export class SubdraftComponent implements OnInit {
 
     }
 
-    // copyEvent(e) {
-    //   this.onCopy();
-    // }
 
-    clearEvent(b:boolean) {
-     // this.onClear(b);
-    }
+   
 
     pasteEvent(type) {
 
@@ -446,84 +424,7 @@ export class SubdraftComponent implements OnInit {
      this.draft.fill(p, type);
      this.drawDraft();
 
-
-
     }
     
-    /**
-  //  * Tell the weave directive to fill selection with pattern.
-  //  * @extends WeaveComponent
-  //  * @param {Event} e - fill event from design component.
-  //  * @returns {void}
-  //  */
-  // public onFill(e) {
-    
-  //   var p = this.patterns[e.id].pattern;
-  //   console.log(p);
-    
-
-  //   //need a way to specify an area within the fill
-  //   this.draft.fill(p, 'original');
-  //   this.drawDraft(this.draft);
-
-
-  //   // if(this.render.showingFrames()) this.draft.recomputeLoom();
-
-  //   // if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
-    
-  //   // this.palette.redraw({drawdown:true, loom:true});
-
-  //   // this.timeline.addHistoryState(this.draft);
-    
-  // }
-
-  /**
-   * Tell weave reference to clear selection.
-   * @extends WeaveComponent
-   * @param {Event} Delte - clear event from design component.
-   * @returns {void}
-   */
-  public onClear(b:boolean) {
-    
-    // this.draft.fillArea(this.palette.selection, [[b]], 'original')
-
-    // this.palette.copyArea();
-
-    // this.palette.redraw({drawdown:true, loom:true});
-
-    // this.timeline.addHistoryState(this.draft);
-
-  }
-
- 
-  /**
-   * Tells weave reference to paste copied pattern.
-   * @extends WeaveComponent
-   * @param {Event} e - paste event from design component.
-   * @returns {void}
-   */
-  public onPaste(e) {
-
-     var p = this.draft.pattern;
-     var type;
-
-    if(e.type === undefined) type = "original";
-    else type =  e.type;
-
-     this.draft.fill(p, type);
-     this.drawDraft();
-
-    // if(this.render.showingFrames()) this.draft.recomputeLoom();
-    
-    // if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
-
-    // this.timeline.addHistoryState(this.draft);
-
-    // this.palette.copyArea();
-
-    // this.palette.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
- 
-
-  }
 
 }

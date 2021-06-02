@@ -162,6 +162,7 @@ export class PaletteComponent implements OnInit{
       element.onSubdraftDrop.unsubscribe();
       element.onSubdraftMove.unsubscribe();
       element.onDeleteCalled.unsubscribe();
+      element.onDuplicateCalled.unsubscribe();
     });
 
     this.vc.clear();
@@ -242,6 +243,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
     subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
+    subdraft.instance.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
     subdraft.instance.viewport = this.viewport;
     subdraft.instance.patterns = this.patterns;
@@ -538,6 +540,22 @@ export class PaletteComponent implements OnInit{
       if(obj === null) return;
       const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
       this.removeSubdraft(sd);
+   }
+
+     /**
+   * Deletes the subdraft that called this function.
+   */
+    onDuplicateSubdraftCalled(obj: any){
+        console.log("duplicating "+obj.id);
+        if(obj === null) return;
+        const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
+        const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}));
+        new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
+        new_sd.setComponentPosition({
+          x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
+          y: sd.bounds.topleft.y});
+        new_sd.drawDraft();
+        
    }
 
   /**
