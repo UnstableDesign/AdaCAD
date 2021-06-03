@@ -1,7 +1,7 @@
 import { Subscription, fromEvent } from 'rxjs';
-import { Component, HostListener, Input, OnInit } from '@angular/core';
-import { Bounds } from '../../../../core/model/datatypes';
-import { Splice } from '../../../operations/splice';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Bounds } from '../../../core/model/datatypes';
+import { Splice } from '../../operations/splice';
 import { ConnectionComponent } from '../connection/connection.component';
 
 @Component({
@@ -11,24 +11,17 @@ import { ConnectionComponent } from '../connection/connection.component';
 })
 export class OperationComponent implements OnInit {
 
-  
+   @Input() id: number; //generated from the tree service
    @Input() bounds: Bounds;
    @Input() name: string;
-
-    /**
-   * Subscribes to move event after a touch event is started.
-   * @property {Subscription}
-   */
-  moveSubscription: Subscription;
-
+   @Output() onSelectInputDraft:any = new EventEmitter()
 
 
    selecting_connection: boolean;
-
    op: any;
    inputs: Array<number>; //store draft Ids
    ouputs: Array<number>; //store draft Ids
-   
+   tooltip: string = "select drafts to input to this operation"
    zndx: number;
    disable_drag: boolean;
 
@@ -47,6 +40,10 @@ export class OperationComponent implements OnInit {
 
   }
 
+  rescale(scale:number){
+    
+  }
+
   disableDrag(){
     this.disable_drag = true;
   }
@@ -56,20 +53,18 @@ export class OperationComponent implements OnInit {
   }
 
   inputSelected(event: any, ndx: number){
-    console.log(event);
     this.selecting_connection = true;
     this.disableDrag();
     console.log("input from ", event);
-    
-    this.moveSubscription = 
-    fromEvent(event.target, 'mousemove').subscribe(e => this.findConnection(e)); 
+
+    this.onSelectInputDraft.emit({
+      event: event,
+      id: this.id,
+      topleft: this.bounds.topleft
+    });
 
   }
 
-  findConnection(event){
-    console.log(event);
-
-  }
 
 
 
@@ -83,24 +78,6 @@ export class OperationComponent implements OnInit {
   dragEnd($event: any) {
    
   }
-  /**
- * Called when the mouse is up or leaves the boundary of the view
- * @param event 
- * @returns 
- */
-   @HostListener('mouseleave', ['$event'])
-   @HostListener('mouseup', ['$event'])
-      private onEnd(event) {
  
-          this.removeSubscription();
-   }
-
-  private removeSubscription() {    
-    console.log("remove");
-    if (this.moveSubscription) {
-      this.moveSubscription.unsubscribe();
-    }
-  }
-
 
 }

@@ -3,18 +3,21 @@
     flex-direction: row;
     justify-content: flex-start;
     width: 100px;
-    height: 100px;
+}
+
+.name{
+    margin: 0px 5px; 
 }
 
 .inputs{
     display: flex;
     justify-content: flex-end;
+    text-align: center;
 }
 
 .operation-details{
     background: black;
     color: white;
-    border: thin solid white;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;

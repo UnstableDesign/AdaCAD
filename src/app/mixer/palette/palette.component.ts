@@ -14,7 +14,9 @@ import {cloneDeep} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
-import {ComposerComponent} from './composer/composer.component'
+import { OperationComponent } from './operation/operation.component';
+import { ConnectionComponent } from './connection/connection.component';
+import { TreeService } from '../provider/tree.service';
 
 @Component({
   selector: 'app-palette',
@@ -39,22 +41,12 @@ export class PaletteComponent implements OnInit{
   moveSubscription: Subscription;
 
   /**
-   * A container for all elements associated with composing drafts together using operations
-   */
-  @ViewChild('composer', {read: ComposerComponent, static: true}) composer: ComposerComponent;
-
-
-  /**
    * A container that supports the automatic generation and removal of the components inside of it
    */
   @ViewChild('vc', {read: ViewContainerRef, static: true}) vc: ViewContainerRef;
 
-  /**
-   * holds a reference to the Subdraft Components within this view
-   * @property {Array<SubdraftComponent>}
-   */
-  subdraft_refs: Array<SubdraftComponent>;
 
+  selecting_connection: boolean = false;
 
     /**
    * a placeholder to reference a temporary rendering of an union between subdrafts
@@ -145,8 +137,13 @@ export class PaletteComponent implements OnInit{
    * @param resolver a reference to the factory component for dynamically generating components
    * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
    */
-  constructor(private design_modes: DesignmodesService, private inks: InkService, private layers: LayersService, private resolver: ComponentFactoryResolver, private _snackBar: MatSnackBar) { 
-    this.subdraft_refs = [];
+  constructor(
+    private design_modes: DesignmodesService, 
+    private tree: TreeService,
+    private inks: InkService, 
+    private layers: LayersService, 
+    private resolver: ComponentFactoryResolver, 
+    private _snackBar: MatSnackBar) { 
     this.shape_vtxs = [];
     this.viewport = {
       topleft: {x:0, y:0}, 
@@ -169,7 +166,7 @@ export class PaletteComponent implements OnInit{
    */
   ngOnDestroy(){
 
-    this.subdraft_refs.forEach(element => {
+    this.tree.getDrafts().forEach(element => {
       element.onSubdraftStart.unsubscribe();
       element.onSubdraftDrop.unsubscribe();
       element.onSubdraftMove.unsubscribe();
@@ -177,6 +174,13 @@ export class PaletteComponent implements OnInit{
       element.onDuplicateCalled.unsubscribe();
     });
 
+
+    this.tree.getOperations().forEach(element => {
+      element.onSelectInputDraft.unsubscribe();
+    });
+
+    this.tree.getConnections().forEach(element => {
+    });
     this.vc.clear();
     
   }
@@ -203,12 +207,20 @@ export class PaletteComponent implements OnInit{
 
   addOperation(name:string){
     this.changeDesignmode('operation');
-    this.composer.addOperation(name);
+    this.createOperation(name);
   }
 
   rescale(scale:number){
     this.scale = scale;
-    this.subdraft_refs.forEach(sd => {
+    this.tree.getDrafts().forEach(sd => {
+      sd.rescale(scale);
+    });
+
+    this.tree.getOperations().forEach(sd => {
+      sd.rescale(scale);
+    });
+
+    this.tree.getConnections().forEach(sd => {
       sd.rescale(scale);
     });
 
@@ -266,30 +278,65 @@ export class PaletteComponent implements OnInit{
   createSubDraft(d: Draft):SubdraftComponent{
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+    const id = this.tree.createNode('draft', subdraft.instance, this.vc.length-1);
+
     subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
     subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
     subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this));
     subdraft.instance.draft = d;
+    subdraft.instance.id = id;
     subdraft.instance.viewport = this.viewport;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.scale = this.scale;
-    this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
   }
 
 
+  /**
+   * creates an operation component
+   * @param name the name of the operation this component will perform
+   * @returns the OperationComponent created
+   */
+    createOperation(name: string):OperationComponent{
+      const factory = this.resolver.resolveComponentFactory(OperationComponent);
+      const op = this.vc.createComponent<OperationComponent>(factory);
+      const id = this.tree.createNode('op', op.instance, this.vc.length-1);
+
+      op.instance.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this));
+      op.instance.name = name;
+      op.instance.id = id;
+      op.instance.zndx = this.layers.createLayer();
+      op.instance.bounds = {topleft:{x:100, y:100}, width: 100, height: 100};
+      return op.instance;
+    }
+
+
+    /**
+     * 
+     * @param name 
+     * @returns 
+     */
+     createConnection(name: string):ConnectionComponent{
+      const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
+      const cxn = this.vc.createComponent<ConnectionComponent>(factory);
+      const id = this.tree.createNode('cxn', cxn.instance, this.vc.length-1);
+      return cxn.instance;
+    }
+
 
   /**
    * removes the subdraft sent to the function
-   * @param subdraft 
+   * updates the tree view_id's in response
+   * @param id {number}  
    */
-  removeSubdraft(subdraft: SubdraftComponent){
-    const ndx = this.subdraft_refs.findIndex((sr) => (subdraft.canvas.id.toString() === sr.canvas.id.toString()));
-    this.vc.remove(ndx);
-    this.subdraft_refs.splice(ndx, 1);
+  removeSubdraft(id: number){
+    const view_id = this.tree.getViewId(id);
+    console.log(id, view_id);
+    this.vc.remove(view_id);
+    this.tree.removeNode(id);
   }
 
     /**
@@ -300,7 +347,9 @@ export class PaletteComponent implements OnInit{
     createAndSetPreview(d: Draft){
       const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
       const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+      //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
       subdraft.instance.draft = d;
+      subdraft.instance.id = -1;
       subdraft.instance.setAsPreview();
       subdraft.instance.disableDrag();
       this.preview_ref = subdraft.hostView;
@@ -333,13 +382,13 @@ export class PaletteComponent implements OnInit{
 
     if(this.design_modes.isSelected('move')){
 
-      this.subdraft_refs.forEach(sd => {
+      this.tree.getDrafts().forEach(sd => {
         sd.enableDrag();
       });
 
 
     }else{
-      this.subdraft_refs.forEach(sd => {
+      this.tree.getDrafts().forEach(sd => {
         sd.disableDrag();
       });
     }
@@ -508,8 +557,8 @@ export class PaletteComponent implements OnInit{
     onDeleteSubdraftCalled(obj: any){
       console.log("deleting "+obj.id);
       if(obj === null) return;
-      const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
-      this.removeSubdraft(sd);
+     // const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
+      this.removeSubdraft(obj.id);
    }
 
      /**
@@ -518,7 +567,7 @@ export class PaletteComponent implements OnInit{
     onDuplicateSubdraftCalled(obj: any){
         console.log("duplicating "+obj.id);
         if(obj === null) return;
-        const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
+        const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
         const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}));
         new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
         new_sd.setComponentPosition({
@@ -534,13 +583,13 @@ export class PaletteComponent implements OnInit{
    * @param obj contains the id of the moving subdraft
    */
   subdraftStarted(obj: any){
-
+    console.log("obj", obj);
     if(obj === null) return;
 
     if(this.design_modes.isSelected("move")){
   
       //get the reference to the draft that's moving
-      const moving = this.getSubdraft(obj.id);
+      const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
       if(moving === null) return; 
 
 
@@ -563,6 +612,18 @@ export class PaletteComponent implements OnInit{
     }
 
  }
+
+ /**
+  * triggers mode to select the drafts to input
+  * @param obj - contains event, id of component who called
+  */
+ selectInputDraft(obj: any){
+  //  this.last = utilInstance.resolveCoordsToNdx(this.tree.getComponent(obj.id).bounds.topleft, this.scale);
+  //  //called by an operation when its input button is pushed
+  //  this.selecting_connection = true;
+
+ }
+
 
 
  selectionStarted(){
@@ -893,20 +954,42 @@ drawStarted(){
 
   @HostListener('mousemove', ['$event'])
   private onMove(event) {
-
+    const shift: boolean = event.shiftKey;
+    const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+    const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+    mouse.x = ndx.j * this.scale;
+    mouse.y = ndx.i * this.scale;
 
     if(this.design_modes.isSelected('free') && this.shape_vtxs.length > 0){
-      const shift: boolean = event.shiftKey;
-      const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
-      const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
-      mouse.x = ndx.j * this.scale;
-      mouse.y = ndx.i * this.scale;
       this.shapeDragged(mouse, shift);
+    }else if(this.selecting_connection){
+     // this.connectionDragged();
     }
   }
   
+ /**
+  * called when the operation input is selected and used to draw
+   * @param event the event object
+   */
+  mouseSelectingDraft(event: any, id: number){
 
+    const shift: boolean = event.shiftKey;
+    const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+    //use this to snap the mouse to the nearest coord
+    mouse.x = ndx.j * this.scale;
+    mouse.y = ndx.i * this.scale;
 
+    if(utilInstance.isSameNdx(this.last, ndx)) return;
+
+    if(this.design_modes.isSelected("operation")){
+
+     
+    
+    }
+    
+    this.last = ndx;
+  }
 
   /**
    * called form the subscription created on start, checks the index of the location and returns null if its the same
@@ -949,7 +1032,7 @@ drawStarted(){
  * @param event 
  * @returns 
  */
-  @HostListener('mouseleave', ['$event'])
+ // @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
      private onEnd(event) {
 
@@ -962,6 +1045,8 @@ drawStarted(){
       mouse.y = ndx.i * this.scale;
 
       this.removeSubscription();   
+
+      console.log(event);
 
       if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processSelection();
@@ -1021,7 +1106,7 @@ drawStarted(){
 
       if(el.isSameBoundsAs(ibound)){
          console.log("Component had same Bounds as Intersection, Consumed");
-         this.removeSubdraft(el);
+         this.removeSubdraft(el.id);
       }else{
          const sd_draft = el.draft.pattern;
          for(let i = 0; i < sd_draft.length; i++){
@@ -1048,7 +1133,7 @@ drawStarted(){
       if(obj === null) return;
   
       //get the reference to the draft that's moving
-      const moving = this.getSubdraft(obj.id);
+      const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
       if(moving === null) return; 
 
       this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
@@ -1095,7 +1180,7 @@ drawStarted(){
       } 
       
       //get the reference to the draft that's moving
-      const moving = this.getSubdraft(obj.id);
+      const moving = this.tree.getComponent(obj.id);
       if(moving === null) return; 
 
       //disable this too see what happens
@@ -1112,8 +1197,10 @@ drawStarted(){
    * @returns true or false to describe if a merge took place. 
    */
   mergeSubdrafts(primary: SubdraftComponent): boolean{
-    
+    console.log("primary", primary);
+
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
+    console.log("isect", isect);
 
       if(isect.length == 0){
         return false;
@@ -1128,7 +1215,7 @@ drawStarted(){
 
     //remove the intersecting drafts from the view containier and from subrefts
     isect.forEach(element => {
-      this.removeSubdraft(element);
+      this.removeSubdraft(element.id);
     });
     return true;
   }
@@ -1148,23 +1235,11 @@ drawStarted(){
 
 
 
-
-
-
-  /**
-   * returns the subdraft component associated with this id
-   * @param id the unique draft id contined in the subdraft
-   * @returns the subdraft Component
-   */
-  getSubdraft(id:number): SubdraftComponent {
-    return  this.subdraft_refs.find(sr => (sr.draft.id.toString() === id.toString()));
-  }
-
-
   getSubdraftsIntersectingSelection(selection: SelectionComponent){
 
     //find intersections between main and the others
-    const isect:Array<SubdraftComponent> = this.subdraft_refs.filter(sr => (utilInstance.doOverlap(
+    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    const isect:Array<SubdraftComponent> = drafts.filter(sr => (utilInstance.doOverlap(
       selection.bounds.topleft, 
       {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
       sr.getTopleft(), 
@@ -1183,12 +1258,12 @@ drawStarted(){
    */
   getIntersectingSubdraftsForPoint(p: any){
 
-
     const primary_topleft = {x:  p.x, y: p.y };
     const primary_bottomright = {x:  p.x + this.scale, y: p.y + this.scale};
 
     const isect:Array<SubdraftComponent> = [];
-     this.subdraft_refs.forEach(sr => {
+    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    drafts.forEach(sr => {
       let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
       const b: boolean = utilInstance.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
       if(b) isect.push(sr);
@@ -1204,7 +1279,8 @@ drawStarted(){
    */
   getIntersectingSubdrafts(primary: SubdraftComponent){
 
-    const to_check:Array<SubdraftComponent> =  this.subdraft_refs.filter(sr => (sr.draft.id.toString() !== primary.draft.id.toString()));
+    const drafts:Array<SubdraftComponent> = this.tree.getDrafts(); 
+    const to_check:Array<SubdraftComponent> =  drafts.filter(sr => (sr.draft.id.toString() !== primary.draft.id.toString()));
     const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
 
 

@@ -16,6 +16,9 @@ export class ConnectionComponent implements OnInit {
   ngOnInit() {
   }
 
+  rescale(scale:number){
+    
+  }
   //Subdraft Component or Operation
   setFrom(from: any){
     this.from = from;

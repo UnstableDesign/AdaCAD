@@ -8,7 +8,7 @@ cdkDrag
 >
 <div class="inputs">
     <ng-container *ngFor="let input of inputs; let ndx = index">
-        <button [matTooltip]="input" 
+        <button [matTooltip]="tooltip" 
          class="button is-small is-primary"
          (click)="inputSelected($event, ndx)">
          <i class="fas fa-chevron-right"></i>
