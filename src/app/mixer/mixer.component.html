@@ -45,7 +45,15 @@
         >
        </app-mixerpatterns>
  
-        <app-materials 
+       <app-flow
+       (onOperationAdded) = "operationAdded($event)">
+      </app-flow>
+    
+
+       <app-tree>
+      </app-tree>
+
+        <!-- <app-materials 
           [material_types]="material_types"
           [shuttles]="draft?.shuttles"
           (onColorChange)="shuttleColorChange()" 
@@ -53,7 +61,7 @@
           (onCreateShuttle) ="createShuttle($event)"
         >
 
-        </app-materials>
+        </app-materials> -->
 
        
 <!-- 

@@ -1,11 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@angular/core';
 import { Draft } from '../../../core/model/draft';
 import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
-import { ConnectionComponent } from '../connection/connection.component';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
-import { thresholdFreedmanDiaconis } from 'd3-array';
 import { Cell } from '../../../core/model/cell';
+import utilInstance from '../../../core/model/util';
 
 
 
@@ -29,8 +28,8 @@ export class SubdraftComponent implements OnInit {
   @Input()  draft: Draft;
   @Input()  patterns: any;
   @Input()  viewport: Bounds;
-  @Input()  parent: ConnectionComponent;
-  @Input()  children: Array<ConnectionComponent>;
+  // @Input()  parent: ConnectionComponent;
+  // @Input()  children: Array<ConnectionComponent>;
   @Output() onSubdraftMove = new EventEmitter <any>(); 
   @Output() onSubdraftDrop = new EventEmitter <any>(); 
   @Output() onSubdraftStart = new EventEmitter <any>(); 
@@ -313,12 +312,6 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  private isSameNdx(p1: Interlacement, p2:Interlacement) : boolean {    
-    if(p1.i != p2.i ) return false;
-    if(p1.j != p2.j) return false;
-    return true;
-  }
-
   private getAdjusted(p: Point) : any {   
     return {
       x: p.x + this.viewport.topleft.x,
@@ -361,7 +354,7 @@ export class SubdraftComponent implements OnInit {
 
     const ndx = this.resolvePointToAbsoluteNdx(adj);
     
-    if(this.counter%this.counter_limit === 0 || !this.isSameNdx(this.last_ndx, ndx)){
+    if(this.counter%this.counter_limit === 0 || !utilInstance.isSameNdx(this.last_ndx, ndx)){
       this.onSubdraftMove.emit({id: this.draft.id});
       this.counter = 0;
     } 

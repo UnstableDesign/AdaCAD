@@ -13,7 +13,7 @@ export class Shape {
   scale: number;
   draft: Array<Array<Cell>>;
   filled: boolean;
-
+ 
   
 /**
  * @constructor takes a canvas element and bounds and converts it to data. 

@@ -1,0 +1,24 @@
+<div class="operation-container"
+cdkDrag
+[style.z-index] = "zndx"
+[cdkDragFreeDragPosition]="bounds.topleft"
+(cdkDragMoved)="dragMove($event)"
+(cdkDragEnded)="dragEnd($event)"
+(cdkDragStarted)="dragStart($event)"
+>
+<div class="inputs">
+    <ng-container *ngFor="let input of inputs; let ndx = index">
+        <button [matTooltip]="input" 
+         class="button is-small is-primary"
+         (click)="inputSelected($event, ndx)">
+         <i class="fas fa-chevron-right"></i>
+         </button>
+     </ng-container>
+</div>
+<div class="operation-details">
+    <div class="name">{{name}}</div>
+    <div class="params"></div>
+</div>
+<div class="outputs"></div>
+
+</div>

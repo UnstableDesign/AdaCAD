@@ -1,0 +1,21 @@
+.operation-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100px;
+    height: 100px;
+}
+
+.inputs{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.operation-details{
+    background: black;
+    color: white;
+    border: thin solid white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}

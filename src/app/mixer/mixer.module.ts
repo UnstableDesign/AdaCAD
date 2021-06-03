@@ -10,8 +10,11 @@ import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SnackbarComponent } from './palette/snackbar/snackbar.component';
 import { SelectionComponent } from './palette/selection/selection.component';
-import { OperationComponent } from './palette/operation/operation.component';
-import { ConnectionComponent } from './palette/connection/connection.component';
+import { OperationComponent } from './palette/composer/operation/operation.component';
+import { ConnectionComponent } from './palette/composer/connection/connection.component';
+import { TreeComponent } from './tool/tree/tree.component';
+import { FlowComponent } from './tool/flow/flow.component';
+import { ComposerComponent } from './palette/composer/composer.component';
 
 
 
@@ -32,10 +35,14 @@ import { ConnectionComponent } from './palette/connection/connection.component';
     SelectionComponent,
     OperationComponent,
     ConnectionComponent,
+    TreeComponent,
+    FlowComponent,
+    ComposerComponent,
     ],
   entryComponents: [
     SubdraftComponent,
     SnackbarComponent,
+    OperationComponent
   ]
 })
 export class MixerModule { }

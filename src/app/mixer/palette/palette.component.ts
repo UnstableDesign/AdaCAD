@@ -6,14 +6,15 @@ import { SelectionComponent } from './selection/selection.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
-import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
-import {cloneDeep, isBuffer} from 'lodash';
+import {cloneDeep} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
-
+import utilInstance from '../../core/model/util';
+import {ComposerComponent} from './composer/composer.component'
 
 @Component({
   selector: 'app-palette',
@@ -23,7 +24,6 @@ import { Shape } from '../model/shape';
 
 
 export class PaletteComponent implements OnInit{
-
 
   /**
    * a reference to the default patterns (used for fill operations)
@@ -38,6 +38,11 @@ export class PaletteComponent implements OnInit{
    */
   moveSubscription: Subscription;
 
+  /**
+   * A container for all elements associated with composing drafts together using operations
+   */
+  @ViewChild('composer', {read: ComposerComponent, static: true}) composer: ComposerComponent;
+
 
   /**
    * A container that supports the automatic generation and removal of the components inside of it
@@ -49,6 +54,7 @@ export class PaletteComponent implements OnInit{
    * @property {Array<SubdraftComponent>}
    */
   subdraft_refs: Array<SubdraftComponent>;
+
 
     /**
    * a placeholder to reference a temporary rendering of an union between subdrafts
@@ -88,6 +94,11 @@ export class PaletteComponent implements OnInit{
    */
   last: Interlacement;
 
+  /**
+   * triggers a class to handle disabling pointerevents when switching modes
+   * @property {boolean}
+   */
+   pointer_events: boolean;
 
   /**
    * a value to represent the current user defined scale for this component. 
@@ -142,6 +153,7 @@ export class PaletteComponent implements OnInit{
       width: 0, 
       height:0
     };
+    this.pointer_events = true;
   }
 
 /**
@@ -188,6 +200,12 @@ export class PaletteComponent implements OnInit{
     this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
   }
 
+
+  addOperation(name:string){
+    this.changeDesignmode('operation');
+    this.composer.addOperation(name);
+  }
+
   rescale(scale:number){
     this.scale = scale;
     this.subdraft_refs.forEach(sd => {
@@ -222,13 +240,22 @@ export class PaletteComponent implements OnInit{
   //called when the palette needs to change the design mode, emits output to parent
   changeDesignmode(name: string) {
     this.design_modes.select(name);
+   
     const mode = this.design_modes.getMode(name);
+   
     if(!mode.enable_inks){
         this.inks.select('neq');
     }
 
-    
     this.onDesignModeChange.emit(name);
+  }
+
+  disablePointerEvents(){
+    this.pointer_events = false;
+  }
+
+  enablePointerEvents(){
+    this.pointer_events = true;
   }
 
   /**
@@ -252,6 +279,8 @@ export class PaletteComponent implements OnInit{
     this.subdraft_refs.push(subdraft.instance);
     return subdraft.instance;
   }
+
+
 
   /**
    * removes the subdraft sent to the function
@@ -302,25 +331,25 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    if(this.design_modes.isSelected('draw') || this.design_modes.isSelected('shape')){
-
-      console.log("disabling drag");
-      this.subdraft_refs.forEach(sd => {
-        sd.disableDrag();
-      });
-
-    }else if(this.design_modes.isSelected('move')){
+    if(this.design_modes.isSelected('move')){
 
       this.subdraft_refs.forEach(sd => {
         sd.enableDrag();
       });
 
 
-    }else if(this.design_modes.isSelected('select')){
+    }else{
       this.subdraft_refs.forEach(sd => {
         sd.disableDrag();
       });
     }
+
+    if(this.design_modes.isSelected('operation')){
+      this.disablePointerEvents();
+    }else{
+      this.enablePointerEvents();
+    }
+
 
   }
 
@@ -329,19 +358,6 @@ export class PaletteComponent implements OnInit{
     if (this.moveSubscription) {
       this.moveSubscription.unsubscribe();
     }
-  }
-
-  private resolveCoordsToNdx(p: Point) : Interlacement {    
-    const i = Math.floor((p.y - 64) / this.scale);
-    const j = Math.floor((p.x) / this.scale);
-    return {i: i, j: j, si: i};
-  }
-
-
-  private isSameNdx(p1: any, p2:any) : boolean {    
-    if(p1.i != p2.i ) return false;
-    if(p1.j != p2.j) return false;
-    return true;
   }
 
 
@@ -412,7 +428,7 @@ export class PaletteComponent implements OnInit{
    */
   private computeCellValue(ink: string, over: Cell, under: boolean): boolean{
     
-    let res: boolean = this.computeFilter(ink, over.getHeddle(), under);
+    let res: boolean = utilInstance.computeFilter(ink, over.getHeddle(), under);
     return res;   
   }
 
@@ -448,54 +464,7 @@ export class PaletteComponent implements OnInit{
     }
    return null; 
   }
-  /**
-   * takes two booleans and returns their result based on the ink assigned
-   * @param ink the name of the ink in question 
-   * @param a the first (top) value 
-   * @param b the second (under) value
-   * @returns boolean result
-   */
-  public computeFilter(ink: string, a: boolean, b: boolean):boolean{
-    switch(ink){
-      case 'neq':
-        if(a === null) return b;
-        if(b === null) return a;
-        return (a !== b);
-      break;
-
-      case 'up':
-        if(a === null) return b;
-        if(a === true) return true;
-        return false;
-      break;
-
-      case 'down':
-        if(a === null) return b;
-        if(b === null) return a;
-        if(a === false) return false;
-        return b;
-      break;
-
-      case 'unset':
-        if(a === null) return b;
-        if(b === null) return a;
-        if(a === true) return null;
-        else return b;
-      break;
-
-      case 'and':
-      if(a === null || b === null) return null;
-      return (a && b)
-      break;
-
-      case 'or':
-        if(a === null) return b;
-        if(b === null) return a;
-        return (a || b);
-      break;
-
-    }
-  }
+ 
 
   /**
    * draw the cell at position ndx
@@ -581,7 +550,7 @@ export class PaletteComponent implements OnInit{
 
       if(isect.length == 0) return;
       
-      const bounds: any = this.getCombinedBounds(moving, isect);
+      const bounds: any = utilInstance.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       this.createAndSetPreview(temp);
       this.preview.drawDraft();
@@ -882,7 +851,7 @@ drawStarted(){
     private onStart(event) {
       const ctrl: boolean = event.ctrlKey;
       const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
-      const ndx:any = this.resolveCoordsToNdx(mouse);
+      const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
 
       //use this to snap the mouse to the nearest coord
       mouse.x = ndx.j * this.scale;
@@ -925,10 +894,11 @@ drawStarted(){
   @HostListener('mousemove', ['$event'])
   private onMove(event) {
 
+
     if(this.design_modes.isSelected('free') && this.shape_vtxs.length > 0){
       const shift: boolean = event.shiftKey;
       const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
-      const ndx:any = this.resolveCoordsToNdx(mouse);
+      const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
       mouse.x = ndx.j * this.scale;
       mouse.y = ndx.i * this.scale;
       this.shapeDragged(mouse, shift);
@@ -947,12 +917,12 @@ drawStarted(){
 
     const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
-    const ndx:Interlacement = this.resolveCoordsToNdx(mouse);
+    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
     //use this to snap the mouse to the nearest coord
     mouse.x = ndx.j * this.scale;
     mouse.y = ndx.i * this.scale;
 
-    if(this.isSameNdx(this.last, ndx)) return;
+    if(utilInstance.isSameNdx(this.last, ndx)) return;
 
     if(this.design_modes.isSelected("select")){
 
@@ -986,7 +956,7 @@ drawStarted(){
       //if this.last is null, we have a mouseleave with no mousestart
       if(this.last === undefined) return;
       const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
-      const ndx:Interlacement = this.resolveCoordsToNdx(mouse);
+      const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
       //use this to snap the mouse to the nearest coord
       mouse.x = ndx.j * this.scale;
       mouse.y = ndx.i * this.scale;
@@ -1047,7 +1017,7 @@ drawStarted(){
     sc.drawDraft();
 
     isect.forEach(el => {
-      const ibound = this.getIntersectionBounds(sc, el);
+      const ibound = utilInstance.getIntersectionBounds(sc, el);
 
       if(el.isSameBoundsAs(ibound)){
          console.log("Component had same Bounds as Intersection, Consumed");
@@ -1091,7 +1061,7 @@ drawStarted(){
       } 
 
       //const bounds: Bounds = this.getIntersectionBounds(moving, isect[0]);
-      const bounds: Bounds = this.getCombinedBounds(moving, isect);
+      const bounds: Bounds = utilInstance.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
@@ -1116,7 +1086,7 @@ drawStarted(){
       if(this.hasPreview()){
         const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}));
         const to_right: Point = this.preview.getTopleft();
-       // to_right.x += this.preview.bounds.width + 20;
+        to_right.x += this.preview.bounds.width + this.scale *4;
         sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
         sd.setComponentPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
@@ -1149,7 +1119,7 @@ drawStarted(){
         return false;
       }   
 
-      const bounds: Bounds = this.getCombinedBounds(primary, isect);
+      const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
       primary.setNewDraft(temp);
@@ -1173,82 +1143,12 @@ drawStarted(){
 
     const val:boolean = b_array.reduce((acc:boolean, arr) => arr.resolveToValue(p), null);   
     
-    return this.computeFilter(main.ink, a, val);
-  }
-
-/**
- * check if the rectangles defined by the points overlap
- * @param l1 top left point of rectangle 1
- * @param r1 bottom right point of rectangle 1
- * @param l2 top left point of rectangle 2
- * @param r2 bottom right point of rectanble 2
- * @returns true or false in accordance to whether or not they overlap
- */
-  doOverlap(l1:Point,  r1:Point,  l2:Point,  r2:Point){
-
-    if (l1.x == r1.x || l1.y == r2.y || l2.x == r2.x
-        || l2.y == r2.y) {
-        // the line cannot have positive overlap
-        return false;
-    }
- 
-    // If one rectangle is on left side of other
-    if (l1.x >= r2.x || l2.x >= r1.x){
-        return false;
-      }
- 
-    // If one rectangle is above other
-    if (l1.y >= r2.y || l2.y >= r1.y){
-        return false;
-    }
-    return true;
+    return utilInstance.computeFilter(main.ink, a, val);
   }
 
 
 
-  getLeftMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
-    return isects.reduce((acc, isect) => {
-      if(isect.getTopleft().x < acc.getTopleft().x) {
-        acc = isect;
-      }
-      return acc;
-    }, main);    
-  }
-
-
-
-  getTopMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
-
-    return isects.reduce((acc, isect) => {
-      if(isect.getTopleft().y < acc.getTopleft().y) {
-        acc = isect;
-      }
-      return acc;
-    }, main);    
-  }
-
-
-
-  getRightMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
-
-    return isects.reduce((acc, isect) => {
-      if((isect.getTopleft().x + isect.bounds.width) > (acc.getTopleft().x + acc.bounds.width)) {
-        acc = isect;
-      }
-      return acc;
-    }, main);    
-  }
-
-  getBottomMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
-
-    return isects.reduce((acc, isect) => {
-      if((isect.getTopleft().y + isect.bounds.height)> (acc.getTopleft().y + acc.bounds.height)) {
-        acc = isect;
-      }
-      return acc;
-    }, main);    
-  }
 
 
   /**
@@ -1264,7 +1164,7 @@ drawStarted(){
   getSubdraftsIntersectingSelection(selection: SelectionComponent){
 
     //find intersections between main and the others
-    const isect:Array<SubdraftComponent> = this.subdraft_refs.filter(sr => (this.doOverlap(
+    const isect:Array<SubdraftComponent> = this.subdraft_refs.filter(sr => (utilInstance.doOverlap(
       selection.bounds.topleft, 
       {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
       sr.getTopleft(), 
@@ -1290,7 +1190,7 @@ drawStarted(){
     const isect:Array<SubdraftComponent> = [];
      this.subdraft_refs.forEach(sr => {
       let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-      const b: boolean = this.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
+      const b: boolean = utilInstance.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
       if(b) isect.push(sr);
      });
 
@@ -1311,7 +1211,7 @@ drawStarted(){
      const isect:Array<SubdraftComponent> = [];
      to_check.forEach(sr => {
       let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-      const b: boolean = this.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
+      const b: boolean = utilInstance.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
       if(b) isect.push(sr);
      });
 
@@ -1347,77 +1247,29 @@ drawStarted(){
       return bounds;
   }
 
-  /**
-   * returns a Bounds type that represents the intersection between primary and one intersecting subdraft
-   * @param primary the rectangular area we are checking for intersections
-   * @param isect an array of all the components that intersect
-   * @returns the array of bounds of all intersections
-   */
-  getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
-
-    const left: number = Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
-    const top: number = Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
-    const right: number = Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
-    const bottom: number = Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
-
-    return {
-      topleft: {x: left, y: top},
-      width: right - left,
-      height: bottom - top
-    };
-
-  }
-
-  /**
-   * gets the combined boundary of a Subdraft and any of its intersections
-   * @param moving A SubdraftComponent that is our primary subdraft
-   * @param isect  Any subdrafts that intersect with this component 
-   * @returns the bounds of a rectangle that holds both components
-   */
-  getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):Bounds{
+      /**
+     * creates a draft in size bounds that contains all of the computed points of its intersections
+     * @param bounds the boundary of all the intersections
+     * @param primary the primary draft that we are checking for intersections
+     * @param isect an Array of the intersecting components
+     * @returns 
+     */
+       getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
+  
+        const temp: Draft = new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
     
-    const bounds: Bounds = {
-      topleft: {x: 0, y:0},
-      width: 0,
-      height: 0
-    }
-
-    bounds.topleft.x = this.getLeftMost(moving, isect).getTopleft().x;
-    bounds.topleft.y = this.getTopMost(moving, isect).getTopleft().y;
-
-    const rm =  this.getRightMost(moving, isect);
-    const bm =  this.getBottomMost(moving, isect);
-
-    bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
-    bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
-
-    return bounds;
-
-  }
-
-  /**
-   * creates a draft in size bounds that contains all of the computed points of its intersections
-   * @param bounds the boundary of all the intersections
-   * @param primary the primary draft that we are checking for intersections
-   * @param isect an Array of the intersecting components
-   * @returns 
-   */
-  getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
-
-    const temp: Draft = new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
-
-    for(var i = 0; i < temp.wefts; i++){
-      const top: number = bounds.topleft.y + (i * primary.scale);
-      for(var j = 0; j < temp.warps; j++){
-        const left: number = bounds.topleft.x + (j * primary.scale);
-
-        const p = {x: left, y: top};
-        const val = this.computeHeddleValue(p, primary, isect);
-        if(val != null) temp.pattern[i][j].setHeddle(val);
-        else temp.pattern[i][j].unsetHeddle();
+        for(var i = 0; i < temp.wefts; i++){
+          const top: number = bounds.topleft.y + (i * primary.scale);
+          for(var j = 0; j < temp.warps; j++){
+            const left: number = bounds.topleft.x + (j * primary.scale);
+    
+            const p = {x: left, y: top};
+            const val = this.computeHeddleValue(p, primary, isect);
+            if(val != null) temp.pattern[i][j].setHeddle(val);
+            else temp.pattern[i][j].unsetHeddle();
+          }
+        }
+        return temp;
       }
-    }
-    return temp;
-  }
 
 }
