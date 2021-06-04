@@ -40,7 +40,8 @@ import { FlowComponent } from './tool/flow/flow.component';
   entryComponents: [
     SubdraftComponent,
     SnackbarComponent,
-    OperationComponent
+    OperationComponent,
+    ConnectionComponent
   ]
 })
 export class MixerModule { }

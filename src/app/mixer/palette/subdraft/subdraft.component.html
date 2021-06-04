@@ -12,19 +12,27 @@
 
 
 
-  	<div class="subdraft-contents">
+  	<div class="subdraft-contents" [class.active-selection] = has_active_selection>
 
-
+		
 		<canvas id="{{id}}">  
 		</canvas>
 
-		
+		<ng-container *ngIf="set_connectable">
+			<button matTooltip = "click here to use this draft as input"
+			class="button is-small is-primary"
+			(click) = "connectionClicked(id)"
+			>
+			<i class="fas fa-chevron-down"></i>
+			<ng-container *ngIf="active_connection_order > 0">{{active_connection_order}}</ng-container>
+		</button>
+		</ng-container>
+
 	</div>
 
-	<div class="subdraft-details"> 
+	<div class="subdraft-details" [class.hide]="set_connectable"> 
 		<div class ="align-top">
 		<button 
-		xPosition = "start"
 		matTooltip= "Inks"
 		class="button is-small is-primary fas fa-tint"
 		[matMenuTriggerFor]="filters"

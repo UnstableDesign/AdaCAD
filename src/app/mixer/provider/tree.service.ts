@@ -6,6 +6,14 @@ import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
  * this class registers the relationships between subdrafts, operations, and connections
  */
 
+/**
+ * this stores a reference to a component on the palette with its id and some
+ * @param type is the type of component'
+ * @param view_id is ndx to reference to this object in the ViewComponentRef (for deleting)
+ * @param id is a unique id linked forever to this component 
+ * @param component is a reference to the component object
+ * @param active describes if is on the screen or hidden. 
+ */
 interface Node{
   type: 'draft' | 'op' | 'cxn';
   view_id: number,
@@ -14,9 +22,23 @@ interface Node{
   active: boolean
 }
 
+/**
+ * A tree node stores relationships between the components created by operations
+  * @param node: is a reference to the node object stored in the tree. 
+  * @param parent links to the treenode that "created" this node or null if it was created by the user 
+  * @param inputs a list of TreeNodes that are used as input to this TreeNode.
+  * @param outputs a list of TreeNodes created by this node or specified by the user
+  * Rules: 
+  *   Operations can have many inputs and many outputs 
+  *   Subdrafts can only have one input and one output (for now)
+  *   
+*/
+
 interface TreeNode{
   node: Node,
-  children: Array<number>
+  parent: TreeNode,
+  inputs: Array<TreeNode>,
+  outputs: Array<TreeNode>
 }
 
 @Injectable({
@@ -33,7 +55,7 @@ export class TreeService {
 
 
   /**
-   * each time a new component is made, it is registered here 
+   * create an node and add it to the tree (without relationships)
    * @param id a unique id for this component, ideally created by the viewCompomentRef 
    * @param type the type of component
    * @param component the compoenent instance
@@ -51,18 +73,24 @@ export class TreeService {
 
     this.nodes.push(node);
 
-    this.tree.push({
-      node: node,
-      children: []
-    })
+      this.tree.push({
+        node: node,
+        parent: null,
+        outputs: [],
+        inputs: []
+      });
+    
 
-    console.log("creating node at id", node.id);
     return node.id;
   }
 
   getComponent(id:number): SubdraftComponent | ConnectionComponent | OperationComponent{
     const node: Node = this.getNode(id);
     return node.component; 
+  }
+
+  getComponents():Array<any>{
+    return this.nodes.map(node => node.component);
   }
 
   getNode(id:number):Node{
@@ -114,6 +142,38 @@ export class TreeService {
   addNode(type: string){
 
   }
+
+  getTreeNode(id:number): TreeNode{
+    //only searches top level - though all should be in one level
+    return this.tree.find(el => el.node.id == id);
+  }
+
+  /**
+   * adds a connection to the tree
+   * @param from the id 
+   * @param to the id 
+   * @returns an array of all the direct children of this node
+   */
+  addConnection(from:number, to:number): Array<number>{
+    
+  
+    //add validation step here to make sure we don't end up in a loop
+    const from_tn: TreeNode = this.getTreeNode(from);
+    const to_tn: TreeNode = this.getTreeNode(to);
+   
+    to_tn.inputs.push(from_tn);
+    from_tn.outputs.push(to_tn);
+
+    const input_ids: Array<number> = to_tn.inputs.map(child => child.node.id);
+    return input_ids;
+
+  }
+
+  setParent(node_id: number, parent_id: number){
+    const tn = this.getTreeNode(node_id);
+    tn.parent = this.getTreeNode(parent_id);
+  }
+
 
  
 }

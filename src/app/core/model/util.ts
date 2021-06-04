@@ -179,7 +179,7 @@ class Util {
    * @param scale the scale of the view we are using
    * @returns an Interlacement
    */
-  resolveCoordsToNdx(p: Point, scale:number) : Interlacement {    
+  resolveCoordsToNdx(p: Point, scale:number) : Interlacement {  
     const i = Math.floor((p.y - 62) / scale);
     const j = Math.floor((p.x) / scale);
     return {i: i, j: j, si: i};
@@ -340,6 +340,43 @@ class Util {
       
       return utilInstance.computeFilter(main.ink, a, val);
     }
+
+
+    getAdjustedPointerPosition(p: Point, viewport:Bounds) : any {   
+      return {
+        x: p.x + viewport.topleft.x,
+        y: p.y + viewport.topleft.y -62
+      } 
+    }
+
+    /**
+   * takes an absolute point and returns the "cell" boundary that is closest. 
+   * @param p the absolute point
+   * @returns the snapped point 
+   */
+    snapToGrid(p: Point, scale:number):Point{
+
+      p.x = Math.floor(p.x / scale) * scale;
+      p.y = Math.floor(p.y / scale) * scale;
+      return p;
+
+    }
+
+/**
+ * Takes an absolute coordinate and translates to a number that would represent its grid position on screen
+ * used only for testing if a new move calculation should be called
+ * @param p the screen coordinate
+ * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
+ */
+   public resolvePointToAbsoluteNdx(p:Point, scale:number) : Interlacement{
+    
+    let i = Math.floor((p.y) / scale);
+    let j = Math.floor((p.x) / scale);
+
+    return {i: i, j:j, si: i};
+
+  }
+
   
 
   }

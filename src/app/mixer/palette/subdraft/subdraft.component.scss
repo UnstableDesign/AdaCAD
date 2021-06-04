@@ -12,17 +12,37 @@
 }
 
 
+.active-selection.subdraft-container:hover,
+.active-selection.subdraft-container:active{
 
-.subdraft-container:hover,
-.subdraft-container:active{
+	.is-primary{
+		background: #ff4081 !important;
+	}
 
-	svg{
-		color: #ff4081;
+	.subdraft-details{
+		display: none;
+	}
+
+	canvas{
+		border: thin solid #ff4081;
 	}
 
 	.subdraft-details{
 		display: flex;
-		color: #ff4081;
+	}
+
+}
+
+
+.subdraft-container:hover,
+.subdraft-container:active{
+
+
+	.subdraft-details.hide{
+		display: none;
+	}
+	.subdraft-details{
+		display: flex;
 	}
 
 	canvas{
@@ -32,6 +52,7 @@
 	.subdraft-details{
 		display: flex;
 	}
+
 }
 
 .drawing{
@@ -87,5 +108,14 @@ canvas{
 
 div.cdk-drag-dragging canvas{
 	border: thin solid #ff4081;
+}
+
+.hide{
+	display:none;
+}
+
+.connectable{
+	color:  #ff4081;
+	background: black;
 }
 

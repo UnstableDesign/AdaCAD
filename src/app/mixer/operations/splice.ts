@@ -5,8 +5,8 @@ import { Draft } from "../../core/model/draft";
     min_inputs:number = 1;
     max_inputs:number = 100;
     num_outputs = 1;
-    inputs: Array<Draft>;
-    outputs: Array<Draft>;
+    inputs: Array<Draft> = [];
+    outputs: Array<Draft> = [];
   
     constructor() {
      

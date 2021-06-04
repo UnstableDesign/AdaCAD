@@ -36,6 +36,8 @@ export class SubdraftComponent implements OnInit {
   @Output() onSubdraftStart = new EventEmitter <any>(); 
   @Output() onDeleteCalled = new EventEmitter <any>(); 
   @Output() onDuplicateCalled = new EventEmitter <any>(); 
+  @Output() onConnectionMade = new EventEmitter <any>(); 
+  @Output() onConnectionRemoved = new EventEmitter <any>(); 
 
  //operations you can perform on a selection 
  design_actions: DesignActions[] = [
@@ -70,6 +72,11 @@ export class SubdraftComponent implements OnInit {
   is_preview: boolean = false;
   zndx = 0;
 
+  has_active_connection: boolean = false;
+  active_connection_order: number = -1;
+  set_connectable:boolean = false;
+  connections_out: Array<number> = []; //an array of the component ids to which this subdraft connections
+
 
   constructor(private inks: InkService, private layer: LayersService) { 
     this.zndx = layer.createLayer();
@@ -88,8 +95,6 @@ export class SubdraftComponent implements OnInit {
 
     this.canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
     this.cx = this.canvas.getContext("2d");
-    this.canvas.width = this.draft.warps * this.scale;
-    this.canvas.height = this.draft.wefts * this.scale;
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
     this.drawDraft();
@@ -121,6 +126,18 @@ export class SubdraftComponent implements OnInit {
   // }
 
 
+  public setConnectable(){
+    this.set_connectable = true;
+  }
+
+  public unsetConnectable(){
+    this.set_connectable = false;
+
+  }
+
+  public addConnectionOut(id: number){
+    this.connections_out.push(id);
+  }
 
 
   public inkActionChange(name: any){
@@ -189,20 +206,7 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  /**
- * Takes an absolute coordinate and translates to a number that would represent its grid position on screen
- * used only for testing if a new move calculation should be called
- * @param p the screen coordinate
- * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
- */
-   public resolvePointToAbsoluteNdx(p:Point) : Interlacement{
-    
-    let i = Math.floor((p.y) / this.scale);
-    let j = Math.floor((p.x) / this.scale);
 
-    return {i: i, j:j, si: i};
-
-  }
 
 /**
  * takes an absolute reference and returns the value at that cell boolean or null if its unset
@@ -299,25 +303,7 @@ export class SubdraftComponent implements OnInit {
   }
 
 
-  /**
-   * takes an absolute point and returns the "cell" boundary that is closest. 
-   * @param p the absolute point
-   * @returns the snapped point 
-   */
-  snapToGrid(p: Point):Point{
 
-    p.x = Math.floor(p.x / this.scale) * this.scale;
-    p.y = Math.floor(p.y / this.scale) * this.scale;
-    return p;
-
-  }
-
-  private getAdjusted(p: Point) : any {   
-    return {
-      x: p.x + this.viewport.topleft.x,
-      y: p.y + this.viewport.topleft.y -62
-    } 
-  }
   
   isSameBoundsAs(bounds: Bounds) : boolean {   
     if(bounds.topleft.x != this.bounds.topleft.x) return false;
@@ -347,12 +333,12 @@ export class SubdraftComponent implements OnInit {
     //position of pointer of the page
     const pointer:Point = $event.pointerPosition;
 
-    const relative:Point = this.getAdjusted(pointer);
-    const adj:Point = this.snapToGrid(relative);
+    const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport);
+    const adj:Point = utilInstance.snapToGrid(relative, this.scale);
 
     this.bounds.topleft = adj;
 
-    const ndx = this.resolvePointToAbsoluteNdx(adj);
+    const ndx = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
     
     if(this.counter%this.counter_limit === 0 || !utilInstance.isSameNdx(this.last_ndx, ndx)){
       this.onSubdraftMove.emit({id: this.id});
@@ -369,6 +355,24 @@ export class SubdraftComponent implements OnInit {
 
   enableDrag(){
     this.disable_drag = false;
+  }
+
+  connectionClicked(id:number){
+    console.log("clicked", id);
+    this.has_active_connection  = true;
+    const ndx:number = this.connections_out.findIndex(el => {el = id});
+    if(ndx == -1){
+      this.onConnectionMade.emit(id);
+    }else{
+      this.onConnectionRemoved.emit(id);
+    }
+
+
+  }
+
+  resetConnections(){
+    this.has_active_connection = false;
+    this.active_connection_order = -1;
   }
 
 

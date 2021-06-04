@@ -93,6 +93,16 @@ interface ViewModes {
   viewValue: string;
 }
 
+/**
+ * this stores a list of drafts created with associated component ids for those drafts, 
+ * or -1 if the component for this draft has not been generated yet. 
+ */
+interface DraftMap{
+  component_id: number;
+  draft: any;
+}
+
+
 // interface ToolModes{
 //   value: string; 
 //   viewValue: string;
@@ -111,7 +121,8 @@ export{
   LoomTypes,
   DensityUnits,
   ViewModes,
-  MaterialTypes
+  MaterialTypes,
+  DraftMap
 }
 
 

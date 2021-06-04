@@ -7,7 +7,7 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds } from '../../core/model/datatypes';
+import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
 import {cloneDeep} from 'lodash';
@@ -47,6 +47,8 @@ export class PaletteComponent implements OnInit{
 
 
   selecting_connection: boolean = false;
+
+  connection_op_id:number = -1;
 
     /**
    * a placeholder to reference a temporary rendering of an union between subdrafts
@@ -172,6 +174,8 @@ export class PaletteComponent implements OnInit{
       element.onSubdraftMove.unsubscribe();
       element.onDeleteCalled.unsubscribe();
       element.onDuplicateCalled.unsubscribe();
+      element.onConnectionMade.unsubscribe();
+      element.onConnectionRemoved.unsubscribe();
     });
 
 
@@ -262,13 +266,13 @@ export class PaletteComponent implements OnInit{
     this.onDesignModeChange.emit(name);
   }
 
-  disablePointerEvents(){
-    this.pointer_events = false;
-  }
+  // disablePointerEvents(){
+  //   this.pointer_events = false;
+  // }
 
-  enablePointerEvents(){
-    this.pointer_events = true;
-  }
+  // enablePointerEvents(){
+  //   this.pointer_events = true;
+  // }
 
   /**
    * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
@@ -285,6 +289,8 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
     subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
     subdraft.instance.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this));
+    subdraft.instance.onConnectionMade.subscribe(this.connectionMade.bind(this));
+    subdraft.instance.onConnectionRemoved.subscribe(this.removeConnection.bind(this));
     subdraft.instance.draft = d;
     subdraft.instance.id = id;
     subdraft.instance.viewport = this.viewport;
@@ -309,20 +315,26 @@ export class PaletteComponent implements OnInit{
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
+      op.instance.viewport = this.viewport;
+      op.instance.scale = this.scale;
       op.instance.bounds = {topleft:{x:100, y:100}, width: 100, height: 100};
       return op.instance;
     }
 
 
     /**
-     * 
-     * @param name 
-     * @returns 
+     * creates a connection component and registers it with the tree 
      */
-     createConnection(name: string):ConnectionComponent{
+     createConnection(id_from: number, id_to:number):ConnectionComponent{
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const id = this.tree.createNode('cxn', cxn.instance, this.vc.length-1);
+      const to_component = <SubdraftComponent | OperationComponent> this.tree.getComponent(id_to);
+      const from_component = <SubdraftComponent | OperationComponent> this.tree.getComponent(id_from);
+      cxn.instance.to = to_component.bounds;
+      cxn.instance.from = this.tree.getComponent(id_from).bounds;
+      cxn.instance.scale = this.scale;
+      cxn.instance.id = id;
       return cxn.instance;
     }
 
@@ -381,23 +393,17 @@ export class PaletteComponent implements OnInit{
   public designModeChanged(){
 
     if(this.design_modes.isSelected('move')){
-
-      this.tree.getDrafts().forEach(sd => {
-        sd.enableDrag();
-      });
-
+      this.unfreezePaletteObjects();
 
     }else{
-      this.tree.getDrafts().forEach(sd => {
-        sd.disableDrag();
-      });
+      this.freezePaletteObjects();
     }
 
-    if(this.design_modes.isSelected('operation')){
-      this.disablePointerEvents();
-    }else{
-      this.enablePointerEvents();
-    }
+    // if(this.design_modes.isSelected('operation')){
+    //   this.disablePointerEvents();
+    // }else{
+    //   this.enablePointerEvents();
+    // }
 
 
   }
@@ -614,17 +620,190 @@ export class PaletteComponent implements OnInit{
  }
 
  /**
-  * triggers mode to select the drafts to input
+  * triggers a mode that allows mouse-mouse to be followed by a line.
   * @param obj - contains event, id of component who called
   */
  selectInputDraft(obj: any){
-  //  this.last = utilInstance.resolveCoordsToNdx(this.tree.getComponent(obj.id).bounds.topleft, this.scale);
-  //  //called by an operation when its input button is pushed
-  //  this.selecting_connection = true;
+  this.connection_op_id = obj.id;
+
+  const mouse:Point = {x: this.viewport.topleft.x + obj.event.clientX, y:this.viewport.topleft.y+obj.event.clientY};
+  const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+  mouse.x = ndx.j * this.scale;
+  mouse.y = ndx.i * this.scale;
+
+  this.connectionStarted(mouse)
 
  }
 
+ /**
+ * disables selection and pointer events on all
+ */
+  setDraftsConnectable(){
+    const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
+    nodes.forEach(el => {
+      el.setConnectable();
+    });
+   }
 
+    /**
+ * disables selection and pointer events on all
+ */
+  unsetDraftsConnectable(){
+    const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
+    nodes.forEach(el => {
+      el.unsetConnectable();
+    });
+   }
+
+/**
+ * disables selection and pointer events on all
+ */
+ freezePaletteObjects(){
+  const nodes: Array<any> = this.tree.getComponents();
+  nodes.forEach(el => {
+    el.disableDrag();
+  });
+ }
+
+ /**
+ * freezes all palette objects
+ */
+  unfreezePaletteObjects(){
+    const nodes: Array<any> = this.tree.getComponents();
+    nodes.forEach(el => {
+      el.enableDrag();
+    });
+   }
+  
+
+ /**
+  * called when a connection event starts
+  */
+ connectionStarted(mouse: Point){
+  this.selecting_connection = true;
+  this.unfreezePaletteObjects();
+  this.setDraftsConnectable();
+
+  this.shape_bounds = {
+    topleft: mouse,
+    width: this.scale,
+    height: this.scale
+  };
+
+  this.cx.fillStyle = "#ff4081";
+  this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
+  this.startSnackBar("Click an empty space on the palette to stop selecting", this.shape_bounds);
+ }
+
+ /**
+   * draws when a user is using the mouse to identify an input to a component
+   * @param mouse the absolute position of the mouse on screen
+   * @param shift boolean representing if shift is pressed as well 
+   */
+connectionDragged(mouse: Point, shift: boolean){
+
+
+  this.shape_bounds.width =  (mouse.x - this.shape_bounds.topleft.x);
+  this.shape_bounds.height =  (mouse.y - this.shape_bounds.topleft.y);
+
+  if(shift){
+
+  }
+
+  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  this.cx.beginPath();
+  this.cx.fillStyle = "#ff4081";
+  this.cx.strokeStyle = "#ff4081";
+  this.cx.setLineDash([this.scale, 2]);
+  this.cx.lineWidth = 2;
+
+
+  this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
+  this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+  this.cx.stroke();
+ 
+
+}
+
+
+/**
+ * converts the shape on screen to a component
+ */
+ processConnectionEnd(){
+  this.closeSnackBar();
+  this.selecting_connection = false;
+  this.unsetDraftsConnectable();
+  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+
+  
+  //const img_data = shape.getImageData();
+  // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  // this.cx.putImageData(img_data, 0, 0);
+  // const pattern: Array<Array<Cell>> = shape.getDraft();
+
+  // const wefts: number = pattern.length;
+  // if(wefts <= 0) return;
+  // const warps: number = pattern[0].length;
+
+  // const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
+  // sd.setComponentPosition(this.shape_bounds.topleft);
+  // sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
+  // sd.disableDrag();
+  
+} 
+
+/**
+ * emitted from subdraft when it receives a hit on its connection button
+ */
+connectionMade(id:number){
+
+  //this is defined in the order that the line was drawn
+  const sd:SubdraftComponent = <SubdraftComponent>this.tree.getComponent(id);
+  const op:OperationComponent = <OperationComponent>this.tree.getComponent(this.connection_op_id);
+  const cxn: ConnectionComponent = this.createConnection(this.connection_op_id, id);
+  
+  //this is provided in the order that the tree will be drawn, with the 
+  //subdraft going "to" to the operation
+  const inputs:Array<number> = this.tree.addConnection(id, this.connection_op_id);
+  if(inputs === null){
+    console.log("Error: connection components are of wrong types");
+    return;
+  } 
+  
+  sd.active_connection_order = inputs.length;
+  const input_drafts: Array<Draft> = inputs.map(input => {
+   const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
+   return sd.draft;
+  });
+
+  //validate the action
+  const valid: boolean = op.load(input_drafts);
+
+  if(!valid){
+    console.log("Error: Invalid inputs to operation");
+    return;
+  }
+
+  const draft_map: Array<DraftMap> = op.perform();
+  draft_map.forEach(el => {
+    let sd:SubdraftComponent = null;
+    if(el.component_id >= 0){
+       sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
+      sd.setNewDraft(el.draft);
+      //may need to update size here as well
+    }else{
+      sd = this.createSubDraft(el.draft);
+      this.tree.addConnection(this.connection_op_id, sd.id);
+      this.tree.setParent(sd.id, this.connection_op_id);
+      op.addOutput({component_id: sd.id, draft: el.draft});
+    }
+    sd.drawDraft;
+  });
+
+}
+
+ 
 
  selectionStarted(){
 
@@ -948,6 +1127,9 @@ drawStarted(){
         }else{
           this.shapeStarted(mouse);
         }
+      }else if(this.design_modes.isSelected("operation")){
+        console.log("mouse down");
+        this.processConnectionEnd();
       }
   }
 
@@ -963,7 +1145,7 @@ drawStarted(){
     if(this.design_modes.isSelected('free') && this.shape_vtxs.length > 0){
       this.shapeDragged(mouse, shift);
     }else if(this.selecting_connection){
-     // this.connectionDragged();
+      this.connectionDragged(mouse, shift);
     }
   }
   
@@ -1032,7 +1214,7 @@ drawStarted(){
  * @param event 
  * @returns 
  */
- // @HostListener('mouseleave', ['$event'])
+  @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
      private onEnd(event) {
 
@@ -1045,8 +1227,6 @@ drawStarted(){
       mouse.y = ndx.i * this.scale;
 
       this.removeSubscription();   
-
-      console.log(event);
 
       if(this.design_modes.isSelected("select")){
         if(this.selection.active)this.processSelection();
@@ -1067,7 +1247,7 @@ drawStarted(){
           this.changeDesignmode('move');
           this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
-      } 
+      }
 
       //unset vars that would have been created on press
       this.scratch_pad = undefined;
