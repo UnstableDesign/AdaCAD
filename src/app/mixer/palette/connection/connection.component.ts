@@ -29,15 +29,11 @@ export class ConnectionComponent implements OnInit {
 
   ngAfterViewInit(){
 
-    //assumes to is of type subdraft compnent and from is the operation
-    this.calculateBounds();
 
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
-    
-
+    this.calculateBounds();
     this.drawConnection();
-
   }
 
   disableDrag(){
@@ -46,8 +42,17 @@ export class ConnectionComponent implements OnInit {
   enableDrag(){
   }
 
+  setBounds(to:Bounds, from:Bounds){
+    console.log("setting bounds", to, from);
+    this.to = to;
+    this.from = from;
+    this.calculateBounds();
+    this.drawConnection();
+  }
+
 
   calculateBounds(){
+
     
     const botright:Point = {x: 0, y:0};
     botright.x = Math.max(this.to.topleft.x, this.from.topleft.x);
@@ -61,6 +66,8 @@ export class ConnectionComponent implements OnInit {
   }
 
   drawConnection(){
+
+    console.log("called draw connection");
     //make the canvas big enough to encase the point, starting from the topleft of the view
     this.canvas.width = this.bounds.width;
     this.canvas.height = this.bounds.height;

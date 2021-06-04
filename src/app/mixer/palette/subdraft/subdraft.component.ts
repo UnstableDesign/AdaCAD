@@ -73,9 +73,8 @@ export class SubdraftComponent implements OnInit {
   zndx = 0;
 
   has_active_connection: boolean = false;
-  active_connection_order: number = -1;
+  active_connection_order: number = 0;
   set_connectable:boolean = false;
-  connections_out: Array<number> = []; //an array of the component ids to which this subdraft connections
 
 
   constructor(private inks: InkService, private layer: LayersService) { 
@@ -133,10 +132,6 @@ export class SubdraftComponent implements OnInit {
   public unsetConnectable(){
     this.set_connectable = false;
 
-  }
-
-  public addConnectionOut(id: number){
-    this.connections_out.push(id);
   }
 
 
@@ -360,8 +355,7 @@ export class SubdraftComponent implements OnInit {
   connectionClicked(id:number){
     console.log("clicked", id);
     this.has_active_connection  = true;
-    const ndx:number = this.connections_out.findIndex(el => {el = id});
-    if(ndx == -1){
+    if(this.active_connection_order === 0){
       this.onConnectionMade.emit(id);
     }else{
       this.onConnectionRemoved.emit(id);

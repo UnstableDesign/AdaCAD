@@ -16,6 +16,7 @@ import { Draft } from "../../core/model/draft";
      * write rules here to validate any given action
      */
     load(inputs: Array<Draft>):boolean{
+        console.log("loading with ", inputs);
         this.inputs = inputs;
         return this.validate();
     }
@@ -30,6 +31,9 @@ import { Draft } from "../../core/model/draft";
 
     perform():Array<Draft>{  
 
+        this.outputs = [];
+
+        console.log("performing with inputs", this.inputs);
         if(!this.validate) return null;
                 
         const max_wefts:number = this.inputs.reduce((acc, draft)=>{

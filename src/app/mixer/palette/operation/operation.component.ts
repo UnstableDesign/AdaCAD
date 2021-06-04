@@ -27,6 +27,8 @@ export class OperationComponent implements OnInit {
    disable_drag: boolean;
    scale: number;
    viewport: Bounds;
+   active_connection_order: number = 0;
+
 
   constructor() { 
     this.outputs = [];

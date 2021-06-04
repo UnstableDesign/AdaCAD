@@ -1,3 +1,4 @@
+import { P } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
@@ -107,18 +108,37 @@ export class TreeService {
     return node.view_id;
   }
 
-  //permanently removes this from the structure
-  //and decrements the view indexes 
-  removeNode(id: number){
+/**
+ * this removes a node from the list and tree
+ * @param id the id of the node to be removed
+ * @returns a list of ids of connections that should also be deleted.
+ */
+  removeNode(id: number): Array<number>{
+    const node: Node = this.getNode(id);
     const view_ndx: number = this.getViewId(id);
-    const ndx: number = this.getNodeIndex(id);
-    this.nodes.splice(ndx, 1);
-
+    let unusued: Array<number> = [];
+    //decrement the view ids
     this.nodes.forEach(node => {
       if(node.view_id > view_ndx) node.view_id--;
     });
 
-    //TO DO - remove it from the tree
+    this.removeNodeTreeAssociations(node.id);
+
+    switch(node.type){
+      case 'draft':
+      case 'op':
+       unusued = this.getUnusuedConnections();
+      break;
+    }
+
+    //remove all connections connecting to and from this node
+    const ndx: number = this.getNodeIndex(id);
+    const i: number = this.tree.findIndex(el => (el.node.id == id));
+    this.tree.splice(i, 1);
+    this.nodes.splice(ndx, 1);
+
+    return unusued;
+
   }
 
   getDrafts():Array<SubdraftComponent>{
@@ -139,6 +159,18 @@ export class TreeService {
     return draft_comps;
   }
 
+  /**
+   * scans the connections and marks any missing a to or from to delete
+   * @returns an array of connections to delete
+   */
+
+  getUnusuedConnections():Array<number>{
+    const comps: Array<ConnectionComponent> = this.getConnections();
+    const nodes: Array<TreeNode> = comps.map(el => this.getTreeNode(el.id));
+    const to_delete: Array<TreeNode> = nodes.filter(el => (el.inputs.length == 0 || el.outputs.length == 0));
+    return to_delete.map(el => el.node.id);
+  }
+
   addNode(type: string){
 
   }
@@ -149,29 +181,138 @@ export class TreeService {
   }
 
   /**
-   * adds a connection to the tree
-   * @param from the id 
-   * @param to the id 
+   * adds a connection that connects a subdraft to an operation
    * @returns an array of all the direct children of this node
    */
-  addConnection(from:number, to:number): Array<number>{
+  addConnectionFromSubdraftToOp(sd:number, op:number, cxn:number): Array<number>{
     
   
     //add validation step here to make sure we don't end up in a loop
-    const from_tn: TreeNode = this.getTreeNode(from);
-    const to_tn: TreeNode = this.getTreeNode(to);
+    const sd_tn: TreeNode = this.getTreeNode(sd);
+    const op_tn: TreeNode = this.getTreeNode(op);
+    const cxn_tn: TreeNode = this.getTreeNode(cxn);
    
-    to_tn.inputs.push(from_tn);
-    from_tn.outputs.push(to_tn);
 
-    const input_ids: Array<number> = to_tn.inputs.map(child => child.node.id);
-    return input_ids;
+    sd_tn.outputs.push(cxn_tn);
+    cxn_tn.inputs.push(sd_tn);
+    cxn_tn.outputs.push(op_tn);
+    op_tn.inputs.push(cxn_tn);
+
+    return this.getNonCxnInputs(op);
 
   }
 
-  setParent(node_id: number, parent_id: number){
+  /**
+   * adds a connection that connects a subdraft to an operation
+   * currently the only way to make one of these is automatically 
+   * @returns an array of the subdraft ids connected to this operation
+   */
+   addConnectionFromOpToSubdraft(sd:number, op:number, cxn:number): Array<number>{
+    
+  
+    //add validation step here to make sure we don't end up in a loop
+    const sd_tn: TreeNode = this.getTreeNode(sd);
+    const op_tn: TreeNode = this.getTreeNode(op);
+    const cxn_tn: TreeNode = this.getTreeNode(cxn);
+   
+
+    op_tn.outputs.push(cxn_tn);
+    cxn_tn.inputs.push(sd_tn);
+    cxn_tn.outputs.push(op_tn);
+    sd_tn.inputs.push(cxn_tn);
+    sd_tn.parent = op_tn;
+
+    return this.getNonCxnInputs(op);
+
+  }
+
+
+
+  /**
+   * remove the connection with this id
+   * @param cxn_id 
+   */
+  private removeNodeTreeAssociations(id:number){
+    const tn:TreeNode = this.getTreeNode(id);
+
+    tn.inputs.forEach(el => {
+      const cxn_ndx_output:number = tn.outputs.findIndex(el => (el.node.id == id)); 
+      el.outputs.splice(cxn_ndx_output, 1);
+    });
+
+    tn.outputs.forEach(el => {
+      const cxn_ndx_input:number = tn.inputs.findIndex(el => (el.node.id == id)); 
+      el.inputs.splice(cxn_ndx_input, 1);
+    });
+
+    tn.outputs = [];
+    tn.inputs = [];
+  }
+
+  //finds the connection compoment associated with the subdraft sd
+  getConnectionComponentFromSubdraft(sd_id: number): ConnectionComponent{
+    
+    const sd_node:TreeNode = this.getTreeNode(sd_id);
+    if(sd_node.outputs.length == 0){
+      console.log("Error: subdraft node did not have outputs");
+      return null;
+    } else if(sd_node.outputs.length > 1){
+      console.log("Error: subdraft node had more than one output");
+      return null;
+    } 
+
+    const cxn_node = sd_node.outputs[0].node;
+    return <ConnectionComponent> cxn_node.component;
+
+  }
+
+/**
+ * returns the ids of all of all the non-connection objects that input to this operation
+ * @param op_id 
+ */
+ getNonCxnInputs(op_id: number):Array<number>{
+    console.log(this.tree);
+
+    const inputs: Array<number> = this.getInputs(op_id);
+    const id_list:Array<number> = inputs.map(id => {
+      const node: Node = this.getNode(id);
+      if(node.type === 'cxn'){
+        const cxn_node_ids:Array<number> = this.getInputs(node.id);
+        if(cxn_node_ids.length > 1 || cxn_node_ids.length === 0) console.log("Error: connection has none or more than one input");
+        return cxn_node_ids[0];
+      }else{
+        return node.id;
+      }
+    });
+
+    return id_list;
+  }
+
+  getInputs(node_id: number):Array<number>{
     const tn = this.getTreeNode(node_id);
-    tn.parent = this.getTreeNode(parent_id);
+    const input_ids: Array<number> = tn.inputs.map(child => child.node.id);
+    return input_ids;
+  }
+
+  getConnectionInput(node_id: number):number{
+    const tn = this.getTreeNode(node_id);
+    const input_ids: Array<number> = tn.inputs.map(child => child.node.id);
+    if(input_ids.length  > 1) console.log("Error: more than one input");
+    return input_ids.pop();
+  }
+
+  getOutputs(node_id: number):Array<number>{
+    const tn = this.getTreeNode(node_id);
+    const ids: Array<number> = tn.outputs.map(child => child.node.id);
+    return ids;
+  }
+
+
+  getConnectionOutput(node_id: number):number{
+    const tn = this.getTreeNode(node_id);
+    const output_ids: Array<number> = tn.outputs.map(child => child.node.id);
+    if(output_ids.length  > 1) console.log("Error: more than one output");
+    return output_ids.pop();
   }
 
 
