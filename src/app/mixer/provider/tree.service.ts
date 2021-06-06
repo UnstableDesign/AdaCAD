@@ -114,8 +114,11 @@ export class TreeService {
  * @returns a list of ids of connections that should also be deleted.
  */
   removeNode(id: number): Array<number>{
+    console.log("removing node ", id);
+
     const node: Node = this.getNode(id);
     const view_ndx: number = this.getViewId(id);
+
     let unusued: Array<number> = [];
     //decrement the view ids
     this.nodes.forEach(node => {
@@ -223,13 +226,14 @@ export class TreeService {
   private removeNodeTreeAssociations(id:number){
     const tn:TreeNode = this.getTreeNode(id);
 
+    //travel to all the trreenode's inputs, and erase this from their output
     tn.inputs.forEach(el => {
-      const cxn_ndx_output:number = tn.outputs.findIndex(el => (el.node.id == id)); 
+      const cxn_ndx_output:number = el.outputs.findIndex(out => (out.node.id == id)); 
       el.outputs.splice(cxn_ndx_output, 1);
     });
 
     tn.outputs.forEach(el => {
-      const cxn_ndx_input:number = tn.inputs.findIndex(el => (el.node.id == id)); 
+      const cxn_ndx_input:number = el.inputs.findIndex(i => (i.node.id == id)); 
       el.inputs.splice(cxn_ndx_input, 1);
     });
 
@@ -259,11 +263,9 @@ export class TreeService {
  * @param op_id 
  */
  getNonCxnInputs(id: number):Array<number>{
-    console.log("get non cxn inputs called on id", id);
     const inputs: Array<number> = this.getInputs(id);
     const node_list:Array<Node> = inputs.map(id => (this.getNode(id)));
     const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
-    console.log("id_list is ", id_list);
     return id_list;
   }
 
@@ -274,11 +276,9 @@ export class TreeService {
   }
 
   getConnectionInput(node_id: number):number{
-    console.log("getting cconnection for ", node_id)
     const tn = this.getTreeNode(node_id);
     const input_ids: Array<number> = tn.inputs.map(child => child.node.id);
     if(input_ids.length  > 1) console.log("Error: more than one input");
-    console.log("input ids", input_ids, "returning", input_ids[0]);
     return input_ids[0];
   }
 

@@ -819,29 +819,27 @@ connectionMade(id:number){
  * had something assigned there
  * @param id the subdraft id that called the function
  */
- removeConnection(id:number){
-  console.log("removing connection", id);
+ removeConnection(sd_id:number){
+  console.log("removing connection", sd_id);
 
-  const cxn:ConnectionComponent = <ConnectionComponent>this.tree.getConnectionComponentFromSubdraft(id);
-  const from: Array<number> = this.tree.getInputs(cxn.id); // get the outputs from this conection - thre should only be one
-  const to: Array<number> = this.tree.getOutputs(cxn.id); // get the outputs from this conection - thre should only be one
+
+  const cxn:ConnectionComponent = <ConnectionComponent>this.tree.getConnectionComponentFromSubdraft(sd_id);
+  const from: number = this.tree.getConnectionInput(cxn.id); // get the outputs from this conection - thre should only be one
+  const to:number = this.tree.getConnectionOutput(cxn.id); // get the outputs from this conection - thre should only be one
   
 
-  console.log(from, to);
-  if(from.length == 1 && to.length === 1){
+  console.log(this.tree.tree, from, to);
     
-    const from_comp: any = this.tree.getComponent(from[0]);
-    const from_order_id = from_comp.active_connection_order;
-    const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(to[0]);
-    
-    inputs_to_update.forEach((el) => {
-      const comp: any = this.tree.getComponent(el);
-      if(comp.active_connection_order == from_order_id) comp.active_connection_order = 0;
-      if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
-    });
-  }else{
-    console.log("Error: Deleting connection with missing parent or child");
-  }
+  const from_comp: any = this.tree.getComponent(from);
+  const from_order_id = from_comp.active_connection_order;
+  const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(to);
+  
+  inputs_to_update.forEach((el) => {
+    const comp: any = this.tree.getComponent(el);
+    if(comp.active_connection_order == from_order_id) comp.active_connection_order = 0;
+    if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
+  });
+
 
 
   const view_ndx = this.tree.getViewId(cxn.id);
