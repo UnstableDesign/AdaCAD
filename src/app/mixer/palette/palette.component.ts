@@ -327,15 +327,31 @@ export class PaletteComponent implements OnInit{
      * @returns the list of all id's connected to the "to" node 
      */
      createConnection(id_from: number, id_to:number):Array<number>{
+      console.log("TREE", this.tree.tree);
+      console.log("from/to", id_from, id_to);
+
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const id = this.tree.createNode('cxn', cxn.instance, this.vc.length-1);
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, id_to, id);
       
+      const from_bound:Bounds = this.tree.getComponent(id_from).bounds;
+      const to_bound:Bounds = this.tree.getComponent(id_to).bounds;
+
+      //adjust bounds by type herre
+      if(this.tree.getNode(id_from).type === 'draft'){
+        from_bound.topleft.y += from_bound.height;
+      }
+
+      if(this.tree.getNode(id_from).type == 'op'){
+        from_bound.topleft.x += to_bound.width;
+      }
+
       cxn.instance.id = id;
       cxn.instance.scale = this.scale;
-      cxn.instance.from = this.tree.getComponent(id_from).bounds;
-      cxn.instance.to = this.tree.getComponent(id_to).bounds;
+      cxn.instance.from = from_bound;
+      cxn.instance.to = to_bound;
+
 
       to_input_ids.forEach((el, ndx) => {
         const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(el);
@@ -353,7 +369,6 @@ export class PaletteComponent implements OnInit{
    */
   removeSubdraft(id: number){
     const view_id = this.tree.getViewId(id);
-    console.log(id, view_id);
     this.vc.remove(view_id);
     const old_cxns:Array<number> = this.tree.removeNode(id);
 
@@ -790,27 +805,28 @@ connectionMade(id:number){
     return;
   }
 
-  // const draft_map: Array<DraftMap> = op.perform();
-  // console.log("created draft map", draft_map);
-  // draft_map.forEach(el => {
-  //   let sd:SubdraftComponent = null;
+  const draft_map: Array<DraftMap> = op.perform();
+  console.log("created draft map", draft_map);
+  draft_map.forEach(el => {
+    let sd:SubdraftComponent = null;
 
-  //   if(el.component_id >= 0){
-  //      sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
-  //     sd.setNewDraft(el.draft);
-  //     //may need to update size here as well
-  //   }else{
-  //     sd = this.createSubDraft(el.draft);
-  //     const pos: Point = op.bounds.topleft;
-  //     pos.y += op.bounds.height;
+    if(el.component_id >= 0){
+       sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
+       sd.setNewDraft(el.draft);
+      //may need to update size here as well
+    }else{
 
-  //     sd.setComponentPosition(pos);
-  //     const c: ConnectionComponent = this.createConnection(op.id, sd.id);
-  //     this.tree.addConnectionFromOpToSubdraft(sd.id, this.connection_op_id, c.id);
-  //     op.addOutput({component_id: sd.id, draft: el.draft});
-  //   }
-  //   sd.drawDraft();
-  // });
+      sd = this.createSubDraft(el. draft);
+      const pos: Point = op.bounds.topleft;
+      // pos.y += this.scale * 2;
+      op.addOutput({component_id: sd.id, draft:el.draft});
+
+      sd.setComponentPosition(pos);
+      this.createConnection(op.id, sd.id);
+      this.tree.setSubdraftParent(sd.id, op.id);
+    }
+    sd.drawDraft();
+  });
 
 }
 
@@ -826,10 +842,7 @@ connectionMade(id:number){
   const cxn:ConnectionComponent = <ConnectionComponent>this.tree.getConnectionComponentFromSubdraft(sd_id);
   const from: number = this.tree.getConnectionInput(cxn.id); // get the outputs from this conection - thre should only be one
   const to:number = this.tree.getConnectionOutput(cxn.id); // get the outputs from this conection - thre should only be one
-  
-
-  console.log(this.tree.tree, from, to);
-    
+      
   const from_comp: any = this.tree.getComponent(from);
   const from_order_id = from_comp.active_connection_order;
   const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(to);
@@ -840,13 +853,14 @@ connectionMade(id:number){
     if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
   });
 
-
-
   const view_ndx = this.tree.getViewId(cxn.id);
   this.vc.remove(view_ndx);
   const to_delete:Array<number> = this.tree.removeNode(cxn.id);
   if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
   
+  //recalulate the operation drafts based on this change
+
+
 }
 
  

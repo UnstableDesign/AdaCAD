@@ -9,10 +9,13 @@ import { Bounds, Point } from '../../../core/model/datatypes';
 export class ConnectionComponent implements OnInit {
 
   id: number;
+
   from: Bounds; 
   to: Bounds; 
+  
   scale: number;
   orientation: boolean = true;
+  
   bounds: Bounds = {
     topleft: {x: 0, y:0},
     width: 0,
@@ -34,7 +37,7 @@ export class ConnectionComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
     this.calculateBounds();
-    console.log(this.to, this.from, this.bounds);
+    console.log("after view init on", this.id, this.to, this.from, this.bounds)
     this.drawConnection();
   }
 
@@ -58,17 +61,21 @@ export class ConnectionComponent implements OnInit {
     this.orientation = true;
     
     if(this.to.topleft.x < this.from.topleft.x) this.orientation = !this.orientation;
-    if(this.to.topleft.y+this.to.height < this.from.topleft.y+this.from.height) this.orientation = !this.orientation;
+    if(this.to.topleft.y < this.from.topleft.y) this.orientation = !this.orientation;
 
     const botright:Point = {x: 0, y:0};
 
     botright.x = Math.max(this.to.topleft.x, this.from.topleft.x);
-    botright.y = Math.max(this.to.topleft.y+this.to.height, this.from.topleft.y+this.to.height);
+    botright.y = Math.max(this.to.topleft.y, this.from.topleft.y);
 
     this.bounds.topleft.x = Math.min(this.to.topleft.x, this.from.topleft.x);
-    this.bounds.topleft.y = Math.min(this.to.topleft.y+this.to.height, this.from.topleft.y+this.from.height);
-    this.bounds.width = botright.x - this.bounds.topleft.x + 1;
-    this.bounds.height = botright.y - this.bounds.topleft.y + 1;
+    this.bounds.topleft.y = Math.min(this.to.topleft.y, this.from.topleft.y);
+   
+    this.bounds.width = botright.x - this.bounds.topleft.x + 2; //add two so a line is drawn when horiz or vert
+    this.bounds.height = botright.y - this.bounds.topleft.y + 2;
+
+    //adjust to corners
+    this.bounds.topleft.y -= this.scale*3;
 
 
   }
