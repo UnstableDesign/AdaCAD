@@ -1,8 +1,6 @@
-import { Subscription, fromEvent } from 'rxjs';
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DraftMap, Point } from '../../../core/model/datatypes';
 import { Splice } from '../../operations/splice';
-import { ConnectionComponent } from '../connection/connection.component';
 import utilInstance from '../../../core/model/util';
 import { Draft } from '../../../core/model/draft';
 

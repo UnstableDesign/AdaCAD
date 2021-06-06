@@ -317,23 +317,32 @@ export class PaletteComponent implements OnInit{
       op.instance.zndx = this.layers.createLayer();
       op.instance.viewport = this.viewport;
       op.instance.scale = this.scale;
-      op.instance.bounds = {topleft:{x:100, y:100}, width: 100, height: 100};
+      op.instance.bounds = {topleft:{x:100, y:100}, width: 100, height: 0};
       return op.instance;
     }
 
 
     /**
-     * creates a connection component and registers it with the tree 
+     * creates a connection component and registers it with the tree
+     * @returns the list of all id's connected to the "to" node 
      */
-     createConnection(id_from: number, id_to:number):ConnectionComponent{
+     createConnection(id_from: number, id_to:number):Array<number>{
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const id = this.tree.createNode('cxn', cxn.instance, this.vc.length-1);
-      cxn.instance.scale = this.scale;
+      const to_input_ids: Array<number> =  this.tree.addConnection(id_from, id_to, id);
+      
       cxn.instance.id = id;
+      cxn.instance.scale = this.scale;
       cxn.instance.from = this.tree.getComponent(id_from).bounds;
       cxn.instance.to = this.tree.getComponent(id_to).bounds;
-      return cxn.instance;
+
+      to_input_ids.forEach((el, ndx) => {
+        const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(el);
+        sd.active_connection_order = ndx+1;
+      });
+
+      return to_input_ids;
     }
 
 
@@ -759,33 +768,15 @@ connectionDragged(mouse: Point, shift: boolean){
 } 
 
 /**
- * emitted from subdraft when it receives a hit on its connection button
+ * emitted from subdraft when it receives a hit on its connection button, the id refers to the subdraft id
  */
 connectionMade(id:number){
 
   //this is defined in the order that the line was drawn
-  const sd:SubdraftComponent = <SubdraftComponent>this.tree.getComponent(id);
+  // const sd:SubdraftComponent = <SubdraftComponent>this.tree.getComponent(id);
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(this.connection_op_id);
-  const cxn: ConnectionComponent = this.createConnection(this.connection_op_id, id);
-  // cxn.to = op.bounds;
-  // cxn.from = sd.bounds;
-  
-  //this is provided in the order that the tree will be drawn, with the 
-  //subdraft going "to" to the operation
-  const inputs:Array<number> = this.tree.addConnectionFromSubdraftToOp(id, this.connection_op_id, cxn.id);
-  if(inputs === null){
-    console.log("Error: connection components are of wrong types");
-    return;
-  }
+  const inputs: Array<number> = this.createConnection(id, this.connection_op_id);
 
-
-
-
-
-  
-  console.log("input ids are", inputs);
-  
-  sd.active_connection_order = inputs.length;
   const input_drafts: Array<Draft> = inputs.map(input => {
    const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
    return sd.draft;
@@ -799,27 +790,27 @@ connectionMade(id:number){
     return;
   }
 
-  const draft_map: Array<DraftMap> = op.perform();
-  console.log("created draft map", draft_map);
-  draft_map.forEach(el => {
-    let sd:SubdraftComponent = null;
+  // const draft_map: Array<DraftMap> = op.perform();
+  // console.log("created draft map", draft_map);
+  // draft_map.forEach(el => {
+  //   let sd:SubdraftComponent = null;
 
-    if(el.component_id >= 0){
-       sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
-      sd.setNewDraft(el.draft);
-      //may need to update size here as well
-    }else{
-      sd = this.createSubDraft(el.draft);
-      const pos: Point = op.bounds.topleft;
-      pos.y += op.bounds.height;
+  //   if(el.component_id >= 0){
+  //      sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
+  //     sd.setNewDraft(el.draft);
+  //     //may need to update size here as well
+  //   }else{
+  //     sd = this.createSubDraft(el.draft);
+  //     const pos: Point = op.bounds.topleft;
+  //     pos.y += op.bounds.height;
 
-      sd.setComponentPosition(pos);
-      const c: ConnectionComponent = this.createConnection(op.id, sd.id);
-      this.tree.addConnectionFromOpToSubdraft(sd.id, this.connection_op_id, c.id);
-      op.addOutput({component_id: sd.id, draft: el.draft});
-    }
-    sd.drawDraft();
-  });
+  //     sd.setComponentPosition(pos);
+  //     const c: ConnectionComponent = this.createConnection(op.id, sd.id);
+  //     this.tree.addConnectionFromOpToSubdraft(sd.id, this.connection_op_id, c.id);
+  //     op.addOutput({component_id: sd.id, draft: el.draft});
+  //   }
+  //   sd.drawDraft();
+  // });
 
 }
 
@@ -829,6 +820,7 @@ connectionMade(id:number){
  * @param id the subdraft id that called the function
  */
  removeConnection(id:number){
+  console.log("removing connection", id);
 
   const cxn:ConnectionComponent = <ConnectionComponent>this.tree.getConnectionComponentFromSubdraft(id);
   const from: Array<number> = this.tree.getInputs(cxn.id); // get the outputs from this conection - thre should only be one

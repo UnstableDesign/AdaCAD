@@ -9,9 +9,10 @@ import { Bounds, Point } from '../../../core/model/datatypes';
 export class ConnectionComponent implements OnInit {
 
   id: number;
-  from: Bounds;  
+  from: Bounds; 
   to: Bounds; 
   scale: number;
+  orientation: boolean = true;
   bounds: Bounds = {
     topleft: {x: 0, y:0},
     width: 0,
@@ -33,6 +34,7 @@ export class ConnectionComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
     this.calculateBounds();
+    console.log(this.to, this.from, this.bounds);
     this.drawConnection();
   }
 
@@ -42,26 +44,32 @@ export class ConnectionComponent implements OnInit {
   enableDrag(){
   }
 
-  setBounds(to:Bounds, from:Bounds){
-    console.log("setting bounds", to, from);
-    this.to = to;
-    this.from = from;
-    this.calculateBounds();
-    this.drawConnection();
-  }
+  // setBounds(to:Bounds, from:Bounds){
+  //   console.log("setting bounds", to, from);
+  //   this.to = to;
+  //   this.from = from;
+  //   this.calculateBounds();
+  //   this.drawConnection();
+  // }
 
 
   calculateBounds(){
-
     
+    this.orientation = true;
+    
+    if(this.to.topleft.x < this.from.topleft.x) this.orientation = !this.orientation;
+    if(this.to.topleft.y+this.to.height < this.from.topleft.y+this.from.height) this.orientation = !this.orientation;
+
     const botright:Point = {x: 0, y:0};
+
     botright.x = Math.max(this.to.topleft.x, this.from.topleft.x);
-    botright.y = Math.max(this.to.topleft.y+this.to.height, this.from.topleft.y);
+    botright.y = Math.max(this.to.topleft.y+this.to.height, this.from.topleft.y+this.to.height);
 
     this.bounds.topleft.x = Math.min(this.to.topleft.x, this.from.topleft.x);
-    this.bounds.topleft.y = Math.min(this.to.topleft.y+this.to.height, this.from.topleft.y);
-    this.bounds.width = botright.x - this.bounds.topleft.x;
-    this.bounds.height = botright.y - this.bounds.topleft.y;
+    this.bounds.topleft.y = Math.min(this.to.topleft.y+this.to.height, this.from.topleft.y+this.from.height);
+    this.bounds.width = botright.x - this.bounds.topleft.x + 1;
+    this.bounds.height = botright.y - this.bounds.topleft.y + 1;
+
 
   }
 
@@ -78,8 +86,14 @@ export class ConnectionComponent implements OnInit {
     this.cx.strokeStyle = "#ff4081";
     this.cx.setLineDash([this.scale, 2]);
     this.cx.lineWidth = 2;
-    this.cx.moveTo(0, 0);
-    this.cx.lineTo(this.bounds.width, this.bounds.height);
+   
+    if(this.orientation){
+      this.cx.moveTo(0, 0);
+      this.cx.lineTo(this.bounds.width, this.bounds.height);
+    }else{
+      this.cx.moveTo(0, this.bounds.height);
+      this.cx.lineTo(this.bounds.width, 0);
+    }
     this.cx.stroke();
   }
 

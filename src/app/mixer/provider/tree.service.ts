@@ -181,48 +181,36 @@ export class TreeService {
   }
 
   /**
-   * adds a connection that connects a subdraft to an operation
-   * @returns an array of all the direct children of this node
+   * adds a connection from subddraft to operation. connections can be of the type 
+   * subdraft -> op (input to op)
+   * op -> subdraft (output generatedd by op)
+   * @returns an array of the ids of the elements connected to this op
+   * @todo add validation step here to make sure we don't end up in a loop
+
    */
-  addConnectionFromSubdraftToOp(sd:number, op:number, cxn:number): Array<number>{
+  addConnection(from:number, to:number, cxn:number): Array<number>{
     
-  
-    //add validation step here to make sure we don't end up in a loop
-    const sd_tn: TreeNode = this.getTreeNode(sd);
-    const op_tn: TreeNode = this.getTreeNode(op);
+    let from_tn: TreeNode = this.getTreeNode(from);
+    let to_tn: TreeNode = this.getTreeNode(to);;
     const cxn_tn: TreeNode = this.getTreeNode(cxn);
-   
 
-    sd_tn.outputs.push(cxn_tn);
-    cxn_tn.inputs.push(sd_tn);
-    cxn_tn.outputs.push(op_tn);
-    op_tn.inputs.push(cxn_tn);
+    from_tn.outputs.push(cxn_tn);
+    cxn_tn.inputs.push(from_tn);
+    cxn_tn.outputs.push(to_tn);
+    to_tn.inputs.push(cxn_tn);
 
-    return this.getNonCxnInputs(op);
+    return this.getNonCxnInputs(to);
 
   }
 
   /**
-   * adds a connection that connects a subdraft to an operation
-   * currently the only way to make one of these is automatically 
+   * this sets the parent of a subdraft to the operation that created iit
    * @returns an array of the subdraft ids connected to this operation
    */
-   addConnectionFromOpToSubdraft(sd:number, op:number, cxn:number): Array<number>{
-    
-  
-    //add validation step here to make sure we don't end up in a loop
+   setSubdraftParent(sd:number, op:number){
     const sd_tn: TreeNode = this.getTreeNode(sd);
     const op_tn: TreeNode = this.getTreeNode(op);
-    const cxn_tn: TreeNode = this.getTreeNode(cxn);
-   
-
-    op_tn.outputs.push(cxn_tn);
-    cxn_tn.inputs.push(sd_tn);
-    cxn_tn.outputs.push(op_tn);
-    sd_tn.inputs.push(cxn_tn);
     sd_tn.parent = op_tn;
-
-    return this.getNonCxnInputs(op);
 
   }
 
@@ -267,24 +255,15 @@ export class TreeService {
   }
 
 /**
- * returns the ids of all of all the non-connection objects that input to this operation
+ * returns the ids of all nodes connected to the input node that are not connection nodes
  * @param op_id 
  */
- getNonCxnInputs(op_id: number):Array<number>{
-    console.log(this.tree);
-
-    const inputs: Array<number> = this.getInputs(op_id);
-    const id_list:Array<number> = inputs.map(id => {
-      const node: Node = this.getNode(id);
-      if(node.type === 'cxn'){
-        const cxn_node_ids:Array<number> = this.getInputs(node.id);
-        if(cxn_node_ids.length > 1 || cxn_node_ids.length === 0) console.log("Error: connection has none or more than one input");
-        return cxn_node_ids[0];
-      }else{
-        return node.id;
-      }
-    });
-
+ getNonCxnInputs(id: number):Array<number>{
+    console.log("get non cxn inputs called on id", id);
+    const inputs: Array<number> = this.getInputs(id);
+    const node_list:Array<Node> = inputs.map(id => (this.getNode(id)));
+    const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
+    console.log("id_list is ", id_list);
     return id_list;
   }
 
@@ -295,10 +274,12 @@ export class TreeService {
   }
 
   getConnectionInput(node_id: number):number{
+    console.log("getting cconnection for ", node_id)
     const tn = this.getTreeNode(node_id);
     const input_ids: Array<number> = tn.inputs.map(child => child.node.id);
     if(input_ids.length  > 1) console.log("Error: more than one input");
-    return input_ids.pop();
+    console.log("input ids", input_ids, "returning", input_ids[0]);
+    return input_ids[0];
   }
 
   getOutputs(node_id: number):Array<number>{
