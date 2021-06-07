@@ -82,7 +82,7 @@ export class ConnectionComponent implements OnInit {
       this.bounds.height = Math.max(topleft.y, this.b_to.topleft.y) - this.bounds.topleft.y;
        
     }else if(id == this.to){
-      if(topleft.x < this.b_from.topleft.x) this.orientation = !this.orientation;
+      if(topleft.x < this.b_from.topleft.x+width) this.orientation = !this.orientation;
       if(topleft.y < this.b_from.topleft.y) this.orientation = !this.orientation;
       this.bounds.topleft = {x: Math.min(topleft.x, this.b_from.topleft.x+width), y: Math.min(topleft.y, this.b_from.topleft.y)};
       this.bounds.width = Math.max(topleft.x, this.b_from.topleft.x+width) - this.bounds.topleft.x;

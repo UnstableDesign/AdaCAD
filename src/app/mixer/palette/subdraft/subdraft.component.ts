@@ -5,6 +5,7 @@ import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import { Cell } from '../../../core/model/cell';
 import utilInstance from '../../../core/model/util';
+import { OperationComponent } from '../operation/operation.component';
 
 
 
@@ -50,6 +51,8 @@ export class SubdraftComponent implements OnInit {
   {value: 'clear', viewValue: 'Clear', icon: "fas fa-eraser"}
 
 ];
+
+  parent_id: number = -1;
 
 
   canvas: HTMLCanvasElement;
@@ -132,6 +135,10 @@ export class SubdraftComponent implements OnInit {
   public unsetConnectable(){
     this.set_connectable = false;
 
+  }
+
+  public setParent(op: number){
+    this.parent_id = op;
   }
 
 

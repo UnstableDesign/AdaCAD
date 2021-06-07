@@ -48,6 +48,11 @@ export class OperationComponent implements OnInit {
 
   }
 
+  setPosition(pos: Point){
+    console.log("called set position");
+    this.bounds.topleft = pos;
+  }
+
   /**
    * calls the operations load function and returns if the inputs are valid
    * @param drafts 

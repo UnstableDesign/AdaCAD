@@ -17,7 +17,7 @@ import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
-import { removeAllListeners } from 'process';
+import { connected, removeAllListeners } from 'process';
 import { throwIfEmpty } from 'rxjs/operators';
 
 @Component({
@@ -677,15 +677,24 @@ export class PaletteComponent implements OnInit{
  }
 
  /**
- * disables selection and pointer events on all
- * @todo update this so it checks for downstream errors and can connect to operations
+ * adds a connector flag to any subdrafts that we are allowed to connect to from this operation
  */
   setDraftsConnectable(op_id: number){
     const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
     nodes.forEach(el => {
+      //look upstream to see if this operation is linked in any way to this op
       const upstream: Array<number> = this.tree.getUpstreamOperations(el.id);
       const ndx: number = upstream.findIndex(i => i === op_id);
       if(ndx === -1) el.setConnectable();
+
+      //now unset the ones that are already assigned to other ops
+      const connections: Array<number> = this.tree.getOutputs(el.id);
+      const ops: Array<number> = connections.map(cxn => this.tree.getConnectionOutput(cxn));
+      const op_ndx: number = ops.findIndex(op => (op === op_id));
+      //if it had connections and the connection was not this operation, unset it
+      if(ops.length > 0 && op_ndx === -1){
+        el.unsetConnectable();
+      } 
     });
    }
 
@@ -826,8 +835,10 @@ performOp(op_id:number){
       op.addOutput({component_id: sd.id, draft:el.draft});
       sd.setComponentPosition({x: pos.x, y: pos.y + op.bounds.height});
       sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
+      sd.setParent(op.id);
       this.createConnection(op.id, sd.id);
       this.tree.setSubdraftParent(sd.id, op.id);
+      
     }
 
     op.setWidth(sd.bounds.width);
