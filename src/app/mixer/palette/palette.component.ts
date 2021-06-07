@@ -10,13 +10,14 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
-import {cloneDeep} from 'lodash';
+import {cloneDeep, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
+import { removeAllListeners } from 'process';
 
 @Component({
   selector: 'app-palette',
@@ -208,6 +209,13 @@ export class PaletteComponent implements OnInit{
     this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
   }
 
+  removeFromViewContainer(ref: ViewRef){
+    const ndx: number = this.vc.indexOf(ref);
+    if(ndx != -1) this.vc.remove(ndx);
+    else console.log('Error: view ref not found for remvoal');
+
+  }
+
 
   addOperation(name:string){
     this.changeDesignmode('operation');
@@ -282,7 +290,7 @@ export class PaletteComponent implements OnInit{
   createSubDraft(d: Draft):SubdraftComponent{
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
-    const id = this.tree.createNode('draft', subdraft.instance, this.vc.length-1);
+    const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
 
     subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
     subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
@@ -309,7 +317,7 @@ export class PaletteComponent implements OnInit{
     createOperation(name: string):OperationComponent{
       const factory = this.resolver.resolveComponentFactory(OperationComponent);
       const op = this.vc.createComponent<OperationComponent>(factory);
-      const id = this.tree.createNode('op', op.instance, this.vc.length-1);
+      const id = this.tree.createNode('op', op.instance, op.hostView);
 
       op.instance.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this));
       op.instance.name = name;
@@ -332,7 +340,7 @@ export class PaletteComponent implements OnInit{
 
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
-      const id = this.tree.createNode('cxn', cxn.instance, this.vc.length-1);
+      const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, id_to, id);
       
       const from_bound:Bounds = this.tree.getComponent(id_from).bounds;
@@ -368,15 +376,37 @@ export class PaletteComponent implements OnInit{
    * @param id {number}  
    */
   removeSubdraft(id: number){
-    const view_id = this.tree.getViewId(id);
-    this.vc.remove(view_id);
-    const old_cxns:Array<number> = this.tree.removeNode(id);
 
+    //removoe the node but get alll the ops before it is removed 
+    const ref:ViewRef = this.tree.getViewRef(id);
+    const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
+    this.tree.removeNode(id);
+
+    const old_cxns:Array<number> = this.tree.getUnusuedConnections();
+    console.log("old connectionos ", old_cxns);
     old_cxns.forEach(cxn => {
-      const cxn_view_id = this.tree.getViewId(cxn);
-      this.vc.remove(cxn_view_id);
+      const cxn_view_ref = this.tree.getViewRef(cxn);
+      this.removeFromViewContainer(cxn_view_ref);
       this.tree.removeNode(cxn);
+    });    
+
+    console.log("down stream ops = ", downstream_ops);
+    downstream_ops.forEach(op => {
+      this.performOp(op);
     });
+
+    this.removeFromViewContainer(ref);
+
+  }
+
+  /**
+   * this function will
+   * 1. delete the associated output subdraft
+   * 2. recompue downsteam operations
+   * 3. delete all input + output connections
+   * @param id 
+   */
+  removeOperation(id:number){
 
   }
 
@@ -782,30 +812,29 @@ connectionDragged(mouse: Point, shift: boolean){
   
 } 
 
-/**
- * emitted from subdraft when it receives a hit on its connection button, the id refers to the subdraft id
- */
-connectionMade(id:number){
 
-  //this is defined in the order that the line was drawn
-  // const sd:SubdraftComponent = <SubdraftComponent>this.tree.getComponent(id);
-  const op:OperationComponent = <OperationComponent>this.tree.getComponent(this.connection_op_id);
-  const inputs: Array<number> = this.createConnection(id, this.connection_op_id);
+performOp(op_id:number){
+  const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
+  const inputs: Array<number> =  this.tree.getNonCxnInputs(op_id);
 
+  console.log("inputs are", inputs);
   const input_drafts: Array<Draft> = inputs.map(input => {
-   const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
-   return sd.draft;
-  });
-
-  //validate the action
-  const valid: boolean = op.load(input_drafts);
-
-  if(!valid){
-    console.log("Error: Invalid inputs to operation");
-    return;
-  }
-
+    const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
+    return sd.draft;
+   });
+ 
+   //validate the action
+   const valid: boolean = op.load(input_drafts);
+ 
+   if(!valid){
+     console.log("Error: Invalid inputs to operation");
+     return;
+   }
+  
+  
   const draft_map: Array<DraftMap> = op.perform();
+
+
   console.log("created draft map", draft_map);
   draft_map.forEach(el => {
     let sd:SubdraftComponent = null;
@@ -831,6 +860,17 @@ connectionMade(id:number){
 }
 
 /**
+ * emitted from subdraft when it receives a hit on its connection button, the id refers to the subdraft id
+ */
+connectionMade(id:number){
+
+  //this is defined in the order that the line was drawn
+  // const sd:SubdraftComponent = <SubdraftComponent>this.tree.getComponent(id);
+  this.createConnection(id, this.connection_op_id);
+  this.performOp(this.connection_op_id);
+}
+
+/**
  * emitted from subdraft when it receives a hit on its connection button but already 
  * had something assigned there
  * @param id the subdraft id that called the function
@@ -847,19 +887,25 @@ connectionMade(id:number){
   const from_order_id = from_comp.active_connection_order;
   const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(to);
   
+  //upddate the assignment order on input subdrafts
   inputs_to_update.forEach((el) => {
     const comp: any = this.tree.getComponent(el);
     if(comp.active_connection_order == from_order_id) comp.active_connection_order = 0;
     if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
   });
 
-  const view_ndx = this.tree.getViewId(cxn.id);
-  this.vc.remove(view_ndx);
-  const to_delete:Array<number> = this.tree.removeNode(cxn.id);
+  //recalculate downstream drafts
+  const downstream_ops:Array<number> = this.tree.getDownstreamOperations(cxn.id);
+  downstream_ops.forEach(op => {
+    this.performOp(op);
+  });
+
+  const view_ref = this.tree.getViewRef(cxn.id);
+  this.removeFromViewContainer(view_ref);
+  this.tree.removeNode(cxn.id);
+  const to_delete:Array<number> = this.tree.getUnusuedConnections();
   if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
   
-  //recalulate the operation drafts based on this change
-
 
 }
 

@@ -22,10 +22,10 @@ import { Draft } from "../../core/model/draft";
     }
 
         /**
-     * write rules here to validate any given action
+     * write rules here to validate any given action, must be able to work when no inputs provided
      */
     validate():boolean{
-        return(this.inputs.length > 0);
+       return true;
     }
     
 
@@ -46,6 +46,8 @@ import { Draft } from "../../core/model/draft";
             return acc;
         }, 0);
 
+        console.log("size of new draft", max_wefts, max_warps);
+
         //create a draft to hold the merged values
         const d:Draft = new Draft({warps: max_warps, wefts:(max_wefts * this.inputs.length)});
 
@@ -53,7 +55,11 @@ import { Draft } from "../../core/model/draft";
             const select_array: number = ndx % this.inputs.length; 
             const select_row: number = Math.floor(ndx / this.inputs.length);
             row.forEach((cell, j) =>{
-                cell.setHeddle(this.inputs[select_array].pattern[select_row][j].getHeddle());
+                if(this.inputs[select_array].hasCell(select_row, j)){
+                    cell.setHeddle(this.inputs[select_array].pattern[select_row][j].getHeddle());
+                }else{
+                    cell.setHeddle(null);
+                }
             });
         });
 

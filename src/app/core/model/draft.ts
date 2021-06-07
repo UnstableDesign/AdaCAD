@@ -590,8 +590,8 @@ export class Draft implements DraftInterface {
   //assumes i is the draft row
   hasCell(i:number, j:number) : boolean{
     //var row = this.visibleRows[i];
-    if(i < 0 || i > this.wefts) return false;
-    if(j < 0 || j > this.warps) return false;
+    if(i < 0 || i >= this.wefts) return false;
+    if(j < 0 || j >= this.warps) return false;
     return true;
   }
   //assumes i is the draft row

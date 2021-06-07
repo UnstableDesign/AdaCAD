@@ -1,5 +1,5 @@
-import { P } from '@angular/cdk/keycodes';
-import { Injectable } from '@angular/core';
+import { E, P } from '@angular/cdk/keycodes';
+import { Injectable, ViewRef } from '@angular/core';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
@@ -17,7 +17,7 @@ import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
  */
 interface Node{
   type: 'draft' | 'op' | 'cxn';
-  view_id: number,
+  ref: ViewRef,
   id: number, //this will be unique for every instance
   component: SubdraftComponent | OperationComponent | ConnectionComponent,
   active: boolean
@@ -62,11 +62,11 @@ export class TreeService {
    * @param component the compoenent instance
    * @returns the id assigned
    */
-  createNode(type: 'draft'|'op'|'cxn', component: SubdraftComponent | OperationComponent | ConnectionComponent, view_id: number):number{
+  createNode(type: 'draft'|'op'|'cxn', component: SubdraftComponent | OperationComponent | ConnectionComponent, ref: ViewRef):number{
 
     const node: Node = {
       type: type,
-      view_id: view_id,
+      ref: ref,
       id: this.num_created++,
       component: component,
       active: true
@@ -103,27 +103,45 @@ export class TreeService {
     return this.nodes.findIndex(el => (el.id == id));
   }
 
-  getViewId(id:number):number{
+  getViewRef(id:number):ViewRef{
     const node: Node = this.getNode(id);
-    return node.view_id;
+    return node.ref;
+  }
+
+  /**
+   * given a node, recusively walks the tree and returns a list of all the operations that are affected
+   * @param id 
+   * @returns an array of operation ids for nodes that need recalculating
+   */
+  getDownstreamOperations(id: number):Array<number>{
+    let ops: Array<number> = [];
+    const tn: TreeNode = this.getTreeNode(id);
+    if(tn.outputs.length > 0){
+      tn.outputs.forEach(el => {
+        if(el.node.type == 'op'){
+          ops.push(el.node.id);  
+        }
+        ops = ops.concat(this.getDownstreamOperations(el.node.id));
+      });
+    }
+    return ops;
   }
 
 /**
  * this removes a node from the list and tree
  * @param id the id of the node to be removed
- * @returns a list of ids of connections that should also be deleted.
  */
-  removeNode(id: number): Array<number>{
+  removeNode(id: number){
     console.log("removing node ", id);
 
     const node: Node = this.getNode(id);
-    const view_ndx: number = this.getViewId(id);
+   //const view_ndx: number = this.getViewId(id);
 
     let unusued: Array<number> = [];
-    //decrement the view ids
-    this.nodes.forEach(node => {
-      if(node.view_id > view_ndx) node.view_id--;
-    });
+    // //decrement the view ids
+    // this.nodes.forEach(node => {
+    //   if(node.view_id > view_ndx) node.view_id--;
+    // });
 
     this.removeNodeTreeAssociations(node.id);
 
@@ -139,8 +157,6 @@ export class TreeService {
     const i: number = this.tree.findIndex(el => (el.node.id == id));
     this.tree.splice(i, 1);
     this.nodes.splice(ndx, 1);
-
-    return unusued;
 
   }
 
@@ -220,7 +236,7 @@ export class TreeService {
 
 
   /**
-   * remove the connection with this id
+   * updates inputs and outputs of this node and delete this node from the list
    * @param cxn_id 
    */
   private removeNodeTreeAssociations(id:number){
