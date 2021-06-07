@@ -336,7 +336,7 @@ export class SubdraftComponent implements OnInit {
     const ndx = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
     
     if(this.counter%this.counter_limit === 0 || !utilInstance.isSameNdx(this.last_ndx, ndx)){
-      this.onSubdraftMove.emit({id: this.id});
+      this.onSubdraftMove.emit({id: this.id, point: adj});
       this.counter = 0;
     } 
 

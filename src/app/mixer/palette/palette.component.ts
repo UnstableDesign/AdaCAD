@@ -18,6 +18,7 @@ import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
 import { removeAllListeners } from 'process';
+import { throwIfEmpty } from 'rxjs/operators';
 
 @Component({
   selector: 'app-palette',
@@ -325,7 +326,6 @@ export class PaletteComponent implements OnInit{
       op.instance.zndx = this.layers.createLayer();
       op.instance.viewport = this.viewport;
       op.instance.scale = this.scale;
-      op.instance.bounds = {topleft:{x:100, y:100}, width: 100, height: 0};
       return op.instance;
     }
 
@@ -343,22 +343,10 @@ export class PaletteComponent implements OnInit{
       const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, id_to, id);
       
-      const from_bound:Bounds = this.tree.getComponent(id_from).bounds;
-      const to_bound:Bounds = this.tree.getComponent(id_to).bounds;
-
-      //adjust bounds by type herre
-      if(this.tree.getNode(id_from).type === 'draft'){
-        from_bound.topleft.y += from_bound.height;
-      }
-
-      if(this.tree.getNode(id_from).type == 'op'){
-        from_bound.topleft.x += to_bound.width;
-      }
-
       cxn.instance.id = id;
       cxn.instance.scale = this.scale;
-      cxn.instance.from = from_bound;
-      cxn.instance.to = to_bound;
+      cxn.instance.from = id_from;
+      cxn.instance.to = id_to;
 
 
       to_input_ids.forEach((el, ndx) => {
@@ -390,11 +378,10 @@ export class PaletteComponent implements OnInit{
       this.tree.removeNode(cxn);
     });    
 
-    console.log("down stream ops = ", downstream_ops);
-    downstream_ops.forEach(op => {
-      this.performOp(op);
-    });
 
+    //calls manually here so that the affected branches can be pinged before the node is deleted 
+    console.log("down stream ops = ", downstream_ops);
+    this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
 
   }
@@ -684,23 +671,21 @@ export class PaletteComponent implements OnInit{
   */
  selectInputDraft(obj: any){
   this.connection_op_id = obj.id;
-
-  const mouse:Point = {x: this.viewport.topleft.x + obj.event.clientX, y:this.viewport.topleft.y+obj.event.clientY};
-  const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
-  mouse.x = ndx.j * this.scale;
-  mouse.y = ndx.i * this.scale;
-
-  this.connectionStarted(mouse)
+  const op: OperationComponent = <OperationComponent> this.tree.getComponent(obj.id);
+  this.connectionStarted(op.bounds.topleft);
 
  }
 
  /**
  * disables selection and pointer events on all
+ * @todo update this so it checks for downstream errors and can connect to operations
  */
-  setDraftsConnectable(){
+  setDraftsConnectable(op_id: number){
     const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
     nodes.forEach(el => {
-      el.setConnectable();
+      const upstream: Array<number> = this.tree.getUpstreamOperations(el.id);
+      const ndx: number = upstream.findIndex(i => i === op_id);
+      if(ndx === -1) el.setConnectable();
     });
    }
 
@@ -738,19 +723,17 @@ export class PaletteComponent implements OnInit{
  /**
   * called when a connection event starts
   */
- connectionStarted(mouse: Point){
+ connectionStarted(topleft: Point){
   this.selecting_connection = true;
   this.unfreezePaletteObjects();
-  this.setDraftsConnectable();
+  this.setDraftsConnectable(this.connection_op_id);
 
   this.shape_bounds = {
-    topleft: mouse,
+    topleft: topleft,
     width: this.scale,
     height: this.scale
   };
 
-  this.cx.fillStyle = "#ff4081";
-  this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
   this.startSnackBar("Click an empty space on the palette to stop selecting", this.shape_bounds);
  }
 
@@ -793,24 +776,18 @@ connectionDragged(mouse: Point, shift: boolean){
   this.selecting_connection = false;
   this.unsetDraftsConnectable();
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-
-  
-  //const img_data = shape.getImageData();
-  // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  // this.cx.putImageData(img_data, 0, 0);
-  // const pattern: Array<Array<Cell>> = shape.getDraft();
-
-  // const wefts: number = pattern.length;
-  // if(wefts <= 0) return;
-  // const warps: number = pattern[0].length;
-
-  // const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
-  // sd.setComponentPosition(this.shape_bounds.topleft);
-  // sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
-  // sd.disableDrag();
-  
 } 
+
+/**
+ * given a node id, calculate any drafts that take place "downstream" from this draft
+ * @param id 
+ */
+recalculateDownstreamDrafts(downstream_ops:Array<number>){
+  //recalculate downstream drafts
+  downstream_ops.forEach(op => {
+    this.performOp(op);
+  });
+}
 
 
 performOp(op_id:number){
@@ -842,18 +819,18 @@ performOp(op_id:number){
     if(el.component_id >= 0){
        sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
        sd.setNewDraft(el.draft);
-      //may need to update size here as well
     }else{
 
       sd = this.createSubDraft(el. draft);
       const pos: Point = op.bounds.topleft;
-      // pos.y += this.scale * 2;
       op.addOutput({component_id: sd.id, draft:el.draft});
-
-      sd.setComponentPosition(pos);
+      sd.setComponentPosition({x: pos.x, y: pos.y + op.bounds.height});
+      sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
       this.createConnection(op.id, sd.id);
       this.tree.setSubdraftParent(sd.id, op.id);
     }
+
+    op.setWidth(sd.bounds.width);
     sd.drawDraft();
   });
 
@@ -862,12 +839,13 @@ performOp(op_id:number){
 /**
  * emitted from subdraft when it receives a hit on its connection button, the id refers to the subdraft id
  */
-connectionMade(id:number){
+connectionMade(sd_id:number){
 
   //this is defined in the order that the line was drawn
   // const sd:SubdraftComponent = <SubdraftComponent>this.tree.getComponent(id);
-  this.createConnection(id, this.connection_op_id);
+  this.createConnection(sd_id, this.connection_op_id);
   this.performOp(this.connection_op_id);
+  this.processConnectionEnd();
 }
 
 /**
@@ -876,16 +854,16 @@ connectionMade(id:number){
  * @param id the subdraft id that called the function
  */
  removeConnection(sd_id:number){
-  console.log("removing connection", sd_id);
+  console.log("removing connection to subdraft", sd_id);
 
 
   const cxn:ConnectionComponent = <ConnectionComponent>this.tree.getConnectionComponentFromSubdraft(sd_id);
   const from: number = this.tree.getConnectionInput(cxn.id); // get the outputs from this conection - thre should only be one
   const to:number = this.tree.getConnectionOutput(cxn.id); // get the outputs from this conection - thre should only be one
-      
+  const downstream:Array<number> = this.tree.getDownstreamOperations(cxn.id);
+  const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(to);
   const from_comp: any = this.tree.getComponent(from);
   const from_order_id = from_comp.active_connection_order;
-  const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(to);
   
   //upddate the assignment order on input subdrafts
   inputs_to_update.forEach((el) => {
@@ -894,18 +872,15 @@ connectionMade(id:number){
     if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
   });
 
-  //recalculate downstream drafts
-  const downstream_ops:Array<number> = this.tree.getDownstreamOperations(cxn.id);
-  downstream_ops.forEach(op => {
-    this.performOp(op);
-  });
-
   const view_ref = this.tree.getViewRef(cxn.id);
   this.removeFromViewContainer(view_ref);
   this.tree.removeNode(cxn.id);
   const to_delete:Array<number> = this.tree.getUnusuedConnections();
   if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
-  
+
+  //this list has to be calculated before the node is deleted, and udpated after
+  this.recalculateDownstreamDrafts(downstream);
+  this.processConnectionEnd();
 
 }
 
@@ -1195,6 +1170,8 @@ drawStarted(){
   */
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
+
+      console.log("mouse down detected!");
       const ctrl: boolean = event.ctrlKey;
       const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
       const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
@@ -1208,16 +1185,23 @@ drawStarted(){
       this.selection.start = this.last;
       this.removeSubscription();    
       
-      this.moveSubscription = 
-      fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-
+     
       if(this.design_modes.isSelected("select")){
           this.selectionStarted();
+          this.moveSubscription = 
+          fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
+    
       }else if(this.design_modes.isSelected("draw")){
+        this.moveSubscription = 
+        fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
+  
           this.drawStarted();    
           this.setCell(ndx);
           this.drawCell(ndx); 
       }else if(this.design_modes.isSelected("shape")){
+        this.moveSubscription = 
+        fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
+  
 
         if(this.design_modes.isSelected('free')){
           if(ctrl){
@@ -1424,6 +1408,20 @@ drawStarted(){
 
       this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
 
+
+      const parent: number = this.tree.getSubdraftParent(obj.id);
+      if(parent != -1){
+        const parent_comp: any = this.tree.getComponent(parent);
+        console.log("parent found");
+
+      }
+
+      const cxns: Array<number> = this.tree.getNodeConnections(obj.id);
+      cxns.forEach(cxn => {
+        const comp: ConnectionComponent = <ConnectionComponent> this.tree.getComponent(cxn);
+        comp.updatePositionAndSize(moving.id, obj.point, moving.bounds.width, moving.bounds.height);
+      }); 
+
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       
       if(isect.length == 0){
@@ -1436,9 +1434,12 @@ drawStarted(){
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
-      
       this.preview.setComponentPosition(bounds.topleft);
       this.preview.drawDraft();
+
+
+
+      
     }
 
 
@@ -1464,10 +1465,15 @@ drawStarted(){
         sd.zndx = this.layers.createLayer();
         this.removePreview();
       } 
+
+      
       
       //get the reference to the draft that's moving
       const moving = this.tree.getComponent(obj.id);
       if(moving === null) return; 
+
+
+      
 
       //disable this too see what happens
       // const had_merge = this.mergeSubdrafts(moving);

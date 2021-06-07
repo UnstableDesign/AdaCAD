@@ -3,6 +3,7 @@ import { Bounds, DraftMap, Point } from '../../../core/model/datatypes';
 import { Splice } from '../../operations/splice';
 import utilInstance from '../../../core/model/util';
 import { Draft } from '../../../core/model/draft';
+import { ScaleBand } from 'd3-scale';
 
 @Component({
   selector: 'app-operation',
@@ -12,8 +13,10 @@ import { Draft } from '../../../core/model/draft';
 export class OperationComponent implements OnInit {
 
    @Input() id: number; //generated from the tree service
-   @Input() bounds: Bounds;
    @Input() name: string;
+   @Input() viewport: Bounds;
+   @Input() scale: number;
+   @Input() zndx: number;
    @Output() onSelectInputDraft:any = new EventEmitter()
 
 
@@ -21,10 +24,12 @@ export class OperationComponent implements OnInit {
    op: any;
    outputs: Array<DraftMap>; //stores a list of components and drafts
    tooltip: string = "select drafts to input to this operation"
-   zndx: number;
    disable_drag: boolean;
-   scale: number;
-   viewport: Bounds;
+   bounds: Bounds = {
+     topleft: {x: 0, y:0},
+     width: 100,
+     height: 30
+   };
    active_connection_order: number = 0;
 
 
@@ -34,6 +39,8 @@ export class OperationComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.bounds.topleft = this.viewport.topleft;
 
     if(this.name === 'splice'){
       this.op = new Splice();
@@ -73,6 +80,13 @@ export class OperationComponent implements OnInit {
 
   rescale(scale:number){
 
+  }
+
+  /**
+   * set's the width to at least 100, but w if its large
+   */
+  setWidth(w:number){
+    this.bounds.width = (w > 100) ? w : 100;
   }
 
   addOutput(dm: DraftMap){

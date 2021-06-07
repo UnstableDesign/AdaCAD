@@ -1,8 +1,12 @@
 .operation-container{
+    position: absolute;
+    top: 0;
+    left: 0;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    width: 100px;
+    background: black;
+    height: 30px;
 }
 
 .name{
@@ -11,12 +15,11 @@
 
 .inputs{
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     text-align: center;
 }
 
 .operation-details{
-    background: black;
     color: white;
     display: flex;
     flex-direction: row;

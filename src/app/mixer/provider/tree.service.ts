@@ -103,9 +103,41 @@ export class TreeService {
     return this.nodes.findIndex(el => (el.id == id));
   }
 
+  getType(id:number):string{
+    const node: Node = this.getNode(id);
+    return node.type;
+  }
+
   getViewRef(id:number):ViewRef{
     const node: Node = this.getNode(id);
     return node.ref;
+  }
+
+
+  /**
+   * get's this subdraft's parent
+   * @param sd_id 
+   * @returns the parent's id, or -1 if it has no parent
+   */
+  getSubdraftParent(sd_id: number):number{
+    const tn: TreeNode = this.getTreeNode(sd_id);
+    if(tn.parent !== null) return tn.parent.node.id;
+    else return -1;
+  }
+
+  /**
+   * return the connection objects that are immediately attached to this object
+   * @param id - the node id
+   * @returns an array of id's for the immediatly connected connections
+   */
+  getNodeConnections(id: number):Array<number>{
+    const tn: TreeNode = this.getTreeNode(id);
+    const out_node: Array<Node> = tn.outputs.map(el => el.node);
+    const out_cxn: Array<Node> = out_node.filter(el => el.type === 'cxn');
+    const in_node: Array<Node> = tn.inputs.map(el => el.node);
+    const in_cxn: Array<Node> = in_node.filter(el => el.type === 'cxn');
+    const join: Array<Node> = out_cxn.concat(in_cxn);
+    return join.map(el => el.id);
   }
 
   /**
@@ -126,6 +158,25 @@ export class TreeService {
     }
     return ops;
   }
+
+    /**
+   * given a node, recusively walks the tree and returns a list of all the operations that are linked up the chain to this component
+   * @param id 
+   * @returns an array of operation ids that influence this draft
+   */
+     getUpstreamOperations(id: number):Array<number>{
+      let ops: Array<number> = [];
+      const tn: TreeNode = this.getTreeNode(id);
+      if(tn.inputs.length > 0){
+        tn.inputs.forEach(el => {
+          if(el.node.type == 'op'){
+            ops.push(el.node.id);  
+          }
+          ops = ops.concat(this.getUpstreamOperations(el.node.id));
+        });
+      }
+      return ops;
+    }
 
 /**
  * this removes a node from the list and tree

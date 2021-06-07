@@ -1,6 +1,7 @@
 <div class="operation-container"
 cdkDrag
 [style.z-index] = "zndx"
+[style.width.px] = "bounds.width"
 [cdkDragDisabled] = "disable_drag"
 [cdkDragFreeDragPosition]="bounds.topleft"
 (cdkDragMoved)="dragMove($event)"
@@ -14,6 +15,7 @@ cdkDrag
          <i class="fas fa-chevron-right"></i>
     </button>
 </div>
+
 <div class="operation-details">
     <div class="name">{{name}}</div>
     <div class="params"></div>

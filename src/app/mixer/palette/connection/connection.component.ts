@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Bounds, Point } from '../../../core/model/datatypes';
+import { TreeService } from '../../provider/tree.service';
 
 @Component({
   selector: 'app-connection',
@@ -8,14 +9,19 @@ import { Bounds, Point } from '../../../core/model/datatypes';
 })
 export class ConnectionComponent implements OnInit {
 
-  id: number;
 
-  from: Bounds; 
-  to: Bounds; 
-  
-  scale: number;
+  @Input() id: number;
+  @Input() scale: number;
+
+
+  from: number; 
+  to: number; 
+  b_from: Bounds;
+  b_to: Bounds;
+  disable_drag:boolean = true;
   orientation: boolean = true;
   
+
   bounds: Bounds = {
     topleft: {x: 0, y:0},
     width: 0,
@@ -26,7 +32,10 @@ export class ConnectionComponent implements OnInit {
   cx: any;
 
 
-  constructor() { }
+  constructor(private tree: TreeService) { 
+
+
+  }
 
   ngOnInit() {
   }
@@ -36,15 +45,20 @@ export class ConnectionComponent implements OnInit {
 
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
+
+    this.b_from = this.tree.getComponent(this.from).bounds;
+    this.b_to = this.tree.getComponent(this.to).bounds;
+
     this.calculateBounds();
-    console.log("after view init on", this.id, this.to, this.from, this.bounds)
     this.drawConnection();
   }
 
   disableDrag(){
+    this.disable_drag = true;
   }
 
   enableDrag(){
+    this.disable_drag = false;
   }
 
   // setBounds(to:Bounds, from:Bounds){
@@ -55,29 +69,57 @@ export class ConnectionComponent implements OnInit {
   //   this.drawConnection();
   // }
 
+  updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
+  
+    console.log("updating again", id);
+    this.orientation = true;
 
+    if(id == this.from){
+      if(topleft.x < this.b_to.topleft.x) this.orientation = !this.orientation;
+      if(topleft.y < this.b_to.topleft.y) this.orientation = !this.orientation;
+      this.bounds.topleft = {x: Math.min(topleft.x, this.b_to.topleft.x), y: Math.min(topleft.y+height, this.b_to.topleft.y)};
+      this.bounds.width = Math.max(topleft.x, this.b_to.topleft.x) - this.bounds.topleft.x;
+      this.bounds.height = Math.max(topleft.y, this.b_to.topleft.y) - this.bounds.topleft.y;
+       
+    }else if(id == this.to){
+      if(topleft.x < this.b_from.topleft.x) this.orientation = !this.orientation;
+      if(topleft.y < this.b_from.topleft.y) this.orientation = !this.orientation;
+      this.bounds.topleft = {x: Math.min(topleft.x, this.b_from.topleft.x+width), y: Math.min(topleft.y, this.b_from.topleft.y)};
+      this.bounds.width = Math.max(topleft.x, this.b_from.topleft.x+width) - this.bounds.topleft.x;
+      this.bounds.height = Math.max(topleft.y, this.b_from.topleft.y) - this.bounds.topleft.y;
+    }
+
+    if(this.bounds.width < 4) this.bounds.width = 4;
+    if(this.bounds.height < 4) this.bounds.height = 4;
+  
+    this.drawConnection();
+  }
+
+
+  /** there is an error here that topleft never resets or redraws but otherwiseit works */
   calculateBounds(){
     
+    let p1: Point;
+    let p2: Point;
+    let bottomright: Point = {x:0, y:0};
+
+    p1 = {x: this.b_from.topleft.x, y: this.b_from.topleft.y};
+    p1.y += this.b_from.height;
+    p2 =  {x: this.b_to.topleft.x, y: this.b_to.topleft.y}
+
     this.orientation = true;
     
-    if(this.to.topleft.x < this.from.topleft.x) this.orientation = !this.orientation;
-    if(this.to.topleft.y < this.from.topleft.y) this.orientation = !this.orientation;
+    if(p2.x < p1.x) this.orientation = !this.orientation;
+    if(p2.y < p1.y) this.orientation = !this.orientation;
 
-    const botright:Point = {x: 0, y:0};
+    bottomright.x = Math.max(p1.x, p2.x);
+    bottomright.y = Math.max(p1.y, p2.y);
 
-    botright.x = Math.max(this.to.topleft.x, this.from.topleft.x);
-    botright.y = Math.max(this.to.topleft.y, this.from.topleft.y);
-
-    this.bounds.topleft.x = Math.min(this.to.topleft.x, this.from.topleft.x);
-    this.bounds.topleft.y = Math.min(this.to.topleft.y, this.from.topleft.y);
-   
-    this.bounds.width = botright.x - this.bounds.topleft.x + 2; //add two so a line is drawn when horiz or vert
-    this.bounds.height = botright.y - this.bounds.topleft.y + 2;
-
-    //adjust to corners
-    this.bounds.topleft.y -= this.scale*3;
-
-
+    this.bounds.topleft.x = Math.min(p1.x, p2.x);
+    this.bounds.topleft.y = Math.min(p1.y, p2.y);
+    this.bounds.width = bottomright.x - this.bounds.topleft.x + 2; //add two so a line is drawn when horiz or vert
+    this.bounds.height = bottomright.y - this.bounds.topleft.y + 2;
+    console.log("Bounds", this.bounds.topleft);
   }
 
   drawConnection(){
@@ -93,7 +135,7 @@ export class ConnectionComponent implements OnInit {
     this.cx.strokeStyle = "#ff4081";
     this.cx.setLineDash([this.scale, 2]);
     this.cx.lineWidth = 2;
-   
+    // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
     if(this.orientation){
       this.cx.moveTo(0, 0);
       this.cx.lineTo(this.bounds.width, this.bounds.height);
