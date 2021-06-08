@@ -12,6 +12,7 @@ export interface OperationParams {
 
 export interface Operation {
     name: string,
+    max_inputs: number,
     params: Array<OperationParams>,
     perform: (input: Array<Draft>, input_params: Array<number>) => Array<Draft>
  }
@@ -30,7 +31,8 @@ export class OperationService {
     const splice:Operation = {
       name: 'splice',
       params: [],
-      perform: (inputs: Array<Draft>, input_params: []):Array<Draft> => {
+      max_inputs: 100,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
         
         const outputs: Array<Draft> = [];
 
@@ -80,6 +82,7 @@ export class OperationService {
         value: 1
         }
       ],
+      max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
 
         const sum: number = input_params.reduce( (acc, val) => {
@@ -95,26 +98,188 @@ export class OperationService {
           }
         }
 
-        const outputs: Array<Draft> = inputs.map(input => {
-          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-          console.log(d, pattern);
-          d.fill(pattern, 'mask');
-          return d;
-        });
+        let outputs: Array<Draft> = [];
+        if(inputs.length == 0){
+          const d: Draft = new Draft({warps: sum, wefts: sum, pattern: pattern});
+          outputs.push(d);
+        }else{
+           outputs = inputs.map(input => {
+            const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, 'mask');
+            return d;
+          });
+        }
 
         return outputs;
       }        
     }
 
 
+    const random: Operation = {
+      name: 'random',
+      params: [
+        {name: 'width',
+        min: 1,
+        max: 100,
+        value: 6
+        },
+        {name: 'height',
+        min: 1,
+        max: 100,
+        value: 6
+        },
+        {name: 'percent overs',
+        min: 1,
+        max: 100,
+        value: 50
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+       
+        const pattern:Array<Array<Cell>> = [];
+        for(let i = 0; i < input_params[1]; i++){
+          pattern.push([]);
+          for(let j = 0; j < input_params[0]; j++){
+            const rand: number = Math.random() * 100;
+            pattern[i][j] = (rand > input_params[2]) ? new Cell(false) : new Cell(true);
+          }
+        }
+
+        let outputs: Array<Draft> = [];
+        if(inputs.length == 0){
+          const d: Draft = new Draft({warps: input_params[0], wefts: input_params[1], pattern: pattern});
+          outputs.push(d);
+        }else{
+           outputs = inputs.map(input => {
+            const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, 'mask');
+            return d;
+          });
+        }
+
+        return outputs;
+      }        
+    }
+
+
+    const invert: Operation = {
+      name: 'invert',
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          d.fill(d.pattern, 'invert');
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const mirrorx: Operation = {
+      name: 'flip horiz',
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          d.fill(d.pattern, 'mirrorX');
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const mirrory: Operation = {
+      name: 'flip vert',
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          d.fill(d.pattern, 'mirrorY');
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const shiftx: Operation = {
+      name: 'shift left',
+      params: [
+        {name: 'amount',
+        min: 1,
+        max: 100,
+        value: 1
+        }
+      ],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            for(let i = 0; i < input_params[0]; i++){
+              d.fill(d.pattern, 'shiftLeft');
+            }
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const shifty: Operation = {
+      name: 'shift up',
+      params: [
+        {name: 'amount',
+        min: 1,
+        max: 100,
+        value: 1
+        }
+      ],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            for(let i = 0; i < input_params[0]; i++){
+              d.fill(d.pattern, 'shiftUp');
+            }
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+
+    const mirror: Operation = {
+      name: 'mirror',
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          return d;
+        });
+        return outputs;
+      }
+    }
+
 
 
 
 
     //**push operatiinos to the array here */
-    this.ops.push(splice);
     this.ops.push(twill);
-
+    this.ops.push(random);
+    this.ops.push(splice);
+    this.ops.push(invert);
+    this.ops.push(mirror);
+    this.ops.push(mirrorx);
+    this.ops.push(mirrory);
+    this.ops.push(shiftx);
+    this.ops.push(shifty);
   }
 
 

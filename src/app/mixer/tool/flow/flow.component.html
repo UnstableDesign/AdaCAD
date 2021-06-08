@@ -6,13 +6,17 @@
       <mat-panel-description>
       </mat-panel-description>
     </mat-expansion-panel-header>
+    <mat-list role="list">
+   
+    <ng-container *ngFor="let op of ops.ops">
+      <mat-list-item role="listitem">
+        <button mat-stroked-button
+          [name]=op.name 
+          (click)="addOp(op.name)">
+          {{op.name}}
+        </button> 
+      </mat-list-item>
+		</ng-container>  
+    </mat-list>
 
-<ng-container *ngFor="let op of ops.ops">
-			<button 
-			  [name]=op.name 
-			  (click)="addOp(op.name)">
-			  {{op.name}}
-			  </button> 
-			</ng-container>  
-		
 </mat-expansion-panel>  

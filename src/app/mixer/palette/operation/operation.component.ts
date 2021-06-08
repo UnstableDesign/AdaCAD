@@ -18,6 +18,7 @@ export class OperationComponent implements OnInit {
    @Input() zndx: number;
    @Output() onSelectInputDraft:any = new EventEmitter()
    @Output() onOperationMove = new EventEmitter <any>(); 
+   @Output() onOperationParamChange = new EventEmitter <any>(); 
 
 
    selecting_connection: boolean;
@@ -40,12 +41,14 @@ export class OperationComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.bounds.topleft = this.viewport.topleft;
     this.op = this.operations.getOp(this.name);
-
     this.op_inputs = this.op.params.map(param => param.value);
+  }
 
+  ngAfterViewInit(){
+    console.log("after view", this.op_inputs);
+    this.onOperationParamChange.emit({id: this.id});
   }
 
   updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
@@ -65,11 +68,10 @@ export class OperationComponent implements OnInit {
    * @returns an Array linking the draft ids to compoment_ids
    */
   perform(inputs: Array<Draft>):Array<DraftMap>{
+    this.op = this.operations.getOp(this.name);
 
     const draft_map: Array<DraftMap> = [];
-    const params: Array<number> = this.op.params.map(el => el.value);
-
-    const generated_drafts: Array<Draft> = this.op.perform(inputs, params);
+    const generated_drafts: Array<Draft> = this.op.perform(inputs, this.op_inputs);
     generated_drafts.forEach((draft, ndx) => {
       const component_id:number = (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id;
 
@@ -105,6 +107,10 @@ export class OperationComponent implements OnInit {
     this.disable_drag = false;
   }
 
+  maxInputs():number{
+    return this.op.max_inputs;
+  }
+
   inputSelected(event: any, ndx: number){
     this.selecting_connection = true;
     this.disableDrag();
@@ -119,6 +125,7 @@ export class OperationComponent implements OnInit {
 
   onParamChange(){
     console.log(this.op.params);
+    this.onOperationParamChange.emit({id: this.id});
   }
 
 

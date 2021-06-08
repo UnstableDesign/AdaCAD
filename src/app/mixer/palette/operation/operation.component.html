@@ -20,9 +20,9 @@ cdkDrag
 <div class="operation-details">
     <div class="name">{{op.name}}</div>
     <div class="params">
-        <ng-container *ngFor="let param of op.params">
+        <ng-container *ngFor="let param of op.params; let i = index">
             <input 
-              [(ngModel)]="param.value"
+              [(ngModel)]="op_inputs[i]"
               type = "number"
 			  [name]=param.name
               [min]=param.min
@@ -35,6 +35,6 @@ cdkDrag
 		</ng-container>
         </div>
 </div>
-<div class="outputs"></div>
+<!-- <div class="outputs"></div> -->
 
 </div>

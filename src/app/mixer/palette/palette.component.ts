@@ -218,7 +218,7 @@ export class PaletteComponent implements OnInit{
 
   addOperation(name:string){
     this.changeDesignmode('operation');
-    this.createOperation(name);
+    const op:OperationComponent = this.createOperation(name);
   }
 
   rescale(scale:number){
@@ -320,6 +320,7 @@ export class PaletteComponent implements OnInit{
 
       op.instance.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this));
       op.instance.onOperationMove.subscribe(this.operationMoved.bind(this));
+      op.instance.onOperationParamChange.subscribe(this.operationParamChanged.bind(this));
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
@@ -680,21 +681,43 @@ export class PaletteComponent implements OnInit{
  */
   setDraftsConnectable(op_id: number){
     const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
-    nodes.forEach(el => {
-      //look upstream to see if this operation is linked in any way to this op
-      const upstream: Array<number> = this.tree.getUpstreamOperations(el.id);
-      const ndx: number = upstream.findIndex(i => i === op_id);
-      if(ndx === -1) el.setConnectable();
-
-      //now unset the ones that are already assigned to other ops
-      const connections: Array<number> = this.tree.getOutputs(el.id);
-      const ops: Array<number> = connections.map(cxn => this.tree.getConnectionOutput(cxn));
-      const op_ndx: number = ops.findIndex(op => (op === op_id));
-      //if it had connections and the connection was not this operation, unset it
-      if(ops.length > 0 && op_ndx === -1){
+    const op: OperationComponent = <OperationComponent> this.tree.getComponent(op_id);
+    const inputs: Array<number> = this.tree.getInputs(op_id);
+    if(inputs.length >= op.maxInputs()){
+      nodes.forEach(el => {
+        console.log("inputs longer unsettiing for", el.id)
         el.unsetConnectable();
-      } 
-    });
+
+        //now unset the ones that are already assigned to other ops
+        const connections: Array<number> = this.tree.getNonCxnOutputs(el.id);
+        const op_ndx: number = connections.findIndex(id => (id === op_id));
+        console.log(connections, "found at ", op_ndx);
+        //if it had connections and the connection was not this operation, unset it
+        if(op_ndx !== -1){
+          el.setConnectable();
+        }    
+      });
+    }else{
+
+      nodes.forEach(el => {
+
+        //look upstream to see if this operation is linked in any way to this op
+        const upstream: Array<number> = this.tree.getUpstreamOperations(el.id);
+        const ndx: number = upstream.findIndex(i => i === op_id);
+        if(ndx === -1) el.setConnectable();
+  
+        //now unset the ones that are already assigned to other ops
+        const connections: Array<number> = this.tree.getOutputs(el.id);
+        const ops: Array<number> = connections.map(cxn => this.tree.getConnectionOutput(cxn));
+        const op_ndx: number = ops.findIndex(op => (op === op_id));
+        //if it had connections and the connection was not this operation, unset it
+        if(ops.length > 0 && op_ndx === -1){
+          el.unsetConnectable();
+        }    
+  
+      });
+    }
+   
    }
 
     /**
@@ -1219,8 +1242,8 @@ drawStarted(){
           this.shapeStarted(mouse);
         }
       }else if(this.design_modes.isSelected("operation")){
-        console.log("mouse down");
         this.processConnectionEnd();
+        this.changeDesignmode('move');
       }
   }
 
@@ -1399,13 +1422,13 @@ drawStarted(){
     const moving : any = this.tree.getComponent(obj.id);
     const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
 
-    console.log("updates for mvoe", updates)
+    console.log("updates for move", updates)
 
     updates.forEach(u => {
       //if this is a node that didn't call the command, its a parent or child. 
       if(obj.id !== u){
         // if(this.tree.getType(u)=='op') obj.point = {x: obj.point.x, y: obj.point.y - 30};
-        // if(this.tree.getType(u)=='draft') obj.point = {x: obj.point.x, y: obj.point.y + 30};
+         if(this.tree.getType(u)=='draft') obj.point = {x: obj.point.x, y: obj.point.y + 30};
       }
       const u_comp = this.tree.getComponent(u);
       if(u_comp.id != obj.id) u_comp.setPosition(obj.point);
@@ -1419,17 +1442,35 @@ drawStarted(){
     }); 
   }
 
+  /**
+   * emitted from an operatioin when its param has changed 
+   * checks for a child subdraft, recomputes, redraws. 
+   * @param obj with attribute id describing the operation that called this
+   * @returns 
+   */
+   operationParamChanged(obj: any){
+    if(obj === null) return;
+
+    this.performOp(obj.id);
+
+    const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
+    ds.forEach(op => {
+      this.performOp(op);
+    });
+  }
 
 
+/**
+ * called from an operatiino cmoponent when it is dragged
+ * @param obj (id, point of toplleft)
+ */
   operationMoved(obj: any){
     if(obj === null) return;
 
     //get the reference to the draft that's moving
     const moving = <OperationComponent> this.tree.getComponent(obj.id);
     if(moving === null) return; 
-
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
-
     this.updateAttachedComponents(obj);
 
   }
