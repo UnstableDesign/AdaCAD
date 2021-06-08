@@ -7,6 +7,12 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <button (click)="addSplice()">Splice</button>
-
+<ng-container *ngFor="let op of ops.ops">
+			<button 
+			  [name]=op.name 
+			  (click)="addOp(op.name)">
+			  {{op.name}}
+			  </button> 
+			</ng-container>  
+		
 </mat-expansion-panel>  

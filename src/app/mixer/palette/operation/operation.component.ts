@@ -1,9 +1,8 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DraftMap, Point } from '../../../core/model/datatypes';
-import { Splice } from '../../operations/splice';
 import utilInstance from '../../../core/model/util';
 import { Draft } from '../../../core/model/draft';
-import { ScaleBand } from 'd3-scale';
+import { OperationService, Operation } from '../../provider/operation.service';
 
 @Component({
   selector: 'app-operation',
@@ -22,66 +21,57 @@ export class OperationComponent implements OnInit {
 
 
    selecting_connection: boolean;
-   op: any;
    outputs: Array<DraftMap>; //stores a list of components and drafts
    tooltip: string = "select drafts to input to this operation"
    disable_drag: boolean;
    bounds: Bounds = {
      topleft: {x: 0, y:0},
-     width: 100,
+     width: 200,
      height: 30
    };
    active_connection_order: number = 0;
+   op:Operation;
+   op_inputs: Array<number> = [];
 
-
-  constructor() { 
+  constructor(private operations: OperationService) { 
     this.outputs = [];
     this.selecting_connection = false;
+
   }
 
   ngOnInit() {
 
     this.bounds.topleft = this.viewport.topleft;
+    this.op = this.operations.getOp(this.name);
 
-    if(this.name === 'splice'){
-      this.op = new Splice();
-    }
+    this.op_inputs = this.op.params.map(param => param.value);
 
   }
 
   updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
   
-    console.log("updating operation", id);
     this.bounds.topleft  = topleft;
     this.bounds.topleft.y = topleft.y - this.bounds.height
     
   }
 
   setPosition(pos: Point){
-    console.log("called set position on opereatino to", pos);
     this.bounds.topleft = pos;
   }
 
-  /**
-   * calls the operations load function and returns if the inputs are valid
-   * @param drafts 
-   * @returns 
-   */
-  load(drafts: Array<Draft>):boolean{
-    return this.op.load(drafts);
-  }
 
   /**
    * performs the operation on the inputs added in load
    * @returns an Array linking the draft ids to compoment_ids
    */
-  perform():Array<DraftMap>{
+  perform(inputs: Array<Draft>):Array<DraftMap>{
+
     const draft_map: Array<DraftMap> = [];
-    const generated_drafts: Array<Draft> = this.op.perform();
-    console.log("outputs are", this.outputs);
+    const params: Array<number> = this.op.params.map(el => el.value);
+
+    const generated_drafts: Array<Draft> = this.op.perform(inputs, params);
     generated_drafts.forEach((draft, ndx) => {
       const component_id:number = (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id;
-      console.log("found id", component_id);
 
       draft_map.push({
         component_id: component_id,
@@ -97,10 +87,10 @@ export class OperationComponent implements OnInit {
   }
 
   /**
-   * set's the width to at least 100, but w if its large
+   * set's the width to at least 200, but w if its large
    */
   setWidth(w:number){
-    this.bounds.width = (w > 100) ? w : 100;
+    this.bounds.width = (w > 200) ? w : 200;
   }
 
   addOutput(dm: DraftMap){
@@ -125,6 +115,10 @@ export class OperationComponent implements OnInit {
       id: this.id
     });
 
+  }
+
+  onParamChange(){
+    console.log(this.op.params);
   }
 
 

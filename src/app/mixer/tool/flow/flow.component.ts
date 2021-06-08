@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { OperationService } from '../../provider/operation.service';
 
 @Component({
   selector: 'app-flow',
@@ -9,14 +10,14 @@ export class FlowComponent implements OnInit {
   
   @Output() onOperationAdded:any = new EventEmitter();
 
-  constructor() { }
+  constructor(private ops: OperationService) { }
 
   ngOnInit() {
   }
 
 
-  addSplice(){
-    this.onOperationAdded.emit('splice');
+  addOp(name: string){
+    this.onOperationAdded.emit(name);
   }
 
 

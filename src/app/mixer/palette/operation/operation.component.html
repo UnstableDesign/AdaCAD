@@ -16,9 +16,24 @@ cdkDrag
     </button>
 </div>
 
+
 <div class="operation-details">
-    <div class="name">{{name}}</div>
-    <div class="params"></div>
+    <div class="name">{{op.name}}</div>
+    <div class="params">
+        <ng-container *ngFor="let param of op.params">
+            <input 
+              [(ngModel)]="param.value"
+              type = "number"
+			  [name]=param.name
+              [min]=param.min
+              [max]=param.max
+              [value] = param.value
+              step = 1
+              required = true
+              (change)= onParamChange();
+            >
+		</ng-container>
+        </div>
 </div>
 <div class="outputs"></div>
 

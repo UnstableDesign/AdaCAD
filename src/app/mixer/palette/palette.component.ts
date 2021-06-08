@@ -17,8 +17,6 @@ import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
-import { connected, removeAllListeners } from 'process';
-import { throwIfEmpty } from 'rxjs/operators';
 
 @Component({
   selector: 'app-palette',
@@ -809,18 +807,9 @@ performOp(op_id:number){
     const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
     return sd.draft;
    });
- 
-   //validate the action
-   const valid: boolean = op.load(input_drafts);
- 
-   if(!valid){
-     console.log("Error: Invalid inputs to operation");
-     return;
-   }
-  
-  
-  const draft_map: Array<DraftMap> = op.perform();
 
+  
+  const draft_map: Array<DraftMap> = op.perform(input_drafts);
 
   console.log("created draft map", draft_map);
   draft_map.forEach(el => {
@@ -1415,8 +1404,8 @@ drawStarted(){
     updates.forEach(u => {
       //if this is a node that didn't call the command, its a parent or child. 
       if(obj.id !== u){
-        if(this.tree.getType(u)=='op') obj.point = {x: obj.point.x, y: obj.point.y - 30};
-        if(this.tree.getType(u)=='draft') obj.point = {x: obj.point.x, y: obj.point.y + 30};
+        // if(this.tree.getType(u)=='op') obj.point = {x: obj.point.x, y: obj.point.y - 30};
+        // if(this.tree.getType(u)=='draft') obj.point = {x: obj.point.x, y: obj.point.y + 30};
       }
       const u_comp = this.tree.getComponent(u);
       if(u_comp.id != obj.id) u_comp.setPosition(obj.point);
