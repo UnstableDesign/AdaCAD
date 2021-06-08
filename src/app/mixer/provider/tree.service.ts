@@ -141,6 +141,35 @@ export class TreeService {
   }
 
   /**
+   * gets a list of non-connection nodes that need to be updated if this node moves. 
+   * this takes into acccount that some nodes have a parent that will move with them.
+   * @param id 
+   * @returns 
+   */
+  getNodesToUpdateOnMove(id: number){
+
+    let updates: Array<number> = [];
+    const tn: TreeNode = this.getTreeNode(id);
+
+    let to_check: Array<number> = [id];
+    
+    //the parent if there is one
+    if(tn.parent !== null) to_check.push(tn.parent.node.id);
+
+    //add the child this node generated if there is one. 
+    const outputs: Array<TreeNode> = this.getNonCxnOutputs(id).map(el => this.getTreeNode(el));
+    const has_parents: Array<TreeNode> = outputs.filter(el => (el.parent !== null));
+    const is_child: Array<number> = has_parents.filter(el => (el.parent.node.id === id)).map(el => el.node.id);
+
+    if(is_child.length > 0) to_check = to_check.concat(is_child);
+
+    return to_check;
+
+  }
+
+
+
+  /**
    * given a node, recusively walks the tree and returns a list of all the operations that are affected
    * @param id 
    * @returns an array of operation ids for nodes that need recalculating
@@ -335,6 +364,17 @@ export class TreeService {
     const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
     return id_list;
   }
+
+  /**
+ * returns the ids of all nodes connected to the output node that are not connection nodes
+ * @param op_id 
+ */
+ getNonCxnOutputs(id: number):Array<number>{
+  const outputs: Array<number> = this.getOutputs(id);
+  const node_list:Array<Node> = outputs.map(id => (this.getNode(id)));
+  const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionOutput(node.id): node.id);
+  return id_list;
+}
 
   getInputs(node_id: number):Array<number>{
     const tn = this.getTreeNode(node_id);

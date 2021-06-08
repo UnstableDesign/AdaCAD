@@ -69,6 +69,12 @@ export class ConnectionComponent implements OnInit {
   //   this.drawConnection();
   // }
 
+  setPosition(pos: Point){
+    // console.log("called set position");
+    // this.bounds.topleft = pos;
+  }
+
+
   updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
   
     console.log("updating again", id);

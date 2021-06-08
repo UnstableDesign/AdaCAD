@@ -18,6 +18,7 @@ export class OperationComponent implements OnInit {
    @Input() scale: number;
    @Input() zndx: number;
    @Output() onSelectInputDraft:any = new EventEmitter()
+   @Output() onOperationMove = new EventEmitter <any>(); 
 
 
    selecting_connection: boolean;
@@ -48,8 +49,16 @@ export class OperationComponent implements OnInit {
 
   }
 
+  updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
+  
+    console.log("updating operation", id);
+    this.bounds.topleft  = topleft;
+    this.bounds.topleft.y = topleft.y - this.bounds.height
+    
+  }
+
   setPosition(pos: Point){
-    console.log("called set position");
+    console.log("called set position on opereatino to", pos);
     this.bounds.topleft = pos;
   }
 
@@ -131,6 +140,8 @@ export class OperationComponent implements OnInit {
        const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport);
        const adj:Point = utilInstance.snapToGrid(relative, this.scale);
        this.bounds.topleft = adj;  
+       this.onOperationMove.emit({id: this.id, point: adj});
+
   }
 
 

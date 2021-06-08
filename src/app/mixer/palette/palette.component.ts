@@ -321,6 +321,7 @@ export class PaletteComponent implements OnInit{
       const id = this.tree.createNode('op', op.instance, op.hostView);
 
       op.instance.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this));
+      op.instance.onOperationMove.subscribe(this.operationMoved.bind(this));
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
@@ -1405,8 +1406,44 @@ drawStarted(){
     });
   }
 
+  updateAttachedComponents(obj: any){
+    const moving : any = this.tree.getComponent(obj.id);
+    const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
+
+    console.log("updates for mvoe", updates)
+
+    updates.forEach(u => {
+      //if this is a node that didn't call the command, its a parent or child. 
+      if(obj.id !== u){
+        if(this.tree.getType(u)=='op') obj.point = {x: obj.point.x, y: obj.point.y - 30};
+        if(this.tree.getType(u)=='draft') obj.point = {x: obj.point.x, y: obj.point.y + 30};
+      }
+      const u_comp = this.tree.getComponent(u);
+      if(u_comp.id != obj.id) u_comp.setPosition(obj.point);
+
+      const cxns: Array<number> = this.tree.getNodeConnections(u);
+      cxns.forEach(cxn => {
+        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
+        comp.updatePositionAndSize(moving.id, obj.point, moving.bounds.width, moving.bounds.height);
+      })
+     
+    }); 
+  }
 
 
+
+  operationMoved(obj: any){
+    if(obj === null) return;
+
+    //get the reference to the draft that's moving
+    const moving = <OperationComponent> this.tree.getComponent(obj.id);
+    if(moving === null) return; 
+
+    this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
+
+    this.updateAttachedComponents(obj);
+
+  }
 
 
 
@@ -1418,20 +1455,14 @@ drawStarted(){
       if(moving === null) return; 
 
       this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
+      
+      this.updateAttachedComponents(obj);
 
-
-      const parent: number = this.tree.getSubdraftParent(obj.id);
-      if(parent != -1){
-        const parent_comp: any = this.tree.getComponent(parent);
-        console.log("parent found");
-
-      }
-
-      const cxns: Array<number> = this.tree.getNodeConnections(obj.id);
-      cxns.forEach(cxn => {
-        const comp: ConnectionComponent = <ConnectionComponent> this.tree.getComponent(cxn);
-        comp.updatePositionAndSize(moving.id, obj.point, moving.bounds.width, moving.bounds.height);
-      }); 
+      // const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
+      // updates.forEach(u => {
+      //   const comp: any = this.tree.getComponent(u);
+      //   comp.updatePositionAndSize(moving.id, obj.point, moving.bounds.width, moving.bounds.height);
+      // }); 
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       

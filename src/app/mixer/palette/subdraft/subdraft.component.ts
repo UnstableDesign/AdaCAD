@@ -141,6 +141,12 @@ export class SubdraftComponent implements OnInit {
     this.parent_id = op;
   }
 
+  setPosition(pos: Point){
+    console.log("called set position on subdraft");
+    this.bounds.topleft = pos;
+  }
+
+
 
   public inkActionChange(name: any){
     this.ink = name;
@@ -225,6 +231,12 @@ export class SubdraftComponent implements OnInit {
     
     return this.draft.pattern[coords.i][coords.j].isUp();
   
+  }
+
+  //I don't think this will ever be called
+  updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
+  
+    
   }
 
 

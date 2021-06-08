@@ -28,8 +28,8 @@ export class InkService {
       {value: 'up', viewValue: 'Setting Ink', dx: "SETTING INK sets this pattern within the draft no matter what is under it", icon: "fas fa-square",  selected: false, uses_mask:false},
       {value: 'down', viewValue: 'Erasing Ink', dx: "ERASING INK places all the heddle downs atop the draft underneith it", icon: "far fa-square",  selected: false, uses_mask:false},
       {value: 'unset', viewValue: 'Removing Ink', dx: "REMOVING INK removes the use of this heddle in the draft (for shape and inlay weaving)", icon: "fas fa-times", selected: false, uses_mask:false},
-      // {value: 'and', viewValue: 'Masking Ink', dx: "MASKING INK only reveals bottom pattern in areas where this pattern is black", icon: "fas fa-mask", selected: false, uses_mask:true},
-      // {value: 'or', viewValue: 'Overlaying Ink', dx: "OVERLAYING INK copies all black pattern cells atop the draft", icon: "fas fa-plus", selected: false, uses_mask:false}
+      {value: 'and', viewValue: 'Masking Ink', dx: "MASKING INK only reveals bottom pattern in areas where this pattern is black", icon: "fas fa-mask", selected: false, uses_mask:true},
+     {value: 'or', viewValue: 'Overlaying Ink', dx: "OVERLAYING INK copies all black pattern cells atop the draft", icon: "fas fa-plus", selected: false, uses_mask:false}
     ];
   
     this.select('neq');
