@@ -94,6 +94,17 @@
 			</mat-menu>
 		
 		</ng-container>
+
+		<ng-container *ngIf="parent_id !== -1">
+		<button 
+		matTooltip= "Duplilcate"
+		class="button is-small is-primary fa fa-clone"
+		[style.color]="button_color" 
+		[name]="delete"
+		(click)="designActionChange('duplicate')">
+		</button>
+		</ng-container>
+		
 		</div>
 		
 		<div class="align-bottom">
