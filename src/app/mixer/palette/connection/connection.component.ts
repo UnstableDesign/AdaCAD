@@ -75,12 +75,19 @@ export class ConnectionComponent implements OnInit {
   }
 
 
+  /**
+   * updates the connection point associated with id 
+   * @param id the id of the component that is moving
+   * @param topleft the mouse pointer moving that component
+   * @param width the width off the moving component
+   * @param height the height of the moving component
+   */
   updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
   
     //this block of code works when we assume the pointer is at the top right corner of a subdraft directly connected to this component
-    console.log("updating again", id);
     this.orientation = true;
 
+    //in most cases from is a subdraft
     if(id == this.from){
       if(topleft.x < this.b_to.topleft.x) this.orientation = !this.orientation;
       if(topleft.y < this.b_to.topleft.y) this.orientation = !this.orientation;
@@ -89,11 +96,13 @@ export class ConnectionComponent implements OnInit {
       this.bounds.height = Math.max(topleft.y, this.b_to.topleft.y) - this.bounds.topleft.y;
        
     }else if(id == this.to){
+      //assumes to is an operations
+      let b_from_height = this.b_from.height;
       if(topleft.x < this.b_from.topleft.x) this.orientation = !this.orientation;
-      if(topleft.y < this.b_from.topleft.y) this.orientation = !this.orientation;
-      this.bounds.topleft = {x: Math.min(topleft.x, this.b_from.topleft.x), y: Math.min(topleft.y, this.b_from.topleft.y)};
+      if(topleft.y < this.b_from.topleft.y+this.b_from.height) this.orientation = !this.orientation;
+      this.bounds.topleft = {x: Math.min(topleft.x, this.b_from.topleft.x), y: Math.min(topleft.y, this.b_from.topleft.y+b_from_height)};
       this.bounds.width = Math.max(topleft.x, this.b_from.topleft.x) - this.bounds.topleft.x;
-      this.bounds.height = Math.max(topleft.y, this.b_from.topleft.y) - this.bounds.topleft.y;
+      this.bounds.height = Math.max(topleft.y, this.b_from.topleft.y+b_from_height) - this.bounds.topleft.y;
     }
 
     if(this.bounds.width < 4) this.bounds.width = 4;
@@ -131,7 +140,6 @@ export class ConnectionComponent implements OnInit {
 
   drawConnection(){
 
-    console.log("called draw connection");
     //make the canvas big enough to encase the point, starting from the topleft of the view
     this.canvas.width = this.bounds.width;
     this.canvas.height = this.bounds.height;

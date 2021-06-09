@@ -1423,8 +1423,6 @@ drawStarted(){
     const moving : any = this.tree.getComponent(obj.id);
     const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
 
-    console.log("updates for move", updates)
-
     updates.forEach(u => {
       const type: string = this.tree.getType(u);
       const u_comp = this.tree.getComponent(u);
@@ -1436,11 +1434,9 @@ drawStarted(){
          const cxns: Array<number> = this.tree.getNodeConnections(u);
          cxns.forEach(cxn => {
            const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-           //write some checks here to alilgn to the bottom of the subdraft.
-          //  if(type=='op') comp.updatePositionAndSize(u_comp.id,{x: obj.point.x, y: obj.point.y_}, u_comp.bounds.width, u_comp.bounds.height);
-          //   if(type=='draft') comp.updatePositionAndSize(u_comp.id, obj.point, u_comp.bounds.width, u_comp.bounds.height);  
-            comp.updatePositionAndSize(u_comp.id, obj.point, u_comp.bounds.width, u_comp.bounds.height)      
-         })
+            if(type=='op') comp.updatePositionAndSize(u_comp.id,  {x: obj.point.x, y: obj.point.y-30}, u_comp.bounds.width, u_comp.bounds.height);
+            if(type=='draft') comp.updatePositionAndSize(u_comp.id, {x: obj.point.x, y: obj.point.y}, u_comp.bounds.width, u_comp.bounds.height);  
+         });
       
       }else{
 
