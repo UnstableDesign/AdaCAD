@@ -1,10 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter, HostListener} from '@angular/core';
+import { Component, OnInit, Input, Output, ViewChild, ElementRef, EventEmitter, HostListener} from '@angular/core';
 import { Draft } from '../../../core/model/draft';
 import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import { Cell } from '../../../core/model/cell';
 import utilInstance from '../../../core/model/util';
+import { CanvasToBMP } from '../../../core/model/canvas2image';
 
 
 
@@ -29,8 +30,6 @@ export class SubdraftComponent implements OnInit {
   @Input()  draft: Draft;
   @Input()  patterns: any;
   @Input()  viewport: Bounds;
-  // @Input()  parent: ConnectionComponent;
-  // @Input()  children: Array<ConnectionComponent>;
   @Output() onSubdraftMove = new EventEmitter <any>(); 
   @Output() onSubdraftDrop = new EventEmitter <any>(); 
   @Output() onSubdraftStart = new EventEmitter <any>(); 
@@ -39,6 +38,18 @@ export class SubdraftComponent implements OnInit {
   @Output() onConnectionMade = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onDesignAction = new  EventEmitter <any>();
+
+  @ViewChild('bitmapImage', {static: false}) bitmap: any;
+  @ViewChild('bmpLink', {static: true}) bmpLink: any;
+  @ViewChild('adaLink', {static: true}) adaLink: any;
+  @ViewChild('wifLink', {static: true}) wifLink: any;
+  @ViewChild('printLink', {static: true}) printLink: any;
+
+  downloadBmp: ElementRef;
+  downloadAda: ElementRef;
+  downloadWif: ElementRef;
+  downloadPrint: ElementRef;
+
 
  //operations you can perform on a selection 
  design_actions: DesignActions[] = [
@@ -64,6 +75,7 @@ export class SubdraftComponent implements OnInit {
     height: 0
   }
 
+  filename: string = "adacad";
   scale = 10; 
   ink = 'neq'; //can be or, and, neq, not, splice
   counter:number  =  0; // keeps track of how frequently to call the move functions
@@ -87,7 +99,12 @@ export class SubdraftComponent implements OnInit {
   ngOnInit(){
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
+    this.filename = this.draft.name;
 
+    this.downloadBmp = this.bmpLink._elementRef;
+    this.downloadAda = this.adaLink._elementRef;
+    this.downloadWif = this.wifLink._elementRef;
+    this.downloadPrint = this.printLink._elementRef;
 
   }
 
@@ -443,6 +460,116 @@ export class SubdraftComponent implements OnInit {
      this.drawDraft();
 
     }
+
+    public saveAsBmp(e: any) {
+      var obj: any = {
+        name: this.filename,
+        downloadLink: this.downloadBmp,
+        type: "bmp"
+      }
+      console.log(obj);
+      this.onSave(obj);
+    }
+  
+    public saveAsAda(e: any) {
+      var obj: any = {
+        name: this.filename,
+        downloadLink: this.downloadAda,
+        type: "ada"
+      }
+      console.log(obj);
+      this.onSave(obj);
+    }
+  
+    public saveAsWif(e: any) {
+      var obj: any = {
+        name: this.filename,
+        downloadLink: this.downloadWif,
+        type: "wif"
+      }
+      console.log(obj);
+      this.onSave(obj);
+    }
+  
+    public saveAsPrint(e: any) {
+      var obj: any = {
+        name: this.filename,
+        downloadLink: this.downloadPrint,
+        type: "jpg"
+      }
+      this.onSave(obj);
+    }
+
+    public onSave(e: any) {
+
+      e.bitmap = this.bitmap;
+      console.log(e);
+  
+      if (e.type === "bmp") this.saveBMP(e.name, e);
+      else if (e.type === "ada") this.draft.saveADA(e.name, e);
+      else if (e.type === "wif") this.draft.saveWIF(e.name, e);
+      else if (e.type === "jpg") this.savePrintableDraft(e.name, e);
+      
+    }
+
+  /**
+   * Saves the draft as a bitmap file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   */
+   public savePrintableDraft(fileName, obj) {
+
+
+    let dims = this.scale;
+    let b = obj.bitmap.nativeElement;
+    let context = b.getContext('2d');
+
+    b.width = (this.draft.warps ) * dims;
+    b.height = (this.draft.wefts) * dims;
+    
+    context.fillStyle = "white";
+    context.fillRect(0,0,b.width,b.height);
+    
+
+    context.drawImage(this.canvas, 0, 0);
+   
+    let link = obj.downloadLink.nativeElement;
+    link.href = b.toDataURL("image/jpg");
+    link.download = fileName + ".jpg";
+    console.log(link);
+
+  }
+
+  public saveBMP(fileName, obj){
+    const prev_scale = this.scale;
+    this.rescale(1);
+
+    let dims = this.scale;
+    let b = obj.bitmap.nativeElement;
+    let context = b.getContext('2d');
+
+    b.width = (this.draft.warps ) * dims;
+    b.height = (this.draft.wefts) * dims;
+    
+    context.fillStyle = "white";
+    context.fillRect(0,0,b.width,b.height);
+    
+
+    context.drawImage(this.canvas, 0, 0);
+
+
+    let link = obj.downloadLink.nativeElement;
+    link.href = b.toDataURL("image/jpg");
+    link.download = fileName + ".jpg";
+    console.log(link);
+    this.rescale(prev_scale);
+
+
+  }
+
+
+  
     
 
 }

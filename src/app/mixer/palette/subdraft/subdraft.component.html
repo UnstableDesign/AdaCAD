@@ -15,7 +15,7 @@
   	<div class="subdraft-contents" [class.active-selection] = has_active_selection>
 
 		
-		<canvas id="{{id}}">  
+		<canvas id="{{id}}" class="maindraft">  
 		</canvas>
 
 		<ng-container *ngIf="set_connectable">
@@ -39,6 +39,8 @@
 		[matMenuTriggerFor]="filters"
 		xPosition="after">
 		</button>
+
+	  
 
 		<mat-menu #filters="matMenu">
 			<ng-container *ngFor="let i of inks.getInks()">
@@ -105,6 +107,20 @@
 		</button>
 		
 		</div>
+
+		<button
+		[matMenuTriggerFor]="downloadDropdown"
+		class="button is-small is-primary fas fa-download"
+		 matTooltip ="download this draft">
+		</button>
+
+
+		  <mat-menu #downloadDropdown mat-raised-button>
+			<a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>as Printable Image</a>
+			<a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
+			<a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
+			<a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
+		  </mat-menu>
 		
 		<div class="align-bottom">
 		<button 
@@ -119,6 +135,9 @@
 	
 	
    </div>
+
+   <canvas #bitmapImage hidden></canvas>
+
 </div>
 	
 

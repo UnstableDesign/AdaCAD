@@ -29,8 +29,6 @@ import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 })
 export class MixerComponent implements OnInit {
 
-
-  @ViewChild('bitmapImage', {static: false}) bitmap;
   @ViewChild(PaletteComponent, {static: false}) palette;
   @ViewChild(MixerDesignComponent, {static: false}) design_tool;
 
@@ -382,18 +380,6 @@ export class MixerComponent implements OnInit {
 
  
   
-  
-  public onSave(e: any) {
-
-    e.bitmap = this.bitmap.map(element => (element.isUp() && element.isSet()));
-    console.log(e);
-
-    if (e.type === "bmp") this.palette.saveBMP(e.name, e);
-    else if (e.type === "ada") this.palette.saveADA(e.name, e);
-    else if (e.type === "wif") this.palette.saveWIF(e.name, e);
-    else if (e.type === "jpg") this.palette.savePrintableDraft(e.name, e);
-    
-  }
 
 
 

@@ -1,3 +1,4 @@
+import { D } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
@@ -36,7 +37,7 @@ export class OperationService {
 
     const rect: Operation = {
       name: 'rectangle',
-      dx: "generate a rectangle",
+      dx: "generates a rectangle of the user specified side, if given an input, fills the rectangle with the input",
       params: [
         {name: 'width',
         min: 1,
@@ -51,11 +52,19 @@ export class OperationService {
         dx: "height"
         }
       ],
-      max_inputs: 0,
+      max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
         const outputs: Array<Draft> = [];
         const d: Draft = new Draft({warps: input_params[0], wefts: input_params[1]});
-        d.fill([[new Cell(false)]], 'clear');
+        
+        if(inputs.length == 0){
+          d.fill([[new Cell(false)]], 'clear');
+        }else{
+          d.fill(inputs[0].pattern, 'original');
+        }
+
+
+
         outputs.push(d);
         return outputs;
       }        
@@ -80,7 +89,6 @@ export class OperationService {
             return acc;
         }, 0);
 
-        console.log("size of new draft", max_wefts, max_warps);
 
         //create a draft to hold the merged values
         const d:Draft = new Draft({warps: max_warps, wefts:(max_wefts * inputs.length)});
@@ -100,6 +108,60 @@ export class OperationService {
         outputs.push(d);
         return outputs;
       }     
+    }
+
+    const selvedge: Operation = {
+      name: 'selvedge',
+      dx: 'adds a selvedge of a user defined with both sides of the input draft. User can specify the number of row repeats in the selvedge',
+      params: [
+        {name: 'width',
+        min: 1,
+        max: 100,
+        value: 12,
+        dx: "the width in warps of the selvedge"
+        },
+        {name: 'repeats',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: "the number of pics to repeat each selvedge structure, usually equal to the number of shuttles thrown"
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        const height = 2*input_params[1];
+
+        const pattern:Array<Array<Cell>> = [];
+        for(let i = 0; i < height; i++){
+          pattern.push([]);
+          let alt: boolean =  i < input_params[1];
+          for(let j = 0; j < 2; j++){
+            pattern[i][j] = ((alt && j%2 ==0) || (!alt && j%2 ==1)) ? new Cell(true) : new Cell(false);
+          }
+        }
+
+        let outputs: Array<Draft> = [];
+        if(inputs.length == 0){
+          const d: Draft = new Draft({warps: input_params[0]*2, wefts: height});
+          d.fill(pattern, 'original');
+          outputs.push(d);
+        }else{
+           outputs = inputs.map(input => {
+            const d: Draft = new Draft({warps: input.warps + input_params[0]*2, wefts: input.wefts});
+            d.fill(pattern, 'original');
+            for(let i = 0; i < input.wefts; i++){
+              for(let j = 0; j < input.warps; j++){
+                d.pattern[i][j+input_params[0]].setHeddle(input.pattern[i][j].getHeddle()) ;
+              }
+            }
+
+            return d;
+          });
+        }
+
+        return outputs;
+      }        
     }
 
     const tabby: Operation = {
@@ -374,7 +436,7 @@ export class OperationService {
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
           const outputs:Array<Draft> = inputs.map(input => {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-          d.fill(d.pattern, 'mirrorX');
+          d.fill(d.pattern, 'mirrorY');
           return d;
         });
         return outputs;
@@ -389,7 +451,7 @@ export class OperationService {
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
           const outputs:Array<Draft> = inputs.map(input => {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-          d.fill(d.pattern, 'mirrorY');
+          d.fill(d.pattern, 'mirrorX');
           return d;
         });
         return outputs;
@@ -462,6 +524,137 @@ export class OperationService {
       }
     }
 
+    const bindweftfloats: Operation = {
+      name: 'bind weft floats',
+      dx: 'adds interlacements to weft floats over the user specified length',
+      params: [
+        {name: 'length',
+        min: 1,
+        max: 100,
+        value: 10,
+        dx: 'the maximum length of a weft float'
+        }
+      ],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          let float: number = 0;
+          let last:boolean = false;
+          d.pattern.forEach(row => {
+            float = 0;
+            last = null;
+            row.forEach(c => {
+
+              if(c.getHeddle == null) float = 0;
+              if(last != null && c.getHeddle() == last) float++;
+
+              if(float >= input_params[0]){
+                c.toggleHeddle();
+                float = 0;
+              }
+              last = c.getHeddle();
+            });
+          });
+
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const bindwarpfloats: Operation = {
+      name: 'bind warp floats',
+      dx: 'adds interlacements to warp floats over the user specified length',
+      params: [
+        {name: 'length',
+        min: 1,
+        max: 100,
+        value: 10,
+        dx: 'the maximum length of a warp float'
+        }
+      ],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+          const outputs:Array<Draft> = inputs.map(input => {
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          let float: number = 0;
+          let last:boolean = false;
+
+          for(let j = 0; j < d.warps; j++){
+            const col: Array<Cell> = d.pattern.map(row => row[j]);
+            float = 0;
+            last = null;
+            col.forEach(c => {
+
+              if(c.getHeddle == null) float = 0;
+              if(last != null && c.getHeddle() == last) float++;
+
+              if(float >= input_params[0]){
+                c.toggleHeddle();
+                float = 0;
+              }
+              last = c.getHeddle();
+            });
+          }
+
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const layer: Operation = {
+      name: 'layer',
+      dx: 'creates a draft in which each input is assigned to a layer in a multilayered structure, assigns 1 to top layer and so on',
+      params: [],
+      max_inputs: 100, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+          const layers = inputs.length;
+          const outputs: Array<Draft> = [];
+
+          const max_wefts:number = inputs.reduce((acc, draft)=>{
+              if(draft.wefts > acc) return draft.wefts;
+              return acc;
+          }, 0);
+  
+          const max_warps:number = inputs.reduce((acc, draft)=>{
+              if(draft.warps > acc) return draft.warps;
+              return acc;
+          }, 0);
+
+          //set's base pattern that assigns warp 1...n to layers 1...n 
+          const pattern: Array<Array<Cell>> = [];
+          for(let i = 0; i < layers; i++){
+            pattern.push([]);
+            for(let j = 0; j < layers; j++){
+              let val: boolean = (j < i) ? true : false; 
+              pattern[i].push(new Cell(val));
+            }
+          }
+
+          const overlay: Array<Draft> = this.getOp('splice').perform(inputs, []);
+          const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
+          d.fill(pattern, "original");
+
+          console.log(overlay[0].warps, d.warps, overlay[0].wefts, d.wefts);
+
+          overlay[0].pattern.forEach((row, ndx) => {
+            const layer_id:number = ndx % layers;
+            row.forEach((c, j) => {
+              d.pattern[ndx][j*layers+layer_id].setHeddle(c.getHeddle());
+            });
+          });
+
+
+          outputs.push(d);
+          return outputs;
+      }
+    }
+
 
     //**push operatiinos to the array here */
     this.ops.push(rect);
@@ -477,6 +670,10 @@ export class OperationService {
     this.ops.push(mirrory);
     this.ops.push(shiftx);
     this.ops.push(shifty);
+    this.ops.push(layer);
+    this.ops.push(selvedge);
+    this.ops.push(bindweftfloats);
+    this.ops.push(bindwarpfloats);
 
 
     //** Give it a classification here */
@@ -498,7 +695,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'compose',
-      ops: [splice, mirror]}
+      ops: [splice, layer, mirror, selvedge, bindweftfloats, bindwarpfloats]}
     );
 
   }

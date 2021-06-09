@@ -1977,4 +1977,145 @@ computeYarnPaths(){
       
    }
 
+
+  /**
+   * Saves the draft as a .ada file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   */
+  public saveADA(fileName, obj) {
+
+
+    console.log("save ADA", this);
+
+    var theJSON = JSON.stringify(this);
+    console.log(theJSON);
+    var uri = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
+    console.log(uri);
+    let link = obj.downloadLink.nativeElement;
+    link.href = uri;
+    link.download = fileName + ".ada";
+  } 
+
+  /**
+   * Saves the draft as a .wif file
+   * @extends WeaveDirective
+   * @param {string} fileName - name to save file as
+   * @returns {void}
+   * ld updated 3/27 to account for new file structure
+   */
+   public saveWIF(fileName, obj) {
+    //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
+    var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
+    var fileType = "text/plain";
+
+    fileContents += "\nCOLOR PALETTE=yes\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\nCOLOR TABLE=yes\nTHREADING=yes\nWARP COLORS=yes\nTREADLING=yes\nWEFT COLORS=yes\n";
+    
+    fileContents += "[COLOR PALETTE]\n";
+    fileContents += "Entries=" + (this.shuttles.length).toString() +"\n";
+    fileContents += "Form=RGB\nRange=0,255\n";
+
+    fileContents += "[WEAVING]\nShafts=";
+    fileContents += this.loom.min_frames.toString();
+    fileContents += "\nTreadles=";
+    fileContents += this.loom.min_treadles.toString();
+    fileContents += "\nRising Shed=yes\n";
+    fileContents += "[WARP]\nThreads=";
+    fileContents += this.warps.toString();
+    
+    var warpColors = [];
+    for (var i = 0; i < this.colShuttleMapping.length; i++) {
+      if (!warpColors.includes(this.colShuttleMapping[i])) {
+        warpColors.push(this.colShuttleMapping[i]);
+      }
+    }
+    fileContents += "\nColors=" + warpColors.length.toString();
+
+    fileContents += "\n[WEFT]\nThreads=";
+    fileContents += this.wefts.toString();
+    var weftColors = [];
+    for (var i = 0; i < this.colShuttleMapping.length; i++) {
+      if (!weftColors.includes(this.colShuttleMapping[i])) {
+        weftColors.push(this.colShuttleMapping[i]);
+      }
+    }
+    fileContents += "\nColors=" + weftColors.length.toString();
+
+    fileContents += "\n[TIEUP]\n";
+
+    var treadles = [];
+    for (var i =0; i < this.loom.tieup.length;i++) {
+      for (var j = 0; j < this.loom.tieup[i].length;j++) {
+        if (this.loom.tieup[i][j] && !treadles.includes(j)) {
+          treadles.push(j);
+        }
+      }
+    }
+    for (var i =0; i < treadles.length; i++) {
+      fileContents += (treadles[i]+1).toString() + "=";
+      var lineMarked = false;
+      for (var j = 0; j < this.loom.tieup.length; j++){
+        if (this.loom.tieup[j][treadles[i]]) { 
+          if (lineMarked) {
+            fileContents += ",";
+          }
+          fileContents += (j+1).toString();
+          lineMarked=true;
+        }
+      }
+      fileContents += "\n";
+    }
+
+    fileContents+= "[COLOR TABLE]\n";
+    //Reference: https://css-tricks.com/converting-color-spaces-in-javascript/ for conversion for hex to RGB
+    var counter = 1;
+    for (var i = 0; i < this.shuttles.length; i++) {
+      fileContents+= (counter).toString();
+      counter = counter + 1;
+      fileContents+= "=";
+      var hex = this.shuttles[i].color;
+      if (hex.length == 7) {
+        var r = "0x" + hex[1] + hex[2];
+        var g = "0x" + hex[3] + hex[4];
+        var b = "0x" + hex[5] + hex[6];
+
+        fileContents += (+r).toString() + "," + (+g).toString() + "," + (+b).toString() + "\n";
+      }
+    }
+    
+    fileContents += "[THREADING]\n";
+    for (var i=0; i <this.loom.threading.length; i++) {
+      var frame = this.loom.threading[i];
+      if (frame != -1) {
+        fileContents += (this.loom.threading.length-i).toString() + "=" + (frame+1).toString() + "\n";
+      }
+    }
+
+    fileContents += "[WARP COLORS]\n";
+    for (var i = 0; i < this.colShuttleMapping.length; i++) {
+      fileContents += (i+1).toString() + "=" + (this.colShuttleMapping[(this.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
+    }
+
+    fileContents += "[TREADLING]\n";
+    for (var i = 0; i < this.loom.treadling.length; i++) {
+      if (this.loom.treadling[i] != null && this.loom.treadling[i] != -1){
+        fileContents += (i+1).toString() + "=" + (this.loom.treadling[i]+1).toString() + "\n";
+      }
+    }
+
+    fileContents += "[WEFT COLORS]\n";
+    for (var i = 0; i < this.rowShuttleMapping.length; i++) { // will likely have to change the way I import too
+      fileContents += (i+1).toString() + "=" + (this.rowShuttleMapping[i]+1).toString() + "\n";
+    }
+
+    let link = obj.downloadLink.nativeElement;
+    link.href= "data:" + fileType +";base64," + btoa(fileContents);
+
+    console.log("link:", link);
+    link.download = fileName +".wif";
+  }
+
+
+
 }
