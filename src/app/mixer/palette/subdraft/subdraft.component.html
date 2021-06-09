@@ -12,19 +12,27 @@
 
 
 
-  	<div class="subdraft-contents">
-
-
-		<canvas id="{{draft.id}}">  
-		</canvas>
+  	<div class="subdraft-contents" [class.active-selection] = has_active_selection>
 
 		
+		<canvas id="{{id}}">  
+		</canvas>
+
+		<ng-container *ngIf="set_connectable">
+			<button matTooltip = "click here to use this draft as input"
+			class="button is-small is-primary"
+			(click) = "connectionClicked(id)"
+			>
+			<i class="fas fa-chevron-down"></i>
+			<ng-container *ngIf="active_connection_order > 0">{{active_connection_order}}</ng-container>
+		</button>
+		</ng-container>
+
 	</div>
 
-	<div class="subdraft-details"> 
+	<div class="subdraft-details" [class.hide]="set_connectable"> 
 		<div class ="align-top">
 		<button 
-		xPosition = "start"
 		matTooltip= "Inks"
 		class="button is-small is-primary fas fa-tint"
 		[matMenuTriggerFor]="filters"
@@ -45,46 +53,58 @@
 		
 
 		</mat-menu>
+		<ng-container *ngIf="parent_id === -1">
+			<button 
+			matTooltip= "Actions"
+			class="button is-small is-primary fas fa-magic"
+			[style.color]="button_color" 
+			[matMenuTriggerFor]="actions">
+			</button>
+			
+			<mat-menu #actions="matMenu">
+			<ng-container *ngFor="let action of design_actions">
+				<button [matTooltip]=action.viewValue 
+				mat-menu-item
+				[name]=action.value 
+				(click)="designActionChange(action.value)">
+				<mat-icon><i class="{{action.icon}}"></i></mat-icon> 
+				{{action.viewValue}}
+				</button>    
+			</ng-container>
+			</mat-menu>
+
+
+			<button 
+			matTooltip= "Fill Black Cells With..."
+			class="button is-small is-primary fas fa-fill"
+			[style.color]="button_color" 
+			[matMenuTriggerFor]="fills">
+			</button>
+			
+			<mat-menu #fills="matMenu">
+				<ng-container *ngFor="let pattern of patterns">
+					<ng-container *ngIf="pattern.favorite">
+						<button [matTooltip]=pattern.name 
+						mat-menu-item
+						[name]=pattern.name 
+						(click)="fill(pattern.id)">{{pattern.name }}
+						</button>  
+					</ng-container>  
+				</ng-container>
+			</mat-menu>
+		
+		</ng-container>
 
 		<button 
-		matTooltip= "Actions"
-		class="button is-small is-primary fas fa-magic"
+		matTooltip= "Duplilcate"
+		class="button is-small is-primary fa fa-clone"
 		[style.color]="button_color" 
-		[matMenuTriggerFor]="actions">
+		[name]="delete"
+		(click)="designActionChange('duplicate')">
 		</button>
 		
-		<mat-menu #actions="matMenu">
-		  <ng-container *ngFor="let action of design_actions">
-			<button [matTooltip]=action.viewValue 
-			 mat-menu-item
-			[name]=action.value 
-			(click)="designActionChange(action.value)">
-			<mat-icon><i class="{{action.icon}}"></i></mat-icon> 
-			{{action.viewValue}}
-			</button>    
-		  </ng-container>
-		</mat-menu>
-
-
-		<button 
-		matTooltip= "Fill Black Cells With..."
-		class="button is-small is-primary fas fa-fill"
-		[style.color]="button_color" 
-		[matMenuTriggerFor]="fills">
-		</button>
-		
-		<mat-menu #fills="matMenu">
-			<ng-container *ngFor="let pattern of patterns">
-				<ng-container *ngIf="pattern.favorite">
-					<button [matTooltip]=pattern.name 
-					mat-menu-item
-					[name]=pattern.name 
-					(click)="fill(pattern.id)">{{pattern.name }}
-					</button>  
-				</ng-container>  
-			  </ng-container>
-		</mat-menu>
 		</div>
+		
 		<div class="align-bottom">
 		<button 
 		matTooltip= "Delete"
@@ -93,6 +113,7 @@
 		[name]="delete"
 		(click)="designActionChange('delete')">
 		</button>
+		
 	</div>
 	
 	

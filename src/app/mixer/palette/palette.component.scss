@@ -10,7 +10,14 @@ div{
 
 
 canvas{
+    position: absolute;
+    top: 0px;
+    left: 0px;
     width: 5000px;
     height: 5000px;
     overflow: scroll;
+}
+
+.no-pointer{
+    pointer-events: none;
 }

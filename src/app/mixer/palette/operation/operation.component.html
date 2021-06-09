@@ -1,1 +1,40 @@
-<p>operation works!</p>
+<div class="operation-container"
+cdkDrag
+[style.z-index] = "zndx"
+[style.width.px] = "bounds.width"
+[cdkDragDisabled] = "disable_drag"
+[cdkDragFreeDragPosition]="bounds.topleft"
+(cdkDragMoved)="dragMove($event)"
+(cdkDragEnded)="dragEnd($event)"
+(cdkDragStarted)="dragStart($event)"
+>
+<div class="inputs">
+    <button [matTooltip]="tooltip" 
+        class="button is-small is-primary"
+        (click)="inputSelected($event, ndx)">
+         <i class="fas fa-chevron-right"></i>
+    </button>
+</div>
+
+
+<div class="operation-details">
+    <div class="name">{{op.name}}</div>
+    <div class="params">
+        <ng-container *ngFor="let param of op.params; let i = index">
+            <input 
+              [(ngModel)]="op_inputs[i]"
+              type = "number"
+			  [name]=param.name
+              [min]=param.min
+              [max]=param.max
+              [value] = param.value
+              step = 1
+              required = true
+              (change)= onParamChange();
+            >
+		</ng-container>
+        </div>
+</div>
+<!-- <div class="outputs"></div> -->
+
+</div>

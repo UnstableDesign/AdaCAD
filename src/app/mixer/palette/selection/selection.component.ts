@@ -9,7 +9,7 @@ import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 
 export class SelectionComponent implements OnInit{
 
-
+  id: number;
   draft: Draft = new Draft({name: "selection"});
 
   bounds:Bounds = {
