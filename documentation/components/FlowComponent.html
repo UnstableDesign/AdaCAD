@@ -103,7 +103,7 @@
                                     <a href="../components/ConnectionModal.html" >ConnectionModal</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../components/FlowComponent.html" >FlowComponent</a>
+                                    <a href="../components/FlowComponent.html"  class="active" >FlowComponent</a>
                                 </li>
                                 <li class="link">
                                     <a href="../components/InitModal.html" >InitModal</a>
@@ -136,7 +136,7 @@
                                     <a href="../components/MixerViewComponent.html" >MixerViewComponent</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../components/NotesComponent.html"  class="active" >NotesComponent</a>
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
                                 </li>
                                 <li class="link">
                                     <a href="../components/OperationComponent.html" >OperationComponent</a>
@@ -515,7 +515,7 @@
                                            <a href="../components/ConnectionModal.html" >ConnectionModal</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../components/FlowComponent.html" >FlowComponent</a>
+                                           <a href="../components/FlowComponent.html"  class="active" >FlowComponent</a>
                                        </li>
                                        <li class="link">
                                            <a href="../components/InitModal.html" >InitModal</a>
@@ -548,7 +548,7 @@
                                            <a href="../components/MixerViewComponent.html" >MixerViewComponent</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../components/NotesComponent.html"  class="active" >NotesComponent</a>
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
                                        </li>
                                        <li class="link">
                                            <a href="../components/OperationComponent.html" >OperationComponent</a>
@@ -844,7 +844,7 @@
 
 <ol class="breadcrumb">
   <li>Components</li>
-  <li>NotesComponent</li>
+  <li>FlowComponent</li>
 </ol>
 
 
@@ -862,7 +862,7 @@
     <h3>File</h3>
 </p>
 <p class="comment">
-    <code>src/app/core/tool/notes/notes.component.ts</code>
+    <code>src/app/mixer/tool/flow/flow.component.ts</code>
 </p>
 
 
@@ -885,19 +885,19 @@
 
             <tr>
                 <td class="col-md-3">selector</td>
-                <td class="col-md-9"><code>app-notes</code></td>
+                <td class="col-md-9"><code>app-flow</code></td>
             </tr>
 
             <tr>
                 <td class="col-md-3">styleUrls</td>
-                <td class="col-md-9"><code>notes.component.scss</code></td>
+                <td class="col-md-9"><code>flow.component.scss</code></td>
             </tr>
 
 
 
             <tr>
                 <td class="col-md-3">templateUrl</td>
-                <td class="col-md-9"><code>notes.component.html</code></td>
+                <td class="col-md-9"><code>flow.component.html</code></td>
             </tr>
 
 
@@ -905,20 +905,6 @@
     </table>
 </section>
 
-    <section>
-        <h3 id="inputs">Inputs</h3>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-2">
-                            <code>notes</code>
-                        </td>
-                        <td class="col-md-10">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-    </section>
 
     <section>
         <h3 id="outputs">Outputs</h3>
@@ -926,7 +912,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-2">
-                            <code>onChange</code>
+                            <code>onOperationAdded</code>
                         </td>
                         <td class="col-md-10">
                             <em><code>$event</code> type:</em>    <code>any</code>
@@ -943,7 +929,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <code>constructor()</code>
+                            <code>constructor(ops: <a href="../injectables/OperationService.html" >OperationService</a>)</code>
                         </td>
                     </tr>
     
@@ -957,13 +943,13 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> notesValueChanged</b>
+                            <b> addOp</b>
                         </td>
                     </tr>
     
                     <tr>
                         <td class="col-md-4">
-    <code>notesValueChanged()</code>
+    <code>addOp(name: string)</code>
                         </td>
                     </tr>
     
@@ -981,31 +967,29 @@
 
 </div>
         <div class="tab-pane fade tab-source-code" id="source">
-            <pre><code class="hljs javascript">import { Component, OnInit, Input, Output, EventEmitter } from &#x27;@angular/core&#x27;;
+            <pre><code class="hljs javascript">import { Component, OnInit, Output, EventEmitter } from &#x27;@angular/core&#x27;;
+import { OperationService } from &#x27;../../provider/operation.service&#x27;;
 
 @Component({
-  selector: &#x27;app-notes&#x27;,
-  templateUrl: &#x27;./notes.component.html&#x27;,
-  styleUrls: [&#x27;./notes.component.scss&#x27;]
+  selector: &#x27;app-flow&#x27;,
+  templateUrl: &#x27;./flow.component.html&#x27;,
+  styleUrls: [&#x27;./flow.component.scss&#x27;]
 })
-export class NotesComponent implements OnInit {
+export class FlowComponent implements OnInit {
+  
+  @Output() onOperationAdded:any &#x3D; new EventEmitter();
 
-
-  @Input() notes;
-  @Output() onChange: any &#x3D; new EventEmitter();
-
-
-  constructor() { }
+  constructor(private ops: OperationService) { }
 
   ngOnInit() {
   }
 
 
-  notesValueChanged(){
-  	console.log(&quot;notes&quot;, this.notes);
-  	this.onChange.emit(this.notes);
-
+  addOp(name: string){
+    this.onOperationAdded.emit(name);
   }
+
+
 
 }
 </code></pre>

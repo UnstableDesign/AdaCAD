@@ -136,7 +136,7 @@
                                     <a href="../components/MixerViewComponent.html" >MixerViewComponent</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../components/NotesComponent.html"  class="active" >NotesComponent</a>
+                                    <a href="../components/NotesComponent.html" >NotesComponent</a>
                                 </li>
                                 <li class="link">
                                     <a href="../components/OperationComponent.html" >OperationComponent</a>
@@ -370,7 +370,7 @@
                                     <a href="../interfaces/Node.html" >Node</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../interfaces/Operation.html" >Operation</a>
+                                    <a href="../interfaces/Operation.html"  class="active" >Operation</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/OperationParams.html" >OperationParams</a>
@@ -548,7 +548,7 @@
                                            <a href="../components/MixerViewComponent.html" >MixerViewComponent</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../components/NotesComponent.html"  class="active" >NotesComponent</a>
+                                           <a href="../components/NotesComponent.html" >NotesComponent</a>
                                        </li>
                                        <li class="link">
                                            <a href="../components/OperationComponent.html" >OperationComponent</a>
@@ -782,7 +782,7 @@
                                            <a href="../interfaces/Node.html" >Node</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../interfaces/Operation.html" >Operation</a>
+                                           <a href="../interfaces/Operation.html"  class="active" >Operation</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/OperationParams.html" >OperationParams</a>
@@ -838,185 +838,468 @@
                    
                    </nav>
                </div>
-               <div class="content component">
+               <div class="content interface">
                    <div class="content-data">
 
 
+
+
+
+
+
 <ol class="breadcrumb">
-  <li>Components</li>
-  <li>NotesComponent</li>
+  <li>Interfaces</li>
+  <li>Operation</li>
 </ol>
 
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active">
+        <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
+    </li>
+    <li>
+        <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
+    </li>
+</ul>
 
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#infos" id="infos-tab" role="tab" data-toggle="tab">Infos</a>
-        </li>
-        <li>
-            <a href="#source" role="tab" id="source-tab" data-toggle="tab">Source</a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div class="tab-pane fade active in" id="infos"><p class="comment">
-    <h3>File</h3>
-</p>
-<p class="comment">
-    <code>src/app/core/tool/notes/notes.component.ts</code>
-</p>
-
-
-
-<section>
-    <h3>Metadata</h3>
-    <table class="table table-sm table-hover">
-        <tbody>
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="infos">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/app/mixer/provider/operation.service.ts</code>
+        </p>
 
 
 
 
 
+            <section>
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <b>max_inputs</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>max_inputs:     <code>number</code>
+</bcode>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>number</code>
+
+                                        </td>
+                                    </tr>
 
 
 
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <b>name</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>name:     <code>string</code>
+</bcode>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>string</code>
+
+                                        </td>
+                                    </tr>
 
 
 
-
-            <tr>
-                <td class="col-md-3">selector</td>
-                <td class="col-md-9"><code>app-notes</code></td>
-            </tr>
-
-            <tr>
-                <td class="col-md-3">styleUrls</td>
-                <td class="col-md-9"><code>notes.component.scss</code></td>
-            </tr>
-
-
-
-            <tr>
-                <td class="col-md-3">templateUrl</td>
-                <td class="col-md-9"><code>notes.component.html</code></td>
-            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <b>params</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>params:     <code>OperationParams[]</code>
+</bcode>
+                                    </td>
+                                </tr>
 
 
-        </tbody>
-    </table>
-</section>
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>OperationParams[]</code>
 
-    <section>
-        <h3 id="inputs">Inputs</h3>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-2">
-                            <code>notes</code>
-                        </td>
-                        <td class="col-md-10">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-    </section>
+                                        </td>
+                                    </tr>
 
-    <section>
-        <h3 id="outputs">Outputs</h3>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-2">
-                            <code>onChange</code>
-                        </td>
-                        <td class="col-md-10">
-                            <em><code>$event</code> type:</em>    <code>any</code>
 
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-    </section>
 
-    <section>
-        <h3 id="constructor">Constructor</h3>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <code>constructor()</code>
-                        </td>
-                    </tr>
-    
-                </tbody>
-            </table>
-    </section>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <b>perform</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>perform:     <code><a href="../classes/Draft.html" target="_self" >(input: Draft[], input_params: number[]) &#x3D;&gt; Draft[]</a></code>
+</bcode>
+                                    </td>
+                                </tr>
 
-    <section>
-        <h3 id="methods">Methods</h3>
-            <table class="table table-sm table-bordered">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <b> notesValueChanged</b>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
-    <code>notesValueChanged()</code>
-                        </td>
-                    </tr>
-    
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-description">
-                                    <b>Returns: </b>    <code>void</code>
-    
-                                </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-    </section>
 
-</div>
-        <div class="tab-pane fade tab-source-code" id="source">
-            <pre><code class="hljs javascript">import { Component, OnInit, Input, Output, EventEmitter } from &#x27;@angular/core&#x27;;
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code><a href="../classes/Draft.html" target="_self" >(input: Draft[], input_params: number[]) &#x3D;&gt; Draft[]</a></code>
 
-@Component({
-  selector: &#x27;app-notes&#x27;,
-  templateUrl: &#x27;./notes.component.html&#x27;,
-  styleUrls: [&#x27;./notes.component.scss&#x27;]
+                                        </td>
+                                    </tr>
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+    <div class="tab-pane fade tab-source-code" id="source">
+        <pre><code class="hljs javascript">import { Injectable } from &#x27;@angular/core&#x27;;
+import { Cell } from &#x27;../../core/model/cell&#x27;;
+import { Draft } from &quot;../../core/model/draft&quot;;
+
+export interface OperationParams {
+  name: string,
+  min: number,
+  max: number,
+  value: number
+}
+
+
+export interface Operation {
+    name: string,
+    max_inputs: number,
+    params: Array&lt;OperationParams&gt;,
+    perform: (input: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;) &#x3D;&gt; Array&lt;Draft&gt;
+ }
+ 
+
+@Injectable({
+  providedIn: &#x27;root&#x27;
 })
-export class NotesComponent implements OnInit {
+export class OperationService {
+
+  ops: Array&lt;Operation&gt; &#x3D; [];
+
+  constructor() { 
+
+    const rect: Operation &#x3D; {
+      name: &#x27;rectangle&#x27;,
+      params: [
+        {name: &#x27;width&#x27;,
+        min: 1,
+        max: 100,
+        value: 10
+        },
+        {name: &#x27;height&#x27;,
+        min: 1,
+        max: 100,
+        value: 10
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+        const outputs: Array&lt;Draft&gt; &#x3D; [];
+        const d: Draft &#x3D; new Draft({warps: input_params[0], wefts: input_params[1]});
+        d.fill([[new Cell(false)]], &#x27;clear&#x27;);
+        outputs.push(d);
+        return outputs;
+      }        
+    }
+
+    const splice:Operation &#x3D; {
+      name: &#x27;splice&#x27;,
+      params: [],
+      max_inputs: 100,
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+        
+        const outputs: Array&lt;Draft&gt; &#x3D; [];
+
+        const max_wefts:number &#x3D; inputs.reduce((acc, draft)&#x3D;&gt;{
+            if(draft.wefts &gt; acc) return draft.wefts;
+            return acc;
+        }, 0);
+
+        const max_warps:number &#x3D; inputs.reduce((acc, draft)&#x3D;&gt;{
+            if(draft.warps &gt; acc) return draft.warps;
+            return acc;
+        }, 0);
+
+        console.log(&quot;size of new draft&quot;, max_wefts, max_warps);
+
+        //create a draft to hold the merged values
+        const d:Draft &#x3D; new Draft({warps: max_warps, wefts:(max_wefts * inputs.length)});
+
+        d.pattern.forEach((row, ndx) &#x3D;&gt; {
+            const select_array: number &#x3D; ndx % inputs.length; 
+            const select_row: number &#x3D; Math.floor(ndx / inputs.length);
+            row.forEach((cell, j) &#x3D;&gt;{
+                if(inputs[select_array].hasCell(select_row, j)){
+                    cell.setHeddle(inputs[select_array].pattern[select_row][j].getHeddle());
+                }else{
+                    cell.setHeddle(null);
+                }
+            });
+        });
+
+        outputs.push(d);
+        return outputs;
+      }     
+    }
+
+    const twill: Operation &#x3D; {
+      name: &#x27;twill&#x27;,
+      params: [
+        {name: &#x27;overs&#x27;,
+        min: 1,
+        max: 100,
+        value: 3
+        },
+        {name: &#x27;unders&#x27;,
+        min: 1,
+        max: 100,
+        value: 1
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+
+        const sum: number &#x3D; input_params.reduce( (acc, val) &#x3D;&gt; {
+            return val + acc;
+        }, 0);
+        console.log(sum, input_params);
+
+        const pattern:Array&lt;Array&lt;Cell&gt;&gt; &#x3D; [];
+        for(let i &#x3D; 0; i &lt; sum; i++){
+          pattern.push([]);
+          for(let j &#x3D; 0; j &lt; sum; j++){
+            pattern[i][(j+i)%sum] &#x3D; (j &lt; input_params[0]) ? new Cell(true) : new Cell(false);
+          }
+        }
+
+        let outputs: Array&lt;Draft&gt; &#x3D; [];
+        if(inputs.length &#x3D;&#x3D; 0){
+          const d: Draft &#x3D; new Draft({warps: sum, wefts: sum, pattern: pattern});
+          outputs.push(d);
+        }else{
+           outputs &#x3D; inputs.map(input &#x3D;&gt; {
+            const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, &#x27;mask&#x27;);
+            return d;
+          });
+        }
+
+        return outputs;
+      }        
+    }
 
 
-  @Input() notes;
-  @Output() onChange: any &#x3D; new EventEmitter();
+    const random: Operation &#x3D; {
+      name: &#x27;random&#x27;,
+      params: [
+        {name: &#x27;width&#x27;,
+        min: 1,
+        max: 100,
+        value: 6
+        },
+        {name: &#x27;height&#x27;,
+        min: 1,
+        max: 100,
+        value: 6
+        },
+        {name: &#x27;percent overs&#x27;,
+        min: 1,
+        max: 100,
+        value: 50
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+       
+        const pattern:Array&lt;Array&lt;Cell&gt;&gt; &#x3D; [];
+        for(let i &#x3D; 0; i &lt; input_params[1]; i++){
+          pattern.push([]);
+          for(let j &#x3D; 0; j &lt; input_params[0]; j++){
+            const rand: number &#x3D; Math.random() * 100;
+            pattern[i][j] &#x3D; (rand &gt; input_params[2]) ? new Cell(false) : new Cell(true);
+          }
+        }
+
+        let outputs: Array&lt;Draft&gt; &#x3D; [];
+        if(inputs.length &#x3D;&#x3D; 0){
+          const d: Draft &#x3D; new Draft({warps: input_params[0], wefts: input_params[1], pattern: pattern});
+          outputs.push(d);
+        }else{
+           outputs &#x3D; inputs.map(input &#x3D;&gt; {
+            const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, &#x27;mask&#x27;);
+            return d;
+          });
+        }
+
+        return outputs;
+      }        
+    }
 
 
-  constructor() { }
+    const invert: Operation &#x3D; {
+      name: &#x27;invert&#x27;,
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+          const outputs:Array&lt;Draft&gt; &#x3D; inputs.map(input &#x3D;&gt; {
+          const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          d.fill(d.pattern, &#x27;invert&#x27;);
+          return d;
+        });
+        return outputs;
+      }
+    }
 
-  ngOnInit() {
+    const mirrorx: Operation &#x3D; {
+      name: &#x27;flip horiz&#x27;,
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+          const outputs:Array&lt;Draft&gt; &#x3D; inputs.map(input &#x3D;&gt; {
+          const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          d.fill(d.pattern, &#x27;mirrorX&#x27;);
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const mirrory: Operation &#x3D; {
+      name: &#x27;flip vert&#x27;,
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+          const outputs:Array&lt;Draft&gt; &#x3D; inputs.map(input &#x3D;&gt; {
+          const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          d.fill(d.pattern, &#x27;mirrorY&#x27;);
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const shiftx: Operation &#x3D; {
+      name: &#x27;shift left&#x27;,
+      params: [
+        {name: &#x27;amount&#x27;,
+        min: 1,
+        max: 100,
+        value: 1
+        }
+      ],
+      max_inputs: 1, 
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+          
+          const outputs:Array&lt;Draft&gt; &#x3D; inputs.map(input &#x3D;&gt; {
+          const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            for(let i &#x3D; 0; i &lt; input_params[0]; i++){
+              d.fill(d.pattern, &#x27;shiftLeft&#x27;);
+            }
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const shifty: Operation &#x3D; {
+      name: &#x27;shift up&#x27;,
+      params: [
+        {name: &#x27;amount&#x27;,
+        min: 1,
+        max: 100,
+        value: 1
+        }
+      ],
+      max_inputs: 1, 
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+          
+          const outputs:Array&lt;Draft&gt; &#x3D; inputs.map(input &#x3D;&gt; {
+          const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            for(let i &#x3D; 0; i &lt; input_params[0]; i++){
+              d.fill(d.pattern, &#x27;shiftUp&#x27;);
+            }
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+
+    const mirror: Operation &#x3D; {
+      name: &#x27;mirror&#x27;,
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array&lt;Draft&gt;, input_params: Array&lt;number&gt;):Array&lt;Draft&gt; &#x3D;&gt; {
+          
+          const outputs:Array&lt;Draft&gt; &#x3D; inputs.map(input &#x3D;&gt; {
+          const d: Draft &#x3D; new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+
+
+
+
+    //**push operatiinos to the array here */
+    this.ops.push(rect);
+    this.ops.push(twill);
+    this.ops.push(random);
+    this.ops.push(splice);
+    this.ops.push(invert);
+    //this.ops.push(mirror); //this doesn&#x27;t really work unless we have multiple outputs allowed on a subdraft
+    this.ops.push(mirrorx);
+    this.ops.push(mirrory);
+    this.ops.push(shiftx);
+    this.ops.push(shifty);
   }
 
 
-  notesValueChanged(){
-  	console.log(&quot;notes&quot;, this.notes);
-  	this.onChange.emit(this.notes);
-
+  getOp(name: string): Operation{
+    const ndx: number &#x3D; this.ops.findIndex(el &#x3D;&gt; el.name &#x3D;&#x3D;&#x3D; name);
+    return this.ops[ndx];
   }
-
 }
 </code></pre>
-        </div>
     </div>
-
-
-
-
-
-
+</div>
 
 
 

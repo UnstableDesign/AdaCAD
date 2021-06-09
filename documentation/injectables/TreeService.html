@@ -248,7 +248,7 @@
                                     <a href="../classes/Selection.html" >Selection</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../classes/Shape.html"  class="active" >Shape</a>
+                                    <a href="../classes/Shape.html" >Shape</a>
                                 </li>
                                 <li class="link">
                                     <a href="../classes/Shuttle.html" >Shuttle</a>
@@ -299,7 +299,7 @@
                                     <a href="../injectables/PatternService.html" >PatternService</a>
                                 </li>
                                 <li class="link">
-                                    <a href="../injectables/TreeService.html" >TreeService</a>
+                                    <a href="../injectables/TreeService.html"  class="active" >TreeService</a>
                                 </li>
                                 <li class="link">
                                     <a href="../injectables/UploadService.html" >UploadService</a>
@@ -660,7 +660,7 @@
                                            <a href="../classes/Selection.html" >Selection</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../classes/Shape.html"  class="active" >Shape</a>
+                                           <a href="../classes/Shape.html" >Shape</a>
                                        </li>
                                        <li class="link">
                                            <a href="../classes/Shuttle.html" >Shuttle</a>
@@ -711,7 +711,7 @@
                                            <a href="../injectables/PatternService.html" >PatternService</a>
                                        </li>
                                        <li class="link">
-                                           <a href="../injectables/TreeService.html" >TreeService</a>
+                                           <a href="../injectables/TreeService.html"  class="active" >TreeService</a>
                                        </li>
                                        <li class="link">
                                            <a href="../injectables/UploadService.html" >UploadService</a>
@@ -838,17 +838,15 @@
                    
                    </nav>
                </div>
-               <div class="content class">
+               <div class="content injectable">
                    <div class="content-data">
 
 
 
 
-
-
 <ol class="breadcrumb">
-  <li>Classes</li>
-  <li>Shape</li>
+  <li>Injectables</li>
+  <li>TreeService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -866,7 +864,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/app/mixer/model/shape.ts</code>
+            <code>src/app/mixer/provider/tree.service.ts</code>
         </p>
 
 
@@ -876,52 +874,10 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>constructor(shape_canvas: HTMLCanvasElement, bounds: Bounds, scale: number)</code>
+                                    <code>constructor()</code>
                                 </td>
                             </tr>
             
-                            <tr>
-                                <td class="col-md-4">
-                                        <div class="io-description">
-                                                <b>Parameters :</b>
-                                                <ul class="jsdoc-params">
-                                                        <li>
-                                                            <div>
-                                                                <b>shape_canvas</b>
-                                                            </div>
-                                                            <div>
-                                                                <ul>
-            <li>a canvas with the shape on it </li>
-            </ul>
-            
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <div>
-                                                                <b>bounds</b>
-                                                            </div>
-                                                            <div>
-                                                                <ul>
-            <li>the bounds of the shape we are converting</li>
-            </ul>
-            
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <div>
-                                                                <b>scale</b>
-                                                            </div>
-                                                            <div>
-                                                                <ul>
-            <li>the scale of each cell within the canvas. </li>
-            </ul>
-            
-                                                            </div>
-                                                        </li>
-                                                </ul>
-                                        </div>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -932,13 +888,583 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> getImageData</b>
+                                    <b> createNode</b>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
-            <code>getImageData()</code>
+            <code>createNode(type: "draft" | "op" | "cxn", component: <a href="../classes/Connection.html" >SubdraftComponent | OperationComponent | ConnectionComponent</a>, ref: <a href="https://angular.io/docs/ts/latest/api/core/index/ViewRef-class.html" target="_blank" >ViewRef</a>)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>create an node and add it to the tree (without relationships)</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>id</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>a unique id for this component, ideally created by the viewCompomentRef </p>
+            
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                <b>type</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>the type of component</p>
+            
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                <b>component</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>the compoenent instance</p>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>the id assigned</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getComponent</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getComponent(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code><a href="../classes/Connection.html" target="_self" >SubdraftComponent | OperationComponent | ConnectionComponent</a></code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getComponents</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getComponents()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>any[]</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getNode</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getNode(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>Node</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getNodeIndex</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getNodeIndex(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getType</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getType(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>string</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getViewRef</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getViewRef(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code><a href="https://angular.io/docs/ts/latest/api/core/index/ViewRef-class.html" target="_blank" >ViewRef</a></code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getSubdraftParent</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getSubdraftParent(sd_id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>get&#39;s this subdraft&#39;s parent</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>sd_id</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>the parent&#39;s id, or -1 if it has no parent</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getNodeConnections</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getNodeConnections(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>return the connection objects that are immediately attached to this object</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>id</b>
+                                                            </div>
+                                                            <div>
+                                                                <ul>
+            <li>the node id</li>
+            </ul>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>an array of id&#39;s for the immediatly connected connections</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getNodesToUpdateOnMove</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getNodesToUpdateOnMove(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>gets a list of non-connection nodes that need to be updated if this node moves.<br>this takes into acccount that some nodes have a parent that will move with them.</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>id</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getDownstreamOperations</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getDownstreamOperations(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>given a node, recusively walks the tree and returns a list of all the operations that are affected</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>id</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>an array of operation ids for nodes that need recalculating</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getUpstreamOperations</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getUpstreamOperations(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>given a node, recusively walks the tree and returns a list of all the operations that are linked up the chain to this component</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>id</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>an array of operation ids that influence this draft</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> removeNode</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>removeNode(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>this removes a node from the list and tree</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>id</b>
+                                                            </div>
+                                                            <div>
+                                                                <p>the id of the node to be removed</p>
+            
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getDrafts</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getDrafts()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>SubdraftComponent[]</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getConnections</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getConnections()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code><a href="../classes/Connection.html" target="_self" >ConnectionComponent[]</a></code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getOperations</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getOperations()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>OperationComponent[]</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getUnusuedConnections</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getUnusuedConnections()</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>scans the connections and marks any missing a to or from to delete</p>
+            </div>
+                                        <div class="io-description">
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>an array of connections to delete</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> addNode</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>addNode(type: string)</code>
                                 </td>
                             </tr>
             
@@ -956,39 +1482,53 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> resample</b>
+                                    <b> getTreeNode</b>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
-            <code>resample(rows: number, cols: number)</code>
+            <code>getTreeNode(id: number)</code>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
-                                        <div class="io-description"><p>rescale the draft in its current size to have this number of rows and cols</p>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>TreeNode</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> addConnection</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>addConnection(from: number, to: number, cxn: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>adds a connection from subddraft to operation. connections can be of the type<br>subdraft -&gt; op (input to op)<br>op -&gt; subdraft (output generatedd by op)</p>
             </div>
                                         <div class="io-description">
-                                                <b>Parameters :</b>
-                                                <ul class="jsdoc-params">
-                                                        <li>
-                                                            <div>
-                                                                <b>bounds</b>
-                                                            </div>
-                                                            <div>
-                                                                
-                                                            </div>
-                                                        </li>
-                                                </ul>
                                         </div>
                                         <div class="io-description">
-                                            <b>Returns: </b>    <code><a href="../classes/Cell.html" target="_self" >Cell[][]</a></code>
+                                            <b>Returns: </b>    <code>number[]</code>
             
                                         </div>
                                             <div class="io-description">
-                                                
+                                                <p>an array of the ids of the elements connected to this op</p>
+            
                                             </div>
                                 </td>
                             </tr>
@@ -998,26 +1538,61 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> read</b>
+                                    <b> setSubdraftParent</b>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
-            <code>read()</code>
+            <code>setSubdraftParent(sd: number, op: number)</code>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
-                                        <div class="io-description"><p>rescale the draft in its current size to have this number of rows and cols</p>
+                                        <div class="io-description"><p>this sets the parent of a subdraft to the operation that created iit</p>
+            </div>
+                                        <div class="io-description">
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>void</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                <p>an array of the subdraft ids connected to this operation</p>
+            
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b><span class="modifier">Private</span> removeNodeTreeAssociations</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <span class="modifier-icon method fa fa-play lock">
+                                            <span class="fa fa-lock"></span>
+                                        </span>
+                                    <code>removeNodeTreeAssociations(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>updates inputs and outputs of this node and delete this node from the list</p>
             </div>
                                         <div class="io-description">
                                                 <b>Parameters :</b>
                                                 <ul class="jsdoc-params">
                                                         <li>
                                                             <div>
-                                                                <b>bounds</b>
+                                                                <b>cxn_id</b>
                                                             </div>
                                                             <div>
                                                                 
@@ -1040,20 +1615,200 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> getDraft</b>
+                                    <b> getConnectionComponentFromSubdraft</b>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
-            <code>getDraft()</code>
+            <code>getConnectionComponentFromSubdraft(sd_id: number)</code>
                                 </td>
                             </tr>
             
                             <tr>
                                 <td class="col-md-4">
                                         <div class="io-description">
-                                            <b>Returns: </b>    <code><a href="../classes/Cell.html" target="_self" >Cell[][]</a></code>
+                                            <b>Returns: </b>    <code><a href="../classes/Connection.html" target="_self" >ConnectionComponent</a></code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getNonCxnInputs</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getNonCxnInputs(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>returns the ids of all nodes connected to the input node that are not connection nodes</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>op_id</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getNonCxnOutputs</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getNonCxnOutputs(id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description"><p>returns the ids of all nodes connected to the output node that are not connection nodes</p>
+            </div>
+                                        <div class="io-description">
+                                                <b>Parameters :</b>
+                                                <ul class="jsdoc-params">
+                                                        <li>
+                                                            <div>
+                                                                <b>op_id</b>
+                                                            </div>
+                                                            <div>
+                                                                
+                                                            </div>
+                                                        </li>
+                                                </ul>
+                                        </div>
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                            <div class="io-description">
+                                                
+                                            </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getInputs</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getInputs(node_id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getConnectionInput</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getConnectionInput(node_id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getOutputs</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getOutputs(node_id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number[]</code>
+            
+                                        </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                            <tr>
+                                <td class="col-md-4">
+                                    <b> getConnectionOutput</b>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+            <code>getConnectionOutput(node_id: number)</code>
+                                </td>
+                            </tr>
+            
+                            <tr>
+                                <td class="col-md-4">
+                                        <div class="io-description">
+                                            <b>Returns: </b>    <code>number</code>
             
                                         </div>
                                 </td>
@@ -1062,19 +1817,18 @@
                     </table>
             </section>
 
-
             <section>
                 <h3 id="inputs">Properties</h3>
                     <table class="table table-sm table-bordered">
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> draft</b>
+                                    <b> nodes</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>draft:     <code><a href="../classes/Cell.html" target="_self" >Cell[][]</a></code>
+                                    <code>nodes:     <code>Node[]</code>
             </bcode>
                                 </td>
                             </tr>
@@ -1084,42 +1838,32 @@
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> filled</b>
+                                    <b> num_created</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>filled:     <code>boolean</code>
+                                    <code>num_created:     <code>number</code>
             </bcode>
                                 </td>
                             </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <i>Default value: </i><code>0</code>
+                                    </td>
+                                </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
                         <tbody>
                             <tr>
                                 <td class="col-md-4">
-                                    <b> img_data</b>
+                                    <b> tree</b>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-md-4">
-                                    <code>img_data:     <code>ImageData</code>
-            </bcode>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                            <tr>
-                                <td class="col-md-4">
-                                    <b> scale</b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col-md-4">
-                                    <code>scale:     <code>number</code>
+                                    <code>tree:     <code>TreeNode[]</code>
             </bcode>
                                 </td>
                             </tr>
@@ -1128,115 +1872,419 @@
             </section>
     </div>
     <div class="tab-pane fade tab-source-code" id="source">
-        <pre><code class="hljs javascript">import { Cell } from &quot;../../core/model/cell&quot;;
-import { Bounds } from &quot;../../core/model/datatypes&quot;;
+        <pre><code class="hljs javascript">import { E, P } from &#x27;@angular/cdk/keycodes&#x27;;
+import { Injectable, ViewRef } from &#x27;@angular/core&#x27;;
+import { ConnectionComponent } from &#x27;../palette/connection/connection.component&#x27;;
+import { OperationComponent } from &#x27;../palette/operation/operation.component&#x27;;
+import { SubdraftComponent } from &#x27;../palette/subdraft/subdraft.component&#x27;;
+/**
+ * this class registers the relationships between subdrafts, operations, and connections
+ */
 
 /**
- * @class Shape
- * This class manages drafts that are linked to a shaped region. 
- * It offers functions to translate between shapes represented as HTML Elements 
- * and converting them into 2D array&#x27;s of cells
+ * this stores a reference to a component on the palette with its id and some
+ * @param type is the type of component&#x27;
+ * @param view_id is ndx to reference to this object in the ViewComponentRef (for deleting)
+ * @param id is a unique id linked forever to this component 
+ * @param component is a reference to the component object
+ * @param active describes if is on the screen or hidden. 
  */
-export class Shape {
+interface Node{
+  type: &#x27;draft&#x27; | &#x27;op&#x27; | &#x27;cxn&#x27;;
+  ref: ViewRef,
+  id: number, //this will be unique for every instance
+  component: SubdraftComponent | OperationComponent | ConnectionComponent,
+  active: boolean
+}
 
-  img_data: ImageData;
-  scale: number;
-  draft: Array&lt;Array&lt;Cell&gt;&gt;;
-  filled: boolean;
- 
-  
 /**
- * @constructor takes a canvas element and bounds and converts it to data. 
- * @param shape_canvas - a canvas with the shape on it 
- * @param bounds - the bounds of the shape we are converting
- * @param scale - the scale of each cell within the canvas. 
- */
-  constructor(shape_canvas: HTMLCanvasElement, bounds:Bounds, scale:number) {
-    this.scale &#x3D; scale;
-    const context &#x3D; shape_canvas.getContext(&#x27;2d&#x27;);
-    const download &#x3D; shape_canvas.toDataURL(&quot;image/png&quot;);
-   // document.write(&#x27;&lt;img src&#x3D;&quot;&#x27;+download+&#x27;&quot;/&gt;&#x27;);
+ * A tree node stores relationships between the components created by operations
+  * @param node: is a reference to the node object stored in the tree. 
+  * @param parent links to the treenode that &quot;created&quot; this node or null if it was created by the user 
+  * @param inputs a list of TreeNodes that are used as input to this TreeNode.
+  * @param outputs a list of TreeNodes created by this node or specified by the user
+  * Rules: 
+  *   Operations can have many inputs and many outputs 
+  *   Subdrafts can only have one input and one output (for now)
+  *   
+*/
 
+interface TreeNode{
+  node: Node,
+  parent: TreeNode,
+  inputs: Array&lt;TreeNode&gt;,
+  outputs: Array&lt;TreeNode&gt;
+}
 
-    this.img_data &#x3D; context.getImageData(bounds.topleft.x, bounds.topleft.y, bounds.width, bounds.height);
-    this.draft &#x3D; this.resample(Math.floor(bounds.height/scale), Math.floor(bounds.width/scale));
-  };
+@Injectable({
+  providedIn: &#x27;root&#x27;
+})
+export class TreeService {
 
-  getImageData(){
-    return this.img_data;
+  nodes: Array&lt;Node&gt; &#x3D; []; //an unordered list of all the nodes
+  tree: Array&lt;TreeNode&gt; &#x3D; []; //a representation of the node relationships
+  num_created: number &#x3D; 0;
+
+  constructor() { 
   }
 
 
   /**
-   * rescale the draft in its current size to have this number of rows and cols
-   * @param bounds 
+   * create an node and add it to the tree (without relationships)
+   * @param id a unique id for this component, ideally created by the viewCompomentRef 
+   * @param type the type of component
+   * @param component the compoenent instance
+   * @returns the id assigned
    */
-  resample(rows: number, cols: number):Array&lt;Array&lt;Cell&gt;&gt;{
-    this.draft &#x3D; [];
-    const margin: number &#x3D; this.scale/2; // used to check the center of cells
+  createNode(type: &#x27;draft&#x27;|&#x27;op&#x27;|&#x27;cxn&#x27;, component: SubdraftComponent | OperationComponent | ConnectionComponent, ref: ViewRef):number{
 
-    for(let i &#x3D; 0; i &lt; rows; i++){
-      this.draft.push([]);
-      const row_ndx &#x3D; (i * this.scale + margin) * (this.img_data.width*4);
-      for(let j &#x3D; 0; j &lt; cols; j++){
-        const col_ndx &#x3D; (j* this.scale + margin) * 4;
-        // const p_red &#x3D; this.img_data.data[row_ndx + col_ndx ];
-         const p_grn &#x3D; this.img_data.data[row_ndx + col_ndx + 1];
-        // const p_blue &#x3D; this.img_data.data[row_ndx + col_ndx + 2];
-        // const p &#x3D; this.img_data.data[row_ndx + col_ndx + 3];
-        // console.log(i, j, row_ndx, col_ndx, p_red, p_grn, p_blue,p);
-        if(p_grn &#x3D;&#x3D; 255){
-          this.draft[i][j] &#x3D; new Cell(false);
-        }else if(p_grn &#x3D;&#x3D; 64){
-          this.draft[i][j] &#x3D; new Cell(true);
-        }else{
-          this.draft[i][j] &#x3D; new Cell(null);
+    const node: Node &#x3D; {
+      type: type,
+      ref: ref,
+      id: this.num_created++,
+      component: component,
+      active: true
+    }
+
+    this.nodes.push(node);
+
+      this.tree.push({
+        node: node,
+        parent: null,
+        outputs: [],
+        inputs: []
+      });
+    
+
+    return node.id;
+  }
+
+  getComponent(id:number): SubdraftComponent | ConnectionComponent | OperationComponent{
+    const node: Node &#x3D; this.getNode(id);
+    return node.component; 
+  }
+
+  getComponents():Array&lt;any&gt;{
+    return this.nodes.map(node &#x3D;&gt; node.component);
+  }
+
+  getNode(id:number):Node{
+    const ndx: number &#x3D; this.getNodeIndex(id);
+    return this.nodes[ndx]; 
+  }
+
+  getNodeIndex(id:number):number{
+    return this.nodes.findIndex(el &#x3D;&gt; (el.id &#x3D;&#x3D; id));
+  }
+
+  getType(id:number):string{
+    const node: Node &#x3D; this.getNode(id);
+    return node.type;
+  }
+
+  getViewRef(id:number):ViewRef{
+    const node: Node &#x3D; this.getNode(id);
+    return node.ref;
+  }
+
+
+  /**
+   * get&#x27;s this subdraft&#x27;s parent
+   * @param sd_id 
+   * @returns the parent&#x27;s id, or -1 if it has no parent
+   */
+  getSubdraftParent(sd_id: number):number{
+    const tn: TreeNode &#x3D; this.getTreeNode(sd_id);
+    if(tn.parent !&#x3D;&#x3D; null) return tn.parent.node.id;
+    else return -1;
+  }
+
+  /**
+   * return the connection objects that are immediately attached to this object
+   * @param id - the node id
+   * @returns an array of id&#x27;s for the immediatly connected connections
+   */
+  getNodeConnections(id: number):Array&lt;number&gt;{
+    const tn: TreeNode &#x3D; this.getTreeNode(id);
+    const out_node: Array&lt;Node&gt; &#x3D; tn.outputs.map(el &#x3D;&gt; el.node);
+    const out_cxn: Array&lt;Node&gt; &#x3D; out_node.filter(el &#x3D;&gt; el.type &#x3D;&#x3D;&#x3D; &#x27;cxn&#x27;);
+    const in_node: Array&lt;Node&gt; &#x3D; tn.inputs.map(el &#x3D;&gt; el.node);
+    const in_cxn: Array&lt;Node&gt; &#x3D; in_node.filter(el &#x3D;&gt; el.type &#x3D;&#x3D;&#x3D; &#x27;cxn&#x27;);
+    const join: Array&lt;Node&gt; &#x3D; out_cxn.concat(in_cxn);
+    return join.map(el &#x3D;&gt; el.id);
+  }
+
+  /**
+   * gets a list of non-connection nodes that need to be updated if this node moves. 
+   * this takes into acccount that some nodes have a parent that will move with them.
+   * @param id 
+   * @returns 
+   */
+  getNodesToUpdateOnMove(id: number){
+
+    let updates: Array&lt;number&gt; &#x3D; [];
+    const tn: TreeNode &#x3D; this.getTreeNode(id);
+
+    let to_check: Array&lt;number&gt; &#x3D; [id];
+    
+    //the parent if there is one
+    if(tn.parent !&#x3D;&#x3D; null) to_check.push(tn.parent.node.id);
+
+    //add the child this node generated if there is one. 
+    const outputs: Array&lt;TreeNode&gt; &#x3D; this.getNonCxnOutputs(id).map(el &#x3D;&gt; this.getTreeNode(el));
+    const has_parents: Array&lt;TreeNode&gt; &#x3D; outputs.filter(el &#x3D;&gt; (el.parent !&#x3D;&#x3D; null));
+    const is_child: Array&lt;number&gt; &#x3D; has_parents.filter(el &#x3D;&gt; (el.parent.node.id &#x3D;&#x3D;&#x3D; id)).map(el &#x3D;&gt; el.node.id);
+
+    if(is_child.length &gt; 0) to_check &#x3D; to_check.concat(is_child);
+
+    return to_check;
+
+  }
+
+
+
+  /**
+   * given a node, recusively walks the tree and returns a list of all the operations that are affected
+   * @param id 
+   * @returns an array of operation ids for nodes that need recalculating
+   */
+  getDownstreamOperations(id: number):Array&lt;number&gt;{
+    let ops: Array&lt;number&gt; &#x3D; [];
+    const tn: TreeNode &#x3D; this.getTreeNode(id);
+    if(tn.outputs.length &gt; 0){
+      tn.outputs.forEach(el &#x3D;&gt; {
+        if(el.node.type &#x3D;&#x3D; &#x27;op&#x27;){
+          ops.push(el.node.id);  
         }
-      }
+        ops &#x3D; ops.concat(this.getDownstreamOperations(el.node.id));
+      });
     }
-    
-    return this.draft;
+    return ops;
   }
 
- /**
-   * rescale the draft in its current size to have this number of rows and cols
-   * @param bounds 
+    /**
+   * given a node, recusively walks the tree and returns a list of all the operations that are linked up the chain to this component
+   * @param id 
+   * @returns an array of operation ids that influence this draft
    */
-  read(){
-
-    for(let i &#x3D; 0; i &lt; this.img_data.width; i++){
-      const row_ndx &#x3D; i * this.img_data.width * 4;
-      for(let j &#x3D; 0; j &lt; this.img_data.height; j++){
-        const col_ndx &#x3D; (j * 4);
-        const p_red &#x3D; this.img_data.data[row_ndx + col_ndx ];
-        const p_grn &#x3D; this.img_data.data[row_ndx + col_ndx + 1];
-        const p_blue &#x3D; this.img_data.data[row_ndx + col_ndx + 2];
-        const p &#x3D; this.img_data.data[row_ndx + col_ndx + 3];
-        console.log(i, j, p_red, p_grn, p_blue,p);
-
-        // if(p_grn &gt;&#x3D; 150){
-        //   console.log(i, j, &quot;set&quot;);
-        // }else if(p_grn &lt; 80){
-        // }else{
-        // }
+     getUpstreamOperations(id: number):Array&lt;number&gt;{
+      let ops: Array&lt;number&gt; &#x3D; [];
+      const tn: TreeNode &#x3D; this.getTreeNode(id);
+      if(tn.inputs.length &gt; 0){
+        tn.inputs.forEach(el &#x3D;&gt; {
+          if(el.node.type &#x3D;&#x3D; &#x27;op&#x27;){
+            ops.push(el.node.id);  
+          }
+          ops &#x3D; ops.concat(this.getUpstreamOperations(el.node.id));
+        });
       }
+      return ops;
     }
+
+/**
+ * this removes a node from the list and tree
+ * @param id the id of the node to be removed
+ */
+  removeNode(id: number){
+    console.log(&quot;removing node &quot;, id);
+
+    const node: Node &#x3D; this.getNode(id);
+   //const view_ndx: number &#x3D; this.getViewId(id);
+
+    let unusued: Array&lt;number&gt; &#x3D; [];
+    // //decrement the view ids
+    // this.nodes.forEach(node &#x3D;&gt; {
+    //   if(node.view_id &gt; view_ndx) node.view_id--;
+    // });
+
+    this.removeNodeTreeAssociations(node.id);
+
+    switch(node.type){
+      case &#x27;draft&#x27;:
+      case &#x27;op&#x27;:
+       unusued &#x3D; this.getUnusuedConnections();
+      break;
+    }
+
+    //remove all connections connecting to and from this node
+    const ndx: number &#x3D; this.getNodeIndex(id);
+    const i: number &#x3D; this.tree.findIndex(el &#x3D;&gt; (el.node.id &#x3D;&#x3D; id));
+    this.tree.splice(i, 1);
+    this.nodes.splice(ndx, 1);
+
+  }
+
+  getDrafts():Array&lt;SubdraftComponent&gt;{
+    const draft_nodes: Array&lt;Node&gt; &#x3D; this.nodes.filter(el &#x3D;&gt; el.type &#x3D;&#x3D; &#x27;draft&#x27;);
+    const draft_comps: Array&lt;SubdraftComponent&gt; &#x3D; draft_nodes.map(el &#x3D;&gt; &lt;SubdraftComponent&gt;el.component);
+    return draft_comps;
+  }
+
+  getConnections():Array&lt;ConnectionComponent&gt;{
+    const draft_nodes: Array&lt;Node&gt; &#x3D; this.nodes.filter(el &#x3D;&gt; el.type &#x3D;&#x3D; &#x27;cxn&#x27;);
+    const draft_comps: Array&lt;ConnectionComponent&gt; &#x3D; draft_nodes.map(el &#x3D;&gt; &lt;ConnectionComponent&gt;el.component);
+    return draft_comps;
+  }
+
+  getOperations():Array&lt;OperationComponent&gt;{
+    const draft_nodes: Array&lt;Node&gt; &#x3D; this.nodes.filter(el &#x3D;&gt; el.type &#x3D;&#x3D; &#x27;op&#x27;);
+    const draft_comps: Array&lt;OperationComponent&gt; &#x3D; draft_nodes.map(el &#x3D;&gt; &lt;OperationComponent&gt;el.component);
+    return draft_comps;
+  }
+
+  /**
+   * scans the connections and marks any missing a to or from to delete
+   * @returns an array of connections to delete
+   */
+
+  getUnusuedConnections():Array&lt;number&gt;{
+    const comps: Array&lt;ConnectionComponent&gt; &#x3D; this.getConnections();
+    const nodes: Array&lt;TreeNode&gt; &#x3D; comps.map(el &#x3D;&gt; this.getTreeNode(el.id));
+    const to_delete: Array&lt;TreeNode&gt; &#x3D; nodes.filter(el &#x3D;&gt; (el.inputs.length &#x3D;&#x3D; 0 || el.outputs.length &#x3D;&#x3D; 0));
+    return to_delete.map(el &#x3D;&gt; el.node.id);
+  }
+
+  addNode(type: string){
+
+  }
+
+  getTreeNode(id:number): TreeNode{
+    //only searches top level - though all should be in one level
+    return this.tree.find(el &#x3D;&gt; el.node.id &#x3D;&#x3D; id);
+  }
+
+  /**
+   * adds a connection from subddraft to operation. connections can be of the type 
+   * subdraft -&gt; op (input to op)
+   * op -&gt; subdraft (output generatedd by op)
+   * @returns an array of the ids of the elements connected to this op
+   * @todo add validation step here to make sure we don&#x27;t end up in a loop
+
+   */
+  addConnection(from:number, to:number, cxn:number): Array&lt;number&gt;{
     
-    return this.draft;
+    let from_tn: TreeNode &#x3D; this.getTreeNode(from);
+    let to_tn: TreeNode &#x3D; this.getTreeNode(to);;
+    const cxn_tn: TreeNode &#x3D; this.getTreeNode(cxn);
+
+    from_tn.outputs.push(cxn_tn);
+    cxn_tn.inputs.push(from_tn);
+    cxn_tn.outputs.push(to_tn);
+    to_tn.inputs.push(cxn_tn);
+
+    return this.getNonCxnInputs(to);
+
   }
 
-  getDraft():Array&lt;Array&lt;Cell&gt;&gt;{
-    return this.draft;
+  /**
+   * this sets the parent of a subdraft to the operation that created iit
+   * @returns an array of the subdraft ids connected to this operation
+   */
+   setSubdraftParent(sd:number, op:number){
+    const sd_tn: TreeNode &#x3D; this.getTreeNode(sd);
+    const op_tn: TreeNode &#x3D; this.getTreeNode(op);
+    sd_tn.parent &#x3D; op_tn;
+
   }
 
 
 
+  /**
+   * updates inputs and outputs of this node and delete this node from the list
+   * @param cxn_id 
+   */
+  private removeNodeTreeAssociations(id:number){
+    const tn:TreeNode &#x3D; this.getTreeNode(id);
+
+    //travel to all the trreenode&#x27;s inputs, and erase this from their output
+    tn.inputs.forEach(el &#x3D;&gt; {
+      const cxn_ndx_output:number &#x3D; el.outputs.findIndex(out &#x3D;&gt; (out.node.id &#x3D;&#x3D; id)); 
+      el.outputs.splice(cxn_ndx_output, 1);
+    });
+
+    tn.outputs.forEach(el &#x3D;&gt; {
+      const cxn_ndx_input:number &#x3D; el.inputs.findIndex(i &#x3D;&gt; (i.node.id &#x3D;&#x3D; id)); 
+      el.inputs.splice(cxn_ndx_input, 1);
+    });
+
+    tn.outputs &#x3D; [];
+    tn.inputs &#x3D; [];
+  }
+
+  //finds the connection compoment associated with the subdraft sd
+  getConnectionComponentFromSubdraft(sd_id: number): ConnectionComponent{
+    
+    const sd_node:TreeNode &#x3D; this.getTreeNode(sd_id);
+    if(sd_node.outputs.length &#x3D;&#x3D; 0){
+      console.log(&quot;Error: subdraft node did not have outputs&quot;);
+      return null;
+    } else if(sd_node.outputs.length &gt; 1){
+      console.log(&quot;Error: subdraft node had more than one output&quot;);
+      return null;
+    } 
+
+    const cxn_node &#x3D; sd_node.outputs[0].node;
+    return &lt;ConnectionComponent&gt; cxn_node.component;
+
+  }
+
+/**
+ * returns the ids of all nodes connected to the input node that are not connection nodes
+ * @param op_id 
+ */
+ getNonCxnInputs(id: number):Array&lt;number&gt;{
+    const inputs: Array&lt;number&gt; &#x3D; this.getInputs(id);
+    const node_list:Array&lt;Node&gt; &#x3D; inputs.map(id &#x3D;&gt; (this.getNode(id)));
+    const id_list:Array&lt;number&gt; &#x3D; node_list.map(node &#x3D;&gt; (node.type &#x3D;&#x3D;&#x3D; &#x27;cxn&#x27;) ? this.getConnectionInput(node.id): node.id);
+    return id_list;
+  }
+
+  /**
+ * returns the ids of all nodes connected to the output node that are not connection nodes
+ * @param op_id 
+ */
+ getNonCxnOutputs(id: number):Array&lt;number&gt;{
+  const outputs: Array&lt;number&gt; &#x3D; this.getOutputs(id);
+  const node_list:Array&lt;Node&gt; &#x3D; outputs.map(id &#x3D;&gt; (this.getNode(id)));
+  const id_list:Array&lt;number&gt; &#x3D; node_list.map(node &#x3D;&gt; (node.type &#x3D;&#x3D;&#x3D; &#x27;cxn&#x27;) ? this.getConnectionOutput(node.id): node.id);
+  return id_list;
+}
+
+  getInputs(node_id: number):Array&lt;number&gt;{
+    const tn &#x3D; this.getTreeNode(node_id);
+    const input_ids: Array&lt;number&gt; &#x3D; tn.inputs.map(child &#x3D;&gt; child.node.id);
+    return input_ids;
+  }
+
+  getConnectionInput(node_id: number):number{
+    const tn &#x3D; this.getTreeNode(node_id);
+    const input_ids: Array&lt;number&gt; &#x3D; tn.inputs.map(child &#x3D;&gt; child.node.id);
+    if(input_ids.length  &gt; 1) console.log(&quot;Error: more than one input&quot;);
+    return input_ids[0];
+  }
+
+  getOutputs(node_id: number):Array&lt;number&gt;{
+    const tn &#x3D; this.getTreeNode(node_id);
+    const ids: Array&lt;number&gt; &#x3D; tn.outputs.map(child &#x3D;&gt; child.node.id);
+    return ids;
+  }
 
 
+  getConnectionOutput(node_id: number):number{
+    const tn &#x3D; this.getTreeNode(node_id);
+    const output_ids: Array&lt;number&gt; &#x3D; tn.outputs.map(child &#x3D;&gt; child.node.id);
+    if(output_ids.length  &gt; 1) console.log(&quot;Error: more than one output&quot;);
+    return output_ids.pop();
+  }
+
+
+ 
 }
 </code></pre>
     </div>
 </div>
+
+
 
 
 
