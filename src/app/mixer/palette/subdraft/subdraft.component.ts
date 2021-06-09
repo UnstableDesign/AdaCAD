@@ -5,7 +5,6 @@ import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import { Cell } from '../../../core/model/cell';
 import utilInstance from '../../../core/model/util';
-import { OperationComponent } from '../operation/operation.component';
 
 
 
@@ -39,6 +38,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onDuplicateCalled = new EventEmitter <any>(); 
   @Output() onConnectionMade = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
+  @Output() onDesignAction = new  EventEmitter <any>();
 
  //operations you can perform on a selection 
  design_actions: DesignActions[] = [
@@ -111,21 +111,6 @@ export class SubdraftComponent implements OnInit {
     this.drawDraft();
 
   }
-
-  // /**
-  //  * sets the size and position of this element (but does not resize the canvas! due to error)
-  //  * @param bounds an object including topleft, width, and height 
-  //  */
-  // public setStaticPositionAndSize(bounds: any){
-
-  //   this.static_tl = bounds.topleft;
-  //   this.dynamic_tl = this.static_tl;
-  //   console.log("setting size on set static");
-  //   this.bounds.width = bounds.width;
-  //   this.bounds.height = bounds.height;
-  //   this.dynamic_size = this.size;
-  
-  // }
 
 
   public setConnectable(){
@@ -398,21 +383,27 @@ export class SubdraftComponent implements OnInit {
       break;
 
       case 'clear': this.clear();
+      this.onDesignAction.emit({id: this.id});
       break;
 
       case 'toggle': this.pasteEvent('invert');
+      this.onDesignAction.emit({id: this.id});
       break;
 
       case 'flip_x': this.pasteEvent('mirrorX');
+      this.onDesignAction.emit({id: this.id});
       break;
 
       case 'flip_y': this.pasteEvent('mirrorY');
+      this.onDesignAction.emit({id: this.id});
       break;
 
       case 'shift_left': this.pasteEvent('shiftLeft');
+      this.onDesignAction.emit({id: this.id});
       break;
 
       case 'shift_up': this.pasteEvent('shiftUp');
+      this.onDesignAction.emit({id: this.id});
       break;
 
       case 'delete': 
@@ -423,10 +414,12 @@ export class SubdraftComponent implements OnInit {
   }
 
     fill(id) {
+
       var p = this.patterns[id].pattern;
       //need a way to specify an area within the fill
       this.draft.fill(p, 'mask');
       this.drawDraft();
+      this.onDesignAction.emit({id: this.id});
 
     }
 

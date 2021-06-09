@@ -275,7 +275,7 @@ export class OperationService {
     this.ops.push(random);
     this.ops.push(splice);
     this.ops.push(invert);
-    this.ops.push(mirror);
+    //this.ops.push(mirror); //this doesn't really work unless we have multiple outputs allowed on a subdraft
     this.ops.push(mirrorx);
     this.ops.push(mirrory);
     this.ops.push(shiftx);

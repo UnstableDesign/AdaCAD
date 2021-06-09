@@ -159,7 +159,7 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale = 10;
+    this.scale = 5;
     this.vc.clear();
   }
 
@@ -176,6 +176,7 @@ export class PaletteComponent implements OnInit{
       element.onDuplicateCalled.unsubscribe();
       element.onConnectionMade.unsubscribe();
       element.onConnectionRemoved.unsubscribe();
+      element.onDesignAction.unsubscribe();
     });
 
 
@@ -298,6 +299,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this));
     subdraft.instance.onConnectionMade.subscribe(this.connectionMade.bind(this));
     subdraft.instance.onConnectionRemoved.subscribe(this.removeConnection.bind(this));
+    subdraft.instance.onDesignAction.subscribe(this.onSubdraftAction.bind(this));
     subdraft.instance.draft = d;
     subdraft.instance.id = id;
     subdraft.instance.viewport = this.viewport;
@@ -362,8 +364,12 @@ export class PaletteComponent implements OnInit{
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
+   * @todo delete any attached connections and 
+
    */
   removeSubdraft(id: number){
+
+    const parent_id = this.tree.getSubdraftParent(id);
 
     //removoe the node but get alll the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
@@ -371,7 +377,6 @@ export class PaletteComponent implements OnInit{
     this.tree.removeNode(id);
 
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
-    console.log("old connectionos ", old_cxns);
     old_cxns.forEach(cxn => {
       const cxn_view_ref = this.tree.getViewRef(cxn);
       this.removeFromViewContainer(cxn_view_ref);
@@ -379,10 +384,18 @@ export class PaletteComponent implements OnInit{
     });    
 
 
+    // const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
+    // ds.forEach(op => {
+    //   this.performOp(op);
+    // });
     //calls manually here so that the affected branches can be pinged before the node is deleted 
-    console.log("down stream ops = ", downstream_ops);
     this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
+
+    //if it has a parent, recursively call on its parent
+    if(parent_id != -1){
+      this.removeSubdraft(parent_id);
+    }
 
   }
 
@@ -607,9 +620,9 @@ export class PaletteComponent implements OnInit{
    * Deletes the subdraft that called this function.
    */
     onDeleteSubdraftCalled(obj: any){
+      
       console.log("deleting "+obj.id);
       if(obj === null) return;
-     // const sd = this.subdraft_refs.find((sr) => (obj.id.toString() === sr.canvas.id.toString()));
       this.removeSubdraft(obj.id);
    }
 
@@ -1449,6 +1462,19 @@ drawStarted(){
      }); 
   }
 
+
+  /**
+   * emitted from a subdraft when an internal action has changeded its value 
+   * checks for a child subdraft, recomputes, redraws. 
+   * @param obj with attribute id describing the subdraft that called this
+   * @returns 
+   */
+  onSubdraftAction(obj: any){
+    if(obj === null) return;
+    const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
+    this.recalculateDownstreamDrafts(ds);
+  }
+
   /**
    * emitted from an operatioin when its param has changed 
    * checks for a child subdraft, recomputes, redraws. 
@@ -1459,11 +1485,9 @@ drawStarted(){
     if(obj === null) return;
 
     this.performOp(obj.id);
-
     const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
-    ds.forEach(op => {
-      this.performOp(op);
-    });
+    this.recalculateDownstreamDrafts(ds);
+
   }
 
 
