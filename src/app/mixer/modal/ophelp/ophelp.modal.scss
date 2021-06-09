@@ -1,0 +1,32 @@
+
+.help-container{
+	display: flex;
+	flex-direction: row;
+}
+
+a{
+	color: #00d1b2;
+	font-weight:bold;
+}
+
+h2{
+	font-size: 1.8em;
+	padding-top:1em;
+}
+
+h3{
+	font-size: 1.2em;
+	padding-top:1em;
+}
+
+.code{
+	max-width: 50%;
+}
+
+.doc-container{
+	min-width:fit-content;
+	margin-right: 5em;
+}
+
+
+

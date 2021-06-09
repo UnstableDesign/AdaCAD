@@ -9,8 +9,9 @@ cdkDrag
 (cdkDragStarted)="dragStart($event)"
 >
 <div class="inputs">
-    <button [matTooltip]="tooltip" 
+    <button 
         class="button is-small is-primary"
+        [class.is-active]="selecting_connection || has_connections_in"
         (click)="inputSelected($event, ndx)">
          <i class="fas fa-chevron-right"></i>
     </button>
@@ -19,10 +20,16 @@ cdkDrag
 
 <div class="operation-details">
     <div class="name">{{op.name}}</div>
+    <button 
+    class="help"
+    (click)="openHelpDialog()">
+     <i class="fas fa-question"></i>
+</button>
     <div class="params">
         <ng-container *ngFor="let param of op.params; let i = index">
             <input 
               [(ngModel)]="op_inputs[i]"
+              [matTooltip]=param.dx
               type = "number"
 			  [name]=param.name
               [min]=param.min

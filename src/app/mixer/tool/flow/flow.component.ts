@@ -13,6 +13,7 @@ export class FlowComponent implements OnInit {
   constructor(private ops: OperationService) { }
 
   ngOnInit() {
+
   }
 
 

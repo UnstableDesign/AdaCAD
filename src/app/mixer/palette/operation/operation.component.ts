@@ -3,6 +3,8 @@ import { Bounds, DraftMap, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
 import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
+import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-operation',
@@ -30,11 +32,13 @@ export class OperationComponent implements OnInit {
      width: 200,
      height: 30
    };
+   
    active_connection_order: number = 0;
    op:Operation;
    op_inputs: Array<number> = [];
+   has_connections_in: boolean = false;
 
-  constructor(private operations: OperationService) { 
+  constructor(private operations: OperationService, private dialog: MatDialog) { 
     this.outputs = [];
     this.selecting_connection = false;
 
@@ -68,6 +72,9 @@ export class OperationComponent implements OnInit {
    * @returns an Array linking the draft ids to compoment_ids
    */
   perform(inputs: Array<Draft>):Array<DraftMap>{
+    if(inputs.length > 0) this.has_connections_in = true;
+    else this.has_connections_in = false;
+
     this.op = this.operations.getOp(this.name);
 
     const draft_map: Array<DraftMap> = [];
@@ -91,6 +98,10 @@ export class OperationComponent implements OnInit {
     this.bounds.width = units * this.scale; 
   }
 
+
+  unsetActiveConnection(){
+    this.selecting_connection = false;
+  }
   /**
    * set's the width to at least 200, but w if its large
    */
@@ -122,6 +133,16 @@ export class OperationComponent implements OnInit {
     this.onSelectInputDraft.emit({
       event: event,
       id: this.id
+    });
+
+  }
+
+  openHelpDialog() {
+    const dialogRef = this.dialog.open(OpHelpModal, {
+      data: {
+        name: this.op.name,
+        op: this.op
+      }
     });
 
   }

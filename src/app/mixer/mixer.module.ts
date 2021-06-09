@@ -14,6 +14,7 @@ import { OperationComponent } from './palette/operation/operation.component';
 import { ConnectionComponent } from './palette/connection/connection.component';
 import { TreeComponent } from './tool/tree/tree.component';
 import { FlowComponent } from './tool/flow/flow.component';
+import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 
 
 
@@ -35,13 +36,15 @@ import { FlowComponent } from './tool/flow/flow.component';
     OperationComponent,
     ConnectionComponent,
     TreeComponent,
-    FlowComponent
+    FlowComponent,
+    OpHelpModal
     ],
   entryComponents: [
     SubdraftComponent,
     SnackbarComponent,
     OperationComponent,
-    ConnectionComponent
+    ConnectionComponent,
+    OpHelpModal
   ]
 })
 export class MixerModule { }

@@ -21,6 +21,7 @@
 		<ng-container *ngIf="set_connectable">
 			<button matTooltip = "click here to use this draft as input"
 			class="button is-small is-primary"
+			[class.is-active]="active_connection_order > 0"
 			(click) = "connectionClicked(id)"
 			>
 			<i class="fas fa-chevron-down"></i>

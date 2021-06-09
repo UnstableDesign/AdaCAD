@@ -159,7 +159,7 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale = 5;
+    this.scale = 10;
     this.vc.clear();
   }
 
@@ -818,6 +818,8 @@ connectionDragged(mouse: Point, shift: boolean){
  */
  processConnectionEnd(){
   this.closeSnackBar();
+  const op: OperationComponent = <OperationComponent> this.tree.getComponent(this.connection_op_id);
+  op.unsetActiveConnection();
   this.selecting_connection = false;
   this.unsetDraftsConnectable();
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
