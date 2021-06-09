@@ -27,6 +27,29 @@ export class OperationService {
 
   constructor() { 
 
+    const rect: Operation = {
+      name: 'rectangle',
+      params: [
+        {name: 'width',
+        min: 1,
+        max: 100,
+        value: 10
+        },
+        {name: 'height',
+        min: 1,
+        max: 100,
+        value: 10
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+        const outputs: Array<Draft> = [];
+        const d: Draft = new Draft({warps: input_params[0], wefts: input_params[1]});
+        d.fill([[new Cell(false)]], 'clear');
+        outputs.push(d);
+        return outputs;
+      }        
+    }
 
     const splice:Operation = {
       name: 'splice',
@@ -271,6 +294,7 @@ export class OperationService {
 
 
     //**push operatiinos to the array here */
+    this.ops.push(rect);
     this.ops.push(twill);
     this.ops.push(random);
     this.ops.push(splice);

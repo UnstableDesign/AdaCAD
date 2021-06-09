@@ -86,6 +86,9 @@ export class OperationComponent implements OnInit {
 
   rescale(scale:number){
 
+    const units: number = this.bounds.width / this.scale;
+    this.scale = scale;
+    this.bounds.width = units * this.scale; 
   }
 
   /**
