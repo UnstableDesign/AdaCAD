@@ -70,9 +70,9 @@ export class OperationService {
       }        
     }
 
-    const splice:Operation = {
-      name: 'splice',
-      dx: 'splices the input drafts together in alternating lines',
+    const interlace:Operation = {
+      name: 'interlace',
+      dx: 'interlace the input drafts together in alternating lines',
       params: [],
       max_inputs: 100,
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
@@ -244,6 +244,50 @@ export class OperationService {
             return d;
           });
         }
+
+        return outputs;
+      }
+          
+    }
+
+
+    const stretch: Operation = {
+      name: 'stretch',
+      dx: 'repeats each warp and/or weft by the inputs',
+      params: [
+        {name: 'warp repeats',
+        min: 1,
+        max: 100,
+        value: 2,
+        dx: 'number of times to repeat each warp'
+        },
+        {name: 'weft repeats',
+        min: 1,
+        max: 100,
+        value: 2,
+        dx: 'number of weft overs in a pic'
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        const outputs: Array<Draft> = inputs.map(input => {
+            const d: Draft = new Draft({warps: input_params[0]*input.warps, wefts: input_params[1]*input.wefts});
+            input.pattern.forEach((row, i) => {
+              for(let p = 0; p < input_params[1]; p++){
+                let i_ndx = input_params[1] * i + p;
+                row.forEach((cell, j) => {
+                  for(let r = 0; r < input_params[0]; r++){
+                    let j_ndx = input_params[0] * j + r;
+                    d.pattern[i_ndx][j_ndx].setHeddle(cell.getHeddle());
+                  }
+                });
+
+              }
+            });
+
+            return d;
+        });
 
         return outputs;
       }
@@ -673,7 +717,7 @@ export class OperationService {
             }
           }
 
-          const overlay: Array<Draft> = this.getOp('splice').perform(inputs, []);
+          const overlay: Array<Draft> = this.getOp('interlace').perform(inputs, []);
           
           const outputs: Array<Draft> = inputs.map((input, ndx) => {
             const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
@@ -693,6 +737,41 @@ export class OperationService {
 
           return outputs;
       }
+    }
+
+    const tile: Operation = {
+      name: 'tile',
+      dx: 'repeats this block along the warp and weft',
+      params: [
+        {name: 'warp-repeats',
+        min: 1,
+        max: 100,
+        value: 2,
+        dx: 'the number of times to repeat this time across the width'
+        },
+        {name: 'weft-repeats',
+        min: 1,
+        max: 100,
+        value: 2,
+        dx: 'the number of times to repeat this time across the length'
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        const outputs:Array<Draft> = inputs.map(input => {
+          const width: number = input_params[0]*input.warps;
+          const height: number = input_params[1]*input.wefts;
+
+          const d: Draft = new Draft({warps: width, wefts: height});
+          d.fill(input.pattern, 'original');
+          return d;
+        });
+
+
+        return outputs;
+      }
+          
     }
 
     const joinleft: Operation = {
@@ -746,7 +825,7 @@ export class OperationService {
     this.ops.push(basket);
     this.ops.push(rib);
     this.ops.push(random);
-    this.ops.push(splice);
+    this.ops.push(interlace);
     this.ops.push(invert);
     this.ops.push(mirror); //this doesn't really work unless we have multiple outputs allowed on a subdraft
     this.ops.push(mirrorx);
@@ -759,6 +838,8 @@ export class OperationService {
     this.ops.push(bindwarpfloats);
     this.ops.push(joinleft);
     this.ops.push(slope);
+    this.ops.push(tile);
+    this.ops.push(stretch);
 
 
     //** Give it a classification here */
@@ -775,12 +856,12 @@ export class OperationService {
 
     this.classification.push(
       {category: 'transformations',
-      ops: [invert, mirrorx, mirrory, shiftx, shifty, slope]}
+      ops: [invert, mirrorx, mirrory, shiftx, shifty, slope, stretch]}
     );
 
     this.classification.push(
       {category: 'compose',
-      ops: [splice, layer, joinleft, mirror, selvedge, bindweftfloats, bindwarpfloats]}
+      ops: [interlace, layer, tile, joinleft, mirror, selvedge, bindweftfloats, bindwarpfloats]}
     );
 
   }

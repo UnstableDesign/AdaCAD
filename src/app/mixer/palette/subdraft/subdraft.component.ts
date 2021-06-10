@@ -1,11 +1,12 @@
 import { Component, OnInit, Input, Output, ViewChild, ElementRef, EventEmitter, HostListener} from '@angular/core';
 import { Draft } from '../../../core/model/draft';
-import { Point, Interlacement, Bounds } from '../../../core/model/datatypes';
+import { Point, Interlacement, Bounds, DraftMap } from '../../../core/model/datatypes';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import { Cell } from '../../../core/model/cell';
 import utilInstance from '../../../core/model/util';
 import { CanvasToBMP } from '../../../core/model/canvas2image';
+import { OperationService } from '../../provider/operation.service';
 
 
 
@@ -92,8 +93,9 @@ export class SubdraftComponent implements OnInit {
   set_connectable:boolean = false;
 
 
-  constructor(private inks: InkService, private layer: LayersService) { 
+  constructor(private inks: InkService, private layer: LayersService, private ops: OperationService) { 
     this.zndx = layer.createLayer();
+    console.log(ops);
   }
 
   ngOnInit(){
@@ -393,73 +395,59 @@ export class SubdraftComponent implements OnInit {
 
 
   designActionChange(e){
+    console.log(e);
 
     switch(e){
       case 'duplicate':   
       this.onDuplicateCalled.emit({id: this.id});
       break;
 
-      case 'clear': this.clear();
-      this.onDesignAction.emit({id: this.id});
-      break;
-
-      case 'toggle': this.pasteEvent('invert');
-      this.onDesignAction.emit({id: this.id});
-      break;
-
-      case 'flip_x': this.pasteEvent('mirrorX');
-      this.onDesignAction.emit({id: this.id});
-      break;
-
-      case 'flip_y': this.pasteEvent('mirrorY');
-      this.onDesignAction.emit({id: this.id});
-      break;
-
-      case 'shift_left': this.pasteEvent('shiftLeft');
-      this.onDesignAction.emit({id: this.id});
-      break;
-
-      case 'shift_up': this.pasteEvent('shiftUp');
-      this.onDesignAction.emit({id: this.id});
-      break;
-
       case 'delete': 
         this.onDeleteCalled.emit({id: this.id});
+      break;
+
+      default: 
+        const drafts: Array<Draft> = this.ops.getOp(e).perform([this.draft], []);
+        drafts.forEach(draft => {
+          this.setNewDraft(draft);
+          this.drawDraft();
+        });
+        this.onDesignAction.emit({id: this.id});
       break;
 
     }
   }
 
-    fill(id) {
+    // fill(id) {
 
-      var p = this.patterns[id].pattern;
-      //need a way to specify an area within the fill
-      this.draft.fill(p, 'mask');
-      this.drawDraft();
-      this.onDesignAction.emit({id: this.id});
+    //   var p = this.patterns[id].pattern;
+    //   //need a way to specify an area within the fill
+    //   this.draft.fill(p, 'mask');
+    //   this.drawDraft();
+    //   this.onDesignAction.emit({id: this.id});
 
-    }
+    // }
 
-    clear() {
-      const c:Cell = new Cell(false);
-      const pattern = [[c]];
-      //need a way to specify an area within the fill
-      this.draft.fill(pattern, 'clear');
-      this.drawDraft();
+    // clear() {
+    //   const c:Cell = new Cell(false);
+    //   const pattern = [[c]];
+    //   //need a way to specify an area within the fill
+    //   this.draft.fill(pattern, 'clear');
+    //   this.drawDraft();
 
-    }
+    // }
    
 
-    pasteEvent(type) {
+    // pasteEvent(type) {
 
-      var p = this.draft.pattern;
+    //   var p = this.draft.pattern;
 
-      if(type === undefined) type = "original";
+    //   if(type === undefined) type = "original";
 
-     this.draft.fill(p, type);
-     this.drawDraft();
+    //  this.draft.fill(p, type);
+    //  this.drawDraft();
 
-    }
+    // }
 
     public saveAsBmp(e: any) {
       var obj: any = {
