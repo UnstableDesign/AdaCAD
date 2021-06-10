@@ -1,7 +1,6 @@
 
 .help-container{
-	display: flex;
-	flex-direction: row;
+	display: block;
 }
 
 a{
@@ -19,14 +18,7 @@ h3{
 	padding-top:1em;
 }
 
-.code{
-	max-width: 50%;
-}
 
-.doc-container{
-	min-width:fit-content;
-	margin-right: 5em;
-}
 
 
 

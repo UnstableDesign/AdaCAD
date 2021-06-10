@@ -10,8 +10,9 @@
     <ng-container *ngFor="let class of ops.classification">
       <h3>{{class.category}}</h3>
       <ng-container *ngFor="let op of class.ops">
-          <button mat-stroked-button
+          <button mat-stroked-button 
             [matTooltip] =op.dx
+            matTooltipClass="visibleTooltip"
             [name]=op.name 
             (click)="addOp(op.name)">
             {{op.name}}

@@ -218,17 +218,16 @@ export class OperationService {
 
 
         const sum: number = input_params.reduce( (acc, val) => {
-            return val*2 + acc;
+            return val + acc;
         }, 0);
-        console.log(sum);
 
         let alt_rows, alt_cols, val: boolean = false;
         const pattern:Array<Array<Cell>> = [];
         for(let i = 0; i < sum; i++){
-          alt_rows = (i % sum/2 < input_params[0]);
+          alt_rows = (i % sum < input_params[0]);
           pattern.push([]);
           for(let j = 0; j < sum; j++){
-            alt_cols = (j % sum/2 < input_params[0]);
+            alt_cols = (j % sum < input_params[0]);
             val = (alt_cols && alt_rows) || (!alt_cols && !alt_rows);
             pattern[i][j] =  new Cell(val);
           }
@@ -280,7 +279,7 @@ export class OperationService {
 
         const sum: number = input_params[0] + input_params[1];
         const repeats: number = input_params[2];
-        const width: number = sum * 2;
+        const width: number = sum;
         const height: number = repeats * 2;
 
         let alt_rows, alt_cols, val: boolean = false;
@@ -319,13 +318,13 @@ export class OperationService {
         {name: 'unders',
         min: 1,
         max: 100,
-        value: 3,
+        value: 1,
         dx: 'number of weft unders'
         },
         {name: 'overs',
         min: 1,
         max: 100,
-        value: 1,
+        value: 3,
         dx: 'number of weft overs'
         }
       ],
@@ -411,7 +410,6 @@ export class OperationService {
         return outputs;
       }        
     }
-
 
     const invert: Operation = {
       name: 'invert',
@@ -501,6 +499,46 @@ export class OperationService {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             for(let i = 0; i < input_params[0]; i++){
               d.fill(d.pattern, 'shiftUp');
+            }
+          return d;
+        });
+        return outputs;
+      }
+    }
+
+    const slope: Operation = {
+      name: 'slope',
+      dx: 'offsets every nth row by the vaule given in col',
+      params: [
+        {name: 'col shift',
+        min: -100,
+        max: 100,
+        value: 1,
+        dx: 'the amount to shift rows by'
+        },
+        {name: 'row shift (n)',
+        min: 0,
+        max: 100,
+        value: 1,
+        dx: 'describes how many rows we should apply the shift to'
+        }
+      ],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+          const outputs:Array<Draft> = inputs.map(input => {
+            console.log(input_params);
+          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts});
+          for(let i = 0; i < d.wefts; i++){
+            
+              let i_shift: number = (input_params[1] === 0) ? 0 : Math.floor(i/input_params[1]);
+              for(let j = 0; j <d.warps; j++){
+                let j_shift: number = input_params[0]*-1;
+                let shift_total = (i_shift * j_shift)%d.warps;
+                if(shift_total < 0) shift_total += d.warps;
+                
+                d.pattern[i][j].setHeddle(input.pattern[i][(j+shift_total)%d.warps].getHeddle());
+              }
             }
           return d;
         });
@@ -614,7 +652,6 @@ export class OperationService {
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
           
           const layers = inputs.length;
-          const outputs: Array<Draft> = [];
 
           const max_wefts:number = inputs.reduce((acc, draft)=>{
               if(draft.wefts > acc) return draft.wefts;
@@ -637,21 +674,67 @@ export class OperationService {
           }
 
           const overlay: Array<Draft> = this.getOp('splice').perform(inputs, []);
-          const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
-          d.fill(pattern, "original");
+          
+          const outputs: Array<Draft> = inputs.map((input, ndx) => {
+            const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
+            d.fill(pattern, "original");
 
-          console.log(overlay[0].warps, d.warps, overlay[0].wefts, d.wefts);
+            console.log(overlay[ndx].warps, d.warps, overlay[ndx].wefts, d.wefts);
 
-          overlay[0].pattern.forEach((row, ndx) => {
-            const layer_id:number = ndx % layers;
-            row.forEach((c, j) => {
-              d.pattern[ndx][j*layers+layer_id].setHeddle(c.getHeddle());
+            overlay[ndx].pattern.forEach((row, ndx) => {
+              const layer_id:number = ndx % layers;
+              row.forEach((c, j) => {
+                d.pattern[ndx][j*layers+layer_id].setHeddle(c.getHeddle());
+              });
             });
-          });
+            return d;
+        });
 
 
-          outputs.push(d);
           return outputs;
+      }
+    }
+
+    const joinleft: Operation = {
+      name: 'join left',
+      dx: 'attaches inputs toether into one draft with each iniput side by side',
+      params: [],
+      max_inputs: 100, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+          
+        const outputs: Array<Draft> = [];
+        const total:number = inputs.reduce((acc, draft)=>{
+            return acc + draft.warps;
+        }, 0);
+
+        const max_wefts:number = inputs.reduce((acc, draft)=>{
+            if(draft.wefts > acc) return draft.wefts;
+            return acc;
+        }, 0);
+        
+        const d: Draft = new Draft({warps: total, wefts: max_wefts});
+        for(let i = 0; i < max_wefts; i++){
+            const combined_rows: Array<Cell> = inputs.reduce((acc, draft) => {
+             
+              let  r: Array<Cell> = [];
+              //if the draft doesn't have this row, just make a blank one
+              if(i >= draft.wefts){
+                const nd = new Draft({warps: draft.warps, wefts: 1});
+                r = nd.pattern[0];
+              }
+              else r =  draft.pattern[i];
+              return acc.concat(r);
+            }, []);
+            
+            console.log('comobinied length', combined_rows.length, total);
+          
+            combined_rows.forEach((cell,j) => {
+              d.pattern[i][j].setHeddle(cell.getHeddle());
+            });
+        }
+             
+        outputs.push(d);
+        return outputs;
       }
     }
 
@@ -674,6 +757,8 @@ export class OperationService {
     this.ops.push(selvedge);
     this.ops.push(bindweftfloats);
     this.ops.push(bindwarpfloats);
+    this.ops.push(joinleft);
+    this.ops.push(slope);
 
 
     //** Give it a classification here */
@@ -690,12 +775,12 @@ export class OperationService {
 
     this.classification.push(
       {category: 'transformations',
-      ops: [invert, mirrorx, mirrory, shiftx, shifty]}
+      ops: [invert, mirrorx, mirrory, shiftx, shifty, slope]}
     );
 
     this.classification.push(
       {category: 'compose',
-      ops: [splice, layer, mirror, selvedge, bindweftfloats, bindwarpfloats]}
+      ops: [splice, layer, joinleft, mirror, selvedge, bindweftfloats, bindwarpfloats]}
     );
 
   }

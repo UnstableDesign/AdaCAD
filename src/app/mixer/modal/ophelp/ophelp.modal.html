@@ -14,19 +14,14 @@
             <p>{{param.dx}}</p>
             <p> min/max value of this input: {{param.min}}-{{param.max}}</p>
 		    </ng-container>
-        </div>
+      </div>
 
-        <h2>Documentation</h2>
-        <div id="docs" [innerHTML]="documentation"></div>
+      <div id="docs" [innerHTML]="documentation"></div>
+      <h2>Documentation</h2>
+    
 
-    </div>
-
-    <div class="code">
-  	  
-
-        <h2> Code </h2>
-        <pre>{{data.op.perform}}</pre>
-
+      <h2> Code </h2>
+      <pre>{{data.op.perform}}</pre>
     </div>
   </div>
 </mat-dialog-content>
