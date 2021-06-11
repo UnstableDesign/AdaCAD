@@ -224,13 +224,18 @@ export class PaletteComponent implements OnInit{
   }
 
   rescale(scale:number){
-    this.scale = scale;
-    this.tree.getDrafts().forEach(sd => {
-      sd.rescale(scale);
-    });
 
-    this.tree.getOperations().forEach(sd => {
-      sd.rescale(scale);
+    this.scale = scale;
+    
+    const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
+    console.log(generations);
+
+    //rescale all the non connections first, then go through and rescale the connections
+    generations.forEach(generation => {
+      generation.forEach(node => {
+        const comp = this.tree.getComponent(node);
+        if(this.tree.getType(node) != "cxn") comp.rescale(scale);
+      })
     });
 
     this.tree.getConnections().forEach(sd => {
@@ -850,7 +855,7 @@ performOp(op_id:number){
 
   
   const draft_map: Array<DraftMap> = op.perform(input_drafts);
-  const pos: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
+  const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
   
   draft_map.forEach(el => {
     let sd:SubdraftComponent = null;
@@ -858,12 +863,11 @@ performOp(op_id:number){
     if(el.component_id >= 0){
        sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
        sd.setNewDraft(el.draft);
-       sd.setComponentPosition({x: pos.x, y: pos.y + op.bounds.height});
-       pos.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
+       leftoffset.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
     }else{
       sd = this.createSubDraft(el. draft);
       op.addOutput({component_id: sd.id, draft:el.draft});
-      sd.setComponentPosition({x: pos.x, y: pos.y + op.bounds.height});
+      sd.setComponentPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
       sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
       sd.setParent(op.id);
       this.createConnection(op.id, sd.id);

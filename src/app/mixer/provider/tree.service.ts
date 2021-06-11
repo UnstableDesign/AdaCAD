@@ -1,5 +1,5 @@
 import { E, P } from '@angular/cdk/keycodes';
-import { Injectable, ViewRef } from '@angular/core';
+import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
@@ -438,6 +438,39 @@ export class TreeService {
     const output_ids: Array<number> = tn.outputs.map(child => child.node.id);
     if(output_ids.length  > 1) console.log("Error: more than one output");
     return output_ids.pop();
+  }
+
+
+  
+
+  getGenerationChildren(parents: Array<number>) : Array<number> {
+
+    let children: Array<number> = [];
+    parents.forEach(parent => {
+      const tn: TreeNode =  this.getTreeNode(parent);
+      children = children.concat(tn.outputs.map(tn => tn.node.id));
+    });
+
+    return children;
+  }
+
+  /**
+   * converts the tree into an array where each element belongs to a similar "generation" meaning the first generation had no parents/inputs, and the subsequent generations are descending from that. 
+   * returns a list of ids referencing the element ids belonging to each generation
+   * should return an array that has the same number of elements as the tree overall
+   */
+  convertTreeToGenerations() : Array<Array<number>>{
+
+    const gens: Array<Array<number>> = [];
+    let parents: Array<number> = this.tree.filter(tn => tn.inputs.length == 0).map(tn => tn.node.id);
+
+    
+    while(parents.length > 0){
+      gens.push(parents);
+      parents = this.getGenerationChildren(parents);
+    }
+
+    return gens;
   }
 
 

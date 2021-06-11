@@ -131,11 +131,9 @@ export class ConnectionComponent implements OnInit {
     bottomright.x = Math.max(p1.x, p2.x);
     bottomright.y = Math.max(p1.y, p2.y);
 
-    this.bounds.topleft.x = Math.min(p1.x, p2.x);
-    this.bounds.topleft.y = Math.min(p1.y, p2.y);
+    this.bounds.topleft = {x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y)};
     this.bounds.width = bottomright.x - this.bounds.topleft.x + 2; //add two so a line is drawn when horiz or vert
     this.bounds.height = bottomright.y - this.bounds.topleft.y + 2;
-    console.log("Bounds", this.bounds.topleft);
   }
 
   drawConnection(){
@@ -161,8 +159,30 @@ export class ConnectionComponent implements OnInit {
     this.cx.stroke();
   }
 
+  /**
+   * rescales this compoment. 
+   * Call after the operation and subdraft connections have been updated. 
+   * @param scale 
+   */
   rescale(scale:number){
+
+    const from_comp: any = this.tree.getComponent(this.from);
+    const to_comp: any = this.tree.getComponent(this.to);
+   
+    this.b_from = {
+      topleft: {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y},
+      width: from_comp.bounds.width,
+      height: from_comp.bounds.height
+    }
+
+    this.b_to = {
+      topleft: {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y},
+      width: to_comp.bounds.width,
+      height: to_comp.bounds.height
+    }
+
     this.scale = scale;
+    this.calculateBounds();
     this.drawConnection();
   }
 

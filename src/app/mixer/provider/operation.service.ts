@@ -532,7 +532,6 @@ export class OperationService {
         const sum: number = input_params.reduce( (acc, val) => {
             return val + acc;
         }, 0);
-        console.log(sum, input_params);
 
         const pattern:Array<Array<Cell>> = [];
         for(let i = 0; i < sum; i++){
@@ -725,7 +724,6 @@ export class OperationService {
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
           
           const outputs:Array<Draft> = inputs.map(input => {
-            console.log(input_params);
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts});
           for(let i = 0; i < d.wefts; i++){
             
@@ -883,8 +881,6 @@ export class OperationService {
             const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
             d.fill(pattern, "original");
 
-            console.log(overlay[ndx].warps, d.warps, overlay[ndx].wefts, d.wefts);
-
             overlay[ndx].pattern.forEach((row, ndx) => {
               const layer_id:number = ndx % layers;
               row.forEach((c, j) => {
@@ -962,7 +958,6 @@ export class OperationService {
               return acc.concat(r);
             }, []);
             
-            console.log('comobinied length', combined_rows.length, total);
           
             combined_rows.forEach((cell,j) => {
               d.pattern[i][j].setHeddle(cell.getHeddle());

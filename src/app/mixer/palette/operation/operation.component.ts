@@ -92,9 +92,18 @@ export class OperationComponent implements OnInit {
 
   rescale(scale:number){
 
-    const units: number = this.bounds.width / this.scale;
+
+    const change = scale / this.scale;
+    
+    this.bounds.topleft = {x: this.bounds.topleft.x * change, y: this.bounds.topleft.y * change};
+
+    if(this.outputs.length == 1){
+      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * scale);
+    }else{
+      this.bounds.width = 200;
+    }
     this.scale = scale;
-    this.bounds.width = units * this.scale; 
+
   }
 
 

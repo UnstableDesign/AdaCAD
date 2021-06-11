@@ -3,10 +3,10 @@ import { Draft } from '../../../core/model/draft';
 import { Point, Interlacement, Bounds, DraftMap } from '../../../core/model/datatypes';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
-import { Cell } from '../../../core/model/cell';
 import utilInstance from '../../../core/model/util';
-import { CanvasToBMP } from '../../../core/model/canvas2image';
 import { OperationService } from '../../provider/operation.service';
+import { TreeService } from '../../provider/tree.service';
+import { OperationComponent } from '../operation/operation.component';
 
 
 
@@ -93,7 +93,10 @@ export class SubdraftComponent implements OnInit {
   set_connectable:boolean = false;
 
 
-  constructor(private inks: InkService, private layer: LayersService, private ops: OperationService) { 
+  constructor(private inks: InkService, 
+    private layer: LayersService, 
+    private ops: OperationService,
+    private tree: TreeService) { 
     this.zndx = layer.createLayer();
   }
 
@@ -123,6 +126,20 @@ export class SubdraftComponent implements OnInit {
   }
 
   rescale(scale:number){
+
+
+    const inputs: Array<number> = this.tree.getNonCxnInputs(this.id);
+    if(inputs.length > 0 && !this.tree.isSibling(this.id)){
+      const component: any = this.tree.getComponent(inputs[0]);
+      this.bounds.topleft = {x: component.bounds.topleft.x, y: component.bounds.topleft.y + component.bounds.height};
+      
+    }else{
+
+      let left_incs = this.getTopleft().x / this.scale;
+      let top_incs = this.getTopleft().y / this.scale;
+      this.bounds.topleft = {x: left_incs*scale, y: top_incs*scale};
+    }
+    
     this.scale = scale;
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
