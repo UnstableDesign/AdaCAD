@@ -51,7 +51,6 @@ export class OperationComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-    console.log("after view", this.op_inputs);
     this.onOperationParamChange.emit({id: this.id});
   }
 
@@ -128,7 +127,6 @@ export class OperationComponent implements OnInit {
   inputSelected(event: any, ndx: number){
     this.selecting_connection = true;
     this.disableDrag();
-    console.log("input from ", event);
 
     this.onSelectInputDraft.emit({
       event: event,
@@ -148,7 +146,6 @@ export class OperationComponent implements OnInit {
   }
 
   onParamChange(){
-    console.log(this.op.params);
     this.onOperationParamChange.emit({id: this.id});
   }
 

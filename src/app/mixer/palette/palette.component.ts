@@ -17,6 +17,7 @@ import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
+import { THREE } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-palette',
@@ -337,8 +338,6 @@ export class PaletteComponent implements OnInit{
      * @returns the list of all id's connected to the "to" node 
      */
      createConnection(id_from: number, id_to:number):Array<number>{
-      console.log("TREE", this.tree.tree);
-      console.log("from/to", id_from, id_to);
 
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
@@ -364,7 +363,6 @@ export class PaletteComponent implements OnInit{
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
-   * @todo delete any attached connections and 
 
    */
   removeSubdraft(id: number){
@@ -373,6 +371,16 @@ export class PaletteComponent implements OnInit{
 
     //removoe the node but get alll the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
+    const inputs:Array<number> = this.tree.getNonCxnInputs(id);
+
+    inputs.forEach(input => {
+      if(this.tree.getType(input) == 'draft'){
+        const comp = <SubdraftComponent> this.tree.getComponent(input);
+        comp.has_active_connection = false;
+        comp.active_connection_order = 0;
+      }
+    })
+
     const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
     this.tree.removeNode(id);
 
@@ -383,11 +391,6 @@ export class PaletteComponent implements OnInit{
       this.tree.removeNode(cxn);
     });    
 
-
-    // const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
-    // ds.forEach(op => {
-    //   this.performOp(op);
-    // });
     //calls manually here so that the affected branches can be pinged before the node is deleted 
     this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
@@ -648,7 +651,6 @@ export class PaletteComponent implements OnInit{
    * @param obj contains the id of the moving subdraft
    */
   subdraftStarted(obj: any){
-    console.log("obj", obj);
     if(obj === null) return;
 
     if(this.design_modes.isSelected("move")){
@@ -699,13 +701,11 @@ export class PaletteComponent implements OnInit{
     const inputs: Array<number> = this.tree.getInputs(op_id);
     if(inputs.length >= op.maxInputs()){
       nodes.forEach(el => {
-        console.log("inputs longer unsettiing for", el.id)
         el.unsetConnectable();
 
         //now unset the ones that are already assigned to other ops
         const connections: Array<number> = this.tree.getNonCxnOutputs(el.id);
         const op_ndx: number = connections.findIndex(id => (id === op_id));
-        console.log(connections, "found at ", op_ndx);
         //if it had connections and the connection was not this operation, unset it
         if(op_ndx !== -1){
           el.setConnectable();
@@ -841,7 +841,6 @@ performOp(op_id:number){
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
   const inputs: Array<number> =  this.tree.getNonCxnInputs(op_id);
 
-  console.log("inputs are", inputs);
   const input_drafts: Array<Draft> = inputs.map(input => {
     const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
     return sd.draft;
@@ -850,7 +849,6 @@ performOp(op_id:number){
   
   const draft_map: Array<DraftMap> = op.perform(input_drafts);
 
-  console.log("created draft map", draft_map);
   draft_map.forEach(el => {
     let sd:SubdraftComponent = null;
 
@@ -894,7 +892,6 @@ connectionMade(sd_id:number){
  * @param id the subdraft id that called the function
  */
  removeConnection(sd_id:number){
-  console.log("removing connection to subdraft", sd_id);
 
 
   const cxn:ConnectionComponent = <ConnectionComponent>this.tree.getConnectionComponentFromSubdraft(sd_id);
@@ -1211,7 +1208,6 @@ drawStarted(){
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
 
-      console.log("mouse down detected!");
       const ctrl: boolean = event.ctrlKey;
       const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
       const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
@@ -1594,10 +1590,8 @@ drawStarted(){
    * @returns true or false to describe if a merge took place. 
    */
   mergeSubdrafts(primary: SubdraftComponent): boolean{
-    console.log("primary", primary);
 
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
-    console.log("isect", isect);
 
       if(isect.length == 0){
         return false;
