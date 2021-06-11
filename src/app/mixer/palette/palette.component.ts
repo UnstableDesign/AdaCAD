@@ -832,7 +832,9 @@ connectionDragged(mouse: Point, shift: boolean){
 recalculateDownstreamDrafts(downstream_ops:Array<number>){
   //recalculate downstream drafts
   downstream_ops.forEach(op => {
+    
     this.performOp(op);
+
   });
 }
 
@@ -848,17 +850,18 @@ performOp(op_id:number){
 
   
   const draft_map: Array<DraftMap> = op.perform(input_drafts);
-
+  const pos: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
+  
   draft_map.forEach(el => {
     let sd:SubdraftComponent = null;
 
     if(el.component_id >= 0){
        sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
        sd.setNewDraft(el.draft);
+       sd.setComponentPosition({x: pos.x, y: pos.y + op.bounds.height});
+       pos.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
     }else{
-
       sd = this.createSubDraft(el. draft);
-      const pos: Point = op.bounds.topleft;
       op.addOutput({component_id: sd.id, draft:el.draft});
       sd.setComponentPosition({x: pos.x, y: pos.y + op.bounds.height});
       sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
@@ -1430,6 +1433,13 @@ drawStarted(){
     });
   }
 
+
+  /**
+   * this function will update any components that should move when the compoment passed by obj moves
+   * moves all compoments returned from tree.getNodesToUpdate(). All changes to what updates should be 
+   * handled by getNodesToUpdateOnMove
+   * @param obj 
+   */
   updateAttachedComponents(obj: any){
     const moving : any = this.tree.getComponent(obj.id);
     const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
@@ -1516,12 +1526,6 @@ drawStarted(){
       this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
       
       this.updateAttachedComponents(obj);
-
-      // const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
-      // updates.forEach(u => {
-      //   const comp: any = this.tree.getComponent(u);
-      //   comp.updatePositionAndSize(moving.id, obj.point, moving.bounds.width, moving.bounds.height);
-      // }); 
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       

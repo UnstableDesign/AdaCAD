@@ -148,25 +148,66 @@ export class TreeService {
    */
   getNodesToUpdateOnMove(id: number){
 
-    let updates: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
-
     let to_check: Array<number> = [id];
+
+    if(this.isMultipleParent(id) || this.isSibling(id)) return to_check;
     
     //the parent if there is one
     if(tn.parent !== null) to_check.push(tn.parent.node.id);
 
     //add the child this node generated if there is one. 
     const outputs: Array<TreeNode> = this.getNonCxnOutputs(id).map(el => this.getTreeNode(el));
+
+
     const has_parents: Array<TreeNode> = outputs.filter(el => (el.parent !== null));
     const is_child: Array<number> = has_parents.filter(el => (el.parent.node.id === id)).map(el => el.node.id);
 
     if(is_child.length > 0) to_check = to_check.concat(is_child);
 
+    
+
     return to_check;
 
   }
 
+  /**
+   * test if this node has generated many children, as opposed to just one
+   * @param id 
+   * @returns a boolean 
+   */
+  isMultipleParent(id: number):boolean{
+    const tn: TreeNode = this.getTreeNode(id);
+    return (tn.outputs.length > 1);
+  }
+
+  /**
+   * test if two components are siblings (e.g. they have the same parent). 
+   * if we pass the same id in for both, it will return false
+   * @param id 
+   * @returns a boolean 
+   */
+   areSiblings(a_id: number, b_id: number):boolean{
+
+    if(a_id === b_id) return false; 
+
+    const atn: TreeNode = this.getTreeNode(a_id);
+    const btn: TreeNode = this.getTreeNode(b_id);
+    if(atn.parent == null || btn.parent == null) return false;
+    return (atn.parent.node.id === btn.parent.node.id);
+  }
+
+    /**
+   * test if this node is a sibling of the one provided
+   * @param id 
+   * @returns a boolean 
+   */
+    isSibling(id: number):boolean{
+    const tn: TreeNode = this.getTreeNode(id);
+    if(tn.parent == null) return false;
+    return (this.getTreeNode(tn.parent.node.id).outputs.length > 1);
+  }
+  
 
 
   /**
@@ -215,13 +256,9 @@ export class TreeService {
     console.log("removing node ", id);
 
     const node: Node = this.getNode(id);
-   //const view_ndx: number = this.getViewId(id);
 
     let unusued: Array<number> = [];
-    // //decrement the view ids
-    // this.nodes.forEach(node => {
-    //   if(node.view_id > view_ndx) node.view_id--;
-    // });
+
 
     this.removeNodeTreeAssociations(node.id);
 

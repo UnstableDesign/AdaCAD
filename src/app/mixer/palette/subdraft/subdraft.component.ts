@@ -95,7 +95,6 @@ export class SubdraftComponent implements OnInit {
 
   constructor(private inks: InkService, private layer: LayersService, private ops: OperationService) { 
     this.zndx = layer.createLayer();
-    console.log(ops);
   }
 
   ngOnInit(){
@@ -146,7 +145,6 @@ export class SubdraftComponent implements OnInit {
   }
 
   setPosition(pos: Point){
-    console.log("called set position on subdraft");
     this.bounds.topleft = pos;
   }
 
@@ -376,7 +374,6 @@ export class SubdraftComponent implements OnInit {
   }
 
   connectionClicked(id:number){
-    console.log("clicked", id);
     this.has_active_connection  = true;
     if(this.active_connection_order === 0){
       this.onConnectionMade.emit(id);
@@ -395,7 +392,6 @@ export class SubdraftComponent implements OnInit {
 
 
   designActionChange(e){
-    console.log(e);
 
     switch(e){
       case 'duplicate':   
@@ -455,7 +451,6 @@ export class SubdraftComponent implements OnInit {
         downloadLink: this.downloadBmp,
         type: "bmp"
       }
-      console.log(obj);
       this.onSave(obj);
     }
   
@@ -465,7 +460,6 @@ export class SubdraftComponent implements OnInit {
         downloadLink: this.downloadAda,
         type: "ada"
       }
-      console.log(obj);
       this.onSave(obj);
     }
   
@@ -475,7 +469,6 @@ export class SubdraftComponent implements OnInit {
         downloadLink: this.downloadWif,
         type: "wif"
       }
-      console.log(obj);
       this.onSave(obj);
     }
   
@@ -490,9 +483,7 @@ export class SubdraftComponent implements OnInit {
 
     public onSave(e: any) {
 
-      e.bitmap = this.bitmap;
-      console.log(e);
-  
+      e.bitmap = this.bitmap;  
       if (e.type === "bmp") this.saveBMP(e.name, e);
       else if (e.type === "ada") this.draft.saveADA(e.name, e);
       else if (e.type === "wif") this.draft.saveWIF(e.name, e);
@@ -525,7 +516,6 @@ export class SubdraftComponent implements OnInit {
     let link = obj.downloadLink.nativeElement;
     link.href = b.toDataURL("image/jpg");
     link.download = fileName + ".jpg";
-    console.log(link);
 
   }
 
@@ -550,7 +540,6 @@ export class SubdraftComponent implements OnInit {
     let link = obj.downloadLink.nativeElement;
     link.href = b.toDataURL("image/jpg");
     link.download = fileName + ".jpg";
-    console.log(link);
     this.rescale(prev_scale);
 
 

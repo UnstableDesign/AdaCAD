@@ -748,14 +748,27 @@ export class OperationService {
     const mirror: Operation = {
       name: 'mirror',
       dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the mirrored draft',
-      params: [],
+      params: [ {
+        name: 'copies',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: 'the number of mirrors to produce'
+      }],
       max_inputs: 1, 
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
-          
-          const outputs:Array<Draft> = inputs.map(input => {
-          const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-          return d;
-        });
+        
+        
+
+        let outputs:Array<Draft> = [];
+
+        for(let i = 0; i < input_params[0]; i++){
+            const ds:Array<Draft> = inputs.map(input => {
+              const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+              return d;
+            });
+            outputs = outputs.concat(ds);
+        }
         return outputs;
       }
     }
