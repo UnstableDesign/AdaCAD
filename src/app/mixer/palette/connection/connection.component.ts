@@ -159,6 +159,23 @@ export class ConnectionComponent implements OnInit {
     this.cx.stroke();
   }
 
+  drawForPrint(canvas, cx, scale: number) {
+
+    cx.beginPath();
+    cx.strokeStyle = "#ff4081";
+    cx.setLineDash([scale, 2]);
+    cx.lineWidth = 2;
+    // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
+    if(this.orientation){
+      cx.moveTo(this.bounds.topleft.x, this.bounds.topleft.y);
+      cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y + this.bounds.height);
+    }else{
+      cx.moveTo(this.bounds.topleft.x, this.bounds.height+ this.bounds.topleft.y);
+      cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y);
+    }
+    cx.stroke();
+  }
+
   /**
    * rescales this compoment. 
    * Call after the operation and subdraft connections have been updated. 

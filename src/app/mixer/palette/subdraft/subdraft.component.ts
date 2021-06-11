@@ -7,6 +7,7 @@ import utilInstance from '../../../core/model/util';
 import { OperationService } from '../../provider/operation.service';
 import { TreeService } from '../../provider/tree.service';
 import { OperationComponent } from '../operation/operation.component';
+import { Cell } from '../../../core/model/cell';
 
 
 
@@ -324,6 +325,43 @@ export class SubdraftComponent implements OnInit {
   }
 
 
+  /**
+   * draw onto the supplied canvas, to be used when printing
+   * @returns 
+   */
+   drawForPrint(canvas, cx, scale: number) {
+
+    if(canvas === undefined) return;
+   
+    for (let i = 0; i < this.draft.visibleRows.length; i++) {
+      for (let j = 0; j < this.draft.warps; j++) {
+        let row:number = this.draft.visibleRows[i];
+        let is_up = this.draft.isUp(row,j);
+        let is_set = this.draft.isSet(row, j);
+        if(is_set){
+          if(this.ink === 'unset' && is_up){
+            cx.fillStyle = "#999999"; 
+          }else{
+            cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
+          }
+        } else{
+          cx.fillStyle =  '#0000000d';
+        }
+        cx.fillRect(j*scale+this.bounds.topleft.x, i*scale+this.bounds.topleft.y, scale, scale);
+      }
+    }
+
+    //draw the supplemental info like size
+    cx.fillStyle = "#666666";
+    cx.font = "20px Verdana";
+
+    let datastring: string =  this.draft.warps + " x " + this.draft.wefts;
+    cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+this.bounds.height + 20 );
+
+  }
+
+
+
 
 
   /**
@@ -535,6 +573,7 @@ export class SubdraftComponent implements OnInit {
     link.download = fileName + ".jpg";
 
   }
+
 
   public saveBMP(fileName, obj){
     const prev_scale = this.scale;

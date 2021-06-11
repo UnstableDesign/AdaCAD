@@ -1754,4 +1754,31 @@ drawStarted(){
         return temp;
       }
 
+
+
+  saveAsPrint(fileName, obj){
+
+    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    drafts.forEach(sd => {
+      sd.drawForPrint(this.canvas, this.cx, this.scale);
+    });
+
+    const ops: Array<OperationComponent> = this.tree.getOperations();
+    ops.forEach(op => {
+      op.drawForPrint(this.canvas, this.cx, this.scale);
+    });
+
+    const cxns: Array<ConnectionComponent> = this.tree.getConnections();
+    cxns.forEach(cxn => {
+      cxn.drawForPrint(this.canvas, this.cx, this.scale);
+    });
+
+
+    let link = obj.downloadLink.nativeElement;
+    link.href = this.canvas.toDataURL("image/jpg");
+    link.download = fileName + "mixer.jpg";
+    console.log(link);
+  }
+
 }

@@ -106,6 +106,26 @@ export class OperationComponent implements OnInit {
 
   }
 
+  drawForPrint(canvas, cx, scale){
+    if(canvas === undefined) return;
+
+    cx.fillStyle = "#ffffff";
+    cx.fillRect(this.bounds.topleft.x, this.bounds.topleft.y, this.bounds.width, this.bounds.height); 
+
+    cx.fillStyle = "#666666";
+    cx.font = "20px Verdana";
+
+    let datastring: string = this.name+" // ";
+
+    this.op.params.forEach((p, ndx) => {
+      datastring = datastring + p.name +": "+ this.op_inputs[ndx] + ", ";
+    });
+
+    cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+25 );
+
+
+  }
+
 
   unsetActiveConnection(){
     this.selecting_connection = false;

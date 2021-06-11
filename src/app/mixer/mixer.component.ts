@@ -358,6 +358,14 @@ export class MixerComponent implements OnInit {
     this.palette.addSubdraftFromDraft(draft);
   }
 
+  /**
+   * this is called when a user pushes bring from the topbar
+   * @param event 
+   */
+  public onSave(event: any){
+    this.palette.saveAsPrint(event.name, event);
+  }
+
 
   /**
    * Updates the canvas based on the weave view.

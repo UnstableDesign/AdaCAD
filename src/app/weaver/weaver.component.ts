@@ -65,18 +65,6 @@ export class WeaverComponent implements OnInit {
   ];
 
   
-  //operations you can perform on a selection 
-  design_actions: DesignActions[] = [
-    {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
-    {value: 'up', viewValue: 'Set Region Heddles Up', icon: "fas fa-square"},
-    {value: 'down', viewValue: 'Set Region Heddles Down', icon: "far fa-square"},
-    {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
-    {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
-    {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
-    {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
-    {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
-    {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
-  ];
 
   /**
    * The name of the current selected brush.
