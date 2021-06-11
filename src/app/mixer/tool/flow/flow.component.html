@@ -7,6 +7,13 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
    
+    <h3>Import</h3>
+    <button mat-stroked-button 
+      [name]='upload'
+      (click)="upload()">
+        Upload
+     </button> 
+
     <ng-container *ngFor="let class of ops.classification">
       <h3>{{class.category}}</h3>
       <ng-container *ngFor="let op of class.ops">

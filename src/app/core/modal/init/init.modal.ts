@@ -39,6 +39,7 @@ export class InitModal implements OnInit {
   draft: any = {};
   loomtypes: any;
   density_units: any;
+  source:string;
 
 
   constructor(private dialogRef: MatDialogRef<InitModal>, 
@@ -46,6 +47,9 @@ export class InitModal implements OnInit {
       console.log(data);
       this.loomtypes = data.loomtypes;
       this.density_units = data.density_units;
+      this.source = data.source;
+
+      if(data.source != null && data.source == 'mixer') this.selected = 'ada'; //this is a chat
   }
 
   ngOnInit() {
@@ -79,9 +83,9 @@ export class InitModal implements OnInit {
         var alpha = img[idx + 3];
 
         if (threshold < 750 && alpha != 0) {
-          data[i].push(true);
+          data[i].push(new Cell(true));
         } else {
-          data[i].push(false);
+          data[i].push(new Cell(false));
         }
       }
     }

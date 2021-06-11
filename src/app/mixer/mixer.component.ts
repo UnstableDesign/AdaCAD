@@ -9,6 +9,7 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
+import { Draft } from '../core/model/draft';
 
 
 //disables some angular checking mechanisms
@@ -351,6 +352,12 @@ export class MixerComponent implements OnInit {
   // private keyEventPaste(e) {
   //   this.onPaste({});
   // }
+
+  public draftUploaded(result: any){
+    const draft: Draft = new Draft(result);
+    this.palette.addSubdraftFromDraft(draft);
+  }
+
 
   /**
    * Updates the canvas based on the weave view.

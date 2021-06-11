@@ -364,6 +364,13 @@ export class PaletteComponent implements OnInit{
     }
 
 
+  //called when we get an uplaod event
+  addSubdraftFromDraft(d: Draft){
+    console.log("adding from uplaod", d);
+    const sd: SubdraftComponent = this.createSubDraft(d);
+    sd.setPosition({x: this.viewport.topleft.x, y: this.viewport.topleft.y});
+  }
+
   /**
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
