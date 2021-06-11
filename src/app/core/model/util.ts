@@ -5,6 +5,7 @@
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { Point, Interlacement, Bounds } from "./datatypes";
+import { Draft } from "./draft";
 
 
 class Util {
@@ -377,9 +378,31 @@ class Util {
 
   }
 
+  /**
+   * returns the number of wefts that is greatest out of all the input drafts
+   * 
+   */
+  public getMaxWefts(inputs: Array<Draft>) : number{
+    const max_wefts:number = inputs.reduce((acc, draft)=>{
+      if(draft.wefts > acc) return draft.wefts;
+      return acc;
+      }, 0);
+      return max_wefts;
+  }
+
+  /**
+ * returns the number of warps that is greatest out of all the input drafts
+ */
+    public getMaxWarps(inputs: Array<Draft>) : number{
+    const max_warps:number = inputs.reduce((acc, draft)=>{
+      if(draft.warps > acc) return draft.warps;
+      return acc;
+      }, 0);
+      return max_warps;
+  }
   
 
-  }
+}
   
   //makes it so that we are using this util class as a singleton (referenced: https://www.digitalocean.com/community/tutorials/js-js-singletons)
   const utilInstance = new Util();
