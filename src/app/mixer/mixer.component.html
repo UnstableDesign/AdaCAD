@@ -5,7 +5,8 @@
 [density_units] = "density_units"
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
-[filename]="draft?.name"
+[filename]="filename"
+source="mixer"
 [draftelement]="draftelement"
   (onUndo)="undo();" 
   (onRedo)="redo();"
@@ -105,7 +106,7 @@
         </app-loom> -->
 
         <app-notes
-         [notes] = "draft?.notes"
+         [notes] = "notes"
          (onChange) = "notesChanged($event)"
          >
         </app-notes>

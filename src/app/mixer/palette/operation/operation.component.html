@@ -8,18 +8,23 @@ cdkDrag
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
 >
+
+
 <div class="inputs">
+   
+    <ng-container *ngIf = "!active_connection">
     <button 
         class="button is-small is-primary"
         [class.is-active]="selecting_connection || has_connections_in"
         (click)="inputSelected($event, ndx)">
-         <i class="fas fa-chevron-right"></i>
+         <i class="fas fa-chevron-right">{{connection_op_id}}</i>
     </button>
+</ng-container>
 </div>
 
 
 <div class="operation-details">
-    <div class="name">{{op.name}} // {{id}} </div>
+    <div class="name">{{op.name}}</div>
     <button 
     class="help"
     (click)="openHelpDialog()">

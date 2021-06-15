@@ -1,3 +1,5 @@
+import { Draft } from "../../core/model/draft";
+
 /**
  * Definition of render object.
  * @class
@@ -7,6 +9,7 @@ export class Render {
   view_frames: boolean;
   current_view: string;
   view_front: boolean;
+  visibleRows: Array<number>; 
 
   zoom: number;
 
@@ -24,13 +27,18 @@ export class Render {
     offset_y: {max: number, min: number};
   }
 
-  constructor(view_frames) {
+  constructor(view_frames:boolean, draft: Draft) {
 
     //max values
     this.zoom = 50;
     this.view_frames = view_frames;
     this.current_view = 'pattern';
     this.view_front = true;
+
+    this.visibleRows = [];
+    for(let i = 0; i < draft.wefts; i++){
+      this.visibleRows[i] =i;
+    }
 
     //renders at min -  expands to max
     this.base_cell = {
@@ -159,5 +167,27 @@ export class Render {
   setFront(value:boolean){
     return this.view_front = value;
   }
+
+  updateVisible(draft: Draft) {
+    var i = 0;
+    var systems = [];
+    var visible = [];
+
+
+    for (i = 0; i < draft.weft_systems.length; i++) {
+      systems.push(draft.weft_systems[i].visible);
+    }
+
+    for (i = 0; i< draft.rowSystemMapping.length; i++) {
+      var show = systems[draft.rowSystemMapping[i]];
+
+      if (show) {
+        visible.push(i);
+      }
+    }
+
+    this.visibleRows = visible;
+  }
+
 
 }

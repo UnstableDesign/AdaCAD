@@ -12,7 +12,7 @@ export class System {
   constructor(systemDict = null) {
 
     //defaults
-    this.id = -1;
+    this.id = 1;
     this.name = "weft system"
     this.notes = "";
     this.visible = true;

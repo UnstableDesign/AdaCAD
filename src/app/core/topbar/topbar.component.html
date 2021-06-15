@@ -2,19 +2,22 @@
 
 <span class="left">
 
-<button #undoEvent mat-icon-button 
-      (click)="undoClicked($event);"
-      [disabled]="timeline.undo_disabled"
-      matTooltip ="undo">
-      <i class="fas fa-undo"></i>
+  <ng-container *ngIf= "source == 'weaver'">
+
+    <button #undoEvent mat-icon-button 
+        (click)="undoClicked($event);"
+        [disabled]="timeline.undo_disabled"
+        matTooltip ="undo">
+        <i class="fas fa-undo"></i>
+        </button>
+      
+      <button #redoEvent mat-icon-button 
+        (click)="redoClicked($event);"
+        [disabled]="timeline.redo_disabled"
+        matTooltip ="redo">
+        <i class="fas fa-redo"></i>
       </button>
-    
-    <button #redoEvent mat-icon-button 
-      (click)="redoClicked($event);"
-      [disabled]="timeline.redo_disabled"
-      matTooltip ="redo">
-      <i class="fas fa-redo"></i>
-    </button>
+</ng-container>
 </span>
 
 <span class="center">
@@ -24,7 +27,7 @@
       >
       <i class="fas fa-info-circle"></i>
     </button>
-    <span>AdaCAD <i style="font-size: .6em;">alpha/testing version</i></span>
+    <span>AdaCAD <i style="font-size: .6em;">{{source}}</i></span>
 </span>
   
 <span class="right">
@@ -44,9 +47,9 @@
   </button> 
     <mat-menu #downloadDropdown mat-raised-button>
 
-      <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
+      <a *ngIf="source === 'weaver'" #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
       <a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
-      <a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
+      <a *ngIf="source === 'weaver'" #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
     </mat-menu>
 
 

@@ -3,23 +3,22 @@ import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
-import { LoomTypes, DensityUnits,MaterialTypes, ViewModes } from '../core/model/datatypes';
+import { MaterialTypes, ViewModes } from '../core/model/datatypes';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 import { Draft } from '../core/model/draft';
+import { TreeService } from './provider/tree.service';
+import { FileService } from '../core/provider/file.service';
 
 
 //disables some angular checking mechanisms
 //enableProdMode();
 
 
-/**
- * Controller of the Weaver component.
- * @class
- */
+
 
 
 
@@ -33,6 +32,10 @@ export class MixerComponent implements OnInit {
   @ViewChild(PaletteComponent, {static: false}) palette;
   @ViewChild(MixerDesignComponent, {static: false}) design_tool;
 
+
+  filename = "adacad_mixer";
+  notes: string = "";
+
  /**
    * The weave Timeline object.
    * @property {Timeline}
@@ -40,14 +43,6 @@ export class MixerComponent implements OnInit {
    timeline: Timeline = new Timeline();
 
 
- /**
-   * The types of looms this version will support.
-   * @property {LoomType}
-   */
-  loomtypes: LoomTypes[] = [
-    {value: 'frame', viewValue: 'Shaft'},
-    {value: 'jacquard', viewValue: 'Jacquard'}
-  ];
 
 
   material_types: MaterialTypes[] = [
@@ -56,10 +51,6 @@ export class MixerComponent implements OnInit {
     {value: 2, viewValue: 'Resistive'}
   ];
 
-  density_units: DensityUnits[] = [
-    {value: 'in', viewValue: 'Ends per Inch'},
-    {value: 'cm', viewValue: 'Ends per 10cm '}
-  ];
 
   view_modes: ViewModes[] = [
       {value: 'visual', viewValue: 'Visual'},
@@ -77,7 +68,6 @@ export class MixerComponent implements OnInit {
   collapsed:boolean = false;
   dims:any;
 
-  draftelement:any;
   scrollingSubscription: any;
 
   /// ANGULAR FUNCTIONS
@@ -87,7 +77,11 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private design_modes: DesignmodesService, private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
+  constructor(private design_modes: DesignmodesService, 
+    private ps: PatternService, 
+    private tree: TreeService,
+    public scroll: ScrollDispatcher,
+    private fs: FileService) {
 
 
     this.scrollingSubscription = this.scroll
@@ -127,35 +121,29 @@ export class MixerComponent implements OnInit {
     // this.palette.inkChanged();
   }
   
-  
+  /**
+   * this gets called when a new file is started from the topbar
+   * @param result 
+   */
+  reInit(result){
+
+    if(result.type == "mixer"){
+
+      //first recreate the nodes and add them to the tree stack
+      result.nodes.forEach(node => {
+
+      })
 
 
-  // reInit(result){
-  //   console.log("reinit");
+    }else{
+     result.drafts.forEach(d => {
+        this.palette.createSubDraft(new Draft(d));
+     });
+    }
 
-  //   this.draft.reload(result);
-  //   this.timeline.addHistoryState(this.draft);
+    console.log(result);
 
-  //   this.render.view_frames = (this.draft.loom.type === 'frame') ? true : false;     
-
-  //   if (this.draft.patterns === undefined) this.draft.patterns = this.default_patterns;
-    
-
-  //   this.palette.onNewDraftLoaded();
-
-
-  //   this.palette.redraw({
-  //     drawdown: true, 
-  //     loom:true, 
-  //     warp_systems: true, 
-  //     weft_systems: true, 
-  //     warp_materials: true,
-  //     weft_materials:true
-  //   });
-
-  //   this.palette.rescale();
-
-  // }
+  }
   
   ngOnInit(){
     
@@ -361,11 +349,28 @@ export class MixerComponent implements OnInit {
   /**
    * this is called when a user pushes bring from the topbar
    * @param event 
+   * @todo add interface to select which draft to export if BMP or WIF
    */
   public onSave(event: any){
-    this.palette.saveAsPrint(event.name, event);
-  }
 
+
+
+    switch(event.type){
+      case 'jpg': 
+        this.palette.saveAsPrint(event.name, event);
+      break;
+
+      case 'ada': 
+      let link = event.downloadLink.nativeElement;
+      link.href = this.fs.saver.ada(
+        'mixer', 
+        this.tree.exportSeedDraftsForSaving(),
+        [],
+        [],
+        this.notes);
+      link.download = event.name + ".ada";
+    }
+  }
 
   /**
    * Updates the canvas based on the weave view.

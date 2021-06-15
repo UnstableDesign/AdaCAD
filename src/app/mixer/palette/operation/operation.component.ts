@@ -22,7 +22,7 @@ export class OperationComponent implements OnInit {
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
 
-
+   active_connection: boolean = false
    selecting_connection: boolean;
    outputs: Array<DraftMap>; //stores a list of components and drafts
    tooltip: string = "select drafts to input to this operation"

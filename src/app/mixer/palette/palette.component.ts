@@ -18,6 +18,8 @@ import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
 import { THREE } from '@angular/cdk/keycodes';
+import { Operation } from '../provider/operation.service';
+import { FileService } from './../../core/provider/file.service';
 
 @Component({
   selector: 'app-palette',
@@ -146,6 +148,7 @@ export class PaletteComponent implements OnInit{
     private inks: InkService, 
     private layers: LayersService, 
     private resolver: ComponentFactoryResolver, 
+    private fs: FileService,
     private _snackBar: MatSnackBar) { 
     this.shape_vtxs = [];
     this.viewport = {
@@ -743,6 +746,11 @@ export class PaletteComponent implements OnInit{
   
       });
     }
+
+    const ops: Array<OperationComponent> = this.tree.getOperations();
+    ops.forEach(op => {
+      if(op.id != op_id) op.active_connection = true;
+    });
    
    }
 
@@ -754,6 +762,12 @@ export class PaletteComponent implements OnInit{
     nodes.forEach(el => {
       el.unsetConnectable();
     });
+
+    const ops: Array<OperationComponent> = this.tree.getOperations();
+    ops.forEach(op => {
+      op.active_connection = false;
+    });
+
    }
 
 /**
@@ -830,11 +844,14 @@ connectionDragged(mouse: Point, shift: boolean){
  */
  processConnectionEnd(){
   this.closeSnackBar();
-  const op: OperationComponent = <OperationComponent> this.tree.getComponent(this.connection_op_id);
-  op.unsetActiveConnection();
   this.selecting_connection = false;
   this.unsetDraftsConnectable();
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+  if(this.connection_op_id == -1 ) return;
+  const op: OperationComponent = <OperationComponent> this.tree.getComponent(this.connection_op_id);
+  op.unsetActiveConnection();
+  this.connection_op_id = -1;
 } 
 
 /**
@@ -1776,9 +1793,10 @@ drawStarted(){
 
 
     let link = obj.downloadLink.nativeElement;
-    link.href = this.canvas.toDataURL("image/jpg");
+    link.href = this.fs.saver.jpg(this.canvas);
     link.download = fileName + "mixer.jpg";
-    console.log(link);
+    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
   }
 
 }

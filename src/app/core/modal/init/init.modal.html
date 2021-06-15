@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Welcome To AdaCAD</h2>
+<h2 mat-dialog-title>Start a New File</h2>
 
 <mat-dialog-content>
 
@@ -6,7 +6,7 @@
   <form #initForm="ngForm">
 
     <mat-form-field appearance="fill">
-      <mat-label>Where would you like to start?</mat-label>
+      <mat-label>Where would you like to begin?</mat-label>
     <mat-select [(value)]="selected">
       <mat-option *ngFor="let opt of opts" [value]="opt.value">
         {{opt.viewValue}}
@@ -67,7 +67,8 @@
     
     <ng-container *ngIf="(selected == 'ada' || selected == 'bmp' || selected == 'wif')">
     <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
-    </ng-container>
+    <div class="error">{{error}}</div> 
+  </ng-container>
 
 
 </form>
@@ -77,6 +78,6 @@
 
  <ng-container>
     <mat-dialog-actions>
-        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loomtype, epi, frame_num, treadle_num)">Start</button>
+        <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loomtype, epi, frame_num, treadle_num)">Load</button>
     </mat-dialog-actions>
  </ng-container>

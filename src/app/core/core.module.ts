@@ -42,6 +42,7 @@ import { NotesComponent} from './tool/notes/notes.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
+import { FileService } from './provider/file.service';
 
 
 @NgModule({
@@ -91,7 +92,8 @@ import { PatternModal } from './modal/pattern/pattern.modal';
 
   providers: [
     PatternService, 
-    UploadService],
+    UploadService,
+    FileService],
 
   exports: [
     CommonModule,

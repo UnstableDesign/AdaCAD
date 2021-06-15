@@ -6,8 +6,8 @@ import { LayersService } from '../../provider/layers.service';
 import utilInstance from '../../../core/model/util';
 import { OperationService } from '../../provider/operation.service';
 import { TreeService } from '../../provider/tree.service';
-import { OperationComponent } from '../operation/operation.component';
-import { Cell } from '../../../core/model/cell';
+import { FileService } from '../../../core/provider/file.service';
+import { Loom } from '../../../core/model/loom';
 
 
 
@@ -97,7 +97,8 @@ export class SubdraftComponent implements OnInit {
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ops: OperationService,
-    private tree: TreeService) { 
+    private tree: TreeService,
+    private fs: FileService) { 
     this.zndx = layer.createLayer();
   }
 
@@ -268,7 +269,7 @@ export class SubdraftComponent implements OnInit {
 
     this.bounds.width = temp.warps * this.scale;
     this.bounds.height = temp.wefts * this.scale;
-    this.draft.reloadForMixer(temp);
+    this.draft.reload(temp);
 
   }
 
@@ -303,11 +304,10 @@ export class SubdraftComponent implements OnInit {
     this.canvas.width = this.bounds.width;
     this.canvas.height = this.bounds.height;
 
-    for (let i = 0; i < this.draft.visibleRows.length; i++) {
+    for (let i = 0; i < this.draft.wefts; i++) {
       for (let j = 0; j < this.draft.warps; j++) {
-        let row:number = this.draft.visibleRows[i];
-        let is_up = this.draft.isUp(row,j);
-        let is_set = this.draft.isSet(row, j);
+        let is_up = this.draft.isUp(i,j);
+        let is_set = this.draft.isSet(i, j);
         if(is_set){
           if(this.ink === 'unset' && is_up){
             this.cx.fillStyle = "#999999"; 
@@ -333,11 +333,10 @@ export class SubdraftComponent implements OnInit {
 
     if(canvas === undefined) return;
    
-    for (let i = 0; i < this.draft.visibleRows.length; i++) {
+    for (let i = 0; i < this.draft.wefts; i++) {
       for (let j = 0; j < this.draft.warps; j++) {
-        let row:number = this.draft.visibleRows[i];
-        let is_up = this.draft.isUp(row,j);
-        let is_set = this.draft.isSet(row, j);
+        let is_up = this.draft.isUp(i,j);
+        let is_set = this.draft.isSet(i, j);
         if(is_set){
           if(this.ink === 'unset' && is_up){
             cx.fillStyle = "#999999"; 
@@ -539,70 +538,65 @@ export class SubdraftComponent implements OnInit {
     public onSave(e: any) {
 
       e.bitmap = this.bitmap;  
-      if (e.type === "bmp") this.saveBMP(e.name, e);
-      else if (e.type === "ada") this.draft.saveADA(e.name, e);
-      else if (e.type === "wif") this.draft.saveWIF(e.name, e);
-      else if (e.type === "jpg") this.savePrintableDraft(e.name, e);
+      if (e.type === "bmp"){
+        const prev_scale = this.scale;
+        this.rescale(1);
+    
+        let dims = this.scale;
+        let b = e.bitmap.nativeElement;
+        let context = b.getContext('2d');
+    
+        b.width = (this.draft.warps ) * dims;
+        b.height = (this.draft.wefts) * dims;
+        
+        context.fillStyle = "white";
+        context.fillRect(0,0,b.width,b.height);
+        
+    
+        context.drawImage(this.canvas, 0, 0);
+    
+    
+        let link = e.downloadLink.nativeElement;
+        link.href = this.fs.saver.bmp(b);
+        link.download = e.name + ".jpg";
+        this.rescale(prev_scale);
+      }
+      else if (e.type === "ada"){
+        let link = e.downloadLink.nativeElement;
+        link.href = this.fs.saver.ada('draft', [this.draft], [], [], "");
+        link.download = e.name + ".ada";
+      }
+      else if (e.type === "wif"){
+        //make a loom for saving
+        let loom = new Loom(this.draft, 8, 10);
+        loom.overloadType("frame");
+        loom.recomputeLoom(this.draft);
+        
+        let link = e.downloadLink.nativeElement;
+        link.href= this.fs.saver.wif(this.draft, loom);
+        link.download = e.name +".wif";
+      } 
+      else if (e.type === "jpg"){
+        let dims = this.scale;
+        let b = e.bitmap.nativeElement;
+        let context = b.getContext('2d');
+
+        b.width = (this.draft.warps ) * dims;
+        b.height = (this.draft.wefts) * dims;
+        
+        context.fillStyle = "white";
+        context.fillRect(0,0,b.width,b.height);
+        
+
+        context.drawImage(this.canvas, 0, 0);
       
+        let link = e.downloadLink.nativeElement;
+        link.href = this.fs.saver.jpg(b);
+        link.download = e.name + ".jpg";
+      }      
     }
 
-  /**
-   * Saves the draft as a bitmap file
-   * @extends WeaveDirective
-   * @param {string} fileName - name to save file as
-   * @returns {void}
-   */
-   public savePrintableDraft(fileName, obj) {
+ 
 
-
-    let dims = this.scale;
-    let b = obj.bitmap.nativeElement;
-    let context = b.getContext('2d');
-
-    b.width = (this.draft.warps ) * dims;
-    b.height = (this.draft.wefts) * dims;
-    
-    context.fillStyle = "white";
-    context.fillRect(0,0,b.width,b.height);
-    
-
-    context.drawImage(this.canvas, 0, 0);
-   
-    let link = obj.downloadLink.nativeElement;
-    link.href = b.toDataURL("image/jpg");
-    link.download = fileName + ".jpg";
-
-  }
-
-
-  public saveBMP(fileName, obj){
-    const prev_scale = this.scale;
-    this.rescale(1);
-
-    let dims = this.scale;
-    let b = obj.bitmap.nativeElement;
-    let context = b.getContext('2d');
-
-    b.width = (this.draft.warps ) * dims;
-    b.height = (this.draft.wefts) * dims;
-    
-    context.fillStyle = "white";
-    context.fillRect(0,0,b.width,b.height);
-    
-
-    context.drawImage(this.canvas, 0, 0);
-
-
-    let link = obj.downloadLink.nativeElement;
-    link.href = b.toDataURL("image/jpg");
-    link.download = fileName + ".jpg";
-    this.rescale(prev_scale);
-
-
-  }
-
-
-  
-    
 
 }
