@@ -1,6 +1,7 @@
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
+import { element } from 'protractor';
 import { Draft } from '../../core/model/draft';
-import { NodeComponentProxy, OpComponentProxy } from '../../core/provider/file.service';
+import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
@@ -556,9 +557,9 @@ export class TreeService {
 
     this.nodes.forEach(node => {
 
-      const savable = {
+      const savable: NodeComponentProxy = {
         active: node.active,
-        id: node.id,
+        node_id: node.id,
         type: node.type,
         bounds: node.component.bounds,
         draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft.id : -1) 
@@ -618,10 +619,10 @@ export class TreeService {
 
     this.getOperations().forEach(op_node => {
 
-      const savable = {
+      const savable:OpComponentProxy = {
         node_id: op_node.id,
         name: op_node.op.name,
-        params: op_node.op_inputs
+        params: op_node.op_inputs.map(el => el.value)
       }
       objs.push(savable);
     })
@@ -631,14 +632,14 @@ export class TreeService {
   }
 
 
-  exportTreeForSaving() : Array<any> {
+  exportTreeForSaving() : Array<TreeNodeProxy> {
 
     const objs: Array<any> = []; 
 
 
     this.tree.forEach(treenode => {
 
-      const savable = {
+      const savable:TreeNodeProxy = {
         node: treenode.node.id,
         parent: (treenode.parent !== null) ?  treenode.parent.node.id : -1,
         inputs: treenode.inputs.map(el => el.node.id),

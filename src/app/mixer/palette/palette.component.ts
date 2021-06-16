@@ -352,25 +352,13 @@ export class PaletteComponent implements OnInit{
   /**
    * loads a subdraft component from data
    * @param d a Draft object for this component to contain
-   * @returns the created subdraft instance
+   * @returns the id of the instance created
    */
-   loadSubDraft(node_id: number, d: Draft, bounds:Bounds):SubdraftComponent{
-    const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
-    const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+   loadSubDraft(d: Draft, bounds:Bounds):number{
    
-    this.tree.setNodeComponent(node_id, subdraft.instance);
-    this.tree.setNodeViewRef(node_id, subdraft.hostView);
-   
-    this.setSubdraftSubscriptions(subdraft.instance);
-
-    subdraft.instance.draft = d;
-    subdraft.instance.id = node_id;
-    subdraft.instance.viewport = this.viewport;
-    subdraft.instance.patterns = this.patterns;
-    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-    subdraft.instance.scale = this.scale;
-    subdraft.instance.bounds = bounds;
-    return subdraft.instance;
+    const sd:SubdraftComponent = this.createSubDraft(d);
+    sd.bounds = bounds;
+    return sd.id;
   }
 
 
@@ -402,32 +390,21 @@ export class PaletteComponent implements OnInit{
 
     /**
    * loads an operation with the information supplied. 
-   * @param node_id the existing node to associate to this operation
    * @param name the name of the operation this component will perform
    * @params params the input data to be used in this operation
-   * @returns the OperationComponent created
+   * @returns the id of the node this has been assigned to
    */
-     loadOperation(node_id: number, name: string, params: Array<number>, bounds:Bounds):OperationComponent{
-      const factory = this.resolver.resolveComponentFactory(OperationComponent);
-      const op = this.vc.createComponent<OperationComponent>(factory);
+     loadOperation(name: string, params: Array<number>, bounds:Bounds):number{
       
-      this.tree.setNodeComponent(node_id, op.instance);
-      this.tree.setNodeViewRef(node_id, op.hostView);
-    
-      this.setOperationSubscriptions(op.instance);
+      const op:OperationComponent = this.createOperation(name);
+      
+      op.loaded_inputs = params;
+      op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+      op.bounds.width = bounds.width;
+      op.bounds.height = bounds.height;
+      op.loaded = true;
 
-      op.instance.name = name;
-      op.instance.id = node_id;
-      op.instance.zndx = this.layers.createLayer();
-      op.instance.viewport = this.viewport;
-      op.instance.scale = this.scale;
-      op.instance.loaded_inputs = params;
-      op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
-      op.instance.bounds.width = bounds.width;
-      op.instance.bounds.height = bounds.height;
-      op.instance.loaded = true;
-
-      return op.instance;
+      return op.id;
     }
 
 
@@ -435,7 +412,7 @@ export class PaletteComponent implements OnInit{
      * creates a connection component and registers it with the tree
      * @returns the list of all id's connected to the "to" node 
      */
-     createConnection(id_from: number, id_to:number):Array<number>{
+     createConnection(id_from: number, id_to:number):{input_ids: Array<number>, id: number}{
 
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
@@ -453,40 +430,10 @@ export class PaletteComponent implements OnInit{
         sd.active_connection_order = ndx+1;
       });
 
-      return to_input_ids;
+      return {input_ids: to_input_ids, id: id};
     }
 
 
-        /**
-     * creates a connection component and registers it with the tree
-     * @returns the list of all id's connected to the "to" node 
-     */
-      loadConnection(node_id: number, id_from: number, id_to:number):Array<number>{
-
-          const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
-          const cxn = this.vc.createComponent<ConnectionComponent>(factory);
-          //const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
-        
-          this.tree.setNodeComponent(node_id, cxn.instance);
-          this.tree.setNodeViewRef(node_id, cxn.hostView);
-          
-
-          const to_input_ids: Array<number> =  this.tree.getNonCxnInputs(id_to);
-          
-          cxn.instance.id = node_id;
-          cxn.instance.scale = this.scale;
-          cxn.instance.from = id_from;
-          cxn.instance.to = id_to;
-    
-    
-          to_input_ids.forEach((el, ndx) => {
-            const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(el);
-            sd.active_connection_order = ndx+1;
-          });
-    
-          return to_input_ids;
-      }
-    
 
 
   //called when we get an uplaod event
@@ -996,7 +943,6 @@ performOp(op_id:number){
 
   const inputs: Array<number> =  this.tree.getNonCxnInputs(op_id);
 
-  console.log("performing op on ", inputs);
 
   const input_drafts: Array<Draft> = inputs.map(input => {
     const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
@@ -1006,7 +952,6 @@ performOp(op_id:number){
   
   const draft_map: Array<DraftMap> = op.perform(input_drafts);
 
-  console.log("new draft map");
 
   const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
   

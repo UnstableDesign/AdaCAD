@@ -11,14 +11,23 @@ import utilInstance from '../model/util';
 
  export interface NodeComponentProxy{
   node_id: number,
+  type: string,
+  active: boolean,
   bounds: Bounds; 
   draft_id: number;
+ }
+
+ export interface TreeNodeProxy{
+  node: number,
+  parent: number; 
+  inputs: Array<number>;
+  outputs: Array<number>; 
  }
 
  export interface OpComponentProxy{
   node_id: number,
   name: string,
-  params: Bounds; 
+  params: Array<number>; 
  }
 
  export interface CxnComponentProxy{
@@ -29,7 +38,8 @@ import utilInstance from '../model/util';
 
  export interface SaveObj{
   type: string,
-  nodes: Array<any>,
+  nodes: Array<NodeComponentProxy>,
+  tree: Array<TreeNodeProxy>,
   drafts: Array<Draft>,
   looms: Array<Loom>,
   patterns: Array<Pattern>, 
@@ -39,6 +49,7 @@ import utilInstance from '../model/util';
 
 export interface FileObj{
  nodes: Array<NodeComponentProxy>,
+ treenodes: Array<TreeNodeProxy>,
  drafts: Array<Draft>,
  looms: Array<Loom>,
  patterns: Array<Pattern>, 
@@ -111,11 +122,9 @@ export class FileService {
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let patterns: Array<Pattern> = [];
-      let nodes: Array<NodeComponentProxy> = [];
       let ops: Array<OpComponentProxy> = [];
       let notes:string =  "";
 
-      this.tree.clear();
       
 
       //handle old file types that didn't separate out drafts
@@ -163,36 +172,6 @@ export class FileService {
         });
       }
 
-      if(data.nodes !== undefined){
-        nodes = data.nodes.map(data => {
-          const id = this.tree.loadNode(data.type, data.id, data.active);
-          if(id != data.id) console.log("ERROR: Node generated id is not the same as saved id");
-          const node: NodeComponentProxy = {
-            node_id: data.id,
-            bounds: data.bounds,
-            draft_id: data.draft_id
-          }
-          return node;
-        });
-      }else{
-        const node_id = this.tree.createNode('draft', null, null);
-        nodes.push({
-          node_id: node_id,
-          bounds: {
-            topleft: {x: 0, y:0}, 
-            width: 0, 
-            height:0
-          },
-          draft_id: drafts[0].id
-       })
-      }
-
-      if(data.tree !== undefined){
-        data.tree.forEach(data => {
-          this.tree.loadTreeNodeData(data.node,data.parent, data.inputs, data.outputs);
-        });
-      }
-
 
       if(data.ops !== undefined){
         ops = data.ops.map(data => {
@@ -210,7 +189,8 @@ export class FileService {
         drafts: drafts,
         patterns: patterns,
         looms: looms,
-        nodes: nodes,
+        nodes: (data.nodes === undefined) ? [] : data.nodes,
+        treenodes: (data.tree === undefined) ? [] : data.tree,
         ops: ops,
         notes: notes
       }
@@ -223,12 +203,7 @@ export class FileService {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-      let patterns: Array<Pattern> = [];
-      let nodes: Array<NodeComponentProxy> = [];
-      let ops: Array<OpComponentProxy> = [];
      
-      this.tree.clear();
-
       var stringWithoutMetadata = utilInstance.getSubstringAfter("CONTENTS", data);
       const warps:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WARP]",stringWithoutMetadata));
       const wefts:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WEFT]",stringWithoutMetadata));
@@ -286,23 +261,14 @@ export class FileService {
 
     draft.recalculateDraft(tieups, treadling, threading);
 
-    const node_id = this.tree.createNode('draft', null, null);
-    nodes.push({
-      node_id: node_id,
-      bounds: {
-        topleft: {x: 0, y:0}, 
-        width: 0, 
-        height:0
-      },
-      draft_id: draft.id
-    })
 
     const f: FileObj = {
       drafts: drafts,
       looms: looms,
-      patterns: patterns,
-      nodes: nodes, 
-      ops: ops, 
+      patterns: [],
+      nodes: [], 
+      treenodes: [],
+      ops: [], 
       notes: ""
     }
 
@@ -315,9 +281,6 @@ export class FileService {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-      let patterns: Array<Pattern> = [];
-      let nodes: Array<NodeComponentProxy> = [];
-      let ops: Array<OpComponentProxy> = [];
 
       let e = data;
       const warps = e.width;
@@ -350,21 +313,12 @@ export class FileService {
       looms.push(loom);
 
 
-      const node_id = this.tree.createNode('draft', null, null);
-      nodes.push({
-        node_id: node_id,
-        bounds: {
-          topleft: {x: 0, y:0}, 
-          width: 0, 
-          height:0
-        },
-        draft_id: draft.id
-      })
       const f: FileObj = {
         drafts: drafts,
         looms: looms,
-        patterns: patterns,
-        nodes: nodes, 
+        patterns: [],
+        nodes: [], 
+        treenodes: [],
         ops: [], 
         notes: ""
       }
@@ -376,7 +330,6 @@ export class FileService {
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let patterns: Array<Pattern> = [];
-      let nodes: Array<NodeComponentProxy> = [];
       
       var warps = 20;
       if(f.value.warps !== undefined) warps = f.value.warps;
@@ -418,23 +371,13 @@ export class FileService {
       loom.overloadEpi(epi);
       loom.overloadUnits(units);
     
-
-      const node_id = this.tree.createNode('draft', null, null);
-      nodes.push({
-        node_id: node_id,
-        bounds: {
-          topleft: {x: 0, y:0}, 
-          width: 0, 
-          height:0
-        },
-        draft_id: draft.id
-      })
     
       const envt: FileObj = {
         drafts: drafts,
         looms: looms,
         patterns: patterns,
-        nodes: nodes,
+        nodes: [],
+        treenodes: [],
         ops: [],
         notes: ""
       }
@@ -454,7 +397,7 @@ export class FileService {
   const dsaver: FileSaver = {
     ada:  (type: string, drafts: Array<Draft>, looms: Array<Loom>, patterns: Array<Pattern>, notes: string) : string => {
       //eventually need to add saved patterns here as well
-      const out: any = {
+      const out: SaveObj = {
         type: type,
         drafts: drafts,
         looms: looms,
@@ -471,112 +414,112 @@ export class FileService {
       return href;
     },
     wif: (draft: Draft, loom: Loom) : string => {
-    const shuttles: Array<Shuttle> = draft.shuttles;
-      //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
-    var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
-    var fileType = "text/plain";
+      const shuttles: Array<Shuttle> = draft.shuttles;
+        //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
+      var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
+      var fileType = "text/plain";
 
-    fileContents += "\nCOLOR PALETTE=yes\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\nCOLOR TABLE=yes\nTHREADING=yes\nWARP COLORS=yes\nTREADLING=yes\nWEFT COLORS=yes\n";
-    
-    fileContents += "[COLOR PALETTE]\n";
-    fileContents += "Entries=" + (shuttles.length).toString() +"\n";
-    fileContents += "Form=RGB\nRange=0,255\n";
+      fileContents += "\nCOLOR PALETTE=yes\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\nCOLOR TABLE=yes\nTHREADING=yes\nWARP COLORS=yes\nTREADLING=yes\nWEFT COLORS=yes\n";
+      
+      fileContents += "[COLOR PALETTE]\n";
+      fileContents += "Entries=" + (shuttles.length).toString() +"\n";
+      fileContents += "Form=RGB\nRange=0,255\n";
 
-    fileContents += "[WEAVING]\nShafts=";
-    fileContents += loom.min_frames.toString();
-    fileContents += "\nTreadles=";
-    fileContents += loom.min_treadles.toString();
-    fileContents += "\nRising Shed=yes\n";
-    fileContents += "[WARP]\nThreads=";
-    fileContents += draft.warps.toString();
-    
-    var warpColors = [];
-    for (var i = 0; i < draft.colShuttleMapping.length; i++) {
-      if (!warpColors.includes(draft.colShuttleMapping[i])) {
-        warpColors.push(draft.colShuttleMapping[i]);
-      }
-    }
-    fileContents += "\nColors=" + warpColors.length.toString();
-
-    fileContents += "\n[WEFT]\nThreads=";
-    fileContents += draft.wefts.toString();
-    var weftColors = [];
-    for (var i = 0; i < draft.colShuttleMapping.length; i++) {
-      if (!weftColors.includes(draft.colShuttleMapping[i])) {
-        weftColors.push(draft.colShuttleMapping[i]);
-      }
-    }
-    fileContents += "\nColors=" + weftColors.length.toString();
-
-    fileContents += "\n[TIEUP]\n";
-
-    var treadles = [];
-    for (var i =0; i < loom.tieup.length;i++) {
-      for (var j = 0; j < loom.tieup[i].length;j++) {
-        if (loom.tieup[i][j] && !treadles.includes(j)) {
-          treadles.push(j);
+      fileContents += "[WEAVING]\nShafts=";
+      fileContents += loom.min_frames.toString();
+      fileContents += "\nTreadles=";
+      fileContents += loom.min_treadles.toString();
+      fileContents += "\nRising Shed=yes\n";
+      fileContents += "[WARP]\nThreads=";
+      fileContents += draft.warps.toString();
+      
+      var warpColors = [];
+      for (var i = 0; i < draft.colShuttleMapping.length; i++) {
+        if (!warpColors.includes(draft.colShuttleMapping[i])) {
+          warpColors.push(draft.colShuttleMapping[i]);
         }
       }
-    }
-    for (var i =0; i < treadles.length; i++) {
-      fileContents += (treadles[i]+1).toString() + "=";
-      var lineMarked = false;
-      for (var j = 0; j < loom.tieup.length; j++){
-        if (loom.tieup[j][treadles[i]]) { 
-          if (lineMarked) {
-            fileContents += ",";
+      fileContents += "\nColors=" + warpColors.length.toString();
+
+      fileContents += "\n[WEFT]\nThreads=";
+      fileContents += draft.wefts.toString();
+      var weftColors = [];
+      for (var i = 0; i < draft.colShuttleMapping.length; i++) {
+        if (!weftColors.includes(draft.colShuttleMapping[i])) {
+          weftColors.push(draft.colShuttleMapping[i]);
+        }
+      }
+      fileContents += "\nColors=" + weftColors.length.toString();
+
+      fileContents += "\n[TIEUP]\n";
+
+      var treadles = [];
+      for (var i =0; i < loom.tieup.length;i++) {
+        for (var j = 0; j < loom.tieup[i].length;j++) {
+          if (loom.tieup[i][j] && !treadles.includes(j)) {
+            treadles.push(j);
           }
-          fileContents += (j+1).toString();
-          lineMarked=true;
         }
       }
-      fileContents += "\n";
-    }
-
-    fileContents+= "[COLOR TABLE]\n";
-    //Reference: https://css-tricks.com/converting-color-spaces-in-javascript/ for conversion for hex to RGB
-    var counter = 1;
-    for (var i = 0; i < shuttles.length; i++) {
-      fileContents+= (counter).toString();
-      counter = counter + 1;
-      fileContents+= "=";
-      var hex = shuttles[i].color;
-      if (hex.length == 7) {
-        var r = "0x" + hex[1] + hex[2];
-        var g = "0x" + hex[3] + hex[4];
-        var b = "0x" + hex[5] + hex[6];
-
-        fileContents += (+r).toString() + "," + (+g).toString() + "," + (+b).toString() + "\n";
+      for (var i =0; i < treadles.length; i++) {
+        fileContents += (treadles[i]+1).toString() + "=";
+        var lineMarked = false;
+        for (var j = 0; j < loom.tieup.length; j++){
+          if (loom.tieup[j][treadles[i]]) { 
+            if (lineMarked) {
+              fileContents += ",";
+            }
+            fileContents += (j+1).toString();
+            lineMarked=true;
+          }
+        }
+        fileContents += "\n";
       }
-    }
-    
-    fileContents += "[THREADING]\n";
-    for (var i=0; i <loom.threading.length; i++) {
-      var frame = loom.threading[i];
-      if (frame != -1) {
-        fileContents += (loom.threading.length-i).toString() + "=" + (frame+1).toString() + "\n";
+
+      fileContents+= "[COLOR TABLE]\n";
+      //Reference: https://css-tricks.com/converting-color-spaces-in-javascript/ for conversion for hex to RGB
+      var counter = 1;
+      for (var i = 0; i < shuttles.length; i++) {
+        fileContents+= (counter).toString();
+        counter = counter + 1;
+        fileContents+= "=";
+        var hex = shuttles[i].color;
+        if (hex.length == 7) {
+          var r = "0x" + hex[1] + hex[2];
+          var g = "0x" + hex[3] + hex[4];
+          var b = "0x" + hex[5] + hex[6];
+
+          fileContents += (+r).toString() + "," + (+g).toString() + "," + (+b).toString() + "\n";
+        }
       }
-    }
-
-    fileContents += "[WARP COLORS]\n";
-    for (var i = 0; i < draft.colShuttleMapping.length; i++) {
-      fileContents += (i+1).toString() + "=" + (draft.colShuttleMapping[(draft.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
-    }
-
-    fileContents += "[TREADLING]\n";
-    for (var i = 0; i < loom.treadling.length; i++) {
-      if (loom.treadling[i] != null && loom.treadling[i] != -1){
-        fileContents += (i+1).toString() + "=" + (loom.treadling[i]+1).toString() + "\n";
+      
+      fileContents += "[THREADING]\n";
+      for (var i=0; i <loom.threading.length; i++) {
+        var frame = loom.threading[i];
+        if (frame != -1) {
+          fileContents += (loom.threading.length-i).toString() + "=" + (frame+1).toString() + "\n";
+        }
       }
-    }
 
-    fileContents += "[WEFT COLORS]\n";
-    for (var i = 0; i < draft.rowShuttleMapping.length; i++) { // will likely have to change the way I import too
-      fileContents += (i+1).toString() + "=" + (draft.rowShuttleMapping[i]+1).toString() + "\n";
-    }
+      fileContents += "[WARP COLORS]\n";
+      for (var i = 0; i < draft.colShuttleMapping.length; i++) {
+        fileContents += (i+1).toString() + "=" + (draft.colShuttleMapping[(draft.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
+      }
 
-    const href:string = "data:" + fileType +";base64," + btoa(fileContents);
-    return href;
+      fileContents += "[TREADLING]\n";
+      for (var i = 0; i < loom.treadling.length; i++) {
+        if (loom.treadling[i] != null && loom.treadling[i] != -1){
+          fileContents += (i+1).toString() + "=" + (loom.treadling[i]+1).toString() + "\n";
+        }
+      }
+
+      fileContents += "[WEFT COLORS]\n";
+      for (var i = 0; i < draft.rowShuttleMapping.length; i++) { // will likely have to change the way I import too
+        fileContents += (i+1).toString() + "=" + (draft.rowShuttleMapping[i]+1).toString() + "\n";
+      }
+
+      const href:string = "data:" + fileType +";base64," + btoa(fileContents);
+      return href;
     },
     bmp: (canvas:HTMLCanvasElement) : string => {
       return canvas.toDataURL("image/jpg");

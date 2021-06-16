@@ -12,7 +12,7 @@ import { InitModal } from '../../../core/modal/init/init.modal';
 export class FlowComponent implements OnInit {
   
   @Output() onOperationAdded:any = new EventEmitter();
-  @Output() onUpload:any = new EventEmitter();
+  @Output() onImport:any = new EventEmitter();
 
   constructor(private ops: OperationService, private dialog: MatDialog) { }
 
@@ -34,7 +34,7 @@ export class FlowComponent implements OnInit {
     });
 
      dialogRef.afterClosed().subscribe(result => {
-      if(result !== undefined) this.onUpload.emit(result);
+      if(result !== undefined) this.onImport.emit({result});
       
 
    });

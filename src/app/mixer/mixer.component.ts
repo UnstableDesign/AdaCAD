@@ -123,72 +123,128 @@ export class MixerComponent implements OnInit {
     // this.palette.inkChanged();
   }
   
+
+
+
+
   /**
    * this gets called when a new file is started from the topbar
    * @param result 
    */
   loadNewFile(result: LoadResponse){
     console.log("loaded new file", result);
-    
+    this.tree.clear();
     this.palette.clearComponents();
+    this.processFileData(result.data);
 
-    const data: FileObj = result.data;
+  }
 
+
+
+  /**
+   * this gets called when a new file is started from the topbar
+   * @param result 
+   */
+   importNewFile(result: LoadResponse){
+    
+    console.log("imported new file", result);
+    this.processFileData(result.data);
+
+  }
+
+  /** 
+   * Take a fileObj returned from the fileservice and process
+   */
+  processFileData(data: FileObj){
+
+    const id_map: Array<{old: number, new: number}> = []; 
+   
     const nodes: Array<NodeComponentProxy> = data.nodes;
-    nodes.forEach(nodeproxy => {
-        const type: string = this.tree.getType(nodeproxy.node_id);
-        switch(type){
-          case 'draft':
-            const draft: Draft = data.drafts.find(el => el.id == nodeproxy.draft_id);
-            this.palette.loadSubDraft(nodeproxy.node_id, draft, nodeproxy.bounds);
-            break;
-        }
+   
+   //move through all the drafts 
+    data.drafts.forEach(draft => {
+    
+      const np:NodeComponentProxy = nodes.find(el => el.draft_id == draft.id);
+      const new_id: number = this.palette.loadSubDraft(draft, np.bounds);
+      id_map.push({old: np.node_id, new: new_id});    
     });
 
+    data.ops.forEach(opProxy => {
+      const np: NodeComponentProxy = nodes.find(el => el.node_id === opProxy.node_id);
+      const new_id: number = this.palette.loadOperation(opProxy.name, opProxy.params, np.bounds);
+      id_map.push({old: np.node_id, new: new_id});
+    });
+
+    // nodes.forEach(nodeproxy => {
+    //     switch(nodeproxy.type){
+    //     case 'op':
+    //       const op: OpComponentProxy = data.ops.find(el => el.node_id == nodeproxy.node_id);
+    //       const has_input: boolean = data.treenodes.input.findIndex(id => id).hasInput(nodeproxy.node_id);
+    //       op_comp.has_connections_in = has_input;
+
+
+
+    //     break;
+    //     }
+    //   });
+
+
 
     nodes.forEach(nodeproxy => {
-
-      const type: string = this.tree.getType(nodeproxy.node_id);
      
-      switch(type){
-        case 'op':
-          const op: OpComponentProxy = data.ops.find(el => el.node_id == nodeproxy.node_id);
-          const op_comp: OperationComponent = this.palette.loadOperation(nodeproxy.node_id, op.name, op.params, nodeproxy.bounds);
-          const has_input: boolean = this.tree.hasInput(nodeproxy.node_id);
-          op_comp.has_connections_in = has_input;
+      switch(nodeproxy.type){
+      case 'cxn':
+        const tn: number = data.treenodes.findIndex(node => node.node == nodeproxy.node_id);    
+        if(tn !== -1){
+          const old_input_id: number = data.treenodes[tn].inputs[0];
+          const old_output_id: number = data.treenodes[tn].outputs[0];
+          const new_input_id: number = id_map.find(el => el.old == old_input_id).new;
+          const new_output_id: number = id_map.find(el => el.old == old_output_id).new;      
+          const outs: any = this.palette.createConnection(new_input_id, new_output_id);
+          id_map.push({old: nodeproxy.node_id, new: outs.id});
 
-          const outs: Array<number> = this.tree.getNonCxnOutputs(nodeproxy.node_id);
-          
-          const dms: Array<DraftMap> = outs.map(out_id => { 
-           const dm:DraftMap = {
-            component_id: out_id,
-            draft: (<SubdraftComponent> this.tree.getComponent(out_id)).draft
-            }
-            return dm;
-          });
-
-        op_comp.setOutputs(dms);
-
-
+        }else{
+          console.log("ERROR: cannot find treenode associated with node id: ", nodeproxy.node_id);
+        }
         break;
       }
-  });
+    });
 
+    //now move through the drafts and update their parent operations
+    data.treenodes.forEach( tn => {
+      const np: NodeComponentProxy = nodes.find(node => node.node_id == tn.node);    
+      switch(np.type){
+      
+      
+      
+        case 'draft':
+          if(tn.parent != -1){
+            const new_id = id_map.find(el => el.old == tn.node).new;
+            const parent_id = id_map.find(el => el.old == tn.parent).new;
+            const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_id);
+            sd.parent_id = parent_id;
+          }
+        break;
 
-    nodes.forEach(nodeproxy => {
-
-      const type: string = this.tree.getType(nodeproxy.node_id);
-     
-      switch(type){
-      case 'cxn':
-          const input_id: number = this.tree.getConnectionInput(nodeproxy.node_id);
-          const output_id: number = this.tree.getConnectionOutput(nodeproxy.node_id);
-          this.palette.loadConnection(nodeproxy.node_id, input_id, output_id);
-      break;
+        case 'op' :
+          const new_op_id:number = id_map.find(el => el.old == tn.node).new;
+          const op_comp: OperationComponent = <OperationComponent> this.tree.getComponent(new_op_id);
+          op_comp.has_connections_in = (tn.inputs.length > 0);
+          tn.outputs.forEach(out => {
+            
+            const out_cxn_id:number = id_map.find(el => el.old === out).new;
+            const new_out_id: number = this.tree.getConnectionOutput(out_cxn_id);
+            
+            console.log("setting outputs on", new_op_id, id_map, out, new_out_id);
+            const draft_comp:SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_out_id);
+            op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.draft});
+          });
+        break;
       }
-  });
 
 
+
+    });
 
   }
   
@@ -389,10 +445,21 @@ export class MixerComponent implements OnInit {
   //   this.onPaste({});
   // }
 
-  public draftUploaded(result: any){
-    const draft: Draft = new Draft(result);
-    this.palette.addSubdraftFromDraft(draft);
-  }
+
+  // /**
+  //  * this is called when import has been called from the sidebar
+  //  * @param result 
+  //  */
+  // public draftUploaded(result: LoadResponse){
+
+  //   console.log("import", result);
+  //   const data: FileObj = result.data;
+
+  //   data.drafts.forEach().
+
+  //   const draft: Draft = new Draft(result);
+  //   this.palette.addSubdraftFromDraft(draft);
+  // }
 
   /**
    * this is called when a user pushes bring from the topbar
