@@ -25,6 +25,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatTreeModule} from '@angular/material/tree';
 
 import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
@@ -69,6 +70,7 @@ import { PatternModal } from './modal/pattern/pattern.modal';
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
+    MatTreeModule,
     ColorPickerModule,
     MatChipsModule,
     MatSnackBarModule,
@@ -116,6 +118,7 @@ import { PatternModal } from './modal/pattern/pattern.modal';
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
+    MatTreeModule,
     ColorPickerModule,
     MatChipsModule,
     MatSnackBarModule,

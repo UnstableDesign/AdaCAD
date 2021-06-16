@@ -250,6 +250,11 @@ export class MixerComponent implements OnInit {
         this.designModeChanged('move');
       }
    
+
+      operationAdded(name:string){
+        this.palette.addOperation(name);
+      }
+
 /**
    * Call zoom out on Shift+o.
    * @extends WeaveComponent

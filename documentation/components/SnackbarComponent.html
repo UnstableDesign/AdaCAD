@@ -103,6 +103,9 @@
                                     <a href="../components/ConnectionModal.html" >ConnectionModal</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../components/FlowComponent.html" >FlowComponent</a>
+                                </li>
+                                <li class="link">
                                     <a href="../components/InitModal.html" >InitModal</a>
                                 </li>
                                 <li class="link">
@@ -164,6 +167,9 @@
                                 </li>
                                 <li class="link">
                                     <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../components/TreeComponent.html" >TreeComponent</a>
                                 </li>
                                 <li class="link">
                                     <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
@@ -287,7 +293,13 @@
                                     <a href="../injectables/LayersService.html" >LayersService</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../injectables/OperationService.html" >OperationService</a>
+                                </li>
+                                <li class="link">
                                     <a href="../injectables/PatternService.html" >PatternService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../injectables/TreeService.html" >TreeService</a>
                                 </li>
                                 <li class="link">
                                     <a href="../injectables/UploadService.html" >UploadService</a>
@@ -328,6 +340,9 @@
                                     <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/DraftMap.html" >DraftMap</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/HistoryState.html" >HistoryState</a>
                                 </li>
                                 <li class="link">
@@ -352,10 +367,22 @@
                                     <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                 </li>
                                 <li class="link">
+                                    <a href="../interfaces/Node.html" >Node</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/Operation.html" >Operation</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/OperationParams.html" >OperationParams</a>
+                                </li>
+                                <li class="link">
                                     <a href="../interfaces/Point.html" >Point</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                </li>
+                                <li class="link">
+                                    <a href="../interfaces/TreeNode.html" >TreeNode</a>
                                 </li>
                                 <li class="link">
                                     <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -488,6 +515,9 @@
                                            <a href="../components/ConnectionModal.html" >ConnectionModal</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../components/FlowComponent.html" >FlowComponent</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../components/InitModal.html" >InitModal</a>
                                        </li>
                                        <li class="link">
@@ -549,6 +579,9 @@
                                        </li>
                                        <li class="link">
                                            <a href="../components/TopbarComponent.html" >TopbarComponent</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../components/TreeComponent.html" >TreeComponent</a>
                                        </li>
                                        <li class="link">
                                            <a href="../components/UploadFormComponent.html" >UploadFormComponent</a>
@@ -672,7 +705,13 @@
                                            <a href="../injectables/LayersService.html" >LayersService</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../injectables/OperationService.html" >OperationService</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../injectables/PatternService.html" >PatternService</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../injectables/TreeService.html" >TreeService</a>
                                        </li>
                                        <li class="link">
                                            <a href="../injectables/UploadService.html" >UploadService</a>
@@ -713,6 +752,9 @@
                                            <a href="../interfaces/DraftInterface.html" >DraftInterface</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/DraftMap.html" >DraftMap</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/HistoryState.html" >HistoryState</a>
                                        </li>
                                        <li class="link">
@@ -737,10 +779,22 @@
                                            <a href="../interfaces/MaterialTypes.html" >MaterialTypes</a>
                                        </li>
                                        <li class="link">
+                                           <a href="../interfaces/Node.html" >Node</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/Operation.html" >Operation</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/OperationParams.html" >OperationParams</a>
+                                       </li>
+                                       <li class="link">
                                            <a href="../interfaces/Point.html" >Point</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/StartOptions.html" >StartOptions</a>
+                                       </li>
+                                       <li class="link">
+                                           <a href="../interfaces/TreeNode.html" >TreeNode</a>
                                        </li>
                                        <li class="link">
                                            <a href="../interfaces/ViewModes.html" >ViewModes</a>
@@ -859,7 +913,7 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <code>constructor(data: <a href="../classes/Selection.html" >SubdraftComponent | SelectionComponent</a>)</code>
+                            <code>constructor(data: any)</code>
                         </td>
                     </tr>
     
@@ -874,12 +928,12 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> data</b>
+                            <b> bounds</b>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <code>data:     <code><a href="../classes/Selection.html" target="_self" >SubdraftComponent | SelectionComponent</a></code>
+                            <code>bounds:     <code>Bounds</code>
     </bcode>
                         </td>
                     </tr>
@@ -889,12 +943,42 @@
                 <tbody>
                     <tr>
                         <td class="col-md-4">
-                            <b> subdraft</b>
+                            <b> data</b>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                            <code>subdraft:     <code><a href="../classes/Selection.html" target="_self" >SubdraftComponent | SelectionComponent</a></code>
+                            <code>data:     <code>any</code>
+    </bcode>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> message</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>message:     <code>string</code>
+    </bcode>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <b> scale</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <code>scale:     <code>number</code>
     </bcode>
                         </td>
                     </tr>
@@ -905,9 +989,8 @@
         <div class="tab-pane fade tab-source-code" id="source">
             <pre><code class="hljs javascript">import { Component, OnInit, Inject } from &#x27;@angular/core&#x27;;
 import {MAT_SNACK_BAR_DATA} from &#x27;@angular/material/snack-bar&#x27;;
-import { Draft } from &#x27;../../../core/model/draft&#x27;;
-import { SelectionComponent } from &#x27;../selection/selection.component&#x27;;
-import { SubdraftComponent} from &#x27;../subdraft/subdraft.component&#x27;
+import { Bounds } from &#x27;../../../core/model/datatypes&#x27;;
+
 
 @Component({
   selector: &#x27;app-snackbar&#x27;,
@@ -916,10 +999,14 @@ import { SubdraftComponent} from &#x27;../subdraft/subdraft.component&#x27;
 })
 export class SnackbarComponent implements OnInit {
 
-  subdraft: SubdraftComponent|SelectionComponent;
+  bounds: Bounds;
+  message: string;
+  scale: number;
 
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: SubdraftComponent|SelectionComponent) { 
-    this.subdraft &#x3D; data;
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) { 
+    this.bounds &#x3D; data.bounds;
+    this.message &#x3D; data.message;
+    this.scale &#x3D; data.scale;
   }
 
   ngOnInit() {

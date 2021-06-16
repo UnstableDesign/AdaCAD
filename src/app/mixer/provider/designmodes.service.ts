@@ -42,6 +42,7 @@ export class DesignmodesService {
     {value: 'shape', viewValue: 'Shape', icon: "fas fa-shapes", children: shapes, enable_inks: true, selected: false},
     {value: 'select', viewValue: 'Merge', icon: "fas fa-expand", children: [], enable_inks: false, selected:false},
     {value: 'move', viewValue: 'Move', icon: "fas fa-arrows-alt", children: [], enable_inks: false, selected:false},
+    {value: 'operation', viewValue: 'Operations', icon: "fas fa-project-diagram", children: [], enable_inks: false, selected:false},
   ];
 
   this.select('draw');
