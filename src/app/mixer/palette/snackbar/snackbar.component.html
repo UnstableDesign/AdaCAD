@@ -1,9 +1,11 @@
 <div class="snackbar">
 
-    <!-- <div>id: {{subdraft.draft.id}}</div> -->
-    <div>pos: ({{subdraft.bounds.topleft.x/subdraft.scale}}, {{subdraft.bounds.topleft.y/subdraft.scale}})</div>
-    <div>dims: ({{subdraft.bounds.width/subdraft.scale}}, {{subdraft.bounds.height/subdraft.scale}})</div>
-    <div>ink: {{subdraft.filter}}</div>
+    <ng-container *ngIf="bounds !== null">
+        <div>dims:({{bounds.width/scale}}, {{bounds.height/scale}})</div>
+   </ng-container>
+    <ng-container *ngIf="message !== null"> 
+        <div class="pink">{{message}}</div>
+    </ng-container>
 
 
 </div>

@@ -1,6 +1,14 @@
 .snackbar{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content:space-evenly;
     pointer-events: none;
+    width: 100%;
+
+}
+
+.pink{
+    color: #00d1b2;
+    font-weight: bold;
+    padding-left: 1em;
 }

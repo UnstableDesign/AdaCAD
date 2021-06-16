@@ -166,10 +166,31 @@ export class Cell {
     return this.mask_id;
   }
 
+  /**
+   * sets the value to true or false. If null, will unset the heddle
+   * @param value 
+   */
   setHeddle(value:boolean){
-    this.is_up = value;
-    this.is_set = true;
+    if(value === null){
+      this.is_up = false;
+      this.is_set = false;
+    }else{
+      this.is_up = value;
+      this.is_set = true;
+    }
   }
+
+    /**
+   * sets the value to true or false. If null, will unset the heddle
+   * @param value 
+   */
+     getHeddle():boolean{
+       if(this.is_set){
+        return this.is_up;
+       }
+       return null;
+      
+    }
 
   toggleHeddle(){
     if(!this.is_set){

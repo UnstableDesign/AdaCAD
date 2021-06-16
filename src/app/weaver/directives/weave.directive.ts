@@ -1,17 +1,12 @@
 import { Directive, ElementRef, ViewChild, HostListener, Input, Output, EventEmitter, Renderer2 } from '@angular/core';
-
 import { Observable, Subscription, fromEvent, from } from 'rxjs';
 import * as d3 from "d3";
 import {cloneDeep, now} from 'lodash';
 
-import { Draft } from '../../core/model/draft';
-import { Render } from '../../core/model/render';
-import { Loom } from '../../core/model/loom';
-import { Cell } from '../../core/model/cell';
-import { Shuttle } from '../../core/model/shuttle';
+import { Render } from '../../weaver/model/render';
 import { Pattern } from '../../core/model/pattern';
 import { Point, Interlacement, LoomUpdate } from '../../core/model/datatypes';
-import { Selection } from '../../core/model/selection';
+import { Selection } from '../../weaver/model/selection';
 import { Timeline } from '../../core/model/timeline';
 import { CanvasToBMP } from '../../core/model/canvas2image';
 import {Subject} from 'rxjs';
@@ -59,7 +54,7 @@ export class WeaveDirective {
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {Render}
   */
-  @Input('render') render: any;
+  @Input('render') render:any;
 
 
 

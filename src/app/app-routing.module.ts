@@ -4,12 +4,12 @@ import { WeaverComponent } from './weaver/weaver.component';
 import { MixerComponent } from './mixer/mixer.component';
 
 
-
-/**
- * Use this to specify if you want to load the weaver application or the mixer application. 
- * enable this by changing "component" below to "WeaverComponent" or "MixerComponent"
- */
 const routes: Routes = [
+  {
+    path: 'mixer',
+    component: MixerComponent,
+    children: []
+  },
   {
     path: '',
     component: WeaverComponent,

@@ -1,0 +1,175 @@
+<mat-expansion-panel  [hideToggle] = "collapsed">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     <span>Design</span>
+    </mat-panel-title>
+    <mat-panel-description>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+
+
+
+<!--  <div class="select_slider">
+     Select Cell
+      <mat-slide-toggle
+          [checked]="design_mode === 'select'"
+          (change)="toggleChange($event)">
+      </mat-slide-toggle>
+    Select Region
+  </div> -->
+
+
+<button matTooltip= "Select Region"
+      name="select" 
+      class="button is-small is-primary fas fa-expand"
+      [class.is-active]="design_mode.name === select"
+      [style.color]="button_color"
+      (click)="designModeChange($event)">
+</button>
+
+
+<h3> Interlacement Tools</h3>
+
+  <ng-container *ngFor="let mode of design_modes">
+     <button [matTooltip]=mode.viewValue 
+      [name]=mode.value 
+      class="button is-small is-primary {{mode.icon}}"
+      [class.is-active]="design_mode.name === mode.value"
+      [style.color]="button_color"
+      (click)="designModeChange($event)">
+      </button>
+  </ng-container>
+
+<h3> Draw with Materials</h3>
+  <ng-container *ngFor="let shuttle of materials">
+     <button [matTooltip]=shuttle.name 
+      [name]=shuttle.id 
+       class="button material is-small is-primary fas fa-square"
+      [class.is-active]="design_mode.id === shuttle.id"
+      [style.color]="shuttle.color"
+      (click)="drawWithMaterial($event)">
+      </button>
+  </ng-container>
+
+
+<h3> Selection tools </h3>
+
+
+  <ng-container *ngFor="let action of design_actions">
+     <button [matTooltip]=action.viewValue 
+      [name]=action.value 
+      [disabled] = "!(design_mode.name === 'select' || design_mode.name === 'copy')"
+      class="button is-small is-primary {{action.icon}}"
+      [style.color]="button_color"
+      (click)="designActionChange($event)">
+      </button>
+  </ng-container>
+
+
+<!--   <button matTooltip="invert the state of one cell" 
+  name="invert" 
+  class="button is-small is-primary fas fa-adjust" 
+  [class.is-active]="design_ === 'invert'"
+  (click)="brushChange($event)">
+  </button> -->
+
+<!--   <button matTooltip="draw in filled cells to draft (shortcut: d)" 
+  name="point" 
+  class="button is-small is-primary fas fa-square"  [class.is-active]="brush === 'point'" 
+  (click)="brushChange($event)">
+  </button>
+  <button matTooltip="erase filled cells to draft (shortcut: e)" 
+  name="erase" 
+  class="button is-small is-primary far fa-square" [class.is-active]="brush === 'erase'" 
+  (click)="brushChange($event)">
+  </button>
+ -->
+
+<!--   <button  matTooltip="paste selection mirrored (horizontal)" 
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    class="button is-small is-primary fas fa-arrows-alt-h" 
+    (click)="pasteEvent($event, 'mirrorY')">           
+    </button> -->
+<!-- 
+    <button  matTooltip="paste selection mirrored (vertical)" 
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    class="button is-small is-primary fas fa-arrows-alt-v"
+    (click)="pasteEvent($event, 'mirrorX')">           
+    </button> -->
+<!-- 
+    <button  matTooltip="shift by one cell to the right" 
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    class="button is-small is-primary fas fa-arrow-right"
+    (click)="pasteEvent($event, 'shiftX')">           
+    </button> -->
+
+<!--     <button  matTooltip="shift by one cell up" 
+    [disabled] = "brush !=='select' && brush !=='copy'"  
+    class="button is-small is-primary fas fa-arrow-up"
+    (click)="pasteEvent($event, 'shiftY')">           
+    </button>
+ -->
+ 
+
+<!--   <button  matTooltip="select a region of the draft (shortcut: s)" 
+  name="select" 
+  class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === 'select'" 
+  (click)="brushChange($event)">
+  </button> -->
+
+
+<!--  <button matTooltip="clear all valules in selected region (shortcut: delete)" 
+ name="clear" 
+ [disabled] = "brush !=='select'" 
+ class="button is-primary is-small fa fa-times" 
+ (click)="clearEvent($event);"> 
+ </button> -->
+
+
+
+<!--   <ng-container *ngFor="let pat of favorites">
+     <button  matTooltip="fill sellection with {{ pat.name }}" 
+     [disabled] = "brush !=='select'" 
+     name="fill_{{pat.id}}" 
+     class="button is-primary is-small" 
+     (click)="fillEvent($event, pat.id)">
+      <i class="fill_name">{{ pat.name }}</i>
+     </button>
+ </ng-container>
+ -->
+
+
+<!--     <button  matTooltip="copy selection (shortcut: c)"
+     name="copy" 
+    [class.is-active]="brush ==='copy'"
+    [disabled] = "brush !=='select' && brush !=='copy'" 
+    (click)="brushChange($event)" 
+    class="button is-primary is-small fa fa-clone" >
+    </button>
+    <button  matTooltip="paste selection (shortcut: p)"
+    [disabled] = "brush !=='copy'" 
+    class="button is-small is-primary fa fa-paste" 
+    (click)="pasteEvent($event, 'original')">
+    </button> -->
+
+<!--     <button  matTooltip="paste selection inverted" 
+    [disabled] = "!copy" 
+    class="button is-small is-primary fa fa-random" 
+    (click)="pasteEvent($event, 'invert')">
+    </button>
+ -->
+
+        <app-weaverpatterns 
+          [patterns]="patterns"
+          [selection] = "selection"
+          (onPatternChange)="updatePatterns($event);"
+          (onCreatePattern)="createPattern($event);"
+          (onRemovePattern)="removePattern($event);"
+          (onFill) = "fillEvent($event)">
+          >
+        </app-weaverpatterns>
+
+
+
+</mat-expansion-panel>

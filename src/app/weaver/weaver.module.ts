@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -25,33 +25,19 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
-import {ScrollingModule} from '@angular/cdk/scrolling';
-
-import { WeaverComponent } from './weaver.component';
-import { TopbarComponent } from './topbar/topbar.component';
-import { DesignComponent } from './tool/design/design.component';
-import { PatternsComponent } from './tool/patterns/patterns.component';
-import { MaterialsComponent } from './tool/materials/materials.component';
-import { SystemsComponent } from './tool/systems/systems.component';
-import { LoomComponent } from './tool/loom/loom.component';
-import { MasksComponent } from './tool/masks/masks.component';
-import { SchematicComponent } from './tool/schematic/schematic.component';
-import { ViewComponent } from './tool/view/view.component';
-
+import { ScrollingModule} from '@angular/cdk/scrolling';
 
 import { CoreModule } from '../core/core.module';
 
-import { AboutModal } from './modal/about/about.modal';
-import { PatternModal } from './modal/pattern/pattern.modal';
-import { MaterialModal} from './modal/material/material.modal';
-import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
+import { WeaveDirective } from './directives/weave.directive';
+import { WeaverComponent } from './weaver.component';
+import { WeaverDesignComponent } from './tool/weaverdesign/weaverdesign.component';
+import { WeaverPatternsComponent } from './tool/weaverpatterns/weaverpatterns.component';
+import { LoomComponent } from './tool/loom/loom.component';
+import { MasksComponent } from './tool/masks/masks.component';
+import { SchematicComponent } from './tool/schematic/schematic.component';
+import { WeaverViewComponent } from './tool/weaverview/weaverview.component';
 import { ConnectionModal } from './modal/connection/connection.modal';
-import { InitModal } from './modal/init/init.modal';
-import { LabelModal } from './modal/label/label.modal';
-import { NotesComponent } from './tool/notes/notes.component';
-
-
-
 
 
 @NgModule({
@@ -87,33 +73,18 @@ import { NotesComponent } from './tool/notes/notes.component';
 
   ],
   declarations: [
-    WeaverComponent, 
-    TopbarComponent, 
-    DesignComponent, 
-    PatternsComponent,
-    ShuttlesModal,
-    AboutModal,
-    PatternModal,
+    WeaveDirective,
+    WeaverComponent,  
+    WeaverDesignComponent, 
+    WeaverPatternsComponent,
     ConnectionModal,
-    InitModal,
-    LabelModal,
-    MaterialModal,
-    SystemsComponent,
     LoomComponent,
-    MaterialsComponent,
     MasksComponent,
     SchematicComponent,
-    ViewComponent,
-    NotesComponent
+    WeaverViewComponent,
   ],
   entryComponents: [
-    ShuttlesModal,
-    AboutModal,
-    PatternModal,
-    ConnectionModal,
-    InitModal,
-    MaterialModal,
-    LabelModal
+    ConnectionModal
   ],
 })
 export class WeaverModule { }

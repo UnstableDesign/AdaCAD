@@ -3,7 +3,7 @@ import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
-import { Selection } from './selection';
+import { Selection } from '../../weaver/model/selection';
 import { Point, Interlacement } from './datatypes';
 
 import * as _ from 'lodash';
@@ -16,13 +16,11 @@ export interface DraftInterface {
 
   id: number;
   name: string;
-
-
+  notes: string;
 
   pattern: Array<Array<Cell>>; // the single design pattern
   shuttles: Array<Shuttle>;    //the shuttles used in this draft 
-  notes: string;
-
+  
   //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number>;
   colShuttleMapping: Array<number>;  
@@ -34,8 +32,7 @@ export interface DraftInterface {
   rowSystemPattern: Array<number>;
   colSystemPattern: Array<number>;
 
-  visibleRows: Array<number>;
-
+  visibleRows: Array<number>; //this seems to be something that can belong to the renderer
   patterns: Array<Pattern>; //the collection of smaller subpatterns from the pattern bar 
  
   masks: Array<String>; //associates a mask id with a name
@@ -301,7 +298,7 @@ export class Draft implements DraftInterface {
 
         for (var j = 0; j < this.warps; j++){
           if (params.pattern === undefined) {
-            this.pattern[ii].push(new Cell(false));
+            this.pattern[ii].push(new Cell(null));
             
           }else{
             this.pattern[ii][j]= new Cell(null);
@@ -1884,6 +1881,7 @@ computeYarnPaths(){
       
       const rows = pattern.length;
       const cols = pattern[0].length;
+      const store: Array<Array<Cell>> = [];
   
       var w,h;
   
@@ -1893,8 +1891,9 @@ computeYarnPaths(){
   
       //cycle through each visible row/column of the draft
       for (var i = 0; i < h; i++ ) {
+        store.push([]);
         for (var j = 0; j < w; j++ ) {
-  
+          store[i].push(new Cell(null));
           var row = i;
           var col = j;
   
@@ -1908,10 +1907,18 @@ computeYarnPaths(){
           let new_heddle = true;
            
           switch (type) {
+              case 'clear':
+               new_set = true; 
+               new_heddle = true;
+                break;
               case 'invert':
                new_set = prev_set; 
                new_heddle = !prev_heddle;
                 break;
+              case 'reset':
+                new_set = prev_set; 
+                new_heddle = true;
+                  break;
               case 'mask':
                new_set = prev_set; 
                new_heddle = temp.isUp() && prev_heddle;
@@ -1937,20 +1944,23 @@ computeYarnPaths(){
                 new_heddle = temp.isUp();
                 break;
             }
-  
-  
-            if(this.hasCell(draft_row,col)){
 
-                if(new_set){
-                  this.setHeddle(draft_row,j,new_heddle);
-                }else{
-                  this.pattern[draft_row][j].unsetHeddle();
-                }
-          }
+            if(new_set){
+              store[i][j].setHeddle(new_heddle);
+            }
         }
       }
+
+      store.forEach((row, i) =>{
+        row.forEach((cell,j) =>{
+          if(this.hasCell(i,j)){
+            if(cell.isSet) this.pattern[i][j].setHeddle(cell.getHeddle());
+          }
+        });
+      });     
+    
   
-    }
+  }
 
   /***
    This function takes a point added to the draft and updates and redraws the loom states

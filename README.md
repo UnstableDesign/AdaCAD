@@ -2,12 +2,21 @@
 AdaCAD is a drafting tool for weavers. It is actively in development and offers specific supports for integrating electronics on jacquard looms. 
 
 You can use the last release of the tool at [https://adacad-weaver.firebaseapp.com/](https://adacad-weaver.firebaseapp.com/).
+
 More more information about the project and user guides, visit [https://unstabledesign.github.io](https://unstabledesign.github.io).
 
-## Development Notes
-The master branch is currently hosting two versions of AdaCAD, one called "Weaver" and the other "Mixer". Weaver is the version currently deployed to Firebase and Mixer is an experimental branch for designing drafts using components (modeled after ProWeave and MaxMSP). You can "switch" the mode that will load by modifying the file src/app/app.module.ts. Change "component" to read "WeaverModule" or "MixerModule" to determine which portion of code will be used. 
 
-Files in "src/app/core" are used by all versions of the software. Please check for updates in both modes when updating anything in core. 
+## Development Notes
+The master branch is currently hosting two versions of AdaCAD, one called "Weaver" and the other "Mixer". Weaver is the version currently deployed to Firebase and Mixer is an experimental branch for designing drafts using components (modeled after ProWeave and MaxMSP).
+
+## Development Notes
+There are three core modules in this repo: 
+- Core: contains components, services, directives, etc. that are used by both weaver and mixer modules. Changes to core will affect both deployments and should be checked before pushing.
+
+- Weaver: contains all components, services, directives, etc. that are used by AdaCAD Weaver. This view supports designing on a simulated loom and can be viewed when developing at: localhost:4200/weaver
+
+- Mixer: contains all components, services, directives, etc. that are used by AdaCAD Mixer. This view supports more freeform experimentation on stitch structures and can be viewed when developing at: localhost:4200/mixer
+
 
 
 ## Developer Documentation 
