@@ -34,7 +34,7 @@ export class FlowComponent implements OnInit {
     });
 
      dialogRef.afterClosed().subscribe(result => {
-      if(result !== undefined) this.onImport.emit({result});
+      if(result !== undefined) this.onImport.emit(result);
       
 
    });

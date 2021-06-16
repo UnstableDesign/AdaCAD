@@ -276,12 +276,10 @@ export class TreeService {
    * @returns an array of operation ids for nodes that need recalculating
    */
   getDownstreamOperations(id: number):Array<number>{
-    console.log("get downstream drafts", id);
 
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
     if(tn.outputs.length > 0){
-      console.log("in outputs for", id, tn.outputs);
 
       tn.outputs.forEach(el => {
         if(el.node.type == 'op'){

@@ -3,7 +3,7 @@ import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
-import { DraftMap, MaterialTypes, ViewModes } from '../core/model/datatypes';
+import { Bounds, DraftMap, MaterialTypes, ViewModes } from '../core/model/datatypes';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import {Subject} from 'rxjs';
@@ -136,6 +136,7 @@ export class MixerComponent implements OnInit {
     this.tree.clear();
     this.palette.clearComponents();
     this.processFileData(result.data);
+    this.palette.changeDesignmode('move');
 
   }
 
@@ -147,8 +148,9 @@ export class MixerComponent implements OnInit {
    */
    importNewFile(result: LoadResponse){
     
-    console.log("imported new file", result);
+    console.log("imported new file", result, result.data);
     this.processFileData(result.data);
+    this.palette.changeDesignmode('move');
 
   }
 
@@ -156,6 +158,7 @@ export class MixerComponent implements OnInit {
    * Take a fileObj returned from the fileservice and process
    */
   processFileData(data: FileObj){
+    console.log("process file data", data);
 
     const id_map: Array<{old: number, new: number}> = []; 
    
@@ -165,8 +168,13 @@ export class MixerComponent implements OnInit {
     data.drafts.forEach(draft => {
     
       const np:NodeComponentProxy = nodes.find(el => el.draft_id == draft.id);
-      const new_id: number = this.palette.loadSubDraft(draft, np.bounds);
-      id_map.push({old: np.node_id, new: new_id});    
+      let new_id: number = -1;
+      if(np === undefined){
+         new_id = this.palette.createSubDraft(draft);
+      }else{
+        new_id = this.palette.loadSubDraft(draft, np.bounds);
+        id_map.push({old: np.node_id, new: new_id});    
+      }
     });
 
     data.ops.forEach(opProxy => {
@@ -174,20 +182,6 @@ export class MixerComponent implements OnInit {
       const new_id: number = this.palette.loadOperation(opProxy.name, opProxy.params, np.bounds);
       id_map.push({old: np.node_id, new: new_id});
     });
-
-    // nodes.forEach(nodeproxy => {
-    //     switch(nodeproxy.type){
-    //     case 'op':
-    //       const op: OpComponentProxy = data.ops.find(el => el.node_id == nodeproxy.node_id);
-    //       const has_input: boolean = data.treenodes.input.findIndex(id => id).hasInput(nodeproxy.node_id);
-    //       op_comp.has_connections_in = has_input;
-
-
-
-    //     break;
-    //     }
-    //   });
-
 
 
     nodes.forEach(nodeproxy => {
@@ -235,7 +229,6 @@ export class MixerComponent implements OnInit {
             const out_cxn_id:number = id_map.find(el => el.old === out).new;
             const new_out_id: number = this.tree.getConnectionOutput(out_cxn_id);
             
-            console.log("setting outputs on", new_op_id, id_map, out, new_out_id);
             const draft_comp:SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_out_id);
             op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.draft});
           });
