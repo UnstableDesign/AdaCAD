@@ -81,8 +81,6 @@ export class Draft{
     this.rowSystemMapping = this.initMapping(this.wefts);
     this.colShuttleMapping = this.initMapping(this.warps);
     this.colSystemMapping = this.initMapping(this.warps);
-
-    console.log(this);
   }
 
 
@@ -1457,6 +1455,7 @@ computeYarnPaths(){
       type: string
     ) {
   
+      console.log("filling with", pattern);
       
       const rows = pattern.length;
       const cols = pattern[0].length;

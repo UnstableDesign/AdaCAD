@@ -1,5 +1,6 @@
-import { E, P } from '@angular/cdk/keycodes';
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
+import { Draft } from '../../core/model/draft';
+import { NodeComponentProxy, OpComponentProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
@@ -72,11 +73,23 @@ export class TreeService {
         outputs: [],
         inputs: []
       });
+
+    this.num_created++;
+
     
 
     return node.id;
   }
 
+  setNodeComponent(id: number, c: SubdraftComponent | OperationComponent | ConnectionComponent){
+    const node: Node = this.getNode(id);
+    node.component = c;
+  }
+
+  setNodeViewRef(id: number, v: ViewRef){
+    const node: Node = this.getNode(id);
+    node.ref = v;
+  }
 
   /** clears all the data associated with this tree */
   clear(){
@@ -139,6 +152,10 @@ export class TreeService {
   getNode(id:number):Node{
     const ndx: number = this.getNodeIndex(id);
     return this.nodes[ndx]; 
+  }
+
+  getNodeIdList() : Array<number> {
+    return this.nodes.map(node => node.id);
   }
 
   getNodeIndex(id:number):number{
@@ -258,9 +275,13 @@ export class TreeService {
    * @returns an array of operation ids for nodes that need recalculating
    */
   getDownstreamOperations(id: number):Array<number>{
+    console.log("get downstream drafts", id);
+
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
     if(tn.outputs.length > 0){
+      console.log("in outputs for", id, tn.outputs);
+
       tn.outputs.forEach(el => {
         if(el.node.type == 'op'){
           ops.push(el.node.id);  
@@ -433,6 +454,16 @@ export class TreeService {
 
   }
 
+  /**
+   * checks if this node receives any input values
+   * @param id the node id
+   * @returns a boolean describing if an input exists
+   */
+  hasInput(id: number) : boolean {
+    const tn: TreeNode = this.getTreeNode(id);
+    return (tn.inputs.length > 0)
+  }
+
 /**
  * returns the ids of all nodes connected to the input node that are not connection nodes
  * @param op_id 
@@ -516,10 +547,10 @@ export class TreeService {
   }
 
   /**
-   * converts this to an object that does nto contain any view refs or full components. 
+   * converts all of the nodes in this tree for saving. 
    * @returns an array of objects that describe nodes
    */
-  exportNodesForSaving() : Array<any> {
+  exportNodesForSaving() : Array<NodeComponentProxy> {
 
     const objs: Array<any> = []; 
 
@@ -529,7 +560,8 @@ export class TreeService {
         active: node.active,
         id: node.id,
         type: node.type,
-        bounds: node.component.bounds      
+        bounds: node.component.bounds,
+        draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft.id : -1) 
       }
       objs.push(savable);
     })
@@ -565,15 +597,30 @@ export class TreeService {
 
   }
 
-  exportOpMetaForSaving() : Array<any> {
+   /**
+ * exports ALL drafts associated with this tree
+ * @returns an array of Drafts
+ */
+    exportDraftsForSaving() : Array<Draft> {
+
+      const drafts: Array<SubdraftComponent> = this.getDrafts();
+      const out: Array<Draft> = drafts.map(c => c.draft);
+      return out;
+    }
+
+  /**
+   * exports all operation nodes with information that can be reloaded
+   * @returns 
+   */
+  exportOpMetaForSaving() : Array<OpComponentProxy> {
 
     const objs: Array<any> = []; 
 
     this.getOperations().forEach(op_node => {
 
       const savable = {
-        id: op_node.id,
-        op: op_node.op.name,
+        node_id: op_node.id,
+        name: op_node.op.name,
         params: op_node.op_inputs
       }
       objs.push(savable);
@@ -582,6 +629,7 @@ export class TreeService {
     return objs;
 
   }
+
 
   exportTreeForSaving() : Array<any> {
 

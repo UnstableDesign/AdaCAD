@@ -45,8 +45,7 @@ export class TopbarComponent implements OnInit {
   ngOnInit(){
   }
 
-  ngOnAfterViewInit() {
-    console.log("source", this.source)
+  ngAfterViewInit() {
     if(this.source == 'weaver'){
       this.downloadBmp = this.bmpLink._elementRef;
       this.downloadWif = this.wifLink._elementRef;
@@ -116,8 +115,7 @@ export class TopbarComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(loadResponse => {
-    if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
-      
+      if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
 
    });
 

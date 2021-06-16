@@ -26,7 +26,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTreeModule} from '@angular/material/tree';
-
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import {ScrollingModule} from '@angular/cdk/scrolling';
@@ -76,7 +76,8 @@ import { FileService } from './provider/file.service';
     MatChipsModule,
     MatSnackBarModule,
     ScrollingModule,
-    DragDropModule
+    DragDropModule,
+    MatProgressBarModule
   ],
   declarations: [
     FilterPipe, 

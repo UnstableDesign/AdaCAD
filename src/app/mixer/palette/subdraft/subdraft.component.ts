@@ -54,16 +54,16 @@ export class SubdraftComponent implements OnInit {
 
 
  //operations you can perform on a selection 
- design_actions: DesignActions[] = [
-  {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
-  {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
-  {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
-  {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
-  {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
-  {value: 'duplicate', viewValue: 'Duplicate this Draft', icon: "fa fa-clone"},
-  {value: 'clear', viewValue: 'Clear', icon: "fas fa-eraser"}
+//  design_actions: DesignActions[] = [
+//   {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
+//   {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
+//   {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
+//   {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
+//   {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
+//   {value: 'duplicate', viewValue: 'Duplicate this Draft', icon: "fa fa-clone"},
+//   {value: 'clear', viewValue: 'Clear', icon: "fas fa-eraser"}
 
-];
+// ];
 
   parent_id: number = -1;
 
@@ -78,19 +78,29 @@ export class SubdraftComponent implements OnInit {
   }
 
   filename: string = "adacad";
+
   scale = 10; 
+
   ink = 'neq'; //can be or, and, neq, not, splice
+
   counter:number  =  0; // keeps track of how frequently to call the move functions
+ 
   counter_limit: number = 50;  //this sets the threshold for move calls, lower number == more calls
+ 
   last_ndx:Interlacement = {i: -1, j:-1, si: -1}; //used to check if we should recalculate a move operation
 
   moving: boolean  = false;
+ 
   disable_drag: boolean = false;
+
   is_preview: boolean = false;
+ 
   zndx = 0;
 
   has_active_connection: boolean = false;
+
   active_connection_order: number = 0;
+
   set_connectable:boolean = false;
 
 

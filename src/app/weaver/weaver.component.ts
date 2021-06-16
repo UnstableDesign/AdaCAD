@@ -633,7 +633,6 @@ export class WeaverComponent implements OnInit {
   public onSave(e: any) {
 
     e.bitmap = this.bitmap;
-    console.log(e);
 
     if (e.type === "bmp"){
       let link = e.downloadLink.nativeElement;

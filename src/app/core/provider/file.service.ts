@@ -9,13 +9,15 @@ import { Shuttle } from '../model/shuttle';
 import utilInstance from '../model/util';
 
 
-export interface NodeComponentProxy{
+ export interface NodeComponentProxy{
   node_id: number,
   bounds: Bounds; 
+  draft_id: number;
  }
 
  export interface OpComponentProxy{
-  op_id: number,
+  node_id: number,
+  name: string,
   params: Bounds; 
  }
 
@@ -114,6 +116,7 @@ export class FileService {
       let notes:string =  "";
 
       this.tree.clear();
+      
 
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
@@ -137,7 +140,6 @@ export class FileService {
       if(data.looms === undefined && data.loom !== undefined) data.looms = [data.loom];
       else data.looms = [];
       looms = data.looms.map((data, ndx) => {
-        console.log(data);
 
         let draft: Draft = null;
         if(data.draft_id !== undefined) draft = drafts.find(draft => draft.id == data.id);
@@ -167,13 +169,24 @@ export class FileService {
           if(id != data.id) console.log("ERROR: Node generated id is not the same as saved id");
           const node: NodeComponentProxy = {
             node_id: data.id,
-            bounds: data.bounds
+            bounds: data.bounds,
+            draft_id: data.draft_id
           }
           return node;
         });
+      }else{
+        const node_id = this.tree.createNode('draft', null, null);
+        nodes.push({
+          node_id: node_id,
+          bounds: {
+            topleft: {x: 0, y:0}, 
+            width: 0, 
+            height:0
+          },
+          draft_id: drafts[0].id
+       })
       }
 
-      console.log("tree", data.tree)
       if(data.tree !== undefined){
         data.tree.forEach(data => {
           this.tree.loadTreeNodeData(data.node,data.parent, data.inputs, data.outputs);
@@ -184,7 +197,8 @@ export class FileService {
       if(data.ops !== undefined){
         ops = data.ops.map(data => {
           const op: OpComponentProxy = {
-            op_id: data.id,
+            node_id: data.node_id,
+            name: data.name,
             params: data.params
           }
           return op;
@@ -275,7 +289,12 @@ export class FileService {
     const node_id = this.tree.createNode('draft', null, null);
     nodes.push({
       node_id: node_id,
-      bounds: null
+      bounds: {
+        topleft: {x: 0, y:0}, 
+        width: 0, 
+        height:0
+      },
+      draft_id: draft.id
     })
 
     const f: FileObj = {
@@ -322,10 +341,11 @@ export class FileService {
         }
       }
   
-      drafts.push(new Draft({warps: warps, wefts: wefts, pattern: pattern}));
+      const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
+      drafts.push(draft);
       
       //create a blank loom to accompany this
-      const loom:Loom = new Loom(drafts[0], 8, 10);
+      const loom:Loom = new Loom(draft, 8, 10);
       loom.overloadType('jacquard');
       looms.push(loom);
 
@@ -333,7 +353,12 @@ export class FileService {
       const node_id = this.tree.createNode('draft', null, null);
       nodes.push({
         node_id: node_id,
-        bounds: null
+        bounds: {
+          topleft: {x: 0, y:0}, 
+          width: 0, 
+          height:0
+        },
+        draft_id: draft.id
       })
       const f: FileObj = {
         drafts: drafts,
@@ -397,7 +422,12 @@ export class FileService {
       const node_id = this.tree.createNode('draft', null, null);
       nodes.push({
         node_id: node_id,
-        bounds: null
+        bounds: {
+          topleft: {x: 0, y:0}, 
+          width: 0, 
+          height:0
+        },
+        draft_id: draft.id
       })
     
       const envt: FileObj = {

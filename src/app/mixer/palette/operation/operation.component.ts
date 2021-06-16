@@ -5,6 +5,7 @@ import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Form, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-operation',
@@ -23,10 +24,17 @@ export class OperationComponent implements OnInit {
    @Output() onOperationParamChange = new EventEmitter <any>(); 
 
    active_connection: boolean = false
+
    selecting_connection: boolean;
+
+   loaded: boolean = false;
+
    outputs: Array<DraftMap>; //stores a list of components and drafts
+   
    tooltip: string = "select drafts to input to this operation"
+  
    disable_drag: boolean;
+ 
    bounds: Bounds = {
      topleft: {x: 0, y:0},
      width: 200,
@@ -34,35 +42,54 @@ export class OperationComponent implements OnInit {
    };
    
    active_connection_order: number = 0;
+
    op:Operation;
-   op_inputs: Array<number> = [];
+
+   loaded_inputs: Array<number> = [];
+
+   op_inputs: Array<FormControl> = [];
+   
    has_connections_in: boolean = false;
 
   constructor(private operations: OperationService, private dialog: MatDialog) { 
     this.outputs = [];
     this.selecting_connection = false;
-
   }
 
   ngOnInit() {
-    this.bounds.topleft = this.viewport.topleft;
+
+    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(this.viewport.topleft);
     this.op = this.operations.getOp(this.name);
-    this.op_inputs = this.op.params.map(param => param.value);
+
+
+    this.op.params.forEach((param, ndx) => {
+      const value = (this.loaded) ? this.loaded_inputs[ndx] : param.value;
+      this.op_inputs.push(new FormControl(value));
+    });
+
   }
 
   ngAfterViewInit(){
-    this.onOperationParamChange.emit({id: this.id});
+    if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
   }
 
-  updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
-  
-    this.bounds.topleft  = topleft;
-    this.bounds.topleft.y = topleft.y - this.bounds.height
-    
+
+  setOutputs(dms: Array<DraftMap>){
+      this.outputs = dms.slice();
+      console.log("set op outputs to ", dms, this.outputs);
+
+  }
+
+
+
+  setBounds(bounds:Bounds){
+    this.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y},
+    this.bounds.width = bounds.width;
+    this.bounds.height = bounds.height;
   }
 
   setPosition(pos: Point){
-    this.bounds.topleft = pos;
+    this.bounds.topleft =  {x: pos.x, y:pos.y};
   }
 
 
@@ -77,7 +104,7 @@ export class OperationComponent implements OnInit {
     this.op = this.operations.getOp(this.name);
 
     const draft_map: Array<DraftMap> = [];
-    const generated_drafts: Array<Draft> = this.op.perform(inputs, this.op_inputs);
+    const generated_drafts: Array<Draft> = this.op.perform(inputs, this.op_inputs.map(fc => fc.value));
     generated_drafts.forEach((draft, ndx) => {
       const component_id:number = (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id;
 

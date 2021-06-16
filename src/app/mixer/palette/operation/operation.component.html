@@ -33,13 +33,12 @@ cdkDrag
     <div class="params">
         <ng-container *ngFor="let param of op.params; let i = index">
             <input 
-              [(ngModel)]="op_inputs[i]"
+              [formControl]="op_inputs[i]"
               [matTooltip]=param.dx
               type = "number"
 			  [name]=param.name
               [min]=param.min
               [max]=param.max
-              [value] = param.value
               step = 1
               required = true
               (change)= onParamChange();

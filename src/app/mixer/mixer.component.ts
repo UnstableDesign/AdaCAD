@@ -3,7 +3,7 @@ import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
-import { MaterialTypes, ViewModes } from '../core/model/datatypes';
+import { DraftMap, MaterialTypes, ViewModes } from '../core/model/datatypes';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import {Subject} from 'rxjs';
@@ -11,7 +11,9 @@ import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 import { Draft } from '../core/model/draft';
 import { TreeService } from './provider/tree.service';
-import { FileService } from '../core/provider/file.service';
+import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy } from '../core/provider/file.service';
+import { OperationComponent } from './palette/operation/operation.component';
+import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 
 
 //disables some angular checking mechanisms
@@ -64,9 +66,9 @@ export class MixerComponent implements OnInit {
 
   private unsubscribe$ = new Subject();
 
-  default_patterns:any;
+  patterns: Array<Pattern> = [];
+
   collapsed:boolean = false;
-  dims:any;
 
   scrollingSubscription: any;
 
@@ -91,11 +93,11 @@ export class MixerComponent implements OnInit {
     });
 
    
-    this.default_patterns = [];
+    this.patterns = [];
 
     this.ps.getPatterns().subscribe((res) => {
        for(var i in res.body){
-          this.default_patterns.push(new Pattern(res.body[i]));
+          this.patterns.push(new Pattern(res.body[i]));
        }
     }); 
   }
@@ -125,23 +127,68 @@ export class MixerComponent implements OnInit {
    * this gets called when a new file is started from the topbar
    * @param result 
    */
-  reInit(result){
+  loadNewFile(result: LoadResponse){
+    console.log("loaded new file", result);
+    
+    this.palette.clearComponents();
 
-    if(result.type == "mixer"){
+    const data: FileObj = result.data;
 
-      //first recreate the nodes and add them to the tree stack
-      result.nodes.forEach(node => {
+    const nodes: Array<NodeComponentProxy> = data.nodes;
+    nodes.forEach(nodeproxy => {
+        const type: string = this.tree.getType(nodeproxy.node_id);
+        switch(type){
+          case 'draft':
+            const draft: Draft = data.drafts.find(el => el.id == nodeproxy.draft_id);
+            this.palette.loadSubDraft(nodeproxy.node_id, draft, nodeproxy.bounds);
+            break;
+        }
+    });
 
-      })
+
+    nodes.forEach(nodeproxy => {
+
+      const type: string = this.tree.getType(nodeproxy.node_id);
+     
+      switch(type){
+        case 'op':
+          const op: OpComponentProxy = data.ops.find(el => el.node_id == nodeproxy.node_id);
+          const op_comp: OperationComponent = this.palette.loadOperation(nodeproxy.node_id, op.name, op.params, nodeproxy.bounds);
+          const has_input: boolean = this.tree.hasInput(nodeproxy.node_id);
+          op_comp.has_connections_in = has_input;
+
+          const outs: Array<number> = this.tree.getNonCxnOutputs(nodeproxy.node_id);
+          
+          const dms: Array<DraftMap> = outs.map(out_id => { 
+           const dm:DraftMap = {
+            component_id: out_id,
+            draft: (<SubdraftComponent> this.tree.getComponent(out_id)).draft
+            }
+            return dm;
+          });
+
+        op_comp.setOutputs(dms);
 
 
-    }else{
-     result.drafts.forEach(d => {
-        this.palette.createSubDraft(new Draft(d));
-     });
-    }
+        break;
+      }
+  });
 
-    console.log(result);
+
+    nodes.forEach(nodeproxy => {
+
+      const type: string = this.tree.getType(nodeproxy.node_id);
+     
+      switch(type){
+      case 'cxn':
+          const input_id: number = this.tree.getConnectionInput(nodeproxy.node_id);
+          const output_id: number = this.tree.getConnectionOutput(nodeproxy.node_id);
+          this.palette.loadConnection(nodeproxy.node_id, input_id, output_id);
+      break;
+      }
+  });
+
+
 
   }
   
@@ -159,6 +206,7 @@ export class MixerComponent implements OnInit {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
+
 
   undo() {
     // let d: Draft = this.timeline.restorePreviousHistoryState();
@@ -351,24 +399,26 @@ export class MixerComponent implements OnInit {
    * @param event 
    * @todo add interface to select which draft to export if BMP or WIF
    */
-  public onSave(event: any){
+  public onSave(e: any){
 
+    console.log(e);
+    let link = e.downloadLink.nativeElement;
 
-
-    switch(event.type){
+    switch(e.type){
       case 'jpg': 
-        this.palette.saveAsPrint(event.name, event);
+      link.href = this.fs.saver.jpg(this.palette.getPrintableCanvas(e));
+      link.download = e.name + ".jpg";
+      this.palette.clearCanvas();
       break;
 
       case 'ada': 
-      let link = event.downloadLink.nativeElement;
       link.href = this.fs.saver.ada(
         'mixer', 
-        this.tree.exportSeedDraftsForSaving(),
+        this.tree.exportDraftsForSaving(),
         [],
-        [],
+        this.patterns,
         this.notes);
-      link.download = event.name + ".ada";
+        link.download = e.name + ".ada";
     }
   }
 
@@ -417,14 +467,14 @@ export class MixerComponent implements OnInit {
 
   public createPattern(e: any) {
 
-    this.default_patterns.push(new Pattern({pattern: e.pattern}));
+    this.patterns.push(new Pattern({pattern: e.pattern}));
   
   }
 
 
 //should this just hide the pattern or fully remove it, could create problems with undo/redo
    public removePattern(e: any) {
-    this.default_patterns.patterns = this.default_patterns.patterns.filter(pattern => pattern !== e.pattern);
+    this.patterns = this.patterns.filter(pattern => pattern !== e.pattern);
   }
 
 

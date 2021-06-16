@@ -17,8 +17,6 @@ import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
-import { THREE } from '@angular/cdk/keycodes';
-import { Operation } from '../provider/operation.service';
 import { FileService } from './../../core/provider/file.service';
 
 @Component({
@@ -35,18 +33,23 @@ export class PaletteComponent implements OnInit{
    * @property {Array<Pattern>}
    */ 
   @Input() patterns: Array<Pattern>;
-  @Output() onDesignModeChange: any = new EventEmitter();
-
-  /**
-   * Subscribes to move event after a touch event is started.
-   * @property {Subscription}
-   */
-  moveSubscription: Subscription;
+  @Output() onDesignModeChange: any = new EventEmitter();  
 
   /**
    * A container that supports the automatic generation and removal of the components inside of it
    */
   @ViewChild('vc', {read: ViewContainerRef, static: true}) vc: ViewContainerRef;
+
+  subdraftSubscriptions: Array<Subscription> = [];
+  operationSubscriptions: Array<Subscription> = [];
+  connectionSubscriptions: Array<Subscription> = [];
+
+
+/**
+ * Subscribes to move event after a touch event is started.
+ * @property {Subscription}
+ */
+  moveSubscription: Subscription;
 
 
   selecting_connection: boolean = false;
@@ -163,41 +166,14 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale = 10;
+    this.scale = 5;
     this.vc.clear();
-  }
-
-  /**
-   * unsubscribes to all open subscriptions and clears the view component
-   */
-  ngOnDestroy(){
-
-    this.tree.getDrafts().forEach(element => {
-      element.onSubdraftStart.unsubscribe();
-      element.onSubdraftDrop.unsubscribe();
-      element.onSubdraftMove.unsubscribe();
-      element.onDeleteCalled.unsubscribe();
-      element.onDuplicateCalled.unsubscribe();
-      element.onConnectionMade.unsubscribe();
-      element.onConnectionRemoved.unsubscribe();
-      element.onDesignAction.unsubscribe();
-    });
-
-
-    this.tree.getOperations().forEach(element => {
-      element.onSelectInputDraft.unsubscribe();
-    });
-
-    this.tree.getConnections().forEach(element => {
-    });
-    this.vc.clear();
-    
   }
 
   /**
    * Gets references to view items and adds to them after the view is initialized
    */
-  ngAfterViewInit(){
+   ngAfterViewInit(){
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
     this.canvas.width = 5000;
@@ -207,6 +183,54 @@ export class PaletteComponent implements OnInit{
     this.selection.active = false;
     this.designModeChanged();
   }
+
+  /**
+   * unsubscribes to all open subscriptions and clears the view component
+   */
+  ngOnDestroy(){
+
+    this.unsubscribeFromAll();
+    this.vc.clear();
+    
+  }
+
+  /**
+   * the only way to prevent memory leaks is to unsubscribe.
+   * since we lose access to tree when a new file is uploaded we must unsubscribe 
+   * when any upload action is taking place. If no action takes place, then resubscribe
+   */
+  unsubscribeFromAll(){
+    
+    this.subdraftSubscriptions.forEach(element => element.unsubscribe());
+    this.operationSubscriptions.forEach(element => element.unsubscribe());
+    this.connectionSubscriptions.forEach(element => element.unsubscribe());
+  }
+
+  resubscribe(){
+    console.log("resubscribing");
+
+    this.tree.getDrafts().forEach(element => {
+     this.setSubdraftSubscriptions(element);
+    });
+
+
+    this.tree.getOperations().forEach(element => {
+      this.setOperationSubscriptions(element)
+    });
+
+    this.tree.getConnections().forEach(element => {
+    });
+  }
+
+  /**
+   * called when a new file is loaded
+   */
+   clearComponents(){
+    this.unsubscribeFromAll();
+    this.vc.clear();
+  }
+
+  
 
   handleScroll(data: any){
     const div:HTMLElement = document.getElementById('scrollable-container');
@@ -219,6 +243,8 @@ export class PaletteComponent implements OnInit{
     else console.log('Error: view ref not found for remvoal');
 
   }
+
+
 
 
   addOperation(name:string){
@@ -291,6 +317,17 @@ export class PaletteComponent implements OnInit{
   //   this.pointer_events = true;
   // }
 
+  setSubdraftSubscriptions(sd: SubdraftComponent){
+    this.subdraftSubscriptions.push(sd.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this)));
+    this.subdraftSubscriptions.push(sd.onSubdraftMove.subscribe(this.subdraftMoved.bind(this)));
+    this.subdraftSubscriptions.push(sd.onSubdraftStart.subscribe(this.subdraftStarted.bind(this)));
+    this.subdraftSubscriptions.push(sd.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this)));
+    this.subdraftSubscriptions.push(sd.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this)));
+    this.subdraftSubscriptions.push(sd.onConnectionMade.subscribe(this.connectionMade.bind(this)));
+    this.subdraftSubscriptions.push(sd.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
+    this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
+  }
+
   /**
    * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
    * @param d a Draft object for this component to contain
@@ -301,14 +338,8 @@ export class PaletteComponent implements OnInit{
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
 
-    subdraft.instance.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this));
-    subdraft.instance.onSubdraftMove.subscribe(this.subdraftMoved.bind(this));
-    subdraft.instance.onSubdraftStart.subscribe(this.subdraftStarted.bind(this));
-    subdraft.instance.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this));
-    subdraft.instance.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this));
-    subdraft.instance.onConnectionMade.subscribe(this.connectionMade.bind(this));
-    subdraft.instance.onConnectionRemoved.subscribe(this.removeConnection.bind(this));
-    subdraft.instance.onDesignAction.subscribe(this.onSubdraftAction.bind(this));
+    this.setSubdraftSubscriptions(subdraft.instance);
+
     subdraft.instance.draft = d;
     subdraft.instance.id = id;
     subdraft.instance.viewport = this.viewport;
@@ -318,6 +349,36 @@ export class PaletteComponent implements OnInit{
     return subdraft.instance;
   }
 
+  /**
+   * loads a subdraft component from data
+   * @param d a Draft object for this component to contain
+   * @returns the created subdraft instance
+   */
+   loadSubDraft(node_id: number, d: Draft, bounds:Bounds):SubdraftComponent{
+    const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
+    const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+   
+    this.tree.setNodeComponent(node_id, subdraft.instance);
+    this.tree.setNodeViewRef(node_id, subdraft.hostView);
+   
+    this.setSubdraftSubscriptions(subdraft.instance);
+
+    subdraft.instance.draft = d;
+    subdraft.instance.id = node_id;
+    subdraft.instance.viewport = this.viewport;
+    subdraft.instance.patterns = this.patterns;
+    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+    subdraft.instance.scale = this.scale;
+    subdraft.instance.bounds = bounds;
+    return subdraft.instance;
+  }
+
+
+  setOperationSubscriptions(op: OperationComponent){
+    this.operationSubscriptions.push(op.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this)));
+    this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
+    this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
+  }
 
   /**
    * creates an operation component
@@ -329,14 +390,43 @@ export class PaletteComponent implements OnInit{
       const op = this.vc.createComponent<OperationComponent>(factory);
       const id = this.tree.createNode('op', op.instance, op.hostView);
 
-      op.instance.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this));
-      op.instance.onOperationMove.subscribe(this.operationMoved.bind(this));
-      op.instance.onOperationParamChange.subscribe(this.operationParamChanged.bind(this));
+      this.setOperationSubscriptions(op.instance);
+
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
       op.instance.viewport = this.viewport;
       op.instance.scale = this.scale;
+      return op.instance;
+    }
+
+    /**
+   * loads an operation with the information supplied. 
+   * @param node_id the existing node to associate to this operation
+   * @param name the name of the operation this component will perform
+   * @params params the input data to be used in this operation
+   * @returns the OperationComponent created
+   */
+     loadOperation(node_id: number, name: string, params: Array<number>, bounds:Bounds):OperationComponent{
+      const factory = this.resolver.resolveComponentFactory(OperationComponent);
+      const op = this.vc.createComponent<OperationComponent>(factory);
+      
+      this.tree.setNodeComponent(node_id, op.instance);
+      this.tree.setNodeViewRef(node_id, op.hostView);
+    
+      this.setOperationSubscriptions(op.instance);
+
+      op.instance.name = name;
+      op.instance.id = node_id;
+      op.instance.zndx = this.layers.createLayer();
+      op.instance.viewport = this.viewport;
+      op.instance.scale = this.scale;
+      op.instance.loaded_inputs = params;
+      op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+      op.instance.bounds.width = bounds.width;
+      op.instance.bounds.height = bounds.height;
+      op.instance.loaded = true;
+
       return op.instance;
     }
 
@@ -365,6 +455,38 @@ export class PaletteComponent implements OnInit{
 
       return to_input_ids;
     }
+
+
+        /**
+     * creates a connection component and registers it with the tree
+     * @returns the list of all id's connected to the "to" node 
+     */
+      loadConnection(node_id: number, id_from: number, id_to:number):Array<number>{
+
+          const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
+          const cxn = this.vc.createComponent<ConnectionComponent>(factory);
+          //const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
+        
+          this.tree.setNodeComponent(node_id, cxn.instance);
+          this.tree.setNodeViewRef(node_id, cxn.hostView);
+          
+
+          const to_input_ids: Array<number> =  this.tree.getNonCxnInputs(id_to);
+          
+          cxn.instance.id = node_id;
+          cxn.instance.scale = this.scale;
+          cxn.instance.from = id_from;
+          cxn.instance.to = id_to;
+    
+    
+          to_input_ids.forEach((el, ndx) => {
+            const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(el);
+            sd.active_connection_order = ndx+1;
+          });
+    
+          return to_input_ids;
+      }
+    
 
 
   //called when we get an uplaod event
@@ -869,8 +991,12 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
 
 
 performOp(op_id:number){
+  
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
+
   const inputs: Array<number> =  this.tree.getNonCxnInputs(op_id);
+
+  console.log("performing op on ", inputs);
 
   const input_drafts: Array<Draft> = inputs.map(input => {
     const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
@@ -879,6 +1005,9 @@ performOp(op_id:number){
 
   
   const draft_map: Array<DraftMap> = op.perform(input_drafts);
+
+  console.log("new draft map");
+
   const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
   
   draft_map.forEach(el => {
@@ -1506,6 +1635,7 @@ drawStarted(){
    * @returns 
    */
   onSubdraftAction(obj: any){
+    console.log("on subdraft action", obj);
     if(obj === null) return;
     const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
     this.recalculateDownstreamDrafts(ds);
@@ -1518,9 +1648,12 @@ drawStarted(){
    * @returns 
    */
    operationParamChanged(obj: any){
+    console.log("op param change", obj);
+
     if(obj === null) return;
 
     this.performOp(obj.id);
+
     const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
     this.recalculateDownstreamDrafts(ds);
 
@@ -1773,7 +1906,7 @@ drawStarted(){
 
 
 
-  saveAsPrint(fileName, obj){
+  getPrintableCanvas(obj): HTMLCanvasElement{
 
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
@@ -1791,12 +1924,12 @@ drawStarted(){
       cxn.drawForPrint(this.canvas, this.cx, this.scale);
     });
 
+    return this.canvas;
 
-    let link = obj.downloadLink.nativeElement;
-    link.href = this.fs.saver.jpg(this.canvas);
-    link.download = fileName + "mixer.jpg";
+  }
+
+  clearCanvas(){
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
   }
 
 }

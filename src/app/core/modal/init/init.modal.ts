@@ -45,7 +45,6 @@ export class InitModal implements OnInit {
 
   constructor(private dialogRef: MatDialogRef<InitModal>, 
     @Inject(MAT_DIALOG_DATA) private data: any, private fls: FileService) {
-      console.log(data);
       this.result  = null;
       this.loomtypes = data.loomtypes;
       this.density_units = data.density_units;
@@ -81,10 +80,10 @@ export class InitModal implements OnInit {
 
     if(res == null) return;
 
-    if(this.source !== 'mixer_envt' && res.data.drafts.length > 1) {
-      //open draft selection operation
-      this.error = "it looks like you are opening a file created with the mixer in our weaver tool. Select one draft to work with"
-    }
+    // if(this.source !== 'mixer_envt' && res.data.drafts.length > 1) {
+    //   //open draft selection operation
+    //   this.error = "it looks like you are opening a file created with the mixer in our weaver tool. Select one draft to work with"
+    // }
 
     this.valid = res.status === 0;
     this.result = res;
@@ -111,7 +110,6 @@ export class InitModal implements OnInit {
      
       this.result = this.fls.loader.form(f);
     }
-
 
     this.dialogRef.close(this.result);
   }

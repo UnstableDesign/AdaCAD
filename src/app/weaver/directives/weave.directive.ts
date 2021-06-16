@@ -1306,8 +1306,6 @@ export class WeaveDirective {
 
   
       const updates = this.loom.updateThreading({i:currentPos.i, j:currentPos.j, val:val});
-      console.log(updates);
-      console.log(this.loom.threading);
       this.weave.updateDraftFromThreading(updates, this.loom);
 
       if(this.loom.min_frames < this.loom.num_frames){

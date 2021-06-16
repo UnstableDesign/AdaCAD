@@ -10,7 +10,7 @@ source="mixer"
 [draftelement]="draftelement"
   (onUndo)="undo();" 
   (onRedo)="redo();"
-  (onReInit)="reInit($event);"
+  (onLoadNewFile)="loadNewFile($event);"
   (onSave)="onSave($event);">
 </app-topbar>
 
@@ -23,7 +23,7 @@ source="mixer"
         <mat-accordion multi>
 
         <app-mixerview 
-          [zoom] = "palette?.scale"
+          zoom = "5"
           (onZoomChange) ="renderChange($event);"
         >
 

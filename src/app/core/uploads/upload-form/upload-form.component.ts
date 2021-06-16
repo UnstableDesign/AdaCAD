@@ -2,8 +2,6 @@ import { Component, OnInit, ViewChild, ElementRef, Output, Input, EventEmitter }
 import { HttpClient } from '@angular/common/http';
 import { UploadService } from '../upload.service';
 import { Upload } from '../upload';
-
-import { map } from 'rxjs/operators';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -14,8 +12,10 @@ import { finalize } from 'rxjs/operators';
 export class UploadFormComponent implements OnInit {
   @Input() warps: number;
   @Input() type: string;
+  progress:number = 0;
   selectedFiles: FileList;
   currentUpload: Upload;
+  uploading: boolean = false;
   imageToShow: any;
   @ViewChild('uploadImage', {static: false}) canvas: ElementRef;
   @Output() onData: any = new EventEmitter();
@@ -29,6 +29,8 @@ export class UploadFormComponent implements OnInit {
   
 
   uploadSingle() {
+
+    this.uploading = true;
 
     let file = this.selectedFiles.item(0)
     let fileType = file.name.split(".").pop();
@@ -107,7 +109,7 @@ export class UploadFormComponent implements OnInit {
         })
      )
     .subscribe((e) => {
-      var progress = this.currentUpload.progress;
+      this.progress = this.currentUpload.progress;
     });
   }
 
