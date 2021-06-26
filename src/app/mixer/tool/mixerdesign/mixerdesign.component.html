@@ -1,0 +1,113 @@
+
+<mat-expansion-panel  expanded [hideToggle] = "collapsed">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     <span>Design</span>
+    </mat-panel-title>
+    <mat-panel-description>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+
+  <h3><i class="fas fa-tint"></i>   Inks
+  </h3>
+  <ng-container *ngFor="let ink of inks.inks">
+    <button 
+    [disabled]="!design_modes.selectedHasInkEnabled()"
+    [matTooltip]=ink.dx
+    [name]=ink.value 
+    class="button is-small is-primary {{ink.icon}}"
+    [class.is-active]="ink.selected"
+    [style.color]="button_color"
+    (click)="inkChanged($event)">
+    </button> 
+    </ng-container>    
+  
+  <h3> <i class="fas fa-tools"></i>  Tools</h3>
+
+  <ng-container *ngFor="let mode of design_modes.modes">
+    <ng-container *ngIf="mode.value === 'shape'">
+      <button mat-button
+      [matTooltip]=mode.viewValue
+      [name]=mode.value 
+      [matMenuTriggerFor] = 'shape'
+      class="button is-small is-primary {{mode.icon}}"
+      [class.is-active]="design_modes.isSelected(mode.value)"
+      [style.color]="button_color"
+      (click)="designModeChange($event)">
+      </button> 
+    </ng-container>
+    
+      <ng-container *ngIf="mode.value !== 'shape'">
+        <button 
+        [matTooltip]=mode.viewValue
+        [name]=mode.value 
+        class="button is-small is-primary {{mode.icon}}"
+        [class.is-active]="design_modes.isSelected(mode.value)"
+        [style.color]="button_color"
+        (click)="designModeChange($event)">
+        </button> 
+      </ng-container>
+    </ng-container>  
+    
+
+    <mat-menu #shape="matMenu">
+    <ng-container *ngFor="let mode of design_modes.getMode('shape').children">
+      <button 
+      [matTooltip]=mode.viewValue
+      [name]=mode.value 
+      class="button is-small is-primary {{mode.icon}}"
+      [class.is-active]="design_modes.isSelected(mode.value)"
+      [style.color]="button_color"
+      (click)="designModeChange($event)">
+      </button> 
+      </ng-container>   
+    </mat-menu>
+  
+  
+
+
+
+
+<!-- 
+<h3> Interlacement Tools</h3>
+
+  <ng-container *ngFor="let mode of design_modes">
+     <button [matTooltip]=mode.viewValue 
+      [name]=mode.value 
+      class="button is-small is-primary {{mode.icon}}"
+      [class.is-active]="design_mode.name === mode.value"
+      [style.color]="button_color"
+      (click)="designModeChange($event)">
+      </button>
+  </ng-container> -->
+
+<!-- <h3> Draw with Materials</h3>
+  <ng-container *ngFor="let shuttle of materials">
+     <button [matTooltip]=shuttle.name 
+      [name]=shuttle.id 
+       class="button material is-small is-primary fas fa-square"
+      [class.is-active]="design_mode.id === shuttle.id"
+      [style.color]="shuttle.color"
+      (click)="drawWithMaterial($event)">
+      </button>
+  </ng-container> -->
+
+
+<!-- <h3> Selection tools </h3>
+
+
+  <ng-container *ngFor="let action of design_actions">
+     <button [matTooltip]=action.viewValue 
+      [name]=action.value 
+      [disabled] = "!(design_mode.name === 'select' || design_mode.name === 'copy')"
+      class="button is-small is-primary {{action.icon}}"
+      [style.color]="button_color"
+      (click)="designActionChange($event)">
+      </button>
+  </ng-container> -->
+
+</mat-expansion-panel>
+
+
+

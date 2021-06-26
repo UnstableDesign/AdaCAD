@@ -1,3 +1,5 @@
+import { Cell } from './cell';
+
 /**
  * Definition of pattern object.
  * @class
@@ -6,30 +8,55 @@
 export class Pattern {
   height: number;
   width: number;
-  pattern: Array<Array<boolean>>;
+  pattern: Array<Array<Cell>>;
   favorite: boolean;
   id: number;
   name: string;
 
-  constructor() {
-    this.favorite = false;
-    this.height = 0;
-    this.width = 0;
+  constructor(obj: any) {
+
+    this.favorite = (obj.favorite !== undefined) ? obj.favorite : false;
+    this.id = (obj.id !== undefined) ? obj.id : -1;
+    this.name = (obj.name !== undefined) ? obj.name : "unnamed";
+    
     this.pattern = [];
-  }
 
+    if(obj.pattern !== undefined){
+      this.height = obj.pattern.length;
+      this.width =  obj.pattern[0].length;
+      for(let i = 0; i < this.height; i++){
+        this.pattern.push([]);
+        for(let j = 0; j < this.width; j++){
+          this.pattern[i].push(new Cell(obj.pattern[i][j]));
+        }
+      }
 
-  setPattern(pattern) {
-    this.height = pattern.length;
-
-    if (this.height > 0) {
-      this.width = pattern[0].length;
-    } else {
+    }else{
       this.width = 0;
+      this.height = 0;
     }
 
-    this.pattern = pattern;
+ }
 
-    return this;
+ /**
+  * takes a 2D array of booleans and converts to a pattern object (replacing boolean with Cells)
+  * @param pattern 
+  */
+setPattern(pattern: Array<Array<boolean>>) {
+    this.height = pattern.length;
+    if(this.height > 0) this.width = pattern[0].length
+
+    for(let i = 0; i < this.height; i++){
+      this.pattern[i] = [];
+      for(let j = 0; j < this.width; j++){
+        this.pattern[i][j] = new Cell(pattern[i][j]);
+      }
+    }
   }
+
+
+  toggleFavorite(){
+    this.favorite = !this.favorite;
+  }
+
 }

@@ -1,5 +1,27 @@
-# AdaCADWeaver
-Currently hosted on [https://adacad-weaver.firebaseapp.com/](https://adacad-weaver.firebaseapp.com/).
+# AdaCAD
+AdaCAD is a drafting tool for weavers. It is actively in development and offers specific supports for integrating electronics on jacquard looms. 
+
+You can use the last release of the tool at [https://adacad-weaver.firebaseapp.com/](https://adacad-weaver.firebaseapp.com/).
+
+More more information about the project and user guides, visit [https://unstabledesign.github.io](https://unstabledesign.github.io).
+
+
+## Development Notes
+The master branch is currently hosting two versions of AdaCAD, one called "Weaver" and the other "Mixer". Weaver is the version currently deployed to Firebase and Mixer is an experimental branch for designing drafts using components (modeled after ProWeave and MaxMSP).
+
+## Development Notes
+There are three core modules in this repo: 
+- Core: contains components, services, directives, etc. that are used by both weaver and mixer modules. Changes to core will affect both deployments and should be checked before pushing.
+
+- Weaver: contains all components, services, directives, etc. that are used by AdaCAD Weaver. This view supports designing on a simulated loom and can be viewed when developing at: localhost:4200/weaver
+
+- Mixer: contains all components, services, directives, etc. that are used by AdaCAD Mixer. This view supports more freeform experimentation on stitch structures and can be viewed when developing at: localhost:4200/mixer
+
+
+
+## Developer Documentation 
+You can use view automatically generated documentation of our project at [https://unstabledesign.github.io/AdaCAD](https://unstabledesign.github.io/AdaCAD).
+
 
 ## Development Setup
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
@@ -17,10 +39,6 @@ Run `ng generate component component-name` to generate a new component. You can 
 ### Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
-
-### Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
 ### Running end-to-end tests
 

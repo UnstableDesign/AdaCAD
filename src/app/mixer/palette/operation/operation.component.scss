@@ -1,0 +1,34 @@
+.operation-container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    background: black;
+    height: 30px;
+}
+
+.name{
+    margin: 0px 5px; 
+}
+
+.params{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.inputs{
+    display: flex;
+    justify-content: flex-start;
+    text-align: center;
+}
+
+.operation-details{
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}

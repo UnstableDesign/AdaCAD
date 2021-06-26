@@ -13,7 +13,7 @@
   (onSave)="onSave($event);">
 </app-topbar>
 
-<mat-drawer-container #container class="mat-drawer-container" cdkScrollable>
+<mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
   
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
 
@@ -21,7 +21,7 @@
        
         <mat-accordion multi>
 
-        <app-view 
+        <app-weaverview 
           [weft_systems] = "draft?.weft_systems"
           [warp_systems]="draft?.warp_systems" 
           [front] = "render?.view_front"
@@ -38,10 +38,10 @@
         >
 
 
-        </app-view>
+        </app-weaverview>
 
 
-        <app-design
+        <app-weaverdesign
         [design_mode]="design_mode"
         [design_modes]="design_modes"
         [design_actions]="design_actions"
@@ -60,7 +60,7 @@
         (onChange) = "onChange($event);"
         (onGenerativeModeChange)="onGenerativeModeChange($event)"
         >
-        </app-design> 
+        </app-weaverdesign> 
  
         <app-materials 
           [material_types]="material_types"
@@ -147,9 +147,6 @@
 
   <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(generative_mode)]="generativeMode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
 
-
-
-
   
    <canvas id="weft-systems" #weft_systems>  </canvas>
    <canvas id="weft-materials" #weft_materials>  </canvas>
@@ -180,7 +177,6 @@
 
          
   <div class="weft-systems-text">
-
     <div class="weft-system-row" *ngFor="let i of (draft?.visibleRows); let j = index;" >
 
 
@@ -189,7 +185,8 @@
           {{i}}
           </span>
 
-          <span class = "weft_insert" >
+          <span class = "weft_insert" 
+          (click)="insertRow(i + 1, draft?.rowToShuttle(i),draft?.rowToSystem(i));">
           <i class="fa fa-plus-circle"></i>
           </span>
 
@@ -199,7 +196,7 @@
           </span>
           
           <span class="weft_delete" 
-           (click)="deleteRow(r);">
+           (click)="deleteRow(i);">
            <i class="fa fa-trash"></i>
           </span>
     </div>
@@ -213,17 +210,17 @@
     <div class="warp-system-col" 
     *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
 
-      <span class="warp_delete" (click)="deleteCol(i);"><i class="fa fa-trash"></i>
+      <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
         </span>
 
       <span class="warp_clone"
-      (click)="cloneCol(i,draft?.colToShuttle(i), draft?.colToSystem(i));">
+      (click)="cloneCol(j,draft?.colToShuttle(j), draft?.colToSystem(j));">
         <i class="fa fa-clone"></i>
       </span>
 
 
       <span class="warp_insert" 
-      (click)="insertCol(i + 1, draft?.colToShuttle(i),draft?.colToSystem(i));">
+      (click)="insertCol(j + 1, draft?.colToShuttle(j),draft?.colToSystem(j));">
       <i class="fa fa-plus-circle"></i></span>
       
       <span  class="warp_number"
