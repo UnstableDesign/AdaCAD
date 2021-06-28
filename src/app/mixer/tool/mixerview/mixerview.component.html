@@ -1,0 +1,25 @@
+ <mat-expansion-panel  [hideToggle] = "collapsed">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     <span>View</span>
+    </mat-panel-title>
+    <mat-panel-description>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+
+
+
+      <mat-slider 
+      thumbLabel 
+      [displayWith]="formatLabel" 
+      tickInterval="1" 
+      min="1" 
+      max="20" 
+      value="{{zoom}}" 
+      (change)="zoomChange($event, 'slider')"></mat-slider>
+
+
+
+
+</mat-expansion-panel>

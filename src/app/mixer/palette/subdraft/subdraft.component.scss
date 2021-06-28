@@ -1,0 +1,123 @@
+.subdraft-container{
+
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	color: grey;
+	display: flex;
+	flex-direction: row;
+	justify-content:flex-end;
+}
+
+.is_preview{
+	z-index: 10;
+}
+
+
+.active-selection.subdraft-container:hover,
+.active-selection.subdraft-container:active{
+
+	.is-primary{
+		background: #ff4081 !important;
+	}
+
+	.subdraft-details{
+		display: none;
+	}
+
+	canvas{
+		border: thin solid #ff4081;
+	}
+
+	.subdraft-details{
+		display: flex;
+	}
+
+}
+
+
+.subdraft-container:hover,
+.subdraft-container:active{
+
+
+	.subdraft-details.hide{
+		display: none;
+	}
+	.subdraft-details{
+		display: flex;
+	}
+
+	canvas{
+		border: thin solid #00d1b2;
+	}
+
+	.subdraft-details{
+		display: flex;
+	}
+
+}
+
+.drawing{
+	z-index: -1;
+
+	.subdraft-details{
+		pointer-events: all;
+	}
+
+	canvas{
+		pointer-events: none;
+	}
+}
+
+.mat-icon{
+	height: auto;
+}
+
+.subdraft-details{
+	display:none;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.align-top{
+	display: flex;
+	flex-direction: column;
+}
+
+.subdraft-contents{
+	display: block;
+}
+
+.is-active{
+	background: #00d1b2;
+	background: #00000070
+}
+
+svg{
+	display: block;
+	color: black;
+}
+
+canvas{
+	display: block;
+	overflow:hidden;
+	border: thin solid white;
+}
+
+.no-pointer{
+	pointer-events: none;
+}
+
+div.cdk-drag-dragging canvas{
+	border: thin solid #ff4081;
+}
+
+.hide{
+	display:none;
+}
+
+.connectable{
+	color:  #ff4081;
+	background: black;
+}
+
