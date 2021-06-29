@@ -415,6 +415,7 @@ export class WeaveDirective {
       
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
+
       switch (this.design_mode.name) {
         case 'toggle':
           this.setPosAndDraw(event.target, currentPos);
@@ -435,6 +436,7 @@ export class WeaveDirective {
           this.drawOnMask(currentPos);
           break;
         case 'select':
+        case 'selectML':
         case 'copy':
 
           if(event.shiftKey){
@@ -568,6 +570,7 @@ export class WeaveDirective {
 
 
       case 'select':
+      case 'selectML':
       case 'copy':
 
         this.selection.end = currentPos;
@@ -631,8 +634,8 @@ export class WeaveDirective {
 
 
     // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && (this.design_mode.name === 'select' || this.design_mode.name ==='copy'))) {
-      if (this.design_mode.name === 'select'){
+    if (!(event.type === 'mouseleave' && (this.design_mode.name === 'select' || this.design_mode.name === 'selectML' || this.design_mode.name ==='copy'))) {
+      if (this.design_mode.name === 'select' || this.design_mode.name === 'selectML'){
       }
       this.removeSubscription();
       if(this.design_mode.name != "copy" && this.selection.start !== undefined) this.copyArea();

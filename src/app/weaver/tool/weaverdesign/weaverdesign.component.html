@@ -169,7 +169,32 @@
           (onFill) = "fillEvent($event)">
           >
         </app-weaverpatterns>
+        <h3>Design with Machine Learning</h3>
 
+
+        <form #collectionForm="ngForm">
+          <mat-form-field class="is-fullwidth">
+            <mat-select placeholder="Select Collection" name="name" [(ngModel)]="collection.name">
+              <mat-option *ngFor="let collection of collections" [value]="collection.name">
+                {{ collection.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </form>
+        <button matTooltip= "Select Region For Suggestions"
+          name="selectML" 
+          class="button is-small is-primary fas fa-expand"
+          [class.is-active]="design_mode.name === selectML"
+          [style.color]="button_color"
+          (click)="designModeChange($event)">
+        </button>
+        <button matTooltip="run model for suggestions"
+           [name]='runModel' 
+           [disabled] = "!(design_mode.name === 'selectML')"
+           class="button is-small fas fa-play-circle"
+           [style.color]="button_color"
+        >
+        </button>
 
 
 </mat-expansion-panel>

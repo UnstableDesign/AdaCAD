@@ -464,6 +464,7 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public onDesignModeChange(e:any) {
+    console.log('e:', e);
     this.design_mode = {
       name: e.name,
       id: e.id
