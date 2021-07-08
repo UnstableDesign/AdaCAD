@@ -58,7 +58,12 @@ export class OperationComponent implements OnInit {
 
   ngOnInit() {
 
-    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(this.viewport.topleft);
+    const center: Point = {
+      x: this.viewport.topleft.x + this.viewport.width/2,
+      y: this.viewport.topleft.y + this.viewport.height/2
+    }
+
+    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(center);
     this.op = this.operations.getOp(this.name);
 
 
