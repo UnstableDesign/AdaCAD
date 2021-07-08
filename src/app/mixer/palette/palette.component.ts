@@ -174,10 +174,21 @@ export class PaletteComponent implements OnInit{
    * Gets references to view items and adds to them after the view is initialized
    */
    ngAfterViewInit(){
+    
+    const div:HTMLElement = document.getElementById('scrollable-container');
+    this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
+    this.viewport.width = div.offsetParent.clientWidth;
+    this.viewport.height = div.offsetParent.clientHeight;
+
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
-    this.canvas.width = 5000;
-    this.canvas.height = 5000;
+    
+    this.canvas.width = this.viewport.width;
+    this.canvas.height = this.viewport.height;
+
+    this.cx.beginPath();
+    this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
+    this.cx.stroke();
 
     this.selection.scale = this.scale;
     this.selection.active = false;
@@ -207,7 +218,6 @@ export class PaletteComponent implements OnInit{
   }
 
   resubscribe(){
-    console.log("resubscribing");
 
     this.tree.getDrafts().forEach(element => {
      this.setSubdraftSubscriptions(element);
@@ -235,6 +245,13 @@ export class PaletteComponent implements OnInit{
   handleScroll(data: any){
     const div:HTMLElement = document.getElementById('scrollable-container');
     this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
+    this.viewport.width = div.offsetParent.clientWidth;
+    this.viewport.height = div.offsetParent.clientHeight;
+
+    //update the canvas to this position
+    this.canvas.style.top = this.viewport.topleft.y+"px";
+    this.canvas.style.left = this.viewport.topleft.x+"px";
+
   }
 
   removeFromViewContainer(ref: ViewRef){
@@ -257,7 +274,6 @@ export class PaletteComponent implements OnInit{
     this.scale = scale;
     
     const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
-    console.log(generations);
 
     //rescale all the non connections first, then go through and rescale the connections
     generations.forEach(generation => {
@@ -584,12 +600,32 @@ export class PaletteComponent implements OnInit{
   }
 
   /**
+   * Takes an absolute index and returns it to an index relative to the viewport. 
+   * @param abs 
+   * @returns 
+   */
+  private getRelativeInterlacement(abs: Interlacement) : Interlacement {
+    const i_offset: number = Math.floor(this.viewport.topleft.y / this.scale);
+    const j_offset: number = Math.floor(this.viewport.topleft.x / this.scale);
+    const rel: Interlacement = {
+      i: abs.i - i_offset,
+      j: abs.j - j_offset,
+      si: -1
+    }
+
+    return rel;
+  }
+
+
+  /**
    * sets the value of the scratchpad cell at ndx
    * checks for self interselcting 
    * @param ndx (i,j)
    */
   private setCell(ndx: Interlacement){
-    const c: Cell = this.scratch_pad[ndx.i][ndx.j];
+
+    const rel: Interlacement = this.getRelativeInterlacement(ndx);
+    const c: Cell = this.scratch_pad[rel.i][rel.j];
     if(this.inks.getSelected() === "down") c.setHeddle(false);
     else c.setHeddle(true);
     //use the code below to use past scratchpad values, but this seems wrong
@@ -673,7 +709,8 @@ export class PaletteComponent implements OnInit{
    */
   private drawCell(ndx: Interlacement){
 
-    const c: Cell = this.scratch_pad[ndx.i][ndx.j];
+    const rel: Interlacement = this.getRelativeInterlacement(ndx);
+    const c: Cell = this.scratch_pad[rel.i][rel.j];
     this.cx.fillStyle = "#cccccc";
   
     const selected_ink:string = this.inks.getSelected();
@@ -700,7 +737,7 @@ export class PaletteComponent implements OnInit{
 
     }
 
-      this.cx.fillRect(ndx.j*this.scale, ndx.i*this.scale, this.scale, this.scale);      
+      this.cx.fillRect(rel.j*this.scale, rel.i*this.scale, this.scale, this.scale);      
   }
 
   /**
@@ -1268,7 +1305,6 @@ drawStarted(){
     if(this.scratch_pad[0] === undefined) return;
     
     const corners: Array<Interlacement> = this.getScratchPadBounds();
-
     const warps = corners[1].j - corners[0].j + 1;
     const wefts = corners[1].i - corners[0].i + 1;
 
@@ -1282,10 +1318,11 @@ drawStarted(){
     //if this drawing does not intersect with any existing subdrafts, 
     const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
     const pos = {
-      topleft: {x: corners[0].j * this.scale, y: corners[0].i * this.scale},
+      topleft: {x: this.viewport.topleft.x + (corners[0].j * this.scale), y: this.viewport.topleft.y + (corners[0].i * this.scale)},
       width: warps * this.scale,
       height: wefts * this.scale
     }
+    console.log(pos);
 
     sd.setComponentPosition(pos.topleft);
     sd.setComponentSize(pos.width, pos.height);
@@ -1300,8 +1337,8 @@ drawStarted(){
       }
     }
 
-    // const had_merge = this.mergeSubdrafts(sd);
-    // console.log("had a merge?", had_merge);
+    const had_merge = this.mergeSubdrafts(sd);
+    console.log("had a merge?", had_merge);
 
   }
 
