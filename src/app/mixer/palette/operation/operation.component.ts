@@ -76,7 +76,6 @@ export class OperationComponent implements OnInit {
 
   setOutputs(dms: Array<DraftMap>){
       this.outputs = dms.slice();
-      console.log("set op outputs to ", dms, this.outputs);
 
   }
 

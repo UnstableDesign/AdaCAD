@@ -1,6 +1,5 @@
 import { D } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
-import { FORMERR } from 'dns';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
 import utilInstance from '../../core/model/util';

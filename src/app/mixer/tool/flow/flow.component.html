@@ -6,6 +6,26 @@
       <mat-panel-description>
       </mat-panel-description>
     </mat-expansion-panel-header>
+    
+    <form  autocomplete="off">
+    <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>Search</mat-label>
+    <input type="text"
+           placeholder=""
+           matInput
+           [formControl]="myControl"
+           [matAutocomplete]="auto"
+           >
+           <mat-autocomplete 
+           autoActiveFirstOption 
+           #auto="matAutocomplete"
+           (optionSelected) = addOpFromSearch($event)>
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              {{option}}
+            </mat-option>
+    </mat-autocomplete>
+    </mat-form-field>
+  </form>
    
     <button mat-stroked-button 
       [name]='upload'
