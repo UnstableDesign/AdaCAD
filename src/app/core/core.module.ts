@@ -32,6 +32,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 
 import { PatternService } from './provider/pattern.service';
+import { CollectionService } from './provider/collection.service';
 import { UploadService } from './uploads/upload.service';
 import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
@@ -91,7 +92,9 @@ import { PatternModal } from './modal/pattern/pattern.modal';
 
   providers: [
     PatternService, 
-    UploadService],
+    UploadService,
+    CollectionService
+  ],
 
   exports: [
     CommonModule,

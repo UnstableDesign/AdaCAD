@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { AngularFireAuth } from 'angularfire2/auth';
+import { AngularFireStorage } from 'angularfire2/storage';
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 
 /**
  * Definition of pattern provider.
@@ -9,10 +12,15 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class CollectionService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private af: AngularFireAuth, 
+    private db: AngularFireDatabase,
+    private st: AngularFireStorage,
+    private http: HttpClient,
+    private httpClient: HttpClient) { 
+      console.log('db:', db);
+    }
 
   getCollectiion() {
-    return this.http.get('assets/collections.json', {observe: 'response'});
   }
 
 }
