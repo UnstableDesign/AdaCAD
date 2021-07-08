@@ -13,8 +13,8 @@
       <mat-slider 
       thumbLabel 
       [displayWith]="formatLabel" 
-      tickInterval=".25" 
-      min=".25" 
+      tickInterval="1" 
+      min="1" 
       max="10" 
       value="{{zoom}}" 
       (change)="zoomChange($event, 'slider')"></mat-slider>

@@ -1077,9 +1077,14 @@ connectionMade(sd_id:number){
  * @param mouse the absolute position of the mouse on screen
  */
 shapeStarted(mouse: Point){
+
+  const rel:Point = {
+    x: mouse.x - this.viewport.topleft.x,
+    y: mouse.y - this.viewport.topleft.y
+  }
   
   this.shape_bounds = {
-    topleft: mouse,
+    topleft: rel,
     width: this.scale,
     height: this.scale
   };
@@ -1105,8 +1110,13 @@ shapeStarted(mouse: Point){
    */
 shapeDragged(mouse: Point, shift: boolean){
 
-  this.shape_bounds.width =  (mouse.x - this.shape_bounds.topleft.x);
-  this.shape_bounds.height =  (mouse.y - this.shape_bounds.topleft.y);
+  const rel:Point = {
+    x: mouse.x - this.viewport.topleft.x,
+    y: mouse.y - this.viewport.topleft.y
+  }
+
+  this.shape_bounds.width =  (rel.x - this.shape_bounds.topleft.x);
+  this.shape_bounds.height =  (rel.y - this.shape_bounds.topleft.y);
 
   if(shift){
     const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
@@ -1341,6 +1351,19 @@ drawStarted(){
     console.log("had a merge?", had_merge);
 
   }
+
+  /**
+   * update the viewport when the window is resized
+   * @param event 
+   */
+  @HostListener('window:resize', ['$event'])
+    onResize(event) {
+      this.viewport.width = event.target.innerWidth;
+      this.viewport.height = event.target.innerHeight;
+
+      this.canvas.width = this.viewport.width;
+      this.canvas.height = this.viewport.height;
+    }
 
 
  /**
