@@ -21,9 +21,7 @@ export class UploadService {
               private db: AngularFireDatabase,
               private st: AngularFireStorage,
               private http: HttpClient,
-              private httpClient: HttpClient) {
-                console.log('db in UploadService:', db);
-               }
+              private httpClient: HttpClient) { }
 
   private basePath:string = '/uploads';
   uploadProgress: Observable<number>;

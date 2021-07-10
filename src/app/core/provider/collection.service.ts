@@ -16,11 +16,18 @@ export class CollectionService {
     private db: AngularFireDatabase,
     private st: AngularFireStorage,
     private http: HttpClient,
-    private httpClient: HttpClient) { 
-      console.log('db:', db);
-    }
+    private httpClient: HttpClient) { }
 
-  getCollectiion() {
+  /*
+  Referenced: https://www.tutorialspoint.com/firebase/firebase_event_types.htm
+   */
+  getCollection(collectionName) {
+    this.db.database.ref("collections/" + collectionName).on("value", function(snapshot) {
+      return snapshot.val();
+    }, function(error) {
+      console.log("Error: " + error.code);
+      return null;
+    });
   }
 
 }
