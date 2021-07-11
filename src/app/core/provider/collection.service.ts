@@ -16,7 +16,9 @@ export class CollectionService {
     private db: AngularFireDatabase,
     private st: AngularFireStorage,
     private http: HttpClient,
-    private httpClient: HttpClient) { }
+    private httpClient: HttpClient) { 
+      console.log('db constrructed for CollectionService');
+    }
 
   /*
   Referenced: https://www.tutorialspoint.com/firebase/firebase_event_types.htm
@@ -28,6 +30,19 @@ export class CollectionService {
       console.log("Error: " + error.code);
       return null;
     });
+  }
+
+  getCollectionNames() {
+    var ref = this.db.database.ref("collections/");
+    var returnVal = [];
+    ref.on("value", function(data) {
+      data.forEach(function(data) {
+        returnVal.push(data.key);
+      });
+      console.log("returnVal", returnVal);
+      return returnVal;
+    });
+    return [];
   }
 
 }

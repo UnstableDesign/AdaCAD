@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { NgForm } from '@angular/forms';
+import { CollectionService } from '../../../core/provider/collection.service';
 import * as _ from 'lodash';
 
 
@@ -29,7 +30,6 @@ export class WeaverDesignComponent implements OnInit {
   @Output() onPatternChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
-  @Output() onGenerativeModeChange: any = new EventEmitter();
 
 
   button_color = "#ff4081";
@@ -42,26 +42,24 @@ export class WeaverDesignComponent implements OnInit {
   collection: any;
   generativeMode = false;
 
-  constructor(private dialog: MatDialog) { 
-    this.collection = {name: 'German Drafts'};
-    this.collections.push(this.collection);
+  constructor(private dialog: MatDialog, private collectionSrvc: CollectionService) { 
+    console.log('in constrcutor of weaverdesign.component.ts');
+    this.collections = collectionSrvc.getCollectionNames();
+    console.log('this.collections:', this.collections);
+    console.log('this.collections[0]:', this.collections[0]);
+    this.collection = {name: this.collections[0]};
+  }
+
+  ngAfterViewInit() {
+    console.log('in ngAfterInit of weaverdesign.component.ts');
+    this.collections = this.collectionSrvc.getCollectionNames();
+    console.log('this.collections:', this.collections);
+    console.log('this.collections[0]:', this.collections[0]);
+    this.collection = {name: this.collections[0]};
   }
 
   ngOnInit() {
-
   }
-
-
-  // toggleChange(e: any) {
-  //   // if(e.checked) this.brush = "select";
-  //   // else{
-  //   //   this.brush = "point";
-  //   // }
-
-  //   // var obj: any = {};
-  //   // obj.name = this.brush;
-  //   // this.onBrushChange.emit(obj);
-  // }
 
   designModeChange(e: any) {
 
@@ -148,26 +146,5 @@ export class WeaverDesignComponent implements OnInit {
   createPattern(obj){
     this.onCreatePattern.emit(obj);
   }
-
-  generativeModeEvent(e:any) {
-    this.generativeMode = !this.generativeMode;
-    this.onGenerativeModeChange.emit(e);
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
