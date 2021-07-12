@@ -186,9 +186,9 @@ export class PaletteComponent implements OnInit{
     this.canvas.width = this.viewport.width;
     this.canvas.height = this.viewport.height;
 
-    this.cx.beginPath();
-    this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
-    this.cx.stroke();
+    // this.cx.beginPath();
+    // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
+    // this.cx.stroke();
 
     this.selection.scale = this.scale;
     this.selection.active = false;

@@ -92,6 +92,8 @@ export class MixerComponent implements OnInit {
             this.onWindowScroll(data);
     });
 
+    
+
    
     this.patterns = [];
 

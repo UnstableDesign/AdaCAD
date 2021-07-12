@@ -44,7 +44,6 @@ export class FlowComponent implements OnInit {
   }
 
   addOpFromSearch(event: any){
-    console.log("selected", event);
     this.onOperationAdded.emit(event.option.value);
   }
 
@@ -53,7 +52,7 @@ export class FlowComponent implements OnInit {
 
 
     const dialogRef = this.dialog.open(InitModal, {
-      data: {source: 'mixer'}
+      data: {source: 'import'}
     });
 
      dialogRef.afterClosed().subscribe(result => {

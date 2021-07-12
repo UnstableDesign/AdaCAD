@@ -25,10 +25,11 @@ export class InitModal implements OnInit {
 
 
   opts: StartOptions[] = [
-      {value: 'new', viewValue: 'Begin New Draft'},
-      {value: 'ada', viewValue: 'Load an AdaCAD (.ada) File'},
-      {value: 'bmp', viewValue: 'Load a Bitmap (.bmp) File'},
-      {value: 'wif', viewValue: 'Load a WIF (.wif) File'}   
+      {value: 'new', viewValue: 'Empty Draft'},
+      {value: 'ada', viewValue: 'AdaCAD (.ada) File'},
+      {value: 'bmp', viewValue: 'Bitmap (.bmp) File'},
+      {value: 'jpg', viewValue: 'Image (.jpg) File'},
+      {value: 'wif', viewValue: 'WIF (.wif) File'}   
     ];
 
   //form: any = {};
@@ -50,6 +51,8 @@ export class InitModal implements OnInit {
       this.density_units = data.density_units;
       this.source = data.source;
       this.error = "";
+
+      console.log(this.source);
   }
 
   ngOnInit() {
@@ -75,6 +78,10 @@ export class InitModal implements OnInit {
 
       case 'ada':
         res = this.fls.loader.ada(e.data);
+      break;
+
+      case 'jpg':
+        res = this.fls.loader.jpg(e.data);
       break;
     }
 
