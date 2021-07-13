@@ -287,7 +287,7 @@ export class PaletteComponent implements OnInit{
       true);
 
     this.timeline.addMixerHistoryState(so);
-    console.log('added timeline state', this.timeline);
+    console.log('added timeine state', this.timeline);
 
   }
 
@@ -653,10 +653,10 @@ export class PaletteComponent implements OnInit{
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const bounds ={
-      top: this.selection.start.j*this.scale,
-      left: this.selection.start.i*this.scale,
-      bottom: ndx.j *this.scale,
-      right: ndx.i*this.scale
+      left: this.selection.start.j*this.scale,
+      top: this.selection.start.i*this.scale,
+      right: ndx.j *this.scale,
+      bottom: ndx.i*this.scale
     };
 
     //will draw on outside of selection
@@ -664,7 +664,7 @@ export class PaletteComponent implements OnInit{
     this.cx.strokeStyle = "#ff4081";
     this.cx.lineWidth = 1;
     this.cx.setLineDash([this.scale, 2]);
-    this.cx.strokeRect(bounds.top, bounds.left, bounds.bottom-bounds.top, bounds.right-bounds.left);
+    this.cx.strokeRect(bounds.left - this.viewport.topleft.x, bounds.top  - this.viewport.topleft.y, bounds.right-bounds.left, bounds.bottom-bounds.top);
       
   }
 

@@ -48,7 +48,8 @@ import { FinetuneComponent } from './modal/finetune/finetune.component';
     SnackbarComponent,
     OperationComponent,
     ConnectionComponent,
-    OpHelpModal
+    OpHelpModal,
+    FinetuneComponent
   ]
 })
 export class MixerModule { }
