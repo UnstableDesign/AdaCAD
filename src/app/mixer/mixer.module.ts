@@ -15,6 +15,8 @@ import { ConnectionComponent } from './palette/connection/connection.component';
 import { TreeComponent } from './tool/tree/tree.component';
 import { FlowComponent } from './tool/flow/flow.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
+import { ImageComponent } from './palette/image/image.component';
+import { FinetuneComponent } from './modal/finetune/finetune.component';
 
 
 
@@ -37,7 +39,9 @@ import { OpHelpModal } from './modal/ophelp/ophelp.modal';
     ConnectionComponent,
     TreeComponent,
     FlowComponent,
-    OpHelpModal
+    OpHelpModal,
+    ImageComponent,
+    FinetuneComponent
     ],
   entryComponents: [
     SubdraftComponent,

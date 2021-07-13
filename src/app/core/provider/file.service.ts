@@ -274,8 +274,101 @@ export class FileService {
 
     return {data: f ,status: 0};
     },
+    /**
+     * takes in a jpg, creates as many drafts as there are unique colors in the image. 
+     * @param data 
+     * @returns 
+     */
     jpg: (data: any) : LoadResponse => {
-      return {data: null,status: 0};
+      console.log("processing JPG data")
+      let drafts: Array<Draft> = [];
+      let looms: Array<Loom> = [];
+
+      let e = data;
+      const warps = e.width;
+      const wefts = e.height;
+  
+      var img = e.data;
+      var pattern = [];
+
+      let hex_string: string = "";
+      const img_as_hex: Array<string> = [];
+      img.forEach((el, ndx) => {
+        hex_string = hex_string + el.toString(16);
+        if(ndx % 4 === 3){
+          img_as_hex.push(hex_string);
+          hex_string = "";
+        }
+
+      });
+
+      console.log("img as hex", img_as_hex);
+
+      //the color table is a unique list of all the colors in this image
+      const seen: Array<string> = [];
+      const color_table: Array<string> = img_as_hex.filter((el, ndx) => {
+        if(seen.find(seen => seen === el) === undefined){
+          seen.push(el);
+          return true;
+        }
+      });
+      console.log("color table", color_table);
+
+
+      //create a draft for each color table
+      color_table.forEach(color => {
+        const draft: Draft = new Draft({warps: warps, wefts: wefts});
+        console.log(draft);
+        img_as_hex.forEach((el, ndx)=>{
+          const r: number = Math.floor(ndx/warps);
+          const c: number = ndx % warps;
+          if(el === color) draft.pattern[r][c].setHeddleUp();
+          else draft.pattern[r][c].unsetHeddle();
+        });
+        drafts.push(draft);
+        const loom:Loom = new Loom(draft, 8, 10);
+        loom.overloadType('jacquard');
+        looms.push(loom);
+      })
+
+
+
+  
+      // for (var i=0; i< e.height; i++) {
+      //   pattern.push([]);
+      //   for (var j=0; j< e.width; j++) {
+      //     var idx = (i * 4 * warps) + (j * 4);
+      //     var threshold = (img[idx] + img[idx+1] + img[idx+2]);
+      //     var alpha = img[idx + 3];
+  
+      //     if (threshold < 750 && alpha != 0) {
+      //       pattern[i].push(new Cell(true));
+      //     } else {
+      //       pattern[i].push(new Cell(false));
+      //     }
+      //   }
+      // }
+  
+      // const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
+      // drafts.push(draft);
+      
+      // //create a blank loom to accompany this
+      // const loom:Loom = new Loom(draft, 8, 10);
+      // loom.overloadType('jacquard');
+      // looms.push(loom);
+
+
+      const f: FileObj = {
+        drafts: drafts,
+        looms: looms,
+        patterns: [],
+        nodes: [], 
+        treenodes: [],
+        ops: [], 
+        notes: ""
+      }
+  
+      return {data: f ,status: 0};  
     },
     bmp: (data: any) : LoadResponse => {
 

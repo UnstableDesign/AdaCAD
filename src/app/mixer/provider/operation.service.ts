@@ -1,5 +1,5 @@
 import { D } from '@angular/cdk/keycodes';
-import { Injectable } from '@angular/core';
+import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
 import utilInstance from '../../core/model/util';
@@ -98,6 +98,26 @@ export class OperationService {
             row.forEach((cell, j) => {
               if(!cell.isSet()) d.pattern[i][j] = new Cell(false);
               else d.pattern[i][j] = new Cell(cell.isUp());
+            });
+          });
+          return d;
+        });
+        return outputs;
+      }        
+    }
+
+    const unset: Operation = {
+      name: 'unset',
+      dx: "this sets all down heddles in this draft to unset",
+      params: [],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+        const outputs: Array<Draft> = inputs.map(draft => {
+          const d: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
+          draft.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              if(!cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
+              else d.pattern[i][j] = new Cell(cell.getHeddle());
             });
           });
           return d;
@@ -275,6 +295,65 @@ export class OperationService {
       }        
     }
 
+    const atop: Operation = {
+      name: 'set atop',
+      dx: 'sets the drafts on top of eachother, with the first draft on bottom and remaining on top',
+      params: [
+        {name: 'left offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the added inputs from the left"
+        },
+        {name: 'top offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the overlaying inputs from the top"
+        }
+      ],
+      max_inputs: 100,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        if(inputs.length < 1) return [];
+
+        const first: Draft = inputs.shift();
+
+        const outputs: Array<Draft> = [];
+
+
+        let width: number = utilInstance.getMaxWarps(inputs) + input_params[0];
+        let height: number = utilInstance.getMaxWefts(inputs) + input_params[1];
+        if(first.warps > width) width = first.warps;
+        if(first.wefts > height) height = first.wefts;
+
+        //initialize the base container with the first draft at 0,0, unset for anythign wider
+        const init_draft: Draft = new Draft({wefts: height, warps: width});
+          
+        first.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              init_draft.pattern[i][j].setHeddle(cell.getHeddle());
+            });
+          });
+
+        //now merge in all of the additional inputs offset by the inputs
+        const d: Draft = inputs.reduce((acc, input) => {
+          input.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              //if i or j is less than input params 
+              const adj_i: number = i+input_params[1];
+              const adj_j: number = j+input_params[0];
+              acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('up', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
+            });
+          });
+          return acc;
+
+        }, init_draft);
+        outputs.push(d);
+        return outputs;
+      }        
+    }
+
 
     const fill: Operation = {
       name: 'fill',
@@ -437,6 +516,104 @@ export class OperationService {
                 });
 
               }
+            });
+
+            return d;
+        });
+
+        return outputs;
+      }
+          
+    }
+
+    const resize: Operation = {
+      name: 'resize',
+      dx: 'stretches or squishes the draft to fit the boundary',
+      params: [
+        {name: 'warps',
+        min: 1,
+        max: 10000,
+        value: 2,
+        dx: 'number of warps to resize to'
+        },
+        {name: 'weft repeats',
+        min: 1,
+        max: 10000,
+        value: 2,
+        dx: 'number of wefts to resize to'
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        const outputs: Array<Draft> = inputs.map(input => {
+          const weft_factor =input_params[1] /input.wefts ;
+          const warp_factor = input_params[0] / input.warps;
+          const d: Draft = new Draft({warps: input_params[0], wefts: input_params[1]});
+            d.pattern.forEach((row, i) => {
+                row.forEach((cell, j) => {
+                    const mapped_cell: Cell = input.pattern[Math.floor(i/weft_factor)][Math.floor(j/warp_factor)];
+                    d.pattern[i][j].setHeddle(mapped_cell.getHeddle());
+                
+                });
+            });
+
+            return d;
+        });
+
+        return outputs;
+      }
+          
+    }
+
+    const margin: Operation = {
+      name: 'margin',
+      dx: 'adds padding of unset cells to the top, right, bottom, left of the block',
+      params: [
+        {name: 'top',
+        min: 1,
+        max: 10000,
+        value: 1,
+        dx: 'number of pics of padding to add to the top'
+        },
+        {name: 'right',
+        min: 1,
+        max: 10000,
+        value: 1,
+        dx: 'number of pics of padding to add to the right'
+        },
+        {name: 'bottom',
+        min: 1,
+        max: 10000,
+        value: 1,
+        dx: 'number of pics of padding to add to the bottom'
+        },
+        {name: 'left',
+        min: 1,
+        max: 10000,
+        value: 1,
+        dx: 'number of pics of padding to add to the left'
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        const outputs: Array<Draft> = inputs.map(input => {
+            const new_warps = input_params[1] + input_params[3] + input.warps;
+            const new_wefts = input_params[0] + input_params[2] + input.wefts;
+
+            const d: Draft = new Draft({warps: new_warps, wefts: new_wefts});
+
+            //unset all cells to default
+            d.pattern.forEach((row, i) => {
+              row.forEach((cell, j) => {
+                d.pattern[i][j].unsetHeddle();
+              });
+            });
+            input.pattern.forEach((row, i) => {
+                row.forEach((cell, j) => {
+                  d.pattern[i+input_params[0]][j+input_params[3]].setHeddle(cell.getHeddle());
+                });
             });
 
             return d;
@@ -991,17 +1168,21 @@ export class OperationService {
     this.ops.push(slope);
     this.ops.push(tile);
     this.ops.push(stretch);
+    this.ops.push(resize);
+    this.ops.push(margin);
     this.ops.push(clear);
     this.ops.push(set);
+    this.ops.push(unset);
     this.ops.push(rotate);
     this.ops.push(fill);
     this.ops.push(overlay);
+    this.ops.push(atop);
 
 
     //** Give it a classification here */
     this.classification.push(
       {category: 'block design',
-      ops: [fill, rect, clear, set]
+      ops: [fill, rect, clear, set, unset]
     }
     );
 
@@ -1012,12 +1193,12 @@ export class OperationService {
 
     this.classification.push(
       {category: 'transformations',
-      ops: [invert, mirrorx, mirrory, shiftx, shifty, rotate, slope, stretch]}
+      ops: [invert, mirrorx, mirrory, shiftx, shifty, rotate, slope, stretch, resize, margin]}
     );
 
     this.classification.push(
       {category: 'compose',
-      ops: [overlay, interlace, layer, tile, joinleft, mirror, selvedge, bindweftfloats, bindwarpfloats]}
+      ops: [atop, overlay, interlace, layer, tile, joinleft, mirror, selvedge, bindweftfloats, bindwarpfloats]}
     );
 
   }

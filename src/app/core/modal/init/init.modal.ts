@@ -66,10 +66,11 @@ export class InitModal implements OnInit {
   handleFile(e: any) {
 
     let res: LoadResponse = null;
+    console.log("handle file", e);
 
     switch(e.type){
       case 'image': 
-        res = this.fls.loader.bmp(e.data);
+        res = this.fls.loader.jpg(e.data);
       break; 
 
       case 'wif':
@@ -78,10 +79,6 @@ export class InitModal implements OnInit {
 
       case 'ada':
         res = this.fls.loader.ada(e.data);
-      break;
-
-      case 'jpg':
-        res = this.fls.loader.jpg(e.data);
       break;
     }
 

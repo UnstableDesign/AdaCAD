@@ -67,7 +67,7 @@
     </ng-container>
 
     
-    <ng-container *ngIf="(selected == 'ada' || selected == 'bmp' || selected == 'wif')">
+    <ng-container *ngIf="(selected == 'ada' || selected == 'bmp' || selected == 'wif' || selected == 'jpg')">
     <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
     <div class="error">{{error}}</div> 
   </ng-container>
