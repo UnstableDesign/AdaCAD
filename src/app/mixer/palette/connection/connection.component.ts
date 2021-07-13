@@ -58,7 +58,8 @@ export class ConnectionComponent implements OnInit {
   }
 
   enableDrag(){
-    this.disable_drag = false;
+    //there is never a case where this should be enabled so set to true
+    this.disable_drag = true;
   }
 
   // setBounds(to:Bounds, from:Bounds){
@@ -83,19 +84,22 @@ export class ConnectionComponent implements OnInit {
    * @param height the height of the moving component
    */
   updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
-  
+    //get the updated positioins of the to and from points
+    this.b_from = this.tree.getComponent(this.from).bounds;
+    this.b_to = this.tree.getComponent(this.to).bounds;
+
     //this block of code works when we assume the pointer is at the top right corner of a subdraft directly connected to this component
     this.orientation = true;
 
     //in most cases from is a subdraft
-    if(id == this.from){
+    if(id === this.from){
       if(topleft.x < this.b_to.topleft.x) this.orientation = !this.orientation;
       if(topleft.y < this.b_to.topleft.y) this.orientation = !this.orientation;
       this.bounds.topleft = {x: Math.min(topleft.x, this.b_to.topleft.x), y: Math.min(topleft.y+height, this.b_to.topleft.y)};
       this.bounds.width = Math.max(topleft.x, this.b_to.topleft.x) - this.bounds.topleft.x;
       this.bounds.height = Math.max(topleft.y, this.b_to.topleft.y) - this.bounds.topleft.y;
        
-    }else if(id == this.to){
+    }else if(id === this.to){
       //assumes to is an operations
       let b_from_height = this.b_from.height;
       if(topleft.x < this.b_from.topleft.x) this.orientation = !this.orientation;

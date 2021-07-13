@@ -269,6 +269,10 @@ export class PaletteComponent implements OnInit{
     const op:OperationComponent = this.createOperation(name);
   }
 
+  /**
+   * redraws each operation and subdraft at the new scale, then redraws each of their connections
+   * @param scale 
+   */
   rescale(scale:number){
 
     this.scale = scale;
@@ -887,12 +891,12 @@ export class PaletteComponent implements OnInit{
  }
 
  /**
- * freezes all palette objects
+ * unfreezes all palette objects (except connections)
  */
   unfreezePaletteObjects(){
     const nodes: Array<any> = this.tree.getComponents();
     nodes.forEach(el => {
-      el.enableDrag();
+      if(el.type != 'cxn') el.enableDrag();
     });
    }
   
@@ -921,7 +925,6 @@ export class PaletteComponent implements OnInit{
    */
 connectionDragged(mouse: Point, shift: boolean){
 
-
   this.shape_bounds.width =  (mouse.x - this.shape_bounds.topleft.x);
   this.shape_bounds.height =  (mouse.y - this.shape_bounds.topleft.y);
 
@@ -931,8 +934,10 @@ connectionDragged(mouse: Point, shift: boolean){
 
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.cx.beginPath();
-  this.cx.fillStyle = "#ff4081";
-  this.cx.strokeStyle = "#ff4081";
+  // this.cx.fillStyle = "#ff4081";
+  // this.cx.strokeStyle = "#ff4081";
+   this.cx.fillStyle = "#0000ff";
+   this.cx.strokeStyle = "#0000ff";
   this.cx.setLineDash([this.scale, 2]);
   this.cx.lineWidth = 2;
 
@@ -1603,18 +1608,23 @@ drawStarted(){
    * @param obj 
    */
   updateAttachedComponents(obj: any){
+
     const moving : any = this.tree.getComponent(obj.id);
     const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
+
 
     updates.forEach(u => {
       const type: string = this.tree.getType(u);
       const u_comp = this.tree.getComponent(u);
+      
       //if this is a node that didn't call the command, its a parent or child. 
       if(obj.id !== u){
+
          if(type=='op') u_comp.setPosition({x: obj.point.x, y: obj.point.y - 30});
          if(type=='draft') u_comp.setPosition({x: obj.point.x, y: obj.point.y + 30});         
       
          const cxns: Array<number> = this.tree.getNodeConnections(u);
+
          cxns.forEach(cxn => {
            const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
             if(type=='op') comp.updatePositionAndSize(u_comp.id,  {x: obj.point.x, y: obj.point.y-30}, u_comp.bounds.width, u_comp.bounds.height);
@@ -1622,7 +1632,6 @@ drawStarted(){
          });
       
       }else{
-
         const cxns: Array<number> = this.tree.getNodeConnections(u);
         cxns.forEach(cxn => {
           const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
