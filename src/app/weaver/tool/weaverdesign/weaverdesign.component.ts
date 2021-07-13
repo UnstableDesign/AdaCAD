@@ -38,25 +38,35 @@ export class WeaverDesignComponent implements OnInit {
   selected = 0;
 
   //Temporary data structures until db access
-  collections = []
+  collections: any[] = []
   collection: any;
   generativeMode = false;
 
   constructor(private dialog: MatDialog, private collectionSrvc: CollectionService) { 
-    console.log('in constrcutor of weaverdesign.component.ts');
-    this.collections = collectionSrvc.getCollectionNames();
-    console.log('this.collections:', this.collections);
-    console.log('this.collections[0]:', this.collections[0]);
-    this.collection = {name: this.collections[0]};
+    // collectionSrvc.getCollectionNames.then((value) => {
+    //   console.log('value returned:', value);
+    //   this.collections = value;
+    //   this.collection = "";
+    // });
+    this.collections = [];
+    this.collection = {name: ""};
+    collectionSrvc.getCollectionNames().then((value) => {
+      this.collections = value;
+      this.collection = {name: this.collections[0]};
+    })
+    // var tempSaving = collectionSrvc.getCollectionNames();
+    // console.log('tempSaving in constructor:', tempSaving);
+    // console.log('this.collections:', this.collections);
+    // console.log('this.collections[0]:', this.collections[0]);
+    // this.collection = {name: this.collections[0]};
   }
-
-  ngAfterViewInit() {
-    console.log('in ngAfterInit of weaverdesign.component.ts');
-    this.collections = this.collectionSrvc.getCollectionNames();
-    console.log('this.collections:', this.collections);
-    console.log('this.collections[0]:', this.collections[0]);
-    this.collection = {name: this.collections[0]};
-  }
+  // ngAfterViewInit() {
+  //   console.log('in ngAfterInit of weaverdesign.component.ts');
+  //   this.collections = this.collectionSrvc.getCollectionNames();
+  //   console.log('this.collections:', this.collections);
+  //   console.log('this.collections[0]:', this.collections[0]);
+  //   this.collection = {name: this.collections[0]};
+  // }
 
   ngOnInit() {
   }
