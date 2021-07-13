@@ -17,7 +17,8 @@ import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
-import { FileService } from './../../core/provider/file.service';
+import { FileService, SaveObj } from './../../core/provider/file.service';
+import { Timeline } from '../../core/model/timeline';
 
 @Component({
   selector: 'app-palette',
@@ -33,6 +34,7 @@ export class PaletteComponent implements OnInit{
    * @property {Array<Pattern>}
    */ 
   @Input() patterns: Array<Pattern>;
+  @Input() timeline: Timeline;
   @Output() onDesignModeChange: any = new EventEmitter();  
 
   /**
@@ -217,6 +219,9 @@ export class PaletteComponent implements OnInit{
     this.connectionSubscriptions.forEach(element => element.unsubscribe());
   }
 
+  /**
+   * resubscribes to each subscription
+   */
   resubscribe(){
 
     this.tree.getDrafts().forEach(element => {
@@ -241,7 +246,10 @@ export class PaletteComponent implements OnInit{
   }
 
   
-
+/**
+ * called when user scrolls the winidow
+ * @param data 
+ */
   handleScroll(data: any){
     const div:HTMLElement = document.getElementById('scrollable-container');
     this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
@@ -254,6 +262,10 @@ export class PaletteComponent implements OnInit{
 
   }
 
+  /**
+   * removes the view associate with this view ref
+   * @param ref 
+   */
   removeFromViewContainer(ref: ViewRef){
     const ndx: number = this.vc.indexOf(ref);
     if(ndx != -1) this.vc.remove(ndx);
@@ -261,9 +273,30 @@ export class PaletteComponent implements OnInit{
 
   }
 
+  /**
+   * adds a state to the timeline. This should be called 
+   * each time a user performs an action that they should be able to undo/redo
+   */
+  addTimelineState(){
+    const so: string = this.fs.saver.ada(
+      'mixer', 
+      this.tree.exportDraftsForSaving(),
+      [],
+      this.patterns,
+      "",
+      true);
+
+    this.timeline.addMixerHistoryState(so);
+    console.log('added timeline state', this.timeline);
+
+  }
 
 
 
+  /**
+   * called anytime an operation is added
+   * @param name 
+   */
   addOperation(name:string){
     this.changeDesignmode('operation');
     const op:OperationComponent = this.createOperation(name);
@@ -295,7 +328,11 @@ export class PaletteComponent implements OnInit{
   }
 
   
-
+  /**
+   * loads the snackbar at the bottom of the screen
+   * @param message the message to show on the snack bar
+   * @param bounds the bounds of the element that we are showing info aboout
+   */
   startSnackBar(message: string, bounds:Bounds){
     this.updateSnackBar(message, bounds);
     this._snackBar.openFromComponent(SnackbarComponent, {
@@ -307,16 +344,28 @@ export class PaletteComponent implements OnInit{
     });
   }
 
+  /**
+   * updates data shown on the snackbar
+   * @param message 
+   * @param bounds 
+   */
   updateSnackBar(message: string, bounds:Bounds){
     this.snack_bounds = bounds;
     this.snack_message = message;
   }
 
+  /**
+   * called to close the snackbar
+   */
   closeSnackBar(){
     this._snackBar.dismiss();
   }
 
-  //called when the palette needs to change the design mode, emits output to parent
+
+  /**
+   * called when the palette needs to change the design mode, emits output to parent
+   * @param name - the mode to switchh to
+   */
   changeDesignmode(name: string) {
     this.design_modes.select(name);
    
@@ -337,6 +386,10 @@ export class PaletteComponent implements OnInit{
   //   this.pointer_events = true;
   // }
 
+  /**
+   * called when a new subdraft is created
+   * @param sd 
+   */
   setSubdraftSubscriptions(sd: SubdraftComponent){
     this.subdraftSubscriptions.push(sd.onSubdraftDrop.subscribe(this.subdraftDropped.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftMove.subscribe(this.subdraftMoved.bind(this)));
@@ -381,7 +434,10 @@ export class PaletteComponent implements OnInit{
     return sd.id;
   }
 
-
+  /**
+   * called when a new operation is added
+   * @param op 
+   */
   setOperationSubscriptions(op: OperationComponent){
     this.operationSubscriptions.push(op.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this)));
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
@@ -456,7 +512,10 @@ export class PaletteComponent implements OnInit{
 
 
 
-  //called when we get an uplaod event
+  /**
+   * called from upload or import events
+   * @param d 
+   */
   addSubdraftFromDraft(d: Draft){
     console.log("adding from uplaod", d);
     const sd: SubdraftComponent = this.createSubDraft(d);
@@ -514,7 +573,7 @@ export class PaletteComponent implements OnInit{
    * @param id 
    */
   removeOperation(id:number){
-
+    this.addTimelineState();
   }
 
     /**
@@ -522,7 +581,7 @@ export class PaletteComponent implements OnInit{
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
    */
-    createAndSetPreview(d: Draft){
+  createAndSetPreview(d: Draft){
       const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
       const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
       //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
@@ -535,17 +594,17 @@ export class PaletteComponent implements OnInit{
       this.preview.scale = this.scale;
     }
 
-    hasPreview():boolean{
+  hasPreview():boolean{
       if(this.preview_ref === undefined) return false;
       return true;
-    }
+  }
 
   /**
    * destorys the 
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
    */
-    removePreview(){
+  removePreview(){
       const ndx = this.vc.indexOf(this.preview_ref);
       this.vc.remove(ndx);
       this.preview_ref = undefined;
@@ -574,14 +633,20 @@ export class PaletteComponent implements OnInit{
 
   }
 
-
+  /**
+   * specifically removes the subscription from the move event
+   */
    private removeSubscription() {    
     if (this.moveSubscription) {
       this.moveSubscription.unsubscribe();
     }
   }
 
-
+  /**
+   * draws the selection atop the view
+   * todo: update this to account for scroll
+   * @param ndx 
+   */
   private drawSelection(ndx: Interlacement){
 
 
@@ -752,6 +817,7 @@ export class PaletteComponent implements OnInit{
       console.log("deleting "+obj.id);
       if(obj === null) return;
       this.removeSubdraft(obj.id);
+      this.addTimelineState();
    }
 
      /**
@@ -767,7 +833,7 @@ export class PaletteComponent implements OnInit{
           x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
           y: sd.bounds.topleft.y});
         new_sd.drawDraft();
-        
+        this.addTimelineState();
    }
 
   /**
@@ -807,6 +873,7 @@ export class PaletteComponent implements OnInit{
 
  /**
   * triggers a mode that allows mouse-mouse to be followed by a line.
+  * todo; add code that holds the point on scroll
   * @param obj - contains event, id of component who called
   */
  selectInputDraft(obj: any){
@@ -951,7 +1018,7 @@ connectionDragged(mouse: Point, shift: boolean){
 
 
 /**
- * converts the shape on screen to a component
+ * resets the view when a connection event ends
  */
  processConnectionEnd(){
   this.closeSnackBar();
@@ -1031,6 +1098,8 @@ connectionMade(sd_id:number){
   this.createConnection(sd_id, this.connection_op_id);
   this.performOp(this.connection_op_id);
   this.processConnectionEnd();
+  this.addTimelineState();
+
 }
 
 /**
@@ -1065,6 +1134,8 @@ connectionMade(sd_id:number){
   //this list has to be calculated before the node is deleted, and udpated after
   this.recalculateDownstreamDrafts(downstream);
   this.processConnectionEnd();
+  this.addTimelineState();
+
 
 }
 
@@ -1202,6 +1273,7 @@ shapeDragged(mouse: Point, shift: boolean){
  * converts the shape on screen to a component
  */
 processShapeEnd(){
+
   this.closeSnackBar();
 
   //if circle, the topleft functoins as the center and the bounsd need to expand to fit the entire shape 
@@ -1259,6 +1331,9 @@ processShapeEnd(){
   sd.setComponentPosition(this.shape_bounds.topleft);
   sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
   sd.disableDrag();
+
+  this.addTimelineState();
+
   
 }
 
@@ -1354,6 +1429,7 @@ drawStarted(){
 
     const had_merge = this.mergeSubdrafts(sd);
     console.log("had a merge?", had_merge);
+    this.addTimelineState();
 
   }
 
@@ -1530,11 +1606,13 @@ drawStarted(){
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
 
+
       }else if(this.design_modes.isSelected("draw")){
         this.processDrawingEnd();
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
+
 
 
       }else if(this.design_modes.isSelected("shape")){
@@ -1570,7 +1648,10 @@ drawStarted(){
     //get any subdrafts that intersect the one we just made
     const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
 
-    if(isect.length == 0) return;
+    if(isect.length == 0){
+      this.addTimelineState();
+      return;
+    } 
 
     //get a draft that reflects only the poitns in the selection view
     const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
@@ -1598,6 +1679,8 @@ drawStarted(){
         el.drawDraft();
         }
     });
+    this.addTimelineState();
+
   }
 
 
@@ -1653,6 +1736,8 @@ drawStarted(){
     if(obj === null) return;
     const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
     this.recalculateDownstreamDrafts(ds);
+    this.addTimelineState();
+
   }
 
   /**
@@ -1670,6 +1755,7 @@ drawStarted(){
 
     const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
     this.recalculateDownstreamDrafts(ds);
+    this.addTimelineState();
 
   }
 
@@ -1686,6 +1772,7 @@ drawStarted(){
     if(moving === null) return; 
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
     this.updateAttachedComponents(obj);
+    this.addTimelineState();
 
   }
 
@@ -1715,11 +1802,7 @@ drawStarted(){
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
       this.preview.setComponentPosition(bounds.topleft);
-      this.preview.drawDraft();
-
-
-
-      
+      this.preview.drawDraft();      
     }
 
 
@@ -1746,7 +1829,7 @@ drawStarted(){
         this.removePreview();
       } 
 
-      
+      this.addTimelineState();
       
       //get the reference to the draft that's moving
       const moving = this.tree.getComponent(obj.id);

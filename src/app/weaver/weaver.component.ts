@@ -641,7 +641,7 @@ export class WeaverComponent implements OnInit {
     } 
     else if (e.type === "ada"){
       let link = e.downloadLink.nativeElement;
-      link.href = this.fs.saver.ada('draft', [this.draft], [this.loom], this.patterns, this.draft.notes);
+      link.href = this.fs.saver.ada('draft', [this.draft], [this.loom], this.patterns, this.draft.notes, false);
       link.download = e.name + ".ada";
     } 
     else if (e.type === "wif"){

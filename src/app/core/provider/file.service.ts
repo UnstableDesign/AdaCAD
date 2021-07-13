@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { isBuffer } from 'lodash';
 import { TreeService } from '../../mixer/provider/tree.service';
 import { Cell } from '../model/cell';
 import { Bounds } from '../model/datatypes';
@@ -79,7 +80,7 @@ interface Fileloader{
 }
 
 interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, patterns: Array<Pattern>, notes: string) => string,
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, patterns: Array<Pattern>, notes: string, for_timeline:boolean) => string,
   wif: (draft: Draft, loom: Loom) => string,
   bmp: (canvas: HTMLCanvasElement) => string,
   jpg: (canvas: HTMLCanvasElement) => string
@@ -289,7 +290,6 @@ export class FileService {
       const wefts = e.height;
   
       var img = e.data;
-      var pattern = [];
 
       let hex_string: string = "";
       const img_as_hex: Array<string> = [];
@@ -302,7 +302,6 @@ export class FileService {
 
       });
 
-      console.log("img as hex", img_as_hex);
 
       //the color table is a unique list of all the colors in this image
       const seen: Array<string> = [];
@@ -488,7 +487,7 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
-    ada:  (type: string, drafts: Array<Draft>, looms: Array<Loom>, patterns: Array<Pattern>, notes: string) : string => {
+    ada:  (type: string, drafts: Array<Draft>, looms: Array<Loom>, patterns: Array<Pattern>, notes: string, for_timeline: boolean) : string => {
       //eventually need to add saved patterns here as well
       const out: SaveObj = {
         type: type,
@@ -502,7 +501,8 @@ export class FileService {
       }
 
       var theJSON = JSON.stringify(out);
-      console.log(theJSON);
+      if(for_timeline) return theJSON;
+
       const href:string = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
       return href;
     },

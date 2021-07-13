@@ -573,7 +573,7 @@ export class SubdraftComponent implements OnInit {
       }
       else if (e.type === "ada"){
         let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.ada('draft', [this.draft], [], [], "");
+        link.href = this.fs.saver.ada('draft', [this.draft], [], [], "", false);
         link.download = e.name + ".ada";
       }
       else if (e.type === "wif"){

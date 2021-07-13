@@ -11,7 +11,7 @@ import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 import { Draft } from '../core/model/draft';
 import { TreeService } from './provider/tree.service';
-import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy } from '../core/provider/file.service';
+import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj } from '../core/provider/file.service';
 import { OperationComponent } from './palette/operation/operation.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 
@@ -130,7 +130,7 @@ export class MixerComponent implements OnInit {
 
 
   /**
-   * this gets called when a new file is started from the topbar
+   * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    * @param result 
    */
   loadNewFile(result: LoadResponse){
@@ -249,7 +249,7 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-
+    this.palette.addTimelineState();
   }
 
 
@@ -260,50 +260,20 @@ export class MixerComponent implements OnInit {
 
 
   undo() {
-    // let d: Draft = this.timeline.restorePreviousHistoryState();
-    // console.log("Prevous State is ", d);
-    // if(d === undefined || d === null) return;
 
-    // this.draft.reload(d);    
-    // this.palette.onNewDraftLoaded();
-    // this.palette.redraw({
-    //   drawdown: true, 
-    //   loom:true, 
-    //   warp_systems: true, 
-    //   weft_systems: true, 
-    //   warp_materials: true,
-    //   weft_materials:true
-    // });
-
-    // this.palette.rescale(); 
+    let so: string = this.timeline.restorePreviousMixerHistoryState();
+    
+    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
+    this.loadNewFile(lr);
   }
 
   redo() {
-    // let d: Draft = this.timeline.restoreNextHistoryState();
-    // console.log("Next State is ", d);
 
-    // if(d === undefined || d === null) return;
-
-    // console.log(d);
-
-    // this.draft.reload(d);    
-    // this.palette.onNewDraftLoaded();
-    // this.palette.redraw({
-    //   drawdown: true, 
-    //   loom:true, 
-    //   warp_systems: true, 
-    //   weft_systems: true, 
-    //   warp_materials: true,
-    //   weft_materials:true
-    // });
-
-    // this.palette.rescale(); 
+    let so: string = this.timeline.restoreNextMixerHistoryState();
+    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
+    this.loadNewFile(lr);
+   
   }
-
-  /// EVENTS
-
-
-
 
 /**
    * Change to draw mode on keypress d
@@ -479,7 +449,8 @@ export class MixerComponent implements OnInit {
         this.tree.exportDraftsForSaving(),
         [],
         this.patterns,
-        this.notes);
+        this.notes,
+        false);
         link.download = e.name + ".ada";
     }
   }
@@ -492,22 +463,8 @@ export class MixerComponent implements OnInit {
    */
   public renderChange(event: any) {
 
-
-    console.log(event.value);
-    //need to render the scale change to the parent and child subdrafts
      const scale = event.value;
      this.palette.rescale(scale);
-    // const div = document.getElementById('scrollable-container');
-    // div.style.transform = 'scale(' + scale + ')';
-
-    
-    // this.render.setCurrentView(value);
-
-    // if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
-
-    // this.palette.redraw({
-    //   drawdown: true
-    // });
   }
 
  
