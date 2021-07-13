@@ -3,6 +3,7 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { NgForm } from '@angular/forms';
 import { CollectionService } from '../../../core/provider/collection.service';
 import * as _ from 'lodash';
+import { ChangeDetectorRef } from '@angular/core';
 
 
 
@@ -22,6 +23,8 @@ export class WeaverDesignComponent implements OnInit {
   @Input()  materials;
   @Input()  patterns;
   @Input()  selection;
+  @Input() collections;
+  @Input() collection;
   @Output() onDesignModeChange: any = new EventEmitter();
   @Output() onFill: any = new EventEmitter();
   @Output() onPaste: any = new EventEmitter();
@@ -30,44 +33,25 @@ export class WeaverDesignComponent implements OnInit {
   @Output() onPatternChange: any = new EventEmitter();
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
+  @Output() onCollectionNamesChange: any = new EventEmitter();
 
 
   button_color = "#ff4081";
 
 
   selected = 0;
-
-  //Temporary data structures until db access
-  collections: any[] = []
-  collection: any;
+  
   generativeMode = false;
 
-  constructor(private dialog: MatDialog, private collectionSrvc: CollectionService) { 
-    // collectionSrvc.getCollectionNames.then((value) => {
-    //   console.log('value returned:', value);
-    //   this.collections = value;
-    //   this.collection = "";
-    // });
+  constructor(private ref: ChangeDetectorRef, private dialog: MatDialog, private collectionSrvc: CollectionService) { 
     this.collections = [];
     this.collection = {name: ""};
     collectionSrvc.getCollectionNames().then((value) => {
       this.collections = value;
-      this.collection = {name: this.collections[0]};
+      this.collection = this.collections[0]
     })
-    // var tempSaving = collectionSrvc.getCollectionNames();
-    // console.log('tempSaving in constructor:', tempSaving);
-    // console.log('this.collections:', this.collections);
-    // console.log('this.collections[0]:', this.collections[0]);
-    // this.collection = {name: this.collections[0]};
   }
-  // ngAfterViewInit() {
-  //   console.log('in ngAfterInit of weaverdesign.component.ts');
-  //   this.collections = this.collectionSrvc.getCollectionNames();
-  //   console.log('this.collections:', this.collections);
-  //   console.log('this.collections[0]:', this.collections[0]);
-  //   this.collection = {name: this.collections[0]};
-  // }
-
+  
   ngOnInit() {
   }
 

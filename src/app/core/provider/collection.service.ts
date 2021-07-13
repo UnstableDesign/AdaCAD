@@ -5,6 +5,7 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFireStorage } from 'angularfire2/storage';
 import { AngularFireDatabase, AngularFireList, snapshotChanges } from 'angularfire2/database';
 import { reject } from 'lodash';
+import { stratify } from 'd3';
 
 /**
  * Definition of pattern provider.
@@ -18,7 +19,6 @@ export class CollectionService {
     private st: AngularFireStorage,
     private http: HttpClient,
     private httpClient: HttpClient) { 
-      console.log('db constrructed for CollectionService');
     }
 
   /*
@@ -36,40 +36,18 @@ export class CollectionService {
   async getCollectionNames() {
     var ref = this.db.database.ref("collections/");
     var returnVal = [];
-    // ref.once('value').then((snapshot) => {
-    //   snapshot.forEach(data => {
-    //     returnVal.push(data.key);
-    //   });
-    //   return returnVal;
-    // });
     var snapshot = await ref.once('value');
 
     if (snapshot.exists()) {
       snapshot.forEach(function(data) {
-        returnVal.push(data.key);
+        var allLowerCaps = data.key;
+        var name = allLowerCaps.charAt(0).toUpperCase() + allLowerCaps.slice(1);
+        returnVal.push({name: name});
       });
       return returnVal;
     } else {
       return [];
     }
-    // ref.on("value", function(data) {
-    //   data.forEach(function(data) {
-    //     returnVal.push(data.key);
-    //   });
-    //   console.log("returnVal", returnVal);
-    //   return returnVal;
-    // });
   }
-
-  // public getCollectionNames = new Promise((resolve, reject) => {
-  //   var ref = this.db.database.ref("collections/");
-  //   var returnVal: any[] = [];
-  //   ref.on("value", function(data) {
-  //     data.forEach(function(data) {
-  //       returnVal.push(data.key);
-  //     });
-  //     resolve(returnVal);
-  //   });
-  // })
 
 }

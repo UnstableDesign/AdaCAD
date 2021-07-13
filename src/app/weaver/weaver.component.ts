@@ -473,17 +473,7 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.unsetSelection();
 
   }
-
-  /**
-   * Changes the state of the generative machine learning depending on if engaged or not
-   * @extends WeaveComponent
-   * @param {Event} e - generative mode change event from generative component.
-   * @returns {void}
-   */
-  public onGenerativeModeChange(e: any) {
-    this.generativeMode = !this.generativeMode;
-  }
-
+  
   /**
    * Tell the weave directive to fill selection with pattern.
    * @extends WeaveComponent
