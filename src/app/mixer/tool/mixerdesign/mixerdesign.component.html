@@ -2,7 +2,7 @@
 <mat-expansion-panel  expanded [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
-     <span>Design</span>
+     <span>Freehand Tools</span>
     </mat-panel-title>
     <mat-panel-description>
     </mat-panel-description>
@@ -10,7 +10,7 @@
 
 
   
-  <h3> <i class="fas fa-tools"></i>  Tools</h3>
+  <h3>Draw, Select, Arrange</h3>
 
   <ng-container *ngFor="let mode of design_modes.modes">
     <ng-container *ngIf="mode.value === 'shape'">
@@ -51,7 +51,7 @@
       </ng-container>   
     </mat-menu>
 
-    <h3 [class.disabled]="!design_modes.selectedHasInkEnabled()">Inks</h3>
+    <h3 [class.disabled]="!design_modes.selectedHasInkEnabled()">Drawing and Shape Inks</h3>
     <ng-container *ngFor="let ink of inks.inks">
       <button 
       [disabled]="!design_modes.selectedHasInkEnabled()"

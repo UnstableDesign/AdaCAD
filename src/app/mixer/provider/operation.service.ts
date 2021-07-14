@@ -87,7 +87,7 @@ export class OperationService {
     }
 
     const set: Operation = {
-      name: 'set',
+      name: 'set unset to down',
       dx: "this sets all unset heddles in this draft to heddle downs (white squares)",
       params: [],
       max_inputs: 1,
@@ -107,7 +107,7 @@ export class OperationService {
     }
 
     const unset: Operation = {
-      name: 'unset',
+      name: 'set down to unset',
       dx: "this sets all down heddles in this draft to unset",
       params: [],
       max_inputs: 1,
@@ -1037,9 +1037,12 @@ export class OperationService {
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
           
           const layers = inputs.length;
+          if(layers == 0) return [];
 
           const max_wefts:number = utilInstance.getMaxWefts(inputs);
           const max_warps:number = utilInstance.getMaxWarps(inputs);
+
+
 
           //set's base pattern that assigns warp 1...n to layers 1...n 
           const pattern: Array<Array<Cell>> = [];
@@ -1051,23 +1054,30 @@ export class OperationService {
             }
           }
 
+          console.log("template pattern", pattern);
+
           const overlay: Array<Draft> = this.getOp('interlace').perform(inputs, []);
           
-          const outputs: Array<Draft> = inputs.map((input, ndx) => {
+          console.log("overlay", overlay)
+
+        
+
+        //  const outputs: Array<Draft> = inputs.map((input, ndx) => {
             const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
             d.fill(pattern, "original");
+            console.log('filledd draft', d);
 
-            overlay[ndx].pattern.forEach((row, ndx) => {
+            overlay[0].pattern.forEach((row, ndx) => {
               const layer_id:number = ndx % layers;
               row.forEach((c, j) => {
                 d.pattern[ndx][j*layers+layer_id].setHeddle(c.getHeddle());
               });
             });
-            return d;
-        });
+            return [d];
+       // });
 
 
-          return outputs;
+       //   return outputs;
       }
     }
 
@@ -1182,7 +1192,7 @@ export class OperationService {
     //** Give it a classification here */
     this.classification.push(
       {category: 'block design',
-      ops: [fill, rect, clear, set, unset]
+      ops: [rect, clear, set, unset]
     }
     );
 
@@ -1193,7 +1203,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'transformations',
-      ops: [invert, mirrorx, mirrory, shiftx, shifty, rotate, slope, stretch, resize, margin]}
+      ops: [fill, invert, mirrorx, mirrory, shiftx, shifty, rotate, slope, stretch, resize, margin]}
     );
 
     this.classification.push(

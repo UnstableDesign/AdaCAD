@@ -47,9 +47,9 @@
   </button> 
     <mat-menu #downloadDropdown mat-raised-button>
 
-      <a *ngIf="source === 'weaver'" #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
+      <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
       <a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
-      <a *ngIf="source === 'weaver'" #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
+      <a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
     </mat-menu>
 
 

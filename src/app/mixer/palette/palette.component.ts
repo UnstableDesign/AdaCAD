@@ -46,6 +46,10 @@ export class PaletteComponent implements OnInit{
   operationSubscriptions: Array<Subscription> = [];
   connectionSubscriptions: Array<Subscription> = [];
 
+  /**
+   * used to manage the area of the screen that is in view based on scrolling and zooming
+   */
+  viewport:Bounds;
 
 /**
  * Subscribes to move event after a touch event is started.
@@ -109,16 +113,19 @@ export class PaletteComponent implements OnInit{
 
    scale: number;
 
+
+    /**
+   * a string to represent the current user defined scale for this component to be used in background grid css. 
+   * @property {striing}
+   */
+
+  scale_string: string;
+
   /**
    * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
    */
    canvas_zndx:number = -1;
   
-
-  /**
-   * used to manage the area of the screen that is in view based on scrolling and zooming
-   */
-   viewport:Bounds;
   
   /**
    * stores the bounds of the shape being drawn
@@ -156,12 +163,12 @@ export class PaletteComponent implements OnInit{
     private fs: FileService,
     private _snackBar: MatSnackBar) { 
     this.shape_vtxs = [];
+    this.pointer_events = true;
     this.viewport = {
       topleft: {x:0, y:0}, 
       width: 0, 
       height:0
-    };
-    this.pointer_events = true;
+  };
   }
 
 /**
@@ -169,7 +176,10 @@ export class PaletteComponent implements OnInit{
  */
   ngOnInit(){
     this.scale = 5;
+    this.scale_string = "5px 5px";
     this.vc.clear();
+
+    
   }
 
   /**
@@ -287,7 +297,6 @@ export class PaletteComponent implements OnInit{
       true);
 
     this.timeline.addMixerHistoryState(so);
-    console.log('added timeine state', this.timeline);
 
   }
 
@@ -309,6 +318,7 @@ export class PaletteComponent implements OnInit{
   rescale(scale:number){
 
     this.scale = scale;
+    this.scale_string = scale+"px "+scale+"px";
     
     const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
 
@@ -972,12 +982,15 @@ export class PaletteComponent implements OnInit{
   * called when a connection event starts
   */
  connectionStarted(topleft: Point){
+  
+  const adj: Point = {x: topleft.x - this.viewport.topleft.x, y: topleft.y - this.viewport.topleft.y}
+
   this.selecting_connection = true;
   this.unfreezePaletteObjects();
   this.setDraftsConnectable(this.connection_op_id);
 
   this.shape_bounds = {
-    topleft: topleft,
+    topleft: adj,
     width: this.scale,
     height: this.scale
   };
@@ -992,8 +1005,11 @@ export class PaletteComponent implements OnInit{
    */
 connectionDragged(mouse: Point, shift: boolean){
 
-  this.shape_bounds.width =  (mouse.x - this.shape_bounds.topleft.x);
-  this.shape_bounds.height =  (mouse.y - this.shape_bounds.topleft.y);
+  const adj: Point = {x: mouse.x - this.viewport.topleft.x, y: mouse.y - this.viewport.topleft.y}
+
+
+  this.shape_bounds.width =  (adj.x - this.shape_bounds.topleft.x);
+  this.shape_bounds.height =  (adj.y - this.shape_bounds.topleft.y);
 
   if(shift){
 
@@ -1001,10 +1017,10 @@ connectionDragged(mouse: Point, shift: boolean){
 
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.cx.beginPath();
-  // this.cx.fillStyle = "#ff4081";
-  // this.cx.strokeStyle = "#ff4081";
-   this.cx.fillStyle = "#0000ff";
-   this.cx.strokeStyle = "#0000ff";
+  this.cx.fillStyle = "#ff4081";
+  this.cx.strokeStyle = "#ff4081";
+  //  this.cx.fillStyle = "#0000ff";
+  //  this.cx.strokeStyle = "#0000ff";
   this.cx.setLineDash([this.scale, 2]);
   this.cx.lineWidth = 2;
 
@@ -1316,7 +1332,7 @@ processShapeEnd(){
       this.shape_bounds.topleft.y-= this.shape_bounds.height
     }  
   }
-  
+
   const shape: Shape = new Shape(this.canvas, this.shape_bounds, this.scale); 
   //const img_data = shape.getImageData();
   // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -1326,6 +1342,10 @@ processShapeEnd(){
   const wefts: number = pattern.length;
   if(wefts <= 0) return;
   const warps: number = pattern[0].length;
+
+  this.shape_bounds.topleft.x += this.viewport.topleft.x;
+  this.shape_bounds.topleft.y += this.viewport.topleft.y;
+  
 
   const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
   sd.setComponentPosition(this.shape_bounds.topleft);

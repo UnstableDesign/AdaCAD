@@ -106,6 +106,18 @@ export class UploadFormComponent implements OnInit {
               });
             });
           }
+          else if (fileType === "wif") {
+            this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
+              this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
+               var obj = {
+                  name: file.name.split(".")[0],
+                  data: data,
+                  type: 'wif',
+                }
+                this.onData.emit(obj);
+              });
+            });
+          }
         })
      )
     .subscribe((e) => {

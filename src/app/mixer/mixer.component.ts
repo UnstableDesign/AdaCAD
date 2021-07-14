@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
@@ -14,6 +14,8 @@ import { TreeService } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj } from '../core/provider/file.service';
 import { OperationComponent } from './palette/operation/operation.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
+import { MixerViewComponent } from './tool/mixerview/mixerview.component';
+import { FinetuneComponent } from './modal/finetune/finetune.component';
 
 
 //disables some angular checking mechanisms
@@ -33,6 +35,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild(PaletteComponent, {static: false}) palette;
   @ViewChild(MixerDesignComponent, {static: false}) design_tool;
+  @ViewChild(MixerViewComponent, {static: false}) view_tool;
 
 
   filename = "adacad_mixer";
@@ -83,8 +86,10 @@ export class MixerComponent implements OnInit {
     private ps: PatternService, 
     private tree: TreeService,
     public scroll: ScrollDispatcher,
-    private fs: FileService) {
+    private fs: FileService,
+    private dialog: MatDialog) {
 
+  this.dialog.open(FinetuneComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -104,8 +109,16 @@ export class MixerComponent implements OnInit {
     }); 
   }
 
+
+
   private onWindowScroll(data: any) {
     this.palette.handleScroll(data);
+    this.view_tool.updateViewPort(data);
+  }
+
+  private setScroll(data: any) {
+    this.palette.handleScroll(data);
+    this.view_tool.updateViewPort(data);
   }
 
 
@@ -250,6 +263,7 @@ export class MixerComponent implements OnInit {
   ngAfterViewInit() {
 
     this.palette.addTimelineState();
+
   }
 
 
