@@ -5,11 +5,12 @@
 [density_units] = "density_units"
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
-[filename]="draft?.name"
+[filename]="filename"
+source="mixer"
 [draftelement]="draftelement"
   (onUndo)="undo();" 
   (onRedo)="redo();"
-  (onReInit)="reInit($event);"
+  (onLoadNewFile)="loadNewFile($event);"
   (onSave)="onSave($event);">
 </app-topbar>
 
@@ -21,9 +22,10 @@
        
         <mat-accordion multi>
 
-        <app-mixerview 
-          [zoom] = "palette?.scale"
+        <app-mixerview #view_tool  
+          zoom = "5"
           (onZoomChange) ="renderChange($event);"
+          (onViewPortMove) ="setScroll($event);"
         >
 
 
@@ -35,7 +37,7 @@
         (onInkChange)="inkChanged($event)">
         </app-mixerdesign> 
 
-        <app-mixerpatterns 
+        <!-- <app-mixerpatterns 
         [patterns]="default_patterns"
         [selection] = "selection"
         (onPatternChange)="updatePatterns($event);"
@@ -43,68 +45,21 @@
         (onRemovePattern)="removePattern($event);"
         (onFill) = "fillEvent($event)">
         >
-       </app-mixerpatterns>
+       </app-mixerpatterns> -->
  
        <app-flow
-       (onOperationAdded) = "operationAdded($event)">
+       (onOperationAdded) = "operationAdded($event)"
+       (onImport) = "importNewFile($event)">
       </app-flow>
     
 
        <app-tree>
       </app-tree>
 
-        <!-- <app-materials 
-          [material_types]="material_types"
-          [shuttles]="draft?.shuttles"
-          (onColorChange)="shuttleColorChange()" 
-          (onThicknessChange) ="thicknessChange($event)"
-          (onCreateShuttle) ="createShuttle($event)"
-        >
-
-        </app-materials> -->
-
-       
-<!-- 
-        <app-systems
-         [weft_systems]="draft?.weft_systems"
-         [warp_systems]="draft?.warp_systems"
-         [weft_systems_pattern]="draft?.rowSystemPattern"
-         [warp_systems_pattern]="draft?.colSystemPattern"
-         [shuttles]="draft?.shuttles"
-         [warp_shuttles_pattern]="draft?.colShuttlePattern"
-         [weft_shuttles_pattern]="draft?.rowShuttlePattern"
-         (onUpdateWarpSystems) = "updateWarpSystems($event)"
-         (onUpdateWeftSystems) = "updateWeftSystems($event)"
-         (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
-         (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
-        >
-       </app-systems> -->
-
-
-        <!-- <app-loom 
-          [epi] = "draft?.epi"
-          [warps] = "draft?.warps"
-          [wefts] = "draft?.wefts"
-          [frames] = "draft?.loom.min_frames"
-          [treadles] = "draft?.loom.min_treadles"
-          [loomtypes] = "loomtypes"
-          [loomtype] = "draft?.loom.type"
-          [density_units] = "density_units"
-          [units] = "draft?.units"
-          [width] = "draft?.width"
-          (onWarpNumChange) = "warpNumChange($event)"
-          (onWeftNumChange) = "weftNumChange($event)"
-          (onEpiNumChange) = "epiChange($event)"
-          (onUnitChange) = "unitChange($event)"
-          (onThicknessChange) = "thicknessChange($event)"
-          (onLoomTypeChange) = "loomChange($event)"
-          (onFrameChange) = "frameChange($event)"
-          (onTreadleChange) = "treadleChange($event)"
-          >
-        </app-loom> -->
+      
 
         <app-notes
-         [notes] = "draft?.notes"
+         [notes] = "notes"
          (onChange) = "notesChanged($event)"
          >
         </app-notes>
@@ -118,6 +73,7 @@
 
   <app-palette #palette  id="scrollable-container"
   [patterns] = "default_patterns"
+  [timeline] = "timeline"
   (onDesignModeChange)="designModeChanged($event)" >
   </app-palette>
 

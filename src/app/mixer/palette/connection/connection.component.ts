@@ -58,7 +58,8 @@ export class ConnectionComponent implements OnInit {
   }
 
   enableDrag(){
-    this.disable_drag = false;
+    //there is never a case where this should be enabled so set to true
+    this.disable_drag = true;
   }
 
   // setBounds(to:Bounds, from:Bounds){
@@ -83,19 +84,22 @@ export class ConnectionComponent implements OnInit {
    * @param height the height of the moving component
    */
   updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
-  
+    //get the updated positioins of the to and from points
+    this.b_from = this.tree.getComponent(this.from).bounds;
+    this.b_to = this.tree.getComponent(this.to).bounds;
+
     //this block of code works when we assume the pointer is at the top right corner of a subdraft directly connected to this component
     this.orientation = true;
 
     //in most cases from is a subdraft
-    if(id == this.from){
+    if(id === this.from){
       if(topleft.x < this.b_to.topleft.x) this.orientation = !this.orientation;
       if(topleft.y < this.b_to.topleft.y) this.orientation = !this.orientation;
       this.bounds.topleft = {x: Math.min(topleft.x, this.b_to.topleft.x), y: Math.min(topleft.y+height, this.b_to.topleft.y)};
       this.bounds.width = Math.max(topleft.x, this.b_to.topleft.x) - this.bounds.topleft.x;
       this.bounds.height = Math.max(topleft.y, this.b_to.topleft.y) - this.bounds.topleft.y;
        
-    }else if(id == this.to){
+    }else if(id === this.to){
       //assumes to is an operations
       let b_from_height = this.b_from.height;
       if(topleft.x < this.b_from.topleft.x) this.orientation = !this.orientation;
@@ -131,11 +135,9 @@ export class ConnectionComponent implements OnInit {
     bottomright.x = Math.max(p1.x, p2.x);
     bottomright.y = Math.max(p1.y, p2.y);
 
-    this.bounds.topleft.x = Math.min(p1.x, p2.x);
-    this.bounds.topleft.y = Math.min(p1.y, p2.y);
+    this.bounds.topleft = {x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y)};
     this.bounds.width = bottomright.x - this.bounds.topleft.x + 2; //add two so a line is drawn when horiz or vert
     this.bounds.height = bottomright.y - this.bounds.topleft.y + 2;
-    console.log("Bounds", this.bounds.topleft);
   }
 
   drawConnection(){
@@ -161,8 +163,47 @@ export class ConnectionComponent implements OnInit {
     this.cx.stroke();
   }
 
+  drawForPrint(canvas, cx, scale: number) {
+
+    cx.beginPath();
+    cx.strokeStyle = "#ff4081";
+    cx.setLineDash([scale, 2]);
+    cx.lineWidth = 2;
+    // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
+    if(this.orientation){
+      cx.moveTo(this.bounds.topleft.x, this.bounds.topleft.y);
+      cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y + this.bounds.height);
+    }else{
+      cx.moveTo(this.bounds.topleft.x, this.bounds.height+ this.bounds.topleft.y);
+      cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y);
+    }
+    cx.stroke();
+  }
+
+  /**
+   * rescales this compoment. 
+   * Call after the operation and subdraft connections have been updated. 
+   * @param scale 
+   */
   rescale(scale:number){
+
+    const from_comp: any = this.tree.getComponent(this.from);
+    const to_comp: any = this.tree.getComponent(this.to);
+   
+    this.b_from = {
+      topleft: {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y},
+      width: from_comp.bounds.width,
+      height: from_comp.bounds.height
+    }
+
+    this.b_to = {
+      topleft: {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y},
+      width: to_comp.bounds.width,
+      height: to_comp.bounds.height
+    }
+
     this.scale = scale;
+    this.calculateBounds();
     this.drawConnection();
   }
 

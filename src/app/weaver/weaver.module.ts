@@ -81,10 +81,9 @@ import { ConnectionModal } from './modal/connection/connection.modal';
     LoomComponent,
     MasksComponent,
     SchematicComponent,
-    WeaverViewComponent,
+    WeaverViewComponent
   ],
   entryComponents: [
-    ConnectionModal
-  ],
+    ConnectionModal  ],
 })
 export class WeaverModule { }
