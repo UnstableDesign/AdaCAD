@@ -135,8 +135,10 @@ export class FileService {
         const draft: Draft =  new Draft({wefts: data.wefts, warps: data.warps, pattern: data.pattern});
         if(data.id !== undefined) draft.overloadId(data.id);
         if(data.shuttles !== undefined) draft.overloadShuttles(data.shuttles); 
+       
         if(data.weft_systems !== undefined) draft.overloadWeftSystems(data.weft_systems); 
         if(data.warp_systems !== undefined) draft.overloadWarpSystems(data.warp_systems); 
+       
         if(data.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(data.rowShuttleMapping); 
         if(data.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(data.colShuttleMapping); 
         if(data.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(data.rowSystemMapping); 

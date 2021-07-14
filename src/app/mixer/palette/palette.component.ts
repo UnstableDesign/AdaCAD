@@ -634,6 +634,10 @@ export class PaletteComponent implements OnInit{
       this.freezePaletteObjects();
     }
 
+    if(this.design_modes.isSelected('draw') || this.design_modes.isSelected('shape')){
+      this.rescale(Math.ceil(this.scale));
+    }
+
     // if(this.design_modes.isSelected('operation')){
     //   this.disablePointerEvents();
     // }else{

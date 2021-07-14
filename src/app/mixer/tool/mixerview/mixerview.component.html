@@ -11,8 +11,8 @@
           invert
           [displayWith]="formatLabel" 
           tickInterval="1" 
-          step="1" 
-          min="1" 
+          step=".1" 
+          min=".01" 
           max="15" 
           value="{{zoom}}" 
           (change)="zoomChange($event, 'slider')"></mat-slider>

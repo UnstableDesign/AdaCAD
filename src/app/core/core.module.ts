@@ -42,6 +42,7 @@ import { NotesComponent} from './tool/notes/notes.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
+import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
 
 
@@ -88,7 +89,8 @@ import { FileService } from './provider/file.service';
     NotesComponent,
     PatternModal,
     InitModal,
-    AboutModal
+    AboutModal,
+    MaterialModal
    ],
 
   providers: [
@@ -135,12 +137,14 @@ import { FileService } from './provider/file.service';
     NotesComponent,
     PatternModal,
     InitModal,
-    AboutModal],
+    AboutModal,
+    MaterialModal],
   
     entryComponents: [
       InitModal,
       AboutModal,
-      PatternModal
+      PatternModal,
+      MaterialModal
     ],
 })
 export class CoreModule { }

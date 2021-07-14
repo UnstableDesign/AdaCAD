@@ -27,8 +27,8 @@ export class InitModal implements OnInit {
   opts: StartOptions[] = [
       {value: 'new', viewValue: 'Empty Draft'},
       {value: 'ada', viewValue: 'AdaCAD (.ada) File'},
-      {value: 'bmp', viewValue: 'Bitmap (.bmp) File'},
-      {value: 'jpg', viewValue: 'Image (.jpg) File'},
+      {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File'},
+      // {value: 'jpg', viewValue: 'Image (.jpg) File'},
       {value: 'wif', viewValue: 'WIF (.wif) File'}   
     ];
 
@@ -70,7 +70,7 @@ export class InitModal implements OnInit {
 
     switch(e.type){
       case 'image': 
-        res = this.fls.loader.jpg(e.data);
+        res = this.fls.loader.bmp(e.data);
       break; 
 
       case 'wif':

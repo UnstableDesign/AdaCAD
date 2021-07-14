@@ -241,6 +241,8 @@ export class WeaverComponent implements OnInit {
     }else{
       console.log("WARNING, there were no looms associated with this file");
       this.loom.clearAllData(this.draft.warps, this.draft.wefts);
+      this.loom.recomputeLoom(this.draft);
+
       const success: boolean = this.loom.overloadDraft(this.draft);
       if(!success) console.log("ERROR, could not attach loom to draft of different size");
     }

@@ -176,16 +176,19 @@ export class Draft{
 
   overloadWarpSystems(systems: Array<System>){
     this.warp_systems = [];
+
     systems.forEach(system => {
       this.warp_systems.push(new System(system));
     });
   }
 
   overloadWeftSystems(systems: Array<System>){
-    this.weft_systems = [];
-    systems.forEach(system => {
-      this.weft_systems.push(new System(system));
-    });
+
+      systems.forEach(system => {
+        this.weft_systems.push(new System(system));
+      });
+    
+    
   }
 
   overloadRowShuttleMapping(mapping: Array<number>){
