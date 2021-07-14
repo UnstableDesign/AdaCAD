@@ -354,6 +354,183 @@ export class OperationService {
       }        
     }
 
+    const reverse: Operation = {
+      name: 'reverse section',
+      dx: 'uses the second draft input to reverse the first image. ',
+      params: [
+        {name: 'left offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the added inputs from the left"
+        },
+        {name: 'top offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the overlaying inputs from the top"
+        }
+      ],
+      max_inputs: 100,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        if(inputs.length < 1) return [];
+
+        const first: Draft = inputs.shift();
+
+        const outputs: Array<Draft> = [];
+
+
+        let width: number = utilInstance.getMaxWarps(inputs) + input_params[0];
+        let height: number = utilInstance.getMaxWefts(inputs) + input_params[1];
+        if(first.warps > width) width = first.warps;
+        if(first.wefts > height) height = first.wefts;
+
+        //initialize the base container with the first draft at 0,0, unset for anythign wider
+        const init_draft: Draft = new Draft({wefts: height, warps: width});
+          
+        first.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              init_draft.pattern[i][j].setHeddle(cell.getHeddle());
+            });
+          });
+
+        //now merge in all of the additional inputs offset by the inputs
+        const d: Draft = inputs.reduce((acc, input) => {
+          input.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              //if i or j is less than input params 
+              const adj_i: number = i+input_params[1];
+              const adj_j: number = j+input_params[0];
+              acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('neq', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
+            });
+          });
+          return acc;
+
+        }, init_draft);
+        outputs.push(d);
+        return outputs;
+      }        
+    }
+
+    const mask: Operation = {
+      name: 'mask',
+      dx: 'only shows areas of the first draft that are marked as "up" in the second draft',
+      params: [
+        {name: 'left offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the added inputs from the left"
+        },
+        {name: 'top offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the overlaying inputs from the top"
+        }
+      ],
+      max_inputs: 100,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        if(inputs.length < 1) return [];
+
+        const first: Draft = inputs.shift();
+
+        const outputs: Array<Draft> = [];
+
+
+        let width: number = utilInstance.getMaxWarps(inputs) + input_params[0];
+        let height: number = utilInstance.getMaxWefts(inputs) + input_params[1];
+        if(first.warps > width) width = first.warps;
+        if(first.wefts > height) height = first.wefts;
+
+        //initialize the base container with the first draft at 0,0, unset for anythign wider
+        const init_draft: Draft = new Draft({wefts: height, warps: width});
+          
+        first.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              init_draft.pattern[i][j].setHeddle(cell.getHeddle());
+            });
+          });
+
+        //now merge in all of the additional inputs offset by the inputs
+        const d: Draft = inputs.reduce((acc, input) => {
+          input.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              //if i or j is less than input params 
+              const adj_i: number = i+input_params[1];
+              const adj_j: number = j+input_params[0];
+              acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('and', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
+            });
+          });
+          return acc;
+
+        }, init_draft);
+        outputs.push(d);
+        return outputs;
+      }        
+    }
+
+    const erase: Operation = {
+      name: 'erase',
+      dx: 'erases  areas of the first draft that are marked as "up" in the second draft',
+      params: [
+        {name: 'left offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the added inputs from the left"
+        },
+        {name: 'top offset',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: "the amount to offset the overlaying inputs from the top"
+        }
+      ],
+      max_inputs: 100,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        if(inputs.length < 1) return [];
+
+        const first: Draft = inputs.shift();
+
+        const outputs: Array<Draft> = [];
+
+
+        let width: number = utilInstance.getMaxWarps(inputs) + input_params[0];
+        let height: number = utilInstance.getMaxWefts(inputs) + input_params[1];
+        if(first.warps > width) width = first.warps;
+        if(first.wefts > height) height = first.wefts;
+
+        //initialize the base container with the first draft at 0,0, unset for anythign wider
+        const init_draft: Draft = new Draft({wefts: height, warps: width});
+          
+        first.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              init_draft.pattern[i][j].setHeddle(cell.getHeddle());
+            });
+          });
+
+        //now merge in all of the additional inputs offset by the inputs
+        const d: Draft = inputs.reduce((acc, input) => {
+          input.pattern.forEach((row, i) => {
+            row.forEach((cell, j) => {
+              //if i or j is less than input params 
+              const adj_i: number = i+input_params[1];
+              const adj_j: number = j+input_params[0];
+              acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('down', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
+            });
+          });
+          return acc;
+
+        }, init_draft);
+        outputs.push(d);
+        return outputs;
+      }        
+    }
+
 
     const fill: Operation = {
       name: 'fill',
@@ -733,6 +910,35 @@ export class OperationService {
       }        
     }
 
+    
+
+    const satin: Operation = {
+      name: 'satin',
+      dx: 'generates or fills with a satin structure described by the inputs',
+      params: [
+        {name: 'unders',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: 'number of weft unders (this would typically be 1 with satin, but why not play with it'
+        },
+        {name: 'overs',
+        min: 1,
+        max: 100,
+        value: 4,
+        dx: 'number of weft overs'
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+       
+        const shift: number = Math.ceil(input_params[1]/2);
+        const d: Array<Draft> = this.getOp('twill').perform(inputs, input_params);
+        const outputs: Array<Draft> = this.getOp('slope').perform(d, [shift, 1]);
+        return outputs;
+      }        
+    }
+
     const random: Operation = {
       name: 'random',
       dx: 'generates a random draft with width, height, and percetage of weft unders defined by inputs',
@@ -1058,8 +1264,6 @@ export class OperationService {
 
           const overlay: Array<Draft> = this.getOp('interlace').perform(inputs, []);
           
-          console.log("overlay", overlay)
-
         
 
         //  const outputs: Array<Draft> = inputs.map((input, ndx) => {
@@ -1159,6 +1363,7 @@ export class OperationService {
     //**push operatiinos to the array here */
     this.ops.push(rect);
     this.ops.push(twill);
+    this.ops.push(satin);
     this.ops.push(tabby);
     this.ops.push(basket);
     this.ops.push(rib);
@@ -1187,6 +1392,8 @@ export class OperationService {
     this.ops.push(fill);
     this.ops.push(overlay);
     this.ops.push(atop);
+    this.ops.push(mask);
+    this.ops.push(reverse);
 
 
     //** Give it a classification here */
@@ -1198,7 +1405,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'structures',
-      ops: [tabby, twill, basket, rib, random]}
+      ops: [tabby, twill, satin, basket, rib, random]}
     );
 
     this.classification.push(
@@ -1208,7 +1415,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'compose',
-      ops: [atop, overlay, interlace, layer, tile, joinleft, mirror, selvedge, bindweftfloats, bindwarpfloats]}
+      ops: [mirror, interlace, layer, tile, joinleft, selvedge,atop, overlay, mask, reverse, bindweftfloats, bindwarpfloats]}
     );
 
   }
