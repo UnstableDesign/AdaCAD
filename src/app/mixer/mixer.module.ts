@@ -17,6 +17,7 @@ import { FlowComponent } from './tool/flow/flow.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
 import { FinetuneComponent } from './modal/finetune/finetune.component';
+import { FreehandComponent } from './modal/freehand/freehand.component';
 
 
 
@@ -41,6 +42,7 @@ import { FinetuneComponent } from './modal/finetune/finetune.component';
     FlowComponent,
     OpHelpModal,
     ImageComponent,
+    FreehandComponent,
     FinetuneComponent
     ],
   entryComponents: [

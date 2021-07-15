@@ -44,6 +44,8 @@ import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
+import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
+import { PatternsComponent } from './tool/patterns/patterns.component';
 
 
 @NgModule({
@@ -88,9 +90,11 @@ import { FileService } from './provider/file.service';
     MaterialsComponent,
     NotesComponent,
     PatternModal,
+    ShuttlesModal,
     InitModal,
     AboutModal,
-    MaterialModal
+    MaterialModal,
+    PatternsComponent
    ],
 
   providers: [

@@ -38,6 +38,7 @@ import { MasksComponent } from './tool/masks/masks.component';
 import { SchematicComponent } from './tool/schematic/schematic.component';
 import { WeaverViewComponent } from './tool/weaverview/weaverview.component';
 import { ConnectionModal } from './modal/connection/connection.modal';
+import { LabelModal } from './modal/label/label.modal';
 
 
 @NgModule({
@@ -80,6 +81,7 @@ import { ConnectionModal } from './modal/connection/connection.modal';
     ConnectionModal,
     LoomComponent,
     MasksComponent,
+    LabelModal,
     SchematicComponent,
     WeaverViewComponent
   ],

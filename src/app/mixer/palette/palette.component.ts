@@ -840,7 +840,10 @@ export class PaletteComponent implements OnInit{
     onDuplicateSubdraftCalled(obj: any){
         console.log("duplicating "+obj.id);
         if(obj === null) return;
+
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
+
+        
         const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}));
         new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
         new_sd.setComponentPosition({
