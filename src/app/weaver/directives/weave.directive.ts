@@ -11,6 +11,9 @@ import { Timeline } from '../../core/model/timeline';
 import { CanvasToBMP } from '../../core/model/canvas2image';
 import {Subject} from 'rxjs';
 import {takeLast, takeUntil} from 'rxjs/operators';
+import { Draft } from '../../core/model/draft';
+import { Loom } from '../../core/model/loom';
+import { Cell } from '../../core/model/cell';
 
 const generateId = () => (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
 
@@ -46,7 +49,16 @@ export class WeaveDirective {
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {Draft}
    */
-  @Input('draft') weave: any;
+  @Input('draft') weave: Draft;
+
+
+  /**
+ * The Draft object containing the pattern and shuttle information.
+ * It is defined and inputed from the HTML declaration of the WeaveDirective.
+ * @property {Draft}
+ */
+    @Input('loom') loom: Loom;
+
 
 
 /**
@@ -54,7 +66,7 @@ export class WeaveDirective {
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {Render}
   */
-  @Input('render') render:any;
+  @Input('render') render:Render;
 
 
 
@@ -232,7 +244,7 @@ export class WeaveDirective {
   weftMaterialsCanvas: HTMLCanvasElement;
   warpMaterialsCanvas: HTMLCanvasElement;
 
-  private tempPattern: Array<Array<boolean>>;
+  private tempPattern: Array<Array<Cell>>;
   private unsubscribe$ = new Subject();
 
   private lastPos: Interlacement;
@@ -253,9 +265,9 @@ export class WeaveDirective {
 
   //this is called when the HTML "weaveRef" Element is loaded
   ngOnInit() {  
-    this.selected = false;
+  }
 
-    console.log("element", this.el.nativeElement.children);
+  ngAfterViewInit(){
 
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = this.el.nativeElement.children[6];
@@ -291,23 +303,20 @@ export class WeaveDirective {
     // set the width and height
 
     d3.select(this.svgEl).style('display', 'none');
-
-    
   }
 
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded() {  
-
     var dims = this.render.getCellDims("base");
 
     this.canvasEl.width = this.weave.warps * dims.w;
     this.canvasEl.height = this.weave.wefts * dims.h;
     this.threadingCanvas.width = this.weave.warps * dims.w;
-    this.threadingCanvas.height = this.weave.loom.min_frames * dims.h;
+    this.threadingCanvas.height = this.loom.min_frames * dims.h;
     this.treadlingCanvas.height = this.weave.wefts * dims.h;
-    this.treadlingCanvas.width = this.weave.loom.min_treadles * dims.w;
-    this.tieupsCanvas.width = this.weave.loom.min_treadles*dims.w;
-    this.tieupsCanvas.height = this.weave.loom.min_frames * dims.h;
+    this.treadlingCanvas.width = this.loom.min_treadles * dims.w;
+    this.tieupsCanvas.width = this.loom.min_treadles*dims.w;
+    this.tieupsCanvas.height = this.loom.min_frames * dims.h;
 
 
     this.weftSystemsCanvas.width =  dims.w;
@@ -341,26 +350,26 @@ export class WeaveDirective {
 
   setPosAndDraw(target, currentPos:Interlacement){
       if (target && target.id =='treadling') {
-        currentPos.i = this.weave.visibleRows[currentPos.i];
+        currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
       } else if (target && target.id === 'tieups') {
-        currentPos.i = this.weave.loom.frame_mapping[currentPos.i];
+        currentPos.i = this.loom.frame_mapping[currentPos.i];
         this.drawOnTieups(currentPos);
       } else if (target && target.id === ('threading')) {
-        currentPos.i = this.weave.loom.frame_mapping[currentPos.i];
+        currentPos.i = this.loom.frame_mapping[currentPos.i];
         this.drawOnThreading(currentPos);
       } else if(target && target.id === ('weft-systems')){
-        currentPos.i = this.weave.visibleRows[currentPos.i];
+        currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnWeftSelectors(currentPos);
       }else if(target && target.id === ('warp-systems')){
         this.drawOnWarpSelectors(currentPos);
       }else if(target && target.id === ('weft-materials')){
-        currentPos.i = this.weave.visibleRows[currentPos.i];
+        currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnWeftMaterials(currentPos);
       }else if(target && target.id === ('warp-materials')){
         this.drawOnWarpMaterials(currentPos);
       } else{
-        currentPos.i = this.weave.visibleRows[currentPos.i];
+        currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnDrawdown(currentPos);
       }
 
@@ -382,7 +391,7 @@ export class WeaveDirective {
     //get dimis based on zoom.
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
+      h: this.weftSystemsCanvas.height / this.render.visibleRows.length
     }
 
     if (event.target.localName === 'canvas') {
@@ -401,7 +410,7 @@ export class WeaveDirective {
         j: Math.floor((event.offsetX) / dims.w), //col
       };
 
-      if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
+      if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
       if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
       if(event.target && event.target.id==="drawdown"){
@@ -410,7 +419,7 @@ export class WeaveDirective {
         currentPos.j -=1;
       }
 
-      if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
+      if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
       if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
       
       // Save temp pattern
@@ -458,7 +467,7 @@ export class WeaveDirective {
             if (event.target && event.target.id==="treadling") {
               this.selection.setTarget(this.treadlingCanvas);
               this.selection.start.j = 0;
-              this.selection.width = this.weave.loom.num_treadles;
+              this.selection.width = this.loom.num_treadles;
 
             } else if (event.target && event.target.id ==="tieups") {
               this.selection.setTarget(this.tieupsCanvas);
@@ -466,7 +475,7 @@ export class WeaveDirective {
               this.selection.setTarget(this.threadingCanvas);
               this.selection.start.i = 0;
               this.selection.start.si = 0;
-              this.selection.height = this.weave.loom.num_frames;
+              this.selection.height = this.loom.num_frames;
 
 
             } else if(event.target && event.target.id === "weft-systems"){
@@ -517,7 +526,7 @@ export class WeaveDirective {
 
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.weftSystemsCanvas.height /this.weave.visibleRows.length
+      h: this.weftSystemsCanvas.height /this.render.visibleRows.length
     };    
 
     var offset = this.render.getCellDims(this.design_mode.name);
@@ -551,7 +560,7 @@ export class WeaveDirective {
       case 'down':
       case 'material':
 
-        if(currentPos.i < 0 || currentPos.i >= this.weave.visibleRows.length) return;
+        if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
         if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
 
@@ -575,18 +584,18 @@ export class WeaveDirective {
 
         this.selection.end = currentPos;
         if(currentPos.si < 0) currentPos.si = 0;
-        if(currentPos.si >= this.weave.visibleRows.length) currentPos.si = this.weave.visibleRows.length;
+        if(currentPos.si >= this.render.visibleRows.length) currentPos.si = this.render.visibleRows.length;
       
         if(currentPos.j < 0 ) currentPos.j = 0;
         if(currentPos.j >= this.weave.warps) currentPos.j = this.weave.warps;
 
 
         if (event.target && event.target.id === ('treadling')) {
-          this.selection.end.j = this.weave.loom.num_treadles;
+          this.selection.end.j = this.loom.num_treadles;
 
         }else if(event.target && event.target.id === ('threading')){
-          this.selection.end.i = this.weave.loom.num_frames;
-          this.selection.end.si = this.weave.loom.num_frames;
+          this.selection.end.i = this.loom.num_frames;
+          this.selection.end.si = this.loom.num_frames;
         }
 
         this.selection.setParameters();
@@ -715,7 +724,7 @@ export class WeaveDirective {
       for(var j = 0; j < temp_copy[0].length; j++) {
 
         var screen_row = screen_i + i;
-        var draft_row = this.weave.visibleRows[screen_row];
+        var draft_row = this.render.visibleRows[screen_row];
         var col = draft_j + j;
 
         switch(this.selection.target.id){
@@ -723,16 +732,16 @@ export class WeaveDirective {
             temp_copy[i][j]= this.weave.isUp(draft_row, col);
           break;
           case 'threading':
-              var frame = this.weave.loom.frame_mapping[screen_row];
-              temp_copy[i][j]= this.weave.loom.isInFrame(col,frame);
+              var frame = this.loom.frame_mapping[screen_row];
+              temp_copy[i][j]= this.loom.isInFrame(col,frame);
 
           break;
           case 'treadling':
-            temp_copy[i][j] = this.weave.loom.isInTreadle(screen_row,col);
+            temp_copy[i][j] = this.loom.isInTreadle(screen_row,col);
           break;
           case 'tieups':
-              var frame = this.weave.loom.frame_mapping[screen_row];
-              temp_copy[i][j] = this.weave.loom.hasTieup(frame, col);;
+              var frame = this.loom.frame_mapping[screen_row];
+              temp_copy[i][j] = this.loom.hasTieup({i: frame, j: col, si: screen_row});
           break;  
           case 'warp-systems':
             temp_copy[i][j]= (this.weave.colSystemMapping[col] == i);
@@ -768,7 +777,7 @@ export class WeaveDirective {
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom/50;
 
-        cx.fillStyle = this.weave.getColor(i);
+        cx.fillStyle = this.weave.getColor(i, this.render.visibleRows);
 
         if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
         else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
@@ -786,12 +795,12 @@ export class WeaveDirective {
 
 
       canvas.width =  dims.w;
-      canvas.height = this.weave.visibleRows.length * dims.h;
+      canvas.height = this.render.visibleRows.length * dims.h;
 
       cx.fillStyle = "white";
-      cx.fillRect(0,0,canvas.width,this.weave.visibleRows.length*dims.h);
+      cx.fillRect(0,0,canvas.width,this.render.visibleRows.length*dims.h);
 
-      for(var i = 0 ; i < this.weave.visibleRows.length; i++){
+      for(var i = 0 ; i < this.render.visibleRows.length; i++){
           this.drawWeftMaterialCell(cx, i);        
       }
 
@@ -843,7 +852,7 @@ export class WeaveDirective {
          
          cx.fillStyle = "#ffffff";  
          cx.font = "10px Arial";
-         cx.fillText(this.weave.getWeftSystemCode(i), dims.w/3, (dims.h*i)+3*dims.h/4);
+         cx.fillText(this.weave.getWeftSystemCode(i, this.render.visibleRows), dims.w/3, (dims.h*i)+3*dims.h/4);
 
   }
 
@@ -860,12 +869,12 @@ export class WeaveDirective {
 
 
       canvas.width =  dims.w;
-      canvas.height = this.weave.visibleRows.length * dims.h;
+      canvas.height = this.render.visibleRows.length * dims.h;
 
       cx.fillStyle = "white";
-      cx.fillRect(0,0,canvas.width,this.weave.visibleRows.length*dims.h);
+      cx.fillRect(0,0,canvas.width,this.render.visibleRows.length*dims.h);
 
-      for(var i = 0 ; i < this.weave.visibleRows.length; i++){
+      for(var i = 0 ; i < this.render.visibleRows.length; i++){
           this.drawWeftSelectorCell(cx, i);        
       }
 
@@ -936,13 +945,13 @@ export class WeaveDirective {
       cx.fillStyle = "white";
       cx.fillRect(0,0,canvas.width,canvas.height);
       cx.fillStyle = "#cccccc";
-      cx.fillRect(0, 0, canvas.width, (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h);
+      cx.fillRect(0, 0, canvas.width, (this.loom.num_frames - this.loom.min_frames)*dims.h);
     }
     else if (canvas.id=== "treadling"){
       cx.fillStyle = "white";
       cx.fillRect(0,0,canvas.width,canvas.height);
       cx.fillStyle = "#cccccc";
-      var start = this.weave.loom.min_treadles * dims.w;
+      var start = this.loom.min_treadles * dims.w;
       cx.fillRect(start, 0, canvas.width - start, canvas.height);
 
     }
@@ -950,9 +959,9 @@ export class WeaveDirective {
       cx.fillStyle = "white";
       cx.fillRect(0,0,canvas.width,canvas.height);
       cx.fillStyle = "#cccccc";
-      var start = this.weave.loom.min_treadles * dims.w;
+      var start = this.loom.min_treadles * dims.w;
       cx.fillRect(start, 0, canvas.width - start, canvas.height);
-      cx.fillRect(0, 0, canvas.width, (this.weave.loom.num_frames - this.weave.loom.min_frames)*dims.h);
+      cx.fillRect(0, 0, canvas.width, (this.loom.num_frames - this.loom.min_frames)*dims.h);
 
     }
 
@@ -1213,7 +1222,7 @@ export class WeaveDirective {
 
         
       if(this.design_mode.name !== 'material')
-        if(this.render.showingFrames()) this.updateLoomFromDraft(currentPos);
+        if(this.render.showingFrames()) this.loom.updateLoomFromDraft(currentPos, this.weave);
       
       this.redraw({drawdown:true, loom:true});
       
@@ -1233,7 +1242,7 @@ export class WeaveDirective {
     
     if (!this.cxTieups || !currentPos) { return; }
 
-    if (this.weave.loom.inTieupRange(currentPos)) {
+    if (this.loom.inTieupRange(currentPos)) {
       switch (this.design_mode.name) {
         case 'up':
             val = true;
@@ -1242,14 +1251,14 @@ export class WeaveDirective {
           val = false;
           break;
         case 'toggle':
-          val = !this.weave.loom.tieup[currentPos.i][currentPos.j];
+          val = !this.loom.tieup[currentPos.i][currentPos.j];
           break;
         default:
           break;
       }
     
-    updates = this.weave.loom.updateTieup({i:currentPos.i,j: currentPos.j, val:val});
-    this.weave.updateDraftFromTieup(updates);
+    updates = this.loom.updateTieup({i:currentPos.i,j: currentPos.j, val:val});
+    this.weave.updateDraftFromTieup(updates, this.loom);
     this.redraw({drawdown:true, loom:true});
     
     
@@ -1266,7 +1275,7 @@ export class WeaveDirective {
     if (!this.cxThreading || !currentPos) { return; }
     
 
-    if (this.weave.loom.inThreadingRange(currentPos)){
+    if (this.loom.inThreadingRange(currentPos)){
       var val = false;
 
       switch (this.design_mode.name) {
@@ -1277,18 +1286,18 @@ export class WeaveDirective {
           val = false;
           break;
         case 'toggle':
-          val = !(this.weave.loom.threading[currentPos.j] == currentPos.i);
+          val = !(this.loom.threading[currentPos.j] == currentPos.i);
           break;
         default:
           break;
       }
 
   
-      const updates:LoomUpdate = this.weave.loom.updateThreading({i:currentPos.i, j:currentPos.j, val:val});
-      this.weave.updateDraftFromThreading(updates);
+      const updates = this.loom.updateThreading({i:currentPos.i, j:currentPos.j, val:val});
+      this.weave.updateDraftFromThreading(updates, this.loom);
 
-      if(this.weave.loom.min_frames < this.weave.loom.num_frames){
-        this.weave.loom.updateUnused(this.weave.loom.threading, this.weave.loom.min_frames, this.weave.loom.num_frames, "threading")
+      if(this.loom.min_frames < this.loom.num_frames){
+        this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading")
       }  
 
       this.redraw({drawdown:true, loom:true});
@@ -1317,7 +1326,7 @@ export class WeaveDirective {
     
     var val = false;
 
-    if(this.weave.loom.inTreadlingRange(currentPos)){
+    if(this.loom.inTreadlingRange(currentPos)){
       switch (this.design_mode.name) {
         case 'up':
           val = true;
@@ -1326,7 +1335,7 @@ export class WeaveDirective {
           val = false;
           break;
         case 'toggle':
-          val = !(this.weave.loom.treadling[currentPos.i] === currentPos.j);
+          val = !(this.loom.treadling[currentPos.i] === currentPos.j);
           break;
         default:
           break;
@@ -1334,39 +1343,17 @@ export class WeaveDirective {
 
 
       //this updates the value in the treadling
-      var updates = this.weave.loom.updateTreadling({i:currentPos.i, j:currentPos.j, val:val});
-      this.weave.updateDraftFromTreadling(updates);
+      var updates = this.loom.updateTreadling({i:currentPos.i, j:currentPos.j, val:val});
+      this.weave.updateDraftFromTreadling(updates, this.loom);
 
-      if( this.weave.loom.min_treadles <  this.weave.loom.num_treadles){
-        this.weave.loom.updateUnused(this.weave.loom.treadling, this.weave.loom.min_treadles, this.weave.loom.num_treadles, "treadling")
+      if( this.loom.min_treadles <  this.loom.num_treadles){
+        this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling")
       }
       this.redraw({drawdown:true, loom:true});
 
     }
    }
 
-   /***
-   This function takes a point added to the draft and updates and redraws the loom states
-   It takes current position of a point on the currently visible draft
-   ***/
-   private updateLoomFromDraft(currentPos):boolean{
-
-    if(!this.render.showingFrames()) return false;
-
-    this.weave.updateLoomFromDraft(currentPos);
-      
-   }
-
-  /**
-   * Fills the visible regions of the mask with the stitch
-   * @extends WeaveDirective
-   * @param {Array<Array<boolean>>} - the pattern used to fill the area.
-   * @returns {void}
-   */
-
-
-  private maskArea(pattern: Array<Array<boolean>>) {
-   }
 
 //This function draws whatever the current value is at screen coordinates cell i, J
   private drawCell(cx, i, j, type){
@@ -1387,7 +1374,7 @@ export class WeaveDirective {
     switch(type){
       case 'drawdown':
       case 'mask':
-        var row = this.weave.visibleRows[i];
+        var row = this.render.visibleRows[i];
         
         is_up = this.weave.isUp(row,j);
         if(!this.render.isFront()) is_up = !is_up;
@@ -1402,30 +1389,30 @@ export class WeaveDirective {
       break;
       case 'threading':
         if(!this.render.isFront()) return;
-        var frame = this.weave.loom.threading[j];
+        var frame = this.loom.threading[j];
         is_up = (frame == i);
-        beyond = frame > this.weave.loom.min_frames; 
+        beyond = frame > this.loom.min_frames; 
         has_mask = false;
         
         if(is_up)  color = "#333333";
-        i = this.weave.loom.frame_mapping[frame];
+        i = this.loom.frame_mapping[frame];
 
       break;
       case 'tieup':
         if(!this.render.isFront()) return;
-        is_up = (this.weave.loom.tieup[i][j]);
-        beyond = i > this.weave.loom.min_frames; 
+        is_up = (this.loom.tieup[i][j]);
+        beyond = i > this.loom.min_frames; 
         has_mask = false;
         if(is_up) color = "#333333";
-        i = this.weave.loom.frame_mapping[i];
+        i = this.loom.frame_mapping[i];
 
       break;
       case 'treadling':
         if(!this.render.isFront()) return;
         //i and j is going to come from the UI which is only showing visible rows
-        var row = this.weave.visibleRows[i];
-        beyond = this.weave.loom.treadling[row] > this.weave.loom.min_treadles; 
-        is_up = (this.weave.loom.treadling[row] == j);
+        var row = this.render.visibleRows[i];
+        beyond = this.loom.treadling[row] > this.loom.min_treadles; 
+        is_up = (this.loom.treadling[row] == j);
         has_mask = false;
         if(is_up)  color = "#333333";
 
@@ -1711,8 +1698,8 @@ public drawWeftEnd(top, left, shuttle){
       cx.strokeStyle = (view === "yarn" && warp_shuttle.type === 0) ? warp_shuttle.getColor()+"10" : warp_shuttle.getColor();
 
       cx.beginPath();
-      cx.moveTo(left+dims/2, top-dims.h/2);
-      cx.lineTo(left+dims/2, top+dims.h/2);
+      cx.moveTo(left+dims.w/2, top-dims.h/2);
+      cx.lineTo(left+dims.w/2, top+dims.h/2);
       cx.stroke();
 
   }
@@ -1723,7 +1710,7 @@ public drawWeftEnd(top, left, shuttle){
 
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.weftSystemsCanvas.height / this.weave.visibleRows.length
+      h: this.weftSystemsCanvas.height / this.render.visibleRows.length
     }
 
     let offset = this.render.getCellDims("select");
@@ -1962,9 +1949,9 @@ public drawWeftEnd(top, left, shuttle){
   public drawWarpsOver(){
 
 
-    for (var i = 0; i < this.weave.visibleRows.length ; i++) {
+    for (var i = 0; i < this.render.visibleRows.length ; i++) {
        
-        const row_index = this.weave.visibleRows[i];
+        const row_index = this.render.visibleRows[i];
         const row_values = this.weave.pattern[row_index];
         
 
@@ -1993,9 +1980,9 @@ public drawWeftEnd(top, left, shuttle){
 
     let started:boolean = false;
 
-    for(let i = 0; i < this.weave.visibleRows.length; i++){
+    for(let i = 0; i < this.render.visibleRows.length; i++){
 
-      let index_row = this.weave.visibleRows[i];
+      let index_row = this.render.visibleRows[i];
 
       let row_values = this.weave.pattern[index_row];
 
@@ -2030,7 +2017,7 @@ public drawWeftEnd(top, left, shuttle){
     var dims = this.render.getCellDims("base");
 
     //if the new value in outside of the visible range, redraw the entire loom
-    if((this.weave.loom.num_frames)*dims.h > (this.cxThreading.canvas.height)){ 
+    if((this.loom.num_frames)*dims.h > (this.cxThreading.canvas.height)){ 
       this.redrawLoom();
       return;
     }
@@ -2040,7 +2027,7 @@ public drawWeftEnd(top, left, shuttle){
     }
 
    
-    if((this.weave.loom.num_treadles)*dims.w > this.cxTreadling.canvas.width){ 
+    if((this.loom.num_treadles)*dims.w > this.cxTreadling.canvas.width){ 
       this.redrawLoom();
       return;
     }
@@ -2068,35 +2055,35 @@ public drawWeftEnd(top, left, shuttle){
     this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
 
 
-    this.cxThreading.canvas.width = base_dims.w * this.weave.loom.threading.length;
-    this.cxThreading.canvas.height = base_dims.h * this.weave.loom.num_frames;
+    this.cxThreading.canvas.width = base_dims.w * this.loom.threading.length;
+    this.cxThreading.canvas.height = base_dims.h * this.loom.num_frames;
     if(front) this.drawGrid(this.cxThreading,this.threadingCanvas);
     else this.drawBlank(this.cxThreading,this.threadingCanvas);
 
-    this.cxTreadling.canvas.width = base_dims.w * this.weave.loom.num_treadles;
-    this.cxTreadling.canvas.height = base_dims.h * this.weave.visibleRows.length;
+    this.cxTreadling.canvas.width = base_dims.w * this.loom.num_treadles;
+    this.cxTreadling.canvas.height = base_dims.h * this.render.visibleRows.length;
     if(front) this.drawGrid(this.cxTreadling,this.treadlingCanvas);
     else this.drawBlank(this.cxTreadling,this.treadlingCanvas);
 
-    this.cxTieups.canvas.width = base_dims.w * this.weave.loom.tieup[0].length;
-    this.cxTieups.canvas.height = base_dims.h * this.weave.loom.tieup.length;
+    this.cxTieups.canvas.width = base_dims.w * this.loom.tieup[0].length;
+    this.cxTieups.canvas.height = base_dims.h * this.loom.tieup.length;
     if(front) this.drawGrid(this.cxTieups,this.tieupsCanvas);
     else this.drawBlank(this.cxTieups,this.tieupsCanvas);
     
 
 
-    for (var j = 0; j < this.weave.loom.threading.length; j++) {
-      this.drawCell(this.cxThreading, this.weave.loom.threading[j], j, "threading");
+    for (var j = 0; j < this.loom.threading.length; j++) {
+      this.drawCell(this.cxThreading, this.loom.threading[j], j, "threading");
     }
 
     //only cycle through the visible rows
-    for (var i = 0; i < this.weave.visibleRows.length; i++) {
-       this.drawCell(this.cxTreadling, i, this.weave.loom.treadling[this.weave.visibleRows[i]], "treadling");
+    for (var i = 0; i < this.render.visibleRows.length; i++) {
+       this.drawCell(this.cxTreadling, i, this.loom.treadling[this.render.visibleRows[i]], "treadling");
     }
 
-    for (var i = 0; i < this.weave.loom.tieup.length; i++) {
-      for(var j = 0; j < this.weave.loom.tieup[i].length; j++){
-        if(this.weave.loom.tieup[i][j]){
+    for (var i = 0; i < this.loom.tieup.length; i++) {
+      for(var j = 0; j < this.loom.tieup[i].length; j++){
+        if(this.loom.tieup[i][j]){
           this.drawCell(this.cxTieups, i, j, "tieup");
         }
       }
@@ -2107,7 +2094,7 @@ public drawWeftEnd(top, left, shuttle){
 //callled when frames become visible or drawdown without frame info is loaded
   public recomputeLoom(){
 
-    this.weave.recomputeLoom();
+    this.loom.recomputeLoom(this.weave);
   }
 
 
@@ -2135,13 +2122,12 @@ public drawDrawdown(){
 //takes inputs about what, exactly to redraw
 public redraw(flags:any){
 
-
     var base_dims = this.render.getCellDims("base");
 
     if(flags.drawdown !== undefined){
         this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
         this.cx.canvas.width = base_dims.w * (this.weave.pattern[0].length+2);
-        this.cx.canvas.height = base_dims.h * (this.weave.visibleRows.length+2);
+        this.cx.canvas.height = base_dims.h * (this.render.visibleRows.length+2);
        
         this.cx.fillStyle = "#3d3d3d";
         this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
@@ -2191,7 +2177,7 @@ public redraw(flags:any){
 
     var color = '#000000';
     this.cx.fillStyle = color;
-    for (i = 0; i < this.weave.visibleRows.length; i++) {
+    for (i = 0; i < this.render.visibleRows.length; i++) {
       this.redrawRow(i * base_dims.h, i, this.cx);
     }
 
@@ -2209,7 +2195,7 @@ public redraw(flags:any){
           var width = base_dims.w;
           var w_margin = base_dims.w;
           this.cx.fillStyle = c;
-          this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.weave.visibleRows.length);
+          this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.render.visibleRows.length);
 
         }
     }   
@@ -2245,7 +2231,7 @@ public redraw(flags:any){
 
           cx.beginPath();
           cx.moveTo((x+1)*base_dims.w + center, 0);
-          cx.lineTo((x+1)*base_dims.w + center, base_dims.h*(this.weave.visibleRows.length+2));
+          cx.lineTo((x+1)*base_dims.w + center, base_dims.h*(this.render.visibleRows.length+2));
           cx.stroke();
 
       }
@@ -2263,9 +2249,6 @@ public redraw(flags:any){
    */
   public redrawVisualView() {
 
-    var base_dims = this.render.getCellDims("base");
-    var back = this.render.view_back;
-
     this.cx.fillStyle = "#3d3d3d";
     this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
 
@@ -2280,7 +2263,6 @@ public redraw(flags:any){
     this.cx.strokeStyle = "#000";
     this.cx.fillStyle = "#000";
   }
-
 
   public onUndoRedo() {
 
@@ -2306,20 +2288,6 @@ public redraw(flags:any){
     }
   }
 
-  /**
-   * Saves the draft as a bitmap file
-   * @extends WeaveDirective
-   * @param {string} fileName - name to save file as
-   * @returns {void}
-   */
-  public savePNG(fileName, obj) {
-    let link = obj.downloadLink.nativeElement;
-
-    link.href = this.canvasEl.toDataURL("image/png");
-    link.download = fileName + ".png";
-    console.log(link);
-  }
-
 
    /**
    * Saves the draft as a bitmap file
@@ -2327,7 +2295,7 @@ public redraw(flags:any){
    * @param {string} fileName - name to save file as
    * @returns {void}
    */
-  public savePrintableDraft(fileName, obj) {
+  public getPrintableCanvas(obj) : HTMLCanvasElement {
 
 
     let dims = this.render.getCellDims("base");
@@ -2335,8 +2303,8 @@ public redraw(flags:any){
     let b = obj.bitmap.nativeElement;
     let context = b.getContext('2d');
 
-    b.width = (this.weave.warps + this.weave.loom.num_treadles + 6) * dims.w;
-    b.height = (this.weave.wefts + this.weave.loom.num_frames + 6) * dims.h;
+    b.width = (this.weave.warps + this.loom.num_treadles + 6) * dims.w;
+    b.height = (this.weave.wefts + this.loom.num_frames + 6) * dims.h;
     
     context.fillStyle = "white";
     context.fillRect(0,0,b.width,b.height);
@@ -2346,7 +2314,7 @@ public redraw(flags:any){
 
       context.drawImage(this.threadingCanvas, 0, dims.h*3);
       context.drawImage(this.tieupsCanvas, (this.weave.warps +1)* dims.w, 3*dims.h);
-      context.drawImage(this.treadlingCanvas, (this.weave.warps +1)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
+      context.drawImage(this.treadlingCanvas, (this.weave.warps +1)* dims.w, (this.loom.num_frames + 4)*dims.h);
 
     }
 
@@ -2354,18 +2322,11 @@ public redraw(flags:any){
     context.drawImage(this.warpSystemsCanvas, 0, 0);
     context.drawImage(this.warpMaterialsCanvas, 0, dims.h);
 
-    context.drawImage(this.canvasEl, -dims.w, (this.weave.loom.num_frames+3)*dims.h);
+    context.drawImage(this.canvasEl, -dims.w, (this.loom.num_frames+3)*dims.h);
    
-    context.drawImage(this.weftMaterialsCanvas,(this.weave.warps+ this.weave.loom.num_treadles +1)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
-    context.drawImage(this.weftSystemsCanvas,(this.weave.warps+ this.weave.loom.num_treadles +2)* dims.w, (this.weave.loom.num_frames + 4)*dims.h);
-
-    //can add info here to add to the drawing about weft and warp systems, etc. 
-
-    let link = obj.downloadLink.nativeElement;
-    link.href = b.toDataURL("image/jpg");
-    link.download = fileName + ".jpg";
-    console.log(link);
-
+    context.drawImage(this.weftMaterialsCanvas,(this.weave.warps+ this.loom.num_treadles +1)* dims.w, (this.loom.num_frames + 4)*dims.h);
+    context.drawImage(this.weftSystemsCanvas,(this.weave.warps+ this.loom.num_treadles +2)* dims.w, (this.loom.num_frames + 4)*dims.h);
+    return b;
   }
 
   /**
@@ -2374,7 +2335,7 @@ public redraw(flags:any){
    * @param {string} fileName - name to save file as
    * @returns {void}
    */
-  public saveBMP(fileName, obj) {
+  public getBMPCanvas(obj) : HTMLCanvasElement {
     let b = obj.bitmap.nativeElement;
     let context = b.getContext('2d');
     let draft = this.weave.pattern;
@@ -2395,162 +2356,7 @@ public redraw(flags:any){
         }
       }
     }
-
-    let link = obj.downloadLink.nativeElement;
-
-    console.log("link", link);
-
-    link.href = CanvasToBMP.toDataURL(b);
-    link.download = fileName + ".bmp";
+    return b;
   }
-
-
-
-//UPDATE THIS TO INCLUDE THE MATERIALS INFORMATION - 3/19
-  /**
-   * Saves the draft as a .ada file
-   * @extends WeaveDirective
-   * @param {string} fileName - name to save file as
-   * @returns {void}
-   */
-  public saveADA(fileName, obj) {
-
-
-    console.log("save ADA", this.weave);
-
-    var theJSON = JSON.stringify(this.weave);
-    console.log(theJSON);
-    var uri = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
-    console.log(uri);
-    let link = obj.downloadLink.nativeElement;
-    link.href = uri;
-    link.download = fileName + ".ada";
-  } 
-
-  /**
-   * Saves the draft as a .wif file
-   * @extends WeaveDirective
-   * @param {string} fileName - name to save file as
-   * @returns {void}
-   * ld updated 3/27 to account for new file structure
-   */
-  public saveWIF(fileName, obj) {
-    //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
-    var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
-    var fileType = "text/plain";
-
-    fileContents += "\nCOLOR PALETTE=yes\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\nCOLOR TABLE=yes\nTHREADING=yes\nWARP COLORS=yes\nTREADLING=yes\nWEFT COLORS=yes\n";
-    
-    fileContents += "[COLOR PALETTE]\n";
-    fileContents += "Entries=" + (this.weave.shuttles.length).toString() +"\n";
-    fileContents += "Form=RGB\nRange=0,255\n";
-
-    fileContents += "[WEAVING]\nShafts=";
-    fileContents += this.weave.loom.min_frames.toString();
-    fileContents += "\nTreadles=";
-    fileContents += this.weave.loom.min_treadles.toString();
-    fileContents += "\nRising Shed=yes\n";
-    fileContents += "[WARP]\nThreads=";
-    fileContents += this.weave.warps.toString();
-    
-    var warpColors = [];
-    for (var i = 0; i < this.weave.colShuttleMapping.length; i++) {
-      if (!warpColors.includes(this.weave.colShuttleMapping[i])) {
-        warpColors.push(this.weave.colShuttleMapping[i]);
-      }
-    }
-    fileContents += "\nColors=" + warpColors.length.toString();
-
-    fileContents += "\n[WEFT]\nThreads=";
-    fileContents += this.weave.wefts.toString();
-    var weftColors = [];
-    for (var i = 0; i < this.weave.colShuttleMapping.length; i++) {
-      if (!weftColors.includes(this.weave.colShuttleMapping[i])) {
-        weftColors.push(this.weave.colShuttleMapping[i]);
-      }
-    }
-    fileContents += "\nColors=" + weftColors.length.toString();
-
-    fileContents += "\n[TIEUP]\n";
-
-    var treadles = [];
-    for (var i =0; i < this.weave.loom.tieup.length;i++) {
-      for (var j = 0; j < this.weave.loom.tieup[i].length;j++) {
-        if (this.weave.loom.tieup[i][j] && !treadles.includes(j)) {
-          treadles.push(j);
-        }
-      }
-    }
-    for (var i =0; i < treadles.length; i++) {
-      fileContents += (treadles[i]+1).toString() + "=";
-      var lineMarked = false;
-      for (var j = 0; j < this.weave.loom.tieup.length; j++){
-        if (this.weave.loom.tieup[j][treadles[i]]) { 
-          if (lineMarked) {
-            fileContents += ",";
-          }
-          fileContents += (j+1).toString();
-          lineMarked=true;
-        }
-      }
-      fileContents += "\n";
-    }
-
-    fileContents+= "[COLOR TABLE]\n";
-    //Reference: https://css-tricks.com/converting-color-spaces-in-javascript/ for conversion for hex to RGB
-    var counter = 1;
-    for (var i = 0; i < this.weave.shuttles.length; i++) {
-      fileContents+= (counter).toString();
-      counter = counter + 1;
-      fileContents+= "=";
-      var hex = this.weave.shuttles[i].color;
-      if (hex.length == 7) {
-        var r = "0x" + hex[1] + hex[2];
-        var g = "0x" + hex[3] + hex[4];
-        var b = "0x" + hex[5] + hex[6];
-
-        fileContents += (+r).toString() + "," + (+g).toString() + "," + (+b).toString() + "\n";
-      }
-    }
-    
-    fileContents += "[THREADING]\n";
-    for (var i=0; i <this.weave.loom.threading.length; i++) {
-      var frame = this.weave.loom.threading[i];
-      if (frame != -1) {
-        fileContents += (this.weave.loom.threading.length-i).toString() + "=" + (frame+1).toString() + "\n";
-      }
-    }
-
-    fileContents += "[WARP COLORS]\n";
-    for (var i = 0; i < this.weave.colShuttleMapping.length; i++) {
-      fileContents += (i+1).toString() + "=" + (this.weave.colShuttleMapping[(this.weave.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
-    }
-
-    fileContents += "[TREADLING]\n";
-    for (var i = 0; i < this.weave.loom.treadling.length; i++) {
-      if (this.weave.loom.treadling[i] != null && this.weave.loom.treadling[i] != -1){
-        fileContents += (i+1).toString() + "=" + (this.weave.loom.treadling[i]+1).toString() + "\n";
-      }
-    }
-
-    fileContents += "[WEFT COLORS]\n";
-    for (var i = 0; i < this.weave.rowShuttleMapping.length; i++) { // will likely have to change the way I import too
-      fileContents += (i+1).toString() + "=" + (this.weave.rowShuttleMapping[i]+1).toString() + "\n";
-    }
-
-    let link = obj.downloadLink.nativeElement;
-    link.href= "data:" + fileType +";base64," + btoa(fileContents);
-
-    console.log("link:", link);
-    link.download = fileName +".wif";
-  }
-
-
-
-
-
-
-
-
 
 }

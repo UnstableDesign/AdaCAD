@@ -1,5 +1,7 @@
-import { E, P } from '@angular/cdk/keycodes';
-import { Injectable, ViewRef } from '@angular/core';
+import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
+import { element } from 'protractor';
+import { Draft } from '../../core/model/draft';
+import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
@@ -54,6 +56,60 @@ export class TreeService {
   constructor() { 
   }
 
+  /**called from the file loader before a compoment has been initalized */
+  loadNode(type: 'draft'|'op'|'cxn', id: number, active:boolean): number{
+    const node: Node = {
+      type: type,
+      ref: null,
+      id: id,
+      component: null,
+      active: active
+    }
+
+    this.nodes.push(node);
+
+      this.tree.push({
+        node: node,
+        parent: null,
+        outputs: [],
+        inputs: []
+      });
+
+    this.num_created++;
+
+    
+
+    return node.id;
+  }
+
+  setNodeComponent(id: number, c: SubdraftComponent | OperationComponent | ConnectionComponent){
+    const node: Node = this.getNode(id);
+    node.component = c;
+  }
+
+  setNodeViewRef(id: number, v: ViewRef){
+    const node: Node = this.getNode(id);
+    node.ref = v;
+  }
+
+  /** clears all the data associated with this tree */
+  clear(){
+    this.tree = [];
+    this.nodes = [];
+    this.num_created = 0;
+  }
+
+
+  /**called from the file loader before a compoment has been initalized */
+  /** depends on having nodes created first so that all tree nodes are present */
+  loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>){
+    const tn: TreeNode = this.getTreeNode(node_id);
+    tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
+    tn.inputs = inputs.map(id => this.getTreeNode(id));
+    tn.outputs = outputs.map(id => this.getTreeNode(id));
+  }
+
+
 
   /**
    * create an node and add it to the tree (without relationships)
@@ -97,6 +153,10 @@ export class TreeService {
   getNode(id:number):Node{
     const ndx: number = this.getNodeIndex(id);
     return this.nodes[ndx]; 
+  }
+
+  getNodeIdList() : Array<number> {
+    return this.nodes.map(node => node.id);
   }
 
   getNodeIndex(id:number):number{
@@ -148,25 +208,66 @@ export class TreeService {
    */
   getNodesToUpdateOnMove(id: number){
 
-    let updates: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
-
     let to_check: Array<number> = [id];
+
+    if(this.isMultipleParent(id) || this.isSibling(id)) return to_check;
     
     //the parent if there is one
     if(tn.parent !== null) to_check.push(tn.parent.node.id);
 
     //add the child this node generated if there is one. 
     const outputs: Array<TreeNode> = this.getNonCxnOutputs(id).map(el => this.getTreeNode(el));
+
+
     const has_parents: Array<TreeNode> = outputs.filter(el => (el.parent !== null));
     const is_child: Array<number> = has_parents.filter(el => (el.parent.node.id === id)).map(el => el.node.id);
 
     if(is_child.length > 0) to_check = to_check.concat(is_child);
 
+    
+
     return to_check;
 
   }
 
+  /**
+   * test if this node has generated many children, as opposed to just one
+   * @param id 
+   * @returns a boolean 
+   */
+  isMultipleParent(id: number):boolean{
+    const tn: TreeNode = this.getTreeNode(id);
+    return (tn.outputs.length > 1);
+  }
+
+  /**
+   * test if two components are siblings (e.g. they have the same parent). 
+   * if we pass the same id in for both, it will return false
+   * @param id 
+   * @returns a boolean 
+   */
+   areSiblings(a_id: number, b_id: number):boolean{
+
+    if(a_id === b_id) return false; 
+
+    const atn: TreeNode = this.getTreeNode(a_id);
+    const btn: TreeNode = this.getTreeNode(b_id);
+    if(atn.parent == null || btn.parent == null) return false;
+    return (atn.parent.node.id === btn.parent.node.id);
+  }
+
+    /**
+   * test if this node is a sibling of the one provided
+   * @param id 
+   * @returns a boolean 
+   */
+    isSibling(id: number):boolean{
+    const tn: TreeNode = this.getTreeNode(id);
+    if(tn.parent == null) return false;
+    return (this.getTreeNode(tn.parent.node.id).outputs.length > 1);
+  }
+  
 
 
   /**
@@ -175,9 +276,11 @@ export class TreeService {
    * @returns an array of operation ids for nodes that need recalculating
    */
   getDownstreamOperations(id: number):Array<number>{
+
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
     if(tn.outputs.length > 0){
+
       tn.outputs.forEach(el => {
         if(el.node.type == 'op'){
           ops.push(el.node.id);  
@@ -215,13 +318,9 @@ export class TreeService {
     console.log("removing node ", id);
 
     const node: Node = this.getNode(id);
-   //const view_ndx: number = this.getViewId(id);
 
     let unusued: Array<number> = [];
-    // //decrement the view ids
-    // this.nodes.forEach(node => {
-    //   if(node.view_id > view_ndx) node.view_id--;
-    // });
+
 
     this.removeNodeTreeAssociations(node.id);
 
@@ -354,6 +453,16 @@ export class TreeService {
 
   }
 
+  /**
+   * checks if this node receives any input values
+   * @param id the node id
+   * @returns a boolean describing if an input exists
+   */
+  hasInput(id: number) : boolean {
+    const tn: TreeNode = this.getTreeNode(id);
+    return (tn.inputs.length > 0)
+  }
+
 /**
  * returns the ids of all nodes connected to the input node that are not connection nodes
  * @param op_id 
@@ -402,6 +511,145 @@ export class TreeService {
     if(output_ids.length  > 1) console.log("Error: more than one output");
     return output_ids.pop();
   }
+
+
+  
+
+  getGenerationChildren(parents: Array<number>) : Array<number> {
+
+    let children: Array<number> = [];
+    parents.forEach(parent => {
+      const tn: TreeNode =  this.getTreeNode(parent);
+      children = children.concat(tn.outputs.map(tn => tn.node.id));
+    });
+
+    return children;
+  }
+
+  /**
+   * converts the tree into an array where each element belongs to a similar "generation" meaning the first generation had no parents/inputs, and the subsequent generations are descending from that. 
+   * returns a list of ids referencing the element ids belonging to each generation
+   * should return an array that has the same number of elements as the tree overall
+   */
+  convertTreeToGenerations() : Array<Array<number>>{
+
+    const gens: Array<Array<number>> = [];
+    let parents: Array<number> = this.tree.filter(tn => tn.inputs.length == 0).map(tn => tn.node.id);
+
+    
+    while(parents.length > 0){
+      gens.push(parents);
+      parents = this.getGenerationChildren(parents);
+    }
+
+    return gens;
+  }
+
+  /**
+   * converts all of the nodes in this tree for saving. 
+   * @returns an array of objects that describe nodes
+   */
+  exportNodesForSaving() : Array<NodeComponentProxy> {
+
+    const objs: Array<any> = []; 
+
+    this.nodes.forEach(node => {
+
+      const savable: NodeComponentProxy = {
+        active: node.active,
+        node_id: node.id,
+        type: node.type,
+        bounds: node.component.bounds,
+        draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft.id : -1) 
+      }
+      objs.push(savable);
+    })
+
+    return objs;
+
+  }
+
+  /**
+ * exports only the drafts that have not been generated by other values
+ * @returns an array of objects that describe nodes
+ */
+  exportSeedDraftsForSaving() : Array<any> {
+
+    const objs: Array<any> = []; 
+    const gens: Array<Array<number>> = this.convertTreeToGenerations(); 
+
+    if(gens.length == 0) return objs;
+
+    const seeds: Array<number> = gens.shift();
+
+
+    seeds.forEach(id => {
+
+      const savable = {
+        id: id,
+        draft: (<SubdraftComponent>this.getComponent(id)).draft
+      }
+      objs.push(savable);
+    })
+
+    return objs;
+
+  }
+
+   /**
+ * exports ALL drafts associated with this tree
+ * @returns an array of Drafts
+ */
+    exportDraftsForSaving() : Array<Draft> {
+
+      const drafts: Array<SubdraftComponent> = this.getDrafts();
+      const out: Array<Draft> = drafts.map(c => c.draft);
+      return out;
+    }
+
+  /**
+   * exports all operation nodes with information that can be reloaded
+   * @returns 
+   */
+  exportOpMetaForSaving() : Array<OpComponentProxy> {
+
+    const objs: Array<any> = []; 
+
+    this.getOperations().forEach(op_node => {
+
+      const savable:OpComponentProxy = {
+        node_id: op_node.id,
+        name: op_node.op.name,
+        params: op_node.op_inputs.map(el => el.value)
+      }
+      objs.push(savable);
+    })
+
+    return objs;
+
+  }
+
+
+  exportTreeForSaving() : Array<TreeNodeProxy> {
+
+    const objs: Array<any> = []; 
+
+
+    this.tree.forEach(treenode => {
+
+      const savable:TreeNodeProxy = {
+        node: treenode.node.id,
+        parent: (treenode.parent !== null) ?  treenode.parent.node.id : -1,
+        inputs: treenode.inputs.map(el => el.node.id),
+        outputs: treenode.outputs.map(el => el.node.id)
+      }
+      objs.push(savable);
+    })
+
+    return objs;
+
+  }
+
 
 
  

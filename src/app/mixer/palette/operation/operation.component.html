@@ -8,26 +8,38 @@ cdkDrag
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
 >
+
+
 <div class="inputs">
-    <button [matTooltip]="tooltip" 
+   
+    <ng-container *ngIf = "!active_connection">
+    <button 
         class="button is-small is-primary"
+        [class.is-active]="selecting_connection || has_connections_in"
         (click)="inputSelected($event, ndx)">
-         <i class="fas fa-chevron-right"></i>
+         <i class="fas fa-chevron-right">{{connection_op_id}}</i>
     </button>
+</ng-container>
 </div>
 
 
 <div class="operation-details">
+    <!-- <div class="name">{{op.name}} // {{id}}</div> -->
     <div class="name">{{op.name}}</div>
+    <button 
+    class="help"
+    (click)="openHelpDialog()">
+     <i class="fas fa-question"></i>
+</button>
     <div class="params">
         <ng-container *ngFor="let param of op.params; let i = index">
             <input 
-              [(ngModel)]="op_inputs[i]"
+              [formControl]="op_inputs[i]"
+              [matTooltip]=param.dx
               type = "number"
 			  [name]=param.name
               [min]=param.min
               [max]=param.max
-              [value] = param.value
               step = 1
               required = true
               (change)= onParamChange();

@@ -7,9 +7,10 @@
 [redoItem]="redoItem"
 [filename]="draft?.name"
 [draftelement]="draftelement"
+ source="weaver"
   (onUndo)="undo();" 
   (onRedo)="redo();"
-  (onReInit)="reInit($event);"
+  (onLoadNewFile)="loadNewFile($event);"
   (onSave)="onSave($event);">
 </app-topbar>
 
@@ -20,6 +21,8 @@
       <div class ="design-container">
        
         <mat-accordion multi>
+
+      
 
         <app-weaverview 
           [weft_systems] = "draft?.weft_systems"
@@ -47,7 +50,7 @@
         [design_actions]="design_actions"
         [view_mode] = "render?.current_view"
         [materials]="draft?.shuttles"
-        [patterns]="draft?.patterns"
+        [patterns]="patterns"
         [selection] = "copy"
         (onDesignModeChange)="onDesignModeChange($event)" 
         (onFill)="onFill($event)" 
@@ -61,7 +64,7 @@
         (onGenerativeModeChange)="onGenerativeModeChange($event)"
         >
         </app-weaverdesign> 
- 
+
         <app-materials 
           [material_types]="material_types"
           [shuttles]="draft?.shuttles"
@@ -92,17 +95,18 @@
        </app-systems>
 
 
-        <app-loom 
-          [epi] = "draft?.epi"
+        <app-loom
+        
+          [epi] = "loom?.epi"
           [warps] = "draft?.warps"
           [wefts] = "draft?.wefts"
-          [frames] = "draft?.loom.min_frames"
-          [treadles] = "draft?.loom.min_treadles"
+          [frames] = "loom?.min_frames"
+          [treadles] = "loom?.min_treadles"
           [loomtypes] = "loomtypes"
-          [loomtype] = "draft?.loom.type"
+          [loomtype] = "loom?.type"
           [density_units] = "density_units"
-          [units] = "draft?.units"
-          [width] = "draft?.width"
+          [units] = "loom?.units"
+          [width] = "loom?.width"
           (onWarpNumChange) = "warpNumChange($event)"
           (onWeftNumChange) = "weftNumChange($event)"
           (onEpiNumChange) = "epiChange($event)"
@@ -145,7 +149,7 @@
 
 
 
-  <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(generative_mode)]="generativeMode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
+  <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(generative_mode)]="generativeMode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" [loom]="loom" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
 
   
    <canvas id="weft-systems" #weft_systems>  </canvas>
@@ -165,9 +169,7 @@
     </svg>
 
 
-              
-    
-    <div id = 'view_frames' [class.hidden]="draft?.loom.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
+    <div id = 'view_frames' [class.hidden]="loom?.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
    (click)="toggleViewFrames();">
 
       <span><i class="fas" [class.fa-eye-slash]="!render?.view_frames" [class.fa-eye]="render?.view_frames">
@@ -242,27 +244,6 @@
 
 
     <canvas #bitmapImage hidden></canvas>
-
-<!--       <svg #connections [style.left]="drawDown.offsetLeft" [attr.width]="draft?.warps * 20" [attr.height]="draft?.wefts * 20" style="position:absolute" [class.hidden]="view !== 'yarn'">
-        <g *ngFor="let c of (draft?.connections)">
-          <line 
-          [attr.x1]="c.start.x === 1? c.start.x * 20 - 15 : c.start.x * 20 - 5" 
-          [attr.y1]="c.start.y * 20 - 10"       
-          [attr.x2]="c.end.x === 1? c.end.x * 20 - 15 : c.end.x * 20 - 5"
-          [attr.y2]="c.end.y * 20 - 10"
-          [attr.stroke]="draft?.shuttles[c.shuttleId]?.color"
-          stroke-width="5"/>
-          <circle 
-          [attr.cx]="c.start.x === 1? c.start.x * 20 - 15 : c.start.x * 20 - 5" 
-          [attr.cy]="c.start.y * 20 - 10" r="7" 
-          [attr.fill]="draft?.shuttles[c.shuttleId]?.color"/>
-          <circle
-          [attr.cx]="c.end.x === 1? c.end.x * 20 - 15 : c.end.x * 20 - 5"
-          [attr.cy]="c.end.y * 20 - 10" r="7" 
-          [attr.fill]="draft?.shuttles[c.shuttleId]?.color"/>
-        </g>
-      </svg> -->
-
 
 
   </div>

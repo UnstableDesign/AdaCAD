@@ -5,6 +5,8 @@
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { Point, Interlacement, Bounds } from "./datatypes";
+import { Draft } from "./draft";
+import { Shuttle } from "./shuttle";
 
 
 class Util {
@@ -377,9 +379,288 @@ class Util {
 
   }
 
-  
-
+  /**
+   * returns the number of wefts that is greatest out of all the input drafts
+   * 
+   */
+  public getMaxWefts(inputs: Array<Draft>) : number{
+    const max_wefts:number = inputs.reduce((acc, draft)=>{
+      if(draft.wefts > acc) return draft.wefts;
+      return acc;
+      }, 0);
+      return max_wefts;
   }
+
+  /**
+ * returns the number of warps that is greatest out of all the input drafts
+ */
+    public getMaxWarps(inputs: Array<Draft>) : number{
+    const max_warps:number = inputs.reduce((acc, draft)=>{
+      if(draft.warps > acc) return draft.warps;
+      return acc;
+      }, 0);
+      return max_warps;
+  }
+
+  getInt(val, e) {
+    var index = e.search(val);
+    if (index != -1) {
+      var substring = e.substring(index, e.length);
+      var endOfLineChar = '\n';
+      var endIndex = substring.indexOf(endOfLineChar);
+      if (endIndex!= -1) {
+        return +(substring.substring(val.length+1,endIndex)); //string is converted to int with unary + operator
+      } else {
+        return -1;
+      }
+    } else {
+      return -1;
+    }
+  }
+
+
+  getBool(val, e) {
+    var index = e.search(val);
+    if (index != -1) {
+      var substring = e.substring(index, e.length);
+      var endOfLineChar = '\n';
+      var endIndex = substring.indexOf(endOfLineChar);
+      if (endIndex!= -1 && substring.substring(val.length+1,endIndex) === "yes") {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  getString(val, e) {
+    var index = e.search(val);
+    if (index != -1) {
+      var substring = e.substring(index, e.length);
+      var endOfLineChar = '\n';
+      var endIndex = substring.indexOf(endOfLineChar);
+      if (endIndex != -1) {
+        return substring.substring(val.length+1, endIndex);
+      } else {
+        return "";
+      }
+    } else {
+      return "";
+    }
+  }
+
+  getSubstringAfter(val, e){
+    var index = e.search(val);
+    if( index != -1 ){
+      return e.substring(index+val.length);
+    } else {
+      return e;
+    }
+  }
+
+  getTreadling(e, draft) {
+    var treadling = [];
+    var treadles = this.getInt("Treadles", e);
+
+    for (var i=0; i  < draft.wefts; i++) {
+      treadling.push(-1);
+    }
+
+    var indexOfLabel = e.search("TREADLING]");
+    var startIndex = indexOfLabel + "TREADLING]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while(line.match(/[0-9]*=[0-9]*/) != null) {
+      var weft = +(line.match(/[0-9]*/));
+      var treadle = +(line.match(/=[0-9]*/)[0].substring(1));
+      treadling[weft-1] = treadle-1;
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+
+    return treadling;
+  }
+
+  getThreading(e, draft) {
+    var threading = [];
+
+    for (var i = 0; i < draft.warps; i++) {
+      threading.push(-1);
+    }
+
+    var indexOfLabel = e.search("THREADING]");
+    var startIndex = indexOfLabel + "THREADING]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+      var warp = +(line.match(/[0-9]*/));
+      var frame = +(line.match(/=[0-9]*/)[0].substring(1));
+      threading[draft.warps - warp] = frame-1;
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+
+    return threading;
+  }
+
+  getTieups(e, draft) {
+    var tieups = [];
+    var frames = this.getInt("Shafts", e);
+    var treadles = this.getInt("Treadles", e);
+
+    for (var i = 0; i < frames; i++) {
+      tieups.push([]);
+      for (var j = 0; j < treadles; j++) {
+        tieups[i].push(false);
+      }
+    }
+
+    var indexOfLabel = e.search("TIEUP]");
+    var startIndex = indexOfLabel + "TIEUP]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+      var treadle = +(line.match(/[0-9]*/));
+      var firstFrame = +(line.match(/=[0-9]*/)[0].substring(1));
+      tieups[firstFrame-1][treadle-1] = true;
+      var restOfFrames = line.match(/,[0-9]/g);
+      if(restOfFrames != null) {
+        for (var i = 0; i < restOfFrames.length; i++) {
+          var currentFrame = +(restOfFrames[i].substring(1));
+          tieups[currentFrame-1][treadle-1] = true;
+        }
+      }
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+      
+    return tieups;
+  }
+
+  //can likely simplify this as it is mostlyy like the function above but with different variable names for the respective applications
+  getColorTable(e) :Array<Shuttle>  {
+    var color_table = [];
+    var originalShuttle = new Shuttle();
+    originalShuttle.setColor("#3d3d3d");
+    originalShuttle.setID(0);
+    color_table.push(originalShuttle);
+
+    var indexOfLabel = e.search("COLOR TABLE]");
+    var startIndex = indexOfLabel + "COLOR TABLE]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+    var id = 1;
+
+    while (line.match(/[0-9]*=[0-9]*,[0-9]*,[0-9]*/) != null) {
+      // var index = +(line.match(/[0-9]*/));
+      var redNum = +(line.match(/=[0-9]*/)[0].substring(1));
+      var greenAndBlue = line.match(/,[0-9]*/g);
+      var greenNum = +(greenAndBlue[0].substring(1));
+      var blueNum = +(greenAndBlue[1].substring(1));
+
+      var hex = "#";
+      var hexr = redNum.toString(16);
+      if(hexr.length ==1 ){
+        hex += "0"+hexr;
+      } else {
+        hex += hexr;
+      }
+      var hexg= greenNum.toString(16);
+      if(hexg.length ==1 ){
+        hex += "0"+hexg;
+      } else {
+        hex += hexg;
+      }
+      var hexb= blueNum.toString(16);
+      if(hexb.length ==1 ){
+        hex += "0"+hexb;
+      } else {
+        hex += hexb;
+      }
+
+      var shuttle = new Shuttle();
+      shuttle.setColor(hex);
+      shuttle.setID(id);
+      id++;
+
+      color_table.push(shuttle);
+
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+    return color_table;
+  }
+
+  getColToShuttleMapping(e, draft) {
+    var colToShuttleMapping = [];
+
+    for (var i = 0; i < draft.warps; i++) {
+      colToShuttleMapping.push(0);
+    }
+
+    var indexOfLabel = e.search("WARP COLORS]");
+    var startIndex = indexOfLabel + "WARP COLORS]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+      var warp = +(line.match(/[0-9]*/));
+      var color = +(line.match(/=[0-9]*/)[0].substring(1));
+      colToShuttleMapping[warp-1] = color;
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+
+    var reversedMapping = [];
+    for (var i = colToShuttleMapping.length-1; i >= 0; i--) {
+      reversedMapping.push(colToShuttleMapping[i]);
+    }
+
+    return reversedMapping;
+  }
+
+  getRowToShuttleMapping(e, draft) {
+    var rowToShuttleMapping = [];
+
+    for (var i = 0; i < draft.wefts; i++) {
+      rowToShuttleMapping.push(0);
+    }
+
+    var indexOfLabel = e.search("WEFT COLORS]");
+    var startIndex = indexOfLabel + "WEFT COLORS]".length+1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar)+startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+      var weft = +(line.match(/[0-9]*/));
+      var color = +(line.match(/=[0-9]*/)[0].substring(1));
+      rowToShuttleMapping[weft-1] = color;
+      startIndex = endIndex+1;
+      endIndex = e.substring(startIndex).indexOf(endOfLineChar)+startIndex;
+      line = e.substring(startIndex,endIndex);
+    }
+
+    return rowToShuttleMapping;
+  }
+
+
+}
   
   //makes it so that we are using this util class as a singleton (referenced: https://www.digitalocean.com/community/tutorials/js-js-singletons)
   const utilInstance = new Util();

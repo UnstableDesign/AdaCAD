@@ -26,7 +26,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTreeModule} from '@angular/material/tree';
-
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import {ScrollingModule} from '@angular/cdk/scrolling';
@@ -43,6 +43,8 @@ import { NotesComponent} from './tool/notes/notes.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
+import { MaterialModal } from './modal/material/material.modal';
+import { FileService } from './provider/file.service';
 
 
 @NgModule({
@@ -76,7 +78,8 @@ import { PatternModal } from './modal/pattern/pattern.modal';
     MatChipsModule,
     MatSnackBarModule,
     ScrollingModule,
-    DragDropModule
+    DragDropModule,
+    MatProgressBarModule
   ],
   declarations: [
     FilterPipe, 
@@ -87,14 +90,15 @@ import { PatternModal } from './modal/pattern/pattern.modal';
     NotesComponent,
     PatternModal,
     InitModal,
-    AboutModal
+    AboutModal,
+    MaterialModal
    ],
 
   providers: [
     PatternService, 
     UploadService,
-    CollectionService
-  ],
+    CollectionService,
+    FileService],
 
   exports: [
     CommonModule,
@@ -135,12 +139,14 @@ import { PatternModal } from './modal/pattern/pattern.modal';
     NotesComponent,
     PatternModal,
     InitModal,
-    AboutModal],
+    AboutModal,
+    MaterialModal],
   
     entryComponents: [
       InitModal,
       AboutModal,
-      PatternModal
+      PatternModal,
+      MaterialModal
     ],
 })
 export class CoreModule { }

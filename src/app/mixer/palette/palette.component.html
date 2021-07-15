@@ -1,7 +1,7 @@
  <!--render each of the subdrafts as an SVG Element to take advantage of intersection-->
 
 <ng-container #vc (mousedown)="onMouseDown($event)">
-<div class="palette-container" [class.no-pointer]="!pointer_events">
+<div [style.background-size] = "scale_string" class="palette-container" [class.no-pointer]="!pointer_events">
  <canvas id="scratch" [style.z-index]="canvas_zndx" [class.no-pointer]="!pointer_events"></canvas>
 </div>
 </ng-container>

@@ -24,7 +24,7 @@ export const firebaseConfig = secrets;
 @NgModule({
   declarations: [
     AppComponent
-  ],
+    ],
   imports: [
     BrowserModule,
     AppRoutingModule,
