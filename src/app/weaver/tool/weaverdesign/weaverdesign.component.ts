@@ -34,7 +34,7 @@ export class WeaverDesignComponent implements OnInit {
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
   @Output() onCollectionNamesChange: any = new EventEmitter();
-
+  @Output() onGenerativeModeChange: any = new EventEmitter();
 
   button_color = "#ff4081";
 
@@ -53,6 +53,11 @@ export class WeaverDesignComponent implements OnInit {
   }
   
   ngOnInit() {
+  }
+
+  generativeModeChange() {
+    this.generativeMode = !this.generativeMode;
+    this.onGenerativeModeChange.emit();
   }
 
   designModeChange(e: any) {

@@ -473,6 +473,16 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.unsetSelection();
 
   }
+
+  /**
+   * Flips the current booleean value of generativeMode.
+  * @extends WeeaveComponent
+  * @param {Event} e
+  * @returns {void}
+  */
+ public onGenerativeModeChange() {
+   this.generativeMode = !this.generativeMode;
+ }
   
   /**
    * Tell the weave directive to fill selection with pattern.

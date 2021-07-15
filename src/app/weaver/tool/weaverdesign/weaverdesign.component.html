@@ -75,4 +75,11 @@
             </mat-select>
           </mat-form-field>
         </form>
+        <button matTooltip="start mixed initiative mode"
+      [name]='generativeMode' 
+      [disabled] = "this.generativeMode" 
+      class="button is-small fas fa-play-circle"
+      [style.color]="button_color"
+      (click)="generativeModeChange($event)">           
+    </button>
 </mat-expansion-panel>
