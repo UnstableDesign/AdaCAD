@@ -60,6 +60,7 @@
     "protractor": "^5.4.0",
     "ts-node": "~8.6.2",
     "tslint": "~5.3.2",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "@tensorflow/tfjs": "3.8.0"
   }
 }
