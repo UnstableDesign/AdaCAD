@@ -21,16 +21,16 @@ export class CollectionService {
     private httpClient: HttpClient) { 
     }
 
-  /*
-  Referenced: https://www.tutorialspoint.com/firebase/firebase_event_types.htm
-   */
-  getCollection(collectionName) {
-    this.db.database.ref("collections/" + collectionName).on("value", function(snapshot) {
+ 
+  async getCollection(collectionName) {
+    var snapshot = await this.db.database.ref("collections/" + collectionName).once('value');
+    if (snapshot.exists()) {
+      console.log('Success');
       return snapshot.val();
-    }, function(error) {
-      console.log("Error: " + error.code);
+    } else {
+      console.log("Error");
       return null;
-    });
+    }
   }
 
   async getCollectionNames() {
