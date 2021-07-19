@@ -19,6 +19,7 @@ import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
 import { FileService, SaveObj } from './../../core/provider/file.service';
 import { Timeline } from '../../core/model/timeline';
+import { ViewportService } from '../provider/viewport.service';
 
 @Component({
   selector: 'app-palette',
@@ -49,7 +50,7 @@ export class PaletteComponent implements OnInit{
   /**
    * used to manage the area of the screen that is in view based on scrolling and zooming
    */
-  viewport:Bounds;
+  // viewport:Bounds;
 
 /**
  * Subscribes to move event after a touch event is started.
@@ -57,9 +58,14 @@ export class PaletteComponent implements OnInit{
  */
   moveSubscription: Subscription;
 
-
+  /**
+   * flag to determine how conneection should be drawn
+   */
   selecting_connection: boolean = false;
 
+  /**
+   * place to storer the id of an operation that is seeking a connection, -1 if not currently seeking
+   */
   connection_op_id:number = -1;
 
     /**
@@ -161,14 +167,10 @@ export class PaletteComponent implements OnInit{
     private layers: LayersService, 
     private resolver: ComponentFactoryResolver, 
     private fs: FileService,
-    private _snackBar: MatSnackBar) { 
+    private _snackBar: MatSnackBar,
+    private viewport: ViewportService) { 
     this.shape_vtxs = [];
     this.pointer_events = true;
-    this.viewport = {
-      topleft: {x:0, y:0}, 
-      width: 0, 
-      height:0
-  };
   }
 
 /**
@@ -178,6 +180,8 @@ export class PaletteComponent implements OnInit{
     this.scale = 5;
     this.scale_string = "5px 5px";
     this.vc.clear();
+    this.viewport.setAbsolute(16384, 16384);
+
 
     
   }
@@ -188,15 +192,18 @@ export class PaletteComponent implements OnInit{
    ngAfterViewInit(){
     
     const div:HTMLElement = document.getElementById('scrollable-container');
-    this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
-    this.viewport.width = div.offsetParent.clientWidth;
-    this.viewport.height = div.offsetParent.clientHeight;
+    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+    
+    const center:Point = this.viewport.setViewportCenter();
+    div.offsetParent.scrollLeft = center.x;
+    div.offsetParent.scrollTop = center.y;
 
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
     
-    this.canvas.width = this.viewport.width;
-    this.canvas.height = this.viewport.height;
+    this.canvas.width = this.viewport.getWidth();
+    this.canvas.height = this.viewport.getHeight();
+    console.log(this.viewport);
 
     // this.cx.beginPath();
     // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
@@ -262,13 +269,10 @@ export class PaletteComponent implements OnInit{
  */
   handleScroll(data: any){
     const div:HTMLElement = document.getElementById('scrollable-container');
-    this.viewport.topleft = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
-    this.viewport.width = div.offsetParent.clientWidth;
-    this.viewport.height = div.offsetParent.clientHeight;
-
+    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     //update the canvas to this position
-    this.canvas.style.top = this.viewport.topleft.y+"px";
-    this.canvas.style.left = this.viewport.topleft.x+"px";
+    this.canvas.style.top = this.viewport.getTopLeft().y+"px";
+    this.canvas.style.left = this.viewport.getTopLeft().x+"px";
 
   }
 
@@ -425,7 +429,6 @@ export class PaletteComponent implements OnInit{
 
     subdraft.instance.draft = d;
     subdraft.instance.id = id;
-    subdraft.instance.viewport = this.viewport;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.scale = this.scale;
@@ -469,7 +472,6 @@ export class PaletteComponent implements OnInit{
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
-      op.instance.viewport = this.viewport;
       op.instance.scale = this.scale;
       return op.instance;
     }
@@ -529,7 +531,7 @@ export class PaletteComponent implements OnInit{
   addSubdraftFromDraft(d: Draft){
     console.log("adding from uplaod", d);
     const sd: SubdraftComponent = this.createSubDraft(d);
-    sd.setPosition({x: this.viewport.topleft.x, y: this.viewport.topleft.y});
+    sd.setPosition({x: this.viewport.getTopLeft().x, y: this.viewport.getTopLeft().y});
   }
 
   /**
@@ -678,7 +680,7 @@ export class PaletteComponent implements OnInit{
     this.cx.strokeStyle = "#ff4081";
     this.cx.lineWidth = 1;
     this.cx.setLineDash([this.scale, 2]);
-    this.cx.strokeRect(bounds.left - this.viewport.topleft.x, bounds.top  - this.viewport.topleft.y, bounds.right-bounds.left, bounds.bottom-bounds.top);
+    this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
       
   }
 
@@ -688,8 +690,8 @@ export class PaletteComponent implements OnInit{
    * @returns 
    */
   private getRelativeInterlacement(abs: Interlacement) : Interlacement {
-    const i_offset: number = Math.floor(this.viewport.topleft.y / this.scale);
-    const j_offset: number = Math.floor(this.viewport.topleft.x / this.scale);
+    const i_offset: number = Math.floor(this.viewport.getTopLeft().y / this.scale);
+    const j_offset: number = Math.floor(this.viewport.getTopLeft().x / this.scale);
     const rel: Interlacement = {
       i: abs.i - i_offset,
       j: abs.j - j_offset,
@@ -990,7 +992,7 @@ export class PaletteComponent implements OnInit{
   */
  connectionStarted(topleft: Point){
   
-  const adj: Point = {x: topleft.x - this.viewport.topleft.x, y: topleft.y - this.viewport.topleft.y}
+  const adj: Point = {x: topleft.x - this.viewport.getTopLeft().x, y: topleft.y - this.viewport.getTopLeft().y}
 
   this.selecting_connection = true;
   this.unfreezePaletteObjects();
@@ -1012,7 +1014,7 @@ export class PaletteComponent implements OnInit{
    */
 connectionDragged(mouse: Point, shift: boolean){
 
-  const adj: Point = {x: mouse.x - this.viewport.topleft.x, y: mouse.y - this.viewport.topleft.y}
+  const adj: Point = {x: mouse.x - this.viewport.getTopLeft().x, y: mouse.y - this.viewport.getTopLeft().y}
 
 
   this.shape_bounds.width =  (adj.x - this.shape_bounds.topleft.x);
@@ -1178,8 +1180,8 @@ connectionMade(sd_id:number){
 shapeStarted(mouse: Point){
 
   const rel:Point = {
-    x: mouse.x - this.viewport.topleft.x,
-    y: mouse.y - this.viewport.topleft.y
+    x: mouse.x - this.viewport.getTopLeft().x,
+    y: mouse.y - this.viewport.getTopLeft().y
   }
   
   this.shape_bounds = {
@@ -1210,8 +1212,8 @@ shapeStarted(mouse: Point){
 shapeDragged(mouse: Point, shift: boolean){
 
   const rel:Point = {
-    x: mouse.x - this.viewport.topleft.x,
-    y: mouse.y - this.viewport.topleft.y
+    x: mouse.x - this.viewport.getTopLeft().x,
+    y: mouse.y - this.viewport.getTopLeft().y
   }
 
   this.shape_bounds.width =  (rel.x - this.shape_bounds.topleft.x);
@@ -1350,8 +1352,8 @@ processShapeEnd(){
   if(wefts <= 0) return;
   const warps: number = pattern[0].length;
 
-  this.shape_bounds.topleft.x += this.viewport.topleft.x;
-  this.shape_bounds.topleft.y += this.viewport.topleft.y;
+  this.shape_bounds.topleft.x += this.viewport.getTopLeft().x;
+  this.shape_bounds.topleft.y += this.viewport.getTopLeft().y;
   
 
   const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
@@ -1435,7 +1437,7 @@ drawStarted(){
     //if this drawing does not intersect with any existing subdrafts, 
     const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
     const pos = {
-      topleft: {x: this.viewport.topleft.x + (corners[0].j * this.scale), y: this.viewport.topleft.y + (corners[0].i * this.scale)},
+      topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.scale), y: this.viewport.getTopLeft().y + (corners[0].i * this.scale)},
       width: warps * this.scale,
       height: wefts * this.scale
     }
@@ -1466,11 +1468,12 @@ drawStarted(){
    */
   @HostListener('window:resize', ['$event'])
     onResize(event) {
-      this.viewport.width = event.target.innerWidth;
-      this.viewport.height = event.target.innerHeight;
 
-      this.canvas.width = this.viewport.width;
-      this.canvas.height = this.viewport.height;
+      this.viewport.setWidth(event.target.innerWidth);
+      this.viewport.setHeight(event.target.innerHeight);
+
+      this.canvas.width = this.viewport.getWidth();
+      this.canvas.height = this.viewport.getHeight();
     }
 
 
@@ -1482,7 +1485,7 @@ drawStarted(){
     private onStart(event) {
 
       const ctrl: boolean = event.ctrlKey;
-      const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
       const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
 
       //use this to snap the mouse to the nearest coord
@@ -1536,7 +1539,7 @@ drawStarted(){
   @HostListener('mousemove', ['$event'])
   private onMove(event) {
     const shift: boolean = event.shiftKey;
-    const mouse:Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+    const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
     const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
     mouse.x = ndx.j * this.scale;
     mouse.y = ndx.i * this.scale;
@@ -1555,7 +1558,7 @@ drawStarted(){
   mouseSelectingDraft(event: any, id: number){
 
     const shift: boolean = event.shiftKey;
-    const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+    const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
     const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
     //use this to snap the mouse to the nearest coord
     mouse.x = ndx.j * this.scale;
@@ -1580,7 +1583,7 @@ drawStarted(){
 
 
     const shift: boolean = event.shiftKey;
-    const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+    const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
     const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
     //use this to snap the mouse to the nearest coord
     mouse.x = ndx.j * this.scale;
@@ -1619,7 +1622,7 @@ drawStarted(){
 
       //if this.last is null, we have a mouseleave with no mousestart
       if(this.last === undefined) return;
-      const mouse: Point = {x: this.viewport.topleft.x + event.clientX, y:this.viewport.topleft.y+event.clientY};
+      const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
       const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
       //use this to snap the mouse to the nearest coord
       mouse.x = ndx.j * this.scale;
