@@ -547,7 +547,7 @@ export class WeaverComponent implements OnInit {
   /**
    * Tell weave reference to clear selection.
    * @extends WeaveComponent
-   * @param {Event} Delte - clear event from design component.
+   * @param {Event} Delete - clear event from design component.
    * @returns {void}
    */
   public onClear(b:boolean) {
