@@ -23,10 +23,22 @@ export class CollectionService {
 
  
   async getCollection(collectionName) {
-    var snapshot = await this.db.database.ref("collections/" + collectionName).once('value');
+    var snapshot = await this.db.database.ref("collections/").once('value');
+    var returnVal = [];
     if (snapshot.exists()) {
-      console.log('Success');
-      return snapshot.val();
+      snapshot.forEach(function(collection) {
+        var name: string = collection.val().name;
+        if (name == collectionName) {
+          for (var i = 0; i < collection.val().clusterCount; i++) {
+            let tempObj = {centroid: collection.val().centroids[i],
+              cluster: eval('collection.val().cluster' + i + ';')
+            };
+            returnVal.push(tempObj);
+          }
+        }
+      });
+      console.log("Success");
+      return returnVal;
     } else {
       console.log("Error");
       return null;
@@ -39,9 +51,9 @@ export class CollectionService {
     var snapshot = await ref.once('value');
 
     if (snapshot.exists()) {
-      snapshot.forEach(function(data) {
-        var allLowerCaps = data.key;
-        var name = allLowerCaps.charAt(0).toUpperCase() + allLowerCaps.slice(1);
+      snapshot.forEach(function(collection) {
+        var allLowerCaps: string = collection.val().name;
+        var name: string = allLowerCaps.charAt(0).toUpperCase() + allLowerCaps.slice(1);
         returnVal.push({name: name});
       });
       return returnVal;
