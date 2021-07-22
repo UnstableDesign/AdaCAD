@@ -315,7 +315,19 @@ export class PatternFinder {
                 draftPatterns.push(pattern);
             }
         }
-        return draftPatterns;
+
+        var transformedDraftPatterns = [];
+
+        for (var i = 0; i < draftPatterns.length; i++) {
+            transformedDraftPatterns.push([]);
+            for (var j = 0; j < draftPatterns[i].length; j++) {
+                transformedDraftPatterns[i].push([]);
+                for(var k = 0; k < draftPatterns[i][j].length; k++) {
+                    transformedDraftPatterns[i][j].push(draftPatterns[i][j][k].is_up ? 1 : 0);
+                }
+            }
+        }
+        return transformedDraftPatterns;
     }
 
     public computePatterns(threading, treadling, draft) {
