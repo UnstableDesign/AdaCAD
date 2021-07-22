@@ -57,7 +57,8 @@ export class WeaverComponent implements OnInit {
   design_modes: DesignModes[]=[
     {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
     {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
-    {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"}
+    {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"},
+    {value: 'unset', viewValue: 'Unset Heddle', icon: "far fa-times"}
   ];
 
     //operations you can perform on a selection 

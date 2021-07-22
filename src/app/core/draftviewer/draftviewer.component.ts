@@ -333,6 +333,7 @@ export class DraftviewerComponent implements OnInit {
 
 
   setPosAndDraw(target, currentPos:Interlacement){
+
       if (target && target.id =='treadling') {
         currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
@@ -416,6 +417,7 @@ export class DraftviewerComponent implements OnInit {
 
         case 'up':
         case 'down':
+        case 'unset':
         case 'material':
           this.setPosAndDraw(event.target, currentPos);
           this.unsetSelection();
@@ -546,6 +548,7 @@ export class DraftviewerComponent implements OnInit {
     switch (this.design_mode.name) {
       case 'up':
       case 'down':
+      case 'unset':
       case 'material':
        //this.unsetSelection();
 
@@ -1207,6 +1210,11 @@ export class DraftviewerComponent implements OnInit {
            this.weave.setHeddle(currentPos.i,currentPos.j,val);
 
           break;
+
+        case 'unset':
+            this.weave.setHeddle(currentPos.i,currentPos.j,null);
+ 
+        break;
         case 'material':
           this.drawOnWeftMaterials(currentPos);
           this.drawOnWarpMaterials(currentPos)
@@ -1630,6 +1638,7 @@ export class DraftviewerComponent implements OnInit {
     var base_fill = this.render.getCellDims("base_fill");
     var has_mask = false;
     var is_up = false;
+    var is_set = false;
     var color = "#FFFFFF";
     var beyond = false;
 
@@ -1644,11 +1653,18 @@ export class DraftviewerComponent implements OnInit {
         var row = this.render.visibleRows[i];
         
         is_up = this.weave.isUp(row,j);
+        is_set = this.weave.isSet(row,j);
+
         if(!this.render.isFront()) is_up = !is_up;
         has_mask = this.weave.isMask(row,j);
 
-        if(is_up) color = "#333333";
-        else if(has_mask) color = "#CCCCCC";
+        if(!is_set){
+          color = "#cccccc";
+        }
+        else {
+          if(is_up) color = "#333333";
+           else if(has_mask) color = "#CCCCCC";
+        }
 
         top = base_dims.h;
         left = base_dims.w;
