@@ -40,7 +40,6 @@ import { WeaverViewComponent } from './tool/weaverview/weaverview.component';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { LabelModal } from './modal/label/label.modal';
 
-
 @NgModule({
   imports: [
     CommonModule,
@@ -84,7 +83,7 @@ import { LabelModal } from './modal/label/label.modal';
     LabelModal,
     SchematicComponent,
     WeaverViewComponent
-  ],
+    ],
   entryComponents: [
     ConnectionModal  ],
 })

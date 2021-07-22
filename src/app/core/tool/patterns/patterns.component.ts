@@ -50,6 +50,7 @@ export class PatternsComponent implements OnInit {
     var create = false;
 
     if (!pattern) {
+
       pattern = new Pattern({pattern: this.selection});
       if(this.selection !== undefined) pattern.setPattern(this.selection);
 
@@ -62,15 +63,19 @@ export class PatternsComponent implements OnInit {
       {data: pattern });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!create) {
-        this.patterns[result.id] = result;
-      } else {
-        this.onCreatePattern.emit({pattern: result});
-      }
 
-      var obj: any = {};
-      obj.patterns = _.cloneDeep(this.patterns);
-      this.onPatternChange.emit(obj);
+      console.log(result);
+
+
+      // if (!create) {
+      //   this.patterns[result.id] = result;
+      // } else {
+      //   this.onCreatePattern.emit({pattern: result});
+      // }
+
+      // var obj: any = {};
+      // obj.patterns = _.cloneDeep(this.patterns);
+      // this.onPatternChange.emit(obj);
     });
   }
 

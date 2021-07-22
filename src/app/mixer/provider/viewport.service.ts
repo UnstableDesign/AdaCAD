@@ -1,11 +1,19 @@
-import { WritePropExpr } from '@angular/compiler';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Bounds, Point } from '../../core/model/datatypes';
+
+
+const locations = new Observable((observer) => {
+  let watchId: number;
+});
 
 @Injectable({
   providedIn: 'root'
 })
 export class ViewportService {
+
+
+
 
   /**
    * the total size of scrollable space
@@ -31,6 +39,8 @@ export class ViewportService {
     };
 
    }
+
+   
 
    setAbsolute(w: number, h: number){
     this.absolute.width = w;

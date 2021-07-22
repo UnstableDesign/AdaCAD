@@ -3,7 +3,7 @@ import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
-import { Selection } from '../../weaver/model/selection';
+import { Selection } from '../../core/model/selection';
 import { Point, Interlacement } from './datatypes';
 
 import * as _ from 'lodash';
@@ -20,8 +20,12 @@ export class Draft{
   id: number = -1;
 
   pattern: Array<Array<Cell>> = [[new Cell(false)]]; // the single design pattern
-  shuttles: Array<Shuttle> = [new Shuttle()];    //the shuttles used in this draft 
-  notes: string = "";
+  shuttles: Array<Shuttle> = [
+    new Shuttle({id: 0, name: 'shuttle 0', insert: true, visible: true, color: "#666666", thickness: 100, type: 0, notes: ""}), 
+    new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#3f51b5", thickness: 100, type: 0, notes: ""}), 
+    new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
+  
+    notes: string = "";
 
   //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number> = [0];
@@ -77,11 +81,12 @@ export class Draft{
     //parse the input pattern
     this.pattern = this.parsePattern(params.pattern);
    
-    this.rowShuttleMapping = this.initMapping(this.wefts);
-    this.rowSystemMapping = this.initMapping(this.wefts);
-    this.colShuttleMapping = this.initMapping(this.warps);
-    this.colSystemMapping = this.initMapping(this.warps);
+    this.rowShuttleMapping = this.initMapping(this.wefts, 1);
+    this.rowSystemMapping = this.initMapping(this.wefts, 0);
+    this.colShuttleMapping = this.initMapping(this.warps, 0);
+    this.colSystemMapping = this.initMapping(this.warps, 0);
   }
+
 
 
   parsePattern(params: any):Array<Array<Cell>>{
@@ -102,10 +107,10 @@ export class Draft{
     return pattern;
   }
 
-  initMapping(length: number) :Array<number> {
+  initMapping(length: number, value: number) :Array<number> {
     const a: Array<number> = [];
     for(let i = 0; i < length; i++){
-      a.push(0);
+      a.push(value);
     }
     return a;
   }
@@ -130,13 +135,15 @@ export class Draft{
     this.pattern = this.parsePattern(d.pattern);
     this.notes = d.notes;
     this.overloadShuttles(d.shuttles);
+    this.overloadWeftSystems(d.weft_systems);
+    this.overloadWarpSystems(d.warp_systems);
+    
     this.overloadRowShuttleMapping(d.rowShuttleMapping);
     this.overloadColShuttleMapping(d.colShuttleMapping);
     this.overloadRowSystemMapping(d.rowSystemMapping);
     this.overloadColSystemMapping(d.colSystemMapping);
   
-    this.overloadWeftSystems(d.weft_systems);
-    this.overloadWarpSystems(d.warp_systems);
+
   }
 
   /**
@@ -175,7 +182,10 @@ export class Draft{
   }
 
   overloadWarpSystems(systems: Array<System>){
-    this.warp_systems = [];
+
+    if(systems.length > 0){
+      this.warp_systems = [];
+    }
 
     systems.forEach(system => {
       this.warp_systems.push(new System(system));
@@ -183,6 +193,9 @@ export class Draft{
   }
 
   overloadWeftSystems(systems: Array<System>){
+      if(systems.length > 0){
+        this.weft_systems = [];
+      }
 
       systems.forEach(system => {
         this.weft_systems.push(new System(system));
@@ -191,7 +204,10 @@ export class Draft{
     
   }
 
+
+
   overloadRowShuttleMapping(mapping: Array<number>){
+
     this.rowShuttleMapping = [];
     this.rowShuttleMapping = mapping;
   }
@@ -487,7 +503,8 @@ export class Draft{
 
   insertRow(i: number, shuttleId: number, systemId:number) {
     
-
+    console.log(i, shuttleId, systemId)
+  
     var col = [];
 
     for (var j = 0; j < this.warps; j++) {
@@ -504,22 +521,27 @@ export class Draft{
 
   }
 
-  //assumes i is the screen index
-  cloneRow(i: number, c: number, shuttleId: number, systemId:number) {
+ /**
+  * clones the row at i into the next location
+  * @param i 
+  * @param shuttleId 
+  * @param systemId 
+  */
+  cloneRow(i: number, shuttleId: number, systemId:number) {
     
-    var col = [];
+    var row = [];
 
     //copy the selected row
     for(var ndx = 0; ndx < this.warps; ndx++){
-      col[ndx] = new Cell(null);
-      col[ndx].setHeddle(this.pattern[c][ndx].isUp());
+      row[ndx] = new Cell(null);
+      row[ndx].setHeddle(this.pattern[i][ndx].isUp());
     }
 
     this.wefts += 1;
 
     this.rowShuttleMapping.splice(i, 0, shuttleId);
     this.rowSystemMapping.splice(i, 0, systemId);
-    this.pattern.splice(i, 0, col);
+    this.pattern.splice(i, 0, row);
     //this.mask.splice(i, 0, col);
 
   }
@@ -727,10 +749,82 @@ export class Draft{
 
   }
 
+  /**
+   * checks if we should move to the next system id or create a new empty system.
+   * @returns the id of the created or empty system to add to
+  */
+  getNextWeftSystem(ndx: number): number{
+
+    var system_id = this.rowSystemMapping[ndx];
+
+    //are any other rows assigned to this system or is this the first
+    const count: number = this.rowSystemMapping.reduce((acc,val) => {
+      if(val === system_id){
+        acc = acc + 1;
+      } 
+      return acc;
+    }, 0);
+
+
+    //this is the only one assigned
+    if(count === 1){
+      return 0; // return the starting index
+    }else{
+      //you need the next id
+      system_id ++;
+
+      if(system_id < this.weft_systems.length){
+        return system_id;
+      }else if(system_id === this.weft_systems.length){
+        this.addWeftSystem(new System());
+        return system_id;
+      }else{
+        return 0;
+      }
+    }
+
+  }
+
   addWeftSystem(system) {
     system.setID(this.weft_systems.length);
     system.setVisible(true);
     this.weft_systems.push(system);
+  }
+
+  /**
+   * checks if we should move to the next system id or create a new empty system.
+   * @returns the id of the created or empty system to add to
+  */
+   getNextWarpSystem(ndx: number): number{
+
+    var system_id = this.colSystemMapping[ndx];
+
+    //are any other rows assigned to this system or is this the first
+    const count: number = this.colSystemMapping.reduce((acc,val) => {
+      if(val === system_id){
+        acc = acc + 1;
+      } 
+      return acc;
+    }, 0);
+
+
+    //this is the only one assigned
+    if(count === 1){
+      return 0; // return the starting index
+    }else{
+      //you need the next id
+      system_id ++;
+
+      if(system_id < this.warp_systems.length){
+        return system_id;
+      }else if(system_id === this.warp_systems.length){
+        this.addWarpSystem(new System());
+        return system_id;
+      }else{
+        return 0;
+      }
+    }
+
   }
 
   addWarpSystem(system) {

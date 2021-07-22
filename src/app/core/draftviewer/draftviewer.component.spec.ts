@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FinetuneComponent } from './finetune.component';
+import { DraftviewerComponent } from './draftviewer.component';
 
-describe('FinetuneComponent', () => {
-  let component: FinetuneComponent;
-  let fixture: ComponentFixture<FinetuneComponent>;
+describe('DraftviewerComponent', () => {
+  let component: DraftviewerComponent;
+  let fixture: ComponentFixture<DraftviewerComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FinetuneComponent ]
+      declarations: [ DraftviewerComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FinetuneComponent);
+    fixture = TestBed.createComponent(DraftviewerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

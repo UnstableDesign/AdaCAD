@@ -9,6 +9,8 @@ import { TreeService } from '../../provider/tree.service';
 import { FileService } from '../../../core/provider/file.service';
 import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
 
 
 
@@ -109,7 +111,8 @@ export class SubdraftComponent implements OnInit {
     private ops: OperationService,
     private tree: TreeService,
     private fs: FileService,
-    private viewport: ViewportService) { 
+    private viewport: ViewportService,
+    private dialog: MatDialog) { 
     this.zndx = layer.createLayer();
   }
 
@@ -605,6 +608,13 @@ export class SubdraftComponent implements OnInit {
         link.href = this.fs.saver.jpg(b);
         link.download = e.name + ".jpg";
       }      
+    }
+
+    finetune(){
+      const dialogRef = this.dialog.open(DraftdetailComponent, {
+        data: {
+          draft: this.draft        }
+      });
     }
 
  

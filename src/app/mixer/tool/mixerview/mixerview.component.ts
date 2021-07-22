@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { Bounds, Point } from '../../../core/model/datatypes';
+import { ViewportService } from '../../provider/viewport.service';
 
 @Component({
   selector: 'app-mixerview',
@@ -13,15 +14,22 @@ export class MixerViewComponent implements OnInit {
   @Output() onViewPortMove: any = new EventEmitter();
 
   local_view:Bounds;
+  factor:number;
+  width: number;
+  height; number;
 
-  factor:number = 250/ 16384;
-
- constructor() { 
+ constructor(private viewport: ViewportService) { 
+ 
   this.local_view = {
     topleft: {x:0, y:0}, 
     width: 100, 
     height:100
   };
+
+  this.width = 250;
+  this.height = 250;
+  this.factor = this.width / viewport.getAbsoluteWidth();
+
  }
  
   ngOnInit() {
@@ -30,18 +38,24 @@ export class MixerViewComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-   
+  //   this.local_view.topleft = {
+  //     x: this.viewport.getTopLeft().x / this.zoom * this.factor, 
+  //     y: this.viewport.getTopLeft().y / this.zoom * this.factor};
+  //   this.local_view.width = this.viewport.getWidth() / this.zoom * this.factor;
+  //   this.local_view.height = this.viewport.getHeight() / this.zoom * this.factor;
+  //  // console.log(data, this.local_view);
+
   }
 
 
   updateViewPort(data: any){
-    const div:HTMLElement = data.elementRef.nativeElement;
-    this.local_view.topleft = {
-      x: div.scrollLeft / this.zoom * this.factor, 
-      y: div.scrollTop / this.zoom * this.factor};
-    this.local_view.width = div.clientWidth / this.zoom * this.factor;
-    this.local_view.height = div.clientHeight / this.zoom * this.factor;
-   // console.log(data, this.local_view);
+  //   const div:HTMLElement = data.elementRef.nativeElement;
+  //   this.local_view.topleft = {
+  //     x: div.scrollLeft / this.zoom * this.factor, 
+  //     y: div.scrollTop / this.zoom * this.factor};
+  //   this.local_view.width = div.clientWidth / this.zoom * this.factor;
+  //   this.local_view.height = div.clientHeight / this.zoom * this.factor;
+  //  // console.log(data, this.local_view);
 
   }
 

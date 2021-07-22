@@ -16,8 +16,8 @@ import { TreeComponent } from './tool/tree/tree.component';
 import { FlowComponent } from './tool/flow/flow.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
-import { FinetuneComponent } from './modal/finetune/finetune.component';
-import { FreehandComponent } from './modal/freehand/freehand.component';
+import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
+import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component';
 
 
 
@@ -42,8 +42,8 @@ import { FreehandComponent } from './modal/freehand/freehand.component';
     FlowComponent,
     OpHelpModal,
     ImageComponent,
-    FreehandComponent,
-    FinetuneComponent
+    MixerInitComponent,
+    DraftdetailComponent
     ],
   entryComponents: [
     SubdraftComponent,
@@ -51,7 +51,8 @@ import { FreehandComponent } from './modal/freehand/freehand.component';
     OperationComponent,
     ConnectionComponent,
     OpHelpModal,
-    FinetuneComponent
+    MixerInitComponent,
+    DraftdetailComponent
   ]
 })
 export class MixerModule { }

@@ -21,13 +21,13 @@
     
     
     <!-- </mat-panel-description>
-  </mat-expansion-panel-header>
+  </mat-expansion-panel-header> -->
 
 
   <div class="global_view">
     <div class="local"
-    [style.width.px] = "local_view.width"
-    [style.height.px] = "local_view.height"
+    [style.width.px] = "viewport.getWidth() / viewport.getAbsoluteWidth() * width"
+    [style.height.px] = "viewport.getHeight() / viewport.getAbsoluteHeight() * height"
     [cdkDragFreeDragPosition]="local_view.topleft"
     cdkDragBoundary=".global_view"
     (cdkDragMoved)="dragMove($event)"
@@ -37,7 +37,7 @@
     </div>
   </div>
 
-  <div class="slider-row">
+  <!-- <div class="slider-row">
     <i class="fas fa-search-plus"></i>
 
       <mat-slider 
