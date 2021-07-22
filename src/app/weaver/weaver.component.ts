@@ -17,6 +17,7 @@ import { Cell } from '../core/model/cell';
 import { FileService, LoadResponse } from '../core/provider/file.service';
 import { Loom } from '../core/model/loom';
 import * as _ from 'lodash';
+import { PatternFinder } from './tool/patternfinder/patternfinder';
 
 
 //disables some angular checking mechanisms
@@ -155,7 +156,11 @@ export class WeaverComponent implements OnInit {
      */
     generativeMode = false;
 
-
+    /**
+     * When generativeMode is activated patternFinder will be run to determine the major patterns of the current draft
+     * @property {PatternFinder}
+     */
+    patternFinder: PatternFinder = new PatternFinder();
 
 
   /**
@@ -518,6 +523,9 @@ export class WeaverComponent implements OnInit {
   */
  public onGenerativeModeChange() {
    this.generativeMode = !this.generativeMode;
+   if (this.generativeMode) {
+     console.log(this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern));
+   }
  }
   
   /**

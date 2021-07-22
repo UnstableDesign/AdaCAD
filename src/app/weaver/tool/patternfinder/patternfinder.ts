@@ -1,4 +1,5 @@
 import { string } from "@tensorflow/tfjs";
+import { sequenceEqual } from "rxjs/operators";
 
 export class PatternFinder {
 
@@ -41,7 +42,7 @@ export class PatternFinder {
             strPattern += num.toString();
             strPattern += ",";
         }
-        return strPattern;
+        return strPattern.slice(0, -1);
     }
 
     private toArray(pattern: string) {
@@ -51,21 +52,50 @@ export class PatternFinder {
             var currentChar = pattern[i];
             if (currentChar != ",") {
                 temp += currentChar;
-            } else {
+                if (i == pattern.length - 1) {
+                    arrayPattern.push(parseInt(temp));
+                }
+            } else if (currentChar == ",") {
                 arrayPattern.push(parseInt(temp));
                 temp = "";
-            }
+            } 
         }
         return arrayPattern;
     }
 
-    private findPatterns(sequence: string) {
+    private countOccurances(arr, item) {
+        var count = 0;
+        for (var i in arr) {
+            if (i == item) {
+                count += 1;
+            }
+        }
+        return count;
+    }
+
+    //not sure if this is supposed to be a string rather than an array
+
+    private findPatterns(sequence) {
+        for (var i = 0; i < sequence.length; i++) {
+            if (sequence[i] == -1) {
+                var allEmpty = true;
+                for (var j = i+1; j < sequence.length; j++) {
+                    if (sequence[j] != -1) {
+                        allEmpty = false;
+                    }
+                }
+                if (allEmpty) {
+                    break;
+                }
+            }
+        }
+        if (allEmpty) {
+            sequence.splice(i, sequence.length - i);
+        }
         var singles = {};
 
         for (var i = 0; i < sequence.length; i++) {
-            var currentChar = sequence[i];
-            var regExp = new RegExp(currentChar, "gi"); //double check this that we'rre looking for the coorrect item within the larger string
-            singles[i] = (sequence.match(regExp) || []).length;
+            singles[i] = this.countOccurances(sequence, i);
         }
         for (var key in singles) {
             if (singles[key] == 1) {
@@ -77,15 +107,17 @@ export class PatternFinder {
         var continueSearch = true;
         var size = 2;
         var occuranceTableKeys: string[] = [];
+        
 
         while (continueSearch) {
             continueSearch = false;
             for (var i = 0; i < sequence.length - size + 1; i++) {
-                var strSubsequence:string = "";
+                var strSubsequence: string = "";
                 for (var j = 0; j < size; j++) {
-                    strSubsequence += sequence[i+j].toString() + ","; //Isn't sequence already a string??
+                    strSubsequence += sequence[i+j].toString() + ",";
                 }
-                if (occuranceTable[strSubsequence] != null) {
+                strSubsequence = strSubsequence.slice(0, -1);
+                if (occuranceTableKeys.includes(strSubsequence)) {
                     occuranceTable[strSubsequence] += 1;
                     continueSearch = true;
                 } else {
@@ -94,13 +126,14 @@ export class PatternFinder {
                 }
             }
             size += 1;
-        }
+        }        
+
 
         var patterns = [];
 
         for (var idx = 0; idx < occuranceTableKeys.length; idx++) {
-            var key: string = occuranceTableKeys[occuranceTableKeys.length - idx - 1];
-            if (occuranceTable[i] > 1) {
+            var key = occuranceTableKeys[occuranceTableKeys.length - idx - 1];
+            if (occuranceTable[key] > 1) {
                 var expected = 0;
                 for (var j = 0; j < patterns.length; j++) {
                     var pattern = patterns[j];
@@ -145,22 +178,23 @@ export class PatternFinder {
                     if (pattern1[pattern1.length-1] == pattern2[i]) {
                         aligned = true;
                         for (var j = 1; j < i; j++) {
-                            if (pattern1[pattern1.length - 1 - j] != pattern2[i-j]) {
+                            if (pattern1[pattern1.length - 1 - j] != pattern2[i - j]) {
                                 aligned = false;
                             }
                         }
-                        if (i == pattern1.length && !aligned) {
-                            i = -1;
-                            break;
-                        }
                     }
+                    if (i == pattern1.length - 1 && !aligned) {
+                        i = -1;
+                        aligned = true;
+                    }
+                    
                 }
 
                 var repeat = false;
                 if (i != -1) {
                     repeat = true;
                     for (var idx = 0; idx < pattern1.length-1-i; idx++) {
-                        if (pattern1[idx] != pattern2[i + 1+ idx]) {
+                        if (pattern1[idx] != pattern2[i + 1 + idx]) {
                             repeat = false;
                         }
                     }
@@ -169,12 +203,42 @@ export class PatternFinder {
                     toDelete.push(p1);
                 } else if (repeat) {
                     toDelete.push(p2);
+
                 }
+
             }
         }
 
+        for (var i = 0; i < patterns.length; i++)
+        {
+            if (!patterns[i].includes(",")) {//meaning this is a pattern of one entry
+                toDelete.push(i);
+            }
+            
+        }
+
+        var containsRepeats = true;
+        while(containsRepeats) {
+            var firstIdx = -1;
+            containsRepeats = false;
+            for (var i = 0; i < toDelete.length; i++) {
+                for (var j = i+1; j < toDelete.length; j++) {
+                    if (toDelete[i] == toDelete[j]) {
+                        containsRepeats = true;
+                        if (firstIdx == -1) {
+                            firstIdx = j;
+                        }
+                    }
+                }
+            }
+            if (firstIdx != -1) {
+                toDelete.splice(firstIdx, 1);
+            }
+        }
+
+
         for (var i = 0; i < toDelete.length; i++) {
-            delete patterns[toDelete[toDelete.length - 1 - i]];
+            patterns.splice(toDelete[toDelete.length - 1 - i], 1)
         }
         return patterns;
     }
@@ -182,7 +246,7 @@ export class PatternFinder {
     private findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threading, draft) {
         var treadlingString: string = this.toString(treadling);
         var threadingString: string = this.toString(threading);
-
+        
         var treadlingPatternsArr = [];
         for (var i = 0; i < treadlingPatterns.length; i++) {
             let current = treadlingPatterns[i];
@@ -190,7 +254,7 @@ export class PatternFinder {
         }
 
         var threadingPatternsArr = [];
-        for (var i = 0; i < threadingPatterns.leength; i++) {
+        for (var i = 0; i < threadingPatterns.length; i++) {
             let current = threadingPatterns[i];
             threadingPatternsArr.push(this.toArray(current));
         }
@@ -201,7 +265,7 @@ export class PatternFinder {
         var checked = 0;
         for (i = 0; i < treadlingPatternsArr.length; i++) {
             let current = treadlingPatternsArr[i];
-            let stringVersion = this.toString(current);
+            let stringVersion = treadlingPatterns[i];
             let idx = treadlingString.slice(checked, treadlingString.length).indexOf(stringVersion);
             var length = -1;
 
@@ -221,7 +285,7 @@ export class PatternFinder {
         checked = 0;
         for (var i = 0; i < threadingPatternsArr.length; i++) {
             let current = threadingPatternsArr[i];
-            let stringVersion = this.toString(current);
+            let stringVersion = threadingPatterns[i];
             let idx = threadingString.slice(checked, threadingString.length).indexOf(stringVersion);
             var length = -1;
 
@@ -239,12 +303,12 @@ export class PatternFinder {
         }
 
         var draftPatterns = [];
-        for (var treadle in treadlingRanges) {
-            for (var thread in threadingRanges) {
+        for (var i = 0; i < treadlingRanges.length; i++) {
+            for (var j = 0; j < threadingRanges.length; j++) {
                 var pattern = [];
-                for (var idxWeft = treadle[0]; idxWeft < treadle[1]; idxWeft += 1) {
+                for (var idxWeft = treadlingRanges[i][0]; idxWeft < treadlingRanges[i][1]; idxWeft += 1) {
                     pattern.push([]);
-                    for (var idxWarp = thread[0]; idxWarp < thread[1]; idxWarp += 1) {
+                    for (var idxWarp = threadingRanges[j][0]; idxWarp < threadingRanges[j][1]; idxWarp += 1) {
                         pattern[idxWeft].push(draft[idxWeft][idxWarp]);
                     }
                 }
@@ -253,4 +317,12 @@ export class PatternFinder {
         }
         return draftPatterns;
     }
+
+    public computePatterns(threading, treadling, draft) {
+        let threadingPatterns = this.findPatterns(threading);
+        let treadlingPatterns = this.findPatterns(treadling);
+        
+        return this.findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threading, draft);
+    }
+    
 }

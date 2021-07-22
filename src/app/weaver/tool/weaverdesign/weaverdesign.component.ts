@@ -50,7 +50,7 @@ export class WeaverDesignComponent implements OnInit {
     this.collection = {name: ""};
     collectionSrvc.getCollectionNames().then((value) => {
       this.collections = value;
-      this.collection = this.collections[0]
+      this.collection = this.collections[0];
     })
   }
   
