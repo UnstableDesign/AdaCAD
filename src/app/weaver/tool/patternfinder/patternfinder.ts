@@ -1,6 +1,3 @@
-import { string } from "@tensorflow/tfjs";
-import { sequenceEqual } from "rxjs/operators";
-
 export class PatternFinder {
 
     private findBasePatternString(subsection: string) {
@@ -72,8 +69,6 @@ export class PatternFinder {
         }
         return count;
     }
-
-    //not sure if this is supposed to be a string rather than an array
 
     private findPatterns(sequence) {
         for (var i = 0; i < sequence.length; i++) {

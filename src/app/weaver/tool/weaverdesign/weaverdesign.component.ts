@@ -44,6 +44,8 @@ export class WeaverDesignComponent implements OnInit {
   generativeMode = false;
   
   clusters: any = [];
+  
+  centroids: any = [];
 
   constructor(private ref: ChangeDetectorRef, private dialog: MatDialog, private collectionSrvc: CollectionService) { 
     this.collections = [];
@@ -59,12 +61,21 @@ export class WeaverDesignComponent implements OnInit {
 
   generativeModeChange() {
     this.generativeMode = !this.generativeMode;
-    this.onGenerativeModeChange.emit();
     if (this.generativeMode) {
       var allLowerCollectionName = this.collection.name.charAt(0).toLowerCase() + this.collection.name.slice(1)
       this.collectionSrvc.getCollection(allLowerCollectionName).then((value) => {
         this.clusters = value;
-        console.log('clusters:', this.clusters);
+        var centroids = [];
+        var clusters = [];
+        this.clusters.forEach(element => {
+          centroids.push(element.centroid);
+          clusters.push(element.cluster);
+        });
+        var obj: any = {};
+        obj.centroids = centroids;
+        obj.clusters = clusters;
+        this.onGenerativeModeChange.emit(obj);
+
       })
     }
   }

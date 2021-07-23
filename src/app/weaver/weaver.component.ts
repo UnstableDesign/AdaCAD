@@ -18,6 +18,7 @@ import { FileService, LoadResponse } from '../core/provider/file.service';
 import { Loom } from '../core/model/loom';
 import * as _ from 'lodash';
 import { PatternFinder } from './tool/patternfinder/patternfinder';
+import { DraftMatcher } from './tool/draftmatcher/draftmatcher';
 
 
 //disables some angular checking mechanisms
@@ -157,10 +158,26 @@ export class WeaverComponent implements OnInit {
     generativeMode = false;
 
     /**
-     * When generativeMode is activated patternFinder will be run to determine the major patterns of the current draft
+     * Array holding the centroid drafts of the current collections clusters from db
+     */
+    centroids = [];
+
+    /**
+     * Array holding the cluster patterns of the current collections clusters from db
+     */
+    clusters = [];
+
+    /**
+     * When generativeMode is activated, patternFinder will be run to determine the major patterns of the current draft
      * @property {PatternFinder}
      */
     patternFinder: PatternFinder = new PatternFinder();
+
+    /**
+     * When generativeMode is activated, draftMatcher will be run to find closest draft in the collection saved in db
+     * @property {DraftMatcher}
+     */
+    draftMatcher: DraftMatcher = new DraftMatcher();
 
 
   /**
@@ -521,10 +538,16 @@ export class WeaverComponent implements OnInit {
   * @param {Event} e
   * @returns {void}
   */
- public onGenerativeModeChange() {
+ public onGenerativeModeChange(e: any) {
    this.generativeMode = !this.generativeMode;
+   this.centroids = e.centroids;
+   this.clusters = e.clusters
    if (this.generativeMode) {
-     console.log(this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern));
+      let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
+      let closestCentroidIdx = this.draftMatcher.matchToClosestCluster(this.centroids, pattern);
+      let closestDraftIdx = this.draftMatcher.matchToClosestDraft(this.clusters[closestCentroidIdx]);
+      console.log('closestDraftIdx:', closestDraftIdx);
+      console.log('this.clusters[closestCentroidIdx][closestDraftIdx]', this.clusters[closestCentroidIdx][closestDraftIdx]);
    }
  }
   
