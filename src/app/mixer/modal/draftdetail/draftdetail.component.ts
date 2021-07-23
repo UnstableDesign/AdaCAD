@@ -3,7 +3,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Bounds, Interlacement } from '../../../core/model/datatypes';
 import { Draft } from '../../../core/model/draft';
 import { Subscription, fromEvent } from 'rxjs';
-import { WeaveDirective } from '../../../weaver/directives/weave.directive';
 import { Loom } from '../../../core/model/loom';
 import { Render } from '../../../core/model/render';
 import { Timeline } from '../../../core/model/timeline';
@@ -24,11 +23,7 @@ interface DesignModes{
 })
 export class DraftdetailComponent implements OnInit {
 
-    /**
-   * The reference to the weave directive.
-   * @property {WeaveDirective}
-   */
-     @ViewChild(WeaveDirective, {static: false}) weaveRef;
+ 
      @ViewChild('bitmapImage', {static: false}) bitmap;
    
      design_modes: DesignModes[]=[
@@ -109,7 +104,7 @@ export class DraftdetailComponent implements OnInit {
               this.scrollingSubscription = this.scroll
               .scrolled()
               .subscribe((data: any) => {
-                this.onWindowScroll(data);
+                // this.onWindowScroll(data);
                });
     
                this.copy = [[false,true],[false,true]];
@@ -131,9 +126,9 @@ export class DraftdetailComponent implements OnInit {
 
   }
 
-  private onWindowScroll(data: any) {
-    this.weaveRef.rescale();
-  }
+  // private onWindowScroll(data: any) {
+  //   this.rescale();
+  // }
 
 
   ngOnInit() {

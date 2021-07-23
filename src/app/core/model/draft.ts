@@ -1502,24 +1502,24 @@ computeYarnPaths(){
             break; 
             case 'weft-systems':
               var draft_row = visibleRows[row];
-              val = pattern[i % rows][j % cols].isUp();
+              val = pattern.pattern[i % rows][j % cols].isUp();
               if(val && col < this.weft_systems.length) this.rowSystemMapping[draft_row] = col;
             
             break;
             case 'warp-systems':
-              val = pattern[i % rows][j % cols].isUp();
+              val = pattern.pattern[i % rows][j % cols].isUp();
               if(val && row < this.warp_systems.length){
                   this.colSystemMapping[col] = row;
               }
             break;
             case 'weft-materials':
               var draft_row = visibleRows[row];
-              val = pattern[i % rows][j % cols].isUp();
+              val = pattern.pattern[i % rows][j % cols].isUp();
               if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
             
             break;
             case 'warp-materials':
-              val = pattern[i % rows][j % cols].isUp();
+              val = pattern.pattern[i % rows][j % cols].isUp();
               if(val && row < this.shuttles.length){
                   this.colShuttleMapping[col] = row;
               }

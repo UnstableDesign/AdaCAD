@@ -2160,7 +2160,7 @@ public drawWeftEnd(top, left, shuttle){
     // left= this.canvasEl.width+this.treadlingCanvas.width+dims.w*2;
 
     top = drawdown_top+dims.h;
-    left = (scroll_left+draft_width) - (dims.w*7);
+    left = scroll_left+draft_width-(dims.w*7);
     left /= scaleToFit;
     left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3));
 
@@ -2176,7 +2176,7 @@ public drawWeftEnd(top, left, shuttle){
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-systems'){
         
         top +=  this.selection.getTop()*dims.h;
-        left += this.selection.getLeft()*dims.w;
+        left += (this.selection.getLeft()-1)*dims.w;
         this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
     } 
 
@@ -2240,7 +2240,7 @@ public drawWeftEnd(top, left, shuttle){
    
 
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-systems'){
-          top +=  this.selection.getTop()*dims.h;
+          top +=  (this.selection.getTop()+6)*dims.h;
           left += this.selection.getLeft()*dims.w;
           this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
     }

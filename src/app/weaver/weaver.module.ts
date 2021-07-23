@@ -29,7 +29,6 @@ import { ScrollingModule} from '@angular/cdk/scrolling';
 
 import { CoreModule } from '../core/core.module';
 
-import { WeaveDirective } from './directives/weave.directive';
 import { WeaverComponent } from './weaver.component';
 import { WeaverDesignComponent } from './tool/weaverdesign/weaverdesign.component';
 import { WeaverPatternsComponent } from './tool/weaverpatterns/weaverpatterns.component';
@@ -73,7 +72,6 @@ import { LabelModal } from './modal/label/label.modal';
 
   ],
   declarations: [
-    WeaveDirective,
     WeaverComponent,  
     WeaverDesignComponent, 
     WeaverPatternsComponent,
