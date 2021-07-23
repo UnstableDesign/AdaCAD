@@ -1,4 +1,4 @@
-import { Draft } from "../../core/model/draft";
+import { Draft } from "./draft";
 
 /**
  * Definition of render object.
@@ -39,6 +39,7 @@ export class Render {
     for(let i = 0; i < draft.wefts; i++){
       this.visibleRows[i] =i;
     }
+
 
     //renders at min -  expands to max
     this.base_cell = {
@@ -84,6 +85,19 @@ export class Render {
     if(this.zoom > 30) return 30; 
     if(this.zoom > 25) return 50; 
     return 100;
+  }
+
+  /**
+   * given the ndx, get the next visible row or -1 if there isn't a next
+   * @param ndx 
+   */
+  getNextVisibleRow(ndx: number) : number {
+
+    const next: number = ndx ++;
+    if(next >= this.visibleRows.length) return -1;
+
+    return this.visibleRows[next];
+
   }
 
   getCellDims(type: string){

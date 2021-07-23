@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FreehandComponent } from './freehand.component';
+import { DraftdetailComponent } from './draftdetail.component';
 
-describe('FreehandComponent', () => {
-  let component: FreehandComponent;
-  let fixture: ComponentFixture<FreehandComponent>;
+describe('DraftdetailComponent', () => {
+  let component: DraftdetailComponent;
+  let fixture: ComponentFixture<DraftdetailComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FreehandComponent ]
+      declarations: [ DraftdetailComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FreehandComponent);
+    fixture = TestBed.createComponent(DraftdetailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

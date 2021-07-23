@@ -137,6 +137,12 @@
 		 matTooltip ="download this draft">
 		</button>
 
+		<!-- <button
+		class="button is-small is-primary fas fa-search"
+		matTooltip ="finetune this draft"
+		(click)="finetune()">
+	   </button> -->
+
 
 		  <mat-menu #downloadDropdown mat-raised-button>
 			<a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>as Printable Image</a>
@@ -155,6 +161,8 @@
 			(click)="designActionChange('delete')">
 			</button>
 		</div>
+
+
 	
 	
    </div>
