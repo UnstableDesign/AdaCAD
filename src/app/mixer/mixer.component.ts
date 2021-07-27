@@ -15,7 +15,7 @@ import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProx
 import { OperationComponent } from './palette/operation/operation.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MixerViewComponent } from './tool/mixerview/mixerview.component';
-import { FinetuneComponent } from './modal/finetune/finetune.component';
+import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 
 
 //disables some angular checking mechanisms
@@ -89,14 +89,13 @@ export class MixerComponent implements OnInit {
     private fs: FileService,
     private dialog: MatDialog) {
 
-  this.dialog.open(FinetuneComponent, {width: '600px'});
+    this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
           .scrolled()
           .subscribe((data: any) => {
             this.onWindowScroll(data);
     });
-
     
 
    

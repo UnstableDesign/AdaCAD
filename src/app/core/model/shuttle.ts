@@ -34,6 +34,7 @@ export class Shuttle {
   }
 
   updateVariables({id, name, insert, visible, color, thickness, type, notes}) {
+    
     this.id = id;
     this.name = name;
     this.insert = insert;

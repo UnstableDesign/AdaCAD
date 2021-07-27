@@ -148,105 +148,17 @@
   </mat-drawer>
 
 
+  <app-draftviewer 
+    [render]="render" 
+    [(design_mode)]="design_mode" 
+    [(generative_mode)]="generativeMode"
+    [(copy)]="copy" 
+    [timeline]="timeline" 
+    [draft]="draft" 
+    [loom]="loom" 
+    (onNewSelection) = "updateSelection($event)">
 
-  <div #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(generative_mode)]="generativeMode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" [loom]="loom" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
-
-  
-   <canvas id="weft-systems" #weft_systems>  </canvas>
-   <canvas id="weft-materials" #weft_materials>  </canvas>
-  
-   <canvas id="warp-systems" #warp_systems>  </canvas>
-   <canvas id="warp-materials" #warp_materials>  </canvas>
-  
-   <canvas id="threading"></canvas>
-   <canvas id="tieups" #tieups ></canvas>
-   <canvas id="drawdown" #drawDown >  </canvas>
-   <canvas id="treadling" #treadling></canvas>
-
-
-    <svg #mySelection class="selection">
-      <text x="5" y="5" text-anchor="start"></text>
-    </svg>
-
-
-    <div id = 'view_frames' [class.hidden]="loom?.type !== 'frame'"  matTooltip="Show/Hide Threading, Tie-Up, and Treadling" class="view_frames" 
-   (click)="toggleViewFrames();">
-
-      <span><i class="fas" [class.fa-eye-slash]="!render?.view_frames" [class.fa-eye]="render?.view_frames">
-      </i></span>
-
-    </div>
-
-         
-  <div class="weft-systems-text">
-    <div class="weft-system-row" *ngFor="let i of (draft?.visibleRows); let j = index;" >
-
-
-          <span class="weft_number" 
-          [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'" >
-          {{i}}
-          </span>
-
-          <span class = "weft_insert" 
-          (click)="insertRow(i + 1, draft?.rowToShuttle(i),draft?.rowToSystem(i));">
-          <i class="fa fa-plus-circle"></i>
-          </span>
-
-          <span class = "weft_clone" 
-          (click)="cloneRow(i + 1, i, draft?.rowToShuttle(i),draft?.rowToSystem(i));">
-          <i class="fa fa-clone"></i>
-          </span>
-          
-          <span class="weft_delete" 
-           (click)="deleteRow(i);">
-           <i class="fa fa-trash"></i>
-          </span>
-    </div>
-  </div> 
-
-
-
-      
-  <div class="warp-systems-text">
-
-    <div class="warp-system-col" 
-    *ngFor="let i of (draft?.colShuttleMapping); let j = index;" >
-
-      <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
-        </span>
-
-      <span class="warp_clone"
-      (click)="cloneCol(j,draft?.colToShuttle(j), draft?.colToSystem(j));">
-        <i class="fa fa-clone"></i>
-      </span>
-
-
-      <span class="warp_insert" 
-      (click)="insertCol(j + 1, draft?.colToShuttle(j),draft?.colToSystem(j));">
-      <i class="fa fa-plus-circle"></i></span>
-      
-      <span  class="warp_number"
-       [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{j}}</span>
-
-
-    </div>
-   </div>  
-
-
-
-  
-    <svg #activeRow class="active_row">
-    </svg>
-
-    <svg #activeCol class="active_col">
-    </svg>
-              
-
-
-    <canvas #bitmapImage hidden></canvas>
-
-
-  </div>
+  </app-draftviewer>
 
 
 </mat-drawer-container>

@@ -1,296 +1,284 @@
-import { Directive, ElementRef, ViewChild, HostListener, Input, Output, EventEmitter, Renderer2 } from '@angular/core';
-import { Observable, Subscription, fromEvent, from } from 'rxjs';
-import * as d3 from "d3";
+import { ElementRef, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import * as d3 from 'd3';
+import { Subscription, Subject, fromEvent } from 'rxjs';
+import { Render } from '../model/render';
+import { Selection } from '../model/selection';
+import { Cell } from '../model/cell';
+import { Interlacement } from '../model/datatypes';
+import { Draft } from '../model/draft';
+import { Loom } from '../model/loom';
+import { Pattern } from '../model/pattern';
 import {cloneDeep, now} from 'lodash';
+import { FileService } from '../provider/file.service';
+import { thresholdFreedmanDiaconis } from 'd3';
 
-import { Render } from '../../weaver/model/render';
-import { Pattern } from '../../core/model/pattern';
-import { Point, Interlacement, LoomUpdate } from '../../core/model/datatypes';
-import { Selection } from '../../weaver/model/selection';
-import { Timeline } from '../../core/model/timeline';
-import { CanvasToBMP } from '../../core/model/canvas2image';
-import {Subject} from 'rxjs';
-import {takeLast, takeUntil} from 'rxjs/operators';
-import { Draft } from '../../core/model/draft';
-import { Loom } from '../../core/model/loom';
-import { Cell } from '../../core/model/cell';
-
-const generateId = () => (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
-
-/**
- * WeaveDirective handles the events and manipulation of the weave draft.
- * @class
- */
-@Directive({
-  selector: '[weave]'
+@Component({
+  selector: 'app-draftviewer',
+  templateUrl: './draftviewer.component.html',
+  styleUrls: ['./draftviewer.component.scss']
 })
+export class DraftviewerComponent implements OnInit {
+
+  @ViewChild('bitmapImage', {static: false}) bitmap;
 
 
-export class WeaveDirective {
-
-
-
-  /// ATTRIBUTES
+ /// ATTRIBUTES
   /**
    * Contains the name of the brush being used to manipulate the weave draft.
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {string}
    */
-  @Input('design_mode') design_mode: any;
+   @Input('design_mode') design_mode: any;
 
-  /**
+   /**
    * Contains the current state as generative mode engaged or not
    * @property {boolean}
    */
-   @Input('generative_mode') generative_mode: boolean;
+    @Input('generative_mode') generative_mode: boolean;
 
-  /**
-   * The Draft object containing the pattern and shuttle information.
-   * It is defined and inputed from the HTML declaration of the WeaveDirective.
-   * @property {Draft}
-   */
-  @Input('draft') weave: Draft;
-
-
-  /**
- * The Draft object containing the pattern and shuttle information.
- * It is defined and inputed from the HTML declaration of the WeaveDirective.
- * @property {Draft}
- */
-    @Input('loom') loom: Loom;
-
-
-
-/**
-   * The Render object containing the variables about zoom and cell sizes.
-   * It is defined and inputed from the HTML declaration of the WeaveDirective.
-   * @property {Render}
+   /**
+    * The Draft object containing the pattern and shuttle information.
+    * It is defined and inputed from the HTML declaration of the WeaveDirective.
+    * @property {Draft}
+    */
+   @Input('draft') weave: Draft;
+ 
+ 
+   /**
+  * The Draft object containing the pattern and shuttle information.
+  * It is defined and inputed from the HTML declaration of the WeaveDirective.
+  * @property {Draft}
   */
-  @Input('render') render:Render;
-
-
-
-/**
-   * The Timeline object containing state histories for undo and redo
-   * @property {Render}
-  */
-  @Input('timeline') timeline: any;
-
-
-
-  @Input() copy: Pattern;
-
-
-  @Output() onNewSelection = new EventEmitter();
-
-
-
-/**
-   * The HTML canvas element within the weave draft.
-   * @property {HTMLCanvasElement}
-  */ 
-  canvasEl: HTMLCanvasElement;
-
-/**
-   * the window holding the draft.
-   * @property {HTMLCanvasElement}
-  */ 
-  draftContainer: HTMLElement;
-
-
-  /**
-   * flag defining if there needs to be a recomputation of the draft on Mouse Up
-   */
-  flag_recompute: boolean;
-
-
-  /**
-   * flag defining if there needs to be a recomputation of the draft on Mouse Up
-   */
-  flag_history: boolean;
-
-
-  /**
-   * The 2D context of the canvas
-   * @property {any}
-   */
-  cx: any;
-
-  /**
-   * The 2D context of the threading canvas
-   * @property {any}
-   */
-  cxThreading: any;
-
-  /**
-   * The 2D context of the treadling canvas
-   * @property {any}
-   */
-  cxTreadling: any;
-
-  /**
-   * The 2D context of the treadling canvas
-   * @property {any}
-   */
-  cxTieups: any;
-
-  /**
-   * The 2D context of the weft_systems canvas
-   * @property {any}
-   */
-  cxWeftSystems: any;
-
-  /**
-   * The 2D context of the warp_systems canvas
-   * @property {any}
-   */
-  cxWarpSystems: any;
-
-
-  cxWarpMaterials: any;
-
-
-
-  cxWeftMaterials: any;
-
-  /**
-     * Boolean reepresenting if selection has been made
-     * @property {boolean}
-     */
-   selected: boolean;
-
-
-  /**
-   * The current selection within the weave canvas.
-   * @property {Selection}
-   */
-  selection: Selection = new Selection();
-
-  /**
-   * Subscribes to move event after a touch event is started.
-   * @property {Subscription}
-   */
-  moveSubscription: Subscription;
-
-  /**
-   * The HTML SVG element used to show the selection.
-   * @property {HTMLElement}
-   */
-  svgEl: HTMLElement;
-
-
-
-  /**
-   * The HTML div element used to show the weft-systems text.
-   * @property {HTMLElement}
-   */
-  divWesy: HTMLElement;
-
-  /**
-   * The HTML div element used to show the warp-systems text.
-   * @property {HTMLElement}
-   */
-  divWasy: HTMLElement;
-
-
-  /**
-   * The HTML div element used to show and hide the frames.
-   * @property {HTMLElement}
-   */
-  divViewFrames: HTMLElement;
-
-
+     @Input('loom') loom: Loom;
+ 
+ 
+ 
  /**
-   * The HTML SVG element used to show the row
-   * @property {HTMLElement}
+    * The Render object containing the variables about zoom and cell sizes.
+    * It is defined and inputed from the HTML declaration of the WeaveDirective.
+    * @property {Render}
    */
-  svgSelectRow: HTMLElement;
-
-
+   @Input('render') render:Render;
+ 
+ 
+ 
  /**
-   * The HTML SVG element used to show the row
-   * @property {HTMLElement}
+    * The Timeline object containing state histories for undo and redo
+    * @property {Render}
    */
-  svgSelectCol: HTMLElement;
-
-
+   @Input('timeline') timeline: any;
+ 
+ 
+ 
+   @Input() copy: Pattern;
+ 
+ 
+   @Output() onNewSelection = new EventEmitter();
+ 
+ 
+ 
+ /**
+    * The HTML canvas element within the weave draft.
+    * @property {HTMLCanvasElement}
+   */ 
+   canvasEl: HTMLCanvasElement;
+ 
+ /**
+    * the window holding the draft.
+    * @property {HTMLCanvasElement}
+   */ 
+   draftContainer: HTMLElement;
+ 
+ 
+   /**
+    * flag defining if there needs to be a recomputation of the draft on Mouse Up
+    */
+   flag_recompute: boolean;
+ 
+ 
+   /**
+    * flag defining if there needs to be a recomputation of the draft on Mouse Up
+    */
+   flag_history: boolean;
+ 
+ 
+   /**
+    * The 2D context of the canvas
+    * @property {any}
+    */
+   cx: any;
+ 
+   /**
+    * The 2D context of the threading canvas
+    * @property {any}
+    */
+   cxThreading: any;
+ 
+   /**
+    * The 2D context of the treadling canvas
+    * @property {any}
+    */
+   cxTreadling: any;
+ 
+   /**
+    * The 2D context of the treadling canvas
+    * @property {any}
+    */
+   cxTieups: any;
+ 
+   /**
+    * The 2D context of the weft_systems canvas
+    * @property {any}
+    */
+   cxWeftSystems: any;
+ 
+   /**
+    * The 2D context of the warp_systems canvas
+    * @property {any}
+    */
+   cxWarpSystems: any;
+ 
+ 
+   cxWarpMaterials: any;
+ 
+ 
+ 
+   cxWeftMaterials: any;
+ 
+ 
+   /**
+    * The current selection within the weave canvas.
+    * @property {Selection}
+    */
+   selection: Selection = new Selection();
+ 
+   /**
+    * Subscribes to move event after a touch event is started.
+    * @property {Subscription}
+    */
+   moveSubscription: Subscription;
+ 
+   /**
+    * The HTML SVG element used to show the selection.
+    * @property {HTMLElement}
+    */
+   svgEl: HTMLElement;
+ 
+ 
+ 
+   /**
+    * The HTML div element used to show the weft-systems text.
+    * @property {HTMLElement}
+    */
+   divWesy: HTMLElement;
+ 
+   /**
+    * The HTML div element used to show the warp-systems text.
+    * @property {HTMLElement}
+    */
+   divWasy: HTMLElement;
+ 
+ 
+   /**
+    * The HTML div element used to show and hide the frames.
+    * @property {HTMLElement}
+    */
+   divViewFrames: HTMLElement;
+ 
+ 
   /**
-   * The HTML canvas element within the weave draft for threading.
-   * @property {HTMLCanvasElement}
-   * 
-   */
-  threadingCanvas: HTMLCanvasElement;
-
-    /**
-   * The HTML canvas element within the weave draft for treadling.
-   * @property {HTMLCanvasElement}
-   * 
-   */
-  treadlingCanvas: HTMLCanvasElement;
-
+    * The HTML SVG element used to show the row
+    * @property {HTMLElement}
+    */
+   svgSelectRow: HTMLElement;
+ 
+ 
   /**
-   * The HTML canvas element within the weave draft for tieups.
-   * @property {HTMLCanvasElement}
-   * 
-   */
-  tieupsCanvas: HTMLCanvasElement;
+    * The HTML SVG element used to show the row
+    * @property {HTMLElement}
+    */
+   svgSelectCol: HTMLElement;
+ 
+ 
+   /**
+    * The HTML canvas element within the weave draft for threading.
+    * @property {HTMLCanvasElement}
+    * 
+    */
+   threadingCanvas: HTMLCanvasElement;
+ 
+     /**
+    * The HTML canvas element within the weave draft for treadling.
+    * @property {HTMLCanvasElement}
+    * 
+    */
+   treadlingCanvas: HTMLCanvasElement;
+ 
+   /**
+    * The HTML canvas element within the weave draft for tieups.
+    * @property {HTMLCanvasElement}
+    * 
+    */
+   tieupsCanvas: HTMLCanvasElement;
+ 
+ 
+ 
+   weftSystemsCanvas: HTMLCanvasElement;
+   warpSystemsCanvas: HTMLCanvasElement;
+ 
+ 
+   weftMaterialsCanvas: HTMLCanvasElement;
+   warpMaterialsCanvas: HTMLCanvasElement;
+ 
+   private tempPattern: Array<Array<Cell>>;
+   private unsubscribe$ = new Subject();
+ 
+   private lastPos: Interlacement;
+ 
+ 
+ 
+   /// ANGULAR FUNCTIONS
+   /**
+    * Creates the element reference.
+    * @constructor
+    */
 
-
-
-  weftSystemsCanvas: HTMLCanvasElement;
-  warpSystemsCanvas: HTMLCanvasElement;
-
-
-  weftMaterialsCanvas: HTMLCanvasElement;
-  warpMaterialsCanvas: HTMLCanvasElement;
-
-  private tempPattern: Array<Array<Cell>>;
-  private unsubscribe$ = new Subject();
-
-  private lastPos: Interlacement;
-
-
-
-  /// ANGULAR FUNCTIONS
-  /**
-   * Creates the element reference.
-   * @constructor
-   */
-  constructor(private el: ElementRef) {
+  constructor(
+    private fs: FileService
+    ) { 
 
     this.flag_recompute = false;
     this.flag_history = false;
   }
 
-
-  //this is called when the HTML "weaveRef" Element is loaded
-  ngOnInit() {  
+  ngOnInit() {
   }
 
   ngAfterViewInit(){
 
     // define the elements and context of the weave draft, threading, treadling, and tieups.
-    this.canvasEl = this.el.nativeElement.children[6];
-    this.draftContainer = this.el.nativeElement;
+    this.canvasEl = <HTMLCanvasElement> document.getElementById('drawdown');
+    this.draftContainer = <HTMLElement> document.getElementById('draft-container');
 
 
   
     //this is the selection
-    console.log('this.el.nativeElement', this.el.nativeElement);
-    this.svgEl = this.el.nativeElement.children[8];
-    this.svgSelectRow = this.el.nativeElement.children[12];
-    this.svgSelectCol = this.el.nativeElement.children[13];
-    this.divWesy = this.el.nativeElement.children[10];
-    this.divWasy = this.el.nativeElement.children[11];
-    this.divViewFrames = this.el.nativeElement.children[9];
+    this.svgEl = document.getElementById('selection');
 
-    this.threadingCanvas = this.el.nativeElement.children[4];
-    this.tieupsCanvas = this.el.nativeElement.children[5];
-    this.treadlingCanvas = this.el.nativeElement.children[7];
-    this.weftSystemsCanvas = this.el.nativeElement.children[0];
-    this.weftMaterialsCanvas = this.el.nativeElement.children[1];
-    this.warpSystemsCanvas = this.el.nativeElement.children[2];
-    this.warpMaterialsCanvas = this.el.nativeElement.children[3];
+    // this.svgSelectRow = el.nativeElement.children[12];
+    // this.svgSelectCol = el.nativeElement.children[13];
+    this.divWesy =  document.getElementById('weft-systems-text');
+    this.divWasy =  document.getElementById('warp-systems-text');
+    this.divViewFrames = document.getElementById('view_frames');
+
+    this.threadingCanvas = <HTMLCanvasElement> document.getElementById('threading');
+    this.tieupsCanvas = <HTMLCanvasElement> document.getElementById('tieups');
+    this.treadlingCanvas = <HTMLCanvasElement> document.getElementById('treadling');
+    this.weftSystemsCanvas = <HTMLCanvasElement> document.getElementById('weft-systems');
+    this.weftMaterialsCanvas = <HTMLCanvasElement> document.getElementById('weft-materials');
+    this.warpSystemsCanvas = <HTMLCanvasElement> document.getElementById('warp-systems');
+    this.warpMaterialsCanvas =<HTMLCanvasElement> document.getElementById('warp-materials');
     
     this.cx = this.canvasEl.getContext('2d');
     this.cxThreading = this.threadingCanvas.getContext('2d');
@@ -333,6 +321,7 @@ export class WeaveDirective {
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
 
+    console.log("daft is ", this.weave, this.render);
 
   }
 
@@ -349,6 +338,7 @@ export class WeaveDirective {
 
 
   setPosAndDraw(target, currentPos:Interlacement){
+
       if (target && target.id =='treadling') {
         currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
@@ -433,6 +423,7 @@ export class WeaveDirective {
 
         case 'up':
         case 'down':
+        case 'unset':
         case 'material':
           this.setPosAndDraw(event.target, currentPos);
           this.unsetSelection();
@@ -558,6 +549,7 @@ export class WeaveDirective {
     switch (this.design_mode.name) {
       case 'up':
       case 'down':
+      case 'unset':
       case 'material':
 
         if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
@@ -1019,7 +1011,7 @@ export class WeaveDirective {
 
 
   /**
-   * Change shuttle of row to next in list.
+   * Change shuttle of row to next in list. If there isn't a next in list, create a new System
    * @extends WeaveComponent
    * @param {Point} the point of the interaction
    * @returns {void}
@@ -1033,15 +1025,12 @@ export class WeaveDirective {
     if (!this.cx || !currentPos) { return; }
 
     var draft_row = currentPos.i; //need to offset this due to canvas padding
+   
     var screen_row = currentPos.si;
 
     if(screen_row < 0){ return; }
 
-    const len = this.weave.weft_systems.length;
-    var system_id = this.weave.rowSystemMapping[draft_row];
-
-
-    var newSystem = (system_id + 1) % len;
+    var newSystem = this.weave.getNextWeftSystem(draft_row);
 
     this.weave.rowSystemMapping[draft_row] = newSystem;
 
@@ -1100,11 +1089,9 @@ export class WeaveDirective {
 
     if(col < 0){ return; }
 
+    var newSystem = this.weave.getNextWarpSystem(col);
 
-    const len = this.weave.warp_systems.length;
-    var system_id = this.weave.colSystemMapping[col];
-    var newSys_id = (system_id + 1) % len;
-    this.weave.colSystemMapping[col] = newSys_id;
+    this.weave.colSystemMapping[col] = newSystem;
 
     this.weave.updateSystemVisibility('warp');
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
@@ -1212,6 +1199,11 @@ export class WeaveDirective {
            this.weave.setHeddle(currentPos.i,currentPos.j,val);
 
           break;
+
+        case 'unset':
+            this.weave.setHeddle(currentPos.i,currentPos.j,null);
+ 
+        break;
         case 'material':
           this.drawOnWeftMaterials(currentPos);
           this.drawOnWarpMaterials(currentPos)
@@ -1363,6 +1355,7 @@ export class WeaveDirective {
     var base_fill = this.render.getCellDims("base_fill");
     var has_mask = false;
     var is_up = false;
+    var is_set = false;
     var color = "#FFFFFF";
     var beyond = false;
 
@@ -1377,11 +1370,18 @@ export class WeaveDirective {
         var row = this.render.visibleRows[i];
         
         is_up = this.weave.isUp(row,j);
+        is_set = this.weave.isSet(row,j);
+
         if(!this.render.isFront()) is_up = !is_up;
         has_mask = this.weave.isMask(row,j);
 
-        if(is_up) color = "#333333";
-        else if(has_mask) color = "#CCCCCC";
+        if(!is_set){
+          color = "#cccccc";
+        }
+        else {
+          if(is_up) color = "#333333";
+           else if(has_mask) color = "#CCCCCC";
+        }
 
         top = base_dims.h;
         left = base_dims.w;
@@ -1742,10 +1742,6 @@ public drawWeftEnd(top, left, shuttle){
     
     if(this.selection.hasSelection()){
 
-      if(this.generative_mode) {
-        this.selected = true;
-      }
-
         var x = dims.w / 4;
         var y = dims.h;
         var anchor = 'start';
@@ -1861,7 +1857,7 @@ public drawWeftEnd(top, left, shuttle){
 
 
     top = drawdown_top+dims.h;
-    left = (scroll_left+draft_width) - (dims.w*7);
+    left = scroll_left+draft_width-(dims.w*7);
     left /= scaleToFit;
     left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3));
 
@@ -1877,7 +1873,7 @@ public drawWeftEnd(top, left, shuttle){
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-systems'){
         
         top +=  this.selection.getTop()*dims.h;
-        left += this.selection.getLeft()*dims.w;
+        left += (this.selection.getLeft()-1)*dims.w;
         this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
     } 
 
@@ -1939,7 +1935,7 @@ public drawWeftEnd(top, left, shuttle){
    
 
     if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-systems'){
-          top +=  this.selection.getTop()*dims.h;
+          top +=  (this.selection.getTop()+6)*dims.h;
           left += this.selection.getLeft()*dims.w;
           this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
     }
@@ -2358,5 +2354,128 @@ public redraw(flags:any){
     }
     return b;
   }
+
+   /**
+   *
+   *
+   */
+    public onSave(e: any) {
+
+      e.bitmap = this.bitmap;
+  
+      if (e.type === "bmp"){
+        let link = e.downloadLink.nativeElement;
+        link.href = this.fs.saver.bmp(this.getBMPCanvas(e));
+        link.download = e.name + ".jpg"; //Canvas2Bitmap  seems to be broken now
+      } 
+      else if (e.type === "ada"){
+        let link = e.downloadLink.nativeElement;
+        link.href = this.fs.saver.ada('draft', [this.weave], [this.loom], [], this.weave.notes, false);
+        link.download = e.name + ".ada";
+      } 
+      else if (e.type === "wif"){
+        let link = e.downloadLink.nativeElement;
+        link.href= this.fs.saver.wif(this.weave, this.loom);
+        link.download = e.filename +".wif";
+  
+      } 
+      else if (e.type === "jpg"){
+        let link = e.downloadLink.nativeElement;
+        link.href = this.fs.saver.jpg(this.getPrintableCanvas(e));
+        link.download = e.name + ".jpg";
+      } 
+      
+    }
+
+    /**
+   * inserts an empty row just below the clicked row
+   * @param si the screen index of the row we'll insert
+   * @param i the absolute (not screen) index of the row we'll insert
+   */
+  public insertRow(si:number, i:number) {
+
+    const shuttle: number = this.weave.rowToShuttle(this.render.visibleRows, si);
+    const system: number = this.weave.rowToSystem(this.render.visibleRows, si);
+
+    this.weave.insertRow(i, shuttle, system);
+    this.loom.insertRow(i);
+    this.render.updateVisible(this.weave);
+    this.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.timeline.addHistoryState(this.weave);
+
+  }
+    /**
+   * clones the selected row and pastes into next visible row
+   * @param si the screen index of the row we'll insert
+   * @param i the absolute (not screen) index of the row we'll insert
+   */
+  public cloneRow(si: number, i:number) {
+
+    const shuttle: number = this.weave.rowToShuttle(this.render.visibleRows, si);
+    const system: number = this.weave.rowToSystem(this.render.visibleRows, si);
+    this.weave.cloneRow(i, shuttle, system);
+    this.loom.cloneRow(i);
+  
+
+    this.render.updateVisible(this.weave);
+    this.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.timeline.addHistoryState(this.weave);
+
+  }
+
+  public deleteRow(i) {
+    this.weave.deleteRow(i);
+    this.loom.deleteRow(i);
+    this.render.updateVisible(this.weave);
+    this.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.timeline.addHistoryState(this.weave);
+  }
+
+    /**
+   * In
+   * @extends WeaveComponent
+   * @returns {void}
+   */
+  public insertCol(i, shuttle,system) {
+    console.log(i, shuttle, system);
+    this.weave.insertCol(i, shuttle,system);
+    this.loom.insertCol(i);
+    this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+    this.weave.computeYarnPaths();
+    this.timeline.addHistoryState(this.weave);
+
+  }
+
+  public cloneCol(i, shuttle,system) {
+    this.weave.cloneCol(i, shuttle,system);
+    this.loom.cloneCol(i);
+    this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+    this.weave.computeYarnPaths();
+    this.timeline.addHistoryState(this.weave);
+
+  }
+
+
+  public deleteCol(i) {
+    this.weave.deleteCol(i);
+    this.loom.deleteCol(i);
+    this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+    this.weave.computeYarnPaths();
+    this.timeline.addHistoryState(this.weave);
+  }
+
+  public toggleViewFrames(){
+
+    this.render.toggleViewFrames();
+
+    if(this.render.view_frames && this.loom.type == "frame"){
+      this.recomputeLoom();
+    }
+
+    this.redraw({loom:true});
+   
+  }
+
+
 
 }

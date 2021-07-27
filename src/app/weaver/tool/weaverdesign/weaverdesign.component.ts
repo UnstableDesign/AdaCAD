@@ -99,7 +99,7 @@ export class WeaverDesignComponent implements OnInit {
   }
 
   designActionChange(e){
-    console.log(e.target.name);
+    console.log("design action", e.target.name);
 
     switch(e.target.name){
       case 'up': this.clearEvent(true);

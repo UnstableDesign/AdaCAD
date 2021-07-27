@@ -3,7 +3,6 @@ import { MatDialog } from "@angular/material/dialog";
 import { DesignmodesService } from '../../../mixer/provider/designmodes.service';
 import { InkService } from '../../../mixer/provider/ink.service';
 import * as _ from 'lodash';
-import { FreehandComponent } from '../../modal/freehand/freehand.component';
 
 
 

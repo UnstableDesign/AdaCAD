@@ -6,6 +6,7 @@ import { OperationService, Operation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
+import { ViewportService } from '../../provider/viewport.service';
 
 @Component({
   selector: 'app-operation',
@@ -16,7 +17,6 @@ export class OperationComponent implements OnInit {
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
-   @Input() viewport: Bounds;
    @Input() scale: number;
    @Input() zndx: number;
    @Output() onSelectInputDraft:any = new EventEmitter()
@@ -51,18 +51,17 @@ export class OperationComponent implements OnInit {
    
    has_connections_in: boolean = false;
 
-  constructor(private operations: OperationService, private dialog: MatDialog) { 
+  constructor(
+    private operations: OperationService, 
+    private dialog: MatDialog,
+    private viewport: ViewportService) { 
     this.outputs = [];
     this.selecting_connection = false;
   }
 
   ngOnInit() {
 
-    const center: Point = {
-      x: this.viewport.topleft.x + this.viewport.width/2,
-      y: this.viewport.topleft.y + this.viewport.height/2
-    }
-
+    const center: Point = this.viewport.getCenterPoint();
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(center);
     this.op = this.operations.getOp(this.name);
 
@@ -219,7 +218,7 @@ export class OperationComponent implements OnInit {
   dragMove($event: any) {
        //position of pointer of the page
        const pointer:Point = $event.pointerPosition;
-       const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport);
+       const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
        const adj:Point = utilInstance.snapToGrid(relative, this.scale);
        this.bounds.topleft = adj;  
        this.onOperationMove.emit({id: this.id, point: adj});
