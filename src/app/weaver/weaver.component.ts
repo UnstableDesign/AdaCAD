@@ -19,7 +19,7 @@ import { Loom } from '../core/model/loom';
 import * as _ from 'lodash';
 import { PatternFinder } from './tool/patternfinder/patternfinder';
 import { DraftMatcher } from './tool/draftmatcher/draftmatcher';
-
+import { VAE } from './learning/vae';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -166,6 +166,12 @@ export class WeaverComponent implements OnInit {
      * Array holding the cluster patterns of the current collections clusters from db
      */
     clusters = [];
+    
+    /**
+     * Object that holds the machine learning models to generate drafts from a seed
+     * @property {VAE} 
+     */
+    vae: VAE = new VAE();
 
     /**
      * When generativeMode is activated, patternFinder will be run to determine the major patterns of the current draft

@@ -298,12 +298,18 @@ export class PatternFinder {
         }
 
         var draftPatterns = [];
+        console.log('draft:', draft);
         for (var i = 0; i < treadlingRanges.length; i++) {
             for (var j = 0; j < threadingRanges.length; j++) {
                 var pattern = [];
                 for (var idxWeft = treadlingRanges[i][0]; idxWeft < treadlingRanges[i][1]; idxWeft += 1) {
                     pattern.push([]);
+                    console.log('idxWeft:', idxWeft);
                     for (var idxWarp = threadingRanges[j][0]; idxWarp < threadingRanges[j][1]; idxWarp += 1) {
+                        console.log('idxWarp', idxWarp);
+                        console.log('pattern', pattern);
+                        console.log('draft[idxWeft][idxWarp]:', draft[idxWeft][idxWarp]);
+                        console.log('pattern[idxWeft]', pattern[idxWeft]);
                         pattern[idxWeft].push(draft[idxWeft][idxWarp]);
                     }
                 }
@@ -318,7 +324,7 @@ export class PatternFinder {
             for (var j = 0; j < draftPatterns[i].length; j++) {
                 transformedDraftPatterns[i].push([]);
                 for(var k = 0; k < draftPatterns[i][j].length; k++) {
-                    transformedDraftPatterns[i][j].push(draftPatterns[i][j][k].is_up ? 1 : 0);
+                    transformedDraftPatterns[i][j].push(draftPatterns[i][j][k].is_up ? [1] : [0]);
                 }
             }
         }

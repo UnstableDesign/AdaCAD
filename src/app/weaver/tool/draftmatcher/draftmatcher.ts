@@ -3,10 +3,14 @@ export class DraftMatcher {
     private simulatedDraft; 
 
     private distance(draft1, draft2) {
+        console.log('draft1', draft1);
+        console.log('draft2', draft2);
         var size = draft1.length * draft2.length;
         var sim_counter = 0;
         for (var i = 0; i < draft1.length; i++) {
             for (var j = 0; j < draft2.length; j++) {
+                console.log('i', i);
+                console.log('j', j);
                 if (draft1[i][j] == 1 && draft2[i][j] == 1) {
                     sim_counter += 1;
                 } else if (draft1[i][j] == 0 && draft2[i][j] == 0) {
