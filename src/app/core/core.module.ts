@@ -48,6 +48,7 @@ import { FileService } from './provider/file.service';
 import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { PatternsComponent } from './tool/patterns/patterns.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
+import { VAE } from '../weaver/learning/vae';
 
 
 @NgModule({
@@ -104,7 +105,9 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
     PatternService, 
     UploadService,
     CollectionService,
-    FileService],
+    FileService,
+    VAE //potentially need to delete
+  ],
 
   exports: [
     CommonModule,

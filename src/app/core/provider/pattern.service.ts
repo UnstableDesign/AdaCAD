@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class PatternService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {  }
 
   getPatterns() {
     return this.http.get('assets/patterns.json', {observe: 'response'});

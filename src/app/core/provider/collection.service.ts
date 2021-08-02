@@ -1,12 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { AngularFireAuth } from 'angularfire2/auth';
-import { AngularFireStorage } from 'angularfire2/storage';
-import { AngularFireDatabase, AngularFireList, snapshotChanges } from 'angularfire2/database';
-import { reject } from 'lodash';
-import { stratify } from 'd3';
-
+import { AngularFireDatabase} from 'angularfire2/database';
 /**
  * Definition of pattern provider.
  * @class
@@ -14,12 +7,7 @@ import { stratify } from 'd3';
 @Injectable()
 export class CollectionService {
 
-  constructor(private af: AngularFireAuth, 
-    private db: AngularFireDatabase,
-    private st: AngularFireStorage,
-    private http: HttpClient,
-    private httpClient: HttpClient) { 
-    }
+  constructor( private db: AngularFireDatabase) { }
 
  
   async getCollection(collectionName) {

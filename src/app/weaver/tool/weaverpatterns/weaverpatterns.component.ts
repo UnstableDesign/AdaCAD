@@ -1,8 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { PatternModal } from '../../../core/modal/pattern/pattern.modal';
-import { Pattern } from '../../../core/model/pattern';
-import { PatternService } from '../../../core/provider/pattern.service';
 import * as _ from 'lodash';
 
 @Component({
