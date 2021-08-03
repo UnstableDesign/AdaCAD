@@ -65,12 +65,27 @@
   >
   </app-weaverpatterns>
 
-  <h3>Design with Machine Learning</h3>
+  
+</mat-expansion-panel>
+
+
+
+
+<mat-expansion-panel  [hideToggle] = "collapsed">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     <span>Machine Learning</span>
+    </mat-panel-title>
+    <mat-panel-description>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <h3>How to Design with Machine Learning</h3>
 
 
   <form #collectionForm="ngForm">
     <mat-form-field class="is-fullwidth">
-      <mat-select placeholder="Select Collection" name="name" [(ngModel)]="collection.name">
+      <mat-select placeholder="Choose your Style" name="name" [(ngModel)]="collection.name">
         <mat-option *ngFor="let collection of collections" [value]="collection.name">
           {{ collection.name }}
         </mat-option>
@@ -78,28 +93,59 @@
     </mat-form-field>
   </form>
   <ng-container>
-    <button matTooltip="start mixed initiative mode"
+
+  
+    <button matTooltip="Start Mixed Initiative Mode"
       [name]='generativeMode' 
       [disabled] = "this.generativeMode" 
       class="button is-small fas fa-play-circle"
       [style.color]="button_color"
-      (click)="generativeModeEvent($event)">           
+      (click)="generativeModeEvent($event)">  
+      
+      
     </button>
-    <button matTooltip="end mixed initiative mode" 
+
+
+    <button matTooltip="End Mixed Initiative Mode" 
       [name]='generativeMode'
       [disabled] = "!this.generativeMode" 
       class="button material is-small is-primary fas fa-square"
       [style.color]="button_color"
-      (click)="generativeModeEvent($event)">           
+      (click)="generativeModeEvent($event)"> 
+      
     </button>
-  </ng-container>
 
-#Title for our Project 
- <h3>C and E Summer Project</h3>
- #button for Select with icon min of 5 by 5
- #Seeing Selected and Running 
- #Display suggested drafts with numbers for names on drafts
+
+  <h3>Suggested Drafts</h3>
+
+  <button matTooltip= "Draft 1"
+    name="Draft" 
+    class="button is-small"
+    [style.color]="button_color">
+  </button>
+
+
+  <button matTooltip= "Draft 2"
+    name="Draft" 
+    class="button is-small"
+    [style.color]="button_color">
+  </button>
+
+  <button matTooltip= "Draft 3"
+    name="Draft" 
+    class="button is-small"
+    [style.color]="button_color">
+  </button>
+
+  <button matTooltip= "Draft 4"
+    name="Draft" 
+    class="button is-small"
+    [style.color]="button_color">
+  </button>
+
+  </ng-container>
 </mat-expansion-panel>
+
 
 
 

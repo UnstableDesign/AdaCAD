@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>About Machine learning</h2>
+
+<mat-dialog-content>
+
+    <div class="is-fullwidth">
+  	  <p class ="mat-body">You are now using Machine learning!</p>
+  	  <p>---</p>
+
+
+      <p class ="mat-body"> This tool was designed to help 
+
+    
+      
+    </div>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button class="mat-raised-button mat-primary"(click)="close()">Close</button>
+</mat-dialog-actions>
