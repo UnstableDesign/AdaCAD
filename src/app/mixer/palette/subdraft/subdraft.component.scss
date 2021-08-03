@@ -9,6 +9,12 @@
 	justify-content:flex-end;
 }
 
+h3{
+	font-weight: 800;
+}
+
+
+
 .is_preview{
 	z-index: 10;
 }
@@ -25,7 +31,7 @@
 		display: none;
 	}
 
-	canvas{
+	.maindraft{
 		border: thin solid #ff4081;
 	}
 
@@ -47,7 +53,7 @@
 		display: flex;
 	}
 
-	canvas{
+	.maindraft{
 		border: thin solid #00d1b2;
 	}
 
@@ -64,7 +70,7 @@
 		pointer-events: all;
 	}
 
-	canvas{
+	.maindraft{
 		pointer-events: none;
 	}
 }
@@ -93,12 +99,21 @@
 	background: #00000070
 }
 
+button.is-primary.is-active{
+    background-color: rgb(255, 64, 129);
+}
+
 svg{
 	display: block;
 	color: black;
 }
 
-canvas{
+#bitmapImage{
+	display: none;
+	pointer-events: none;
+}
+
+.maindraft{
 	display: block;
 	overflow:hidden;
 	border: thin solid white;
@@ -108,7 +123,7 @@ canvas{
 	pointer-events: none;
 }
 
-div.cdk-drag-dragging canvas{
+div.cdk-drag-dragging .maindraft{
 	border: thin solid #ff4081;
 }
 

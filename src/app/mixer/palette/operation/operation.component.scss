@@ -9,8 +9,25 @@
     height: 30px;
 }
 
+button.is-primary.is-active{
+    background-color: rgb(255, 64, 129);
+}
+
+.help{
+    background-color: black;
+    color: grey;
+    height: 20px;
+    border:none;
+}
+
+.help:hover{
+    color: white;
+}
+
 .name{
-    margin: 0px 5px; 
+    margin: 0px 8px; 
+    color: white;
+    line-height: 30px;
 }
 
 .params{

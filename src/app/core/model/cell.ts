@@ -35,8 +35,19 @@ export class Cell {
    * @param params 
    */
   reloadCell(params: any){
-    this.is_up = (params.is_up === undefined) ? false : params.is_up;
-    this.is_set = (params.is_set === undefined) ? false : params.is_set;
+
+    if(params.is_up !== undefined){
+      this.is_set = true;
+      this.is_up = params.is_up;
+
+    }else{
+      this.is_set = false;
+      this.is_up = false;
+    }
+
+    if(params.is_set !== undefined){
+      this.is_set = params.is_set;
+    }
     this.mask_id = (params.mask_id === undefined) ? false : params.mask_id;
     this.poles = (params.poles === undefined) ? 0 : params.poles;
 

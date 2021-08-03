@@ -17,7 +17,7 @@ export class TopbarComponent implements OnInit {
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
   @Output() onAboutCreate: any = new EventEmitter();
-  @Output() onReInit: any = new EventEmitter();
+  @Output() onLoadNewFile: any = new EventEmitter();
 
   @Input() drawer;
   @Input() filename;
@@ -27,6 +27,7 @@ export class TopbarComponent implements OnInit {
   @Input() draftelement;
   @Input() loomtypes;
   @Input() density_units;
+  @Input() source; 
   
   @ViewChild('bmpLink', {static: true}) bmpLink: any;
   @ViewChild('adaLink', {static: true}) adaLink: any;
@@ -41,11 +42,15 @@ export class TopbarComponent implements OnInit {
 
   constructor(private dialog: MatDialog) { }
 
+  ngOnInit(){
+  }
 
-  ngOnInit() {
-    this.downloadBmp = this.bmpLink._elementRef;
+  ngAfterViewInit() {
+    if(this.source == 'weaver'){
+      this.downloadBmp = this.bmpLink._elementRef;
+      this.downloadWif = this.wifLink._elementRef;
+    }
     this.downloadAda = this.adaLink._elementRef;
-    this.downloadWif = this.wifLink._elementRef;
     this.downloadPrint = this.printLink._elementRef;
   }
 
@@ -106,13 +111,11 @@ export class TopbarComponent implements OnInit {
 
 
     const dialogRef = this.dialog.open(InitModal, {
-      data: {loomtypes: this.loomtypes, density_units: this.density_units}
+      data: {loomtypes: this.loomtypes, density_units: this.density_units, source: this.source}
     });
 
-     dialogRef.afterClosed().subscribe(result => {
-      
-      if(result !== undefined) this.onReInit.emit(result);
-      
+    dialogRef.afterClosed().subscribe(loadResponse => {
+      if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
 
    });
 

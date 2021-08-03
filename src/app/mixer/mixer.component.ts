@@ -1,24 +1,28 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../mixer/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
-import { LoomTypes, DensityUnits,MaterialTypes, ViewModes } from '../core/model/datatypes';
+import { Bounds, DraftMap, MaterialTypes, ViewModes } from '../core/model/datatypes';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
+import { Draft } from '../core/model/draft';
+import { TreeService } from './provider/tree.service';
+import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj } from '../core/provider/file.service';
+import { OperationComponent } from './palette/operation/operation.component';
+import { SubdraftComponent } from './palette/subdraft/subdraft.component';
+import { MixerViewComponent } from './tool/mixerview/mixerview.component';
+import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 
 
 //disables some angular checking mechanisms
 //enableProdMode();
 
 
-/**
- * Controller of the Weaver component.
- * @class
- */
+
 
 
 
@@ -29,10 +33,13 @@ import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 })
 export class MixerComponent implements OnInit {
 
-
-  @ViewChild('bitmapImage', {static: false}) bitmap;
   @ViewChild(PaletteComponent, {static: false}) palette;
   @ViewChild(MixerDesignComponent, {static: false}) design_tool;
+  @ViewChild(MixerViewComponent, {static: false}) view_tool;
+
+
+  filename = "adacad_mixer";
+  notes: string = "";
 
  /**
    * The weave Timeline object.
@@ -41,14 +48,6 @@ export class MixerComponent implements OnInit {
    timeline: Timeline = new Timeline();
 
 
- /**
-   * The types of looms this version will support.
-   * @property {LoomType}
-   */
-  loomtypes: LoomTypes[] = [
-    {value: 'frame', viewValue: 'Shaft'},
-    {value: 'jacquard', viewValue: 'Jacquard'}
-  ];
 
 
   material_types: MaterialTypes[] = [
@@ -57,10 +56,6 @@ export class MixerComponent implements OnInit {
     {value: 2, viewValue: 'Resistive'}
   ];
 
-  density_units: DensityUnits[] = [
-    {value: 'in', viewValue: 'Ends per Inch'},
-    {value: 'cm', viewValue: 'Ends per 10cm '}
-  ];
 
   view_modes: ViewModes[] = [
       {value: 'visual', viewValue: 'Visual'},
@@ -74,11 +69,10 @@ export class MixerComponent implements OnInit {
 
   private unsubscribe$ = new Subject();
 
-  default_patterns:any;
-  collapsed:boolean = false;
-  dims:any;
+  patterns: Array<Pattern> = [];
 
-  draftelement:any;
+  collapsed:boolean = false;
+
   scrollingSubscription: any;
 
   /// ANGULAR FUNCTIONS
@@ -88,27 +82,42 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private design_modes: DesignmodesService, private ps: PatternService, private dialog: MatDialog, public scroll: ScrollDispatcher) {
+  constructor(private design_modes: DesignmodesService, 
+    private ps: PatternService, 
+    private tree: TreeService,
+    public scroll: ScrollDispatcher,
+    private fs: FileService,
+    private dialog: MatDialog) {
 
+    this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
           .scrolled()
           .subscribe((data: any) => {
             this.onWindowScroll(data);
     });
+    
 
    
-    this.default_patterns = [];
+    this.patterns = [];
 
     this.ps.getPatterns().subscribe((res) => {
        for(var i in res.body){
-          this.default_patterns.push(new Pattern(res.body[i]));
+          this.patterns.push(new Pattern(res.body[i]));
        }
     }); 
   }
 
+
+
   private onWindowScroll(data: any) {
     this.palette.handleScroll(data);
+    this.view_tool.updateViewPort(data);
+  }
+
+  private setScroll(data: any) {
+    this.palette.handleScroll(data);
+    this.view_tool.updateViewPort(data);
   }
 
 
@@ -128,35 +137,123 @@ export class MixerComponent implements OnInit {
     // this.palette.inkChanged();
   }
   
-  
 
 
-  // reInit(result){
-  //   console.log("reinit");
 
-  //   this.draft.reload(result);
-  //   this.timeline.addHistoryState(this.draft);
 
-  //   this.render.view_frames = (this.draft.loom.type === 'frame') ? true : false;     
+  /**
+   * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
+   * @param result 
+   */
+  loadNewFile(result: LoadResponse){
+    console.log("loaded new file", result);
+    this.tree.clear();
+    this.palette.clearComponents();
+    this.processFileData(result.data);
+    this.palette.changeDesignmode('move');
 
-  //   if (this.draft.patterns === undefined) this.draft.patterns = this.default_patterns;
+  }
+
+
+
+  /**
+   * this gets called when a new file is started from the topbar
+   * @param result 
+   */
+   importNewFile(result: LoadResponse){
     
+    console.log("imported new file", result, result.data);
+    this.processFileData(result.data);
+    this.palette.changeDesignmode('move');
 
-  //   this.palette.onNewDraftLoaded();
+  }
+
+  /** 
+   * Take a fileObj returned from the fileservice and process
+   */
+  processFileData(data: FileObj){
+    console.log("process file data", data);
+
+    const id_map: Array<{old: number, new: number}> = []; 
+   
+    const nodes: Array<NodeComponentProxy> = data.nodes;
+   
+   //move through all the drafts 
+    data.drafts.forEach(draft => {
+    
+      const np:NodeComponentProxy = nodes.find(el => el.draft_id == draft.id);
+      let new_id: number = -1;
+      if(np === undefined){
+         new_id = this.palette.createSubDraft(draft);
+      }else{
+        new_id = this.palette.loadSubDraft(draft, np.bounds);
+        id_map.push({old: np.node_id, new: new_id});    
+      }
+    });
+
+    data.ops.forEach(opProxy => {
+      const np: NodeComponentProxy = nodes.find(el => el.node_id === opProxy.node_id);
+      const new_id: number = this.palette.loadOperation(opProxy.name, opProxy.params, np.bounds);
+      id_map.push({old: np.node_id, new: new_id});
+    });
 
 
-  //   this.palette.redraw({
-  //     drawdown: true, 
-  //     loom:true, 
-  //     warp_systems: true, 
-  //     weft_systems: true, 
-  //     warp_materials: true,
-  //     weft_materials:true
-  //   });
+    nodes.forEach(nodeproxy => {
+     
+      switch(nodeproxy.type){
+      case 'cxn':
+        const tn: number = data.treenodes.findIndex(node => node.node == nodeproxy.node_id);    
+        if(tn !== -1){
+          const old_input_id: number = data.treenodes[tn].inputs[0];
+          const old_output_id: number = data.treenodes[tn].outputs[0];
+          const new_input_id: number = id_map.find(el => el.old == old_input_id).new;
+          const new_output_id: number = id_map.find(el => el.old == old_output_id).new;      
+          const outs: any = this.palette.createConnection(new_input_id, new_output_id);
+          id_map.push({old: nodeproxy.node_id, new: outs.id});
 
-  //   this.palette.rescale();
+        }else{
+          console.log("ERROR: cannot find treenode associated with node id: ", nodeproxy.node_id);
+        }
+        break;
+      }
+    });
 
-  // }
+    //now move through the drafts and update their parent operations
+    data.treenodes.forEach( tn => {
+      const np: NodeComponentProxy = nodes.find(node => node.node_id == tn.node);    
+      switch(np.type){
+      
+      
+      
+        case 'draft':
+          if(tn.parent != -1){
+            const new_id = id_map.find(el => el.old == tn.node).new;
+            const parent_id = id_map.find(el => el.old == tn.parent).new;
+            const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_id);
+            sd.parent_id = parent_id;
+          }
+        break;
+
+        case 'op' :
+          const new_op_id:number = id_map.find(el => el.old == tn.node).new;
+          const op_comp: OperationComponent = <OperationComponent> this.tree.getComponent(new_op_id);
+          op_comp.has_connections_in = (tn.inputs.length > 0);
+          tn.outputs.forEach(out => {
+            
+            const out_cxn_id:number = id_map.find(el => el.old === out).new;
+            const new_out_id: number = this.tree.getConnectionOutput(out_cxn_id);
+            
+            const draft_comp:SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_out_id);
+            op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.draft});
+          });
+        break;
+      }
+
+
+
+    });
+
+  }
   
   ngOnInit(){
     
@@ -164,6 +261,7 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
+    this.palette.addTimelineState();
 
   }
 
@@ -173,51 +271,22 @@ export class MixerComponent implements OnInit {
     this.unsubscribe$.complete();
   }
 
+
   undo() {
-    // let d: Draft = this.timeline.restorePreviousHistoryState();
-    // console.log("Prevous State is ", d);
-    // if(d === undefined || d === null) return;
 
-    // this.draft.reload(d);    
-    // this.palette.onNewDraftLoaded();
-    // this.palette.redraw({
-    //   drawdown: true, 
-    //   loom:true, 
-    //   warp_systems: true, 
-    //   weft_systems: true, 
-    //   warp_materials: true,
-    //   weft_materials:true
-    // });
-
-    // this.palette.rescale(); 
+    let so: string = this.timeline.restorePreviousMixerHistoryState();
+    
+    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
+    this.loadNewFile(lr);
   }
 
   redo() {
-    // let d: Draft = this.timeline.restoreNextHistoryState();
-    // console.log("Next State is ", d);
 
-    // if(d === undefined || d === null) return;
-
-    // console.log(d);
-
-    // this.draft.reload(d);    
-    // this.palette.onNewDraftLoaded();
-    // this.palette.redraw({
-    //   drawdown: true, 
-    //   loom:true, 
-    //   warp_systems: true, 
-    //   weft_systems: true, 
-    //   warp_materials: true,
-    //   weft_materials:true
-    // });
-
-    // this.palette.rescale(); 
+    let so: string = this.timeline.restoreNextMixerHistoryState();
+    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
+    this.loadNewFile(lr);
+   
   }
-
-  /// EVENTS
-
-
-
 
 /**
    * Change to draw mode on keypress d
@@ -354,6 +423,51 @@ export class MixerComponent implements OnInit {
   //   this.onPaste({});
   // }
 
+
+  // /**
+  //  * this is called when import has been called from the sidebar
+  //  * @param result 
+  //  */
+  // public draftUploaded(result: LoadResponse){
+
+  //   console.log("import", result);
+  //   const data: FileObj = result.data;
+
+  //   data.drafts.forEach().
+
+  //   const draft: Draft = new Draft(result);
+  //   this.palette.addSubdraftFromDraft(draft);
+  // }
+
+  /**
+   * this is called when a user pushes bring from the topbar
+   * @param event 
+   * @todo add interface to select which draft to export if BMP or WIF
+   */
+  public onSave(e: any){
+
+    console.log(e);
+    let link = e.downloadLink.nativeElement;
+
+    switch(e.type){
+      case 'jpg': 
+      link.href = this.fs.saver.jpg(this.palette.getPrintableCanvas(e));
+      link.download = e.name + ".jpg";
+      this.palette.clearCanvas();
+      break;
+
+      case 'ada': 
+      link.href = this.fs.saver.ada(
+        'mixer', 
+        this.tree.exportDraftsForSaving(),
+        [],
+        this.patterns,
+        this.notes,
+        false);
+        link.download = e.name + ".ada";
+    }
+  }
+
   /**
    * Updates the canvas based on the weave view.
    * @extends WeaveComponent
@@ -362,38 +476,12 @@ export class MixerComponent implements OnInit {
    */
   public renderChange(event: any) {
 
-
-    console.log(event.value);
-    //need to render the scale change to the parent and child subdrafts
      const scale = event.value;
      this.palette.rescale(scale);
-    // const div = document.getElementById('scrollable-container');
-    // div.style.transform = 'scale(' + scale + ')';
-
-    
-    // this.render.setCurrentView(value);
-
-    // if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
-
-    // this.palette.redraw({
-    //   drawdown: true
-    // });
   }
 
  
   
-  
-  public onSave(e: any) {
-
-    e.bitmap = this.bitmap.map(element => (element.isUp() && element.isSet()));
-    console.log(e);
-
-    if (e.type === "bmp") this.palette.saveBMP(e.name, e);
-    else if (e.type === "ada") this.palette.saveADA(e.name, e);
-    else if (e.type === "wif") this.palette.saveWIF(e.name, e);
-    else if (e.type === "jpg") this.palette.savePrintableDraft(e.name, e);
-    
-  }
 
 
 
@@ -411,14 +499,14 @@ export class MixerComponent implements OnInit {
 
   public createPattern(e: any) {
 
-    this.default_patterns.push(new Pattern({pattern: e.pattern}));
+    this.patterns.push(new Pattern({pattern: e.pattern}));
   
   }
 
 
 //should this just hide the pattern or fully remove it, could create problems with undo/redo
    public removePattern(e: any) {
-    this.default_patterns.patterns = this.default_patterns.patterns.filter(pattern => pattern !== e.pattern);
+    this.patterns = this.patterns.filter(pattern => pattern !== e.pattern);
   }
 
 

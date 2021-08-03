@@ -1,0 +1,9 @@
+.upload-container{
+    display: flex;
+    flex-direction: row;
+}
+
+.progress-bar,
+.upload-button{
+    width: 90px;
+}

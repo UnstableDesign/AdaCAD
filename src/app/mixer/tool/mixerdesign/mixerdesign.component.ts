@@ -23,12 +23,13 @@ export class MixerDesignComponent implements OnInit {
 
   selected = 0;
 
-  constructor(private design_modes: DesignmodesService, private inks: InkService) { 
+  constructor(public dialog: MatDialog, private design_modes: DesignmodesService, private inks: InkService) { 
   }
 
   ngOnInit() {
 
   }
+
 
   inkChanged(e:any){
     console.log("changing to", e.target.name);

@@ -25,8 +25,8 @@ export class Shape {
     this.scale = scale;
     const context = shape_canvas.getContext('2d');
     const download = shape_canvas.toDataURL("image/png");
-   // document.write('<img src="'+download+'"/>');
-
+    // document.write('<img src="'+download+'"/>');
+    console.log("scale", this.scale);
 
     this.img_data = context.getImageData(bounds.topleft.x, bounds.topleft.y, bounds.width, bounds.height);
     this.draft = this.resample(Math.floor(bounds.height/scale), Math.floor(bounds.width/scale));
@@ -39,17 +39,20 @@ export class Shape {
 
   /**
    * rescale the draft in its current size to have this number of rows and cols
+   * note: this breaks if scale is not a whole number
    * @param bounds 
    */
   resample(rows: number, cols: number):Array<Array<Cell>>{
-    this.draft = [];
-    const margin: number = this.scale/2; // used to check the center of cells
 
+    this.draft = [];
+    //const margin: number = this.scale/2; // used to check the center of cells
+    const margin = 0;
     for(let i = 0; i < rows; i++){
       this.draft.push([]);
       const row_ndx = (i * this.scale + margin) * (this.img_data.width*4);
       for(let j = 0; j < cols; j++){
         const col_ndx = (j* this.scale + margin) * 4;
+
         // const p_red = this.img_data.data[row_ndx + col_ndx ];
          const p_grn = this.img_data.data[row_ndx + col_ndx + 1];
         // const p_blue = this.img_data.data[row_ndx + col_ndx + 2];

@@ -46,32 +46,44 @@ export class WeaverPatternsComponent implements OnInit {
   }
 
   openPatternDialog(pattern) {
-    console.log("open dialog", this.selection);
-    var create = false;
 
     if (!pattern) {
-      pattern = new Pattern({pattern: this.selection});
-      if(this.selection !== undefined) pattern.setPattern(this.selection);
-
+      pattern = this.selection;
+      // if(this.selection !== undefined) pattern.setPattern(this.selection);
       console.log(pattern);
-
-      create = true;
     }
 
     const dialogRef = this.dialog.open(PatternModal, 
       {data: pattern });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!create) {
-        this.patterns[result.id] = result;
-      } else {
-        this.onCreatePattern.emit({pattern: result});
-      }
+      
+      console.log("clsoed resultl", result);
 
-      var obj: any = {};
-      obj.patterns = _.cloneDeep(this.patterns);
-      this.onPatternChange.emit(obj);
-    });
+      if(result !== null && result !== undefined){
+
+        if(result.id == -1){
+          result.id = this.patterns.length;
+          this.patterns.push(result);
+
+        }else{
+          this.patterns[result.id] = result;
+        }
+
+
+      }
+      
+    //   if (!create) {
+    //     console.log(result);
+    //     this.patterns[result.id] = result;
+    //   } else {
+    //     this.onCreatePattern.emit({pattern: result});
+    //   }
+
+    //   var obj: any = {};
+    //   obj.patterns = _.cloneDeep(this.patterns);
+    //   this.onPatternChange.emit(obj);
+     });
   }
 
   print(e) {

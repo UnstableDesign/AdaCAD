@@ -3,10 +3,34 @@ h4{
 	padding: 6px 0px;
 }
 
+.slider-row{
+    display: flex;
+    flex-direction: row;
+    padding: 24px;
+}
+
+.slider-row i{
+    display: block;
+    height: 48px;
+    line-height: 32px;
+    padding-top: 8px;
+    color: grey;
+}
+
+.global_view{
+    border:thin solid #333333;
+    width: 250px;
+    height: 250px;
+    margin: 0 24px;
+
+}
+
+.local{
+    border:thin solid #ff4081;
+}
+
 mat-slider{
 	width: 100%;
-	height: 40px;
-	margin: 14px 0 0; 
 }
 
 
