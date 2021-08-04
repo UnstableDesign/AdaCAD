@@ -126,32 +126,25 @@ export class PatternFinder {
 
         var patterns = [];
 
-        //need to fix according to string not arr
         for (var idx = 0; idx < occuranceTableKeys.length; idx++) {
             var key = occuranceTableKeys[idx];
             var simplifiable = false;
             if (occuranceTable[key] > 1) {
-                // console.log('key:', key);
                 for (var j = 0; j < patterns.length; j++) {
                     var pattern = patterns[j];
-                    //checking that current key is not just a pre-existing pattern repeated over and over...
                     if (key.length % pattern.length == 0 && pattern.length != key.length) {
                         simplifiable = true;
-                        // console.log('key.length - pattern.length', key.length - pattern.length);
                         for (var checkingIdx = 0; checkingIdx < key.length - pattern.length; checkingIdx++) {
-                            // console.log('pattern.substring(checkingIdx, checkingIdx + pattern.length):', pattern.substring(checkingIdx, checkingIdx + pattern.length));
                             if (pattern.substring(checkingIdx, checkingIdx + pattern.length) != key) {
                                 simplifiable = false;
                             }
                         }
                     }
                     if (simplifiable) {
-                        // console.log('simplifiable to ', pattern);
                         break;
                     }
                 }
                 if (!simplifiable) {
-                    // console.log('pushing', key);
                     patterns.push(key);
                 }
             }
@@ -238,11 +231,7 @@ export class PatternFinder {
                 toDelete.splice(firstIdx, 1);
             }
         }
-        // for (var i = 0; i < patterns.length; i++) {
-        //     console.log('before delete:', patterns[i]);
-        // }
 
-        // console.log('toDelete:', toDelete);
         for (var i = 0; i < toDelete.length; i++) {
             patterns.splice(toDelete[toDelete.length - 1 - i], 1)
         }
@@ -261,7 +250,6 @@ export class PatternFinder {
         var threadingRanges = [];
 
 
-        // var checked = 0;
         let idxTreadling = treadlingString.indexOf(treadlingPatterns);
         var length = -1;
 
@@ -276,26 +264,6 @@ export class PatternFinder {
         }
         treadlingRanges.push([length, treadlingPatternsArr.length]);
 
-        
-        // for (i = 0; i < treadlingPatternsArr.length; i++) {
-        //     let current = treadlingPatternsArr[i];
-        //     let stringVersion = treadlingPatterns[i];
-        //     let idx = treadlingString.slice(checked, treadlingString.length).indexOf(stringVersion);
-        //     var length = -1;
-
-        //     for (var j = 0; j < treadlingString.length; j++) {
-        //         if (j == idx) {
-        //             length += 1;
-        //             break;
-        //         }
-        //         if (treadlingString[j] == ",") {
-        //             length += 1;
-        //         }
-        //     }
-        //     treadlingRanges.push([length, current.length]);
-        //     checked = stringVersion.length + 1;
-        // }
-
         let idxThreading = threadingString.indexOf(threadingPatterns);
         var length = -1;
 
@@ -309,26 +277,6 @@ export class PatternFinder {
             }
         }
         threadingRanges.push([length, threadingPatternsArr.length]);
-
-        // checked = 0;
-        // for (var i = 0; i < threadingPatternsArr.length; i++) {
-        //     let current = threadingPatternsArr[i];
-        //     let stringVersion = threadingPatterns[i];
-        //     let idx = threadingString.slice(checked, threadingString.length).indexOf(stringVersion);
-        //     var length = -1;
-
-        //     for (var j = 0; j < threadingString.length; j++) {
-        //         if (j == idx) {
-        //             length += 1;
-        //             break;
-        //         }
-        //         if (threadingString[j] == ",") {
-        //             length += 1;
-        //         }
-        //     }
-        //     threadingRanges.push([length, current.length]);
-        //     checked = stringVersion.length + 1;
-        // }
 
         var draftPatterns = [];
         for (var i = 0; i < treadlingRanges.length; i++) {
