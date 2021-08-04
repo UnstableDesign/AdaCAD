@@ -20,7 +20,6 @@ export class DraftMatcher {
     }
 
     private patternToSize(centroids0, pattern) {
-        console.log('pattern:', pattern);
         if (pattern[0].length > centroids0[0].length) {
             for (var i = 0; i < pattern.length; i++) {
                 while(pattern[i].length > centroids0[0].length) {
@@ -58,18 +57,18 @@ export class DraftMatcher {
 
     matchToClosestCluster(centroids, pattern) {
         this.simulatedDraft = this.patternToSize(centroids[0], pattern);
-        for (var i = 0; i< centroids.length; i++) {
-            console.log('centroid length:', centroids[i].length);
-        }
-        console.log('pattern length:', pattern.length);
+        // for (var i = 0; i< centroids.length; i++) {
+        //     console.log('centroid length:', centroids[i].length);
+        // }
+        // console.log('pattern length:', pattern.length);
         return this.findClosest(centroids, this.simulatedDraft);
     }
 
     matchToClosestDraft(cluster) {
-        for (var i = 0; i< cluster.length; i++) {
-            console.log('draft length:', cluster[i].length);
-        }
-        console.log('pattern length:', this.simulatedDraft.length);
+        // for (var i = 0; i< cluster.length; i++) {
+        //     console.log('draft length:', cluster[i].length);
+        // }
+        // console.log('pattern length:', this.simulatedDraft.length);
         return this.findClosest(cluster, this.simulatedDraft);
     }
 
@@ -77,6 +76,9 @@ export class DraftMatcher {
         var minDistance = 1000;
         var minIdx = -1;
         for (var i = 0; i < group.length; i++) {
+            if (group[i].length < draft.length) {
+                group[i] = this.patternToSize(draft, group[i]);
+            }
             let distanceVal = this.distance(draft, group[i]);
             if (distanceVal < minDistance) {
                 minDistance = distanceVal;

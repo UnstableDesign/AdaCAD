@@ -126,26 +126,32 @@ export class PatternFinder {
 
         var patterns = [];
 
+        //need to fix according to string not arr
         for (var idx = 0; idx < occuranceTableKeys.length; idx++) {
             var key = occuranceTableKeys[idx];
             var simplifiable = false;
             if (occuranceTable[key] > 1) {
+                // console.log('key:', key);
                 for (var j = 0; j < patterns.length; j++) {
                     var pattern = patterns[j];
-                    simplifiable = true;
                     //checking that current key is not just a pre-existing pattern repeated over and over...
-                    if (pattern.length % key.length == 0) {
-                        for (var checkingIdx = 0; checkingIdx < pattern.length-key.length; checkingIdx++) {
-                            if (pattern.substring(checkingIdx, checkingIdx + key.length) != key) {
+                    if (key.length % pattern.length == 0 && pattern.length != key.length) {
+                        simplifiable = true;
+                        // console.log('key.length - pattern.length', key.length - pattern.length);
+                        for (var checkingIdx = 0; checkingIdx < key.length - pattern.length; checkingIdx++) {
+                            // console.log('pattern.substring(checkingIdx, checkingIdx + pattern.length):', pattern.substring(checkingIdx, checkingIdx + pattern.length));
+                            if (pattern.substring(checkingIdx, checkingIdx + pattern.length) != key) {
                                 simplifiable = false;
                             }
                         }
                     }
                     if (simplifiable) {
+                        // console.log('simplifiable to ', pattern);
                         break;
                     }
                 }
                 if (!simplifiable) {
+                    // console.log('pushing', key);
                     patterns.push(key);
                 }
             }
@@ -232,83 +238,97 @@ export class PatternFinder {
                 toDelete.splice(firstIdx, 1);
             }
         }
-        for (var i = 0; i < patterns.length; i++) {
-            console.log('before delete:', patterns[i]);
-        }
+        // for (var i = 0; i < patterns.length; i++) {
+        //     console.log('before delete:', patterns[i]);
+        // }
 
-        console.log('toDelete:', toDelete);
+        // console.log('toDelete:', toDelete);
         for (var i = 0; i < toDelete.length; i++) {
             patterns.splice(toDelete[toDelete.length - 1 - i], 1)
         }
-        for (var i = 0; i < patterns.length; i++) {
-            console.log('after delete:', patterns[i]);
-        }
-
-        return patterns;
+        return patterns[0];
     }
 
     private findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threading, draft) {
-        // console.log('treadling', treadling);
-        // console.log('threading', threading);
-        // console.log('treadlingPatterns:', treadlingPatterns);
-        // console.log('threadingPatterns:', threadingPatterns);
         var treadlingString: string = this.toString(treadling);
         var threadingString: string = this.toString(threading);
         
-        var treadlingPatternsArr = [];
-        for (var i = 0; i < treadlingPatterns.length; i++) {
-            let current = treadlingPatterns[i];
-            treadlingPatternsArr.push(this.toArray(current));
-        }
+        var treadlingPatternsArr = this.toArray(treadlingPatterns);
 
-        var threadingPatternsArr = [];
-        for (var i = 0; i < threadingPatterns.length; i++) {
-            let current = threadingPatterns[i];
-            threadingPatternsArr.push(this.toArray(current));
-        }
+        var threadingPatternsArr = this.toArray(threadingPatterns);
 
         var treadlingRanges = [];
         var threadingRanges = [];
 
-        var checked = 0;
-        for (i = 0; i < treadlingPatternsArr.length; i++) {
-            let current = treadlingPatternsArr[i];
-            let stringVersion = treadlingPatterns[i];
-            let idx = treadlingString.slice(checked, treadlingString.length).indexOf(stringVersion);
-            var length = -1;
 
-            for (var j = 0; j < treadlingString.length; j++) {
-                if (j == idx) {
-                    length += 1;
-                    break;
-                }
-                if (treadlingString[j] == ",") {
-                    length += 1;
-                }
+        // var checked = 0;
+        let idxTreadling = treadlingString.indexOf(treadlingPatterns);
+        var length = -1;
+
+        for (var j = 0; j < treadlingString.length; j++) {
+            if (j == idxTreadling) {
+                length += 1;
+                break;
             }
-            treadlingRanges.push([length, current.length]);
-            checked = stringVersion.length + 1;
-        }
-
-        checked = 0;
-        for (var i = 0; i < threadingPatternsArr.length; i++) {
-            let current = threadingPatternsArr[i];
-            let stringVersion = threadingPatterns[i];
-            let idx = threadingString.slice(checked, threadingString.length).indexOf(stringVersion);
-            var length = -1;
-
-            for (var j = 0; j < threadingString.length; j++) {
-                if (j == idx) {
-                    length += 1;
-                    break;
-                }
-                if (threadingString[j] == ",") {
-                    length += 1;
-                }
+            if (treadlingString[j] == ",") {
+                length += 1;
             }
-            threadingRanges.push([length, current.length]);
-            checked = stringVersion.length + 1;
         }
+        treadlingRanges.push([length, treadlingPatternsArr.length]);
+
+        
+        // for (i = 0; i < treadlingPatternsArr.length; i++) {
+        //     let current = treadlingPatternsArr[i];
+        //     let stringVersion = treadlingPatterns[i];
+        //     let idx = treadlingString.slice(checked, treadlingString.length).indexOf(stringVersion);
+        //     var length = -1;
+
+        //     for (var j = 0; j < treadlingString.length; j++) {
+        //         if (j == idx) {
+        //             length += 1;
+        //             break;
+        //         }
+        //         if (treadlingString[j] == ",") {
+        //             length += 1;
+        //         }
+        //     }
+        //     treadlingRanges.push([length, current.length]);
+        //     checked = stringVersion.length + 1;
+        // }
+
+        let idxThreading = threadingString.indexOf(threadingPatterns);
+        var length = -1;
+
+        for (var j = 0; j < threadingString.length; j++) {
+            if (j == idxThreading) {
+                length += 1;
+                break;
+            }
+            if (threadingString[j] == ",") {
+                length += 1;
+            }
+        }
+        threadingRanges.push([length, threadingPatternsArr.length]);
+
+        // checked = 0;
+        // for (var i = 0; i < threadingPatternsArr.length; i++) {
+        //     let current = threadingPatternsArr[i];
+        //     let stringVersion = threadingPatterns[i];
+        //     let idx = threadingString.slice(checked, threadingString.length).indexOf(stringVersion);
+        //     var length = -1;
+
+        //     for (var j = 0; j < threadingString.length; j++) {
+        //         if (j == idx) {
+        //             length += 1;
+        //             break;
+        //         }
+        //         if (threadingString[j] == ",") {
+        //             length += 1;
+        //         }
+        //     }
+        //     threadingRanges.push([length, current.length]);
+        //     checked = stringVersion.length + 1;
+        // }
 
         var draftPatterns = [];
         for (var i = 0; i < treadlingRanges.length; i++) {
@@ -340,8 +360,7 @@ export class PatternFinder {
                 }
             }
         }
-        console.log('transforrmedDraftPatterns:', transformedDraftPatterns);
-        return transformedDraftPatterns;
+        return transformedDraftPatterns[0];
     }
 
     public computePatterns(threading, treadling, draft) {
