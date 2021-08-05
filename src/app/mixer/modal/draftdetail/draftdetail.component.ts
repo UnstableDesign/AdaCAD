@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Bounds, Interlacement } from '../../../core/model/datatypes';
 import { Draft } from '../../../core/model/draft';
@@ -16,6 +16,7 @@ interface DesignModes{
   viewValue: string;
   icon: string;
 }
+
 
 
 /**
@@ -143,12 +144,28 @@ export class DraftdetailComponent implements OnInit {
     this.dv.rescale();
   }
 
+  /**
+   * this handles the case where someone clicks outside of the modal window 
+   * @param $event 
+   */
+  @HostListener('document:click', ['$event']) click($event){
+    // here you can hide your menu
+    const target: HTMLElement = $event.target;
+    const name: string = target.className;
+    if(name.includes("cdk-overlay-backdrop")){
+        this.onSave();
+    }
+    console.log("anywhere click", target.className);
+  }
+
 
 
   ngOnInit() {
 
 
   }
+
+  
 
 
   ngAfterViewInit(){
