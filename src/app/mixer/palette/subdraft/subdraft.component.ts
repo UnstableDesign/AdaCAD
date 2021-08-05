@@ -618,7 +618,8 @@ export class SubdraftComponent implements OnInit {
 
       const dialogRef = this.dialog.open(DraftdetailComponent, {
         data: {
-          draft: this.draft}
+          draft: this.draft,
+          ink: this.inks.getInk(this.ink).viewValue}
       });
 
       dialogRef.afterClosed().subscribe(result => {

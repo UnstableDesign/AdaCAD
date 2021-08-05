@@ -16,13 +16,44 @@ cdkScrollable >
 <div  class="options">
   <mat-slide-toggle [(ngModel)]="render.view_frames" (change)="toggleFrames()">Show Threading, Treadling, and Tieup</mat-slide-toggle>
   <mat-slide-toggle [(ngModel)]="is_yarn_view" (change)="toggleView()">View Yarn Simulation</mat-slide-toggle>
- 
-  <div mat-dialog-actions>
-    <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
-  </div>
+ <div>---</div>
+  <mat-label>Ink</mat-label>
+  <mat-select [(value)]="ink">
+    <mat-option 
+    *ngFor="let i of inks.getInks()" 
+    [value]="i.viewValue"
+   >
+      {{i.viewValue}}
+    </mat-option>
+  </mat-select> 
+  
+  <button mat-button [matMenuTriggerFor]="actions">Actions</button>
+  <mat-menu #actions="matMenu">
 
+
+  <ng-container *ngFor="let class of ops.classification">
+
+    <ng-container *ngFor="let op of class.ops">
+
+      <ng-container *ngIf="op.params.length == 0 && op.max_inputs === 1">
+
+      <button [matTooltip]=op.dx 
+      mat-menu-item
+      [name]=op.name 
+      (click)="designActionChange(op.name)">
+      {{op.name}}
+      </button>  
+      </ng-container>
+    </ng-container>  
+  </ng-container>
+
+</mat-menu>
 </div>
 
+
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
+</div>
 
 </div>

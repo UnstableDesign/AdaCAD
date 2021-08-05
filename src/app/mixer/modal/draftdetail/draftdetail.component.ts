@@ -9,6 +9,8 @@ import { Timeline } from '../../../core/model/timeline';
 import { Pattern } from '../../../core/model/pattern';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
+import { InkService } from '../../provider/ink.service';
+import { OperationService } from '../../provider/operation.service';
 
 
 interface DesignModes{
@@ -40,6 +42,8 @@ export class DraftdetailComponent implements OnInit {
   {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"}
 ];
 
+
+ink: String; //the name of the selected ink.
 
 /**
  * local flag for the view parameter
@@ -102,7 +106,9 @@ export class DraftdetailComponent implements OnInit {
 
   constructor(private dialogRef: MatDialogRef<DraftdetailComponent>,
              @Inject(MAT_DIALOG_DATA) private data: any, 
-             private scroll: ScrollDispatcher) { 
+             private scroll: ScrollDispatcher,
+             private inks: InkService,
+             private ops: OperationService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()
@@ -111,7 +117,7 @@ export class DraftdetailComponent implements OnInit {
                });
 
                this.draft = data.draft;
-      
+               this.ink = data.ink;
 
                this.draft.computeYarnPaths();
 
@@ -184,9 +190,27 @@ export class DraftdetailComponent implements OnInit {
 
    
   }
+
+
   
   onNoClick(){
     this.onSave();
+  }
+
+  public inkActionChange(name: string){
+    this.ink = name;
+  }
+
+  designActionChange(e){
+
+  const drafts: Array<Draft> = this.ops.getOp(e).perform([this.draft], []);
+        drafts.forEach(draft => {
+          this.draft.reload(draft);
+          this.dv.redraw({drawdown:true});  
+        }); 
+    this.dv.redraw({
+      drawdown: true
+    });   
   }
 
   public onCancel(){
