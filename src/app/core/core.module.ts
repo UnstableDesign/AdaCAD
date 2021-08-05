@@ -151,7 +151,8 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
       InitModal,
       AboutModal,
       PatternModal,
-      MaterialModal
+      MaterialModal,
+      DraftviewerComponent
     ],
 })
 export class CoreModule { }

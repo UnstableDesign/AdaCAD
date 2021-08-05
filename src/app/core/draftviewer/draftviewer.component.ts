@@ -1,4 +1,4 @@
-import { ElementRef, HostListener } from '@angular/core';
+import { ElementRef, HostListener, Inject } from '@angular/core';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Subscription, Subject, fromEvent } from 'rxjs';
@@ -12,6 +12,7 @@ import { Pattern } from '../model/pattern';
 import {cloneDeep, now} from 'lodash';
 import { FileService } from '../provider/file.service';
 import { thresholdFreedmanDiaconis } from 'd3';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'app-draftviewer',
@@ -59,7 +60,7 @@ export class DraftviewerComponent implements OnInit {
  
  /**
     * The Timeline object containing state histories for undo and redo
-    * @property {Render}
+    * @property {Timeline}
    */
    @Input('timeline') timeline: any;
  
@@ -244,9 +245,11 @@ export class DraftviewerComponent implements OnInit {
 
     this.flag_recompute = false;
     this.flag_history = false;
+
   }
 
   ngOnInit() {
+
   }
 
   ngAfterViewInit(){
@@ -285,6 +288,7 @@ export class DraftviewerComponent implements OnInit {
     // set the width and height
 
     d3.select(this.svgEl).style('display', 'none');
+
   }
 
   //this is called anytime a new draft object is loaded. 
@@ -315,8 +319,6 @@ export class DraftviewerComponent implements OnInit {
 
     // make the selection SVG invisible using d3
     d3.select(this.svgEl).style('display', 'none');
-
-    console.log("daft is ", this.weave, this.render);
 
   }
 

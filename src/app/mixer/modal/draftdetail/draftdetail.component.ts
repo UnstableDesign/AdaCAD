@@ -8,6 +8,7 @@ import { Render } from '../../../core/model/render';
 import { Timeline } from '../../../core/model/timeline';
 import { Pattern } from '../../../core/model/pattern';
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
+import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
 
 
 interface DesignModes{
@@ -16,6 +17,11 @@ interface DesignModes{
   icon: string;
 }
 
+
+/**
+ * this component initatites the draft viewer with custom options. 
+ * a copy of the draft is passed to the window and passed back to the parent on close (or null if changes not saved) 
+ */
 @Component({
   selector: 'app-draftdetail',
   templateUrl: './draftdetail.component.html',
@@ -24,13 +30,26 @@ interface DesignModes{
 export class DraftdetailComponent implements OnInit {
 
  
-     @ViewChild('bitmapImage', {static: false}) bitmap;
-   
-     design_modes: DesignModes[]=[
-      {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
-      {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
-      {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"}
-    ];
+  //the draft view shared by this and weaver
+  @ViewChild('dv', {read: DraftviewerComponent, static: true}) dv: DraftviewerComponent;
+
+  design_modes: DesignModes[]=[
+  {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
+  {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
+  {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"}
+];
+
+
+/**
+ * local flag for the view parameter
+ */
+  is_yarn_view = false;
+
+
+  /**
+   * local param for default height
+   */
+  modal_height:number;
 
   /**
    * a reference to the draft that we're modifying
@@ -41,18 +60,10 @@ export class DraftdetailComponent implements OnInit {
    * The name of the current selected brush.
    * @property {string}
    */
-     design_mode = {
+  design_mode = {
       name:'toggle',
       id: -1
     }
-
-  scale:number = 10;
-    /**
-   * a string to represent the current user defined scale for this component to be used in background grid css. 
-   * @property {striing}
-   */
-
-  scale_string: string;
 
 
   /**
@@ -60,15 +71,6 @@ export class DraftdetailComponent implements OnInit {
    * @property {Loom}
    */
    loom: Loom;
-
-  /**
-   * the dimensions of the draft object
-   */
-  bounds: Bounds = {
-    topleft: {x: 0, y: 0},
-    width: 0, 
-    height: 0
-  }
 
   /**
    * The weave Render object.
@@ -104,35 +106,114 @@ export class DraftdetailComponent implements OnInit {
               this.scrollingSubscription = this.scroll
               .scrolled()
               .subscribe((data: any) => {
-                // this.onWindowScroll(data);
+                 this.onWindowScroll(data);
                });
+
+               this.draft = data.draft;
+      
+
+               this.draft.computeYarnPaths();
+
+
+               this.copy = [];
+
+               this.loom = new Loom(this.draft, 8, 10);
+               this.loom.recomputeLoom(this.draft);
+
+               this.render = new Render(false, this.draft);
+               this.render.updateVisible(this.draft);
+               
+               this.timeline = new Timeline();
     
-               this.copy = [[false,true],[false,true]];
 
-              this.draft = data.draft;
-              this.loom = new Loom(this.draft, 8, 10);
-              this.render = new Render(true, this.draft);
-              this.draft.computeYarnPaths();
-
-              this.timeline.addHistoryState(this.draft);  
-              this.patterns = [];
+               this.timeline.addHistoryState(this.draft);  
+                            
+               console.log("value on construct", this.dv);
 
 
-              this.scale_string = "10px 10px";
-              this.draft = data.draft;
-
-              this.bounds.width = this.draft.warps * this.scale;
-              this.bounds.height = this.draft.wefts * this.scale;
+               this.modal_height = (this.draft.wefts+20) * this.render.getCellDims('base').h;
 
   }
 
-  // private onWindowScroll(data: any) {
-  //   this.rescale();
-  // }
+  updateSelection(event: any){
+    console.log("selection detected");
+  }
+
+  private onWindowScroll(data: any) {
+    this.dv.rescale();
+  }
+
 
 
   ngOnInit() {
 
+
+  }
+
+
+  ngAfterViewInit(){
+
+    this.dv.onNewDraftLoaded();
+    this.dv.redraw({
+      drawdown: true, 
+      loom:true, 
+      warp_systems: true, 
+      weft_systems: true, 
+      warp_materials: true,
+      weft_materials:true
+    });
+
+    this.dv.rescale();
+
+   
+  }
+  
+  onNoClick(){
+    this.onSave();
+  }
+
+  public onCancel(){
+    this.scrollingSubscription.unsubscribe();
+    this.dialogRef.close(null);
+  }
+
+  public onSave(){
+    this.scrollingSubscription.unsubscribe();
+    this.dialogRef.close(this.draft);
+  }
+
+  public toggleFrames(){
+
+
+    //this.render.toggleViewFrames();
+
+    if(this.render.view_frames){
+      this.loom.recomputeLoom(this.draft);
+    }
+
+    this.dv.redraw({loom:true});  }
+
+  /**
+   * Updates the canvas based on the weave view.
+   * @extends WeaveComponent
+   * @param {Event} e - view change event from design component.
+   * @returns {void}
+   */
+   public toggleView() {
+
+
+    
+    if(this.is_yarn_view){
+      this.draft.computeYarnPaths();
+      this.render.setCurrentView('visual');
+    }else{
+      this.render.setCurrentView('pattern');
+
+    }
+
+    this.dv.redraw({
+      drawdown: true
+    });
   }
 
 }

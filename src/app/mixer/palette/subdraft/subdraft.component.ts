@@ -11,6 +11,7 @@ import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
+import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
 
 
 
@@ -67,6 +68,9 @@ export class SubdraftComponent implements OnInit {
 
 // ];
 
+  /**
+   * reference to the operation that created this subdraft or -1 if no parent 
+   */
   parent_id: number = -1;
 
 
@@ -611,11 +615,27 @@ export class SubdraftComponent implements OnInit {
     }
 
     finetune(){
+
       const dialogRef = this.dialog.open(DraftdetailComponent, {
         data: {
-          draft: this.draft        }
+          draft: this.draft}
       });
-    }
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log("draft returned", result);
+          if(result != null){
+            if(this.parent_id == -1){
+              console.log('overloading draft');
+              this.draft.reload(result);
+              this.drawDraft();
+              this.onDesignAction.emit({id: this.id});
+              //flag for downstream calculations
+            }else{
+              console.log('has operation parent, create and caluculate diff');
+            }
+          }
+        })   
+       }
 
  
 

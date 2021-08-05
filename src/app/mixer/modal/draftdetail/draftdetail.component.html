@@ -1,37 +1,28 @@
+<div class ="draft-detail-modal">
+
+<app-draftviewer  #dv
+[render]="render" 
+[(design_mode)]="design_mode" 
+[(copy)]="copy" 
+[timeline]="timeline" 
+[draft]="draft" 
+[loom]="loom" 
+(onNewSelection) = "updateSelection($event)" 
+class="draft-viewer"
+cdkScrollable >
+</app-draftviewer>
 
 
-
-<mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
-  
-  <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
-
-    view options
-
-  </mat-drawer>
-
-
-
-  <app-draftviewer #weaveRef weave [render]="render" [(design_mode)]="design_mode" [(copy)]="copy" [timeline]="timeline" width="500" height="500" [draft]="draft" [loom]="loom" class="draft-container" id="draft-container" (onNewSelection) = "updateSelection($event)">
-
-
-
-  </app-draftviewer>
-
-
-</mat-drawer-container>
-
-
-
-
-<!-- <div class="detail-container" >
-    <div class="draft-container" [style.background-size] = "scale_string">
-    <canvas id="detail"></canvas>
-    </div>
+<div  class="options">
+  <mat-slide-toggle [(ngModel)]="render.view_frames" (change)="toggleFrames()">Show Threading, Treadling, and Tieup</mat-slide-toggle>
+  <mat-slide-toggle [(ngModel)]="is_yarn_view" (change)="toggleView()">View Yarn Simulation</mat-slide-toggle>
  
-    <div class="detail-opts">
-        view options
-    </div>
-</div>  -->
+  <div mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
+  </div>
+
+</div>
 
 
-
+</div>
