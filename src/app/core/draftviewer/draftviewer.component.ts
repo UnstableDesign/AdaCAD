@@ -1,4 +1,4 @@
-import { ElementRef, HostListener, Inject } from '@angular/core';
+import { ComponentFactoryResolver, ElementRef, HostListener, Inject } from '@angular/core';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Subscription, Subject, fromEvent } from 'rxjs';
@@ -24,6 +24,14 @@ export class DraftviewerComponent implements OnInit {
   @ViewChild('bitmapImage', {static: false}) bitmap;
 
 
+
+  /**
+   * a descriptor of the parent who generated this window
+   * @property {string} will be "weaver" or "mixer"
+   */
+   @Input('source') source: string;
+
+
  /// ATTRIBUTES
   /**
    * Contains the name of the brush being used to manipulate the weave draft.
@@ -45,7 +53,7 @@ export class DraftviewerComponent implements OnInit {
   * It is defined and inputed from the HTML declaration of the WeaveDirective.
   * @property {Draft}
   */
-     @Input('loom') loom: Loom;
+  @Input('loom') loom: Loom;
  
  
  
@@ -288,6 +296,7 @@ export class DraftviewerComponent implements OnInit {
     // set the width and height
 
     d3.select(this.svgEl).style('display', 'none');
+    this.rescale(-1, -1);
 
   }
 
@@ -334,7 +343,13 @@ export class DraftviewerComponent implements OnInit {
   }
 
 
-  setPosAndDraw(target, currentPos:Interlacement){
+  /**
+   *  takes an event from mouse event and determines how to handle it 
+   * @param target the dom target of the mouse click
+   * @param shift whether or not the shift key is being held
+   * @param currentPos the position of the click within the target
+   */
+  setPosAndDraw(target:HTMLElement, shift: boolean, currentPos:Interlacement){
 
       if (target && target.id =='treadling') {
         currentPos.i = this.render.visibleRows[currentPos.i];
@@ -357,7 +372,7 @@ export class DraftviewerComponent implements OnInit {
         this.drawOnWarpMaterials(currentPos);
       } else{
         currentPos.i = this.render.visibleRows[currentPos.i];
-        this.drawOnDrawdown(currentPos);
+        this.drawOnDrawdown(currentPos, shift);
       }
 
       this.flag_history = true;
@@ -374,6 +389,8 @@ export class DraftviewerComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+
+    console.log("event", event);
 
     //get dimis based on zoom.
     let dims ={
@@ -409,11 +426,12 @@ export class DraftviewerComponent implements OnInit {
       if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
       if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
       
+
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
       switch (this.design_mode.name) {
         case 'toggle':
-          this.setPosAndDraw(event.target, currentPos);
+          this.setPosAndDraw(event.target, event.shiftKey, currentPos);
           this.unsetSelection();
         break;
 
@@ -421,7 +439,7 @@ export class DraftviewerComponent implements OnInit {
         case 'down':
         case 'unset':
         case 'material':
-          this.setPosAndDraw(event.target, currentPos);
+          this.setPosAndDraw(event.target, event.shiftKey, currentPos);
           this.unsetSelection();
           this.flag_recompute = true;
 
@@ -438,7 +456,7 @@ export class DraftviewerComponent implements OnInit {
 
             this.selection.end = currentPos;
             this.selection.setParameters();
-            this.rescale();
+            this.rescale(-1, -1);
 
           }else{
 
@@ -558,7 +576,7 @@ export class DraftviewerComponent implements OnInit {
         if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
 
-        this.setPosAndDraw(event.target, currentPos);
+        this.setPosAndDraw(event.target, event.shiftKey, currentPos);
         this.flag_recompute = true;
 
 
@@ -592,7 +610,7 @@ export class DraftviewerComponent implements OnInit {
         }
 
         this.selection.setParameters();
-        this.rescale();
+        this.rescale(-1, -1);
 
         break;
       case 'invert':
@@ -1181,12 +1199,12 @@ export class DraftviewerComponent implements OnInit {
 
   /**
    * Called when a single point "draw" event is called on the
-   * @extends WeaveDirective
    * @param {Point} currentPos - the current position of the mouse within draft.
+   * @param shift - boolean for if the shift key was being held when this operation was called
    * @returns {void}
    */
 
-  private drawOnDrawdown( currentPos: Interlacement) {
+  private drawOnDrawdown( currentPos: Interlacement, shift: boolean) {
 
     var updates;
     var val  = false;
@@ -1208,8 +1226,11 @@ export class DraftviewerComponent implements OnInit {
           this.weave.setHeddle(currentPos.i,currentPos.j,val);
           break;
         case 'toggle':
-           val = !this.weave.isUp(currentPos.i,currentPos.j);
-           this.weave.setHeddle(currentPos.i,currentPos.j,val);
+          if(shift){
+            val = null;
+          } 
+          else val = !this.weave.isUp(currentPos.i,currentPos.j);
+          this.weave.setHeddle(currentPos.i,currentPos.j,val);
 
           break;
 
@@ -2002,8 +2023,12 @@ public drawWeftEnd(top, left, shuttle){
 
   }
 
+  /**
+   * this rescales the canvas and updates the view from scroll events
+   * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
+   */
   //this does not draw on canvas but just rescales the canvas
-  public rescale(){
+  public rescale(scroll_top: number, scroll_left: number){
   
     //var dims = this.render.getCellDims("base");
 
@@ -2014,9 +2039,10 @@ public drawWeftEnd(top, left, shuttle){
 
     let offset = this.render.getCellDims("select");
 
-    let scroll_left = this.draftContainer.offsetParent.scrollLeft;
-    let scroll_top = this.draftContainer.offsetParent.scrollTop;
+    if(scroll_left == -1) scroll_left = this.draftContainer.offsetParent.scrollLeft;
+    if(scroll_top == -1)  scroll_top = this.draftContainer.offsetParent.scrollTop;
     let draft_width = this.draftContainer.offsetWidth;
+
 
     let top = 0;
     let left = 0;
@@ -2165,7 +2191,6 @@ public drawWeftEnd(top, left, shuttle){
     left = scroll_left+draft_width-(dims.w*7);
     left /= scaleToFit;
     left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3));
-
 
 
     this.weftSystemsCanvas.style.transformOrigin = '0 0';
@@ -2431,25 +2456,28 @@ public redraw(flags:any){
         this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
         this.cx.canvas.width = base_dims.w * (this.weave.pattern[0].length+2);
         this.cx.canvas.height = base_dims.h * (this.render.visibleRows.length+2);
-       
-        this.cx.fillStyle = "#3d3d3d";
+        this.cx.strokeStyle = "#3d3d3d";
+
+        if(this.source == "weaver") this.cx.fillStyle = "#3d3d3d";
+        else this.cx.fillStyle = "#ffffff";
         this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
+        this.cx.strokeRect(base_dims.w,base_dims.h,this.canvasEl.width-base_dims.w*2,this.canvasEl.height-base_dims.h*2);
         this.drawDrawdown();
     }
 
-    if(flags.weft_systems !== undefined){
+    if(flags.weft_systems !== undefined && this.source == "weaver"){
       this.drawWeftSystems(this.cxWeftSystems, this.weftSystemsCanvas);
     }
 
-    if(flags.weft_materials !== undefined){
+    if(flags.weft_materials !== undefined && this.source == "weaver"){
       this.drawWeftMaterials(this.cxWeftMaterials, this.weftMaterialsCanvas);
     }
 
-    if(flags.warp_systems !== undefined){
+    if(flags.warp_systems !== undefined && this.source == "weaver"){
       this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);
     }
 
-    if(flags.warp_materials !== undefined){
+    if(flags.warp_materials !== undefined && this.source == "weaver"){
       this.drawWarpMaterials(this.cxWarpMaterials, this.warpMaterialsCanvas);
     }
 
@@ -2458,7 +2486,7 @@ public redraw(flags:any){
     }
 
 
-    this.rescale();
+    this.rescale(-1, -1);
   }
   
 

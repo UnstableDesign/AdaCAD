@@ -30,15 +30,14 @@ export class WeaverDesignComponent implements OnInit {
   @Output() onCreatePattern: any = new EventEmitter();
   @Output() onRemovePattern: any = new EventEmitter();
 
-  button_color = "#ff4081";
-
-
+  selected_mode:string;
   selected = 0;
 
   constructor(private dialog: MatDialog) { 
   }
 
   ngOnInit() {
+    this.selected_mode = this.design_modes.name;
 
   }
 
@@ -54,21 +53,27 @@ export class WeaverDesignComponent implements OnInit {
   //   // this.onBrushChange.emit(obj);
   // }
 
-  designModeChange(e: any) {
-
-    console.log(e.target.name);
-    this.design_mode = e.target.name;
-
-     var obj: any = {};
-     obj.name = this.design_mode;
+  select(){
+    var obj: any = {};
+    this.selected_mode = "select";
+     obj.name = "select";
      this.onDesignModeChange.emit(obj);
   }
 
-  drawWithMaterial(e: any){
-    this.design_mode = 'material';
+  designModeChange(name: string) {
+
+    console.log("mode change", name);
+    this.selected_mode = 'draw';
+     var obj: any = {};
+     obj.name = name;
+     this.onDesignModeChange.emit(obj);
+  }
+
+  drawWithMaterial(material_id: number){
+    this.selected_mode = 'material';
     var obj: any = {};
-    obj.name = this.design_mode;
-    obj.id = e.target.name;
+    obj.name = this.selected_mode;
+    obj.id = material_id;
     this.onDesignModeChange.emit(obj);
   }
 

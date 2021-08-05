@@ -7,7 +7,7 @@ import { Loom } from '../../../core/model/loom';
 import { Render } from '../../../core/model/render';
 import { Timeline } from '../../../core/model/timeline';
 import { Pattern } from '../../../core/model/pattern';
-import { ScrollDispatcher } from '@angular/cdk/scrolling';
+import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
 import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
 import { InkService } from '../../provider/ink.service';
 import { OperationService } from '../../provider/operation.service';
@@ -135,8 +135,6 @@ ink: String; //the name of the selected ink.
 
                this.timeline.addHistoryState(this.draft);  
                             
-               console.log("value on construct", this.dv);
-
 
                this.modal_height = (this.draft.wefts+20) * this.render.getCellDims('base').h;
 
@@ -146,8 +144,12 @@ ink: String; //the name of the selected ink.
     console.log("selection detected");
   }
 
-  private onWindowScroll(data: any) {
-    this.dv.rescale();
+  private onWindowScroll(data: CdkScrollable) {
+    const scrollTop = data.measureScrollOffset("top");
+    const scrollLeft = data.measureScrollOffset("left");
+    console.log("on rescale",scrollTop, scrollLeft);
+
+    this.dv.rescale(scrollTop, scrollLeft);
   }
 
   /**
@@ -186,7 +188,7 @@ ink: String; //the name of the selected ink.
       weft_materials:true
     });
 
-    this.dv.rescale();
+    //this.dv.rescale();
 
    
   }

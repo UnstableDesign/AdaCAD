@@ -20,40 +20,83 @@
     Select Region
   </div> -->
 
-
-<button matTooltip= "Select Region"
-      name="select" 
-      class="button is-small is-primary fas fa-expand"
-      [class.is-active]="design_mode.name === select"
-      [style.color]="button_color"
-      (click)="designModeChange($event)">
+<button 
+      mat-stroked-button
+      matTooltip= "Select Region"
+      [class.is-active]="selected_mode === 'select'"
+      (click)="select()">
+      <i class="fas fa-expand"></i>
 </button>
 
 
-<h3> Interlacement Tools</h3>
+<button 
+      mat-stroked-button
+      matTooltip= "Edit Draft Cells"
+      [matMenuTriggerFor]="inks"
+      [class.is-active]="selected_mode === 'draw'">
+      <i class="fas fa-edit"></i>
+</button>
 
-  <ng-container *ngFor="let mode of design_modes">
-     <button [matTooltip]=mode.viewValue 
-      [name]=mode.value 
-      class="button is-small is-primary {{mode.icon}}"
-      [class.is-active]="design_mode.name === mode.value"
-      [style.color]="button_color"
-      (click)="designModeChange($event)">
+
+
+  <mat-menu #inks="matMenu">
+    <ng-container *ngFor="let mode of design_modes">
+      <button 
+      class="menu-button" 
+      mat-menu-item 
+      [name] = "mode.value"
+      (click)="designModeChange(mode.value)">
+        <span class="{{mode.icon}}"></span>
+        <span>{{mode.viewValue}}</span>
       </button>
-  </ng-container>
+   </ng-container>
+  </mat-menu>
 
-<h3> Draw with Materials</h3>
-  <ng-container *ngFor="let shuttle of materials">
-     <button [matTooltip]=shuttle.name 
-      [name]=shuttle.id 
-       class="button material is-small is-primary fas fa-square"
-      [class.is-active]="design_mode.id === shuttle.id"
-      [style.color]="shuttle.color"
-      (click)="drawWithMaterial($event)">
+
+<button 
+      mat-stroked-button
+      matTooltip= "Edit Draft Materials"
+      [matMenuTriggerFor]="set_materials"
+      [class.is-active]="selected_mode === 'material'"
+      >
+   <i class="fas fa-palette"></i>
+</button>
+
+  <mat-menu #set_materials="matMenu">
+    <ng-container *ngFor="let shuttle of materials">
+      <button class="menu-button" 
+      mat-menu-item 
+      (click)="drawWithMaterial(shuttle.id)">
+        <span class="swatch"  [style.background]="shuttle.color" ></span>
+        <span>{{shuttle.name }}</span>
       </button>
-  </ng-container>
+
+   </ng-container>
+  </mat-menu>
 
 
+<!-- <button 
+  mat-stroked-button
+  matTooltip= "Perform Action on the Selected Region"
+  [matMenuTriggerFor]="actions"
+  [disabled] = "selected_mode !== 'select'"
+  >
+  Modify Selected Cells
+</button>
+
+<mat-menu #actions="matMenu">
+  <ng-container *ngFor="let action of design_actions">
+  <button class="menu-button" 
+  mat-menu-item 
+  (click)="designActionChange(action.value)">
+  <span class="{{action.icon}}"></span>
+  <span>{{action.viewValue}}</span>
+  </button>
+
+</ng-container>
+</mat-menu> -->
+
+<!-- 
 <h3> Selection tools </h3>
 
 
@@ -65,7 +108,7 @@
       [style.color]="button_color"
       (click)="designActionChange($event)">
       </button>
-  </ng-container>
+  </ng-container> -->
 
 
 <!--   <button matTooltip="invert the state of one cell" 

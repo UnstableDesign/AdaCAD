@@ -30,7 +30,10 @@ export class WeaverViewComponent implements OnInit {
   }
 
   viewChange(e:any){
-    this.onViewChange.emit(e.value);
+    console.log(e);
+    if(e.checked)  this.onViewChange.emit('visual');
+    else     this.onViewChange.emit('pattern');
+
   }
 
   zoomChange(e:any, source: string){
@@ -39,9 +42,8 @@ export class WeaverViewComponent implements OnInit {
   }
 
   viewFront(e:any, value:any, source: string){
-    console.log("value", value, "source", source);
     e.source = source;
-    e.value = value;
+    e.value = !value;
     this.onViewFront.emit(e);
   }
   

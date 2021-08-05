@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, Chan
 import {enableProdMode} from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
-import { ScrollDispatcher } from '@angular/cdk/overlay';
+import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
 import { LoomTypes, MaterialTypes, ViewModes, DensityUnits } from '../core/model/datatypes';
 import { Draft } from '../core/model/draft';
@@ -213,8 +213,10 @@ export class WeaverComponent implements OnInit {
 
   }
 
-  private onWindowScroll(data: any) {
-    this.weaveRef.rescale();
+  private onWindowScroll(data: CdkScrollable) {
+    const scrollTop:number = data.measureScrollOffset("top");
+    const scrollLeft:number = data.measureScrollOffset("left");
+    this.weaveRef.rescale(scrollTop, scrollLeft);
   }
 
 
@@ -265,7 +267,7 @@ export class WeaverComponent implements OnInit {
       weft_materials:true
     });
 
-    this.weaveRef.rescale();
+    this.weaveRef.rescale(-1, -1);
 
   }
   
@@ -297,7 +299,7 @@ export class WeaverComponent implements OnInit {
       weft_materials:true
     });
 
-    this.weaveRef.rescale();
+    this.weaveRef.rescale(-1, -1);
   
     
   }
@@ -324,7 +326,7 @@ export class WeaverComponent implements OnInit {
       weft_materials:true
     });
 
-    this.weaveRef.rescale(); 
+    this.weaveRef.rescale(-1, -1); 
   }
 
   redo() {
@@ -346,7 +348,7 @@ export class WeaverComponent implements OnInit {
       weft_materials:true
     });
 
-    this.weaveRef.rescale(); 
+    this.weaveRef.rescale(-1, -1); 
   }
 
   /// EVENTS
@@ -364,7 +366,7 @@ export class WeaverComponent implements OnInit {
   private keyEventZoomIn(e) {
     console.log("zoom in");
     this.render.zoomIn();
-    this.weaveRef.rescale();
+    this.weaveRef.rescale(-1, -1);
 
 
   }
@@ -378,7 +380,7 @@ export class WeaverComponent implements OnInit {
   private keyEventZoomOut(e) {
     console.log("zoom out");
     this.render.zoomOut();
-    this.weaveRef.rescale();
+    this.weaveRef.rescale(-1, -1);
   }
 
 
@@ -898,23 +900,23 @@ export class WeaverComponent implements OnInit {
      
      if(e.source === "slider"){
         this.render.setZoom(e.value);
-        this.weaveRef.rescale();
+        this.weaveRef.rescale(-1, -1);
 
      } 
 
      if(e.source === "in"){
         this.render.zoomIn();
-        this.weaveRef.rescale();
+        this.weaveRef.rescale(-1, -1);
 
      } 
 
      if(e.source === "out"){
         this.render.zoomOut();
-        this.weaveRef.rescale();
+        this.weaveRef.rescale(-1, -1);
 
      } 
      if(e.source === "front"){
-        this.render.setFront(e.checked);
+        this.render.setFront(!e.checked);
         this.weaveRef.redraw({drawdown:true});
      }      
   }

@@ -24,7 +24,8 @@ button{
   width: 100%;
   padding: 8px 0 16px 0;
   font-size: .8em;
-
+  display: flex;
+  flex-direction: row;
 }
 
 mat-slide-toggle{

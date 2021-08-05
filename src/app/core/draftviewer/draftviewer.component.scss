@@ -23,10 +23,16 @@ canvas{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+  }
+
+  .weft-systems-text.weaver {
     background: #3d3d3d;
     opacity: .8;
   }
   
+  .weft-systems-text.mixer {
+    background: #fff;
+  }
   
   
   .weft-system-row{
@@ -95,11 +101,19 @@ canvas{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    background: #3d3d3d;
-    opacity: .8;
   
   
   }
+
+  .warp-systems-text.weaver {
+    background: #3d3d3d;
+    opacity: .8;
+  }
+  
+  .warp-systems-text.mixer {
+    background: #fff;
+  }
+  
   
   
   
@@ -320,6 +334,7 @@ canvas{
   .draft-container {
     position: relative;
     height: 100%;
+    width: 100%;
   
     canvas {
       cursor: pointer;
@@ -327,6 +342,12 @@ canvas{
     }
   
   }
+
+  .draft-container.mixer{
+    background-color: #fff;
+  }
+
+
   
   
   .drawdown-container{

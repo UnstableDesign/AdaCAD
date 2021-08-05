@@ -1,6 +1,9 @@
 <div class ="draft-detail-modal">
 
+<div class="draft-detail-body">
+
 <app-draftviewer  #dv
+source = "mixer"
 [render]="render" 
 [(design_mode)]="design_mode" 
 [(copy)]="copy" 
@@ -14,21 +17,17 @@ cdkScrollable >
 
 
 <div  class="options">
-  <mat-slide-toggle [(ngModel)]="render.view_frames" (change)="toggleFrames()">Show Threading, Treadling, and Tieup</mat-slide-toggle>
-  <mat-slide-toggle [(ngModel)]="is_yarn_view" (change)="toggleView()">View Yarn Simulation</mat-slide-toggle>
- <div>---</div>
-  <mat-label>Ink</mat-label>
-  <mat-select [(value)]="ink">
-    <mat-option 
-    *ngFor="let i of inks.getInks()" 
-    [value]="i.viewValue"
-   >
-      {{i.viewValue}}
-    </mat-option>
-  </mat-select> 
+  <!-- <div class="toggle-row"><mat-slide-toggle [(ngModel)]="render.view_frames" (change)="toggleFrames()">Show Threading, Treadling, and Tieup</mat-slide-toggle></div> -->
+  <div class="toggle-row"><mat-slide-toggle [(ngModel)]="is_yarn_view" (change)="toggleView()">View Yarn Simulation</mat-slide-toggle></div>
   
-  <button mat-button [matMenuTriggerFor]="actions">Actions</button>
-  <mat-menu #actions="matMenu">
+  <!-- <div> 
+    Click draft cells to toggle value. Shift+click to unset the cell. 
+
+  </div> -->
+
+  
+  <!-- <button mat-button [matMenuTriggerFor]="actions">Quick Design Actions</button> -->
+  <!-- //<mat-menu #actions="matMenu"> -->
 
 
   <ng-container *ngFor="let class of ops.classification">
@@ -38,7 +37,7 @@ cdkScrollable >
       <ng-container *ngIf="op.params.length == 0 && op.max_inputs === 1">
 
       <button [matTooltip]=op.dx 
-      mat-menu-item
+      mat-button
       [name]=op.name 
       (click)="designActionChange(op.name)">
       {{op.name}}
@@ -47,13 +46,27 @@ cdkScrollable >
     </ng-container>  
   </ng-container>
 
-</mat-menu>
+<!-- </mat-menu> -->
+</div>
 </div>
 
+<div class="draft-detail-footer">
+  <div class="ink-block">
+  <mat-label>Using Ink</mat-label>
+  <mat-select [(value)]="ink">
+    <mat-option 
+    *ngFor="let i of inks.getInks()" 
+    [value]="i.viewValue"
+   >
+      {{i.viewValue}}
+    </mat-option>
+  </mat-select> 
+  </div>
 
-<div mat-dialog-actions>
-  <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
+  <div mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
+  </div>
 </div>
 
 </div>

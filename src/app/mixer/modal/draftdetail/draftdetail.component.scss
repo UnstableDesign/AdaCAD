@@ -1,20 +1,35 @@
 .draft-detail-modal{
-  width: 80%;
+  display: flex;
+  flex-direction: column;
+}
+
+.draft-detail-body{
   display: flex;
   flex-direction: row;
 }
 
-.options{
-  width: 33%;
+.draft-viewer{
+  overflow: scroll;
 }
 
-.draft-viewer{
-  width: 66%;
-  height: 80%;
-  border: thin solid black;
-  overflow: scroll;
-  background: #3d3d3d;
+.options{
+  margin-left: 18px;
+  width: 200px;
 }
+
+.toggle-row{
+  font-size: .8em;
+}
+
+
+.draft-detail-footer{
+  display: flex;
+  flex-direction: row;
+  justify-content:space-between;
+}
+
+
+
 
 .draft-viewer #view_frames,
 .draft-viewer #warp-materials,
