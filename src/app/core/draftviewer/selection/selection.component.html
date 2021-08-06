@@ -1,0 +1,29 @@
+<div id="selection-container" 
+[style.display]="(hide_parent)? 'none' : 'block'"
+[style.top.px]="top"
+[style.left.px]="left">
+
+
+<!-- <svg #mySelection class="selection" id="selection">
+    <text x="5" y="5" text-anchor="start"></text>
+</svg> -->
+
+<div 
+id="selection" 
+class="selection"
+[style.width.px]='screen_width'
+[style.height.px] = 'screen_height'
+[style.display]="(hide_selection)? 'none' : 'block'">
+    <span>{{width}} x {{height]} </span>
+</div>
+
+
+<div id="selection-actions" class="selection-actions">
+    <button>modify</button>
+    <button>fill</button>
+    <button>copy</button>
+    <button>paste</button>
+
+</div>
+
+</div>

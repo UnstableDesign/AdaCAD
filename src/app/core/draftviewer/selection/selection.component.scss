@@ -1,0 +1,17 @@
+#selection-container{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.selection {
+    position: absolute;
+    border: dashed black 2px;
+    //background: #ffffff98;
+    background: blue;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 2;
+  }
+  
+  

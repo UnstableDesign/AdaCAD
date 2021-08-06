@@ -2,7 +2,7 @@ import { Observable, Subscription, fromEvent, from, iif } from 'rxjs';
 import { DesignmodesService } from '../../mixer/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
-import { SelectionComponent } from './selection/selection.component';
+import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
@@ -85,7 +85,7 @@ export class PaletteComponent implements OnInit{
    * holds a reference to the selection component
    * @property {Selection}
    */
-  selection = new SelectionComponent();
+  selection = new MarqueeComponent();
 
   /**
    * holds the data of events drawn on this component (that are not associated with a subdraft)
@@ -1918,7 +1918,7 @@ drawStarted(){
 
 
 
-  getSubdraftsIntersectingSelection(selection: SelectionComponent){
+  getSubdraftsIntersectingSelection(selection: MarqueeComponent){
 
     //find intersections between main and the others
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();

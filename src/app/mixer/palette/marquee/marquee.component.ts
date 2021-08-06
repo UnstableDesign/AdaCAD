@@ -3,11 +3,11 @@ import { Draft } from '../../../core/model/draft';
 import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 
 @Directive({
-  selector: 'app-selection'
+  selector: 'app-marquee'
 })
 
 
-export class SelectionComponent implements OnInit{
+export class MarqueeComponent implements OnInit{
 
   id: number;
   draft: Draft = new Draft({name: "selection"});

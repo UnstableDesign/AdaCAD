@@ -11,9 +11,10 @@
     <span>Zoom</span>
     <mat-slider 
     [displayWith]="formatLabel" 
-    tickInterval="1" 
-    min="1" 
-    max="100" 
+    tickInterval=".1" 
+    step=".1"
+    min="0" 
+    max="2" 
     value="{{zoom}}" 
     (change)="zoomChange($event, 'slider')"></mat-slider>
 </div>

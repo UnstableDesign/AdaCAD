@@ -1,21 +1,191 @@
+
 canvas{
-    position: absolute;
-  }
+  width: fit-content;
+  height: fit-content;
+}
+
+// #warp-systems,
+// #warp-materials{
+//   width: fit-content;
+// }
+
+#threading{
+  padding-right: 10px;
+  //width: fit-content;
+}
+
+#treadling{
+  margin-top: 10px;
+}
+
+#draft-scale-container{
+  // position: absolute;
+  // top: 10px;
+  // left:10px;
+  border: #fff;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  height: fit-content;
+}
+
+.warp-systems-container{
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+
+
+}
+
+.threading-tieup-container{
+  display: flex;
+  flex-direction: row; 
+  padding-left: 10px;
+}
+
+.drawdown-container{
+  display: flex;
+  flex-direction: row;
+}
+
+.weft-systems-container{
+  display: flex;
+  flex-direction: row;
+  padding-top: 10px;
+
+}
+
+
+.warp-systems-text {
+      cursor: pointer;
+      height: 60px;
+      font-size: 10px;
+      line-height: 10px;
+      z-index: 1;
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: flex-start;
+      width: fit-content;
+    
+    
+    }
   
-  #weft-systems-text,
-  #weft-materials,
-  #weft-systems,
-  #warp-materials,
-  #warp-systems{
-    z-index: 1;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-  
+    .warp-systems-text.weaver {
+      background: #3d3d3d;
+      opacity: .8;
+    }
+    
+    .warp-systems-text.mixer {
+      background: #fff;
+    }
+    
+    
+    
+    
+    .warp-system-col{
+        width: 10px;
+        justify-content: flex-end;
+        flex-grow: 1;
+        color: #fff;
+        z-index: 1;
+        opacity: 1;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        vertical-align: bottom;
+        line-height: 8px;
+    
+    
+      &:hover {
+        .warp_insert,
+        .warp_clone,
+        .warp_delete{
+            display: block;
+        }
+      }
+
+      // &:last-child{
+      //   border-left: thin solid pink;
+      // }
+
+      // &:first-child{
+      //   border-right:thin solid pink;
+      // }
+    }
+    
+    .warp_system_code{
+    /*  user-select: none;
+      pointer-events: none;*/
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-bottom: thin solid white;
+      border-left: thin solid white;
+    }
+    
+    .warp_number{
+      display: block;
+      position: relative;
+      left: 10px;
+      height: 15px;
+      padding-left: 2px;
+      border-left: thin solid white;
+    
+    }
+
+    .warp_number_last{
+      display: block;
+      /* position: relative; */
+      left: 10px;
+      height: 15px;
+      padding-left: 2px;
+      border-left: thin solid white;
+    
+    }
+
+    // .last-warp{
+    //   display: block;
+    //   position: relative;
+    //   left: 10px;
+    //   height: 15px;
+    //   padding-left: 2px;
+    //   border-right: thin solid white;
+      
+    
+    // }
+    
+    .warp_insert,
+    .warp_clone,
+    .warp_delete{
+      align-items: left;
+      justify-content: left;
+      cursor: pointer;
+      height: 14px;
+      padding-bottom: 5px;
+      z-index: 2;
+      display: none;
+    
+    
+    }
+    
+    
+    
+    
+    .fa-plus-circle {
+      color: hsl(141, 71%, 48%);
+    }
+    
+    .fa-clone {
+      color: hsl(204, 86%, 53%)
+    }
+    
+    .fa-trash {
+       color: hsl(348, 100%, 61%);
+    }
+    
+    
   
   .weft-systems-text {
-    position: absolute;
     cursor: pointer;
     font-size: 10px;
     line-height: 10px;
@@ -23,6 +193,7 @@ canvas{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    height: fit-content;
   }
 
   .weft-systems-text.weaver {
@@ -69,8 +240,19 @@ canvas{
   
   .weft_number{
     display: block;
-    border-top: thin solid white;
-    padding-top: 2px;
+    position: relative;
+    top: -9px;
+    border-bottom: thin solid white;
+    padding-top: -9px;
+    width: 20px;
+  
+  }
+
+  .weft_number_last{
+    display: block;
+    position: relative;
+    top: 0px;
+    border-bottom: thin solid white;
     width: 20px;
   
   }
@@ -88,320 +270,3 @@ canvas{
   
   }
   
-  
-  
-  
-  .warp-systems-text {
-    position: absolute;
-    cursor: pointer;
-    height: 60px;
-    font-size: 10px;
-    line-height: 10px;
-    z-index: 1;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-  
-  
-  }
-
-  .warp-systems-text.weaver {
-    background: #3d3d3d;
-    opacity: .8;
-  }
-  
-  .warp-systems-text.mixer {
-    background: #fff;
-  }
-  
-  
-  
-  
-  .warp-system-col{
-      width: 10px;
-      justify-content: flex-end;
-      flex-grow: 1;
-      color: #fff;
-      z-index: 1;
-      opacity: 1;
-      display: flex;
-      flex-direction: column;
-      text-align: center;
-      vertical-align: bottom;
-      line-height: 8px;
-  
-  
-    &:hover {
-      .warp_insert,
-      .warp_clone,
-      .warp_delete{
-          display: block;
-      }
-    }
-  }
-  
-  .warp_system_code{
-  /*  user-select: none;
-    pointer-events: none;*/
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-bottom: thin solid white;
-    border-left: thin solid white;
-  }
-  
-  .warp_number{
-    display: block;
-    height: 15px;
-    padding-left: 2px;
-    border-left: thin solid white;
-  
-  
-  }
-  
-  .warp_insert,
-  .warp_clone,
-  .warp_delete{
-    align-items: left;
-    justify-content: left;
-    cursor: pointer;
-    height: 14px;
-    padding-bottom: 5px;
-    z-index: 2;
-    display: none;
-  
-  
-  }
-  
-  
-  
-  
-  .fa-plus-circle {
-    color: hsl(141, 71%, 48%);
-  }
-  
-  .fa-clone {
-    color: hsl(204, 86%, 53%)
-  }
-  
-  .fa-trash {
-     color: hsl(348, 100%, 61%);
-  }
-  
-  
-  
-  
-  
-  
-  
-  .cdk-live-announcer-element{
-    display: none;
-  }
-  
-  
-  
-  #threading{
-    top: 0px;
-    left:0px;
-  }
-  
-  
-  .design-container{
-    line-height: 1.5;
-  
-  
-    h3{
-      padding: 10px 5px;
-    }
-  
-  
-    .mat-slider{
-      width: 100%;
-    }
-  
-    .mat-expansion-panel-header{
-      
-    }
-  
-  
-    .mat-expansion-panel-header-title i{
-      width:50px;
-    }
-  
-    .button{
-      justify-content: center;
-      width: 1.2em;
-      margin: 4px;
-  
-      i{
-        margin-right: 0px;
-      }
-  
-      .fill_name{
-        border: thin solid white;
-        overflow: hidden;
-        font-weight: bold;
-        font-style: small-caps;
-        width:20px;
-      }
-    }
-  
-  
-    .center-item {
-      justify-content: right;
-    }
-  
-  
-    .mat-list-item {
-  
-      .edit-button, .trash-button {
-        display: none;
-      }
-  
-      &:hover {
-        .edit-button, .trash-button {
-          display: block;
-        }
-      }
-  
-      &.selected {
-  
-        .mat-list-item-content {
-          padding-left: 14px;
-        }
-      }
-    }
-  
-  
-    .level-with-title {
-    display: flex;
-    flex-direction: column;  
-    }
-  
-     .level-with-title {
-    display: flex;
-    flex-direction: column;  
-    }
-  
-    .level-title {
-    margin: 0;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-  
-      .mat-icon-button {
-        margin-left: -40px;
-      }
-    }
-  
-    .mat-subtitle {
-      opacity: .7;
-    }
-  
-    .mat-card-actions {
-      // text-align: right;
-    }
-  
-    .mat-card {
-      margin-bottom: 10px;
-  
-      .pattern-edit-button, .pattern-trash-button {
-        display: none;
-      }
-  
-      &:hover {
-        .pattern-edit-button, .pattern-trash-button {
-          display: block;
-        }
-      }
-  
-      .pattern-edit-button {
-        position: absolute;
-        top: 0;
-        right: 40px;
-      }
-  
-      .pattern-trash-button {
-        position: absolute;
-        top: 0;
-        right: 0;
-      }
-    }
-  
-  }
-  
-  
-  .draft-container {
-    position: relative;
-    height: 100%;
-    width: 100%;
-  
-    canvas {
-      cursor: pointer;
-      margin: 0px;
-    }
-  
-  }
-
-  .draft-container.mixer{
-    background-color: #fff;
-  }
-
-
-  
-  
-  .drawdown-container{
-    position: absolute;
-  }
-  
-  .tieups-container {
-    position:absolute;
-  
-  }
-  
-  .treadling-container{
-    position: absolute;
-  
-  }
-  
-  .threading-container{
-      position:absolute;
-  }
-  
-  .selection {
-    position: absolute;
-    border: dashed black 2px;
-    background: #ffffff98;
-    pointer-events: none;
-    overflow: visible;
-    z-index: 2;
-  }
-  
-  
-  .view_frames {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    z-index: 1;
-  
-  
-      span {
-        display: inline-flex;
-        padding-right: 5px;
-      }
-  
-      .fa-eye-slash {
-        color: hsl(0, 100%, 100%);
-      }
-  
-      .fa-eye{
-        color: hsl(0, 100%, 100%);
-      }
-  
-      /*span.view_frame_text{
-        font-size:.7em;
-        width: 500px;
-        height:20px;
-        margin-left: 20px;
-      }*/
-  }

@@ -1,21 +1,99 @@
 <div class="draft-container {{source}}" id="draft-container">
 
-    <canvas id="weft-systems" #weft_systems>  </canvas>
-    <canvas id="weft-materials" #weft_materials>  </canvas>
-   
-    <canvas id="warp-systems" #warp_systems>  </canvas>
-    <canvas id="warp-materials" #warp_materials>  </canvas>
-   
-    <canvas id="threading"></canvas>
-    <canvas id="tieups" #tieups ></canvas>
-    <canvas id="drawdown" #drawDown >  </canvas>
-    <canvas id="treadling" #treadling></canvas>
- 
- 
-     <svg #mySelection class="selection" id="selection">
-       <text x="5" y="5" text-anchor="start"></text>
-     </svg>
-               
+
+  
+    <div id = 'draft-scale-container'>
+
+      <app-selection 
+      #selection
+      [render]="render"
+      [loom]="loom"
+      ></app-selection>
+     
+      
+      <div class="warp-systems-container">
+        <div class="warp-systems-text" id="warp-systems-text">
+          <div class="warp-system-col" 
+          *ngFor="let i of (weave?.colShuttleMapping); let j = index;" >
+      
+            <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
+              </span>
+      
+            <span class="warp_clone"
+            (click)="cloneCol(j,weave?.colToShuttle(j), weave?.colToSystem(j));">
+              <i class="fa fa-clone"></i>
+            </span>
+      
+      
+            <span class="warp_insert" 
+            (click)="insertCol(j + 1, weave?.colToShuttle(j),weave?.colToSystem(j));">
+            <i class="fa fa-plus-circle"></i></span>
+            
+            <span *ngIf="(j % render?.getTextInterval() == 0 && (j+1 !== weave?.warps))" class="warp_number">{{j}}</span>      
+            <span *ngIf="(j+1 === weave?.warps)" class="warp_number_last">{{j+1}}</span>      
+            </div>
+
+            <!-- <div class="warp-system-col" >
+              <span class="last-warp">{{draft?.warps}}</span>
+            </div>  -->
+
+          </div>  
+
+        <canvas id="warp-systems" #warp_systems>  </canvas>
+        <canvas id="warp-materials" #warp_materials>  </canvas>
+      </div>
+
+      <div *ngIf="render?.view_frames" class="threading-tieup-container">
+        <canvas id="threading"></canvas>
+        <canvas id="tieups" #tieups ></canvas>
+      </div>
+
+      <div class="drawdown-container">
+        <canvas id="drawdown" #drawDown >  </canvas>
+        <canvas *ngIf="render?.view_frames" id="treadling" #treadling></canvas>
+        
+        <div class="weft-systems-container">
+          <canvas id="weft-materials" #weft_materials>  </canvas>
+          <canvas id="weft-systems" #weft_systems>  </canvas>
+          <div class="weft-systems-text" id="weft-systems-text">
+            <div class="weft-system-row" *ngFor="let i of (render?.visibleRows); let j = index;" >
+        
+  
+
+                  <span *ngIf="(i % render?.getTextInterval() == 0 && (j+1 !== weave?.wefts))" class="weft_number">{{j}}</span>      
+                  <span *ngIf="(i+1 === weave?.wefts)" class="weft_number_last">{{i+1}}</span>      
+        
+                  <span class = "weft_insert" 
+                  (click)="insertRow(j, i)">
+                  <i class="fa fa-plus-circle"></i>
+                  </span>
+        
+                  <span class = "weft_clone" 
+                  (click)="cloneRow(j, i);">
+                  <i class="fa fa-clone"></i>
+                  </span>
+                  
+                  <span class="weft_delete" 
+                   (click)="deleteRow(i);">
+                   <i class="fa fa-trash"></i>
+                  </span>
+            </div>
+          </div> 
+        </div>
+      </div>
+
+
+    
+    
+    
+    
+          
+
+    
+    
+    </div>
+
+
  
  
  
@@ -28,59 +106,7 @@
      </div>
  
           
-   <div class="weft-systems-text" id="weft-systems-text">
-     <div class="weft-system-row" *ngFor="let i of (render?.visibleRows); let j = index;" >
- 
- 
-           <span class="weft_number" 
-           [style.visibility]="(i % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'" >
-           {{i}}
-           </span>
- 
-           <span class = "weft_insert" 
-           (click)="insertRow(j, i)">
-           <i class="fa fa-plus-circle"></i>
-           </span>
- 
-           <span class = "weft_clone" 
-           (click)="cloneRow(j, i);">
-           <i class="fa fa-clone"></i>
-           </span>
-           
-           <span class="weft_delete" 
-            (click)="deleteRow(i);">
-            <i class="fa fa-trash"></i>
-           </span>
-     </div>
-   </div> 
- 
- 
- 
-       
-   <div class="warp-systems-text" id="warp-systems-text">
-     <div class="warp-system-col" 
-     *ngFor="let i of (weave?.colShuttleMapping); let j = index;" >
- 
-       <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
-         </span>
- 
-       <span class="warp_clone"
-       (click)="cloneCol(j,weave?.colToShuttle(j), weave?.colToSystem(j));">
-         <i class="fa fa-clone"></i>
-       </span>
- 
- 
-       <span class="warp_insert" 
-       (click)="insertCol(j + 1, weave?.colToShuttle(j),weave?.colToSystem(j));">
-       <i class="fa fa-plus-circle"></i></span>
-       
-       <span  class="warp_number"
-        [style.visibility]="(j % render?.getTextInterval() == 0)  ? 'visible' : 'hidden'">{{j}}</span>
- 
- 
-     </div>
-    </div>  
- 
+  
  
  
    

@@ -47,7 +47,7 @@ import { FileService } from './provider/file.service';
 import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { PatternsComponent } from './tool/patterns/patterns.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
-
+import { SelectionComponent } from './draftviewer/selection/selection.component';
 
 @NgModule({
   imports: [
@@ -96,7 +96,8 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
     AboutModal,
     MaterialModal,
     PatternsComponent,
-    DraftviewerComponent
+    DraftviewerComponent,
+    SelectionComponent
    ],
 
   providers: [
@@ -145,7 +146,8 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
     InitModal,
     AboutModal,
     MaterialModal,
-    DraftviewerComponent],
+    DraftviewerComponent,
+    SelectionComponent],
   
     entryComponents: [
       InitModal,

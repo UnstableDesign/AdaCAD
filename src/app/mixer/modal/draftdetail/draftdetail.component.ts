@@ -147,9 +147,9 @@ ink: String; //the name of the selected ink.
   private onWindowScroll(data: CdkScrollable) {
     const scrollTop = data.measureScrollOffset("top");
     const scrollLeft = data.measureScrollOffset("left");
-    console.log("on rescale",scrollTop, scrollLeft);
+    console.log("on repositiion",scrollTop, scrollLeft);
 
-    this.dv.rescale(scrollTop, scrollLeft);
+    this.dv.reposition(scrollTop, scrollLeft);
   }
 
   /**
