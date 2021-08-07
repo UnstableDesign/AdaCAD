@@ -48,6 +48,7 @@ import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { PatternsComponent } from './tool/patterns/patterns.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
+import { QuicktoolsComponent } from './tool/quicktools/quicktools.component';
 
 @NgModule({
   imports: [
@@ -97,7 +98,8 @@ import { SelectionComponent } from './draftviewer/selection/selection.component'
     MaterialModal,
     PatternsComponent,
     DraftviewerComponent,
-    SelectionComponent
+    SelectionComponent,
+    QuicktoolsComponent
    ],
 
   providers: [
@@ -147,7 +149,8 @@ import { SelectionComponent } from './draftviewer/selection/selection.component'
     AboutModal,
     MaterialModal,
     DraftviewerComponent,
-    SelectionComponent],
+    SelectionComponent,
+    QuicktoolsComponent],
   
     entryComponents: [
       InitModal,

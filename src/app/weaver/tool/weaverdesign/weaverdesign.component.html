@@ -1,5 +1,5 @@
 
-<mat-expansion-panel  [hideToggle] = "collapsed">
+<!-- <mat-expansion-panel  [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
     <mat-panel-title>
      <span>Design</span>
@@ -8,7 +8,7 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
 
-
+ -->
 
 
 <!--  <div class="select_slider">
@@ -21,7 +21,7 @@
   </div> -->
 
 <button 
-      mat-stroked-button
+      mat-icon-button
       matTooltip= "Select Region"
       [class.is-active]="selected_mode === 'select'"
       (click)="select()">
@@ -30,7 +30,7 @@
 
 
 <button 
-      mat-stroked-button
+      mat-icon-button
       matTooltip= "Edit Draft Cells"
       [matMenuTriggerFor]="inks"
       [class.is-active]="selected_mode === 'draw'">
@@ -54,7 +54,7 @@
 
 
 <button 
-      mat-stroked-button
+      mat-icon-button
       matTooltip= "Edit Draft Materials"
       [matMenuTriggerFor]="set_materials"
       [class.is-active]="selected_mode === 'material'"
@@ -209,7 +209,7 @@
     </button>
  -->
 
-        <app-weaverpatterns 
+        <!-- <app-weaverpatterns 
           [patterns]="patterns"
           [selection] = "selection"
           (onPatternChange)="updatePatterns($event);"
@@ -217,11 +217,11 @@
           (onRemovePattern)="removePattern($event);"
           (onFill) = "fillEvent($event)">
           >
-        </app-weaverpatterns>
+        </app-weaverpatterns> -->
 
 
-
+<!-- 
 </mat-expansion-panel>
-
+ -->
 
 

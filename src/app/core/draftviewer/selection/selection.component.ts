@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Interlacement } from '../../model/datatypes';
 import { Render } from '../../model/render';
 import { Loom } from '../../model/loom';
+import { isBuffer } from 'lodash';
 
 @Component({
   selector: 'app-selection',
@@ -12,6 +13,7 @@ export class SelectionComponent implements OnInit {
 
   @Input('render') render:Render;
   @Input('loom') loom:Loom;
+  @Input('design_actions')  design_actions;
 
 
   private start: Interlacement;
@@ -81,20 +83,21 @@ export class SelectionComponent implements OnInit {
     
     this.target = target;
     this.start = start;
+    this.hide_parent = false;
 
     switch(target.id){
       
       case 'treadling':    
-        this.start.i = 0;
-        this.start.si = 0;
-        this.height = this.loom.num_treadles;
-        this.force_height = true;
+        this.start.j = 0;
+        this.width = this.loom.num_treadles;
+        this.force_width = true;
       break;
 
       case 'threading':
-        this.start.j = 0;
-        this.width = this.loom.num_frames;
-        this.force_width = true;
+        this.start.i = 0;
+        this.start.si = 0;
+        this.height = this.loom.num_frames;
+        this.force_height = true;
       break;
 
       case 'weft-systems':
@@ -224,6 +227,7 @@ export class SelectionComponent implements OnInit {
 
   recalculateSize(){
 
+
     if(!this.force_width) this.width = Math.abs(this.end.j - this.start.j);
     if(!this.force_height) this.height = Math.abs(this.end.i - this.start.i);
   
@@ -234,91 +238,18 @@ export class SelectionComponent implements OnInit {
   }
 
 
-  hide(){
-    //this.hide_selection = true;
-    this.parent.style.display = "none";
-
-  //  this.selectionEl.style.display = "none";
-
-    // d3.select(this.svgEl).style('display', 'none');
-    // d3.select(this.parent).style('display', 'none');
-
-  }
-
-  show(dims: {w:number, h:number}){
-    
-    //this.hide_selection = false;
-   
-    // var x = dims.w / 4;
-    // var y = dims.h;
-    // var anchor = 'start';
-
-    // //styling for the text
-    // if (this.start.j < this.end.j) {
-    //     x = this.width*dims.w ;
-    //     anchor = 'end';
-    //  }
-
-    //  if (this.start.i < this.end.i) {
-    //    y = this.height*dims.h;
-    //  }
-
-
-    // var fs = this.render.zoom * .18;
-    // var fw = this.render.zoom * 9;
-
-    
-    // this.svgEl.style.transformOrigin = '0 0';
-
-    // d3.select(this.parent)
-    // .style('display', 'initial')
-    // .attr('x', x)
-    // .attr('y', y);
-
-    // d3.select(this.svgEl)
-    //       .style('display', 'initial')
-    //       .style('width', (this.width) * dims.w)
-    //       .style('height', (this.height) * dims.h)
-
-    //       d3.select(this.svgEl)
-    //       .select('text')
-    //       .attr('fill', '#424242')
-    //       .attr('font-weight', 900)
-    //       .attr('font-size', fs)
-    //       .attr('stroke', 'white')
-    //       .attr('stroke-width', 1)
-    //       .attr('text-anchor', anchor)
-    //       .attr('x', x)
-    //       .attr('y', y)
-    //       .text(this.width +' x '+ this.height);
-  }
-
-  scale(scale:number, top: number, left:number){
-    //this.svgEl.style.transform = 'scale(' + scale + ') translate('+left+'px,'+top+'px)';
-  }
-
-
-  // setParameters() {
-  //   this.width = Math.abs(this.start.j - this.end.j);
-  //   this.height = Math.abs(this.start.si - this.end.si);
-
-  //   if(this.target.id == "weft-systems" || this.target.id == "weft-materials"){
-  //     this.width = 1;
-  //   }else if(this.target.id == "warp-systems" || this.target.id == "warp-materials"){
-  //     this.height = 1;
-  //   }
-  // }
-
 
   unsetParameters() {
     this.width = -1;
     this.height = -1;
     this.force_width = false;
     this.force_height = false;
+    this.hide_parent = true;
+    this.hide_options = true;
   }
 
   hasSelection(){
-    return (this.width >= 0 && this.height >= 0);
+    return (this.width > 0 && this.height > 0);
   }
 
   getTop(){
@@ -346,6 +277,32 @@ export class SelectionComponent implements OnInit {
 
   redraw(){
 
+    if(this.hasSelection()){
+
+      this.hide_parent = false;
+      let top_ndx = Math.min(this.start.si, this.end.si);
+      let left_ndx = Math.min(this.start.j, this.end.j);
+
+
+      let in_div_top:number = top_ndx * 10;
+      let in_div_left:number = left_ndx * 10;
+
+      let abs_top = this.target.offsetTop;
+      let abs_left = this.target.offsetLeft;
+
+      if(this.target.id == 'drawdown'){
+        abs_top+=10;
+        abs_left+=10;
+      } 
+
+
+      this.parent.style.top = abs_top+in_div_top+"px";
+      this.parent.style.left = abs_left+in_div_left+"px";
+    }else{
+      this.hide_parent = true;
+    }
+
+    
   }
 
 }

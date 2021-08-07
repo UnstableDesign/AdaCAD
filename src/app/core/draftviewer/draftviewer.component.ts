@@ -23,6 +23,8 @@ export class DraftviewerComponent implements OnInit {
   @ViewChild('bitmapImage', {static: false}) bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
 
+  @Input('design_actions')  design_actions;
+
 
   /**
    * a descriptor of the parent who generated this window
@@ -278,7 +280,6 @@ export class DraftviewerComponent implements OnInit {
     this.cxWeftMaterials = this.weftMaterialsCanvas.getContext('2d');
     // set the width and height
 
-    this.selection.hide();
     this.rescale(this.render.getZoom());
 
   }
@@ -308,13 +309,11 @@ export class DraftviewerComponent implements OnInit {
     this.warpMaterialsCanvas.width =  this.weave.warps * dims.w;
     this.warpMaterialsCanvas.height = dims.h;
 
-    this.selection.hide();
 
   }
 
   clearSelection(){
         this.selection.unsetParameters();
-        this.selection.hide();
         // d3.select(this.svgSelectCol).style('display', 'none');
         // d3.select(this.svgSelectRow).style('display', 'none');
   }
@@ -1971,206 +1970,7 @@ public drawWeftEnd(top, left, shuttle){
     container.style.transformOrigin = 'top center';
     container.style.transform = 'scale(' + zoom + ')';
 
-    // let dims ={
-    //   w: this.warpSystemsCanvas.width / this.weave.warps,
-    //   h: this.weftSystemsCanvas.height / this.render.visibleRows.length
-    // }
-
-
-    // if(scroll_left == -1) scroll_left = this.draftContainer.offsetParent.scrollLeft;
-    // if(scroll_top == -1)  scroll_top = this.draftContainer.offsetParent.scrollTop;
-    // let draft_width = this.draftContainer.offsetWidth;
-
-
-  //   let top = 0;
-  //   let left = 0;
-
-
-  //  // var scaleToFit = Math.min(scaleX, scaleY);
-  //   var scaleToFit = this.render.getZoom() /50;
-  // //  var scaleToCover = Math.max(scaleX, scaleY);
-
-
-  //   if(!this.render.view_frames){
-
-  //       this.threadingCanvas.height = 0;
-  //       this.threadingCanvas.width = 0;
-
-  //       this.treadlingCanvas.height = 0;
-  //       this.treadlingCanvas.width = 0;
-
-  //       this.tieupsCanvas.height = 0;
-  //       this.tieupsCanvas.width = 0;
-
-  //   }
-
-    
-  //   if(this.selection.hasSelection()){
-  //     this.selection.show(dims);
-  //   }
-
-
-  //   //render threading
-  //   let threading_top = dims.h*10;
-
-  //   top = threading_top;
-  //   left= dims.w;
-
-  //   this.threadingCanvas.style.transformOrigin = '0 0';
-  //   this.threadingCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
- 
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'threading'){
-      
-  //      top += this.selection.getTop()*dims.h;
-  //      left += this.selection.getLeft()*dims.w;
-  //      this.selection.scale(scaleToFit, top, left);
-  //     } 
-
-  //   //render drawdown
-  //   let drawdown_top = threading_top + this.threadingCanvas.height + dims.h;
-
-  //   top = drawdown_top;
-  //   left= 0;
-
-  //   this.canvasEl.style.transformOrigin = '0 0'; //scale from top left
-  //   this.canvasEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
-  //   if(this.render.isFront()) this.canvasEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-  //   else  this.canvasEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px) scale(-1, 1) translateX(-'+this.canvasEl.width+'px)';
-
-
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'drawdown'){
-      
-  //      top += (this.selection.getTop()+1)*dims.h;
-  //      left += ((this.selection.getLeft()+1)*dims.w);
-       
-  //     this.selection.scale(scaleToFit, top, left);
-
-  //   } 
-
-  //   //render treadling
-  //   top = drawdown_top + dims.h;
-  //   left= this.canvasEl.width+dims.w;
-
-  //   this.treadlingCanvas.style.transformOrigin = '0 0';
-  //   this.treadlingCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'treadling'){
-        
-  //       top += (this.selection.getTop())*dims.h;
-  //       left += this.selection.getLeft()*dims.w;
-  //       this.selection.scale(scaleToFit, top, left);
-  //     } 
-
-  //   //render tieups
-  //   top = threading_top;
-  //   left= this.canvasEl.width+dims.w;
-
-  //   this.tieupsCanvas.style.transformOrigin = '0 0';
-  //   this.tieupsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px, '+top+'px)';
-
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'tieups'){
-        
-  //       top +=  this.selection.getTop()*dims.h;
-  //       left += this.selection.getLeft()*dims.w;
-  //       this.selection.scale(scaleToFit, top, left);
-  //     }
-
-  //   //render view frames button
-  //   top = threading_top - dims.h*2;
-  //   left= this.canvasEl.width+this.treadlingCanvas.width+dims.w*3;
-
-  //   this.divViewFrames.style.transformOrigin = '0 0';
-  //   this.divViewFrames.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px, '+top+'px)';
-
-
-
-  //   //render weft systems
-  //   // top = (this.threadingCanvas.height+dims.h*2);
-  //   // left= this.canvasEl.width+this.treadlingCanvas.width+dims.w*2;
-
-  //   top = drawdown_top+dims.h;
-  //   left = scroll_left+draft_width-(dims.w*7);
-  //   left /= scaleToFit;
-  //   left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3));
-
-
-  //   this.weftSystemsCanvas.style.transformOrigin = '0 0';
-  //   this.weftSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    
-  //   left += dims.w;
-  //   this.divWesy.style.transformOrigin = '0 0';
-  //   this.divWesy.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-systems'){
-        
-  //       top +=  this.selection.getTop()*dims.h;
-  //       left += (this.selection.getLeft()-1)*dims.w;
-  //       this.selection.scale(scaleToFit, top, left);
-  //     } 
-
-
-
-  //   //render weft materials
-  //    top = drawdown_top+dims.h;
-  //   // left= (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3);
-    
-  //   left = scroll_left+draft_width-(dims.w*8);
-  //   left /= scaleToFit;
-
-  //   left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*2));
-
-  //   this.weftMaterialsCanvas.style.transformOrigin = '0 0';
-  //   this.weftMaterialsCanvas.style.transform =  'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-materials'){
-        
-  //       top +=  this.selection.getTop()*dims.h;
-  //       left += this.selection.getLeft()*dims.w;
-  //       this.selection.scale(scaleToFit, top, left);
-  //     }
-
-
-
-  //   top = scroll_top+dims.h*8;
-  //   top /= scaleToFit;
-  //   top = Math.max(top, (threading_top-dims.h*2));
-
-  // //render warp materials
-  //  // top = (-dims.h*3);
-  //   left= dims.w;
-
-  //   this.warpMaterialsCanvas.style.transformOrigin = '0 0';
-  //   this.warpMaterialsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
- 
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-materials'){
-          
-  //         top +=  this.selection.getTop()*dims.h;
-  //         left += this.selection.getLeft()*dims.w;
-  //         this.selection.scale(scaleToFit, top, left);
-  //       }
-
-
-
-
-
-  //   //render warp systems
-  //   top = scroll_top+dims.h;
-  //   top /= scaleToFit;
-  //   left= dims.w;
-
-  //   this.divWasy.style.transformOrigin = '0 0';
-  //   this.divWasy.style.transform = 'scale(' + scaleToFit + ') translate('+(left)+'px,'+top+'px)';
-     
-  //   this.warpSystemsCanvas.style.transformOrigin = '0 0';
-  //   this.warpSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+(top+6*dims.h)+'px)';
    
-
-  //   if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-systems'){
-  //         top +=  (this.selection.getTop()+6)*dims.h;
-  //         left += this.selection.getLeft()*dims.w;
-  //         this.selection.scale(scaleToFit, top, left);
-  //   }
    }
 
 
@@ -2328,7 +2128,6 @@ public drawWeftEnd(top, left, shuttle){
 
   public unsetSelection(){
     this.selection.unsetParameters();
-    this.selection.hide();
   }
 
 public drawDrawdown(){

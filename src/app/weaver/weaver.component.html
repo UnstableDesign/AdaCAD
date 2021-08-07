@@ -20,9 +20,35 @@
 
       <div class ="design-container">
        
+
+        <!-- <app-quicktools></app-quicktools> -->
+
+
+
         <mat-accordion multi>
 
       
+          <app-weaverdesign
+          [design_mode]="design_mode"
+          [design_modes]="design_modes"
+          [design_actions]="design_actions"
+          [view_mode] = "render?.current_view"
+          [materials]="draft?.shuttles"
+          [patterns]="patterns"
+          [selection] = "copy"
+          (onDesignModeChange)="onDesignModeChange($event)" 
+          (onFill)="onFill($event)" 
+          (onCopy)="onCopy();"
+          (onClear)="onClear($event);" 
+          (onPaste)="onPaste($event);"
+          (onPatternChange)="updatePatterns($event);"
+          (onCreatePattern)="createPattern($event);"
+          (onRemovePattern)="removePattern($event);"
+          (onChange) = "onChange($event);"
+        
+          >
+          </app-weaverdesign> 
+
 
         <app-weaverview 
           [weft_systems] = "draft?.weft_systems"
@@ -44,26 +70,7 @@
         </app-weaverview>
 
 
-        <app-weaverdesign
-        [design_mode]="design_mode"
-        [design_modes]="design_modes"
-        [design_actions]="design_actions"
-        [view_mode] = "render?.current_view"
-        [materials]="draft?.shuttles"
-        [patterns]="patterns"
-        [selection] = "copy"
-        (onDesignModeChange)="onDesignModeChange($event)" 
-        (onFill)="onFill($event)" 
-        (onCopy)="onCopy();"
-        (onClear)="onClear($event);" 
-        (onPaste)="onPaste($event);"
-        (onPatternChange)="updatePatterns($event);"
-        (onCreatePattern)="createPattern($event);"
-        (onRemovePattern)="removePattern($event);"
-        (onChange) = "onChange($event);"
-      
-        >
-        </app-weaverdesign> 
+       
 
         <app-materials 
           [material_types]="material_types"
@@ -132,9 +139,15 @@
       </app-schematic> 
 
 
+
+
     </mat-accordion>
+    <a mat-icon-button matTooltip="help" href="https://adacad.unstable.design" target='_blank'><i class="fas fa-question"></i></a>
+    <a mat-icon-button matTooltip="switch to adacad mixer" href="https://adacad-weaver.firebaseapp.com/mixer" target='_blank'><i class="fas fa-sliders-h"></i>
+    </a>
 
     </div>
+
 
   </mat-drawer>
 
@@ -143,6 +156,7 @@
     source = "weaver"
     [render]="render" 
     [(design_mode)]="design_mode" 
+    [design_actions]="design_actions"
     [(copy)]="copy" 
     [timeline]="timeline" 
     [draft]="draft" 

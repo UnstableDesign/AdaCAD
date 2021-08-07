@@ -1,13 +1,18 @@
- <mat-expansion-panel  expanded [hideToggle] = "collapsed">
+ <!-- <mat-expansion-panel  expanded [hideToggle] = "collapsed">
   <mat-expansion-panel-header>
-    <mat-panel-title>
-     <span>View</span>
-    </mat-panel-title>
-    <mat-panel-description>
-    </mat-panel-description>
-  </mat-expansion-panel-header>
+   
+     <span>View Options</span>
+     <div class="main-options">
+       Zoom: 
+      
+    </div>
  
-  <div class="view_slider">
+  </mat-expansion-panel-header> -->
+
+  <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+  <button mat-icon-button><i class="fas fa-search-minus"></i></button>
+ 
+  <!-- <div class="view_slider">
     <span>Zoom</span>
     <mat-slider 
     [displayWith]="formatLabel" 
@@ -17,7 +22,7 @@
     max="2" 
     value="{{zoom}}" 
     (change)="zoomChange($event, 'slider')"></mat-slider>
-</div>
+</div> -->
 
       <!-- <mat-button-toggle-group value = "{{view}}"(change)="viewChange($event)" name="fontStyle" aria-label="Font Style">
 
@@ -32,21 +37,22 @@
 
    
       <div class="view_slider">
+        View Yarn Simulation
+
         <mat-slide-toggle
             [checked]="view !== 'pattern'"
             (change)="viewChange($event)">
         </mat-slide-toggle>
-        View Yarn Simulation
       </div>
 
 
 
       <div class="view_slider">
+        View Fabric Back
         <mat-slide-toggle
             [checked]="!front"
             (change)="front = !front; viewFront($event, front, 'front')">
         </mat-slide-toggle>
-        View Fabric Back
       </div>
 
       <div class="system-viz">
@@ -140,4 +146,4 @@
          </button>  
 
   </ng-container> -->
-</mat-expansion-panel>
+<!-- </mat-expansion-panel> -->

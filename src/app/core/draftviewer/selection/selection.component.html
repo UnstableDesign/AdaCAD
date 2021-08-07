@@ -1,28 +1,52 @@
 <div id="selection-container" 
-[style.display]="(hide_parent)? 'none' : 'block'"
-[style.top.px]="top"
-[style.left.px]="left">
+[style.display]="(hide_parent)? 'none' : 'flex'"
+>
 
 
 <!-- <svg #mySelection class="selection" id="selection">
     <text x="5" y="5" text-anchor="start"></text>
 </svg> -->
 
-<div 
-id="selection" 
-class="selection"
-[style.width.px]='screen_width'
-[style.height.px] = 'screen_height'
-[style.display]="(hide_selection)? 'none' : 'block'">
-    <span>{{width}} x {{height]} </span>
+<div class="selection-row">
+
+    <div 
+    id="selection" 
+    class="selection"
+    [style.width.px]='screen_width'
+    [style.height.px] = 'screen_height'
+    [style.display]="(hide_selection)? 'none' : 'block'">
+    </div>
+
+
+    <div id="selection-actions" class="selection-actions" [style.display]="(hide_options)? 'none' : 'flex'">
+        <button mat-icon-button
+        matTooltip="edit design in this region"
+        [matMenuTriggerFor]="actions"
+        ><i class="fas fa-magic"></i></button>
+
+
+        <mat-menu #actions="matMenu">
+        <ng-container *ngFor="let action of design_actions">
+        <button class="menu-button" 
+        mat-menu-item 
+        (click)="designActionChange(action.value)">
+        <span class="{{action.icon}}"></span>
+        <span>{{action.viewValue}}</span>
+        </button>
+
+        </ng-container>
+        </mat-menu>
+
+
+        <button mat-icon-button  matTooltip="fill with pattern"><i class="fas fa-fill-drip"></i></button>
+        <button mat-icon-button  matTooltip="copy this region"><i class="fas fa-clipboard"></i></button>
+        <button mat-icon-button  matTooltip="paste into this region"><i class="fas fa-paste"></i></button>
+
+    </div>
 </div>
 
-
-<div id="selection-actions" class="selection-actions">
-    <button>modify</button>
-    <button>fill</button>
-    <button>copy</button>
-    <button>paste</button>
+<div class="selection-row">
+    <span>{{width}} x {{height}} </span>
 
 </div>
 
