@@ -71,7 +71,15 @@
         <span>{{shuttle.name }}</span>
       </button>
 
+
    </ng-container>
+
+   <button class="menu-button" 
+   mat-menu-item 
+   (click)="openMaterialEditor()">
+     <span class="fa fa-plus"></span>
+     <span>Add / Edit Materials</span>
+   </button>
   </mat-menu>
 
 
@@ -157,20 +165,6 @@
     </button>
  -->
  
-
-<!--   <button  matTooltip="select a region of the draft (shortcut: s)" 
-  name="select" 
-  class="button is-small is-primary fa fa-hand-pointer" [class.is-active]="brush === 'select'" 
-  (click)="brushChange($event)">
-  </button> -->
-
-
-<!--  <button matTooltip="clear all valules in selected region (shortcut: delete)" 
- name="clear" 
- [disabled] = "brush !=='select'" 
- class="button is-primary is-small fa fa-times" 
- (click)="clearEvent($event);"> 
- </button> -->
 
 
 

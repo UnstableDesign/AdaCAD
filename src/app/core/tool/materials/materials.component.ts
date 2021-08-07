@@ -12,7 +12,7 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 export class MaterialsComponent implements OnInit {
 
 
-  @Input() shuttles: any;
+  @Input() draft: any;
   @Input() material_types: any;
   @Output() onColorChange: any = new EventEmitter();
   @Output() onThicknessChange: any = new EventEmitter();
@@ -25,38 +25,42 @@ export class MaterialsComponent implements OnInit {
   ngOnInit() {
   }
 
-  openDialog(shuttle) {
-
-
-    var create = false;
-
-    if (!shuttle) {
-      shuttle = new Shuttle();
-      create = true;
-    }
-
-    const dialogRef = this.dialog.open(MaterialModal, 
-      {data: {shuttle: shuttle, material_types:this.material_types}, width: '650px' });
-
-    dialogRef.afterClosed().subscribe(result => {
-
-    	console.log(result);
-        if (!create) {
-          this.shuttles[result.id] = result;
-          this.onColorChange.emit();
-        } else {
-          this.onCreateShuttle.emit({shuttle: result});
-        }
-    });
+  openMaterialsModal(){
+    this.dialog.open(MaterialModal, {data: {draft: this.draft, material_types: this.material_types }});
   }
 
-  thicknessChange(id:number, thickness:number) {
-  	this.shuttles[id].setThickness(thickness);
-    this.onThicknessChange.emit();
-  }
+  // openDialog(shuttle) {
 
-  colorChange(e) {
-    this.onColorChange.emit();
-  }
+
+  //   var create = false;
+
+  //   if (!shuttle) {
+  //     shuttle = new Shuttle();
+  //     create = true;
+  //   }
+
+  //   const dialogRef = this.dialog.open(MaterialModal, 
+  //     {data: {shuttle: shuttle, material_types:this.material_types}, width: '650px' });
+
+  //   dialogRef.afterClosed().subscribe(result => {
+
+  //   	console.log(result);
+  //       if (!create) {
+  //         this.shuttles[result.id] = result;
+  //         this.onColorChange.emit();
+  //       } else {
+  //         this.onCreateShuttle.emit({shuttle: result});
+  //       }
+  //   });
+  // }
+
+  // thicknessChange(id:number, thickness:number) {
+  // 	this.shuttles[id].setThickness(thickness);
+  //   this.onThicknessChange.emit();
+  // }
+
+  // colorChange(e) {
+  //   this.onColorChange.emit();
+  // }
 
 }

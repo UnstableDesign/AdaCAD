@@ -83,6 +83,6 @@ import { LabelModal } from './modal/label/label.modal';
     WeaverViewComponent
     ],
   entryComponents: [
-    ConnectionModal  ],
+    ConnectionModal],
 })
 export class WeaverModule { }

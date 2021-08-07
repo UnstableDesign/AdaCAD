@@ -2,6 +2,9 @@ import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@a
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { NgForm } from '@angular/forms';
 import * as _ from 'lodash';
+import { WeaverPatternsComponent } from '../weaverpatterns/weaverpatterns.component';
+import { MaterialModal } from '../../../core/modal/material/material.modal';
+import { Shuttle } from '../../../core/model/shuttle';
 
 
 
@@ -13,12 +16,13 @@ import * as _ from 'lodash';
 
 
 export class WeaverDesignComponent implements OnInit {
+  @Input()  draft;
+  @Input()  material_types;
   @Input()  collapsed;
   @Input()  design_mode;
   @Input()  design_modes;
   @Input()  design_actions;
   @Input()  view_mode;
-  @Input()  materials;
   @Input()  patterns;
   @Input()  selection;
   @Output() onDesignModeChange: any = new EventEmitter();
@@ -33,11 +37,14 @@ export class WeaverDesignComponent implements OnInit {
   selected_mode:string;
   selected = 0;
 
+  materials: Array<Shuttle>;
+
   constructor(private dialog: MatDialog) { 
   }
 
   ngOnInit() {
     this.selected_mode = this.design_modes.name;
+    this.materials = this.draft.shuttles;
 
   }
 
@@ -144,7 +151,10 @@ export class WeaverDesignComponent implements OnInit {
   createPattern(obj){
     this.onCreatePattern.emit(obj);
   }
-
+  
+  openMaterialEditor(){
+    this.dialog.open(MaterialModal, {data: {draft: this.draft, material_types: this.material_types }});
+  }
 
 
 

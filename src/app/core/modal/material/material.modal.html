@@ -1,9 +1,16 @@
-<h2 mat-dialog-title>Add/Edit Material</h2>
+<h2 mat-dialog-title>Add/Edit Materials</h2>
 <mat-dialog-content>
 
-
+<ng-container *ngFor="let shuttle of shuttles">
 
   <form #materialForm="ngForm">
+
+    <mat-form-field class="is-fullwidth">
+      <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
+       [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
+    </mat-form-field>
+
+
     <mat-form-field class="is-fullwidth">
       <input matInput placeholder="Material Name" name="name" [(ngModel)]="shuttle.name">
     </mat-form-field>
@@ -28,10 +35,7 @@
         <span>&nbsp;&nbsp;%</span>
       </mat-form-field>
 
-      <mat-form-field class="form-field">
-        <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
-         [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
-      </mat-form-field>
+     
     </div>
 
     <div class="is-fullwidth">
@@ -52,7 +56,7 @@
 
   </form>
 
-
+</ng-container>
 
 </mat-dialog-content>
 <mat-dialog-actions>

@@ -29,11 +29,12 @@
 
       
           <app-weaverdesign
+          [draft]="draft"
+          [material_types]="material_types"
           [design_mode]="design_mode"
           [design_modes]="design_modes"
           [design_actions]="design_actions"
           [view_mode] = "render?.current_view"
-          [materials]="draft?.shuttles"
           [patterns]="patterns"
           [selection] = "copy"
           (onDesignModeChange)="onDesignModeChange($event)" 
@@ -73,8 +74,8 @@
        
 
         <app-materials 
+          [draft]="draft"
           [material_types]="material_types"
-          [shuttles]="draft?.shuttles"
           (onColorChange)="shuttleColorChange()" 
           (onThicknessChange) ="thicknessChange($event)"
           (onCreateShuttle) ="createShuttle($event)"

@@ -3,6 +3,8 @@ import { Interlacement } from '../../model/datatypes';
 import { Render } from '../../model/render';
 import { Loom } from '../../model/loom';
 import { isBuffer } from 'lodash';
+import { Pattern } from '../../model/pattern';
+import { PatternService } from '../../provider/pattern.service';
 
 @Component({
   selector: 'app-selection',
@@ -15,6 +17,7 @@ export class SelectionComponent implements OnInit {
   @Input('loom') loom:Loom;
   @Input('design_actions')  design_actions;
 
+  private patterns: Array<Pattern>;
 
   private start: Interlacement;
   private end: Interlacement;
@@ -45,7 +48,7 @@ export class SelectionComponent implements OnInit {
 
 
 
-  constructor() { 
+  constructor(private ps:PatternService) { 
     this.hide_options = true;
     this.hide_parent = true;
     this.force_height = false;
@@ -58,6 +61,15 @@ export class SelectionComponent implements OnInit {
 
     this.screen_height = 0;
     this.screen_width = 0;
+   
+    this.patterns = [];
+    this.ps.getPatterns().subscribe((res) => {
+      for(var i in res.body){
+        const np:Pattern = new Pattern(res.body[i]);
+        if(np.id == -1) np.id = this.patterns.length;
+        this.patterns.push(np);
+      }
+   }); 
   }
 
   ngOnInit() {
