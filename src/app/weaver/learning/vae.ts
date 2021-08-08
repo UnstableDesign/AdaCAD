@@ -1,5 +1,30 @@
-import { HttpClient } from '@angular/common/http';
 import * as tf from '@tensorflow/tfjs'
+
+class lambdaLayer extends tf.layers.Layer {
+    private shape;
+    private latent_dim;
+    constructor(shape, latent_dim) {
+        super();
+        this.shape = shape;
+        this.latent_dim = latent_dim;
+    }
+
+    call(inputs) {
+        let z_mean = inputs[0];
+        let z_log_var = inputs[1];
+        let epsilon = tf.randomNormal([this.shape[0], this.latent_dim], 0., 1.);
+
+        let toRet = z_mean + tf.matMul(tf.exp(z_log_var), epsilon);
+        return toRet;
+    }
+
+    getConfig() {
+        let config = super.getConfig();
+        config['shape'] = this.shape;
+        config['latent_dim'] = this.latent_dim;
+        return config;
+    }
+}
 
 export class VAE {
     private epsilons: any = [];
@@ -9,25 +34,19 @@ export class VAE {
     private decoder;
     private encoder_log_var;
     private encoder_mean;
+    private lambda;
     
     
-    constructor(/*private http: HttpClient*/) {
-        // console.log('http:', http);
-        // this.loadModels();
+    constructor() {
+        this.loadModels();
     }
 
     async loadModels() {
-        // const toRet = this.http.get('assets/decoder/model.json', {observe: 'response'});
-        // console.log('toRet', toRet);
-        // return toRet;
-        // const handlerVAE = tfn.io.fileSystem("./assets/vae/model.json");
 
-        // this.vae = await tf.loadLayersModel(handlerVAE);
-        // this.vae = await tf.loadLayersModel('./assets/vae/models.json'); // if merged to master, change this to the hosted address
-        // this.decoder = await tf.loadLayersModel('./assets/decoder/models.json');
-        // this.encoder_log_var = await tf.loadLayersModel('./assets/encoder_log_var/models.json');
-        // this.encoder_mean = await tf.loadLayersModel('./assets/encoder_mean/models.json');
-        // console.log('ML models loaded');
+        this.decoder = await tf.loadLayersModel('../../../assets/decoder/model.json');
+        this.encoder_log_var = await tf.loadLayersModel('../../../assets/encoder_log_var/model.json');
+        this.encoder_mean = await tf.loadLayersModel('../../../assets/encoder_mean/model.json');
+        console.log('ML models loaded');
     }
 
     generateFromSeed(draft) {
