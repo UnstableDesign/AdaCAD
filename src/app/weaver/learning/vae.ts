@@ -1,6 +1,7 @@
 import { R, Z } from '@angular/cdk/keycodes';
 import * as tf from '@tensorflow/tfjs'
-import { abs, math, norm } from '@tensorflow/tfjs';
+import { abs, norm } from '@tensorflow/tfjs';
+import { std, mean } from 'mathjs'
 
 export class VAE {
     private epsilons: any = [];
@@ -23,6 +24,24 @@ export class VAE {
         this.encoder_log_var = await tf.loadLayersModel('../../../assets/encoder_log_var/model.json');
         this.encoder_mean = await tf.loadLayersModel('../../../assets/encoder_mean/model.json');
         console.log('ML models loaded');
+    }
+
+    cleanDraft(draft) {
+        let std_dev = std(draft);
+        let mean_val = mean(draft);
+        var thresholded_draft = JSON.parse(JSON.stringify(draft)); //making deep copy of the draft
+        
+        for (var weft = 0; weft < draft.length; weft++) {
+            for (var warp = 0; warp < draft[weft].length; warp++) {
+                if (draft[weft][warp] >= mean_val-0.08*std_dev) {
+                    thresholded_draft[weft][warp] = 1;
+                } else {
+                    thresholded_draft[weft][warp] = 0;
+                }
+            }
+        }
+
+        return thresholded_draft;
     }
 
     generateFromSeed(draft) {
@@ -53,8 +72,24 @@ export class VAE {
         
         var z_sample = tf.add(mean, tf.mul(tf.exp(log_var), epsilon));
         console.log('z_sample:', z_sample);
-        let tile_multiple = [this.batch_size, 1];//tf.tensor([this.batch_size, 1]);
+        let tile_multiple = [this.batch_size, 1];
         let x_decoded = this.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
-        console.log('x_decoded:', x_decoded);
+        var draftSuggestions = [];
+        x_decoded.array().then(array => 
+            {
+                let x_decoded_arr = array;
+                console.log('x_decoded_arr:', x_decoded_arr);                
+                for (var i = 0; i < x_decoded_arr.length; i++) {
+                    var unclean_draft = [];
+                    for (var j = 0; j < x_decoded_arr[i].length; j++) {
+                        unclean_draft.push([]);
+                        for (var k = 0; k < x_decoded_arr[i][j].length; k++) {
+                            unclean_draft[j].push(x_decoded_arr[i][j][k][0]);
+                        }
+                    }
+                    draftSuggestions.push(this.cleanDraft(unclean_draft));
+                }
+                console.log('cleaned Drafts', draftSuggestions);
+            });
     }
 }
