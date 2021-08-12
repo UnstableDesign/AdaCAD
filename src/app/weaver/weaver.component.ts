@@ -548,10 +548,8 @@ export class WeaverComponent implements OnInit {
       let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
       let closestCentroidIdx = this.draftMatcher.matchToClosestCluster(this.centroids, pattern);
       let closestDraftIdx = this.draftMatcher.matchToClosestDraft(this.clusters[closestCentroidIdx]);
-      console.log('closestDraftIdx:', closestDraftIdx);
-      console.log('this.clusters[closestCentroidIdx][closestDraftIdx]', this.clusters[closestCentroidIdx][closestDraftIdx]);
       let closestDraft = this.clusters[closestCentroidIdx][closestDraftIdx];
-      this.vae.generateFromSeed(closestDraft);
+      let suggestions = this.vae.generateFromSeed(closestDraft);
    }
  }
   

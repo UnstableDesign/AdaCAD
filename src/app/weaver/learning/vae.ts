@@ -53,9 +53,7 @@ export class VAE {
             }
         }
         let mean = this.encoder_mean.predict(tf.tensor([newDraft]));
-        console.log('predicted mean:', mean);
         let log_var = this.encoder_log_var.predict(tf.tensor([newDraft]));
-        console.log('predicted log_var:', log_var);
 
         var close = true;
         var epsilon;
@@ -71,14 +69,12 @@ export class VAE {
         this.epsilons.push(epsilon);
         
         var z_sample = tf.add(mean, tf.mul(tf.exp(log_var), epsilon));
-        console.log('z_sample:', z_sample);
         let tile_multiple = [this.batch_size, 1];
         let x_decoded = this.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
         var draftSuggestions = [];
         x_decoded.array().then(array => 
             {
                 let x_decoded_arr = array;
-                console.log('x_decoded_arr:', x_decoded_arr);                
                 for (var i = 0; i < x_decoded_arr.length; i++) {
                     var unclean_draft = [];
                     for (var j = 0; j < x_decoded_arr[i].length; j++) {
@@ -89,7 +85,22 @@ export class VAE {
                     }
                     draftSuggestions.push(this.cleanDraft(unclean_draft));
                 }
-                console.log('cleaned Drafts', draftSuggestions);
+
+                var toDelete = [];
+                for (var i = 0; i < draftSuggestions.length; i++) {
+                    for (var j = i+1; j < draftSuggestions.length; j++) {
+                        if (draftSuggestions[i] == draftSuggestions[j]) {
+                            toDelete.push(j);
+                        }
+                    }
+                }
+
+                for (var i = 0; i < toDelete.length; i++) {
+                    let idx = toDelete.length-1-i;
+                    draftSuggestions.splice(idx, 1);
+                }
+                console.log('draftSuggestions:', draftSuggestions);
+                return draftSuggestions;
             });
     }
 }
