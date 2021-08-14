@@ -1,5 +1,113 @@
 export class PatternFinder {
 
+    public getThreadingFromArr(arr) {
+        var marked_strings: number[][] = [];
+        var marked_strings_frame_tracker: number[] = [];
+        var threading: number[][] = [];
+        for (var i = 0; i < arr.length; i++) {
+            threading.push([]);
+            for (var j = 0; j < arr[i].length; j++) {
+                threading[i].push(0);
+            }
+        }
+        var frame_count: number = 0;
+
+        for (var c = 0; c < arr.length; c++) {
+            if (!marked_strings.includes(arr[c])) {
+                marked_strings.push(arr[c]);
+                marked_strings_frame_tracker.push(frame_count);
+                threading[frame_count][c] = 1;
+                frame_count += 1;
+            } else {
+                for (var s = 0; s < marked_strings.length; s++) {
+                    if (marked_strings[s] == arr[c]) {
+                        threading[marked_strings_frame_tracker[s]][c] = 1;
+                    }
+                }
+            }
+        }
+
+        var max_idx = 0;
+        for (var i = threading.length-1; i >= 0; i--) {
+            if (threading[i].find(elmt => elmt == 1)) {
+                for (var j = 0; j < threading[i].length; j++) {
+                    if (threading[i][j] == 0) {
+                        var allZero: boolean = true;
+                        for (var k = j+1; k < threading[i].length; k++) {
+                            if (threading[i][k] == 1) {
+                                allZero = false;
+                            }
+                        }
+                        if (allZero && max_idx < j) {
+                            max_idx = j;
+                        }
+                    }
+                }
+            } else {
+                threading.splice(i, 1);
+            }
+        }
+
+        for (var i = 0; i < threading.length; i++) {
+            threading[i].splice(max_idx+1, threading[i].length-max_idx+1);
+        }
+        return threading;
+    }
+
+    public getTreadlingFromArr(arr) {
+        var marked_strings: number[][] = [];
+        var marked_strings_col_tracker: number[] = [];
+        var treadling: number[][] = [];
+        for (var i = 0; i < arr.length; i++) {
+            treadling.push([]);
+            for (var j = 0; j < arr[i].length; j++) {
+                treadling[i].push(0);
+            }
+        }
+        var treadle_count: number = 0;
+
+        for (var r = 0; r < arr.length; r++) {
+            if (!marked_strings.includes(arr[r])) {
+                marked_strings.push(arr[r]);
+                marked_strings_col_tracker.push(treadle_count);
+                treadling[r][treadle_count] = 1;
+                treadle_count += 1;
+            } else {
+                for (var s = 0; s < marked_strings.length; s++) {
+                    if (marked_strings[s] == arr[r]) {
+                        treadling[r][marked_strings_col_tracker[s]] = 1;
+                    }
+                }
+            }
+        }
+
+        var max_idx = 0;
+        for (var i = treadling.length-1; i >= 0; i--) {
+            if (treadling[i].find(elmt => elmt == 1)) {
+                for (var j = 0; j < treadling[i].length; j++) {
+                    if (treadling[i][j] == 0) {
+                        var allZero: boolean = true;
+                        for (var k = j+1; k < treadling[i].length; k++) {
+                            if (treadling[i][k] == 1) {
+                                allZero = false;
+                            }
+                        }
+                        if (allZero && max_idx < j) {
+                            max_idx = j;
+                        }
+                    }
+                }
+            } else {
+                treadling.splice(i, 1);
+            }
+        }
+
+        for (var i = 0; i < treadling.length; i++) {
+            treadling[i].splice(max_idx+1, treadling[i].length-max_idx+1);
+        }
+        return treadling;
+    }
+
     private findBasePatternString(subsection: string) {
         var str: string = "";
         var pattern: any = [];

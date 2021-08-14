@@ -44,7 +44,7 @@ export class VAE {
         return thresholded_draft;
     }
 
-    generateFromSeed(draft) {
+    async generateFromSeed(draft) {
         var newDraft = [];
         for (var i = 0; i < draft.length; i++) {
             newDraft.push([]);
@@ -72,7 +72,7 @@ export class VAE {
         let tile_multiple = [this.batch_size, 1];
         let x_decoded = this.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
         var draftSuggestions = [];
-        x_decoded.array().then(array => 
+        await x_decoded.array().then(array => 
             {
                 let x_decoded_arr = array;
                 for (var i = 0; i < x_decoded_arr.length; i++) {
@@ -100,7 +100,8 @@ export class VAE {
                     draftSuggestions.splice(idx, 1);
                 }
                 console.log('draftSuggestions:', draftSuggestions);
-                return draftSuggestions;
             });
+            return draftSuggestions;
+
     }
 }
