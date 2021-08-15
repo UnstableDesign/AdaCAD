@@ -86,12 +86,15 @@ export class VAE {
                     draftSuggestions.push(this.cleanDraft(unclean_draft));
                 }
 
+
                 var toDelete = [];
                 for (var i = 0; i < draftSuggestions.length; i++) {
                     for (var j = i+1; j < draftSuggestions.length; j++) {
-                        if (draftSuggestions[i] == draftSuggestions[j]) {
-                            toDelete.push(j);
-                        }
+                        if (JSON.stringify(draftSuggestions[i]) === JSON.stringify(draftSuggestions[j])) {
+                            if (!toDelete.includes(j)) {
+                                toDelete.push(j);
+                            }
+                        } 
                     }
                 }
 
@@ -99,7 +102,6 @@ export class VAE {
                     let idx = toDelete.length-1-i;
                     draftSuggestions.splice(idx, 1);
                 }
-                console.log('draftSuggestions:', draftSuggestions);
             });
             return draftSuggestions;
 

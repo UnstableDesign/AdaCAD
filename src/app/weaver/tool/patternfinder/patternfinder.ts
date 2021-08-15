@@ -51,7 +51,16 @@ export class PatternFinder {
         for (var i = 0; i < threading.length; i++) {
             threading[i].splice(max_idx+1, threading[i].length-max_idx+1);
         }
-        return threading;
+        var toRetThreading: number[] = [];
+        for (var i = 0; i < threading.length; i++) {
+            for (var j = 0; j < threading[i].length; j++) {
+                if (threading[i][j] == 1) {
+                    toRetThreading.push(j);
+                    break;
+                }
+            }
+        }
+        return toRetThreading;
     }
 
     public getTreadlingFromArr(arr) {
@@ -105,7 +114,16 @@ export class PatternFinder {
         for (var i = 0; i < treadling.length; i++) {
             treadling[i].splice(max_idx+1, treadling[i].length-max_idx+1);
         }
-        return treadling;
+        var toRetTreadling: number[] = [];
+        for (var i = 0; i < treadling.length; i++) {
+            for (var j = 0; j < treadling[i].length; j++) {
+                if (treadling[i][j] == 1) {
+                    toRetTreadling.push(j);
+                    break;
+                }
+            }
+        }
+        return toRetTreadling;
     }
 
     private findBasePatternString(subsection: string) {
@@ -155,6 +173,7 @@ export class PatternFinder {
         var temp: string = "";
         for (var i = 0; i < pattern.length; i++) {
             var currentChar = pattern[i];
+            console.log('currentChar:', currentChar);
             if (currentChar != ",") {
                 temp += currentChar;
                 if (i == pattern.length - 1) {
@@ -204,6 +223,9 @@ export class PatternFinder {
             if (singles[key] == 1) {
                 delete singles[key];
             }
+        }
+        if (Object.keys(singles).length == 0) {
+            return sequence;
         }
 
         var occuranceTable = {};
@@ -349,10 +371,6 @@ export class PatternFinder {
     private findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threading, draft) {
         var treadlingString: string = this.toString(treadling);
         var threadingString: string = this.toString(threading);
-        
-        var treadlingPatternsArr = this.toArray(treadlingPatterns);
-
-        var threadingPatternsArr = this.toArray(threadingPatterns);
 
         var treadlingRanges = [];
         var threadingRanges = [];
@@ -370,7 +388,7 @@ export class PatternFinder {
                 length += 1;
             }
         }
-        treadlingRanges.push([length, treadlingPatternsArr.length]);
+        treadlingRanges.push([length, treadlingPatterns.length]);
 
         let idxThreading = threadingString.indexOf(threadingPatterns);
         var length = -1;
@@ -384,7 +402,7 @@ export class PatternFinder {
                 length += 1;
             }
         }
-        threadingRanges.push([length, threadingPatternsArr.length]);
+        threadingRanges.push([length, threadingPatterns.length]);
 
         var draftPatterns = [];
         for (var i = 0; i < treadlingRanges.length; i++) {
