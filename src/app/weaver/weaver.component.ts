@@ -4,7 +4,6 @@ import {enableProdMode} from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
-import { LoomTypes, MaterialTypes, ViewModes, DensityUnits } from '../core/model/datatypes';
 import { Draft } from '../core/model/draft';
 import { Render } from '../core/model/render';
 import { Pattern } from '../core/model/pattern';
@@ -12,29 +11,14 @@ import { MatDialog } from "@angular/material/dialog";
 import { InitModal } from '../core/modal/init/init.modal';
 import { LabelModal } from './modal/label/label.modal';
 import {Subject} from 'rxjs';
-import { Cell } from '../core/model/cell';
 import { FileService, LoadResponse } from '../core/provider/file.service';
 import { Loom } from '../core/model/loom';
 import * as _ from 'lodash';
-import { DraftdetailComponent } from '../mixer/modal/draftdetail/draftdetail.component';
 import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
-
+import {DesignmodesService} from '../core/provider/designmodes.service'
 
 //disables some angular checking mechanisms
 // enableProdMode();
-
-
-interface DesignModes{
-  value: string;
-  viewValue: string;
-  icon: string;
-}
-
-interface DesignActions{
-  value: string;
-  viewValue: string;
-  icon: string;
-}
 
 
 
@@ -50,38 +34,7 @@ export class WeaverComponent implements OnInit {
    * @property {WeaveDirective}
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
-
-
-
-  design_modes: DesignModes[]=[
-    {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
-    {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
-    {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"},
-    {value: 'unset', viewValue: 'Unset Heddle', icon: "far fa-times"}
-  ];
-
-    //operations you can perform on a selection 
-    design_actions: DesignActions[] = [
-      {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
-      {value: 'up', viewValue: 'Set Region Heddles Up', icon: "fas fa-square"},
-      {value: 'down', viewValue: 'Set Region Heddles Down', icon: "far fa-square"},
-      {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
-      {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
-      {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
-      {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
-      {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
-      {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
-    ];
   
-
-  /**
-   * The name of the current selected brush.
-   * @property {string}
-   */
-  design_mode = {
-    name:'toggle',
-    id: -1
-  }
 
   /**
    * The weave Draft object.
@@ -121,46 +74,16 @@ export class WeaverComponent implements OnInit {
   copy: Pattern;
 
 
- /**
-   * The types of looms this version will support.
-   * @property {LoomType}
-   */
-  loomtypes: LoomTypes[] = [
-    {value: 'frame', viewValue: 'Shaft'},
-    {value: 'jacquard', viewValue: 'Jacquard'}
-  ];
-
-
-  material_types: MaterialTypes[] = [
-    {value: 0, viewValue: 'Non-Conductive'},
-    {value: 1, viewValue: 'Conductive'},
-    {value: 2, viewValue: 'Resistive'}
-  ];
-
-  density_units: DensityUnits[] = [
-    {value: 'in', viewValue: 'Ends per Inch'},
-    {value: 'cm', viewValue: 'Ends per 10cm '}
-  ];
-
-  view_modes: ViewModes[] = [
-      {value: 'visual', viewValue: 'Visual'},
-      {value: 'pattern', viewValue: 'Draft'},
-      {value: 'yarn', viewValue: 'Circuit'}
-     // {value: 'mask', viewValue: 'Masks'}
-
-    ];
-
-
-
-
   selected;
+
+  collapsed: boolean = false;
 
   private unsubscribe$ = new Subject();
 
-  collapsed:boolean = false;
   dims:any;
 
   draftelement:any;
+
   scrollingSubscription: any;
 
   /// ANGULAR FUNCTIONS
@@ -174,6 +97,7 @@ export class WeaverComponent implements OnInit {
     private ps: PatternService, 
     private dialog: MatDialog, 
     private fs: FileService,
+    private dm: DesignmodesService,
     public scroll: ScrollDispatcher) {
 
 
@@ -279,7 +203,7 @@ export class WeaverComponent implements OnInit {
 
   
     const dialogRef = this.dialog.open(InitModal, {
-      data: {loomtypes: this.loomtypes, density_units: this.density_units, source: "weaver"}
+      data: {loomtypes: this.dm.loom_types, density_units: this.dm.density_units, source: "weaver"}
     });
 
 
@@ -388,12 +312,9 @@ export class WeaverComponent implements OnInit {
 
   @HostListener('window:keydown.e', ['$event'])
   private keyEventErase(e) {
-    this.design_mode = {
-      name: 'down',
-      id: -1
-    };
-    this.weaveRef.unsetSelection();
 
+    this.dm.selectDesignMode('down','draw_modes');
+    this.weaveRef.unsetSelection();
   }
 
   /**
@@ -404,9 +325,7 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.d', ['$event'])
   private keyEventPoint(e) {
-    this.design_mode = {
-      name: 'up',
-      id: -1};
+    this.dm.selectDesignMode('up','draw_modes');
     this.weaveRef.unsetSelection();
 
   }
@@ -419,9 +338,7 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.s', ['$event'])
   private keyEventSelect(e) {
-    this.design_mode = {
-      name: 'select',
-      id: -1};
+    this.dm.selectDesignMode('select','design_modes');
     this.weaveRef.unsetSelection();
 
   }
@@ -434,10 +351,8 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.x', ['$event'])
   private keyEventInvert(e) {
-    this.design_mode = {
-      name: 'toggle',
-      id: -1
-    };
+
+    this.dm.selectDesignMode('toggle','draw_modes');
     this.weaveRef.unsetSelection();
 
   }
@@ -487,14 +402,14 @@ export class WeaverComponent implements OnInit {
    * @param {Event} e - brush change event from design component.
    * @returns {void}
    */
-  public onDesignModeChange(e:any) {
+  public designModeChange(e:any) {
 
-    this.design_mode = {
-      name: e.name,
-      id: e.id
-    }
+    // this.design_mode = {
+    //   name: e.name,
+    //   id: e.id
+    // }
 
-    console.log("design mode", this.design_mode.name, this.design_mode.id);
+    // console.log("design mode", this.design_mode.name, this.design_mode.id);
     this.weaveRef.unsetSelection();
 
   }
@@ -602,21 +517,6 @@ export class WeaverComponent implements OnInit {
 
   }
 
-  /**
-   * Creates the copied pattern within the weave reference
-   * @extends WeaveComponent
-   * @param {Event} e - copy event from design component.
-   * @returns {void}
-   */
-  public onCopy() {
-
-    console.log("on copy", this.copy);
-
-    this.design_mode = {
-      name: 'copy',
-      id: -1
-    };
-  }
 
  
 

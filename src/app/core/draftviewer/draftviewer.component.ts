@@ -4,7 +4,7 @@ import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Render } from '../model/render';
 import { Selection } from '../model/selection';
 import { Cell } from '../model/cell';
-import { Interlacement } from '../model/datatypes';
+import { DesignMode, Interlacement } from '../model/datatypes';
 import { Draft } from '../model/draft';
 import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
@@ -12,6 +12,7 @@ import {cloneDeep, now} from 'lodash';
 import { FileService } from '../provider/file.service';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { SelectionComponent } from './selection/selection.component';
+import { DesignmodesService } from '../provider/designmodes.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -23,7 +24,7 @@ export class DraftviewerComponent implements OnInit {
   @ViewChild('bitmapImage', {static: false}) bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
 
-  @Input('design_actions')  design_actions;
+  // @Input('design_actions')  design_actions;
 
 
   /**
@@ -39,7 +40,7 @@ export class DraftviewerComponent implements OnInit {
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {string}
    */
-   @Input('design_mode') design_mode: any;
+  //  @Input('design_mode') design_mode: any;
 
    /**
     * The Draft object containing the pattern and shuttle information.
@@ -236,7 +237,8 @@ export class DraftviewerComponent implements OnInit {
     */
 
   constructor(
-    private fs: FileService
+    private fs: FileService,
+    private dm: DesignmodesService
     ) { 
 
     this.flag_recompute = false;
@@ -406,26 +408,36 @@ export class DraftviewerComponent implements OnInit {
 
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
-      switch (this.design_mode.name) {
-        case 'toggle':
-          this.setPosAndDraw(event.target, event.shiftKey, currentPos);
-          //this.unsetSelection();
+      const selected: DesignMode = this.dm.getSelectedDesignMode('design_modes');
+      switch (selected.value) {
+
+        case 'draw':
+
+          switch(this.dm.getSelectedDesignMode('draw_mode').value){
+            case 'toggle':
+              this.setPosAndDraw(event.target, event.shiftKey, currentPos);
+              //this.unsetSelection();
+            break;
+    
+            case 'up':
+            case 'down':
+            case 'unset':
+            case 'material':
+              this.setPosAndDraw(event.target, event.shiftKey, currentPos);
+              // this.unsetSelection();
+              this.flag_recompute = true;
+    
+              break;
+            // case 'maskpoint':
+            // case 'maskerase':
+            // case'maskinvert':
+            //   this.drawOnMask(currentPos);
+            //   break;
+          }
+
+
+        
         break;
-
-        case 'up':
-        case 'down':
-        case 'unset':
-        case 'material':
-          this.setPosAndDraw(event.target, event.shiftKey, currentPos);
-          // this.unsetSelection();
-          this.flag_recompute = true;
-
-          break;
-        case 'maskpoint':
-        case 'maskerase':
-        case'maskinvert':
-          this.drawOnMask(currentPos);
-          break;
         case 'select':
         case 'copy':
 
@@ -476,7 +488,7 @@ export class DraftviewerComponent implements OnInit {
       h: this.weftSystemsCanvas.height /this.render.visibleRows.length
     };    
 
-    var offset = this.render.getCellDims(this.design_mode.name);
+    var offset = this.render.getCellDims(this.dm.getSelectedDesignMode('design_modes').value);
   
     // set up the point based on touched square.
     var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
@@ -502,29 +514,35 @@ export class DraftviewerComponent implements OnInit {
     if(this.isSame(currentPos, this.lastPos)) return;
 
     // determine action based on brush type. invert inactive on move.
-    switch (this.design_mode.name) {
-      case 'up':
-      case 'down':
-      case 'unset':
-      case 'material':
-       //this.unsetSelection();
+    switch (this.dm.getSelectedDesignMode('design_modes').value) {
+      case 'draw':
+        switch(this.dm.getSelectedDesignMode('draw_modes').value){
+          case 'up':
+          case 'down':
+          case 'unset':
+          case 'material':
+          //this.unsetSelection();
 
-        if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
-        if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
+          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
 
-        this.setPosAndDraw(event.target, event.shiftKey, currentPos);
-        this.flag_recompute = true;
+          this.setPosAndDraw(event.target, event.shiftKey, currentPos);
+          this.flag_recompute = true;
 
 
         
         break;
 
-      case 'maskpoint':
-      case 'maskerase':
-      case'maskinvert':
+        case 'maskpoint':
+        case 'maskerase':
+        case'maskinvert':
         this.drawOnMask(currentPos);
         break;
+        }
+
+      break;
+      
 
 
       case 'select':
@@ -574,10 +592,10 @@ export class DraftviewerComponent implements OnInit {
 
 
     // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && (this.design_mode.name === 'select' || this.design_mode.name ==='copy'))) {
+    if (!(event.type === 'mouseleave' && (this.dm.isSelected('select','design_modes') || this.dm.isSelected('copy','design_actions')))){
       this.removeSubscription();
       this.selection.onSelectStop();
-      if(this.design_mode.name != "copy" && this.selection.hasSelection()) this.copyArea();
+      if(this.dm.isSelected('copy','design_actions') && this.selection.hasSelection()) this.copyArea();
     }
 
   }
@@ -1010,8 +1028,9 @@ export class DraftviewerComponent implements OnInit {
 
     if(screen_row < 0){ return; }
 
-    if(this.design_mode.name === 'material'){
-      this.weave.rowShuttleMapping[draft_row] = parseInt(this.design_mode.id);
+    if(this.dm.isSelected('material', 'draw_modes')){
+        const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
+      this.weave.rowShuttleMapping[draft_row] = parseInt(material_id);
     }else{
       const len = this.weave.shuttles.length;
       var shuttle_id = this.weave.rowShuttleMapping[draft_row];
@@ -1065,8 +1084,9 @@ export class DraftviewerComponent implements OnInit {
     if(col < 0){ return; }
 
 
-    if(this.design_mode.name === 'material'){
-        this.weave.colShuttleMapping[col] = parseInt(this.design_mode.id);
+    if(this.dm.isSelected('material', 'draw_modes')){
+        const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
+        this.weave.colShuttleMapping[col] = parseInt(material_id);
     }else{
       const len = this.weave.shuttles.length;
       var shuttle_id = this.weave.colShuttleMapping[col];
@@ -1092,7 +1112,7 @@ export class DraftviewerComponent implements OnInit {
     if (!this.cx || !currentPos) { return; }
 
     // Set the heddles based on the brush.
-    switch (this.design_mode.name) {
+    switch (this.dm.getSelectedDesignMode('draw_mode').value) {
       case 'maskpoint':
         val = true;
         break;
@@ -1134,7 +1154,7 @@ export class DraftviewerComponent implements OnInit {
     if(this.weave.hasCell(currentPos.i, currentPos.j)){
 
       // Set the heddles based on the brush.
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
         case 'up':
           val = true;
           this.weave.setHeddle(currentPos.i,currentPos.j,val);
@@ -1171,8 +1191,7 @@ export class DraftviewerComponent implements OnInit {
       //   this.drawYarn(currentPos.si, currentPos.j, val);
       // }
 
-        
-      if(this.design_mode.name !== 'material')
+      if(!this.dm.isSelected('material', 'draw_modes'))   
         if(this.render.showingFrames()) this.loom.updateLoomFromDraft(currentPos, this.weave);
       
       this.redraw({drawdown:true, loom:true});
@@ -1194,7 +1213,7 @@ export class DraftviewerComponent implements OnInit {
     if (!this.cxTieups || !currentPos) { return; }
 
     if (this.loom.inTieupRange(currentPos)) {
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
         case 'up':
             val = true;
           break;
@@ -1230,7 +1249,7 @@ export class DraftviewerComponent implements OnInit {
     if (this.loom.inThreadingRange(currentPos)){
       var val = false;
 
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
         case 'up':
           val = true;
           break;
@@ -1279,7 +1298,7 @@ export class DraftviewerComponent implements OnInit {
     var val = false;
 
     if(this.loom.inTreadlingRange(currentPos)){
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
         case 'up':
           val = true;
           break;

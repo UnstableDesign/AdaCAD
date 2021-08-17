@@ -3,15 +3,11 @@
 [loomtypes] = "loomtypes"
 [timeline] = "timeline"
 [density_units] = "density_units"
-[undoItem]="undoItem" 
-[redoItem]="redoItem"
 [filename]="draft?.name"
 [draftelement]="draftelement"
- source="weaver"
-  (onUndo)="undo();" 
-  (onRedo)="redo();"
-  (onLoadNewFile)="loadNewFile($event);"
-  (onSave)="onSave($event);">
+source="weaver"
+(onLoadNewFile)="loadNewFile($event);"
+(onSave)="onSave($event);">
 </app-topbar>
 
 <mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
@@ -21,14 +17,20 @@
       <div class ="design-container">
        
 
-        <!-- <app-quicktools></app-quicktools> -->
+        <app-quicktools
+        [timeline]="timeline"
+        [draft]="draft"
+        [loom]="loom"  
+        (onUndo)="undo();" 
+        (onRedo)="redo();"
+        ></app-quicktools>
 
 
 
-        <mat-accordion multi>
+        <!-- <mat-accordion multi> -->
 
       
-          <app-weaverdesign
+          <!-- <app-weaverdesign
           [draft]="draft"
           [material_types]="material_types"
           [design_mode]="design_mode"
@@ -137,15 +139,13 @@
         (onLabelCreate)="openLabelDialog()"
         >
 
-      </app-schematic> 
+      </app-schematic>  -->
 
 
 
 
-    </mat-accordion>
-    <a mat-icon-button matTooltip="help" href="https://adacad.unstable.design" target='_blank'><i class="fas fa-question"></i></a>
-    <a mat-icon-button matTooltip="switch to adacad mixer" href="https://adacad-weaver.firebaseapp.com/mixer" target='_blank'><i class="fas fa-sliders-h"></i>
-    </a>
+    <!-- </mat-accordion> -->
+
 
     </div>
 

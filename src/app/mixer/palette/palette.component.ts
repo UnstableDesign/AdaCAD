@@ -1,5 +1,5 @@
 import { Observable, Subscription, fromEvent, from, iif } from 'rxjs';
-import { DesignmodesService } from '../../mixer/provider/designmodes.service';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { MarqueeComponent } from './marquee/marquee.component';
@@ -161,7 +161,7 @@ export class PaletteComponent implements OnInit{
    * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
    */
   constructor(
-    private design_modes: DesignmodesService, 
+    private dm: DesignmodesService, 
     private tree: TreeService,
     private inks: InkService, 
     private layers: LayersService, 
@@ -381,14 +381,8 @@ export class PaletteComponent implements OnInit{
    * @param name - the mode to switchh to
    */
   changeDesignmode(name: string) {
-    this.design_modes.select(name);
-   
-    const mode = this.design_modes.getMode(name);
-   
-    if(!mode.enable_inks){
-        this.inks.select('neq');
-    }
-
+    this.dm.selectDesignMode(name, 'design_modes');
+    const mode = this.dm.getDesignMode(name, 'design_modes');
     this.onDesignModeChange.emit(name);
   }
 
@@ -629,14 +623,14 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    if(this.design_modes.isSelected('move')){
+    if(this.dm.isSelected('move', 'design_modes')){
       this.unfreezePaletteObjects();
 
     }else{
       this.freezePaletteObjects();
     }
 
-    if(this.design_modes.isSelected('draw') || this.design_modes.isSelected('shape')){
+    if(this.dm.isSelected('draw', 'design_modes') || this.dm.isSelected('shape',  'design_modes')){
       this.rescale(Math.ceil(this.scale));
     }
 
@@ -863,7 +857,7 @@ export class PaletteComponent implements OnInit{
   subdraftStarted(obj: any){
     if(obj === null) return;
 
-    if(this.design_modes.isSelected("move")){
+    if(this.dm.isSelected("move",  'design_modes')){
   
       //get the reference to the draft that's moving
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
@@ -882,9 +876,9 @@ export class PaletteComponent implements OnInit{
       this.preview.drawDraft();
       this.preview.setComponentPosition(bounds.topleft);
      
-    }else if(this.design_modes.isSelected("select")){
+    }else if(this.dm.isSelected("select",  'design_modes')){
       this.selectionStarted();
-    }else if(this.design_modes.isSelected("draw")){
+    }else if(this.dm.isSelected("draw",  'design_modes')){
       this.drawStarted();
     }
 
@@ -1196,7 +1190,7 @@ shapeStarted(mouse: Point){
   this.cx.fillStyle = "#ff4081";
   this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
   
-  if(this.design_modes.isSelected('free')){
+  if(this.dm.isSelected('free', 'shapes')){
     this.startSnackBar("CTRL+Click to end drawing", this.shape_bounds);
   }else{
     this.startSnackBar("Press SHIFT while dragging to constrain shape", this.shape_bounds);
@@ -1223,7 +1217,7 @@ shapeDragged(mouse: Point, shift: boolean){
     const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
     
     //allow lines to snap to coords
-    if(this.design_modes.isSelected('line')){
+    if(this.dm.isSelected('line', 'shapes')){
         if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
           this.shape_bounds.height = max;
           this.shape_bounds.width = this.scale;
@@ -1249,22 +1243,22 @@ shapeDragged(mouse: Point, shift: boolean){
   this.cx.setLineDash([]);
   this.cx.lineWidth = this.scale;
 
-  if(this.design_modes.isSelected('line')){
+  if(this.dm.isSelected('line', 'shapes')){
     this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
     this.cx.stroke();
-  }else if(this.design_modes.isSelected('fill_circle')){
+  }else if(this.dm.isSelected('fill_circle','shapes')){
     this.shape_bounds.width = Math.abs(this.shape_bounds.width);
     this.shape_bounds.height = Math.abs(this.shape_bounds.height);
     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
     this.cx.fill();
-  }else if(this.design_modes.isSelected('stroke_circle')){
+  }else if(this.dm.isSelected('stroke_circle','shapes')){
     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
     this.cx.stroke();
-  }else if(this.design_modes.isSelected('fill_rect')){
+  }else if(this.dm.isSelected('fill_rect','shapes')){
     this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
   
-  }else if(this.design_modes.isSelected('stroke_rect')){
+  }else if(this.dm.isSelected('stroke_rect','shapes')){
     this.cx.strokeRect(this.shape_bounds.topleft.x + this.scale, this.shape_bounds.topleft.y+ this.scale,this.shape_bounds.width- this.scale,this.shape_bounds.height-this.scale);
 
   }else{
@@ -1287,7 +1281,7 @@ shapeDragged(mouse: Point, shift: boolean){
     
   }
 
-  if(this.design_modes.isSelected('free')){
+  if(this.dm.isSelected('free', 'shapes')){
     this.updateSnackBar("CTRL+click to end drawing", this.shape_bounds);
   }else{
     this.updateSnackBar("Press SHIFT to contstrain shape", this.shape_bounds);
@@ -1302,12 +1296,12 @@ processShapeEnd(){
   this.closeSnackBar();
 
   //if circle, the topleft functoins as the center and the bounsd need to expand to fit the entire shape 
-  if(this.design_modes.isSelected('fill_circle') || this.design_modes.isSelected('stroke_circle')){
+  if(this.dm.isSelected('fill_circle', 'shapes') || this.dm.isSelected('stroke_circle', 'shapes')){
     this.shape_bounds.topleft.x -=  this.shape_bounds.width;
     this.shape_bounds.topleft.y -=  this.shape_bounds.height;
     this.shape_bounds.width *=2;
     this.shape_bounds.height *= 2;
-  }else if(this.design_modes.isSelected('free')){
+  }else if(this.dm.isSelected('free','shapes')){
     
     if(this.shape_vtxs.length === 0) return;
       //default to current segment
@@ -1498,24 +1492,24 @@ drawStarted(){
       this.removeSubscription();    
       
      
-      if(this.design_modes.isSelected("select")){
+      if(this.dm.isSelected("select",'design_modes')){
           this.selectionStarted();
           this.moveSubscription = 
           fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
     
-      }else if(this.design_modes.isSelected("draw")){
+      }else if(this.dm.isSelected("draw",'design_modes')){
         this.moveSubscription = 
         fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
   
           this.drawStarted();    
           this.setCell(ndx);
           this.drawCell(ndx); 
-      }else if(this.design_modes.isSelected("shape")){
+      }else if(this.dm.isSelected("shape",'design_modes')){
         this.moveSubscription = 
         fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
   
 
-        if(this.design_modes.isSelected('free')){
+        if(this.dm.isSelected('free','shapes')){
           if(ctrl){
             this.processShapeEnd();
             this.changeDesignmode('move');
@@ -1529,7 +1523,7 @@ drawStarted(){
         }else{
           this.shapeStarted(mouse);
         }
-      }else if(this.design_modes.isSelected("operation")){
+      }else if(this.dm.isSelected("operation",'design_modes')){
         this.processConnectionEnd();
         this.changeDesignmode('move');
       }
@@ -1544,7 +1538,7 @@ drawStarted(){
     mouse.x = ndx.j * this.scale;
     mouse.y = ndx.i * this.scale;
 
-    if(this.design_modes.isSelected('free') && this.shape_vtxs.length > 0){
+    if(this.dm.isSelected('free','shapes') && this.shape_vtxs.length > 0){
       this.shapeDragged(mouse, shift);
     }else if(this.selecting_connection){
       this.connectionDragged(mouse, shift);
@@ -1566,7 +1560,7 @@ drawStarted(){
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
-    if(this.design_modes.isSelected("operation")){
+    if(this.dm.isSelected("operation",'design_modes')){
 
      
     
@@ -1591,7 +1585,7 @@ drawStarted(){
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
-    if(this.design_modes.isSelected("select")){
+    if(this.dm.isSelected("select",'design_modes')){
 
      this.drawSelection(ndx);
      const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
@@ -1599,10 +1593,10 @@ drawStarted(){
      this.updateSnackBar("Select Drafts to Join",  this.selection.bounds);
 
     
-    }else if(this.design_modes.isSelected("draw")){
+    }else if(this.dm.isSelected("draw", 'design_modes')){
       this.setCell(ndx);
       this.drawCell(ndx);
-    }else if(this.design_modes.isSelected("shape")){
+    }else if(this.dm.isSelected("shape",'design_modes')){
       this.shapeDragged(mouse, shift);
     }
     
@@ -1630,14 +1624,14 @@ drawStarted(){
 
       this.removeSubscription();   
 
-      if(this.design_modes.isSelected("select")){
+      if(this.dm.isSelected("select",'design_modes')){
         if(this.selection.active)this.processSelection();
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
 
 
-      }else if(this.design_modes.isSelected("draw")){
+      }else if(this.dm.isSelected("draw",'design_modes')){
         this.processDrawingEnd();
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -1645,8 +1639,8 @@ drawStarted(){
 
 
 
-      }else if(this.design_modes.isSelected("shape")){
-        if(!this.design_modes.isSelected('free')){
+      }else if(this.dm.isSelected("shape",'design_modes')){
+        if(!this.dm.isSelected('free','design_modes')){
           this.processShapeEnd();
           this.changeDesignmode('move');
           this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);

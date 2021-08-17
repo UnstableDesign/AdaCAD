@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
-import { DesignmodesService } from '../mixer/provider/designmodes.service';
+import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
 import { Bounds, DraftMap, MaterialTypes, ViewModes } from '../core/model/datatypes';
@@ -82,7 +82,7 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private design_modes: DesignmodesService, 
+  constructor(private dm: DesignmodesService, 
     private ps: PatternService, 
     private tree: TreeService,
     public scroll: ScrollDispatcher,
@@ -294,7 +294,7 @@ export class MixerComponent implements OnInit {
    */
   @HostListener('window:keydown.d', ['$event'])
   private keyChangetoDrawMode(e) {
-    this.design_modes.select('draw');
+    this.dm.selectDesignMode('draw', 'design_modes');
     this.designModeChanged('draw');
   }
 
@@ -304,7 +304,7 @@ export class MixerComponent implements OnInit {
    */
    @HostListener('window:keydown.s', ['$event'])
    private keyChangeToSelect(e) {
-     this.design_modes.select('select');
+     this.dm.selectDesignMode('select','design_modes');
      this.designModeChanged('select');
    }
 
@@ -315,7 +315,7 @@ export class MixerComponent implements OnInit {
    */
       @HostListener('window:keydown.m', ['$event'])
       private keyChangeToMove(e) {
-        this.design_modes.select('move');
+        this.dm.selectDesignMode('move','design_modes');
         this.designModeChanged('move');
       }
    

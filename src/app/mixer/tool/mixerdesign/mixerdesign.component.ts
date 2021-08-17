@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from "@angular/material/dialog";
-import { DesignmodesService } from '../../../mixer/provider/designmodes.service';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { InkService } from '../../../mixer/provider/ink.service';
 import * as _ from 'lodash';
 
@@ -23,7 +23,7 @@ export class MixerDesignComponent implements OnInit {
 
   selected = 0;
 
-  constructor(public dialog: MatDialog, private design_modes: DesignmodesService, private inks: InkService) { 
+  constructor(public dialog: MatDialog, private dm: DesignmodesService, private inks: InkService) { 
   }
 
   ngOnInit() {
@@ -41,7 +41,7 @@ export class MixerDesignComponent implements OnInit {
 
 
   designModeChange(e: any) {
-    this.design_modes.select(e.target.name);
+    this.dm.selectDesignMode(e.target.name, 'design_modes');
     this.onDesignModeChange.emit(e.target.name);
   }
 
