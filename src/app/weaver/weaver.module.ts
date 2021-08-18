@@ -39,8 +39,7 @@ import { SchematicComponent } from './tool/schematic/schematic.component';
 import { WeaverViewComponent } from './tool/weaverview/weaverview.component';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { LabelModal } from './modal/label/label.modal';
-import { TabComponent } from './tool/tab/tab.component';
-import { MlModal } from './modal/ml/ml.modal';
+
 
 @NgModule({
   imports: [
@@ -71,7 +70,8 @@ import { MlModal } from './modal/ml/ml.modal';
     MatTooltipModule,
     ColorPickerModule,
     MatChipsModule,
-    ScrollingModule
+    ScrollingModule,
+    MlModul
 
   ],
   declarations: [

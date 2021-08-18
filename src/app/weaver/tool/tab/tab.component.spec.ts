@@ -1,8 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TabComponent } from './tab.component';
+import {TabComponent} from './tab.component';
 
-describe('DesignComponent', () => {
+describe('TabComponent', () => {
   let component: TabComponent;
   let fixture: ComponentFixture<TabComponent>;
 
@@ -23,5 +23,4 @@ describe('DesignComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-
 
