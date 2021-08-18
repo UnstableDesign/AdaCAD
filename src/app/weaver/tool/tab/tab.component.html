@@ -8,7 +8,16 @@
     </mat-expansion-panel-header>
   
     <h3>How to Design with Machine Learning</h3>
+
   
+  <!--This is for the modal button-->
+    <button mat-button
+    class="button material is-small is-primary"
+    (click)="openMlModal($event)"> 
+    </button>
+    
+    
+
   
     <form #collectionForm="ngForm">
       <mat-form-field class="is-fullwidth">

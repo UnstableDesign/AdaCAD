@@ -40,6 +40,7 @@ import { WeaverViewComponent } from './tool/weaverview/weaverview.component';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { LabelModal } from './modal/label/label.modal';
 import { TabComponent } from './tool/tab/tab.component';
+import { MlModal } from './modal/ml/ml.modal';
 
 @NgModule({
   imports: [
@@ -83,7 +84,8 @@ import { TabComponent } from './tool/tab/tab.component';
     LabelModal,
     SchematicComponent,
     WeaverViewComponent,
-    TabComponent
+    TabComponent,
+    MlModal 
     ],
   entryComponents: [
     ConnectionModal  ],

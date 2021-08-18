@@ -2,6 +2,9 @@ import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@a
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { NgForm } from '@angular/forms';
 import * as _ from 'lodash';
+import { Console } from 'console';
+
+
 
 @Component({
     selector: 'app-tab',
@@ -25,9 +28,25 @@ import * as _ from 'lodash';
     this.collection = {name: 'German Drafts'};
     this.collections.push(this.collection);
   }
+
+  openAboutDialog() {
+    const dialogRef = this.dialog.open(MlModal);
     
-    ngOnInit() {
   
-    }
+  }
+
+  openNewFileDialog() {
 
   }
+
+  openMlModal(event: any){
+    console.log("I have been clicked!", event)
+
+
+  }
+    ngOnInit() {
+
+    }
+  }
+
+   
