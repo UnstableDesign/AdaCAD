@@ -71,7 +71,7 @@ import { LabelModal } from './modal/label/label.modal';
     ColorPickerModule,
     MatChipsModule,
     ScrollingModule,
-    MlModul
+    
 
   ],
   declarations: [
@@ -83,9 +83,7 @@ import { LabelModal } from './modal/label/label.modal';
     MasksComponent,
     LabelModal,
     SchematicComponent,
-    WeaverViewComponent,
-    TabComponent,
-    MlModal 
+    WeaverViewComponent
     ],
   entryComponents: [
     ConnectionModal  ],
