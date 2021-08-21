@@ -555,7 +555,9 @@ export class WeaverComponent implements OnInit {
         console.log('suggestions:', suggestions);
         for (var i = 0; i < suggestions.length; i++) {
           let treadlingSuggest = this.patternFinder.getTreadlingFromArr(suggestions[i]);
+          console.log('treadling:', treadlingSuggest);
           let threadingSuggest = this.patternFinder.getThreadingFromArr(suggestions[i]);
+          console.log('threading:', threadingSuggest);
           console.log('pattern:', this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i]));
         }
       });

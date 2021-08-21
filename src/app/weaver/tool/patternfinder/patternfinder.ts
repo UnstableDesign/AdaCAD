@@ -426,7 +426,7 @@ export class PatternFinder {
             for (var j = 0; j < draftPatterns[i].length; j++) {                
                 transformedDraftPatterns[i].push([]);
                 for(var k = 0; k < draftPatterns[i][j].length; k++) {
-                    if (draftPatterns[i][j][k].is_up) {
+                    if (draftPatterns[i][j][k] == 1 || draftPatterns[i][j][k].is_up) {
                         transformedDraftPatterns[i][j].push(1);
                     } else {
                         transformedDraftPatterns[i][j].push(0);
