@@ -8,7 +8,11 @@
       #selection
       [render]="render"
       [loom]="loom"
-      [design_actions]="design_actions"
+      (onFill)="onFill($event)"
+      (onCopy)="onCopy($event)"
+      (onClear)="onClear($event)"
+      (onPaste)="onPaste($event)"
+      (onSelectionEnd)="onSelectionEnd($event)"
       ></app-selection>
      
       

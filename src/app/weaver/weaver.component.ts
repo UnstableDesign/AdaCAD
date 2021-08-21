@@ -122,18 +122,21 @@ export class WeaverComponent implements OnInit {
     this.draft.computeYarnPaths();
 
     this.timeline.addHistoryState(this.draft);  
-    this.patterns = [];
+    // this.patterns = ps.getDefaultPatterns(); 
 
-    this.ps.getPatterns().subscribe((res) => {
-       for(var i in res.body){
-         const np:Pattern = new Pattern(res.body[i]);
-         if(np.id == -1) np.id = this.patterns.length;
-         this.patterns.push(np);
-       }
-    }); 
+    // this.ps.getPatterns().subscribe((res) => {
+    //    for(var i in res.body){
+    //      const np:Pattern = new Pattern(res.body[i]);
+    //      if(np.id == -1) np.id = this.patterns.length;
+    //      this.patterns.push(np);
+    //    }
+    // }); 
+
 
     this.render.view_frames = (this.loom.type === 'frame') ? true : false;     
-    if (this.patterns === undefined) this.patterns = this.patterns;
+    // if (this.patterns === undefined){
+    //   this.patterns = this.patterns;
+    // } 
 
   }
 
@@ -169,7 +172,7 @@ export class WeaverComponent implements OnInit {
     }
 
     if(data.patterns.length > 0){
-      this.patterns = data.patterns;
+      this.ps.overridePatterns(data.patterns);
     }
 
     this.draft.computeYarnPaths();
@@ -376,7 +379,7 @@ export class WeaverComponent implements OnInit {
    */
   @HostListener('window:keydown.p', ['$event'])
   private keyEventPaste(e) {
-    this.onPaste({});
+    this.weaveRef.onPaste({});
   }
 
   /**
@@ -403,6 +406,12 @@ export class WeaverComponent implements OnInit {
    * @returns {void}
    */
   public designModeChange(e:any) {
+
+    this.dm.selectDesignMode(e.name, e.target);
+    if(e.id !== undefined) {
+      const mode = this.dm.getDesignMode(e.name, e.target);
+      mode.children.push(e.id);
+    }
 
     // this.design_mode = {
     //   name: e.name,
@@ -478,45 +487,7 @@ export class WeaverComponent implements OnInit {
     // this.redraw();
   }
 
-  /**
-   * Tells weave reference to paste copied pattern.
-   * @extends WeaveComponent
-   * @param {Event} e - paste event from design component.
-   * @returns {void}
-   */
-  public onPaste(e) {
-
-    var p = this.weaveRef.copy;
-    console.log("on paste", e, p);
-
-
-    var type;
-
-    if(e.type === undefined) type = "original";
-    else type =  e.type;
-
-    this.draft.fillArea(this.weaveRef.selection, p, type, this.render.visibleRows, this.loom);
-
-    switch(this.weaveRef.selection.target.id){    
-      case 'drawdown':
-        //if you do this when updates come from loom, it will erase those updates
-        if(this.render.showingFrames()) this.loom.recomputeLoom(this.draft);
-       break;
-      
-    }
-
-    
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
-
-    this.timeline.addHistoryState(this.draft);
-
-    this.weaveRef.copyArea();
-
-    this.weaveRef.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
- 
-
-  }
-
+  
 
  
 

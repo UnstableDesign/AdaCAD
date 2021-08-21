@@ -19,8 +19,22 @@ source="mixer"
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
 
       <div class ="design-container">
+
+        <app-quicktools
+        [timeline]="timeline"
+        [draft]="draft"
+        [loom]="loom"  
+        (onUndo)="undo();" 
+        (onRedo)="redo();"
+        (onDesignModeChange)='designModeChange($event)'
+        ></app-quicktools>
+
+
        
         <mat-accordion multi>
+
+
+          
 
         <app-mixerview #view_tool  
           zoom = "5"

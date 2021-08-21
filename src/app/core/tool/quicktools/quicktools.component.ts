@@ -41,20 +41,22 @@ export class QuicktoolsComponent implements OnInit {
   select(){
     var obj: any = {};
      obj.name = "select";
+     obj.target = "design_modes";
      this.onDesignModeChange.emit(obj);
   }
 
-  designModeChange(name: string) {
+  drawModeChange(name: string) {
 
-    console.log("mode change", name);
      var obj: any = {};
      obj.name = name;
+     obj.target = "draw_modes";
      this.onDesignModeChange.emit(obj);
   }
 
   drawWithMaterial(material_id: number){
     var obj: any = {};
     obj.name = 'material';
+    obj.target = 'draw_modes';
     obj.id = material_id;
     this.onDesignModeChange.emit(obj);
   }

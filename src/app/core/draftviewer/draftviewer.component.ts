@@ -13,6 +13,7 @@ import { FileService } from '../provider/file.service';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { SelectionComponent } from './selection/selection.component';
 import { DesignmodesService } from '../provider/designmodes.service';
+import { PatternService } from '../provider/pattern.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -238,7 +239,8 @@ export class DraftviewerComponent implements OnInit {
 
   constructor(
     private fs: FileService,
-    private dm: DesignmodesService
+    private dm: DesignmodesService,
+    private ps: PatternService
     ) { 
 
     this.flag_recompute = false;
@@ -409,11 +411,14 @@ export class DraftviewerComponent implements OnInit {
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
       const selected: DesignMode = this.dm.getSelectedDesignMode('design_modes');
+      
+
       switch (selected.value) {
 
         case 'draw':
 
-          switch(this.dm.getSelectedDesignMode('draw_mode').value){
+          switch(this.dm.getSelectedDesignMode('draw_modes').value){
+
             case 'toggle':
               this.setPosAndDraw(event.target, event.shiftKey, currentPos);
               //this.unsetSelection();
@@ -595,9 +600,15 @@ export class DraftviewerComponent implements OnInit {
     if (!(event.type === 'mouseleave' && (this.dm.isSelected('select','design_modes') || this.dm.isSelected('copy','design_actions')))){
       this.removeSubscription();
       this.selection.onSelectStop();
-      if(this.dm.isSelected('copy','design_actions') && this.selection.hasSelection()) this.copyArea();
     }
 
+  }
+
+  /**
+   * This is emitted from the selection
+   */
+  onSelectionEnd(){
+    if(this.dm.isSelected('copy','design_actions') && this.selection.hasSelection()) this.copyArea();
   }
 
   /**
@@ -1112,7 +1123,7 @@ export class DraftviewerComponent implements OnInit {
     if (!this.cx || !currentPos) { return; }
 
     // Set the heddles based on the brush.
-    switch (this.dm.getSelectedDesignMode('draw_mode').value) {
+    switch (this.dm.getSelectedDesignMode('draw_modes').value) {
       case 'maskpoint':
         val = true;
         break;
@@ -1144,6 +1155,8 @@ export class DraftviewerComponent implements OnInit {
 
   private drawOnDrawdown( currentPos: Interlacement, shift: boolean) {
 
+    console.log("design mode", this.dm.getSelectedDesignMode('design_modes').value)
+    console.log("draw mode", this.dm.getSelectedDesignMode('draw_modes').value)
     var updates;
     var val  = false;
 
@@ -1154,7 +1167,7 @@ export class DraftviewerComponent implements OnInit {
     if(this.weave.hasCell(currentPos.i, currentPos.j)){
 
       // Set the heddles based on the brush.
-      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
           val = true;
           this.weave.setHeddle(currentPos.i,currentPos.j,val);
@@ -1213,7 +1226,7 @@ export class DraftviewerComponent implements OnInit {
     if (!this.cxTieups || !currentPos) { return; }
 
     if (this.loom.inTieupRange(currentPos)) {
-      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
             val = true;
           break;
@@ -1249,7 +1262,7 @@ export class DraftviewerComponent implements OnInit {
     if (this.loom.inThreadingRange(currentPos)){
       var val = false;
 
-      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
           val = true;
           break;
@@ -1298,7 +1311,7 @@ export class DraftviewerComponent implements OnInit {
     var val = false;
 
     if(this.loom.inTreadlingRange(currentPos)){
-      switch (this.dm.getSelectedDesignMode('draw_mode').value) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
           val = true;
           break;
@@ -1328,201 +1341,6 @@ export class DraftviewerComponent implements OnInit {
 
     }
    }
-
-
-
-  /**
-   * Fills in selected area of canvas. Updates the pattern within selection.
-   * @extends WeaveDirective
-   * @param {Selection} selection - defined user selected area to fill.
-   * @param {Array<Array<boolean>>} - the pattern used to fill the area.
-   * @param {string} - the type of logic used to fill selected area.
-   * @returns {void}
-   */
-  // private fillArea(
-  //   selection: Selection, 
-  //   pattern: Array<Array<boolean>>, 
-  //   type: string
-  // ) {
-
-  //   console.log("fill area called");
-  //   console.log(selection, pattern, type);
-
-  //   var dims = this.render.getCellDims("base");
-  //   var updates = [];
-    
-  //   var screen_i = Math.min(selection.start.si, selection.end.si)
-  //   const draft_i = Math.min(selection.start.i, selection.end.i);
-  //   const draft_j = Math.min(selection.start.j, selection.end.j);
-  
-  //   const rows = pattern.length;
-  //   const cols = pattern[0].length;
-
-  //   var w,h;
-
-  //   w = Math.ceil(selection.width);
-  //   h = Math.ceil(selection.height);
-
-
-  //   if(selection.target.id === "warp-systems"){
-  //     h = pattern.length;
-  //     screen_i = 0;
-  //   } 
-  //   if(selection.target.id === "weft-systems"){
-  //     w = pattern[0].length;
-  //   } 
-
-  //   if(selection.target.id === "warp-materials"){
-  //      h = pattern.length;
-  //      screen_i = 0;
-  //   }
-  //   if(selection.target.id === "weft-materials"){
-  //     w = pattern[0].length;
-  //   } 
-
-  //   //cycle through each visible row/column of the selection
-  //   for (var i = 0; i < h; i++ ) {
-  //     for (var j = 0; j < w; j++ ) {
-
-  //       var row = i + screen_i;
-  //       var col = j + draft_j;
-
-
-  //       var temp = pattern[i % rows][j % cols];
-       
-  //       var prev = false; 
-  //       switch(selection.target.id){
-
-  //         case 'drawdown':
-  //             var draft_row = this.render.visibleRows[row];
-  //             prev = this.weave.pattern[draft_row][col].isUp();
-
-  //         break;
-  //         case 'threading':
-  //             var frame = this.loom.frame_mapping[row];
-  //             prev = this.loom.isInFrame(col, frame);
-          
-  //         break;
-  //         case 'treadling':
-  //             var draft_row = this.render.visibleRows[row];
-  //             prev = (this.loom.isInTreadle(draft_row, col)); 
-  //         break;
-  //         case 'tieups':
-  //             var frame = this.loom.frame_mapping[row];
-  //             prev = this.loom.hasTieup(frame,col); 
-          
-  //         break;
-  //         default:
-  //         break;
-  //       }
-
-  //       if (prev !== null){
-
-  //         var val = false;
-  //         switch (type) {
-  //           case 'invert':
-  //            val = !temp;
-  //             break;
-  //           case 'mask':
-  //            val = temp && prev;
-  //             break;
-  //           case 'mirrorX':
-  //             val = pattern[(h - i - 1) % rows][j % cols];
-  //             break;
-  //           case 'mirrorY':
-  //             val = pattern[i % rows][(w - j - 1) % cols];
-  //             break;
-  //           default:
-  //             val = temp;
-  //             break;
-  //         }
-
-
-  //         var updates = [];
-
-  //         switch(selection.target.id){
-           
-  //          case 'drawdown':
-  //          var draft_row = this.render.visibleRows[row];
-
-  //           if(this.weave.hasCell(draft_row,col)){
-
-  //               var p = new Point(); 
-  //               p.si = row;
-  //               p.i = this.render.visibleRows[row];
-  //               p.j = col;
-              
-  //               this.weave.setHeddle(p.i,p.j,val);
-  //               this.updateLoomFromDraft(p);
-  //             }
-
-  //           break;
-            
-  //           case 'threading':
-  //           var frame = this.loom.frame_mapping[row];
-
-  //             if(this.loom.inThreadingRange(frame,col)){ 
-  //               updates = this.loom.updateThreading(frame, col, val);
-  //               this.weave.updateDraftFromThreading(updates); 
-  //             }
-  //           break;
-
-  //           case 'treadling':
-              
-  //            var draft_row = this.render.visibleRows[row];
-  //            if(this.loom.inTreadlingRange(draft_row,col)){ 
-  //               updates = this.loom.updateTreadling(draft_row, col, val);
-  //               this.weave.updateDraftFromTreadling(updates);
-  //             }
-  //           break;
-  //           case 'tieups':
-  //             var frame = this.loom.frame_mapping[row];
-
-  //             if(this.loom.inTieupRange(frame, col)){
-  //               updates = this.loom.updateTieup(frame, col, val);
-  //               this.weave.updateDraftFromTieup(updates);
-  //             }
-  //           break;
-  //           case 'weft-systems':
-  //             var draft_row = this.render.visibleRows[row];
-  //             val = pattern[i % rows][j % cols];
-  //             if(val && col < this.weave.weft_systems.length) this.weave.rowSystemMapping[draft_row] = col;
-            
-  //           break;
-  //           case 'warp-systems':
-  //             val = pattern[i % rows][j % cols];
-  //             if(val && row < this.weave.warp_systems.length){
-  //                 this.weave.colSystemMapping[col] = row;
-  //             }
-  //           break;
-  //           case 'weft-materials':
-  //             var draft_row = this.render.visibleRows[row];
-  //             val = pattern[i % rows][j % cols];
-  //             if(val && col < this.weave.shuttles.length) this.weave.rowShuttleMapping[draft_row] = col;
-            
-  //           break;
-  //           case 'warp-materials':
-  //             val = pattern[i % rows][j % cols];
-  //             if(val && row < this.weave.shuttles.length){
-  //                 this.weave.colShuttleMapping[col] = row;
-  //             }
-  //           break;
-  //           default:
-  //           break;
-  //         }
-  //       }
-
-
-  //     }
-  //   }
-
-  //   var u_threading = this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading");
-  //   var u_treadling = this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling");
-  //   this.addHistoryState();
-  //   this.redraw();
-  //   this.redrawLoom();
-
-  // }
 
 
 
@@ -2541,6 +2359,103 @@ public redraw(flags:any){
     this.redraw({loom:true});
    
   }
+
+
+  /**
+   * Tell the weave directive to fill selection with pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - fill event from design component.
+   * @returns {void}
+   */
+   public onFill(e) {
+    
+    let p:Pattern = this.ps.getPattern(e.id);
+    
+    this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom);
+
+    if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+    
+    this.copyArea();
+
+    this.redraw({drawdown:true, loom:true});
+
+    this.timeline.addHistoryState(this.weave);
+    
+  }
+
+  /**
+   * Tell weave reference to clear selection.
+   * @extends WeaveComponent
+   * @param {Event} Delte - clear event from design component.
+   * @returns {void}
+   */
+  public onClear(b:boolean) {
+    
+    const p: Pattern = new Pattern({width: 1, height: 1, pattern: [[b]]});
+
+    this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom)
+
+    if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+
+    this.copyArea();
+
+    this.redraw({drawdown:true, loom:true});
+
+    this.timeline.addHistoryState(this.weave);
+
+  }
+
+  /**
+   * Tells weave reference to paste copied pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - paste event from design component.
+   * @returns {void}
+   */
+   public onPaste(e) {
+
+    var p = this.copy;
+    console.log("on paste", e, p);
+
+
+    var type;
+
+    if(e.type === undefined) type = "original";
+    else type =  e.type;
+
+    this.weave.fillArea(this.selection, p, type, this.render.visibleRows, this.loom);
+
+    switch(this.selection.getTargetId()){    
+      case 'drawdown':
+        //if you do this when updates come from loom, it will erase those updates
+        if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+       break;
+      
+    }
+
+    
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+
+    this.timeline.addHistoryState(this.weave);
+
+    this.copyArea();
+
+    this.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+ 
+
+  }
+
+  onCopy(){
+    this.copyArea();
+  }
+
+
+ 
+
+
 
 
 

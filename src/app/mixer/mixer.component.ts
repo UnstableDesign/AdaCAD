@@ -99,13 +99,13 @@ export class MixerComponent implements OnInit {
     
 
    
-    this.patterns = [];
+    this.patterns = this.ps.getPatterns();
 
-    this.ps.getPatterns().subscribe((res) => {
-       for(var i in res.body){
-          this.patterns.push(new Pattern(res.body[i]));
-       }
-    }); 
+    // this.ps.getPatterns().subscribe((res) => {
+    //    for(var i in res.body){
+    //       this.patterns.push(new Pattern(res.body[i]));
+    //    }
+    // }); 
   }
 
 

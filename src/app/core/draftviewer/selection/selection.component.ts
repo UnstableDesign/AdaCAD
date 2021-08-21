@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Interlacement } from '../../model/datatypes';
 import { Render } from '../../model/render';
 import { Loom } from '../../model/loom';
 import { isBuffer } from 'lodash';
 import { Pattern } from '../../model/pattern';
 import { PatternService } from '../../provider/pattern.service';
+import { DesignmodesService } from '../../provider/designmodes.service';
 
 @Component({
   selector: 'app-selection',
@@ -15,9 +16,13 @@ export class SelectionComponent implements OnInit {
 
   @Input('render') render:Render;
   @Input('loom') loom:Loom;
-  @Input('design_actions')  design_actions;
+  @Output() onFill: any = new EventEmitter();
+  @Output() onCopy: any = new EventEmitter();
+  @Output() onClear: any = new EventEmitter();
+  @Output() onPaste: any = new EventEmitter();
+  @Output() onSelectionEnd: any = new EventEmitter();
 
-  private patterns: Array<Pattern>;
+  patterns: Array<Pattern>;
 
   private start: Interlacement;
   private end: Interlacement;
@@ -25,8 +30,11 @@ export class SelectionComponent implements OnInit {
   private height: number;
   private target: any;
 
+  private design_actions: Array<any>;
+
   screen_width: number;
   screen_height: number;
+
   top:number;
   left: number;
 
@@ -48,7 +56,13 @@ export class SelectionComponent implements OnInit {
 
 
 
-  constructor(private ps:PatternService) { 
+  constructor(
+    private ps:PatternService,
+    private dm: DesignmodesService
+    ) { 
+
+      this.design_actions = dm.getOptionSet('design_actions');
+
     this.hide_options = true;
     this.hide_parent = true;
     this.force_height = false;
@@ -62,14 +76,8 @@ export class SelectionComponent implements OnInit {
     this.screen_height = 0;
     this.screen_width = 0;
    
-    this.patterns = [];
-    this.ps.getPatterns().subscribe((res) => {
-      for(var i in res.body){
-        const np:Pattern = new Pattern(res.body[i]);
-        if(np.id == -1) np.id = this.patterns.length;
-        this.patterns.push(np);
-      }
-   }); 
+
+    this.patterns = ps.getPatterns();
   }
 
   ngOnInit() {
@@ -78,6 +86,65 @@ export class SelectionComponent implements OnInit {
   ngAfterViewInit(){
     this.selectionEl = document.getElementById('selection');
     this.parent = document.getElementById('selection-container');
+  }
+
+
+  designActionChange(action : string){
+
+    switch(action){
+      case 'up': this.clearEvent(true);
+      break;
+
+      case 'down': this.clearEvent(false);
+      break;
+
+      case 'copy': this.copyEvent();
+      break;
+
+      case 'paste': this.pasteEvent('original');
+      break;
+
+      case 'toggle': this.pasteEvent('invert');
+      break;
+
+      case 'flip_x': this.pasteEvent('mirrorX');
+      break;
+
+      case 'flip_y': this.pasteEvent('mirrorY');
+      break;
+
+      case 'shift_left': this.pasteEvent('shiftLeft');
+      break;
+
+      case 'shift_up': this.pasteEvent('shiftUp');
+      break;
+
+    }
+
+    
+
+
+
+  }
+
+  fillEvent(id) {
+    var obj: any = {};
+    obj.id = id;
+    this.onFill.emit(obj);
+  }
+
+  copyEvent() {
+    this.onCopy.emit();
+  }
+
+  clearEvent(b:boolean) {
+    this.onClear.emit(b);
+  }
+
+  pasteEvent(type) {
+    var obj: any = {};
+    obj.type = type;
+    this.onPaste.emit(obj);
   }
 
   /**
@@ -195,6 +262,7 @@ export class SelectionComponent implements OnInit {
    */
   onSelectStop(){
     this.hide_options = false;
+    this.onSelectionEnd.emit();
 
   }
 
@@ -206,6 +274,10 @@ export class SelectionComponent implements OnInit {
 
   getStartingScreenIndex(): number{
     return  Math.min(this.start.si, this.end.si);    
+  }
+
+  getStartingIndex(): number{
+    return  Math.min(this.start.i, this.end.i);    
   }
 
   getEndingIndex(): number{

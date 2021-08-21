@@ -69,7 +69,7 @@ export class DesignmodesService {
       {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square", children: [], selected: false},
       {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square", children: [], selected: false},
       {value: 'unset', viewValue: 'Unset Heddle', icon: "far fa-times", children: [], selected: false},
-      {value: 'material', viewValue: 'Draw Material', icon: "fas fa-pen", children: [], selected: true},
+      {value: 'material', viewValue: 'Draw Material', icon: "fas fa-pen", children: [], selected: false},
 
     ]
     

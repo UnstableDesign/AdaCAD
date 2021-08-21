@@ -23,6 +23,7 @@ source="weaver"
         [loom]="loom"  
         (onUndo)="undo();" 
         (onRedo)="redo();"
+        (onDesignModeChange)='designModeChange($event)'
         ></app-quicktools>
 
 
@@ -156,8 +157,6 @@ source="weaver"
   <app-draftviewer 
     source = "weaver"
     [render]="render" 
-    [(design_mode)]="design_mode" 
-    [design_actions]="design_actions"
     [(copy)]="copy" 
     [timeline]="timeline" 
     [draft]="draft" 

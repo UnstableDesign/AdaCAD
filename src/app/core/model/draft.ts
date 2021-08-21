@@ -7,6 +7,7 @@ import { Selection } from '../../core/model/selection';
 import { Point, Interlacement } from './datatypes';
 
 import * as _ from 'lodash';
+import { SelectionComponent } from '../draftviewer/selection/selection.component';
 
 
 /**
@@ -1499,7 +1500,7 @@ computeYarnPaths(){
    * @returns {void}
    */
   public fillArea(
-    selection: Selection, 
+    selection: SelectionComponent, 
     pattern: Pattern, 
     type: string,
     visibleRows: Array<number>,
@@ -1511,31 +1512,31 @@ computeYarnPaths(){
 
     var updates = [];
     
-    var screen_i = Math.min(selection.start.si, selection.end.si)
-    const draft_j = Math.min(selection.start.j, selection.end.j);
+    let screen_i: number = selection.getStartingScreenIndex();
+    let draft_j: number = selection.getEndingIndex();
   
     const rows = pattern.height;
     const cols = pattern.width;
 
     var w,h;
 
-    w = Math.ceil(selection.width);
-    h = Math.ceil(selection.height);
+    w = Math.ceil(selection.getWidth());
+    h = Math.ceil(selection.getHeight());
 
 
-    if(selection.target.id === "warp-systems"){
+    if(selection.getTargetId() === "warp-systems"){
       h = pattern.height;
       screen_i = 0;
     } 
-    if(selection.target.id === "weft-systems"){
+    if(selection.getTargetId() === "weft-systems"){
       w = pattern.width;
     } 
 
-    if(selection.target.id === "warp-materials"){
+    if(selection.getTargetId() === "warp-materials"){
        h = pattern.height;
        screen_i = 0;
     }
-    if(selection.target.id === "weft-materials"){
+    if(selection.getTargetId() === "weft-materials"){
       w = pattern.width;
     } 
 
@@ -1550,7 +1551,7 @@ computeYarnPaths(){
         let temp:Cell = pattern.pattern[i % rows][j % cols];
        
         var prev:boolean = false; 
-        switch(selection.target.id){
+        switch(selection.getTargetId()){
 
           case 'drawdown':
               var draft_row = visibleRows[row];
@@ -1606,7 +1607,7 @@ computeYarnPaths(){
 
           var updates = [];
 
-          switch(selection.target.id){
+          switch(selection.getTargetId()){
            
            case 'drawdown':
            var draft_row = visibleRows[row];

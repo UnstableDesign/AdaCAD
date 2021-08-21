@@ -11,14 +11,7 @@ import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
 import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
 import { InkService } from '../../provider/ink.service';
 import { OperationService } from '../../provider/operation.service';
-
-
-interface DesignModes{
-  value: string;
-  viewValue: string;
-  icon: string;
-}
-
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
 
 
 /**
@@ -35,12 +28,6 @@ export class DraftdetailComponent implements OnInit {
  
   //the draft view shared by this and weaver
   @ViewChild('dv', {read: DraftviewerComponent, static: true}) dv: DraftviewerComponent;
-
-  design_modes: DesignModes[]=[
-  {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
-  {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
-  {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"}
-];
 
 
 ink: String; //the name of the selected ink.
@@ -60,15 +47,6 @@ ink: String; //the name of the selected ink.
    * a reference to the draft that we're modifying
    */
   draft:Draft;
-
-    /**
-   * The name of the current selected brush.
-   * @property {string}
-   */
-  design_mode = {
-      name:'toggle',
-      id: -1
-    }
 
 
   /**
@@ -108,6 +86,7 @@ ink: String; //the name of the selected ink.
              @Inject(MAT_DIALOG_DATA) private data: any, 
              private scroll: ScrollDispatcher,
              private inks: InkService,
+             private dm: DesignmodesService,
              private ops: OperationService) { 
 
               this.scrollingSubscription = this.scroll
