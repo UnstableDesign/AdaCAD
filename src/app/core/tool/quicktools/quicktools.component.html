@@ -43,7 +43,18 @@
                 <span>{{mode.viewValue}}</span>
             </button>
             </ng-container>
-            </mat-menu>
+
+            <ng-container *ngFor="let shuttle of draft.shuttles">
+                <button class="menu-button" 
+                mat-menu-item 
+                (click)="drawWithMaterial(shuttle.id)">
+                    <span class="swatch"  [style.background]="shuttle.color" ></span>
+                    <span>{{shuttle.name }}</span>
+                </button>
+                </ng-container>
+
+
+        </mat-menu>
 
         <button 
         mat-icon-button
@@ -57,7 +68,7 @@
        
 
 
-        <button 
+        <!-- <button 
         mat-icon-button
         matTooltip= "Edit Draft Materials"
         [matMenuTriggerFor]="set_materials"
@@ -67,7 +78,7 @@
         </button>
 
         <mat-menu #set_materials="matMenu">
-        <ng-container *ngFor="let shuttle of materials">
+        <ng-container *ngFor="let shuttle of draft.shuttles">
         <button class="menu-button" 
         mat-menu-item 
         (click)="drawWithMaterial(shuttle.id)">
@@ -82,13 +93,13 @@
         <span class="fa fa-plus"></span>
         <span>Add / Edit Materials</span>
         </button>
-        </mat-menu>
+        </mat-menu> -->
 
     </div>
 
 <!-- COMMENT TOOL-->
 
-    <div class="tool-chunk">
+    <!-- <div class="tool-chunk">
 
 
         <button 
@@ -106,12 +117,24 @@
             </mat-slide-toggle>
         </div>
 
-    </div>
+    </div> -->
 
 <!-- VIEW TOOLS -->
 <div class="tool-chunk">
 
     <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+    
+    <div class="view_slider">
+    <mat-slider 
+    vertical
+    [displayWith]="formatLabel" 
+    tickInterval=".1" 
+    step=".1"
+    min="0" 
+    max="2" 
+    value="{{render.zoom}}" 
+    (change)="zoomChange($event, 'slider')"></mat-slider>
+</div>
     <button mat-icon-button><i class="fas fa-search-minus"></i></button>
 
     <div class="view_slider">
@@ -177,7 +200,7 @@
         <button 
         mat-icon-button
         matTooltip= "Open Pattern Library"
-        (click)="openPatternModal()">
+        (click)="openPatternsModal()">
         <i class="fas fa-chess-board"></i>
         </button>
 
@@ -189,7 +212,7 @@
         <button 
         mat-icon-button
         matTooltip= "Equipment Settings"
-        (click)="openPatternModal()">
+        (click)="openLoomModal()">
         <i class="fas fa-cog"></i></button>
 
     </div>

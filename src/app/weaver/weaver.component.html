@@ -21,9 +21,18 @@ source="weaver"
         [timeline]="timeline"
         [draft]="draft"
         [loom]="loom"  
+        [render]="render"  
         (onUndo)="undo();" 
         (onRedo)="redo();"
         (onDesignModeChange)='designModeChange($event)'
+        (onZoomChange) ="renderChange($event);"
+        (onViewChange) ="viewChange($event);"
+        (onViewFront) ="renderChange($event);"
+        (onHideWeftSystem)="hideWeftSystem($event);"
+        (onShowWeftSystem)="showWeftSystem($event);"
+        (onHideWarpSystem)="hideWarpSystem($event);"
+        (onShowWarpSystem)="showWarpSystem($event);"
+        (onLoomChange)="onLoomChange($event)"
         ></app-quicktools>
 
 

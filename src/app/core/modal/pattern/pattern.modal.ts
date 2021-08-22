@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Cell } from '../../../core/model/cell';
 import * as _ from 'lodash';
 import { Pattern } from '../../../core/model/pattern';
+import { PatternService } from '../../provider/pattern.service';
 
 @Component({
   selector: 'app-pattern-modal',
@@ -14,13 +15,14 @@ export class PatternModal implements OnInit {
   /**
    * stores a copy of the submitted pattern, so as not to upddate the original
    */
-  pattern: Pattern;
+  patterns: Array<Pattern>;
 
-  constructor(private dialogRef: MatDialogRef<PatternModal>,
+  constructor(
+             private ps:PatternService,
+             private dialogRef: MatDialogRef<PatternModal>,
              @Inject(MAT_DIALOG_DATA) public data: Pattern) {
 
-                
-              this.pattern = _.cloneDeep(data);
+              this.patterns =  ps.getPatterns().map(el => _.cloneDeep(el));
 
 
               }
@@ -29,7 +31,7 @@ export class PatternModal implements OnInit {
   }
 
   onNoClick(): void {
-    this.dialogRef.close(this.pattern);
+    this.dialogRef.close(this.patterns);
   }
 
   close() {
@@ -37,37 +39,31 @@ export class PatternModal implements OnInit {
   }
 
   save() {
-    this.dialogRef.close(this.pattern);
+    this.dialogRef.close(this.patterns);
   }
 
-  updatePatternSize(e) {
+  updatePatternSize(id: number) {
    
 
+
     //initalize a new array of size pattern
-    var pattern = [];
-    for (var i = 0; i < this.pattern.height; i++) {
-      pattern.push([]);
-      for (var j = 0; j < this.pattern.width; j++) {
-        pattern[i][j] = new Cell(false);
-        if(i < this.pattern.pattern.length && j < this.pattern.pattern[0].length){
-            pattern[i][j].setHeddle(this.pattern.pattern[i][j].getHeddle());
+    var pattern = this.patterns[id];
+    var heddles = [];
+    for (var i = 0; i < pattern.height; i++) {
+      heddles.push([]);
+      for (var j = 0; j < pattern.width; j++) {
+        heddles[i][j] = new Cell(false);
+        if(i < pattern.pattern.length && j < pattern.pattern[0].length){
+          heddles[i][j].setHeddle(pattern.pattern[i][j].getHeddle());
         }
       }
     }
 
-    // for (var i = 0; i < this.pattern.pattern.length; i++) {
-    //   for (var j = 0; j < this.pattern.pattern[i].length; j++) {
-       
-       
-    //     pattern[i][j].setHeddle(this.pattern.pattern[i][j].getHeddle());
-    //   }
-    // }
 
-    this.pattern.pattern = _.cloneDeep(pattern);
-    this.pattern.width = this.pattern.width;
-    this.pattern.height = this.pattern.height;
+    this.patterns[id].pattern = _.cloneDeep(heddles);
+    this.patterns[id].width = pattern.width;
+    this.patterns[id].height = pattern.height;
 
-    console.log(this.pattern);
 
   }
 

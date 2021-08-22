@@ -48,14 +48,14 @@
         <canvas id="warp-materials" #warp_materials>  </canvas>
       </div>
 
-      <div *ngIf="render?.view_frames" class="threading-tieup-container">
+      <div [class.hidden]="!render?.view_frames" class="threading-tieup-container">
         <canvas id="threading"></canvas>
         <canvas id="tieups" #tieups ></canvas>
       </div>
 
       <div class="drawdown-container">
         <canvas id="drawdown" #drawDown >  </canvas>
-        <canvas *ngIf="render?.view_frames" id="treadling" #treadling></canvas>
+        <canvas [class.hidden]="!render?.view_frames" id="treadling" #treadling></canvas>
         
         <div class="weft-systems-container">
           <canvas id="weft-materials" #weft_materials>  </canvas>

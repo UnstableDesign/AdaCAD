@@ -83,7 +83,9 @@ export class DraftviewerComponent implements OnInit {
    @Output() onNewSelection = new EventEmitter();
  
  
- 
+  hold_copy_for_paste: boolean = false;
+
+
  /**
     * The HTML canvas element within the weave draft.
     * @property {HTMLCanvasElement}
@@ -608,7 +610,7 @@ export class DraftviewerComponent implements OnInit {
    * This is emitted from the selection
    */
   onSelectionEnd(){
-    if(this.dm.isSelected('copy','design_actions') && this.selection.hasSelection()) this.copyArea();
+    if(!this.hold_copy_for_paste) this.copyArea();
   }
 
   /**
@@ -1086,17 +1088,15 @@ export class DraftviewerComponent implements OnInit {
    */
   private drawOnWarpMaterials( currentPos: Interlacement ) {
 
-    var dims = this.render.getCellDims("base");
-
     if (!this.cxWarpSystems || !currentPos) { return; }
 
     var col = currentPos.j; //need to offset this due to canvas padding
 
     if(col < 0){ return; }
+    const material_mode: DesignMode = this.dm.getDesignMode('material', 'draw_modes');
 
-
-    if(this.dm.isSelected('material', 'draw_modes')){
-        const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
+    if(material_mode.selected){
+        const material_id:string = material_mode.children[0].value;
         this.weave.colShuttleMapping[col] = parseInt(material_id);
     }else{
       const len = this.weave.shuttles.length;
@@ -1155,8 +1155,6 @@ export class DraftviewerComponent implements OnInit {
 
   private drawOnDrawdown( currentPos: Interlacement, shift: boolean) {
 
-    console.log("design mode", this.dm.getSelectedDesignMode('design_modes').value)
-    console.log("draw mode", this.dm.getSelectedDesignMode('draw_modes').value)
     var updates;
     var val  = false;
 
@@ -1912,6 +1910,7 @@ public drawWeftEnd(top, left, shuttle){
 
   public redrawLoom() {
 
+
     var base_dims = this.render.getCellDims("base");
     var front = this.render.isFront();
 
@@ -1924,6 +1923,7 @@ public drawWeftEnd(top, left, shuttle){
     this.cxThreading.canvas.height = base_dims.h * this.loom.num_frames;
     this.drawGrid(this.cxThreading,this.threadingCanvas);
    // else this.drawBlank(this.cxThreading,this.threadingCanvas);
+
 
     this.cxTreadling.canvas.width = base_dims.w * this.loom.num_treadles;
     this.cxTreadling.canvas.height = base_dims.h * this.render.visibleRows.length;
@@ -2417,6 +2417,9 @@ public redraw(flags:any){
    */
    public onPaste(e) {
 
+    this.hold_copy_for_paste = false;
+
+
     var p = this.copy;
     console.log("on paste", e, p);
 
@@ -2450,6 +2453,7 @@ public redraw(flags:any){
 
   onCopy(){
     this.copyArea();
+    this.hold_copy_for_paste = true;
   }
 
 

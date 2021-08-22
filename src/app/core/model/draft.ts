@@ -663,7 +663,7 @@ export class Draft{
   insertCol(i: number, shuttleId: number, systemId:number) {
     
     for (var ndx = 0; ndx < this.wefts; ndx++) {
-      this.pattern[ndx].splice(i,0, new Cell(null));
+      this.pattern[ndx].splice(i,0, new Cell(false));
     }
 
     this.warps += 1;

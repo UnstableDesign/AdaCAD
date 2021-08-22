@@ -49,6 +49,7 @@ import { PatternsComponent } from './tool/patterns/patterns.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
 import { QuicktoolsComponent } from './tool/quicktools/quicktools.component';
+import { LoomModal } from './modal/loom/loom.modal';
 
 @NgModule({
   imports: [
@@ -96,6 +97,7 @@ import { QuicktoolsComponent } from './tool/quicktools/quicktools.component';
     InitModal,
     AboutModal,
     MaterialModal,
+    LoomModal,
     PatternsComponent,
     DraftviewerComponent,
     SelectionComponent,
@@ -148,6 +150,7 @@ import { QuicktoolsComponent } from './tool/quicktools/quicktools.component';
     InitModal,
     AboutModal,
     MaterialModal,
+    LoomModal,
     DraftviewerComponent,
     SelectionComponent,
     QuicktoolsComponent],
@@ -157,6 +160,7 @@ import { QuicktoolsComponent } from './tool/quicktools/quicktools.component';
       AboutModal,
       PatternModal,
       MaterialModal,
+      LoomModal,
       DraftviewerComponent
     ],
 })

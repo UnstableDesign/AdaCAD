@@ -16,6 +16,7 @@ import { Loom } from '../core/model/loom';
 import * as _ from 'lodash';
 import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
 import {DesignmodesService} from '../core/provider/designmodes.service'
+import { isBuffer } from 'lodash';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -238,7 +239,6 @@ export class WeaverComponent implements OnInit {
 
   undo() {
     let d: Draft = this.timeline.restorePreviousHistoryState();
-    console.log("Prevous State is ", d);
     if(d === undefined || d === null) return;
 
     this.draft.reload(d);    
@@ -256,11 +256,9 @@ export class WeaverComponent implements OnInit {
 
   redo() {
     let d: Draft = this.timeline.restoreNextHistoryState();
-    console.log("Next State is ", d);
 
     if(d === undefined || d === null) return;
 
-    console.log(d);
 
     this.draft.reload(d);    
     this.weaveRef.onNewDraftLoaded();
@@ -407,18 +405,7 @@ export class WeaverComponent implements OnInit {
    */
   public designModeChange(e:any) {
 
-    this.dm.selectDesignMode(e.name, e.target);
-    if(e.id !== undefined) {
-      const mode = this.dm.getDesignMode(e.name, e.target);
-      mode.children.push(e.id);
-    }
 
-    // this.design_mode = {
-    //   name: e.name,
-    //   id: e.id
-    // }
-
-    // console.log("design mode", this.design_mode.name, this.design_mode.id);
     this.weaveRef.unsetSelection();
 
   }
@@ -760,6 +747,28 @@ export class WeaverComponent implements OnInit {
   }
 
 
+  /**
+   * called when a change that affects the view has taken place in the loom modal
+   */
+  onLoomChange(){
+
+      this.render.updateVisible(this.draft);
+
+      this.timeline.addHistoryState(this.draft);
+
+     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+
+      if(this.loom.type == 'frame'){
+        this.loom.recomputeLoom(this.draft);
+        this.render.view_frames = true;
+      }else{
+        this.render.view_frames = false;
+      }
+
+      console.log('render view frames', this.render.view_frames, this.loom.type);
+     this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
+
+  }
 
 
   public renderChange(e: any){

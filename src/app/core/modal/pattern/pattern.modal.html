@@ -1,47 +1,50 @@
-<h2 mat-dialog-title>Edit Pattern</h2>
-
+<h2 mat-dialog-title>Add/Edit Patterns</h2>
 <mat-dialog-content>
-  <form #patternForm="ngForm">
-      <mat-form-field class="is-fullwidth">
-        <input matInput placeholder="Pattern Name" name="name" [(ngModel)]="pattern.name">
-      </mat-form-field>
-      <mat-form-field >
-        <input matInput  
-        type="number" 
-        placeholder="Pattern Height" 
-        name="height" 
-        (change)="updatePatternSize($event);" 
-        [(ngModel)]="pattern.height">
-      </mat-form-field>
-      <mat-form-field >
-        <input matInput  
-        type="number" 
-        laceholder="Pattern Width" 
-        name="width" 
-        (change)="updatePatternSize($event);" 
-        [(ngModel)]="pattern.width">
-      </mat-form-field>
-      <mat-checkbox name="favorite" [(ngModel)]="pattern.favorite">Favorite</mat-checkbox>
 
-      <div class="pattern-container is-fullwidth">
-        <svg [attr.width]="pattern.width * 20" [attr.height]="pattern.height * 20" style="background:#fefefe;">
-          <g *ngFor="let row of pattern.pattern; let i = index">
-            <ng-container *ngFor="let cell of row; let j = index">
-            <rect class="pattern-block" 
-            [attr.x]="j * 20" 
-            [attr.y]="i * 20" 
-            width="20" 
-            height="20" 
-            [attr.fill]="cell.isUp() ? '#000' : '#fff'" 
-            (click)="pattern.pattern[i][j].setHeddle(!pattern.pattern[i][j].getHeddle())"/>
-            </ng-container>
-          </g>
-        </svg>
-      </div>
-    </form>
+<ng-container *ngFor="let pattern of patterns">
+
+  <form #materialForm="ngForm">
+    <mat-form-field class="is-fullwidth">
+      <input matInput placeholder="Pattern Name" name="name" [(ngModel)]="pattern.name">
+    </mat-form-field>
+    <mat-form-field >
+      <input matInput  
+      type="number" 
+      placeholder="Pattern Height" 
+      name="height" 
+      (change)="updatePatternSize($event);" 
+      [(ngModel)]="pattern.height">
+    </mat-form-field>
+    <mat-form-field >
+      <input matInput  
+      type="number" 
+      laceholder="Pattern Width" 
+      name="width" 
+      (change)="updatePatternSize($event);" 
+      [(ngModel)]="pattern.width">
+    </mat-form-field>
+    <mat-checkbox name="favorite" [(ngModel)]="pattern.favorite">Favorite</mat-checkbox>
+
+    <div class="pattern-container is-fullwidth">
+      <svg [attr.width]="pattern.width * 20" [attr.height]="pattern.height * 20" style="background:#fefefe;">
+        <g *ngFor="let row of pattern.pattern; let i = index">
+          <ng-container *ngFor="let cell of row; let j = index">
+          <rect class="pattern-block" 
+          [attr.x]="j * 20" 
+          [attr.y]="i * 20" 
+          width="20" 
+          height="20" 
+          [attr.fill]="cell.isUp() ? '#000' : '#fff'" 
+          (click)="pattern.pattern[i][j].setHeddle(!pattern.pattern[i][j].getHeddle())"/>
+          </ng-container>
+        </g>
+      </svg>
+    </div>
+  </form>
+</ng-container>
+
 </mat-dialog-content>
-
 <mat-dialog-actions>
-    <button class="mat-raised-button"(click)="close()">Close</button>
-    <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+  <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
 </mat-dialog-actions>

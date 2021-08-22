@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms';
 import { Shuttle } from '../../../core/model/shuttle';
 import { Draft } from '../../model/draft';
+import { DesignmodesService } from '../../provider/designmodes.service';
 
 
 @Component({
@@ -17,11 +18,12 @@ export class MaterialModal{
   types: any;
 
   constructor(
+      private dm: DesignmodesService,
       private dialogRef: MatDialogRef<MaterialModal>,
       @Inject(MAT_DIALOG_DATA) public data: {draft:Draft, material_types: any}) {
 
       this.shuttles = data.draft.shuttles;
-  	  this.types = data.material_types;
+  	  this.types = dm.material_types;
 
   }
 
@@ -37,7 +39,7 @@ export class MaterialModal{
   }
 
   save() {
-   // this.dialogRef.close(this.shuttle);
+    this.dialogRef.close(null);
   }
 
 }

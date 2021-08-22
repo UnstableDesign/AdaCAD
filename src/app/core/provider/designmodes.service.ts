@@ -163,6 +163,7 @@ export class DesignmodesService {
     });
 
 
+
    }
 
 
@@ -207,13 +208,8 @@ export class DesignmodesService {
    * @returns boolean describing if it was selected or not
    */
   isSelected(value:string, from: string):boolean{
-    const modes:Array<DesignMode> = this.getOptionSet(from);
- 
-    modes.forEach( mode => {
-       if(mode.value === value) return mode.selected;
-    });
-
-    return false;
+    const mode: DesignMode = this.getDesignMode(value, from);
+    return mode.selected;
   }
 
 
