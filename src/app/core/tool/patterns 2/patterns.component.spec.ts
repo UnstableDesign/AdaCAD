@@ -1,25 +1,25 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AboutModal} from './about.modal';
+import { PatternsComponent } from './patterns.component';
 
-describe('MaterialModal', () => {
-  let component: AboutModal;
-  let fixture: ComponentFixture<AboutModal>;
+describe('PatternsComponent', () => {
+  let component: PatternsComponent;
+  let fixture: ComponentFixture<PatternsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AboutModal ]
+      declarations: [ PatternsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AboutModal);
+    fixture = TestBed.createComponent(PatternsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should be created', () => {
     expect(component).toBeTruthy();
   });
 });

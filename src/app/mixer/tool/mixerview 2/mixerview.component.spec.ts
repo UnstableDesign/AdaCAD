@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AboutModal} from './about.modal';
+import { MixerViewComponent } from './mixerview.component';
 
-describe('MaterialModal', () => {
-  let component: AboutModal;
-  let fixture: ComponentFixture<AboutModal>;
+describe('ViewComponent', () => {
+  let component: MixerViewComponent;
+  let fixture: ComponentFixture<MixerViewComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AboutModal ]
+      declarations: [ MixerViewComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AboutModal);
+    fixture = TestBed.createComponent(MixerViewComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

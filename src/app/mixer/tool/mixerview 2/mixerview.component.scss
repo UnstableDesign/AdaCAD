@@ -1,0 +1,45 @@
+h4{
+	margin: 6px 0px;
+	padding: 6px 0px;
+}
+
+mat-slider{
+	width: 100%;
+	height: 40px;
+	margin: 14px 0 0; 
+}
+
+
+button{
+    background: white;
+	color: #ff4081;
+    border: thin solid #ff4081;
+    width: 30px;
+    height: 30px;
+    line-height: 1em;
+    margin: 2px;
+}
+
+.view_slider{
+  width: 100%;
+  padding: 8px 0 16px 0;
+  font-size: .8em;
+
+}
+
+mat-slide-toggle{
+    padding: 0px 8px;
+}
+
+button.selected{
+
+	background: #ff4081;
+	color: white;
+}
+
+.mat-button-toggle-appearance-standard .mat-button-toggle-label-content {
+    /* line-height: 48px; */
+    padding: 0 9px;
+    font-size: .9em;
+}
+

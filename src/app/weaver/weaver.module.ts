@@ -27,6 +27,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import { ScrollingModule} from '@angular/cdk/scrolling';
 
+
 import { CoreModule } from '../core/core.module';
 
 import { WeaverComponent } from './weaver.component';
@@ -38,6 +39,8 @@ import { SchematicComponent } from './tool/schematic/schematic.component';
 import { WeaverViewComponent } from './tool/weaverview/weaverview.component';
 import { ConnectionModal } from './modal/connection/connection.modal';
 import { LabelModal } from './modal/label/label.modal';
+import { TabComponent } from './tool/tab/tab.component';
+
 
 @NgModule({
   imports: [
@@ -68,7 +71,8 @@ import { LabelModal } from './modal/label/label.modal';
     MatTooltipModule,
     ColorPickerModule,
     MatChipsModule,
-    ScrollingModule
+    ScrollingModule,
+    
 
   ],
   declarations: [
@@ -80,7 +84,8 @@ import { LabelModal } from './modal/label/label.modal';
     MasksComponent,
     LabelModal,
     SchematicComponent,
-    WeaverViewComponent
+    WeaverViewComponent,
+    TabComponent
     ],
   entryComponents: [
     ConnectionModal  ],
