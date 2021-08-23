@@ -121,12 +121,10 @@ export class DesignmodesService {
       
       case 'shapes' : 
       modes = this.shapes;
-      this.selectDesignMode('shape', 'design_modes');
       break; 
      
       case 'draw_modes' : 
       modes = this.draw_modes;
-      this.selectDesignMode('draw', 'design_modes');
       break;       
       
       case 'material_types' : 
@@ -151,6 +149,17 @@ export class DesignmodesService {
 
    selectDesignMode(value: string, from: string) {
      
+    switch(from){
+
+      case 'shapes' : 
+      this.selectDesignMode('shape', 'design_modes');
+      break; 
+     
+      case 'draw_modes' : 
+      this.selectDesignMode('draw', 'design_modes');
+      break;       
+      
+    }
 
     const modes:Array<DesignMode> = this.getOptionSet(from);
 
@@ -161,9 +170,6 @@ export class DesignmodesService {
           mode.selected = false;
        }
     });
-
-
-
    }
 
 
@@ -176,12 +182,12 @@ export class DesignmodesService {
   getDesignMode(value: string, from: string): DesignMode {
    
     const modes:Array<DesignMode> = this.getOptionSet(from);
-    let found: DesignMode = null;
+     let found: DesignMode = null;
 
    modes.forEach( mode => {
       if(mode.value === value) found =  mode;
    });
-   return found;
+    return found;
   }
 
   /**

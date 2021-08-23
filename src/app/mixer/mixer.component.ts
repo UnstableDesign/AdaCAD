@@ -125,7 +125,7 @@ export class MixerComponent implements OnInit {
    * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
    * @param name the name of the current design mode
    */
-  private designModeChanged(name: string){
+  private designModeChange(name: string){
     this.palette.designModeChanged();
   }
 
@@ -295,7 +295,7 @@ export class MixerComponent implements OnInit {
   @HostListener('window:keydown.d', ['$event'])
   private keyChangetoDrawMode(e) {
     this.dm.selectDesignMode('draw', 'design_modes');
-    this.designModeChanged('draw');
+    this.designModeChange('draw');
   }
 
   /**
@@ -304,8 +304,8 @@ export class MixerComponent implements OnInit {
    */
    @HostListener('window:keydown.s', ['$event'])
    private keyChangeToSelect(e) {
-     this.dm.selectDesignMode('select','design_modes');
-     this.designModeChanged('select');
+     this.dm.selectDesignMode('marquee','design_modes');
+     this.designModeChange('marquee');
    }
 
 
@@ -316,7 +316,7 @@ export class MixerComponent implements OnInit {
       @HostListener('window:keydown.m', ['$event'])
       private keyChangeToMove(e) {
         this.dm.selectDesignMode('move','design_modes');
-        this.designModeChanged('move');
+        this.designModeChange('move');
       }
    
 

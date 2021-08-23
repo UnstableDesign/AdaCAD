@@ -623,14 +623,16 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    if(this.dm.isSelected('move', 'design_modes')){
+    console.log
+
+    if(this.dm.getDesignMode('move', 'design_modes').selected){
       this.unfreezePaletteObjects();
 
     }else{
       this.freezePaletteObjects();
     }
 
-    if(this.dm.isSelected('draw', 'design_modes') || this.dm.isSelected('shape',  'design_modes')){
+    if(this.dm.getDesignMode('draw', 'design_modes').selected || this.dm.getDesignMode('shape',  'design_modes').selected){
       this.rescale(Math.ceil(this.scale));
     }
 
@@ -876,7 +878,7 @@ export class PaletteComponent implements OnInit{
       this.preview.drawDraft();
       this.preview.setComponentPosition(bounds.topleft);
      
-    }else if(this.dm.isSelected("select",  'design_modes')){
+    }else if(this.dm.isSelected("marquee",  'design_modes')){
       this.selectionStarted();
     }else if(this.dm.isSelected("draw",  'design_modes')){
       this.drawStarted();
@@ -1492,7 +1494,8 @@ drawStarted(){
       this.removeSubscription();    
       
      
-      if(this.dm.isSelected("select",'design_modes')){
+
+      if(this.dm.getDesignMode("marquee",'design_modes').selected){
           this.selectionStarted();
           this.moveSubscription = 
           fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
@@ -1539,7 +1542,7 @@ drawStarted(){
     mouse.y = ndx.i * this.scale;
 
     if(this.dm.isSelected('free','shapes') && this.shape_vtxs.length > 0){
-      this.shapeDragged(mouse, shift);
+     this.shapeDragged(mouse, shift);
     }else if(this.selecting_connection){
       this.connectionDragged(mouse, shift);
     }
@@ -1560,11 +1563,11 @@ drawStarted(){
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
-    if(this.dm.isSelected("operation",'design_modes')){
+    // if(this.dm.getDesignMode("operation",'design_modes').selected){
 
      
     
-    }
+    // }
     
     this.last = ndx;
   }
@@ -1585,7 +1588,7 @@ drawStarted(){
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
-    if(this.dm.isSelected("select",'design_modes')){
+    if(this.dm.getDesignMode("marquee",'design_modes').selected){
 
      this.drawSelection(ndx);
      const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
@@ -1593,10 +1596,10 @@ drawStarted(){
      this.updateSnackBar("Select Drafts to Join",  this.selection.bounds);
 
     
-    }else if(this.dm.isSelected("draw", 'design_modes')){
+    }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
       this.setCell(ndx);
       this.drawCell(ndx);
-    }else if(this.dm.isSelected("shape",'design_modes')){
+    }else if(this.dm.getDesignMode("shape",'design_modes').selected){
       this.shapeDragged(mouse, shift);
     }
     
@@ -1624,7 +1627,7 @@ drawStarted(){
 
       this.removeSubscription();   
 
-      if(this.dm.isSelected("select",'design_modes')){
+      if(this.dm.getDesignMode("marquee",'design_modes').selected){
         if(this.selection.active)this.processSelection();
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);

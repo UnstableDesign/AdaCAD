@@ -1,5 +1,6 @@
 import { Component, Input, Output, OnInit,EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material';
+import { InkService } from '../../../mixer/provider/ink.service';
 import { LoomModal } from '../../modal/loom/loom.modal';
 import { MaterialModal } from '../../modal/material/material.modal';
 import { PatternModal } from '../../modal/pattern/pattern.modal';
@@ -17,6 +18,7 @@ export class QuicktoolsComponent implements OnInit {
   @Input() loom;
   @Input() timeline;
   @Input() render;
+  @Input() source;
 
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
@@ -42,16 +44,18 @@ export class QuicktoolsComponent implements OnInit {
   front: boolean = true;
 
 
-  constructor(private dm: DesignmodesService,private dialog: MatDialog) { 
-    
+  constructor(private dm: DesignmodesService, private is:InkService , private dialog: MatDialog) { 
     this.view = this.dm.getSelectedDesignMode('view_modes').value;
 
   }
 
   ngOnInit() {
+    
+    if(this.source == 'weaver'){
     this.front = this.render.view_front;
     this.weft_systems = this.draft.weft_systems;
     this.warp_systems = this.draft.warp_systems;
+    }
   }
 
   select(){
@@ -167,6 +171,19 @@ openLoomModal(){
 
   redoClicked(e:any) {
     this.onRedo.emit();
+  }
+
+  inkChanged(value:string){
+    console.log("changing to", value);
+    this.is.select(value);
+    //this.onInkChange.emit(e.target.name);
+  }
+
+
+  designModeChange(name: string) {
+    console.log("design mode change", name);
+    this.dm.selectDesignMode(name, 'design_modes');
+    this.onDesignModeChange.emit(name);
   }
 
 }
