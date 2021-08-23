@@ -541,11 +541,9 @@ export class WeaverComponent implements OnInit {
   * @returns {void}
   */
  public onGenerativeModeChange(e: any) {
-   console.log('caught');
    this.generativeMode = !this.generativeMode;
    this.centroids = e.centroids;
    this.clusters = e.clusters
-   console.log('this.generativeMode', this.generativeMode);
    if (this.generativeMode) {
       let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
       console.log('pattern:', pattern);

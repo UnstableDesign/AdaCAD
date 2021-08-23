@@ -52,7 +52,6 @@ export class TabComponent implements OnInit {
     if (this.generativeMode) {
       var allLowerCollectionName = this.collection.name.charAt(0).toLowerCase() + this.collection.name.slice(1)
       this.collectionSrvc.getCollection(allLowerCollectionName).then((value) => {
-        console.log('receied collection');
         this.clusters = value;
         var centroids = [];
         var clusters = [];

@@ -47,41 +47,9 @@ export class WeaverDesignComponent implements OnInit {
   
   centroids: any = [];
 
-  constructor(private ref: ChangeDetectorRef, private dialog: MatDialog, private collectionSrvc: CollectionService) { 
-    this.collections = [];
-    this.collection = {name: ""};
-    collectionSrvc.getCollectionNames().then((value) => {
-      this.collections = value;
-      this.collection = this.collections[0];
-    })
-  }
+  constructor(private ref: ChangeDetectorRef, private dialog: MatDialog) {}
   
   ngOnInit() {
-  }
-
-  generativeModeChange() {
-    this.generativeMode = !this.generativeMode;
-    console.log('in geenerativeeModeChange');
-    if (this.generativeMode) {
-      console.log('in positive generativeMode');
-      var allLowerCollectionName = this.collection.name.charAt(0).toLowerCase() + this.collection.name.slice(1)
-      this.collectionSrvc.getCollection(allLowerCollectionName).then((value) => {
-        console.log('succesfully got the data');
-        this.clusters = value;
-        var centroids = [];
-        var clusters = [];
-        this.clusters.forEach(element => {
-          centroids.push(element.centroid);
-          clusters.push(element.cluster);
-        });
-        var obj: any = {};
-        obj.centroids = centroids;
-        obj.clusters = clusters;
-        console.log('emitting');
-        this.onGenerativeModeChange.emit(obj);
-
-      })
-    }
   }
 
   designModeChange(e: any) {
