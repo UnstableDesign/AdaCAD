@@ -20,8 +20,6 @@ export class CollectionService {
       snapshot.forEach(function(collection) {
         var name: string = collection.val().name;
         if (name == collectionName) {
-          // this.indicator = collection.val().patternFinder;
-          // console.log('set indicator to ', this.indicator);
           for (var i = 0; i < collection.val().clusterCount; i++) {
             let tempObj = {centroid: collection.val().centroids[i],
               cluster: eval('collection.val().cluster' + i + ';')
