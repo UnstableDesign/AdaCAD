@@ -169,6 +169,12 @@ export class WeaverComponent implements OnInit {
      */
     clusters = [];
     
+
+    /**
+     * String holding collection name for generative ML
+     */
+    collection: string = "";
+
     /**
      * Object that holds the machine learning models to generate drafts from a seed
      * @property {VAE} 
@@ -541,10 +547,14 @@ export class WeaverComponent implements OnInit {
   * @returns {void}
   */
  public onGenerativeModeChange(e: any) {
+   console.log('e:', e);
    this.generativeMode = !this.generativeMode;
    this.centroids = e.centroids;
-   this.clusters = e.clusters
-   if (this.generativeMode) {
+   this.collection = e.collection.toLowerCase().split(' ').join('_');
+   this.clusters = e.clusters;
+   this.vae.loadModels(this.collection).then(() => {
+    if (this.generativeMode) {
+      this.vae.loadModels(this.collection);
       let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
       console.log('pattern:', pattern);
       let closestCentroidIdx = this.draftMatcher.matchToClosestCluster(this.centroids, pattern);
@@ -560,7 +570,8 @@ export class WeaverComponent implements OnInit {
           console.log('pattern:', this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i]));
         }
       });
-   }
+    }
+   });
  }
   
   /**

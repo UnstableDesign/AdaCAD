@@ -62,6 +62,8 @@ export class TabComponent implements OnInit {
         var obj: any = {};
         obj.centroids = centroids;
         obj.clusters = clusters;
+        console.log('this.collection.name;', this.collection.name);
+        obj.collection = this.collection.name;
         this.onGenerativeModeChange.emit(obj);
 
       })
