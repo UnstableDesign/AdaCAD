@@ -27,7 +27,7 @@
       [disabled] = "this.generativeMode" 
       class="button is-small fas fa-play-circle"
       [style.color]="button_color"
-      (click)="generativeModeEvent($event)">  
+      (click)="generativeModeChange($event)">  
       
       
     </button>
@@ -38,7 +38,7 @@
       [disabled] = "!this.generativeMode" 
       class="button material is-small is-primary fas fa-square"
       [style.color]="button_color"
-      (click)="generativeModeEvent($event)"> 
+      (click)="generativeModeChange($event)"> 
       
     </button>
 

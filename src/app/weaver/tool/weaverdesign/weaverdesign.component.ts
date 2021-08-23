@@ -61,9 +61,12 @@ export class WeaverDesignComponent implements OnInit {
 
   generativeModeChange() {
     this.generativeMode = !this.generativeMode;
+    console.log('in geenerativeeModeChange');
     if (this.generativeMode) {
+      console.log('in positive generativeMode');
       var allLowerCollectionName = this.collection.name.charAt(0).toLowerCase() + this.collection.name.slice(1)
       this.collectionSrvc.getCollection(allLowerCollectionName).then((value) => {
+        console.log('succesfully got the data');
         this.clusters = value;
         var centroids = [];
         var clusters = [];
@@ -74,6 +77,7 @@ export class WeaverDesignComponent implements OnInit {
         var obj: any = {};
         obj.centroids = centroids;
         obj.clusters = clusters;
+        console.log('emitting');
         this.onGenerativeModeChange.emit(obj);
 
       })

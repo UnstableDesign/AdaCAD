@@ -173,7 +173,6 @@ export class PatternFinder {
         var temp: string = "";
         for (var i = 0; i < pattern.length; i++) {
             var currentChar = pattern[i];
-            console.log('currentChar:', currentChar);
             if (currentChar != ",") {
                 temp += currentChar;
                 if (i == pattern.length - 1) {
@@ -217,7 +216,13 @@ export class PatternFinder {
         var singles = {};
 
         for (var i = 0; i < sequence.length; i++) {
-            singles[i] = this.countOccurances(sequence, i);
+            var count = 0;
+            sequence.forEach(element => {
+                if (element == sequence[i]) {
+                    count += 1;
+                }
+            });
+            singles[sequence[i]] = count;
         }
         for (var key in singles) {
             if (singles[key] == 1) {
@@ -227,145 +232,22 @@ export class PatternFinder {
         if (Object.keys(singles).length == 0) {
             return sequence;
         }
-
-        var occuranceTable = {};
-        var continueSearch = true;
-        var size = 2;
-        var occuranceTableKeys: string[] = [];
         
-
-        while (continueSearch) {
-            continueSearch = false;
-            for (var i = 0; i < sequence.length - size + 1; i++) {
-                var strSubsequence: string = "";
-                for (var j = 0; j < size; j++) {
-                    strSubsequence += sequence[i+j].toString() + ",";
-                }
-                strSubsequence = strSubsequence.slice(0, -1);
-                if (occuranceTableKeys.includes(strSubsequence)) {
-                    occuranceTable[strSubsequence] += 1;
-                    continueSearch = true;
-                } else {
-                    occuranceTable[strSubsequence] = 1;
-                    occuranceTableKeys.push(strSubsequence);
-                }
-            }
-            size += 1;
-        }        
-
-
-        var patterns = [];
-
-        for (var idx = 0; idx < occuranceTableKeys.length; idx++) {
-            var key = occuranceTableKeys[idx];
-            var simplifiable = false;
-            if (occuranceTable[key] > 1) {
-                for (var j = 0; j < patterns.length; j++) {
-                    var pattern = patterns[j];
-                    if (key.length % pattern.length == 0 && pattern.length != key.length) {
-                        simplifiable = true;
-                        for (var checkingIdx = 0; checkingIdx < key.length - pattern.length; checkingIdx++) {
-                            if (pattern.substring(checkingIdx, checkingIdx + pattern.length) != key) {
-                                simplifiable = false;
-                            }
-                        }
-                    }
-                    if (simplifiable) {
-                        break;
+        for (var size = 1; size < sequence.length; size++) {
+            for (var i = 0; i < sequence.length-1-size; size++) {
+                let key = sequence.slice(i, i+size);
+                var repeat = true;
+                for (var j = i+size; j < sequence.length-1-size; j+= size) {
+                    if (JSON.stringify(sequence.slice(j, j+size))!= JSON.stringify(key)) {
+                        repeat = false;
                     }
                 }
-                if (!simplifiable) {
-                    patterns.push(key);
+                if (repeat) {
+                    return key;
                 }
             }
         }
-
-        var toDelete = [];
-
-        for (var p1 = 0; p1 < patterns.length; p1++) {
-            for (var p2 = p1 + 1; p2 < patterns.length; p2++) {
-                var pattern1 = this.toArray(patterns[p1]);
-                var pattern2 = this.toArray(patterns[p2]);
-                var swapped: boolean = false;
-
-                let length1: number = pattern1.length;
-                let length2: number = pattern2.length;
-                if (length1 != length2) {
-                    if (length1 > length2) {
-                        var temp = JSON.parse(JSON.stringify(pattern1)); //Makes a deep copy of pattern1
-                        pattern1 = JSON.parse(JSON.stringify(pattern2));
-                        pattern2 = temp;
-                        swapped = true;
-                    }
-                }
-                var i = -1;
-                var aligned = false;
-                while (!aligned) {
-                    i += 1;
-                    if (pattern1[pattern1.length-1] == pattern2[i]) {
-                        aligned = true;
-                        for (var j = 1; j < i; j++) {
-                            if (pattern1[pattern1.length - 1 - j] != pattern2[i - j]) {
-                                aligned = false;
-                            }
-                        }
-                    }
-                    if (i == pattern1.length - 1 && !aligned) {
-                        i = -1;
-                        aligned = true;
-                    }
-                    
-                }
-
-                var repeat = false;
-                if (i != -1) {
-                    repeat = true;
-                    for (var idx = 0; idx < pattern1.length-1-i; idx++) {
-                        if (pattern1[idx] != pattern2[i + 1 + idx]) {
-                            repeat = false;
-                        }
-                    }
-                }
-                if (repeat && swapped) {
-                    toDelete.push(p1);
-                } else if (repeat) {
-                    toDelete.push(p2);
-                }
-            }
-        }
-
-        for (var i = 0; i < patterns.length; i++)
-        {
-            if (!patterns[i].includes(",")) {//meaning this is a pattern of one entry
-                toDelete.push(i);
-            }
-            
-        }
-
-        
-        var containsRepeats = true;
-        while(containsRepeats) {
-            var firstIdx = -1;
-            containsRepeats = false;
-            for (var i = 0; i < toDelete.length; i++) {
-                for (var j = i+1; j < toDelete.length; j++) {
-                    if (toDelete[i] == toDelete[j]) {
-                        containsRepeats = true;
-                        if (firstIdx == -1) {
-                            firstIdx = j;
-                        }
-                    }
-                }
-            }
-            if (firstIdx != -1) {
-                toDelete.splice(firstIdx, 1);
-            }
-        }
-
-        for (var i = 0; i < toDelete.length; i++) {
-            patterns.splice(toDelete[toDelete.length - 1 - i], 1)
-        }
-        return patterns[0];
+        return sequence;
     }
 
     private findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threading, draft) {
@@ -440,7 +322,7 @@ export class PatternFinder {
     public computePatterns(threading, treadling, draft) {
         let threadingPatterns = this.findPatterns(threading);
         let treadlingPatterns = this.findPatterns(treadling);
-        
+
         return this.findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threading, draft);
     }
     

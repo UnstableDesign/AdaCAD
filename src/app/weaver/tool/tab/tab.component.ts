@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@a
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { NgForm } from '@angular/forms';
 import * as _ from 'lodash';
+import { ChangeDetectorRef } from '@angular/core';
+import { CollectionService } from '../../../core/provider/collection.service';
 
 
 
@@ -14,21 +16,9 @@ import * as _ from 'lodash';
 
 export class TabComponent implements OnInit {
   @Input()  collapsed;
-  @Input()  design_mode;
-  @Input()  design_modes;
-  @Input()  design_actions;
-  @Input()  view_mode;
-  @Input()  materials;
-  @Input()  patterns;
-  @Input()  selection;
-  @Output() onDesignModeChange: any = new EventEmitter();
-  @Output() onFill: any = new EventEmitter();
-  @Output() onPaste: any = new EventEmitter();
-  @Output() onCopy: any = new EventEmitter();
-  @Output() onClear: any = new EventEmitter();
-  @Output() onPatternChange: any = new EventEmitter();
-  @Output() onCreatePattern: any = new EventEmitter();
-  @Output() onRemovePattern: any = new EventEmitter();
+  @Input() collections;
+  @Input() collection;
+  @Output() onCollectionNamesChange: any = new EventEmitter();
   @Output() onGenerativeModeChange: any = new EventEmitter();
 
 
@@ -37,112 +27,52 @@ export class TabComponent implements OnInit {
 
   selected = 0;
 
- 
-  collections = []
-  collection: any;
   generativeMode = false;
 
-  constructor(private dialog: MatDialog) { 
-    this.collection = {name: 'German Drafts'};
-    this.collections.push(this.collection);
+  clusters: any = [];
+  
+  centroids: any = [];
+
+
+  constructor(private ref: ChangeDetectorRef, private dialog: MatDialog, private collectionSrvc: CollectionService) { 
+    this.collections = [];
+    this.collection = {name: ""};
+    collectionSrvc.getCollectionNames().then((value) => {
+      this.collections = value;
+      this.collection = this.collections[0];
+    })
   }
 
   ngOnInit() {
 
   }
 
+  generativeModeChange() {
+    this.generativeMode = !this.generativeMode;
+    if (this.generativeMode) {
+      var allLowerCollectionName = this.collection.name.charAt(0).toLowerCase() + this.collection.name.slice(1)
+      this.collectionSrvc.getCollection(allLowerCollectionName).then((value) => {
+        console.log('receied collection');
+        this.clusters = value;
+        var centroids = [];
+        var clusters = [];
+        this.clusters.forEach(element => {
+          centroids.push(element.centroid);
+          clusters.push(element.cluster);
+        });
+        var obj: any = {};
+        obj.centroids = centroids;
+        obj.clusters = clusters;
+        this.onGenerativeModeChange.emit(obj);
 
-
-  designModeChange(e: any) {
-
-    console.log(e.target.name);
-    this.design_mode = e.target.name;
-
-     var obj: any = {};
-     obj.name = this.design_mode;
-     this.onDesignModeChange.emit(obj);
-  }
-
-  drawWithMaterial(e: any){
-    this.design_mode = 'material';
-    var obj: any = {};
-    obj.name = this.design_mode;
-    obj.id = e.target.name;
-    this.onDesignModeChange.emit(obj);
-  }
-
-  designActionChange(e){
-    console.log("design action", e.target.name);
-
-    switch(e.target.name){
-      case 'up': this.clearEvent(true);
-      break;
-
-      case 'down': this.clearEvent(false);
-      break;
-
-      case 'copy': this.copyEvent(e);
-      break;
-
-      case 'paste': this.pasteEvent(e, 'original');
-      break;
-
-      case 'toggle': this.pasteEvent(e, 'invert');
-      break;
-
-      case 'flip_x': this.pasteEvent(e, 'mirrorX');
-      break;
-
-      case 'flip_y': this.pasteEvent(e, 'mirrorY');
-      break;
-
-      case 'shift_left': this.pasteEvent(e, 'shiftLeft');
-      break;
-
-      case 'shift_up': this.pasteEvent(e, 'shiftUp');
-      break;
-
+      })
     }
   }
-
-  fillEvent(id) {
-    var obj: any = {};
-    obj.id = id;
-    this.onFill.emit(obj);
-  }
-
-  copyEvent(e) {
-    this.onCopy.emit();
-  }
-
-  clearEvent(b:boolean) {
-    this.onClear.emit(b);
-  }
-
-  pasteEvent(e, type) {
-    var obj: any = {};
-    obj.type = type;
-    this.onPaste.emit(obj);
-  }
-
-
-  updatePatterns(obj: any){
-    this.onPatternChange.emit(obj);
-  }
-
-  removePattern(pattern) {
-    this.onRemovePattern.emit(pattern);
-  }
-
-
-  createPattern(obj){
-    this.onCreatePattern.emit(obj);
-  }
-
-  generativeModeEvent(e:any) {
-    this.generativeMode = !this.generativeMode;
-    this.onGenerativeModeChange.emit(e);
-  }
+ 
+  // generativeModeEvent(e:any) {
+  //   this.generativeMode = !this.generativeMode;
+  //   this.onGenerativeModeChange.emit(e);
+  // }
 
 
 }

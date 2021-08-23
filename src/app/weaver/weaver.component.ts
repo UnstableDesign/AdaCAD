@@ -541,11 +541,14 @@ export class WeaverComponent implements OnInit {
   * @returns {void}
   */
  public onGenerativeModeChange(e: any) {
+   console.log('caught');
    this.generativeMode = !this.generativeMode;
    this.centroids = e.centroids;
    this.clusters = e.clusters
+   console.log('this.generativeMode', this.generativeMode);
    if (this.generativeMode) {
       let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
+      console.log('pattern:', pattern);
       let closestCentroidIdx = this.draftMatcher.matchToClosestCluster(this.centroids, pattern);
       let closestDraftIdx = this.draftMatcher.matchToClosestDraft(this.clusters[closestCentroidIdx]);
       let closestDraft = this.clusters[closestCentroidIdx][closestDraftIdx];
@@ -555,9 +558,7 @@ export class WeaverComponent implements OnInit {
         console.log('suggestions:', suggestions);
         for (var i = 0; i < suggestions.length; i++) {
           let treadlingSuggest = this.patternFinder.getTreadlingFromArr(suggestions[i]);
-          console.log('treadling:', treadlingSuggest);
           let threadingSuggest = this.patternFinder.getThreadingFromArr(suggestions[i]);
-          console.log('threading:', threadingSuggest);
           console.log('pattern:', this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i]));
         }
       });

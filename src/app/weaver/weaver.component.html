@@ -59,10 +59,11 @@
         (onCreatePattern)="createPattern($event);"
         (onRemovePattern)="removePattern($event);"
         (onChange) = "onChange($event);"
-        (onGenerativeModeChange)="onGenerativeModeChange($event)"
         >
         </app-weaverdesign>
-        <app-tab></app-tab> 
+        <app-tab
+        (onGenerativeModeChange)="onGenerativeModeChange($event)"
+        ></app-tab> 
 
         <app-materials 
           [material_types]="material_types"
