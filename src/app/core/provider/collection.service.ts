@@ -8,15 +8,20 @@ import { AngularFireDatabase} from 'angularfire2/database';
 export class CollectionService {
 
   constructor( private db: AngularFireDatabase) { }
+  
+  indicator: boolean = false;
 
  
   async getCollection(collectionName) {
     var snapshot = await this.db.database.ref("collections/").once('value');
     var returnVal = [];
     if (snapshot.exists()) {
+      console.log('snapshot exists');
       snapshot.forEach(function(collection) {
         var name: string = collection.val().name;
         if (name == collectionName) {
+          // this.indicator = collection.val().patternFinder;
+          // console.log('set indicator to ', this.indicator);
           for (var i = 0; i < collection.val().clusterCount; i++) {
             let tempObj = {centroid: collection.val().centroids[i],
               cluster: eval('collection.val().cluster' + i + ';')
@@ -48,6 +53,10 @@ export class CollectionService {
     } else {
       return [];
     }
+  }
+
+  async getPatternFinderIndicator() {
+    return this.indicator;
   }
 
 }

@@ -48,10 +48,12 @@ export class TabComponent implements OnInit {
   }
 
   generativeModeChange() {
+    console.log('generativeModeChange');
     this.generativeMode = !this.generativeMode;
     if (this.generativeMode) {
       var allLowerCollectionName = this.collection.name.charAt(0).toLowerCase() + this.collection.name.slice(1)
       this.collectionSrvc.getCollection(allLowerCollectionName).then((value) => {
+        console.log('got collection');
         this.clusters = value;
         var centroids = [];
         var clusters = [];
@@ -62,8 +64,8 @@ export class TabComponent implements OnInit {
         var obj: any = {};
         obj.centroids = centroids;
         obj.clusters = clusters;
-        console.log('this.collection.name;', this.collection.name);
         obj.collection = this.collection.name;
+        // obj.indicator = this.collectionSrvc.getPatternFinderIndicator();
         this.onGenerativeModeChange.emit(obj);
 
       })

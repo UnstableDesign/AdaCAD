@@ -160,6 +160,12 @@ export class WeaverComponent implements OnInit {
     generativeMode = false;
 
     /**
+     * Boolean representing if patternFinder can be run on this collection
+     * @property {boolean}
+     */
+    indicatorPatternFinder: boolean = false;
+
+    /**
      * Array holding the centroid drafts of the current collections clusters from db
      */
     centroids = [];
@@ -552,6 +558,7 @@ export class WeaverComponent implements OnInit {
    this.centroids = e.centroids;
    this.collection = e.collection.toLowerCase().split(' ').join('_');
    this.clusters = e.clusters;
+  //  this.indicatorPatternFinder = e.indicator;
    this.vae.loadModels(this.collection).then(() => {
     if (this.generativeMode) {
       this.vae.loadModels(this.collection);
