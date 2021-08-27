@@ -1,5 +1,7 @@
 import { Component, Input, Output, OnInit,EventEmitter } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
+import { MixerViewComponent } from '../../../mixer/modal/mixerview/mixerview.component';
+import { OpsComponent } from '../../../mixer/modal/ops/ops.component';
 import { InkService } from '../../../mixer/provider/ink.service';
 import { LoomModal } from '../../modal/loom/loom.modal';
 import { MaterialModal } from '../../modal/material/material.modal';
@@ -31,8 +33,9 @@ export class QuicktoolsComponent implements OnInit {
   @Output() onShowWeftSystem: any = new EventEmitter();
   @Output() onHideWeftSystem: any = new EventEmitter();
   @Output() onLoomChange: any = new EventEmitter();
-
-
+  @Output() onOperationAdded: any = new EventEmitter();
+  @Output() onImport: any = new EventEmitter();
+  @Output() onViewPortMove: any = new EventEmitter();
   //design mode options
   mode_draw: any;
 
@@ -42,6 +45,9 @@ export class QuicktoolsComponent implements OnInit {
 
   view: string = 'pattern';
   front: boolean = true;
+
+  view_modal: MatDialogRef<MixerViewComponent, any>;
+  op_modal: MatDialogRef<OpsComponent, any>;
 
 
   constructor(private dm: DesignmodesService, private is:InkService , private dialog: MatDialog) { 
@@ -66,7 +72,17 @@ export class QuicktoolsComponent implements OnInit {
      this.onDesignModeChange.emit(obj);
   }
 
+  shapeChange(name:string){
+    var obj: any = {};
+    obj.name = name;
+    obj.target = "shapes";
+    console.log('setting shape', name)
+    this.dm.selectDesignMode(obj.name, obj.target);
+    this.onDesignModeChange.emit(obj);
+  }
+
   drawModeChange(name: string) {
+
 
      var obj: any = {};
      obj.name = name;
@@ -162,6 +178,49 @@ openLoomModal(){
 }
 
 
+openOps(){
+
+  if(this.op_modal != undefined && this.op_modal.componentInstance != null) return;
+  
+  this.op_modal =  this.dialog.open(OpsComponent,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {loom: this.loom, draft:this.draft}});
+
+
+      this.op_modal.componentInstance.onOperationAdded.subscribe(event => { this.onOperationAdded.emit(event)});
+      this.op_modal.componentInstance.onImport.subscribe(event => { this.onImport.emit(event)});
+
+  
+      this.op_modal.afterClosed().subscribe(result => {
+        //this.onLoomChange.emit();
+       // dialogRef.componentInstance.onChange.removeSubscription();
+    });
+}
+
+openMixerView(){
+  if(this.view_modal != undefined && this.view_modal.componentInstance != null) return;
+
+  this.view_modal  =  this.dialog.open(MixerViewComponent,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {zoom: 5}});
+
+
+       this.view_modal.componentInstance.onViewPortMove.subscribe(event => { this.onViewPortMove.emit(event)});
+       this.view_modal.componentInstance.onZoomChange.subscribe(event => { this.onZoomChange.emit(event)});
+
+  
+      this.view_modal.afterClosed().subscribe(result => {
+        //this.onLoomChange.emit();
+       // dialogRef.componentInstance.onChange.removeSubscription();
+    });
+}
+
+
+
   
 
 
@@ -184,6 +243,13 @@ openLoomModal(){
     console.log("design mode change", name);
     this.dm.selectDesignMode(name, 'design_modes');
     this.onDesignModeChange.emit(name);
+  }
+
+  updateViewPort(data: any){
+
+    if(this.view_modal != undefined && this.view_modal.componentInstance != null){
+      this.view_modal.componentInstance.updateViewPort(data);
+    }
   }
 
 }

@@ -14,8 +14,9 @@ import { TreeService } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj } from '../core/provider/file.service';
 import { OperationComponent } from './palette/operation/operation.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
-import { MixerViewComponent } from './tool/mixerview/mixerview.component';
+import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
+import { QuicktoolsComponent } from '../core/tool/quicktools/quicktools.component';
 
 
 //disables some angular checking mechanisms
@@ -35,7 +36,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild(PaletteComponent, {static: false}) palette;
   @ViewChild(MixerDesignComponent, {static: false}) design_tool;
-  @ViewChild(MixerViewComponent, {static: false}) view_tool;
+  @ViewChild(QuicktoolsComponent, {static: false}) view_tool;
 
 
   filename = "adacad_mixer";
@@ -48,6 +49,7 @@ export class MixerComponent implements OnInit {
    timeline: Timeline = new Timeline();
 
 
+   manual_scroll: boolean = false;
 
 
   material_types: MaterialTypes[] = [
@@ -111,13 +113,18 @@ export class MixerComponent implements OnInit {
 
 
   private onWindowScroll(data: any) {
-    this.palette.handleScroll(data);
-    this.view_tool.updateViewPort(data);
+    if(!this.manual_scroll){
+     this.palette.handleWindowScroll(data);
+     this.view_tool.updateViewPort(data);
+    }else{
+      this.manual_scroll = false;
+    }
   }
 
-  private setScroll(data: any) {
-    this.palette.handleScroll(data);
-    this.view_tool.updateViewPort(data);
+  private setScroll(delta: any) {
+    this.palette.handleScroll(delta);
+    this.manual_scroll = true;
+   //this.view_tool.updateViewPort(data);
   }
 
 
@@ -478,6 +485,9 @@ export class MixerComponent implements OnInit {
 
      const scale = event.value;
      this.palette.rescale(scale);
+
+
+
   }
 
  

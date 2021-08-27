@@ -1,18 +1,18 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { OperationService } from '../../provider/operation.service';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { InitModal } from '../../../core/modal/init/init.modal';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-flow',
-  templateUrl: './flow.component.html',
-  styleUrls: ['./flow.component.scss']
+  selector: 'app-ops',
+  templateUrl: './ops.component.html',
+  styleUrls: ['./ops.component.scss']
 })
-export class FlowComponent implements OnInit {
+export class OpsComponent implements OnInit {
   
   @Output() onOperationAdded:any = new EventEmitter();
   @Output() onImport:any = new EventEmitter();
@@ -21,7 +21,9 @@ export class FlowComponent implements OnInit {
   myControl = new FormControl();
   filteredOptions: Observable<string[]>;
   
-  constructor(private ops: OperationService, private dialog: MatDialog) { }
+  constructor(private ops: OperationService, private dialog: MatDialog,
+    private dialogRef: MatDialogRef<OpsComponent>,
+             @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit() {
 
@@ -37,6 +39,11 @@ export class FlowComponent implements OnInit {
     const filterValue = value.toLowerCase();
     return this.opnames.filter(option => option.toLowerCase().includes(filterValue));
   }
+
+  close() {
+    this.dialogRef.close(null);
+  }
+
 
 
   addOp(name: string){

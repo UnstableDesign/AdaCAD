@@ -10,7 +10,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
-import {cloneDeep, isBuffer} from 'lodash';
+import {cloneDeep, divide, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
@@ -264,16 +264,26 @@ export class PaletteComponent implements OnInit{
 
   
 /**
+ * called when user moves position within viewer
+ * @param data 
+ */
+  handleScroll(delta: any){
+
+    this.viewport.move(delta.x, delta.y);
+    const div:HTMLElement = document.getElementById('scrollable-container');  
+     div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
+     div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
+  }
+
+  /**
  * called when user scrolls the winidow
  * @param data 
  */
-  handleScroll(data: any){
+   handleWindowScroll(data: any){
+
     const div:HTMLElement = document.getElementById('scrollable-container');
     this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     //update the canvas to this position
-    this.canvas.style.top = this.viewport.getTopLeft().y+"px";
-    this.canvas.style.left = this.viewport.getTopLeft().x+"px";
-
   }
 
   /**
@@ -707,8 +717,27 @@ export class PaletteComponent implements OnInit{
 
     const rel: Interlacement = this.getRelativeInterlacement(ndx);
     const c: Cell = this.scratch_pad[rel.i][rel.j];
-    if(this.inks.getSelected() === "down") c.setHeddle(false);
-    else c.setHeddle(true);
+
+    const selected: string = this.dm.getSelectedDesignMode('draw_modes').value;
+
+    switch(selected){
+      case 'toggle':
+        const cur: boolean = c.getHeddle();
+        if(cur == null)  c.setHeddle(true);
+        else c.setHeddle(!cur);
+        break;
+      case 'down':
+        c.setHeddle(false);
+        break;
+      case 'up':
+        c.setHeddle(true);
+      break;
+      case 'unset':
+        c.setHeddle(null);
+      break;
+    }
+
+
     //use the code below to use past scratchpad values, but this seems wrong
     // console.log(c);
     // const val: boolean = c.isSet(); //check for a previous value
@@ -1643,7 +1672,7 @@ drawStarted(){
 
 
       }else if(this.dm.isSelected("shape",'design_modes')){
-        if(!this.dm.isSelected('free','design_modes')){
+        if(!this.dm.isSelected('free','shapes')){
           this.processShapeEnd();
           this.changeDesignmode('move');
           this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);

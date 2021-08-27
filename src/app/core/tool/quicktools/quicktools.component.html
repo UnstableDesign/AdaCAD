@@ -22,25 +22,41 @@
     </div>
 
 
+
 <!-- MIXER EDITING TOOLS -->
+
+<div class="tool-chunk" *ngIf="source==='mixer'">
+    <button 
+    mat-icon-button
+    [class.is-active] = "op_modal && op_modal.componentInstance != null"
+    matTooltip= "Operation"
+    (click)="openOps()">
+    <i class="fas fa-project-diagram"></i>
+    </button>
+
+
+</div>
+
+
     <div class="tool-chunk" *ngIf="source==='mixer'">
 
     <button 
     mat-icon-button
     matTooltip= "Draw"
     [matMenuTriggerFor]="inks"
-    [class.is-active]="selected_mode === 'draw'">
+    [class.is-active]="dm.isSelected('draw','design_modes')">
     <i class="fas fa-edit"></i>
     </button>
 
     <mat-menu #inks="matMenu">
         <ng-container *ngFor="let mode of dm.draw_modes">
-            <button 
+            <button *ngIf="mode.value != 'material'"
             class="menu-button" 
             mat-menu-item 
             [matTooltip]=mode.viewValue
             [name]=mode.value 
-            (click)="drawModeChange($event)">
+            [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
+            (click)="drawModeChange(mode.value)">
             <span class="{{mode.icon}}"></span>
              <span>{{mode.viewValue}}</span>
              </button> 
@@ -50,7 +66,8 @@
     <button 
     mat-icon-button
     matTooltip= "Draw Shape"
-    [matMenuTriggerFor]="shape">
+    [matMenuTriggerFor]="shape"
+    [class.is-active]="dm.isSelected('shape','design_modes')">
     <i class="fas fa-shapes"></i>
     </button>
     
@@ -63,7 +80,8 @@
         mat-menu-item 
         [matTooltip]=mode.viewValue
         [name]=mode.value 
-        (click)="shapeChange($event)">
+        [class.is-active]="dm.isSelected(mode.value,'shapes')"
+        (click)="shapeChange(mode.value)">
         <span class="{{mode.icon}}"></span>
          <span>{{mode.viewValue}}</span>
          </button> 
@@ -74,6 +92,7 @@
     <button 
     mat-icon-button
     matTooltip= "Marquee"
+    [class.is-active]="dm.isSelected('marquee','design_modes')"
     (click)="designModeChange('marquee')">
     <i class="fas fa-expand"></i>
     </button>
@@ -81,20 +100,16 @@
     <button 
     mat-icon-button
     matTooltip= "Move"
+    [class.is-active]="dm.isSelected('move','design_modes')"
     (click)="designModeChange('move')">
     <i class="fas fa-arrows-alt"></i>
-    </button>
-
-    <button 
-    mat-icon-button
-    matTooltip= "Operation"
-    (click)="openOps('operation')">
-    <i class="fas fa-project-diagram"></i>
     </button>
 
 
 
 </div>
+
+
 
 <!-- WEAVER EDITING TOOLS -->
     <div class="tool-chunk" *ngIf="source==='weaver'">
@@ -265,7 +280,9 @@
     <!-- VIEW TOOLS - MIXER -->
     <div class="tool-chunk" *ngIf="source==='mixer'">
 
-    <button mat-icon-button (click)="openMixerViewOpts()">
+    <button mat-icon-button 
+    [class.is-active] = "view_modal && view_modal.componentInstance != null"
+    (click)="openMixerView()">
         <i class="fas fa-eye"></i>    
     </button>
     

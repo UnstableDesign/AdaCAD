@@ -19,7 +19,7 @@ source="mixer"
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
 
 
-        <app-quicktools
+        <app-quicktools #view_tool
         [timeline]="timeline"
         [draft]="draft"
         [loom]="loom"  
@@ -29,6 +29,10 @@ source="mixer"
         (onRedo)="redo();"
         (onDesignModeChange)='designModeChange($event)'
         (onZoomChange) ="renderChange($event);"
+        (onOperationAdded) = "operationAdded($event)"
+       (onImport) = "importNewFile($event)"
+       (onZoomChange) ="renderChange($event);"
+       (onViewPortMove) ="setScroll($event);"
         ></app-quicktools>
 
 
@@ -38,14 +42,13 @@ source="mixer"
 
           
 
-       <app-mixerview #view_tool  
+       <!-- <app-mixerview #view_tool  
           zoom = "5"
           (onZoomChange) ="renderChange($event);"
           (onViewPortMove) ="setScroll($event);"
-        >
+        > -->
 
 
-        </app-mixerview>  
 
         <!-- <app-mixerdesign #design_tool
         [view_mode] = "render?.current_view"

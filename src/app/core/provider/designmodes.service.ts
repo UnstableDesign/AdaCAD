@@ -148,7 +148,8 @@ export class DesignmodesService {
    */
 
    selectDesignMode(value: string, from: string) {
-     
+    
+
     switch(from){
 
       case 'shapes' : 

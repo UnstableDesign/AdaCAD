@@ -25,8 +25,18 @@ h4{
 
 }
 
+canvas{
+    position: relative;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
 .local{
     border:thin solid #ff4081;
+    z-index: 3;
+    position: relative;
+    top: -257px;
 }
 
 mat-slider{
@@ -34,15 +44,15 @@ mat-slider{
 }
 
 
-button{
-    background: white;
-	color: #ff4081;
-    border: thin solid #ff4081;
-    width: 30px;
-    height: 30px;
-    line-height: 1em;
-    margin: 2px;
-}
+// button{
+//     background: white;
+// 	color: #ff4081;
+//     border: thin solid #ff4081;
+//     width: 30px;
+//     height: 30px;
+//     line-height: 1em;
+//     margin: 2px;
+// }
 
 .view_slider{
   width: 100%;

@@ -1,9 +1,13 @@
- <!-- <mat-expansion-panel  [hideToggle] = "collapsed">
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-     <span>Zoom</span>
-    </mat-panel-title>
-    <mat-panel-description> -->
+
+<h2 mat-dialog-title
+cdkDrag
+ cdkDragRootElement=".cdk-overlay-pane" 
+ cdkDragHandle
+ [cdkDragFreeDragPosition]="bounds.topleft"
+ >View</h2>
+<mat-dialog-content>
+
+
       <div class="slider-row">
         <i class="fas fa-search-plus"></i>
     
@@ -17,14 +21,14 @@
           value="{{zoom}}" 
           (change)="zoomChange($event, 'slider')"></mat-slider>
           
-          <i class="fas fa-search-minus"></i>  </div>
+          <i class="fas fa-search-minus"></i> 
+      </div>
     
     
-    <!-- </mat-panel-description>
-  </mat-expansion-panel-header> -->
+ 
 
-
-  <!-- <div class="global_view">
+  <div class="global_view">
+    <canvas width = "250px" height="250px" id="global_canvas"></canvas>
     <div class="local"
     [style.width.px] = "viewport.getWidth() / viewport.getAbsoluteWidth() * width"
     [style.height.px] = "viewport.getHeight() / viewport.getAbsoluteHeight() * height"
@@ -35,7 +39,7 @@
 	  (cdkDragStarted)="dragStart($event)"
     cdkDrag>
     </div>
-  </div> -->
+  </div>
 
   <!-- <div class="slider-row">
     <i class="fas fa-search-plus"></i>
@@ -51,7 +55,11 @@
       (change)="zoomChange($event, 'slider')"></mat-slider>
       
       <i class="fas fa-search-minus"></i>  </div>
+ -->
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+</mat-dialog-actions>
 
 
-
-</mat-expansion-panel> -->

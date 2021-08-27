@@ -1,11 +1,10 @@
-<mat-expansion-panel  expanded [hideToggle] = "collapsed">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-       <span>Automated Actions</span>
-      </mat-panel-title>
-      <mat-panel-description>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
+<h2 mat-dialog-title
+  cdkDrag
+   cdkDragRootElement=".cdk-overlay-pane" 
+   cdkDragHandle>Operations</h2>
+<mat-dialog-content>
+
+
     
     <form  autocomplete="off">
     <mat-form-field class="full-width" width='100%' appearance="fill">
@@ -47,4 +46,9 @@
       </ng-container>  
     </ng-container>
 
-</mat-expansion-panel>  
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button class="mat-raised-button"(click)="close()">Close</button>
+  </mat-dialog-actions>
+  
+
