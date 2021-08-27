@@ -29,7 +29,7 @@ export class TabComponent implements OnInit {
 
   generativeMode = false;
 
-  clusters: any = [];
+  collectionsData: any = [];
   
   centroids: any = [];
 
@@ -52,17 +52,11 @@ export class TabComponent implements OnInit {
     if (this.generativeMode) {
       var allLowerCollectionName = this.collection.name.charAt(0).toLowerCase() + this.collection.name.slice(1)
       this.collectionSrvc.getCollection(allLowerCollectionName).then((value) => {
-        this.clusters = value;
-        var centroids = [];
-        var clusters = [];
-        this.clusters.forEach(element => {
-          centroids.push(element.centroid);
-          clusters.push(element.cluster);
-        });
+        this.collectionsData = value;
         var obj: any = {};
-        obj.centroids = centroids;
-        obj.clusters = clusters;
         obj.collection = this.collection.name;
+        obj.warpSize = this.collectionsData.warpSize;
+        obj.weftSize = this.collectionsData.weftSize;
         this.onGenerativeModeChange.emit(obj);
 
       })

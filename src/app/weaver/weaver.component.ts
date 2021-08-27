@@ -160,14 +160,14 @@ export class WeaverComponent implements OnInit {
     generativeMode = false;
 
     /**
-     * Array holding the centroid drafts of the current collections clusters from db
+     * Number of warps for drafts of collection selected 
      */
-    centroids = [];
+    warpSize: number;
 
     /**
-     * Array holding the cluster patterns of the current collections clusters from db
+     * Number of wefts for drafts of collection selected 
      */
-    clusters = [];
+    weftSize: number;
     
 
     /**
@@ -540,6 +540,41 @@ export class WeaverComponent implements OnInit {
 
   }
 
+  private patternToSize(pattern, warpSize, weftSize) {
+    if (pattern[0].length > warpSize) {
+        for (var i = 0; i < pattern.length; i++) {
+            while(pattern[i].length > warpSize) {
+                pattern[i].splice(pattern[i].length-1, 1);
+            }
+        }
+    }
+    if (pattern.length > weftSize) {
+        while(pattern.length > weftSize) {
+            pattern.splice(pattern.length-1, 1);
+        }
+    }
+    var idx = 0;
+    while (pattern[0].length < warpSize) {
+        for (var j = 0; j < pattern.length; j++) {
+            if (idx < pattern[j].length) {
+                pattern[j].push(pattern[j][idx]);
+            }
+        }
+        idx += 1;
+        if (idx >= pattern[0].length) {
+            idx = 0;
+        }
+    }
+    idx = 0;
+    while (pattern.length < weftSize) {
+        pattern.push(pattern[idx]);
+        idx += 1;
+        if (idx >= pattern.length) {
+            idx = 0;
+        }
+    }
+    return pattern;
+}
   /**
    * Flips the current booleean value of generativeMode.
   * @extends WeeaveComponent
@@ -549,18 +584,16 @@ export class WeaverComponent implements OnInit {
  public onGenerativeModeChange(e: any) {
    console.log('e:', e);
    this.generativeMode = !this.generativeMode;
-   this.centroids = e.centroids;
    this.collection = e.collection.toLowerCase().split(' ').join('_');
-   this.clusters = e.clusters;
+   this.warpSize = e.warpSize;
+   this.weftSize = e.weftSize;
    this.vae.loadModels(this.collection).then(() => {
     if (this.generativeMode) {
       this.vae.loadModels(this.collection);
       let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
-      let closestCentroidIdx = this.draftMatcher.matchToClosestCluster(this.centroids, pattern);
-      let closestDraftIdx = this.draftMatcher.matchToClosestDraft(this.clusters[closestCentroidIdx]);
-      let closestDraft = this.clusters[closestCentroidIdx][closestDraftIdx];
       var suggestions = [];
-      this.vae.generateFromSeed(closestDraft).then(suggestionsRet => {
+      let draftSeed = this.patternToSize(pattern, this.warpSize, this.weftSize);
+      this.vae.generateFromSeed(draftSeed).then(suggestionsRet => {
         suggestions = suggestionsRet;
         console.log('suggestions:', suggestions);
         for (var i = 0; i < suggestions.length; i++) {

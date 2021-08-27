@@ -14,18 +14,16 @@ export class CollectionService {
  
   async getCollection(collectionName) {
     var snapshot = await this.db.database.ref("collections/").once('value');
-    var returnVal = [];
+    var returnVal = { warpSize: 0,
+                      weftSize: 0
+                    };
     if (snapshot.exists()) {
       console.log('snapshot exists');
       snapshot.forEach(function(collection) {
         var name: string = collection.val().name;
         if (name == collectionName) {
-          for (var i = 0; i < collection.val().clusterCount; i++) {
-            let tempObj = {centroid: collection.val().centroids[i],
-              cluster: eval('collection.val().cluster' + i + ';')
-            };
-            returnVal.push(tempObj);
-          }
+          returnVal.warpSize = collection.val().Warps;
+          returnVal.weftSize = collection.val().Wefts;
         }
       });
       console.log("Success");
