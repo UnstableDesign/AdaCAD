@@ -17,7 +17,6 @@ import { FileService, LoadResponse } from '../core/provider/file.service';
 import { Loom } from '../core/model/loom';
 import * as _ from 'lodash';
 import { PatternFinder } from './tool/patternfinder/patternfinder';
-import { DraftMatcher } from './tool/draftmatcher/draftmatcher';
 import { VAE } from './learning/vae';
 import { DraftdetailComponent } from '../mixer/modal/draftdetail/draftdetail.component';
 import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
@@ -186,12 +185,6 @@ export class WeaverComponent implements OnInit {
      * @property {PatternFinder}
      */
     patternFinder: PatternFinder = new PatternFinder();
-
-    /**
-     * When generativeMode is activated, draftMatcher will be run to find closest draft in the collection saved in db
-     * @property {DraftMatcher}
-     */
-    draftMatcher: DraftMatcher = new DraftMatcher();
 
   selected;
 
