@@ -2,7 +2,6 @@ import * as tf from '@tensorflow/tfjs'
 import { std, mean } from 'mathjs'
 
 export class VAE {
-    private epsilons: any = [];
     private batch_size: number = 16;
     private decoder;
     private encoder_log_var;
@@ -46,21 +45,8 @@ export class VAE {
         }
         let mean = this.encoder_mean.predict(tf.tensor([newDraft]));
         let log_var = this.encoder_log_var.predict(tf.tensor([newDraft]));
-
-        var close = true;
-        var epsilon;
-        while (close) {
-            close = false;
-            epsilon = Math.random(); //to replace with a rondom number from a normal distribution
-            for (var i = 0; i < this.epsilons.length; i++) {
-                if (Math.abs(epsilon - this.epsilons[i]) < 0.1) {
-                    close = true;
-                }
-            }
-        }
-        this.epsilons.push(epsilon);
         
-        var z_sample = tf.add(mean, tf.mul(tf.exp(log_var), epsilon));
+        var z_sample = tf.add(mean, tf.exp(log_var));
         let tile_multiple = [this.batch_size, 1];
         let x_decoded = this.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
         var draftSuggestions = [];
