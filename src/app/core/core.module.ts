@@ -41,6 +41,7 @@ import { MaterialsComponent} from './tool/materials/materials.component'
 import { NotesComponent} from './tool/notes/notes.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
+import { MlModal } from './modal/ml/ml.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
@@ -94,6 +95,7 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
     ShuttlesModal,
     InitModal,
     AboutModal,
+    MlModal,
     MaterialModal,
     PatternsComponent,
     DraftviewerComponent
@@ -144,12 +146,14 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
     PatternModal,
     InitModal,
     AboutModal,
+    MlModal,
     MaterialModal,
     DraftviewerComponent],
   
     entryComponents: [
       InitModal,
       AboutModal,
+      MlModal,
       PatternModal,
       MaterialModal
     ],

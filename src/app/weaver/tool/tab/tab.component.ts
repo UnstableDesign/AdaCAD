@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { MlModal } from '../../../core/modal/ml/ml.modal';
 import { NgForm } from '@angular/forms';
 import * as _ from 'lodash';
 
@@ -144,5 +145,8 @@ export class TabComponent implements OnInit {
     this.onGenerativeModeChange.emit(e);
   }
 
+  openMlDialog() {
+    const dialogRef = this.dialog.open(MlModal);
 
+  }
 }

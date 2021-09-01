@@ -7,8 +7,18 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
 
-  <h3>How to Design with Machine Learning</h3>
+  <h3>
 
+  <span class="right">
+    Design with Machine Learning
+    <button mat-icon-button
+       (click)="openMlDialog(null)"
+       matTooltip ="about Machine Learning">
+       <i class="fas fa-info-circle"></i>
+     </button>
+     
+ </span>
+</h3>
 
   <form #collectionForm="ngForm">
     <mat-form-field class="is-fullwidth">
