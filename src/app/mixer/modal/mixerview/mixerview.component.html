@@ -16,7 +16,7 @@ cdkDrag
           [displayWith]="formatLabel" 
           tickInterval="1" 
           step=".1" 
-          min=".01" 
+          min="1" 
           max="15" 
           value="{{zoom}}" 
           (change)="zoomChange($event, 'slider')"></mat-slider>
@@ -27,11 +27,13 @@ cdkDrag
     
  
 
-  <div class="global_view">
-    <canvas width = "250px" height="250px" id="global_canvas"></canvas>
+  <div id = "global" class="global_view">
+    <svg width="250" height="250">
+      <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.p.x * factor / zoom' [attr.cy]='obj.p.y * factor / zoom' [attr.r]="zoom" fill="black" />
+    </svg>
     <div class="local"
-    [style.width.px] = "viewport.getWidth() / viewport.getAbsoluteWidth() * width"
-    [style.height.px] = "viewport.getHeight() / viewport.getAbsoluteHeight() * height"
+    [style.width.px] = " viewport.getWidth() / viewport.getAbsoluteWidth() * width / zoom"
+    [style.height.px] = " viewport.getHeight() / viewport.getAbsoluteHeight() * height / zoom"
     [cdkDragFreeDragPosition]="local_view.topleft"
     cdkDragBoundary=".global_view"
     (cdkDragMoved)="dragMove($event)"

@@ -21,6 +21,7 @@ import { FileService, SaveObj } from './../../core/provider/file.service';
 import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 
+
 @Component({
   selector: 'app-palette',
   templateUrl: './palette.component.html',
@@ -47,10 +48,6 @@ export class PaletteComponent implements OnInit{
   operationSubscriptions: Array<Subscription> = [];
   connectionSubscriptions: Array<Subscription> = [];
 
-  /**
-   * used to manage the area of the screen that is in view based on scrolling and zooming
-   */
-  // viewport:Bounds;
 
 /**
  * Subscribes to move event after a touch event is started.
@@ -180,6 +177,7 @@ export class PaletteComponent implements OnInit{
     this.scale = 5;
     this.scale_string = "5px 5px";
     this.vc.clear();
+
     this.viewport.setAbsolute(16384, 16384);
 
 
@@ -195,15 +193,14 @@ export class PaletteComponent implements OnInit{
     this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     
     const center:Point = this.viewport.setViewportCenter();
-    div.offsetParent.scrollLeft = center.x;
-    div.offsetParent.scrollTop = center.y;
+    div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
+    div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
 
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
     
     this.canvas.width = this.viewport.getWidth();
     this.canvas.height = this.viewport.getHeight();
-    console.log(this.viewport);
 
     // this.cx.beginPath();
     // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
@@ -267,9 +264,9 @@ export class PaletteComponent implements OnInit{
  * called when user moves position within viewer
  * @param data 
  */
-  handleScroll(delta: any){
+  handleScroll(position: any){
 
-    this.viewport.move(delta.x, delta.y);
+    this.viewport.setTopLeft(position);
     const div:HTMLElement = document.getElementById('scrollable-container');  
      div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
      div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
@@ -332,23 +329,28 @@ export class PaletteComponent implements OnInit{
   rescale(scale:number){
 
     this.scale = scale;
-    this.scale_string = scale+"px "+scale+"px";
-    
-    const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
+    const palette_div = document.getElementById("palette");
+    palette_div.style.transform = 'scale(' + (scale-4) + ')';
 
-    //rescale all the non connections first, then go through and rescale the connections
-    generations.forEach(generation => {
-      generation.forEach(node => {
-        const comp = this.tree.getComponent(node);
-        if(this.tree.getType(node) != "cxn") comp.rescale(scale);
-      })
-    });
+    console.log(scale);
 
-    this.tree.getConnections().forEach(sd => {
-      sd.rescale(scale);
-    });
+   // this.scale_string = scale+"px "+scale+"px";
 
-    if(this.preview !== undefined) this.preview.scale = this.scale;
+    // const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
+
+    // //rescale all the non connections first, then go through and rescale the connections
+    // generations.forEach(generation => {
+    //   generation.forEach(node => {
+    //     const comp = this.tree.getComponent(node);
+    //     if(this.tree.getType(node) != "cxn") comp.rescale(scale);
+    //   })
+    // });
+
+    // this.tree.getConnections().forEach(sd => {
+    //   sd.rescale(scale);
+    // });
+
+    // if(this.preview !== undefined) this.preview.scale = this.scale;
   }
 
   
@@ -436,6 +438,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.scale = this.scale;
+
     return subdraft.instance;
   }
 
@@ -573,11 +576,14 @@ export class PaletteComponent implements OnInit{
     //calls manually here so that the affected branches can be pinged before the node is deleted 
     this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
+    this.viewport.removeObj(id);
 
     //if it has a parent, recursively call on its parent
     if(parent_id != -1){
       this.removeSubdraft(parent_id);
     }
+
+    
 
   }
 
@@ -877,6 +883,7 @@ export class PaletteComponent implements OnInit{
           x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
           y: sd.bounds.topleft.y});
         new_sd.drawDraft();
+        this.viewport.addObj(new_sd.id, new_sd.bounds.topleft);
         this.addTimelineState();
    }
 
@@ -906,7 +913,8 @@ export class PaletteComponent implements OnInit{
       this.createAndSetPreview(temp);
       this.preview.drawDraft();
       this.preview.setComponentPosition(bounds.topleft);
-     
+      this.viewport.updatePoint(moving.id, bounds.topleft);
+
     }else if(this.dm.isSelected("marquee",  'design_modes')){
       this.selectionStarted();
     }else if(this.dm.isSelected("draw",  'design_modes')){
@@ -1127,6 +1135,7 @@ performOp(op_id:number){
       sd.setComponentPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
       sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
       sd.setParent(op.id);
+      this.viewport.addObj(sd.id, sd.bounds.topleft);
       this.createConnection(op.id, sd.id);
       this.tree.setSubdraftParent(sd.id, op.id);
       
@@ -1386,6 +1395,7 @@ processShapeEnd(){
   sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
   sd.disableDrag();
 
+  this.viewport.addObj(sd.id, sd.bounds.topleft);
   this.addTimelineState();
 
   
@@ -1396,7 +1406,9 @@ processShapeEnd(){
  */
 drawStarted(){
 
+
   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+  
   this.scratch_pad = [];
   for(let i = 0; i < this.canvas.height; i+=this.scale ){
       const row = [];
@@ -1466,12 +1478,11 @@ drawStarted(){
       width: warps * this.scale,
       height: wefts * this.scale
     }
-    console.log(pos);
 
     sd.setComponentPosition(pos.topleft);
     sd.setComponentSize(pos.width, pos.height);
     sd.disableDrag();
-
+    this.viewport.addObj(sd.id, sd.bounds.topleft);
 
     for(let i = 0; i < sd.draft.wefts; i++ ){
       for(let j = 0; j< sd.draft.warps; j++){
@@ -1858,7 +1869,8 @@ drawStarted(){
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
       this.preview.setComponentPosition(bounds.topleft);
-      this.preview.drawDraft();      
+      this.preview.drawDraft();  
+      this.viewport.updatePoint(this.preview.id, this.preview.bounds.topleft);    
     }
 
 
@@ -1883,8 +1895,11 @@ drawStarted(){
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
         sd.zndx = this.layers.createLayer();
         this.removePreview();
+
+        this.viewport.addObj(sd.id, sd.bounds.topleft);
       } 
 
+    
       this.addTimelineState();
       
       //get the reference to the draft that's moving
@@ -1894,7 +1909,7 @@ drawStarted(){
 
       
 
-      //disable this too see what happens
+      //disable this to see what happens
       // const had_merge = this.mergeSubdrafts(moving);
       // console.log("had merge", had_merge);
       // if(!had_merge) 
@@ -1921,6 +1936,8 @@ drawStarted(){
       primary.setNewDraft(temp);
       primary.setComponentPosition(bounds.topleft);
       primary.drawDraft();
+      this.viewport.updatePoint(primary.id, primary.bounds.topleft);
+
 
     //remove the intersecting drafts from the view containier and from subrefts
     isect.forEach(element => {

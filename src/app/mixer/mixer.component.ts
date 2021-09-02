@@ -52,22 +52,6 @@ export class MixerComponent implements OnInit {
    manual_scroll: boolean = false;
 
 
-  material_types: MaterialTypes[] = [
-    {value: 0, viewValue: 'Non-Conductive'},
-    {value: 1, viewValue: 'Conductive'},
-    {value: 2, viewValue: 'Resistive'}
-  ];
-
-
-  view_modes: ViewModes[] = [
-      {value: 'visual', viewValue: 'Visual'},
-      {value: 'pattern', viewValue: 'Draft'},
-      {value: 'yarn', viewValue: 'Circuit'}
-     // {value: 'mask', viewValue: 'Masks'}
-
-    ];
-
-
 
   private unsubscribe$ = new Subject();
 
@@ -91,7 +75,7 @@ export class MixerComponent implements OnInit {
     private fs: FileService,
     private dialog: MatDialog) {
 
-    this.dialog.open(MixerInitComponent, {width: '600px'});
+    //this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
           .scrolled()

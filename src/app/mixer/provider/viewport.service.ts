@@ -34,6 +34,7 @@ export class ViewportService {
   objs: Array<{id:number, p:Point}>;
 
   constructor(){
+
     this.vp = {
       topleft: {x:0, y:0}, 
       width: 0, 
@@ -93,6 +94,7 @@ export class ViewportService {
     this.vp.topleft = {x: x, y:y};
     this.vp.width = width;
     this.vp.height = height;
+    console.log('setting viewport to', this.vp);
   }
 
   setWidth(w: number){
@@ -117,6 +119,10 @@ export class ViewportService {
 
   getAbsoluteHeight(): number{
     return this.absolute.height;
+  }
+
+  setTopLeft(p: Point){
+    this.vp.topleft = {x: p.x, y:p.y};
   }
 
   getTopLeft(): Point{
