@@ -120,6 +120,11 @@ export class WeaverComponent implements OnInit {
   **/
   copy: Pattern;
 
+  /**
+   * a place to store the drafts returned from emma's ml code
+   */
+  generated_drafts: Array<Draft> = [];
+
 
  /**
    * The types of looms this version will support.
@@ -512,6 +517,16 @@ export class WeaverComponent implements OnInit {
    */
   public onGenerativeModeChange(e: any) {
     this.generativeMode = !this.generativeMode;
+
+    //call emma's code and get some drafts
+    this.generated_drafts.push(new Draft({}));    
+    this.generated_drafts.push(new Draft({}));
+    this.generated_drafts.push(new Draft({}));
+  }
+
+  public loadGeneratedDraft(e: any){
+    console.log("running load generated draft!");
+    //tell the draft viewer to load this business!
   }
 
   /**

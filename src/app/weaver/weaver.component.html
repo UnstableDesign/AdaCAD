@@ -42,7 +42,7 @@
         </app-weaverview>
 
 
-        <app-weaverdesign
+        <app-weaverdesign  
         [design_mode]="design_mode"
         [design_modes]="design_modes"
         [design_actions]="design_actions"
@@ -59,10 +59,16 @@
         (onCreatePattern)="createPattern($event);"
         (onRemovePattern)="removePattern($event);"
         (onChange) = "onChange($event);"
-        (onGenerativeModeChange)="onGenerativeModeChange($event)"
+  
         >
         </app-weaverdesign>
-        <app-tab></app-tab> 
+       
+       
+        <app-tab
+        [generated_drafts] = "generated_drafts"
+        (onGenerativeModeChange)="onGenerativeModeChange($event)"
+        (onDraftSelected)="loadGeneratedDraft($event)"
+        ></app-tab> 
 
         <app-materials 
           [material_types]="material_types"
@@ -122,6 +128,7 @@
          (onChange) = "notesChanged($event)"
          >
         </app-notes>
+
         <div class="generative-options" *ngIf="weaveRef.selected==false">
           <h1>testing</h1>
           <button matTooltip="start making changes" 
