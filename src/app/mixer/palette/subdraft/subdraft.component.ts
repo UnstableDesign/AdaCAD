@@ -147,7 +147,6 @@ export class SubdraftComponent implements OnInit {
 
   rescale(scale:number){
 
-
     const inputs: Array<number> = this.tree.getNonCxnInputs(this.id);
     if(inputs.length > 0 && !this.tree.isSibling(this.id)){
       const component: any = this.tree.getComponent(inputs[0]);
@@ -159,11 +158,17 @@ export class SubdraftComponent implements OnInit {
       let top_incs = this.getTopleft().y / this.scale;
       this.bounds.topleft = {x: left_incs*scale, y: top_incs*scale};
     }
+     this.scale = scale;
+
+    const container: HTMLElement = document.getElementById('scale-'+this.draft.id);
+    container.style.transformOrigin = 'top left';
+    container.style.transform = 'scale(' + this.scale/5 + ')';
+
+   
     
-    this.scale = scale;
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
-    this.drawDraft();
+    // this.drawDraft();
 
   }
 
@@ -435,6 +440,7 @@ export class SubdraftComponent implements OnInit {
 
     this.counter++;
     this.last_ndx = ndx;
+
   }
 
   disableDrag(){

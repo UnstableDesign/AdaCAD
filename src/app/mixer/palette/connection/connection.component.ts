@@ -161,6 +161,9 @@ export class ConnectionComponent implements OnInit {
       this.cx.lineTo(this.bounds.width, 0);
     }
     this.cx.stroke();
+
+  
+
   }
 
   drawForPrint(canvas, cx, scale: number) {
@@ -202,9 +205,14 @@ export class ConnectionComponent implements OnInit {
       height: to_comp.bounds.height
     }
 
-    this.scale = scale;
-    this.calculateBounds();
-    this.drawConnection();
+     this.scale = scale;
+     this.calculateBounds();
+     this.drawConnection();
+
+    // const container: HTMLElement = document.getElementById('cxn-'+this.id);
+    // container.style.transformOrigin = 'top left';
+    // container.style.transform = 'scale(' + this.scale/5 + ')';
+
   }
 
 

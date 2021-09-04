@@ -86,8 +86,8 @@ export class MixerViewComponent implements OnInit {
   updateLocalDims(){
 
     this.local_view.topleft = {
-      x: this.div.scrollLeft * this.factor / this.zoom, 
-      y: this.div.scrollTop  * this.factor / this.zoom};
+      x: this.div.scrollLeft * this.factor, 
+      y: this.div.scrollTop  * this.factor};
    //this.local_view.width = this.div.clientWidth *  this.factor;
    // this.local_view.height = this.div.clientHeight *  this.factor;
     

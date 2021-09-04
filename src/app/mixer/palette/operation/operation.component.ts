@@ -123,16 +123,27 @@ export class OperationComponent implements OnInit {
   rescale(scale:number){
 
 
+
+    
+
     const change = scale / this.scale;
+
+    this.scale = scale;
+    const container: HTMLElement = document.getElementById('scale-'+this.id);
+    container.style.transformOrigin = 'top left';
+    container.style.transform = 'scale(' + this.scale/5 + ')';
+
+
     
     this.bounds.topleft = {x: this.bounds.topleft.x * change, y: this.bounds.topleft.y * change};
+    this.bounds.height = this.bounds.height * change;
 
     if(this.outputs.length == 1){
       this.bounds.width = Math.max(200, this.outputs[0].draft.warps * scale);
     }else{
       this.bounds.width = 200;
     }
-    this.scale = scale;
+    // this.scale = scale;
 
   }
 

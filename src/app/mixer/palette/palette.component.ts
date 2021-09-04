@@ -192,9 +192,9 @@ export class PaletteComponent implements OnInit{
     const div:HTMLElement = document.getElementById('scrollable-container');
     this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     
-    const center:Point = this.viewport.setViewportCenter();
-    div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
-    div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
+    // const center:Point = this.viewport.setViewportCenter();
+    // div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
+    // div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
 
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
@@ -209,6 +209,8 @@ export class PaletteComponent implements OnInit{
     this.selection.scale = this.scale;
     this.selection.active = false;
     this.designModeChanged();
+
+    this.rescale(this.scale);
   }
 
   /**
@@ -329,28 +331,30 @@ export class PaletteComponent implements OnInit{
   rescale(scale:number){
 
     this.scale = scale;
-    const palette_div = document.getElementById("palette");
-    palette_div.style.transform = 'scale(' + (scale-4) + ')';
+    // const palette_div = document.getElementById("palette");
+    // palette_div.style.transform = 'scale(' + (scale-4) + ')';
 
-    console.log(scale);
+      //   //var dims = this.render.getCellDims("base");
+      const container: HTMLElement = document.getElementById('palette');
+      container.style.transformOrigin = 'top left';
+      container.style.transform = 'scale(' + scale/5 + ')';
+  
+     
+    const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
 
-   // this.scale_string = scale+"px "+scale+"px";
+    //rescale all the non connections first, then go through and rescale the connections
+    generations.forEach(generation => {
+      generation.forEach(node => {
+        const comp = this.tree.getComponent(node);
+        if(this.tree.getType(node) != "cxn") comp.rescale(scale);
+      })
+    });
 
-    // const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
+    this.tree.getConnections().forEach(sd => {
+      sd.rescale(scale);
+    });
 
-    // //rescale all the non connections first, then go through and rescale the connections
-    // generations.forEach(generation => {
-    //   generation.forEach(node => {
-    //     const comp = this.tree.getComponent(node);
-    //     if(this.tree.getType(node) != "cxn") comp.rescale(scale);
-    //   })
-    // });
-
-    // this.tree.getConnections().forEach(sd => {
-    //   sd.rescale(scale);
-    // });
-
-    // if(this.preview !== undefined) this.preview.scale = this.scale;
+     if(this.preview !== undefined) this.preview.scale = this.scale;
   }
 
   

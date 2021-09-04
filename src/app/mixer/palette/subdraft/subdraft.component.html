@@ -1,3 +1,4 @@
+
 <div id="con-{{draft.id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
 	[style.z-index] = "zndx"
@@ -5,11 +6,12 @@
 	[class.no-pointer] = "disable_drag"
 	[cdkDragDisabled] = "disable_drag"
 	[cdkDragFreeDragPosition]="bounds.topleft"
-	[cdkDragData]="scale"
 	(cdkDragMoved)="dragMove($event)"
 	(cdkDragEnded)="dragEnd($event)"
 	(cdkDragStarted)="dragStart($event)">
 
+
+	<div id="scale-{{draft.id}}" class="subdraft-container">
 
 
   	<div class="subdraft-contents" [class.active-selection] = has_active_selection>
@@ -92,7 +94,8 @@
    </div>
 
    <canvas #bitmapImage hidden></canvas>
-
+	
+</div>
 </div>
 	
 

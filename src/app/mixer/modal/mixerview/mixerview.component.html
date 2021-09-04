@@ -10,6 +10,7 @@ cdkDrag
 
       <div class="slider-row">
         <i class="fas fa-search-plus"></i>
+      
     
           <mat-slider 
           invert
@@ -29,11 +30,11 @@ cdkDrag
 
   <div id = "global" class="global_view">
     <svg width="250" height="250">
-      <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.p.x * factor / zoom' [attr.cy]='obj.p.y * factor / zoom' [attr.r]="zoom" fill="black" />
+      <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.p.x * factor' [attr.cy]='obj.p.y * factor' [attr.r]="zoom" fill="black" />
     </svg>
     <div class="local"
-    [style.width.px] = " viewport.getWidth() / viewport.getAbsoluteWidth() * width / zoom"
-    [style.height.px] = " viewport.getHeight() / viewport.getAbsoluteHeight() * height / zoom"
+    [style.width.px] = " viewport.getWidth() / viewport.getAbsoluteWidth() * width"
+    [style.height.px] = " viewport.getHeight() / viewport.getAbsoluteHeight() * height"
     [cdkDragFreeDragPosition]="local_view.topleft"
     cdkDragBoundary=".global_view"
     (cdkDragMoved)="dragMove($event)"
