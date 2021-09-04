@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, Inject } from '@angular/core';
 import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
 import { System } from '../../../core/model/system';
-import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
@@ -11,6 +11,7 @@ import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/a
 import {MatChipInputEvent} from '@angular/material/chips';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import { Draft } from '../../model/draft';
 
 @Component({
   selector: 'app-systems',
@@ -22,13 +23,15 @@ import {map, startWith} from 'rxjs/operators';
 
 export class SystemsComponent implements OnInit {
 
-  @Input() warp_systems: any;
-  @Input() weft_systems: any;
-  @Input() warp_systems_pattern: any;
-  @Input() weft_systems_pattern: any;
-  @Input() shuttles: any;
-  @Input() warp_shuttles_pattern: any;
-  @Input() weft_shuttles_pattern: any;
+  // @Input() warp_systems: any;
+  // @Input() weft_systems: any;
+  // @Input() warp_systems_pattern: any;
+  // @Input() weft_systems_pattern: any;
+  // @Input() shuttles: any;
+  // @Input() warp_shuttles_pattern: any;
+  // @Input() weft_shuttles_pattern: any;
+
+  draft:Draft;
 
   //chip params
   visible = true;
@@ -74,48 +77,20 @@ export class SystemsComponent implements OnInit {
    @Output() onUpdateWeftShuttles: any = new EventEmitter();
 
 
-  constructor() {
+  constructor(private dialog: MatDialog,
+    private dialogRef: MatDialogRef<SystemsComponent>,
+             @Inject(MAT_DIALOG_DATA) public data: any) {
 
+              this.draft = data.draft;
 
 
   }
 
   ngOnInit() {
 
-    console.log(this.warp_systems);
+    console.log(this.draft.warp_systems);
 
-    // for(let i = 0; i < this.warp_systems_pattern.length; i++){
-    //   this.warp_systems_pattern_strings.push(this.warp_systems[this.warp_systems_pattern[i]].getChar());
-    // }
-
-    // for(let i = 0; i < this.warp_systems.length; i++){
-    //   this.allWarpSystems.push(this.warp_systems[i].getChar());
-    // }
-
-
-    // for(let i = 0; i < this.weft_systems_pattern.length; i++){
-    //   this.weft_systems_pattern_strings.push(this.weft_systems[this.weft_systems_pattern[i]].getChar());
-    // }
-
-    // for(let i = 0; i < this.warp_systems.length; i++){
-    //   this.allWeftSystems.push(this.weft_systems[i].getChar());
-    // }
-
-    // for(let i = 0; i < this.weft_shuttles_pattern.length; i++){
-    //   let s = this.shuttles[this.weft_shuttles_pattern[i]];
-    //   this.weft_shuttles_pattern_strings.push({color: s.getColor(), name: s.getName(), id: s.getId()});
-    // }
-
-    // for(let i = 0; i < this.warp_shuttles_pattern.length; i++){
-    //   let s = this.shuttles[this.warp_shuttles_pattern[i]];
-    //   this.warp_shuttles_pattern_strings.push({color: s.getColor(), name: s.getName(), id: s.getId()});
-    // }
-
-    // for(let i = 0; i < this.shuttles.length; i++){
-    //   let s = this.shuttles[i];
-    //   this.allWeftShuttles.push({color: s.getColor(), name: s.getName(), id: s.getId()});
-    //   this.allWarpShuttles.push({color: s.getColor(), name: s.getName(), id: s.getId()});
-    // }
+    
   }
   
   idFromString(s: string){
@@ -126,8 +101,8 @@ export class SystemsComponent implements OnInit {
   shuttleIdFromName(s: string):number{
 
 
-    for(var i = 0; i < this.shuttles.length; i++){
-      let s_name = this.shuttles[i].getName().toLowerCase();
+    for(var i = 0; i < this.draft.shuttles.length; i++){
+      let s_name = this.draft.shuttles[i].getName().toLowerCase();
       if(s_name.localeCompare(s.toLowerCase()) === 0) return i;
     }
     return -1;
@@ -149,8 +124,8 @@ export class SystemsComponent implements OnInit {
 
         let warp_sys_id = this.idFromString((value || '').trim());
         console.log("value is ", warp_sys_id);
-        if (warp_sys_id >= 0 && warp_sys_id < this.warp_systems.length) {
-          this.warp_systems_pattern.push(this.idFromString(value.trim()));
+        if (warp_sys_id >= 0 && warp_sys_id < this.draft.warp_systems.length) {
+          this.draft.colSystemPattern.push(this.idFromString(value.trim()));
         }
         this.warpSystemCtrl.setValue(null);
       
@@ -165,7 +140,7 @@ export class SystemsComponent implements OnInit {
           //   color: this.shuttles[shuttle_id].getColor(),
           //   name: this.shuttles[shuttle_id].getName()
           // }
-          this.warp_shuttles_pattern.push(shuttle_id);
+          this.draft.colShuttleMapping.push(shuttle_id);
         }
         this.warpShuttleCtrl.setValue(null);
 
@@ -174,8 +149,8 @@ export class SystemsComponent implements OnInit {
       case 'wesy':
 
         let weft_sys_id = this.idFromString((value || '').trim());
-        if (weft_sys_id >= 0 && weft_sys_id < this.warp_systems.length) {
-          this.weft_systems_pattern.push(weft_sys_id);
+        if (weft_sys_id >= 0 && weft_sys_id < this.draft.warp_systems.length) {
+          this.draft.rowSystemPattern.push(weft_sys_id);
         }
         this.weftSystemCtrl.setValue(null);
       break;
@@ -189,7 +164,7 @@ export class SystemsComponent implements OnInit {
           //   color: this.shuttles[shuttle_id].getColor(),
           //   name: this.shuttles[shuttle_id].getName()
           // }
-          this.weft_shuttles_pattern.push(shuttle_id);
+          this.draft.rowShuttleMapping.push(shuttle_id);
         }
         this.weftShuttleCtrl.setValue(null);
 
@@ -214,8 +189,8 @@ export class SystemsComponent implements OnInit {
     switch(caller){
       case 'wasy':
 
-        if (index >= 0 && this.warp_systems_pattern.length > 1) {
-          this.warp_systems_pattern.splice(index, 1);
+        if (index >= 0 && this.draft.colSystemPattern.length > 1) {
+          this.draft.colSystemPattern.splice(index, 1);
         }
           
       
@@ -223,8 +198,8 @@ export class SystemsComponent implements OnInit {
 
       case 'wash':
 
-        if (index >= 0 && this.warp_shuttles_pattern.length > 1) {
-          this.warp_shuttles_pattern.splice(index, 1);
+        if (index >= 0 && this.draft.colShuttlePattern.length > 1) {
+          this.draft.colShuttlePattern.splice(index, 1);
         }
       
 
@@ -233,16 +208,16 @@ export class SystemsComponent implements OnInit {
       case 'wesy':
         
 
-        if (index >= 0 && this.weft_systems_pattern.length > 1) {
-          this.weft_systems_pattern.splice(index, 1);
+        if (index >= 0 && this.draft.rowSystemPattern.length > 1) {
+          this.draft.rowSystemPattern.splice(index, 1);
         }
      
       break;
 
       case 'wesh':
 
-        if (index >= 0 && this.weft_shuttles_pattern.length > 1) {
-          this.weft_shuttles_pattern.splice(index, 1);
+        if (index >= 0 && this.draft.rowShuttlePattern.length > 1) {
+          this.draft.rowShuttlePattern.splice(index, 1);
         }
       break;
     }
@@ -253,19 +228,19 @@ export class SystemsComponent implements OnInit {
     console.log("send updates", source);
   switch(source){
       case 'wasy':
-      this.onUpdateWarpSystems.emit(this.warp_systems_pattern);
+      this.onUpdateWarpSystems.emit(this.draft.colSystemPattern);
       break;
 
       case 'wash':
-      this.onUpdateWarpShuttles.emit(this.warp_shuttles_pattern);
+      this.onUpdateWarpShuttles.emit(this.draft.colShuttlePattern);
       break;
 
       case 'wesy':
-      this.onUpdateWeftSystems.emit(this.weft_systems_pattern);
+      this.onUpdateWeftSystems.emit(this.draft.rowSystemPattern);
       break;
 
       case 'wesh':
-        this.onUpdateWeftShuttles.emit(this.weft_shuttles_pattern);
+        this.onUpdateWeftShuttles.emit(this.draft.rowShuttlePattern);
       break;
     }
 
@@ -278,7 +253,7 @@ export class SystemsComponent implements OnInit {
       let warp_sys_id = this.idFromString(event.option.viewValue);
       console.log("selected", warp_sys_id);
 
-      this.warp_systems_pattern.push(warp_sys_id);
+      this.draft.colSystemPattern.push(warp_sys_id);
       this.warpSystemCtrl.setValue(null);
       break;
 
@@ -292,14 +267,14 @@ export class SystemsComponent implements OnInit {
       //   color: this.shuttles[warp_id].getColor()
       // };
 
-      this.warp_shuttles_pattern.push(warp_id);
+      this.draft.colShuttlePattern.push(warp_id);
       this.warpShuttleCtrl.setValue(null);
       
       break;
 
       case 'wesy':
       let weft_sys_id = this.idFromString(event.option.viewValue);
-      this.weft_systems_pattern.push(weft_sys_id);
+      this.draft.rowSystemPattern.push(weft_sys_id);
       this.weftSystemCtrl.setValue(null);
       break;
 
@@ -314,12 +289,18 @@ export class SystemsComponent implements OnInit {
       //   color: this.shuttles[weft_id].getColor()
       // };
 
-      this.weft_shuttles_pattern.push(weft_id);
+      this.draft.rowShuttlePattern.push(weft_id);
       this.weftShuttleCtrl.setValue(null);
       break;
     }
 
+
+    
   
+  }
+
+  close() {
+    this.dialogRef.close(null);
   }
 
   

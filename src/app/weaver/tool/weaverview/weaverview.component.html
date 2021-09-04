@@ -1,46 +1,36 @@
- <!-- <mat-expansion-panel  expanded [hideToggle] = "collapsed">
-  <mat-expansion-panel-header>
-   
-     <span>View Options</span>
-     <div class="main-options">
-       Zoom: 
-      
-    </div>
- 
-  </mat-expansion-panel-header> -->
 
-  <button mat-icon-button><i class="fas fa-search-plus"></i></button>
-  <button mat-icon-button><i class="fas fa-search-minus"></i></button>
- 
-  <!-- <div class="view_slider">
-    <span>Zoom</span>
-    <mat-slider 
+
+<h2 mat-dialog-title
+cdkDrag
+ cdkDragRootElement=".cdk-overlay-pane" 
+ cdkDragHandle>View Settings</h2>
+<mat-dialog-content>
+
+
+
+  
+  
+    <div class="view_slider">
+      <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+      <mat-slider 
     [displayWith]="formatLabel" 
     tickInterval=".1" 
     step=".1"
     min="0" 
     max="2" 
-    value="{{zoom}}" 
+    value="{{render.zoom}}" 
     (change)="zoomChange($event, 'slider')"></mat-slider>
-</div> -->
+    <button mat-icon-button><i class="fas fa-search-minus"></i></button>
+  </div>  
 
-      <!-- <mat-button-toggle-group value = "{{view}}"(change)="viewChange($event)" name="fontStyle" aria-label="Font Style">
-
-        <ng-container *ngFor="let mode of view_modes">
-          <mat-button-toggle 
-          value="{{mode.value}}" >
-        {{mode.viewValue}}</mat-button-toggle>
-        </ng-container>
-
-      </mat-button-toggle-group> -->
-
-
+ 
+  
    
       <div class="view_slider">
         Yarn
 
         <mat-slide-toggle
-            [checked]="view !== 'pattern'"
+            [checked]="render.current_view !== 'pattern'"
             (change)="viewChange($event)">
         </mat-slide-toggle>
       </div>
@@ -50,15 +40,15 @@
       <div class="view_slider">
         Back
         <mat-slide-toggle
-            [checked]="!front"
+            [checked]="!render.view_front"
             (change)="front = !front; viewFront($event, front, 'front')">
         </mat-slide-toggle>
       </div>
 
       <div class="system-viz">
 
-        <ng-container *ngIf="weft_systems.length > 1">
-            <ng-container *ngFor="let system of weft_systems">
+        <ng-container *ngIf="draft.weft_systems.length > 1">
+            <ng-container *ngFor="let system of draft.weft_systems">
               <div class="view_slider">
 
               <mat-slide-toggle
@@ -69,9 +59,9 @@
           </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="warp_systems.length > 1">
+        <ng-container *ngIf="draft.warp_systems.length > 1">
 
-        <ng-container *ngFor="let system of warp_systems">
+        <ng-container *ngFor="let system of draft.warp_systems">
           <div class="view_slider">
 
           <mat-slide-toggle
@@ -84,66 +74,8 @@
       </div>
 
 
-<!-- 
 
-<mat-expansion-panel>
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-     System Visibility
-    </mat-panel-title>
-    <mat-panel-description>
-    
-    </mat-panel-description>
-  </mat-expansion-panel-header>
-    <h4>Weft System Visibility</h4>
-
-    <ng-container *ngFor="let system of weft_systems">
-      <button  mat-icon-button  [class.selected]="system.visible" (click)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'weft')"> {{system.getChar()}}
-    </button>
-      
-    </ng-container>
-    <h4>Warp System Visbibility</h4>
-    <ng-container *ngFor="let system of warp_systems">
-      <button  mat-icon-button   [class.selected]="system.visible" (click)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'warp')"> {{system.getChar()}}
-      </button>
-    </ng-container>
-</mat-expansion-panel> -->
-
-
-
-<!-- <mat-expansion-panel >
-  <mat-expansion-panel-header>
-    <mat-panel-title>
-     Advanced
-    </mat-panel-title>
-    <mat-panel-description>
-    
-    </mat-panel-description>
-  </mat-expansion-panel-header>
-    <h4>Show/Hide Warp Systems</h4>
-    <ng-container *ngFor="let system of warp_systems">
-      <button  mat-icon-button   [class.selected]="system.visible" (click)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'warp')"> {{system.getChar()}}
-      </button>
-    </ng-container>
-</mat-expansion-panel>
- -->
-
-<!-- 
-  <ng-container *ngIf="collapsed">
-
-          <button matTooltip="zoom in" 
-          name="zoom_in" 
-          class="button is-small  is-primary"
-          (click)="zoomChange($event, 'in')">
-          <i class="fas fa-search-plus" aria-hidden="true"></i>        
-          </button>
-
-        <button matTooltip="zoom out" 
-        name="zoom_out" 
-        class="button is-small  is-primary"
-        (click)="zoomChange($event, 'out')">
-        <i class="fas fa-search-minus" aria-hidden="true"></i>    
-         </button>  
-
-  </ng-container> -->
-<!-- </mat-expansion-panel> -->
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+</mat-dialog-actions>

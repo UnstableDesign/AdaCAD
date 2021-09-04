@@ -1,5 +1,6 @@
 import { Component, Input, Output, OnInit,EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
+import { WeaverViewComponent } from '../../../weaver/tool/weaverview/weaverview.component';
 import { MixerViewComponent } from '../../../mixer/modal/mixerview/mixerview.component';
 import { OpsComponent } from '../../../mixer/modal/ops/ops.component';
 import { InkService } from '../../../mixer/provider/ink.service';
@@ -8,6 +9,7 @@ import { MaterialModal } from '../../modal/material/material.modal';
 import { PatternModal } from '../../modal/pattern/pattern.modal';
 import { System } from '../../model/system';
 import { DesignmodesService } from '../../provider/designmodes.service';
+import { SystemsComponent } from '../systems/systems.component';
 
 @Component({
   selector: 'app-quicktools',
@@ -36,6 +38,13 @@ export class QuicktoolsComponent implements OnInit {
   @Output() onOperationAdded: any = new EventEmitter();
   @Output() onImport: any = new EventEmitter();
   @Output() onViewPortMove: any = new EventEmitter();
+  @Output() onUpdateWarpSystems: any = new EventEmitter();
+  @Output() onUpdateWeftSystems: any = new EventEmitter();
+  @Output() onUpdateWarpShuttles: any = new EventEmitter();
+  @Output() onUpdateWeftShuttles: any = new EventEmitter();
+
+
+  
   //design mode options
   mode_draw: any;
 
@@ -48,6 +57,8 @@ export class QuicktoolsComponent implements OnInit {
 
   view_modal: MatDialogRef<MixerViewComponent, any>;
   op_modal: MatDialogRef<OpsComponent, any>;
+  weaver_view_modal: MatDialogRef<WeaverViewComponent, any>;
+  actions_modal: MatDialogRef<SystemsComponent, any>;
 
 
   constructor(private dm: DesignmodesService, private is:InkService , private dialog: MatDialog) { 
@@ -82,8 +93,6 @@ export class QuicktoolsComponent implements OnInit {
   }
 
   drawModeChange(name: string) {
-
-
      var obj: any = {};
      obj.name = name;
      obj.target = "draw_modes";
@@ -199,6 +208,33 @@ openOps(){
     });
 }
 
+openWeaverView(){
+  if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) return;
+
+  this.weaver_view_modal  =  this.dialog.open(WeaverViewComponent,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {
+        render: this.render,
+        draft: this.draft}});
+
+     
+       this.weaver_view_modal.componentInstance.onZoomChange.subscribe(event => { this.onZoomChange.emit(event)});
+       this.weaver_view_modal.componentInstance.onViewChange.subscribe(event => { this.onViewChange.emit(event)});
+       this.weaver_view_modal.componentInstance.onViewFront.subscribe(event => { this.onViewFront.emit(event)});
+       this.weaver_view_modal.componentInstance.onShowWarpSystem.subscribe(event => { this.onShowWarpSystem.emit(event)});
+       this.weaver_view_modal.componentInstance.onHideWarpSystem.subscribe(event => { this.onHideWarpSystem.emit(event)});
+       this.weaver_view_modal.componentInstance.onShowWeftSystem.subscribe(event => { this.onShowWeftSystem.emit(event)});
+       this.weaver_view_modal.componentInstance.onHideWeftSystem.subscribe(event => { this.onHideWeftSystem.emit(event)});
+
+  
+      this.weaver_view_modal.afterClosed().subscribe(result => {
+        //this.onLoomChange.emit();
+       // dialogRef.componentInstance.onChange.removeSubscription();
+    });
+}
+
 openMixerView(){
   if(this.view_modal != undefined && this.view_modal.componentInstance != null) return;
 
@@ -220,6 +256,27 @@ openMixerView(){
 }
 
 
+openActions(){
+ if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;
+
+  this.actions_modal  =  this.dialog.open(SystemsComponent,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {draft: this.draft}});
+
+
+       this.actions_modal.componentInstance.onUpdateWarpShuttles.subscribe(event => { this.onUpdateWarpShuttles.emit(event)});
+       this.actions_modal.componentInstance.onUpdateWarpSystems.subscribe(event => { this.onUpdateWarpSystems.emit(event)});
+       this.actions_modal.componentInstance.onUpdateWeftShuttles.subscribe(event => { this.onUpdateWeftShuttles.emit(event)});
+       this.actions_modal.componentInstance.onUpdateWeftSystems.subscribe(event => { this.onUpdateWeftSystems.emit(event)});
+
+  
+    //   this.view_modal.afterClosed().subscribe(result => {
+    //     //this.onLoomChange.emit();
+    //    // dialogRef.componentInstance.onChange.removeSubscription();
+    // });
+}
 
   
 

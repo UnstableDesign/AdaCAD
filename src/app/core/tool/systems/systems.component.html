@@ -1,14 +1,10 @@
-<mat-expansion-panel >
+<h2 mat-dialog-title
+cdkDrag
+ cdkDragRootElement=".cdk-overlay-pane" 
+ cdkDragHandle>Set Repeats</h2>
+<mat-dialog-content>
 
-	<mat-expansion-panel-header>
-	    <mat-panel-title>
-	      <span>Actions</span>
-	    </mat-panel-title>
-    	 
-    	<mat-panel-description>
 
-    	</mat-panel-description>
-  	</mat-expansion-panel-header>
 
 
 <div class='pattern-container'>
@@ -25,10 +21,10 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWasy aria-label="Warp System Repeat">
     <mat-chip
-      *ngFor="let sys of warp_systems_pattern; let j = index;"
+      *ngFor="let sys of draft.colSystemPattern; let j = index;"
       [removable]="removable"
       (removed)="remove('wasy', j)">
-      {{warp_systems[sys].getChar()}}
+      {{draft.warp_systems[sys].getChar()}}
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
     </mat-chip>
     <input
@@ -42,7 +38,7 @@
       (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
   <mat-autocomplete  #auto_wasy="matAutocomplete" (optionSelected)="selected('wasy', $event)">
-    <mat-option *ngFor="let sys of warp_systems" [value]="warp_system">
+    <mat-option *ngFor="let sys of draft.warp_systems" [value]="warp_system">
       {{sys.getChar()}}
     </mat-option>
   </mat-autocomplete>
@@ -63,11 +59,11 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWash aria-label="Warp Material Repeat">
     <mat-chip
-      *ngFor="let sys of warp_shuttles_pattern; let j = index;"
+      *ngFor="let sys of draft.colShuttlePattern; let j = index;"
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wash', j)">
-      <i class="fas fa-square-full" [style.color]="shuttles[sys].color"></i>
+      <i class="fas fa-square-full" [style.color]="draft.shuttles[sys].color"></i>
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
     </mat-chip>
     <input
@@ -81,7 +77,7 @@
       (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
   <mat-autocomplete #auto_wash="matAutocomplete" (optionSelected)="selected('wash', $event)">
-    <mat-option *ngFor="let sys of shuttles" [value]="system">
+    <mat-option *ngFor="let sys of draft.shuttles" [value]="system">
       <i class="fas fa-square-full" [style.color]="sys.color"></i>
       {{sys.name}}
     </mat-option>
@@ -108,11 +104,11 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWesy aria-label="Weft System Repeat">
     <mat-chip
-      *ngFor="let sys of weft_systems_pattern; let j = index;"
+      *ngFor="let sys of draft.rowSystemPattern; let j = index;"
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wesy', j)">
-      {{weft_systems[sys].getChar()}}
+      {{draft.weft_systems[sys].getChar()}}
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
     </mat-chip>
     <input
@@ -126,7 +122,7 @@
       (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
   <mat-autocomplete #auto_wesy="matAutocomplete" (optionSelected)="selected('wesy', $event)">
-    <mat-option *ngFor="let sys of weft_systems" [value]="system">
+    <mat-option *ngFor="let sys of draft.weft_systems" [value]="system">
       {{sys.getChar()}}
     </mat-option>
   </mat-autocomplete>
@@ -151,11 +147,11 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWesh aria-label="Weft Material Repeat">
     <mat-chip
-      *ngFor="let sys of weft_shuttles_pattern; let j = index; "
+      *ngFor="let sys of draft.rowShuttlePattern; let j = index; "
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wesh', j)">
-      <i class="fas fa-square-full" [style.color]="shuttles[sys].color"></i>
+      <i class="fas fa-square-full" [style.color]="draft.shuttles[sys].color"></i>
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
     </mat-chip>
     <input
@@ -169,7 +165,7 @@
       (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
   <mat-autocomplete #auto_wesh="matAutocomplete" (optionSelected)="selected('wesh', $event)">
-    <mat-option *ngFor="let sys of shuttles" [value]="system">
+    <mat-option *ngFor="let sys of draft.shuttles" [value]="system">
       <i class="fas fa-square-full" [style.color]="sys.color"></i>
       {{sys.name}}
     </mat-option>
@@ -183,10 +179,7 @@
 
 
   
-
-	
-
-
-
-
-</mat-expansion-panel>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+</mat-dialog-actions>

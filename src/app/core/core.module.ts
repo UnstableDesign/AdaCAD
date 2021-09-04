@@ -161,7 +161,8 @@ import { LoomModal } from './modal/loom/loom.modal';
       PatternModal,
       MaterialModal,
       LoomModal,
-      DraftviewerComponent
+      DraftviewerComponent,
+      SystemsComponent
     ],
 })
 export class CoreModule { }

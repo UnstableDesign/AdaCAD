@@ -1,4 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { Draft } from '../../../core/model/draft';
+import { Render } from '../../../core/model/render';
 
 @Component({
   selector: 'app-weaverview',
@@ -7,26 +10,36 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class WeaverViewComponent implements OnInit {
   
-  @Input() zoom;
-  @Input() view;
-  @Input() front;
-  @Input() view_modes;
-  @Input() warp_systems;
-  @Input() weft_systems;
+  // zoom:number;
+  // @Input() view;
+  // @Input() front;
+  // @Input() view_modes;
+
+  render:Render;
+  draft: Draft;
+
   @Output() onViewChange: any = new EventEmitter();
   @Output() onViewFront: any = new EventEmitter();
   @Output() onZoomChange: any = new EventEmitter();
-  @Output() onCreateWarpSystem: any = new EventEmitter();
   @Output() onShowWarpSystem: any = new EventEmitter();
   @Output() onHideWarpSystem: any = new EventEmitter();
-  @Output() onCreateWeftSystem: any = new EventEmitter();
   @Output() onShowWeftSystem: any = new EventEmitter();
   @Output() onHideWeftSystem: any = new EventEmitter();
 
 
- constructor() { }
+ constructor(private dialog: MatDialog,
+  private dialogRef: MatDialogRef<WeaverViewComponent>,
+           @Inject(MAT_DIALOG_DATA) public data: any) { 
+
+            this.render = data.render;
+            this.draft = data.draft;
+           }
  
   ngOnInit() {
+  }
+
+  close(){
+    this.dialogRef.close(null);
   }
 
   viewChange(e:any){
@@ -48,7 +61,6 @@ export class WeaverViewComponent implements OnInit {
   }
   
  visibleButton(id, visible, type) {
-    console.log("called", id, visible, type);
     if(type == "weft"){
       if (visible) {
         this.onShowWeftSystem.emit({systemId: id});

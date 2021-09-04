@@ -154,6 +154,10 @@
         <i class="fas fa-expand"></i>
         </button>
 
+        <button
+        matTooltip= "Set Repeats"
+        mat-icon-button 
+        (click)='openActions()'><i class="fas fa-magic"></i></button>
 
        
 
@@ -210,9 +214,10 @@
     </div> -->
 
 <!-- VIEW TOOLS -->
+
 <div class="tool-chunk" *ngIf="source==='weaver'">
 
-    <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+    <!-- <button mat-icon-button><i class="fas fa-search-plus"></i></button>
     
     <div class="view_slider">
     <mat-slider 
@@ -224,10 +229,13 @@
     max="2" 
     value="{{render.zoom}}" 
     (change)="zoomChange($event, 'slider')"></mat-slider>
-</div>
-    <button mat-icon-button><i class="fas fa-search-minus"></i></button>
+</div> -->
 
-    <div class="view_slider">
+    <!-- <button mat-icon-button><i class="fas fa-search-minus"></i></button>
+     -->
+    <button mat-icon-button (click)='openWeaverView()'><i class="fas fa-eye"></i></button>
+
+    <!-- <div class="view_slider">
         Yarn
 
         <mat-slide-toggle
@@ -272,7 +280,7 @@
         </div>
         </ng-container>
         </ng-container>
-    </div>
+    </div> -->
 
 
 </div>
