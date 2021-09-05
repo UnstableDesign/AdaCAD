@@ -24,6 +24,7 @@ export class OperationComponent implements OnInit {
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
    @Output() deleteOp = new EventEmitter <any>(); 
+   @Output() duplicateOp = new EventEmitter <any>(); 
 
    active_connection: boolean = false
 
@@ -32,6 +33,9 @@ export class OperationComponent implements OnInit {
    selecting_connection: boolean;
 
    loaded: boolean = false;
+
+   duplicated: boolean = false;
+
 
    outputs: Array<DraftMap>; //stores a list of components and drafts
    
@@ -61,24 +65,30 @@ export class OperationComponent implements OnInit {
     private viewport: ViewportService) { 
     this.outputs = [];
     this.selecting_connection = false;
+
+
+
   }
 
   ngOnInit() {
-
-    const center: Point = this.viewport.getCenterPoint();
-   
-    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(center);
-    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
     this.op = this.operations.getOp(this.name);
 
 
     this.op.params.forEach((param, ndx) => {
-      const value = (this.loaded) ? this.loaded_inputs[ndx] : param.value;
+      const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
       this.op_inputs.push(new FormControl(value));
     });
 
-    console.log("on init", this.id,  this.interlacement)
+    const tl: Point = this.viewport.getTopLeft();
+   
+    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
+    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+
+    this.bounds.height = 30 + 40 * this.op_inputs.length;
+
+
+    console.log("on init", this.id,  this.interlacement);
 
 
   }
@@ -230,6 +240,10 @@ export class OperationComponent implements OnInit {
     this.deleteOp.emit({id: this.id});
   }
 
+  duplicate(){
+    this.duplicateOp.emit({id: this.id});
+  }
+
 
 
 
@@ -243,6 +257,7 @@ export class OperationComponent implements OnInit {
        const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
        const adj:Point = utilInstance.snapToGrid(relative, this.scale);
        this.bounds.topleft = adj;  
+       this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
        this.onOperationMove.emit({id: this.id, point: adj});
 
   }

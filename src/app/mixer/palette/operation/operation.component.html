@@ -36,10 +36,19 @@ cdkDrag
     </div>
 
     <button 
+    matTooltip= "Duplilcate"
+    class="button is-small is-primary fa fa-clone"
+    (click)="duplicate('duplicate')">
+    </button>
+    
+
+    <button 
     class="button is-small is-primary"
     (click)="delete()">
     <i class="fas fa-times"></i>
     </button>
+
+
 
 
 </div>

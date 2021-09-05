@@ -134,7 +134,6 @@ export class MixerComponent implements OnInit {
    * @param result 
    */
   loadNewFile(result: LoadResponse){
-    console.log("loaded new file", result);
     this.tree.clear();
     this.palette.clearComponents();
     this.processFileData(result.data);
@@ -160,7 +159,6 @@ export class MixerComponent implements OnInit {
    * Take a fileObj returned from the fileservice and process
    */
   processFileData(data: FileObj){
-    console.log("process file data", data);
 
     const id_map: Array<{old: number, new: number}> = []; 
    
@@ -252,11 +250,11 @@ export class MixerComponent implements OnInit {
     this.palette.addTimelineState();
 
 
-    this.http.get('assets/demo_file.ada', {observe: 'response'}).subscribe((res) => {
-      console.log(res.body);
-      const lr:LoadResponse = this.fs.loader.ada(res.body);
-      this.loadNewFile(lr);
-    }); 
+    // this.http.get('assets/demo_file.ada', {observe: 'response'}).subscribe((res) => {
+    //   console.log(res.body);
+    //   const lr:LoadResponse = this.fs.loader.ada(res.body);
+    //   this.loadNewFile(lr);
+    // }); 
 
 
  

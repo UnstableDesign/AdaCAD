@@ -20,7 +20,7 @@ import { TreeService } from '../provider/tree.service';
 import { FileService, SaveObj } from './../../core/provider/file.service';
 import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
-
+import { BoundTextAst } from '@angular/compiler';
 
 @Component({
   selector: 'app-palette',
@@ -481,6 +481,7 @@ export class PaletteComponent implements OnInit{
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
+    this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
   }
 
   /**
@@ -520,6 +521,25 @@ export class PaletteComponent implements OnInit{
 
       return op.id;
     }
+
+    /**
+     * duplicates an operation with the information supplied. 
+     * @param name the name of the operation this component will perform
+     * @params params the input data to be used in this operation
+     * @returns the id of the node this has been assigned to
+     */
+     duplicateOperation(name: string, params: Array<number>, bounds:Bounds):number{
+      
+      const op:OperationComponent = this.createOperation(name);
+          
+          op.loaded_inputs = params;
+          op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+          op.bounds.width = bounds.width;
+          op.bounds.height = bounds.height;
+          op.duplicated = true;
+    
+          return op.id;
+      }
 
 
     /**
@@ -924,6 +944,33 @@ export class PaletteComponent implements OnInit{
         this.removeOperation(obj.id);
         this.addTimelineState();
      }
+
+   /**
+   * Deletes the subdraft that called this function.
+   */
+    onDuplicateOpCalled(obj: any){
+      console.log("duplicating "+obj.id);
+      if(obj === null) return;
+
+      const op = <OperationComponent> this.tree.getComponent(obj.id);
+      const params = [];
+      op.op_inputs.forEach((input,ndx) => {
+       params.push(input.value);
+      });
+
+      const new_bounds = {
+        topleft: {x: op.bounds.topleft.x + op.bounds.width + this.scale * 2, y: op.bounds.topleft.y},
+        width: op.bounds.width,
+        height: op.bounds.height
+      }
+
+      const id: number = this.duplicateOperation(op.name, params, new_bounds);
+      const new_op = <OperationComponent> this.tree.getComponent(id);
+
+      //this.operationParamChanged({id: id});
+     // this.addTimelineState();
+ }
+
 
      /**
    * Deletes the subdraft that called this function.
@@ -1823,7 +1870,6 @@ drawStarted(){
     const moving : any = this.tree.getComponent(obj.id);
     const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
 
-
     updates.forEach(u => {
       const type: string = this.tree.getType(u);
       const u_comp = this.tree.getComponent(u);
@@ -1831,14 +1877,14 @@ drawStarted(){
       //if this is a node that didn't call the command, its a parent or child. 
       if(obj.id !== u){
 
-         if(type=='op') u_comp.setPosition({x: obj.point.x, y: obj.point.y - 30});
-         if(type=='draft') u_comp.setPosition({x: obj.point.x, y: obj.point.y + 30});         
+         if(type=='op') u_comp.setPosition({x: obj.point.x, y: obj.point.y - u_comp.bounds.height});
+         if(type=='draft') u_comp.setPosition({x: obj.point.x, y: obj.point.y + moving.bounds.height});         
       
          const cxns: Array<number> = this.tree.getNodeConnections(u);
 
          cxns.forEach(cxn => {
            const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-            if(type=='op') comp.updatePositionAndSize(u_comp.id,  {x: obj.point.x, y: obj.point.y-30}, u_comp.bounds.width, u_comp.bounds.height);
+            if(type=='op') comp.updatePositionAndSize(u_comp.id,  {x: obj.point.x, y: obj.point.y- comp.bounds.height}, u_comp.bounds.width, u_comp.bounds.height);
             if(type=='draft') comp.updatePositionAndSize(u_comp.id, {x: obj.point.x, y: obj.point.y}, u_comp.bounds.width, u_comp.bounds.height);  
          });
       
