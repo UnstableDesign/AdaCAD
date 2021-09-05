@@ -8,6 +8,8 @@ import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
 import { Shuttle } from '../model/shuttle';
 import utilInstance from '../model/util';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { thresholdFreedmanDiaconis } from 'd3-array';
 
 
  export interface NodeComponentProxy{
@@ -105,11 +107,11 @@ export class FileService {
   status: Array<StatusMessage> = [];
   loader: Fileloader = null;
   saver: FileSaver = null;
+  preload: any = null;
 
 
-  constructor(private tree: TreeService) { 
-
-
+  constructor(private tree: TreeService,private http: HttpClient) { 
+  
   this.status = [
     {id: 0, message: 'success', success: true},
     {id: 1, message: 'incompatable type', success: false}
@@ -628,7 +630,18 @@ export class FileService {
 
   this.loader = dloader;
   this.saver = dsaver;
+  
+  this.fetchDefaultFile();
 
+
+  }
+
+  fetchDefaultFile() {
+
+    this.http.get('assets/preload.json', {observe: 'response'}).subscribe((res) => {
+      console.log(res.body);
+      this.preload = res.body;
+   }); 
   }
 
 

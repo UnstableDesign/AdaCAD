@@ -18,7 +18,7 @@ import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 import { QuicktoolsComponent } from '../core/tool/quicktools/quicktools.component';
 import { ViewportService } from './provider/viewport.service';
-
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 //disables some angular checking mechanisms
 //enableProdMode();
@@ -73,7 +73,8 @@ export class MixerComponent implements OnInit {
     public scroll: ScrollDispatcher,
     private fs: FileService,
     private vp: ViewportService,
-    private dialog: MatDialog) {
+    private dialog: MatDialog,
+    private http: HttpClient) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -87,11 +88,7 @@ export class MixerComponent implements OnInit {
    
     this.patterns = this.ps.getPatterns();
 
-    // this.ps.getPatterns().subscribe((res) => {
-    //    for(var i in res.body){
-    //       this.patterns.push(new Pattern(res.body[i]));
-    //    }
-    // }); 
+
   }
 
 
@@ -253,6 +250,18 @@ export class MixerComponent implements OnInit {
   ngAfterViewInit() {
 
     this.palette.addTimelineState();
+
+
+    this.http.get('assets/demo_file.ada', {observe: 'response'}).subscribe((res) => {
+      console.log(res.body);
+      const lr:LoadResponse = this.fs.loader.ada(res.body);
+      this.loadNewFile(lr);
+    }); 
+
+
+ 
+
+
 
   }
 
