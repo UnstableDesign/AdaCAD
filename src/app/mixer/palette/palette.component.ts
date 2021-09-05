@@ -468,6 +468,7 @@ export class PaletteComponent implements OnInit{
    
     const sd:SubdraftComponent = this.createSubDraft(d);
     sd.bounds = bounds;
+    this.viewport.addObj(sd.id, utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale));
     return sd.id;
   }
 
@@ -479,6 +480,7 @@ export class PaletteComponent implements OnInit{
     this.operationSubscriptions.push(op.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this)));
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
+    this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
   }
 
   /**
@@ -612,7 +614,35 @@ export class PaletteComponent implements OnInit{
    * @param id 
    */
   removeOperation(id:number){
-    this.addTimelineState();
+
+    //removoe the node but get alll the ops before it is removed 
+    const ref:ViewRef = this.tree.getViewRef(id);
+    const outputs:Array<number> = this.tree.getNonCxnOutputs(id);
+
+    outputs.forEach(output => {
+      if(this.tree.getType(output) == 'draft'){
+        const comp = <SubdraftComponent> this.tree.getComponent(output);
+        comp.has_active_connection = false;
+        comp.active_connection_order = 0;
+        comp.parent_id = 0;
+      }
+    })
+
+    const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
+    this.tree.removeNode(id);
+
+    const old_cxns:Array<number> = this.tree.getUnusuedConnections();
+    old_cxns.forEach(cxn => {
+      const cxn_view_ref = this.tree.getViewRef(cxn);
+      this.removeFromViewContainer(cxn_view_ref);
+      this.tree.removeNode(cxn);
+    });    
+
+    //calls manually here so that the affected branches can be pinged before the node is deleted 
+    this.recalculateDownstreamDrafts(downstream_ops);
+    this.removeFromViewContainer(ref);
+    this.viewport.removeObj(id);
+
   }
 
     /**
@@ -883,6 +913,17 @@ export class PaletteComponent implements OnInit{
       this.removeSubdraft(obj.id);
       this.addTimelineState();
    }
+
+     /**
+   * Deletes the subdraft that called this function.
+   */
+      onDeleteOperationCalled(obj: any){
+      
+        console.log("deleting op "+obj.id);
+        if(obj === null) return;
+        this.removeOperation(obj.id);
+        this.addTimelineState();
+     }
 
      /**
    * Deletes the subdraft that called this function.

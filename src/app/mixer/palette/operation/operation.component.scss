@@ -1,11 +1,47 @@
 .operation-container{
     position: absolute;
+    background: white;
     top: 0;
     left: 0;
     display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.top-row{
+    background: black;
+    display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    background: black;
+    height: 30px;
+}
+
+.param-row{
+    vertical-align:middle;
+    font-size: .8em;
+    display: flex;
+    flex-direction: row;
+    height: 40px;
+    text-align: right;
+    line-height: 40px;
+    padding: 0 4px;
+
+}
+
+.param-name{
+    width: 25%;
+    overflow: hidden;
+    line-height: 40px;
+}
+
+.param-sider{
+    width: 50%;
+    overflow: hidden;
+}
+
+.mat-slider{
+    height: 40px;
+    padding: 0px;
 }
 
 button.is-primary.is-active{
@@ -31,7 +67,7 @@ button.is-primary.is-active{
 
 .params{
     display:flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-end;
 }
 

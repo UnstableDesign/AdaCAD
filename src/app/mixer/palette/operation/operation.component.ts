@@ -1,5 +1,5 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { Bounds, DraftMap, Point } from '../../../core/model/datatypes';
+import { Bounds, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
 import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
@@ -7,6 +7,7 @@ import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
+import { thresholdFreedmanDiaconis } from 'd3-array';
 
 @Component({
   selector: 'app-operation',
@@ -22,8 +23,11 @@ export class OperationComponent implements OnInit {
    @Output() onSelectInputDraft:any = new EventEmitter()
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
+   @Output() deleteOp = new EventEmitter <any>(); 
 
    active_connection: boolean = false
+
+   interlacement:Interlacement;
 
    selecting_connection: boolean;
 
@@ -62,7 +66,10 @@ export class OperationComponent implements OnInit {
   ngOnInit() {
 
     const center: Point = this.viewport.getCenterPoint();
+   
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(center);
+    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+
     this.op = this.operations.getOp(this.name);
 
 
@@ -70,6 +77,9 @@ export class OperationComponent implements OnInit {
       const value = (this.loaded) ? this.loaded_inputs[ndx] : param.value;
       this.op_inputs.push(new FormControl(value));
     });
+
+    console.log("on init", this.id,  this.interlacement)
+
 
   }
 
@@ -89,10 +99,12 @@ export class OperationComponent implements OnInit {
     this.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y},
     this.bounds.width = bounds.width;
     this.bounds.height = bounds.height;
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
   }
 
   setPosition(pos: Point){
     this.bounds.topleft =  {x: pos.x, y:pos.y};
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
 
@@ -120,30 +132,25 @@ export class OperationComponent implements OnInit {
    return draft_map;
   }
 
-  rescale(scale:number){
+  rescale(scale:number, default_cell:number){
 
-
-
-    
-
-    const change = scale / this.scale;
 
     this.scale = scale;
+    const zoom_factor = this.scale / default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
     container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + this.scale/5 + ')';
+    container.style.transform = 'scale(' + zoom_factor + ')';
 
 
-    
-    this.bounds.topleft = {x: this.bounds.topleft.x * change, y: this.bounds.topleft.y * change};
-    this.bounds.height = this.bounds.height * change;
+    console.log("interlacement", this.interlacement)
+    this.bounds.topleft = {x: this.interlacement.j * this.scale, y: this.interlacement.i * this.scale};
+    //this.bounds.height = this.bounds.height * change;
 
     if(this.outputs.length == 1){
-      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * scale);
+      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
     }else{
       this.bounds.width = 200;
     }
-    // this.scale = scale;
 
   }
 
@@ -217,6 +224,10 @@ export class OperationComponent implements OnInit {
 
   onParamChange(){
     this.onOperationParamChange.emit({id: this.id});
+  }
+
+  delete(){
+    this.deleteOp.emit({id: this.id});
   }
 
 
