@@ -30,9 +30,9 @@ source="mixer"
         (onDesignModeChange)='designModeChange($event)'
         (onZoomChange) ="renderChange($event);"
         (onOperationAdded) = "operationAdded($event)"
-       (onImport) = "importNewFile($event)"
-       (onZoomChange) ="renderChange($event);"
-       (onViewPortMove) ="setScroll($event);"
+        (onImport) = "importNewFile($event)"
+        (onZoomChange) ="renderChange($event);"
+        (onViewPortMove) ="setScroll($event);"
         ></app-quicktools>
 
 
@@ -86,7 +86,7 @@ source="mixer"
 
   </mat-drawer>
 
-  <app-palette #palette  id="scrollable-container"
+  <app-palette  [style.width.px]='vp.getAbsoluteWidth()' [style.height.px]='vp.getAbsoluteHeight()' #palette  id="scrollable-container"
   [patterns] = "default_patterns"
   [timeline] = "timeline"
   (onDesignModeChange)="designModeChange($event)" >

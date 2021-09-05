@@ -23,6 +23,9 @@ export class MixerViewComponent implements OnInit {
   //ratio of the global div to the absolute space
   factor:number;
 
+  // the number of pixels that represent one cell in the preview space
+  cell_factor: number;
+
   //the width and height of the global view
   width: number;
   height: number;
@@ -57,8 +60,9 @@ export class MixerViewComponent implements OnInit {
   //ratio of the global space to the total width of the global div
   this.factor = this.width / viewport.getAbsoluteWidth();
 
-
-
+  //each cell is rendered cell factor number pixels in the global view
+  //this does not change when zoomed
+  this.cell_factor = this.width / ((viewport.getAbsoluteWidth() / data.default_cell_size));
  
 }
  
@@ -72,7 +76,6 @@ export class MixerViewComponent implements OnInit {
   ngAfterViewInit() {
 
     this.div = document.getElementById('scrollable-container').offsetParent;
-
     this.updateLocalDims();
   }
 
@@ -86,80 +89,37 @@ export class MixerViewComponent implements OnInit {
   updateLocalDims(){
 
     this.local_view.topleft = {
-      x: this.div.scrollLeft * this.factor, 
-      y: this.div.scrollTop  * this.factor};
-   //this.local_view.width = this.div.clientWidth *  this.factor;
-   // this.local_view.height = this.div.clientHeight *  this.factor;
-    
-    // this.local_view.topleft = {
-    //   x: this.viewport.getTopLeft().x  * this.factor, 
-    //   y: this.viewport.getTopLeft().y * this.factor};
-    // this.local_view.width = this.viewport.getWidth() *  this.factor;
-    // this.local_view.height = this.viewport.getHeight() * this.factor;
-
+      x: this.div.scrollLeft / this.zoom * this.cell_factor, 
+      y: this.div.scrollTop  / this.zoom * this.cell_factor};
   }
 
 
   updateViewPort(data: any){
     this.updateLocalDims();
-    // const div:HTMLElement = data.elementRef.nativeElement;
-    // this.local_view.topleft = {
-    //   x: div.scrollLeft  * this.factor, 
-    //   y: div.scrollTop  * this.factor};
-    // this.local_view.width = div.clientWidth  * this.factor;
-    // this.local_view.height = div.clientHeight  * this.factor;
-   // console.log(data, this.local_view);
-
   }
 
   updateViewPortFromZoom(){
     this.updateLocalDims();
-    // const div:Element = document.getElementById('scrollable-container').offsetParent;
-    // this.local_view.topleft = {
-    //   x: div.scrollLeft * this.factor, 
-    //   y: div.scrollTop  * this.factor};
-    // this.local_view.width = div.clientWidth /  this.factor;
-    // this.local_view.height = div.clientHeight /  this.factor;
-   // console.log("update from zoom", this.zoom,  this.local_view)
-
+    
   }
 
 
-  // viewChange(e:any){
-  //   this.onViewChange.emit(e.value);
-  // }
+zoomChange(e:any, source: string){
+  e.source = source;
+  this.zoom = e.value;
+ // this.updateLocalDims();
+ //update the window so that the current point remains at top left
+  this.onZoomChange.emit(e);
 
-  zoomChange(e:any, source: string){
-    e.source = source;
-    this.zoom = e.value;
-    this.updateLocalDims();
-    this.onZoomChange.emit(e);
+  const adjusted: Point = {
+    x: this.local_view.topleft.x / this.cell_factor * this.zoom,
+    y: this.local_view.topleft.y / this.cell_factor * this.zoom
   }
 
-  // viewFront(e:any, value:any, source: string){
-  //   console.log("value", value, "source", source);
-  //   e.source = source;
-  //   e.value = value;
-  //   this.onViewFront.emit(e);
-  // }
-  
-//  visibleButton(id, visible, type) {
-//     console.log("called", id, visible, type);
-//     if(type == "weft"){
-//       if (visible) {
-//         this.onShowWeftSystem.emit({systemId: id});
-//       } else {
-//         this.onHideWeftSystem.emit({systemId: id});
-//       }
-//     }else{
-//       if (visible) {
-//         this.onShowWarpSystem.emit({systemId: id});
-//       } else {
-//         this.onHideWarpSystem.emit({systemId: id});
-//       }
-//     }
+  this.onViewPortMove.emit(adjusted);
 
-//   }
+}
+
 
 dragEnd($event: any) {
   
@@ -205,9 +165,9 @@ dragMove($event: any) {
   }
 
   const adjusted: Point = {
-    x: pointerOffsetInGlobal.x / this.factor,
-    y: pointerOffsetInGlobal.y / this.factor  
-   };
+    x: pointerOffsetInGlobal.x / this.cell_factor * this.zoom,
+    y: pointerOffsetInGlobal.y / this.cell_factor * this.zoom
+  }
 
 
   this.onViewPortMove.emit(adjusted);

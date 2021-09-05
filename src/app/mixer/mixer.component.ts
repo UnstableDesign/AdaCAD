@@ -17,6 +17,7 @@ import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 import { QuicktoolsComponent } from '../core/tool/quicktools/quicktools.component';
+import { ViewportService } from './provider/viewport.service';
 
 
 //disables some angular checking mechanisms
@@ -51,8 +52,6 @@ export class MixerComponent implements OnInit {
 
    manual_scroll: boolean = false;
 
-
-
   private unsubscribe$ = new Subject();
 
   patterns: Array<Pattern> = [];
@@ -73,6 +72,7 @@ export class MixerComponent implements OnInit {
     private tree: TreeService,
     public scroll: ScrollDispatcher,
     private fs: FileService,
+    private vp: ViewportService,
     private dialog: MatDialog) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
@@ -83,7 +83,7 @@ export class MixerComponent implements OnInit {
             this.onWindowScroll(data);
     });
     
-
+    this.vp.setAbsolute(16380, 16380); //max size of canvas, evenly divisible by default cell size
    
     this.patterns = this.ps.getPatterns();
 

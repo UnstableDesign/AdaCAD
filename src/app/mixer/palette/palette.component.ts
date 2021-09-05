@@ -146,16 +146,26 @@ export class PaletteComponent implements OnInit{
    */
    snack_message:string;
    snack_bounds: Bounds;
+
+
+   /**
+    * a reference to the base size of each cell. Zoom in and out only modifies the view, not this base size.
+    */
+   default_cell_size: number = 5;
   
+
 
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
    * creates components from shapes and scribbles on the canvas. 
-   * @param design_modes  a reference to the service containing the current design modes and selections
+   * @param dm  a reference to the service containing the current design modes and selections
+   * @param tree reference to the objects and relationships within this palette
    * @param inks a reference to the service manaing the available inks
    * @param layers a reference to the sercie managing the view layers (z-indexes) of components
    * @param resolver a reference to the factory component for dynamically generating components
+   * @param fs file service for saving and loading files
    * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
+   * @param viewport reference to the window and palette variables and where the viewer is currently lookin
    */
   constructor(
     private dm: DesignmodesService, 
@@ -174,11 +184,9 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale = 5;
-    this.scale_string = "5px 5px";
+    this.scale = 5; //default set from zoom
+    this.scale_string = this.default_cell_size+"px "+this.default_cell_size+"px";
     this.vc.clear();
-
-    this.viewport.setAbsolute(16384, 16384);
 
 
     
@@ -207,7 +215,9 @@ export class PaletteComponent implements OnInit{
     // this.cx.stroke();
 
     this.selection.scale = this.scale;
+
     this.selection.active = false;
+    
     this.designModeChanged();
 
     this.rescale(this.scale);
@@ -331,22 +341,25 @@ export class PaletteComponent implements OnInit{
   rescale(scale:number){
 
     this.scale = scale;
+
+    const zoom_factor: number = this.scale / this.default_cell_size;
     // const palette_div = document.getElementById("palette");
     // palette_div.style.transform = 'scale(' + (scale-4) + ')';
 
       //   //var dims = this.render.getCellDims("base");
       const container: HTMLElement = document.getElementById('palette');
       container.style.transformOrigin = 'top left';
-      container.style.transform = 'scale(' + scale/5 + ')';
+      container.style.transform = 'scale(' + zoom_factor + ')';
   
      
     const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
 
-    //rescale all the non connections first, then go through and rescale the connections
+    //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
+    //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
     generations.forEach(generation => {
       generation.forEach(node => {
         const comp = this.tree.getComponent(node);
-        if(this.tree.getType(node) != "cxn") comp.rescale(scale);
+        if(this.tree.getType(node) != "cxn") comp.rescale(scale, this.default_cell_size);
       })
     });
 
@@ -883,11 +896,12 @@ export class PaletteComponent implements OnInit{
         
         const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}));
         new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
-        new_sd.setComponentPosition({
+        new_sd.setPosition({
           x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
           y: sd.bounds.topleft.y});
         new_sd.drawDraft();
-        this.viewport.addObj(new_sd.id, new_sd.bounds.topleft);
+        const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
+        this.viewport.addObj(new_sd.id, interlacement);
         this.addTimelineState();
    }
 
@@ -903,6 +917,7 @@ export class PaletteComponent implements OnInit{
   
       //get the reference to the draft that's moving
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
+      
       if(moving === null) return; 
 
 
@@ -916,8 +931,7 @@ export class PaletteComponent implements OnInit{
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       this.createAndSetPreview(temp);
       this.preview.drawDraft();
-      this.preview.setComponentPosition(bounds.topleft);
-      this.viewport.updatePoint(moving.id, bounds.topleft);
+      this.preview.setPosition(bounds.topleft);
 
     }else if(this.dm.isSelected("marquee",  'design_modes')){
       this.selectionStarted();
@@ -1136,10 +1150,11 @@ performOp(op_id:number){
     }else{
       sd = this.createSubDraft(el. draft);
       op.addOutput({component_id: sd.id, draft:el.draft});
-      sd.setComponentPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
+      sd.setPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
       sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
       sd.setParent(op.id);
-      this.viewport.addObj(sd.id, sd.bounds.topleft);
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+      this.viewport.addObj(sd.id, interlacement);
       this.createConnection(op.id, sd.id);
       this.tree.setSubdraftParent(sd.id, op.id);
       
@@ -1395,11 +1410,11 @@ processShapeEnd(){
   
 
   const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
-  sd.setComponentPosition(this.shape_bounds.topleft);
+  sd.setPosition(this.shape_bounds.topleft);
   sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
   sd.disableDrag();
-
-  this.viewport.addObj(sd.id, sd.bounds.topleft);
+  const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+  this.viewport.addObj(sd.id, interlacement);
   this.addTimelineState();
 
   
@@ -1483,10 +1498,11 @@ drawStarted(){
       height: wefts * this.scale
     }
 
-    sd.setComponentPosition(pos.topleft);
+    sd.setPosition(pos.topleft);
     sd.setComponentSize(pos.width, pos.height);
     sd.disableDrag();
-    this.viewport.addObj(sd.id, sd.bounds.topleft);
+    const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale);
+    this.viewport.addObj(sd.id, interlacement);
 
     for(let i = 0; i < sd.draft.wefts; i++ ){
       for(let j = 0; j< sd.draft.warps; j++){
@@ -1872,9 +1888,10 @@ drawStarted(){
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
-      this.preview.setComponentPosition(bounds.topleft);
-      this.preview.drawDraft();  
-      this.viewport.updatePoint(this.preview.id, this.preview.bounds.topleft);    
+      this.preview.setPosition(bounds.topleft);
+      this.preview.drawDraft(); 
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale); 
+      this.viewport.updatePoint(this.preview.id, interlacement);    
     }
 
 
@@ -1895,12 +1912,12 @@ drawStarted(){
         const to_right: Point = this.preview.getTopleft();
         to_right.x += this.preview.bounds.width + this.scale *4;
         sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
-        sd.setComponentPosition(to_right);
+        sd.setPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
         sd.zndx = this.layers.createLayer();
         this.removePreview();
-
-        this.viewport.addObj(sd.id, sd.bounds.topleft);
+        const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale);
+        this.viewport.addObj(sd.id, interlacement);
       } 
 
     
@@ -1908,6 +1925,8 @@ drawStarted(){
       
       //get the reference to the draft that's moving
       const moving = this.tree.getComponent(obj.id);
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.bounds.topleft, this.scale);
+      this.viewport.updatePoint(moving.id, interlacement);
       if(moving === null) return; 
 
 
@@ -1938,9 +1957,11 @@ drawStarted(){
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
       primary.setNewDraft(temp);
-      primary.setComponentPosition(bounds.topleft);
+      primary.setPosition(bounds.topleft);
       primary.drawDraft();
-      this.viewport.updatePoint(primary.id, primary.bounds.topleft);
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.scale);
+
+      this.viewport.updatePoint(primary.id, interlacement);
 
 
     //remove the intersecting drafts from the view containier and from subrefts

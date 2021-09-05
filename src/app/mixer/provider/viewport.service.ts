@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { thresholdFreedmanDiaconis } from 'd3';
 import { Observable } from 'rxjs';
-import { Bounds, Point } from '../../core/model/datatypes';
+import { Bounds, Interlacement, Point } from '../../core/model/datatypes';
 
 
 const locations = new Observable((observer) => {
@@ -27,11 +27,10 @@ export class ViewportService {
   vp: Bounds;
 
   /**
-   * a reference to the centroidsd of objects being rendered
+   * a reference to the topleft interlalcement of objects being rendered
    * number references the unique id of this element 
-   * the point is its centroid
    */
-  objs: Array<{id:number, p:Point}>;
+  objs: Array<{id:number, i:Interlacement}>;
 
   constructor(){
 
@@ -51,18 +50,31 @@ export class ViewportService {
 
    }
 
-   
-   addObj(id: number, p: Point){
-     this.objs.push({id: id, p:p});
+  /**
+   * called when a new subdraft is added
+   * @param id the id of the subdraft
+   * @param i the topleft corner as interlacement
+   */   
+   addObj(id: number, i: Interlacement){
+     this.objs.push({id: id, i:i});
    }
 
+   /**
+    * calledd when subdraft is deleted
+    * @param id - the subdraft id
+    */
    removeObj(id: number){
      this.objs  = this.objs.filter(el => el.id != id);
    }
 
-   updatePoint(id:number, p:Point){
+   /**
+    * called when a subdraft is moved and we need to update its location
+    * @param id - the subdraft id to move
+    * @param i - the new position to set to
+    */
+   updatePoint(id:number, i:Interlacement){
      this.objs = this.objs.map(el => {
-      if(el.id === id) el.p = p;
+      if(el.id === id) el.i = i;
       return el;
     });
    }
@@ -94,7 +106,6 @@ export class ViewportService {
     this.vp.topleft = {x: x, y:y};
     this.vp.width = width;
     this.vp.height = height;
-    console.log('setting viewport to', this.vp);
   }
 
   setWidth(w: number){

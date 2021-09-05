@@ -242,7 +242,7 @@ openMixerView(){
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
-      data: {zoom: 5}});
+      data: {zoom: 5, default_cell_size: 5}});
 
 
        this.view_modal.componentInstance.onViewPortMove.subscribe(event => { this.onViewPortMove.emit(event)});
