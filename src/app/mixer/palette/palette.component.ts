@@ -359,7 +359,7 @@ export class PaletteComponent implements OnInit{
     generations.forEach(generation => {
       generation.forEach(node => {
         const comp = this.tree.getComponent(node);
-        if(this.tree.getType(node) != "cxn") comp.rescale(scale, this.default_cell_size);
+        if(this.tree.getType(node) != "cxn") comp.rescale(scale);
       })
     });
 
@@ -501,6 +501,7 @@ export class PaletteComponent implements OnInit{
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
       op.instance.scale = this.scale;
+      op.instance.default_cell = this.default_cell_size;
       return op.instance;
     }
 

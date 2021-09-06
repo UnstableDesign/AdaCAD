@@ -19,6 +19,7 @@ export class OperationComponent implements OnInit {
    @Input() id: number; //generated from the tree service
    @Input() name: string;
    @Input() scale: number;
+   @Input() default_cell: number;
    @Input() zndx: number;
    @Output() onSelectInputDraft:any = new EventEmitter()
    @Output() onOperationMove = new EventEmitter <any>(); 
@@ -26,18 +27,41 @@ export class OperationComponent implements OnInit {
    @Output() deleteOp = new EventEmitter <any>(); 
    @Output() duplicateOp = new EventEmitter <any>(); 
 
+   /**
+    * flag to tell if this has a connection
+    */
    active_connection: boolean = false
 
+    /**
+    * reference to top, left positioin as absolute interlacement
+    */
    interlacement:Interlacement;
 
+  /**
+  * reference to the height of this element in units of the base cell 
+  */
+  base_height:number;
+
+
+    /**
+    * flag to tell if this is in a mode where it is looking foor a connectino
+    */
    selecting_connection: boolean;
 
+    /**
+    * flag to tell if this is being from a loaded from a saved file
+    */
    loaded: boolean = false;
 
+    /**
+    * flag to tell if this has been duplicated from another operation
+    */
    duplicated: boolean = false;
 
-
-   outputs: Array<DraftMap>; //stores a list of components and drafts
+    /**
+    * stores a list of components and drafts generated as outputs 
+    */
+   outputs: Array<DraftMap>; 
    
    tooltip: string = "select drafts to input to this operation"
   
@@ -85,16 +109,17 @@ export class OperationComponent implements OnInit {
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
     else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
-    this.bounds.height = 30 + 40 * this.op_inputs.length;
+    this.base_height =  30 + 40 * this.op_inputs.length
+    this.bounds.height = this.base_height;
 
-
-    console.log("on init", this.id,  this.interlacement);
 
 
   }
 
   ngAfterViewInit(){
+    this.rescale(this.scale);
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
+    
   }
 
 
@@ -142,17 +167,16 @@ export class OperationComponent implements OnInit {
    return draft_map;
   }
 
-  rescale(scale:number, default_cell:number){
+  rescale(scale:number){
 
 
     this.scale = scale;
-    const zoom_factor = this.scale / default_cell;
+    const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
 
-    console.log("interlacement", this.interlacement)
     this.bounds.topleft = {x: this.interlacement.j * this.scale, y: this.interlacement.i * this.scale};
     //this.bounds.height = this.bounds.height * change;
 
@@ -161,6 +185,8 @@ export class OperationComponent implements OnInit {
     }else{
       this.bounds.width = 200;
     }
+
+    this.bounds.height = this.base_height * zoom_factor;
 
   }
 
