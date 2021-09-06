@@ -678,6 +678,12 @@ export class PaletteComponent implements OnInit{
       //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
       subdraft.instance.draft = d;
       subdraft.instance.id = -1;
+      subdraft.instance.default_cell = this.default_cell_size;
+      subdraft.instance.scale = this.scale;
+      subdraft.instance.patterns = this.patterns;
+      subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+
+
       subdraft.instance.setAsPreview();
       subdraft.instance.disableDrag();
       this.preview_ref = subdraft.hostView;
