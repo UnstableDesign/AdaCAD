@@ -1730,6 +1730,7 @@ drawStarted(){
     const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
     const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+    console.log(ndx, utilInstance.resolveCoordsToNdx(mouse, this.scale));
     //use this to snap the mouse to the nearest coord
     mouse.x = ndx.j * this.scale;
     mouse.y = ndx.i * this.scale;
