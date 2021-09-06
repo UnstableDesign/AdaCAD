@@ -452,9 +452,10 @@ export class PaletteComponent implements OnInit{
 
     subdraft.instance.draft = d;
     subdraft.instance.id = id;
+    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-    subdraft.instance.scale = this.scale;
 
     return subdraft.instance;
   }
@@ -1578,6 +1579,7 @@ drawStarted(){
       return;
     } 
 
+    console.log(this.scale);
     //if this drawing does not intersect with any existing subdrafts, 
     const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
     const pos = {
