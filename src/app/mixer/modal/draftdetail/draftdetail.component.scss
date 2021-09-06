@@ -3,6 +3,15 @@
   flex-direction: column;
 }
 
+.toolbars{
+  display: flex;
+  flex: row;
+}
+
+.draft-drawer{
+  background: #3d3d3d;
+}
+
 .draft-detail-body{
   display: flex;
   flex-direction: row;
@@ -31,11 +40,3 @@
 
 
 
-.draft-viewer #view_frames,
-.draft-viewer #warp-materials,
-.draft-viewer #warp-systems,
-.draft-viewer  #weft-materials,
-.draft-viewer #weft-systems
-{
-  display:none !important;
-}

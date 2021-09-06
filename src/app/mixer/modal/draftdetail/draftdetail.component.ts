@@ -204,6 +204,20 @@ ink: String; //the name of the selected ink.
     this.dialogRef.close(this.draft);
   }
 
+    /**
+   * Change the name of the brush to reflect selected brush.
+   * @extends WeaveComponent
+   * @param {Event} e - brush change event from design component.
+   * @returns {void}
+   */
+  public designModeChange(e:any) {
+
+      console.log('design mode change caught in draft detail')
+      this.dv.unsetSelection();
+  
+   }
+  
+
   public toggleFrames(){
 
 

@@ -3,7 +3,7 @@
 <div class="sidebar">
 
     <!--on both weaver and mixer-->
-    <div class="tool-chunk">
+    <div class="tool-chunk" *ngIf="source !== 'weaverinmixer'">
         <button #undoEvent 
         mat-icon-button 
         (click)="undoClicked($event);"
@@ -112,7 +112,7 @@
 
 
 <!-- WEAVER EDITING TOOLS -->
-    <div class="tool-chunk" *ngIf="source==='weaver'">
+    <div class="tool-chunk" *ngIf="source==='weaver' || source==='weaverinmixer'">
 
         <button 
         mat-icon-button
@@ -235,52 +235,7 @@
      -->
     <button mat-icon-button (click)='openWeaverView()'><i class="fas fa-eye"></i></button>
 
-    <!-- <div class="view_slider">
-        Yarn
-
-        <mat-slide-toggle
-            [checked]="view !== 'pattern'"
-            (change)="viewChange($event)">
-        </mat-slide-toggle>
-    </div>
-
-
-
-    <div class="view_slider">
-        Back
-        <mat-slide-toggle
-            [checked]="!front"
-            (change)="front = !front; viewFront($event, front, 'front')">
-        </mat-slide-toggle>
-    </div>
-
-    <div class="system-viz">
-
-        <ng-container *ngIf="weft_systems.length > 1">
-            <ng-container *ngFor="let system of weft_systems">
-            <div class="view_slider">
-
-            <mat-slide-toggle
-            [checked]="!system.visible"
-            (change)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'weft')">
-            </mat-slide-toggle> Hide Weft System {{system.getChar()}}
-            </div>
-        </ng-container>
-        </ng-container>
-
-        <ng-container *ngIf="warp_systems.length > 1">
-
-        <ng-container *ngFor="let system of warp_systems">
-        <div class="view_slider">
-
-        <mat-slide-toggle
-        [checked]="!system.visible"
-        (change)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'warp')">
-        </mat-slide-toggle> Hide Warp System {{system.getChar()}}
-        </div>
-        </ng-container>
-        </ng-container>
-    </div> -->
+   
 
 
 </div>
@@ -296,7 +251,7 @@
     
     </div>
 <!-- LIBRARIES -->
-    <div class="tool-chunk" *ngIf="source==='weaver'">
+    <div class="tool-chunk" *ngIf="source==='weaver' || source=='weaverinmixer'">
 
         <button 
         mat-icon-button

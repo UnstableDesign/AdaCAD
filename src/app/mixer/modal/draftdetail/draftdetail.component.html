@@ -1,71 +1,93 @@
 <div class ="draft-detail-modal">
 
-<div class="draft-detail-body">
+  <mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
+    <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
+     
+          <div class="toolbars">
+          <app-quicktools
+          [timeline]="timeline"
+          [draft]="draft"
+          [loom]="loom"  
+          [render]="render"  
+          source="weaverinmixer"
+          (onUndo)="undo();" 
+          (onRedo)="redo();"
+          (onDesignModeChange)='designModeChange($event)'
+          (onZoomChange) ="renderChange($event);"
+          (onViewChange) ="viewChange($event);"
+          (onViewFront) ="renderChange($event);"
+          (onHideWeftSystem)="hideWeftSystem($event);"
+          (onShowWeftSystem)="showWeftSystem($event);"
+          (onHideWarpSystem)="hideWarpSystem($event);"
+          (onShowWarpSystem)="showWarpSystem($event);"
+          (onLoomChange)="onLoomChange($event)"
+          (onUpdateWarpSystems) = "updateWarpSystems($event)"
+          (onUpdateWeftSystems) = "updateWeftSystems($event)"
+          (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
+          (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
+        ></app-quicktools>
 
-<app-draftviewer  #dv
-source = "mixer"
-[render]="render" 
-[(copy)]="copy" 
-[timeline]="timeline" 
-[draft]="draft" 
-[loom]="loom" 
-(onNewSelection) = "updateSelection($event)" 
-class="draft-viewer"
-cdkScrollable >
-</app-draftviewer>
+         <!-- <div  class="options">
+
+            <div class="toggle-row">
+              <mat-slide-toggle [(ngModel)]="is_yarn_view" (change)="toggleView()">View Yarn Simulation</mat-slide-toggle>
+            </div>
+            
+            <ng-container *ngFor="let class of ops.classification">
+          
+              <ng-container *ngFor="let op of class.ops">
+          
+                <ng-container *ngIf="op.params.length == 0 && op.max_inputs === 1">
+          
+                  <button [matTooltip]=op.dx 
+                  mat-button
+                  [name]=op.name 
+                  (click)="designActionChange(op.name)">
+                  {{op.name}}
+                  </button>  
+                </ng-container>
+              </ng-container>  
+            </ng-container>
+    
+          </div>  -->
+        </div>
+        </mat-drawer>
 
 
-<div  class="options">
-  <!-- <div class="toggle-row"><mat-slide-toggle [(ngModel)]="render.view_frames" (change)="toggleFrames()">Show Threading, Treadling, and Tieup</mat-slide-toggle></div> -->
-  <div class="toggle-row"><mat-slide-toggle [(ngModel)]="is_yarn_view" (change)="toggleView()">View Yarn Simulation</mat-slide-toggle></div>
-  
-  <!-- <div> 
-    Click draft cells to toggle value. Shift+click to unset the cell. 
 
-  </div> -->
+    <div class="draft-detail-body">
 
-  
-  <!-- <button mat-button [matMenuTriggerFor]="actions">Quick Design Actions</button> -->
-  <!-- //<mat-menu #actions="matMenu"> -->
+      <app-draftviewer #dv 
+        source = "weaver"
+        [render]="render" 
+        [(copy)]="copy" 
+        [timeline]="timeline" 
+        [draft]="draft" 
+        [loom]="loom" 
+        class="draft-viewer"
+        cdkScrollable
+        (onNewSelection) = "updateSelection($event)">
+      </app-draftviewer>
+  </div>
 
+  </mat-drawer-container>
 
-  <ng-container *ngFor="let class of ops.classification">
-
-    <ng-container *ngFor="let op of class.ops">
-
-      <ng-container *ngIf="op.params.length == 0 && op.max_inputs === 1">
-
-      <button [matTooltip]=op.dx 
-      mat-button
-      [name]=op.name 
-      (click)="designActionChange(op.name)">
-      {{op.name}}
-      </button>  
-      </ng-container>
-    </ng-container>  
-  </ng-container>
-
-<!-- </mat-menu> -->
-</div>
-</div>
 
 <div class="draft-detail-footer">
-  <div class="ink-block">
-  <mat-label>Using Ink</mat-label>
-  <mat-select [(value)]="ink">
-    <mat-option 
-    *ngFor="let i of inks.getInks()" 
-    [value]="i.viewValue"
-   >
-      {{i.viewValue}}
-    </mat-option>
-  </mat-select> 
-  </div>
+    <div class="ink-block">
+    <mat-label>Using Ink</mat-label>
+    <mat-select [(value)]="ink">
+      <mat-option 
+      *ngFor="let i of inks.getInks()" 
+      [value]="i.viewValue"
+    >
+        {{i.viewValue}}
+      </mat-option>
+    </mat-select> 
+    </div>
 
-  <div mat-dialog-actions>
-    <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
-  </div>
-</div>
-
+    <div mat-dialog-actions>
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
+    </div>
 </div>
