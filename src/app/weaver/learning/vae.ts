@@ -2,6 +2,7 @@ import * as tf from '@tensorflow/tfjs'
 import { std, mean } from 'mathjs'
 
 export class VAE {
+    private epsilons: any = [];
     private batch_size: number = 16;
     private decoder;
     private encoder_log_var;
@@ -45,8 +46,32 @@ export class VAE {
         }
         let mean = this.encoder_mean.predict(tf.tensor([newDraft]));
         let log_var = this.encoder_log_var.predict(tf.tensor([newDraft]));
+
+        // var close = true;
+        // var epsilon;
+        // while (close) {
+        //     close = false;
+        //     epsilon = Math.random(); //to replace with a rondom number from a normal distribution
+        //     for (var i = 0; i < this.epsilons.length; i++) {
+        //         if (Math.abs(epsilon - this.epsilons[i]) < 0.1) {
+        //             close = true;
+        //         }
+        //     }
+        // }
+        // this.epsilons.push(epsilon);
+
+        let epsilon_shape = mean.shape;
+        this.epsilons.push([]);
+        for (var i = 0; i < epsilon_shape[0]; i++) {
+            this.epsilons[this.epsilons.length-1].push([]);
+            for (var j = 0; j < epsilon_shape[1]; j++) {
+                this.epsilons[this.epsilons.length-1][i].push(Math.random());
+            }
+        }
         
-        var z_sample = tf.add(mean, tf.exp(log_var));
+        var z_sample = tf.add(tf.add(mean, tf.exp(log_var)), this.epsilons[this.epsilons.length-1]);
+        console.log('mean.shape:', mean.shape);
+        console.log('log_var.shape:', log_var.shape);
         let tile_multiple = [this.batch_size, 1];
         let x_decoded = this.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
         var draftSuggestions = [];
