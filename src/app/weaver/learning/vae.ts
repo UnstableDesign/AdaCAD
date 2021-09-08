@@ -70,8 +70,6 @@ export class VAE {
         }
         
         var z_sample = tf.add(tf.add(mean, tf.exp(log_var)), this.epsilons[this.epsilons.length-1]);
-        console.log('mean.shape:', mean.shape);
-        console.log('log_var.shape:', log_var.shape);
         let tile_multiple = [this.batch_size, 1];
         let x_decoded = this.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
         var draftSuggestions = [];

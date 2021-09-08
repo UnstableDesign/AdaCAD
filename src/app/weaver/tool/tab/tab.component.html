@@ -1,4 +1,4 @@
-<mat-expansion-panel  [hideToggle] = "collapsed">
+<mat-expansion-panel >
   <mat-expansion-panel-header>
     <mat-panel-title>
      <span>Machine Learning</span>
@@ -7,8 +7,18 @@
     </mat-panel-description>
   </mat-expansion-panel-header>
 
-  <h3>How to Design with Machine Learning</h3>
+  <h3>
 
+  <span class="right">
+    Design with Machine Learning
+    <button mat-icon-button
+       (click)="openMlDialog(null)"
+       matTooltip ="about Machine Learning">
+       <i class="fas fa-info-circle"></i>
+     </button>
+     
+ </span>
+</h3>
 
   <form #collectionForm="ngForm">
     <mat-form-field class="is-fullwidth">
@@ -43,31 +53,15 @@
     </button>
 
 
-  <h3>Suggested Drafts</h3>
+  <h3 *ngIf='generated_drafts?.length > 0'>Suggested Drafts</h3>
 
-  <button matTooltip= "Draft 1"
+  <button
+    *ngFor="let generated of generated_drafts"
+    [matTooltip]= generated.id
     name="Draft" 
     class="button is-small"
-    [style.color]="button_color">
-  </button>
-
-
-  <button matTooltip= "Draft 2"
-    name="Draft" 
-    class="button is-small"
-    [style.color]="button_color">
-  </button>
-
-  <button matTooltip= "Draft 3"
-    name="Draft" 
-    class="button is-small"
-    [style.color]="button_color">
-  </button>
-
-  <button matTooltip= "Draft 4"
-    name="Draft" 
-    class="button is-small"
-    [style.color]="button_color">
+    [style.color]="button_color"
+    (click)="loadGeneratedDraft(generated.id)">
   </button>
 
   </ng-container>

@@ -1,8 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { MlModal } from '../../../core/modal/ml/ml.modal';
 import { NgForm } from '@angular/forms';
 import * as _ from 'lodash';
 import { ChangeDetectorRef } from '@angular/core';
+import { Draft } from '../../../core/model/draft';
 import { CollectionService } from '../../../core/provider/collection.service';
 
 
@@ -15,11 +17,14 @@ import { CollectionService } from '../../../core/provider/collection.service';
 
 
 export class TabComponent implements OnInit {
-  @Input()  collapsed;
-  @Input() collections;
-  @Input() collection;
-  @Output() onCollectionNamesChange: any = new EventEmitter();
+
+  @Input() generated_drafts : Array<Draft>;
   @Output() onGenerativeModeChange: any = new EventEmitter();
+  @Output() onDraftSelected: any = new EventEmitter();
+  @Output() onCollectionNamesChange: any = new EventEmitter();
+  @Input() collection;
+  @Input() collections;
+  @Input()  collapsed;
 
 
   button_color = "#ff4081";
@@ -61,6 +66,22 @@ export class TabComponent implements OnInit {
 
       })
     }
+  }
+
+  openMlDialog() {
+    const dialogRef = this.dialog.open(MlModal);
+
+  }
+
+  loadGeneratedDraft(id: number){
+    console.log('hi'+id);
+    //scan through generated_dafts and get the one with this id. 
+    const draft: Draft = this.generated_drafts.find(el => el.id == id);
+
+    //emit that draft ot the parent and tell the parent to load it. 
+    if(draft != undefined) this.onDraftSelected.emit(draft);
+
+
   }
 
 }

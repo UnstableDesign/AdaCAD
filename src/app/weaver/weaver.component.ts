@@ -122,6 +122,11 @@ export class WeaverComponent implements OnInit {
   **/
   copy: Pattern;
 
+  /**
+   * a place to store the drafts returned from emma's ml code
+   */
+  generated_drafts: Array<Draft> = [];
+
 
  /**
    * The types of looms this version will support.
@@ -592,12 +597,36 @@ export class WeaverComponent implements OnInit {
         for (var i = 0; i < suggestions.length; i++) {
           let treadlingSuggest = this.patternFinder.getTreadlingFromArr(suggestions[i]);
           let threadingSuggest = this.patternFinder.getThreadingFromArr(suggestions[i]);
-          console.log('pattern:', this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i]));
+          let pattern = this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i])
+          let draft = new Draft({});
+          for (var i = 0; i < pattern.length; i++) {
+            var first = false;
+            if (i != 0) {
+              draft.pattern.push([]);
+            } else {
+              first = true;
+            }
+            for (var j = 0; j < pattern[i].length; j++) {
+              if (first && j == 0) {
+                draft.pattern[i][j] = new Cell(pattern[i][j] == 1 ? true : false);
+              } else {
+                draft.pattern[i].push(new Cell(pattern[i][j] == 1 ? true : false));
+              }
+            }
+          }
+          this.generated_drafts.push(draft);    
+          // this.generated_drafts.push(new Draft({}));
+          // this.generated_drafts.push(new Draft({}));
         }
       });
     }
    });
  }
+
+ public loadGeneratedDraft(e: any){
+  console.log("running load generated draft!");
+  //tell the draft viewer to load this business!
+}
   
   /**
    * Tell the weave directive to fill selection with pattern.
