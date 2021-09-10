@@ -9,7 +9,6 @@ import { Render } from '../core/model/render';
 import { Pattern } from '../core/model/pattern';
 import { MatDialog } from "@angular/material/dialog";
 import { InitModal } from '../core/modal/init/init.modal';
-import { LabelModal } from './modal/label/label.modal';
 import {Subject} from 'rxjs';
 import { FileService, LoadResponse } from '../core/provider/file.service';
 import { Loom } from '../core/model/loom';
@@ -206,14 +205,14 @@ export class WeaverComponent implements OnInit {
   ngAfterViewInit() {
 
   
-    const dialogRef = this.dialog.open(InitModal, {
-      data: {loomtypes: this.dm.loom_types, density_units: this.dm.density_units, source: "weaver"}
-    });
+  //   const dialogRef = this.dialog.open(InitModal, {
+  //     data: {loomtypes: this.dm.loom_types, density_units: this.dm.density_units, source: "weaver"}
+  //   });
 
 
-    dialogRef.afterClosed().subscribe(result => {
-      if(result !== undefined) this.loadNewFile(result);
-   });
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if(result !== undefined) this.loadNewFile(result);
+  //  });
 
 
     this.weaveRef.onNewDraftLoaded();
@@ -494,22 +493,6 @@ export class WeaverComponent implements OnInit {
   //   });
   // }
 
-
-  /**
-   * Open the label modal.
-   * @extends WeaveComponent
-   * @returns {void}
-   */
-  public openLabelDialog() {
-
-    const dialogRef = this.dialog.open(LabelModal);
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log(result);
-      }
-    });
-  }
 
 
 

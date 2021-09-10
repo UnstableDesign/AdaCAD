@@ -16,7 +16,7 @@ import { OperationComponent } from './palette/operation/operation.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
-import { QuicktoolsComponent } from '../core/tool/quicktools/quicktools.component';
+import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
@@ -37,7 +37,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild(PaletteComponent, {static: false}) palette;
   @ViewChild(MixerDesignComponent, {static: false}) design_tool;
-  @ViewChild(QuicktoolsComponent, {static: false}) view_tool;
+  @ViewChild(SidebarComponent, {static: false}) view_tool;
 
 
   filename = "adacad_mixer";

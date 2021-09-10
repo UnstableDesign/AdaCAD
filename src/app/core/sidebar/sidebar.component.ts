@@ -1,22 +1,22 @@
 import { Component, Input, Output, OnInit,EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { WeaverViewComponent } from '../../../weaver/tool/weaverview/weaverview.component';
-import { MixerViewComponent } from '../../../mixer/modal/mixerview/mixerview.component';
-import { OpsComponent } from '../../../mixer/modal/ops/ops.component';
-import { InkService } from '../../../mixer/provider/ink.service';
-import { LoomModal } from '../../modal/loom/loom.modal';
-import { MaterialModal } from '../../modal/material/material.modal';
-import { PatternModal } from '../../modal/pattern/pattern.modal';
-import { System } from '../../model/system';
-import { DesignmodesService } from '../../provider/designmodes.service';
-import { SystemsComponent } from '../systems/systems.component';
+import { WeaverViewComponent } from '../modal/weaverview/weaverview.component';
+import { MixerViewComponent } from '../../mixer/modal/mixerview/mixerview.component';
+import { OpsComponent } from '../../mixer/modal/ops/ops.component';
+import { InkService } from '../../mixer/provider/ink.service';
+import { LoomModal } from '../modal/loom/loom.modal';
+import { MaterialModal } from '../modal/material/material.modal';
+import { PatternModal } from '../modal/pattern/pattern.modal';
+import { System } from '../model/system';
+import { DesignmodesService } from '../provider/designmodes.service';
+import { ActionsComponent } from '../modal/actions/actions.component';
 
 @Component({
-  selector: 'app-quicktools',
-  templateUrl: './quicktools.component.html',
-  styleUrls: ['./quicktools.component.scss']
+  selector: 'app-sidebar',
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.scss']
 })
-export class QuicktoolsComponent implements OnInit {
+export class SidebarComponent implements OnInit {
 
   @Input() draft;
   @Input() loom;
@@ -42,6 +42,7 @@ export class QuicktoolsComponent implements OnInit {
   @Output() onUpdateWeftSystems: any = new EventEmitter();
   @Output() onUpdateWarpShuttles: any = new EventEmitter();
   @Output() onUpdateWeftShuttles: any = new EventEmitter();
+  @Output() onMaterialChange: any = new EventEmitter();
 
 
   
@@ -58,7 +59,10 @@ export class QuicktoolsComponent implements OnInit {
   view_modal: MatDialogRef<MixerViewComponent, any>;
   op_modal: MatDialogRef<OpsComponent, any>;
   weaver_view_modal: MatDialogRef<WeaverViewComponent, any>;
-  actions_modal: MatDialogRef<SystemsComponent, any>;
+  actions_modal: MatDialogRef<ActionsComponent, any>;
+  materials_modal: MatDialogRef<MaterialModal, any>;
+  patterns_modal: MatDialogRef<PatternModal, any>;
+  equipment_modal: MatDialogRef<LoomModal, any>;
 
 
   constructor(private dm: DesignmodesService, private is:InkService , private dialog: MatDialog) { 
@@ -156,7 +160,22 @@ export class QuicktoolsComponent implements OnInit {
 }
 
 openMaterialsModal(){
-  this.dialog.open(MaterialModal, {data: {draft: this.draft}});
+
+  const dialogRef =  this.dialog.open(MaterialModal,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {draft:this.draft}});
+
+
+      dialogRef.componentInstance.onChange.subscribe(event => { this.onMaterialChange.emit();});
+
+  
+      dialogRef.afterClosed().subscribe(result => {
+        this.onMaterialChange.emit();
+    });
+
+
 }
 
 openPatternsModal(){
@@ -259,7 +278,7 @@ openMixerView(){
 openActions(){
  if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;
 
-  this.actions_modal  =  this.dialog.open(SystemsComponent,
+  this.actions_modal  =  this.dialog.open(ActionsComponent,
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,

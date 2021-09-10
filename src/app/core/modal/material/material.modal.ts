@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, EventEmitter, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms';
 import { Shuttle } from '../../../core/model/shuttle';
@@ -13,14 +13,19 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 })
 
 
+
 export class MaterialModal{
+
+  @Output() onChange: any = new EventEmitter();
+
+
   shuttles: Array<Shuttle>;
   types: any;
 
   constructor(
       private dm: DesignmodesService,
       private dialogRef: MatDialogRef<MaterialModal>,
-      @Inject(MAT_DIALOG_DATA) public data: {draft:Draft, material_types: any}) {
+      @Inject(MAT_DIALOG_DATA) public data: {draft:Draft}) {
 
       this.shuttles = data.draft.shuttles;
   	  this.types = dm.material_types;
@@ -30,6 +35,14 @@ export class MaterialModal{
 
 
   ngOnInit() {
+  }
+
+
+  /**emitted on any action that would change the current rendering */
+  change(){
+    console.log("change");
+    this.onChange.emit();
+
   }
 
 

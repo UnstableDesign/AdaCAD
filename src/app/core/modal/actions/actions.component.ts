@@ -1,27 +1,22 @@
 import { Component, Input, Output, EventEmitter, OnInit, Inject } from '@angular/core';
-import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
-import { System } from '../../../core/model/system';
 import { MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {ElementRef, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
 import {MatChipInputEvent} from '@angular/material/chips';
-import {Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
 import { Draft } from '../../model/draft';
 
 @Component({
-  selector: 'app-systems',
-  templateUrl: './systems.component.html',
-  styleUrls: ['./systems.component.scss']
+  selector: 'app-actions',
+  templateUrl: './actions.component.html',
+  styleUrls: ['./actions.component.scss']
 })
 
 
 
-export class SystemsComponent implements OnInit {
+export class ActionsComponent implements OnInit {
 
   // @Input() warp_systems: any;
   // @Input() weft_systems: any;
@@ -78,7 +73,7 @@ export class SystemsComponent implements OnInit {
 
 
   constructor(private dialog: MatDialog,
-    private dialogRef: MatDialogRef<SystemsComponent>,
+    private dialogRef: MatDialogRef<ActionsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
 
               this.draft = data.draft;

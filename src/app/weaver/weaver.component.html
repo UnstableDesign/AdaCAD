@@ -1,4 +1,4 @@
-<app-topbar 
+<!-- <app-topbar 
 [drawer] = "drawer"
 [loomtypes] = "loomtypes"
 [timeline] = "timeline"
@@ -8,7 +8,7 @@
 source="weaver"
 (onLoadNewFile)="loadNewFile($event);"
 (onSave)="onSave($event);">
-</app-topbar>
+</app-topbar> -->
 
 <mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
   
@@ -17,7 +17,7 @@ source="weaver"
       <div class ="design-container">
        
 
-        <app-quicktools
+        <app-sidebar
         [timeline]="timeline"
         [draft]="draft"
         [loom]="loom"  
@@ -38,7 +38,7 @@ source="weaver"
         (onUpdateWeftSystems) = "updateWeftSystems($event)"
         (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
         (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
-        ></app-quicktools>
+        ></app-sidebar>
 
 
 

@@ -6,7 +6,7 @@
   <form #materialForm="ngForm">
 
     <mat-form-field class="is-fullwidth">
-      <input matInput placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
+      <input matInput (change)="change()" placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
        [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
     </mat-form-field>
 
@@ -31,6 +31,7 @@
         min="0"
         max="100"
         step="10"
+        (change)="change()"
         [(ngModel)]="shuttle.thickness"> 
         <span>&nbsp;&nbsp;%</span>
       </mat-form-field>
@@ -40,7 +41,7 @@
 
     <div class="is-fullwidth">
        Insert From Left
-       <mat-slide-toggle matInput [(ngModel)]="shuttle.insert" name="insert" required>
+       <mat-slide-toggle matInput (change)="change()" [(ngModel)]="shuttle.insert" name="insert" required>
        </mat-slide-toggle>
        Insert From Right
   </div>

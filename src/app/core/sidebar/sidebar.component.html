@@ -118,7 +118,7 @@
         mat-icon-button
         matTooltip= "Edit Draft Cells"
         [matMenuTriggerFor]="inks"
-        [class.is-active]="selected_mode === 'draw'">
+        [class.is-active]="dm.isSelected('draw','design_modes')"        >
         <i class="fas fa-edit"></i>
         </button>
 
@@ -127,6 +127,7 @@
                 <button 
             class="menu-button" 
             mat-menu-item 
+            [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
             [name] = "mode.value"
             (click)="drawModeChange(mode.value)">
                 <span class="{{mode.icon}}"></span>
@@ -149,7 +150,7 @@
         <button 
         mat-icon-button
         matTooltip= "Select Region"
-        [class.is-active]="selected_mode === 'select'"
+        [class.is-active]="dm.isSelected('select','design_modes')"
         (click)="select()">
         <i class="fas fa-expand"></i>
         </button>
@@ -233,7 +234,11 @@
 
     <!-- <button mat-icon-button><i class="fas fa-search-minus"></i></button>
      -->
-    <button mat-icon-button (click)='openWeaverView()'><i class="fas fa-eye"></i></button>
+    <button mat-icon-button 
+    (click)='openWeaverView()'
+    [class.is-active] = "weaver_view_modal && weaver_view_modal.componentInstance != null"
+    >
+    <i class="fas fa-eye"></i></button>
 
    
 
@@ -256,6 +261,7 @@
         <button 
         mat-icon-button
         matTooltip= "Open Materials Library"
+        [class.is-active] = "materials_modal && materials_modal.componentInstance != null"
         (click)="openMaterialsModal()">
         <i class="fas fa-book"></i>
         </button>
@@ -264,6 +270,7 @@
         <button 
         mat-icon-button
         matTooltip= "Open Pattern Library"
+        [class.is-active] = "patterns_modal && patterns_modal.componentInstance != null"
         (click)="openPatternsModal()">
         <i class="fas fa-chess-board"></i>
         </button>
@@ -276,6 +283,7 @@
         <button 
         mat-icon-button
         matTooltip= "Equipment Settings"
+        [class.is-active] = "equipment_modal && equipment_modal.componentInstance != null"
         (click)="openLoomModal()">
         <i class="fas fa-cog"></i></button>
 

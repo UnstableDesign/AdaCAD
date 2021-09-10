@@ -1,7 +1,7 @@
 .sidebar{
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content:flex-start;
     height: 90vh;
     font-size: .8em;
 
@@ -15,12 +15,9 @@
 }
 
 .is-active{
-    background-color:#ff3860;
+   color:#ff3860;
 }
 
-.tool-chunk{
-    padding-bottom: 20px;
-}
 
 span{
     padding-right: 10px;

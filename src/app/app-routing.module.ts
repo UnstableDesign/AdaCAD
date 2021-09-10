@@ -6,12 +6,12 @@ import { MixerComponent } from './mixer/mixer.component';
 
 const routes: Routes = [
   {
-    path: 'mixer',
+    path: '',
     component: MixerComponent,
     children: []
   },
   {
-    path: '',
+    path: 'weaver',
     component: WeaverComponent,
     children: []
   }

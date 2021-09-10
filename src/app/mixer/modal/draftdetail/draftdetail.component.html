@@ -1,5 +1,7 @@
 <div class ="draft-detail-modal">
 
+  <app-weaver></app-weaver>
+<!-- 
   <mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
     <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
      
@@ -27,29 +29,6 @@
           (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
         ></app-quicktools>
 
-         <!-- <div  class="options">
-
-            <div class="toggle-row">
-              <mat-slide-toggle [(ngModel)]="is_yarn_view" (change)="toggleView()">View Yarn Simulation</mat-slide-toggle>
-            </div>
-            
-            <ng-container *ngFor="let class of ops.classification">
-          
-              <ng-container *ngFor="let op of class.ops">
-          
-                <ng-container *ngIf="op.params.length == 0 && op.max_inputs === 1">
-          
-                  <button [matTooltip]=op.dx 
-                  mat-button
-                  [name]=op.name 
-                  (click)="designActionChange(op.name)">
-                  {{op.name}}
-                  </button>  
-                </ng-container>
-              </ng-container>  
-            </ng-container>
-    
-          </div>  -->
         </div>
         </mat-drawer>
 
@@ -71,9 +50,9 @@
   </div>
 
   </mat-drawer-container>
+ -->
 
-
-<div class="draft-detail-footer">
+  <div class="draft-detail-footer">
     <div class="ink-block">
     <mat-label>Using Ink</mat-label>
     <mat-select [(value)]="ink">

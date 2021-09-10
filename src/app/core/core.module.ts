@@ -36,20 +36,19 @@ import { UploadService } from './uploads/upload.service';
 import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
 import { TopbarComponent } from './topbar/topbar.component';
-import { SystemsComponent} from './tool/systems/systems.component'
-import { MaterialsComponent} from './tool/materials/materials.component'
-import { NotesComponent} from './tool/notes/notes.component'
+import { ActionsComponent} from './modal/actions/actions.component'
+import { NotesComponent} from './modal/notes/notes.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
 import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
-import { PatternsComponent } from './tool/patterns/patterns.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
-import { QuicktoolsComponent } from './tool/quicktools/quicktools.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 import { LoomModal } from './modal/loom/loom.modal';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 @NgModule({
   imports: [
@@ -89,8 +88,7 @@ import { LoomModal } from './modal/loom/loom.modal';
     FilterPipe, 
     UploadFormComponent,
     TopbarComponent,
-    SystemsComponent,
-    MaterialsComponent,
+    ActionsComponent,
     NotesComponent,
     PatternModal,
     ShuttlesModal,
@@ -98,10 +96,9 @@ import { LoomModal } from './modal/loom/loom.modal';
     AboutModal,
     MaterialModal,
     LoomModal,
-    PatternsComponent,
     DraftviewerComponent,
     SelectionComponent,
-    QuicktoolsComponent
+    SidebarComponent
    ],
 
   providers: [
@@ -143,8 +140,7 @@ import { LoomModal } from './modal/loom/loom.modal';
     FilterPipe, 
     UploadFormComponent,
     TopbarComponent,
-    SystemsComponent,
-    MaterialsComponent,
+    ActionsComponent,
     NotesComponent,
     PatternModal,
     InitModal,
@@ -153,7 +149,7 @@ import { LoomModal } from './modal/loom/loom.modal';
     LoomModal,
     DraftviewerComponent,
     SelectionComponent,
-    QuicktoolsComponent],
+    SidebarComponent],
   
     entryComponents: [
       InitModal,
@@ -162,7 +158,7 @@ import { LoomModal } from './modal/loom/loom.modal';
       MaterialModal,
       LoomModal,
       DraftviewerComponent,
-      SystemsComponent
+      ActionsComponent
     ],
 })
 export class CoreModule { }

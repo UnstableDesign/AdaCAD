@@ -18,6 +18,7 @@ import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
 import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component';
+import { WeaverModule } from '../weaver/weaver.module';
 
 
 
@@ -25,7 +26,8 @@ import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component'
 
 @NgModule({
   imports: [
-    CoreModule
+    CoreModule,
+    WeaverModule
   ],
   declarations: [
     MixerDesignComponent, 
@@ -43,7 +45,7 @@ import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component'
     OpHelpModal,
     ImageComponent,
     MixerInitComponent,
-    DraftdetailComponent
+    DraftdetailComponent,
     ],
   entryComponents: [
     SubdraftComponent,
@@ -54,7 +56,7 @@ import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component'
     MixerInitComponent,
     DraftdetailComponent,
     OpsComponent,
-    MixerViewComponent
+    MixerViewComponent,
   ]
 })
 export class MixerModule { }
