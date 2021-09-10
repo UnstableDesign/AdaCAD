@@ -30,18 +30,7 @@ export class DraftdetailComponent implements OnInit {
   @ViewChild('dv', {read: DraftviewerComponent, static: true}) dv: DraftviewerComponent;
 
 
-ink: String; //the name of the selected ink.
-
-/**
- * local flag for the view parameter
- */
-  is_yarn_view = false;
-
-
-  /**
-   * local param for default height
-   */
-  modal_height:number;
+  ink: String; //the name of the selected ink.
 
   /**
    * a reference to the draft that we're modifying
@@ -55,28 +44,6 @@ ink: String; //the name of the selected ink.
    */
    loom: Loom;
 
-  /**
-   * The weave Render object.
-   * @property {Render}
-   */
-   render: Render;
-
-    /**
-   * The weave Timeline object.
-   * @property {Timeline}
-   */
-  timeline: Timeline = new Timeline();
-
-   /**
-   * A collection of patterns to use in this space
-   * @property {Timeline}
-   */
-    patterns: Array<Pattern>;
-
-  /**
-  The current selection, as boolean array 
-  **/
-  copy: Array<Array<boolean>>;
 
   scrollingSubscription: any;
 
@@ -101,21 +68,20 @@ ink: String; //the name of the selected ink.
                this.draft.computeYarnPaths();
 
 
-               this.copy = [];
 
+              //default loom
                this.loom = new Loom(this.draft, 8, 10);
-               this.loom.recomputeLoom(this.draft);
+               this.dm.selectDesignMode('jacquard', 'loom_types');
+               this.loom.type = "jacquard";
+               //this.loom.recomputeLoom(this.draft);
 
-               this.render = new Render(false, this.draft);
-               this.render.updateVisible(this.draft);
+              
                
-               this.timeline = new Timeline();
     
 
-               this.timeline.addHistoryState(this.draft);  
                             
 
-               this.modal_height = (this.draft.wefts+20) * this.render.getCellDims('base').h;
+              // this.modal_height = (this.draft.wefts+20) * this.render.getCellDims('base').h;
 
   }
 
@@ -157,17 +123,6 @@ ink: String; //the name of the selected ink.
 
   ngAfterViewInit(){
 
-    this.dv.onNewDraftLoaded();
-    this.dv.redraw({
-      drawdown: true, 
-      loom:true, 
-      warp_systems: true, 
-      weft_systems: true, 
-      warp_materials: true,
-      weft_materials:true
-    });
-
-    //this.dv.rescale();
 
    
   }
@@ -203,53 +158,5 @@ ink: String; //the name of the selected ink.
     this.scrollingSubscription.unsubscribe();
     this.dialogRef.close(this.draft);
   }
-
-    /**
-   * Change the name of the brush to reflect selected brush.
-   * @extends WeaveComponent
-   * @param {Event} e - brush change event from design component.
-   * @returns {void}
-   */
-  public designModeChange(e:any) {
-
-      console.log('design mode change caught in draft detail')
-      this.dv.unsetSelection();
   
-   }
-  
-
-  public toggleFrames(){
-
-
-    //this.render.toggleViewFrames();
-
-    if(this.render.view_frames){
-      this.loom.recomputeLoom(this.draft);
-    }
-
-    this.dv.redraw({loom:true});  }
-
-  /**
-   * Updates the canvas based on the weave view.
-   * @extends WeaveComponent
-   * @param {Event} e - view change event from design component.
-   * @returns {void}
-   */
-   public toggleView() {
-
-
-    
-    if(this.is_yarn_view){
-      this.draft.computeYarnPaths();
-      this.render.setCurrentView('visual');
-    }else{
-      this.render.setCurrentView('pattern');
-
-    }
-
-    this.dv.redraw({
-      drawdown: true
-    });
-  }
-
 }

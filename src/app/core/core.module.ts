@@ -45,6 +45,7 @@ import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
 import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
+import { WeaverViewComponent } from './modal/weaverview/weaverview.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { LoomModal } from './modal/loom/loom.modal';
@@ -98,7 +99,8 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     LoomModal,
     DraftviewerComponent,
     SelectionComponent,
-    SidebarComponent
+    SidebarComponent,
+    WeaverViewComponent
    ],
 
   providers: [
@@ -149,7 +151,8 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     LoomModal,
     DraftviewerComponent,
     SelectionComponent,
-    SidebarComponent],
+    SidebarComponent,
+    WeaverViewComponent],
   
     entryComponents: [
       InitModal,
@@ -158,7 +161,8 @@ import { Action } from 'rxjs/internal/scheduler/Action';
       MaterialModal,
       LoomModal,
       DraftviewerComponent,
-      ActionsComponent
+      ActionsComponent,
+      WeaverViewComponent
     ],
 })
 export class CoreModule { }

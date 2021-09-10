@@ -1,56 +1,10 @@
 <div class ="draft-detail-modal">
 
-  <app-weaver></app-weaver>
-<!-- 
-  <mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
-    <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
-     
-          <div class="toolbars">
-          <app-quicktools
-          [timeline]="timeline"
-          [draft]="draft"
-          [loom]="loom"  
-          [render]="render"  
-          source="weaverinmixer"
-          (onUndo)="undo();" 
-          (onRedo)="redo();"
-          (onDesignModeChange)='designModeChange($event)'
-          (onZoomChange) ="renderChange($event);"
-          (onViewChange) ="viewChange($event);"
-          (onViewFront) ="renderChange($event);"
-          (onHideWeftSystem)="hideWeftSystem($event);"
-          (onShowWeftSystem)="showWeftSystem($event);"
-          (onHideWarpSystem)="hideWarpSystem($event);"
-          (onShowWarpSystem)="showWarpSystem($event);"
-          (onLoomChange)="onLoomChange($event)"
-          (onUpdateWarpSystems) = "updateWarpSystems($event)"
-          (onUpdateWeftSystems) = "updateWeftSystems($event)"
-          (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
-          (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
-        ></app-quicktools>
+  <app-weaver
+  [draft]="draft"
+  [loom]="loom"
+  ></app-weaver>
 
-        </div>
-        </mat-drawer>
-
-
-
-    <div class="draft-detail-body">
-
-      <app-draftviewer #dv 
-        source = "weaver"
-        [render]="render" 
-        [(copy)]="copy" 
-        [timeline]="timeline" 
-        [draft]="draft" 
-        [loom]="loom" 
-        class="draft-viewer"
-        cdkScrollable
-        (onNewSelection) = "updateSelection($event)">
-      </app-draftviewer>
-  </div>
-
-  </mat-drawer-container>
- -->
 
   <div class="draft-detail-footer">
     <div class="ink-block">

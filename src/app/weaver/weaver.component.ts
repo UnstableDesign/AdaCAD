@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, Input } from '@angular/core';
 import {enableProdMode} from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
@@ -35,18 +35,8 @@ export class WeaverComponent implements OnInit {
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
   
-
-  /**
-   * The weave Draft object.
-   * @property {Draft}
-   */
-  draft: Draft;
-
-  /**
-   * The weave Loom object.
-   * @property {Loom}
-   */
-  loom: Loom;
+  @Input()  draft: Draft; 
+  @Input() loom: Loom;
 
 
  /**
@@ -108,35 +98,8 @@ export class WeaverComponent implements OnInit {
     });
 
 
-    //initialize with a draft so that we can load some things faster. 
-    //let d =  this.getDraftFromLocalStore();
-    
     this.copy = new Pattern({pattern: [[false,true],[false,true]]});
 
-
-
-    //if(d !== undefined) this.draft = new Draft(JSON.parse(d));
-    this.draft = new Draft({wefts: 80, warps: 100});
-    this.loom = new Loom(this.draft, 8, 10);
-    this.render = new Render(true, this.draft);
-    this.draft.computeYarnPaths();
-
-    this.timeline.addHistoryState(this.draft);  
-    // this.patterns = ps.getDefaultPatterns(); 
-
-    // this.ps.getPatterns().subscribe((res) => {
-    //    for(var i in res.body){
-    //      const np:Pattern = new Pattern(res.body[i]);
-    //      if(np.id == -1) np.id = this.patterns.length;
-    //      this.patterns.push(np);
-    //    }
-    // }); 
-
-
-    this.render.view_frames = (this.loom.type === 'frame') ? true : false;     
-    // if (this.patterns === undefined){
-    //   this.patterns = this.patterns;
-    // } 
 
   }
 
@@ -199,6 +162,12 @@ export class WeaverComponent implements OnInit {
   }
   
   ngOnInit(){
+
+    //if(d !== undefined) this.draft = new Draft(JSON.parse(d));
+    this.render = new Render(true, this.draft);
+    this.draft.computeYarnPaths();
+    this.timeline.addHistoryState(this.draft);  
+    this.render.view_frames = (this.loom.type === 'frame') ? true : false;     
     
   }
 
@@ -475,23 +444,6 @@ export class WeaverComponent implements OnInit {
 
   
 
- 
-
-  /**
-   * Open the connection modal.
-   * @extends WeaveComponent
-   * @returns {void}
-   */
-  // public openConnectionDialog() {
-
-  //   const dialogRef = this.dialog.open(ConnectionModal, {data: {shuttles: this.draft.shuttles}});
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if (result) {
-  //       this.draft.connections.push(result);
-  //     }
-  //   });
-  // }
 
 
 
