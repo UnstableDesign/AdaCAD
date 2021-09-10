@@ -1,19 +1,42 @@
-<h2 mat-dialog-title>Add/Edit Materials</h2>
-<mat-dialog-content>
+  
+<div class="toprow">
+  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
+  
+  <p mat-dialog-title
+    cdkDrag
+     cdkDragRootElement=".cdk-overlay-pane" 
+     cdkDragHandle>Materials</p>
+  </div>
+    <mat-dialog-content>
 
+
+
+<mat-accordion>
 <ng-container *ngFor="let shuttle of shuttles">
 
   <form #materialForm="ngForm">
+    <mat-expansion-panel >
 
-    <mat-form-field class="is-fullwidth">
-      <input matInput (change)="change()" placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
-       [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
-    </mat-form-field>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i [style.color]="shuttle.color" class="fas fa-square"></i> {{shuttle.name}}
+          </mat-panel-title>
+          <mat-panel-description>
+           
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      
+   
+      <mat-form-field  class="is-fullwidth">
+      <input matInput (colorPickerChange) = 'change()' placeholder="Color" class="colorpicker" [(colorPicker)]="shuttle.color" 
+      [style.background]="shuttle.color" name="color" [(ngModel)]="shuttle.color"/>
+      </mat-form-field>
 
-
-    <mat-form-field class="is-fullwidth">
+      <mat-form-field  class="is-fullwidth">
       <input matInput placeholder="Material Name" name="name" [(ngModel)]="shuttle.name">
     </mat-form-field>
+
+     
     <mat-form-field class="is-fullwidth">
       <mat-select placeholder="Yarn Type" name="type" [(ngModel)]="shuttle.type">
         <mat-option *ngFor="let type of types" [value]="type.value">
@@ -49,18 +72,20 @@
   <div class="is-fullwidth">
   	<mat-form-field class="is-fullwidth">
     <mat-label>Add Notes</mat-label>
-    <textarea matInput>{{shuttle.notes}}</textarea>  	
+    <textarea matInput [(ngModel)]="shuttle.notes" [ngModelOptions]="{standalone: true}">{{shuttle.notes}}</textarea>  	
 	</mat-form-field>
 
   </div>
 
+</mat-expansion-panel>
 
   </form>
 
 </ng-container>
+</mat-accordion>
 
 </mat-dialog-content>
-<mat-dialog-actions>
+<!-- <mat-dialog-actions>
   <button class="mat-raised-button"(click)="close()">Close</button>
   <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
-</mat-dialog-actions>
+</mat-dialog-actions> -->

@@ -1679,6 +1679,8 @@ computeYarnPaths(){
       }
     }
 
+    console.log("this loom", loom);
+
     var u_threading = loom.updateUnused(loom.threading, loom.min_frames, loom.num_frames, "threading");
     var u_treadling = loom.updateUnused(loom.treadling, loom.min_treadles, loom.num_treadles, "treadling");
 

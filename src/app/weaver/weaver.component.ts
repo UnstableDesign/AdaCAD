@@ -16,6 +16,7 @@ import * as _ from 'lodash';
 import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
 import {DesignmodesService} from '../core/provider/designmodes.service'
 import { isBuffer } from 'lodash';
+import { SidebarComponent } from '../core/sidebar/sidebar.component';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -34,6 +35,7 @@ export class WeaverComponent implements OnInit {
    * @property {WeaveDirective}
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
+  @ViewChild(SidebarComponent, {static: true}) sidebar;
   
   @Input()  draft: Draft; 
   @Input() loom: Loom;
@@ -99,7 +101,8 @@ export class WeaverComponent implements OnInit {
 
 
     this.copy = new Pattern({pattern: [[false,true],[false,true]]});
-
+    this.dm.selectDesignMode('draw', 'design_modes');
+    this.dm.selectDesignMode('toggle', 'draw_modes');
 
   }
 
@@ -172,16 +175,6 @@ export class WeaverComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-
-  
-  //   const dialogRef = this.dialog.open(InitModal, {
-  //     data: {loomtypes: this.dm.loom_types, density_units: this.dm.density_units, source: "weaver"}
-  //   });
-
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if(result !== undefined) this.loadNewFile(result);
-  //  });
 
 
     this.weaveRef.onNewDraftLoaded();
@@ -348,6 +341,11 @@ export class WeaverComponent implements OnInit {
     this.weaveRef.onPaste({});
   }
 
+
+  public closeAllModals(){
+    this.sidebar.closeWeaverModals();
+  }
+
   /**
    * Updates the canvas based on the weave view.
    * @extends WeaveComponent
@@ -457,6 +455,20 @@ export class WeaverComponent implements OnInit {
   public print(e) {
     console.log(e);
   }
+
+
+  /**
+   * Inserts an empty row on system, system
+   */
+   public materialChange() {
+     console.log('material change', this.draft.shuttles)
+    this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
+    this.timeline.addHistoryState(this.draft);
+  }
+
+
+
+
 
   /**
    * Inserts an empty row on system, system
@@ -571,11 +583,6 @@ export class WeaverComponent implements OnInit {
 
   public unitChange(e:any){
     this.loom.overloadUnits(e.units);
-  }
-
-  public thicknessChange(e:any){
-
-    if(this.render.isYarnBasedView()) this.weaveRef.redraw({drawdown: true});
   }
 
 

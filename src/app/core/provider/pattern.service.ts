@@ -30,6 +30,10 @@ export class PatternService {
     return this.patterns[id];
   }
 
+  setPattern(id: number, pattern: Pattern){
+    this.patterns[id] = pattern;
+  }
+
 
 
   fetchDefaultPatterns() {

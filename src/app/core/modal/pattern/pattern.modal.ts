@@ -35,7 +35,7 @@ export class PatternModal implements OnInit {
   }
 
   close() {
-    this.dialogRef.close(null);
+    this.dialogRef.close(this.patterns);
   }
 
   save() {
@@ -48,6 +48,8 @@ export class PatternModal implements OnInit {
 
     //initalize a new array of size pattern
     var pattern = this.patterns[id];
+
+    console.log(this.patterns, pattern, id);
     var heddles = [];
     for (var i = 0; i < pattern.height; i++) {
       heddles.push([]);
@@ -63,6 +65,7 @@ export class PatternModal implements OnInit {
     this.patterns[id].pattern = _.cloneDeep(heddles);
     this.patterns[id].width = pattern.width;
     this.patterns[id].height = pattern.height;
+    this.ps.setPattern(id, this.patterns[id]);
 
 
   }

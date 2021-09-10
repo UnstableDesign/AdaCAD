@@ -6,8 +6,14 @@ h4{
 .slider-row{
     display: flex;
     flex-direction: row;
-    padding: 24px;
 }
+
+.toprow{
+    display: flex;
+    flex-direction: row;
+    line-height: 1em;
+}
+
 
 .slider-row i{
     display: block;
@@ -21,7 +27,6 @@ h4{
     border:thin solid #333333;
     width: 250px;
     height: 250px;
-    margin: 0 24px;
 
 }
 

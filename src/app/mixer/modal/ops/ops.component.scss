@@ -1,7 +1,14 @@
-button{
+.mat-stroked-button{
     margin: 0px 4px 4px 0px;
-    // background-color: black;
-    // color: white;
+    background-color: #00d1b2;
+    color: white;
+    font-weight: bold;
+}
+
+.toprow{
+    display: flex;
+    flex-direction: row;
+    line-height: 1em;
 }
 
 h3{
@@ -13,3 +20,9 @@ h3{
     background: #b71c1c;
 
 }
+
+.op-group{
+    display: flex;
+    flex-direction: column;
+}
+

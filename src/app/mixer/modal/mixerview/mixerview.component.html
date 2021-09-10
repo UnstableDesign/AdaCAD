@@ -1,10 +1,14 @@
 
-<h2 mat-dialog-title
-cdkDrag
- cdkDragRootElement=".cdk-overlay-pane" 
- cdkDragHandle
- [cdkDragFreeDragPosition]="bounds.topleft"
- >View</h2>
+<div class="toprow">
+  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
+  
+  <p mat-dialog-title
+    cdkDrag
+     cdkDragRootElement=".cdk-overlay-pane" 
+     [cdkDragFreeDragPosition]="bounds.topleft"
+     cdkDragHandle>View</p>
+  </div>
+
 <mat-dialog-content>
 
 
@@ -63,8 +67,6 @@ cdkDrag
  -->
 
 </mat-dialog-content>
-<mat-dialog-actions>
-  <button class="mat-raised-button"(click)="close()">Close</button>
-</mat-dialog-actions>
+
 
 

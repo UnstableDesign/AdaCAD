@@ -2,7 +2,6 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, Inje
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { thresholdFreedmanDiaconis } from 'd3';
 
 @Component({
   selector: 'app-mixerview',

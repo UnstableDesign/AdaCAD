@@ -40,7 +40,6 @@ export class MaterialModal{
 
   /**emitted on any action that would change the current rendering */
   change(){
-    console.log("change");
     this.onChange.emit();
 
   }

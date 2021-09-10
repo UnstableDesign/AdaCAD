@@ -1,17 +1,12 @@
 import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { Bounds, Interlacement } from '../../../core/model/datatypes';
 import { Draft } from '../../../core/model/draft';
-import { Subscription, fromEvent } from 'rxjs';
 import { Loom } from '../../../core/model/loom';
-import { Render } from '../../../core/model/render';
-import { Timeline } from '../../../core/model/timeline';
-import { Pattern } from '../../../core/model/pattern';
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
-import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
 import { InkService } from '../../provider/ink.service';
 import { OperationService } from '../../provider/operation.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { WeaverComponent } from '../../../weaver/weaver.component';
 
 
 /**
@@ -27,7 +22,7 @@ export class DraftdetailComponent implements OnInit {
 
  
   //the draft view shared by this and weaver
-  @ViewChild('dv', {read: DraftviewerComponent, static: true}) dv: DraftviewerComponent;
+  @ViewChild('weaver', {read: WeaverComponent, static: true}) weaver: WeaverComponent;
 
 
   ink: String; //the name of the selected ink.
@@ -73,6 +68,8 @@ export class DraftdetailComponent implements OnInit {
                this.loom = new Loom(this.draft, 8, 10);
                this.dm.selectDesignMode('jacquard', 'loom_types');
                this.loom.type = "jacquard";
+
+
                //this.loom.recomputeLoom(this.draft);
 
               
@@ -94,22 +91,22 @@ export class DraftdetailComponent implements OnInit {
     const scrollLeft = data.measureScrollOffset("left");
     console.log("on repositiion",scrollTop, scrollLeft);
 
-    this.dv.reposition(scrollTop, scrollLeft);
+    // this.dv.reposition(scrollTop, scrollLeft);
   }
 
   /**
    * this handles the case where someone clicks outside of the modal window 
    * @param $event 
    */
-  @HostListener('document:click', ['$event']) click($event){
-    // here you can hide your menu
-    const target: HTMLElement = $event.target;
-    const name: string = target.className;
-    if(name.includes("cdk-overlay-backdrop")){
-        this.onSave();
-    }
-    console.log("anywhere click", target.className);
-  }
+  // @HostListener('document:click', ['$event']) click($event){
+  //   // here you can hide your menu
+  //   const target: HTMLElement = $event.target;
+  //   const name: string = target.className;
+  //   if(name.includes("cdk-overlay-backdrop")){
+  //       this.onSave();
+  //   }
+  //   console.log("anywhere click", target.className);
+  // }
 
 
 
@@ -137,25 +134,27 @@ export class DraftdetailComponent implements OnInit {
     this.ink = name;
   }
 
-  designActionChange(e){
+  // designActionChange(e){
 
-  const drafts: Array<Draft> = this.ops.getOp(e).perform([this.draft], []);
-        drafts.forEach(draft => {
-          this.draft.reload(draft);
-          this.dv.redraw({drawdown:true});  
-        }); 
-    this.dv.redraw({
-      drawdown: true
-    });   
-  }
+  // const drafts: Array<Draft> = this.ops.getOp(e).perform([this.draft], []);
+  //       drafts.forEach(draft => {
+  //         this.draft.reload(draft);
+  //         this.dv.redraw({drawdown:true});  
+  //       }); 
+  //   this.dv.redraw({
+  //     drawdown: true
+  //   });   
+  // }
 
   public onCancel(){
     this.scrollingSubscription.unsubscribe();
+    this.weaver.closeAllModals();
     this.dialogRef.close(null);
   }
 
   public onSave(){
     this.scrollingSubscription.unsubscribe();
+    this.weaver.closeAllModals();
     this.dialogRef.close(this.draft);
   }
   

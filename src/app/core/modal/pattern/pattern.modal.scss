@@ -7,3 +7,14 @@
     stroke-dasharray: 1,4;
   }
 }
+
+.toprow{
+  display: flex;
+  flex-direction: row;
+  line-height: 1em;
+}
+
+i{
+	padding-right: 8px;
+    margin: 4px 0px 0px 0px;
+}

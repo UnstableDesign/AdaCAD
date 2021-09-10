@@ -87,6 +87,15 @@ export class SidebarComponent implements OnInit {
      this.onDesignModeChange.emit(obj);
   }
 
+  closeWeaverModals(){
+    if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) this.materials_modal.close();
+    if(this.equipment_modal != undefined && this.equipment_modal.componentInstance != null) this.equipment_modal.close();
+    if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) this.patterns_modal.close();
+    if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
+    if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
+
+  }
+
   shapeChange(name:string){
     var obj: any = {};
     obj.name = name;
@@ -161,17 +170,19 @@ export class SidebarComponent implements OnInit {
 
 openMaterialsModal(){
 
-  const dialogRef =  this.dialog.open(MaterialModal,
+  if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) return;
+
+  this.materials_modal =  this.dialog.open(MaterialModal,
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
       data: {draft:this.draft}});
 
 
-      dialogRef.componentInstance.onChange.subscribe(event => { this.onMaterialChange.emit();});
+      this.materials_modal.componentInstance.onChange.subscribe(event => { this.onMaterialChange.emit();});
 
   
-      dialogRef.afterClosed().subscribe(result => {
+      this.materials_modal.afterClosed().subscribe(result => {
         this.onMaterialChange.emit();
     });
 

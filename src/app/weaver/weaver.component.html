@@ -5,7 +5,7 @@
       <div class ="design-container">
        
 
-        <app-sidebar
+        <app-sidebar #sidebar
         [timeline]="timeline"
         [draft]="draft"
         [loom]="loom"  
@@ -26,6 +26,7 @@
         (onUpdateWeftSystems) = "updateWeftSystems($event)"
         (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
         (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
+        (onMaterialChange) = "materialChange($event)"
         ></app-sidebar>
 
 
