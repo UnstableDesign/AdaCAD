@@ -31,5 +31,19 @@
     z-index: 2;
 
   }
+
+  .pattern-swatch svg{
+      border: thin solid grey;
+  }
+
+  span{
+      padding-left: 8px;
+  }
+
   
+  .menu-button{
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+  }
   

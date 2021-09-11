@@ -1,17 +1,21 @@
-<h2 mat-dialog-title
-cdkDrag
- cdkDragRootElement=".cdk-overlay-pane" 
- cdkDragHandle>Set Repeats</h2>
+<div class="toprow">
+  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
+  
+  <p mat-dialog-title
+    cdkDrag
+     cdkDragRootElement=".cdk-overlay-pane" 
+     cdkDragHandle>Apply Repeats</p>
+</div>
+
+
 <mat-dialog-content>
 
 
-
-
-<div class='pattern-container'>
+<div *ngIf="draft.warp_systems.length >1" class='pattern-container'>
   <div class="upload">
 
    <button mat-mini-fab matTooltip="apply this pattern to the warp systems"  (click)="sendUpdates('wasy')" color="primary" aria-label="Add Warp Systems Pattern to Weave">
-        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+        <mat-icon><i class="fas fa-magic"></i></mat-icon>
   </button>
 </div>
 <div class="chips">
@@ -46,10 +50,10 @@ cdkDrag
 </div>
 </div>
 
-<div class='pattern-container'>
+<div *ngIf="draft.shuttles.length >1 " class='pattern-container'>
   <div class="upload">
    <button mat-mini-fab (click)="sendUpdates('wash')" matTooltip="apply this pattern to the warp materials" color="primary" aria-label="Add Warp Materials Pattern to Weave">
-        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+        <mat-icon><i class="fas fa-magic"></i></mat-icon>
   </button>
 </div>
 <div class="chips">
@@ -91,10 +95,10 @@ cdkDrag
 
 
 
-<div class='pattern-container'>
+<div *ngIf="draft.weft_systems.length >1" class='pattern-container'>
   <div class="upload">
    <button mat-mini-fab (click)="sendUpdates('wesy')" matTooltip="apply this pattern to the weft systems" color="primary" aria-label="Add Weft Systems Pattern to Weave">
-        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+        <mat-icon><i class="fas fa-magic"></i></mat-icon>
   </button>
 </div>
 <div class="chips">
@@ -130,14 +134,14 @@ cdkDrag
 </div>
 </div>
 
-<div class='pattern-container'>
+<div *ngIf="draft.shuttles.length >1 " class='pattern-container'>
   <div class="upload">
    <button mat-mini-fab 
    (click)="sendUpdates('wesh')" 
    color="primary" 
    matTooltip="apply this pattern to the weft materials" 
    aria-label="Add Weft Materials Pattern to Weave">
-        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+        <mat-icon><i class="fas fa-magic"></i></mat-icon>
   </button>
 </div>
 <div class="chips">
@@ -178,8 +182,8 @@ cdkDrag
 
 
 
-  
+
 </mat-dialog-content>
-<mat-dialog-actions>
+<!-- <mat-dialog-actions>
   <button class="mat-raised-button"(click)="close()">Close</button>
-</mat-dialog-actions>
+</mat-dialog-actions> -->

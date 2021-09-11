@@ -83,13 +83,11 @@ export class DraftdetailComponent implements OnInit {
   }
 
   updateSelection(event: any){
-    console.log("selection detected");
   }
 
   private onWindowScroll(data: CdkScrollable) {
     const scrollTop = data.measureScrollOffset("top");
     const scrollLeft = data.measureScrollOffset("left");
-    console.log("on repositiion",scrollTop, scrollLeft);
 
     // this.dv.reposition(scrollTop, scrollLeft);
   }

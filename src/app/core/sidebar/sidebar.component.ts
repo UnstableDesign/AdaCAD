@@ -10,6 +10,7 @@ import { PatternModal } from '../modal/pattern/pattern.modal';
 import { System } from '../model/system';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { ActionsComponent } from '../modal/actions/actions.component';
+import { InitModal } from '../../core/modal/init/init.modal';
 
 @Component({
   selector: 'app-sidebar',
@@ -63,6 +64,7 @@ export class SidebarComponent implements OnInit {
   materials_modal: MatDialogRef<MaterialModal, any>;
   patterns_modal: MatDialogRef<PatternModal, any>;
   equipment_modal: MatDialogRef<LoomModal, any>;
+  upload_modal: MatDialogRef<InitModal, any>;
 
 
   constructor(private dm: DesignmodesService, private is:InkService , private dialog: MatDialog) { 
@@ -93,7 +95,6 @@ export class SidebarComponent implements OnInit {
     if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) this.patterns_modal.close();
     if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
     if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
-
   }
 
   shapeChange(name:string){
@@ -189,8 +190,30 @@ openMaterialsModal(){
 
 }
 
+
+  upload(){
+    //need to handle this and load the file somehow
+    if(this.upload_modal != undefined && this.upload_modal.componentInstance != null) return;
+
+
+    this.upload_modal = this.dialog.open(InitModal, {
+      data: {source: 'import'}
+    });
+
+    this.upload_modal.afterClosed().subscribe(result => {
+      if(result !== undefined) this.onImport.emit(result);
+      
+
+   });
+
+
+  }
+
 openPatternsModal(){
-  this.dialog.open(PatternModal,
+
+  if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) return;
+
+  this.patterns_modal =  this.dialog.open(PatternModal,
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
@@ -200,17 +223,20 @@ openPatternsModal(){
 
 openLoomModal(){
 
-  const dialogRef =  this.dialog.open(LoomModal,
+  if(this.equipment_modal != undefined && this.equipment_modal.componentInstance != null) return;
+
+
+  this.equipment_modal =   this.dialog.open(LoomModal,
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
       data: {loom: this.loom, draft:this.draft}});
 
 
-      dialogRef.componentInstance.onChange.subscribe(event => { this.onLoomChange.emit();});
+      this.equipment_modal.componentInstance.onChange.subscribe(event => { this.onLoomChange.emit();});
 
   
-      dialogRef.afterClosed().subscribe(result => {
+      this.equipment_modal.afterClosed().subscribe(result => {
         this.onLoomChange.emit();
        // dialogRef.componentInstance.onChange.removeSubscription();
     });

@@ -1,7 +1,13 @@
-<h2 mat-dialog-title
-  cdkDrag
-   cdkDragRootElement=".cdk-overlay-pane" 
-   cdkDragHandle>Loom Settings</h2>
+<div class="toprow">
+  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
+  
+  <p mat-dialog-title
+    cdkDrag
+     cdkDragRootElement=".cdk-overlay-pane" 
+     cdkDragHandle>Loom Setup</p>
+</div>
+
+
 <mat-dialog-content>
 
 
@@ -130,6 +136,6 @@
 
 
 </mat-dialog-content>
-<mat-dialog-actions>
+<!-- <mat-dialog-actions>
   <button class="mat-raised-button"(click)="close()">Close</button>
-</mat-dialog-actions>
+</mat-dialog-actions> -->

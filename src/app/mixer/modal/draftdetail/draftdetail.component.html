@@ -1,5 +1,16 @@
 <div class ="draft-detail-modal">
 
+
+  <div class="toprow">
+    <button mat-icon-button (click)="onSave()"><i class="fas fa-times"></i></button>
+    
+    <p mat-dialog-title
+      cdkDrag
+       cdkDragRootElement=".cdk-overlay-pane" 
+       cdkDragHandle>Draft Detail</p>
+    </div>
+  
+
   <app-weaver #weaver
   [draft]="draft"
   [loom]="loom"
@@ -19,8 +30,5 @@
     </mat-select> 
     </div>
 
-    <div mat-dialog-actions>
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-raised-button (click)="onSave()" cdkFocusInitial>Save Changes</button>
-    </div>
+
 </div>

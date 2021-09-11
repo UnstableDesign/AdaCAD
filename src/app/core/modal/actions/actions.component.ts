@@ -83,7 +83,6 @@ export class ActionsComponent implements OnInit {
 
   ngOnInit() {
 
-    console.log(this.draft.warp_systems);
 
     
   }

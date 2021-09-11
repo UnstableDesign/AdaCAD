@@ -54,22 +54,6 @@ export class OpsComponent implements OnInit {
     this.onOperationAdded.emit(event.option.value);
   }
 
-  upload(){
-    //need to handle this and load the file somehow
-
-
-    const dialogRef = this.dialog.open(InitModal, {
-      data: {source: 'import'}
-    });
-
-     dialogRef.afterClosed().subscribe(result => {
-      if(result !== undefined) this.onImport.emit(result);
-      
-
-   });
-
-
-  }
 
 
 

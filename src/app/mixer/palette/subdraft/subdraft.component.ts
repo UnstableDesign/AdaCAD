@@ -11,7 +11,6 @@ import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
-import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
 
 
 
@@ -589,11 +588,15 @@ export class SubdraftComponent implements OnInit {
 
     finetune(){
 
-      const dialogRef = this.dialog.open(DraftdetailComponent, {
-        data: {
-          draft: this.draft,
-          ink: this.inks.getInk(this.ink).viewValue}
-      });
+      const dialogRef = this.dialog.open(DraftdetailComponent,
+        {disableClose: true,
+          hasBackdrop: false,
+          data: {
+            draft: this.draft,
+            ink: this.inks.getInk(this.ink).viewValue}
+        });
+
+
 
       dialogRef.afterClosed().subscribe(result => {
         console.log("draft returned", result);

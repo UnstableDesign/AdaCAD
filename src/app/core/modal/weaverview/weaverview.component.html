@@ -1,18 +1,21 @@
+<div class="toprow">
+  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
+  
+  <p mat-dialog-title
+    cdkDrag
+     cdkDragRootElement=".cdk-overlay-pane" 
+     cdkDragHandle>Draft View</p>
+</div>
 
 
-<h2 mat-dialog-title
-cdkDrag
- cdkDragRootElement=".cdk-overlay-pane" 
- cdkDragHandle>View Settings</h2>
 <mat-dialog-content>
-
 
 
   
   
     <div class="view_slider">
       <button mat-icon-button><i class="fas fa-search-plus"></i></button>
-      <mat-slider 
+      <mat-slider invert
     [displayWith]="formatLabel" 
     tickInterval=".1" 
     step=".1"
@@ -27,7 +30,7 @@ cdkDrag
   
    
       <div class="view_slider">
-        Yarn
+        View Yarns
 
         <mat-slide-toggle
             [checked]="render.current_view !== 'pattern'"
@@ -38,7 +41,7 @@ cdkDrag
 
 
       <div class="view_slider">
-        Back
+        View Back
         <mat-slide-toggle
             [checked]="!render.view_front"
             (change)="front = !front; viewFront($event, front, 'front')">
@@ -76,6 +79,6 @@ cdkDrag
 
 
 </mat-dialog-content>
-<mat-dialog-actions>
+<!-- <mat-dialog-actions>
   <button class="mat-raised-button"(click)="close()">Close</button>
-</mat-dialog-actions>
+</mat-dialog-actions> -->

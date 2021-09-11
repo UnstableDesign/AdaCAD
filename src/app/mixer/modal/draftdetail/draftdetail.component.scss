@@ -30,6 +30,12 @@
   font-size: .8em;
 }
 
+.toprow{
+  display: flex;
+  flex-direction: row;
+  line-height: 1em;
+}
+
 
 .draft-detail-footer{
   display: flex;

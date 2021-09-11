@@ -8,6 +8,13 @@
 
 }
 
+.toprow{
+    display: flex;
+    flex-direction: row;
+    line-height: 1em;
+}
+
+
 mat-chip {
   max-width: 60px;
 }
