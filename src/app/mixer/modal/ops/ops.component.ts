@@ -2,7 +2,6 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { OperationService } from '../../provider/operation.service';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { InitModal } from '../../../core/modal/init/init.modal';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';

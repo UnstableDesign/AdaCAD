@@ -490,6 +490,7 @@ export class SubdraftComponent implements OnInit {
   }
 
     public saveAsBmp(e: any, default_cell:number) {
+      
       var obj: any = {
         name: this.filename,
         downloadLink: this.downloadBmp,

@@ -444,6 +444,8 @@ export class PaletteComponent implements OnInit{
    * @returns the created subdraft instance
    */
   createSubDraft(d: Draft):SubdraftComponent{
+
+    
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
@@ -456,6 +458,9 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+
+    console.log(this.tree.print());
+
 
     return subdraft.instance;
   }
@@ -715,9 +720,10 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    console.log
+    console.log('design mode changed', this.dm.getSelectedDesignMode('design_modes'));
 
     if(this.dm.getDesignMode('move', 'design_modes').selected){
+      console.log('unfreezing');
       this.unfreezePaletteObjects();
 
     }else{
@@ -1130,7 +1136,10 @@ export class PaletteComponent implements OnInit{
   unfreezePaletteObjects(){
     const nodes: Array<any> = this.tree.getComponents();
     nodes.forEach(el => {
-      if(el.type != 'cxn') el.enableDrag();
+      if(el.type != 'cxn'){
+        console.log("enabllingg", el);
+        el.enableDrag();
+      } 
     });
    }
   
@@ -1510,6 +1519,8 @@ processShapeEnd(){
   sd.setPosition(this.shape_bounds.topleft);
   sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
   sd.disableDrag();
+
+
   const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
   this.viewport.addObj(sd.id, interlacement);
   this.addTimelineState();
@@ -1587,7 +1598,6 @@ drawStarted(){
       return;
     } 
 
-    console.log(this.scale);
     //if this drawing does not intersect with any existing subdrafts, 
     const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
     const pos = {
@@ -1611,7 +1621,6 @@ drawStarted(){
     }
 
     const had_merge = this.mergeSubdrafts(sd);
-    console.log("had a merge?", had_merge);
     this.addTimelineState();
 
   }
@@ -1804,8 +1813,8 @@ drawStarted(){
       }else if(this.dm.isSelected("shape",'design_modes')){
         if(!this.dm.isSelected('free','shapes')){
           this.processShapeEnd();
-          this.changeDesignmode('move');
           this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.changeDesignmode('move');
         }
       }
 
@@ -1813,6 +1822,7 @@ drawStarted(){
       this.scratch_pad = undefined;
       this.last = undefined;
       this.selection.active = false;
+      this.canvas_zndx = -1;
   }
   
  

@@ -527,6 +527,21 @@ export class TreeService {
   }
 
   /**
+   * for degugging, this "prints" a list of the tree by generations
+   */
+  print(){
+    const gens: Array<Array<number>> = this.convertTreeToGenerations();
+    gens.forEach((el,ndx) =>{
+      console.log("****  geneation ", ndx, "****");
+      el.forEach(subel => {
+        const type = this.getType(subel);
+        console.log("(", subel, ',',type,')');
+      });
+    });
+
+  }
+
+  /**
    * converts the tree into an array where each element belongs to a similar "generation" meaning the first generation had no parents/inputs, and the subsequent generations are descending from that. 
    * returns a list of ids referencing the element ids belonging to each generation
    * should return an array that has the same number of elements as the tree overall

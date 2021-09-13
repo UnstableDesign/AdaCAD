@@ -42,13 +42,13 @@ export class OperationService {
       params: [
         {name: 'width',
         min: 1,
-        max: 100,
+        max: 500,
         value: 10,
         dx: "width"
         },
         {name: 'height',
         min: 1,
-        max: 100,
+        max: 500,
         value: 10,
         dx: "height"
         }
