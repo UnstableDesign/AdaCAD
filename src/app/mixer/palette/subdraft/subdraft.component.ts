@@ -108,10 +108,20 @@ export class SubdraftComponent implements OnInit {
     private fs: FileService,
     private viewport: ViewportService,
     private dialog: MatDialog) { 
-    this.zndx = layer.createLayer();
+
+
+      //this this element a default position
+
+      this.zndx = layer.createLayer();
   }
 
   ngOnInit(){
+    
+    const tl: Point = this.viewport.getTopLeft();
+   
+    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
+    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
     this.filename = this.draft.name;
@@ -182,6 +192,8 @@ export class SubdraftComponent implements OnInit {
    * @param pos 
    */
   setPosition(pos: Point){
+
+    console.log("setting position", pos);
     
     this.bounds.topleft = pos;
     this.interlacement =  utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);

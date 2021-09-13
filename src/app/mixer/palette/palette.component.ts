@@ -311,6 +311,8 @@ export class PaletteComponent implements OnInit{
    * each time a user performs an action that they should be able to undo/redo
    */
   addTimelineState(){
+
+
     const so: string = this.fs.saver.ada(
       'mixer', 
       this.tree.exportDraftsForSaving(),
@@ -445,6 +447,7 @@ export class PaletteComponent implements OnInit{
    */
   createSubDraft(d: Draft):SubdraftComponent{
 
+    console.log("creating subdraft");
     
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -459,9 +462,6 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
-    console.log(this.tree.print());
-
-
     return subdraft.instance;
   }
 
@@ -471,9 +471,11 @@ export class PaletteComponent implements OnInit{
    * @returns the id of the instance created
    */
    loadSubDraft(d: Draft, bounds:Bounds):number{
-   
+    console.log("loading subdraft");
+
     const sd:SubdraftComponent = this.createSubDraft(d);
     sd.bounds = bounds;
+    sd.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
     this.viewport.addObj(sd.id, utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale));
     return sd.id;
   }
@@ -585,6 +587,7 @@ export class PaletteComponent implements OnInit{
     console.log("adding from uplaod", d);
     const sd: SubdraftComponent = this.createSubDraft(d);
     sd.setPosition({x: this.viewport.getTopLeft().x, y: this.viewport.getTopLeft().y});
+    
   }
 
   /**
@@ -1137,7 +1140,6 @@ export class PaletteComponent implements OnInit{
     const nodes: Array<any> = this.tree.getComponents();
     nodes.forEach(el => {
       if(el.type != 'cxn'){
-        console.log("enabllingg", el);
         el.enableDrag();
       } 
     });
@@ -1822,7 +1824,7 @@ drawStarted(){
       this.scratch_pad = undefined;
       this.last = undefined;
       this.selection.active = false;
-      this.canvas_zndx = -1;
+      this.canvas_zndx = -1; 
   }
   
  
@@ -1967,7 +1969,7 @@ drawStarted(){
     if(moving === null) return; 
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
     this.updateAttachedComponents(obj);
-    this.addTimelineState();
+    // this.addTimelineState();
 
   }
 

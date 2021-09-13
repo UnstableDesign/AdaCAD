@@ -1,5 +1,4 @@
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
-import { element } from 'protractor';
 import { Draft } from '../../core/model/draft';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
@@ -538,6 +537,9 @@ export class TreeService {
         console.log("(", subel, ',',type,')');
       });
     });
+
+    console.log("tree: ", this.tree);
+
 
   }
 
