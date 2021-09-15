@@ -26,6 +26,27 @@ export class MaterialsService {
     });
   }
 
+  /**
+   * adds a set of shuttles from a file import
+   * @param shuttles 
+   * @returns the offset of the new ids to the old ones
+   */
+  addShuttles(shuttles: Array<Shuttle>) : number{
+    
+    const offset: number = this.materials.length;
+
+    shuttles.forEach(shuttle => {
+      this.materials.push(new Shuttle(shuttle))
+    });
+
+      //assign them unique ids
+    this.materials.forEach((el, ndx) => {
+        el.setID(ndx);
+    } );
+
+    return offset;
+  }
+
   getColor(index: number,) {
 
     const s: Shuttle = this.getShuttle(index);

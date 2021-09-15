@@ -134,11 +134,23 @@ export class FileService {
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
 
+      
+
+
       drafts = data.drafts.map(data => {
         const draft: Draft =  new Draft({wefts: data.wefts, warps: data.warps, pattern: data.pattern});
         if(data.id !== undefined) draft.overloadId(data.id);
+        
         if(data.shuttles !== undefined){
-          this.ms.overloadShuttles(data.shuttles); 
+            //if there is only one draft here we are loading into the mixer and should add materials
+          if(data.drafts.length === 1){
+            const offset:number = this.ms.addShuttles(data.shuttles);
+            data.rowShuttleMapping = data.rowShuttleMapping.map(el => (el + offset));
+            data.colShuttleMapping = data.colShuttleMapping.map(el => (el + offset));
+          }else{
+           this.ms.overloadShuttles(data.shuttles); 
+          }
+
         } 
        
         if(data.weft_systems !== undefined) draft.overloadWeftSystems(data.weft_systems); 

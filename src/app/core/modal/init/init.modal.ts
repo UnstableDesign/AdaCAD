@@ -3,6 +3,7 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Draft } from '../../model/draft';
 import { Loom } from '../../model/loom';
+import { DesignmodesService } from '../../provider/designmodes.service';
 import { FileService, LoadResponse, FileObj } from '../../provider/file.service';
 
 
@@ -37,22 +38,18 @@ export class InitModal implements OnInit {
   loomtype:string = null;
   valid:boolean = false; 
   mixer_envt: any; 
-  loomtypes: any;
   source: string; 
   density_units: any;
   result: LoadResponse;
   error: string;
 
 
-  constructor(private dialogRef: MatDialogRef<InitModal>, 
+  constructor(private dm: DesignmodesService, private dialogRef: MatDialogRef<InitModal>, 
     @Inject(MAT_DIALOG_DATA) private data: any, private fls: FileService) {
       this.result  = null;
-      this.loomtypes = data.loomtypes;
-      this.density_units = data.density_units;
       this.source = data.source;
       this.error = "";
 
-      console.log(this.source);
   }
 
   ngOnInit() {

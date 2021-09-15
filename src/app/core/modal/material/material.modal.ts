@@ -21,7 +21,7 @@ export class MaterialModal{
   @Output() onChange: any = new EventEmitter();
 
 
-  shuttles: Array<Shuttle>;
+  replacements: Array<number> = [];
   types: any;
   newshuttle: Shuttle = new Shuttle();
 
@@ -31,7 +31,9 @@ export class MaterialModal{
       private dialogRef: MatDialogRef<MaterialModal>,
       @Inject(MAT_DIALOG_DATA) public data: {draft:Draft}) {
 
-      this.shuttles = ms.getShuttles();
+      ms.getShuttles().forEach((el, ndx) => {
+        this.replacements.push((ndx+1%this.ms.getShuttles().length));
+      });
   	  this.types = dm.material_types;
 
   }

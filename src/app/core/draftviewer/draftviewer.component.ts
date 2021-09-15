@@ -377,11 +377,13 @@ export class DraftviewerComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+
     //get dimis based on zoom.
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
       h: this.weftSystemsCanvas.height / this.render.visibleRows.length
     }
+
 
     if (event.target.localName === 'canvas') {
     
@@ -399,8 +401,6 @@ export class DraftviewerComponent implements OnInit {
         j: Math.floor((event.offsetX) / dims.w), //col
       };
 
-      if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
-      if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
       if(event.target && event.target.id==="drawdown"){
         currentPos.si -=1;
@@ -2041,7 +2041,6 @@ public redraw(flags:any){
 
     var i,j;
 
-    this.drawGrid(this.cx,this.canvasEl);
     
 
     var color = '#000000';
@@ -2068,6 +2067,9 @@ public redraw(flags:any){
 
         }
     }   
+
+    this.drawGrid(this.cx,this.canvasEl);
+
   }
 
 
