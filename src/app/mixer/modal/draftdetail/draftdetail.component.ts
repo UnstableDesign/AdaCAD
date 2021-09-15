@@ -146,6 +146,10 @@ export class DraftdetailComponent implements OnInit {
   //   });   
   // }
 
+  public redraw(){
+    this.weaver.materialChange();
+  }
+
   public onCancel(){
     this.scrollingSubscription.unsubscribe();
     this.weaver.closeAllModals();

@@ -77,8 +77,8 @@
   </div>
 
       <div class="is-fullwidth" *ngIf="ms.materials.length > 1">
-      <button mat-flat-button color="accent" (click)="delete(shuttle.id)"> <i class="fa fa-trash" aria-hidden="true"></i> and Reassign to:</button>
-      <mat-select placeholder="Replacement" name="replacement" [(ngModel)]="replacements[shuttle.id]">
+      <button class="is-fullwidth" mat-flat-button color="accent" (click)="delete(shuttle.id)"> <i class="fa fa-trash" aria-hidden="true"></i> Delete and Reassign to:</button>
+      <mat-select lass="is-fullwidth" placeholder="Replacement" name="replacement" [(ngModel)]="replacements[shuttle.id]">
         <mat-option *ngFor="let rep of ms.materials" [value]="rep.id">
           {{ rep.name }}
         </mat-option>

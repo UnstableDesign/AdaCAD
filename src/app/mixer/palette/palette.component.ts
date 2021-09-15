@@ -22,6 +22,7 @@ import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
+import { DraftviewerComponent } from '../../core/draftviewer/draftviewer.component';
 
 @Component({
   selector: 'app-palette',
@@ -154,8 +155,6 @@ export class PaletteComponent implements OnInit{
     */
    default_cell_size: number = 5;
   
-
-
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
    * creates components from shapes and scribbles on the canvas. 
@@ -2276,6 +2275,15 @@ drawStarted(){
 
   clearCanvas(){
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  redrawOpenModals(){
+    const comps = this.tree.getDrafts();
+    comps.forEach(sd => {
+      if(sd.modal !== undefined && sd.modal.componentInstance !== undefined){
+        sd.modal.componentInstance.redraw();
+      }
+    })
   }
 
 }

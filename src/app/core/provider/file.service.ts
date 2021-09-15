@@ -8,7 +8,7 @@ import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
 import { Shuttle } from '../model/shuttle';
 import utilInstance from '../model/util';
-import { MaterialsService } from './materials.service';
+import { MaterialMap, MaterialsService } from './materials.service';
 import { Note, NotesService } from './notes.service';
 import { PatternService } from './pattern.service';
 
@@ -144,9 +144,10 @@ export class FileService {
         if(data.shuttles !== undefined){
             //if there is only one draft here we are loading into the mixer and should add materials
           if(data.drafts.length === 1){
-            const offset:number = this.ms.addShuttles(data.shuttles);
-            data.rowShuttleMapping = data.rowShuttleMapping.map(el => (el + offset));
-            data.colShuttleMapping = data.colShuttleMapping.map(el => (el + offset));
+            const mapping:Array<MaterialMap> = this.ms.addShuttles(data.shuttles);
+            data.rowShuttleMapping = utilInstance.updateMaterialIds(data.rowShuttleMapping, mapping, 0);
+            data.colShuttleMapping = utilInstance.updateMaterialIds(data.colShuttleMapping, mapping, 0);
+            
           }else{
            this.ms.overloadShuttles(data.shuttles); 
           }

@@ -2,13 +2,23 @@ import { Injectable } from '@angular/core';
 import { ShuttlesModal } from '../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../model/shuttle';
 
+
+export interface MaterialMap{
+  old_id: number,
+  new_id: number
+ }
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class MaterialsService {
 
 
+
+  /** array ndx should be the same as shuttle id */
   materials: Array<Shuttle> = [];
+
 
 
   constructor() { 
@@ -19,11 +29,18 @@ export class MaterialsService {
       new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
   }
 
-  overloadShuttles(shuttles: Array<Shuttle>){
+
+
+  /**
+   * overload shuttles with uploaded data. 
+   * check to ensure that ids match array index and return a draft mapping
+   * @param shuttles 
+   */
+  overloadShuttles(shuttles: Array<Shuttle>): Array<MaterialMap>{
+    const map: Array<MaterialMap> = [];
+
     this.materials = [];
-    shuttles.forEach(shuttle => {
-      this.materials.push(new Shuttle(shuttle))
-    });
+    return this.addShuttles(shuttles);
   }
 
   /**
@@ -31,20 +48,18 @@ export class MaterialsService {
    * @param shuttles 
    * @returns the offset of the new ids to the old ones
    */
-  addShuttles(shuttles: Array<Shuttle>) : number{
-    
+  addShuttles(shuttles: Array<Shuttle>) : Array<MaterialMap>{
+    const map: Array<MaterialMap> = [];
+
     const offset: number = this.materials.length;
 
     shuttles.forEach(shuttle => {
+      map.push({old_id: shuttle.getId(), new_id: this.materials.length});
+      shuttle.setID(this.materials.length);
       this.materials.push(new Shuttle(shuttle))
     });
 
-      //assign them unique ids
-    this.materials.forEach((el, ndx) => {
-        el.setID(ndx);
-    } );
-
-    return offset;
+    return map;
   }
 
   getColor(index: number,) {
@@ -54,9 +69,25 @@ export class MaterialsService {
   }
 
 
-
+/**
+ * adds a new material to the end of the list and updates the id.
+ * @param s 
+ */
   addShuttle(s: Shuttle){
+    s.setID(this.materials.length);
     this.materials.push(s);
+  }
+
+
+  /**
+   * deletes a shuttle and readjustes the id
+   * @param id 
+   */
+  deleteShuttle(id: number) : Array<MaterialMap>{
+
+    const new_list: Array<Shuttle> = this.materials.filter(el => el.id != id);
+    return this.overloadShuttles(new_list);
+
   }
 
   getShuttle(id: number) : Shuttle{

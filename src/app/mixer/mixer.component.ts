@@ -37,7 +37,6 @@ import { NotesService } from '../core/provider/notes.service';
 export class MixerComponent implements OnInit {
 
   @ViewChild(PaletteComponent, {static: false}) palette;
-  @ViewChild(MixerDesignComponent, {static: false}) design_tool;
   @ViewChild(SidebarComponent, {static: false}) view_tool;
 
 
@@ -524,6 +523,20 @@ export class MixerComponent implements OnInit {
   public createNote(){
     this.palette.createNote();
   }
+
+
+  /**
+   * something in the materials library changed, check to see if
+   * there is a modal showing materials open and update it if there is
+   */
+   public materialChange() {
+    console.log('material change')
+
+    this.palette.redrawOpenModals();
+ }
+
+
+ 
 
 
 }

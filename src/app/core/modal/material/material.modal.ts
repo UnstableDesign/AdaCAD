@@ -4,8 +4,10 @@ import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms
 import { Shuttle } from '../../../core/model/shuttle';
 import { Draft } from '../../model/draft';
 import { DesignmodesService } from '../../provider/designmodes.service';
-import { MaterialsService } from '../../provider/materials.service';
+import { MaterialMap, MaterialsService } from '../../provider/materials.service';
 import { ShuttlesModal } from '../shuttles/shuttles.modal';
+import { TreeService } from '../../../mixer/provider/tree.service';
+import utilInstance from '../../model/util';
 
 
 @Component({
@@ -28,6 +30,7 @@ export class MaterialModal{
   constructor(
       private dm: DesignmodesService,
       private ms: MaterialsService,
+      private tree: TreeService,
       private dialogRef: MatDialogRef<MaterialModal>,
       @Inject(MAT_DIALOG_DATA) public data: {draft:Draft}) {
 
@@ -54,8 +57,32 @@ export class MaterialModal{
 
   }
 
+
+
+  /**
+   * handles user input of delete event and reads the "replace" value to reassign draft
+   * @param index  - the shuttle to delete
+   */
   delete(index:number){
-    console.log(index);
+
+    //never delete all of the shuttles
+    if(this.ms.getShuttles().length == 1) return;
+
+    const map: Array<MaterialMap> = this.ms.deleteShuttle(index);
+    const drafts: Array<Draft> = this.tree.getDrafts().map(el => el.draft);
+    
+    drafts.forEach(draft =>{
+      draft.rowShuttleMapping = utilInstance.updateMaterialIds( draft.rowShuttleMapping, map, this.replacements[index]);
+      draft.colShuttleMapping = utilInstance.updateMaterialIds( draft.colShuttleMapping, map, this.replacements[index]);
+
+    });
+
+    //remove this from replacements
+    this.replacements = this.replacements.filter((el, ndx) => ndx != index);
+    //map remaning replacement values to valid indices 
+    this.replacements = this.replacements.map(el => (el%this.ms.getShuttles().length));
+
+    this.onChange.emit();
   }
 
   addNewShuttle(){

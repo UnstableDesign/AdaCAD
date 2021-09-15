@@ -9,8 +9,9 @@ import { TreeService } from '../../provider/tree.service';
 import { FileService } from '../../../core/provider/file.service';
 import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
+import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
 
 
 
@@ -99,6 +100,8 @@ export class SubdraftComponent implements OnInit {
   active_connection_order: number = 0;
 
   set_connectable:boolean = false;
+
+  modal: MatDialogRef<DraftdetailComponent, any>;
 
 
   constructor(private inks: InkService, 
@@ -599,7 +602,11 @@ export class SubdraftComponent implements OnInit {
 
     finetune(){
 
-      const dialogRef = this.dialog.open(DraftdetailComponent,
+      //if this is already open, don't reopen it
+      if(this.modal != undefined && this.modal.componentInstance != null) return;
+
+
+      this.modal = this.dialog.open(DraftdetailComponent,
         {disableClose: true,
           hasBackdrop: false,
           data: {
@@ -609,11 +616,9 @@ export class SubdraftComponent implements OnInit {
 
 
 
-      dialogRef.afterClosed().subscribe(result => {
-        console.log("draft returned", result);
+        this.modal.afterClosed().subscribe(result => {
           if(result != null){
             if(this.parent_id == -1){
-              console.log('overloading draft');
               this.draft.reload(result);
               this.drawDraft();
               this.onDesignAction.emit({id: this.id});

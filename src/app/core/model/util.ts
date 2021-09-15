@@ -4,6 +4,7 @@
  */
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
+import { MaterialMap } from "../provider/materials.service";
 import { Point, Interlacement, Bounds } from "./datatypes";
 import { Draft } from "./draft";
 import { Shuttle } from "./shuttle";
@@ -657,6 +658,31 @@ class Util {
     }
 
     return rowToShuttleMapping;
+  }
+
+  /**
+   * this takes a map of material ideas and updates 
+   * @param material_mapping - the mapping of rows of cols to a material 
+   * @param index_map - a map from old to new material ids
+   * @param replacement_ndx - anything not found in the map will be replaced by this value
+   */
+  updateMaterialIds(material_mapping: Array<number>, index_map: Array<MaterialMap>, replacement_ndx:number) : Array<number>{
+
+    //update the existing drafts given the new ids
+      material_mapping.forEach(index => {
+        const mapping: MaterialMap = index_map.find(el => el.old_id === index);
+        if(mapping !== undefined){
+          index = mapping.new_id;
+        }else{
+          index = replacement_ndx;
+        }
+   
+
+
+    });
+
+    return material_mapping;
+  
   }
 
 
