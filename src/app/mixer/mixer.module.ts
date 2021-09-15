@@ -19,6 +19,7 @@ import { ImageComponent } from './palette/image/image.component';
 import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component';
 import { WeaverModule } from '../weaver/weaver.module';
+import { NoteComponent } from './palette/note/note.component';
 
 
 
@@ -46,6 +47,7 @@ import { WeaverModule } from '../weaver/weaver.module';
     ImageComponent,
     MixerInitComponent,
     DraftdetailComponent,
+    NoteComponent,
     ],
   entryComponents: [
     SubdraftComponent,
@@ -57,6 +59,7 @@ import { WeaverModule } from '../weaver/weaver.module';
     DraftdetailComponent,
     OpsComponent,
     MixerViewComponent,
+    NoteComponent
   ]
 })
 export class MixerModule { }

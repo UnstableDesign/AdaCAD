@@ -110,13 +110,11 @@ export class SubdraftComponent implements OnInit {
     private dialog: MatDialog) { 
 
 
-      //this this element a default position
-
       this.zndx = layer.createLayer();
   }
 
   ngOnInit(){
-    
+
     const tl: Point = this.viewport.getTopLeft();
    
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
@@ -566,7 +564,7 @@ export class SubdraftComponent implements OnInit {
       }
       else if (e.type === "ada"){
         let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.ada('draft', [this.draft], [], [], "", false);
+        link.href = this.fs.saver.ada('draft', [this.draft], [], false);
         link.download = e.name + ".ada";
       }
       else if (e.type === "wif"){

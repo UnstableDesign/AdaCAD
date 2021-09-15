@@ -21,6 +21,10 @@
           <div class="warp-system-col" 
           *ngFor="let i of (weave?.colShuttleMapping); let j = index;" >
       
+            <span *ngIf="(j % render?.getTextInterval() == 0 && (j+1 !== weave?.warps))" class="warp_number">{{j}}</span>      
+            <span *ngIf="(j+1 === weave?.warps)" class="warp_number_last">{{j+1}}</span>      
+
+            <div class="warp_selectors">
             <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
               </span>
       
@@ -33,10 +37,9 @@
             <span class="warp_insert" 
             (click)="insertCol(j + 1, weave?.colToShuttle(j),weave?.colToSystem(j));">
             <i class="fa fa-plus-circle"></i></span>
-            
-            <span *ngIf="(j % render?.getTextInterval() == 0 && (j+1 !== weave?.warps))" class="warp_number">{{j}}</span>      
-            <span *ngIf="(j+1 === weave?.warps)" class="warp_number_last">{{j+1}}</span>      
             </div>
+         
+          </div>
 
             <!-- <div class="warp-system-col" >
               <span class="last-warp">{{draft?.warps}}</span>
@@ -64,10 +67,10 @@
             <div class="weft-system-row" *ngFor="let i of (render?.visibleRows); let j = index;" >
         
   
-
+                  <div class="weft_indicies">
                   <span *ngIf="(i % render?.getTextInterval() == 0 && (j+1 !== weave?.wefts))" class="weft_number">{{j}}</span>      
                   <span *ngIf="(i+1 === weave?.wefts)" class="weft_number_last">{{i+1}}</span>      
-        
+                </div>
                   <span class = "weft_insert" 
                   (click)="insertRow(j, i)">
                   <i class="fa fa-plus-circle"></i>

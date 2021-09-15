@@ -1,0 +1,143 @@
+.subdraft-container{
+
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	display: flex;
+	flex-direction: row;
+	justify-content:flex-end;
+}
+
+svg{
+    color: grey;
+}
+
+.scale-container{
+
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	color: grey;
+	display: flex;
+	flex-direction: row;
+	justify-content:flex-end;
+}
+
+h3{
+	font-weight: 800;
+}
+
+
+
+.is_preview{
+	z-index: 10;
+}
+
+
+.active-selection.subdraft-container:hover,
+.active-selection.subdraft-container:active{
+
+	.is-primary{
+		background: #ff4081 !important;
+	}
+
+	.subdraft-details{
+		display: none;
+	}
+
+	.maindraft{
+		border: thin solid #ff4081;
+	}
+
+	.subdraft-details{
+		display: flex;
+	}
+
+}
+
+
+.subdraft-container:hover,
+.subdraft-container:active{
+
+
+	.subdraft-details.hide{
+		display: none;
+	}
+	.subdraft-details{
+		display: flex;
+	}
+
+	.maindraft{
+		border: thin solid #00d1b2;
+	}
+
+	.subdraft-details{
+		display: flex;
+	}
+
+}
+
+.drawing{
+	z-index: -1;
+
+	.subdraft-details{
+		pointer-events: all;
+	}
+
+	.maindraft{
+		pointer-events: none;
+	}
+}
+
+.mat-icon{
+	height: auto;
+}
+
+.subdraft-details{
+	display:none;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.align-top{
+	display: flex;
+	flex-direction: column;
+}
+
+.subdraft-contents{
+	display: block;
+}
+
+.is-active{
+	background: #00d1b2;
+	background: #00000070
+}
+
+button.is-primary.is-active{
+    background-color: rgb(255, 64, 129);
+}
+
+#bitmapImage{
+	display: none;
+	pointer-events: none;
+}
+
+.maindraft{
+	display: block;
+	overflow:hidden;
+	border: thin solid white;
+}
+
+.no-pointer{
+	pointer-events: none;
+}
+
+div.cdk-drag-dragging .maindraft{
+	border: thin solid #ff4081;
+}
+
+.hide{
+	display:none;
+}
+
+

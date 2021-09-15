@@ -8,6 +8,7 @@ import { Point, Interlacement } from './datatypes';
 
 import * as _ from 'lodash';
 import { SelectionComponent } from '../draftviewer/selection/selection.component';
+import { MaterialsService } from '../provider/materials.service';
 
 
 /**
@@ -21,10 +22,10 @@ export class Draft{
   id: number = -1;
 
   pattern: Array<Array<Cell>> = [[new Cell(false)]]; // the single design pattern
-  shuttles: Array<Shuttle> = [
-    new Shuttle({id: 0, name: 'shuttle 0', insert: true, visible: true, color: "#333333", thickness: 100, type: 0, notes: ""}), 
-    new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#ffffff", thickness: 100, type: 0, notes: ""}), 
-    new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
+  // shuttles: Array<Shuttle> = [
+  //   new Shuttle({id: 0, name: 'shuttle 0', insert: true, visible: true, color: "#333333", thickness: 100, type: 0, notes: ""}), 
+  //   new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#ffffff", thickness: 100, type: 0, notes: ""}), 
+  //   new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
   
     notes: string = "";
 
@@ -135,7 +136,7 @@ export class Draft{
     this.wefts = d.wefts;
     this.pattern = this.parsePattern(d.pattern);
     this.notes = d.notes;
-    this.overloadShuttles(d.shuttles);
+    // this.ms.overloadShuttles(d.shuttles);
     this.overloadWeftSystems(d.weft_systems);
     this.overloadWarpSystems(d.warp_systems);
     
@@ -175,12 +176,7 @@ export class Draft{
     this.name = name;
   }
 
-  overloadShuttles(shuttles: Array<Shuttle>){
-    this.shuttles = [];
-    shuttles.forEach(shuttle => {
-      this.shuttles.push(new Shuttle(shuttle))
-    });
-  }
+
 
   overloadWarpSystems(systems: Array<System>){
 
@@ -503,7 +499,7 @@ export class Draft{
   // }
 
   insertRow(i: number, shuttleId: number, systemId:number) {
-    
+    i = i+1;
     console.log(i, shuttleId, systemId)
   
     var col = [];
@@ -534,8 +530,16 @@ export class Draft{
 
     //copy the selected row
     for(var ndx = 0; ndx < this.warps; ndx++){
-      row[ndx] = new Cell(null);
-      row[ndx].setHeddle(this.pattern[i][ndx].isUp());
+      const is_set: boolean = (this.pattern[i][ndx].isSet());
+      let cell:Cell;
+     if(is_set){
+        cell = new Cell(this.pattern[i][ndx].isUp());
+     } else{
+        cell = new Cell(null);
+     }
+
+      row[ndx] = cell;
+      // row[ndx].setHeddle(this.pattern[i][ndx].isUp());
     }
 
     this.wefts += 1;
@@ -680,9 +684,14 @@ export class Draft{
     //copy the selected column
     for(var ndx = 0; ndx < this.wefts; ndx++){
 
-      const is_set: boolean = (this.pattern[ndx][i].isSet()) ? true : null;
-      var cell  = new Cell(is_set);
-      cell.setHeddle(this.pattern[ndx][i].isUp());
+      const is_set: boolean = (this.pattern[ndx][i].isSet());
+      let cell:Cell;
+     if(is_set){
+        cell = new Cell(this.pattern[ndx][i].isUp());
+     } else{
+        cell = new Cell(null);
+     }
+            
       col.push(cell);
     }
 
@@ -736,19 +745,19 @@ export class Draft{
 // }
 
 
-  addShuttle(shuttle, epi) {
-    shuttle.setID(this.shuttles.length);
-    shuttle.setVisible(true);
-    if (!shuttle.thickness) {
-      shuttle.setThickness(epi);
-    }
-    this.shuttles.push(shuttle);
+  // addShuttle(shuttle, epi) {
+  //   shuttle.setID(this.shuttles.length);
+  //   shuttle.setVisible(true);
+  //   if (!shuttle.thickness) {
+  //     shuttle.setThickness(epi);
+  //   }
+  //   this.shuttles.push(shuttle);
 
-    // if (shuttle.image) {
-    //   this.insertImage(shuttle);
-    // }
+  //   // if (shuttle.image) {
+  //   //   this.insertImage(shuttle);
+  //   // }
 
-  }
+  // }
 
   /**
    * checks if we should move to the next system id or create a new empty system.
@@ -863,21 +872,17 @@ export class Draft{
   }
 
 
-  getColor(index, visibleRows) {
+  getColorIndex(index: number, visibleRows: Array<number>) : number{
     var row = visibleRows[index];
     var id = this.rowShuttleMapping[row];
-    var shuttle = this.shuttles[id];
-
-    return shuttle.color;
+    return id;
   }
 
-  getColorCol(index) {
+  getColorColIndex(index:number) : number{
 
 
     var col = this.colShuttleMapping[index];
-    var shuttle = this.shuttles[col];
-
-    return shuttle.color;
+    return col;
   }
 
 /***
@@ -1213,7 +1218,7 @@ getNextPath(paths, i){
 
 }
 
-computeYarnPaths(){
+computeYarnPaths(shuttles: Array<Shuttle>){
 
     //unset_all
     for(let i = 0; i < this.pattern.length; i++){
@@ -1223,10 +1228,10 @@ computeYarnPaths(){
     }
 
 
-    for (var l = 0; l < this.shuttles.length; l++) {
+    for (var l = 0; l < shuttles.length; l++) {
 
       // Draw each shuttle on by one.
-      var shuttle = this.shuttles[l];
+      var shuttle = shuttles[l];
 
       //acc is an array of row_ids that are assigned to this shuttle
       const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
@@ -1352,7 +1357,7 @@ computeYarnPaths(){
    * iterates through the draft calculates the directinaliity and position of each yarn
    * this iteratioon takes into account unset yarns which indicate that no weft yarn travels through a given cell
    */
-  computeYarnPathsWithUnset(){
+  computeYarnPathsWithUnset(shuttles: Array<Shuttle>){
 
     //unset_all
     for(let i = 0; i < this.pattern.length; i++){
@@ -1362,10 +1367,10 @@ computeYarnPaths(){
     }
 
 
-    for (var l = 0; l < this.shuttles.length; l++) {
+    for (var l = 0; l < shuttles.length; l++) {
 
       // Draw each shuttle on by one.
-      var shuttle = this.shuttles[l];
+      var shuttle = shuttles[l];
 
       //acc is an array of row_ids that are assigned to this shuttle
       const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
@@ -1661,14 +1666,18 @@ computeYarnPaths(){
             case 'weft-materials':
               var draft_row = visibleRows[row];
               val = pattern.pattern[i % rows][j % cols].isUp();
-              if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
+             // if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
+              if(val ) this.rowShuttleMapping[draft_row] = col;
             
             break;
             case 'warp-materials':
               val = pattern.pattern[i % rows][j % cols].isUp();
-              if(val && row < this.shuttles.length){
-                  this.colShuttleMapping[col] = row;
-              }
+              // if(val && row < this.shuttles.length){
+              //     this.colShuttleMapping[col] = row;
+              // }
+              if(val){
+                this.colShuttleMapping[col] = row;
+            }
             break;
             default:
             break;

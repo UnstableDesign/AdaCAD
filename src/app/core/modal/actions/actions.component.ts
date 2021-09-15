@@ -7,6 +7,7 @@ import {FormControl} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
 import {MatChipInputEvent} from '@angular/material/chips';
 import { Draft } from '../../model/draft';
+import { MaterialsService } from '../../provider/materials.service';
 
 @Component({
   selector: 'app-actions',
@@ -72,7 +73,7 @@ export class ActionsComponent implements OnInit {
    @Output() onUpdateWeftShuttles: any = new EventEmitter();
 
 
-  constructor(private dialog: MatDialog,
+  constructor(private ms: MaterialsService, private dialog: MatDialog,
     private dialogRef: MatDialogRef<ActionsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
 
@@ -95,8 +96,8 @@ export class ActionsComponent implements OnInit {
   shuttleIdFromName(s: string):number{
 
 
-    for(var i = 0; i < this.draft.shuttles.length; i++){
-      let s_name = this.draft.shuttles[i].getName().toLowerCase();
+    for(var i = 0; i < this.ms.getShuttles().length; i++){
+      let s_name = this.ms.getShuttle(i).getName().toLowerCase();
       if(s_name.localeCompare(s.toLowerCase()) === 0) return i;
     }
     return -1;

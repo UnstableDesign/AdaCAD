@@ -19,6 +19,7 @@ import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { NotesService } from '../core/provider/notes.service';
 
 //disables some angular checking mechanisms
 //enableProdMode();
@@ -41,7 +42,6 @@ export class MixerComponent implements OnInit {
 
 
   filename = "adacad_mixer";
-  notes: string = "";
 
  /**
    * The weave Timeline object.
@@ -74,7 +74,8 @@ export class MixerComponent implements OnInit {
     private fs: FileService,
     private vp: ViewportService,
     private dialog: MatDialog,
-    private http: HttpClient) {
+    private http: HttpClient,
+    private notes: NotesService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -160,6 +161,12 @@ export class MixerComponent implements OnInit {
    */
   processFileData(data: FileObj){
 
+    //generate the notes components
+    this.notes.notes.forEach(note => {
+        this.palette.loadNote(note);
+    });
+   
+   
     const id_map: Array<{old: number, new: number}> = []; 
    
     const nodes: Array<NodeComponentProxy> = data.nodes;
@@ -459,8 +466,6 @@ export class MixerComponent implements OnInit {
         'mixer', 
         this.tree.exportDraftsForSaving(),
         [],
-        this.patterns,
-        this.notes,
         false);
         link.download = e.name + ".ada";
     }
@@ -514,6 +519,10 @@ export class MixerComponent implements OnInit {
 
   public toggleCollapsed(){
     this.collapsed = !this.collapsed;
+  }
+
+  public createNote(){
+    this.palette.createNote();
   }
 
 

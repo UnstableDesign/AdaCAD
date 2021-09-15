@@ -27,7 +27,14 @@ export class Pattern {
       for(let i = 0; i < this.height; i++){
         this.pattern.push([]);
         for(let j = 0; j < this.width; j++){
-          this.pattern[i].push(new Cell(obj.pattern[i][j]));
+          if(typeof obj.pattern[i][j] === 'boolean') this.pattern[i].push(new Cell(obj.pattern[i][j]));
+          else {
+            if(obj.pattern[i][j].is_set){
+              this.pattern[i].push(new Cell(obj.pattern[i][j].is_up));
+            }else{
+              this.pattern[i].push(new Cell(null));
+            }
+          }
         }
       }
 

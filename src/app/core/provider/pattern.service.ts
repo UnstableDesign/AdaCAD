@@ -18,8 +18,18 @@ export class PatternService {
 
   }
 
+  resetPatterns(){
+    this.patterns = [];
+    this.fetchDefaultPatterns();
+  }
+
   overridePatterns(patterns: Array<Pattern>){
+    console.log("uploading new patterns", patterns);
     this.patterns = patterns;
+  }
+
+  exportPatternsForSaving():Array<Pattern>{
+    return this.patterns;
   }
 
   getPatterns(): Array<Pattern>{

@@ -17,6 +17,7 @@ import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component'
 import {DesignmodesService} from '../core/provider/designmodes.service'
 import { isBuffer } from 'lodash';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
+import { MaterialsService } from '../core/provider/materials.service';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -90,7 +91,8 @@ export class WeaverComponent implements OnInit {
     private dialog: MatDialog, 
     private fs: FileService,
     private dm: DesignmodesService,
-    public scroll: ScrollDispatcher) {
+    public scroll: ScrollDispatcher,
+    private ms: MaterialsService) {
 
 
     this.scrollingSubscription = this.scroll
@@ -137,11 +139,8 @@ export class WeaverComponent implements OnInit {
       if(!success) console.log("ERROR, could not attach loom to draft of different size");
     }
 
-    if(data.patterns.length > 0){
-      this.ps.overridePatterns(data.patterns);
-    }
 
-    this.draft.computeYarnPaths();
+    this.draft.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.draft);
     
     this.render.view_frames = (this.loom.type === 'frame') ? true : false;     
@@ -168,7 +167,7 @@ export class WeaverComponent implements OnInit {
 
     //if(d !== undefined) this.draft = new Draft(JSON.parse(d));
     this.render = new Render(true, this.draft);
-    this.draft.computeYarnPaths();
+    this.draft.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.draft);  
     this.render.view_frames = (this.loom.type === 'frame') ? true : false;     
     
@@ -356,7 +355,7 @@ export class WeaverComponent implements OnInit {
     
     this.render.setCurrentView(value);
 
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
     this.weaveRef.redraw({
       drawdown: true
@@ -390,7 +389,7 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.showingFrames()) this.loom.recomputeLoom(this.draft);
 
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
     
     this.weaveRef.copyArea();
 
@@ -414,7 +413,7 @@ export class WeaverComponent implements OnInit {
 
     if(this.render.showingFrames()) this.loom.recomputeLoom(this.draft);
 
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
     this.weaveRef.copyArea();
 
@@ -458,10 +457,9 @@ export class WeaverComponent implements OnInit {
 
 
   /**
-   * Inserts an empty row on system, system
    */
    public materialChange() {
-     console.log('material change', this.draft.shuttles)
+     console.log('material change')
     this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
     this.timeline.addHistoryState(this.draft);
   }
@@ -512,7 +510,7 @@ export class WeaverComponent implements OnInit {
     console.log("update weft shutf", pattern);
 
     this.draft.updateWeftShuttlesFromPattern(pattern);
-    this.draft.computeYarnPaths();
+    this.draft.computeYarnPaths(this.ms.getShuttles());
     this.weaveRef.redraw({drawdown: true, weft_materials: true});
 
   }
@@ -523,7 +521,7 @@ export class WeaverComponent implements OnInit {
   // }
 
   public createShuttle(e: any) {
-    this.draft.addShuttle(e.shuttle, this.loom.epi); 
+    this.ms.addShuttle(e.shuttle); 
   }
 
   public createWarpSystem(e: any) {
@@ -634,7 +632,7 @@ export class WeaverComponent implements OnInit {
 
     this.timeline.addHistoryState(this.draft);
 
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
     this.weaveRef.redraw({drawdown: true, loom: true, warp_systems: true, warp_materials:true});
 
@@ -665,7 +663,7 @@ export class WeaverComponent implements OnInit {
 
     this.timeline.addHistoryState(this.draft);
 
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
     this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true});
 
@@ -698,7 +696,7 @@ export class WeaverComponent implements OnInit {
 
       this.timeline.addHistoryState(this.draft);
 
-     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths();
+     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
       if(this.loom.type == 'frame'){
         this.loom.recomputeLoom(this.draft);

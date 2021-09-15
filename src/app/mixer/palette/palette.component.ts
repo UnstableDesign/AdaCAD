@@ -20,7 +20,8 @@ import { TreeService } from '../provider/tree.service';
 import { FileService, SaveObj } from './../../core/provider/file.service';
 import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
-import { BoundTextAst } from '@angular/compiler';
+import { NoteComponent } from './note/note.component';
+import { Note, NotesService } from '../../core/provider/notes.service';
 
 @Component({
   selector: 'app-palette',
@@ -166,6 +167,7 @@ export class PaletteComponent implements OnInit{
    * @param fs file service for saving and loading files
    * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
    * @param viewport reference to the window and palette variables and where the viewer is currently lookin
+   * @param notes reference the service that stores all the tagged comments
    */
   constructor(
     private dm: DesignmodesService, 
@@ -175,7 +177,8 @@ export class PaletteComponent implements OnInit{
     private resolver: ComponentFactoryResolver, 
     private fs: FileService,
     private _snackBar: MatSnackBar,
-    private viewport: ViewportService) { 
+    private viewport: ViewportService,
+    private notes: NotesService) { 
     this.shape_vtxs = [];
     this.pointer_events = true;
   }
@@ -317,8 +320,6 @@ export class PaletteComponent implements OnInit{
       'mixer', 
       this.tree.exportDraftsForSaving(),
       [],
-      this.patterns,
-      "",
       true);
 
     this.timeline.addMixerHistoryState(so);
@@ -441,6 +442,42 @@ export class PaletteComponent implements OnInit{
   }
 
   /**
+   * dynamically creates a a note component
+   * @returns the created note instance
+   */
+   createNote():NoteComponent{
+
+    console.log("creating note");
+    
+    const tl: Point = this.viewport.getTopLeft();
+    const factory = this.resolver.resolveComponentFactory(NoteComponent);
+    const notecomp = this.vc.createComponent<NoteComponent>(factory);
+    const note = this.notes.createBlankNode(utilInstance.resolvePointToAbsoluteNdx(tl, this.scale));
+    
+    notecomp.instance.id = note.id;
+    notecomp.instance.scale = this.scale;
+
+    return notecomp.instance;
+  }
+
+    /**
+   * dynamically creates a a note component
+   * @returns the created note instance
+   */
+     loadNote(note: Note):NoteComponent{
+
+      
+      const factory = this.resolver.resolveComponentFactory(NoteComponent);
+      const notecomp = this.vc.createComponent<NoteComponent>(factory);
+      
+      notecomp.instance.id = note.id;
+      notecomp.instance.scale = this.scale;
+  
+      return notecomp.instance;
+    }
+
+
+  /**
    * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
@@ -464,6 +501,9 @@ export class PaletteComponent implements OnInit{
 
     return subdraft.instance;
   }
+
+
+  
 
   /**
    * loads a subdraft component from data
@@ -1006,6 +1046,7 @@ export class PaletteComponent implements OnInit{
           x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
           y: sd.bounds.topleft.y});
         new_sd.drawDraft();
+
         const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
         this.viewport.addObj(new_sd.id, interlacement);
         this.addTimelineState();

@@ -5,6 +5,12 @@ canvas{
   .mat-drawer-content{
     background:hsl(0, 100%, 100%);
   }
+
+  .mat-drawer-container {
+    width: 100%;
+    height: calc(100vh - 64px) !important;
+  }
+  
   
   #weft-materials,
   #weft-systems,

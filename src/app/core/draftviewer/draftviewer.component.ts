@@ -14,6 +14,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { SelectionComponent } from './selection/selection.component';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { PatternService } from '../provider/pattern.service';
+import { MaterialsService } from '../provider/materials.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -242,7 +243,8 @@ export class DraftviewerComponent implements OnInit {
   constructor(
     private fs: FileService,
     private dm: DesignmodesService,
-    private ps: PatternService
+    private ps: PatternService,
+    private ms: MaterialsService
     ) { 
 
     this.flag_recompute = false;
@@ -592,7 +594,7 @@ export class DraftviewerComponent implements OnInit {
 
 
      if(this.flag_recompute && event.type == 'mouseup'){
-      if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+      if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
       this.flag_recompute = false;
      }
 
@@ -660,12 +662,12 @@ export class DraftviewerComponent implements OnInit {
     }else if(this.selection.getTargetId()=== 'weft-materials'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
-        for(var j = 0; j < this.weave.shuttles.length; j++){
+        for(var j = 0; j < this.ms.getShuttles().length; j++){
           temp_copy[i].push(false);
         }
       }
     }else if(this.selection.getTargetId() === 'warp-materials'){
-      for(var i = 0; i < this.weave.shuttles.length; i++){
+      for(var i = 0; i < this.ms.getShuttles().length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
           temp_copy[i].push(false);
@@ -739,7 +741,8 @@ export class DraftviewerComponent implements OnInit {
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom;
 
-        cx.fillStyle = this.weave.getColor(i, this.render.visibleRows);
+        const ndx: number = this.weave.getColorIndex(i, this.render.visibleRows);
+        cx.fillStyle = this.ms.getColor(ndx);
 
         if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
         else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
@@ -774,7 +777,8 @@ export class DraftviewerComponent implements OnInit {
 
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom;
-        cx.fillStyle = this.weave.getColorCol(j);
+       const ndx: number = this.weave.getColorColIndex(j);
+        cx.fillStyle = this.ms.getColor(ndx);
 
         if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
         else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
@@ -1045,7 +1049,7 @@ export class DraftviewerComponent implements OnInit {
         const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
       this.weave.rowShuttleMapping[draft_row] = parseInt(material_id);
     }else{
-      const len = this.weave.shuttles.length;
+      const len = this.ms.getShuttles().length;
       var shuttle_id = this.weave.rowShuttleMapping[draft_row];
       var newShuttle = (shuttle_id + 1) % len;
       this.weave.rowShuttleMapping[draft_row] = newShuttle;
@@ -1099,7 +1103,7 @@ export class DraftviewerComponent implements OnInit {
         const material_id:string = material_mode.children[0].value;
         this.weave.colShuttleMapping[col] = parseInt(material_id);
     }else{
-      const len = this.weave.shuttles.length;
+      const len = this.ms.getShuttles().length;
       var shuttle_id = this.weave.colShuttleMapping[col];
       var newShuttle_id = (shuttle_id + 1) % len;
       this.weave.colShuttleMapping[col] = newShuttle_id;
@@ -1729,7 +1733,7 @@ public drawWeftEnd(top, left, shuttle){
   public drawWeftUnder(top, left, shuttle){
       //console.log("draw under", top, left);
       var dims = this.render.getCellDims("base");
-      var warp_shuttle = this.weave.shuttles[this.weave.colShuttleMapping[left]];
+      var warp_shuttle = this.ms.getShuttle(this.weave.colShuttleMapping[left]);
       var cx = this.cx;
       var view = this.render.getCurrentView();
 
@@ -1828,7 +1832,7 @@ public drawWeftEnd(top, left, shuttle){
         for(var o in overs){
             const shuttle_id = this.weave.colShuttleMapping[overs[o]];
             const system_id = this.weave.colSystemMapping[overs[o]];
-            if(this.weave.warp_systems[system_id].isVisible()) this.drawWeftUp(i, overs[o], this.weave.shuttles[shuttle_id]);
+            if(this.weave.warp_systems[system_id].isVisible()) this.drawWeftUp(i, overs[o], this.ms.getShuttle(shuttle_id));
         }
 
     }
@@ -1851,7 +1855,7 @@ public drawWeftEnd(top, left, shuttle){
 
       let shuttle_id = this.weave.rowShuttleMapping[index_row];
 
-      let s = this.weave.shuttles[shuttle_id];
+      let s = this.ms.getShuttle(shuttle_id);
 
       //iterate through the rows
       for(let j = 0; j < row_values.length; j++){
@@ -2051,7 +2055,7 @@ public redraw(flags:any){
      
       var id = this.weave.colShuttleMapping[x];
       var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
-      var shuttle = this.weave.shuttles[id];
+      var shuttle = this.ms.getShuttle(id);
 
         if(!system.visible){
           var c = "#3d3d3d";
@@ -2080,7 +2084,7 @@ public redraw(flags:any){
      
       var id = this.weave.colShuttleMapping[x];
       var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
-      var shuttle = this.weave.shuttles[id];
+      var shuttle = this.ms.getShuttle(id);
 
       if(system.visible){
           var c = shuttle.getColor();
@@ -2254,7 +2258,7 @@ public redraw(flags:any){
       } 
       else if (e.type === "ada"){
         let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.ada('draft', [this.weave], [this.loom], [], this.weave.notes, false);
+        link.href = this.fs.saver.ada('draft', [this.weave], [this.loom],  false);
         link.download = e.name + ".ada";
       } 
       else if (e.type === "wif"){
@@ -2321,30 +2325,43 @@ public redraw(flags:any){
    * @returns {void}
    */
   public insertCol(i, shuttle,system) {
-    console.log(i, shuttle, system);
+
+
+    //flip the index based on the flipped view
+    i = (this.weave.warps + 1) - i;
+    
+
     this.weave.insertCol(i, shuttle,system);
     this.loom.insertCol(i);
     this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-    this.weave.computeYarnPaths();
+    this.weave.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.weave);
 
   }
 
   public cloneCol(i, shuttle,system) {
+
+    i = (this.weave.warps-1) - i;
+
+        
     this.weave.cloneCol(i, shuttle,system);
     this.loom.cloneCol(i);
     this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-    this.weave.computeYarnPaths();
+    this.weave.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.weave);
 
   }
 
 
   public deleteCol(i) {
+
+      //flip the index based on the flipped view
+      i = (this.weave.warps-1) - i;
+
     this.weave.deleteCol(i);
     this.loom.deleteCol(i);
     this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-    this.weave.computeYarnPaths();
+    this.weave.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.weave);
   }
 
@@ -2375,7 +2392,7 @@ public redraw(flags:any){
 
     if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
 
-    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
     
     this.copyArea();
 
@@ -2399,7 +2416,7 @@ public redraw(flags:any){
 
     if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
 
-    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
 
     this.copyArea();
 
@@ -2440,7 +2457,7 @@ public redraw(flags:any){
     }
 
     
-    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
 
     this.timeline.addHistoryState(this.weave);
 

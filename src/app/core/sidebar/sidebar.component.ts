@@ -11,6 +11,7 @@ import { System } from '../model/system';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { ActionsComponent } from '../modal/actions/actions.component';
 import { InitModal } from '../../core/modal/init/init.modal';
+import { MaterialsService } from '../provider/materials.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -44,6 +45,7 @@ export class SidebarComponent implements OnInit {
   @Output() onUpdateWarpShuttles: any = new EventEmitter();
   @Output() onUpdateWeftShuttles: any = new EventEmitter();
   @Output() onMaterialChange: any = new EventEmitter();
+  @Output() onNoteCreate: any = new EventEmitter();
 
 
   
@@ -67,7 +69,11 @@ export class SidebarComponent implements OnInit {
   upload_modal: MatDialogRef<InitModal, any>;
 
 
-  constructor(private dm: DesignmodesService, private is:InkService , private dialog: MatDialog) { 
+  constructor(
+    private dm: DesignmodesService, 
+    private is:InkService ,
+    private ms: MaterialsService, 
+    private dialog: MatDialog) { 
     this.view = this.dm.getSelectedDesignMode('view_modes').value;
 
   }
@@ -363,6 +369,10 @@ openActions(){
     if(this.view_modal != undefined && this.view_modal.componentInstance != null){
       this.view_modal.componentInstance.updateViewPort(data);
     }
+  }
+
+  addNote(){
+    this.onNoteCreate.emit();
   }
 
 }

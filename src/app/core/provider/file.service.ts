@@ -2,12 +2,15 @@ import { Injectable } from '@angular/core';
 import { isBuffer } from 'lodash';
 import { TreeService } from '../../mixer/provider/tree.service';
 import { Cell } from '../model/cell';
-import { Bounds } from '../model/datatypes';
+import { Bounds, Interlacement } from '../model/datatypes';
 import { Draft } from '../model/draft';
 import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
 import { Shuttle } from '../model/shuttle';
 import utilInstance from '../model/util';
+import { MaterialsService } from './materials.service';
+import { Note, NotesService } from './notes.service';
+import { PatternService } from './pattern.service';
 
 
  export interface NodeComponentProxy{
@@ -45,7 +48,7 @@ import utilInstance from '../model/util';
   looms: Array<Loom>,
   patterns: Array<Pattern>, 
   ops: Array<any>;
-  notes: string
+  notes: Array<Note>
  }
 
 export interface FileObj{
@@ -53,9 +56,7 @@ export interface FileObj{
  treenodes: Array<TreeNodeProxy>,
  drafts: Array<Draft>,
  looms: Array<Loom>,
- patterns: Array<Pattern>, 
- ops: Array<OpComponentProxy>;
- notes: string
+ ops: Array<OpComponentProxy>
 }
 
 interface StatusMessage{
@@ -80,7 +81,7 @@ interface Fileloader{
 }
 
 interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, patterns: Array<Pattern>, notes: string, for_timeline:boolean) => string,
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean) => string,
   wif: (draft: Draft, loom: Loom) => string,
   bmp: (canvas: HTMLCanvasElement) => string,
   jpg: (canvas: HTMLCanvasElement) => string
@@ -100,14 +101,16 @@ interface FileSaver{
 export class FileService {
 
 
-
-
   status: Array<StatusMessage> = [];
   loader: Fileloader = null;
   saver: FileSaver = null;
 
 
-  constructor(private tree: TreeService) { 
+  constructor(
+    private tree: TreeService, 
+    private ns: NotesService,
+    private ps: PatternService,
+    private ms: MaterialsService) { 
   
   this.status = [
     {id: 0, message: 'success', success: true},
@@ -121,10 +124,11 @@ export class FileService {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-      let patterns: Array<Pattern> = [];
       let ops: Array<OpComponentProxy> = [];
-      let notes:string =  "";
+     
 
+      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
+      else this.ns.resetNotes(); 
       
 
       //handle old file types that didn't separate out drafts
@@ -133,7 +137,9 @@ export class FileService {
       drafts = data.drafts.map(data => {
         const draft: Draft =  new Draft({wefts: data.wefts, warps: data.warps, pattern: data.pattern});
         if(data.id !== undefined) draft.overloadId(data.id);
-        if(data.shuttles !== undefined) draft.overloadShuttles(data.shuttles); 
+        if(data.shuttles !== undefined){
+          this.ms.overloadShuttles(data.shuttles); 
+        } 
        
         if(data.weft_systems !== undefined) draft.overloadWeftSystems(data.weft_systems); 
         if(data.warp_systems !== undefined) draft.overloadWarpSystems(data.warp_systems); 
@@ -168,10 +174,13 @@ export class FileService {
       });
 
       if(data.patterns !== undefined){
-        patterns = data.patterns.map(pattern => {
+        const patterns: Array<Pattern> = data.patterns.map(pattern => {
           const p:Pattern = new Pattern(pattern);
           return p;
         });
+        this.ps.overridePatterns(patterns)
+      }else{
+        this.ps.resetPatterns();
       }
 
 
@@ -189,12 +198,10 @@ export class FileService {
 
       const envt: FileObj = {
         drafts: drafts,
-        patterns: patterns,
         looms: looms,
         nodes: (data.nodes === undefined) ? [] : data.nodes,
         treenodes: (data.tree === undefined) ? [] : data.tree,
-        ops: ops,
-        notes: notes
+        ops: ops
       }
 
       return {data: envt, status: 0}; 
@@ -210,6 +217,9 @@ export class FileService {
       const warps:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WARP]",stringWithoutMetadata));
       const wefts:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WEFT]",stringWithoutMetadata));
       const pattern: Array<Array<Cell>> = [];
+      
+      this.ns.resetNotes(); 
+      this.ps.resetPatterns();
 
       for (var i = 0; i < wefts; i++) {
         pattern.push([]);
@@ -255,7 +265,7 @@ export class FileService {
       if (utilInstance.getString("Form", data) === "RGB") {
         let color_table: Array<Shuttle>  = utilInstance.getColorTable(data);
         var shuttles = color_table;
-        draft.overloadShuttles(shuttles);
+        this.ms.overloadShuttles(shuttles);
         draft.overloadRowShuttleMapping(utilInstance.getRowToShuttleMapping(data, draft));
         draft.overloadColShuttleMapping(utilInstance.getColToShuttleMapping(data, draft));
       }
@@ -267,11 +277,9 @@ export class FileService {
     const f: FileObj = {
       drafts: drafts,
       looms: looms,
-      patterns: [],
       nodes: [], 
       treenodes: [],
-      ops: [], 
-      notes: ""
+      ops: []
     }
 
     return {data: f ,status: 0};
@@ -285,6 +293,9 @@ export class FileService {
       console.log("processing JPG data")
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
+
+      this.ns.resetNotes(); 
+      this.ps.resetPatterns();
 
       let e = data;
       const warps = e.width;
@@ -361,11 +372,9 @@ export class FileService {
       const f: FileObj = {
         drafts: drafts,
         looms: looms,
-        patterns: [],
         nodes: [], 
         treenodes: [],
-        ops: [], 
-        notes: ""
+        ops: []
       }
   
       return {data: f ,status: 0};  
@@ -374,6 +383,10 @@ export class FileService {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
+
+      this.ns.resetNotes(); 
+      this.ps.resetPatterns();
+
 
       let e = data;
       const warps = e.width;
@@ -409,11 +422,9 @@ export class FileService {
       const f: FileObj = {
         drafts: drafts,
         looms: looms,
-        patterns: [],
         nodes: [], 
         treenodes: [],
-        ops: [], 
-        notes: ""
+        ops: []
       }
   
       return {data: f ,status: 0};    
@@ -422,8 +433,10 @@ export class FileService {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-      let patterns: Array<Pattern> = [];
-      
+
+      this.ns.resetNotes(); 
+      this.ps.resetPatterns();
+
       var warps = 20;
       if(f.value.warps !== undefined) warps = f.value.warps;
 
@@ -439,7 +452,13 @@ export class FileService {
       let s0 = new Shuttle({id: 0, name: 'Color 1', type: 0,  thickness:50, color: '#333333', visible: true, insert:false, notes: ""});
       let s1 = new Shuttle({id: 1, name: 'Color 2', type: 0, thickness:50, color: '#'+randomColor, visible:true, insert:false, notes: ""});
       let s2 = new Shuttle({id: 2, name: 'Conductive', type: 1, thickness:50, color: '#61c97d', visible:true, insert:false, notes: ""});
-      draft.overloadShuttles([s0, s1, s2]);
+      
+      this.ms.addShuttle(s0);
+      this.ms.addShuttle(s1);
+      this.ms.addShuttle(s2);
+
+
+      this.ms.overloadShuttles([s0, s1, s2]);
 
       var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
       var treadle_num = (f.value.treadle_num === undefined) ? 10 : f.value.treadle_num;
@@ -468,11 +487,9 @@ export class FileService {
       const envt: FileObj = {
         drafts: drafts,
         looms: looms,
-        patterns: patterns,
         nodes: [],
         treenodes: [],
-        ops: [],
-        notes: ""
+        ops: []
       }
 
       return {data: envt, status: 0};
@@ -488,17 +505,17 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
-    ada:  (type: string, drafts: Array<Draft>, looms: Array<Loom>, patterns: Array<Pattern>, notes: string, for_timeline: boolean) : string => {
+    ada:  (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean) : string => {
       //eventually need to add saved patterns here as well
       const out: SaveObj = {
         type: type,
         drafts: drafts,
         looms: looms,
-        patterns: patterns,
+        patterns: this.ps.exportPatternsForSaving(),
         nodes: this.tree.exportNodesForSaving(),
         tree: this.tree.exportTreeForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
-        notes: notes
+        notes: this.ns.exportForSaving()
       }
 
       var theJSON = JSON.stringify(out);
@@ -508,7 +525,7 @@ export class FileService {
       return href;
     },
     wif: (draft: Draft, loom: Loom) : string => {
-      const shuttles: Array<Shuttle> = draft.shuttles;
+      const shuttles: Array<Shuttle> = this.ms.getShuttles();
         //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
       var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
       var fileType = "text/plain";

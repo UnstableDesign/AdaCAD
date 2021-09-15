@@ -7,6 +7,7 @@ import { InkService } from '../../provider/ink.service';
 import { OperationService } from '../../provider/operation.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { WeaverComponent } from '../../../weaver/weaver.component';
+import { MaterialsService } from '../../../core/provider/materials.service';
 
 
 /**
@@ -49,7 +50,8 @@ export class DraftdetailComponent implements OnInit {
              private scroll: ScrollDispatcher,
              private inks: InkService,
              private dm: DesignmodesService,
-             private ops: OperationService) { 
+             private ops: OperationService,
+             private ms: MaterialsService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()
@@ -60,7 +62,7 @@ export class DraftdetailComponent implements OnInit {
                this.draft = data.draft;
                this.ink = data.ink;
 
-               this.draft.computeYarnPaths();
+               this.draft.computeYarnPaths(this.ms.getShuttles());
 
 
 

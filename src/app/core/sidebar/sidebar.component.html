@@ -115,6 +115,13 @@
     <i class="fas fa-arrows-alt"></i>
     </button>
 
+    <button 
+    mat-icon-button
+    matTooltip= "Create Note"
+    (click)="addNote()">
+    <i class="fas fa-comment"></i>
+    </button>
+
 
 
 </div>
@@ -145,7 +152,7 @@
             </button>
             </ng-container>
 
-            <ng-container *ngFor="let shuttle of draft.shuttles">
+            <ng-container *ngFor="let shuttle of ms.materials">
                 <button class="menu-button" 
                 mat-menu-item 
                 (click)="drawWithMaterial(shuttle.id)">
@@ -267,7 +274,7 @@
     
     </div>
 <!-- LIBRARIES -->
-    <div class="tool-chunk" *ngIf="source==='weaver' || source=='weaverinmixer'">
+    <div class="tool-chunk" *ngIf="source==='mixer'">
 
         <button 
         mat-icon-button

@@ -88,11 +88,15 @@ canvas{
         z-index: 1;
         opacity: 1;
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
         text-align: center;
-        vertical-align: bottom;
+        vertical-align: top;
         line-height: 8px;
-    
+      
+      .warp_selectors{
+        display: block;
+        height: 90px;
+      }
     
       &:hover {
         .warp_insert,
@@ -204,12 +208,14 @@ canvas{
   }
   
   
+
+
   .weft-system-row{
     height: 10px;
     width: 80px;
     display: flex;
     flex-direction: row;
-    justify-content: left;
+    justify-content: flex-start;
     flex-grow: 1;
     color: #fff;
     z-index: 1;
@@ -217,6 +223,11 @@ canvas{
     text-align: center;
     vertical-align: middle;
     line-height: 8px;
+
+    .weft_indicies{
+      width: 30px;
+      display: block;
+    }
   
     &:hover {
       .weft_insert,
