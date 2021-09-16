@@ -8,14 +8,30 @@ cdkDrag
 
 <div id="scalenote-{{note.id}}" class="subdraft-container">
 
-  <div class="note_handle" cdkDragHandle>
-    <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
-        <path d="M0 0h24v24H0z" fill="none"></path>
-      </svg>
-  </div>
 
   <div class="subdraft-contents">
+
+    <div class="subdraft-details"> 
+
+      <div class="note_handle" cdkDragHandle>
+        <button class="button is-small is-primary">
+
+        <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+            <path d="M0 0h24v24H0z" fill="none"></path>
+          </svg>
+        </button>
+      </div>
+  
+  
+      <button 
+      matTooltip= "Delete"
+      class="button is-small is-primary fas fa-times"
+      [style.color]="button_color" 
+      [name]="delete"
+      (click)="delete(note.id)">
+      </button>
+    </div>
 
     
     <form class="example-form">
@@ -28,21 +44,9 @@ cdkDrag
 
  
  </div>
+
+
 </div>
-
-<div class="subdraft-details" [class.hide]="set_connectable"> 
-
-    <div class="align-bottom">
-        <button 
-        matTooltip= "Delete"
-        class="button is-small is-primary fas fa-times"
-        [style.color]="button_color" 
-        [name]="delete"
-        (click)="designActionChange('delete')">
-        </button>
-    </div>
-</div>
-
 <canvas #comment hidden></canvas>
 
 

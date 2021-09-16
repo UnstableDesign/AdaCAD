@@ -37,7 +37,6 @@ import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { ActionsComponent} from './modal/actions/actions.component'
-import { NotesComponent} from './modal/notes/notes.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
@@ -90,7 +89,6 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     UploadFormComponent,
     TopbarComponent,
     ActionsComponent,
-    NotesComponent,
     PatternModal,
     ShuttlesModal,
     InitModal,
@@ -143,7 +141,6 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     UploadFormComponent,
     TopbarComponent,
     ActionsComponent,
-    NotesComponent,
     PatternModal,
     InitModal,
     AboutModal,

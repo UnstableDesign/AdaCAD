@@ -49,6 +49,7 @@ export class PaletteComponent implements OnInit{
   subdraftSubscriptions: Array<Subscription> = [];
   operationSubscriptions: Array<Subscription> = [];
   connectionSubscriptions: Array<Subscription> = [];
+  noteSubscriptions: Array<Subscription> = [];
 
 
 /**
@@ -79,6 +80,12 @@ export class PaletteComponent implements OnInit{
    * @property {ViewRef}
    */
   preview_ref: ViewRef;
+
+
+  /**
+   * store teh viewRefs for each note
+   */
+  note_refs: Array<ViewRef> = [];
      
   /**
    * holds a reference to the selection component
@@ -245,6 +252,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.forEach(element => element.unsubscribe());
     this.operationSubscriptions.forEach(element => element.unsubscribe());
     this.connectionSubscriptions.forEach(element => element.unsubscribe());
+    this.noteSubscriptions.forEach(element => element.unsubscribe());
   }
 
   /**
@@ -263,6 +271,12 @@ export class PaletteComponent implements OnInit{
 
     this.tree.getConnections().forEach(element => {
     });
+
+    this.tree.getConnections().forEach(element => {
+    });
+
+
+
   }
 
   /**
@@ -452,7 +466,9 @@ export class PaletteComponent implements OnInit{
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
     const note = this.notes.createBlankNode(utilInstance.resolvePointToAbsoluteNdx(tl, this.scale));
-    
+    this.setNoteSubscriptions(notecomp.instance);
+
+    this.note_refs.push(notecomp.hostView);
     notecomp.instance.id = note.id;
     notecomp.instance.scale = this.scale;
 
@@ -463,17 +479,36 @@ export class PaletteComponent implements OnInit{
    * dynamically creates a a note component
    * @returns the created note instance
    */
-     loadNote(note: Note):NoteComponent{
+    loadNote(note: Note):NoteComponent{
 
       
       const factory = this.resolver.resolveComponentFactory(NoteComponent);
       const notecomp = this.vc.createComponent<NoteComponent>(factory);
-      
+      this.setNoteSubscriptions(notecomp.instance);
+      this.note_refs.push(notecomp.hostView);
+
       notecomp.instance.id = note.id;
       notecomp.instance.scale = this.scale;
   
       return notecomp.instance;
     }
+
+    
+    
+      /**
+   * called when a new operation is added
+   * @param op 
+   */
+  setNoteSubscriptions(note: NoteComponent){
+    this.noteSubscriptions.push(note.deleteNote.subscribe(this.deleteNote.bind(this)));
+  }
+
+  deleteNote(id: number){
+    const ref: ViewRef = this.note_refs[id];
+    this.removeFromViewContainer(ref);
+    this.note_refs = this.note_refs.filter((el, ndx) => ndx!= id);
+  }
+
 
 
   /**
@@ -653,7 +688,7 @@ export class PaletteComponent implements OnInit{
 
     const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
     this.tree.removeNode(id);
-
+ 
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
     old_cxns.forEach(cxn => {
       const cxn_view_ref = this.tree.getViewRef(cxn);
