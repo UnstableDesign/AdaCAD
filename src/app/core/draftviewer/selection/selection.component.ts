@@ -223,7 +223,8 @@ export class SelectionComponent implements OnInit {
       return false;
     } 
 
-    if(pos.si >= this.render.visibleRows.length){
+
+    if(pos.si > this.render.visibleRows.length){
       pos.si = this.render.visibleRows.length;
       return false
     } 
