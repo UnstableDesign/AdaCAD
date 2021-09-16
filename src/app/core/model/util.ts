@@ -669,19 +669,20 @@ class Util {
   updateMaterialIds(material_mapping: Array<number>, index_map: Array<MaterialMap>, replacement_ndx:number) : Array<number>{
 
     //update the existing drafts given the new ids
-      material_mapping.forEach(index => {
+      const new_map: Array<number> = material_mapping.map(index => {
         const mapping: MaterialMap = index_map.find(el => el.old_id === index);
+        console.log("update ", mapping);
         if(mapping !== undefined){
-          index = mapping.new_id;
+          return mapping.new_id;
         }else{
-          index = replacement_ndx;
+          return replacement_ndx;
         }
    
 
 
     });
 
-    return material_mapping;
+    return new_map;
   
   }
 

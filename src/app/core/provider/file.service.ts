@@ -49,6 +49,7 @@ import { PatternService } from './pattern.service';
   patterns: Array<Pattern>, 
   ops: Array<any>;
   notes: Array<Note>
+  materials: Array<Shuttle>
  }
 
 export interface FileObj{
@@ -137,22 +138,34 @@ export class FileService {
       
 
 
-      drafts = data.drafts.map(data => {
-        const draft: Draft =  new Draft({wefts: data.wefts, warps: data.warps, pattern: data.pattern});
-        if(data.id !== undefined) draft.overloadId(data.id);
+      drafts = data.drafts.map(draftdata => {
+        const draft: Draft =  new Draft({wefts: draftdata.wefts, warps: draftdata.warps, pattern: draftdata.pattern});
+        if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
         
-        if(data.shuttles !== undefined){
+        if(draftdata.shuttles !== undefined){
             //if there is only one draft here we are loading into the mixer and should add materials
           if(data.drafts.length === 1){
-            const mapping:Array<MaterialMap> = this.ms.addShuttles(data.shuttles);
-            data.rowShuttleMapping = utilInstance.updateMaterialIds(data.rowShuttleMapping, mapping, 0);
-            data.colShuttleMapping = utilInstance.updateMaterialIds(data.colShuttleMapping, mapping, 0);
+            const mapping:Array<MaterialMap> = this.ms.addShuttles(draftdata.shuttles);
+            draft.rowShuttleMapping = utilInstance.updateMaterialIds(draftdata.rowShuttleMapping, mapping, 0);
+            draft.colShuttleMapping = utilInstance.updateMaterialIds(draftdata.colShuttleMapping, mapping, 0);
             
           }else{
            this.ms.overloadShuttles(data.shuttles); 
           }
 
-        } 
+        }else{
+          if(data.materials !== undefined){
+             //if there is only one draft here we are loading into the mixer and should add materials
+            if(data.drafts.length === 1){
+              const mapping:Array<MaterialMap> = this.ms.addShuttles(data.materials);
+              draft.rowShuttleMapping = utilInstance.updateMaterialIds(draftdata.rowShuttleMapping, mapping, 0);
+              draft.colShuttleMapping = utilInstance.updateMaterialIds(draftdata.colShuttleMapping, mapping, 0);
+
+            }else{
+              this.ms.overloadShuttles(data.materials); 
+            }
+          }
+        }
        
         if(data.weft_systems !== undefined) draft.overloadWeftSystems(data.weft_systems); 
         if(data.warp_systems !== undefined) draft.overloadWarpSystems(data.warp_systems); 
@@ -278,6 +291,8 @@ export class FileService {
       if (utilInstance.getString("Form", data) === "RGB") {
         let color_table: Array<Shuttle>  = utilInstance.getColorTable(data);
         var shuttles = color_table;
+
+        /** TODO: Update this to add, not overwrite, shuttles */
         this.ms.overloadShuttles(shuttles);
         draft.overloadRowShuttleMapping(utilInstance.getRowToShuttleMapping(data, draft));
         draft.overloadColShuttleMapping(utilInstance.getColToShuttleMapping(data, draft));
@@ -528,7 +543,8 @@ export class FileService {
         nodes: this.tree.exportNodesForSaving(),
         tree: this.tree.exportTreeForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
-        notes: this.ns.exportForSaving()
+        notes: this.ns.exportForSaving(),
+        materials: this.ms.exportForSaving()
       }
 
       var theJSON = JSON.stringify(out);
