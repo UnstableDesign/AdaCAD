@@ -459,7 +459,6 @@ export class WeaverComponent implements OnInit {
   /**
    */
    public materialChange() {
-     console.log('material change')
     this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
     this.timeline.addHistoryState(this.draft);
   }
