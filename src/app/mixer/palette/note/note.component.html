@@ -1,0 +1,48 @@
+
+<div class="note-container" 
+cdkDrag
+[style.z-index] = "zndx"
+[cdkDragFreeDragPosition]="bounds.topleft"
+(cdkDragMoved)="dragMove($event)">
+
+
+<div id="scalenote-{{note.id}}" class="subdraft-container">
+
+
+  <div class="subdraft-contents">
+
+    <div class="subdraft-details"> 
+
+        <button cdkDragHandle class="button is-small is-primary fas fa-arrows-alt">
+        </button>
+  
+  
+      <button 
+      matTooltip= "Delete"
+      class="button is-small is-primary fas fa-times"
+      [style.color]="button_color" 
+      [name]="delete"
+      (click)="delete(note.id)">
+      </button>
+    </div>
+
+    
+    <form class="example-form">
+ 
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Comment #{{note.id}}</mat-label>
+          <textarea matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text"></textarea>
+        </mat-form-field>
+    </form>
+
+ 
+ </div>
+
+
+</div>
+<canvas id="notecanvas-{{note.id}}" hidden></canvas>
+
+
+</div>
+
+

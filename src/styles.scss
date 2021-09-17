@@ -11,7 +11,7 @@ svg {
 }
 
 mat-sidenav {
-  width: 200px;
+  width: 60px;
 }
 
 .fill-remaining-space {
@@ -45,14 +45,8 @@ mat-sidenav {
 }
 
 
-
-.mat-drawer-container {
-  width: 100%;
-  height: calc(100vh - 64px) !important;
-}
-
 mat-drawer{
-  width: 310px;
+  width: 60px;
 }
 
 

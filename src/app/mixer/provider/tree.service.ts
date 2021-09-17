@@ -1,5 +1,4 @@
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
-import { element } from 'protractor';
 import { Draft } from '../../core/model/draft';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
@@ -524,6 +523,24 @@ export class TreeService {
     });
 
     return children;
+  }
+
+  /**
+   * for degugging, this "prints" a list of the tree by generations
+   */
+  print(){
+    const gens: Array<Array<number>> = this.convertTreeToGenerations();
+    gens.forEach((el,ndx) =>{
+      console.log("****  geneation ", ndx, "****");
+      el.forEach(subel => {
+        const type = this.getType(subel);
+        console.log("(", subel, ',',type,')');
+      });
+    });
+
+    console.log("tree: ", this.tree);
+
+
   }
 
   /**

@@ -1,0 +1,23 @@
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    justify-content:flex-start;
+    font-size: .8em;
+
+}
+
+.swatch{
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border: 1px solid grey;
+}
+
+.is-active{
+   color:#ff3860;
+}
+
+
+span{
+    padding-right: 10px;
+}

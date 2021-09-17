@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
-import { DesignmodesService } from '../mixer/provider/designmodes.service';
+import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Timeline } from '../core/model/timeline';
 import { Bounds, DraftMap, MaterialTypes, ViewModes } from '../core/model/datatypes';
@@ -14,9 +14,12 @@ import { TreeService } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj } from '../core/provider/file.service';
 import { OperationComponent } from './palette/operation/operation.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
-import { MixerViewComponent } from './tool/mixerview/mixerview.component';
+import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
-
+import { SidebarComponent } from '../core/sidebar/sidebar.component';
+import { ViewportService } from './provider/viewport.service';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { NotesService } from '../core/provider/notes.service';
 
 //disables some angular checking mechanisms
 //enableProdMode();
@@ -34,12 +37,10 @@ import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 export class MixerComponent implements OnInit {
 
   @ViewChild(PaletteComponent, {static: false}) palette;
-  @ViewChild(MixerDesignComponent, {static: false}) design_tool;
-  @ViewChild(MixerViewComponent, {static: false}) view_tool;
+  @ViewChild(SidebarComponent, {static: false}) view_tool;
 
 
   filename = "adacad_mixer";
-  notes: string = "";
 
  /**
    * The weave Timeline object.
@@ -48,24 +49,7 @@ export class MixerComponent implements OnInit {
    timeline: Timeline = new Timeline();
 
 
-
-
-  material_types: MaterialTypes[] = [
-    {value: 0, viewValue: 'Non-Conductive'},
-    {value: 1, viewValue: 'Conductive'},
-    {value: 2, viewValue: 'Resistive'}
-  ];
-
-
-  view_modes: ViewModes[] = [
-      {value: 'visual', viewValue: 'Visual'},
-      {value: 'pattern', viewValue: 'Draft'},
-      {value: 'yarn', viewValue: 'Circuit'}
-     // {value: 'mask', viewValue: 'Masks'}
-
-    ];
-
-
+   manual_scroll: boolean = false;
 
   private unsubscribe$ = new Subject();
 
@@ -82,14 +66,17 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private design_modes: DesignmodesService, 
+  constructor(private dm: DesignmodesService, 
     private ps: PatternService, 
     private tree: TreeService,
     public scroll: ScrollDispatcher,
     private fs: FileService,
-    private dialog: MatDialog) {
+    private vp: ViewportService,
+    private dialog: MatDialog,
+    private http: HttpClient,
+    private notes: NotesService) {
 
-    this.dialog.open(MixerInitComponent, {width: '600px'});
+    //this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -97,27 +84,28 @@ export class MixerComponent implements OnInit {
             this.onWindowScroll(data);
     });
     
-
+    this.vp.setAbsolute(16380, 16380); //max size of canvas, evenly divisible by default cell size
    
-    this.patterns = [];
+    this.patterns = this.ps.getPatterns();
 
-    this.ps.getPatterns().subscribe((res) => {
-       for(var i in res.body){
-          this.patterns.push(new Pattern(res.body[i]));
-       }
-    }); 
+
   }
 
 
 
   private onWindowScroll(data: any) {
-    this.palette.handleScroll(data);
-    this.view_tool.updateViewPort(data);
+    if(!this.manual_scroll){
+     this.palette.handleWindowScroll(data);
+     this.view_tool.updateViewPort(data);
+    }else{
+      this.manual_scroll = false;
+    }
   }
 
-  private setScroll(data: any) {
-    this.palette.handleScroll(data);
-    this.view_tool.updateViewPort(data);
+  private setScroll(delta: any) {
+    this.palette.handleScroll(delta);
+    this.manual_scroll = true;
+   //this.view_tool.updateViewPort(data);
   }
 
 
@@ -125,7 +113,7 @@ export class MixerComponent implements OnInit {
    * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
    * @param name the name of the current design mode
    */
-  private designModeChanged(name: string){
+  private designModeChange(name: string){
     this.palette.designModeChanged();
   }
 
@@ -146,7 +134,6 @@ export class MixerComponent implements OnInit {
    * @param result 
    */
   loadNewFile(result: LoadResponse){
-    console.log("loaded new file", result);
     this.tree.clear();
     this.palette.clearComponents();
     this.processFileData(result.data);
@@ -172,8 +159,13 @@ export class MixerComponent implements OnInit {
    * Take a fileObj returned from the fileservice and process
    */
   processFileData(data: FileObj){
-    console.log("process file data", data);
 
+    //generate the notes components
+    this.notes.notes.forEach(note => {
+        this.palette.loadNote(note);
+    });
+   
+   
     const id_map: Array<{old: number, new: number}> = []; 
    
     const nodes: Array<NodeComponentProxy> = data.nodes;
@@ -263,6 +255,18 @@ export class MixerComponent implements OnInit {
 
     this.palette.addTimelineState();
 
+
+    // this.http.get('assets/demo_file.ada', {observe: 'response'}).subscribe((res) => {
+    //   console.log(res.body);
+    //   const lr:LoadResponse = this.fs.loader.ada(res.body);
+    //   this.loadNewFile(lr);
+    // }); 
+
+
+ 
+
+
+
   }
 
 
@@ -294,8 +298,8 @@ export class MixerComponent implements OnInit {
    */
   @HostListener('window:keydown.d', ['$event'])
   private keyChangetoDrawMode(e) {
-    this.design_modes.select('draw');
-    this.designModeChanged('draw');
+    this.dm.selectDesignMode('draw', 'design_modes');
+    this.designModeChange('draw');
   }
 
   /**
@@ -304,8 +308,8 @@ export class MixerComponent implements OnInit {
    */
    @HostListener('window:keydown.s', ['$event'])
    private keyChangeToSelect(e) {
-     this.design_modes.select('select');
-     this.designModeChanged('select');
+     this.dm.selectDesignMode('marquee','design_modes');
+     this.designModeChange('marquee');
    }
 
 
@@ -315,8 +319,8 @@ export class MixerComponent implements OnInit {
    */
       @HostListener('window:keydown.m', ['$event'])
       private keyChangeToMove(e) {
-        this.design_modes.select('move');
-        this.designModeChanged('move');
+        this.dm.selectDesignMode('move','design_modes');
+        this.designModeChange('move');
       }
    
 
@@ -461,8 +465,6 @@ export class MixerComponent implements OnInit {
         'mixer', 
         this.tree.exportDraftsForSaving(),
         [],
-        this.patterns,
-        this.notes,
         false);
         link.download = e.name + ".ada";
     }
@@ -478,6 +480,9 @@ export class MixerComponent implements OnInit {
 
      const scale = event.value;
      this.palette.rescale(scale);
+
+
+
   }
 
  
@@ -514,6 +519,24 @@ export class MixerComponent implements OnInit {
   public toggleCollapsed(){
     this.collapsed = !this.collapsed;
   }
+
+  public createNote(){
+    this.palette.createNote();
+  }
+
+
+  /**
+   * something in the materials library changed, check to see if
+   * there is a modal showing materials open and update it if there is
+   */
+   public materialChange() {
+    console.log('material change')
+
+    this.palette.redrawOpenModals();
+ }
+
+
+ 
 
 
 }

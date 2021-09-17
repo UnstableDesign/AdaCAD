@@ -1,147 +1,44 @@
-<app-topbar 
-[drawer] = "drawer"
-[loomtypes] = "loomtypes"
-[timeline] = "timeline"
-[density_units] = "density_units"
-[undoItem]="undoItem" 
-[redoItem]="redoItem"
-[filename]="draft?.name"
-[draftelement]="draftelement"
- source="weaver"
-  (onUndo)="undo();" 
-  (onRedo)="redo();"
-  (onLoadNewFile)="loadNewFile($event);"
-  (onSave)="onSave($event);">
-</app-topbar>
-
 <mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
   
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
 
       <div class ="design-container">
        
-        <mat-accordion multi>
 
-      
-
-        <app-weaverview 
-          [weft_systems] = "draft?.weft_systems"
-          [warp_systems]="draft?.warp_systems" 
-          [front] = "render?.view_front"
-          [view_modes] = "view_modes"
-          [zoom] = "render?.zoom"
-          [view] ="render?.current_view"
-          (onViewChange) ="viewChange($event);"
-          (onZoomChange) ="renderChange($event);"
-          (onViewFront) ="renderChange($event);"
-          (onHideWeftSystem)="hideWeftSystem($event);"
-          (onShowWeftSystem)="showWeftSystem($event);"
-          (onHideWarpSystem)="hideWarpSystem($event);"
-          (onShowWarpSystem)="showWarpSystem($event);"
-        >
-
-
-        </app-weaverview>
-
-
-        <app-weaverdesign
-        [design_mode]="design_mode"
-        [design_modes]="design_modes"
-        [design_actions]="design_actions"
-        [view_mode] = "render?.current_view"
-        [materials]="draft?.shuttles"
-        [patterns]="patterns"
-        [selection] = "copy"
-        (onDesignModeChange)="onDesignModeChange($event)" 
-        (onFill)="onFill($event)" 
-        (onCopy)="onCopy();"
-        (onClear)="onClear($event);" 
-        (onPaste)="onPaste($event);"
-        (onPatternChange)="updatePatterns($event);"
-        (onCreatePattern)="createPattern($event);"
-        (onRemovePattern)="removePattern($event);"
-        (onChange) = "onChange($event);"
-      
-        >
-        </app-weaverdesign> 
-
-        <app-materials 
-          [material_types]="material_types"
-          [shuttles]="draft?.shuttles"
-          (onColorChange)="shuttleColorChange()" 
-          (onThicknessChange) ="thicknessChange($event)"
-          (onCreateShuttle) ="createShuttle($event)"
-        >
-
-        </app-materials>
-
-        <app-masks [hidden] = "render?.current_view != 'mask'"
-          (onMask)="onMask($event);" >
-        </app-masks>
-
-        <app-systems
-         [weft_systems]="draft?.weft_systems"
-         [warp_systems]="draft?.warp_systems"
-         [weft_systems_pattern]="draft?.rowSystemPattern"
-         [warp_systems_pattern]="draft?.colSystemPattern"
-         [shuttles]="draft?.shuttles"
-         [warp_shuttles_pattern]="draft?.colShuttlePattern"
-         [weft_shuttles_pattern]="draft?.rowShuttlePattern"
-         (onUpdateWarpSystems) = "updateWarpSystems($event)"
-         (onUpdateWeftSystems) = "updateWeftSystems($event)"
-         (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
-         (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
-        >
-       </app-systems>
+        <app-sidebar #sidebar
+        [timeline]="timeline"
+        [draft]="draft"
+        [loom]="loom"  
+        [render]="render"  
+        source="weaver"
+        (onUndo)="undo();" 
+        (onRedo)="redo();"
+        (onDesignModeChange)='designModeChange($event)'
+        (onZoomChange) ="renderChange($event);"
+        (onViewChange) ="viewChange($event);"
+        (onViewFront) ="renderChange($event);"
+        (onHideWeftSystem)="hideWeftSystem($event);"
+        (onShowWeftSystem)="showWeftSystem($event);"
+        (onHideWarpSystem)="hideWarpSystem($event);"
+        (onShowWarpSystem)="showWarpSystem($event);"
+        (onLoomChange)="onLoomChange($event)"
+        (onUpdateWarpSystems) = "updateWarpSystems($event)"
+        (onUpdateWeftSystems) = "updateWeftSystems($event)"
+        (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
+        (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
+        ></app-sidebar>
 
 
-        <app-loom
-        
-          [epi] = "loom?.epi"
-          [warps] = "draft?.warps"
-          [wefts] = "draft?.wefts"
-          [frames] = "loom?.min_frames"
-          [treadles] = "loom?.min_treadles"
-          [loomtypes] = "loomtypes"
-          [loomtype] = "loom?.type"
-          [density_units] = "density_units"
-          [units] = "loom?.units"
-          [width] = "loom?.width"
-          (onWarpNumChange) = "warpNumChange($event)"
-          (onWeftNumChange) = "weftNumChange($event)"
-          (onEpiNumChange) = "epiChange($event)"
-          (onUnitChange) = "unitChange($event)"
-          (onThicknessChange) = "thicknessChange($event)"
-          (onLoomTypeChange) = "loomChange($event)"
-          (onFrameChange) = "frameChange($event)"
-          (onTreadleChange) = "treadleChange($event)"
-          >
-        </app-loom>
-
-        <app-notes
-         [notes] = "draft?.notes"
-         (onChange) = "notesChanged($event)"
-         >
-        </app-notes>
-
-        <app-schematic  [hidden] = "render?.current_view != 'yarn'"
-        (onConnectionCreate)="openConnectionDialog();"
-        (onLabelCreate)="openLabelDialog()"
-        >
-
-      </app-schematic> 
-
-
-    </mat-accordion>
 
     </div>
+
 
   </mat-drawer>
 
 
   <app-draftviewer 
+    source = "weaver"
     [render]="render" 
-    [(design_mode)]="design_mode" 
     [(copy)]="copy" 
     [timeline]="timeline" 
     [draft]="draft" 

@@ -102,6 +102,23 @@ interface DraftMap{
   draft: any;
 }
 
+/**
+ * Stores the icons and language for determining different 
+ * modes within which the mouse points are handled
+ * @param value - reference 
+ * @param viewValue - text shown to users
+ * @param icon
+ * @param children, menu to nest within this
+ * @param selected boolean to show if it is selected
+ */
+interface DesignMode{
+  value: string;
+  viewValue: string;
+  icon: string;
+  children: Array<DesignMode>;
+  selected: boolean;
+}
+
 
 // interface ToolModes{
 //   value: string; 
@@ -122,7 +139,8 @@ export{
   DensityUnits,
   ViewModes,
   MaterialTypes,
-  DraftMap
+  DraftMap,
+  DesignMode
 }
 
 

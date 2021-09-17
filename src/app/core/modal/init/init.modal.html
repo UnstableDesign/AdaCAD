@@ -21,7 +21,7 @@
       <mat-form-field appearance="fill">
           <mat-label>Which type of loom are you designing for?</mat-label>
           <mat-select [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
-          <mat-option *ngFor="let type of loomtypes" [value]="type.value">
+          <mat-option *ngFor="let type of dm.loom_types" [value]="type.value">
             {{type.viewValue}}
           </mat-option>
         </mat-select>
@@ -39,7 +39,7 @@
       <mat-form-field appearance="fill">
           <mat-label>Density Units</mat-label>
           <mat-select [(value)]="units" [(ngModel)]="units" name="units">
-          <mat-option *ngFor="let unit of density_units" [value]="unit.value">
+          <mat-option *ngFor="let unit of dm.density_units" [value]="unit.value">
             {{unit.viewValue}}
           </mat-option>
         </mat-select>
