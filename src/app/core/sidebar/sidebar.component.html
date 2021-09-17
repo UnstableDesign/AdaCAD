@@ -258,6 +258,16 @@
     >
     <i class="fas fa-eye"></i></button>
 
+
+
+    <div class="view_slider">
+         Yarns
+
+        <mat-slide-toggle
+            [checked]="render.current_view !== 'pattern'"
+            (change)="viewChange($event)">
+        </mat-slide-toggle>
+      </div>
    
 
 

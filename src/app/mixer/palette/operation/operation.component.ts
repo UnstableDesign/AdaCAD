@@ -80,7 +80,7 @@ export class OperationComponent implements OnInit {
    loaded_inputs: Array<number> = [];
 
    op_inputs: Array<FormControl> = [];
-   
+
    has_connections_in: boolean = false;
 
   constructor(
@@ -258,7 +258,9 @@ export class OperationComponent implements OnInit {
 
   }
 
-  onParamChange(){
+  onParamChange(id: number, value: number){
+    console.log(value);
+    this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});
   }
 

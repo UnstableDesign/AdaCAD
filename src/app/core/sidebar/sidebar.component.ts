@@ -121,13 +121,17 @@ export class SidebarComponent implements OnInit {
   }
 
   drawWithMaterial(material_id: number){
+    console.log("draw with material", material_id)
     var obj: any = {};
     obj.name = 'material';
     obj.target = 'draw_modes';
     obj.id = material_id;
+
     this.dm.selectDesignMode(obj.name, obj.target);
     const mode = this.dm.getDesignMode(obj.name, obj.target);
+    mode.children = [];
     mode.children.push({value: obj.id, viewValue:"", icon:"", children:[], selected:false});
+    console.log("children", mode.children);
     this.onDesignModeChange.emit(obj);
   }
 

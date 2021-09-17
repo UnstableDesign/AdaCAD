@@ -86,6 +86,7 @@ export class PaletteComponent implements OnInit{
    * store teh viewRefs for each note
    */
   note_refs: Array<ViewRef> = [];
+  note_components: Array<NoteComponent> = [];
      
   /**
    * holds a reference to the selection component
@@ -383,6 +384,12 @@ export class PaletteComponent implements OnInit{
       sd.rescale(scale);
     });
 
+    this.note_components.forEach(el => {
+      el.rescale(scale, this.default_cell_size);
+    });
+
+  
+
      if(this.preview !== undefined) this.preview.scale = this.scale;
   }
 
@@ -469,6 +476,7 @@ export class PaletteComponent implements OnInit{
     this.setNoteSubscriptions(notecomp.instance);
 
     this.note_refs.push(notecomp.hostView);
+    this.note_components.push(notecomp.instance);
     notecomp.instance.id = note.id;
     notecomp.instance.scale = this.scale;
 
@@ -486,6 +494,7 @@ export class PaletteComponent implements OnInit{
       const notecomp = this.vc.createComponent<NoteComponent>(factory);
       this.setNoteSubscriptions(notecomp.instance);
       this.note_refs.push(notecomp.hostView);
+      this.note_components.push(notecomp.instance);
 
       notecomp.instance.id = note.id;
       notecomp.instance.scale = this.scale;
@@ -507,6 +516,7 @@ export class PaletteComponent implements OnInit{
     const ref: ViewRef = this.note_refs[id];
     this.removeFromViewContainer(ref);
     this.note_refs = this.note_refs.filter((el, ndx) => ndx!= id);
+    this.note_components = this.note_components.filter((el, ndx) => ndx!= id);
   }
 
 

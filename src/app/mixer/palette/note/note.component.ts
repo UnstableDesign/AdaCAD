@@ -56,4 +56,30 @@ export class NoteComponent implements OnInit {
   }
 
 
+  /**
+   * Called when main palette is rescaled and triggers call to rescale this element, and update its position 
+   * so it remains at the same coords. 
+   * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
+   */
+   rescale(scale:number, default_cell: number){
+
+    this.scale = scale;
+    const zoom_factor:number = scale/default_cell;
+
+
+    //redraw at scale
+    const container: HTMLElement = document.getElementById('scalenote-'+this.note.id);
+    container.style.transformOrigin = 'top left';
+    container.style.transform = 'scale(' + zoom_factor + ')';
+
+   
+    this.bounds.topleft = {
+      x: this.interlacement.j * this.scale,
+      y: this.interlacement.i * this.scale
+    };
+
+  }
+
+
+
 }

@@ -68,13 +68,26 @@ cdkDrag
             [min]=param.min
             [max]=param.max
             step="1" 
-            value="op_inputs[i]"
-            (change)= onParamChange();>
+            value="op_inputs[i].value"
+            (change)= "onParamChange(i, op_inputs[i].value)">
         </mat-slider>
-         </div>
+        </div>
+
 
          <div class='param-label'>
-            <label class="example-value-label">{{op_inputs[i].value}}</label>
+            <input 
+            [formControl]="op_inputs[i]"
+            [matTooltip]=param.dx
+            type = "number"
+            [name]=param.name
+            [min]=param.min
+            [max]=param.max
+            step = 1
+            value = op_inputs[i].value
+            (change)= "onParamChange(i, op_inputs[i].value)"
+          >
+  
+            <!-- <label class="example-value-label">{{op_inputs[i].value}}</label> -->
         </div>
         <!-- <input 
           [formControl]="op_inputs[i]"
