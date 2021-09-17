@@ -2296,6 +2296,11 @@ drawStarted(){
 
 
 
+      /**
+       * TODO: Update this to get bounds and print all items, not just what's visible
+       * @param obj 
+       * @returns 
+       */
   getPrintableCanvas(obj): HTMLCanvasElement{
 
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -2313,6 +2318,10 @@ drawStarted(){
     cxns.forEach(cxn => {
       cxn.drawForPrint(this.canvas, this.cx, this.scale);
     });
+
+    this.note_components.forEach(note =>{
+      note.drawForPrint(this.canvas, this.cx, this.scale);
+    })
 
     return this.canvas;
 

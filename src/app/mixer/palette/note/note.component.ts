@@ -26,6 +26,10 @@ export class NoteComponent implements OnInit {
     height: 200
   };
 
+
+  canvas: HTMLCanvasElement;
+  cx: any;
+
   constructor(private notes: NotesService,private viewport:ViewportService) { 
 
   }
@@ -37,6 +41,11 @@ export class NoteComponent implements OnInit {
       x: this.interlacement.j * this.scale,
       y: this.interlacement.i * this.scale
     }
+  }
+
+  ngAfterViewInit(){
+    this.canvas = <HTMLCanvasElement> document.getElementById("notecanvas-"+this.note.id.toString());
+    this.cx = this.canvas.getContext("2d");
   }
 
   delete(id: number){
@@ -77,6 +86,24 @@ export class NoteComponent implements OnInit {
       x: this.interlacement.j * this.scale,
       y: this.interlacement.i * this.scale
     };
+
+  }
+
+
+  /**
+   * draw onto the supplied canvas, to be used when printing
+   * @returns 
+   */
+   drawForPrint(canvas, cx, scale: number) {
+
+    if(canvas === undefined) return;
+   
+   
+
+    //draw the supplemental info like size
+    cx.fillStyle = "#666666";
+    cx.font = scale*2+"px Verdana";
+    cx.fillText(this.note.text,this.bounds.topleft.x, this.bounds.topleft.y+this.bounds.height + 20 );
 
   }
 

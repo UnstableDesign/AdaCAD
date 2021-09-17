@@ -197,12 +197,12 @@ export class OperationComponent implements OnInit {
     cx.fillRect(this.bounds.topleft.x, this.bounds.topleft.y, this.bounds.width, this.bounds.height); 
 
     cx.fillStyle = "#666666";
-    cx.font = "20px Verdana";
+    cx.font = this.scale*2+"px Verdana";
 
     let datastring: string = this.name+" // ";
 
     this.op.params.forEach((p, ndx) => {
-      datastring = datastring + p.name +": "+ this.op_inputs[ndx] + ", ";
+      datastring = datastring + p.name +": "+ this.op_inputs[ndx].value + ", ";
     });
 
     cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+25 );
