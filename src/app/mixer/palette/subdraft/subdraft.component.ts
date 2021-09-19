@@ -174,6 +174,56 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+  /**
+   * Called when main palette is rescaled and triggers call to rescale this element, and update its position 
+   * so it remains at the same coords. 
+   * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
+   */
+   rescaleForBitmap(){
+
+    // this.scale = scale;
+    // const zoom_factor:number = scale/this.default_cell;
+
+
+    // //redraw at scale
+    // const container: HTMLElement = document.getElementById('scale-'+this.draft.id);
+    // container.style.transformOrigin = 'top left';
+    // container.style.transform = 'scale(' + zoom_factor + ')';
+
+   
+    // this.bounds.topleft = {
+    //   x: this.interlacement.j * this.scale,
+    //   y: this.interlacement.i * this.scale
+    // };
+
+    // this.bounds.width = this.draft.warps * this.scale;
+    // this.bounds.height = this.draft.wefts * this.scale;
+    
+    if(this.canvas === undefined) return;
+   
+    this.canvas.width = this.draft.warps * this.default_cell;
+    this.canvas.height = this.draft.wefts * this.default_cell;
+
+    for (let i = 0; i < this.draft.wefts; i++) {
+      for (let j = 0; j < this.draft.warps; j++) {
+        let is_up = this.draft.isUp(i,j);
+        let is_set = this.draft.isSet(i, j);
+        if(is_set){
+          if(this.ink === 'unset' && is_up){
+            this.cx.fillStyle = "#999999"; 
+          }else{
+            this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
+          }
+        } else{
+          this.cx.fillStyle =  '#0000000d';
+         // this.cx.fillStyle =  '#ff0000';
+
+        }
+        this.cx.fillRect(j, i, 1, 1);
+      }
+    }
+  }
+
 
   public setConnectable(){
     this.set_connectable = true;
@@ -544,14 +594,13 @@ export class SubdraftComponent implements OnInit {
       e.bitmap = this.bitmap;  
       if (e.type === "bmp"){
         const prev_scale = this.scale;
-        this.rescale(1);
+        this.rescaleForBitmap();
     
-        let dims = this.scale;
         let b = e.bitmap.nativeElement;
         let context = b.getContext('2d');
     
-        b.width = (this.draft.warps ) * dims;
-        b.height = (this.draft.wefts) * dims;
+        b.width = (this.draft.warps );
+        b.height = (this.draft.wefts);
         
         context.fillStyle = "white";
         context.fillRect(0,0,b.width,b.height);
@@ -563,7 +612,10 @@ export class SubdraftComponent implements OnInit {
         let link = e.downloadLink.nativeElement;
         link.href = this.fs.saver.bmp(b);
         link.download = e.name + ".jpg";
-        this.rescale(prev_scale);
+
+        this.drawDraft();
+        
+        //this.rescale(prev_scale);
       }
       else if (e.type === "ada"){
         let link = e.downloadLink.nativeElement;

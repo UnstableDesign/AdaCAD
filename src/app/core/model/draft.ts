@@ -91,6 +91,7 @@ export class Draft{
 
 
 
+
   parsePattern(params: any):Array<Array<Cell>>{
 
 
