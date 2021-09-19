@@ -1312,7 +1312,6 @@ export class OperationService {
             }
           }
 
-          console.log("template pattern", pattern);
 
           const overlay: Array<Draft> = this.getOp('interlace').perform(inputs, []);
           
