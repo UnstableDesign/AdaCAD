@@ -615,8 +615,6 @@ export class WeaverComponent implements OnInit {
             }
           }
           this.generated_drafts.push(draft);    
-          // this.generated_drafts.push(new Draft({}));
-          // this.generated_drafts.push(new Draft({}));
         }
       });
     }
@@ -625,6 +623,7 @@ export class WeaverComponent implements OnInit {
 
  public loadGeneratedDraft(e: any){
   console.log("running load generated draft!");
+  
   //tell the draft viewer to load this business!
 }
   
