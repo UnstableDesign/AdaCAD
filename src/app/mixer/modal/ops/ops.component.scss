@@ -1,0 +1,26 @@
+.mat-stroked-button{
+    margin: 0px 4px 4px 0px;
+    background-color: #00d1b2;
+    color: white;
+    font-weight: bold;
+}
+
+.toprow{
+    display: flex;
+    flex-direction: row;
+    line-height: 1em;
+}
+
+
+
+.visibleTooltip{
+    font-size: 2em;
+    background: #b71c1c;
+
+}
+
+.op-group{
+    display: flex;
+    flex-direction: column;
+}
+

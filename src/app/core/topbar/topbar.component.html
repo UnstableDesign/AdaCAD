@@ -2,22 +2,9 @@
 
 <span class="left">
 
-  <!-- <ng-container *ngIf= "source == 'weaver'"> -->
+  <a mat-raised-button matTooltip="help" href="https://adacad.unstable.design" target='_blank'><i class="fas fa-question"></i> Help</a>
 
-    <button #undoEvent mat-icon-button 
-        (click)="undoClicked($event);"
-        [disabled]="timeline.undo_disabled"
-        matTooltip ="undo">
-        <i class="fas fa-undo"></i>
-        </button>
-      
-      <button #redoEvent mat-icon-button 
-        (click)="redoClicked($event);"
-        [disabled]="timeline.redo_disabled"
-        matTooltip ="redo">
-        <i class="fas fa-redo"></i>
-      </button>
-<!-- </ng-container> -->
+
 </span>
 
 <span class="center">
@@ -27,7 +14,7 @@
       >
       <i class="fas fa-info-circle"></i>
     </button>
-    <span>AdaCAD <i style="font-size: .6em;">{{source}}</i></span>
+    <span>AdaCAD</span>
 </span>
   
 <span class="right">

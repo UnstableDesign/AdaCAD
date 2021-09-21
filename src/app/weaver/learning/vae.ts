@@ -47,19 +47,6 @@ export class VAE {
         let mean = this.encoder_mean.predict(tf.tensor([newDraft]));
         let log_var = this.encoder_log_var.predict(tf.tensor([newDraft]));
 
-        // var close = true;
-        // var epsilon;
-        // while (close) {
-        //     close = false;
-        //     epsilon = Math.random(); //to replace with a rondom number from a normal distribution
-        //     for (var i = 0; i < this.epsilons.length; i++) {
-        //         if (Math.abs(epsilon - this.epsilons[i]) < 0.1) {
-        //             close = true;
-        //         }
-        //     }
-        // }
-        // this.epsilons.push(epsilon);
-
         let epsilon_shape = mean.shape;
         this.epsilons.push([]);
         for (var i = 0; i < epsilon_shape[0]; i++) {

@@ -42,13 +42,13 @@ export class OperationService {
       params: [
         {name: 'width',
         min: 1,
-        max: 100,
+        max: 500,
         value: 10,
         dx: "width"
         },
         {name: 'height',
         min: 1,
-        max: 100,
+        max: 500,
         value: 10,
         dx: "height"
         }
@@ -62,6 +62,11 @@ export class OperationService {
           d.fill([[new Cell(false)]], 'clear');
         }else{
           d.fill(inputs[0].pattern, 'original');
+          d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+          d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+          d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+          d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+
         }
 
 
@@ -80,6 +85,12 @@ export class OperationService {
         const outputs: Array<Draft> = inputs.map(draft => {
           const d: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
           d.fill([[new Cell(false)]], 'clear');
+          if(inputs.length > 0){
+            d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+            d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+          }
           return d;
         });
         return outputs;
@@ -100,6 +111,12 @@ export class OperationService {
               else d.pattern[i][j] = new Cell(cell.isUp());
             });
           });
+          if(inputs.length > 0){
+            d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+            d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+          }
           return d;
         });
         return outputs;
@@ -120,6 +137,12 @@ export class OperationService {
               else d.pattern[i][j] = new Cell(cell.getHeddle());
             });
           });
+          if(inputs.length > 0){
+            d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+            d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+          }
           return d;
         });
         return outputs;
@@ -128,7 +151,7 @@ export class OperationService {
 
     const rotate: Operation = {
       name: 'rotate',
-      dx: "this turns the draft by 90 degrees",
+      dx: "this turns the draft by 90 degrees but leaves materials in same place",
       params: [],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
@@ -143,6 +166,12 @@ export class OperationService {
             });
           }
 
+          if(inputs.length > 0){
+            d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+            d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+          }
 
           return d;
         });
@@ -150,6 +179,7 @@ export class OperationService {
       }        
     }
 
+    /**TO DO - handle materials */
     const interlace:Operation = {
       name: 'interlace',
       dx: 'interlace the input drafts together in alternating lines',
@@ -161,6 +191,9 @@ export class OperationService {
 
         const max_wefts:number = utilInstance.getMaxWefts(inputs);
         const max_warps:number = utilInstance.getMaxWarps(inputs);
+        const rowSystems: Array<Array<number>> = inputs.map(el => el.rowSystemMapping);
+       
+        const uniqueSystemRows: Array<Array<number>> = utilInstance.makeSystemsUnique(rowSystems);
 
         //create a draft to hold the merged values
         const d:Draft = new Draft({warps: max_warps, wefts:(max_wefts * inputs.length)});
@@ -174,7 +207,15 @@ export class OperationService {
                 }else{
                     cell.setHeddle(null);
                 }
+
+                d.colShuttleMapping[j] = inputs[select_array].colShuttleMapping[j];
+                d.colSystemMapping[j] = inputs[select_array].colSystemMapping[j];
+
+                //this should throw an error if all drafts are using different warp colorings.
             });
+            d.rowShuttleMapping[ndx] = inputs[select_array].rowShuttleMapping[select_row];
+            d.rowSystemMapping[ndx] = uniqueSystemRows[select_array][select_row];
+
         });
 
         outputs.push(d);
@@ -222,6 +263,12 @@ export class OperationService {
            outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps + input_params[0]*2, wefts: input.wefts});
             d.fill(pattern, 'original');
+            if(inputs.length > 0){
+              d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+              d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+              d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+              d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+            }
             for(let i = 0; i < input.wefts; i++){
               for(let j = 0; j < input.warps; j++){
                 d.pattern[i][j+input_params[0]].setHeddle(input.pattern[i][j].getHeddle()) ;
@@ -354,64 +401,64 @@ export class OperationService {
       }        
     }
 
-    const reverse: Operation = {
-      name: 'reverse section',
-      dx: 'uses the second draft input to reverse the first image. ',
-      params: [
-        {name: 'left offset',
-        min: 0,
-        max: 10000,
-        value: 0,
-        dx: "the amount to offset the added inputs from the left"
-        },
-        {name: 'top offset',
-        min: 0,
-        max: 10000,
-        value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
-        }
-      ],
-      max_inputs: 100,
-      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+    // const reverse: Operation = {
+    //   name: 'reverse section',
+    //   dx: 'uses the second draft input to reverse the first image. ',
+    //   params: [
+    //     {name: 'left offset',
+    //     min: 0,
+    //     max: 10000,
+    //     value: 0,
+    //     dx: "the amount to offset the added inputs from the left"
+    //     },
+    //     {name: 'top offset',
+    //     min: 0,
+    //     max: 10000,
+    //     value: 0,
+    //     dx: "the amount to offset the overlaying inputs from the top"
+    //     }
+    //   ],
+    //   max_inputs: 100,
+    //   perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
 
-        if(inputs.length < 1) return [];
+    //     if(inputs.length < 1) return [];
 
-        const first: Draft = inputs.shift();
+    //     const first: Draft = inputs.shift();
 
-        const outputs: Array<Draft> = [];
+    //     const outputs: Array<Draft> = [];
 
 
-        let width: number = utilInstance.getMaxWarps(inputs) + input_params[0];
-        let height: number = utilInstance.getMaxWefts(inputs) + input_params[1];
-        if(first.warps > width) width = first.warps;
-        if(first.wefts > height) height = first.wefts;
+    //     let width: number = utilInstance.getMaxWarps(inputs) + input_params[0];
+    //     let height: number = utilInstance.getMaxWefts(inputs) + input_params[1];
+    //     if(first.warps > width) width = first.warps;
+    //     if(first.wefts > height) height = first.wefts;
 
-        //initialize the base container with the first draft at 0,0, unset for anythign wider
-        const init_draft: Draft = new Draft({wefts: height, warps: width});
+    //     //initialize the base container with the first draft at 0,0, unset for anythign wider
+    //     const init_draft: Draft = new Draft({wefts: height, warps: width});
           
-        first.pattern.forEach((row, i) => {
-            row.forEach((cell, j) => {
-              init_draft.pattern[i][j].setHeddle(cell.getHeddle());
-            });
-          });
+    //     first.pattern.forEach((row, i) => {
+    //         row.forEach((cell, j) => {
+    //           init_draft.pattern[i][j].setHeddle(cell.getHeddle());
+    //         });
+    //       });
 
-        //now merge in all of the additional inputs offset by the inputs
-        const d: Draft = inputs.reduce((acc, input) => {
-          input.pattern.forEach((row, i) => {
-            row.forEach((cell, j) => {
-              //if i or j is less than input params 
-              const adj_i: number = i+input_params[1];
-              const adj_j: number = j+input_params[0];
-              acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('neq', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
-            });
-          });
-          return acc;
+    //     //now merge in all of the additional inputs offset by the inputs
+    //     const d: Draft = inputs.reduce((acc, input) => {
+    //       input.pattern.forEach((row, i) => {
+    //         row.forEach((cell, j) => {
+    //           //if i or j is less than input params 
+    //           const adj_i: number = i+input_params[1];
+    //           const adj_j: number = j+input_params[0];
+    //           acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('neq', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
+    //         });
+    //       });
+    //       return acc;
 
-        }, init_draft);
-        outputs.push(d);
-        return outputs;
-      }        
-    }
+    //     }, init_draft);
+    //     outputs.push(d);
+    //     return outputs;
+    //   }        
+    // }
 
     const mask: Operation = {
       name: 'mask',
@@ -565,6 +612,7 @@ export class OperationService {
           const out: Array<Draft> = op.perform([d, di], [0, 0]);
           outputs.push(out[0]);
 
+
         }
 
 
@@ -597,6 +645,10 @@ export class OperationService {
            outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
+              d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+              d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+              d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+              d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
             return d;
           });
         }
@@ -1260,7 +1312,6 @@ export class OperationService {
             }
           }
 
-          console.log("template pattern", pattern);
 
           const overlay: Array<Draft> = this.getOp('interlace').perform(inputs, []);
           
@@ -1393,7 +1444,7 @@ export class OperationService {
     this.ops.push(overlay);
     this.ops.push(atop);
     this.ops.push(mask);
-    this.ops.push(reverse);
+    // this.ops.push(reverse);
 
 
     //** Give it a classification here */
@@ -1415,7 +1466,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'compose',
-      ops: [mirror, interlace, layer, tile, joinleft, selvedge,atop, overlay, mask, reverse, bindweftfloats, bindwarpfloats]}
+      ops: [mirror, interlace, layer, tile, joinleft, selvedge,atop, overlay, mask, bindweftfloats, bindwarpfloats]}
     );
 
   }

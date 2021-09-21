@@ -4,6 +4,7 @@
  */
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
+import { MaterialMap } from "../provider/materials.service";
 import { Point, Interlacement, Bounds } from "./datatypes";
 import { Draft } from "./draft";
 import { Shuttle } from "./shuttle";
@@ -657,6 +658,75 @@ class Util {
     }
 
     return rowToShuttleMapping;
+  }
+
+  /**
+   * this takes a map of material ideas and updates 
+   * @param material_mapping - the mapping of rows of cols to a material 
+   * @param index_map - a map from old to new material ids
+   * @param replacement_ndx - anything not found in the map will be replaced by this value
+   */
+  updateMaterialIds(material_mapping: Array<number>, index_map: Array<MaterialMap>, replacement_ndx:number) : Array<number>{
+
+    //update the existing drafts given the new ids
+      const new_map: Array<number> = material_mapping.map(index => {
+        const mapping: MaterialMap = index_map.find(el => el.old_id === index);
+        console.log("update ", mapping);
+        if(mapping !== undefined){
+          return mapping.new_id;
+        }else{
+          return replacement_ndx;
+        }
+   
+
+
+    });
+
+    return new_map;
+  
+  }
+
+  /**
+   * takes an array of numbers and returns the highest number
+   * @param arr 
+   * @returns 
+   */
+  getArrayMax(arr: Array<number>) : number{
+    const max: number = arr.reduce((acc, el, ndx)=>{
+      if(el > acc) return el;
+      else return acc;
+    }, 0);
+    return max;
+  }
+
+  /**
+   * when interlacing two drafts, make sure that each draft maps to a unique set of systems before merging. for instance 
+   * merging systems of type a and a generates an a b sequence
+   * @param systems the system mappings to compare
+   */
+  makeSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
+   
+    const max_in_systems: Array<number> = systems.map(el => this.getArrayMax(el));
+    let max_total: number = this.getArrayMax(max_in_systems);
+
+
+    const visited_systems: Array<Array<number>> = [];
+
+    systems.forEach((system, ndx) => {
+      if(visited_systems.length > 0){
+
+        const has_repeat: Array<number> = system.map(el => visited_systems.findIndex(el => el));
+        system = has_repeat.map((el, ndx) => {
+          if(el != -1){
+            return el = system[ndx] + max_total;
+          } 
+        });
+        max_total += max_in_systems[ndx];
+
+      }
+      visited_systems.push(system);
+    });
+    return visited_systems;
   }
 
 

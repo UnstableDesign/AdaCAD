@@ -9,44 +9,100 @@ cdkDrag
 (cdkDragStarted)="dragStart($event)"
 >
 
+<div id='scale-{{id}}' class="operation-container">
 
-<div class="inputs">
-   
-    <ng-container *ngIf = "!active_connection">
+<div class="top-row">
+    <div class="inputs">
+    
+        <ng-container *ngIf = "!active_connection">
+        <button 
+            class="button is-small is-primary"
+            [class.is-active]="selecting_connection || has_connections_in"
+            (click)="inputSelected($event, ndx)">
+            <i class="fas fa-chevron-right">{{connection_op_id}}</i>
+        </button>
+    </ng-container>
+    </div>
+
+
+    <div class="operation-details">
+        <!-- <div class="name">{{op.name}} // {{id}}</div> -->
+        <div class="name">{{op.name}}</div>
+        <button 
+        class="help"
+        (click)="openHelpDialog()">
+        <i class="fas fa-question"></i>
+    </button> 
+    </div>
+
     <button 
-        class="button is-small is-primary"
-        [class.is-active]="selecting_connection || has_connections_in"
-        (click)="inputSelected($event, ndx)">
-         <i class="fas fa-chevron-right">{{connection_op_id}}</i>
+    matTooltip= "Duplilcate"
+    class="button is-small is-primary fa fa-clone"
+    (click)="duplicate('duplicate')">
     </button>
-</ng-container>
-</div>
+    
 
-
-<div class="operation-details">
-    <!-- <div class="name">{{op.name}} // {{id}}</div> -->
-    <div class="name">{{op.name}}</div>
     <button 
-    class="help"
-    (click)="openHelpDialog()">
-     <i class="fas fa-question"></i>
-</button>
-    <div class="params">
-        <ng-container *ngFor="let param of op.params; let i = index">
-            <input 
-              [formControl]="op_inputs[i]"
-              [matTooltip]=param.dx
-              type = "number"
-			  [name]=param.name
-              [min]=param.min
-              [max]=param.max
-              step = 1
-              required = true
-              (change)= onParamChange();
-            >
-		</ng-container>
-        </div>
-</div>
-<!-- <div class="outputs"></div> -->
+    class="button is-small is-primary"
+    (click)="delete()">
+    <i class="fas fa-times"></i>
+    </button>
 
+
+
+
+</div>
+<div class="params">
+
+    <ng-container *ngFor="let param of op.params; let i = index">
+        <div class="param-row">
+
+        <div class="param-name">{{param.name}}</div>
+
+        <div class="param-slider">
+            <mat-slider 
+            thumbLabel
+            tickInterval="1"
+            [formControl]="op_inputs[i]"
+            [matTooltip]=param.dx
+            [min]=param.min
+            [max]=param.max
+            step="1" 
+            value="op_inputs[i].value"
+            (change)= "onParamChange(i, op_inputs[i].value)">
+        </mat-slider>
+        </div>
+
+
+         <div class='param-label'>
+            <input 
+            [formControl]="op_inputs[i]"
+            [matTooltip]=param.dx
+            type = "number"
+            [name]=param.name
+            [min]=param.min
+            [max]=param.max
+            step = 1
+            value = op_inputs[i].value
+            (change)= "onParamChange(i, op_inputs[i].value)"
+          >
+  
+            <!-- <label class="example-value-label">{{op_inputs[i].value}}</label> -->
+        </div>
+        <!-- <input 
+          [formControl]="op_inputs[i]"
+          [matTooltip]=param.dx
+          type = "number"
+          [name]=param.name
+          [min]=param.min
+          [max]=param.max
+          step = 1
+          required = true
+          (change)= onParamChange();
+        > -->
+    </div>
+    </ng-container>
+    </div>
+<!-- <div class="outputs"></div> -->
+</div>
 </div>

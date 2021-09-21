@@ -18,13 +18,14 @@ import { CollectionService } from '../../../core/provider/collection.service';
 
 export class TabComponent implements OnInit {
 
-  @Input() generated_drafts : Array<Draft>;
   @Output() onGenerativeModeChange: any = new EventEmitter();
   @Output() onDraftSelected: any = new EventEmitter();
   @Output() onCollectionNamesChange: any = new EventEmitter();
   @Input() collection;
   @Input() collections;
   @Input()  collapsed;
+  @Input() generativeMode = false;
+  
 
 
   button_color = "#ff4081";
@@ -32,11 +33,11 @@ export class TabComponent implements OnInit {
 
   selected = 0;
 
-  generativeMode = false;
-
   collectionsData: any = [];
   
   centroids: any = [];
+
+  generated_drafts : Array<Draft>;
 
 
   constructor(private ref: ChangeDetectorRef, private dialog: MatDialog, private collectionSrvc: CollectionService) { 

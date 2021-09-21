@@ -1,27 +1,29 @@
-<h2 mat-dialog-title>Edit Pattern</h2>
+  
+<div class="toprow">
+  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
+  
+  <p mat-dialog-title
+    cdkDrag
+     cdkDragRootElement=".cdk-overlay-pane" 
+     cdkDragHandle>Patterns</p>
+  </div>
+
 
 <mat-dialog-content>
-  <form #patternForm="ngForm">
-      <mat-form-field class="is-fullwidth">
-        <input matInput placeholder="Pattern Name" name="name" [(ngModel)]="pattern.name">
-      </mat-form-field>
-      <mat-form-field >
-        <input matInput  
-        type="number" 
-        placeholder="Pattern Height" 
-        name="height" 
-        (change)="updatePatternSize($event);" 
-        [(ngModel)]="pattern.height">
-      </mat-form-field>
-      <mat-form-field >
-        <input matInput  
-        type="number" 
-        laceholder="Pattern Width" 
-        name="width" 
-        (change)="updatePatternSize($event);" 
-        [(ngModel)]="pattern.width">
-      </mat-form-field>
-      <mat-checkbox name="favorite" [(ngModel)]="pattern.favorite">Favorite</mat-checkbox>
+
+  <mat-accordion>
+    <ng-container *ngFor="let pattern of patterns">
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i [style.color] = "(pattern.favorite) ? '#ff3860' : '#000'" class="fas fa-star"></i> {{pattern.name}}
+          </mat-panel-title>
+          <mat-panel-description>
+           
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
 
       <div class="pattern-container is-fullwidth">
         <svg [attr.width]="pattern.width * 20" [attr.height]="pattern.height * 20" style="background:#fefefe;">
@@ -38,10 +40,43 @@
           </g>
         </svg>
       </div>
-    </form>
-</mat-dialog-content>
 
+      <form #materialForm="ngForm">
+        <mat-form-field class="is-fullwidth">
+          <input matInput placeholder="Pattern Name" name="name" [(ngModel)]="pattern.name">
+        </mat-form-field>
+
+        <mat-form-field >
+          <input matInput  
+          type="number" 
+          placeholder="Pattern Height" 
+          name="height" 
+          (change)="updatePatternSize(pattern.id);" 
+          [(ngModel)]="pattern.height">
+        </mat-form-field>
+        <mat-form-field >
+          <input matInput  
+          type="number" 
+          laceholder="Pattern Width" 
+          name="width" 
+          (change)="updatePatternSize(pattern.id);" 
+          [(ngModel)]="pattern.width">
+        </mat-form-field>
+        <mat-checkbox name="favorite" [(ngModel)]="pattern.favorite">Favorite</mat-checkbox>
+    
+  
+
+
+      </form>
+
+    </mat-expansion-panel>
+
+  </ng-container>
+  </mat-accordion>
+
+
+<!-- </mat-dialog-content>
 <mat-dialog-actions>
-    <button class="mat-raised-button"(click)="close()">Close</button>
-    <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
-</mat-dialog-actions>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+  <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
+</mat-dialog-actions> -->

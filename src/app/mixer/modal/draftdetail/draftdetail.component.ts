@@ -1,21 +1,19 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { Bounds, Interlacement } from '../../../core/model/datatypes';
 import { Draft } from '../../../core/model/draft';
-import { Subscription, fromEvent } from 'rxjs';
 import { Loom } from '../../../core/model/loom';
-import { Render } from '../../../core/model/render';
-import { Timeline } from '../../../core/model/timeline';
-import { Pattern } from '../../../core/model/pattern';
-import { ScrollDispatcher } from '@angular/cdk/scrolling';
+import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
+import { InkService } from '../../provider/ink.service';
+import { OperationService } from '../../provider/operation.service';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { WeaverComponent } from '../../../weaver/weaver.component';
+import { MaterialsService } from '../../../core/provider/materials.service';
 
 
-interface DesignModes{
-  value: string;
-  viewValue: string;
-  icon: string;
-}
-
+/**
+ * this component initatites the draft viewer with custom options. 
+ * a copy of the draft is passed to the window and passed back to the parent on close (or null if changes not saved) 
+ */
 @Component({
   selector: 'app-draftdetail',
   templateUrl: './draftdetail.component.html',
@@ -24,35 +22,16 @@ interface DesignModes{
 export class DraftdetailComponent implements OnInit {
 
  
-     @ViewChild('bitmapImage', {static: false}) bitmap;
-   
-     design_modes: DesignModes[]=[
-      {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
-      {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
-      {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"}
-    ];
+  //the draft view shared by this and weaver
+  @ViewChild('weaver', {read: WeaverComponent, static: true}) weaver: WeaverComponent;
+
+
+  ink: String; //the name of the selected ink.
 
   /**
    * a reference to the draft that we're modifying
    */
   draft:Draft;
-
-    /**
-   * The name of the current selected brush.
-   * @property {string}
-   */
-     design_mode = {
-      name:'toggle',
-      id: -1
-    }
-
-  scale:number = 10;
-    /**
-   * a string to represent the current user defined scale for this component to be used in background grid css. 
-   * @property {striing}
-   */
-
-  scale_string: string;
 
 
   /**
@@ -61,37 +40,6 @@ export class DraftdetailComponent implements OnInit {
    */
    loom: Loom;
 
-  /**
-   * the dimensions of the draft object
-   */
-  bounds: Bounds = {
-    topleft: {x: 0, y: 0},
-    width: 0, 
-    height: 0
-  }
-
-  /**
-   * The weave Render object.
-   * @property {Render}
-   */
-   render: Render;
-
-    /**
-   * The weave Timeline object.
-   * @property {Timeline}
-   */
-  timeline: Timeline = new Timeline();
-
-   /**
-   * A collection of patterns to use in this space
-   * @property {Timeline}
-   */
-    patterns: Array<Pattern>;
-
-  /**
-  The current selection, as boolean array 
-  **/
-  copy: Array<Array<boolean>>;
 
   scrollingSubscription: any;
 
@@ -99,40 +47,119 @@ export class DraftdetailComponent implements OnInit {
 
   constructor(private dialogRef: MatDialogRef<DraftdetailComponent>,
              @Inject(MAT_DIALOG_DATA) private data: any, 
-             private scroll: ScrollDispatcher) { 
+             private scroll: ScrollDispatcher,
+             private inks: InkService,
+             private dm: DesignmodesService,
+             private ops: OperationService,
+             private ms: MaterialsService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()
               .subscribe((data: any) => {
-                // this.onWindowScroll(data);
+                 this.onWindowScroll(data);
                });
+
+               this.draft = data.draft;
+               this.ink = data.ink;
+
+               this.draft.computeYarnPaths(this.ms.getShuttles());
+
+
+
+              //default loom
+               this.loom = new Loom(this.draft, 8, 10);
+               this.dm.selectDesignMode('jacquard', 'loom_types');
+               this.loom.type = "jacquard";
+
+
+               //this.loom.recomputeLoom(this.draft);
+
+              
+               
     
-               this.copy = [[false,true],[false,true]];
 
-              this.draft = data.draft;
-              this.loom = new Loom(this.draft, 8, 10);
-              this.render = new Render(true, this.draft);
-              this.draft.computeYarnPaths();
+                            
 
-              this.timeline.addHistoryState(this.draft);  
-              this.patterns = [];
-
-
-              this.scale_string = "10px 10px";
-              this.draft = data.draft;
-
-              this.bounds.width = this.draft.warps * this.scale;
-              this.bounds.height = this.draft.wefts * this.scale;
+              // this.modal_height = (this.draft.wefts+20) * this.render.getCellDims('base').h;
 
   }
 
-  // private onWindowScroll(data: any) {
-  //   this.rescale();
+  updateSelection(event: any){
+  }
+
+  private onWindowScroll(data: CdkScrollable) {
+    const scrollTop = data.measureScrollOffset("top");
+    const scrollLeft = data.measureScrollOffset("left");
+
+    // this.dv.reposition(scrollTop, scrollLeft);
+  }
+
+  /**
+   * this handles the case where someone clicks outside of the modal window 
+   * @param $event 
+   */
+  // @HostListener('document:click', ['$event']) click($event){
+  //   // here you can hide your menu
+  //   const target: HTMLElement = $event.target;
+  //   const name: string = target.className;
+  //   if(name.includes("cdk-overlay-backdrop")){
+  //       this.onSave();
+  //   }
+  //   console.log("anywhere click", target.className);
   // }
+
 
 
   ngOnInit() {
 
+
   }
 
+  
+
+
+  ngAfterViewInit(){
+
+
+   
+  }
+
+
+  
+  onNoClick(){
+    this.onSave();
+  }
+
+  public inkActionChange(name: string){
+    this.ink = name;
+  }
+
+  // designActionChange(e){
+
+  // const drafts: Array<Draft> = this.ops.getOp(e).perform([this.draft], []);
+  //       drafts.forEach(draft => {
+  //         this.draft.reload(draft);
+  //         this.dv.redraw({drawdown:true});  
+  //       }); 
+  //   this.dv.redraw({
+  //     drawdown: true
+  //   });   
+  // }
+
+  public redraw(){
+    this.weaver.materialChange();
+  }
+
+  public onCancel(){
+    this.scrollingSubscription.unsubscribe();
+    this.weaver.closeAllModals();
+    this.dialogRef.close(null);
+  }
+
+  public onSave(){
+    this.scrollingSubscription.unsubscribe();
+    this.weaver.closeAllModals();
+    this.dialogRef.close(this.draft);
+  }
+  
 }

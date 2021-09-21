@@ -7,6 +7,8 @@ import { Selection } from '../../core/model/selection';
 import { Point, Interlacement } from './datatypes';
 
 import * as _ from 'lodash';
+import { SelectionComponent } from '../draftviewer/selection/selection.component';
+import { MaterialsService } from '../provider/materials.service';
 
 
 /**
@@ -20,10 +22,10 @@ export class Draft{
   id: number = -1;
 
   pattern: Array<Array<Cell>> = [[new Cell(false)]]; // the single design pattern
-  shuttles: Array<Shuttle> = [
-    new Shuttle({id: 0, name: 'shuttle 0', insert: true, visible: true, color: "#666666", thickness: 100, type: 0, notes: ""}), 
-    new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#3f51b5", thickness: 100, type: 0, notes: ""}), 
-    new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
+  // shuttles: Array<Shuttle> = [
+  //   new Shuttle({id: 0, name: 'shuttle 0', insert: true, visible: true, color: "#333333", thickness: 100, type: 0, notes: ""}), 
+  //   new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#ffffff", thickness: 100, type: 0, notes: ""}), 
+  //   new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
   
     notes: string = "";
 
@@ -81,11 +83,12 @@ export class Draft{
     //parse the input pattern
     this.pattern = this.parsePattern(params.pattern);
    
-    this.rowShuttleMapping = this.initMapping(this.wefts, 1);
+    this.rowShuttleMapping = this.initMapping(this.wefts, 0);
     this.rowSystemMapping = this.initMapping(this.wefts, 0);
     this.colShuttleMapping = this.initMapping(this.warps, 0);
     this.colSystemMapping = this.initMapping(this.warps, 0);
   }
+
 
 
 
@@ -134,7 +137,7 @@ export class Draft{
     this.wefts = d.wefts;
     this.pattern = this.parsePattern(d.pattern);
     this.notes = d.notes;
-    this.overloadShuttles(d.shuttles);
+    // this.ms.overloadShuttles(d.shuttles);
     this.overloadWeftSystems(d.weft_systems);
     this.overloadWarpSystems(d.warp_systems);
     
@@ -174,12 +177,7 @@ export class Draft{
     this.name = name;
   }
 
-  overloadShuttles(shuttles: Array<Shuttle>){
-    this.shuttles = [];
-    shuttles.forEach(shuttle => {
-      this.shuttles.push(new Shuttle(shuttle))
-    });
-  }
+
 
   overloadWarpSystems(systems: Array<System>){
 
@@ -502,7 +500,7 @@ export class Draft{
   // }
 
   insertRow(i: number, shuttleId: number, systemId:number) {
-    
+    i = i+1;
     console.log(i, shuttleId, systemId)
   
     var col = [];
@@ -533,8 +531,16 @@ export class Draft{
 
     //copy the selected row
     for(var ndx = 0; ndx < this.warps; ndx++){
-      row[ndx] = new Cell(null);
-      row[ndx].setHeddle(this.pattern[i][ndx].isUp());
+      const is_set: boolean = (this.pattern[i][ndx].isSet());
+      let cell:Cell;
+     if(is_set){
+        cell = new Cell(this.pattern[i][ndx].isUp());
+     } else{
+        cell = new Cell(null);
+     }
+
+      row[ndx] = cell;
+      // row[ndx].setHeddle(this.pattern[i][ndx].isUp());
     }
 
     this.wefts += 1;
@@ -662,7 +668,7 @@ export class Draft{
   insertCol(i: number, shuttleId: number, systemId:number) {
     
     for (var ndx = 0; ndx < this.wefts; ndx++) {
-      this.pattern[ndx].splice(i,0, new Cell(null));
+      this.pattern[ndx].splice(i,0, new Cell(false));
     }
 
     this.warps += 1;
@@ -679,9 +685,14 @@ export class Draft{
     //copy the selected column
     for(var ndx = 0; ndx < this.wefts; ndx++){
 
-      const is_set: boolean = (this.pattern[ndx][i].isSet()) ? true : null;
-      var cell  = new Cell(is_set);
-      cell.setHeddle(this.pattern[ndx][i].isUp());
+      const is_set: boolean = (this.pattern[ndx][i].isSet());
+      let cell:Cell;
+     if(is_set){
+        cell = new Cell(this.pattern[ndx][i].isUp());
+     } else{
+        cell = new Cell(null);
+     }
+            
       col.push(cell);
     }
 
@@ -735,19 +746,19 @@ export class Draft{
 // }
 
 
-  addShuttle(shuttle, epi) {
-    shuttle.setID(this.shuttles.length);
-    shuttle.setVisible(true);
-    if (!shuttle.thickness) {
-      shuttle.setThickness(epi);
-    }
-    this.shuttles.push(shuttle);
+  // addShuttle(shuttle, epi) {
+  //   shuttle.setID(this.shuttles.length);
+  //   shuttle.setVisible(true);
+  //   if (!shuttle.thickness) {
+  //     shuttle.setThickness(epi);
+  //   }
+  //   this.shuttles.push(shuttle);
 
-    // if (shuttle.image) {
-    //   this.insertImage(shuttle);
-    // }
+  //   // if (shuttle.image) {
+  //   //   this.insertImage(shuttle);
+  //   // }
 
-  }
+  // }
 
   /**
    * checks if we should move to the next system id or create a new empty system.
@@ -862,21 +873,17 @@ export class Draft{
   }
 
 
-  getColor(index, visibleRows) {
+  getColorIndex(index: number, visibleRows: Array<number>) : number{
     var row = visibleRows[index];
     var id = this.rowShuttleMapping[row];
-    var shuttle = this.shuttles[id];
-
-    return shuttle.color;
+    return id;
   }
 
-  getColorCol(index) {
+  getColorColIndex(index:number) : number{
 
 
     var col = this.colShuttleMapping[index];
-    var shuttle = this.shuttles[col];
-
-    return shuttle.color;
+    return col;
   }
 
 /***
@@ -1212,7 +1219,7 @@ getNextPath(paths, i){
 
 }
 
-computeYarnPaths(){
+computeYarnPaths(shuttles: Array<Shuttle>){
 
     //unset_all
     for(let i = 0; i < this.pattern.length; i++){
@@ -1222,10 +1229,10 @@ computeYarnPaths(){
     }
 
 
-    for (var l = 0; l < this.shuttles.length; l++) {
+    for (var l = 0; l < shuttles.length; l++) {
 
       // Draw each shuttle on by one.
-      var shuttle = this.shuttles[l];
+      var shuttle = shuttles[l];
 
       //acc is an array of row_ids that are assigned to this shuttle
       const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
@@ -1235,7 +1242,10 @@ computeYarnPaths(){
       let path = [];
       for (var i = 0; i < acc.length ; i++) {
        
+        //this gets the row
         const row_values = this.pattern[acc[i]];
+
+
         const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
 
         //only push the rows with at least one interlacement     
@@ -1344,6 +1354,148 @@ computeYarnPaths(){
 
   }
 
+  /**
+   * iterates through the draft calculates the directinaliity and position of each yarn
+   * this iteratioon takes into account unset yarns which indicate that no weft yarn travels through a given cell
+   */
+  computeYarnPathsWithUnset(shuttles: Array<Shuttle>){
+
+    //unset_all
+    for(let i = 0; i < this.pattern.length; i++){
+      for(let j = 0; j < this.pattern[i].length; j++){
+        this.pattern[i][j].unsetPoles();
+      }
+    }
+
+
+    for (var l = 0; l < shuttles.length; l++) {
+
+      // Draw each shuttle on by one.
+      var shuttle = shuttles[l];
+
+      //acc is an array of row_ids that are assigned to this shuttle
+      const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
+
+      //screen rows are reversed to go from bottom to top
+      //[row index] -> (indexes where there is interlacement)
+      let path = [];
+      for (var i = 0; i < acc.length ; i++) {
+       
+        //this gets the row
+        const row_values = this.pattern[acc[i]];
+
+        
+        const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
+        const unset_cells = row_values.reduce((unsets, v, idx) => !v.isSet() ? unsets.concat([idx]) : unsets, []);
+
+        //only push the rows that are not completely unset
+        if(unset_cells.length < row_values.length){
+          path.push({row: acc[i], unsets: unset_cells, overs:overs});
+        }
+      
+      }
+
+      var started = false;
+      var last = {
+        row: 0,
+        ndx: 0
+      };
+
+      path = path.reverse();
+
+
+      for(let k = 0; k < path.length; k++){
+
+        let row:number = parseInt(path[k].row); 
+        let overs:Array<number> = path[k].overs; 
+
+        let next_path = this.getNextPath(path, k);
+
+        let min_ndx:number = overs.shift();
+        let max_ndx:number = overs.pop();
+        
+        let next_min_ndx:number;
+        let next_max_ndx:number;
+        
+        if(next_path.row !== -1 ){
+         
+          next_max_ndx = next_path.overs[next_path.overs.length-1];
+          next_min_ndx = next_path.overs[0];
+
+        }else{
+          next_min_ndx = min_ndx;
+          next_max_ndx = max_ndx;
+        }  
+
+
+
+        let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
+
+        if(moving_left){
+          if(started) max_ndx = Math.max(max_ndx, last.ndx);
+          min_ndx = Math.min(min_ndx, next_min_ndx);
+        } else {
+          max_ndx = Math.max(max_ndx, next_max_ndx);
+          if(started) min_ndx = Math.min(min_ndx, last.ndx);
+
+        }
+       
+        //draw upwards if required
+        if(started){
+
+          
+         // console.log("row/last.row", row, last.row);
+          // for(let j = last.row-1; j > row; j--){
+          //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
+          //  else this.setNorthSouth(j, last.ndx-1);
+          // }
+        }
+
+        //set by lookiing at the ends ends
+        if(moving_left){
+
+          if(started){
+             this.setSouth(row,max_ndx+1); //set where it came from
+          } 
+          
+          this.setWest(row, max_ndx+1);
+
+          this.setNorth(row, min_ndx-1);
+          this.setEast(row, min_ndx-1);
+
+          last.ndx = min_ndx;
+
+        }else{
+
+          if(started){
+            this.setSouth(row, min_ndx-1);
+          }
+
+          this.setEast(row, min_ndx-1);
+          
+          this.setNorth(row, max_ndx+1);
+          this.setWest(row, max_ndx+1);
+          
+          last.ndx = max_ndx;
+
+        } 
+
+        //set in between
+        for(i = min_ndx; i <= max_ndx; i++){
+           this.setEastWest(row, i); 
+        }
+
+        started = true;
+        last.row = row;
+       
+      } 
+    }
+        
+
+  }
+
+
+
 
   /**
    * Fills in selected area of canvas. Updates the pattern within selection.
@@ -1354,7 +1506,7 @@ computeYarnPaths(){
    * @returns {void}
    */
   public fillArea(
-    selection: Selection, 
+    selection: SelectionComponent, 
     pattern: Pattern, 
     type: string,
     visibleRows: Array<number>,
@@ -1366,31 +1518,31 @@ computeYarnPaths(){
 
     var updates = [];
     
-    var screen_i = Math.min(selection.start.si, selection.end.si)
-    const draft_j = Math.min(selection.start.j, selection.end.j);
+    let screen_i: number = selection.getStartingScreenIndex();
+    let draft_j: number = selection.getEndingIndex();
   
     const rows = pattern.height;
     const cols = pattern.width;
 
     var w,h;
 
-    w = Math.ceil(selection.width);
-    h = Math.ceil(selection.height);
+    w = Math.ceil(selection.getWidth());
+    h = Math.ceil(selection.getHeight());
 
 
-    if(selection.target.id === "warp-systems"){
+    if(selection.getTargetId() === "warp-systems"){
       h = pattern.height;
       screen_i = 0;
     } 
-    if(selection.target.id === "weft-systems"){
+    if(selection.getTargetId() === "weft-systems"){
       w = pattern.width;
     } 
 
-    if(selection.target.id === "warp-materials"){
+    if(selection.getTargetId() === "warp-materials"){
        h = pattern.height;
        screen_i = 0;
     }
-    if(selection.target.id === "weft-materials"){
+    if(selection.getTargetId() === "weft-materials"){
       w = pattern.width;
     } 
 
@@ -1405,7 +1557,7 @@ computeYarnPaths(){
         let temp:Cell = pattern.pattern[i % rows][j % cols];
        
         var prev:boolean = false; 
-        switch(selection.target.id){
+        switch(selection.getTargetId()){
 
           case 'drawdown':
               var draft_row = visibleRows[row];
@@ -1461,7 +1613,7 @@ computeYarnPaths(){
 
           var updates = [];
 
-          switch(selection.target.id){
+          switch(selection.getTargetId()){
            
            case 'drawdown':
            var draft_row = visibleRows[row];
@@ -1515,14 +1667,18 @@ computeYarnPaths(){
             case 'weft-materials':
               var draft_row = visibleRows[row];
               val = pattern.pattern[i % rows][j % cols].isUp();
-              if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
+             // if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
+              if(val ) this.rowShuttleMapping[draft_row] = col;
             
             break;
             case 'warp-materials':
               val = pattern.pattern[i % rows][j % cols].isUp();
-              if(val && row < this.shuttles.length){
-                  this.colShuttleMapping[col] = row;
-              }
+              // if(val && row < this.shuttles.length){
+              //     this.colShuttleMapping[col] = row;
+              // }
+              if(val){
+                this.colShuttleMapping[col] = row;
+            }
             break;
             default:
             break;
@@ -1532,6 +1688,8 @@ computeYarnPaths(){
 
       }
     }
+
+    console.log("this loom", loom);
 
     var u_threading = loom.updateUnused(loom.threading, loom.min_frames, loom.num_frames, "threading");
     var u_treadling = loom.updateUnused(loom.treadling, loom.min_treadles, loom.num_treadles, "treadling");

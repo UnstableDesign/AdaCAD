@@ -37,9 +37,7 @@ import { UploadService } from './uploads/upload.service';
 import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
 import { TopbarComponent } from './topbar/topbar.component';
-import { SystemsComponent} from './tool/systems/systems.component'
-import { MaterialsComponent} from './tool/materials/materials.component'
-import { NotesComponent} from './tool/notes/notes.component'
+import { ActionsComponent} from './modal/actions/actions.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
 import { MlModal } from './modal/ml/ml.modal';
@@ -47,10 +45,14 @@ import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
 import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
-import { PatternsComponent } from './tool/patterns/patterns.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { VAE } from '../weaver/learning/vae';
 
+import { WeaverViewComponent } from './modal/weaverview/weaverview.component';
+import { SelectionComponent } from './draftviewer/selection/selection.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { LoomModal } from './modal/loom/loom.modal';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 @NgModule({
   imports: [
@@ -90,17 +92,18 @@ import { VAE } from '../weaver/learning/vae';
     FilterPipe, 
     UploadFormComponent,
     TopbarComponent,
-    SystemsComponent,
-    MaterialsComponent,
-    NotesComponent,
+    ActionsComponent,
     PatternModal,
     ShuttlesModal,
     InitModal,
     AboutModal,
     MlModal,
     MaterialModal,
-    PatternsComponent,
-    DraftviewerComponent
+    LoomModal,
+    DraftviewerComponent,
+    SelectionComponent,
+    SidebarComponent,
+    WeaverViewComponent
    ],
 
   providers: [
@@ -145,22 +148,28 @@ import { VAE } from '../weaver/learning/vae';
     FilterPipe, 
     UploadFormComponent,
     TopbarComponent,
-    SystemsComponent,
-    MaterialsComponent,
-    NotesComponent,
+    ActionsComponent,
     PatternModal,
     InitModal,
     AboutModal,
     MlModal,
     MaterialModal,
-    DraftviewerComponent],
+    LoomModal,
+    DraftviewerComponent,
+    SelectionComponent,
+    SidebarComponent,
+    WeaverViewComponent],
   
     entryComponents: [
       InitModal,
       AboutModal,
       MlModal,
       PatternModal,
-      MaterialModal
+      MaterialModal,
+      LoomModal,
+      DraftviewerComponent,
+      ActionsComponent,
+      WeaverViewComponent
     ],
 })
 export class CoreModule { }

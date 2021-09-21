@@ -1,0 +1,325 @@
+
+<!-- UNDO / REDO -->
+<div class="sidebar">
+
+    <!--on both weaver and mixer-->
+    <div class="tool-chunk" *ngIf="source !== 'weaverinmixer'">
+        <button #undoEvent 
+        mat-icon-button 
+        (click)="undoClicked($event);"
+        [disabled]="timeline.undo_disabled"
+        matTooltip ="undo">
+        <i class="fas fa-undo"></i>
+        </button>
+
+        <button #redoEvent 
+        mat-icon-button 
+        (click)="redoClicked($event);"
+        [disabled]="timeline.redo_disabled"
+        matTooltip ="redo">
+        <i class="fas fa-redo"></i>
+        </button>
+    </div>
+
+
+
+<!-- MIXER EDITING TOOLS -->
+
+<div class="tool-chunk" *ngIf="source==='mixer'">
+  <button
+  matTooltip="Upload and Image or File"
+   mat-icon-button
+   [class.is-active] = "upload_modal && upload_modal.componentInstance != null"
+  [name]='upload'
+  (click)="upload()">
+  <i class="fas fa-image"></i>
+ </button> 
+    
+    
+    <button 
+    mat-icon-button
+    [class.is-active] = "op_modal && op_modal.componentInstance != null"
+    matTooltip= "Operation"
+    (click)="openOps()">
+    <i class="fas fa-project-diagram"></i>
+    </button>
+
+
+</div>
+
+
+    <div class="tool-chunk" *ngIf="source==='mixer'">
+
+    <button 
+    mat-icon-button
+    matTooltip= "Draw"
+    [matMenuTriggerFor]="inks"
+    [class.is-active]="dm.isSelected('draw','design_modes')">
+    <i class="fas fa-edit"></i>
+    </button>
+
+    <mat-menu #inks="matMenu">
+        <ng-container *ngFor="let mode of dm.draw_modes">
+            <button *ngIf="mode.value != 'material'"
+            class="menu-button" 
+            mat-menu-item 
+            [matTooltip]=mode.viewValue
+            [name]=mode.value 
+            [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
+            (click)="drawModeChange(mode.value)">
+            <span class="{{mode.icon}}"></span>
+             <span>{{mode.viewValue}}</span>
+             </button> 
+             </ng-container>
+    </mat-menu>
+
+    <button 
+    mat-icon-button
+    matTooltip= "Draw Shape"
+    [matMenuTriggerFor]="shape"
+    [class.is-active]="dm.isSelected('shape','design_modes')">
+    <i class="fas fa-shapes"></i>
+    </button>
+    
+    
+    <mat-menu #shape="matMenu">
+
+        <ng-container *ngFor="let mode of dm.shapes">
+        <button 
+        class="menu-button" 
+        mat-menu-item 
+        [matTooltip]=mode.viewValue
+        [name]=mode.value 
+        [class.is-active]="dm.isSelected(mode.value,'shapes')"
+        (click)="shapeChange(mode.value)">
+        <span class="{{mode.icon}}"></span>
+         <span>{{mode.viewValue}}</span>
+         </button> 
+        
+        </ng-container>   
+    </mat-menu>
+
+    <button 
+    mat-icon-button
+    matTooltip= "Marquee"
+    [class.is-active]="dm.isSelected('marquee','design_modes')"
+    (click)="designModeChange('marquee')">
+    <i class="fas fa-expand"></i>
+    </button>
+
+    <button 
+    mat-icon-button
+    matTooltip= "Move"
+    [class.is-active]="dm.isSelected('move','design_modes')"
+    (click)="designModeChange('move')">
+    <i class="fas fa-arrows-alt"></i>
+    </button>
+
+    <button 
+    mat-icon-button
+    matTooltip= "Create Note"
+    (click)="addNote()">
+    <i class="fas fa-comment"></i>
+    </button>
+
+
+
+</div>
+
+
+
+<!-- WEAVER EDITING TOOLS -->
+    <div class="tool-chunk" *ngIf="source==='weaver' || source==='weaverinmixer'">
+
+        <button 
+        mat-icon-button
+        matTooltip= "Edit Draft Cells"
+        [matMenuTriggerFor]="inks"
+        [class.is-active]="dm.isSelected('draw','design_modes')"        >
+        <i class="fas fa-edit"></i>
+        </button>
+
+        <mat-menu #inks="matMenu">
+            <ng-container *ngFor="let mode of dm.draw_modes">
+                <button 
+            class="menu-button" 
+            mat-menu-item 
+            [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
+            [name] = "mode.value"
+            (click)="drawModeChange(mode.value)">
+                <span class="{{mode.icon}}"></span>
+                <span>{{mode.viewValue}}</span>
+            </button>
+            </ng-container>
+
+            <ng-container *ngFor="let shuttle of ms.materials">
+                <button class="menu-button" 
+                mat-menu-item 
+                (click)="drawWithMaterial(shuttle.id)">
+                    <span class="swatch"  [style.background]="shuttle.color" ></span>
+                    <span>{{shuttle.name }}</span>
+                </button>
+                </ng-container>
+
+
+        </mat-menu>
+
+        <button 
+        mat-icon-button
+        matTooltip= "Select Region"
+        [class.is-active]="dm.isSelected('select','design_modes')"
+        (click)="select()">
+        <i class="fas fa-expand"></i>
+        </button>
+
+        <button
+        matTooltip= "Set Repeats"
+        mat-icon-button 
+        [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
+        (click)='openActions()'><i class="fas fa-magic"></i></button>
+
+       
+
+
+        <!-- <button 
+        mat-icon-button
+        matTooltip= "Edit Draft Materials"
+        [matMenuTriggerFor]="set_materials"
+        [class.is-active]="selected_mode === 'material'"
+        >
+        <i class="fas fa-palette"></i>
+        </button>
+
+        <mat-menu #set_materials="matMenu">
+        <ng-container *ngFor="let shuttle of draft.shuttles">
+        <button class="menu-button" 
+        mat-menu-item 
+        (click)="drawWithMaterial(shuttle.id)">
+            <span class="swatch"  [style.background]="shuttle.color" ></span>
+            <span>{{shuttle.name }}</span>
+        </button>
+        </ng-container>
+
+        <button class="menu-button" 
+        mat-menu-item 
+        (click)="openMaterialEditor()">
+        <span class="fa fa-plus"></span>
+        <span>Add / Edit Materials</span>
+        </button>
+        </mat-menu> -->
+
+    </div>
+
+<!-- COMMENT TOOL-->
+
+    <!-- <div class="tool-chunk">
+
+
+        <button 
+        mat-icon-button
+        matTooltip= "Add Note"
+        (click)="openPatternModal()">
+        <i class="fas fa-comment"></i></button>
+
+        <div class="view_slider">
+            Show Comments
+
+            <mat-slide-toggle
+                [checked]="view !== 'pattern'"
+                (change)="viewChange($event)">
+            </mat-slide-toggle>
+        </div>
+
+    </div> -->
+
+<!-- VIEW TOOLS -->
+
+<div class="tool-chunk" *ngIf="source==='weaver'">
+
+    <!-- <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+    
+    <div class="view_slider">
+    <mat-slider 
+    vertical
+    [displayWith]="formatLabel" 
+    tickInterval=".1" 
+    step=".1"
+    min="0" 
+    max="2" 
+    value="{{render.zoom}}" 
+    (change)="zoomChange($event, 'slider')"></mat-slider>
+</div> -->
+
+    <!-- <button mat-icon-button><i class="fas fa-search-minus"></i></button>
+     -->
+    <button mat-icon-button 
+    (click)='openWeaverView()'
+    [class.is-active] = "weaver_view_modal && weaver_view_modal.componentInstance != null"
+    >
+    <i class="fas fa-eye"></i></button>
+
+
+
+    <div class="view_slider">
+         Yarns
+
+        <mat-slide-toggle
+            [checked]="render.current_view !== 'pattern'"
+            (change)="viewChange($event)">
+        </mat-slide-toggle>
+      </div>
+   
+
+
+</div>
+
+    <!-- VIEW TOOLS - MIXER -->
+    <div class="tool-chunk" *ngIf="source==='mixer'">
+
+    <button mat-icon-button 
+    [class.is-active] = "view_modal && view_modal.componentInstance != null"
+    (click)="openMixerView()">
+        <i class="fas fa-eye"></i>    
+    </button>
+    
+    </div>
+<!-- LIBRARIES -->
+    <div class="tool-chunk" *ngIf="source==='mixer'">
+
+        <button 
+        mat-icon-button
+        matTooltip= "Open Materials Library"
+        [class.is-active] = "materials_modal && materials_modal.componentInstance != null"
+        (click)="openMaterialsModal()">
+        <i class="fas fa-book"></i>
+        </button>
+
+
+        <button 
+        mat-icon-button
+        matTooltip= "Open Pattern Library"
+        [class.is-active] = "patterns_modal && patterns_modal.componentInstance != null"
+        (click)="openPatternsModal()">
+        <i class="fas fa-chess-board"></i>
+        </button>
+
+    </div>
+
+<!-- EQUIPMENT SETTINGS -->
+    <div class="tool-chunk" *ngIf="source==='weaver'">
+
+        <button 
+        mat-icon-button
+        matTooltip= "Equipment Settings"
+        [class.is-active] = "equipment_modal && equipment_modal.componentInstance != null"
+        (click)="openLoomModal()">
+        <i class="fas fa-cog"></i></button>
+
+    </div>
+
+<!-- RELATED SETTINGS -->
+
+    <!-- <div class="tool-chunk">
+        <a mat-icon-button matTooltip="switch to adacad mixer" href="https://adacad-weaver.firebaseapp.com/mixer" target='_blank'><i class="fas fa-sliders-h"></i>
+    </div> -->
+</div>

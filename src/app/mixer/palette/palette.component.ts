@@ -1,8 +1,8 @@
 import { Observable, Subscription, fromEvent, from, iif } from 'rxjs';
-import { DesignmodesService } from '../../mixer/provider/designmodes.service';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
-import { SelectionComponent } from './selection/selection.component';
+import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
@@ -10,7 +10,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
-import {cloneDeep, isBuffer} from 'lodash';
+import {cloneDeep, divide, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
@@ -20,6 +20,9 @@ import { TreeService } from '../provider/tree.service';
 import { FileService, SaveObj } from './../../core/provider/file.service';
 import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
+import { NoteComponent } from './note/note.component';
+import { Note, NotesService } from '../../core/provider/notes.service';
+import { DraftviewerComponent } from '../../core/draftviewer/draftviewer.component';
 
 @Component({
   selector: 'app-palette',
@@ -46,11 +49,8 @@ export class PaletteComponent implements OnInit{
   subdraftSubscriptions: Array<Subscription> = [];
   operationSubscriptions: Array<Subscription> = [];
   connectionSubscriptions: Array<Subscription> = [];
+  noteSubscriptions: Array<Subscription> = [];
 
-  /**
-   * used to manage the area of the screen that is in view based on scrolling and zooming
-   */
-  // viewport:Bounds;
 
 /**
  * Subscribes to move event after a touch event is started.
@@ -80,12 +80,19 @@ export class PaletteComponent implements OnInit{
    * @property {ViewRef}
    */
   preview_ref: ViewRef;
+
+
+  /**
+   * store teh viewRefs for each note
+   */
+  note_refs: Array<ViewRef> = [];
+  note_components: Array<NoteComponent> = [];
      
   /**
    * holds a reference to the selection component
    * @property {Selection}
    */
-  selection = new SelectionComponent();
+  selection = new MarqueeComponent();
 
   /**
    * holds the data of events drawn on this component (that are not associated with a subdraft)
@@ -149,26 +156,36 @@ export class PaletteComponent implements OnInit{
    */
    snack_message:string;
    snack_bounds: Bounds;
-  
 
+
+   /**
+    * a reference to the base size of each cell. Zoom in and out only modifies the view, not this base size.
+    */
+   default_cell_size: number = 5;
+  
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
    * creates components from shapes and scribbles on the canvas. 
-   * @param design_modes  a reference to the service containing the current design modes and selections
+   * @param dm  a reference to the service containing the current design modes and selections
+   * @param tree reference to the objects and relationships within this palette
    * @param inks a reference to the service manaing the available inks
    * @param layers a reference to the sercie managing the view layers (z-indexes) of components
    * @param resolver a reference to the factory component for dynamically generating components
+   * @param fs file service for saving and loading files
    * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
+   * @param viewport reference to the window and palette variables and where the viewer is currently lookin
+   * @param notes reference the service that stores all the tagged comments
    */
   constructor(
-    private design_modes: DesignmodesService, 
+    private dm: DesignmodesService, 
     private tree: TreeService,
     private inks: InkService, 
     private layers: LayersService, 
     private resolver: ComponentFactoryResolver, 
     private fs: FileService,
     private _snackBar: MatSnackBar,
-    private viewport: ViewportService) { 
+    private viewport: ViewportService,
+    private notes: NotesService) { 
     this.shape_vtxs = [];
     this.pointer_events = true;
   }
@@ -177,10 +194,9 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale = 5;
-    this.scale_string = "5px 5px";
+    this.scale = 5; //default set from zoom
+    this.scale_string = this.default_cell_size+"px "+this.default_cell_size+"px";
     this.vc.clear();
-    this.viewport.setAbsolute(16384, 16384);
 
 
     
@@ -194,24 +210,27 @@ export class PaletteComponent implements OnInit{
     const div:HTMLElement = document.getElementById('scrollable-container');
     this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     
-    const center:Point = this.viewport.setViewportCenter();
-    div.offsetParent.scrollLeft = center.x;
-    div.offsetParent.scrollTop = center.y;
+    // const center:Point = this.viewport.setViewportCenter();
+    // div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
+    // div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
 
     this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
     this.cx = this.canvas.getContext("2d");
     
     this.canvas.width = this.viewport.getWidth();
     this.canvas.height = this.viewport.getHeight();
-    console.log(this.viewport);
 
     // this.cx.beginPath();
     // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
     // this.cx.stroke();
 
     this.selection.scale = this.scale;
+
     this.selection.active = false;
+    
     this.designModeChanged();
+
+    this.rescale(this.scale);
   }
 
   /**
@@ -234,6 +253,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.forEach(element => element.unsubscribe());
     this.operationSubscriptions.forEach(element => element.unsubscribe());
     this.connectionSubscriptions.forEach(element => element.unsubscribe());
+    this.noteSubscriptions.forEach(element => element.unsubscribe());
   }
 
   /**
@@ -252,6 +272,12 @@ export class PaletteComponent implements OnInit{
 
     this.tree.getConnections().forEach(element => {
     });
+
+    this.tree.getConnections().forEach(element => {
+    });
+
+
+
   }
 
   /**
@@ -264,16 +290,26 @@ export class PaletteComponent implements OnInit{
 
   
 /**
+ * called when user moves position within viewer
+ * @param data 
+ */
+  handleScroll(position: any){
+
+    this.viewport.setTopLeft(position);
+    const div:HTMLElement = document.getElementById('scrollable-container');  
+     div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
+     div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
+  }
+
+  /**
  * called when user scrolls the winidow
  * @param data 
  */
-  handleScroll(data: any){
+   handleWindowScroll(data: any){
+
     const div:HTMLElement = document.getElementById('scrollable-container');
     this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     //update the canvas to this position
-    this.canvas.style.top = this.viewport.getTopLeft().y+"px";
-    this.canvas.style.left = this.viewport.getTopLeft().x+"px";
-
   }
 
   /**
@@ -292,12 +328,12 @@ export class PaletteComponent implements OnInit{
    * each time a user performs an action that they should be able to undo/redo
    */
   addTimelineState(){
+
+
     const so: string = this.fs.saver.ada(
       'mixer', 
       this.tree.exportDraftsForSaving(),
       [],
-      this.patterns,
-      "",
       true);
 
     this.timeline.addMixerHistoryState(so);
@@ -322,11 +358,21 @@ export class PaletteComponent implements OnInit{
   rescale(scale:number){
 
     this.scale = scale;
-    this.scale_string = scale+"px "+scale+"px";
-    
+
+    const zoom_factor: number = this.scale / this.default_cell_size;
+    // const palette_div = document.getElementById("palette");
+    // palette_div.style.transform = 'scale(' + (scale-4) + ')';
+
+      //   //var dims = this.render.getCellDims("base");
+      const container: HTMLElement = document.getElementById('palette');
+      container.style.transformOrigin = 'top left';
+      container.style.transform = 'scale(' + zoom_factor + ')';
+  
+     
     const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
 
-    //rescale all the non connections first, then go through and rescale the connections
+    //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
+    //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
     generations.forEach(generation => {
       generation.forEach(node => {
         const comp = this.tree.getComponent(node);
@@ -338,7 +384,13 @@ export class PaletteComponent implements OnInit{
       sd.rescale(scale);
     });
 
-    if(this.preview !== undefined) this.preview.scale = this.scale;
+    this.note_components.forEach(el => {
+      el.rescale(scale, this.default_cell_size);
+    });
+
+  
+
+     if(this.preview !== undefined) this.preview.scale = this.scale;
   }
 
   
@@ -381,14 +433,8 @@ export class PaletteComponent implements OnInit{
    * @param name - the mode to switchh to
    */
   changeDesignmode(name: string) {
-    this.design_modes.select(name);
-   
-    const mode = this.design_modes.getMode(name);
-   
-    if(!mode.enable_inks){
-        this.inks.select('neq');
-    }
-
+    this.dm.selectDesignMode(name, 'design_modes');
+    const mode = this.dm.getDesignMode(name, 'design_modes');
     this.onDesignModeChange.emit(name);
   }
 
@@ -416,11 +462,74 @@ export class PaletteComponent implements OnInit{
   }
 
   /**
+   * dynamically creates a a note component
+   * @returns the created note instance
+   */
+   createNote():NoteComponent{
+
+    console.log("creating note");
+    
+    const tl: Point = this.viewport.getTopLeft();
+    const factory = this.resolver.resolveComponentFactory(NoteComponent);
+    const notecomp = this.vc.createComponent<NoteComponent>(factory);
+    const note = this.notes.createBlankNode(utilInstance.resolvePointToAbsoluteNdx(tl, this.scale));
+    this.setNoteSubscriptions(notecomp.instance);
+
+    this.note_refs.push(notecomp.hostView);
+    this.note_components.push(notecomp.instance);
+    notecomp.instance.id = note.id;
+    notecomp.instance.scale = this.scale;
+
+    return notecomp.instance;
+  }
+
+    /**
+   * dynamically creates a a note component
+   * @returns the created note instance
+   */
+    loadNote(note: Note):NoteComponent{
+
+      
+      const factory = this.resolver.resolveComponentFactory(NoteComponent);
+      const notecomp = this.vc.createComponent<NoteComponent>(factory);
+      this.setNoteSubscriptions(notecomp.instance);
+      this.note_refs.push(notecomp.hostView);
+      this.note_components.push(notecomp.instance);
+
+      notecomp.instance.id = note.id;
+      notecomp.instance.scale = this.scale;
+  
+      return notecomp.instance;
+    }
+
+    
+    
+      /**
+   * called when a new operation is added
+   * @param op 
+   */
+  setNoteSubscriptions(note: NoteComponent){
+    this.noteSubscriptions.push(note.deleteNote.subscribe(this.deleteNote.bind(this)));
+  }
+
+  deleteNote(id: number){
+    const ref: ViewRef = this.note_refs[id];
+    this.removeFromViewContainer(ref);
+    this.note_refs = this.note_refs.filter((el, ndx) => ndx!= id);
+    this.note_components = this.note_components.filter((el, ndx) => ndx!= id);
+  }
+
+
+
+  /**
    * dynamically creates a subdraft component, adds its inputs and event listeners, pushes the subdraft to the list of references
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
    */
   createSubDraft(d: Draft):SubdraftComponent{
+
+    console.log("creating subdraft");
+    
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
@@ -429,11 +538,16 @@ export class PaletteComponent implements OnInit{
 
     subdraft.instance.draft = d;
     subdraft.instance.id = id;
+    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-    subdraft.instance.scale = this.scale;
+
     return subdraft.instance;
   }
+
+
+  
 
   /**
    * loads a subdraft component from data
@@ -441,9 +555,12 @@ export class PaletteComponent implements OnInit{
    * @returns the id of the instance created
    */
    loadSubDraft(d: Draft, bounds:Bounds):number{
-   
+    console.log("loading subdraft");
+
     const sd:SubdraftComponent = this.createSubDraft(d);
     sd.bounds = bounds;
+    sd.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
+    this.viewport.addObj(sd.id, utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale));
     return sd.id;
   }
 
@@ -455,6 +572,8 @@ export class PaletteComponent implements OnInit{
     this.operationSubscriptions.push(op.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this)));
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
+    this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
+    this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
   }
 
   /**
@@ -473,6 +592,7 @@ export class PaletteComponent implements OnInit{
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
       op.instance.scale = this.scale;
+      op.instance.default_cell = this.default_cell_size;
       return op.instance;
     }
 
@@ -494,6 +614,25 @@ export class PaletteComponent implements OnInit{
 
       return op.id;
     }
+
+    /**
+     * duplicates an operation with the information supplied. 
+     * @param name the name of the operation this component will perform
+     * @params params the input data to be used in this operation
+     * @returns the id of the node this has been assigned to
+     */
+     duplicateOperation(name: string, params: Array<number>, bounds:Bounds):number{
+      
+      const op:OperationComponent = this.createOperation(name);
+          
+          op.loaded_inputs = params;
+          op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+          op.bounds.width = bounds.width;
+          op.bounds.height = bounds.height;
+          op.duplicated = true;
+    
+          return op.id;
+      }
 
 
     /**
@@ -532,6 +671,7 @@ export class PaletteComponent implements OnInit{
     console.log("adding from uplaod", d);
     const sd: SubdraftComponent = this.createSubDraft(d);
     sd.setPosition({x: this.viewport.getTopLeft().x, y: this.viewport.getTopLeft().y});
+    
   }
 
   /**
@@ -558,7 +698,7 @@ export class PaletteComponent implements OnInit{
 
     const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
     this.tree.removeNode(id);
-
+ 
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
     old_cxns.forEach(cxn => {
       const cxn_view_ref = this.tree.getViewRef(cxn);
@@ -569,11 +709,14 @@ export class PaletteComponent implements OnInit{
     //calls manually here so that the affected branches can be pinged before the node is deleted 
     this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
+    this.viewport.removeObj(id);
 
     //if it has a parent, recursively call on its parent
     if(parent_id != -1){
       this.removeSubdraft(parent_id);
     }
+
+    
 
   }
 
@@ -585,7 +728,35 @@ export class PaletteComponent implements OnInit{
    * @param id 
    */
   removeOperation(id:number){
-    this.addTimelineState();
+
+    //removoe the node but get alll the ops before it is removed 
+    const ref:ViewRef = this.tree.getViewRef(id);
+    const outputs:Array<number> = this.tree.getNonCxnOutputs(id);
+
+    outputs.forEach(output => {
+      if(this.tree.getType(output) == 'draft'){
+        const comp = <SubdraftComponent> this.tree.getComponent(output);
+        comp.has_active_connection = false;
+        comp.active_connection_order = 0;
+        comp.parent_id = 0;
+      }
+    })
+
+    const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
+    this.tree.removeNode(id);
+
+    const old_cxns:Array<number> = this.tree.getUnusuedConnections();
+    old_cxns.forEach(cxn => {
+      const cxn_view_ref = this.tree.getViewRef(cxn);
+      this.removeFromViewContainer(cxn_view_ref);
+      this.tree.removeNode(cxn);
+    });    
+
+    //calls manually here so that the affected branches can be pinged before the node is deleted 
+    this.recalculateDownstreamDrafts(downstream_ops);
+    this.removeFromViewContainer(ref);
+    this.viewport.removeObj(id);
+
   }
 
     /**
@@ -599,8 +770,15 @@ export class PaletteComponent implements OnInit{
       //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
       subdraft.instance.draft = d;
       subdraft.instance.id = -1;
+      subdraft.instance.default_cell = this.default_cell_size;
+      subdraft.instance.scale = this.scale;
+      subdraft.instance.patterns = this.patterns;
+      subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+
+
       subdraft.instance.setAsPreview();
       subdraft.instance.disableDrag();
+
       this.preview_ref = subdraft.hostView;
       this.preview = subdraft.instance;
       this.preview.scale = this.scale;
@@ -629,14 +807,17 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    if(this.design_modes.isSelected('move')){
+    console.log('design mode changed', this.dm.getSelectedDesignMode('design_modes'));
+
+    if(this.dm.getDesignMode('move', 'design_modes').selected){
+      console.log('unfreezing');
       this.unfreezePaletteObjects();
 
     }else{
       this.freezePaletteObjects();
     }
 
-    if(this.design_modes.isSelected('draw') || this.design_modes.isSelected('shape')){
+    if(this.dm.getDesignMode('draw', 'design_modes').selected || this.dm.getDesignMode('shape',  'design_modes').selected){
       this.rescale(Math.ceil(this.scale));
     }
 
@@ -711,8 +892,27 @@ export class PaletteComponent implements OnInit{
 
     const rel: Interlacement = this.getRelativeInterlacement(ndx);
     const c: Cell = this.scratch_pad[rel.i][rel.j];
-    if(this.inks.getSelected() === "down") c.setHeddle(false);
-    else c.setHeddle(true);
+
+    const selected: string = this.dm.getSelectedDesignMode('draw_modes').value;
+
+    switch(selected){
+      case 'toggle':
+        const cur: boolean = c.getHeddle();
+        if(cur == null)  c.setHeddle(true);
+        else c.setHeddle(!cur);
+        break;
+      case 'down':
+        c.setHeddle(false);
+        break;
+      case 'up':
+        c.setHeddle(true);
+      break;
+      case 'unset':
+        c.setHeddle(null);
+      break;
+    }
+
+
     //use the code below to use past scratchpad values, but this seems wrong
     // console.log(c);
     // const val: boolean = c.isSet(); //check for a previous value
@@ -839,6 +1039,44 @@ export class PaletteComponent implements OnInit{
      /**
    * Deletes the subdraft that called this function.
    */
+      onDeleteOperationCalled(obj: any){
+      
+        console.log("deleting op "+obj.id);
+        if(obj === null) return;
+        this.removeOperation(obj.id);
+        this.addTimelineState();
+     }
+
+   /**
+   * Deletes the subdraft that called this function.
+   */
+    onDuplicateOpCalled(obj: any){
+      console.log("duplicating "+obj.id);
+      if(obj === null) return;
+
+      const op = <OperationComponent> this.tree.getComponent(obj.id);
+      const params = [];
+      op.op_inputs.forEach((input,ndx) => {
+       params.push(input.value);
+      });
+
+      const new_bounds = {
+        topleft: {x: op.bounds.topleft.x + op.bounds.width + this.scale * 2, y: op.bounds.topleft.y},
+        width: op.bounds.width,
+        height: op.bounds.height
+      }
+
+      const id: number = this.duplicateOperation(op.name, params, new_bounds);
+      const new_op = <OperationComponent> this.tree.getComponent(id);
+
+      //this.operationParamChanged({id: id});
+     // this.addTimelineState();
+ }
+
+
+     /**
+   * Deletes the subdraft that called this function.
+   */
     onDuplicateSubdraftCalled(obj: any){
         console.log("duplicating "+obj.id);
         if(obj === null) return;
@@ -848,10 +1086,13 @@ export class PaletteComponent implements OnInit{
         
         const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}));
         new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
-        new_sd.setComponentPosition({
+        new_sd.setPosition({
           x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
           y: sd.bounds.topleft.y});
         new_sd.drawDraft();
+
+        const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
+        this.viewport.addObj(new_sd.id, interlacement);
         this.addTimelineState();
    }
 
@@ -863,10 +1104,11 @@ export class PaletteComponent implements OnInit{
   subdraftStarted(obj: any){
     if(obj === null) return;
 
-    if(this.design_modes.isSelected("move")){
+    if(this.dm.isSelected("move",  'design_modes')){
   
       //get the reference to the draft that's moving
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
+      
       if(moving === null) return; 
 
 
@@ -880,11 +1122,11 @@ export class PaletteComponent implements OnInit{
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       this.createAndSetPreview(temp);
       this.preview.drawDraft();
-      this.preview.setComponentPosition(bounds.topleft);
-     
-    }else if(this.design_modes.isSelected("select")){
+      this.preview.setPosition(bounds.topleft);
+
+    }else if(this.dm.isSelected("marquee",  'design_modes')){
       this.selectionStarted();
-    }else if(this.design_modes.isSelected("draw")){
+    }else if(this.dm.isSelected("draw",  'design_modes')){
       this.drawStarted();
     }
 
@@ -982,7 +1224,9 @@ export class PaletteComponent implements OnInit{
   unfreezePaletteObjects(){
     const nodes: Array<any> = this.tree.getComponents();
     nodes.forEach(el => {
-      if(el.type != 'cxn') el.enableDrag();
+      if(el.type != 'cxn'){
+        el.enableDrag();
+      } 
     });
    }
   
@@ -1099,9 +1343,11 @@ performOp(op_id:number){
     }else{
       sd = this.createSubDraft(el. draft);
       op.addOutput({component_id: sd.id, draft:el.draft});
-      sd.setComponentPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
+      sd.setPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
       sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
       sd.setParent(op.id);
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+      this.viewport.addObj(sd.id, interlacement);
       this.createConnection(op.id, sd.id);
       this.tree.setSubdraftParent(sd.id, op.id);
       
@@ -1196,7 +1442,7 @@ shapeStarted(mouse: Point){
   this.cx.fillStyle = "#ff4081";
   this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
   
-  if(this.design_modes.isSelected('free')){
+  if(this.dm.isSelected('free', 'shapes')){
     this.startSnackBar("CTRL+Click to end drawing", this.shape_bounds);
   }else{
     this.startSnackBar("Press SHIFT while dragging to constrain shape", this.shape_bounds);
@@ -1223,7 +1469,7 @@ shapeDragged(mouse: Point, shift: boolean){
     const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
     
     //allow lines to snap to coords
-    if(this.design_modes.isSelected('line')){
+    if(this.dm.isSelected('line', 'shapes')){
         if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
           this.shape_bounds.height = max;
           this.shape_bounds.width = this.scale;
@@ -1249,22 +1495,22 @@ shapeDragged(mouse: Point, shift: boolean){
   this.cx.setLineDash([]);
   this.cx.lineWidth = this.scale;
 
-  if(this.design_modes.isSelected('line')){
+  if(this.dm.isSelected('line', 'shapes')){
     this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
     this.cx.stroke();
-  }else if(this.design_modes.isSelected('fill_circle')){
+  }else if(this.dm.isSelected('fill_circle','shapes')){
     this.shape_bounds.width = Math.abs(this.shape_bounds.width);
     this.shape_bounds.height = Math.abs(this.shape_bounds.height);
     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
     this.cx.fill();
-  }else if(this.design_modes.isSelected('stroke_circle')){
+  }else if(this.dm.isSelected('stroke_circle','shapes')){
     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
     this.cx.stroke();
-  }else if(this.design_modes.isSelected('fill_rect')){
+  }else if(this.dm.isSelected('fill_rect','shapes')){
     this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
   
-  }else if(this.design_modes.isSelected('stroke_rect')){
+  }else if(this.dm.isSelected('stroke_rect','shapes')){
     this.cx.strokeRect(this.shape_bounds.topleft.x + this.scale, this.shape_bounds.topleft.y+ this.scale,this.shape_bounds.width- this.scale,this.shape_bounds.height-this.scale);
 
   }else{
@@ -1287,7 +1533,7 @@ shapeDragged(mouse: Point, shift: boolean){
     
   }
 
-  if(this.design_modes.isSelected('free')){
+  if(this.dm.isSelected('free', 'shapes')){
     this.updateSnackBar("CTRL+click to end drawing", this.shape_bounds);
   }else{
     this.updateSnackBar("Press SHIFT to contstrain shape", this.shape_bounds);
@@ -1302,12 +1548,12 @@ processShapeEnd(){
   this.closeSnackBar();
 
   //if circle, the topleft functoins as the center and the bounsd need to expand to fit the entire shape 
-  if(this.design_modes.isSelected('fill_circle') || this.design_modes.isSelected('stroke_circle')){
+  if(this.dm.isSelected('fill_circle', 'shapes') || this.dm.isSelected('stroke_circle', 'shapes')){
     this.shape_bounds.topleft.x -=  this.shape_bounds.width;
     this.shape_bounds.topleft.y -=  this.shape_bounds.height;
     this.shape_bounds.width *=2;
     this.shape_bounds.height *= 2;
-  }else if(this.design_modes.isSelected('free')){
+  }else if(this.dm.isSelected('free','shapes')){
     
     if(this.shape_vtxs.length === 0) return;
       //default to current segment
@@ -1357,10 +1603,13 @@ processShapeEnd(){
   
 
   const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
-  sd.setComponentPosition(this.shape_bounds.topleft);
+  sd.setPosition(this.shape_bounds.topleft);
   sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
   sd.disableDrag();
 
+
+  const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+  this.viewport.addObj(sd.id, interlacement);
   this.addTimelineState();
 
   
@@ -1371,7 +1620,9 @@ processShapeEnd(){
  */
 drawStarted(){
 
+
   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+  
   this.scratch_pad = [];
   for(let i = 0; i < this.canvas.height; i+=this.scale ){
       const row = [];
@@ -1441,12 +1692,12 @@ drawStarted(){
       width: warps * this.scale,
       height: wefts * this.scale
     }
-    console.log(pos);
 
-    sd.setComponentPosition(pos.topleft);
+    sd.setPosition(pos.topleft);
     sd.setComponentSize(pos.width, pos.height);
     sd.disableDrag();
-
+    const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale);
+    this.viewport.addObj(sd.id, interlacement);
 
     for(let i = 0; i < sd.draft.wefts; i++ ){
       for(let j = 0; j< sd.draft.warps; j++){
@@ -1457,7 +1708,6 @@ drawStarted(){
     }
 
     const had_merge = this.mergeSubdrafts(sd);
-    console.log("had a merge?", had_merge);
     this.addTimelineState();
 
   }
@@ -1498,24 +1748,25 @@ drawStarted(){
       this.removeSubscription();    
       
      
-      if(this.design_modes.isSelected("select")){
+
+      if(this.dm.getDesignMode("marquee",'design_modes').selected){
           this.selectionStarted();
           this.moveSubscription = 
           fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
     
-      }else if(this.design_modes.isSelected("draw")){
+      }else if(this.dm.isSelected("draw",'design_modes')){
         this.moveSubscription = 
         fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
   
           this.drawStarted();    
           this.setCell(ndx);
           this.drawCell(ndx); 
-      }else if(this.design_modes.isSelected("shape")){
+      }else if(this.dm.isSelected("shape",'design_modes')){
         this.moveSubscription = 
         fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
   
 
-        if(this.design_modes.isSelected('free')){
+        if(this.dm.isSelected('free','shapes')){
           if(ctrl){
             this.processShapeEnd();
             this.changeDesignmode('move');
@@ -1529,7 +1780,7 @@ drawStarted(){
         }else{
           this.shapeStarted(mouse);
         }
-      }else if(this.design_modes.isSelected("operation")){
+      }else if(this.dm.isSelected("operation",'design_modes')){
         this.processConnectionEnd();
         this.changeDesignmode('move');
       }
@@ -1544,8 +1795,8 @@ drawStarted(){
     mouse.x = ndx.j * this.scale;
     mouse.y = ndx.i * this.scale;
 
-    if(this.design_modes.isSelected('free') && this.shape_vtxs.length > 0){
-      this.shapeDragged(mouse, shift);
+    if(this.dm.isSelected('free','shapes') && this.shape_vtxs.length > 0){
+     this.shapeDragged(mouse, shift);
     }else if(this.selecting_connection){
       this.connectionDragged(mouse, shift);
     }
@@ -1566,11 +1817,11 @@ drawStarted(){
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
-    if(this.design_modes.isSelected("operation")){
+    // if(this.dm.getDesignMode("operation",'design_modes').selected){
 
      
     
-    }
+    // }
     
     this.last = ndx;
   }
@@ -1585,13 +1836,14 @@ drawStarted(){
     const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
     const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+
     //use this to snap the mouse to the nearest coord
     mouse.x = ndx.j * this.scale;
     mouse.y = ndx.i * this.scale;
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
-    if(this.design_modes.isSelected("select")){
+    if(this.dm.getDesignMode("marquee",'design_modes').selected){
 
      this.drawSelection(ndx);
      const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
@@ -1599,10 +1851,10 @@ drawStarted(){
      this.updateSnackBar("Select Drafts to Join",  this.selection.bounds);
 
     
-    }else if(this.design_modes.isSelected("draw")){
+    }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
       this.setCell(ndx);
       this.drawCell(ndx);
-    }else if(this.design_modes.isSelected("shape")){
+    }else if(this.dm.getDesignMode("shape",'design_modes').selected){
       this.shapeDragged(mouse, shift);
     }
     
@@ -1630,14 +1882,14 @@ drawStarted(){
 
       this.removeSubscription();   
 
-      if(this.design_modes.isSelected("select")){
+      if(this.dm.getDesignMode("marquee",'design_modes').selected){
         if(this.selection.active)this.processSelection();
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
 
 
-      }else if(this.design_modes.isSelected("draw")){
+      }else if(this.dm.isSelected("draw",'design_modes')){
         this.processDrawingEnd();
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -1645,11 +1897,11 @@ drawStarted(){
 
 
 
-      }else if(this.design_modes.isSelected("shape")){
-        if(!this.design_modes.isSelected('free')){
+      }else if(this.dm.isSelected("shape",'design_modes')){
+        if(!this.dm.isSelected('free','shapes')){
           this.processShapeEnd();
-          this.changeDesignmode('move');
           this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.changeDesignmode('move');
         }
       }
 
@@ -1657,6 +1909,7 @@ drawStarted(){
       this.scratch_pad = undefined;
       this.last = undefined;
       this.selection.active = false;
+      this.canvas_zndx = -1; 
   }
   
  
@@ -1725,7 +1978,6 @@ drawStarted(){
     const moving : any = this.tree.getComponent(obj.id);
     const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
 
-
     updates.forEach(u => {
       const type: string = this.tree.getType(u);
       const u_comp = this.tree.getComponent(u);
@@ -1733,14 +1985,14 @@ drawStarted(){
       //if this is a node that didn't call the command, its a parent or child. 
       if(obj.id !== u){
 
-         if(type=='op') u_comp.setPosition({x: obj.point.x, y: obj.point.y - 30});
-         if(type=='draft') u_comp.setPosition({x: obj.point.x, y: obj.point.y + 30});         
+         if(type=='op') u_comp.setPosition({x: obj.point.x, y: obj.point.y - u_comp.bounds.height});
+         if(type=='draft') u_comp.setPosition({x: obj.point.x, y: obj.point.y + moving.bounds.height});         
       
          const cxns: Array<number> = this.tree.getNodeConnections(u);
 
          cxns.forEach(cxn => {
            const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-            if(type=='op') comp.updatePositionAndSize(u_comp.id,  {x: obj.point.x, y: obj.point.y-30}, u_comp.bounds.width, u_comp.bounds.height);
+            if(type=='op') comp.updatePositionAndSize(u_comp.id,  {x: obj.point.x, y: obj.point.y- comp.bounds.height}, u_comp.bounds.width, u_comp.bounds.height);
             if(type=='draft') comp.updatePositionAndSize(u_comp.id, {x: obj.point.x, y: obj.point.y}, u_comp.bounds.width, u_comp.bounds.height);  
          });
       
@@ -1802,7 +2054,7 @@ drawStarted(){
     if(moving === null) return; 
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
     this.updateAttachedComponents(obj);
-    this.addTimelineState();
+    // this.addTimelineState();
 
   }
 
@@ -1831,8 +2083,10 @@ drawStarted(){
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       if(this.hasPreview()) this.preview.setNewDraft(temp);
       else this.createAndSetPreview(temp);
-      this.preview.setComponentPosition(bounds.topleft);
-      this.preview.drawDraft();      
+      this.preview.setPosition(bounds.topleft);
+      this.preview.drawDraft(); 
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale); 
+      this.viewport.updatePoint(this.preview.id, interlacement);    
     }
 
 
@@ -1853,22 +2107,27 @@ drawStarted(){
         const to_right: Point = this.preview.getTopleft();
         to_right.x += this.preview.bounds.width + this.scale *4;
         sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
-        sd.setComponentPosition(to_right);
+        sd.setPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
         sd.zndx = this.layers.createLayer();
         this.removePreview();
+        const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale);
+        this.viewport.addObj(sd.id, interlacement);
       } 
 
+    
       this.addTimelineState();
       
       //get the reference to the draft that's moving
       const moving = this.tree.getComponent(obj.id);
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.bounds.topleft, this.scale);
+      this.viewport.updatePoint(moving.id, interlacement);
       if(moving === null) return; 
 
 
       
 
-      //disable this too see what happens
+      //disable this to see what happens
       // const had_merge = this.mergeSubdrafts(moving);
       // console.log("had merge", had_merge);
       // if(!had_merge) 
@@ -1893,8 +2152,12 @@ drawStarted(){
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
       primary.setNewDraft(temp);
-      primary.setComponentPosition(bounds.topleft);
+      primary.setPosition(bounds.topleft);
       primary.drawDraft();
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.scale);
+
+      this.viewport.updatePoint(primary.id, interlacement);
+
 
     //remove the intersecting drafts from the view containier and from subrefts
     isect.forEach(element => {
@@ -1918,7 +2181,7 @@ drawStarted(){
 
 
 
-  getSubdraftsIntersectingSelection(selection: SelectionComponent){
+  getSubdraftsIntersectingSelection(selection: MarqueeComponent){
 
     //find intersections between main and the others
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
@@ -2033,6 +2296,11 @@ drawStarted(){
 
 
 
+      /**
+       * TODO: Update this to get bounds and print all items, not just what's visible
+       * @param obj 
+       * @returns 
+       */
   getPrintableCanvas(obj): HTMLCanvasElement{
 
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -2051,12 +2319,25 @@ drawStarted(){
       cxn.drawForPrint(this.canvas, this.cx, this.scale);
     });
 
+    this.note_components.forEach(note =>{
+      note.drawForPrint(this.canvas, this.cx, this.scale);
+    })
+
     return this.canvas;
 
   }
 
   clearCanvas(){
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  redrawOpenModals(){
+    const comps = this.tree.getDrafts();
+    comps.forEach(sd => {
+      if(sd.modal !== undefined && sd.modal.componentInstance !== undefined){
+        sd.modal.componentInstance.redraw();
+      }
+    })
   }
 
 }

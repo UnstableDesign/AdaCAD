@@ -1,7 +1,13 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, EventEmitter, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms';
 import { Shuttle } from '../../../core/model/shuttle';
+import { Draft } from '../../model/draft';
+import { DesignmodesService } from '../../provider/designmodes.service';
+import { MaterialMap, MaterialsService } from '../../provider/materials.service';
+import { ShuttlesModal } from '../shuttles/shuttles.modal';
+import { TreeService } from '../../../mixer/provider/tree.service';
+import utilInstance from '../../model/util';
 
 
 @Component({
@@ -11,16 +17,27 @@ import { Shuttle } from '../../../core/model/shuttle';
 })
 
 
+
 export class MaterialModal{
-  shuttle: Shuttle;
+
+  @Output() onChange: any = new EventEmitter();
+
+
+  replacements: Array<number> = [];
   types: any;
+  newshuttle: Shuttle = new Shuttle();
 
   constructor(
+      private dm: DesignmodesService,
+      private ms: MaterialsService,
+      private tree: TreeService,
       private dialogRef: MatDialogRef<MaterialModal>,
-      @Inject(MAT_DIALOG_DATA) public data: any) {
+      @Inject(MAT_DIALOG_DATA) public data: {draft:Draft}) {
 
-  	  this.shuttle = data.shuttle;
-  	  this.types = data.material_types;
+      ms.getShuttles().forEach((el, ndx) => {
+        this.replacements.push((ndx+1%this.ms.getShuttles().length));
+      });
+  	  this.types = dm.material_types;
 
   }
 
@@ -30,13 +47,57 @@ export class MaterialModal{
   }
 
 
+  /**emitted on any action that would change the current rendering */
+  change(){
+    this.onChange.emit();
+
+  }
+
+  addMaterial(){
+
+  }
+
+
+
+  /**
+   * handles user input of delete event and reads the "replace" value to reassign draft
+   * @param index  - the shuttle to delete
+   */
+  delete(index:number){
+
+    //never delete all of the shuttles
+    if(this.ms.getShuttles().length == 1) return;
+
+    const map: Array<MaterialMap> = this.ms.deleteShuttle(index);
+    const drafts: Array<Draft> = this.tree.getDrafts().map(el => el.draft);
+    
+    drafts.forEach(draft =>{
+      draft.rowShuttleMapping = utilInstance.updateMaterialIds( draft.rowShuttleMapping, map, this.replacements[index]);
+      draft.colShuttleMapping = utilInstance.updateMaterialIds( draft.colShuttleMapping, map, this.replacements[index]);
+
+    });
+
+    //remove this from replacements
+    this.replacements = this.replacements.filter((el, ndx) => ndx != index);
+    //map remaning replacement values to valid indices 
+    this.replacements = this.replacements.map(el => (el%this.ms.getShuttles().length));
+
+    this.onChange.emit();
+  }
+
+  addNewShuttle(){
+    console.log(this.newshuttle);
+    this.newshuttle.setID(this.ms.getShuttles().length);
+    this.ms.addShuttle(this.newshuttle);
+    this.newshuttle = new Shuttle();
+  }
 
   close() {
     this.dialogRef.close(null);
   }
 
   save() {
-    this.dialogRef.close(this.shuttle);
+    this.dialogRef.close(null);
   }
 
 }

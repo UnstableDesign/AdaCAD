@@ -1,5 +1,5 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { Bounds, DraftMap, Point } from '../../../core/model/datatypes';
+import { Bounds, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
 import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
@@ -7,6 +7,7 @@ import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
+import { thresholdFreedmanDiaconis } from 'd3-array';
 
 @Component({
   selector: 'app-operation',
@@ -18,18 +19,49 @@ export class OperationComponent implements OnInit {
    @Input() id: number; //generated from the tree service
    @Input() name: string;
    @Input() scale: number;
+   @Input() default_cell: number;
    @Input() zndx: number;
    @Output() onSelectInputDraft:any = new EventEmitter()
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
+   @Output() deleteOp = new EventEmitter <any>(); 
+   @Output() duplicateOp = new EventEmitter <any>(); 
 
+   /**
+    * flag to tell if this has a connection
+    */
    active_connection: boolean = false
 
+    /**
+    * reference to top, left positioin as absolute interlacement
+    */
+   interlacement:Interlacement;
+
+  /**
+  * reference to the height of this element in units of the base cell 
+  */
+  base_height:number;
+
+
+    /**
+    * flag to tell if this is in a mode where it is looking foor a connectino
+    */
    selecting_connection: boolean;
 
+    /**
+    * flag to tell if this is being from a loaded from a saved file
+    */
    loaded: boolean = false;
 
-   outputs: Array<DraftMap>; //stores a list of components and drafts
+    /**
+    * flag to tell if this has been duplicated from another operation
+    */
+   duplicated: boolean = false;
+
+    /**
+    * stores a list of components and drafts generated as outputs 
+    */
+   outputs: Array<DraftMap>; 
    
    tooltip: string = "select drafts to input to this operation"
   
@@ -48,7 +80,7 @@ export class OperationComponent implements OnInit {
    loaded_inputs: Array<number> = [];
 
    op_inputs: Array<FormControl> = [];
-   
+
    has_connections_in: boolean = false;
 
   constructor(
@@ -57,24 +89,37 @@ export class OperationComponent implements OnInit {
     private viewport: ViewportService) { 
     this.outputs = [];
     this.selecting_connection = false;
+
+
+
   }
 
   ngOnInit() {
 
-    const center: Point = this.viewport.getCenterPoint();
-    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(center);
     this.op = this.operations.getOp(this.name);
 
 
     this.op.params.forEach((param, ndx) => {
-      const value = (this.loaded) ? this.loaded_inputs[ndx] : param.value;
+      const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
       this.op_inputs.push(new FormControl(value));
     });
+
+    const tl: Point = this.viewport.getTopLeft();
+   
+    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
+    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+
+    this.base_height =  30 + 40 * this.op_inputs.length
+    this.bounds.height = this.base_height;
+
+
 
   }
 
   ngAfterViewInit(){
+    this.rescale(this.scale);
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
+    
   }
 
 
@@ -89,10 +134,12 @@ export class OperationComponent implements OnInit {
     this.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y},
     this.bounds.width = bounds.width;
     this.bounds.height = bounds.height;
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
   }
 
   setPosition(pos: Point){
     this.bounds.topleft =  {x: pos.x, y:pos.y};
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
 
@@ -123,16 +170,23 @@ export class OperationComponent implements OnInit {
   rescale(scale:number){
 
 
-    const change = scale / this.scale;
-    
-    this.bounds.topleft = {x: this.bounds.topleft.x * change, y: this.bounds.topleft.y * change};
+    this.scale = scale;
+    const zoom_factor = this.scale / this.default_cell;
+    const container: HTMLElement = document.getElementById('scale-'+this.id);
+    container.style.transformOrigin = 'top left';
+    container.style.transform = 'scale(' + zoom_factor + ')';
+
+
+    this.bounds.topleft = {x: this.interlacement.j * this.scale, y: this.interlacement.i * this.scale};
+    //this.bounds.height = this.bounds.height * change;
 
     if(this.outputs.length == 1){
-      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * scale);
+      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
     }else{
       this.bounds.width = 200;
     }
-    this.scale = scale;
+
+    this.bounds.height = this.base_height * zoom_factor;
 
   }
 
@@ -143,12 +197,12 @@ export class OperationComponent implements OnInit {
     cx.fillRect(this.bounds.topleft.x, this.bounds.topleft.y, this.bounds.width, this.bounds.height); 
 
     cx.fillStyle = "#666666";
-    cx.font = "20px Verdana";
+    cx.font = this.scale*2+"px Verdana";
 
     let datastring: string = this.name+" // ";
 
     this.op.params.forEach((p, ndx) => {
-      datastring = datastring + p.name +": "+ this.op_inputs[ndx] + ", ";
+      datastring = datastring + p.name +": "+ this.op_inputs[ndx].value + ", ";
     });
 
     cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+25 );
@@ -204,8 +258,18 @@ export class OperationComponent implements OnInit {
 
   }
 
-  onParamChange(){
+  onParamChange(id: number, value: number){
+    console.log(value);
+    this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});
+  }
+
+  delete(){
+    this.deleteOp.emit({id: this.id});
+  }
+
+  duplicate(){
+    this.duplicateOp.emit({id: this.id});
   }
 
 
@@ -221,6 +285,7 @@ export class OperationComponent implements OnInit {
        const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
        const adj:Point = utilInstance.snapToGrid(relative, this.scale);
        this.bounds.topleft = adj;  
+       this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
        this.onOperationMove.emit({id: this.id, point: adj});
 
   }

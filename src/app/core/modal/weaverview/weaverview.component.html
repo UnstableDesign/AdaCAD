@@ -1,0 +1,84 @@
+<div class="toprow">
+  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
+  
+  <p mat-dialog-title
+    cdkDrag
+     cdkDragRootElement=".cdk-overlay-pane" 
+     cdkDragHandle>Draft View</p>
+</div>
+
+
+<mat-dialog-content>
+
+
+  
+  
+    <div class="view_slider">
+      <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+      <mat-slider invert
+    [displayWith]="formatLabel" 
+    tickInterval=".1" 
+    step=".1"
+    min="0" 
+    max="2" 
+    value="{{render.zoom}}" 
+    (change)="zoomChange($event, 'slider')"></mat-slider>
+    <button mat-icon-button><i class="fas fa-search-minus"></i></button>
+  </div>  
+
+ 
+  
+   
+      <div class="view_slider">
+        View Yarns
+
+        <mat-slide-toggle
+            [checked]="render.current_view !== 'pattern'"
+            (change)="viewChange($event)">
+        </mat-slide-toggle>
+      </div>
+
+
+
+      <div class="view_slider">
+        View Back
+        <mat-slide-toggle
+            [checked]="!render.view_front"
+            (change)="front = !front; viewFront($event, front, 'front')">
+        </mat-slide-toggle>
+      </div>
+
+      <div class="system-viz">
+
+        <ng-container *ngIf="draft.weft_systems.length > 1">
+            <ng-container *ngFor="let system of draft.weft_systems">
+              <div class="view_slider">
+
+              <mat-slide-toggle
+              [checked]="!system.visible"
+              (change)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'weft')">
+            </mat-slide-toggle> Hide Weft System {{system.getChar()}}
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="draft.warp_systems.length > 1">
+
+        <ng-container *ngFor="let system of draft.warp_systems">
+          <div class="view_slider">
+
+          <mat-slide-toggle
+          [checked]="!system.visible"
+          (change)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'warp')">
+          </mat-slide-toggle> Hide Warp System {{system.getChar()}}
+          </div>
+        </ng-container>
+        </ng-container>
+      </div>
+
+
+
+</mat-dialog-content>
+<!-- <mat-dialog-actions>
+  <button class="mat-raised-button"(click)="close()">Close</button>
+</mat-dialog-actions> -->

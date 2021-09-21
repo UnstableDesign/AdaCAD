@@ -3,6 +3,16 @@
 	position: absolute;
 	top: 0px;
 	left: 0px;
+	display: flex;
+	flex-direction: row;
+	justify-content:flex-end;
+}
+
+.scale-container{
+
+	position: absolute;
+	top: 0px;
+	left: 0px;
 	color: grey;
 	display: flex;
 	flex-direction: row;

@@ -1,17 +1,20 @@
-import { ElementRef, HostListener } from '@angular/core';
+import { ComponentFactoryResolver, ElementRef, HostListener, Inject } from '@angular/core';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import * as d3 from 'd3';
 import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Render } from '../model/render';
 import { Selection } from '../model/selection';
 import { Cell } from '../model/cell';
-import { Interlacement } from '../model/datatypes';
+import { DesignMode, Interlacement } from '../model/datatypes';
 import { Draft } from '../model/draft';
 import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
 import {cloneDeep, now} from 'lodash';
 import { FileService } from '../provider/file.service';
-import { thresholdFreedmanDiaconis } from 'd3';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { SelectionComponent } from './selection/selection.component';
+import { DesignmodesService } from '../provider/designmodes.service';
+import { PatternService } from '../provider/pattern.service';
+import { MaterialsService } from '../provider/materials.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -21,6 +24,16 @@ import { thresholdFreedmanDiaconis } from 'd3';
 export class DraftviewerComponent implements OnInit {
 
   @ViewChild('bitmapImage', {static: false}) bitmap;
+  @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
+
+  // @Input('design_actions')  design_actions;
+
+
+  /**
+   * a descriptor of the parent who generated this window
+   * @property {string} will be "weaver" or "mixer"
+   */
+   @Input('source') source: string;
 
 
  /// ATTRIBUTES
@@ -29,7 +42,7 @@ export class DraftviewerComponent implements OnInit {
    * It is defined and inputed from the HTML declaration of the WeaveDirective.
    * @property {string}
    */
-   @Input('design_mode') design_mode: any;
+  //  @Input('design_mode') design_mode: any;
 
    /**
    * Contains the current state as generative mode engaged or not
@@ -50,7 +63,7 @@ export class DraftviewerComponent implements OnInit {
   * It is defined and inputed from the HTML declaration of the WeaveDirective.
   * @property {Draft}
   */
-     @Input('loom') loom: Loom;
+  @Input('loom') loom: Loom;
  
  
  
@@ -65,7 +78,7 @@ export class DraftviewerComponent implements OnInit {
  
  /**
     * The Timeline object containing state histories for undo and redo
-    * @property {Render}
+    * @property {Timeline}
    */
    @Input('timeline') timeline: any;
  
@@ -77,7 +90,9 @@ export class DraftviewerComponent implements OnInit {
    @Output() onNewSelection = new EventEmitter();
  
  
- 
+  hold_copy_for_paste: boolean = false;
+
+
  /**
     * The HTML canvas element within the weave draft.
     * @property {HTMLCanvasElement}
@@ -148,23 +163,10 @@ export class DraftviewerComponent implements OnInit {
  
  
    /**
-    * The current selection within the weave canvas.
-    * @property {Selection}
-    */
-   selection: Selection = new Selection();
- 
-   /**
     * Subscribes to move event after a touch event is started.
     * @property {Subscription}
     */
    moveSubscription: Subscription;
- 
-   /**
-    * The HTML SVG element used to show the selection.
-    * @property {HTMLElement}
-    */
-   svgEl: HTMLElement;
- 
  
  
    /**
@@ -245,14 +247,19 @@ export class DraftviewerComponent implements OnInit {
     */
 
   constructor(
-    private fs: FileService
+    private fs: FileService,
+    private dm: DesignmodesService,
+    private ps: PatternService,
+    private ms: MaterialsService
     ) { 
 
     this.flag_recompute = false;
     this.flag_history = false;
+
   }
 
   ngOnInit() {
+
   }
 
   ngAfterViewInit(){
@@ -263,9 +270,6 @@ export class DraftviewerComponent implements OnInit {
 
 
   
-    //this is the selection
-    this.svgEl = document.getElementById('selection');
-
     // this.svgSelectRow = el.nativeElement.children[12];
     // this.svgSelectCol = el.nativeElement.children[13];
     this.divWesy =  document.getElementById('weft-systems-text');
@@ -290,7 +294,8 @@ export class DraftviewerComponent implements OnInit {
     this.cxWeftMaterials = this.weftMaterialsCanvas.getContext('2d');
     // set the width and height
 
-    d3.select(this.svgEl).style('display', 'none');
+    this.rescale(this.render.getZoom());
+
   }
 
   //this is called anytime a new draft object is loaded. 
@@ -318,18 +323,12 @@ export class DraftviewerComponent implements OnInit {
     this.warpMaterialsCanvas.height = dims.h;
 
 
-    // make the selection SVG invisible using d3
-    d3.select(this.svgEl).style('display', 'none');
-
-    console.log("daft is ", this.weave, this.render);
-
   }
 
   clearSelection(){
         this.selection.unsetParameters();
-        d3.select(this.svgEl).style('display', 'none');
-        d3.select(this.svgSelectCol).style('display', 'none');
-        d3.select(this.svgSelectRow).style('display', 'none');
+        // d3.select(this.svgSelectCol).style('display', 'none');
+        // d3.select(this.svgSelectRow).style('display', 'none');
   }
 
   ngOnDestroy() {
@@ -337,7 +336,13 @@ export class DraftviewerComponent implements OnInit {
   }
 
 
-  setPosAndDraw(target, currentPos:Interlacement){
+  /**
+   *  takes an event from mouse event and determines how to handle it 
+   * @param target the dom target of the mouse click
+   * @param shift whether or not the shift key is being held
+   * @param currentPos the position of the click within the target
+   */
+  setPosAndDraw(target:HTMLElement, shift: boolean, currentPos:Interlacement){
 
       if (target && target.id =='treadling') {
         currentPos.i = this.render.visibleRows[currentPos.i];
@@ -360,7 +365,7 @@ export class DraftviewerComponent implements OnInit {
         this.drawOnWarpMaterials(currentPos);
       } else{
         currentPos.i = this.render.visibleRows[currentPos.i];
-        this.drawOnDrawdown(currentPos);
+        this.drawOnDrawdown(currentPos, shift);
       }
 
       this.flag_history = true;
@@ -384,6 +389,7 @@ export class DraftviewerComponent implements OnInit {
       h: this.weftSystemsCanvas.height / this.render.visibleRows.length
     }
 
+
     if (event.target.localName === 'canvas') {
     
       this.removeSubscription();    
@@ -400,8 +406,6 @@ export class DraftviewerComponent implements OnInit {
         j: Math.floor((event.offsetX) / dims.w), //col
       };
 
-      if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
-      if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
       if(event.target && event.target.id==="drawdown"){
         currentPos.si -=1;
@@ -412,79 +416,51 @@ export class DraftviewerComponent implements OnInit {
       if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
       if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
       
+
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
+      const selected: DesignMode = this.dm.getSelectedDesignMode('design_modes');
+      
 
-      switch (this.design_mode.name) {
-        case 'toggle':
-          this.setPosAndDraw(event.target, currentPos);
-          this.unsetSelection();
+      switch (selected.value) {
+
+        case 'draw':
+
+          switch(this.dm.getSelectedDesignMode('draw_modes').value){
+
+            case 'toggle':
+              this.setPosAndDraw(event.target, event.shiftKey, currentPos);
+              //this.unsetSelection();
+            break;
+    
+            case 'up':
+            case 'down':
+            case 'unset':
+            case 'material':
+              this.setPosAndDraw(event.target, event.shiftKey, currentPos);
+              // this.unsetSelection();
+              this.flag_recompute = true;
+    
+              break;
+            // case 'maskpoint':
+            // case 'maskerase':
+            // case'maskinvert':
+            //   this.drawOnMask(currentPos);
+            //   break;
+          }
+
+
+        
         break;
-
-        case 'up':
-        case 'down':
-        case 'unset':
-        case 'material':
-          this.setPosAndDraw(event.target, currentPos);
-          this.unsetSelection();
-          this.flag_recompute = true;
-
-          break;
-        case 'maskpoint':
-        case 'maskerase':
-        case'maskinvert':
-          this.drawOnMask(currentPos);
-          break;
         case 'select':
-        case 'selectML':
         case 'copy':
 
-          if(event.shiftKey){
+            if(event.shiftKey){
+              this.selection.onSelectDrag(currentPos);
+              this.selection.onSelectStop();
+            }   
+            else this.selection.onSelectStart(event.target, currentPos);
 
-            this.selection.end = currentPos;
-            this.selection.setParameters();
-            this.rescale();
-
-          }else{
-            
-            this.clearSelection();
-
-            this.selection.start = currentPos;
-            this.selection.end = currentPos;
-            this.selection.width = 0;
-            this.selection.height = 0;
-
-
-            if (event.target && event.target.id==="treadling") {
-              this.selection.setTarget(this.treadlingCanvas);
-              this.selection.start.j = 0;
-              this.selection.width = this.loom.num_treadles;
-
-            } else if (event.target && event.target.id ==="tieups") {
-              this.selection.setTarget(this.tieupsCanvas);
-            } else if (event.target && event.target.id === "threading") {
-              this.selection.setTarget(this.threadingCanvas);
-              this.selection.start.i = 0;
-              this.selection.start.si = 0;
-              this.selection.height = this.loom.num_frames;
-
-
-            } else if(event.target && event.target.id === "weft-systems"){
-              this.selection.width = 1;
-              this.selection.setTarget(this.weftSystemsCanvas);
-            }else if(event.target && event.target.id === "warp-systems"){
-              this.selection.setTarget(this.warpSystemsCanvas);
-              this.selection.height = 1;
-            } else if(event.target && event.target.id === "weft-materials"){
-              this.selection.width = 1;
-              this.selection.setTarget(this.weftMaterialsCanvas);
-            }else if(event.target && event.target.id === "warp-materials"){
-              this.selection.setTarget(this.warpMaterialsCanvas);
-              this.selection.height = 1;
-            } else{
-              this.selection.setTarget(this.canvasEl);
-            }
-          }
           break;
           default:
           break;
@@ -520,7 +496,7 @@ export class DraftviewerComponent implements OnInit {
       h: this.weftSystemsCanvas.height /this.render.visibleRows.length
     };    
 
-    var offset = this.render.getCellDims(this.design_mode.name);
+    var offset = this.render.getCellDims(this.dm.getSelectedDesignMode('design_modes').value);
   
     // set up the point based on touched square.
     var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
@@ -546,52 +522,41 @@ export class DraftviewerComponent implements OnInit {
     if(this.isSame(currentPos, this.lastPos)) return;
 
     // determine action based on brush type. invert inactive on move.
-    switch (this.design_mode.name) {
-      case 'up':
-      case 'down':
-      case 'unset':
-      case 'material':
+    switch (this.dm.getSelectedDesignMode('design_modes').value) {
+      case 'draw':
+        switch(this.dm.getSelectedDesignMode('draw_modes').value){
+          case 'up':
+          case 'down':
+          case 'unset':
+          case 'material':
+          //this.unsetSelection();
 
-        if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
-        if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
+          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
 
 
-        this.setPosAndDraw(event.target, currentPos);
-        this.flag_recompute = true;
+          this.setPosAndDraw(event.target, event.shiftKey, currentPos);
+          this.flag_recompute = true;
 
 
         
         break;
 
-      case 'maskpoint':
-      case 'maskerase':
-      case'maskinvert':
+        case 'maskpoint':
+        case 'maskerase':
+        case'maskinvert':
         this.drawOnMask(currentPos);
         break;
+        }
+
+      break;
+      
 
 
       case 'select':
-      case 'selectML':
       case 'copy':
 
-        this.selection.end = currentPos;
-        if(currentPos.si < 0) currentPos.si = 0;
-        if(currentPos.si >= this.render.visibleRows.length) currentPos.si = this.render.visibleRows.length;
-      
-        if(currentPos.j < 0 ) currentPos.j = 0;
-        if(currentPos.j >= this.weave.warps) currentPos.j = this.weave.warps;
-
-
-        if (event.target && event.target.id === ('treadling')) {
-          this.selection.end.j = this.loom.num_treadles;
-
-        }else if(event.target && event.target.id === ('threading')){
-          this.selection.end.i = this.loom.num_frames;
-          this.selection.end.si = this.loom.num_frames;
-        }
-
-        this.selection.setParameters();
-        this.rescale();
+        this.selection.onSelectDrag(currentPos);
 
         break;
       case 'invert':
@@ -628,20 +593,25 @@ export class DraftviewerComponent implements OnInit {
 
 
      if(this.flag_recompute && event.type == 'mouseup'){
-      if(this.render.isYarnBasedView()) this.weave.computeYarnPaths();
+      if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
       this.flag_recompute = false;
      }
 
 
 
     // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && (this.design_mode.name === 'select' || this.design_mode.name === 'selectML' || this.design_mode.name ==='copy'))) {
-      if (this.design_mode.name === 'select' || this.design_mode.name === 'selectML'){
-      }
+    if (!(event.type === 'mouseleave' && (this.dm.isSelected('select','design_modes') || this.dm.isSelected('copy','design_actions')))){
       this.removeSubscription();
-      if(this.design_mode.name != "copy" && this.selection.start !== undefined) this.copyArea();
+      this.selection.onSelectStop();
     }
 
+  }
+
+  /**
+   * This is emitted from the selection
+   */
+  onSelectionEnd(){
+    if(!this.hold_copy_for_paste) this.copyArea();
   }
 
   /**
@@ -663,39 +633,40 @@ export class DraftviewerComponent implements OnInit {
    */
   private copyArea() {
 
-    const screen_i = Math.min(this.selection.start.si, this.selection.end.si);    
-    const draft_j = Math.min(this.selection.start.j, this.selection.end.j);
+
+    const screen_i = this.selection.getStartingScreenIndex();    
+    const draft_j = this.selection.getEndingIndex();
     
 
-    var w = this.selection.width;
-    var h = this.selection.height;
+    var w = this.selection.getWidth();
+    var h = this.selection.getHeight();
 
     this.copy = new Pattern({name: 'copy', width: w, height: h});
     const temp_copy: Array<Array<boolean>> = [];
 
-    if(this.selection.target.id === 'weft-systems'){
+    if(this.selection.getTargetId() === 'weft-systems'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
         for(var j = 0; j < this.weave.weft_systems.length; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.selection.target.id === 'warp-systems'){
+    }else if(this.selection.getTargetId()=== 'warp-systems'){
       for(var i = 0; i < this.weave.warp_systems.length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.selection.target.id === 'weft-materials'){
+    }else if(this.selection.getTargetId()=== 'weft-materials'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
-        for(var j = 0; j < this.weave.shuttles.length; j++){
+        for(var j = 0; j < this.ms.getShuttles().length; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.selection.target.id === 'warp-materials'){
-      for(var i = 0; i < this.weave.shuttles.length; i++){
+    }else if(this.selection.getTargetId() === 'warp-materials'){
+      for(var i = 0; i < this.ms.getShuttles().length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
           temp_copy[i].push(false);
@@ -719,7 +690,7 @@ export class DraftviewerComponent implements OnInit {
         var draft_row = this.render.visibleRows[screen_row];
         var col = draft_j + j;
 
-        switch(this.selection.target.id){
+        switch(this.selection.getTargetId()){
           case 'drawdown':
             temp_copy[i][j]= this.weave.isUp(draft_row, col);
           break;
@@ -767,9 +738,10 @@ export class DraftviewerComponent implements OnInit {
 
   private drawWeftMaterialCell(cx, i){
         var dims = this.render.getCellDims("base");
-        var margin = this.render.zoom/50;
+        var margin = this.render.zoom;
 
-        cx.fillStyle = this.weave.getColor(i, this.render.visibleRows);
+        const ndx: number = this.weave.getColorIndex(i, this.render.visibleRows);
+        cx.fillStyle = this.ms.getColor(ndx);
 
         if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
         else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
@@ -780,7 +752,7 @@ export class DraftviewerComponent implements OnInit {
   private drawWeftMaterials(cx, canvas){
 
       var dims = this.render.getCellDims("base");
-      var margin = this.render.zoom/50;
+      var margin = this.render.zoom;
       var top = dims.h;
 
       cx.clearRect(0,0, cx.canvas.width, cx.canvas.height);
@@ -803,8 +775,9 @@ export class DraftviewerComponent implements OnInit {
 
 
         var dims = this.render.getCellDims("base");
-        var margin = this.render.zoom/50;
-        cx.fillStyle = this.weave.getColorCol(j);
+        var margin = this.render.zoom;
+       const ndx: number = this.weave.getColorColIndex(j);
+        cx.fillStyle = this.ms.getColor(ndx);
 
         if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
         else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
@@ -815,7 +788,7 @@ export class DraftviewerComponent implements OnInit {
   private drawWarpMaterials(cx,canvas){
 
     var dims = this.render.getCellDims("base");
-    var margin = this.render.zoom/50;
+    var margin = this.render.zoom;
 
     this.warpMaterialsCanvas.width =  this.weave.warps * dims.w;
     this.warpMaterialsCanvas.height = dims.h;
@@ -836,7 +809,7 @@ export class DraftviewerComponent implements OnInit {
   private drawWeftSelectorCell(cx, i){
 
         var dims = this.render.getCellDims("base");
-        var margin = this.render.zoom/50;
+        var margin = this.render.zoom;
 
         cx.fillStyle = "#303030";
         if(i == this.weave.wefts-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
@@ -854,7 +827,6 @@ export class DraftviewerComponent implements OnInit {
     
 
       var dims = this.render.getCellDims("base");
-      var margin = this.render.zoom/50;
       var top = dims.h;
 
       cx.clearRect(0,0, cx.canvas.width, cx.canvas.height);
@@ -877,7 +849,7 @@ export class DraftviewerComponent implements OnInit {
 
 
         var dims = this.render.getCellDims("base");
-        var margin = this.render.zoom/50;
+        var margin = this.render.zoom;
         cx.fillStyle = "#303030";
 
         if(j == this.weave.warps-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
@@ -894,7 +866,6 @@ export class DraftviewerComponent implements OnInit {
   private drawWarpSystems(cx,canvas){
 
     var dims = this.render.getCellDims("base");
-    var margin = this.render.zoom/50;
 
     this.warpSystemsCanvas.width =  this.weave.warps * dims.w;
     this.warpSystemsCanvas.height = dims.h;
@@ -932,7 +903,6 @@ export class DraftviewerComponent implements OnInit {
 
     var dims = this.render.getCellDims("base");
 
-
     if(canvas.id=== "threading"){
       cx.fillStyle = "white";
       cx.fillRect(0,0,canvas.width,canvas.height);
@@ -964,7 +934,6 @@ export class DraftviewerComponent implements OnInit {
     cx.strokeStyle = '#000';
 
     //only draw the lines if the zoom is big enough to render them well
-    if(this.render.zoom > 25){
 
       // draw vertical lines
       for (i = 0; i <= canvas.width; i += dims.w) {
@@ -1004,7 +973,10 @@ export class DraftviewerComponent implements OnInit {
         }
       }
 
-    }
+
+      // reset the line dash.
+      //cx.setLineDash([0]);
+    
   }
 
 
@@ -1061,10 +1033,11 @@ export class DraftviewerComponent implements OnInit {
 
     if(screen_row < 0){ return; }
 
-    if(this.design_mode.name === 'material'){
-      this.weave.rowShuttleMapping[draft_row] = parseInt(this.design_mode.id);
+    if(this.dm.isSelected('material', 'draw_modes')){
+        const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
+      this.weave.rowShuttleMapping[draft_row] = parseInt(material_id);
     }else{
-      const len = this.weave.shuttles.length;
+      const len = this.ms.getShuttles().length;
       var shuttle_id = this.weave.rowShuttleMapping[draft_row];
       var newShuttle = (shuttle_id + 1) % len;
       this.weave.rowShuttleMapping[draft_row] = newShuttle;
@@ -1107,19 +1080,18 @@ export class DraftviewerComponent implements OnInit {
    */
   private drawOnWarpMaterials( currentPos: Interlacement ) {
 
-    var dims = this.render.getCellDims("base");
-
     if (!this.cxWarpSystems || !currentPos) { return; }
 
     var col = currentPos.j; //need to offset this due to canvas padding
 
     if(col < 0){ return; }
+    const material_mode: DesignMode = this.dm.getDesignMode('material', 'draw_modes');
 
-
-    if(this.design_mode.name === 'material'){
-        this.weave.colShuttleMapping[col] = parseInt(this.design_mode.id);
+    if(material_mode.selected){
+        const material_id:string = material_mode.children[0].value;
+        this.weave.colShuttleMapping[col] = parseInt(material_id);
     }else{
-      const len = this.weave.shuttles.length;
+      const len = this.ms.getShuttles().length;
       var shuttle_id = this.weave.colShuttleMapping[col];
       var newShuttle_id = (shuttle_id + 1) % len;
       this.weave.colShuttleMapping[col] = newShuttle_id;
@@ -1143,7 +1115,7 @@ export class DraftviewerComponent implements OnInit {
     if (!this.cx || !currentPos) { return; }
 
     // Set the heddles based on the brush.
-    switch (this.design_mode.name) {
+    switch (this.dm.getSelectedDesignMode('draw_modes').value) {
       case 'maskpoint':
         val = true;
         break;
@@ -1168,12 +1140,12 @@ export class DraftviewerComponent implements OnInit {
 
   /**
    * Called when a single point "draw" event is called on the
-   * @extends WeaveDirective
    * @param {Point} currentPos - the current position of the mouse within draft.
+   * @param shift - boolean for if the shift key was being held when this operation was called
    * @returns {void}
    */
 
-  private drawOnDrawdown( currentPos: Interlacement) {
+  private drawOnDrawdown( currentPos: Interlacement, shift: boolean) {
 
     var updates;
     var val  = false;
@@ -1185,7 +1157,7 @@ export class DraftviewerComponent implements OnInit {
     if(this.weave.hasCell(currentPos.i, currentPos.j)){
 
       // Set the heddles based on the brush.
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
           val = true;
           this.weave.setHeddle(currentPos.i,currentPos.j,val);
@@ -1195,8 +1167,11 @@ export class DraftviewerComponent implements OnInit {
           this.weave.setHeddle(currentPos.i,currentPos.j,val);
           break;
         case 'toggle':
-           val = !this.weave.isUp(currentPos.i,currentPos.j);
-           this.weave.setHeddle(currentPos.i,currentPos.j,val);
+          if(shift){
+            val = null;
+          } 
+          else val = !this.weave.isUp(currentPos.i,currentPos.j);
+          this.weave.setHeddle(currentPos.i,currentPos.j,val);
 
           break;
 
@@ -1212,8 +1187,14 @@ export class DraftviewerComponent implements OnInit {
           break;
       }
 
-        
-      if(this.design_mode.name !== 'material')
+
+      // if(this.render.getCurrentView() == 'pattern'){
+      //   this.drawCell(this.cx,currentPos.si, currentPos.j, "drawdown");
+      // }else{
+      //   this.drawYarn(currentPos.si, currentPos.j, val);
+      // }
+
+      if(!this.dm.isSelected('material', 'draw_modes'))   
         if(this.render.showingFrames()) this.loom.updateLoomFromDraft(currentPos, this.weave);
       
       this.redraw({drawdown:true, loom:true});
@@ -1235,7 +1216,7 @@ export class DraftviewerComponent implements OnInit {
     if (!this.cxTieups || !currentPos) { return; }
 
     if (this.loom.inTieupRange(currentPos)) {
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
             val = true;
           break;
@@ -1270,7 +1251,7 @@ export class DraftviewerComponent implements OnInit {
     if (this.loom.inThreadingRange(currentPos)){
       var val = false;
 
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
           val = true;
           break;
@@ -1319,7 +1300,7 @@ export class DraftviewerComponent implements OnInit {
     var val = false;
 
     if(this.loom.inTreadlingRange(currentPos)){
-      switch (this.design_mode.name) {
+      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
           val = true;
           break;
@@ -1345,6 +1326,71 @@ export class DraftviewerComponent implements OnInit {
 
     }
    }
+
+
+
+  /**
+   * Fills the visible regions of the mask with the stitch
+   * @extends WeaveDirective
+   * @param {Array<Array<boolean>>} - the pattern used to fill the area.
+   * @returns {void}
+   */
+
+
+  private maskArea(pattern: Array<Array<boolean>>) {
+   
+
+    // var dims = this.render.getCellDims("base");
+    // var updates = [];
+
+    // const rows = pattern.length;
+    // const cols = pattern[0].length;
+
+
+    // //iterate through cell
+    // for (var i = 0; i < this.weave.pattern.length; i++ ) {
+    //   for (var j = 0; j < this.weave.pattern[0].length; j++ ) {
+        
+    //     var row = this.render.visibleRows[i];
+    //     var col = j;
+    //     var temp = pattern[i % rows][j % cols];
+    //     var prev = this.weave.mask[row][col];
+    //     var val = temp && prev;
+
+    //     var p = new Point(); 
+    //     p.i = row;
+    //     p.j = col;
+        
+    //     this.weave.setHeddle(p.i,p.j,val);
+    //     this.drawCell(this.cx,p.i, p.j, "drawdown");
+    //   }
+    // }
+
+   // this.redraw();
+
+   }
+
+
+//   //This function draws whatever the current value is at screen coordinates cell i, J
+// private drawYarn(i, j, value){
+
+//   if(this.weave.yarn_paths.length == 0) return;
+      
+//       let p = this.weave.yarn_paths[i][j+1];
+//       let s = this.weave.shuttles[p.getShuttle()];
+//       p.setHeddle(value);
+
+//       //check no poles
+
+//       //no matter what, draw this cell up or down
+//       if(p.isUp() && this.render.isFront() || !p.isUp() && !this.render.isFront()){
+//           this.drawWeftUnder(i, j, s);
+//         }
+//         else{
+//           this.drawWeftOver(i, j, s);
+//       }
+
+//   }
 
 
 //This function draws whatever the current value is at screen coordinates cell i, J
@@ -1388,7 +1434,6 @@ export class DraftviewerComponent implements OnInit {
 
       break;
       case 'threading':
-        if(!this.render.isFront()) return;
         var frame = this.loom.threading[j];
         is_up = (frame == i);
         beyond = frame > this.loom.min_frames; 
@@ -1399,7 +1444,6 @@ export class DraftviewerComponent implements OnInit {
 
       break;
       case 'tieup':
-        if(!this.render.isFront()) return;
         is_up = (this.loom.tieup[i][j]);
         beyond = i > this.loom.min_frames; 
         has_mask = false;
@@ -1408,7 +1452,6 @@ export class DraftviewerComponent implements OnInit {
 
       break;
       case 'treadling':
-        if(!this.render.isFront()) return;
         //i and j is going to come from the UI which is only showing visible rows
         var row = this.render.visibleRows[i];
         beyond = this.loom.treadling[row] > this.loom.min_treadles; 
@@ -1422,7 +1465,7 @@ export class DraftviewerComponent implements OnInit {
 
      //cx.fillStyle = color;
      cx.fillStyle = color;
-     cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+     if(color != '#FFFFFF') cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 
 
   }
@@ -1660,7 +1703,7 @@ public drawWeftEnd(top, left, shuttle){
    //break down all cells into the various kinds of drawings
   public drawWeftUnder(top, left, shuttle){
       var dims = this.render.getCellDims("base");
-      var warp_shuttle = this.weave.shuttles[this.weave.colShuttleMapping[left]];
+      var warp_shuttle = this.ms.getShuttle(this.weave.colShuttleMapping[left]);
       var cx = this.cx;
       var view = this.render.getCurrentView();
 
@@ -1704,242 +1747,40 @@ public drawWeftEnd(top, left, shuttle){
 
   }
 
-  //this does not draw on canvas but just rescales the canvas
-  public rescale(){
-  
+  /**
+   * called on scroll
+   * @param scroll_top 
+   * @param scroll_left 
+   */
+  public reposition(scroll_top: number, scroll_left: number){
 
-    let dims ={
-      w: this.warpSystemsCanvas.width / this.weave.warps,
-      h: this.weftSystemsCanvas.height / this.render.visibleRows.length
-    }
-
-    let offset = this.render.getCellDims("select");
-
-    let scroll_left = this.draftContainer.offsetParent.scrollLeft;
-    let scroll_top = this.draftContainer.offsetParent.scrollTop;
-    let draft_width = this.draftContainer.offsetWidth;
-
-    let top = 0;
-    let left = 0;
-
-
-    var scaleToFit = this.render.getZoom() /50;
-
-
-    if(!this.render.view_frames){
-
-        this.threadingCanvas.height = 0;
-        this.threadingCanvas.width = 0;
-
-        this.treadlingCanvas.height = 0;
-        this.treadlingCanvas.width = 0;
-
-        this.tieupsCanvas.height = 0;
-        this.tieupsCanvas.width = 0;
-
-    }
-
-    
-    if(this.selection.hasSelection()){
-
-        var x = dims.w / 4;
-        var y = dims.h;
-        var anchor = 'start';
-
-        //styling for the text
-        if (this.selection.start.j < this.selection.end.j) {
-            x = this.selection.width*dims.w ;
-            anchor = 'end';
-         }
-
-         if (this.selection.start.i < this.selection.end.i) {
-           y = this.selection.height*dims.h;
-         }
-
-
-        var fs = this.render.zoom * .18;
-        var fw = this.render.zoom * 9;
-        this.svgEl.style.transformOrigin = '0 0';
-
-        d3.select(this.svgEl)
-          .style('display', 'initial')
-          .style('width', (this.selection.width) * dims.w)
-          .style('height', (this.selection.height) * dims.h);
-
-          d3.select(this.svgEl)
-          .select('text')
-          .attr('fill', '#424242')
-          .attr('font-weight', 900)
-          .attr('font-size', fs)
-          .attr('stroke', 'white')
-          .attr('stroke-width', 1)
-          .attr('x', x)
-          .attr('y', y)
-          .attr('text-anchor', anchor)
-          .text(this.selection.width +' x '+ this.selection.height);
-
-    }
-
-
-    //render threading
-    let threading_top = dims.h*10;
-
-    top = threading_top;
-    left= dims.w;
-
-    this.threadingCanvas.style.transformOrigin = '0 0';
-    this.threadingCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
- 
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'threading'){
-      
-       top += this.selection.getTop()*dims.h;
-       left += this.selection.getLeft()*dims.w;
-       this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    } 
-
-    //render drawdown
-    let drawdown_top = threading_top + this.threadingCanvas.height + dims.h;
-
-    top = drawdown_top;
-    left= 0;
-
-    this.canvasEl.style.transformOrigin = '0 0'; //scale from top left
-    this.canvasEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
-    if(this.render.isFront()) this.canvasEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    else  this.canvasEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px) scale(-1, 1) translateX(-'+this.canvasEl.width+'px)';
-
-
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'drawdown'){
-      
-       top += (this.selection.getTop()+1)*dims.h;
-       left += ((this.selection.getLeft()+1)*dims.w);
-       
-
-       this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
-    } 
-
-    //render treadling
-    top = drawdown_top + dims.h;
-    left= this.canvasEl.width+dims.w;
-
-    this.treadlingCanvas.style.transformOrigin = '0 0';
-    this.treadlingCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'treadling'){
-        
-        top += (this.selection.getTop())*dims.h;
-        left += this.selection.getLeft()*dims.w;
-        this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-      } 
-
-    //render tieups
-    top = threading_top;
-    left= this.canvasEl.width+dims.w;
-
-    this.tieupsCanvas.style.transformOrigin = '0 0';
-    this.tieupsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px, '+top+'px)';
-
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'tieups'){
-        
-        top +=  this.selection.getTop()*dims.h;
-        left += this.selection.getLeft()*dims.w;
-        this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    }
-
-    //render view frames button
-    top = threading_top - dims.h*2;
-    left= this.canvasEl.width+this.treadlingCanvas.width+dims.w*3;
-
-    this.divViewFrames.style.transformOrigin = '0 0';
-    this.divViewFrames.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px, '+top+'px)';
-
-
-    top = drawdown_top+dims.h;
-    left = scroll_left+draft_width-(dims.w*7);
-    left /= scaleToFit;
-    left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*3));
-
-
-
-    this.weftSystemsCanvas.style.transformOrigin = '0 0';
-    this.weftSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    
-    left += dims.w;
-    this.divWesy.style.transformOrigin = '0 0';
-    this.divWesy.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-systems'){
-        
-        top +=  this.selection.getTop()*dims.h;
-        left += (this.selection.getLeft()-1)*dims.w;
-        this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    } 
-
-
-
-    //render weft materials
-     top = drawdown_top+dims.h;
-    
-    left = scroll_left+draft_width-(dims.w*8);
-    left /= scaleToFit;
-
-    left = Math.min(left, (this.canvasEl.width+this.treadlingCanvas.width+dims.w*2));
-
-    this.weftMaterialsCanvas.style.transformOrigin = '0 0';
-    this.weftMaterialsCanvas.style.transform =  'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'weft-materials'){
-        
-        top +=  this.selection.getTop()*dims.h;
-        left += this.selection.getLeft()*dims.w;
-        this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    }
-
-
-
-    top = scroll_top+dims.h*8;
-    top /= scaleToFit;
-    top = Math.max(top, (threading_top-dims.h*2));
-
-  //render warp materials
-    left= dims.w;
-
-    this.warpMaterialsCanvas.style.transformOrigin = '0 0';
-    this.warpMaterialsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
- 
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-materials'){
-          
-          top +=  this.selection.getTop()*dims.h;
-          left += this.selection.getLeft()*dims.w;
-
-
-          this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    }
-
-
-
-
-
-    //render warp systems
-    top = scroll_top+dims.h;
-    top /= scaleToFit;
-    left= dims.w;
-
-    this.divWasy.style.transformOrigin = '0 0';
-    this.divWasy.style.transform = 'scale(' + scaleToFit + ') translate('+(left)+'px,'+top+'px)';
-     
-    this.warpSystemsCanvas.style.transformOrigin = '0 0';
-    this.warpSystemsCanvas.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+(top+6*dims.h)+'px)';
-   
-
-    if(this.selection.hasSelection() && this.selection.getTargetId()=== 'warp-systems'){
-          top +=  (this.selection.getTop()+6)*dims.h;
-          left += this.selection.getLeft()*dims.w;
-          this.svgEl.style.transform = 'scale(' + scaleToFit + ') translate('+left+'px,'+top+'px)';
-    }
   }
+
+  //flips the view from front to back
+  public flip(){
+    console.log('flip');
+    const container: HTMLElement = document.getElementById('draft-scale-container');
+    container.style.transformOrigin = '50% 50%';
+    if(this.render.view_front) container.style.transform = "matrix(1, 0, 0, 1, 0, 0) scale(" + this.render.getZoom() + ')';
+    else container.style.transform = "matrix(-1, 0, 0, 1, 0, 0) scale(" + this.render.getZoom() + ')';
+
+  }
+
+  /**
+   * this rescales the canvas and updates the view from scroll events
+   * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
+   */
+  //this does not draw on canvas but just rescales the canvas
+  public rescale(zoom: number){
+    console.log("rescale");
+
+  //   //var dims = this.render.getCellDims("base");
+    const container: HTMLElement = document.getElementById('draft-scale-container');
+    container.style.transformOrigin = 'top center';
+    container.style.transform = 'scale(' + zoom + ')';
+
+   
+   }
 
 
   public drawWarpsOver(){
@@ -1961,7 +1802,7 @@ public drawWeftEnd(top, left, shuttle){
         for(var o in overs){
             const shuttle_id = this.weave.colShuttleMapping[overs[o]];
             const system_id = this.weave.colSystemMapping[overs[o]];
-            if(this.weave.warp_systems[system_id].isVisible()) this.drawWeftUp(i, overs[o], this.weave.shuttles[shuttle_id]);
+            if(this.weave.warp_systems[system_id].isVisible()) this.drawWeftUp(i, overs[o], this.ms.getShuttle(shuttle_id));
         }
 
     }
@@ -1984,7 +1825,7 @@ public drawWeftEnd(top, left, shuttle){
 
       let shuttle_id = this.weave.rowShuttleMapping[index_row];
 
-      let s = this.weave.shuttles[shuttle_id];
+      let s = this.ms.getShuttle(shuttle_id);
 
       //iterate through the rows
       for(let j = 0; j < row_values.length; j++){
@@ -2043,6 +1884,7 @@ public drawWeftEnd(top, left, shuttle){
 
   public redrawLoom() {
 
+
     var base_dims = this.render.getCellDims("base");
     var front = this.render.isFront();
 
@@ -2053,18 +1895,19 @@ public drawWeftEnd(top, left, shuttle){
 
     this.cxThreading.canvas.width = base_dims.w * this.loom.threading.length;
     this.cxThreading.canvas.height = base_dims.h * this.loom.num_frames;
-    if(front) this.drawGrid(this.cxThreading,this.threadingCanvas);
-    else this.drawBlank(this.cxThreading,this.threadingCanvas);
+    this.drawGrid(this.cxThreading,this.threadingCanvas);
+   // else this.drawBlank(this.cxThreading,this.threadingCanvas);
+
 
     this.cxTreadling.canvas.width = base_dims.w * this.loom.num_treadles;
     this.cxTreadling.canvas.height = base_dims.h * this.render.visibleRows.length;
-    if(front) this.drawGrid(this.cxTreadling,this.treadlingCanvas);
-    else this.drawBlank(this.cxTreadling,this.treadlingCanvas);
+    this.drawGrid(this.cxTreadling,this.treadlingCanvas);
+    //else this.drawBlank(this.cxTreadling,this.treadlingCanvas);
 
     this.cxTieups.canvas.width = base_dims.w * this.loom.tieup[0].length;
     this.cxTieups.canvas.height = base_dims.h * this.loom.tieup.length;
-    if(front) this.drawGrid(this.cxTieups,this.tieupsCanvas);
-    else this.drawBlank(this.cxTieups,this.tieupsCanvas);
+    this.drawGrid(this.cxTieups,this.tieupsCanvas);
+    //else this.drawBlank(this.cxTieups,this.tieupsCanvas);
     
 
 
@@ -2095,8 +1938,7 @@ public drawWeftEnd(top, left, shuttle){
 
 
   public unsetSelection(){
-    d3.select(this.svgEl).style('display', 'none');
-
+    this.selection.unsetParameters();
   }
 
 public drawDrawdown(){
@@ -2124,25 +1966,28 @@ public redraw(flags:any){
         this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
         this.cx.canvas.width = base_dims.w * (this.weave.pattern[0].length+2);
         this.cx.canvas.height = base_dims.h * (this.render.visibleRows.length+2);
-       
-        this.cx.fillStyle = "#3d3d3d";
+        this.cx.strokeStyle = "#3d3d3d";
+
+        if(this.source == "weaver") this.cx.fillStyle = "#3d3d3d";
+        else this.cx.fillStyle = "#ffffff";
         this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
+        this.cx.strokeRect(base_dims.w,base_dims.h,this.canvasEl.width-base_dims.w*2,this.canvasEl.height-base_dims.h*2);
         this.drawDrawdown();
     }
 
-    if(flags.weft_systems !== undefined){
+    if(flags.weft_systems !== undefined && this.source == "weaver"){
       this.drawWeftSystems(this.cxWeftSystems, this.weftSystemsCanvas);
     }
 
-    if(flags.weft_materials !== undefined){
+    if(flags.weft_materials !== undefined && this.source == "weaver"){
       this.drawWeftMaterials(this.cxWeftMaterials, this.weftMaterialsCanvas);
     }
 
-    if(flags.warp_systems !== undefined){
+    if(flags.warp_systems !== undefined && this.source == "weaver"){
       this.drawWarpSystems(this.cxWarpSystems, this.warpSystemsCanvas);
     }
 
-    if(flags.warp_materials !== undefined){
+    if(flags.warp_materials !== undefined && this.source == "weaver"){
       this.drawWarpMaterials(this.cxWarpMaterials, this.warpMaterialsCanvas);
     }
 
@@ -2150,8 +1995,6 @@ public redraw(flags:any){
        this.redrawLoom();
     }
 
-
-    this.rescale();
   }
   
 
@@ -2168,7 +2011,6 @@ public redraw(flags:any){
 
     var i,j;
 
-    this.drawGrid(this.cx,this.canvasEl);
     
 
     var color = '#000000';
@@ -2182,7 +2024,7 @@ public redraw(flags:any){
      
       var id = this.weave.colShuttleMapping[x];
       var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
-      var shuttle = this.weave.shuttles[id];
+      var shuttle = this.ms.getShuttle(id);
 
         if(!system.visible){
           var c = "#3d3d3d";
@@ -2195,6 +2037,9 @@ public redraw(flags:any){
 
         }
     }   
+
+    this.drawGrid(this.cx,this.canvasEl);
+
   }
 
 
@@ -2211,7 +2056,7 @@ public redraw(flags:any){
      
       var id = this.weave.colShuttleMapping[x];
       var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
-      var shuttle = this.weave.shuttles[id];
+      var shuttle = this.ms.getShuttle(id);
 
       if(system.visible){
           var c = shuttle.getColor();
@@ -2370,7 +2215,7 @@ public redraw(flags:any){
       } 
       else if (e.type === "ada"){
         let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.ada('draft', [this.weave], [this.loom], [], this.weave.notes, false);
+        link.href = this.fs.saver.ada('draft', [this.weave], [this.loom],  false);
         link.download = e.name + ".ada";
       } 
       else if (e.type === "wif"){
@@ -2437,30 +2282,43 @@ public redraw(flags:any){
    * @returns {void}
    */
   public insertCol(i, shuttle,system) {
-    console.log(i, shuttle, system);
+
+
+    //flip the index based on the flipped view
+    i = (this.weave.warps + 1) - i;
+    
+
     this.weave.insertCol(i, shuttle,system);
     this.loom.insertCol(i);
     this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-    this.weave.computeYarnPaths();
+    this.weave.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.weave);
 
   }
 
   public cloneCol(i, shuttle,system) {
+
+    i = (this.weave.warps-1) - i;
+
+        
     this.weave.cloneCol(i, shuttle,system);
     this.loom.cloneCol(i);
     this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-    this.weave.computeYarnPaths();
+    this.weave.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.weave);
 
   }
 
 
   public deleteCol(i) {
+
+      //flip the index based on the flipped view
+      i = (this.weave.warps-1) - i;
+
     this.weave.deleteCol(i);
     this.loom.deleteCol(i);
     this.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-    this.weave.computeYarnPaths();
+    this.weave.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.weave);
   }
 
@@ -2475,6 +2333,107 @@ public redraw(flags:any){
     this.redraw({loom:true});
    
   }
+
+
+  /**
+   * Tell the weave directive to fill selection with pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - fill event from design component.
+   * @returns {void}
+   */
+   public onFill(e) {
+    
+    let p:Pattern = this.ps.getPattern(e.id);
+    
+    this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom);
+
+    if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
+    
+    this.copyArea();
+
+    this.redraw({drawdown:true, loom:true});
+
+    this.timeline.addHistoryState(this.weave);
+    
+  }
+
+  /**
+   * Tell weave reference to clear selection.
+   * @extends WeaveComponent
+   * @param {Event} Delte - clear event from design component.
+   * @returns {void}
+   */
+  public onClear(b:boolean) {
+    
+    const p: Pattern = new Pattern({width: 1, height: 1, pattern: [[b]]});
+
+    this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom)
+
+    if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
+
+    this.copyArea();
+
+    this.redraw({drawdown:true, loom:true});
+
+    this.timeline.addHistoryState(this.weave);
+
+  }
+
+  /**
+   * Tells weave reference to paste copied pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - paste event from design component.
+   * @returns {void}
+   */
+   public onPaste(e) {
+
+    this.hold_copy_for_paste = false;
+
+
+    var p = this.copy;
+    console.log("on paste", e, p);
+
+
+    var type;
+
+    if(e.type === undefined) type = "original";
+    else type =  e.type;
+
+    this.weave.fillArea(this.selection, p, type, this.render.visibleRows, this.loom);
+
+    switch(this.selection.getTargetId()){    
+      case 'drawdown':
+        //if you do this when updates come from loom, it will erase those updates
+        if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+       break;
+      
+    }
+
+    
+    if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
+
+    this.timeline.addHistoryState(this.weave);
+
+    this.copyArea();
+
+    this.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+ 
+
+  }
+
+  onCopy(){
+    this.copyArea();
+    this.hold_copy_for_paste = true;
+  }
+
+
+ 
+
+
 
 
 

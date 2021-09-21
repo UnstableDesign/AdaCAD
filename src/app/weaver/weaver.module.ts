@@ -29,18 +29,8 @@ import { ScrollingModule} from '@angular/cdk/scrolling';
 
 
 import { CoreModule } from '../core/core.module';
-
 import { WeaverComponent } from './weaver.component';
-import { WeaverDesignComponent } from './tool/weaverdesign/weaverdesign.component';
-import { WeaverPatternsComponent } from './tool/weaverpatterns/weaverpatterns.component';
-import { LoomComponent } from './tool/loom/loom.component';
-import { MasksComponent } from './tool/masks/masks.component';
-import { SchematicComponent } from './tool/schematic/schematic.component';
-import { WeaverViewComponent } from './tool/weaverview/weaverview.component';
-import { ConnectionModal } from './modal/connection/connection.modal';
-import { LabelModal } from './modal/label/label.modal';
 import { TabComponent } from './tool/tab/tab.component';
-
 
 @NgModule({
   imports: [
@@ -76,18 +66,13 @@ import { TabComponent } from './tool/tab/tab.component';
 
   ],
   declarations: [
-    WeaverComponent,  
-    WeaverDesignComponent, 
-    WeaverPatternsComponent,
-    ConnectionModal,
-    LoomComponent,
-    MasksComponent,
-    LabelModal,
-    SchematicComponent,
-    WeaverViewComponent,
-    TabComponent
+    WeaverComponent    
+  ],
+    exports: [
+      WeaverComponent
     ],
   entryComponents: [
-    ConnectionModal  ],
+  WeaverComponent],
+    
 })
 export class WeaverModule { }

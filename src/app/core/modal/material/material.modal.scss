@@ -1,3 +1,36 @@
-.form-field{
-	padding: 0px 8px 0 0;
+d
+
+.colorpicker{
+    display: block;
+    outline: grey;
+    width: 40px;
+    height: 40px;
+    margin: 2px 8px 0px 0px;
+}
+
+i{
+	padding-right: 8px;
+    margin: 4px 0px 0px 0px;
+}
+
+.delete_material{
+   display: flex; 
+   flex-direction: row;
+   font-size: .8em;
+
+   button{
+    width: 66%;
+
+   }
+
+   mat-select{
+       width: 33%;
+       overflow: hidden;
+   }
+}
+
+.toprow{
+    display: flex;
+    flex-direction: row;
+    line-height: 1em;
 }

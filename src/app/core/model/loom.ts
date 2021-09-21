@@ -214,6 +214,7 @@ export class Loom{
 
     setMinTreadles(treadles:number){
 
+      console.log("setting min treadles", treadles);
       this.updateNumTreadlesFromTreadling();
 
       if(treadles >= this.num_treadles){
