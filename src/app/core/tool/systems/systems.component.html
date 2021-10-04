@@ -1,0 +1,192 @@
+<mat-expansion-panel >
+
+	<mat-expansion-panel-header>
+	    <mat-panel-title>
+	      <span>Actions</span>
+	    </mat-panel-title>
+    	 
+    	<mat-panel-description>
+
+    	</mat-panel-description>
+  	</mat-expansion-panel-header>
+
+
+<div class='pattern-container'>
+  <div class="upload">
+
+   <button mat-mini-fab matTooltip="apply this pattern to the warp systems"  (click)="sendUpdates('wasy')" color="primary" aria-label="Add Warp Systems Pattern to Weave">
+        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+  </button>
+</div>
+<div class="chips">
+<mat-form-field class="example-chip-list">
+  <mat-label>
+    Warp System Repeat Pattern
+</mat-label>
+  <mat-chip-list  class="mat-chip-list-stacked" #chipListWasy aria-label="Warp System Repeat">
+    <mat-chip
+      *ngFor="let sys of warp_systems_pattern; let j = index;"
+      [removable]="removable"
+      (removed)="remove('wasy', j)">
+      {{warp_systems[sys].getChar()}}
+      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
+    </mat-chip>
+    <input
+      name="wasy"
+      placeholder="Add System to Pattern..."
+      #wasy
+      [formControl]="warpSystemCtrl"
+      [matAutocomplete]="auto_wasy"
+      [matChipInputFor]="chipListWasy"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      (matChipInputTokenEnd)="add($event)">
+  </mat-chip-list>
+  <mat-autocomplete  #auto_wasy="matAutocomplete" (optionSelected)="selected('wasy', $event)">
+    <mat-option *ngFor="let sys of warp_systems" [value]="warp_system">
+      {{sys.getChar()}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+</div>
+</div>
+
+<div class='pattern-container'>
+  <div class="upload">
+   <button mat-mini-fab (click)="sendUpdates('wash')" matTooltip="apply this pattern to the warp materials" color="primary" aria-label="Add Warp Materials Pattern to Weave">
+        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+  </button>
+</div>
+<div class="chips">
+<mat-form-field class="example-chip-list">
+  <mat-label>
+    Warp Materials Repeat
+</mat-label>
+  <mat-chip-list  class="mat-chip-list-stacked" #chipListWash aria-label="Warp Material Repeat">
+    <mat-chip
+      *ngFor="let sys of warp_shuttles_pattern; let j = index;"
+      [selectable]="selectable"
+      [removable]="removable"
+      (removed)="remove('wash', j)">
+      <i class="fas fa-square-full" [style.color]="shuttles[sys].color"></i>
+      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
+    </mat-chip>
+    <input
+      name="wash"
+      placeholder="Add Material to Pattern..."
+      #wash
+      [formControl]="warpShuttleCtrl"
+      [matAutocomplete]="auto_wash"
+      [matChipInputFor]="chipListWash"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      (matChipInputTokenEnd)="add($event)">
+  </mat-chip-list>
+  <mat-autocomplete #auto_wash="matAutocomplete" (optionSelected)="selected('wash', $event)">
+    <mat-option *ngFor="let sys of shuttles" [value]="system">
+      <i class="fas fa-square-full" [style.color]="sys.color"></i>
+      {{sys.name}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+</div>
+</div>
+
+
+
+
+
+
+<div class='pattern-container'>
+  <div class="upload">
+   <button mat-mini-fab (click)="sendUpdates('wesy')" matTooltip="apply this pattern to the weft systems" color="primary" aria-label="Add Weft Systems Pattern to Weave">
+        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+  </button>
+</div>
+<div class="chips">
+<mat-form-field class="example-chip-list">
+  <mat-label>
+    Weft System Repeat Pattern
+</mat-label>
+  <mat-chip-list  class="mat-chip-list-stacked" #chipListWesy aria-label="Weft System Repeat">
+    <mat-chip
+      *ngFor="let sys of weft_systems_pattern; let j = index;"
+      [selectable]="selectable"
+      [removable]="removable"
+      (removed)="remove('wesy', j)">
+      {{weft_systems[sys].getChar()}}
+      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
+    </mat-chip>
+    <input
+      name="wesy"
+      placeholder="Add System to Pattern..."
+      #wesy
+      [formControl]="weftSystemCtrl"
+      [matAutocomplete]="auto_wesy"
+      [matChipInputFor]="chipListWesy"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      (matChipInputTokenEnd)="add($event)">
+  </mat-chip-list>
+  <mat-autocomplete #auto_wesy="matAutocomplete" (optionSelected)="selected('wesy', $event)">
+    <mat-option *ngFor="let sys of weft_systems" [value]="system">
+      {{sys.getChar()}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+</div>
+</div>
+
+<div class='pattern-container'>
+  <div class="upload">
+   <button mat-mini-fab 
+   (click)="sendUpdates('wesh')" 
+   color="primary" 
+   matTooltip="apply this pattern to the weft materials" 
+   aria-label="Add Weft Materials Pattern to Weave">
+        <mat-icon><i class="fas fa-arrow-circle-left"></i></mat-icon>
+  </button>
+</div>
+<div class="chips">
+<mat-form-field class="example-chip-list">
+  <mat-label>
+    Weft Materials Repeat
+</mat-label>
+  <mat-chip-list  class="mat-chip-list-stacked" #chipListWesh aria-label="Weft Material Repeat">
+    <mat-chip
+      *ngFor="let sys of weft_shuttles_pattern; let j = index; "
+      [selectable]="selectable"
+      [removable]="removable"
+      (removed)="remove('wesh', j)">
+      <i class="fas fa-square-full" [style.color]="shuttles[sys].color"></i>
+      <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
+    </mat-chip>
+    <input
+      name="wesh"
+      placeholder="Add Shuttle to Pattern..."
+      #wesh
+      [formControl]="weftShuttleCtrl"
+      [matAutocomplete]="auto_wesh"
+      [matChipInputFor]="chipListWesh"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      (matChipInputTokenEnd)="add($event)">
+  </mat-chip-list>
+  <mat-autocomplete #auto_wesh="matAutocomplete" (optionSelected)="selected('wesh', $event)">
+    <mat-option *ngFor="let sys of shuttles" [value]="system">
+      <i class="fas fa-square-full" [style.color]="sys.color"></i>
+      {{sys.name}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+</div>
+</div>
+
+
+
+
+
+  
+
+	
+
+
+
+
+</mat-expansion-panel>

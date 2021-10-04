@@ -95,6 +95,10 @@ export class SidebarComponent implements OnInit {
      this.onDesignModeChange.emit(obj);
   }
 
+  engageMLMode() {
+    console.log('engaged ML mode');
+  }
+
   closeWeaverModals(){
     if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) this.materials_modal.close();
     if(this.equipment_modal != undefined && this.equipment_modal.componentInstance != null) this.equipment_modal.close();
