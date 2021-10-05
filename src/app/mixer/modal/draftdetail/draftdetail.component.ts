@@ -61,6 +61,7 @@ export class DraftdetailComponent implements OnInit {
 
                this.draft = data.draft;
                this.ink = data.ink;
+               console.log('this.ink:', this.ink);
 
                this.draft.computeYarnPaths(this.ms.getShuttles());
 

@@ -32,6 +32,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 
 import { PatternService } from './provider/pattern.service';
+import { CollectionService } from './provider/collection.service';
 import { UploadService } from './uploads/upload.service';
 import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
@@ -39,11 +40,14 @@ import { TopbarComponent } from './topbar/topbar.component';
 import { ActionsComponent} from './modal/actions/actions.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
+import { MlModal } from './modal/ml/ml.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
 import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
+import { VAE } from '../weaver/learning/vae';
+
 import { WeaverViewComponent } from './modal/weaverview/weaverview.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
@@ -93,6 +97,7 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     ShuttlesModal,
     InitModal,
     AboutModal,
+    MlModal,
     MaterialModal,
     LoomModal,
     DraftviewerComponent,
@@ -104,7 +109,10 @@ import { Action } from 'rxjs/internal/scheduler/Action';
   providers: [
     PatternService, 
     UploadService,
-    FileService],
+    CollectionService,
+    FileService,
+    VAE //potentially need to delete
+  ],
 
   exports: [
     CommonModule,
@@ -144,6 +152,7 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     PatternModal,
     InitModal,
     AboutModal,
+    MlModal,
     MaterialModal,
     LoomModal,
     DraftviewerComponent,
@@ -154,6 +163,7 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     entryComponents: [
       InitModal,
       AboutModal,
+      MlModal,
       PatternModal,
       MaterialModal,
       LoomModal,

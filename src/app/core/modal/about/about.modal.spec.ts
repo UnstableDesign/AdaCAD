@@ -1,9 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AboutModal } from './about.component';
+import { AboutModal} from './about.modal';
 
-describe('AboutModal', () => {
-  let about: AboutModal;
+describe('MaterialModal', () => {
+  let component: AboutModal;
   let fixture: ComponentFixture<AboutModal>;
 
   beforeEach(async(() => {
@@ -19,7 +19,7 @@ describe('AboutModal', () => {
     fixture.detectChanges();
   });
 
-  it('should be created', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });

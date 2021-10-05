@@ -13,11 +13,15 @@ import {Subject} from 'rxjs';
 import { FileService, LoadResponse } from '../core/provider/file.service';
 import { Loom } from '../core/model/loom';
 import * as _ from 'lodash';
+import { PatternFinder } from './tool/patternfinder/patternfinder';
+import { VAE } from './learning/vae';
+import { DraftdetailComponent } from '../mixer/modal/draftdetail/draftdetail.component';
 import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
 import {DesignmodesService} from '../core/provider/designmodes.service'
 import { isBuffer } from 'lodash';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { MaterialsService } from '../core/provider/materials.service';
+import { Cell } from '../core/model/cell';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -66,6 +70,44 @@ export class WeaverComponent implements OnInit {
   **/
   copy: Pattern;
 
+  /**
+   * a place to store the drafts returned from emma's ml code
+   */
+  generated_drafts: Array<Draft> = [];
+
+
+  /**
+  * Boolean reepresenting if generative ML mode is on or off
+  * @property {boolean}
+  * */
+  generativeMode = false;
+   
+  /**
+  * String holding collection name for generative ML
+  */
+  collection: string = "";
+
+  /**
+  * Object that holds the machine learning models to generate drafts from a seed
+  * @property {VAE} 
+  */
+  vae: VAE = new VAE();
+   
+  /**
+  * When generativeMode is activated, patternFinder will be run to determine the major patterns of the current draft
+  * @property {PatternFinder}
+  */
+  patternFinder: PatternFinder = new PatternFinder();
+
+  /**
+  * Number of warps for drafts of collection selected 
+  */
+  warpSize: number;
+
+  /**
+  * Number of wefts for drafts of collection selected 
+  */
+  weftSize: number;
 
   selected;
 
@@ -93,7 +135,6 @@ export class WeaverComponent implements OnInit {
     private dm: DesignmodesService,
     public scroll: ScrollDispatcher,
     private ms: MaterialsService) {
-
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -375,6 +416,95 @@ export class WeaverComponent implements OnInit {
 
   }
 
+  private patternToSize(pattern, warpSize, weftSize) {
+    if (pattern[0].length > warpSize) {
+        for (var i = 0; i < pattern.length; i++) {
+            while(pattern[i].length > warpSize) {
+                pattern[i].splice(pattern[i].length-1, 1);
+            }
+        }
+    }
+    if (pattern.length > weftSize) {
+        while(pattern.length > weftSize) {
+            pattern.splice(pattern.length-1, 1);
+        }
+    }
+    var idx = 0;
+    while (pattern[0].length < warpSize) {
+        for (var j = 0; j < pattern.length; j++) {
+            if (idx < pattern[j].length) {
+                pattern[j].push(pattern[j][idx]);
+            }
+        }
+        idx += 1;
+        if (idx >= pattern[0].length) {
+            idx = 0;
+        }
+    }
+    idx = 0;
+    while (pattern.length < weftSize) {
+        pattern.push(pattern[idx]);
+        idx += 1;
+        if (idx >= pattern.length) {
+            idx = 0;
+        }
+    }
+    return pattern;
+}
+  /**
+   * Flips the current booleean value of generativeMode.
+  * @extends WeeaveComponent
+  * @param {Event} e
+  * @returns {void}
+  */
+ public onGenerativeModeChange(e: any) {
+   console.log('e:', e);
+   this.generativeMode = !this.generativeMode;
+   this.collection = e.collection.toLowerCase().split(' ').join('_');
+   this.warpSize = e.warpSize;
+   this.weftSize = e.weftSize;
+   this.vae.loadModels(this.collection).then(() => {
+    if (this.generativeMode) {
+      this.vae.loadModels(this.collection);
+      let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
+      var suggestions = [];
+      let draftSeed = this.patternToSize(pattern, this.warpSize, this.weftSize);
+      this.vae.generateFromSeed(draftSeed).then(suggestionsRet => {
+        suggestions = suggestionsRet;
+        console.log('suggestions:', suggestions);
+        for (var i = 0; i < suggestions.length; i++) {
+          let treadlingSuggest = this.patternFinder.getTreadlingFromArr(suggestions[i]);
+          let threadingSuggest = this.patternFinder.getThreadingFromArr(suggestions[i]);
+          let pattern = this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i])
+          let draft = new Draft({});
+          for (var i = 0; i < pattern.length; i++) {
+            var first = false;
+            if (i != 0) {
+              draft.pattern.push([]);
+            } else {
+              first = true;
+            }
+            for (var j = 0; j < pattern[i].length; j++) {
+              if (first && j == 0) {
+                draft.pattern[i][j] = new Cell(pattern[i][j] == 1 ? true : false);
+              } else {
+                draft.pattern[i].push(new Cell(pattern[i][j] == 1 ? true : false));
+              }
+            }
+          }
+          this.generated_drafts.push(draft);    
+        }
+      });
+    }
+   });
+ }
+
+ public loadGeneratedDraft(e: any){
+  console.log("running load generated draft!");
+  
+  //tell the draft viewer to load this business!
+}
+  
   /**
    * Tell the weave directive to fill selection with pattern.
    * @extends WeaveComponent
@@ -402,7 +532,7 @@ export class WeaverComponent implements OnInit {
   /**
    * Tell weave reference to clear selection.
    * @extends WeaveComponent
-   * @param {Event} Delte - clear event from design component.
+   * @param {Event} Delete - clear event from design component.
    * @returns {void}
    */
   public onClear(b:boolean) {

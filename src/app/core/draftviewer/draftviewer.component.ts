@@ -45,6 +45,12 @@ export class DraftviewerComponent implements OnInit {
   //  @Input('design_mode') design_mode: any;
 
    /**
+   * Contains the current state as generative mode engaged or not
+   * @property {boolean}
+   */
+    @Input('generative_mode') generative_mode: boolean;
+
+   /**
     * The Draft object containing the pattern and shuttle information.
     * It is defined and inputed from the HTML declaration of the WeaveDirective.
     * @property {Draft}
@@ -294,7 +300,6 @@ export class DraftviewerComponent implements OnInit {
 
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded() {  
-
     var dims = this.render.getCellDims("base");
 
     this.canvasEl.width = this.weave.warps * dims.w;
@@ -467,12 +472,6 @@ export class DraftviewerComponent implements OnInit {
         j: currentPos.j //col
       };
 
-      // this.segment = {
-      //   start: [currentPos.si, currentPos.i, currentPos.j],
-      //   end: [currentPos.si, currentPos.i, currentPos.j],
-      //   pattern: null,
-      //   id: generateId(),
-      // }
     }
   }
 
@@ -936,16 +935,8 @@ export class DraftviewerComponent implements OnInit {
 
     //only draw the lines if the zoom is big enough to render them well
 
-     //cx.lineWidth = this.render.zoom/100;
-
-     //cx.setLineDash([dims.w/20,dims.w/4]);
-
       // draw vertical lines
       for (i = 0; i <= canvas.width; i += dims.w) {
-        //if(canvas.id === "treadling" && i === (this.loom.min_treadles)*dims.w) cx.setLineDash([0]);
-        //else if(canvas.id === "tieups" && i === (this.loom.min_treadles)*dims.w) cx.setLineDash([0]);
-        
-        //else  cx.setLineDash([dims.w/20,dims.w/4]);
         
           if(canvas.id == 'drawdown'){
             if(i > dims.w && i < canvas.width - dims.w){
@@ -966,9 +957,6 @@ export class DraftviewerComponent implements OnInit {
 
       // draw horizontal lines
       for (i = 0; i <= canvas.height; i += dims.h) {
-        //if(canvas.id === "threading" && i === (this.loom.num_frames - this.loom.min_frames)*dims.h) cx.setLineDash([0]);
-        //else if(canvas.id === "tieups" && i === (this.loom.num_frames - this.loom.min_frames)*dims.h) cx.setLineDash([0]);
-        //else  cx.setLineDash([dims.w/20,dims.w/4]);
 
         if(canvas.id == "drawdown"){
           if(i > dims.h && i < canvas.height - dims.h){
@@ -1244,7 +1232,6 @@ export class DraftviewerComponent implements OnInit {
     
     updates = this.loom.updateTieup({i:currentPos.i,j: currentPos.j, val:val});
     this.weave.updateDraftFromTieup(updates, this.loom);
-    //this.drawCell(this.cxTieups, currentPos.i, currentPos.j, "tieup");
     this.redraw({drawdown:true, loom:true});
     
     
@@ -1332,13 +1319,9 @@ export class DraftviewerComponent implements OnInit {
       var updates = this.loom.updateTreadling({i:currentPos.i, j:currentPos.j, val:val});
       this.weave.updateDraftFromTreadling(updates, this.loom);
 
-      // for(var u in updates){
-      //   this.drawCell(this.cxTreadling,updates[u].i, updates[u].j, "treadling");
-      // }
       if( this.loom.min_treadles <  this.loom.num_treadles){
         this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling")
       }
-      //if(unused) this.redrawLoom();
       this.redraw({drawdown:true, loom:true});
 
     }
@@ -1505,11 +1488,6 @@ export class DraftviewerComponent implements OnInit {
   //  * @returns {void}
   //  */
   private redrawCol(x, i,cx) {
-    // var color = '#000000'
-
-    // // Gets color of col.
-    // color = this.weave.getColorCol(i);
-    // cx.fillStyle = color;
   }
 
 
@@ -1541,7 +1519,6 @@ export class DraftviewerComponent implements OnInit {
   }
 
   public drawWeftRightUp(top, left, shuttle){
-      //console.log("draw right up", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1567,7 +1544,6 @@ export class DraftviewerComponent implements OnInit {
   }
 
   public drawWeftBottomLeft(top, left, shuttle){
-      //console.log("draw bottom left", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1593,7 +1569,6 @@ export class DraftviewerComponent implements OnInit {
   }
 
   public drawWeftBottomRight(top, left, shuttle){
-      //console.log("draw bottom right", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1620,7 +1595,6 @@ export class DraftviewerComponent implements OnInit {
 
 
   public drawWeftUp(top, left, shuttle){
-     //console.log("draw under", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1647,7 +1621,6 @@ export class DraftviewerComponent implements OnInit {
   }
 
   public drawWeftStart(top, left, shuttle){
- //console.log("draw over", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1675,7 +1648,6 @@ export class DraftviewerComponent implements OnInit {
 }
 
 public drawWeftEnd(top, left, shuttle){
- //console.log("draw over", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1703,7 +1675,6 @@ public drawWeftEnd(top, left, shuttle){
 
  //break down all cells into the various kinds of drawings
   public drawWeftOver(top, left, shuttle){
-      //console.log("draw over", top, left);
       var dims = this.render.getCellDims("base");
       var cx = this.cx;
       var view = this.render.getCurrentView();
@@ -1731,7 +1702,6 @@ public drawWeftEnd(top, left, shuttle){
 
    //break down all cells into the various kinds of drawings
   public drawWeftUnder(top, left, shuttle){
-      //console.log("draw under", top, left);
       var dims = this.render.getCellDims("base");
       var warp_shuttle = this.ms.getShuttle(this.weave.colShuttleMapping[left]);
       var cx = this.cx;
@@ -2134,21 +2104,6 @@ public redraw(flags:any){
     this.cx.strokeStyle = "#000";
     this.cx.fillStyle = "#000";
   }
-
-  /**
-   * Resizes and then redraws the canvas on a change to the wefts or warps. 
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  // public updateSize() {
-  //   var base_dims = this.render.getCellDims("base");
-
-  //   // set the updated width and height
-  //   this.canvasEl.width = this.weave.warps * base_dims.h;
-  //   this.canvasEl.height = this.render.visibleRows.length * base_dims.w;
-  // }
-
-
 
   public onUndoRedo() {
 
