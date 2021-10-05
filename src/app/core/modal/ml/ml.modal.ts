@@ -1,5 +1,7 @@
-import { Component, OnInit, Inject, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Inject, EventEmitter, Output, Input } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Draft } from '../../model/draft';
+import { CollectionService } from '../../provider/collection.service';
 
 
 
@@ -13,12 +15,15 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 export class MlModal implements OnInit {
 
   @Output() onChange: any = new EventEmitter();
+  
 
   constructor(private dialogRef: MatDialogRef<MlModal>,
-             @Inject(MAT_DIALOG_DATA) private data: any) { }
-
-  ngOnInit() {
+             @Inject(MAT_DIALOG_DATA) private data: any) {
   }
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
+  }
+
 
   close() {
     this.dialogRef.close();
