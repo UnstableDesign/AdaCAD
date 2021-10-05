@@ -1410,6 +1410,57 @@ export class OperationService {
       }
     }
 
+    const germanify: Operation = {
+      name: 'gemanify',
+      dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
+      params: [
+        {name: 'output selection',
+        min: 1,
+        max: 10,
+        value: 1,
+        dx: 'which pattern to select from the variations'
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+
+        
+
+
+        const sum: number = input_params[0] + input_params[1];
+        const repeats: number = input_params[2];
+        const width: number = sum;
+        const height: number = repeats * 2;
+
+        let alt_rows, alt_cols, val: boolean = false;
+        const pattern:Array<Array<Cell>> = [];
+        for(let i = 0; i < height; i++){
+          alt_rows = (i < repeats);
+          pattern.push([]);
+          for(let j = 0; j < width; j++){
+            alt_cols = (j % sum < input_params[0]);
+            val = (alt_cols && alt_rows) || (!alt_cols && !alt_rows);
+            pattern[i][j] =  new Cell(val);
+          }
+        }
+
+        let outputs: Array<Draft> = [];
+        if(inputs.length == 0){
+          const d: Draft = new Draft({warps: width, wefts: height, pattern: pattern});
+          outputs.push(d);
+        }else{
+          outputs = inputs.map(input => {
+            const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, 'mask');
+            return d;
+          });
+        }
+
+        return outputs;
+      }
+          
+    }
+
 
     //**push operatiinos to the array here */
     this.ops.push(rect);
