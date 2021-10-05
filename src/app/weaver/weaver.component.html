@@ -4,6 +4,10 @@
 
       <div class ="design-container">
        
+        <!-- <app-tab
+        (onGenerativeModeChange)="onGenerativeModeChange($event)"
+        (onDraftSelected)="loadGeneratedDraft($event)"
+        ></app-tab>  -->
 
         <app-sidebar #sidebar
         [timeline]="timeline"
@@ -29,23 +33,26 @@
         ></app-sidebar>
 
 
-
     </div>
-
-
+    <div class="generative-options" *ngIf="weaveRef.selected==false">
+      <h1>testing</h1>
+      <button matTooltip="start making changes" 
+      [name]='changesFromGenerative'
+      class="button material is-small is-primary fas fa-square"
+      >
+    </button>
+    </div>
   </mat-drawer>
 
-
-  <app-draftviewer 
+    <app-draftviewer 
     source = "weaver"
     [render]="render" 
+    [(generative_mode)]="generativeMode"
     [(copy)]="copy" 
     [timeline]="timeline" 
     [draft]="draft" 
     [loom]="loom" 
     (onNewSelection) = "updateSelection($event)">
-
-  </app-draftviewer>
-
+    </app-draftviewer>
 
 </mat-drawer-container>

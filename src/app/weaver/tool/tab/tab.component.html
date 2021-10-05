@@ -1,0 +1,68 @@
+<mat-expansion-panel >
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+     <span>Machine Learning</span>
+    </mat-panel-title>
+    <mat-panel-description>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <h3>
+
+  <span class="right">
+    Design with Machine Learning
+    <button mat-icon-button
+       (click)="openMlDialog(null)"
+       matTooltip ="about Machine Learning">
+       <i class="fas fa-info-circle"></i>
+     </button>
+     
+ </span>
+</h3>
+
+  <form #collectionForm="ngForm">
+    <mat-form-field class="is-fullwidth">
+      <mat-select placeholder="Choose your Style" name="name" [(ngModel)]="collection.name">
+        <mat-option *ngFor="let collection of collections" [value]="collection.name">
+          {{ collection.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+  <ng-container>
+
+  
+    <button matTooltip="Start Mixed Initiative Mode"
+      [name]='generativeMode' 
+      [disabled] = "this.generativeMode" 
+      class="button is-small fas fa-play-circle"
+      [style.color]="button_color"
+      (click)="generativeModeChange($event)">  
+      
+      
+    </button>
+
+
+    <button matTooltip="End Mixed Initiative Mode" 
+      [name]='generativeMode'
+      [disabled] = "!this.generativeMode" 
+      class="button material is-small is-primary fas fa-square"
+      [style.color]="button_color"
+      (click)="generativeModeChange($event)"> 
+      
+    </button>
+
+
+  <h3 *ngIf='generated_drafts?.length > 0'>Suggested Drafts</h3>
+
+  <button
+    *ngFor="let generated of generated_drafts"
+    [matTooltip]= generated.id
+    name="Draft" 
+    class="button is-small"
+    [style.color]="button_color"
+    (click)="loadGeneratedDraft(generated.id)">
+  </button>
+
+  </ng-container>
+</mat-expansion-panel>

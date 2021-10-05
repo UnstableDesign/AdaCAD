@@ -27,8 +27,10 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import { ScrollingModule} from '@angular/cdk/scrolling';
 
+
 import { CoreModule } from '../core/core.module';
 import { WeaverComponent } from './weaver.component';
+import { TabComponent } from './tool/tab/tab.component';
 
 @NgModule({
   imports: [
@@ -59,7 +61,8 @@ import { WeaverComponent } from './weaver.component';
     MatTooltipModule,
     ColorPickerModule,
     MatChipsModule,
-    ScrollingModule
+    ScrollingModule,
+    
 
   ],
   declarations: [
