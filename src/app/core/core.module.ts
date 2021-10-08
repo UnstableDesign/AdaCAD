@@ -46,13 +46,14 @@ import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
 import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
-import { VAE } from '../weaver/learning/vae';
 
 import { WeaverViewComponent } from './modal/weaverview/weaverview.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { LoomModal } from './modal/loom/loom.modal';
 import { Action } from 'rxjs/internal/scheduler/Action';
+import { VaeService } from './provider/vae.service';
+import { PatternfinderService } from './provider/patternfinder.service';
 
 @NgModule({
   imports: [
@@ -111,7 +112,8 @@ import { Action } from 'rxjs/internal/scheduler/Action';
     UploadService,
     CollectionService,
     FileService,
-    VAE //potentially need to delete
+    VaeService,
+    PatternfinderService
   ],
 
   exports: [

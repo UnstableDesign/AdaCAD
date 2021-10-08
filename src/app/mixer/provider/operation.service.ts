@@ -2,6 +2,8 @@ import { D } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
+import { VaeService} from "../../core/provider/vae"
+import { PatternfinderService} from "../../core/provider/patternfinder"
 import utilInstance from '../../core/model/util';
 
 export interface OperationParams {
@@ -34,7 +36,7 @@ export class OperationService {
   ops: Array<Operation> = [];
   classification: Array<OperationClassification> = [];
 
-  constructor() { 
+  constructor(private vae: VaeService, private pfs: PatternfinderService) { 
 
     const rect: Operation = {
       name: 'rectangle',
@@ -1423,40 +1425,46 @@ export class OperationService {
       ],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
+        return [];
+        
+        //   this.vae.loadModels('german').then(() => {
+        //    if (this.generativeMode) {
+        //      this.vae.loadModels(this.collection);
+        //      let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
+        //      var suggestions = [];
+        //      let draftSeed = this.patternToSize(pattern, this.warpSize, this.weftSize);
+        //      this.vae.generateFromSeed(draftSeed).then(suggestionsRet => {
+        //        suggestions = suggestionsRet;
+        //        console.log('suggestions:', suggestions);
+        //        for (var i = 0; i < suggestions.length; i++) {
+        //          let treadlingSuggest = this.patternFinder.getTreadlingFromArr(suggestions[i]);
+        //          let threadingSuggest = this.patternFinder.getThreadingFromArr(suggestions[i]);
+        //          let pattern = this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i])
+        //          let draft = new Draft({});
+        //          for (var i = 0; i < pattern.length; i++) {
+        //            var first = false;
+        //            if (i != 0) {
+        //              draft.pattern.push([]);
+        //            } else {
+        //              first = true;
+        //            }
+        //            for (var j = 0; j < pattern[i].length; j++) {
+        //              if (first && j == 0) {
+        //                draft.pattern[i][j] = new Cell(pattern[i][j] == 1 ? true : false);
+        //              } else {
+        //                draft.pattern[i].push(new Cell(pattern[i][j] == 1 ? true : false));
+        //              }
+        //            }
+        //          }
+        //          this.generated_drafts.push(draft);    
+        //        }
+        //      });
+        //    }
+        //   });
+        // }
+       
 
         
-
-
-        const sum: number = input_params[0] + input_params[1];
-        const repeats: number = input_params[2];
-        const width: number = sum;
-        const height: number = repeats * 2;
-
-        let alt_rows, alt_cols, val: boolean = false;
-        const pattern:Array<Array<Cell>> = [];
-        for(let i = 0; i < height; i++){
-          alt_rows = (i < repeats);
-          pattern.push([]);
-          for(let j = 0; j < width; j++){
-            alt_cols = (j % sum < input_params[0]);
-            val = (alt_cols && alt_rows) || (!alt_cols && !alt_rows);
-            pattern[i][j] =  new Cell(val);
-          }
-        }
-
-        let outputs: Array<Draft> = [];
-        if(inputs.length == 0){
-          const d: Draft = new Draft({warps: width, wefts: height, pattern: pattern});
-          outputs.push(d);
-        }else{
-          outputs = inputs.map(input => {
-            const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-            d.fill(pattern, 'mask');
-            return d;
-          });
-        }
-
-        return outputs;
       }
           
     }
