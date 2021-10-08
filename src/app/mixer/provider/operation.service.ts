@@ -2,9 +2,10 @@ import { D } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
-import { VaeService} from "../../core/provider/vae"
-import { PatternfinderService} from "../../core/provider/patternfinder"
+import { VaeService} from "../../core/provider/vae.service"
+import { PatternfinderService} from "../../core/provider/patternfinder.service"
 import utilInstance from '../../core/model/util';
+import { Loom } from '../../core/model/loom';
 
 export interface OperationParams {
   name: string,
@@ -1425,45 +1426,54 @@ export class OperationService {
       ],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>):Array<Draft> => {
-        return [];
-        
-        //   this.vae.loadModels('german').then(() => {
-        //    if (this.generativeMode) {
-        //      this.vae.loadModels(this.collection);
-        //      let pattern = this.patternFinder.computePatterns(this.loom.threading, this.loom.treadling, this.draft.pattern);
-        //      var suggestions = [];
-        //      let draftSeed = this.patternToSize(pattern, this.warpSize, this.weftSize);
-        //      this.vae.generateFromSeed(draftSeed).then(suggestionsRet => {
-        //        suggestions = suggestionsRet;
-        //        console.log('suggestions:', suggestions);
-        //        for (var i = 0; i < suggestions.length; i++) {
-        //          let treadlingSuggest = this.patternFinder.getTreadlingFromArr(suggestions[i]);
-        //          let threadingSuggest = this.patternFinder.getThreadingFromArr(suggestions[i]);
-        //          let pattern = this.patternFinder.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i])
-        //          let draft = new Draft({});
-        //          for (var i = 0; i < pattern.length; i++) {
-        //            var first = false;
-        //            if (i != 0) {
-        //              draft.pattern.push([]);
-        //            } else {
-        //              first = true;
-        //            }
-        //            for (var j = 0; j < pattern[i].length; j++) {
-        //              if (first && j == 0) {
-        //                draft.pattern[i][j] = new Cell(pattern[i][j] == 1 ? true : false);
-        //              } else {
-        //                draft.pattern[i].push(new Cell(pattern[i][j] == 1 ? true : false));
-        //              }
-        //            }
-        //          }
-        //          this.generated_drafts.push(draft);    
-        //        }
-        //      });
-        //    }
-        //   });
-        // }
-       
 
+
+        if(inputs.length == 0) return [];
+        let generated: Array<Draft> = [];
+
+        inputs.forEach(draft => {
+          
+          this.vae.loadModels('german').then(() => {
+            this.vae.printDecoder();
+            const loom:Loom = new Loom(draft, 8, 10);
+            loom.recomputeLoom(draft);
+            let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, draft.pattern);
+           
+            var suggestions = [];
+            let draftSeed = utilInstance.patternToSize(pattern, 48, 48);
+            this.vae.generateFromSeed(draftSeed).then(suggestionsRet => {
+                suggestions = suggestionsRet;
+
+                for (var i = 0; i < suggestions.length; i++) {
+                  let treadlingSuggest = this.pfs.getTreadlingFromArr(suggestions[i]);
+                  let threadingSuggest = this.pfs.getThreadingFromArr(suggestions[i]);
+                  let pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestions[i])
+                  const draft:Draft = new Draft({warps: pattern[i].length, wefts: pattern.length});
+                    for (var i = 0; i < pattern.length; i++) {
+                      // var first = false;
+                      // if (i != 0) {
+                      //   draft.pattern.push([]);
+                      // } else {
+                      //   first = true;
+                      // }
+                        
+                      for (var j = 0; j < pattern[i].length; j++) {
+                        // if (first && j == 0) {
+                        //   draft.pattern[i][j] = new Cell(pattern[i][j] == 1 ? true : false);
+                        // } else {
+                         // draft.pattern[i].push(new Cell(pattern[i][j] == 1 ? true : false));
+                          draft.pattern[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
+                        // }
+                      }
+                    }
+                  
+                  console.log("returning", draft, [draft])
+                  generated.push(draft); 
+                  return [draft];   
+                }
+              });
+          });
+        });
         
       }
           
@@ -1503,6 +1513,7 @@ export class OperationService {
     this.ops.push(overlay);
     this.ops.push(atop);
     this.ops.push(mask);
+    this.ops.push(germanify);
     // this.ops.push(reverse);
 
 
@@ -1526,6 +1537,11 @@ export class OperationService {
     this.classification.push(
       {category: 'compose',
       ops: [mirror, interlace, layer, tile, joinleft, selvedge,atop, overlay, mask, bindweftfloats, bindwarpfloats]}
+    );
+
+    this.classification.push(
+      {category: 'machine learning',
+      ops: [germanify]}
     );
 
   }

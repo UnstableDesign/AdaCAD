@@ -155,6 +155,7 @@ export class OperationComponent implements OnInit {
 
     const draft_map: Array<DraftMap> = [];
     const generated_drafts: Array<Draft> = this.op.perform(inputs, this.op_inputs.map(fc => fc.value));
+    console.log("returned", generated_drafts)
     generated_drafts.forEach((draft, ndx) => {
       const component_id:number = (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id;
 

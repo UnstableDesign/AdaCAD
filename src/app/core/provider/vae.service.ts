@@ -15,10 +15,14 @@ export class VaeService {
   constructor() { }
 
   async loadModels(collection: string) {
+      console.log("collection", collection);
     this.decoder = await tf.loadLayersModel('../../../assets/' + collection + '/decoder/model.json');
     this.encoder_log_var = await tf.loadLayersModel('../../../assets/' + collection + '/encoder_log_var/model.json');
     this.encoder_mean = await tf.loadLayersModel('../../../assets/' + collection + '/encoder_mean/model.json');
-    console.log('ML models loaded');
+}
+
+printDecoder(){
+    console.log(this.decoder);
 }
 
 cleanDraft(draft) {

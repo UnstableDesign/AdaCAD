@@ -261,6 +261,7 @@ private findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threa
     var treadlingString: string = this.toString(treadling);
     var threadingString: string = this.toString(threading);
 
+
     var treadlingRanges = [];
     var threadingRanges = [];
 
@@ -327,6 +328,7 @@ private findDraftPatterns(treadlingPatterns, treadling, threadingPatterns, threa
 }
 
   public computePatterns(threading, treadling, draft) {
+
       let threadingPatterns = this.findPatterns(threading);
       let treadlingPatterns = this.findPatterns(treadling);
 
