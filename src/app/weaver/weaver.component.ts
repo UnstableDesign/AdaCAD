@@ -400,41 +400,7 @@ export class WeaverComponent implements OnInit {
 
   }
 
-  private patternToSize(pattern, warpSize, weftSize) {
-    if (pattern[0].length > warpSize) {
-        for (var i = 0; i < pattern.length; i++) {
-            while(pattern[i].length > warpSize) {
-                pattern[i].splice(pattern[i].length-1, 1);
-            }
-        }
-    }
-    if (pattern.length > weftSize) {
-        while(pattern.length > weftSize) {
-            pattern.splice(pattern.length-1, 1);
-        }
-    }
-    var idx = 0;
-    while (pattern[0].length < warpSize) {
-        for (var j = 0; j < pattern.length; j++) {
-            if (idx < pattern[j].length) {
-                pattern[j].push(pattern[j][idx]);
-            }
-        }
-        idx += 1;
-        if (idx >= pattern[0].length) {
-            idx = 0;
-        }
-    }
-    idx = 0;
-    while (pattern.length < weftSize) {
-        pattern.push(pattern[idx]);
-        idx += 1;
-        if (idx >= pattern.length) {
-            idx = 0;
-        }
-    }
-    return pattern;
-}
+  
 //   /**
 //    * Flips the current booleean value of generativeMode.
 //   * @extends WeeaveComponent

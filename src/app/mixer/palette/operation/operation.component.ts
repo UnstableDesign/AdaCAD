@@ -147,25 +147,19 @@ export class OperationComponent implements OnInit {
    * performs the operation on the inputs added in load
    * @returns an Array linking the draft ids to compoment_ids
    */
-  perform(inputs: Array<Draft>):Array<DraftMap>{
+  perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
     if(inputs.length > 0) this.has_connections_in = true;
     else this.has_connections_in = false;
 
     this.op = this.operations.getOp(this.name);
-
-    const draft_map: Array<DraftMap> = [];
-    const generated_drafts: Array<Draft> = this.op.perform(inputs, this.op_inputs.map(fc => fc.value));
-    console.log("returned", generated_drafts)
-    generated_drafts.forEach((draft, ndx) => {
-      const component_id:number = (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id;
-
-      draft_map.push({
-        component_id: component_id,
-        draft: draft
-      });
-    });
-
-   return draft_map;
+    return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
+      .then(generated_drafts => {
+        return generated_drafts.map((draft, ndx) => ({
+            component_id: (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id,
+            draft
+          })
+      )
+        })
   }
 
   rescale(scale:number){

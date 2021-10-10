@@ -529,7 +529,7 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  designActionChange(e){
+  async designActionChange(e){
 
     switch(e){
       case 'duplicate':   
@@ -541,7 +541,7 @@ export class SubdraftComponent implements OnInit {
       break;
 
       default: 
-        const drafts: Array<Draft> = this.ops.getOp(e).perform([this.draft], []);
+        const drafts = await this.ops.getOp(e).perform([this.draft], []);
         drafts.forEach(draft => {
           this.setNewDraft(draft);
           this.drawDraft();

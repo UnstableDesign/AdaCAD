@@ -1315,7 +1315,7 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
 }
 
 
-performOp(op_id:number){
+ performOp(op_id:number){
   
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
 
@@ -1327,36 +1327,35 @@ performOp(op_id:number){
     return sd.draft;
    });
 
+   op.perform(input_drafts)
+   .then(draft_map =>  {
+    const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
   
-  const draft_map: Array<DraftMap> = op.perform(input_drafts);
-
-
-  const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
+    draft_map.forEach(el => {
+      let sd:SubdraftComponent = null;
   
-  draft_map.forEach(el => {
-    let sd:SubdraftComponent = null;
-
-    if(el.component_id >= 0){
-       sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
-       sd.setNewDraft(el.draft);
-       leftoffset.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
-    }else{
-      sd = this.createSubDraft(el. draft);
-      op.addOutput({component_id: sd.id, draft:el.draft});
-      sd.setPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
-      sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
-      sd.setParent(op.id);
-      const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
-      this.viewport.addObj(sd.id, interlacement);
-      this.createConnection(op.id, sd.id);
-      this.tree.setSubdraftParent(sd.id, op.id);
-      
-    }
-
-    op.setWidth(sd.bounds.width);
-    sd.drawDraft();
-  });
-
+      if(el.component_id >= 0){
+         sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
+         sd.setNewDraft(el.draft);
+         leftoffset.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
+      }else{
+        sd = this.createSubDraft(el. draft);
+        op.addOutput({component_id: sd.id, draft:el.draft});
+        sd.setPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
+        sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
+        sd.setParent(op.id);
+        const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+        this.viewport.addObj(sd.id, interlacement);
+        this.createConnection(op.id, sd.id);
+        this.tree.setSubdraftParent(sd.id, op.id);
+        
+      }
+  
+      op.setWidth(sd.bounds.width);
+      sd.drawDraft();
+    })
+   })
+   .catch(e => console.log('error on op.perform', e))
 }
 
 /**
@@ -2033,6 +2032,7 @@ drawStarted(){
 
     if(obj === null) return;
 
+    
     this.performOp(obj.id);
 
     const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
