@@ -236,7 +236,7 @@ export class MixerComponent implements OnInit {
             const new_out_id: number = this.tree.getConnectionOutput(out_cxn_id);
             
             const draft_comp:SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_out_id);
-            op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.draft});
+            op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.getDraft()});
           });
         break;
       }

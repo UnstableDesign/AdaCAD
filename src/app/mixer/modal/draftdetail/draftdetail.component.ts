@@ -61,6 +61,7 @@ export class DraftdetailComponent implements OnInit {
 
                this.draft = data.draft;
                this.ink = data.ink;
+               this.loom = data.loom;
                console.log('this.ink:', this.ink);
 
                this.draft.computeYarnPaths(this.ms.getShuttles());
@@ -68,9 +69,9 @@ export class DraftdetailComponent implements OnInit {
 
 
               //default loom
-               this.loom = new Loom(this.draft, 8, 10);
-               this.dm.selectDesignMode('jacquard', 'loom_types');
-               this.loom.type = "jacquard";
+              //  this.loom = new Loom(this.draft, 8, 10);
+              //  this.dm.selectDesignMode('jacquard', 'loom_types');
+              //  this.loom.type = "jacquard";
 
 
                //this.loom.recomputeLoom(this.draft);

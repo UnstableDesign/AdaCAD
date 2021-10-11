@@ -577,7 +577,7 @@ export class TreeService {
         node_id: node.id,
         type: node.type,
         bounds: node.component.bounds,
-        draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft.id : -1) 
+        draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).getDraft().id : -1) 
       }
       objs.push(savable);
     })
@@ -604,7 +604,7 @@ export class TreeService {
 
       const savable = {
         id: id,
-        draft: (<SubdraftComponent>this.getComponent(id)).draft
+        draft: (<SubdraftComponent>this.getComponent(id)).getDraft()
       }
       objs.push(savable);
     })
@@ -620,7 +620,7 @@ export class TreeService {
     exportDraftsForSaving() : Array<Draft> {
 
       const drafts: Array<SubdraftComponent> = this.getDrafts();
-      const out: Array<Draft> = drafts.map(c => c.draft);
+      const out: Array<Draft> = drafts.map(c => c.getDraft());
       return out;
     }
 

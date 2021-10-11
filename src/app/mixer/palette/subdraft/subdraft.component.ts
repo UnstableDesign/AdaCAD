@@ -11,7 +11,7 @@ import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
-import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
+import { Cell } from '../../../core/model/cell';
 
 
 
@@ -103,17 +103,19 @@ export class SubdraftComponent implements OnInit {
 
   modal: MatDialogRef<DraftdetailComponent, any>;
 
+  loom: Loom; //each draft must be accompanied by a matching loom
+
 
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ops: OperationService,
-    private tree: TreeService,
     private fs: FileService,
     private viewport: ViewportService,
     private dialog: MatDialog) { 
 
 
       this.zndx = layer.createLayer();
+
   }
 
   ngOnInit(){
@@ -126,6 +128,9 @@ export class SubdraftComponent implements OnInit {
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
     this.filename = this.draft.name;
+    this.loom = new Loom(this.draft, 8, 10);
+    this.loom.recomputeLoom(this.draft);
+
 
     this.downloadBmp = this.bmpLink._elementRef;
     this.downloadAda = this.adaLink._elementRef;
@@ -224,6 +229,9 @@ export class SubdraftComponent implements OnInit {
     }
   }
 
+  public getDraft(): Draft {
+    return this.draft;
+  }
 
   public setConnectable(){
     this.set_connectable = true;
@@ -343,11 +351,24 @@ export class SubdraftComponent implements OnInit {
    * sets a new draft
    * @param temp the draft to set this component to
    */
-  setNewDraft(temp: Draft) {
+  setDraft(temp: Draft) {
+
 
     this.bounds.width = temp.warps * this.scale;
     this.bounds.height = temp.wefts * this.scale;
     this.draft.reload(temp);
+    this.loom.recomputeLoom(this.draft);
+
+  }
+
+  /**
+   * sets a new draft pattern only (keeps original draft data such as id)
+   * @param temp the pattern to set upon this draft
+   */
+   setDraftPattern(pattern: Array<Array<Cell>>) {
+
+    this.draft.pattern = pattern;
+    this.loom.recomputeLoom(this.draft);
 
   }
 
@@ -543,7 +564,7 @@ export class SubdraftComponent implements OnInit {
       default: 
         const drafts = await this.ops.getOp(e).perform([this.draft], []);
         drafts.forEach(draft => {
-          this.setNewDraft(draft);
+          this.setDraft(draft);
           this.drawDraft();
         });
         this.onDesignAction.emit({id: this.id});
@@ -663,6 +684,7 @@ export class SubdraftComponent implements OnInit {
           hasBackdrop: false,
           data: {
             draft: this.draft,
+            loom: this.loom,
             ink: this.inks.getInk(this.ink).viewValue}
         });
 
@@ -673,6 +695,7 @@ export class SubdraftComponent implements OnInit {
             if(this.parent_id == -1){
               this.draft.reload(result);
               this.drawDraft();
+              //update the loom here too
               this.onDesignAction.emit({id: this.id});
               //flag for downstream calculations
             }else{

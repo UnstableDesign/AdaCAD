@@ -142,7 +142,7 @@ export class Loom{
       this.threading = l.threading.map(el => el);
 
       this.min_frames = l.min_frames;
-      this.num_frames = l.num_treadles;
+      this.num_frames = l.num_frames;
       this.min_treadles = l.min_treadles;
       this.num_treadles = l.num_treadles;
   

@@ -768,7 +768,7 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
       const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
       //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
-      subdraft.instance.draft = d;
+      subdraft.instance.setDraft(d);
       subdraft.instance.id = -1;
       subdraft.instance.default_cell = this.default_cell_size;
       subdraft.instance.scale = this.scale;
@@ -1084,7 +1084,7 @@ export class PaletteComponent implements OnInit{
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
 
         
-        const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}));
+        const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.getDraft().wefts, warps: sd.getDraft().warps, pattern: sd.getDraft().pattern}));
         new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
         new_sd.setPosition({
           x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
@@ -1324,7 +1324,7 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
 
   const input_drafts: Array<Draft> = inputs.map(input => {
     const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
-    return sd.draft;
+    return sd.getDraft();
    });
 
    op.perform(input_drafts)
@@ -1336,7 +1336,7 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
   
       if(el.component_id >= 0){
          sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
-         sd.setNewDraft(el.draft);
+         sd.setDraft(el.draft);
          leftoffset.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
       }else{
         sd = this.createSubDraft(el. draft);
@@ -1698,11 +1698,11 @@ drawStarted(){
     const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale);
     this.viewport.addObj(sd.id, interlacement);
 
-    for(let i = 0; i < sd.draft.wefts; i++ ){
-      for(let j = 0; j< sd.draft.warps; j++){
+    for(let i = 0; i < sd.getDraft().wefts; i++ ){
+      for(let j = 0; j< sd.getDraft().warps; j++){
         const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
         const b = this.getScratchpadProduct({i:i, j:j, si:-1}, this.inks.getSelected(),c);
-        sd.draft.pattern[i][j].setHeddle(b); 
+        sd.getDraft().pattern[i][j].setHeddle(b); 
       }
     }
 
@@ -1937,7 +1937,7 @@ drawStarted(){
 
     //get a draft that reflects only the poitns in the selection view
     const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
-    sc.setNewDraft(new_draft);
+    sc.setDraft(new_draft);
     sc.drawDraft();
 
     isect.forEach(el => {
@@ -1947,7 +1947,7 @@ drawStarted(){
          console.log("Component had same Bounds as Intersection, Consumed");
          this.removeSubdraft(el.id);
       }else{
-         const sd_draft = el.draft.pattern;
+         const sd_draft = el.getDraft().pattern;
          for(let i = 0; i < sd_draft.length; i++){
            for(let j = 0; j < sd_draft[i].length; j++){
            
@@ -2081,7 +2081,7 @@ drawStarted(){
       //const bounds: Bounds = this.getIntersectionBounds(moving, isect[0]);
       const bounds: Bounds = utilInstance.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
-      if(this.hasPreview()) this.preview.setNewDraft(temp);
+      if(this.hasPreview()) this.preview.setDraft(temp);
       else this.createAndSetPreview(temp);
       this.preview.setPosition(bounds.topleft);
       this.preview.drawDraft(); 
@@ -2103,10 +2103,10 @@ drawStarted(){
   
       //creaet a subdraft of this intersection
       if(this.hasPreview()){
-        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}));
+        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.getDraft().wefts, warps: this.preview.getDraft().warps}));
         const to_right: Point = this.preview.getTopleft();
         to_right.x += this.preview.bounds.width + this.scale *4;
-        sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
+        sd.setDraftPattern(cloneDeep(this.preview.getDraft().pattern));
         sd.setPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
         sd.zndx = this.layers.createLayer();
@@ -2151,7 +2151,7 @@ drawStarted(){
       const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
-      primary.setNewDraft(temp);
+      primary.setDraft(temp);
       primary.setPosition(bounds.topleft);
       primary.drawDraft();
       const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.scale);
@@ -2226,7 +2226,7 @@ drawStarted(){
   getIntersectingSubdrafts(primary: SubdraftComponent){
 
     const drafts:Array<SubdraftComponent> = this.tree.getDrafts(); 
-    const to_check:Array<SubdraftComponent> =  drafts.filter(sr => (sr.draft.id.toString() !== primary.draft.id.toString()));
+    const to_check:Array<SubdraftComponent> =  drafts.filter(sr => (sr.getDraft().id.toString() !== primary.getDraft().id.toString()));
     const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
 
 
@@ -2278,7 +2278,7 @@ drawStarted(){
      */
        getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
   
-        const temp: Draft = new Draft({id: primary.draft.id, name: primary.draft.name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
+        const temp: Draft = new Draft({id: primary.getDraft().id, name: primary.getDraft().name, warps: Math.floor(bounds.width / primary.scale), wefts: Math.floor(bounds.height / primary.scale)});
     
         for(var i = 0; i < temp.wefts; i++){
           const top: number = bounds.topleft.y + (i * primary.scale);

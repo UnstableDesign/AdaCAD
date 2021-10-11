@@ -45,12 +45,6 @@ export class DraftviewerComponent implements OnInit {
   //  @Input('design_mode') design_mode: any;
 
    /**
-   * Contains the current state as generative mode engaged or not
-   * @property {boolean}
-   */
-    @Input('generative_mode') generative_mode: boolean;
-
-   /**
     * The Draft object containing the pattern and shuttle information.
     * It is defined and inputed from the HTML declaration of the WeaveDirective.
     * @property {Draft}

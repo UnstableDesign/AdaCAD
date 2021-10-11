@@ -69,7 +69,7 @@ export class MaterialModal{
     if(this.ms.getShuttles().length == 1) return;
 
     const map: Array<MaterialMap> = this.ms.deleteShuttle(index);
-    const drafts: Array<Draft> = this.tree.getDrafts().map(el => el.draft);
+    const drafts: Array<Draft> = this.tree.getDrafts().map(el => el.getDraft());
     
     drafts.forEach(draft =>{
       draft.rowShuttleMapping = utilInstance.updateMaterialIds( draft.rowShuttleMapping, map, this.replacements[index]);
