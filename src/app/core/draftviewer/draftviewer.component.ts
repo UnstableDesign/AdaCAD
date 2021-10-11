@@ -401,15 +401,47 @@ export class DraftviewerComponent implements OnInit {
       };
 
 
-      if(event.target && event.target.id==="drawdown"){
-        currentPos.si -=1;
-        currentPos.i -=1;
-        currentPos.j -=1;
+      if(!event.target) return;
+
+      //reject out of bounds requests
+      switch(event.target.id){
+        case 'drawdown':
+          currentPos.si -=1;
+          currentPos.i -=1;
+          currentPos.j -=1;
+          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;    
+          break;
+
+        case 'threading':
+          if(currentPos.i < 0 || currentPos.i >= this.loom.num_frames) return;
+          if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;    
+          break; 
+
+        case 'treadling':
+          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.j < 0 || currentPos.j >= this.loom.num_treadles) return;    
+          break;
+
+        case 'tieups':
+          if(currentPos.i < 0 || currentPos.i >= this.loom.num_frames) return;
+          if(currentPos.j < 0 || currentPos.j >= this.loom.num_treadles) return;    
+        break;
+
+        case 'warp-materials':
+        case 'warp-systems':
+          if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;    
+          break;
+
+        case 'weft-materials':
+        case 'weft-systems':
+          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          break;
       }
 
-      if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
-      if(currentPos.j < 0 || currentPos.j >= this.weave.warps) return;
-      
+
+
+
 
       // Save temp pattern
       this.tempPattern = cloneDeep(this.weave.pattern);
@@ -1239,6 +1271,8 @@ export class DraftviewerComponent implements OnInit {
    * @returns {void}
    */
   private drawOnThreading( currentPos: Interlacement ) {
+
+
     if (!this.cxThreading || !currentPos) { return; }
     
 
