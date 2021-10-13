@@ -1498,6 +1498,51 @@ export class DraftviewerComponent implements OnInit {
 
   }
 
+  /**This view renders cells based on the relationships with their neighbords */
+  drawCrossingCell(cx, i, j, type){
+    var base_dims = this.render.getCellDims("base");
+    var base_fill = this.render.getCellDims("base_fill");
+    var top = 0; 
+    var left = 0;
+
+    var right_edge: boolean;
+    var right_bot_to_top: boolean;
+    var bottom_edge: boolean;
+    var bottom_bot_to_top: boolean;
+
+
+    right_edge = (this.weave.isUp(i, j) !== this.weave.isUp(i, j+1)) ? true : false;
+
+    if(right_edge){
+      right_bot_to_top = (this.weave.isUp(i, j) && !this.weave.isUp(i, j+1)) ? true : false;
+    }
+
+
+    bottom_edge = (this.weave.isUp(i, j) !== this.weave.isUp(i+1, j)) ? true : false;
+    if(bottom_edge){
+      bottom_bot_to_top = (this.weave.isUp(i, j) && !this.weave.isUp(i+1, j)) ? true : false;
+    }
+
+    j++;
+    i++;
+    
+    if(right_edge){
+      cx.strokeStyle = (right_bot_to_top) ? "#FF0000" : "#00FF00";
+      cx.beginPath();
+      cx.moveTo(left+j*base_dims.w + base_fill.w , top+i*base_dims.h);
+      cx.lineTo(left+j*base_dims.w + base_fill.w , top+i*base_dims.h + base_fill.h);
+      cx.stroke();
+    }
+
+    if(bottom_edge){
+      cx.strokeStyle = (bottom_bot_to_top) ? "#0000FF" : "#000000";
+      cx.beginPath();
+      cx.moveTo(left+j*base_dims.w , top+i*base_dims.h + base_fill.h);
+      cx.lineTo(left+j*base_dims.w+ base_fill.w, top+i*base_dims.h + base_fill.h);
+      cx.stroke();
+    }
+  }
+
   /**
    * Redraws one row to avoid drawing the entire canvas.
    * @extends WeaveDirective
@@ -1970,6 +2015,8 @@ public drawWeftEnd(top, left, shuttle){
   }
 
 public drawDrawdown(){
+  console.log("this.render.getCurrentView", this.render.getCurrentView())
+
    switch(this.render.getCurrentView()){
       case 'pattern':
       this.redrawDraft();
@@ -1981,6 +2028,10 @@ public drawDrawdown(){
 
       case 'visual':
       this.redrawVisualView();
+      break;
+
+      case 'crossing':
+      this.redrawCrossings();
       break;
     }
 }
@@ -2108,7 +2159,29 @@ public redraw(flags:any){
   }
 
 
+ /**
+   * Highlights intersections between yarns, when they cross from front to back
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public redrawCrossings() {
 
+    console.log('redraw crossings')
+
+    var base_dims = this.render.getCellDims("base");
+    this.cx.fillStyle = "white";
+    this.cx.fillRect(base_dims.w,base_dims.h,this.canvasEl.width - base_dims.w*2,this.canvasEl.height-base_dims.h*2);
+
+    var i,j;
+
+    var color = '#000000';
+    this.cx.fillStyle = color;
+    for (i = 0; i < this.render.visibleRows.length; i++) {
+      for(j = 0; j < this.weave.warps; j ++){
+        this.drawCrossingCell(this.cx, i, j, 'crossings');
+      }
+    }
+  }
 
 
   /**

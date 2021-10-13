@@ -1327,7 +1327,7 @@ export class OperationService {
           }
 
 
-          this.getOp('interlace').perform(inputs, [])
+          return this.getOp('interlace').perform(inputs, [])
             .then(overlay => {
               const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
               d.fill(pattern, "original");
@@ -1339,7 +1339,9 @@ export class OperationService {
                   d.pattern[ndx][j*layers+layer_id].setHeddle(c.getHeddle());
                 });
               });
-              return  Promise.resolve([d]);
+
+              console.log("returning ", d)
+              return [d];
             });
       }
       

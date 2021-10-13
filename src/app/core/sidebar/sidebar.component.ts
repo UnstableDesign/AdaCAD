@@ -179,7 +179,6 @@ export class SidebarComponent implements OnInit {
     } else{
       this.onViewChange.emit('pattern');
       this.dm.selectDesignMode('pattern', 'view_modes');
-
     }     
 
   }

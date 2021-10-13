@@ -45,7 +45,8 @@ export class DesignmodesService {
     this.view_modes = [
       {value: 'visual', viewValue: 'Visual', icon: "fas fa-slash", children: [], selected: false},
       {value: 'pattern', viewValue: 'Draft', icon: "fas fa-slash", children: [], selected: true},
-      {value: 'yarn', viewValue: 'Circuit',icon: "fas fa-slash", children: [], selected: false}
+      {value: 'yarn', viewValue: 'Circuit',icon: "fas fa-slash", children: [], selected: false},
+      {value: 'crossings', viewValue: 'Crossings',icon: "fas fa-times", children: [], selected: false}
      // {value: 'mask', viewValue: 'Masks'}
 
     ];

@@ -378,6 +378,7 @@ export class WeaverComponent implements OnInit {
    */
   public viewChange(value: any) {
     
+    this.dm.selectDesignMode(value, 'view_modes');
     this.render.setCurrentView(value);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());

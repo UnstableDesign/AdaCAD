@@ -1,7 +1,9 @@
+import { D } from '@angular/cdk/keycodes';
 import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Draft } from '../../../core/model/draft';
 import { Render } from '../../../core/model/render';
+import { DesignmodesService } from '../../provider/designmodes.service';
 
 @Component({
   selector: 'app-weaverview',
@@ -27,7 +29,7 @@ export class WeaverViewComponent implements OnInit {
   @Output() onHideWeftSystem: any = new EventEmitter();
 
 
- constructor(private dialog: MatDialog,
+ constructor(private dm: DesignmodesService, private dialog: MatDialog,
   private dialogRef: MatDialogRef<WeaverViewComponent>,
            @Inject(MAT_DIALOG_DATA) public data: any) { 
 
@@ -52,6 +54,10 @@ export class WeaverViewComponent implements OnInit {
   zoomChange(e:any, source: string){
     e.source = source;
     this.onZoomChange.emit(e);
+  }
+
+  toggleCrossingView(){
+    this.onViewChange.emit('crossing');
   }
 
   viewFront(e:any, value:any, source: string){
