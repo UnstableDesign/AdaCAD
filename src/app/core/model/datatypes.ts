@@ -119,6 +119,30 @@ interface DesignMode{
   selected: boolean;
 }
 
+/**
+ * Used to draw on screen paths, refers to x, y coordiantes relative to the draft simulation
+ * Used only in yarn sim
+ * @param x - x position rendered as a % of the total width
+ * @param y - y position
+ */
+ interface Vertex{
+  x_pcent: number;
+  y: number;
+}
+
+/**
+ * Used to draw on screen paths, refers to x, y coordiantes relative to the draft simulation
+ * Used only in yarn sim
+ * @param draft_ndx - the row id within the draft of this yarn
+ * @param material_id the material id at this row
+ * @param verticies - list of points that form this path
+ */
+ interface YarnPath{
+  draft_ndx: number;
+  material_id: number;
+  verticies: Array<Vertex>;
+}
+
 
 // interface ToolModes{
 //   value: string; 
@@ -140,7 +164,9 @@ export{
   ViewModes,
   MaterialTypes,
   DraftMap,
-  DesignMode
+  DesignMode,
+  Vertex,
+  YarnPath
 }
 
 

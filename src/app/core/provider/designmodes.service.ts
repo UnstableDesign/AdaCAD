@@ -205,6 +205,14 @@ export class DesignmodesService {
     modes.forEach( mode => {
        if(mode.selected === true) found =  mode;
     });
+
+    //if null, return the first in the list
+    if(found === null){
+      const opts: Array<DesignMode> =  this.getOptionSet(from);
+      this.selectDesignMode(opts[0].value, from);
+      return opts[0];
+    }
+
     return found;
    }
 

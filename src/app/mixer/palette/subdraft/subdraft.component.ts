@@ -120,6 +120,7 @@ export class SubdraftComponent implements OnInit {
 
   ngOnInit(){
 
+
     const tl: Point = this.viewport.getTopLeft();
    
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
@@ -130,6 +131,7 @@ export class SubdraftComponent implements OnInit {
     this.filename = this.draft.name;
     this.loom = new Loom(this.draft, 8, 10);
     this.loom.recomputeLoom(this.draft);
+    console.log("on new subdraft init", this.id, this.loom);
 
 
     this.downloadBmp = this.bmpLink._elementRef;
@@ -367,7 +369,10 @@ export class SubdraftComponent implements OnInit {
    */
    setDraftPattern(pattern: Array<Array<Cell>>) {
 
+    console.log("in set draft pattern", this.id, this.loom);
+
     this.draft.pattern = pattern;
+    this.loom = new Loom(this.draft, 8, 10);
     this.loom.recomputeLoom(this.draft);
 
   }

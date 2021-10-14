@@ -1499,7 +1499,7 @@ export class DraftviewerComponent implements OnInit {
   }
 
   /**This view renders cells based on the relationships with their neighbords */
-  drawCrossingCell(cx, i, j, type){
+  drawCrossingCell(cx, i, i_next, j, type){
     var base_dims = this.render.getCellDims("base");
     var base_fill = this.render.getCellDims("base_fill");
     var top = 0; 
@@ -1518,9 +1518,9 @@ export class DraftviewerComponent implements OnInit {
     }
 
 
-    bottom_edge = (this.weave.isUp(i, j) !== this.weave.isUp(i+1, j)) ? true : false;
+    bottom_edge = (this.weave.isUp(i, j) !== this.weave.isUp(i_next, j)) ? true : false;
     if(bottom_edge){
-      bottom_bot_to_top = (this.weave.isUp(i, j) && !this.weave.isUp(i+1, j)) ? true : false;
+      bottom_bot_to_top = (this.weave.isUp(i, j) && !this.weave.isUp(i_next, j)) ? true : false;
     }
 
     j++;
@@ -1535,7 +1535,7 @@ export class DraftviewerComponent implements OnInit {
     }
 
     if(bottom_edge){
-      cx.strokeStyle = (bottom_bot_to_top) ? "#0000FF" : "#000000";
+      cx.strokeStyle = (bottom_bot_to_top) ? "#0000FF" : "#FFA500";
       cx.beginPath();
       cx.moveTo(left+j*base_dims.w , top+i*base_dims.h + base_fill.h);
       cx.lineTo(left+j*base_dims.w+ base_fill.w, top+i*base_dims.h + base_fill.h);
@@ -1885,6 +1885,8 @@ public drawWeftEnd(top, left, shuttle){
 
   
 
+  
+
 
   public redrawYarnView(){
 
@@ -2178,7 +2180,7 @@ public redraw(flags:any){
     this.cx.fillStyle = color;
     for (i = 0; i < this.render.visibleRows.length; i++) {
       for(j = 0; j < this.weave.warps; j ++){
-        this.drawCrossingCell(this.cx, i, j, 'crossings');
+        this.drawCrossingCell(this.cx, this.render.visibleRows[i], this.render.getNextVisibleRow(i), j, 'crossings');
       }
     }
   }

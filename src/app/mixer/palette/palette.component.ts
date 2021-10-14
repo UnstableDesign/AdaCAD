@@ -768,7 +768,7 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
       const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
       //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
-      subdraft.instance.setDraft(d);
+      subdraft.instance.draft = d;
       subdraft.instance.id = -1;
       subdraft.instance.default_cell = this.default_cell_size;
       subdraft.instance.scale = this.scale;
