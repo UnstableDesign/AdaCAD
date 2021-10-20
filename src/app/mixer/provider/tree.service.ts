@@ -231,7 +231,18 @@ export class TreeService {
   }
 
   /**
-   * test if this node has generated many children, as opposed to just one
+   * test if this node has children, as opposed to just zero
+   * @param id 
+   * @returns a boolean 
+   */
+   isParent(id: number):boolean{
+    const tn: TreeNode = this.getTreeNode(id);
+    return (tn.outputs.length > 0);
+  }
+
+
+  /**
+   * test if this node has many children, as opposed to just one
    * @param id 
    * @returns a boolean 
    */
@@ -415,6 +426,7 @@ export class TreeService {
 
   /**
    * updates inputs and outputs of this node and delete this node from the list
+   * returns a list of all the deleted non-connection nodes
    * @param cxn_id 
    */
   private removeNodeTreeAssociations(id:number){
