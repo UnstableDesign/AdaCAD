@@ -7,19 +7,16 @@
  * @param mast_id describes the mask region for which this cell belongs (not currently used)
  */
 export class Cell {
-  poles: number;
+ // poles: number;
   is_up: boolean;
   is_set: boolean;
-  mask_id: number;
-
   /**
    * 
    * @param setting describes if the Cell should be set to heddle up or not. Null value leaves cell unset. 
    */
   constructor(setting: boolean) {
 
-    this.poles = 0b0000;
-    this.mask_id = -1;
+  //  this.poles = 0b0000;
     if(setting === null || setting === undefined){
       this.is_set = false;
       this.is_up = false;
@@ -48,8 +45,7 @@ export class Cell {
     if(params.is_set !== undefined){
       this.is_set = params.is_set;
     }
-    this.mask_id = (params.mask_id === undefined) ? false : params.mask_id;
-    this.poles = (params.poles === undefined) ? 0 : params.poles;
+    //this.poles = (params.poles === undefined) ? 0 : params.poles;
 
   }
 
@@ -69,113 +65,110 @@ export class Cell {
      this.is_up = false;
   }
 
-  setNorth(){
-    this.poles = this.poles | 0b1000;
-  }
+  // setNorth(){
+  //   this.poles = this.poles | 0b1000;
+  // }
 
-  setEast(){
-    this.poles = this.poles | 0b0100;
+  // setEast(){
+  //   this.poles = this.poles | 0b0100;
 
-  }
+  // }
 
-  setNorthSouth(){
-    this.setNorth();
-    this.setSouth();
-  }
+  // setNorthSouth(){
+  //   this.setNorth();
+  //   this.setSouth();
+  // }
 
-  setEastWest(){
-    this.setEast();
-    this.setWest();
-  }
+  // setEastWest(){
+  //   this.setEast();
+  //   this.setWest();
+  // }
 
-  setSouth(){
-    this.poles = this.poles | 0b0010;
-  }
+  // setSouth(){
+  //   this.poles = this.poles | 0b0010;
+  // }
 
-  setWest(){
-    this.poles = this.poles | 0b0001;
-  }
+  // setWest(){
+  //   this.poles = this.poles | 0b0001;
+  // }
 
-  unsetNorth(){
-    this.poles = this.poles ^ 0b1000;
-  }
+  // unsetNorth(){
+  //   this.poles = this.poles ^ 0b1000;
+  // }
 
-  unsetEast(){
-    this.poles = this.poles ^ 0b0100;
+  // unsetEast(){
+  //   this.poles = this.poles ^ 0b0100;
 
-  }
+  // }
 
-  unsetSouth(){
-    this.poles = this.poles ^ 0b0010;
-  }
+  // unsetSouth(){
+  //   this.poles = this.poles ^ 0b0010;
+  // }
 
-  unsetWest(){
-    this.poles = this.poles ^ 0b0001;
-  }
+  // unsetWest(){
+  //   this.poles = this.poles ^ 0b0001;
+  // }
 
 
-  hasNorth():boolean{
-    let p:number = this.poles >>> 3;
-    return(p === 1);
-  }
+  // hasNorth():boolean{
+  //   let p:number = this.poles >>> 3;
+  //   return(p === 1);
+  // }
 
-  isEastWest():boolean{
-    return (this.poles & 0b0101) === 0b0101;
-  }
+  // isEastWest():boolean{
+  //   return (this.poles & 0b0101) === 0b0101;
+  // }
 
-  isSouthEast():boolean{
-    return (this.poles & 0b0110) === 0b0110;
-  }
+  // isSouthEast():boolean{
+  //   return (this.poles & 0b0110) === 0b0110;
+  // }
 
-  isSouthWest():boolean{
-    return (this.poles & 0b0011) === 0b0011;
-  }
+  // isSouthWest():boolean{
+  //   return (this.poles & 0b0011) === 0b0011;
+  // }
 
-  isNorthSouth():boolean{
-    return (this.poles & 0b1010) === 0b1010;
-  }
+  // isNorthSouth():boolean{
+  //   return (this.poles & 0b1010) === 0b1010;
+  // }
 
-  isNorthEast():boolean{
-    return (this.poles & 0b1100) === 0b1100;
-  }
+  // isNorthEast():boolean{
+  //   return (this.poles & 0b1100) === 0b1100;
+  // }
 
-  isNorthWest():boolean{
-    return (this.poles & 0b1001) === 0b1001;
-  }
+  // isNorthWest():boolean{
+  //   return (this.poles & 0b1001) === 0b1001;
+  // }
 
-  isWest():boolean{
-    return (this.poles & 0b0001) === 0b0001;
-  }
+  // isWest():boolean{
+  //   return (this.poles & 0b0001) === 0b0001;
+  // }
 
-  isEast():boolean{
-    return (this.poles & 0b0100) === 0b0100;
-  }
+  // isEast():boolean{
+  //   return (this.poles & 0b0100) === 0b0100;
+  // }
 
-  hasEast():boolean{
-    let p:number = this.poles >>> 2;
-    return((p %2)===1);
-  }
+  // hasEast():boolean{
+  //   let p:number = this.poles >>> 2;
+  //   return((p %2)===1);
+  // }
 
-  hasSouth():boolean{
-    let p:number = this.poles >>> 1;
-    return((p %2)===1);
-  }
+  // hasSouth():boolean{
+  //   let p:number = this.poles >>> 1;
+  //   return((p %2)===1);
+  // }
 
-  hasWest():boolean{
-    return((this.poles %2)===1);
-  }
+  // hasWest():boolean{
+  //   return((this.poles %2)===1);
+  // }
 
   isUp():boolean{
     return this.is_up;
   }
 
-  getPoles(){
-    return this.poles;
-  }
+  // getPoles(){
+  //   return this.poles;
+  // }
 
-  getMaskId(){
-    return this.mask_id;
-  }
 
   /**
    * sets the value to true or false. If null, will unset the heddle
@@ -212,26 +205,19 @@ export class Cell {
     }
   }
 
-  setPoles(poles:number){
-    this.poles = poles;
-  }
+  // setPoles(poles:number){
+  //   this.poles = poles;
+  // }
 
-  setMaskId(id: number){
-    this.mask_id = id;
-  }
-
-  unsetMaskId(){
-    this.mask_id = -1;
-  }
 
   unsetHeddle(){
     this.is_up = false;
     this.is_set = false;
   }
 
-  unsetPoles(){
-    this.poles = 0b0000;
-  }
+  // unsetPoles(){
+  //   this.poles = 0b0000;
+  // }
 
 
 

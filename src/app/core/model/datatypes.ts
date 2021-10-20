@@ -1,3 +1,4 @@
+import { type } from "os";
 import { Cell } from "./cell";
 
 /**
@@ -143,6 +144,31 @@ interface DesignMode{
   verticies: Array<Vertex>;
 }
 
+/**
+ * describes the relationship between weft rows along the same warp
+ */
+type crossType = {t:boolean, b:boolean} |
+   {t:null, b:null} | //"FLOAT",
+   {t:null, b:true} | //"UNSET_UNDER"
+  {t:null, b:false} | //"UNSET_OVER"
+  {t:true, b:null} | //"UNDER_UNSET"
+  {t:false, b:null} | //"OVER_UNSET"
+  {t:false, b:true} | //"OVER_UNDER",
+  {t:true, b:false}; //"UNDER_OVER", 
+
+
+/**
+ * A yarn cross describes the relationship betwen two draft cells
+ * read from top to bottom. This is used within the sparce 
+ * draft representation, stores only "warp" crossings
+ */
+interface Crossing{
+  j: number, 
+  type: crossType;
+}
+
+
+
 
 // interface ToolModes{
 //   value: string; 
@@ -166,7 +192,9 @@ export{
   DraftMap,
   DesignMode,
   Vertex,
-  YarnPath
+  YarnPath,
+  crossType,
+  Crossing
 }
 
 

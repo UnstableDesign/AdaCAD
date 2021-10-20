@@ -4,17 +4,20 @@ import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Render } from '../model/render';
 import { Selection } from '../model/selection';
 import { Cell } from '../model/cell';
-import { DesignMode, Interlacement } from '../model/datatypes';
+import { Crossing, DesignMode, Interlacement } from '../model/datatypes';
 import { Draft } from '../model/draft';
 import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
-import {cloneDeep, now} from 'lodash';
+import {cloneDeep, forEach, now} from 'lodash';
 import { FileService } from '../provider/file.service';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { SelectionComponent } from './selection/selection.component';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { PatternService } from '../provider/pattern.service';
 import { MaterialsService } from '../provider/materials.service';
+import { FabricssimService } from '../provider/fabricssim.service';
+import { Shuttle } from '../model/shuttle';
+import { cross } from 'd3-array';
 
 @Component({
   selector: 'app-draftviewer',
@@ -1565,6 +1568,35 @@ export class DraftviewerComponent implements OnInit {
 
 
 
+  /**
+   * 
+   * @param top  the index of this weft row
+   * @param shuttle the shuttle assigned to this row
+   */
+  public drawWeft(top:number, shuttle:Shuttle){
+    var dims = this.render.getCellDims("base");
+    var cx = this.cx;
+    var view = this.render.getCurrentView();
+
+
+    const left = 0;
+    top =  (top + 1) * dims.h;
+
+    top += dims.h/2;
+
+
+    cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
+    cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
+    cx.shadowColor = 'white';
+    cx.shadowOffsetX = .5;
+    cx.shadowOffsetY = 0;
+
+    cx.beginPath();
+    cx.moveTo(left+dims.w/2,top+dims.h/2);
+    cx.lineTo(left+this.weave.warps * dims.w,top+dims.h/2);
+    cx.stroke();
+  }
+
 
   public drawWeftLeftUp(top, left, shuttle){
       var dims = this.render.getCellDims("base");
@@ -1888,34 +1920,66 @@ public drawWeftEnd(top, left, shuttle){
   
 
 
+
   public redrawYarnView(){
 
-    let started:boolean = false;
+    //draw from bottom to top 
 
-    for(let i = 0; i < this.render.visibleRows.length; i++){
 
-      let index_row = this.render.visibleRows[i];
+    //first, just draw all the wefts 
+   const shuttles: Array<number> =  this.render.visibleRows.map(el => this.weave.rowShuttleMapping[el]);
 
-      let row_values = this.weave.pattern[index_row];
+   shuttles.forEach((shuttle, i) => {
+      this.drawWeft(i, this.ms.getShuttle(shuttle));
+   });
 
-      let shuttle_id = this.weave.rowShuttleMapping[index_row];
+    const crossings: Array<Array<Crossing>> = this.weave.getRelationalDraft();
+    const visible_crossings = crossings.filter((el, i) => this.render.visibleRows.find(el => el == i) !== -1);
 
-      let s = this.ms.getShuttle(shuttle_id);
+    visible_crossings.forEach((row, i) =>{
 
-      //iterate through the rows
-      for(let j = 0; j < row_values.length; j++){
+      let cur_j = 0;
+      let cur_state: boolean = false;
+
+      row.forEach(crossing => {
+
+        if(cur_j < crossing.j){
+          cur_state = crossing.type.t;
+        }
+
+      });
+
+
+    });  
+
+
+
+    // let started:boolean = false;
+
+    // for(let i = 0; i < this.render.visibleRows.length; i++){
+
+    //   let index_row = this.render.visibleRows[i];
+
+    //   let row_values = this.weave.pattern[index_row];
+
+    //   let shuttle_id = this.weave.rowShuttleMapping[index_row];
+
+    //   let s = this.ms.getShuttle(shuttle_id);
+
+    //   //iterate through the rows
+    //   for(let j = 0; j < row_values.length; j++){
         
-        let p = row_values[j];
+    //     let p = row_values[j];
 
-        if(p.isEastWest())  this.drawWeftOver(i,j,s);
-        if(p.isSouthWest()) this.drawWeftBottomLeft(i,j,s);
-       // if(p.isNorthSouth())this.drawWeftUp(i, j, s);
-        if(p.isSouthEast()) this.drawWeftBottomRight(i,j,s);
-        if(p.isNorthWest()) this.drawWeftLeftUp(i,j,s);
-        if(p.isNorthEast()) this.drawWeftRightUp(i, j, s);
+    //   //   if(p.isEastWest())  this.drawWeftOver(i,j,s);
+    //   //   if(p.isSouthWest()) this.drawWeftBottomLeft(i,j,s);
+    //   //  // if(p.isNorthSouth())this.drawWeftUp(i, j, s);
+    //   //   if(p.isSouthEast()) this.drawWeftBottomRight(i,j,s);
+    //   //   if(p.isNorthWest()) this.drawWeftLeftUp(i,j,s);
+    //   //   if(p.isNorthEast()) this.drawWeftRightUp(i, j, s);
 
-      }
-    }
+    //   }
+    // }
 
   }
 

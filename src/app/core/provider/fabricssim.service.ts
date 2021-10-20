@@ -23,29 +23,29 @@ export class FabricssimService {
    * @param loom - the current loom settings
    * @returns a list of paths to draw
    */
-  generateSimulation(draft: Draft, loom: Loom) : Array<YarnPath>{
+  // generateSimulation(draft: Draft, loom: Loom) : Array<YarnPath>{
 
     
-    this.resetWarpMap();
+  //   this.resetWarpMap();
 
-    const yarnPaths: Array<YarnPath>  = [];
+  //   const yarnPaths: Array<YarnPath>  = [];
     
-    yarnPaths.push(
-      {
-        draft_ndx: draft.pattern.length-1,
-        material_id: draft.rowShuttleMapping[draft.pattern.length-1],
-        verticies: [{x_pcent:0, y:0}, {x_pcent: 100, y: 0 }]
-      }
-    );
+  //   yarnPaths.push(
+  //     {
+  //       draft_ndx: draft.pattern.length-1,
+  //       material_id: draft.rowShuttleMapping[draft.pattern.length-1],
+  //       verticies: [{x_pcent:0, y:0}, {x_pcent: 100, y: 0 }]
+  //     }
+  //   );
 
-    this.warp_map = this.warp_map.map(el => el += 100);
-
-
+  //   this.warp_map = this.warp_map.map(el => el += 100);
 
 
 
-    return [];
-  }
+
+
+  //   return [];
+  // }
 
   /**
    * creates a new warp map of size equal to the number of warps in the input draft
@@ -56,23 +56,21 @@ export class FabricssimService {
   }
 
 
-  compareRows(rows: Array)
 
+  // public redrawYarnSimulation(){
 
-  public redrawYarnSimulation(){
+  //   //keep a height map on each warp. 
 
-    //keep a height map on each warp. 
-
-    //starting from bottom up
-    //set cur_weave_height height to first material height
-    //compare next row to last row. 
-    //identify "HARD", "SOFT", and "UNDER" crossings as index points with height based on type of crossing
-    //draw the line created by the points
-    //set materal height to the max point
+  //   //starting from bottom up
+  //   //set cur_weave_height height to first material height
+  //   //compare next row to last row. 
+  //   //identify "HARD", "SOFT", and "UNDER" crossings as index points with height based on type of crossing
+  //   //draw the line created by the points
+  //   //set materal height to the max point
     
 
 
-  }
+  // }
 
 
 
