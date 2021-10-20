@@ -1191,9 +1191,9 @@ export class OperationService {
     }
 
 
-    const mirror: Operation = {
-      name: 'mirror',
-      dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the mirrored draft',
+    const replicate: Operation = {
+      name: 'replicate',
+      dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
       params: [ {
         name: 'copies',
         min: 1,
@@ -1217,6 +1217,35 @@ export class OperationService {
         }
         return  Promise.resolve(outputs);
       }
+    }
+
+    const variants: Operation = {
+      name: 'variants',
+      dx: 'for any input draft, create the shifted and flipped values as well',
+      params: [],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+        
+        if(inputs.length == 0)  return  Promise.resolve([]);
+
+        const functions: Array<Promise<Array<Draft>>> = [
+        this.getOp('flip horiz').perform(inputs, input_params),
+        this.getOp('invert').perform(inputs, input_params)]
+
+        for(let i = 1; i < inputs[0].warps; i+=2){
+          functions.push(this.getOp('shift left').perform(inputs, [i]))
+        }
+
+        for(let i = 1; i < inputs[0].wefts; i+=2){
+          functions.push(this.getOp('shift up').perform(inputs, [i]))
+        }
+        return Promise.all(functions)
+        .then(allDrafts => allDrafts
+          .reduce((acc, drafts) => acc.concat(drafts), [])
+         )        
+      }
+
+
     }
 
     const bindweftfloats: Operation = {
@@ -1514,7 +1543,7 @@ export class OperationService {
     this.ops.push(random);
     this.ops.push(interlace);
     this.ops.push(invert);
-    this.ops.push(mirror); //this doesn't really work unless we have multiple outputs allowed on a subdraft
+    this.ops.push(replicate);
     this.ops.push(mirrorx);
     this.ops.push(mirrory);
     this.ops.push(shiftx);
@@ -1539,6 +1568,7 @@ export class OperationService {
     this.ops.push(mask);
     this.ops.push(germanify);
     this.ops.push(crackleify);
+    this.ops.push(variants);
     // this.ops.push(reverse);
 
 
@@ -1551,7 +1581,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'structures',
-      ops: [tabby, twill, satin, basket, rib, random]}
+      ops: [tabby, twill, satin, basket, rib, random, variants]}
     );
 
     this.classification.push(
@@ -1561,7 +1591,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'compose',
-      ops: [mirror, interlace, layer, tile, joinleft, selvedge,atop, overlay, mask, bindweftfloats, bindwarpfloats]}
+      ops: [replicate, interlace, layer, tile, joinleft, selvedge,atop, overlay, mask, bindweftfloats, bindwarpfloats]}
     );
 
     this.classification.push(
