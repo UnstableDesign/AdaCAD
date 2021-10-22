@@ -340,6 +340,36 @@ export class PaletteComponent implements OnInit{
 
   }
 
+  /**
+   * this cycles through all subdrafts and calls the download call on any subdrafts
+   * who are currently visible. 
+   */
+  downloadVisibleDraftsAsBmp(){
+
+    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsBmp());
+    Promise.all(functions).then(el =>
+      console.log("Downloaded "+functions.length+" files")
+    );
+
+  }
+  
+  /**
+   * this cycles through all subdrafts and calls the download call on any subdrafts
+   * who are currently visible. 
+   */
+   downloadVisibleDraftsAsWif(){
+
+    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsWif());
+    Promise.all(functions).then(el =>
+      console.log("Downloaded "+functions.length+" files")
+    );
+
+  }
+  
 
 
   /**
@@ -675,6 +705,7 @@ export class PaletteComponent implements OnInit{
   }
 
   /**
+   * a subdraft can only have an operation for a parent
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
@@ -682,24 +713,30 @@ export class PaletteComponent implements OnInit{
    */
   removeSubdraft(id: number){
 
+    console.log("removing subdraft id", id);
+
     const parent_id = this.tree.getSubdraftParent(id);
 
-    //removoe the node but get alll the ops before it is removed 
+    //remove the node but get all the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
-    const inputs:Array<number> = this.tree.getNonCxnInputs(id);
+   // const inputs:Array<number> = this.tree.getNonCxnInputs(id);
 
-    inputs.forEach(input => {
-      if(this.tree.getType(input) == 'draft'){
-        const comp = <SubdraftComponent> this.tree.getComponent(input);
-        comp.has_active_connection = false;
-        comp.active_connection_order = 0;
-      }
-    })
+
+    //inputs will always be of type op
+    // inputs.forEach(input => {
+    //   console.log("inputs = ", this.tree.getType(input));
+    //   if(this.tree.getType(input) == 'draft'){
+    //     const comp = <SubdraftComponent> this.tree.getComponent(input);
+    //     comp.has_active_connection = false;
+    //     comp.active_connection_order = 0;
+    //   }
+    // })
 
     const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
     this.tree.removeNode(id);
  
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
+    console.log("unused connection cxn ", old_cxns);
     old_cxns.forEach(cxn => {
       const cxn_view_ref = this.tree.getViewRef(cxn);
       this.removeFromViewContainer(cxn_view_ref);
@@ -711,25 +748,26 @@ export class PaletteComponent implements OnInit{
     this.removeFromViewContainer(ref);
     this.viewport.removeObj(id);
 
-    //if it has a parent, recursively call on its parent
-    if(parent_id != -1){
-      this.removeSubdraft(parent_id);
-    }
 
-    
+
+
+    // if the parent op has no children, remove the operation parent as well
+    if(parent_id != -1 && !this.tree.isParent(parent_id)){
+      this.removeOperation(parent_id);
+    }
 
   }
 
   /**
    * this function will
-   * 1. delete the associated output subdraft
+   * 1. delete the associated output subdrafts
    * 2. recompue downsteam operations
    * 3. delete all input + output connections
    * @param id 
    */
   removeOperation(id:number){
 
-    //removoe the node but get alll the ops before it is removed 
+    //remove the node but get alll the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
     const outputs:Array<number> = this.tree.getNonCxnOutputs(id);
 
@@ -738,12 +776,14 @@ export class PaletteComponent implements OnInit{
         const comp = <SubdraftComponent> this.tree.getComponent(output);
         comp.has_active_connection = false;
         comp.active_connection_order = 0;
-        comp.parent_id = 0;
+        comp.parent_id = -1;
       }
     })
 
     const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
     this.tree.removeNode(id);
+
+
 
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
     old_cxns.forEach(cxn => {
@@ -751,6 +791,8 @@ export class PaletteComponent implements OnInit{
       this.removeFromViewContainer(cxn_view_ref);
       this.tree.removeNode(cxn);
     });    
+
+
 
     //calls manually here so that the affected branches can be pinged before the node is deleted 
     this.recalculateDownstreamDrafts(downstream_ops);
@@ -1048,7 +1090,7 @@ export class PaletteComponent implements OnInit{
      }
 
    /**
-   * Deletes the subdraft that called this function.
+   * Duplicates the operation that called this function.
    */
     onDuplicateOpCalled(obj: any){
       console.log("duplicating "+obj.id);
@@ -1072,6 +1114,9 @@ export class PaletteComponent implements OnInit{
       //this.operationParamChanged({id: id});
      // this.addTimelineState();
  }
+
+
+
 
 
      /**
@@ -1331,7 +1376,9 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
    .then(draft_map =>  {
     const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
   
-    draft_map.forEach(el => {
+    console.log(draft_map);
+
+    draft_map.forEach((el, ndx) => {
       let sd:SubdraftComponent = null;
   
       if(el.component_id >= 0){
@@ -1341,7 +1388,7 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
       }else{
         sd = this.createSubDraft(el. draft);
         op.addOutput({component_id: sd.id, draft:el.draft});
-        sd.setPosition({x: leftoffset.x, y: leftoffset.y + op.bounds.height});
+        sd.setPosition({x: leftoffset.x+(el.draft.warps+1)*ndx*this.scale, y: leftoffset.y + op.bounds.height});
         sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
         sd.setParent(op.id);
         const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 

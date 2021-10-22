@@ -83,6 +83,8 @@ export class OperationComponent implements OnInit {
 
    has_connections_in: boolean = false;
 
+   subdraft_visible: boolean = true;
+
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
@@ -266,7 +268,6 @@ export class OperationComponent implements OnInit {
   duplicate(){
     this.duplicateOp.emit({id: this.id});
   }
-
 
 
 

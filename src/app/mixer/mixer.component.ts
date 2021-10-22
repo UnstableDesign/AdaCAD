@@ -422,42 +422,28 @@ export class MixerComponent implements OnInit {
    * @param {Event} e - Press Control + x
    * @returns {void}
    */
-  // @HostListener('window:keydown.p', ['$event'])
-  // private keyEventPaste(e) {
-  //   this.onPaste({});
-  // }
 
-
-  // /**
-  //  * this is called when import has been called from the sidebar
-  //  * @param result 
-  //  */
-  // public draftUploaded(result: LoadResponse){
-
-  //   console.log("import", result);
-  //   const data: FileObj = result.data;
-
-  //   data.drafts.forEach().
-
-  //   const draft: Draft = new Draft(result);
-  //   this.palette.addSubdraftFromDraft(draft);
-  // }
 
   /**
    * this is called when a user pushes bring from the topbar
    * @param event 
-   * @todo add interface to select which draft to export if BMP or WIF
    */
-  public onSave(e: any){
+  public async onSave(e: any) : Promise<any>{
 
-    console.log(e);
-    let link = e.downloadLink.nativeElement;
+    const link = document.createElement('a')
+
 
     switch(e.type){
       case 'jpg': 
       link.href = this.fs.saver.jpg(this.palette.getPrintableCanvas(e));
       link.download = e.name + ".jpg";
       this.palette.clearCanvas();
+      link.click();
+
+      break;
+
+      case 'wif': 
+      this.palette.downloadVisibleDraftsAsWif();
       break;
 
       case 'ada': 
@@ -467,7 +453,16 @@ export class MixerComponent implements OnInit {
         [],
         false);
         link.download = e.name + ".ada";
+        link.click();
+      break;
+
+      case 'bmp':
+        this.palette.downloadVisibleDraftsAsBmp();
+      break;
     }
+    return Promise.resolve(null);
+
+
   }
 
   /**
