@@ -33,8 +33,13 @@
 			</button>
 		</ng-container>
 
-		<div class='dims'>{{draft.warps}} x {{draft.wefts}}</div>
+
+		<div class='dims_and_name'>
+			<div>{{draft.warps}} x {{draft.wefts}}</div>
+			<div><input matInput [(ngModel)]="draft.name"></div>
+		</div>
 		
+
 
 		<button *ngIf='!draft_visible' 
 		matTooltip= "Show/Hide Draft"

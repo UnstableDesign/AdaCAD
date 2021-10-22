@@ -69,8 +69,6 @@ export class SubdraftComponent implements OnInit {
    */
   interlacement: Interlacement;
 
-  filename: string = "adacad";
-
   ink = 'neq'; //can be or, and, neq, not, splice
 
   counter:number  =  0; // keeps track of how frequently to call the move functions
@@ -119,7 +117,6 @@ export class SubdraftComponent implements OnInit {
 
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
-    this.filename = this.draft.name;
 
   }
 
@@ -564,7 +561,7 @@ export class SubdraftComponent implements OnInit {
 
     const a = document.createElement('a')
     a.href =  this.fs.saver.bmp(b);
-    a.download = this.filename + "_bitmap.jpg";
+    a.download = this.draft.name + "_bitmap.jpg";
     a.click();
 
     this.drawDraft();
@@ -576,7 +573,7 @@ export class SubdraftComponent implements OnInit {
     async saveAsAda() : Promise<any>{
       const a = document.createElement('a');
       a.href = this.fs.saver.ada('draft', [this.draft], [], false);
-      a.download = this.filename + ".ada";
+      a.download = this.draft.name + ".ada";
       a.click();
 
       return Promise.resolve(null);
@@ -592,7 +589,7 @@ export class SubdraftComponent implements OnInit {
 
       const a = document.createElement('a');
       a.href = this.fs.saver.wif(this.draft, loom);
-      a.download  = this.filename +".wif";
+      a.download  = this.draft.name +".wif";
       a.click();
 
       return Promise.resolve(null);
@@ -616,7 +613,7 @@ export class SubdraftComponent implements OnInit {
 
       const a = document.createElement('a')
       a.href =  this.fs.saver.jpg(b);
-      a.download = this.filename + ".jpg";
+      a.download = this.draft.name + ".jpg";
       a.click();
   
   

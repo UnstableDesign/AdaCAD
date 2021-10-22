@@ -22,7 +22,7 @@
 
 .scale-container{
 
-	position: absolute;
+	position: absoludims_and_namete;
 	top: 0px;
 	left: 0px;
 	color: grey;
@@ -97,7 +97,9 @@ h3{
 	}
 }
 
-.dims{
+.dims_and_name{
+	display: flex;
+	flex-direction: column;
     margin-top: auto;
     font-size: .8em;
 }
