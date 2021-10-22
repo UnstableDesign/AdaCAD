@@ -28,17 +28,6 @@ export class TopbarComponent implements OnInit {
   @Input() loomtypes;
   @Input() density_units;
   @Input() source; 
-  
-  @ViewChild('bmpLink', {static: true}) bmpLink: any;
-  @ViewChild('adaLink', {static: true}) adaLink: any;
-  @ViewChild('wifLink', {static: true}) wifLink: any;
-  @ViewChild('printLink', {static: true}) printLink: any;
-
-  downloadBmp: ElementRef;
-  downloadAda: ElementRef;
-  downloadWif: ElementRef;
-  downloadPrint: ElementRef;
-
 
   constructor(private dialog: MatDialog) { }
 
@@ -46,18 +35,12 @@ export class TopbarComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    if(this.source == 'weaver'){
-      this.downloadBmp = this.bmpLink._elementRef;
-      this.downloadWif = this.wifLink._elementRef;
-    }
-    this.downloadAda = this.adaLink._elementRef;
-    this.downloadPrint = this.printLink._elementRef;
+
   }
 
   public saveAsBmp(e: any) {
     var obj: any = {
       name: this.filename,
-      downloadLink: this.downloadBmp,
       type: "bmp"
     }
     console.log(obj);
@@ -67,7 +50,6 @@ export class TopbarComponent implements OnInit {
   public saveAsAda(e: any) {
     var obj: any = {
       name: this.filename,
-      downloadLink: this.downloadAda,
       type: "ada"
     }
     console.log(obj);
@@ -77,17 +59,14 @@ export class TopbarComponent implements OnInit {
   public saveAsWif(e: any) {
     var obj: any = {
       name: this.filename,
-      downloadLink: this.downloadWif,
       type: "wif"
     }
-    console.log(obj);
     this.onSave.emit(obj);
   }
 
   public saveAsPrint(e: any) {
     var obj: any = {
       name: this.filename,
-      downloadLink: this.downloadPrint,
       type: "jpg"
     }
     this.onSave.emit(obj);

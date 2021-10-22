@@ -47,15 +47,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onDesignAction = new  EventEmitter <any>();
 
   @ViewChild('bitmapImage', {static: false}) bitmap: any;
-  @ViewChild('bmpLink', {static: true}) bmpLink: any;
-  @ViewChild('adaLink', {static: true}) adaLink: any;
-  @ViewChild('wifLink', {static: true}) wifLink: any;
-  @ViewChild('printLink', {static: true}) printLink: any;
 
-  downloadBmp: ElementRef;
-  downloadAda: ElementRef;
-  downloadWif: ElementRef;
-  downloadPrint: ElementRef;
 
   /**
    * reference to the operation that created this subdraft or -1 if no parent 
@@ -128,11 +120,6 @@ export class SubdraftComponent implements OnInit {
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
     this.filename = this.draft.name;
-
-    this.downloadBmp = this.bmpLink._elementRef;
-    this.downloadAda = this.adaLink._elementRef;
-    this.downloadWif = this.wifLink._elementRef;
-    this.downloadPrint = this.printLink._elementRef;
 
   }
 
@@ -556,105 +543,87 @@ export class SubdraftComponent implements OnInit {
     }
   }
 
-    public saveAsBmp(e: any, default_cell:number) {
+
+  /**
+   * Draws to hidden bitmap canvas a file in which each draft cell is represented as a single pixel. 
+   * @returns 
+   */
+  async saveAsBmp() : Promise<any> {
+
+    this.rescaleForBitmap();
+
+    let b = this.bitmap.nativeElement;
+    let context = b.getContext('2d');
+
+    b.width = (this.draft.warps);
+    b.height = (this.draft.wefts);
+    
+    context.fillStyle = "white";
+    context.fillRect(0,0,b.width,b.height);
+    context.drawImage(this.canvas, 0, 0);
+
+    const a = document.createElement('a')
+    a.href =  this.fs.saver.bmp(b);
+    a.download = this.filename + "_bitmap.jpg";
+    a.click();
+
+    this.drawDraft();
+
+    return Promise.resolve(null);
       
-      var obj: any = {
-        name: this.filename,
-        downloadLink: this.downloadBmp,
-        type: "bmp"
-      }
-      this.onSave(obj,default_cell);
+  }
+  
+    async saveAsAda() : Promise<any>{
+      const a = document.createElement('a');
+      a.href = this.fs.saver.ada('draft', [this.draft], [], false);
+      a.download = this.filename + ".ada";
+      a.click();
+
+      return Promise.resolve(null);
     }
   
-    public saveAsAda(e: any, default_cell: number) {
-      var obj: any = {
-        name: this.filename,
-        downloadLink: this.downloadAda,
-        type: "ada"
-      }
-      this.onSave(obj,default_cell);
-    }
-  
-    public saveAsWif(e: any, default_cell:number) {
-      var obj: any = {
-        name: this.filename,
-        downloadLink: this.downloadWif,
-        type: "wif"
-      }
-      this.onSave(obj,default_cell);
-    }
-  
-    public saveAsPrint(e: any, default_cell:number) {
-      var obj: any = {
-        name: this.filename,
-        downloadLink: this.downloadPrint,
-        type: "jpg"
-      }
-      this.onSave(obj,default_cell);
-    }
+    public saveAsWif() {
 
-    public onSave(e: any, default_cell: number) {
-
-      e.bitmap = this.bitmap;  
-      if (e.type === "bmp"){
-        const prev_scale = this.scale;
-        this.rescaleForBitmap();
-    
-        let b = e.bitmap.nativeElement;
-        let context = b.getContext('2d');
-    
-        b.width = (this.draft.warps );
-        b.height = (this.draft.wefts);
-        
-        context.fillStyle = "white";
-        context.fillRect(0,0,b.width,b.height);
-        
-    
-        context.drawImage(this.canvas, 0, 0);
-    
-    
-        let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.bmp(b);
-        link.download = e.name + ".jpg";
-
-        this.drawDraft();
-        
-        //this.rescale(prev_scale);
-      }
-      else if (e.type === "ada"){
-        let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.ada('draft', [this.draft], [], false);
-        link.download = e.name + ".ada";
-      }
-      else if (e.type === "wif"){
-        //make a loom for saving
-        let loom = new Loom(this.draft, 8, 10);
-        loom.overloadType("frame");
-        loom.recomputeLoom(this.draft);
-        
-        let link = e.downloadLink.nativeElement;
-        link.href= this.fs.saver.wif(this.draft, loom);
-        link.download = e.name +".wif";
-      } 
-      else if (e.type === "jpg"){
-        let dims = this.scale;
-        let b = e.bitmap.nativeElement;
-        let context = b.getContext('2d');
-
-        b.width = (this.draft.warps ) * dims;
-        b.height = (this.draft.wefts) * dims;
-        
-        context.fillStyle = "white";
-        context.fillRect(0,0,b.width,b.height);
-        
-
-        context.drawImage(this.canvas, 0, 0);
+      //make a loom for saving
+      let loom = new Loom(this.draft, 8, 10);
+      loom.overloadType("frame");
+      loom.recomputeLoom(this.draft);
       
-        let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.jpg(b);
-        link.download = e.name + ".jpg";
-      }      
+
+      const a = document.createElement('a');
+      a.href = this.fs.saver.wif(this.draft, loom);
+      a.download  = this.filename +".wif";
+      a.click();
+
+      return Promise.resolve(null);
+
     }
+  
+    public saveAsPrint() {
+     
+      let dims = this.scale;
+      let b = this.bitmap.nativeElement;
+      let context = b.getContext('2d');
+
+      b.width = (this.draft.warps ) * dims;
+      b.height = (this.draft.wefts) * dims;
+      
+      context.fillStyle = "white";
+      context.fillRect(0,0,b.width,b.height);
+      
+
+      context.drawImage(this.canvas, 0, 0);
+
+      const a = document.createElement('a')
+      a.href =  this.fs.saver.jpg(b);
+      a.download = this.filename + ".jpg";
+      a.click();
+  
+  
+     
+    }
+
+
 
     finetune(){
 

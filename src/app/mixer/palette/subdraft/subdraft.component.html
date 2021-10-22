@@ -85,10 +85,10 @@
 		
 
 		<mat-menu #downloadDropdown mat-raised-button>
-			<a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>as Printable Image</a>
-			<a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
-			<a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
-			<a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
+			<a  (click)="saveAsPrint()" mat-menu-item>as Printable Image</a>
+			<a   (click)="saveAsBmp()" mat-menu-item> as Bitmap</a>
+			<a  (click)="saveAsAda()" mat-menu-item> as AdaCAD file</a>
+			<a  (click)="saveAsWif()" mat-menu-item> as Wif file</a>
 		  </mat-menu>
 		
 		  <button *ngIf='parent_id === -1'

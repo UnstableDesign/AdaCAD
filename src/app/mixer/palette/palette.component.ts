@@ -340,6 +340,36 @@ export class PaletteComponent implements OnInit{
 
   }
 
+  /**
+   * this cycles through all subdrafts and calls the download call on any subdrafts
+   * who are currently visible. 
+   */
+  downloadVisibleDraftsAsBmp(){
+
+    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsBmp());
+    Promise.all(functions).then(el =>
+      console.log("Downloaded "+functions.length+" files")
+    );
+
+  }
+  
+  /**
+   * this cycles through all subdrafts and calls the download call on any subdrafts
+   * who are currently visible. 
+   */
+   downloadVisibleDraftsAsWif(){
+
+    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsWif());
+    Promise.all(functions).then(el =>
+      console.log("Downloaded "+functions.length+" files")
+    );
+
+  }
+  
 
 
   /**

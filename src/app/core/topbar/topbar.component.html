@@ -19,10 +19,8 @@
   
 <span class="right">
 
-    <button mat-icon-button matTooltip ="print screen">
-      <a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>
+    <button mat-icon-button matTooltip ="print screen" (click)="saveAsPrint()" >
       <i class="fas fa-print"></i>
-      </a> 
     </button>
 
     
@@ -33,14 +31,14 @@
     <i class="fas fa-download"></i>
   </button> 
     <mat-menu #downloadDropdown mat-raised-button>
-      <a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
-      <a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> export all visible drafts as bitmaps</a>
-      <a #wifLink (click)="saveAsWif($event)" mat-menu-item> export all visible drafts as .WIF files</a>
+      <a  (click)="saveAsAda()" mat-menu-item> as AdaCAD workspace file</a>
+      <a  (click)="saveAsBmp()" mat-menu-item> export all visible drafts as bitmaps</a>
+      <a  (click)="saveAsWif()" mat-menu-item> export all visible drafts as .WIF files</a>
     </mat-menu>
 
 
      <button mat-icon-button="Open" 
-     matTooltip ="open or start a new draft"
+     matTooltip ="open a new workspace"
      (click)="openNewFileDialog(null)">
      <i class="fas fa-folder-open"></i>
     </button>
