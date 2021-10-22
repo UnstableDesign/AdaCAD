@@ -8,6 +8,18 @@
 	justify-content:flex-end;
 }
 
+.bottom-opts{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.bottom-opts.has_draft_hidden{
+	height: auto;
+	background-color: white;
+	width: 224px;
+}
+
 .scale-container{
 
 	position: absolute;
@@ -85,6 +97,11 @@ h3{
 	}
 }
 
+.dims{
+    margin-top: auto;
+    font-size: .8em;
+}
+
 .mat-icon{
 	height: auto;
 }
@@ -127,6 +144,10 @@ svg{
 	display: block;
 	overflow:hidden;
 	border: thin solid white;
+}
+
+.hidden {
+	display: none;
 }
 
 .no-pointer{

@@ -683,7 +683,7 @@ export class PaletteComponent implements OnInit{
    */
   removeSubdraft(id: number){
 
-    console.log("removing id", id);
+    console.log("removing subdraft id", id);
 
     const parent_id = this.tree.getSubdraftParent(id);
 
@@ -741,15 +741,12 @@ export class PaletteComponent implements OnInit{
     const ref:ViewRef = this.tree.getViewRef(id);
     const outputs:Array<number> = this.tree.getNonCxnOutputs(id);
 
-    console.log("before remove op")
-    this.tree.print();
-
     outputs.forEach(output => {
       if(this.tree.getType(output) == 'draft'){
         const comp = <SubdraftComponent> this.tree.getComponent(output);
         comp.has_active_connection = false;
         comp.active_connection_order = 0;
-        comp.parent_id = 0;
+        comp.parent_id = -1;
       }
     })
 
@@ -759,25 +756,18 @@ export class PaletteComponent implements OnInit{
 
 
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
-    console.log("old connections", old_cxns);
     old_cxns.forEach(cxn => {
       const cxn_view_ref = this.tree.getViewRef(cxn);
       this.removeFromViewContainer(cxn_view_ref);
       this.tree.removeNode(cxn);
     });    
 
-    // outputs.forEach(output => {
-    //   this.removeSubdraft(output);
-    // })
 
 
     //calls manually here so that the affected branches can be pinged before the node is deleted 
     this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
     this.viewport.removeObj(id);
-
-    console.log("after remove op")
-    this.tree.print();
 
   }
 
@@ -1070,7 +1060,7 @@ export class PaletteComponent implements OnInit{
      }
 
    /**
-   * Deletes the subdraft that called this function.
+   * Duplicates the operation that called this function.
    */
     onDuplicateOpCalled(obj: any){
       console.log("duplicating "+obj.id);
@@ -1094,6 +1084,9 @@ export class PaletteComponent implements OnInit{
       //this.operationParamChanged({id: id});
      // this.addTimelineState();
  }
+
+
+
 
 
      /**

@@ -103,6 +103,8 @@ export class SubdraftComponent implements OnInit {
 
   modal: MatDialogRef<DraftdetailComponent, any>;
 
+  draft_visible: boolean = true;
+
 
   constructor(private inks: InkService, 
     private layer: LayersService, 
@@ -243,8 +245,6 @@ export class SubdraftComponent implements OnInit {
    * @param pos 
    */
   setPosition(pos: Point){
-
-    console.log("setting position", pos);
     
     this.bounds.topleft = pos;
     this.interlacement =  utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
@@ -509,6 +509,10 @@ export class SubdraftComponent implements OnInit {
 
   enableDrag(){
     this.disable_drag = false;
+  }
+
+  showhide(){
+    this.draft_visible = !this.draft_visible;
   }
 
   connectionClicked(id:number){

@@ -14,13 +14,13 @@
 	<div id="scale-{{draft.id}}" class="subdraft-container">
 
 
-  	<div class="subdraft-contents" [class.active-selection] = has_active_selection>
+  	<div  class="subdraft-contents" [class.active-selection] = has_active_selection>
 
 		
-		<canvas id="{{id}}" class="maindraft">  
+		<canvas id="{{id}}" class="maindraft" [class.hidden] = '!draft_visible'>  
 		</canvas>
 
-		<div class="bottom-opts">
+		<div class="bottom-opts" [class.has_draft_hidden]="!draft_visible">
 		
 		<ng-container *ngIf="set_connectable">
 			<button matTooltip = "click here to use this draft as input"
@@ -33,26 +33,41 @@
 			</button>
 		</ng-container>
 
-		<!-- <span>  {{id}} // {{draft.warps}} x {{draft.wefts}}</span> -->
-		<span>{{draft.warps}} x {{draft.wefts}}</span>
+		<div class='dims'>{{draft.warps}} x {{draft.wefts}}</div>
 		
-		
+
+		<button *ngIf='!draft_visible' 
+		matTooltip= "Show/Hide Draft"
+		class="button is-small is-primary"
+		aria-label="Example icon button with a home icon"
+		(click)="showhide()"
+		>
+			<i class="fas fa-eye-slash"></i>		  
+		</button>
+
 		
 	 </div>
 	</div>
 
-	<div class="subdraft-details" [class.hide]="set_connectable"> 
+	<div class="subdraft-details" [class.hide]="set_connectable || !draft_visible"> 
 		<div class ="align-top">
 		
 		<!-- <ng-container *ngIf="parent_id === -1"> -->
 
-	  	<button
+	  	<button *ngIf='parent_id === -1'
 		class="button is-small is-primary fas fa-expand-alt"
 		matTooltip ="edit this draft"
 		(click)="finetune()">
 	   </button>
 
-	
+	   <button *ngIf='parent_id !== -1'
+	   matTooltip= "Show/Hide Draft"
+	   class="button is-small is-primary fas"
+	   [class.fa-eye-slash] = '!draft_visible'
+	   [class.fa-eye] = 'draft_visible'
+	   (click)="showhide()">
+	   </button>
+
 
 		<button 
 		matTooltip= "Duplilcate"
@@ -67,26 +82,25 @@
 		class="button is-small is-primary fas fa-download"
 		 matTooltip ="download this draft">
 		</button>
-
 		
 
-		  <mat-menu #downloadDropdown mat-raised-button>
+		<mat-menu #downloadDropdown mat-raised-button>
 			<a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>as Printable Image</a>
 			<a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
 			<a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
 			<a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
 		  </mat-menu>
 		
+		  <button *ngIf='parent_id === -1'
+		  matTooltip= "Delete"
+		  class="button is-small is-primary fas fa-times"
+		  [style.color]="button_color" 
+		  [name]="delete"
+		  (click)="designActionChange('delete')">
+		  </button>
+
 		</div>
-		<div class="align-bottom">
-			<button 
-			matTooltip= "Delete"
-			class="button is-small is-primary fas fa-times"
-			[style.color]="button_color" 
-			[name]="delete"
-			(click)="designActionChange('delete')">
-			</button>
-		</div>
+
 
 
 	
