@@ -1,4 +1,4 @@
-import { D } from '@angular/cdk/keycodes';
+import { D, E } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
@@ -6,6 +6,8 @@ import { VaeService} from "../../core/provider/vae.service"
 import { PatternfinderService} from "../../core/provider/patternfinder.service"
 import utilInstance from '../../core/model/util';
 import { Loom } from '../../core/model/loom';
+import { input } from '@tensorflow/tfjs-layers';
+import { findIndex } from 'lodash';
 
 export interface OperationParams {
   name: string,
@@ -1620,7 +1622,93 @@ export class OperationService {
                   })
                 )
           }
-        }    
+        }  
+        
+        
+        const makeloom: Operation = {
+          name: 'floor loom',
+          dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
+          params: [
+
+          ],
+          max_inputs: 1,
+          perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+            if(inputs.length === 0) return Promise.resolve([]);
+            
+            const l:Loom = new Loom(inputs[0], 8, 10);
+            l.recomputeLoom(inputs[0]);
+
+            const threading: Draft = new Draft({warps: inputs[0].warps, wefts: l.num_frames});
+            threading.name = "threading_"+inputs[0].name;
+
+            l.threading.forEach((frame, j) =>{
+              console.log("looping", frame, j)
+              if(frame !== -1) threading.pattern[frame][j].setHeddle(true);
+            });
+
+            const treadling: Draft = new Draft({warps:l.num_treadles, wefts: inputs[0].wefts});
+            console.log(treadling);
+            l.treadling.forEach((treadle_num, i) =>{
+              if(treadle_num !== -1) treadling.pattern[i][treadle_num].setHeddle(true);
+            });
+            treadling.name = "treadling_"+inputs[0].name;
+
+            const tieup: Draft = new Draft({warps: l.num_treadles, wefts: l.num_frames});
+            l.tieup.forEach((row, i) => {
+              row.forEach((val, j) => {
+                tieup.pattern[i][j].setHeddle(val);
+              })
+            });
+            tieup.name = "tieup_"+inputs[0].name;
+
+
+            return Promise.resolve([threading, tieup, treadling]);
+
+            }
+
+
+            
+
+          } 
+          
+          const drawdown: Operation = {
+            name: 'drawdown',
+            dx: 'create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)',
+            params: [
+  
+            ],
+            max_inputs: 3,
+            perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+              if(inputs.length < 3) return Promise.resolve([]);
+
+              
+              const threading: Array<number> = [];
+              for(let j = 0; j < inputs[0].warps; j++){
+                const col: Array<Cell> =  inputs[0].pattern.reduce((acc, row, ndx) => {
+                  acc[ndx] = row[j];
+                  return acc;
+                }, []);
+
+                threading[j] = col.findIndex(cell => cell.getHeddle());
+
+              }
+            
+              const treadling: Array<number> = inputs[2].pattern
+              .map(row => row.findIndex(cell => cell.getHeddle()));
+
+              const tieup = inputs[1].pattern.map(row => {
+                return row.map(cell => cell.getHeddle());
+              });
+
+              const drawdown: Draft = new Draft({warps: inputs[0].warps, wefts: inputs[2].wefts});
+              drawdown.recalculateDraft(tieup, treadling, threading);
+              return Promise.resolve([drawdown]);
+  
+              }
+  
+  
+  
+            }
     
 
 
@@ -1663,6 +1751,8 @@ export class OperationService {
     this.ops.push(variants);
     this.ops.push(knockout);
     this.ops.push(crop);
+    this.ops.push(makeloom);
+    this.ops.push(drawdown);
 
 
     //** Give it a classification here */
@@ -1690,6 +1780,12 @@ export class OperationService {
     this.classification.push(
       {category: 'machine learning',
       ops: [germanify, crackleify]}
+    );
+
+
+    this.classification.push(
+      {category: 'frame loom support',
+      ops: [makeloom, drawdown]}
     );
 
   }

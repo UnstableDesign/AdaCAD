@@ -969,7 +969,7 @@ export class Draft{
    * @param i: the tieups array, j: the treadling array, the threading array
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
-  recalculateDraft(tieup, treadling, threading) {
+  recalculateDraft(tieup: Array<Array<boolean>>, treadling: Array<number>, threading: Array<number>) {
     for (var i = 0; i < treadling.length;i++) {
       var active_treadle = treadling[i];
       if (active_treadle != -1) {
