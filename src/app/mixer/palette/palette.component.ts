@@ -1425,28 +1425,35 @@ connectionMade(id:number){
  * had something assigned there
  * @param id the subdraft id that called the function
  */
- removeConnection(sd_id:number){
+ removeConnection(obj: {from: number, to: number}){
 
 
-  const cxn:ConnectionComponent = <ConnectionComponent>this.tree.getConnectionComponentFromSubdraft(sd_id);
-  const from: number = this.tree.getConnectionInput(cxn.id); // get the outputs from this conection - thre should only be one
-  const to:number = this.tree.getConnectionOutput(cxn.id); // get the outputs from this conection - thre should only be one
-  const downstream:Array<number> = this.tree.getDownstreamOperations(cxn.id);
-  const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(to);
-  const from_comp: any = this.tree.getComponent(from);
-  const from_order_id = from_comp.active_connection_order;
+  const cxn:number = this.tree.getConnection(obj.from, obj.to);
+  if(cxn == -1){
+    console.error("no connection found", obj);
+    return;
+  } 
+
+  console.log("removing connection ", obj, "connection id=", cxn);
   
-  //upddate the assignment order on input subdrafts
-  inputs_to_update.forEach((el) => {
-    const comp: any = this.tree.getComponent(el);
-    if(comp.active_connection_order == from_order_id) comp.active_connection_order = 0;
-    if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
-  });
+  const downstream:Array<number> = this.tree.getDownstreamOperations(cxn);
+  // const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(obj.to);
+  // const from_comp: any = this.tree.getComponent(obj.from);
+  // const from_order_id = from_comp.active_connection_order;
+  
+  // //upddate the assignment order on input subdrafts
+  // inputs_to_update.forEach((el) => {
+  //   const comp: any = this.tree.getComponent(el);
+  //   if(comp.active_connection_order == from_order_id) comp.active_connection_order = 0;
+  //   if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
+  // });
 
-  const view_ref = this.tree.getViewRef(cxn.id);
+  const view_ref = this.tree.getViewRef(cxn);
   this.removeFromViewContainer(view_ref);
-  this.tree.removeNode(cxn.id);
+  this.tree.removeNode(cxn);
+
   const to_delete:Array<number> = this.tree.getUnusuedConnections();
+
   if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
 
   //this list has to be calculated before the node is deleted, and udpated after

@@ -227,8 +227,8 @@ export class OperationComponent implements OnInit {
   }
 
 
-  removeSelectedInput(event: any, ndx: number){
-    
+  removeConnectionTo(sd_id: number){
+    this.onConnectionRemoved.emit({from: sd_id, to: this.id});
   }
 
   openHelpDialog() {

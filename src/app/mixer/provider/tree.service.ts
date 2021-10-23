@@ -286,13 +286,12 @@ export class TreeService {
 
 
     const has_room = (this.getInputs(id).length < (<OperationComponent> this.getComponent(id)).op.max_inputs);
-    if(parent_op == -1 && has_room) return true; //if you don't have a parent and there is room, go for it
+    if(!has_room) return false;
 
+    if(parent_op === -1 && has_room) return true; //if you don't have a parent and there is room, go for it
 
     const upstream  = this.getUpstreamOperations(parent_op);
     const no_circles = upstream.length == 0 || upstream.find(el => el === parent_op) == -1;
-
-    console.log("has room", has_room, "no circles ", no_circles, this.getUpstreamOperations(parent_op));
 
     return has_room && no_circles;
   }
@@ -550,6 +549,35 @@ export class TreeService {
     const cxn_node = sd_node.outputs[0].node;
     return <ConnectionComponent> cxn_node.component;
 
+  }
+
+  /**
+   * given a to and from node, return the id of the connection
+   * @param from id for a subdraft node 
+   * @param to id for a object node
+   * @returns the node id of the connection, or -1 if that connection is not found
+   */
+  getConnection(from: number, to:number) : number{
+    
+      if(this.getType(from) != 'draft' || this.getType(to) != 'op')
+        console.error("looking for connection of wrong type");
+
+      const sd_node:TreeNode = this.getTreeNode(from);
+
+      if(sd_node.outputs.length == 0){
+        console.log("Error: subdraft node did not have outputs");
+        return -1;
+      } 
+  
+      const cxn_node: TreeNode = sd_node.outputs.find(output_treenode => {
+        return output_treenode.outputs.findIndex(op_treenode => op_treenode.node.id === to) !== -1;
+      });
+
+      console.log(cxn_node, sd_node.outputs, to);
+      if(cxn_node === undefined) return -1;
+      
+      return cxn_node.node.id;
+  
   }
 
   /**

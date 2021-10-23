@@ -25,12 +25,16 @@ cdkDrag
      </ng-container> 
 
 
+
     <ng-container *ngIf = "!dm.isSelected('operation', 'design_modes') &&
     tree.getInputs(id).length > 0"> 
-        <button 
+
+        <button *ngFor="let input of tree.getNonCxnInputs(id)"
+            matTooltip = "click to remove this connection"
             class="button is-small is-primary is-active"
-            (click)="removeSelectedInput($event, ndx)">
-            <i class="fas fa-chevron-right"></i>
+            (click)="removeConnectionTo(input)">
+            <i class="fas fa-link"></i>
+            {{input}}
         </button>
      </ng-container> 
     </div>
