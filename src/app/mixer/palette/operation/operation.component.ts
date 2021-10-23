@@ -9,6 +9,7 @@ import { Form, FormControl } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
 import { TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 @Component({
   selector: 'app-operation',
@@ -110,10 +111,18 @@ export class OperationComponent implements OnInit {
 
   }
 
+
   ngAfterViewInit(){
     this.rescale(this.scale);
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
     
+  }
+
+
+  getInputName(id: number) : string {
+    console.log(id);
+    const sd = <SubdraftComponent> this.tree.getComponent(id);
+    return sd.draft.name;
   }
 
 

@@ -177,6 +177,10 @@ export class Draft{
     this.name = name;
   }
 
+  setName(name: string){
+    this.name = name;
+  }
+
 
 
   overloadWarpSystems(systems: Array<System>){

@@ -23,6 +23,7 @@ import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { DraftviewerComponent } from '../../core/draftviewer/draftviewer.component';
+import { D } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-palette',
@@ -551,13 +552,12 @@ export class PaletteComponent implements OnInit{
    * @returns the created subdraft instance
    */
   createSubDraft(d: Draft):SubdraftComponent{
-
-    console.log("creating subdraft");
     
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
 
+    d.setName("draft_"+id);
     this.setSubdraftSubscriptions(subdraft.instance);
 
     subdraft.instance.draft = d;
@@ -1426,6 +1426,7 @@ connectionMade(id:number){
  * @param id the subdraft id that called the function
  */
  removeConnection(obj: {from: number, to: number}){
+
 
 
   const cxn:number = this.tree.getConnection(obj.from, obj.to);

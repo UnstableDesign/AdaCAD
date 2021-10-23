@@ -11,33 +11,44 @@ cdkDrag
 
 <div id='scale-{{id}}' class="operation-container">
 
-<div class="top-row">
-    <div class="inputs">
+
     
 
-    <ng-container *ngIf = "
-    dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"> 
-        <button 
-            class="button is-small is-primary is-active"
-            (click)="inputSelected($event, ndx)">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-     </ng-container> 
 
+    <div class="connections-in">
 
+        <div class="top-row">
 
-    <ng-container *ngIf = "!dm.isSelected('operation', 'design_modes') &&
-    tree.getInputs(id).length > 0"> 
-
-        <button *ngFor="let input of tree.getNonCxnInputs(id)"
-            matTooltip = "click to remove this connection"
-            class="button is-small is-primary is-active"
-            (click)="removeConnectionTo(input)">
-            <i class="fas fa-link"></i>
-            {{input}}
-        </button>
-     </ng-container> 
+            <button 
+                class="button is-small is-primary"
+                [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
+                (click)="inputSelected($event, ndx)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+    
+        </div>
+    
+        <ng-container *ngIf = "!dm.isSelected('operation', 'design_modes') &&
+        tree.getInputs(id).length > 0"> 
+            <div class="connection-row">
+            <button *ngFor="let input of tree.getNonCxnInputs(id)"
+                matTooltip = "click to remove this connection"
+                class="button is-small is-primary is-active"
+                (click)="removeConnectionTo(input)">
+                <i class="fas fa-link"></i>
+                {{getInputName(input)}}
+            </button>
+           
+        </div>
+         </ng-container> 
     </div>
+
+    <div class="right-col">
+    <div class="top-row">
+   
+    
+
+    
 
 
     <div class="operation-details">
@@ -103,22 +114,11 @@ cdkDrag
             (change)= "onParamChange(i, op_inputs[i].value)"
           >
   
-            <!-- <label class="example-value-label">{{op_inputs[i].value}}</label> -->
         </div>
-        <!-- <input 
-          [formControl]="op_inputs[i]"
-          [matTooltip]=param.dx
-          type = "number"
-          [name]=param.name
-          [min]=param.min
-          [max]=param.max
-          step = 1
-          required = true
-          (change)= onParamChange();
-        > -->
+
     </div>
     </ng-container>
     </div>
-<!-- <div class="outputs"></div> -->
+</div>
 </div>
 </div>

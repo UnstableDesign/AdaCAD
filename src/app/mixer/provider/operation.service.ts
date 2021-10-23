@@ -1251,33 +1251,33 @@ export class OperationService {
     }
 
 
-    const replicate: Operation = {
-      name: 'replicate',
-      dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
-      params: [ {
-        name: 'copies',
-        min: 1,
-        max: 100,
-        value: 1,
-        dx: 'the number of mirrors to produce'
-      }],
-      max_inputs: 1, 
-      perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+    // const replicate: Operation = {
+    //   name: 'replicate',
+    //   dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
+    //   params: [ {
+    //     name: 'copies',
+    //     min: 1,
+    //     max: 100,
+    //     value: 1,
+    //     dx: 'the number of mirrors to produce'
+    //   }],
+    //   max_inputs: 1, 
+    //   perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
         
 
-        let outputs:Array<Draft> = [];
+    //     let outputs:Array<Draft> = [];
 
-        for(let i = 0; i < input_params[0]; i++){
-            const ds:Array<Draft> = inputs.map(input => {
-              const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-              return d;
-            });
-            outputs = outputs.concat(ds);
-        }
-        return  Promise.resolve(outputs);
-      }
-    }
+    //     for(let i = 0; i < input_params[0]; i++){
+    //         const ds:Array<Draft> = inputs.map(input => {
+    //           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+    //           return d;
+    //         });
+    //         outputs = outputs.concat(ds);
+    //     }
+    //     return  Promise.resolve(outputs);
+    //   }
+    // }
 
     const variants: Operation = {
       name: 'variants',
@@ -1722,7 +1722,7 @@ export class OperationService {
     this.ops.push(random);
     this.ops.push(interlace);
     this.ops.push(invert);
-    this.ops.push(replicate);
+ //  this.ops.push(replicate);
     this.ops.push(flipx);
     this.ops.push(flipy);
     this.ops.push(shiftx);
@@ -1774,7 +1774,7 @@ export class OperationService {
 
     this.classification.push(
       {category: 'compose',
-      ops: [replicate, interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
+      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
     );
 
     this.classification.push(
