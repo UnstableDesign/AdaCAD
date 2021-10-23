@@ -63,10 +63,6 @@ export class PaletteComponent implements OnInit{
    */
   selecting_connection: boolean = false;
 
-  /**
-   * place to storer the id of an operation that is seeking a connection, -1 if not currently seeking
-   */
-  connection_op_id:number = -1;
 
     /**
    * a placeholder to reference a temporary rendering of an union between subdrafts
@@ -377,7 +373,6 @@ export class PaletteComponent implements OnInit{
    * @param name 
    */
   addOperation(name:string){
-    this.changeDesignmode('operation');
     const op:OperationComponent = this.createOperation(name);
   }
 
@@ -486,8 +481,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.push(sd.onSubdraftStart.subscribe(this.subdraftStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDeleteCalled.subscribe(this.onDeleteSubdraftCalled.bind(this)));
     this.subdraftSubscriptions.push(sd.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this)));
-    this.subdraftSubscriptions.push(sd.onConnectionMade.subscribe(this.connectionMade.bind(this)));
-    this.subdraftSubscriptions.push(sd.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
+    this.subdraftSubscriptions.push(sd.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
   }
 
@@ -599,11 +593,12 @@ export class PaletteComponent implements OnInit{
    * @param op 
    */
   setOperationSubscriptions(op: OperationComponent){
-    this.operationSubscriptions.push(op.onSelectInputDraft.subscribe(this.selectInputDraft.bind(this)));
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
+    this.subdraftSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
+    this.subdraftSubscriptions.push(op.onInputAdded.subscribe(this.connectionMade.bind(this)));
   }
 
   /**
@@ -1182,76 +1177,95 @@ export class PaletteComponent implements OnInit{
   * todo; add code that holds the point on scroll
   * @param obj - contains event, id of component who called
   */
- selectInputDraft(obj: any){
-  this.connection_op_id = obj.id;
-  const op: OperationComponent = <OperationComponent> this.tree.getComponent(obj.id);
+ onConnectionStarted(obj: any){
+
+  const valid = this.tree.setOpenConnection(obj.id);
+  if(!valid) return;
+
   this.changeDesignmode('operation');
-  this.connectionStarted(op.bounds.topleft);
+  this.selecting_connection = true;
+
+  const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
+  
+  const adj: Point = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x, y: (sd.bounds.topleft.y+sd.bounds.height) - this.viewport.getTopLeft().y}
+
+  this.unfreezePaletteObjects();
+  //this.setDraftsConnectable(this.connection_op_id);
+
+  this.shape_bounds = {
+    topleft: adj,
+    width: this.scale,
+    height: this.scale
+  };
+
+  this.startSnackBar("Click an empty space on the palette to stop selecting", this.shape_bounds);
 
  }
+
+
 
  /**
  * adds a connector flag to any subdrafts that we are allowed to connect to from this operation
  */
-  setDraftsConnectable(op_id: number){
-    const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
-    const op: OperationComponent = <OperationComponent> this.tree.getComponent(op_id);
-    const inputs: Array<number> = this.tree.getInputs(op_id);
-    if(inputs.length >= op.maxInputs()){
-      nodes.forEach(el => {
-        el.unsetConnectable();
+  // setDraftsConnectable(op_id: number){
+  //   const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
+  //   const op: OperationComponent = <OperationComponent> this.tree.getComponent(op_id);
+  //   const inputs: Array<number> = this.tree.getInputs(op_id);
+  //   if(inputs.length >= op.maxInputs()){
+  //     nodes.forEach(el => {
+  //       el.unsetConnectable();
 
-        //now unset the ones that are already assigned to other ops
-        const connections: Array<number> = this.tree.getNonCxnOutputs(el.id);
-        const op_ndx: number = connections.findIndex(id => (id === op_id));
-        //if it had connections and the connection was not this operation, unset it
-        if(op_ndx !== -1){
-          el.setConnectable();
-        }    
-      });
-    }else{
+  //       //now unset the ones that are already assigned to other ops
+  //       const connections: Array<number> = this.tree.getNonCxnOutputs(el.id);
+  //       const op_ndx: number = connections.findIndex(id => (id === op_id));
+  //       //if it had connections and the connection was not this operation, unset it
+  //       if(op_ndx !== -1){
+  //         el.setConnectable();
+  //       }    
+  //     });
+  //   }else{
 
-      nodes.forEach(el => {
+  //     nodes.forEach(el => {
 
-        //look upstream to see if this operation is linked in any way to this op
-        const upstream: Array<number> = this.tree.getUpstreamOperations(el.id);
-        const ndx: number = upstream.findIndex(i => i === op_id);
-        if(ndx === -1) el.setConnectable();
+  //       //look upstream to see if this operation is linked in any way to this op
+  //       const upstream: Array<number> = this.tree.getUpstreamOperations(el.id);
+  //       const ndx: number = upstream.findIndex(i => i === op_id);
+  //       if(ndx === -1) el.setConnectable();
   
-        //now unset the ones that are already assigned to other ops
-        const connections: Array<number> = this.tree.getOutputs(el.id);
-        const ops: Array<number> = connections.map(cxn => this.tree.getConnectionOutput(cxn));
-        const op_ndx: number = ops.findIndex(op => (op === op_id));
-        //if it had connections and the connection was not this operation, unset it
-        if(ops.length > 0 && op_ndx === -1){
-          el.unsetConnectable();
-        }    
+  //       //now unset the ones that are already assigned to other ops
+  //       const connections: Array<number> = this.tree.getOutputs(el.id);
+  //       const ops: Array<number> = connections.map(cxn => this.tree.getConnectionOutput(cxn));
+  //       const op_ndx: number = ops.findIndex(op => (op === op_id));
+  //       //if it had connections and the connection was not this operation, unset it
+  //       if(ops.length > 0 && op_ndx === -1){
+  //         el.unsetConnectable();
+  //       }    
   
-      });
-    }
+  //     });
+  //   }
 
-    const ops: Array<OperationComponent> = this.tree.getOperations();
-    ops.forEach(op => {
-      if(op.id != op_id) op.active_connection = true;
-    });
+  //   const ops: Array<OperationComponent> = this.tree.getOperations();
+  //   ops.forEach(op => {
+  //     if(op.id != op_id) op.active_connection = true;
+  //   });
    
-   }
+  //  }
 
     /**
  * disables selection and pointer events on all
  */
-  unsetDraftsConnectable(){
-    const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
-    nodes.forEach(el => {
-      el.unsetConnectable();
-    });
+  // unsetDraftsConnectable(){
+  //   const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
+  //   nodes.forEach(el => {
+  //     el.unsetConnectable();
+  //   });
 
-    const ops: Array<OperationComponent> = this.tree.getOperations();
-    ops.forEach(op => {
-      op.active_connection = false;
-    });
+  //   const ops: Array<OperationComponent> = this.tree.getOperations();
+  //   ops.forEach(op => {
+  //     op.active_connection = false;
+  //   });
 
-   }
+  //  }
 
 /**
  * disables selection and pointer events on all
@@ -1276,25 +1290,7 @@ export class PaletteComponent implements OnInit{
    }
   
 
- /**
-  * called when a connection event starts
-  */
- connectionStarted(topleft: Point){
-  
-  const adj: Point = {x: topleft.x - this.viewport.getTopLeft().x, y: topleft.y - this.viewport.getTopLeft().y}
 
-  this.selecting_connection = true;
-  this.unfreezePaletteObjects();
-  this.setDraftsConnectable(this.connection_op_id);
-
-  this.shape_bounds = {
-    topleft: adj,
-    width: this.scale,
-    height: this.scale
-  };
-
-  this.startSnackBar("Click an empty space on the palette to stop selecting", this.shape_bounds);
- }
 
  /**
    * draws when a user is using the mouse to identify an input to a component
@@ -1337,13 +1333,15 @@ connectionDragged(mouse: Point, shift: boolean){
  processConnectionEnd(){
   this.closeSnackBar();
   this.selecting_connection = false;
-  this.unsetDraftsConnectable();
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  this.changeDesignmode('move');
 
-  if(this.connection_op_id == -1 ) return;
-  const op: OperationComponent = <OperationComponent> this.tree.getComponent(this.connection_op_id);
-  op.unsetActiveConnection();
-  this.connection_op_id = -1;
+  if(!this.tree.hasOpenConnection()) return;
+
+  
+  const sd: SubdraftComponent = this.tree.getOpenConnection();
+  sd.connectionEnded();
+  this.tree.unsetOpenConnection();
 } 
 
 /**
@@ -1406,16 +1404,19 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
 }
 
 /**
- * emitted from subdraft when it receives a hit on its connection button, the id refers to the subdraft id
+ * emitted from operation when it receives a hit on its connection button, the id refers to the operation id
  */
-connectionMade(sd_id:number){
+connectionMade(id:number){
 
   //this is defined in the order that the line was drawn
-  // const sd:SubdraftComponent = <SubdraftComponent>this.tree.getComponent(id);
-  this.createConnection(sd_id, this.connection_op_id);
-  this.performOp(this.connection_op_id);
-  this.processConnectionEnd();
+  const op:OperationComponent = <OperationComponent>this.tree.getComponent(id);
+  this.createConnection(this.tree.getOpenConnection().id, id);
+  this.performOp(id);
+  const ds: Array<number> = this.tree.getDownstreamOperations(id);
+  this.recalculateDownstreamDrafts(ds);
   this.addTimelineState();
+
+  this.processConnectionEnd();
 
 }
 

@@ -22,16 +22,16 @@
 
 		<div class="bottom-opts" [class.has_draft_hidden]="!draft_visible">
 		
-		<ng-container *ngIf="set_connectable">
+		
 			<button matTooltip = "click here to use this draft as input"
 			class="button is-small is-primary"
-			[class.is-active]="active_connection_order > 0"
-			(click) = "connectionClicked(id)"
+			[class.is-active]="tree.isParent(id)"
+			(click) = "connectionStarted(id)"
 			>
 			<i class="fas fa-chevron-down"></i>
-			<ng-container *ngIf="active_connection_order > 0">{{active_connection_order}}</ng-container>
+			<!-- <ng-container *ngIf="active_connection_order > 0">{{active_connection_order}}</ng-container> -->
 			</button>
-		</ng-container>
+	
 
 
 		<div class='dims_and_name'>

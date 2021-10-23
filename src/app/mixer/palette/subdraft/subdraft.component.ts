@@ -45,6 +45,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onConnectionMade = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onDesignAction = new  EventEmitter <any>();
+  @Output() onConnectionStarted:any = new EventEmitter()
 
   @ViewChild('bitmapImage', {static: false}) bitmap: any;
 
@@ -65,9 +66,16 @@ export class SubdraftComponent implements OnInit {
   }
 
   /**
+  * flag to tell if this is in a mode where it is looking foor a connectino
+  */
+  selecting_connection: boolean = false;
+
+
+  /**
    * hold the top left point as an interlacement, independent of scale
    */
   interlacement: Interlacement;
+
 
   ink = 'neq'; //can be or, and, neq, not, splice
 
@@ -210,15 +218,23 @@ export class SubdraftComponent implements OnInit {
     }
   }
 
-
-  public setConnectable(){
-    this.set_connectable = true;
+  connectionEnded(){
+    this.selecting_connection = false;
+    this.enableDrag();
   }
 
-  public unsetConnectable(){
-    this.set_connectable = false;
+  connectionStarted(event: any){
+    this.selecting_connection = true;
+    
+    this.disableDrag();
+
+    this.onConnectionStarted.emit({
+      event: event,
+      id: this.id
+    });
 
   }
+
 
   public setParent(op: number){
     this.parent_id = op;

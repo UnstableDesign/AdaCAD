@@ -1,5 +1,5 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { Bounds, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
+import { Bounds, DesignMode, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
 import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
@@ -7,7 +7,8 @@ import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
-import { thresholdFreedmanDiaconis } from 'd3-array';
+import { TreeService } from '../../provider/tree.service';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
 
 @Component({
   selector: 'app-operation',
@@ -21,16 +22,13 @@ export class OperationComponent implements OnInit {
    @Input() scale: number;
    @Input() default_cell: number;
    @Input() zndx: number;
-   @Output() onSelectInputDraft:any = new EventEmitter()
+   @Output() onConnectionRemoved = new EventEmitter <any>();
+   @Output() onConnectionMove = new EventEmitter <any>();
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
    @Output() deleteOp = new EventEmitter <any>(); 
    @Output() duplicateOp = new EventEmitter <any>(); 
-
-   /**
-    * flag to tell if this has a connection
-    */
-   active_connection: boolean = false
+   @Output() onInputAdded = new EventEmitter <any> ();
 
     /**
     * reference to top, left positioin as absolute interlacement
@@ -42,21 +40,16 @@ export class OperationComponent implements OnInit {
   */
   base_height:number;
 
-
-    /**
-    * flag to tell if this is in a mode where it is looking foor a connectino
-    */
-   selecting_connection: boolean;
-
-    /**
-    * flag to tell if this is being from a loaded from a saved file
-    */
+  /**
+  * flag to tell if this is being from a loaded from a saved file
+  */
    loaded: boolean = false;
 
-    /**
+  /**
     * flag to tell if this has been duplicated from another operation
     */
    duplicated: boolean = false;
+
 
     /**
     * stores a list of components and drafts generated as outputs 
@@ -73,24 +66,24 @@ export class OperationComponent implements OnInit {
      height: 30
    };
    
-   active_connection_order: number = 0;
-
    op:Operation;
 
+   //for input params form control
    loaded_inputs: Array<number> = [];
 
+   //these are the input parameters
    op_inputs: Array<FormControl> = [];
 
-   has_connections_in: boolean = false;
-
+  // has_connections_in: boolean = false;
    subdraft_visible: boolean = true;
 
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
-    private viewport: ViewportService) { 
+    private viewport: ViewportService,
+    private tree: TreeService,
+    private dm: DesignmodesService) { 
     this.outputs = [];
-    this.selecting_connection = false;
 
 
 
@@ -99,7 +92,6 @@ export class OperationComponent implements OnInit {
   ngOnInit() {
 
     this.op = this.operations.getOp(this.name);
-
 
     this.op.params.forEach((param, ndx) => {
       const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
@@ -150,8 +142,7 @@ export class OperationComponent implements OnInit {
    * @returns an Array linking the draft ids to compoment_ids
    */
   perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
-    if(inputs.length > 0) this.has_connections_in = true;
-    else this.has_connections_in = false;
+
 
     this.op = this.operations.getOp(this.name);
     return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
@@ -207,10 +198,6 @@ export class OperationComponent implements OnInit {
 
   }
 
-
-  unsetActiveConnection(){
-    this.selecting_connection = false;
-  }
   /**
    * set's the width to at least 200, but w if its large
    */
@@ -235,14 +222,13 @@ export class OperationComponent implements OnInit {
   }
 
   inputSelected(event: any, ndx: number){
-    this.selecting_connection = true;
     this.disableDrag();
+    this.onInputAdded.emit(this.id);
+  }
 
-    this.onSelectInputDraft.emit({
-      event: event,
-      id: this.id
-    });
 
+  removeSelectedInput(event: any, ndx: number){
+    
   }
 
   openHelpDialog() {

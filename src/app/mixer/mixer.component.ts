@@ -229,7 +229,7 @@ export class MixerComponent implements OnInit {
         case 'op' :
           const new_op_id:number = id_map.find(el => el.old == tn.node).new;
           const op_comp: OperationComponent = <OperationComponent> this.tree.getComponent(new_op_id);
-          op_comp.has_connections_in = (tn.inputs.length > 0);
+         // op_comp.has_connections_in = (tn.inputs.length > 0);
           tn.outputs.forEach(out => {
             
             const out_cxn_id:number = id_map.find(el => el.old === out).new;
@@ -324,9 +324,9 @@ export class MixerComponent implements OnInit {
       }
    
 
-      operationAdded(name:string){
-        this.palette.addOperation(name);
-      }
+    operationAdded(name:string){
+      this.palette.addOperation(name);
+    }
 
 /**
    * Call zoom out on Shift+o.

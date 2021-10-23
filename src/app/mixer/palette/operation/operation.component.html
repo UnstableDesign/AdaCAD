@@ -14,14 +14,25 @@ cdkDrag
 <div class="top-row">
     <div class="inputs">
     
-        <ng-container *ngIf = "!active_connection">
+
+    <ng-container *ngIf = "
+    dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"> 
         <button 
-            class="button is-small is-primary"
-            [class.is-active]="selecting_connection || has_connections_in"
+            class="button is-small is-primary is-active"
             (click)="inputSelected($event, ndx)">
-            <i class="fas fa-chevron-right">{{connection_op_id}}</i>
+            <i class="fas fa-chevron-right"></i>
         </button>
-    </ng-container>
+     </ng-container> 
+
+
+    <ng-container *ngIf = "!dm.isSelected('operation', 'design_modes') &&
+    tree.getInputs(id).length > 0"> 
+        <button 
+            class="button is-small is-primary is-active"
+            (click)="removeSelectedInput($event, ndx)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+     </ng-container> 
     </div>
 
 

@@ -51,6 +51,7 @@ export class TreeService {
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
   num_created: number = 0;
+  open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
 
   constructor() { 
   }
@@ -79,6 +80,35 @@ export class TreeService {
     
 
     return node.id;
+  }
+
+  /**
+   * sets the open connection
+   * @param id the value to set the open connection to
+   * @returns  true if the id maps to a subdraft
+   */
+  setOpenConnection(id: number) : boolean {
+    if(this.getType(id) !== 'draft') return false;
+    this.open_connection = id; 
+    return true;
+  }
+
+  hasOpenConnection():boolean{
+    return this.open_connection !== -1;
+  }
+
+  getOpenConnection(): SubdraftComponent{
+    return <SubdraftComponent> this.getComponent(this.open_connection);
+  }
+
+  /**
+   * unsets the open connection
+   * @returns  true if it indeed changed the value
+   */
+  unsetOpenConnection() : boolean{
+    const b = this.open_connection != -1;
+    this.open_connection = -1;
+    return b;
   }
 
   setNodeComponent(id: number, c: SubdraftComponent | OperationComponent | ConnectionComponent){
@@ -231,6 +261,43 @@ export class TreeService {
   }
 
   /**
+   * called on an operation to check if it can accept connections from a given subdraft
+   * @param id - the id of the operation in question
+   */
+  canAcceptConnections(id: number) : boolean {
+
+    if(this.open_connection == -1) {
+    console.error("no open connection");
+    return false;    //there is no open connection
+    }
+  
+    const parent_op = this.getSubdraftParent(this.open_connection);
+    
+    if(parent_op === id){
+    //  console.error("can't be an input to your parent, parent=", parent_op, " opid=", id);
+      return false; //can't be an input to your parent
+    } 
+
+    const is_already_connected = this.getInputs(id).length > 0 && this.getInputs(id).find(el => el === this.open_connection) !== undefined;
+    if(is_already_connected){
+     // console.error("already connected, draft=", this.open_connection, " opid=", id);
+      return false; //these two things are already directly connected
+    } 
+
+
+    const has_room = (this.getInputs(id).length < (<OperationComponent> this.getComponent(id)).op.max_inputs);
+    if(parent_op == -1 && has_room) return true; //if you don't have a parent and there is room, go for it
+
+
+    const upstream  = this.getUpstreamOperations(parent_op);
+    const no_circles = upstream.length == 0 || upstream.find(el => el === parent_op) == -1;
+
+    console.log("has room", has_room, "no circles ", no_circles, this.getUpstreamOperations(parent_op));
+
+    return has_room && no_circles;
+  }
+
+  /**
    * test if this node has children, as opposed to just zero
    * @param id 
    * @returns a boolean 
@@ -319,6 +386,27 @@ export class TreeService {
       }
       return ops;
     }
+
+    /**
+   * given a node, recusively walks the tree and returns a list of all the drafts that are linked up the chain to this component
+   * @param id 
+   * @returns an array of draft ids that influence this draft
+   */
+     getUpstreamDrafts(id: number):Array<number>{
+      let ops: Array<number> = [];
+      const tn: TreeNode = this.getTreeNode(id);
+      if(tn.inputs.length > 0){
+        tn.inputs.forEach(el => {
+          if(el.node.type == 'draft'){
+            ops.push(el.node.id);  
+          }
+          ops = ops.concat(this.getUpstreamDrafts(el.node.id));
+        });
+      }
+      return ops;
+    }
+
+
 
 /**
  * this removes a node from the list and tree
