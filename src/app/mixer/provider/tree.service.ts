@@ -274,7 +274,6 @@ export class TreeService {
     const parent_op = this.getSubdraftParent(this.open_connection);
     
     if(parent_op === id){
-    //  console.error("can't be an input to your parent, parent=", parent_op, " opid=", id);
       return false; //can't be an input to your parent
     } 
 

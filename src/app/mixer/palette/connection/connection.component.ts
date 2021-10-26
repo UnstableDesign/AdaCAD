@@ -16,8 +16,8 @@ export class ConnectionComponent implements OnInit {
 
   from: number; 
   to: number; 
-  b_from: Bounds;
-  b_to: Bounds;
+  b_from: Point;
+  b_to: Point;
   disable_drag:boolean = true;
   orientation: boolean = true;
   
@@ -46,8 +46,12 @@ export class ConnectionComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
 
-    this.b_from = this.tree.getComponent(this.from).bounds;
-    this.b_to = this.tree.getComponent(this.to).bounds;
+    const from: any = this.tree.getComponent(this.from);
+    this.b_from = 
+      {x: from.bounds.topleft.x, 
+       y: from.bounds.topleft.y + from.bounds.height};
+   
+    this.b_to = this.tree.getComponent(this.to).bounds.topleft;
 
     this.calculateBounds();
     this.drawConnection();
@@ -75,57 +79,73 @@ export class ConnectionComponent implements OnInit {
     // this.bounds.topleft = pos;
   }
 
-
-  /**
-   * updates the connection point associated with id 
-   * @param id the id of the component that is moving
-   * @param topleft the mouse pointer moving that component
-   * @param width the width off the moving component
-   * @param height the height of the moving component
-   */
-  updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
-    //get the updated positioins of the to and from points
-    this.b_from = this.tree.getComponent(this.from).bounds;
-    this.b_to = this.tree.getComponent(this.to).bounds;
-
-    //this block of code works when we assume the pointer is at the top right corner of a subdraft directly connected to this component
-    this.orientation = true;
-
-    //in most cases from is a subdraft
-    if(id === this.from){
-      if(topleft.x < this.b_to.topleft.x) this.orientation = !this.orientation;
-      if(topleft.y < this.b_to.topleft.y) this.orientation = !this.orientation;
-      this.bounds.topleft = {x: Math.min(topleft.x, this.b_to.topleft.x), y: Math.min(topleft.y+height, this.b_to.topleft.y)};
-      this.bounds.width = Math.max(topleft.x, this.b_to.topleft.x) - this.bounds.topleft.x;
-      this.bounds.height = Math.max(topleft.y, this.b_to.topleft.y) - this.bounds.topleft.y;
-       
-    }else if(id === this.to){
-      //assumes to is an operations
-      let b_from_height = this.b_from.height;
-      if(topleft.x < this.b_from.topleft.x) this.orientation = !this.orientation;
-      if(topleft.y < this.b_from.topleft.y+this.b_from.height) this.orientation = !this.orientation;
-      this.bounds.topleft = {x: Math.min(topleft.x, this.b_from.topleft.x), y: Math.min(topleft.y, this.b_from.topleft.y+b_from_height)};
-      this.bounds.width = Math.max(topleft.x, this.b_from.topleft.x) - this.bounds.topleft.x;
-      this.bounds.height = Math.max(topleft.y, this.b_from.topleft.y+b_from_height) - this.bounds.topleft.y;
-    }
-
-    if(this.bounds.width < 4) this.bounds.width = 4;
-    if(this.bounds.height < 4) this.bounds.height = 4;
-  
+  //the to position is always the top left corner of the element it is going into
+  updateToPosition(to: any){
+   
+    if(to.id != this.to) console.error("attempting to move wrong TO connection", to.id, this.to);
+    this.b_to = to.bounds.topleft;
+    this.calculateBounds();
     this.drawConnection();
   }
 
+  updateFromPosition(from: any){
 
-  /** there is an error here that topleft never resets or redraws but otherwiseit works */
+    if(from.id != this.from) console.error("attempting to move wrong FROM connection", from.id, this.from);
+
+    this.b_from = 
+      {x: from.bounds.topleft.x, 
+       y: from.bounds.topleft.y + from.bounds.height};
+       this.calculateBounds();
+       this.drawConnection();
+    
+  }
+
+
+  // /**
+  //  * updates the connection point associated with id 
+  //  * @param id the id of the component that is moving
+  //  * @param topleft the mouse pointer moving that component
+  //  * @param width the width off the moving component
+  //  * @param height the height of the moving component
+  //  */
+  // updatePositionAndSize(id: number, topleft: Point, width: number, height: number){    
+  //   //get the updated positioins of the to and from points
+  //   this.b_from = this.tree.getComponent(this.from).bounds;
+  //   this.b_to = this.tree.getComponent(this.to).bounds;
+
+  //   //this block of code works when we assume the pointer is at the top right corner of a subdraft directly connected to this component
+  //   this.orientation = true;
+
+  //   //in most cases from is a subdraft
+  //   if(id === this.from){
+  //     if(topleft.x < this.b_to.topleft.x) this.orientation = !this.orientation;
+  //     if(topleft.y < this.b_to.topleft.y) this.orientation = !this.orientation;
+  //     this.bounds.topleft = {x: Math.min(topleft.x, this.b_to.topleft.x), y: Math.min(topleft.y+height, this.b_to.topleft.y)};
+  //     this.bounds.width = Math.max(topleft.x, this.b_to.topleft.x) - this.bounds.topleft.x;
+  //     this.bounds.height = Math.max(topleft.y, this.b_to.topleft.y) - this.bounds.topleft.y;
+       
+  //   }else if(id === this.to){
+  //     //assumes to is an operations
+  //     let b_from_height = this.b_from.height;
+  //     if(topleft.x < this.b_from.topleft.x) this.orientation = !this.orientation;
+  //     if(topleft.y < this.b_from.topleft.y+this.b_from.height) this.orientation = !this.orientation;
+  //     this.bounds.topleft = {x: Math.min(topleft.x, this.b_from.topleft.x), y: Math.min(topleft.y, this.b_from.topleft.y+b_from_height)};
+  //     this.bounds.width = Math.max(topleft.x, this.b_from.topleft.x) - this.bounds.topleft.x;
+  //     this.bounds.height = Math.max(topleft.y, this.b_from.topleft.y+b_from_height) - this.bounds.topleft.y;
+  //   }
+
+  //   if(this.bounds.width < 4) this.bounds.width = 4;
+  //   if(this.bounds.height < 4) this.bounds.height = 4;
+  
+  //   this.drawConnection();
+  // }
+
+
   calculateBounds(){
     
-    let p1: Point;
-    let p2: Point;
+    let p1: Point = this.b_from;
+    let p2: Point = this.b_to;
     let bottomright: Point = {x:0, y:0};
-
-    p1 = {x: this.b_from.topleft.x, y: this.b_from.topleft.y};
-    p1.y += this.b_from.height;
-    p2 =  {x: this.b_to.topleft.x, y: this.b_to.topleft.y}
 
     this.orientation = true;
     
@@ -190,24 +210,24 @@ export class ConnectionComponent implements OnInit {
    */
   rescale(scale:number){
 
-    const from_comp: any = this.tree.getComponent(this.from);
-    const to_comp: any = this.tree.getComponent(this.to);
+    // const from_comp: any = this.tree.getComponent(this.from);
+    // const to_comp: any = this.tree.getComponent(this.to);
    
-    this.b_from = {
-      topleft: {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y},
-      width: from_comp.bounds.width,
-      height: from_comp.bounds.height
-    }
+    // this.b_from = {
+    //   topleft: {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y},
+    //   width: from_comp.bounds.width,
+    //   height: from_comp.bounds.height
+    // }
 
-    this.b_to = {
-      topleft: {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y},
-      width: to_comp.bounds.width,
-      height: to_comp.bounds.height
-    }
+    // this.b_to = {
+    //   topleft: {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y},
+    //   width: to_comp.bounds.width,
+    //   height: to_comp.bounds.height
+    // }
 
-     this.scale = scale;
-     this.calculateBounds();
-     this.drawConnection();
+    //  this.scale = scale;
+    //  this.calculateBounds();
+    //  this.drawConnection();
 
     // const container: HTMLElement = document.getElementById('cxn-'+this.id);
     // container.style.transformOrigin = 'top left';

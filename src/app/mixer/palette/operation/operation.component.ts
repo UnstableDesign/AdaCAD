@@ -64,7 +64,7 @@ export class OperationComponent implements OnInit {
    bounds: Bounds = {
      topleft: {x: 0, y:0},
      width: 200,
-     height: 30
+     height: 40
    };
    
    op:Operation;
@@ -104,7 +104,7 @@ export class OperationComponent implements OnInit {
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
     else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
-    this.base_height =  30 + 40 * this.op_inputs.length
+    this.base_height =  70 + 40 * this.op_inputs.length
     this.bounds.height = this.base_height;
 
 
@@ -115,12 +115,16 @@ export class OperationComponent implements OnInit {
   ngAfterViewInit(){
     this.rescale(this.scale);
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
+
+
+    const container = <HTMLElement> document.getElementById("scale-"+this.id);
+    this.bounds.height = container.offsetHeight;
+    this.bounds.width = container.offsetWidth;
     
   }
 
 
   getInputName(id: number) : string {
-    console.log(id);
     const sd = <SubdraftComponent> this.tree.getComponent(id);
     return sd.draft.name;
   }
@@ -152,7 +156,8 @@ export class OperationComponent implements OnInit {
    */
   perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
 
-
+  //needs to update witdth
+    
     this.op = this.operations.getOp(this.name);
     return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
       .then(generated_drafts => {
@@ -162,6 +167,8 @@ export class OperationComponent implements OnInit {
           })
       )
         })
+
+    
   }
 
   rescale(scale:number){
@@ -176,6 +183,9 @@ export class OperationComponent implements OnInit {
 
     this.bounds.topleft = {x: this.interlacement.j * this.scale, y: this.interlacement.i * this.scale};
     //this.bounds.height = this.bounds.height * change;
+
+
+    //consider rewrting to update on render size
 
     if(this.outputs.length == 1){
       this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
@@ -206,6 +216,18 @@ export class OperationComponent implements OnInit {
 
 
   }
+
+   /**
+   * updates this components position based on the input component's position
+   * */
+    updatePositionFromChild(child: SubdraftComponent){
+
+
+       const container = <HTMLElement> document.getElementById("scale-"+this.id);
+  
+      this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - container.offsetHeight});
+  
+    }
 
   /**
    * set's the width to at least 200, but w if its large

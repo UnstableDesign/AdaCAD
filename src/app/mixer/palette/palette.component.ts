@@ -24,6 +24,7 @@ import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { DraftviewerComponent } from '../../core/draftviewer/draftviewer.component';
 import { D } from '@angular/cdk/keycodes';
+import { thresholdedReLU } from '@tensorflow/tfjs-layers/dist/exports_layers';
 
 @Component({
   selector: 'app-palette',
@@ -551,7 +552,7 @@ export class PaletteComponent implements OnInit{
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
    */
-  createSubDraft(d: Draft):SubdraftComponent{
+  createSubDraft(d: Draft, parent: number):SubdraftComponent{
     
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -562,6 +563,7 @@ export class PaletteComponent implements OnInit{
 
     subdraft.instance.draft = d;
     subdraft.instance.id = id;
+    subdraft.instance.parent_id = parent;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
@@ -581,7 +583,7 @@ export class PaletteComponent implements OnInit{
    loadSubDraft(d: Draft, bounds:Bounds):number{
     console.log("loading subdraft");
 
-    const sd:SubdraftComponent = this.createSubDraft(d);
+    const sd:SubdraftComponent = this.createSubDraft(d, -1);
     sd.bounds = bounds;
     sd.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
     this.viewport.addObj(sd.id, utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale));
@@ -693,8 +695,7 @@ export class PaletteComponent implements OnInit{
    * @param d 
    */
   addSubdraftFromDraft(d: Draft){
-    console.log("adding from uplaod", d);
-    const sd: SubdraftComponent = this.createSubDraft(d);
+    const sd: SubdraftComponent = this.createSubDraft(d, -1);
     sd.setPosition({x: this.viewport.getTopLeft().x, y: this.viewport.getTopLeft().y});
     
   }
@@ -1124,7 +1125,7 @@ export class PaletteComponent implements OnInit{
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
 
         
-        const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}));
+        const new_sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: sd.draft.wefts, warps: sd.draft.warps, pattern: sd.draft.pattern}), -1);
         new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
         new_sd.setPosition({
           x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
@@ -1374,8 +1375,6 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
    .then(draft_map =>  {
     const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
   
-    console.log(draft_map);
-
     draft_map.forEach((el, ndx) => {
       let sd:SubdraftComponent = null;
   
@@ -1384,18 +1383,19 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
          sd.setNewDraft(el.draft);
          leftoffset.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
       }else{
-        sd = this.createSubDraft(el. draft);
-        op.addOutput({component_id: sd.id, draft:el.draft});
-        sd.setPosition({x: leftoffset.x+(el.draft.warps+1)*ndx*this.scale, y: leftoffset.y + op.bounds.height});
-        sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
+        sd = this.createSubDraft(el.draft, op.id);
         sd.setParent(op.id);
-        const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
-        this.viewport.addObj(sd.id, interlacement);
+        op.addOutput({component_id: sd.id, draft:el.draft});
+        // sd.setPosition({x: leftoffset.x+(el.draft.warps+1)*ndx*this.scale, y: leftoffset.y + op.bounds.height});
+        // sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
+        //const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+        this.viewport.addObj(sd.id, sd.interlacement);
         this.createConnection(op.id, sd.id);
         this.tree.setSubdraftParent(sd.id, op.id);
         
       }
-  
+      sd.updatePositionFromParent(op);
+      sd.updateSize(op);
       op.setWidth(sd.bounds.width);
       sd.drawDraft();
     })
@@ -1408,14 +1408,17 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
  */
 connectionMade(id:number){
 
+  if(!this.tree.hasOpenConnection()) return;
+
   //this is defined in the order that the line was drawn
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(id);
-  this.createConnection(this.tree.getOpenConnection().id, id);
+  const sd: SubdraftComponent = <SubdraftComponent> this.tree.getOpenConnection();
+  
+  this.createConnection(sd.id, id);
   this.performOp(id);
   const ds: Array<number> = this.tree.getDownstreamOperations(id);
   this.recalculateDownstreamDrafts(ds);
   this.addTimelineState();
-
   this.processConnectionEnd();
 
 }
@@ -1657,7 +1660,7 @@ processShapeEnd(){
   this.shape_bounds.topleft.y += this.viewport.getTopLeft().y;
   
 
-  const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}));
+  const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}), -1);
   sd.setPosition(this.shape_bounds.topleft);
   sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
   sd.disableDrag();
@@ -1741,7 +1744,7 @@ drawStarted(){
     } 
 
     //if this drawing does not intersect with any existing subdrafts, 
-    const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}));
+    const sd:SubdraftComponent = this.createSubDraft(new Draft({wefts: wefts,  warps: warps}), -1);
     const pos = {
       topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.scale), y: this.viewport.getTopLeft().y + (corners[0].i * this.scale)},
       width: warps * this.scale,
@@ -1979,7 +1982,7 @@ drawStarted(){
     //create the selection as subdraft
     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     
-    const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}));
+    const sc:SubdraftComponent = this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}), -1);
     sc.setComponentBounds(bounds);
     sc.disableDrag();
     
@@ -2022,43 +2025,60 @@ drawStarted(){
   }
 
 
+
+  updateSubdraftFromOp(){
+
+  }
+
+  updateOpFromSubdraft(){
+
+  }
+
+
   /**
    * this function will update any components that should move when the compoment passed by obj moves
    * moves all compoments returned from tree.getNodesToUpdate(). All changes to what updates should be 
    * handled by getNodesToUpdateOnMove
    * @param obj 
    */
-  updateAttachedComponents(obj: any){
+  updateAttachedComponents(obj: any, follow: boolean){
 
+    console.log("update attached from ", obj.id, follow);
+
+
+    //start by moving the original object than ripple out;
     const moving : any = this.tree.getComponent(obj.id);
-    const updates: Array<number> = this.tree.getNodesToUpdateOnMove(obj.id);
 
-    updates.forEach(u => {
-      const type: string = this.tree.getType(u);
-      const u_comp = this.tree.getComponent(u);
-      
-      //if this is a node that didn't call the command, its a parent or child. 
-      if(obj.id !== u){
+    this.tree.getInputs(obj.id).forEach(cxn => {
+       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
+       comp.updateToPosition(moving);
+    });
 
-         if(type=='op') u_comp.setPosition({x: obj.point.x, y: obj.point.y - u_comp.bounds.height});
-         if(type=='draft') u_comp.setPosition({x: obj.point.x, y: obj.point.y + moving.bounds.height});         
-      
-         const cxns: Array<number> = this.tree.getNodeConnections(u);
+    this.tree.getOutputs(obj.id).forEach(cxn => {
+      const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
+      comp.updateFromPosition(moving);
+   });
 
-         cxns.forEach(cxn => {
-           const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-            if(type=='op') comp.updatePositionAndSize(u_comp.id,  {x: obj.point.x, y: obj.point.y- comp.bounds.height}, u_comp.bounds.width, u_comp.bounds.height);
-            if(type=='draft') comp.updatePositionAndSize(u_comp.id, {x: obj.point.x, y: obj.point.y}, u_comp.bounds.width, u_comp.bounds.height);  
-         });
-      
-      }else{
-        const cxns: Array<number> = this.tree.getNodeConnections(u);
-        cxns.forEach(cxn => {
-          const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-          comp.updatePositionAndSize(moving.id, obj.point, moving.bounds.width, moving.bounds.height);
-        })
-      }
-     }); 
+   if(!follow) return;
+
+   const outs: Array<number> = this.tree.getNonCxnOutputs(obj.id);
+
+   //if this an operation with one child, move the child. 
+   if(this.tree.getType(moving.id) === "op" && outs.length <= 1){
+      const out = <SubdraftComponent> this.tree.getComponent(outs[0]);
+      out.updatePositionFromParent(moving);
+      this.updateAttachedComponents({id: out.id}, false);
+    }
+
+    const ins = this.tree.getNonCxnInputs(obj.id);
+
+
+    //if this an operation with one child, move the child. 
+    if(this.tree.getType(moving.id) === "draft" && ins.length <= 1){
+        const input = <OperationComponent> this.tree.getComponent(ins[0]);
+        input.updatePositionFromChild(moving);
+        this.updateAttachedComponents({id: input.id}, false);
+     }
   }
 
 
@@ -2109,7 +2129,7 @@ drawStarted(){
     const moving = <OperationComponent> this.tree.getComponent(obj.id);
     if(moving === null) return; 
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
-    this.updateAttachedComponents(obj);
+    this.updateAttachedComponents(obj, true);
     // this.addTimelineState();
 
   }
@@ -2123,9 +2143,13 @@ drawStarted(){
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
       if(moving === null) return; 
 
+
+
       this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
       
-      this.updateAttachedComponents(obj);
+      this.updateAttachedComponents(obj, true);
+
+
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       
@@ -2159,7 +2183,7 @@ drawStarted(){
   
       //creaet a subdraft of this intersection
       if(this.hasPreview()){
-        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}));
+        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}), -1);
         const to_right: Point = this.preview.getTopleft();
         to_right.x += this.preview.bounds.width + this.scale *4;
         sd.draft.pattern = cloneDeep(this.preview.draft.pattern);

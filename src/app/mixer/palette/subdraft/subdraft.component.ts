@@ -9,9 +9,9 @@ import { TreeService } from '../../provider/tree.service';
 import { FileService } from '../../../core/provider/file.service';
 import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
-import { DraftviewerComponent } from '../../../core/draftviewer/draftviewer.component';
+import { OperationComponent } from '../operation/operation.component';
 
 
 
@@ -37,6 +37,7 @@ export class SubdraftComponent implements OnInit {
   @Input()  patterns: any;
   @Input()  default_cell: number;
   @Input()  scale: number;
+  @Input()  parent_id: number;
   @Output() onSubdraftMove = new EventEmitter <any>(); 
   @Output() onSubdraftDrop = new EventEmitter <any>(); 
   @Output() onSubdraftStart = new EventEmitter <any>(); 
@@ -49,11 +50,6 @@ export class SubdraftComponent implements OnInit {
 
   @ViewChild('bitmapImage', {static: false}) bitmap: any;
 
-
-  /**
-   * reference to the operation that created this subdraft or -1 if no parent 
-   */
-  parent_id: number = -1;
 
 
   canvas: HTMLCanvasElement;
@@ -126,6 +122,12 @@ export class SubdraftComponent implements OnInit {
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
 
+    if(this.parent_id != -1){
+      const parent = this.tree.getComponent(this.parent_id);
+      this.bounds.width = parent.bounds.width;
+      console.log("parent width", parent.bounds.width)
+    }
+
   }
 
 
@@ -134,8 +136,12 @@ export class SubdraftComponent implements OnInit {
 
     this.canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
     this.cx = this.canvas.getContext("2d");
-    this.bounds.width = this.draft.warps * this.scale;
-    this.bounds.height = this.draft.wefts * this.scale;
+    // this.bounds.width = this.draft.warps * this.scale;
+    // this.bounds.height = this.draft.wefts * this.scale;
+
+
+
+
     this.drawDraft();
 
 
@@ -167,6 +173,45 @@ export class SubdraftComponent implements OnInit {
     this.bounds.height = this.draft.wefts * this.scale;
 
   }
+
+  /**
+   * updates this components position based on the input component's position
+   * */
+  updatePositionFromParent(parent: OperationComponent){
+
+    if(this.parent_id != parent.id){
+      console.error("attempitng to update subdraft position from non-parent operation");
+      return;
+    }
+
+    this.setPosition({x: parent.bounds.topleft.x, y: parent.bounds.topleft.y + parent.bounds.height})
+
+  }
+
+
+    updateSize(parent: OperationComponent){
+
+      console.log("updating size", parent.bounds, this.bounds)
+
+
+      this.bounds.width = this.draft.warps * this.scale;
+      this.bounds.height = this.draft.wefts * this.scale;
+
+      if(this.parent_id != parent.id){
+        console.error("attempitng to update subdraft position from non-parent operation");
+        return;
+      }
+
+      this.bounds.width = Math.max(parent.bounds.width, this.bounds.width);
+      this.bounds.height = Math.max(parent.bounds.height, this.bounds.height);
+
+      console.log("updating size complete")
+  
+  
+    }
+  
+
+
 
   /**
    * Called when main palette is rescaled and triggers call to rescale this element, and update its position 

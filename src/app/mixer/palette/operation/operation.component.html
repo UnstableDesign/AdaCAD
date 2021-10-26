@@ -1,7 +1,6 @@
 <div class="operation-container"
 cdkDrag
 [style.z-index] = "zndx"
-[style.width.px] = "bounds.width"
 [cdkDragDisabled] = "disable_drag"
 [cdkDragFreeDragPosition]="bounds.topleft"
 (cdkDragMoved)="dragMove($event)"
@@ -14,41 +13,14 @@ cdkDrag
 
     
 
-
-    <div class="connections-in">
-
-        <div class="top-row">
-
-            <button 
-                class="button is-small is-primary"
-                [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
-                (click)="inputSelected($event, ndx)">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-    
-        </div>
-    
-        <ng-container *ngIf = "!dm.isSelected('operation', 'design_modes') &&
-        tree.getInputs(id).length > 0"> 
-            <div class="connection-row">
-            <button *ngFor="let input of tree.getNonCxnInputs(id)"
-                matTooltip = "click to remove this connection"
-                class="button is-small is-primary is-active"
-                (click)="removeConnectionTo(input)">
-                <i class="fas fa-link"></i>
-                {{getInputName(input)}}
-            </button>
-           
-        </div>
-         </ng-container> 
-    </div>
-
-    <div class="right-col">
     <div class="top-row">
-   
-    
 
-    
+        <button 
+        class="button is-small is-primary"
+        [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
+        (click)="inputSelected($event, ndx)">
+        <i class="fas fa-chevron-right"></i>
+    </button>
 
 
     <div class="operation-details">
@@ -74,11 +46,38 @@ cdkDrag
     (click)="delete()">
     <i class="fas fa-times"></i>
     </button>
-
-
-
-
 </div>
+
+
+
+
+
+         
+    
+
+    <div class="param-row">
+        <div class="param-name">inputs </div>
+        <div class="param-inputs">
+
+        
+
+        <button *ngFor="let input of tree.getNonCxnInputs(id); index as i;"
+            matTooltip = "click to remove this connection"
+            class="button is-small is-primary is-active"
+            (click)="removeConnectionTo(input)">
+            <i class="fas fa-link"></i>
+            {{i}} {{getInputName(input)}}
+        </button>
+        <ng-container *ngIf = "tree.getInputs(id).length == 0"> 
+            <div>takes {{op.max_inputs}} input</div>
+        </ng-container>       
+     </div>
+
+
+       
+    </div>
+
+
 <div class="params">
 
     <ng-container *ngFor="let param of op.params; let i = index">
@@ -119,6 +118,5 @@ cdkDrag
     </div>
     </ng-container>
     </div>
-</div>
 </div>
 </div>

@@ -22,7 +22,7 @@
 
 .scale-container{
 
-	position: absoludims_and_namete;
+	position: absolute;
 	top: 0px;
 	left: 0px;
 	color: grey;
@@ -100,7 +100,6 @@ h3{
 .dims_and_name{
 	display: flex;
 	flex-direction: column;
-    margin-top: auto;
     font-size: .7em;
 }
 
@@ -108,10 +107,15 @@ h3{
 	height: auto;
 }
 
+.dropdown{
+	display: flex;
+	flex-direction: column;
+}
+
 .subdraft-details{
 	display:none;
 	flex-direction: column;
-	justify-content: space-between;
+	justify-content: flex-start;
 }
 
 .align-top{
