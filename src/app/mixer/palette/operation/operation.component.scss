@@ -1,6 +1,5 @@
 .operation-container{
     position: absolute;
-    background: white;
     top: 0;
     left: 0;
     display: flex;
@@ -9,12 +8,43 @@
 }
 
 .top-row{
-    background: #00d1b2;
+    background: #333333;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     height: 30px;
 }
+
+button.input{
+    position: relative;
+	background-color: #00d1b2;
+	color: white;
+	border: none;
+    width:30px;
+}
+
+button.cxn{
+    background-color: #00d1b2;
+    border: thin solid white;
+    color:  white;
+}
+
+button.is-primary{
+    background-color: #333333;
+    border-color: transparent;
+    color: #fff;
+}
+
+
+.cxn-row{
+    font-size: .8em;
+    display: flex;
+    flex-direction: row;
+    text-align: left;
+    background-color: transparent;
+
+}
+
 
 .param-row{
     vertical-align:middle;
@@ -56,7 +86,7 @@ button.is-primary.is-active{
 }
 
 .help{
-    background-color: #00d1b2;
+    background-color: #333333;
     color: white;
     height: 20px;
     border:none;
@@ -76,6 +106,7 @@ button.is-primary.is-active{
     display:flex;
     flex-direction: column;
     justify-content: flex-end;
+    background: rgba(255,255,255,0.8);
 }
 
 .inputs{

@@ -27,7 +27,7 @@
 
 	   <div class="bottom-opts">
 		<button matTooltip = "click here to use this draft as input"
-		class="button is-small is-primary"
+		class="button is-small output"
 		[class.is-active]="tree.isParent(id)"
 		(click) = "connectionStarted(id)"
 		>
@@ -39,8 +39,8 @@
 	
 			
 		<div class='dims_and_name'>
-			<div>{{draft.warps}} x {{draft.wefts}}</div>
-			<div><input matInput [(ngModel)]="draft.name"></div>
+			<div><input matInput [(ngModel)]="draft.name"> </div>
+			<div>{{draft.warps}} x {{draft.wefts}} </div>
 		</div>
 
 	</div>

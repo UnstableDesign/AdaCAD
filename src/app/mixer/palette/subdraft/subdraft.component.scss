@@ -85,6 +85,13 @@ h3{
 
 }
 
+button.output{
+    position: relative;
+	background-color: #00d1b2;
+	color: white;
+	border: none;
+}
+
 .drawing{
 	z-index: -1;
 
@@ -98,9 +105,12 @@ h3{
 }
 
 .dims_and_name{
-	display: flex;
-	flex-direction: column;
-    font-size: .7em;
+    display: flex;
+    flex-direction: row;
+    font-size: 0.7em;
+    margin: 0px 6px;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .mat-icon{
@@ -134,6 +144,15 @@ h3{
 
 button.is-primary.is-active{
     background-color: rgb(255, 64, 129);
+}
+
+button.is-primary{
+    background-color: rgba(255,255,255,.5);
+	color: black;
+}
+
+button{
+	width: 30px;
 }
 
 svg{

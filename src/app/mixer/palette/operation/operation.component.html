@@ -12,15 +12,36 @@ cdkDrag
 
 
     
+    
 
-    <div class="top-row">
+    <div class="cxn-row">
 
         <button 
-        class="button is-small is-primary"
+        class="button is-small input"
         [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
         (click)="inputSelected($event, ndx)">
         <i class="fas fa-chevron-right"></i>
-    </button>
+        </button>
+
+        
+
+        <button *ngFor="let input of tree.getNonCxnInputs(id); index as i;"
+            matTooltip = "click to remove this connection"
+            class="button is-small cxn"
+            (click)="removeConnectionTo(input)">
+            {{getInputName(input)}}
+        </button>
+        <ng-container *ngIf = "tree.getInputs(id).length == 0"> 
+            <div>takes {{op.max_inputs}} input</div>
+        </ng-container>       
+    
+
+       
+    </div>
+
+
+    <div class="top-row">
+
 
 
     <div class="operation-details">
@@ -53,30 +74,6 @@ cdkDrag
 
 
          
-    
-
-    <div class="param-row">
-        <div class="param-name">inputs </div>
-        <div class="param-inputs">
-
-        
-
-        <button *ngFor="let input of tree.getNonCxnInputs(id); index as i;"
-            matTooltip = "click to remove this connection"
-            class="button is-small is-primary is-active"
-            (click)="removeConnectionTo(input)">
-            <i class="fas fa-link"></i>
-            {{i}} {{getInputName(input)}}
-        </button>
-        <ng-container *ngIf = "tree.getInputs(id).length == 0"> 
-            <div>takes {{op.max_inputs}} input</div>
-        </ng-container>       
-     </div>
-
-
-       
-    </div>
-
 
 <div class="params">
 
