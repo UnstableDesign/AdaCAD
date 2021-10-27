@@ -23,8 +23,9 @@ import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { DraftviewerComponent } from '../../core/draftviewer/draftviewer.component';
-import { D } from '@angular/cdk/keycodes';
+import { D, E, R } from '@angular/cdk/keycodes';
 import { thresholdedReLU } from '@tensorflow/tfjs-layers/dist/exports_layers';
+import { SDK_VERSION } from 'firebase';
 
 @Component({
   selector: 'app-palette',
@@ -1337,63 +1338,115 @@ connectionDragged(mouse: Point, shift: boolean){
  * @param id 
  */
  async recalculateDownstreamDrafts(downstream_ops:Array<number>){
-  //recalculate downstream drafts
-  downstream_ops.forEach(op => {
-    this.recalcNextDownstreamDraft(op);
-    console.log("recalculating", op);
-  });
+  
+  //sequential functions;
+  // console.log("downstream is ", downstream_ops); 
+
+  // const functions: Array<Promise<any>> = downstream_ops.map(op => this.performOp);
+
+  // while(functions.length > 0){
+  //   const fx = functions.shift();
+  //   const resolved = await fx([]);
+  //   console.log("resolved ", fx);
+  // }
+
 }
 
-async recalcNextDownstreamDraft(next: number){
-  return await this.performOp(next);
+
+/**
+ * renders the given output of an operation to an existing subdraft or creates a new subdraft
+ * @param op the operation component that returned this draftmap
+ * @param draft_map a collection of the subdraft ids and corresponding drafts. 
+ * @returns an array of draft map with any values updated to reflect if a subdraft was created or destroyed
+ */
+renderDraftMap(op: OperationComponent, draft_map: Array<DraftMap>) : Array<DraftMap>{
+  console.log("rendering op", op.id)
+  const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
+  
+
+  const updated_maps: Array<DraftMap>  = draft_map.map(el => {
+    if(el.component_id < 0){
+      const sd = this.createSubDraft(el.draft, op.id);
+      sd.updatePositionFromParent(op);
+      sd.setParent(op.id);
+      op.addOutput({component_id: sd.id, draft:el.draft});
+      this.viewport.addObj(sd.id, sd.interlacement);
+      this.createConnection(op.id, sd.id);
+      this.tree.setSubdraftParent(sd.id, op.id);
+     return {component_id: sd.id, draft: el.draft};
+    } 
+    else{
+      const sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
+      sd.setNewDraft(el.draft);
+      return el;
+    } 
+  }); 
+
+  updated_maps.forEach(el => {
+    const sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
+    sd.updateSize(op);
+    op.setWidth(sd.bounds.width);
+    sd.drawDraft();
+  })
+
+  return updated_maps;
+
+}
+
+/**
+ * as the chain of operations is recomputing, it will sometimes need to add old inputs to the 
+ * list of updated inputs for recomputing the operation. 
+ * This function assembles that list and maintains the correct input order of the list
+ * @param op -the id of the operation in question 
+ * @param updated - the ordered list of input drafts
+ */
+composeInputDrafts(op: number, updated: Array<DraftMap>){
+
+  const inputs = this.tree.getNonCxnInputs(op);
+  
+  return inputs.map(el => {
+    const ndx = updated.findIndex(dm => dm.component_id == el);
+    if(ndx == -1) return (<SubdraftComponent>this.tree.getComponent(el)).draft;
+    else return updated[ndx].draft;
+  })
+
 }
 
 
-
-
- async performOp(op_id:number) : Promise<any> {
+/**
+ * performs the given operation and all downstream children affected by this change
+ * @param op_id 
+ */
+ async performOp(op_id:number, input_drafts: Array<Draft>) {
   
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
 
-  const inputs: Array<number> =  this.tree.getNonCxnInputs(op_id);
-
-
-  const input_drafts: Array<Draft> = inputs.map(input => {
-    const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
-    return sd.draft;
-   });
 
    op.perform(input_drafts)
-   .then(draft_map =>  {
-    const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
-  
-    draft_map.forEach((el, ndx) => {
-      let sd:SubdraftComponent = null;
-  
-      if(el.component_id >= 0){
-         sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
-         sd.setNewDraft(el.draft);
-         leftoffset.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
+   .then(draft_map => {
+     console.log("draft_map", op_id, draft_map)
+     return this.renderDraftMap(op, draft_map);
+   }).then(updated_draft_map => {
+      console.log("updated drafts", op_id, updated_draft_map)
 
-      }else{
-        sd = this.createSubDraft(el.draft, op.id);
-        sd.updatePositionFromParent(op);
-        sd.setParent(op.id);
-        op.addOutput({component_id: sd.id, draft:el.draft});
-       // const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
-        this.viewport.addObj(sd.id, sd.interlacement);
-        this.createConnection(op.id, sd.id);
-        this.tree.setSubdraftParent(sd.id, op.id);
-        
-      }
-      sd.updateSize(op);
+      const outputs: Array<number> = updated_draft_map
+        .map(ud => this.tree.getNonCxnOutputs(ud.component_id))
+        .reduce((acc, outputlist) => acc.concat(outputlist), []);
 
-      sd.updateSize(op);
-      op.setWidth(sd.bounds.width);
-      sd.drawDraft();
-    })
-   })
-   .catch(e => console.log('error on op.perform', e))
+  
+      //needs to check if it has other input drafts to this operation
+      const functions: Array<Promise<any>> = outputs.map(out_id => this.performOp(out_id, this.composeInputDrafts(out_id, updated_draft_map)));
+
+      return Promise.all(functions);
+
+
+      // outputs.forEach(el => {
+      //   const ds_op:OperationComponent = <OperationComponent>this.tree.getComponent(el);
+      //   ds_op.perform(updated_drafts).then(dm => {
+      //     this.renderDraftMap(ds_op, dm);
+      //   });
+      // })
+   });
 }
 
 /**
@@ -1408,7 +1461,15 @@ connectionMade(id:number){
   const sd: SubdraftComponent = <SubdraftComponent> this.tree.getOpenConnection();
   
   this.createConnection(sd.id, id);
-  this.performOp(id);
+
+  const inputs: Array<number> =  this.tree.getNonCxnInputs(id);
+  const input_drafts: Array<Draft> = inputs.map(input => {
+    const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
+    return sd.draft;
+   });
+
+
+  this.performOp(id, input_drafts);
   const ds: Array<number> = this.tree.getDownstreamOperations(id);
   this.recalculateDownstreamDrafts(ds);
   this.addTimelineState();
@@ -2093,17 +2154,28 @@ drawStarted(){
    * @param obj with attribute id describing the operation that called this
    * @returns 
    */
-   operationParamChanged(obj: any){
+   async operationParamChanged(obj: any){
     console.log("op param change", obj);
 
     if(obj === null) return;
 
-    
-    this.performOp(obj.id);
+  
 
-    const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
-    this.recalculateDownstreamDrafts(ds);
-    this.addTimelineState();
+    const inputs: Array<number> =  this.tree.getNonCxnInputs(obj.id);
+    const input_drafts: Array<Draft> = inputs.map(input => {
+      const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
+      return sd.draft;
+    });
+    this.performOp(obj.id, input_drafts);
+
+    
+    // this.performOp(obj.id).then(el => {
+    //   console.log("performed");
+    //   const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
+    //   this.recalculateDownstreamDrafts(ds);
+    //   this.addTimelineState();
+    // });
+  
 
   }
 
