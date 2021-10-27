@@ -411,9 +411,9 @@ export class TreeService {
  * @param id the id of the node to be removed
  */
   removeNode(id: number){
-    console.log("removing node ", id);
 
     const node: Node = this.getNode(id);
+    if(node === undefined) return;
 
     let unusued: Array<number> = [];
 

@@ -10,6 +10,8 @@ import { ViewportService } from '../../provider/viewport.service';
 import { TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
+import { Cell } from '../../../core/model/cell';
+import { generate } from 'rxjs';
 
 @Component({
   selector: 'app-operation',
@@ -150,17 +152,25 @@ export class OperationComponent implements OnInit {
    */
   perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
 
-  //needs to update witdth
     
     this.op = this.operations.getOp(this.name);
     return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
       .then(generated_drafts => {
+
+        //if we have more outputs here than we have generated drafts, we should update the already created drafts with empty drafts
+        if(generated_drafts.length < this.outputs.length){
+          this.outputs.forEach(out => {
+            out.draft = new Draft({warps: 1, wefts: 1});
+          })
+          return this.outputs;
+        }
+
         return generated_drafts.map((draft, ndx) => ({
             component_id: (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id,
             draft
           })
       )
-        })
+    })
 
     
   }

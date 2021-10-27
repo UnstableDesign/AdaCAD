@@ -26,6 +26,7 @@ import { DraftviewerComponent } from '../../core/draftviewer/draftviewer.compone
 import { D, E, R } from '@angular/cdk/keycodes';
 import { thresholdedReLU } from '@tensorflow/tfjs-layers/dist/exports_layers';
 import { SDK_VERSION } from 'firebase';
+import { geoBounds } from 'd3-geo';
 
 @Component({
   selector: 'app-palette',
@@ -713,20 +714,7 @@ export class PaletteComponent implements OnInit{
 
     //remove the node but get all the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
-   // const inputs:Array<number> = this.tree.getNonCxnInputs(id);
 
-
-    //inputs will always be of type op
-    // inputs.forEach(input => {
-    //   console.log("inputs = ", this.tree.getType(input));
-    //   if(this.tree.getType(input) == 'draft'){
-    //     const comp = <SubdraftComponent> this.tree.getComponent(input);
-    //     comp.has_active_connection = false;
-    //     comp.active_connection_order = 0;
-    //   }
-    // })
-
-    const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
     this.tree.removeNode(id);
  
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
@@ -738,10 +726,8 @@ export class PaletteComponent implements OnInit{
     });    
 
     //calls manually here so that the affected branches can be pinged before the node is deleted 
-    this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
     this.viewport.removeObj(id);
-
 
 
 
@@ -761,22 +747,19 @@ export class PaletteComponent implements OnInit{
    */
   removeOperation(id:number){
 
+    console.log("remove op", id);
+
+    if(id === undefined) return;
+
     //remove the node but get alll the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
     const outputs:Array<number> = this.tree.getNonCxnOutputs(id);
 
     outputs.forEach(output => {
-      if(this.tree.getType(output) == 'draft'){
-        const comp = <SubdraftComponent> this.tree.getComponent(output);
-        comp.has_active_connection = false;
-        comp.active_connection_order = 0;
-        comp.parent_id = -1;
-      }
+        this.removeSubdraft(output);
     })
 
-    const downstream_ops:Array<number> = this.tree.getDownstreamOperations(id);
     this.tree.removeNode(id);
-
 
 
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
@@ -786,10 +769,7 @@ export class PaletteComponent implements OnInit{
       this.tree.removeNode(cxn);
     });    
 
-
-
     //calls manually here so that the affected branches can be pinged before the node is deleted 
-    this.recalculateDownstreamDrafts(downstream_ops);
     this.removeFromViewContainer(ref);
     this.viewport.removeObj(id);
 
@@ -1333,24 +1313,6 @@ connectionDragged(mouse: Point, shift: boolean){
   this.tree.unsetOpenConnection();
 } 
 
-/**
- * given a node id, calculate any drafts that take place "downstream" from this draft
- * @param id 
- */
- async recalculateDownstreamDrafts(downstream_ops:Array<number>){
-  
-  //sequential functions;
-  // console.log("downstream is ", downstream_ops); 
-
-  // const functions: Array<Promise<any>> = downstream_ops.map(op => this.performOp);
-
-  // while(functions.length > 0){
-  //   const fx = functions.shift();
-  //   const resolved = await fx([]);
-  //   console.log("resolved ", fx);
-  // }
-
-}
 
 
 /**
@@ -1360,19 +1322,21 @@ connectionDragged(mouse: Point, shift: boolean){
  * @returns an array of draft map with any values updated to reflect if a subdraft was created or destroyed
  */
 renderDraftMap(op: OperationComponent, draft_map: Array<DraftMap>) : Array<DraftMap>{
-  console.log("rendering op", op.id)
-  const leftoffset: Point = {x: op.bounds.topleft.x, y: op.bounds.topleft.y};  
   
+  let left_padding: number = 0;  
 
   const updated_maps: Array<DraftMap>  = draft_map.map(el => {
     if(el.component_id < 0){
       const sd = this.createSubDraft(el.draft, op.id);
-      sd.updatePositionFromParent(op);
       sd.setParent(op.id);
+      sd.setPosition({
+        x: op.bounds.topleft.x + left_padding*this.default_cell_size,
+        y: op.bounds.topleft.y + op.bounds.height});
       op.addOutput({component_id: sd.id, draft:el.draft});
       this.viewport.addObj(sd.id, sd.interlacement);
       this.createConnection(op.id, sd.id);
       this.tree.setSubdraftParent(sd.id, op.id);
+      left_padding += (el.draft.warps + 2);
      return {component_id: sd.id, draft: el.draft};
     } 
     else{
@@ -1387,7 +1351,10 @@ renderDraftMap(op: OperationComponent, draft_map: Array<DraftMap>) : Array<Draft
     sd.updateSize(op);
     op.setWidth(sd.bounds.width);
     sd.drawDraft();
-  })
+  });
+
+
+
 
   return updated_maps;
 
@@ -1417,17 +1384,15 @@ composeInputDrafts(op: number, updated: Array<DraftMap>){
  * performs the given operation and all downstream children affected by this change
  * @param op_id 
  */
- async performOp(op_id:number, input_drafts: Array<Draft>) {
+ async performOp(op_id:number, input_drafts: Array<Draft>) : Promise<any> {
   
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
 
 
-   op.perform(input_drafts)
+   return op.perform(input_drafts)
    .then(draft_map => {
-     console.log("draft_map", op_id, draft_map)
      return this.renderDraftMap(op, draft_map);
    }).then(updated_draft_map => {
-      console.log("updated drafts", op_id, updated_draft_map)
 
       const outputs: Array<number> = updated_draft_map
         .map(ud => this.tree.getNonCxnOutputs(ud.component_id))
@@ -1439,13 +1404,6 @@ composeInputDrafts(op: number, updated: Array<DraftMap>){
 
       return Promise.all(functions);
 
-
-      // outputs.forEach(el => {
-      //   const ds_op:OperationComponent = <OperationComponent>this.tree.getComponent(el);
-      //   ds_op.perform(updated_drafts).then(dm => {
-      //     this.renderDraftMap(ds_op, dm);
-      //   });
-      // })
    });
 }
 
@@ -1469,10 +1427,10 @@ connectionMade(id:number){
    });
 
 
-  this.performOp(id, input_drafts);
-  const ds: Array<number> = this.tree.getDownstreamOperations(id);
-  this.recalculateDownstreamDrafts(ds);
-  this.addTimelineState();
+  this.performOp(id, input_drafts).then(el => {
+    this.addTimelineState();
+  });
+
   this.processConnectionEnd();
 
 }
@@ -1494,18 +1452,6 @@ connectionMade(id:number){
 
   console.log("removing connection ", obj, "connection id=", cxn);
   
-  const downstream:Array<number> = this.tree.getDownstreamOperations(cxn);
-  // const inputs_to_update: Array<number> = this.tree.getNonCxnInputs(obj.to);
-  // const from_comp: any = this.tree.getComponent(obj.from);
-  // const from_order_id = from_comp.active_connection_order;
-  
-  // //upddate the assignment order on input subdrafts
-  // inputs_to_update.forEach((el) => {
-  //   const comp: any = this.tree.getComponent(el);
-  //   if(comp.active_connection_order == from_order_id) comp.active_connection_order = 0;
-  //   if(comp.active_connection_order > from_order_id) comp.active_connection_order--;
-  // });
-
   const view_ref = this.tree.getViewRef(cxn);
   this.removeFromViewContainer(view_ref);
   this.tree.removeNode(cxn);
@@ -1515,8 +1461,12 @@ connectionMade(id:number){
   if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
 
   //this list has to be calculated before the node is deleted, and udpated after
-  this.recalculateDownstreamDrafts(downstream);
   this.processConnectionEnd();
+  
+  if(this.tree.getType(obj.to)==="op"){
+    this.performOp(obj.to, this.composeInputDrafts(obj.to, []));
+  }
+  
   this.addTimelineState();
 
 
@@ -2125,7 +2075,7 @@ drawStarted(){
     const ins = this.tree.getNonCxnInputs(obj.id);
 
     //if this an operation with one child, move the child. 
-    if(this.tree.getType(moving.id) === "draft" && ins.length == 1){
+    if(this.tree.getType(moving.id) === "draft" && !this.tree.isSibling(moving.id)){
         const input = <OperationComponent> this.tree.getComponent(ins[0]);
         input.updatePositionFromChild(moving);
         this.updateAttachedComponents({id: input.id}, false);
@@ -2143,7 +2093,6 @@ drawStarted(){
     console.log("on subdraft action", obj);
     if(obj === null) return;
     const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
-    this.recalculateDownstreamDrafts(ds);
     this.addTimelineState();
 
   }
@@ -2155,27 +2104,18 @@ drawStarted(){
    * @returns 
    */
    async operationParamChanged(obj: any){
-    console.log("op param change", obj);
 
     if(obj === null) return;
-
-  
 
     const inputs: Array<number> =  this.tree.getNonCxnInputs(obj.id);
     const input_drafts: Array<Draft> = inputs.map(input => {
       const  sd:SubdraftComponent = <SubdraftComponent> this.tree.getNode(input).component;
       return sd.draft;
     });
-    this.performOp(obj.id, input_drafts);
 
-    
-    // this.performOp(obj.id).then(el => {
-    //   console.log("performed");
-    //   const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
-    //   this.recalculateDownstreamDrafts(ds);
-    //   this.addTimelineState();
-    // });
-  
+    this.performOp(obj.id, input_drafts).then(el => {
+      this.addTimelineState();
+    });
 
   }
 
@@ -2192,7 +2132,7 @@ drawStarted(){
     if(moving === null) return; 
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
     this.updateAttachedComponents(obj, true);
-    // this.addTimelineState();
+    //this.addTimelineState();
 
   }
 
@@ -2211,8 +2151,6 @@ drawStarted(){
       
       this.updateAttachedComponents(moving, true);
 
-
-
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       
       if(isect.length == 0){
@@ -2220,7 +2158,6 @@ drawStarted(){
         return;
       } 
 
-      //const bounds: Bounds = this.getIntersectionBounds(moving, isect[0]);
       const bounds: Bounds = utilInstance.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
       if(this.hasPreview()) this.preview.setNewDraft(temp);
