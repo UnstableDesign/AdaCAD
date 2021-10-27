@@ -387,10 +387,7 @@ export class PaletteComponent implements OnInit{
     this.scale = scale;
 
     const zoom_factor: number = this.scale / this.default_cell_size;
-    // const palette_div = document.getElementById("palette");
-    // palette_div.style.transform = 'scale(' + (scale-4) + ')';
-
-      //   //var dims = this.render.getCellDims("base");
+   
       const container: HTMLElement = document.getElementById('palette');
       container.style.transformOrigin = 'top left';
       container.style.transform = 'scale(' + zoom_factor + ')';
@@ -845,10 +842,7 @@ export class PaletteComponent implements OnInit{
    */
   public designModeChanged(){
 
-    console.log('design mode changed', this.dm.getSelectedDesignMode('design_modes'));
-
     if(this.dm.getDesignMode('move', 'design_modes').selected){
-      console.log('unfreezing');
       this.unfreezePaletteObjects();
 
     }else{
@@ -858,13 +852,6 @@ export class PaletteComponent implements OnInit{
     if(this.dm.getDesignMode('draw', 'design_modes').selected || this.dm.getDesignMode('shape',  'design_modes').selected){
       this.rescale(Math.ceil(this.scale));
     }
-
-    // if(this.design_modes.isSelected('operation')){
-    //   this.disablePointerEvents();
-    // }else{
-    //   this.enablePointerEvents();
-    // }
-
 
   }
 
@@ -1349,17 +1336,22 @@ connectionDragged(mouse: Point, shift: boolean){
  * given a node id, calculate any drafts that take place "downstream" from this draft
  * @param id 
  */
-recalculateDownstreamDrafts(downstream_ops:Array<number>){
+ async recalculateDownstreamDrafts(downstream_ops:Array<number>){
   //recalculate downstream drafts
   downstream_ops.forEach(op => {
-    
-    this.performOp(op);
-
+    this.recalcNextDownstreamDraft(op);
+    console.log("recalculating", op);
   });
 }
 
+async recalcNextDownstreamDraft(next: number){
+  return await this.performOp(next);
+}
 
- performOp(op_id:number){
+
+
+
+ async performOp(op_id:number) : Promise<any> {
   
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
 
@@ -1382,19 +1374,20 @@ recalculateDownstreamDrafts(downstream_ops:Array<number>){
          sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
          sd.setNewDraft(el.draft);
          leftoffset.x = sd.bounds.topleft.x + sd.bounds.width + this.scale * 2;
+
       }else{
         sd = this.createSubDraft(el.draft, op.id);
+        sd.updatePositionFromParent(op);
         sd.setParent(op.id);
         op.addOutput({component_id: sd.id, draft:el.draft});
-        // sd.setPosition({x: leftoffset.x+(el.draft.warps+1)*ndx*this.scale, y: leftoffset.y + op.bounds.height});
-        // sd.setComponentSize(el.draft.warps * this.scale, el.draft.wefts * this.scale);
-        //const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+       // const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
         this.viewport.addObj(sd.id, sd.interlacement);
         this.createConnection(op.id, sd.id);
         this.tree.setSubdraftParent(sd.id, op.id);
         
       }
-      sd.updatePositionFromParent(op);
+      sd.updateSize(op);
+
       sd.updateSize(op);
       op.setWidth(sd.bounds.width);
       sd.drawDraft();
@@ -2043,8 +2036,6 @@ drawStarted(){
    */
   updateAttachedComponents(obj: any, follow: boolean){
 
-    console.log("update attached from ", obj.id, follow);
-
 
     //start by moving the original object than ripple out;
     const moving : any = this.tree.getComponent(obj.id);
@@ -2064,7 +2055,7 @@ drawStarted(){
    const outs: Array<number> = this.tree.getNonCxnOutputs(obj.id);
 
    //if this an operation with one child, move the child. 
-   if(this.tree.getType(moving.id) === "op" && outs.length <= 1){
+   if(this.tree.getType(moving.id) === "op" && outs.length == 1){
       const out = <SubdraftComponent> this.tree.getComponent(outs[0]);
       out.updatePositionFromParent(moving);
       this.updateAttachedComponents({id: out.id}, false);
@@ -2072,9 +2063,8 @@ drawStarted(){
 
     const ins = this.tree.getNonCxnInputs(obj.id);
 
-
     //if this an operation with one child, move the child. 
-    if(this.tree.getType(moving.id) === "draft" && ins.length <= 1){
+    if(this.tree.getType(moving.id) === "draft" && ins.length == 1){
         const input = <OperationComponent> this.tree.getComponent(ins[0]);
         input.updatePositionFromChild(moving);
         this.updateAttachedComponents({id: input.id}, false);
@@ -2141,13 +2131,13 @@ drawStarted(){
   
       //get the reference to the draft that's moving
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
+      
       if(moving === null) return; 
-
 
 
       this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
       
-      this.updateAttachedComponents(obj, true);
+      this.updateAttachedComponents(moving, true);
 
 
 

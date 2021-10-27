@@ -122,12 +122,6 @@ export class SubdraftComponent implements OnInit {
     this.bounds.width = this.draft.warps * this.scale;
     this.bounds.height = this.draft.wefts * this.scale;
 
-    if(this.parent_id != -1){
-      const parent = this.tree.getComponent(this.parent_id);
-      this.bounds.width = parent.bounds.width;
-      console.log("parent width", parent.bounds.width)
-    }
-
   }
 
 
@@ -136,12 +130,6 @@ export class SubdraftComponent implements OnInit {
 
     this.canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
     this.cx = this.canvas.getContext("2d");
-    // this.bounds.width = this.draft.warps * this.scale;
-    // this.bounds.height = this.draft.wefts * this.scale;
-
-
-
-
     this.drawDraft();
 
 
@@ -191,8 +179,6 @@ export class SubdraftComponent implements OnInit {
 
     updateSize(parent: OperationComponent){
 
-      console.log("updating size", parent.bounds, this.bounds)
-
 
       this.bounds.width = this.draft.warps * this.scale;
       this.bounds.height = this.draft.wefts * this.scale;
@@ -204,8 +190,6 @@ export class SubdraftComponent implements OnInit {
 
       this.bounds.width = Math.max(parent.bounds.width, this.bounds.width);
       this.bounds.height = Math.max(parent.bounds.height, this.bounds.height);
-
-      console.log("updating size complete")
   
   
     }

@@ -25,14 +25,20 @@ button.input{
 
 button.cxn{
     background-color: #00d1b2;
-    border: thin solid white;
-    color:  white;
+    border: none;
+    border-left: thin solid white;
+    color: white;
 }
 
 button.is-primary{
     background-color: #333333;
     border-color: transparent;
     color: #fff;
+}
+
+.input-name{
+    margin-left: 8px;
+    line-height: 30px;
 }
 
 
@@ -42,6 +48,7 @@ button.is-primary{
     flex-direction: row;
     text-align: left;
     background-color: transparent;
+    overflow: visible;
 
 }
 

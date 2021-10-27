@@ -1713,9 +1713,7 @@ computeYarnPaths(shuttles: Array<Shuttle>){
       pattern: Array<Array<Cell>>, 
       type: string
     ) {
-  
-      console.log("filling with", pattern);
-      
+        
       const rows = pattern.length;
       const cols = pattern[0].length;
       const store: Array<Array<Cell>> = [];

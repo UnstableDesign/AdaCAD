@@ -59,12 +59,12 @@ export class OperationComponent implements OnInit {
    
    tooltip: string = "select drafts to input to this operation"
   
-   disable_drag: boolean;
+   disable_drag: boolean = false;
  
    bounds: Bounds = {
      topleft: {x: 0, y:0},
      width: 200,
-     height: 40
+     height: 60
    };
    
    op:Operation;
@@ -104,7 +104,7 @@ export class OperationComponent implements OnInit {
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
     else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
-    this.base_height =  70 + 40 * this.op_inputs.length
+    this.base_height =  60 + 40 * this.op_inputs.length
     this.bounds.height = this.base_height;
 
 
@@ -115,12 +115,6 @@ export class OperationComponent implements OnInit {
   ngAfterViewInit(){
     this.rescale(this.scale);
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
-
-
-    const container = <HTMLElement> document.getElementById("scale-"+this.id);
-    this.bounds.height = container.offsetHeight;
-    this.bounds.width = container.offsetWidth;
-    
   }
 
 
@@ -246,6 +240,10 @@ export class OperationComponent implements OnInit {
 
   enableDrag(){
     this.disable_drag = false;
+  }
+
+  drop(){
+    console.log("dropped");
   }
 
   maxInputs():number{
