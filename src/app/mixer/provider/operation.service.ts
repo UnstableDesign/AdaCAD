@@ -1416,11 +1416,10 @@ export class OperationService {
           }
 
 
-          this.getOp('interlace').perform(inputs, [])
+          return this.getOp('interlace').perform(inputs, [])
             .then(overlay => {
               const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
               d.fill(pattern, "original");
-              console.log('filledd draft', d);
   
               overlay[0].pattern.forEach((row, ndx) => {
                 const layer_id:number = ndx % layers;

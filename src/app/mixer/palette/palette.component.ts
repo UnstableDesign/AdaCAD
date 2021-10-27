@@ -22,11 +22,7 @@ import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
-import { DraftviewerComponent } from '../../core/draftviewer/draftviewer.component';
-import { D, E, R } from '@angular/cdk/keycodes';
-import { thresholdedReLU } from '@tensorflow/tfjs-layers/dist/exports_layers';
-import { SDK_VERSION } from 'firebase';
-import { geoBounds } from 'd3-geo';
+
 
 @Component({
   selector: 'app-palette',
@@ -711,6 +707,7 @@ export class PaletteComponent implements OnInit{
     console.log("removing subdraft id", id);
 
     const parent_id = this.tree.getSubdraftParent(id);
+    const outputs = this.tree.getNonCxnOutputs(id);
 
     //remove the node but get all the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
@@ -718,7 +715,6 @@ export class PaletteComponent implements OnInit{
     this.tree.removeNode(id);
  
     const old_cxns:Array<number> = this.tree.getUnusuedConnections();
-    console.log("unused connection cxn ", old_cxns);
     old_cxns.forEach(cxn => {
       const cxn_view_ref = this.tree.getViewRef(cxn);
       this.removeFromViewContainer(cxn_view_ref);
@@ -735,6 +731,10 @@ export class PaletteComponent implements OnInit{
     if(parent_id != -1 && !this.tree.isParent(parent_id)){
       this.removeOperation(parent_id);
     }
+
+    outputs.forEach(out => {
+      this.performOp(out, []);
+    })
 
   }
 
@@ -2045,41 +2045,43 @@ drawStarted(){
    * handled by getNodesToUpdateOnMove
    * @param obj 
    */
-  updateAttachedComponents(obj: any, follow: boolean){
-
+  updateAttachedComponents(id: number, follow: boolean){
 
     //start by moving the original object than ripple out;
-    const moving : any = this.tree.getComponent(obj.id);
+    const moving : any = this.tree.getComponent(id);
 
-    this.tree.getInputs(obj.id).forEach(cxn => {
+    this.tree.getInputs(id).forEach(cxn => {
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
        comp.updateToPosition(moving);
     });
 
-    this.tree.getOutputs(obj.id).forEach(cxn => {
+    this.tree.getOutputs(id).forEach(cxn => {
       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
       comp.updateFromPosition(moving);
    });
 
    if(!follow) return;
 
-   const outs: Array<number> = this.tree.getNonCxnOutputs(obj.id);
+   const outs: Array<number> = this.tree.getNonCxnOutputs(id);
 
    //if this an operation with one child, move the child. 
-   if(this.tree.getType(moving.id) === "op" && outs.length == 1){
+   if(this.tree.getType(moving.id) === "op" && outs.length === 1){
       const out = <SubdraftComponent> this.tree.getComponent(outs[0]);
       out.updatePositionFromParent(moving);
-      this.updateAttachedComponents({id: out.id}, false);
+      this.updateAttachedComponents(out.id, false);
     }
 
-    const ins = this.tree.getNonCxnInputs(obj.id);
-
-    //if this an operation with one child, move the child. 
+    const ins = this.tree.getNonCxnInputs(id);
+    //if this is a draft with a parent, move the parent as well 
     if(this.tree.getType(moving.id) === "draft" && !this.tree.isSibling(moving.id)){
-        const input = <OperationComponent> this.tree.getComponent(ins[0]);
-        input.updatePositionFromChild(moving);
-        this.updateAttachedComponents({id: input.id}, false);
-     }
+      ins.forEach(input => {
+        const in_comp: OperationComponent = <OperationComponent> this.tree.getComponent(input);
+        in_comp.updatePositionFromChild(moving);
+        this.updateAttachedComponents(in_comp.id, false);
+      });
+    }
+      
+   
   }
 
 
@@ -2092,8 +2094,13 @@ drawStarted(){
   onSubdraftAction(obj: any){
     console.log("on subdraft action", obj);
     if(obj === null) return;
-    const ds: Array<number> = this.tree.getDownstreamOperations(obj.id);
+
+    const outputs = this.tree.getNonCxnOutputs(obj.id);
+    outputs.forEach(out => {
+      this.performOp(out, this.composeInputDrafts(out, []));
+    });
     this.addTimelineState();
+    this.changeDesignmode('move');
 
   }
 
@@ -2131,7 +2138,7 @@ drawStarted(){
     const moving = <OperationComponent> this.tree.getComponent(obj.id);
     if(moving === null) return; 
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
-    this.updateAttachedComponents(obj, true);
+    this.updateAttachedComponents(obj.id, true);
     //this.addTimelineState();
 
   }
@@ -2149,7 +2156,7 @@ drawStarted(){
 
       this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
       
-      this.updateAttachedComponents(moving, true);
+      this.updateAttachedComponents(moving.id, true);
 
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       
