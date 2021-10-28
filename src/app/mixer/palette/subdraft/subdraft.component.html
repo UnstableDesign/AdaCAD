@@ -19,13 +19,7 @@
 				
 				<div class="cloak" [class.hide]="set_connectable || !draft_visible">
 		
-				<button *ngIf='!draft_visible' 
-					matTooltip= "Show/Hide Draft"
-					class="button is-small is-primary"
-					(click)="showhide()"
-					>
-					<i class="fas fa-eye-slash"></i>		  
-				</button>
+				
 				
 			<!-- <ng-container *ngIf="parent_id === -1"> -->
 		
@@ -98,6 +92,13 @@
 				</button>
 
 
+				<button *ngIf='!draft_visible' 
+				matTooltip= "Show/Hide Draft"
+				class="button is-small is-primary"
+				(click)="showhide()"
+				>
+				<i class="fas fa-eye-slash"></i>		  
+				</button>
 			
 					
 				<div class='dims_and_name'>
