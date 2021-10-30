@@ -75,11 +75,11 @@ export interface LoadResponse{
 
 
 interface Fileloader{
-  ada: (data: any) => LoadResponse,
-  wif: (data: any) => LoadResponse,
-  bmp: (data: any) => LoadResponse,
-  jpg: (data: any) => LoadResponse,
-  form: (data: any) => LoadResponse
+  ada: (data: any) => Promise<LoadResponse>,
+  wif: (data: any) => Promise<LoadResponse>,
+  bmp: (data: any) => Promise<LoadResponse>,
+  jpg: (data: any) => Promise<LoadResponse>,
+  form: (data: any) => Promise<LoadResponse>
 }
 
 interface FileSaver{
@@ -122,7 +122,7 @@ export class FileService {
 
   const dloader: Fileloader = {
 
-     ada: (data: any) : LoadResponse => {
+     ada: async (data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -232,11 +232,11 @@ export class FileService {
         ops: ops
       }
 
-      return {data: envt, status: 0}; 
+      return Promise.resolve({data: envt, status: 0}); 
 
 
     }, 
-    wif: (data: any) : LoadResponse => {
+    wif: async (data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -312,14 +312,14 @@ export class FileService {
       ops: []
     }
 
-    return {data: f ,status: 0};
+    return Promise.resolve({data: f ,status: 0});
     },
     /**
      * takes in a jpg, creates as many drafts as there are unique colors in the image. 
      * @param data 
      * @returns 
      */
-    jpg: (data: any) : LoadResponse => {
+    jpg: async (data: any) : Promise<LoadResponse> => {
       console.log("processing JPG data")
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -407,9 +407,9 @@ export class FileService {
         ops: []
       }
   
-      return {data: f ,status: 0};  
+      return Promise.resolve({data: f ,status: 0});  
     },
-    bmp: (data: any) : LoadResponse => {
+    bmp: async (data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -457,9 +457,9 @@ export class FileService {
         ops: []
       }
   
-      return {data: f ,status: 0};    
+      return Promise.resolve({data: f ,status: 0});  
     },
-    form: (f:any):LoadResponse =>{
+    form: async (f:any):Promise<LoadResponse> =>{
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -522,7 +522,7 @@ export class FileService {
         ops: []
       }
 
-      return {data: envt, status: 0};
+      return Promise.resolve({data: envt, status: 0});
     }
   }
 

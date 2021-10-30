@@ -280,15 +280,19 @@ export class MixerComponent implements OnInit {
 
     let so: string = this.timeline.restorePreviousMixerHistoryState();
     
-    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
-    this.loadNewFile(lr);
+    this.fs.loader.ada(JSON.parse(so)).then(
+      lr => this.loadNewFile(lr)
+    );
+
+  
   }
 
   redo() {
 
     let so: string = this.timeline.restoreNextMixerHistoryState();
-    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
-    this.loadNewFile(lr);
+    this.fs.loader.ada(JSON.parse(so))
+    .then(lr =>  this.loadNewFile(lr));
+
    
   }
 

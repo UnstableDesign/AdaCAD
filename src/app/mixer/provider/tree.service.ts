@@ -1,4 +1,5 @@
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
+import { map } from 'lodash';
 import { Draft } from '../../core/model/draft';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
@@ -771,15 +772,27 @@ export class TreeService {
   }
 
    /**
+ * exports TopLevel drafts associated with this tree
+ * @returns an array of Drafts
+ */
+  exportDraftsForSaving() : Array<Draft> {
+
+    return this.getDrafts()
+    .filter(el => this.getSubdraftParent(el.id) === -1)
+    .map(el => el.draft);
+
+  }
+
+       /**
  * exports ALL drafts associated with this tree
  * @returns an array of Drafts
  */
-    exportDraftsForSaving() : Array<Draft> {
+        // exportDraftsForSaving() : Array<Draft> {
 
-      const drafts: Array<SubdraftComponent> = this.getDrafts();
-      const out: Array<Draft> = drafts.map(c => c.draft);
-      return out;
-    }
+        //   const drafts: Array<SubdraftComponent> = this.getDrafts();
+        //   const out: Array<Draft> = drafts.map(c => c.draft);
+        //   return out;
+        // }
 
   /**
    * exports all operation nodes with information that can be reloaded

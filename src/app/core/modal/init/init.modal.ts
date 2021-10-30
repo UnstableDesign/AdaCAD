@@ -40,13 +40,12 @@ export class InitModal implements OnInit {
   mixer_envt: any; 
   source: string; 
   density_units: any;
-  result: LoadResponse;
+  // result: LoadResponse;
   error: string;
 
 
   constructor(private dm: DesignmodesService, private dialogRef: MatDialogRef<InitModal>, 
     @Inject(MAT_DIALOG_DATA) private data: any, private fls: FileService) {
-      this.result  = null;
       this.source = data.source;
       this.error = "";
 
@@ -60,34 +59,29 @@ export class InitModal implements OnInit {
    * this is called on upload of a file from any location
    * @param e 
    */
-  handleFile(e: any) {
+  async handleFile(e: any) : Promise<any>{
 
-    let res: LoadResponse = null;
     console.log("handle file", e);
 
     switch(e.type){
       case 'image': 
-        res = this.fls.loader.bmp(e.data);
-      break; 
+      return this.fls.loader.bmp(e.data).then(
+        res => this.dialogRef.close(res)
+      );
+      case 'wif': 
+        return this.fls.loader.wif(e.data)
+        .then(
+          res => this.dialogRef.close(res)
+        );
+      
+      case 'ada': 
+        return this.fls.loader.ada(e.data)
+        .then(
+          res => this.dialogRef.close(res)
+        );
+        
 
-      case 'wif':
-        res = this.fls.loader.wif(e.data);
-      break;
-
-      case 'ada':
-        res = this.fls.loader.ada(e.data);
-      break;
     }
-
-    if(res == null) return;
-
-    // if(this.source !== 'mixer_envt' && res.data.drafts.length > 1) {
-    //   //open draft selection operation
-    //   this.error = "it looks like you are opening a file created with the mixer in our weaver tool. Select one draft to work with"
-    // }
-
-    this.valid = res.status === 0;
-    this.result = res;
   
   }
 
@@ -95,7 +89,7 @@ export class InitModal implements OnInit {
 
  
   onNoClick(): void {
-    this.dialogRef.close(this.result);
+    this.dialogRef.close(null);
   }
 
 
@@ -105,14 +99,10 @@ export class InitModal implements OnInit {
 
   save(f) {
 
-    let d: Draft = null;
-    //only add this data if a draft has not yet been processed
-    if(this.result === null || this.result.data.drafts.length == 0){
-     
-      this.result = this.fls.loader.form(f);
-    }
-
-    this.dialogRef.close(this.result);
+    return this.fls.loader.form(f)
+        .then(
+          res => this.dialogRef.close(res)
+        );
   }
 
 
