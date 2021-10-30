@@ -141,6 +141,7 @@ export class FileService {
       drafts = data.drafts.map(draftdata => {
         const draft: Draft =  new Draft({wefts: draftdata.wefts, warps: draftdata.warps, pattern: draftdata.pattern});
         if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
+        if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
         
         if(draftdata.shuttles !== undefined){
             //if there is only one draft here we are loading into the mixer and should add materials

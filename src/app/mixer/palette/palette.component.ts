@@ -555,7 +555,7 @@ export class PaletteComponent implements OnInit{
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
 
-    d.setName("draft_"+id);
+   //d.setName("draft_"+id);
     this.setSubdraftSubscriptions(subdraft.instance);
 
     subdraft.instance.draft = d;
