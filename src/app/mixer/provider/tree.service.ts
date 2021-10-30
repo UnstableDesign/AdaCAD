@@ -733,7 +733,8 @@ export class TreeService {
         node_id: node.id,
         type: node.type,
         bounds: node.component.bounds,
-        draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft.id : -1) 
+        draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft.id : -1),
+        draft_visible: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft_visible : true) 
       }
       objs.push(savable);
     })

@@ -19,6 +19,7 @@ import { PatternService } from './pattern.service';
   active: boolean,
   bounds: Bounds; 
   draft_id: number;
+  draft_visible: boolean;
  }
 
  export interface TreeNodeProxy{
@@ -82,10 +83,10 @@ interface Fileloader{
 }
 
 interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean) => string,
-  wif: (draft: Draft, loom: Loom) => string,
-  bmp: (canvas: HTMLCanvasElement) => string,
-  jpg: (canvas: HTMLCanvasElement) => string
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean) => Promise<string>,
+  wif: (draft: Draft, loom: Loom) => Promise<string>,
+  bmp: (canvas: HTMLCanvasElement) => Promise<string>,
+  jpg: (canvas: HTMLCanvasElement) => Promise<string>
 }
 
 
@@ -121,7 +122,7 @@ export class FileService {
 
   const dloader: Fileloader = {
 
-    ada: (data: any) : LoadResponse => {
+     ada: (data: any) : LoadResponse => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -534,7 +535,7 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
-    ada:  (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean) : string => {
+     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean) : Promise<string> => {
       //eventually need to add saved patterns here as well
       const out: SaveObj = {
         type: type,
@@ -549,12 +550,12 @@ export class FileService {
       }
 
       var theJSON = JSON.stringify(out);
-      if(for_timeline) return theJSON;
+      if(for_timeline) return Promise.resolve(theJSON);
 
       const href:string = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
       return href;
     },
-    wif: (draft: Draft, loom: Loom) : string => {
+    wif: async (draft: Draft, loom: Loom) : Promise<string> => {
       const shuttles: Array<Shuttle> = this.ms.getShuttles();
         //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
       var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
@@ -660,14 +661,14 @@ export class FileService {
       }
 
       const href:string = "data:" + fileType +";base64," + btoa(fileContents);
-      return href;
+      return Promise.resolve(href);
     },
-    bmp: (canvas:HTMLCanvasElement) : string => {
-      return canvas.toDataURL("image/jpg");
+    bmp: async (canvas:HTMLCanvasElement) : Promise<string> => {
+      return Promise.resolve(canvas.toDataURL("image/jpg"));
 
     },
-    jpg: (canvas:HTMLCanvasElement) : string => {
-      return canvas.toDataURL("image/jpg");
+    jpg: async (canvas:HTMLCanvasElement) : Promise<string> => {
+      return Promise.resolve(canvas.toDataURL("image/jpg"));
     }
   }
 

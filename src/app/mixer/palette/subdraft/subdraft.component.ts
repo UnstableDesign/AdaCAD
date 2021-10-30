@@ -607,26 +607,30 @@ export class SubdraftComponent implements OnInit {
     context.drawImage(this.canvas, 0, 0);
 
     const a = document.createElement('a')
-    a.href =  this.fs.saver.bmp(b);
-    a.download = this.draft.name + "_bitmap.jpg";
-    a.click();
+    return this.fs.saver.bmp(b)
+    .then(href => {
+      a.href =  href;
+      a.download = this.draft.name + "_bitmap.jpg";
+      a.click();
+      this.drawDraft();
 
-    this.drawDraft();
+    });
+    
 
-    return Promise.resolve(null);
+
       
   }
   
     async saveAsAda() : Promise<any>{
       const a = document.createElement('a');
-      a.href = this.fs.saver.ada('draft', [this.draft], [], false);
-      a.download = this.draft.name + ".ada";
-      a.click();
-
-      return Promise.resolve(null);
+      return this.fs.saver.ada('draft', [this.draft], [], false).then(href => {
+        a.href = href;
+        a.download = this.draft.name + ".ada";
+        a.click();
+      }); 
     }
   
-    public saveAsWif() {
+    async saveAsWif() {
 
       //make a loom for saving
       let loom = new Loom(this.draft, 8, 10);
@@ -635,15 +639,16 @@ export class SubdraftComponent implements OnInit {
       
 
       const a = document.createElement('a');
-      a.href = this.fs.saver.wif(this.draft, loom);
-      a.download  = this.draft.name +".wif";
-      a.click();
-
-      return Promise.resolve(null);
-
+      return this.fs.saver.wif(this.draft, loom)
+      .then(href => {
+        a.href = href;
+        a.download  = this.draft.name +".wif";
+        a.click();
+      });
+    
     }
   
-    public saveAsPrint() {
+    async saveAsPrint() {
      
       let dims = this.scale;
       let b = this.bitmap.nativeElement;
@@ -659,12 +664,13 @@ export class SubdraftComponent implements OnInit {
       context.drawImage(this.canvas, 0, 0);
 
       const a = document.createElement('a')
-      a.href =  this.fs.saver.jpg(b);
-      a.download = this.draft.name + ".jpg";
-      a.click();
-  
-  
-     
+      return this.fs.saver.jpg(b)
+        .then(href => {
+          a.href =  href;
+          a.download = this.draft.name + ".jpg";
+          a.click();
+      
+        });
     }
 
 

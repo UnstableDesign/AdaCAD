@@ -173,12 +173,12 @@ export class MixerComponent implements OnInit {
    //move through all the drafts 
     data.drafts.forEach(draft => {
     
-      const np:NodeComponentProxy = nodes.find(el => el.draft_id == draft.id);
+      const np:NodeComponentProxy = nodes.find(el => el.draft_id === draft.id);
       let new_id: number = -1;
       if(np === undefined){
          new_id = this.palette.createSubDraft(draft);
       }else{
-        new_id = this.palette.loadSubDraft(draft, np.bounds);
+        new_id = this.palette.loadSubDraft(draft, np.bounds, np.draft_visible);
         id_map.push({old: np.node_id, new: new_id});    
       }
     });
@@ -435,34 +435,39 @@ export class MixerComponent implements OnInit {
 
     switch(e.type){
       case 'jpg': 
-      link.href = this.fs.saver.jpg(this.palette.getPrintableCanvas(e));
-      link.download = e.name + ".jpg";
-      this.palette.clearCanvas();
-      link.click();
+
+      return this.fs.saver.jpg(this.palette.getPrintableCanvas(e))
+      .then(href => {
+        link.href= href;
+        link.download = e.name + ".jpg";
+        this.palette.clearCanvas();
+        link.click();
+      });
 
       break;
 
       case 'wif': 
-      this.palette.downloadVisibleDraftsAsWif();
+         this.palette.downloadVisibleDraftsAsWif();
+         return Promise.resolve(null);
       break;
 
       case 'ada': 
-      link.href = this.fs.saver.ada(
+      this.fs.saver.ada(
         'mixer', 
         this.tree.exportDraftsForSaving(),
         [],
-        false);
-        link.download = e.name + ".ada";
-        link.click();
+        false).then(href => {
+          link.href = href;
+          link.download = e.name + ".ada";
+          link.click();
+        })
       break;
 
       case 'bmp':
         this.palette.downloadVisibleDraftsAsBmp();
+        return Promise.resolve(null);
       break;
     }
-    return Promise.resolve(null);
-
-
   }
 
   /**

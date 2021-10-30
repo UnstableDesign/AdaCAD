@@ -327,26 +327,26 @@ export class PaletteComponent implements OnInit{
   addTimelineState(){
 
 
-    const so: string = this.fs.saver.ada(
+   this.fs.saver.ada(
       'mixer', 
       this.tree.exportDraftsForSaving(),
       [],
-      true);
-
-    this.timeline.addMixerHistoryState(so);
-
+      true)
+      .then(so => {
+        this.timeline.addMixerHistoryState(so);
+      });
   }
 
   /**
    * this cycles through all subdrafts and calls the download call on any subdrafts
    * who are currently visible. 
    */
-  downloadVisibleDraftsAsBmp(){
+  async downloadVisibleDraftsAsBmp() : Promise<any>{
 
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
     const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
     const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsBmp());
-    Promise.all(functions).then(el =>
+    return Promise.all(functions).then(el =>
       console.log("Downloaded "+functions.length+" files")
     );
 
@@ -356,12 +356,13 @@ export class PaletteComponent implements OnInit{
    * this cycles through all subdrafts and calls the download call on any subdrafts
    * who are currently visible. 
    */
-   downloadVisibleDraftsAsWif(){
+   async downloadVisibleDraftsAsWif() : Promise<any>{
 
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
     const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
     const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsWif());
-    Promise.all(functions).then(el =>
+    return Promise.all(functions)
+    .then(el =>
       console.log("Downloaded "+functions.length+" files")
     );
 
@@ -577,11 +578,12 @@ export class PaletteComponent implements OnInit{
    * @param d a Draft object for this component to contain
    * @returns the id of the instance created
    */
-   loadSubDraft(d: Draft, bounds:Bounds):number{
+   loadSubDraft(d: Draft, bounds:Bounds, visible: boolean):number{
     console.log("loading subdraft");
 
     const sd:SubdraftComponent = this.createSubDraft(d, -1);
     sd.bounds = bounds;
+    sd.draft_visible = visible;
     sd.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
     this.viewport.addObj(sd.id, utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale));
     return sd.id;
