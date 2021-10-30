@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../provider/tree.service';
+import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 @Component({
   selector: 'app-connection',
@@ -79,11 +80,18 @@ export class ConnectionComponent implements OnInit {
 
     if(from.id != this.from) console.error("attempting to move wrong FROM connection", from.id, this.from);
 
-    this.b_from = 
+    if((<SubdraftComponent>from).draft_visible){
+      this.b_from = 
       {x: from.bounds.topleft.x, 
        y: from.bounds.topleft.y + from.bounds.height};
-       this.calculateBounds();
-       this.drawConnection();
+    }else{
+      this.b_from = 
+      {x: from.bounds.topleft.x, 
+       y: from.bounds.topleft.y};
+    }
+
+    this.calculateBounds();
+    this.drawConnection();
     
   }
 

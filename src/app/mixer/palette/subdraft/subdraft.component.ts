@@ -46,7 +46,8 @@ export class SubdraftComponent implements OnInit {
   @Output() onConnectionMade = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onDesignAction = new  EventEmitter <any>();
-  @Output() onConnectionStarted:any = new EventEmitter()
+  @Output() onConnectionStarted:any = new EventEmitter();
+  @Output() onSubdraftViewChange:any = new EventEmitter();
 
   @ViewChild('bitmapImage', {static: false}) bitmap: any;
 
@@ -542,6 +543,7 @@ export class SubdraftComponent implements OnInit {
 
   showhide(){
     this.draft_visible = !this.draft_visible;
+    this.onSubdraftViewChange.emit(this.id);
   }
 
   connectionClicked(id:number){

@@ -480,6 +480,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.push(sd.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this)));
     this.subdraftSubscriptions.push(sd.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
+    this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
   }
 
   /**
@@ -1259,6 +1260,14 @@ export class PaletteComponent implements OnInit{
    }
   
 
+   /**
+    * this is called when an subdraft updates its show/hide value
+    */
+   onSubdraftViewChange(id: number){
+
+    this.updateAttachedComponents(id, false);
+
+   }
 
 
  /**
