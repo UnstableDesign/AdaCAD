@@ -22,6 +22,7 @@ import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
+import { thresholdedReLU } from '@tensorflow/tfjs-layers/dist/exports_layers';
 
 
 @Component({
@@ -480,6 +481,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.push(sd.onDuplicateCalled.subscribe(this.onDuplicateSubdraftCalled.bind(this)));
     this.subdraftSubscriptions.push(sd.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
+    this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
   }
 
   /**
@@ -1062,15 +1064,31 @@ export class PaletteComponent implements OnInit{
 
       const op = <OperationComponent> this.tree.getComponent(obj.id);
       const params = [];
+      let new_bounds: Bounds = null;
       op.op_inputs.forEach((input,ndx) => {
        params.push(input.value);
       });
 
-      const new_bounds = {
-        topleft: {x: op.bounds.topleft.x + op.bounds.width + this.scale * 2, y: op.bounds.topleft.y},
-        width: op.bounds.width,
-        height: op.bounds.height
+
+
+      if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
+
+        new_bounds = {
+          topleft: {x: op.bounds.topleft.x + 200 + this.scale * 2, y: op.bounds.topleft.y},
+          width: 200,
+          height: op.bounds.height
+        }
+
+      }else{
+
+        new_bounds = {
+          topleft: {x: op.bounds.topleft.x + op.bounds.width + this.scale * 2, y: op.bounds.topleft.y},
+          width: op.bounds.width,
+          height: op.bounds.height
+        }
+
       }
+
 
       const id: number = this.duplicateOperation(op.name, params, new_bounds);
       const new_op = <OperationComponent> this.tree.getComponent(id);
@@ -1259,6 +1277,14 @@ export class PaletteComponent implements OnInit{
    }
   
 
+   /**
+    * this is called when an subdraft updates its show/hide value
+    */
+   onSubdraftViewChange(id: number){
+
+    this.updateAttachedComponents(id, false);
+
+   }
 
 
  /**
