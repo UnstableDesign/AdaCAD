@@ -305,6 +305,35 @@ export class TreeService {
     return (tn.outputs.length > 0);
   }
 
+    /**
+   * test if this node has just one child. 
+   * @param id 
+   * @returns a boolean 
+   */
+    hasSingleChild(id: number):boolean{
+        const tn: TreeNode = this.getTreeNode(id);
+        return (tn.outputs.length === 1);
+    }
+
+
+    /**
+     * test if this node has just one child and that child subdraft is currently hidden 
+     * @param id 
+     * @returns a boolean 
+     */
+      opHasHiddenChild(id: number):boolean{
+          const tn: TreeNode = this.getTreeNode(id);
+          const outs = this.getNonCxnOutputs(id);
+
+          if(outs.length === 0) return false;
+
+          const child_id = outs.shift();
+          const sd = <SubdraftComponent> this.getComponent(child_id);
+          return !sd.draft_visible;
+      }
+  
+    
+
 
   /**
    * test if this node has many children, as opposed to just one
