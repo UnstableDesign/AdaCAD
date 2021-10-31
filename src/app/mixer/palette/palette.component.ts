@@ -17,7 +17,7 @@ import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { TreeService } from '../provider/tree.service';
-import { FileService, SaveObj } from './../../core/provider/file.service';
+import { FileService, NodeComponentProxy, SaveObj } from './../../core/provider/file.service';
 import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
@@ -556,7 +556,7 @@ export class PaletteComponent implements OnInit{
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
 
-   //d.setName("draft_"+id);
+    d.setName("draft_"+id);
     this.setSubdraftSubscriptions(subdraft.instance);
 
     subdraft.instance.draft = d;
@@ -575,18 +575,40 @@ export class PaletteComponent implements OnInit{
 
   /**
    * loads a subdraft component from data
-   * @param d a Draft object for this component to contain
-   * @returns the id of the instance created
+   * @param id the node id assigned to this element on load
+   * @param d the draft object to load into this subdraft
+   * @param nodep the component proxy used to define
    */
-   loadSubDraft(d: Draft, bounds:Bounds, visible: boolean):number{
-    console.log("loading subdraft");
+   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy){
+    console.log("loading subdraft", id, d, nodep);
 
-    const sd:SubdraftComponent = this.createSubDraft(d, -1);
-    sd.bounds = bounds;
-    sd.draft_visible = visible;
-    sd.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
-    this.viewport.addObj(sd.id, utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale));
-    return sd.id;
+    const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
+    const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+    const node = this.tree.getNode(id)
+    node.component = subdraft.instance;
+    node.ref = subdraft.hostView;
+
+    this.setSubdraftSubscriptions(subdraft.instance);
+    const parent = this.tree.getSubdraftParent(id);
+    subdraft.instance.draft = d;
+    subdraft.instance.id = id;
+    subdraft.instance.parent_id = parent;
+    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.scale = this.scale;
+    subdraft.instance.patterns = this.patterns;
+    subdraft.instance.draft_visible = (nodep.draft_visible === undefined)? true : nodep.draft_visible;
+    subdraft.instance.bounds = nodep.bounds;
+    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+    subdraft.instance.interlacement = utilInstance.resolvePointToAbsoluteNdx(nodep.bounds.topleft, this.scale);
+    this.viewport.addObj(id, utilInstance.resolvePointToAbsoluteNdx(nodep.bounds.topleft, this.scale));
+
+    if(parent !== -1){
+      const op: OperationComponent = <OperationComponent> this.tree.getComponent(parent);
+      if(op === null) console.error("subdraft parent not yet instantiated");
+      op.addOutput({component_id: id, draft: d});
+    }
+
+
   }
 
   /**
@@ -628,17 +650,30 @@ export class PaletteComponent implements OnInit{
    * @params params the input data to be used in this operation
    * @returns the id of the node this has been assigned to
    */
-     loadOperation(name: string, params: Array<number>, bounds:Bounds):number{
+     loadOperation(id: number, name: string, params: Array<number>, bounds:Bounds){
       
-      const op:OperationComponent = this.createOperation(name);
-      
-      op.loaded_inputs = params;
-      op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
-      op.bounds.width = bounds.width;
-      op.bounds.height = bounds.height;
-      op.loaded = true;
 
-      return op.id;
+      const factory = this.resolver.resolveComponentFactory(OperationComponent);
+      const op = this.vc.createComponent<OperationComponent>(factory);
+      const node = this.tree.getNode(id)
+      node.component = op.instance;
+      node.ref = op.hostView;
+  
+      this.setOperationSubscriptions(op.instance);
+
+      op.instance.name = name;
+      op.instance.id = id;
+      op.instance.zndx = this.layers.createLayer();
+      op.instance.scale = this.scale;
+      op.instance.default_cell = this.default_cell_size;
+
+      op.instance.loaded_inputs = params;
+      op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+      op.instance.bounds.width = bounds.width;
+      op.instance.bounds.height = bounds.height;
+      op.instance.loaded = true;
+
+     
     }
 
     /**
@@ -659,6 +694,28 @@ export class PaletteComponent implements OnInit{
     
           return op.id;
       }
+
+
+
+    /**
+     * creates a connection component and registers it with the tree
+     * @returns the list of all id's connected to the "to" node 
+     */
+     loadConnection(id: number, id_from: number, id_to:number){
+
+      const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
+      const cxn = this.vc.createComponent<ConnectionComponent>(factory);
+      const node = this.tree.getNode(id)
+      node.component = cxn.instance;
+      node.ref = cxn.hostView;
+        
+      cxn.instance.id = id;
+      cxn.instance.scale = this.scale;
+      cxn.instance.from = id_from;
+      cxn.instance.to = id_to;
+
+    }
+
 
 
     /**
@@ -1193,6 +1250,9 @@ export class PaletteComponent implements OnInit{
 
 
 
+
+
+
  /**
  * adds a connector flag to any subdrafts that we are allowed to connect to from this operation
  */
@@ -1407,6 +1467,16 @@ composeInputDrafts(op: number, updated: Array<DraftMap>){
 
 }
 
+ //called on load, asks each object from top down to perform itself to update the downstream elements 
+async performTopLevelOps() : Promise<any> {
+
+  const fns = this.tree.getTopLevelOps()
+    .map(el => this.performOp(el, this.composeInputDrafts(el, (<OperationComponent>this.tree.getComponent(el)).outputs)))
+
+  return Promise.all(fns);
+
+}
+
 
 /**
  * performs the given operation and all downstream children affected by this change
@@ -1415,13 +1485,13 @@ composeInputDrafts(op: number, updated: Array<DraftMap>){
  async performOp(op_id:number, input_drafts: Array<Draft>) : Promise<any> {
   
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
-
+  console.log("PERFORMING OP ", op.name, input_drafts);
 
    return op.perform(input_drafts)
    .then(draft_map => {
      return this.renderDraftMap(op, draft_map);
    }).then(updated_draft_map => {
-
+      console.log("updated draft map on ", op.name, updated_draft_map);
       const outputs: Array<number> = updated_draft_map
         .map(ud => this.tree.getNonCxnOutputs(ud.component_id))
         .reduce((acc, outputlist) => acc.concat(outputlist), []);

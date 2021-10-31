@@ -96,7 +96,7 @@ export class OperationService {
             d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
             d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
           }
-          return d;
+          return  d;
         });
         return Promise.resolve(outputs);
       }        
@@ -311,6 +311,7 @@ export class OperationService {
         if(inputs.length < 1) return Promise.resolve([]);
 
         const first: Draft = inputs.shift();
+        console.log("first", first);
 
         const outputs: Array<Draft> = [];
 
@@ -320,11 +321,14 @@ export class OperationService {
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
+        console.log("inputs, w, h", first, inputs, width, height);
+
         //initialize the base container with the first draft at 0,0, unset for anythign wider
         const init_draft: Draft = new Draft({wefts: height, warps: width});
           
         first.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
+              console.log("in overlay", i, j, init_draft.pattern);
               init_draft.pattern[i][j].setHeddle(cell.getHeddle());
             });
           });
@@ -1023,6 +1027,7 @@ export class OperationService {
         }else{
            outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            console.log(input, pattern);
             d.fill(pattern, 'mask');
             return d;
           });
@@ -1251,33 +1256,33 @@ export class OperationService {
     }
 
 
-    // const replicate: Operation = {
-    //   name: 'replicate',
-    //   dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
-    //   params: [ {
-    //     name: 'copies',
-    //     min: 1,
-    //     max: 100,
-    //     value: 1,
-    //     dx: 'the number of mirrors to produce'
-    //   }],
-    //   max_inputs: 1, 
-    //   perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+    const replicate: Operation = {
+      name: 'mirror',
+      dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
+      params: [ {
+        name: 'copies',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: 'the number of mirrors to produce'
+      }],
+      max_inputs: 1, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
         
 
-    //     let outputs:Array<Draft> = [];
+        let outputs:Array<Draft> = [];
 
-    //     for(let i = 0; i < input_params[0]; i++){
-    //         const ds:Array<Draft> = inputs.map(input => {
-    //           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-    //           return d;
-    //         });
-    //         outputs = outputs.concat(ds);
-    //     }
-    //     return  Promise.resolve(outputs);
-    //   }
-    // }
+        for(let i = 0; i < input_params[0]; i++){
+            const ds:Array<Draft> = inputs.map(input => {
+              const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+              return d;
+            });
+            outputs = outputs.concat(ds);
+        }
+        return  Promise.resolve(outputs);
+      }
+    }
 
     const variants: Operation = {
       name: 'variants',
@@ -1721,7 +1726,7 @@ export class OperationService {
     this.ops.push(random);
     this.ops.push(interlace);
     this.ops.push(invert);
- //  this.ops.push(replicate);
+   this.ops.push(replicate);
     this.ops.push(flipx);
     this.ops.push(flipy);
     this.ops.push(shiftx);

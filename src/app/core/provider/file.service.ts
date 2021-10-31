@@ -124,6 +124,8 @@ export class FileService {
 
      ada: async (data: any) : Promise<LoadResponse> => {
 
+      console.log(data);
+
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];

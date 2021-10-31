@@ -59,6 +59,10 @@ export class TreeService {
 
   /**called from the file loader before a compoment has been initalized */
   loadNode(type: 'draft'|'op'|'cxn', id: number, active:boolean): number{
+
+
+    console.log("loading node", type);
+
     const node: Node = {
       type: type,
       ref: null,
@@ -81,6 +85,18 @@ export class TreeService {
     
 
     return node.id;
+  }
+
+
+  getConnectionsInvolving(node_id: number) : {from: number, to: number}{
+
+    const tn = this.getTreeNode(node_id);
+    if(tn.outputs.length !== 1) console.error("connection node has more than one to");
+    if(tn.inputs.length !== 1) console.error("connection node has more than one from");
+
+    return {from: tn.inputs[0].node.id, to: tn.outputs[0].node.id};
+
+
   }
 
   /**
@@ -130,13 +146,13 @@ export class TreeService {
   }
 
 
-  /**called from the file loader before a compoment has been initalized */
   /** depends on having nodes created first so that all tree nodes are present */
-  loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>){
+  loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): TreeNode{
     const tn: TreeNode = this.getTreeNode(node_id);
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
     tn.inputs = inputs.map(id => this.getTreeNode(id));
     tn.outputs = outputs.map(id => this.getTreeNode(id));
+    return tn;
   }
 
 
@@ -666,6 +682,33 @@ export class TreeService {
     const output_ids: Array<number> = tn.outputs.map(child => child.node.id);
     if(output_ids.length  > 1) console.log("Error: more than one output");
     return output_ids.pop();
+  }
+
+
+  /**
+   * returns the ids of the total set of operations that, when performed, will chain down to the other operations
+   */
+  getTopLevelOps() : Array<number> {
+
+    return this.nodes
+    .filter(el => el.type === "op")
+    .filter(el => this.getUpstreamOperations(el.id).length === 0)
+    .map(el => el.id);
+  }
+
+  /**
+   * returns a list of any drafts that have no parents
+   */
+  getTopLevelDrafts() : Array<number>{
+    
+    return this.nodes
+    .filter(el => el.type === "draft")
+    .map(el => this.getTreeNode(el.id))
+    .filter(el => el.parent === null)
+    .map(el => el.node.id);
+
+    
+
   }
 
 

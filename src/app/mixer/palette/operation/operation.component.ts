@@ -86,15 +86,24 @@ export class OperationComponent implements OnInit {
     private viewport: ViewportService,
     private tree: TreeService,
     private dm: DesignmodesService) { 
-    this.outputs = [];
+    
+      this.outputs = [];
 
+      this.op.params.forEach((param, ndx) => {
+        const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
+        this.op_inputs.push(new FormControl(value));
+      });
+  
 
 
   }
 
   ngOnInit() {
+    console.log("loading op", this.name);
+
 
     this.op = this.operations.getOp(this.name);
+
 
     this.op.params.forEach((param, ndx) => {
       const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
@@ -150,9 +159,10 @@ export class OperationComponent implements OnInit {
    * performs the operation on the inputs added in load
    * @returns an Array linking the draft ids to compoment_ids
    */
-  perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
+  async perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
 
-    
+    console.log("performing name ", this.name, this.op_inputs);
+
     this.op = this.operations.getOp(this.name);
     return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
       .then(generated_drafts => {
