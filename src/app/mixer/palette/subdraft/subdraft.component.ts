@@ -378,6 +378,7 @@ export class SubdraftComponent implements OnInit {
     this.bounds.width = temp.warps * this.scale;
     this.bounds.height = temp.wefts * this.scale;
     this.draft.reload(temp);
+    this.drawDraft();
 
   }
 

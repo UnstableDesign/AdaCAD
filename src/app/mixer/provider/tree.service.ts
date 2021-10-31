@@ -80,10 +80,10 @@ export class TreeService {
         inputs: []
       });
 
+
     this.num_created++;
 
-    
-
+  
     return node.id;
   }
 
@@ -431,6 +431,26 @@ export class TreeService {
       return ops;
     }
 
+        /**
+   * given an operation, get any operations that are linked by only one subdraft
+   * @param id 
+   * @returns an array of operation ids whose outputs form 
+   */
+     getInputOpsToAnOp(op_id: number):Array<number>{
+      
+      //and array of subdrafts
+      const inputs = this.getNonCxnInputs(op_id);
+      const nodes = inputs.map(el => this.getTreeNode(el));
+
+
+      const val  = nodes
+      .filter(el => el.parent !== null)
+      .map(el => el.parent.node.id);
+
+      return val;
+
+    }
+
     /**
    * given a node, recusively walks the tree and returns a list of all the drafts that are linked up the chain to this component
    * @param id 
@@ -511,9 +531,6 @@ export class TreeService {
     return to_delete.map(el => el.node.id);
   }
 
-  addNode(type: string){
-
-  }
 
   getTreeNode(id:number): TreeNode{
     //only searches top level - though all should be in one level
@@ -525,11 +542,12 @@ export class TreeService {
    * subdraft -> op (input to op)
    * op -> subdraft (output generatedd by op)
    * @returns an array of the ids of the elements connected to this op
-   * @todo add validation step here to make sure we don't end up in a loop
 
    */
   addConnection(from:number, to:number, cxn:number): Array<number>{
-    
+      console.log("adding connection", from, to);
+
+
     let from_tn: TreeNode = this.getTreeNode(from);
     let to_tn: TreeNode = this.getTreeNode(to);;
     const cxn_tn: TreeNode = this.getTreeNode(cxn);
@@ -538,6 +556,8 @@ export class TreeService {
     cxn_tn.inputs.push(from_tn);
     cxn_tn.outputs.push(to_tn);
     to_tn.inputs.push(cxn_tn);
+
+    if(from_tn.node.type === 'op') to_tn.parent = from_tn;
 
     return this.getNonCxnInputs(to);
 

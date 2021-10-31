@@ -1,7 +1,6 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DesignMode, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -10,8 +9,7 @@ import { ViewportService } from '../../provider/viewport.service';
 import { TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
-import { Cell } from '../../../core/model/cell';
-import { generate } from 'rxjs';
+import { OpgraphService } from '../../../core/provider/opgraph.service';
 
 @Component({
   selector: 'app-operation',
@@ -54,10 +52,10 @@ export class OperationComponent implements OnInit {
    duplicated: boolean = false;
 
 
-    /**
-    * stores a list of components and drafts generated as outputs 
-    */
-   outputs: Array<DraftMap>; 
+  //   /**
+  //   * stores a lit of the subdraft ids 
+  //   */
+  //  outputs: Array<number>;  
    
    tooltip: string = "select drafts to input to this operation"
   
@@ -85,14 +83,10 @@ export class OperationComponent implements OnInit {
     private dialog: MatDialog,
     private viewport: ViewportService,
     private tree: TreeService,
-    private dm: DesignmodesService) { 
+    private dm: DesignmodesService,
+    private opgraph: OpgraphService) { 
     
-      this.outputs = [];
-
-      this.op.params.forEach((param, ndx) => {
-        const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
-        this.op_inputs.push(new FormControl(value));
-      });
+      //this.outputs = [];
   
 
 
@@ -105,9 +99,11 @@ export class OperationComponent implements OnInit {
     this.op = this.operations.getOp(this.name);
 
 
-    this.op.params.forEach((param, ndx) => {
-      const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
-      this.op_inputs.push(new FormControl(value));
+    const graph_node = this.opgraph.getNode(this.id);
+
+
+    graph_node.params.forEach((val) => {
+      this.op_inputs.push(new FormControl(val));
     });
 
     const tl: Point = this.viewport.getTopLeft();
@@ -135,10 +131,10 @@ export class OperationComponent implements OnInit {
   }
 
 
-  setOutputs(dms: Array<DraftMap>){
-      this.outputs = dms.slice();
+  // setOutputs(dms: Array<DraftMap>){
+  //    // this.outputs = dms.slice();
 
-  }
+  // }
 
 
 
@@ -155,35 +151,6 @@ export class OperationComponent implements OnInit {
   }
 
 
-  /**
-   * performs the operation on the inputs added in load
-   * @returns an Array linking the draft ids to compoment_ids
-   */
-  async perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
-
-    console.log("performing name ", this.name, this.op_inputs);
-
-    this.op = this.operations.getOp(this.name);
-    return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
-      .then(generated_drafts => {
-
-        //if we have more outputs here than we have generated drafts, we should update the already created drafts with empty drafts
-        if(generated_drafts.length < this.outputs.length){
-          this.outputs.forEach(out => {
-            out.draft = new Draft({warps: 1, wefts: 1});
-          })
-          return this.outputs;
-        }
-
-        return generated_drafts.map((draft, ndx) => ({
-            component_id: (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id,
-            draft
-          })
-      )
-    })
-
-    
-  }
 
   rescale(scale:number){
 
@@ -201,11 +168,11 @@ export class OperationComponent implements OnInit {
 
     //consider rewrting to update on render size
 
-    if(this.outputs.length == 1){
-      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
-    }else{
-      this.bounds.width = 200;
-    }
+    // if(this.outputs.length == 1){
+    //   this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
+    // }else{
+    //   this.bounds.width = 200;
+    // }
 
     this.bounds.height = this.base_height * zoom_factor;
 
@@ -250,9 +217,9 @@ export class OperationComponent implements OnInit {
     this.bounds.width = (w > 200) ? w : 200;
   }
 
-  addOutput(dm: DraftMap){
-    this.outputs.push(dm);
-  }
+  // addOutput(dm: DraftMap){
+  //   this.outputs.push(dm);
+  // }
 
   disableDrag(){
     this.disable_drag = true;
@@ -292,6 +259,7 @@ export class OperationComponent implements OnInit {
 
   onParamChange(id: number, value: number){
     console.log(value);
+    this.opgraph.getNode(this.id).params[id] = value;
     this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});
   }
