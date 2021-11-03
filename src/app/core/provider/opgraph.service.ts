@@ -12,6 +12,11 @@ export interface OpGraphNode{
   dirty: boolean;
  }
 
+ export interface DraftNode{
+  id: number,
+  draft: Draft; 
+ }
+
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +25,16 @@ export class OpgraphService {
 
 
   nodes: Array<OpGraphNode> = [];
-
+  drafts: Array<DraftNode> = [];
 
   constructor(private ops: OperationService, private tree: TreeService) { }
+
+
+  async addDraftNode(id: number, draft: Draft) : Promise<DraftNode>{
+    const sd = {id, draft};
+    this.drafts.concat(sd);
+    return sd;
+  } 
 
   /**
    * adds a node with the given values, if no values are provided, adds default values
@@ -33,27 +45,78 @@ export class OpgraphService {
   addNode(id: number, name: string, params: Array<number>){
 
     const params_in = this.ops.getOp(name).params.map(el => el.value);
-    params_in.map((p, ndx) => {
+    const params_out = params_in.map((p, ndx) => {
       if(ndx < params.length) return params[ndx];
       else return p;
     })
+
 
 
     this.nodes.push(
       {
         id: id, 
         name: name,
-        params: params_in,
+        params: params_out.slice(),
         res: null,
         dirty: false
       }
     );
   }
 
+
+
+
+  async loadNode(id: number, name: string, params:Array<number>) : Promise<OpGraphNode>{
+    
+
+    const params_in = this.ops.getOp(name).params.map(el => el.value);
+    const params_out = params_in.map((p, ndx) => {
+      if(ndx < params.length) return params[ndx];
+      else return p;
+    });
+
+    const node =  {
+      id: id, 
+      name: name,
+      params: params_out.slice(),
+      res: null,
+      dirty: false
+    };
+
+    this.nodes.concat(node);
+
+    return Promise.resolve(node);
+  
+
+
+  }
+
   removeNode(id: number){
     this.nodes = this.nodes.filter(el => el.id !== id);
   }
 
+  getDraft(id: number) : Draft{
+    const found: DraftNode = this.drafts.find(el => el.id == id);
+    if(found === undefined) console.error("cannot find draft node at ",  id);
+    return found.draft;
+  }
+
+  getDraftNode(id: number) : DraftNode{
+    const found: DraftNode = this.drafts.find(el => el.id == id);
+    if(found === undefined) console.error("cannot find draft node at ",  id);
+    return found;
+  }
+
+    /**
+   * sets a new draft
+   * @param temp the draft to set this component to
+   */
+  setDraft(id: number, temp: Draft) {
+
+    const dn = this.getDraftNode(id);
+    dn.draft.reload(temp);
+    
+  }
 
 
   getNode(id: number) : OpGraphNode {
@@ -89,6 +152,8 @@ export class OpgraphService {
     return ready;
   }
 
+
+
 /**
  * performs the given operation and all downstream children affected by this change
  * @param op_id 
@@ -112,7 +177,6 @@ export class OpgraphService {
       return acc.concat(el.res);
     }, []);
   
-    console.log("performing on ", id, node.params, input_drafts);
 
     return op.perform(input_drafts, node.params)
       .then(res => {
@@ -121,7 +185,6 @@ export class OpgraphService {
         return this.getNodesWithDependenciesSatisfied();
       })
       .then(needs_performing => {
-        console.log("needs performing", needs_performing);
         const fns = needs_performing.map(el => this.performOp(el.id));
         return Promise.all(fns);      
       })

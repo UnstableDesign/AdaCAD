@@ -93,17 +93,15 @@ export class OperationComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log("loading op", this.name);
 
 
     this.op = this.operations.getOp(this.name);
-
-
     const graph_node = this.opgraph.getNode(this.id);
 
 
-    graph_node.params.forEach((val) => {
-      this.op_inputs.push(new FormControl(val));
+    this.op.params.forEach((val, ndx) => {
+      if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx]));
+      else this.op_inputs.push(new FormControl(val.value));
     });
 
     const tl: Point = this.viewport.getTopLeft();

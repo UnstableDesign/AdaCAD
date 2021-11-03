@@ -557,11 +557,10 @@ export class PaletteComponent implements OnInit{
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
-
     d.setName("draft_"+id);
+    this.opgraph.addDraftNode(id, d);
     this.setSubdraftSubscriptions(subdraft.instance);
 
-    subdraft.instance.draft = d;
     subdraft.instance.id = id;
     subdraft.instance.parent_id = parent;
     subdraft.instance.default_cell = this.default_cell_size;
@@ -582,7 +581,6 @@ export class PaletteComponent implements OnInit{
    * @param nodep the component proxy used to define
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy){
-    console.log("loading subdraft", id, d, nodep);
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -592,7 +590,6 @@ export class PaletteComponent implements OnInit{
 
     this.setSubdraftSubscriptions(subdraft.instance);
     const parent = this.tree.getSubdraftParent(id);
-    subdraft.instance.draft = d;
     subdraft.instance.id = id;
     subdraft.instance.parent_id = parent;
     subdraft.instance.default_cell = this.default_cell_size;
@@ -662,7 +659,6 @@ export class PaletteComponent implements OnInit{
       node.component = op.instance;
       node.ref = op.hostView;
   
-      this.opgraph.addNode(id, name, params);
       this.setOperationSubscriptions(op.instance);
 
       op.instance.name = name;
@@ -846,7 +842,10 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
       const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
       //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
-      subdraft.instance.draft = d;
+     
+
+      this.opgraph.addDraftNode(-1, d);
+
       subdraft.instance.id = -1;
       subdraft.instance.default_cell = this.default_cell_size;
       subdraft.instance.scale = this.scale;
@@ -1233,11 +1232,16 @@ export class PaletteComponent implements OnInit{
   this.selecting_connection = true;
 
   const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
-  
-  const adj: Point = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x, y: (sd.bounds.topleft.y+sd.bounds.height) - this.viewport.getTopLeft().y}
+
+    let adj: Point;
+
+  if(sd.draft_visible)
+   adj = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x, y: (sd.bounds.topleft.y+sd.bounds.height) - this.viewport.getTopLeft().y}
+  else 
+  adj = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x, y: (sd.bounds.topleft.y) - this.viewport.getTopLeft().y}
+
 
   this.unfreezePaletteObjects();
-  //this.setDraftsConnectable(this.connection_op_id);
 
   this.shape_bounds = {
     topleft: adj,
@@ -1333,7 +1337,7 @@ export class PaletteComponent implements OnInit{
   unfreezePaletteObjects(){
     const nodes: Array<any> = this.tree.getComponents();
     nodes.forEach(el => {
-      if(el.type != 'cxn'){
+      if(el != null && el.type !== 'cxn'){
         el.enableDrag();
       } 
     });
@@ -1404,78 +1408,14 @@ connectionDragged(mouse: Point, shift: boolean){
 
 
 
-/**
- * renders the given output of an operation to an existing subdraft or creates a new subdraft
- * @param op the operation component that returned this draftmap
- * @param draft_map a collection of the subdraft ids and corresponding drafts. 
- * @returns an array of draft map with any values updated to reflect if a subdraft was created or destroyed
- */
-renderDraftMap(op: OperationComponent, draft_map: Array<DraftMap>) : Array<DraftMap>{
-  
-  let left_padding: number = 0;  
-
-  const updated_maps: Array<DraftMap>  = draft_map.map(el => {
-    if(el.component_id < 0){
-      const sd = this.createSubDraft(el.draft, op.id);
-      sd.setParent(op.id);
-      sd.setPosition({
-        x: op.bounds.topleft.x + left_padding*this.default_cell_size,
-        y: op.bounds.topleft.y + op.bounds.height});
-      // op.addOutput({component_id: sd.id, draft:el.draft});
-      this.viewport.addObj(sd.id, sd.interlacement);
-      this.createConnection(op.id, sd.id);
-      this.tree.setSubdraftParent(sd.id, op.id);
-      left_padding += (el.draft.warps + 2);
-     return {component_id: sd.id, draft: el.draft};
-    } 
-    else{
-      const sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
-      sd.setNewDraft(el.draft);
-      return el;
-    } 
-  }); 
-
-  updated_maps.forEach(el => {
-    const sd = <SubdraftComponent> this.tree.getComponent(el.component_id);
-    sd.updateSize(op);
-    op.setWidth(sd.bounds.width);
-    sd.drawDraft();
-  });
-
-
-
-
-  return updated_maps;
-
-}
-
-/**
- * as the chain of operations is recomputing, it will sometimes need to add old inputs to the 
- * list of updated inputs for recomputing the operation. 
- * This function assembles that list and maintains the correct input order of the list
- * @param op -the id of the operation in question 
- * @param updated - the ordered list of input drafts
- */
-composeInputDrafts(op: number, updated: Array<DraftMap>){
-
-  const inputs = this.tree.getNonCxnInputs(op);
-  
-  return inputs.map(el => {
-    const ndx = updated.findIndex(dm => dm.component_id == el);
-    if(ndx == -1) return (<SubdraftComponent>this.tree.getComponent(el)).draft;
-    else return updated[ndx].draft;
-  })
-
-}
 
  //called on load, asks each object from top down to perform itself to update the downstream elements 
-// async performTopLevelOps() : Promise<any> {
+async performTopLevelOps() : Promise<any> {
 
-//   const fns = this.tree.getTopLevelOps()
-//     .map(el => this.performAndUpdateDownstream(el)
-
-//   return Promise.all(fns);
-// }
+   const fns = this.tree.getTopLevelOps()
+     .map(el => this.performAndUpdateDownstream(el));
+   return Promise.all(fns);
+}
 
 
 
@@ -1484,24 +1424,25 @@ async performAndUpdateDownstream(op_id:number){
   const ds = this.tree.getDownstreamOperations(op_id);
   ds.push(op_id);
   return this.opgraph.performOp(op_id)
-    .then(el => {
+    .then(el => {  //this should return a list of nodes touched
       
       ds.forEach(ds_op =>{
         const op = <OperationComponent> this.tree.getComponent(ds_op);
         const subdrafts: Array<number> = this.tree.getNonCxnOutputs(ds_op);
         const node = <OpGraphNode> this.opgraph.getNode(ds_op);
 
-        console.log("subdraft length, node res length on", op.id, subdrafts, node.res);
 
-        subdrafts.forEach((subdraft, ndx) => {
-          const comp = <SubdraftComponent> this.tree.getComponent(subdraft);
-            if(ndx < node.res.length){
-              comp.setNewDraft(node.res[ndx]);
-            }else{
-              // we need to delete this output
-              comp.setNewDraft(new Draft({warps: 1, wefts: 1}));
-            }
-        });
+        //adding and deleting nodes should be triggered by the opgraph
+        // subdrafts.forEach((subdraft, ndx) => {
+        //   const comp = <SubdraftComponent> this.tree.getComponent(subdraft);
+        //     if(ndx < node.res.length){
+        //       this.opgraph.setDraft(node.id, node.res[ndx]);
+        //       comp.setNewDraft(node.res[ndx]);
+        //     }else{
+        //       // we need to delete this output
+        //       comp.setNewDraft(new Draft({warps: 1, wefts: 1}));
+        //     }
+        // });
 
         //we need to create a new compomnent
         if(subdrafts.length < node.res.length){
@@ -1528,39 +1469,6 @@ async performAndUpdateDownstream(op_id:number){
     });
 
 }
-
-// /**
-//  * performs the given operation and all downstream children affected by this change
-//  * @param op_id 
-//  */
-//  async performOp(op_id:number, input_drafts: Array<Draft>) : Promise<any> {
-  
-//   const op:OperationComponent = <OperationComponent>this.tree.getComponent(op_id);
-//   console.log("PERFORMING OP ", op.name, input_drafts);
-
-//     this.op = this.operations.getOp(this.name);
-
-
-
-//    return op.perform(input_drafts)
-//    .then(draft_map => {
-//      return this.renderDraftMap(op, draft_map);
-//    }).then(updated_draft_map => {
-//       console.log("updated draft map on ", op.name, updated_draft_map);
-//       const outputs: Array<number> = updated_draft_map
-//         .map(ud => this.tree.getNonCxnOutputs(ud.component_id))
-//         .reduce((acc, outputlist) => acc.concat(outputlist), []);
-
-  
-//       //needs to check if it has other input drafts to this operation
-//       const functions: Array<Promise<any>> = outputs.map(out_id => this.performOp(out_id, this.composeInputDrafts(out_id, updated_draft_map)));
-
-//       return Promise.all(functions);
-
-//    });
-// }
-
-
 
 
 
@@ -2317,8 +2225,12 @@ drawStarted(){
 
       const bounds: Bounds = utilInstance.getCombinedBounds(moving, isect);
       const temp: Draft = this.getCombinedDraft(bounds, moving, isect);
-      if(this.hasPreview()) this.preview.setNewDraft(temp);
+      
+
+      if(this.hasPreview()) this.opgraph.setDraft(-1,temp);
       else this.createAndSetPreview(temp);
+
+
       this.preview.setPosition(bounds.topleft);
       this.preview.drawDraft(); 
       const interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale); 
@@ -2339,10 +2251,16 @@ drawStarted(){
   
       //creaet a subdraft of this intersection
       if(this.hasPreview()){
-        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: this.preview.draft.wefts, warps: this.preview.draft.warps}), -1);
+        const preview_draft = this.opgraph.getDraft(-1);
+        const sd: SubdraftComponent = this.createSubDraft(new Draft({wefts: preview_draft.wefts, warps: preview_draft.warps}), -1);
         const to_right: Point = this.preview.getTopleft();
+        const draft = this.opgraph.getDraft(sd.id);
+        draft.pattern = cloneDeep(preview_draft.pattern);
+        this.opgraph.setDraft(sd.id, draft);
+
+
+
         to_right.x += this.preview.bounds.width + this.scale *4;
-        sd.draft.pattern = cloneDeep(this.preview.draft.pattern);
         sd.setPosition(to_right);
         sd.setComponentSize(this.preview.bounds.width, this.preview.bounds.height);
         sd.zndx = this.layers.createLayer();

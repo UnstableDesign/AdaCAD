@@ -12,15 +12,13 @@ import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 import { Draft } from '../core/model/draft';
 import { TreeService } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy } from '../core/provider/file.service';
-import { OperationComponent } from './palette/operation/operation.component';
-import { SubdraftComponent } from './palette/subdraft/subdraft.component';
-import { MixerViewComponent } from './modal/mixerview/mixerview.component';
-import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { NotesService } from '../core/provider/notes.service';
-import { G } from '@angular/cdk/keycodes';
+import { OpgraphService } from '../core/provider/opgraph.service';
+import { SDK_VERSION } from 'firebase';
+
 
 //disables some angular checking mechanisms
 //enableProdMode();
@@ -75,7 +73,8 @@ export class MixerComponent implements OnInit {
     private vp: ViewportService,
     private dialog: MatDialog,
     private http: HttpClient,
-    private notes: NotesService) {
+    private notes: NotesService,
+    private opgraph: OpgraphService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -223,16 +222,43 @@ export class MixerComponent implements OnInit {
 
     this.loadNodes(data.nodes)
     .then(el => {
-        console.log("loading nodes");
         return this.loadTreeNodes(data.treenodes);
       }
-    ).then(el => {
+    ).then(treenodes => {
+      console.log("returned tree nodes", treenodes);
+      const seednodes: Array<number> = treenodes
+        .filter(tn => this.tree.isSeedDraft(tn.node.id))
+        .map(tn => tn.node.id);
+     
+      const seeds: Array<{id, draft}> = seednodes
+      .map(sn =>  {
+        return {
+        id: sn,
+        draft: data.drafts.find(draft => draft.id === data.nodes.find(node => node.node_id === sn).draft_id)
+        }
+      });
+
+      const seed_fns = seeds.map(seed => this.opgraph.addSeedDraft(seed.id, seed.draft));
+      const op_fns = data.ops.map(op => this.opgraph.loadNode(op.node_id, op.name, op.params));
+      
+      return Promise.all([seed_fns, op_fns]);
+
+    }).then(opnodes => {
+      console.log("returned nodes", opnodes);
+
+      const toplevel = this.tree.getTopLevelOps();
+      console.log("toplevel ops ", toplevel);
+
+      
+
+    })
+    .then(opnodes => {
+        console.log("opgraph nodes created ", opnodes);
         console.log("creating components");
         return this.createAllComponents(data.nodes, data.drafts, data.ops);
       }
     ).then(el => {
         console.log("performing top level");
-       return this.palette.performTopLevelOps();
     });
 
     return Promise.resolve("all done");

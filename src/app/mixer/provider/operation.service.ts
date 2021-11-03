@@ -6,8 +6,6 @@ import { VaeService} from "../../core/provider/vae.service"
 import { PatternfinderService} from "../../core/provider/patternfinder.service"
 import utilInstance from '../../core/model/util';
 import { Loom } from '../../core/model/loom';
-import { input } from '@tensorflow/tfjs-layers';
-import { findIndex } from 'lodash';
 
 export interface OperationParams {
   name: string,
@@ -311,7 +309,6 @@ export class OperationService {
         if(inputs.length < 1) return Promise.resolve([]);
 
         const first: Draft = inputs.shift();
-        console.log("first", first);
 
         const outputs: Array<Draft> = [];
 
@@ -321,14 +318,12 @@ export class OperationService {
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
-        console.log("inputs, w, h", first, inputs, width, height);
 
         //initialize the base container with the first draft at 0,0, unset for anythign wider
         const init_draft: Draft = new Draft({wefts: height, warps: width});
           
         first.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
-              console.log("in overlay", i, j, init_draft.pattern);
               init_draft.pattern[i][j].setHeddle(cell.getHeddle());
             });
           });

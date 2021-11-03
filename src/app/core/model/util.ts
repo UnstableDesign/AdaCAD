@@ -396,12 +396,10 @@ class Util {
  * returns the number of warps that is greatest out of all the input drafts
  */
     public getMaxWarps(inputs: Array<Draft>) : number{
-      console.log("get max warps", inputs);
     const max_warps:number = inputs.reduce((acc, draft)=>{
       if(draft.warps > acc) return draft.warps;
       return acc;
       }, 0);
-      console.log("returning", max_warps);
       return max_warps;
   }
 

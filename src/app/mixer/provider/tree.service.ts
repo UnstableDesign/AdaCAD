@@ -61,8 +61,6 @@ export class TreeService {
   loadNode(type: 'draft'|'op'|'cxn', id: number, active:boolean): number{
 
 
-    console.log("loading node", type);
-
     const node: Node = {
       type: type,
       ref: null,
@@ -147,12 +145,12 @@ export class TreeService {
 
 
   /** depends on having nodes created first so that all tree nodes are present */
-  loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): TreeNode{
+  async loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): Promise<TreeNode>{
     const tn: TreeNode = this.getTreeNode(node_id);
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
     tn.inputs = inputs.map(id => this.getTreeNode(id));
     tn.outputs = outputs.map(id => this.getTreeNode(id));
-    return tn;
+    return Promise.resolve(tn);
   }
 
 
@@ -322,6 +320,16 @@ export class TreeService {
     return (tn.outputs.length > 0);
   }
 
+  /**
+   * test if this node is a seed (e.g. has no inputs)
+   * @param id 
+   * @returns a boolean 
+   */
+    isSeedDraft(id: number):boolean{
+      const tn: TreeNode = this.getTreeNode(id);
+      return (this.getType(id) === "draft" && tn.inputs.length === 0);
+    }
+
     /**
    * test if this node has just one child. 
    * @param id 
@@ -431,7 +439,7 @@ export class TreeService {
       return ops;
     }
 
-        /**
+   /**
    * given an operation, get any operations that are linked by only one subdraft
    * @param id 
    * @returns an array of operation ids whose outputs form 
@@ -545,7 +553,6 @@ export class TreeService {
 
    */
   addConnection(from:number, to:number, cxn:number): Array<number>{
-      console.log("adding connection", from, to);
 
 
     let from_tn: TreeNode = this.getTreeNode(from);
@@ -638,7 +645,6 @@ export class TreeService {
         return output_treenode.outputs.findIndex(op_treenode => op_treenode.node.id === to) !== -1;
       });
 
-      console.log(cxn_node, sd_node.outputs, to);
       if(cxn_node === undefined) return -1;
       
       return cxn_node.node.id;
