@@ -16,7 +16,6 @@ import { PatternService } from './pattern.service';
  export interface NodeComponentProxy{
   node_id: number,
   type: string,
-  active: boolean,
   bounds: Bounds; 
   draft_id: number;
   draft_visible: boolean;
@@ -544,7 +543,7 @@ export class FileService {
         drafts: drafts,
         looms: looms,
         patterns: this.ps.exportPatternsForSaving(),
-        nodes: this.tree.exportNodesForSaving(),
+        nodes: this.tree.exportNodesForSaving(this.tree.getDraftNodes()),
         tree: this.tree.exportTreeForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
         notes: this.ns.exportForSaving(),

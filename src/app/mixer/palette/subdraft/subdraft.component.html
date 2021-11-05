@@ -1,5 +1,5 @@
 
-<div id="con-{{draft.id}}" class="subdraft-container" [class.is_preview] = "is_preview"
+<div id="con-{{tree.getDraft(id).id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
 	[style.z-index] = "zndx"
 	[class.drawing] = "disable_drag && !is_preview"
@@ -11,7 +11,7 @@
 	(cdkDragStarted)="dragStart($event)">
 
 
-	<div id="scale-{{draft.id}}" class="subdraft-container">
+	<div id="scale-{{tree.getDraft(id).id}}" class="subdraft-container">
 
 	
 
@@ -102,8 +102,8 @@
 			
 					
 				<div class='dims_and_name'>
-					<div><input matInput [(ngModel)]="draft.name"> </div>
-					<div class="dims">{{draft.warps}} x {{draft.wefts}} </div>
+					<div><input matInput [(ngModel)]="tree.getDraft(id).name"> </div>
+					<div class="dims">{{tree.getDraft(id).warps}} x {{tree.getDraft(id).wefts}} </div>
 				</div>
 
 			</div>

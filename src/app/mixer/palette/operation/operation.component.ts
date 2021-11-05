@@ -6,10 +6,9 @@ import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
-import { TreeService } from '../../provider/tree.service';
+import { OpNode, TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
-import { OpgraphService } from '../../../core/provider/opgraph.service';
 
 @Component({
   selector: 'app-operation',
@@ -83,8 +82,7 @@ export class OperationComponent implements OnInit {
     private dialog: MatDialog,
     private viewport: ViewportService,
     private tree: TreeService,
-    private dm: DesignmodesService,
-    private opgraph: OpgraphService) { 
+    private dm: DesignmodesService) { 
     
       //this.outputs = [];
   
@@ -96,7 +94,7 @@ export class OperationComponent implements OnInit {
 
 
     this.op = this.operations.getOp(this.name);
-    const graph_node = this.opgraph.getNode(this.id);
+    const graph_node = <OpNode> this.tree.getNode(this.id);
 
 
     this.op.params.forEach((val, ndx) => {
@@ -124,8 +122,8 @@ export class OperationComponent implements OnInit {
 
 
   getInputName(id: number) : string {
-    const sd = <SubdraftComponent> this.tree.getComponent(id);
-    return sd.draft.name;
+    const sd = this.tree.getDraft(id);
+    return sd.name;
   }
 
 
@@ -257,7 +255,8 @@ export class OperationComponent implements OnInit {
 
   onParamChange(id: number, value: number){
     console.log(value);
-    this.opgraph.getNode(this.id).params[id] = value;
+    const opnode: OpNode = <OpNode> this.tree.getNode(id);
+    opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});
   }

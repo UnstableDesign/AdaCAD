@@ -16,7 +16,6 @@ import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { NotesService } from '../core/provider/notes.service';
-import { OpgraphService } from '../core/provider/opgraph.service';
 import { SDK_VERSION } from 'firebase';
 
 
@@ -73,8 +72,7 @@ export class MixerComponent implements OnInit {
     private vp: ViewportService,
     private dialog: MatDialog,
     private http: HttpClient,
-    private notes: NotesService,
-    private opgraph: OpgraphService) {
+    private notes: NotesService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -160,7 +158,7 @@ export class MixerComponent implements OnInit {
 
   async loadNodes(nodes: Array<NodeComponentProxy>) : Promise<any> {
 
-    const functions = nodes.map(n => this.tree.loadNode(<'draft'|'op'|'cxn'> n.type, n.node_id, n.active));
+    const functions = nodes.map(n => this.tree.loadNode(<'draft'|'op'|'cxn'> n.type, n.node_id));
     return Promise.all(functions);
 
   }
@@ -238,19 +236,13 @@ export class MixerComponent implements OnInit {
         }
       });
 
-      const seed_fns = seeds.map(seed => this.opgraph.addSeedDraft(seed.id, seed.draft));
-      const op_fns = data.ops.map(op => this.opgraph.loadNode(op.node_id, op.name, op.params));
+      const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.id, seed.draft));
+      const op_fns = data.ops.map(op => this.tree.loadOpData(op.node_id, op.name, op.params));
       
       return Promise.all([seed_fns, op_fns]);
 
     }).then(opnodes => {
-      console.log("returned nodes", opnodes);
-
       const toplevel = this.tree.getTopLevelOps();
-      console.log("toplevel ops ", toplevel);
-
-      
-
     })
     .then(opnodes => {
         console.log("opgraph nodes created ", opnodes);

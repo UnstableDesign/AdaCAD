@@ -6,8 +6,9 @@ import { Draft } from '../../model/draft';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
 import { ShuttlesModal } from '../shuttles/shuttles.modal';
-import { TreeService } from '../../../mixer/provider/tree.service';
+import { DraftNode, TreeService } from '../../../mixer/provider/tree.service';
 import utilInstance from '../../model/util';
+import { OperationService } from '../../../mixer/provider/operation.service';
 
 
 @Component({
@@ -69,11 +70,11 @@ export class MaterialModal{
     if(this.ms.getShuttles().length == 1) return;
 
     const map: Array<MaterialMap> = this.ms.deleteShuttle(index);
-    const drafts: Array<Draft> = this.tree.getDrafts().map(el => el.draft);
+    const dn: Array<DraftNode> = this.tree.getDraftNodes();
     
-    drafts.forEach(draft =>{
-      draft.rowShuttleMapping = utilInstance.updateMaterialIds( draft.rowShuttleMapping, map, this.replacements[index]);
-      draft.colShuttleMapping = utilInstance.updateMaterialIds( draft.colShuttleMapping, map, this.replacements[index]);
+    dn.forEach(dn =>{
+      dn.draft.rowShuttleMapping = utilInstance.updateMaterialIds( dn.draft.rowShuttleMapping, map, this.replacements[index]);
+      dn.draft.colShuttleMapping = utilInstance.updateMaterialIds( dn.draft.colShuttleMapping, map, this.replacements[index]);
 
     });
 
