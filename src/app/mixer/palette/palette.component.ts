@@ -10,7 +10,6 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
 import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
-import {cloneDeep, divide, isBuffer} from 'lodash';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
@@ -22,10 +21,6 @@ import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
-import { EOF } from 'dns';
-import { E } from '@angular/cdk/keycodes';
-import { EluGrad } from '@tensorflow/tfjs-core';
-
 
 @Component({
   selector: 'app-palette',
@@ -66,23 +61,6 @@ export class PaletteComponent implements OnInit{
    */
   selecting_connection: boolean = false;
 
-
-  //   /**
-  //  * a placeholder to reference a temporary rendering of an union between subdrafts
-  //  * used to preview the changes that will happen if the subdraft is to be dropped at that point
-  //  * @property {SubdraftComponent}
-  //  */
-  // preview: SubdraftComponent;
-
-  // /**
-  //  * a reference to the viewref for the intersection component to ease addign and deleting
-  //  * @property {ViewRef}
-  //  */
-  // preview_ref: ViewRef;
-
-
-
-  
   /**
    * store the viewRefs for each note
    */
@@ -558,40 +536,27 @@ export class PaletteComponent implements OnInit{
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
    */
-  createSubDraft(d: Draft, parent: number):Promise<SubdraftComponent>{
+  createSubDraft(d: Draft, parent: number) : Promise<SubdraftComponent>{
     
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
     this.setSubdraftSubscriptions(subdraft.instance);
-    
+    subdraft.instance.id = id;
+    subdraft.instance.draft = d;
+    subdraft.instance.parent_id = parent;
+    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.scale = this.scale;
+    subdraft.instance.patterns = this.patterns;
+    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
     return this.tree.loadDraftData(id, d)
       .then(d => {
         d.draft.setName("draft_"+id);
-        subdraft.instance.id = id;
-        subdraft.instance.dirty = this.tree.getNode(id).dirty;
-        subdraft.instance.parent_id = parent;
-        subdraft.instance.default_cell = this.default_cell_size;
-        subdraft.instance.scale = this.scale;
-        subdraft.instance.patterns = this.patterns;
-        subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-    
-        return subdraft.instance;
+        return Promise.resolve(subdraft.instance);
         }
-      ).catch(e => {
-        console.error(e);
-        subdraft.instance.id = id;
-        subdraft.instance.dirty = this.tree.getNode(id).dirty;
-        subdraft.instance.parent_id = parent;
-        subdraft.instance.default_cell = this.default_cell_size;
-        subdraft.instance.scale = this.scale;
-        subdraft.instance.patterns = this.patterns;
-        subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-    
-        return subdraft.instance;
-      })
+      )
   }
 
 
@@ -624,6 +589,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.interlacement = utilInstance.resolvePointToAbsoluteNdx(nodep.bounds.topleft, this.scale);
     this.viewport.addObj(id, utilInstance.resolvePointToAbsoluteNdx(nodep.bounds.topleft, this.scale));
 
+    console.log(subdraft.instance);
     // if(parent !== -1){
     //   const op: OperationComponent = <OperationComponent> this.tree.getComponent(parent);
     //   if(op === null) console.error("subdraft parent not yet instantiated");
@@ -655,6 +621,7 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(OperationComponent);
       const op = this.vc.createComponent<OperationComponent>(factory);
       const id = this.tree.createNode('op', op.instance, op.hostView);
+      
       this.tree.loadOpData(id, name, []);
       this.setOperationSubscriptions(op.instance);
 
@@ -876,11 +843,11 @@ export class PaletteComponent implements OnInit{
           sd.id = -1;
           sd.default_cell = this.default_cell_size;
           sd.scale = this.scale;
-          sd.dirty = dn.dirty;
+          sd.draft = d;
           sd.patterns = this.patterns;
           sd.ink = this.inks.getSelected(); //default to the currently selected ink
           sd.setAsPreview();
-          sd.disableDrag();
+          // sd.disableDrag();
           
           return dn;
 
@@ -1448,27 +1415,69 @@ async performTopLevelOps() : Promise<any> {
    return Promise.all(fns);
 }
 
+/**
+ * calculates the default topleft position for this node based on the width and size of its parent and/or neighbors
+ * @param id the id of the component to position
+ * @returns a promise for the updated bounds
+ */
+calculateInitialLocaiton(id: number) : Bounds {
 
+  const draft = this.tree.getDraft(id);
+  const new_bounds = {
+    topleft: this.viewport.getTopLeft(), 
+    width: draft.warps * this.default_cell_size,
+    height: draft.wefts * this.default_cell_size
+  }
 
-async performAndUpdateDownstream(op_id:number){
+  //if it has a parent, align it to the bottom edge
+  if(this.tree.hasParent(id)){
+    const parent_id = this.tree.getSubdraftParent(id);
+    const parent_bounds = this.tree.getComponent(parent_id).bounds;
+    new_bounds.topleft = {x: parent_bounds.topleft.x, y: parent_bounds.topleft.y + parent_bounds.height};
 
-  this.tree.performOp(op_id)
+    const outs = this.tree.getNonCxnOutputs(parent_id);
+    if(outs.length > 1){
+      const this_child = outs.findIndex(el => el === id);
+      if(this_child === -1){ console.error("subdraft not found in parent output list")};
+      
+      const updated_point: Point = outs
+      .filter((el, ndx) => (ndx < this_child))
+      .reduce((acc, el, ndx) => {
+        const el_draft = this.tree.getDraft(el);
+         acc.x = acc.x + (el_draft.warps + 2)*this.default_cell_size;
+         return acc;
+      }, new_bounds.topleft);
+      
+      new_bounds.topleft = updated_point;
+
+    }
+
+  }
+
+  console.log("new bounds", new_bounds);
+  return new_bounds;
+}
+/**
+ * this calls a function for an operation to perform and then subsequently calls all children 
+ * to recalculate. After each calculation, it redraws and or creates any new subdrafts
+ * @param op_id 
+ * @returns 
+ */
+performAndUpdateDownstream(op_id:number) : Promise<any>{
+
+  return this.tree.performOp(op_id)
   .then(draftnodes => {
     
-    //redraw existing nodes
+    //functions to redraw existing nodes
     const fns = draftnodes
       .filter(el => el.component !== null && el.dirty)
-      .map(el => {
-        (<SubdraftComponent> el.component).drawDraft;
-      });
+      .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
 
-    Promise.all(fns);
-
-    //create any new nodes
-    draftnodes
+    //create any new subdrafts nodes
+    const new_drafts = draftnodes
       .filter(el => el.component === null)
-      .forEach(el => {
-        this.loadSubDraft(
+      .map(el => {
+        return this.loadSubDraft(
           el.id, 
           (<DraftNode>el).draft, 
           {
@@ -1476,15 +1485,28 @@ async performAndUpdateDownstream(op_id:number){
             type: el.type,
             draft_id: (<DraftNode>el).draft.id,
             draft_visible: true,
-            bounds: {
-              topleft: {x: 0, y: 0}, 
-              width: 100,
-              height: 100
-            }
+            bounds: this.calculateInitialLocaiton(el.id)
           });
         });
+      
 
-  }).catch(console.error);
+        return  Promise.all([Promise.all(fns), Promise.all(new_drafts)]);
+        
+       
+  }).then(el => {
+    const loads =[];
+    const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);    
+    new_cxns.forEach(cxn => {
+      const from_node:Array<number> = this.tree.getInputs(cxn.id);
+      const to_node:Array<number> = this.tree.getOutputs(cxn.id);
+      if(from_node.length !== 1 || to_node.length !== 1) Promise.reject("connection has zero or more than one input or output");
+      loads.push(this.loadConnection(cxn.id, from_node[0], to_node[0]));
+    })
+
+    return Promise.all(loads);
+
+    }
+  );
 
   // const ds = this.tree.getDownstreamOperations(op_id);
   // ds.push(op_id);
@@ -2157,7 +2179,7 @@ drawStarted(){
            }
          }
          
-        el.drawDraft();
+        //el.drawDraft();
         }
     });
     this.addTimelineState();
@@ -2258,8 +2280,14 @@ drawStarted(){
     console.log("recalc operation", obj.id);
     if(obj === null) return;
 
-    await this.performAndUpdateDownstream(obj.id);
-    this.addTimelineState();
+    return this.performAndUpdateDownstream(obj.id)
+      .then(el => 
+      {
+        console.log("adding timeline state")
+        this.addTimelineState(); 
+      })
+      .catch(console.error);
+   
     
 
   }
@@ -2267,12 +2295,12 @@ drawStarted(){
   /**
    * gets a list of all the drafts that have been reset and redraws them
    * */
-  async redrawDirtyDrafts() : Promise<any> {
+  // async redrawDirtyDrafts() : Promise<any> {
 
-     const fns =  this.tree.getDirtyDrafts().map(el => (<SubdraftComponent> this.tree.getNode(el).component).drawDraft())
-     return Promise.all(fns);
+  //    const fns =  this.tree.getDirtyDrafts().map(el => (<SubdraftComponent> this.tree.getNode(el).component).drawDraft())
+  //    return Promise.all(fns);
     
-  }
+  // }
 
 
 /**
@@ -2329,9 +2357,8 @@ drawStarted(){
       if(this.tree.hasPreview()) {
        
         this.tree.setPreviewDraft(temp).then(dn => {
-          //dn.component.bounds = bounds;
-          (<SubdraftComponent> this.tree.preview.component).bling = bounds.topleft;
-         //(<SubdraftComponent> dn.component).setPosition(bounds.topleft)
+          dn.component.bounds = bounds;
+         (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
         });
       }else{
         this.createAndSetPreview(temp).then(dn => {
@@ -2364,7 +2391,7 @@ drawStarted(){
         this.createSubDraft(new Draft({wefts: preview_draft.wefts, warps: preview_draft.warps}), -1)
         .then(component => {
           this.tree.setDraftPattern(component.id, preview_draft.pattern);
-          this.redrawDirtyDrafts();
+          //this.redrawDirtyDrafts();
           to_right.x += preview_node.component.bounds.width + this.scale *4;
           component.setPosition(to_right);
           component.setComponentSize(preview_node.component.bounds.width, preview_node.component.bounds.height);
@@ -2408,7 +2435,7 @@ drawStarted(){
 
       this.tree.setDraft(primary.id, temp);
       primary.setPosition(bounds.topleft);
-      primary.drawDraft();
+      //primary.drawDraft();
       const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.scale);
 
       this.viewport.updatePoint(primary.id, interlacement);

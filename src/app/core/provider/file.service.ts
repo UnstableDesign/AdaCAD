@@ -543,7 +543,7 @@ export class FileService {
         drafts: drafts,
         looms: looms,
         patterns: this.ps.exportPatternsForSaving(),
-        nodes: this.tree.exportNodesForSaving(this.tree.getDraftNodes()),
+        nodes: this.tree.exportNodesForSaving(),
         tree: this.tree.exportTreeForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
         notes: this.ns.exportForSaving(),

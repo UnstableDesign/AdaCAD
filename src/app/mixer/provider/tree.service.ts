@@ -126,7 +126,7 @@ export class TreeService {
     if(this.preview === undefined) return Promise.reject("preview undefined");
       this.preview.draft = cloneDeep(draft);
       this.preview.dirty = true;
-      (<SubdraftComponent> this.preview.component).dirty = true;
+      (<SubdraftComponent> this.preview.component).draft = draft;
       return Promise.resolve(this.preview);
   }
 
@@ -1085,22 +1085,20 @@ export class TreeService {
    * converts all of the nodes in this tree for saving. 
    * @returns an array of objects that describe nodes
    */
-  exportNodesForSaving(drafts: Array<DraftNode>) : Array<NodeComponentProxy> {
+  exportNodesForSaving() : Array<NodeComponentProxy> {
 
     const objs: Array<any> = []; 
 
     this.nodes.forEach(node => {
-
-      const draft_node = drafts.find(el => el.id === node.id);
-
       const savable: NodeComponentProxy = {
         node_id: node.id,
         type: node.type,
         bounds: node.component.bounds,
-        draft_id: (draft_node !== undefined) ? draft_node.draft.id : -1,
+        draft_id: (node.type === 'draft') ? (<DraftNode>node).draft.id : -1,
         draft_visible: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft_visible : true) 
       }
       objs.push(savable);
+
     })
 
     return objs;
@@ -1139,7 +1137,7 @@ export class TreeService {
     const dn = <DraftNode> this.getNode(id);
     dn.draft.reload(temp);
     dn.dirty = true;
-    (<SubdraftComponent> dn.component).dirty = true;
+    (<SubdraftComponent> dn.component).draft = temp;
     
   }
 
@@ -1152,11 +1150,8 @@ export class TreeService {
 
     const dn = <DraftNode> this.getNode(id);
     dn.draft.pattern = cloneDeep(pattern);
-    (<SubdraftComponent> dn.component).dirty = true;
-    dn.dirty = true;
-
-    
-    
+    (<SubdraftComponent> dn.component).draft = dn.draft;
+    dn.dirty = true;    
   }
 
 
