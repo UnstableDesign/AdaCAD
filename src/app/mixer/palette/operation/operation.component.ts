@@ -254,8 +254,7 @@ export class OperationComponent implements OnInit {
   }
 
   onParamChange(id: number, value: number){
-    console.log(value);
-    const opnode: OpNode = <OpNode> this.tree.getNode(id);
+    const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});

@@ -298,8 +298,8 @@ export class PaletteComponent implements OnInit{
    */
   removeFromViewContainer(ref: ViewRef){
     const ndx: number = this.vc.indexOf(ref);
-    if(ndx != -1) this.vc.remove(ndx);
-    else console.log('Error: view ref not found for remvoal');
+    if(ndx !== -1) this.vc.remove(ndx);
+    else console.log('Error: view ref not found for removal', ref);
 
   }
 
@@ -541,10 +541,10 @@ export class PaletteComponent implements OnInit{
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
+    
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
-    subdraft.instance.parent_id = parent;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
@@ -577,26 +577,14 @@ export class PaletteComponent implements OnInit{
     node.ref = subdraft.hostView;
 
     this.setSubdraftSubscriptions(subdraft.instance);
-    const parent = this.tree.getSubdraftParent(id);
     subdraft.instance.id = id;
-    subdraft.instance.parent_id = parent;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.draft_visible = (nodep.draft_visible === undefined)? true : nodep.draft_visible;
     subdraft.instance.bounds = nodep.bounds;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
-    subdraft.instance.interlacement = utilInstance.resolvePointToAbsoluteNdx(nodep.bounds.topleft, this.scale);
-    this.viewport.addObj(id, utilInstance.resolvePointToAbsoluteNdx(nodep.bounds.topleft, this.scale));
-
-    console.log(subdraft.instance);
-    // if(parent !== -1){
-    //   const op: OperationComponent = <OperationComponent> this.tree.getComponent(parent);
-    //   if(op === null) console.error("subdraft parent not yet instantiated");
-    //   op.addOutput({component_id: id, draft: d});
-    // }
-
-
+    subdraft.instance.draft = d;
   }
 
   /**
@@ -737,8 +725,8 @@ export class PaletteComponent implements OnInit{
   addSubdraftFromDraft(d: Draft){
     this.createSubDraft(d, -1).then(sd => {
       sd.setPosition({x: this.viewport.getTopLeft().x, y: this.viewport.getTopLeft().y});
-      const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
-      this.viewport.addObj(sd.id, interlacement);
+      // const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+      // this.viewport.addObj(sd.id, interlacement);
       this.addTimelineState();
     });
     
@@ -749,9 +737,10 @@ export class PaletteComponent implements OnInit{
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
+   * @param called_by {number} tells us if this has been called by an operation parent
 
    */
-  removeSubdraft(id: number){
+  removeSubdraft(id: number, called_by: number){
 
     console.log("removing subdraft id", id);
 
@@ -777,7 +766,7 @@ export class PaletteComponent implements OnInit{
 
 
     // if the parent op has no children, remove the operation parent as well
-    if(parent_id != -1 && !this.tree.isParent(parent_id)){
+    if(called_by !== parent_id && parent_id !== -1 && !this.tree.isParent(parent_id)){
       this.removeOperation(parent_id);
     }
 
@@ -800,14 +789,13 @@ export class PaletteComponent implements OnInit{
 
     if(id === undefined) return;
 
-    this.tree.removeNode(id);
 
     //remove the node but get alll the ops before it is removed 
     const ref:ViewRef = this.tree.getViewRef(id);
     const outputs:Array<number> = this.tree.getNonCxnOutputs(id);
 
     outputs.forEach(output => {
-        this.removeSubdraft(output);
+        this.removeSubdraft(output, id);
     })
 
     this.tree.removeNode(id);
@@ -1092,7 +1080,7 @@ export class PaletteComponent implements OnInit{
       
       console.log("deleting "+obj.id);
       if(obj === null) return;
-      this.removeSubdraft(obj.id);
+      this.removeSubdraft(obj.id, -1);
       this.addTimelineState();
    }
 
@@ -1170,7 +1158,7 @@ export class PaletteComponent implements OnInit{
             x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
             y: sd.bounds.topleft.y});  
           const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
-          this.viewport.addObj(new_sd.id, interlacement);
+          //this.viewport.addObj(new_sd.id, interlacement);
           this.addTimelineState();
         }).catch(console.error);
        
@@ -2165,7 +2153,7 @@ drawStarted(){
 
       if(el.isSameBoundsAs(ibound)){
          console.log("Component had same Bounds as Intersection, Consumed");
-         this.removeSubdraft(el.id);
+         this.removeSubdraft(el.id, -1);
       }else{
          const draft = this.tree.getDraft(el.id);
          const sd_draft = draft.pattern;
@@ -2443,7 +2431,7 @@ drawStarted(){
 
     //remove the intersecting drafts from the view containier and from subrefts
     isect.forEach(element => {
-      this.removeSubdraft(element.id);
+      this.removeSubdraft(element.id, -1);
     });
     return true;
   }

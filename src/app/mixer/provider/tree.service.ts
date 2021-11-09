@@ -766,12 +766,12 @@ export class TreeService {
 
   const node = <OpNode> this.getNode(id);
   const op = this.ops.getOp(node.name);
-  console.log("op", op, "name", node.name);
 
   const inputs = this.getNonCxnInputs(id);
-  const input_drafts: Array<Draft> =  inputs.map(input => (<DraftNode> this.getNode(id)).draft);
+  const input_drafts: Array<Draft> =  inputs.map(input => (<DraftNode> this.getNode(input)).draft);
   
 
+  console.log("perfoming op", id, input_drafts)
   return op.perform(input_drafts, node.params)
     .then(res => {
       node.dirty = false;
