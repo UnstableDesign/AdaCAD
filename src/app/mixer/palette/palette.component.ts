@@ -22,6 +22,9 @@ import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
+import { EOF } from 'dns';
+import { E } from '@angular/cdk/keycodes';
+import { EluGrad } from '@tensorflow/tfjs-core';
 
 
 @Component({
@@ -373,9 +376,9 @@ export class PaletteComponent implements OnInit{
 
 
   /**
-   * called anytime an operation is added
-   * @param name 
-   */
+  //  * called anytime an operation is added
+  //  * @param name 
+  //  */
   addOperation(name:string){
     const op:OperationComponent = this.createOperation(name);
   }
@@ -878,6 +881,7 @@ export class PaletteComponent implements OnInit{
           sd.ink = this.inks.getSelected(); //default to the currently selected ink
           sd.setAsPreview();
           sd.disableDrag();
+          
           return dn;
 
       });
@@ -1447,6 +1451,40 @@ async performTopLevelOps() : Promise<any> {
 
 
 async performAndUpdateDownstream(op_id:number){
+
+  this.tree.performOp(op_id)
+  .then(draftnodes => {
+    
+    //redraw existing nodes
+    const fns = draftnodes
+      .filter(el => el.component !== null && el.dirty)
+      .map(el => {
+        (<SubdraftComponent> el.component).drawDraft;
+      });
+
+    Promise.all(fns);
+
+    //create any new nodes
+    draftnodes
+      .filter(el => el.component === null)
+      .forEach(el => {
+        this.loadSubDraft(
+          el.id, 
+          (<DraftNode>el).draft, 
+          {
+            node_id: el.id,
+            type: el.type,
+            draft_id: (<DraftNode>el).draft.id,
+            draft_visible: true,
+            bounds: {
+              topleft: {x: 0, y: 0}, 
+              width: 100,
+              height: 100
+            }
+          });
+        });
+
+  }).catch(console.error);
 
   // const ds = this.tree.getDownstreamOperations(op_id);
   // ds.push(op_id);
@@ -2217,6 +2255,7 @@ drawStarted(){
    */
    async operationParamChanged(obj: any){
 
+    console.log("recalc operation", obj.id);
     if(obj === null) return;
 
     await this.performAndUpdateDownstream(obj.id);
@@ -2285,11 +2324,14 @@ drawStarted(){
       const bounds: Bounds = utilInstance.getCombinedBounds(moving, seed_drafts);
       const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
       
+
+
       if(this.tree.hasPreview()) {
        
         this.tree.setPreviewDraft(temp).then(dn => {
-          dn.component.bounds = bounds;
-          (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
+          //dn.component.bounds = bounds;
+          (<SubdraftComponent> this.tree.preview.component).bling = bounds.topleft;
+         //(<SubdraftComponent> dn.component).setPosition(bounds.topleft)
         });
       }else{
         this.createAndSetPreview(temp).then(dn => {

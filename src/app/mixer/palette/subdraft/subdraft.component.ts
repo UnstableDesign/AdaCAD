@@ -81,6 +81,8 @@ export class SubdraftComponent implements OnInit, OnChanges {
     height: 0
   }
 
+  bling = {x: 0 ,y:0};
+
   /**
   * flag to tell if this is in a mode where it is looking foor a connectino
   */
@@ -311,7 +313,8 @@ export class SubdraftComponent implements OnInit, OnChanges {
    * @param pos 
    */
   setPosition(pos: Point){
-    
+    console.log("setting bounds to ", pos);
+    this.enableDrag();
     this.bounds.topleft = pos;
     this.interlacement =  utilInstance.resolvePointToAbsoluteNdx(pos, this._scale);
    
@@ -447,14 +450,11 @@ export class SubdraftComponent implements OnInit, OnChanges {
    * draw whetever is stored in the draft object to the screen
    * @returns 
    */
-  drawDraft() {
-
-    console.log("drawing draft at ", this.id);
+  async drawDraft() : Promise<any> {
 
     if(this.canvas === undefined) return;
    
     const draft = this.tree.getDraft(this.id);
-    console.log("got draft at", this.id, draft);
 
    
     this.canvas.width = draft.warps * this.default_cell;
@@ -480,7 +480,7 @@ export class SubdraftComponent implements OnInit, OnChanges {
     }
 
     this.tree.setDraftClean(this.id);
-
+    return "complete";
   }
 
 
@@ -567,6 +567,7 @@ export class SubdraftComponent implements OnInit, OnChanges {
     const adj:Point = utilInstance.snapToGrid(relative, this._scale);
 
     this.bounds.topleft = adj;
+    this.bling = adj;
 
     const ndx = utilInstance.resolvePointToAbsoluteNdx(adj, this._scale);
 
@@ -733,6 +734,7 @@ export class SubdraftComponent implements OnInit, OnChanges {
 
 
     finetune(){
+      this.bling = {x: 100, y:100};
 
       //if this is already open, don't reopen it
       if(this.modal != undefined && this.modal.componentInstance != null) return;

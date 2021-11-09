@@ -82,6 +82,8 @@ export class TreeService {
 
   async loadOpData(id: number, name: string, params:Array<number>) : Promise<OpNode>{
     
+    console.log("loading op data", id,name);
+
     const nodes = this.nodes.filter(el => el.id === id);
 
     if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+id);
@@ -93,19 +95,13 @@ export class TreeService {
       else return p;
     });
 
-    nodes.map(el => {
-      return {
-        id: el.id,
-        type: 'op',
-        ref: null,
-        component: null,
-        dirty: false,
-        name: name,
-        params: params_out.slice()
-      };
-    })
+  
+    nodes[0].dirty = false;
+    (<OpNode> nodes[0]).name = name;
+    (<OpNode> nodes[0]).params = params_out.slice();
 
-    return Promise.resolve(<OpNode> nodes.shift());
+
+   return Promise.resolve(<OpNode> nodes[0]);
 
   }
 
@@ -759,17 +755,18 @@ export class TreeService {
 
 /**
  * performs the given operation and all downstream children affected by this change
- * @param op_id 
+ * returns all the draft nodes for redrawing
+ * @param op_id the operation triggering this series of update
  */
- async performOp(id:number) : Promise<any> {
+ async performOp(id:number) : Promise<Array<Node>> {
 
   //mark all downsteam nodes as dirty; 
   const ds = this.getDownstreamOperations(id);
   ds.forEach(el => this.setDirty(el));
 
-
   const node = <OpNode> this.getNode(id);
   const op = this.ops.getOp(node.name);
+  console.log("op", op, "name", node.name);
 
   const inputs = this.getNonCxnInputs(id);
   const input_drafts: Array<Draft> =  inputs.map(input => (<DraftNode> this.getNode(id)).draft);
@@ -787,7 +784,7 @@ export class TreeService {
       const fns = needs_performing.map(el => this.performOp(el.id));
       return Promise.all(fns);      
     })
-    .then(el => {return null});
+    .then(el => {return this.nodes.filter(el => el.type === 'draft')});
 
   }
 
