@@ -82,8 +82,6 @@ export class TreeService {
 
   async loadOpData(id: number, name: string, params:Array<number>) : Promise<OpNode>{
     
-    console.log("loading op data", id,name);
-
     const nodes = this.nodes.filter(el => el.id === id);
 
     if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+id);
@@ -164,7 +162,6 @@ export class TreeService {
 
 
   loadDraftData(id: number, draft: Draft) : Promise<DraftNode>{
-
 
     const nodes = this.nodes.filter(el => el.id === id);
 
@@ -695,7 +692,7 @@ export class TreeService {
 
 
   /**
-   * searches all opnodes and when a "dirty" node has all possible inputs fulfilled
+   * searches within the downstream ops for all opnodes and when a "dirty" node has all possible inputs fulfilled
    * @returns return a list of those nodes
    */
   getNodesWithDependenciesSatisfied() : Array<OpNode>{
@@ -703,6 +700,10 @@ export class TreeService {
     const dependency_nodes: Array<OpNode> = this.nodes
     .filter(el => el.dirty && el.type === "op")
     .map(el => <OpNode> el);
+
+    // const dependency_nodes: Array<OpNode> = ds
+    // .map(el => <OpNode> this.getNode(el))
+    // .filter(el => el.dirty);
 
     const ready: Array<OpNode> = dependency_nodes.filter((el, ndx) => {
       const depends_on: Array<number> = this.getUpstreamOperations(el.id);
@@ -718,7 +719,8 @@ export class TreeService {
 
  /**
    * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
-   * @param res the list of results from 
+   * since this function cannot delete nodes, it makes nodes that no longer need to exist as null for later collection
+   * @param res the list of results from perform op
    * @returns a list of the draft nodes touched. 
    */
   async updateDraftsFromResults(parent: number, res: Array<Draft>) : Promise<Array<number>>{
@@ -753,39 +755,72 @@ export class TreeService {
   }
 
 
+  performTopLevelOps(): Promise<any> {
+
+    //mark all ops as dirty to start
+    this.nodes.forEach(el => {
+      if(el.type == "op") el.dirty = true;
+    })
+
+    const top_level_nodes = 
+      this.nodes
+      .filter(el => el.type === 'op')
+      .filter(el => this.getUpstreamOperations(el.id).length === 0)
+      .map(el => el.id);
+
+    return this.performGenerationOps(top_level_nodes);
+
+  }
+
+  /**
+   * given a list of operations to perform, recursively performs all on nodes that have dependencies satisified
+   * only after entire generation has been calculated
+   * @param op_fn_list 
+   * @returns 
+   */
+  performGenerationOps(op_node_list: Array<number>) : Promise<Array<number>> {
+    const op_fn_list = op_node_list.map(el => this.performOp(el));
+    
+    return Promise.all(op_fn_list).then( out => {
+      return this.getNodesWithDependenciesSatisfied();
+    }).then(needs_performing => {
+      const fns = needs_performing.map(el => el.id);
+      if(needs_performing.length === 0) return Promise.resolve([]);
+      return this.performGenerationOps(fns);    
+
+    })
+
+    
+  }
+
+
+
+
 /**
- * performs the given operation and all downstream children affected by this change
- * returns all the draft nodes for redrawing
+ * performs the given operation
+ * returns the list of draft ids affected by this calculation
  * @param op_id the operation triggering this series of update
  */
- async performOp(id:number) : Promise<Array<Node>> {
+ async performOp(id:number) : Promise<Array<number>> {
+
 
   //mark all downsteam nodes as dirty; 
   const ds = this.getDownstreamOperations(id);
-  ds.forEach(el => this.setDirty(el));
+  //ds.forEach(el => this.setDirty(el));
 
   const node = <OpNode> this.getNode(id);
   const op = this.ops.getOp(node.name);
 
   const inputs = this.getNonCxnInputs(id);
-  const input_drafts: Array<Draft> =  inputs.map(input => (<DraftNode> this.getNode(input)).draft);
+  const input_drafts: Array<Draft> =  inputs
+    .map(input => (<DraftNode> this.getNode(input)).draft)
+    .filter(el => el !== null);
   
-
-  console.log("perfoming op", id, input_drafts)
   return op.perform(input_drafts, node.params)
     .then(res => {
       node.dirty = false;
       return this.updateDraftsFromResults(id, res)
     })
-    .then(res => {
-      return this.getNodesWithDependenciesSatisfied();
-    })
-    .then(needs_performing => {
-      const fns = needs_performing.map(el => this.performOp(el.id));
-      return Promise.all(fns);      
-    })
-    .then(el => {return this.nodes.filter(el => el.type === 'draft')});
-
   }
 
 
@@ -805,17 +840,26 @@ export class TreeService {
   getDraft(id: number):Draft{
     if(id === -1) return this.preview.draft;
     const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined) return null;
     return dn.draft;
   }
 
+  getDraftName(id: number):string{
+    if(id === -1) return this.preview.draft.name;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined || dn.draft === null) return "null draft";
+    return dn.draft.name;
+  }
+
+
   getConnections():Array<ConnectionComponent>{
-    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type == 'cxn');
+    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type === 'cxn');
     const draft_comps: Array<ConnectionComponent> = draft_nodes.map(el => <ConnectionComponent>el.component);
     return draft_comps;
   }
 
   getOperations():Array<OperationComponent>{
-    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type == 'op');
+    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type === 'op');
     const draft_comps: Array<OperationComponent> = draft_nodes.map(el => <OperationComponent>el.component);
     return draft_comps;
   }
@@ -826,7 +870,7 @@ export class TreeService {
    */
 
   getUnusuedConnections():Array<number>{
-    const comps: Array<ConnectionComponent> = this.getConnections();
+    const comps: Array<ConnectionComponent> = this.getConnections().filter(el => el !== null);
     const nodes: Array<TreeNode> = comps.map(el => this.getTreeNode(el.id));
     const to_delete: Array<TreeNode> = nodes.filter(el => (el.inputs.length == 0 || el.outputs.length == 0));
     return to_delete.map(el => el.node.id);
@@ -1135,9 +1179,10 @@ export class TreeService {
   setDraft(id: number, temp: Draft) {
 
     const dn = <DraftNode> this.getNode(id);
-    dn.draft.reload(temp);
+    if(dn.draft === null) dn.draft = temp;
+    else dn.draft.reload(temp);
     dn.dirty = true;
-    (<SubdraftComponent> dn.component).draft = temp;
+    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
     
   }
 
@@ -1165,6 +1210,12 @@ export class TreeService {
         //   const out: Array<Draft> = drafts.map(c => c.draft);
         //   return out;
         // }
+
+
+
+  getOpNode(id: number) : OpNode{
+    return <OpNode> this.getNode(id);
+  }
 
   /**
    * exports all operation nodes with information that can be reloaded

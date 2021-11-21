@@ -17,6 +17,7 @@ import { ViewportService } from './provider/viewport.service';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { NotesService } from '../core/provider/notes.service';
 import { SDK_VERSION } from 'firebase';
+import { Cell } from '../core/model/cell';
 
 
 //disables some angular checking mechanisms
@@ -223,7 +224,9 @@ export class MixerComponent implements OnInit {
         return this.loadTreeNodes(data.treenodes);
       }
     ).then(treenodes => {
+
       console.log("returned tree nodes", treenodes);
+     
       const seednodes: Array<number> = treenodes
         .filter(tn => this.tree.isSeedDraft(tn.node.id))
         .map(tn => tn.node.id);
@@ -236,22 +239,49 @@ export class MixerComponent implements OnInit {
         }
       });
 
+      
       const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.id, seed.draft));
       const op_fns = data.ops.map(op => this.tree.loadOpData(op.node_id, op.name, op.params));
       
       return Promise.all([seed_fns, op_fns]);
 
-    }).then(opnodes => {
-      const toplevel = this.tree.getTopLevelOps();
+    }).then(el => {
+       return this.tree.performTopLevelOps();
     })
-    .then(opnodes => {
-        console.log("opgraph nodes created ", opnodes);
-        console.log("creating components");
-        return this.createAllComponents(data.nodes, data.drafts, data.ops);
-      }
-    ).then(el => {
-        console.log("performing top level");
-    });
+    .then(el => {
+      //delete any nodes that no longer need to exist
+      this.tree.getDraftNodes()
+      .filter(el => el.draft === null)
+      .forEach(el => {
+        console.log("removing node ", el.id, this.tree.hasParent(el.id));
+        if(this.tree.hasParent(el.id)){
+          el.draft = new Draft({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
+        } else{
+          this.tree.removeNode(el.id);
+        } 
+      })
+    })
+    .then(el => {
+
+      this.tree.nodes.forEach(node => {
+        switch (node.type){
+          case 'draft':
+            if(this.tree.getDraft(node.id) !== null) this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id == node.id));
+            break;
+          case 'op':
+            const op = this.tree.getOpNode(node.id);
+            this.palette.loadOperation(op.id, op.name, op.params, data.nodes.find(el => el.node_id == node.id).bounds);
+            break;
+          case 'cxn':
+            this.palette.loadConnection(node.id, this.tree.getConnectionInput(node.id), this.tree.getConnectionOutput(node.id))
+            break;
+        }
+      })
+
+
+    }
+    )
+    .catch(console.error);
 
     return Promise.resolve("all done");
 

@@ -123,8 +123,6 @@ export class FileService {
 
      ada: async (data: any) : Promise<LoadResponse> => {
 
-      console.log(data);
-
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
@@ -136,8 +134,6 @@ export class FileService {
 
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
-
-      
 
 
       drafts = data.drafts.map(draftdata => {

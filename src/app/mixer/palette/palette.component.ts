@@ -493,6 +493,7 @@ export class PaletteComponent implements OnInit{
     return notecomp.instance;
   }
 
+
     /**
    * dynamically creates a a note component
    * @returns the created note instance
@@ -1453,9 +1454,10 @@ calculateInitialLocaiton(id: number) : Bounds {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
+
   return this.tree.performOp(op_id)
-  .then(draftnodes => {
-    
+  .then(draft_ids => {
+    const draftnodes = draft_ids.map(el => this.tree.getNode(el));
     //functions to redraw existing nodes
     const fns = draftnodes
       .filter(el => el.component !== null && el.dirty)
