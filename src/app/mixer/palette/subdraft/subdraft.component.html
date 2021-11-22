@@ -1,5 +1,5 @@
 
-<div id="con-{{draft.id}}" class="subdraft-container" [class.is_preview] = "is_preview"
+<div id="con-{{tree.getDraft(id).id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
 	[style.z-index] = "zndx"
 	[class.drawing] = "disable_drag && !is_preview"
@@ -11,91 +11,112 @@
 	(cdkDragStarted)="dragStart($event)">
 
 
-	<div id="scale-{{draft.id}}" class="subdraft-container">
-
-
-  	<div class="subdraft-contents" [class.active-selection] = has_active_selection>
-
-		
-		<canvas id="{{id}}" class="maindraft">  
-		</canvas>
-
-		<div class="bottom-opts">
-		
-		<ng-container *ngIf="set_connectable">
-			<button matTooltip = "click here to use this draft as input"
-			class="button is-small is-primary"
-			[class.is-active]="active_connection_order > 0"
-			(click) = "connectionClicked(id)"
-			>
-			<i class="fas fa-chevron-down"></i>
-			<ng-container *ngIf="active_connection_order > 0">{{active_connection_order}}</ng-container>
-			</button>
-		</ng-container>
-
-		<!-- <span>  {{id}} // {{draft.warps}} x {{draft.wefts}}</span> -->
-		<span>{{draft.warps}} x {{draft.wefts}}</span>
-		
-		
-		
-	 </div>
-	</div>
-
-	<div class="subdraft-details" [class.hide]="set_connectable"> 
-		<div class ="align-top">
-		
-		<!-- <ng-container *ngIf="parent_id === -1"> -->
-
-	  	<button
-		class="button is-small is-primary fas fa-expand-alt"
-		matTooltip ="edit this draft"
-		(click)="finetune()">
-	   </button>
+	<div id="scale-{{tree.getDraft(id).id}}" class="subdraft-container">
 
 	
 
-		<button 
-		matTooltip= "Duplilcate"
-		class="button is-small is-primary fa fa-clone"
-		[style.color]="button_color" 
-		[name]="delete"
-		(click)="designActionChange('duplicate')">
-		</button>
+			<div class="subdraft-details"> 
+				
+				<div class="cloak" [class.hide]="set_connectable || !draft_visible">
 		
-		<button
-		[matMenuTriggerFor]="downloadDropdown"
-		class="button is-small is-primary fas fa-download"
-		 matTooltip ="download this draft">
-		</button>
+				
+				
+			<!-- <ng-container *ngIf="parent_id === -1"> -->
+		
+				<button *ngIf='parent_id === -1'
+				class="button is-small is-primary fas fa-expand-alt"
+				matTooltip ="edit this draft"
+				(click)="finetune()">
+				</button>
+		
+				<button *ngIf='parent_id !== -1'
+				matTooltip= "Show/Hide Draft"
+				class="button is-small is-primary fas"
+				[class.fa-eye-slash] = '!draft_visible'
+				[class.fa-eye] = 'draft_visible'
+				(click)="showhide()">
+				</button>
+		
+		
+				<button 
+				matTooltip= "Duplilcate"
+				class="button is-small is-primary fa fa-clone"
+				[style.color]="button_color" 
+				[name]="delete"
+				(click)="designActionChange('duplicate')">
+				</button>
+				
+				<button
+				[matMenuTriggerFor]="downloadDropdown"
+				class="button is-small is-primary fas fa-download"
+				matTooltip ="download this draft">
+				</button>
+		
+		
+			
+			
+		
+				<mat-menu #downloadDropdown mat-raised-button>
+					<a  (click)="saveAsPrint()" mat-menu-item>as Printable Image</a>
+					<a   (click)="saveAsBmp()" mat-menu-item> as Bitmap</a>
+					<a  (click)="saveAsAda()" mat-menu-item> as AdaCAD file</a>
+					<a  (click)="saveAsWif()" mat-menu-item> as Wif file</a>
+				</mat-menu>
+			
+				<button *ngIf='parent_id === -1'
+				matTooltip= "Delete"
+				class="button is-small is-primary fas fa-times"
+				[name]="delete"
+				(click)="designActionChange('delete')">
+				</button>
+		
+				</div>
+				
+			 </div>	
+
+		<div  class="subdraft-contents" [class.active-selection] = has_active_selection>
+
+
+				<canvas id="{{id}}" class="maindraft" [class.hidden] = '!draft_visible'>  
+				</canvas>
 
 		
+		
 
-		  <mat-menu #downloadDropdown mat-raised-button>
-			<a class="print-link" #printLink (click)="saveAsPrint($event)" mat-menu-item>as Printable Image</a>
-			<a #bmpLink (click)="saveAsBmp($event)" mat-menu-item> as Bitmap</a>
-			<a #adaLink (click)="saveAsAda($event)" mat-menu-item> as AdaCAD file</a>
-			<a #wifLink (click)="saveAsWif($event)" mat-menu-item> as Wif file</a>
-		  </mat-menu>
+			<div class="bottom-opts">
+				<button matTooltip = "click here to use this draft as input"
+				class="button is-small output"
+				(click) = "connectionStarted(id)"
+				>
+				<i class="fas fa-chevron-down"></i>
+				</button>
+
+
+				<button *ngIf='!draft_visible' 
+				matTooltip= "Show/Hide Draft"
+				class="button is-small is-primary"
+				(click)="showhide()"
+				>
+				<i class="fas fa-eye-slash"></i>		  
+				</button>
+			
+					
+				<div class='dims_and_name'>
+					<div><input matInput [(ngModel)]="tree.getDraft(id).name"> </div>
+					<div class="dims">{{tree.getDraft(id).warps}} x {{tree.getDraft(id).wefts}} </div>
+				</div>
+
+			</div>
+
 		
 		</div>
-		<div class="align-bottom">
-			<button 
-			matTooltip= "Delete"
-			class="button is-small is-primary fas fa-times"
-			[style.color]="button_color" 
-			[name]="delete"
-			(click)="designActionChange('delete')">
-			</button>
-		</div>
 
 
-	
-	
-   </div>
+
+
 
    <canvas #bitmapImage hidden></canvas>
-	
-</div>
+
 </div>
 	
 

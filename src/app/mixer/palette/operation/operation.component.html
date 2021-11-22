@@ -1,7 +1,6 @@
 <div class="operation-container"
 cdkDrag
 [style.z-index] = "zndx"
-[style.width.px] = "bounds.width"
 [cdkDragDisabled] = "disable_drag"
 [cdkDragFreeDragPosition]="bounds.topleft"
 (cdkDragMoved)="dragMove($event)"
@@ -11,18 +10,36 @@ cdkDrag
 
 <div id='scale-{{id}}' class="operation-container">
 
-<div class="top-row">
-    <div class="inputs">
+
     
-        <ng-container *ngIf = "!active_connection">
+    
+
+    <div class="cxn-row">
+
         <button 
-            class="button is-small is-primary"
-            [class.is-active]="selecting_connection || has_connections_in"
-            (click)="inputSelected($event, ndx)">
-            <i class="fas fa-chevron-right">{{connection_op_id}}</i>
+        class="button is-small input"
+        [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
+        (click)="inputSelected($event, ndx)">
+        <i class="fas fa-chevron-right"></i>
         </button>
-    </ng-container>
+
+        
+            <button *ngFor="let input of tree.getNonCxnInputs(id); index as i;"
+            matTooltip = "click to remove this connection"
+            class="button is-small cxn"
+            (click)="removeConnectionTo(input)">
+            <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
+            </button>   
+
+        
+    
+
+       
     </div>
+
+
+    <div class="top-row">
+
 
 
     <div class="operation-details">
@@ -34,6 +51,7 @@ cdkDrag
         <i class="fas fa-question"></i>
     </button> 
     </div>
+
 
     <button 
     matTooltip= "Duplilcate"
@@ -47,11 +65,14 @@ cdkDrag
     (click)="delete()">
     <i class="fas fa-times"></i>
     </button>
-
-
-
-
 </div>
+
+
+
+
+
+         
+
 <div class="params">
 
     <ng-container *ngFor="let param of op.params; let i = index">
@@ -87,22 +108,10 @@ cdkDrag
             (change)= "onParamChange(i, op_inputs[i].value)"
           >
   
-            <!-- <label class="example-value-label">{{op_inputs[i].value}}</label> -->
         </div>
-        <!-- <input 
-          [formControl]="op_inputs[i]"
-          [matTooltip]=param.dx
-          type = "number"
-          [name]=param.name
-          [min]=param.min
-          [max]=param.max
-          step = 1
-          required = true
-          (change)= onParamChange();
-        > -->
+
     </div>
     </ng-container>
     </div>
-<!-- <div class="outputs"></div> -->
 </div>
 </div>

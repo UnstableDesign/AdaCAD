@@ -1,13 +1,14 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { Bounds, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
+import { Bounds, DesignMode, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
-import { thresholdFreedmanDiaconis } from 'd3-array';
+import { OpNode, TreeService } from '../../provider/tree.service';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 @Component({
   selector: 'app-operation',
@@ -18,19 +19,27 @@ export class OperationComponent implements OnInit {
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
-   @Input() scale: number;
+
+
+   @Input()
+   get scale(): number { return this._scale; }
+   set scale(value: number) {
+     this._scale = value;
+     this.rescale(value);
+   }
+   private _scale:number = 5;
+ 
+
+
    @Input() default_cell: number;
    @Input() zndx: number;
-   @Output() onSelectInputDraft:any = new EventEmitter()
+   @Output() onConnectionRemoved = new EventEmitter <any>();
+   @Output() onConnectionMove = new EventEmitter <any>();
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
    @Output() deleteOp = new EventEmitter <any>(); 
    @Output() duplicateOp = new EventEmitter <any>(); 
-
-   /**
-    * flag to tell if this has a connection
-    */
-   active_connection: boolean = false
+   @Output() onInputAdded = new EventEmitter <any> ();
 
     /**
     * reference to top, left positioin as absolute interlacement
@@ -42,91 +51,98 @@ export class OperationComponent implements OnInit {
   */
   base_height:number;
 
-
-    /**
-    * flag to tell if this is in a mode where it is looking foor a connectino
-    */
-   selecting_connection: boolean;
-
-    /**
-    * flag to tell if this is being from a loaded from a saved file
-    */
+  /**
+  * flag to tell if this is being from a loaded from a saved file
+  */
    loaded: boolean = false;
 
-    /**
+  /**
     * flag to tell if this has been duplicated from another operation
     */
    duplicated: boolean = false;
 
-    /**
-    * stores a list of components and drafts generated as outputs 
-    */
-   outputs: Array<DraftMap>; 
+
+  //   /**
+  //   * stores a lit of the subdraft ids 
+  //   */
+  //  outputs: Array<number>;  
    
    tooltip: string = "select drafts to input to this operation"
   
-   disable_drag: boolean;
+   disable_drag: boolean = false;
  
    bounds: Bounds = {
      topleft: {x: 0, y:0},
      width: 200,
-     height: 30
+     height: 60
    };
    
-   active_connection_order: number = 0;
-
    op:Operation;
 
+   //for input params form control
    loaded_inputs: Array<number> = [];
 
+   //these are the input parameters
    op_inputs: Array<FormControl> = [];
 
-   has_connections_in: boolean = false;
+  // has_connections_in: boolean = false;
+   subdraft_visible: boolean = true;
 
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
-    private viewport: ViewportService) { 
-    this.outputs = [];
-    this.selecting_connection = false;
-
+    private viewport: ViewportService,
+    private tree: TreeService,
+    private dm: DesignmodesService) { 
+    
+      //this.outputs = [];
+  
 
 
   }
 
   ngOnInit() {
 
+
     this.op = this.operations.getOp(this.name);
+    const graph_node = <OpNode> this.tree.getNode(this.id);
 
 
-    this.op.params.forEach((param, ndx) => {
-      const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
-      this.op_inputs.push(new FormControl(value));
+    this.op.params.forEach((val, ndx) => {
+      if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx]));
+      else this.op_inputs.push(new FormControl(val.value));
     });
 
     const tl: Point = this.viewport.getTopLeft();
    
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
-    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
-    this.base_height =  30 + 40 * this.op_inputs.length
+    this.base_height =  60 + 40 * this.op_inputs.length
     this.bounds.height = this.base_height;
 
 
 
   }
 
+
   ngAfterViewInit(){
     this.rescale(this.scale);
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
-    
   }
 
 
-  setOutputs(dms: Array<DraftMap>){
-      this.outputs = dms.slice();
-
+  getInputName(id: number) : string {
+    const sd = this.tree.getDraft(id);
+    if(sd === null || sd === undefined) return "null draft"
+    return sd.name;
   }
+
+
+  // setOutputs(dms: Array<DraftMap>){
+  //    // this.outputs = dms.slice();
+
+  // }
 
 
 
@@ -143,45 +159,29 @@ export class OperationComponent implements OnInit {
   }
 
 
-  /**
-   * performs the operation on the inputs added in load
-   * @returns an Array linking the draft ids to compoment_ids
-   */
-  perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
-    if(inputs.length > 0) this.has_connections_in = true;
-    else this.has_connections_in = false;
-
-    this.op = this.operations.getOp(this.name);
-    return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
-      .then(generated_drafts => {
-        return generated_drafts.map((draft, ndx) => ({
-            component_id: (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id,
-            draft
-          })
-      )
-        })
-  }
 
   rescale(scale:number){
 
 
-    this.scale = scale;
+    console.log("recale op called")
+
     const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
+    if(container === null) return;
+
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
-
-    this.bounds.topleft = {x: this.interlacement.j * this.scale, y: this.interlacement.i * this.scale};
-    //this.bounds.height = this.bounds.height * change;
-
-    if(this.outputs.length == 1){
-      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
-    }else{
-      this.bounds.width = 200;
-    }
+    this.bounds.topleft = {
+      x: this.interlacement.j * scale,
+      y: this.interlacement.i * scale
+    };
 
     this.bounds.height = this.base_height * zoom_factor;
+
+ 
+  
+
 
   }
 
@@ -205,10 +205,18 @@ export class OperationComponent implements OnInit {
 
   }
 
+   /**
+   * updates this components position based on the input component's position
+   * */
+    updatePositionFromChild(child: SubdraftComponent){
 
-  unsetActiveConnection(){
-    this.selecting_connection = false;
-  }
+
+       const container = <HTMLElement> document.getElementById("scale-"+this.id);
+  
+      this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - container.offsetHeight});
+  
+    }
+
   /**
    * set's the width to at least 200, but w if its large
    */
@@ -216,9 +224,9 @@ export class OperationComponent implements OnInit {
     this.bounds.width = (w > 200) ? w : 200;
   }
 
-  addOutput(dm: DraftMap){
-    this.outputs.push(dm);
-  }
+  // addOutput(dm: DraftMap){
+  //   this.outputs.push(dm);
+  // }
 
   disableDrag(){
     this.disable_drag = true;
@@ -228,19 +236,22 @@ export class OperationComponent implements OnInit {
     this.disable_drag = false;
   }
 
+  drop(){
+    console.log("dropped");
+  }
+
   maxInputs():number{
     return this.op.max_inputs;
   }
 
   inputSelected(event: any, ndx: number){
-    this.selecting_connection = true;
     this.disableDrag();
+    this.onInputAdded.emit(this.id);
+  }
 
-    this.onSelectInputDraft.emit({
-      event: event,
-      id: this.id
-    });
 
+  removeConnectionTo(sd_id: number){
+    this.onConnectionRemoved.emit({from: sd_id, to: this.id});
   }
 
   openHelpDialog() {
@@ -254,7 +265,8 @@ export class OperationComponent implements OnInit {
   }
 
   onParamChange(id: number, value: number){
-    console.log(value);
+    const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
+    opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});
   }
@@ -266,7 +278,6 @@ export class OperationComponent implements OnInit {
   duplicate(){
     this.duplicateOp.emit({id: this.id});
   }
-
 
 
 

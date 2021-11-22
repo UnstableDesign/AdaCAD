@@ -24,7 +24,6 @@ import { NoteComponent } from './palette/note/note.component';
 
 
 
-
 @NgModule({
   imports: [
     CoreModule,

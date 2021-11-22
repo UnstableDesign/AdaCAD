@@ -177,6 +177,10 @@ export class Draft{
     this.name = name;
   }
 
+  setName(name: string){
+    this.name = name;
+  }
+
 
 
   overloadWarpSystems(systems: Array<System>){
@@ -969,7 +973,7 @@ export class Draft{
    * @param i: the tieups array, j: the treadling array, the threading array
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
-  recalculateDraft(tieup, treadling, threading) {
+  recalculateDraft(tieup: Array<Array<boolean>>, treadling: Array<number>, threading: Array<number>) {
     for (var i = 0; i < treadling.length;i++) {
       var active_treadle = treadling[i];
       if (active_treadle != -1) {
@@ -1756,9 +1760,7 @@ computeYarnPaths(shuttles: Array<Shuttle>){
       pattern: Array<Array<Cell>>, 
       type: string
     ) {
-  
-      console.log("filling with", pattern);
-      
+        
       const rows = pattern.length;
       const cols = pattern[0].length;
       const store: Array<Array<Cell>> = [];

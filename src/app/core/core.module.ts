@@ -30,6 +30,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {MatBadgeModule} from '@angular/material/badge';
 
 import { PatternService } from './provider/pattern.service';
 import { CollectionService } from './provider/collection.service';
@@ -87,7 +88,8 @@ import { PatternfinderService } from './provider/patternfinder.service';
     MatSnackBarModule,
     ScrollingModule,
     DragDropModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatBadgeModule
   ],
   declarations: [
     FilterPipe, 
@@ -146,6 +148,7 @@ import { PatternfinderService } from './provider/patternfinder.service';
     MatChipsModule,
     MatSnackBarModule,
     ScrollingModule,
+    MatBadgeModule,
     DragDropModule,
     FilterPipe, 
     UploadFormComponent,

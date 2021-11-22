@@ -1,6 +1,5 @@
 .operation-container{
     position: absolute;
-    background: white;
     top: 0;
     left: 0;
     display: flex;
@@ -9,12 +8,50 @@
 }
 
 .top-row{
-    background: #00d1b2;
+    background: #333333;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     height: 30px;
 }
+
+button.input{
+    position: relative;
+	background-color: #00d1b2;
+	color: white;
+	border: none;
+    width:30px;
+}
+
+button.cxn{
+    background-color: #00d1b2;
+    border: none;
+    border-left: thin solid white;
+    color: white;
+}
+
+button.is-primary{
+    background-color: #333333;
+    border-color: transparent;
+    color: #fff;
+}
+
+.input-name{
+    margin-left: 8px;
+    line-height: 30px;
+}
+
+
+.cxn-row{
+    font-size: .8em;
+    display: flex;
+    flex-direction: row;
+    text-align: left;
+    background-color: transparent;
+    overflow: visible;
+
+}
+
 
 .param-row{
     vertical-align:middle;
@@ -39,6 +76,13 @@
     overflow: hidden;
 }
 
+.param-inputs{
+    min-width: 75%;
+    overflow: visible;
+    text-align: left;
+    margin-left: 6px;
+}
+
 .mat-slider{
     height: 40px;
     padding: 0px;
@@ -49,7 +93,7 @@ button.is-primary.is-active{
 }
 
 .help{
-    background-color: #00d1b2;
+    background-color: #333333;
     color: white;
     height: 20px;
     border:none;
@@ -63,12 +107,14 @@ button.is-primary.is-active{
     margin: 0px 8px; 
     color: white;
     line-height: 30px;
+    min-width: 100px;
 }
 
 .params{
     display:flex;
     flex-direction: column;
     justify-content: flex-end;
+    background: rgba(255,255,255,0.8);
 }
 
 .inputs{

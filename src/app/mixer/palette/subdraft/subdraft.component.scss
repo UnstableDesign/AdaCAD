@@ -8,6 +8,18 @@
 	justify-content:flex-end;
 }
 
+.bottom-opts{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.bottom-opts.has_draft_hidden{
+	height: auto;
+	background-color: white;
+	width: 224px;
+}
+
 .scale-container{
 
 	position: absolute;
@@ -21,6 +33,10 @@
 
 h3{
 	font-weight: 800;
+}
+
+.cloak button{
+	width: 30px;
 }
 
 
@@ -37,7 +53,7 @@ h3{
 		background: #ff4081 !important;
 	}
 
-	.subdraft-details{
+	.cloak{
 		display: none;
 	}
 
@@ -45,9 +61,7 @@ h3{
 		border: thin solid #ff4081;
 	}
 
-	.subdraft-details{
-		display: flex;
-	}
+
 
 }
 
@@ -56,10 +70,10 @@ h3{
 .subdraft-container:active{
 
 
-	.subdraft-details.hide{
+	.cloak.hide{
 		display: none;
 	}
-	.subdraft-details{
+	.cloak{
 		display: flex;
 	}
 
@@ -67,16 +81,19 @@ h3{
 		border: thin solid #00d1b2;
 	}
 
-	.subdraft-details{
-		display: flex;
-	}
+}
 
+button.output{
+    position: relative;
+	background-color: #00d1b2;
+	color: white;
+	border: none; 
 }
 
 .drawing{
 	z-index: -1;
 
-	.subdraft-details{
+	.cloak{
 		pointer-events: all;
 	}
 
@@ -85,14 +102,39 @@ h3{
 	}
 }
 
+.dims_and_name{
+    display: flex;
+    flex-direction: column;
+    font-size: 0.7em;
+    margin: 0px 6px;
+    justify-content: space-between;
+    width: 100%;
+	min-width: 60px;
+	height: 30px;
+	overflow: hidden;
+}
+
 .mat-icon{
 	height: auto;
 }
 
-.subdraft-details{
-	display:none;
+.dropdown{
+	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+}
+
+.subdraft-details{
+	position: relative;
+	left: -30px;
+	width:30px;
+	flex-direction: column;
+	justify-content: flex-start;
+}
+
+.cloak{
+	display: none;
+	flex-direction: column;
+	width: 30px;
 }
 
 .align-top{
@@ -102,6 +144,9 @@ h3{
 
 .subdraft-contents{
 	display: block;
+	position: relative;
+	left: -30px;
+	min-width: 200px;
 }
 
 .is-active{
@@ -111,6 +156,15 @@ h3{
 
 button.is-primary.is-active{
     background-color: rgb(255, 64, 129);
+}
+
+button.is-primary{
+    background-color: rgba(255,255,255,.5);
+	color: black;
+}
+
+button{
+	width: 30px;
 }
 
 svg{
@@ -127,6 +181,10 @@ svg{
 	display: block;
 	overflow:hidden;
 	border: thin solid white;
+}
+
+.hidden {
+	display: none;
 }
 
 .no-pointer{
