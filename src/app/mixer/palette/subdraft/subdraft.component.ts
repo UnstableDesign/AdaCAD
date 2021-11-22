@@ -56,6 +56,7 @@ export class SubdraftComponent implements OnInit {
   @Input()
   get bounds(): Bounds { return this._bounds; }
   set bounds(value: Bounds) {
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
     this.updateViewport(value);
     this._bounds = value;
     ;
@@ -146,6 +147,8 @@ export class SubdraftComponent implements OnInit {
     if(this.bounds.topleft.x === 0 && this.bounds.topleft.y === 0) this.setPosition(tl);
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
+    if(!this.is_preview) this.viewport.addObj(this.id, this.interlacement);
+
     const draft = this.tree.getDraft(this.id);
 
     if(draft !== undefined){
@@ -167,6 +170,7 @@ export class SubdraftComponent implements OnInit {
     this.cx = this.canvas.getContext("2d");
     this.drawDraft(this.draft); //force call here because it likely didn't render previously. 
     this.rescale(this.scale);
+    this.updateViewport(this.bounds);
 
   }
 
@@ -177,6 +181,7 @@ export class SubdraftComponent implements OnInit {
    * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
    */
   rescale(scale:number){
+
 
     if(this.draft === null) return;
 
@@ -194,6 +199,8 @@ export class SubdraftComponent implements OnInit {
       x: this.interlacement.j * scale,
       y: this.interlacement.i * scale
     };
+
+    console.log("subdraft interlacement ", this.interlacement, scale);
 
     this.bounds.width = this.draft.warps * scale;
     this.bounds.height = this.draft.wefts * scale;

@@ -19,7 +19,18 @@ export class OperationComponent implements OnInit {
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
-   @Input() scale: number;
+
+
+   @Input()
+   get scale(): number { return this._scale; }
+   set scale(value: number) {
+     this._scale = value;
+     this.rescale(value);
+   }
+   private _scale:number = 5;
+ 
+
+
    @Input() default_cell: number;
    @Input() zndx: number;
    @Output() onConnectionRemoved = new EventEmitter <any>();
@@ -105,7 +116,7 @@ export class OperationComponent implements OnInit {
     const tl: Point = this.viewport.getTopLeft();
    
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
-    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
     this.base_height =  60 + 40 * this.op_inputs.length
     this.bounds.height = this.base_height;
@@ -152,26 +163,25 @@ export class OperationComponent implements OnInit {
   rescale(scale:number){
 
 
-    this.scale = scale;
+    console.log("recale op called")
+
     const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
+    if(container === null) return;
+
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
-
-    this.bounds.topleft = {x: this.interlacement.j * this.scale, y: this.interlacement.i * this.scale};
-    //this.bounds.height = this.bounds.height * change;
-
-
-    //consider rewrting to update on render size
-
-    // if(this.outputs.length == 1){
-    //   this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
-    // }else{
-    //   this.bounds.width = 200;
-    // }
+    this.bounds.topleft = {
+      x: this.interlacement.j * scale,
+      y: this.interlacement.i * scale
+    };
 
     this.bounds.height = this.base_height * zoom_factor;
+
+ 
+  
+
 
   }
 

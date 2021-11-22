@@ -401,6 +401,8 @@ export class PaletteComponent implements OnInit{
   
 
      if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.scale;
+
+     //this.changeDesignmode('move');
   }
 
   
@@ -477,7 +479,6 @@ export class PaletteComponent implements OnInit{
    */
    createNote():NoteComponent{
 
-    console.log("creating note");
     
     const tl: Point = this.viewport.getTopLeft();
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
@@ -489,6 +490,8 @@ export class PaletteComponent implements OnInit{
     this.note_components.push(notecomp.instance);
     notecomp.instance.id = note.id;
     notecomp.instance.scale = this.scale;
+
+    this.changeDesignmode('move');
 
     return notecomp.instance;
   }
@@ -1840,9 +1843,18 @@ drawStarted(){
     } 
 
 
+    const pattern: Array<Array<Cell>> = [];
+    for(let i = 0; i < wefts; i++ ){
+      pattern.push([]);
+      for(let j = 0; j< warps; j++){
+        const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
+        const b = this.getScratchpadProduct({i:i, j:j, si:-1}, this.inks.getSelected(),c);
+        pattern[i].push(new Cell(b));
+      }
+    }
 
     //if this drawing does not intersect with any existing subdrafts, 
-    return this.createSubDraft(new Draft({wefts: wefts,  warps: warps}), -1)
+    return this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}), -1)
     .then(sd => {
       const pos = {
         topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.scale), y: this.viewport.getTopLeft().y + (corners[0].i * this.scale)},
@@ -1853,18 +1865,7 @@ drawStarted(){
       sd.setPosition(pos.topleft);
       sd.setComponentSize(pos.width, pos.height);
       sd.disableDrag();
-      const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale);
-      this.viewport.addObj(sd.id, interlacement);
-  
-      const sd_draft = this.tree.getDraft(sd.id);
-  
-      for(let i = 0; i < sd_draft.wefts; i++ ){
-        for(let j = 0; j< sd_draft.warps; j++){
-          const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
-          const b = this.getScratchpadProduct({i:i, j:j, si:-1}, this.inks.getSelected(),c);
-          sd_draft.pattern[i][j].setHeddle(b); 
-        }
-      }
+
   
       const had_merge = this.mergeSubdrafts(sd);
       this.addTimelineState();
@@ -2098,11 +2099,10 @@ drawStarted(){
     this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}), -1)
     .then(sc => {
       sc.setComponentBounds(bounds);
-      sc.disableDrag();
        //get any subdrafts that intersect the one we just made
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
 
-      if(isect.length == 0){
+      if(isect.length === 0){
         this.addTimelineState();
         return;
       } 
@@ -2117,24 +2117,10 @@ drawStarted(){
       if(el.isSameBoundsAs(ibound)){
          console.log("Component had same Bounds as Intersection, Consumed");
          this.removeSubdraft(el.id, -1);
-      }else{
-         const draft = this.tree.getDraft(el.id);
-         const sd_draft = draft.pattern;
-         for(let i = 0; i < sd_draft.length; i++){
-           for(let j = 0; j < sd_draft[i].length; j++){
-           
-              let p:Point = el.resolveNdxToPoint({i: i, j: j, si: -1});
-              p.x += this.scale/2;
-              p.y += this.scale/2;
-              if(sc.hasPoint(p)) sd_draft[i][j].unsetHeddle();
-           }
-         }
-         
-        //el.drawDraft();
-        }
+      }
+
     });
     this.addTimelineState();
-
     })
     .catch(console.error);
    

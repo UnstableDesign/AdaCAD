@@ -301,13 +301,17 @@ export class FileService {
     draft.recalculateDraft(tieups, treadling, threading);
 
 
+    const proxies = this.tree.getNewDraftProxies(draft, []);
+
+    
     const f: FileObj = {
       drafts: drafts,
       looms: looms,
-      nodes: [], 
-      treenodes: [],
+      nodes: [proxies.node], 
+      treenodes: [proxies.treenode],
       ops: []
     }
+
 
     return Promise.resolve({data: f ,status: 0});
     },
@@ -514,14 +518,18 @@ export class FileService {
       loom.overloadEpi(epi);
       loom.overloadUnits(units);
     
+
+      const proxies = this.tree.getNewDraftProxies(draft, []);
+
     
       const envt: FileObj = {
         drafts: drafts,
         looms: looms,
-        nodes: [],
-        treenodes: [],
+        nodes: [proxies.node], 
+        treenodes: [proxies.treenode],
         ops: []
       }
+    
 
       return Promise.resolve({data: envt, status: 0});
     }
