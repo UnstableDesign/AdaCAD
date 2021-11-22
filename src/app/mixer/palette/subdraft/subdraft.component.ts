@@ -56,7 +56,6 @@ export class SubdraftComponent implements OnInit {
   @Input()
   get bounds(): Bounds { return this._bounds; }
   set bounds(value: Bounds) {
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
     this.updateViewport(value);
     this._bounds = value;
     ;
@@ -211,6 +210,7 @@ export class SubdraftComponent implements OnInit {
   updateViewport(bounds: Bounds){
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
     this.viewport.updatePoint(this.id, this.interlacement);
+
   }
 
   /**
@@ -328,6 +328,7 @@ export class SubdraftComponent implements OnInit {
   setPosition(pos: Point){
     this.enableDrag();
     this.bounds.topleft = pos;
+    this.updateViewport(this.bounds);
   }
 
 
@@ -578,10 +579,17 @@ export class SubdraftComponent implements OnInit {
     const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
     const adj:Point = utilInstance.snapToGrid(relative, this.scale);
 
-    this.bounds.topleft = adj;
 
-    const ndx = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
+    this.bounds = ({
+      topleft: adj, 
+      width: this.bounds.width,
+      height: this.bounds.height
+    });
 
+    console.log("")
+    // this.bounds.topleft = adj;
+
+     const ndx = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
     this.interlacement = ndx;
     
     if(this.counter%this.counter_limit === 0 || !utilInstance.isSameNdx(this.last_ndx, ndx)){

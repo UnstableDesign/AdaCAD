@@ -367,6 +367,8 @@ export class PaletteComponent implements OnInit{
    */
   rescale(scale:number){
 
+
+    console.log("PALETTE RESCALE CALLED");
     this.scale = scale;
 
     const zoom_factor: number = this.scale / this.default_cell_size;
@@ -376,19 +378,15 @@ export class PaletteComponent implements OnInit{
       container.style.transform = 'scale(' + zoom_factor + ')';
   
      
-    const generations: Array<Array<number>> = this.tree.convertTreeToGenerations();
 
     //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
     //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
-    generations.forEach(generation => {
-      generation.forEach(node => {
-        const comp = this.tree.getComponent(node);
-        if(this.tree.getType(node) != "cxn"){
-          console.log("setting component scale")
-          comp.scale = scale;
+    this.tree.nodes.forEach(node => {
+        if(node.type !== "cxn"){
+          node.component.scale = scale;
         } 
-      })
-    });
+      });
+
 
     this.tree.getConnections().forEach(sd => {
       sd.rescale(scale);

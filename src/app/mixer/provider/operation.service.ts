@@ -998,14 +998,22 @@ export class OperationService {
         max: 100,
         value: 3,
         dx: 'number of weft overs'
+        },
+        {name: 'direction',
+        min: 0,
+        max: 1,
+        value: 0,
+        dx: '0 for S, 1 for Z'
         }
       ],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
 
-        const sum: number = input_params.reduce( (acc, val) => {
+        let sum: number = input_params.reduce( (acc, val) => {
             return val + acc;
         }, 0);
+
+        sum -= input_params[2];
 
         const pattern:Array<Array<Cell>> = [];
         for(let i = 0; i < sum; i++){
@@ -1022,13 +1030,16 @@ export class OperationService {
         }else{
            outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
-            console.log(input, pattern);
             d.fill(pattern, 'mask');
             return d;
           });
         }
 
-        return Promise.resolve(outputs);
+        if(input_params[2] === 1){
+          return this.getOp('flip horiz').perform(outputs, []);
+        }else{
+          return Promise.resolve(outputs);
+        }
       }        
     }
 
