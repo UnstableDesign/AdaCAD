@@ -1,5 +1,6 @@
 import { K } from '@angular/cdk/keycodes';
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
+import { timeStamp } from 'console';
 import { cloneDeep, map } from 'lodash';
 import { Cell } from '../../core/model/cell';
 import { DraftMap } from '../../core/model/datatypes';
@@ -58,7 +59,7 @@ export type OpNode = BaseNode & {
   *   
 */
 
-interface TreeNode{
+export interface TreeNode{
   node: Node,
   parent: TreeNode,
   inputs: Array<TreeNode>,
@@ -72,11 +73,27 @@ export class TreeService {
 
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
-  num_created: number = 0;
   open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
   preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
   constructor(private ops: OperationService) { 
+  }
+
+
+  /**
+   * this returns what the next id would be based on current nodes and any preloaded "additional" nodes
+   * @param additional 
+   */
+  getUniqueId(additional: Array<number>) : number {
+    const all_ids = this.nodes.map(el => el.id)
+    .concat(additional);
+
+    const max = all_ids.reduce((acc,el) => {
+      if(el > acc) return el;
+    }, -1);
+
+    console.log("unique id is ", max+1);
+    return (max+1);
   }
 
 
@@ -224,8 +241,6 @@ export class TreeService {
       });
 
 
-    this.num_created++;
-
   
     return node.id;
   }
@@ -287,7 +302,6 @@ export class TreeService {
   clear(){
     this.tree = [];
     this.nodes = [];
-    this.num_created = 0;
   }
 
 
@@ -320,7 +334,7 @@ export class TreeService {
         node = <DraftNode> {
           type: type,
           ref: ref,
-          id: this.num_created++,
+          id: this.getUniqueId([]),
           component: component,
           dirty: false,
           draft: null
@@ -330,7 +344,7 @@ export class TreeService {
       node = <OpNode> {
         type: type,
         ref: ref,
-        id: this.num_created++,
+        id: this.getUniqueId([]),
         component: component,
         dirty: false,
         params: [],
@@ -341,7 +355,7 @@ export class TreeService {
        node = {
         type: type,
         ref: ref,
-        id: this.num_created++,
+        id: this.getUniqueId([]),
         component: component,
         dirty: false,
       }
@@ -1157,6 +1171,30 @@ export class TreeService {
 
     return objs;
 
+  }
+
+  /**
+   * this function is used when the file loader needs to create a template for an object that doesn't yet exist in the tree
+   * but will be loaded into the tree.
+   * @param draft : the draft that will be loaded into this node
+   * @param preloaded : a list of preloaded node ids to factor in when creating this new id.  
+   */
+  getNewDraftProxies(draft: Draft, preloaded: Array<number>){
+    const node: NodeComponentProxy = {
+      node_id: this.getUniqueId(preloaded),
+      draft_id: draft.id,
+      draft_visible: true,
+      type: "draft",
+      bounds: null
+    };
+    const treenode: TreeNodeProxy = {
+      node: node.node_id,
+      parent: -1, 
+      inputs:[],
+      outputs:[]
+    };
+
+    return {node, treenode}
   }
 
   setNodesClear(){

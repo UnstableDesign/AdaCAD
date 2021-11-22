@@ -10,7 +10,7 @@ import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 import { Draft } from '../core/model/draft';
-import { TreeService } from './provider/tree.service';
+import { TreeService, TreeNode } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy } from '../core/provider/file.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
@@ -165,7 +165,7 @@ export class MixerComponent implements OnInit {
   }
 
 
-  async loadTreeNodes(tns: Array<TreeNodeProxy>) : Promise<any> {
+  async loadTreeNodes(tns: Array<TreeNodeProxy>) : Promise<Array<TreeNode>> {
 
     const functions = tns.map(tn => this.tree.loadTreeNodeData(tn.node, tn.parent, tn.inputs, tn.outputs));
     return Promise.all(functions);
@@ -173,47 +173,48 @@ export class MixerComponent implements OnInit {
   }
 
 
-  /**
-   * instantiates the screen components
-   * @param nodes - the node proxies loaded
-   * @param drafts - the drafts loaded
-   * @param ops - the operations loaded
-   */
-  async createAllComponents(nodes: Array<NodeComponentProxy>, drafts:Array<Draft>, ops: Array<OpComponentProxy>){
+  // /**
+  //  * instantiates the screen components
+  //  * @param nodes - the node proxies loaded
+  //  * @param drafts - the drafts loaded
+  //  * @param ops - the operations loaded
+  //  */
+  // async createAllComponents(nodes: Array<NodeComponentProxy>, drafts:Array<Draft>, ops: Array<OpComponentProxy>){
 
-    const gen_fxns = [];
+  //   const gen_fxns = [];
 
-    nodes.forEach(nodep => {
-      const node = this.tree.getNode(nodep.node_id);
+  //   nodes.forEach(nodep => {
+  //     const node = this.tree.getNode(nodep.node_id);
 
-      switch (node.type) {
-        case 'draft' :
-          const draft = drafts.find(el => el.id === nodep.draft_id);
-          if(draft === undefined) break;
-          gen_fxns.push(this.palette.loadSubDraft(nodep.node_id, draft, nodep)); 
-          break;
-        case 'op' :
-          const op = ops.find(el => el.node_id === nodep.node_id); 
-          if(op === undefined) Promise.reject("no op found for given id ");
-          gen_fxns.push(this.palette.loadOperation(nodep.node_id, op.name, op.params, nodep.bounds));
-        break;
-        case 'cxn' :
-          const to_from = this.tree.getConnectionsInvolving(nodep.node_id);
-          gen_fxns.push(this.palette.loadConnection(nodep.node_id, to_from.from, to_from.to));
-          break;
-      }
+  //     switch (node.type) {
+  //       case 'draft' :
+  //         const draft = drafts.find(el => el.id === nodep.draft_id);
+  //         if(draft === undefined) break;
+  //         gen_fxns.push(this.palette.loadSubDraft(nodep.node_id, draft, nodep)); 
+  //         break;
+  //       case 'op' :
+  //         const op = ops.find(el => el.node_id === nodep.node_id); 
+  //         if(op === undefined) Promise.reject("no op found for given id ");
+  //         gen_fxns.push(this.palette.loadOperation(nodep.node_id, op.name, op.params, nodep.bounds));
+  //       break;
+  //       case 'cxn' :
+  //         const to_from = this.tree.getConnectionsInvolving(nodep.node_id);
+  //         gen_fxns.push(this.palette.loadConnection(nodep.node_id, to_from.from, to_from.to));
+  //         break;
+  //     }
 
-      return Promise.all(gen_fxns);
-    });
+  //     return Promise.all(gen_fxns);
+  //   });
 
 
-  }
+  // }
 
   /** 
    * Take a fileObj returned from the fileservice and process
    */
    async processFileData(data: FileObj) : Promise<string>{
 
+    console.log("data", data);
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
     });
@@ -223,11 +224,11 @@ export class MixerComponent implements OnInit {
     .then(el => {
         return this.loadTreeNodes(data.treenodes);
       }
-    ).then(treenodes => {
+    ).then(loadedtreenodes => {
 
-      console.log("returned tree nodes", treenodes);
+      console.log("returned tree nodes", loadedtreenodes);
      
-      const seednodes: Array<number> = treenodes
+      const seednodes: Array<number> = loadedtreenodes
         .filter(tn => this.tree.isSeedDraft(tn.node.id))
         .map(tn => tn.node.id);
      
@@ -264,13 +265,15 @@ export class MixerComponent implements OnInit {
     .then(el => {
 
       return this.tree.nodes.forEach(node => {
+        console.log("attempting to load node ", node)
+        if(!(node.component === null || node.component === undefined)) return;
         switch (node.type){
           case 'draft':
-            this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id == node.id));
+          this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === node.id));
             break;
           case 'op':
             const op = this.tree.getOpNode(node.id);
-            this.palette.loadOperation(op.id, op.name, op.params, data.nodes.find(el => el.node_id == node.id).bounds);
+            this.palette.loadOperation(op.id, op.name, op.params, data.nodes.find(el => el.node_id === node.id).bounds);
             break;
         }
       })
@@ -279,6 +282,7 @@ export class MixerComponent implements OnInit {
     }
     ).then(el => {
       return this.tree.nodes.forEach(node => {
+        if(!(node.component === null || node.component === undefined)) return;
         switch (node.type){
           case 'cxn':
             this.palette.loadConnection(node.id, this.tree.getConnectionInput(node.id), this.tree.getConnectionOutput(node.id))

@@ -320,6 +320,8 @@ export class FileService {
       console.log("processing JPG data")
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
+      let nodes: Array<NodeComponentProxy> = [];
+      let treenodes: Array<TreeNodeProxy> = [];
 
       this.ns.resetNotes(); 
       this.ps.resetPatterns();
@@ -438,19 +440,21 @@ export class FileService {
       }
   
       const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
-      drafts.push(draft);
+      drafts= [ draft];
       
       //create a blank loom to accompany this
       const loom:Loom = new Loom(draft, 8, 10);
       loom.overloadType('jacquard');
       looms.push(loom);
 
+      const proxies = this.tree.getNewDraftProxies(draft, []);
 
+    
       const f: FileObj = {
         drafts: drafts,
         looms: looms,
-        nodes: [], 
-        treenodes: [],
+        nodes: [proxies.node], 
+        treenodes: [proxies.treenode],
         ops: []
       }
   

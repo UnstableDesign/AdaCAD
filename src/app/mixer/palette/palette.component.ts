@@ -571,6 +571,8 @@ export class PaletteComponent implements OnInit{
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy){
 
+    console.log("loading ", id, d, nodep);
+
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const node = this.tree.getNode(id)
@@ -583,7 +585,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.draft_visible = (nodep.draft_visible === undefined)? true : nodep.draft_visible;
-    subdraft.instance.bounds = nodep.bounds;
+    if(nodep.bounds !== null) subdraft.instance.bounds = nodep.bounds;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
   }
@@ -1458,7 +1460,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
 
   return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
-    console.log("draft ids ", draft_ids)
     //const draftnodes = draft_ids.map(el => this.tree.getNode(el));
     //functions to redraw existing nodes
     const fns = this.tree.getDraftNodes()

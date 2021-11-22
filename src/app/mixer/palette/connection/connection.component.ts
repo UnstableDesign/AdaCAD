@@ -47,6 +47,7 @@ export class ConnectionComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
 
+    
     this.b_to = this.tree.getComponent(this.to).bounds.topleft;
     this.updateFromPosition(this.tree.getComponent(this.from));
     // this.b_from = 

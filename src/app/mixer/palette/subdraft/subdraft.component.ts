@@ -139,13 +139,12 @@ export class SubdraftComponent implements OnInit {
 
   ngOnInit(){
 
-    console.log("subdraft parent for ", this.id, this.tree.getSubdraftParent(this.id));
-
-    this.parent_id = this.tree.getSubdraftParent(this.id);
+    if(!this.is_preview) this.parent_id = this.tree.getSubdraftParent(this.id);
     const tl: Point = this.viewport.getTopLeft();
    
+
     if(this.bounds.topleft.x === 0 && this.bounds.topleft.y === 0) this.setPosition(tl);
-    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
     const draft = this.tree.getDraft(this.id);
 
