@@ -768,6 +768,7 @@ export class SubdraftComponent implements OnInit {
           if(result != null){
             if(this.parent_id == -1){
               draft.reload(result);
+              this.draft = draft;
               //this.drawDraft();
               this.onDesignAction.emit({id: this.id});
               //flag for downstream calculations
