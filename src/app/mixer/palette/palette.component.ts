@@ -1158,7 +1158,7 @@ export class PaletteComponent implements OnInit{
           new_sd.setPosition({
             x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
             y: sd.bounds.topleft.y});  
-          const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
+          //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
           //this.viewport.addObj(new_sd.id, interlacement);
           this.addTimelineState();
         }).catch(console.error);
@@ -1397,12 +1397,12 @@ connectionDragged(mouse: Point, shift: boolean){
 
 
  //called on load, asks each object from top down to perform itself to update the downstream elements 
-async performTopLevelOps() : Promise<any> {
+// async performTopLevelOps() : Promise<any> {
 
-   const fns = this.tree.getTopLevelOps()
-     .map(el => this.performAndUpdateDownstream(el));
-   return Promise.all(fns);
-}
+//    const fns = this.tree.getTopLevelOps()
+//      .map(el => this.performAndUpdateDownstream(el));
+//    return Promise.all(fns);
+// }
 
 /**
  * calculates the default topleft position for this node based on the width and size of its parent and/or neighbors
@@ -1454,17 +1454,19 @@ calculateInitialLocaiton(id: number) : Bounds {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
+  this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
 
-  return this.tree.performOp(op_id)
+  return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
-    const draftnodes = draft_ids.map(el => this.tree.getNode(el));
+    console.log("draft ids ", draft_ids)
+    //const draftnodes = draft_ids.map(el => this.tree.getNode(el));
     //functions to redraw existing nodes
-    const fns = draftnodes
+    const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
       .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
 
     //create any new subdrafts nodes
-    const new_drafts = draftnodes
+    const new_drafts = this.tree.getDraftNodes()
       .filter(el => el.component === null)
       .map(el => {
         return this.loadSubDraft(
@@ -1497,48 +1499,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
 
     }
   );
-
-  // const ds = this.tree.getDownstreamOperations(op_id);
-  // ds.push(op_id);
-  // return this.opgraph.performOp(op_id)
-  //   .then(el => {  //this should return a list of nodes touched
-      
-  //     ds.forEach(ds_op =>{
-  //       const op = <OperationComponent> this.tree.getComponent(ds_op);
-  //       const subdrafts: Array<number> = this.tree.getNonCxnOutputs(ds_op);
-  //       const node =  this.tree.getNode(ds_op);
-
-
-  //       //we need to create a new compomnent
-  //       if(subdrafts.length < node.res.length){
-  //         let left_padding: number = 0;  
-
-  //         for(let i = subdrafts.length; i < node.res.length; i++){
-  //             //we need to create some new components
-  //             const sd = this.createSubDraft(node.res[i], ds_op);
-  //             sd.setParent(ds_op);
-  //             sd.setPosition({
-  //               x: op.bounds.topleft.x + left_padding*this.default_cell_size,
-  //               y: op.bounds.topleft.y + op.bounds.height});
-  //             this.viewport.addObj(sd.id, sd.interlacement);
-  //             this.createConnection(op.id, sd.id);
-  //             this.tree.setSubdraftParent(sd.id, op.id);
-  //             left_padding += (node.res[i].warps + 2);
-  //         }
-          
-  //       }else{
-  //         subdrafts
-  //           .map(el => <SubdraftComponent> this.tree.getComponent(el))
-  //           .forEach((el, ndx) => {
-  //             this.opgraph.setDraft(el.id, node.res[ndx])
-  //             el.drawDraft()
-  //           });
-  //       }
-       
-
-  //     })
-
-  //   });
 
 }
 

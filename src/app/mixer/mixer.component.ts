@@ -253,34 +253,39 @@ export class MixerComponent implements OnInit {
       this.tree.getDraftNodes()
       .filter(el => el.draft === null)
       .forEach(el => {
-        console.log("removing node ", el.id, this.tree.hasParent(el.id));
         if(this.tree.hasParent(el.id)){
           el.draft = new Draft({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
         } else{
+          console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
           this.tree.removeNode(el.id);
         } 
       })
     })
     .then(el => {
 
-      this.tree.nodes.forEach(node => {
+      return this.tree.nodes.forEach(node => {
         switch (node.type){
           case 'draft':
-            if(this.tree.getDraft(node.id) !== null) this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id == node.id));
+            this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id == node.id));
             break;
           case 'op':
             const op = this.tree.getOpNode(node.id);
             this.palette.loadOperation(op.id, op.name, op.params, data.nodes.find(el => el.node_id == node.id).bounds);
-            break;
-          case 'cxn':
-            this.palette.loadConnection(node.id, this.tree.getConnectionInput(node.id), this.tree.getConnectionOutput(node.id))
             break;
         }
       })
 
 
     }
-    )
+    ).then(el => {
+      return this.tree.nodes.forEach(node => {
+        switch (node.type){
+          case 'cxn':
+            this.palette.loadConnection(node.id, this.tree.getConnectionInput(node.id), this.tree.getConnectionOutput(node.id))
+            break;
+        }
+      })
+    })
     .catch(console.error);
 
     return Promise.resolve("all done");

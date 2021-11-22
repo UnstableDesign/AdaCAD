@@ -294,6 +294,7 @@ export class TreeService {
   /** depends on having nodes created first so that all tree nodes are present */
   async loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): Promise<TreeNode>{
     const tn: TreeNode = this.getTreeNode(node_id);
+    console.log("loading", node_id, parent_id);
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
     tn.inputs = inputs.map(id => this.getTreeNode(id));
     tn.outputs = outputs.map(id => this.getTreeNode(id));
@@ -400,8 +401,8 @@ export class TreeService {
    */
   getSubdraftParent(sd_id: number):number{
     const tn: TreeNode = this.getTreeNode(sd_id);
-    if(tn.parent !== null) return tn.parent.node.id;
-    else return -1;
+    if(tn.parent === null || tn.parent === undefined) return -1;
+    else return tn.parent.node.id;
   }
 
   hasParent(sd_id: number) : boolean{
@@ -750,7 +751,7 @@ export class TreeService {
       }
     }
 
-    return Promise.resolve(touched);
+    return touched;
 
   }
 
@@ -776,19 +777,24 @@ export class TreeService {
    * given a list of operations to perform, recursively performs all on nodes that have dependencies satisified
    * only after entire generation has been calculated
    * @param op_fn_list 
-   * @returns 
+   * @returns //need a way to get this to return any drafts that it touched along the way
    */
-  performGenerationOps(op_node_list: Array<number>) : Promise<Array<number>> {
+  performGenerationOps(op_node_list: Array<number>) : Promise<any> {
     const op_fn_list = op_node_list.map(el => this.performOp(el));
-    
+   
     return Promise.all(op_fn_list).then( out => {
-      return this.getNodesWithDependenciesSatisfied();
-    }).then(needs_performing => {
-      const fns = needs_performing.map(el => el.id);
-      if(needs_performing.length === 0) return Promise.resolve([]);
-      return this.performGenerationOps(fns);    
+      const flat:Array<number> = out.reduce((acc, el, ndx)=>{
+        return acc.concat(el);
+      }, []);
 
-    })
+      return this.getNodesWithDependenciesSatisfied();
+
+    }).then(needs_performing => {
+     
+      const fns = needs_performing.map(el => el.id);
+      if(needs_performing.length === 0) return [];
+      return  this.performGenerationOps(fns);    
+    });
 
     
   }
@@ -878,8 +884,12 @@ export class TreeService {
 
 
   getTreeNode(id:number): TreeNode{
-    //only searches top level - though all should be in one level
-    return this.tree.find(el => el.node.id == id);
+    const found =  this.tree.find(el => el.node.id === id);
+    if(found === undefined){
+      console.error("Tree node for ", id, "not found");
+      return undefined;
+    }
+    return this.tree.find(el => el.node.id === id);
   }
 
   /**
@@ -1249,7 +1259,7 @@ export class TreeService {
 
       const savable:TreeNodeProxy = {
         node: treenode.node.id,
-        parent: (treenode.parent !== null) ?  treenode.parent.node.id : -1,
+        parent: (treenode.parent !== null && treenode.parent !== undefined) ?  treenode.parent.node.id : -1,
         inputs: treenode.inputs.map(el => el.node.id),
         outputs: treenode.outputs.map(el => el.node.id)
       }

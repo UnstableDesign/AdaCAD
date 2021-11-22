@@ -138,6 +138,9 @@ export class SubdraftComponent implements OnInit {
   }
 
   ngOnInit(){
+
+    console.log("subdraft parent for ", this.id, this.tree.getSubdraftParent(this.id));
+
     this.parent_id = this.tree.getSubdraftParent(this.id);
     const tl: Point = this.viewport.getTopLeft();
    
@@ -210,7 +213,7 @@ export class SubdraftComponent implements OnInit {
   updatePositionFromParent(parent: OperationComponent){
 
     if(this.parent_id !== parent.id){
-      console.error("attempitng to update subdraft position from non-parent operation");
+      console.error("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
       return;
     }
 
@@ -226,8 +229,9 @@ export class SubdraftComponent implements OnInit {
       this.bounds.width = draft.warps * this.scale;
       this.bounds.height = draft.wefts * this.scale;
 
-      if(this.parent_id != parent.id){
-        console.error("attempitng to update subdraft position from non-parent operation");
+      if(this.parent_id !== parent.id){
+        console.error("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
+        console.log("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
         return;
       }
 
