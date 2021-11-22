@@ -1,17 +1,14 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DesignMode, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { Draft } from '../../../core/model/draft';
 import { OperationService, Operation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
-import { TreeService } from '../../provider/tree.service';
+import { OpNode, TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
-import { Cell } from '../../../core/model/cell';
-import { generate } from 'rxjs';
 
 @Component({
   selector: 'app-operation',
@@ -22,7 +19,18 @@ export class OperationComponent implements OnInit {
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
-   @Input() scale: number;
+
+
+   @Input()
+   get scale(): number { return this._scale; }
+   set scale(value: number) {
+     this._scale = value;
+     this.rescale(value);
+   }
+   private _scale:number = 5;
+ 
+
+
    @Input() default_cell: number;
    @Input() zndx: number;
    @Output() onConnectionRemoved = new EventEmitter <any>();
@@ -54,10 +62,10 @@ export class OperationComponent implements OnInit {
    duplicated: boolean = false;
 
 
-    /**
-    * stores a list of components and drafts generated as outputs 
-    */
-   outputs: Array<DraftMap>; 
+  //   /**
+  //   * stores a lit of the subdraft ids 
+  //   */
+  //  outputs: Array<number>;  
    
    tooltip: string = "select drafts to input to this operation"
   
@@ -86,25 +94,29 @@ export class OperationComponent implements OnInit {
     private viewport: ViewportService,
     private tree: TreeService,
     private dm: DesignmodesService) { 
-    this.outputs = [];
-
+    
+      //this.outputs = [];
+  
 
 
   }
 
   ngOnInit() {
 
-    this.op = this.operations.getOp(this.name);
 
-    this.op.params.forEach((param, ndx) => {
-      const value = (this.loaded || this.duplicated) ? this.loaded_inputs[ndx] : param.value;
-      this.op_inputs.push(new FormControl(value));
+    this.op = this.operations.getOp(this.name);
+    const graph_node = <OpNode> this.tree.getNode(this.id);
+
+
+    this.op.params.forEach((val, ndx) => {
+      if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx]));
+      else this.op_inputs.push(new FormControl(val.value));
     });
 
     const tl: Point = this.viewport.getTopLeft();
    
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
-    else  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
     this.base_height =  60 + 40 * this.op_inputs.length
     this.bounds.height = this.base_height;
@@ -121,15 +133,16 @@ export class OperationComponent implements OnInit {
 
 
   getInputName(id: number) : string {
-    const sd = <SubdraftComponent> this.tree.getComponent(id);
-    return sd.draft.name;
+    const sd = this.tree.getDraft(id);
+    if(sd === null || sd === undefined) return "null draft"
+    return sd.name;
   }
 
 
-  setOutputs(dms: Array<DraftMap>){
-      this.outputs = dms.slice();
+  // setOutputs(dms: Array<DraftMap>){
+  //    // this.outputs = dms.slice();
 
-  }
+  // }
 
 
 
@@ -146,58 +159,29 @@ export class OperationComponent implements OnInit {
   }
 
 
-  /**
-   * performs the operation on the inputs added in load
-   * @returns an Array linking the draft ids to compoment_ids
-   */
-  perform(inputs: Array<Draft>):Promise<Array<DraftMap>>{
-
-    
-    this.op = this.operations.getOp(this.name);
-    return this.op.perform(inputs, this.op_inputs.map(fc => fc.value))
-      .then(generated_drafts => {
-
-        //if we have more outputs here than we have generated drafts, we should update the already created drafts with empty drafts
-        if(generated_drafts.length < this.outputs.length){
-          this.outputs.forEach(out => {
-            out.draft = new Draft({warps: 1, wefts: 1});
-          })
-          return this.outputs;
-        }
-
-        return generated_drafts.map((draft, ndx) => ({
-            component_id: (this.outputs[ndx] === undefined) ? -1 : this.outputs[ndx].component_id,
-            draft
-          })
-      )
-    })
-
-    
-  }
 
   rescale(scale:number){
 
 
-    this.scale = scale;
+    console.log("recale op called")
+
     const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
+    if(container === null) return;
+
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
-
-    this.bounds.topleft = {x: this.interlacement.j * this.scale, y: this.interlacement.i * this.scale};
-    //this.bounds.height = this.bounds.height * change;
-
-
-    //consider rewrting to update on render size
-
-    if(this.outputs.length == 1){
-      this.bounds.width = Math.max(200, this.outputs[0].draft.warps * this.scale);
-    }else{
-      this.bounds.width = 200;
-    }
+    this.bounds.topleft = {
+      x: this.interlacement.j * scale,
+      y: this.interlacement.i * scale
+    };
 
     this.bounds.height = this.base_height * zoom_factor;
+
+ 
+  
+
 
   }
 
@@ -240,9 +224,9 @@ export class OperationComponent implements OnInit {
     this.bounds.width = (w > 200) ? w : 200;
   }
 
-  addOutput(dm: DraftMap){
-    this.outputs.push(dm);
-  }
+  // addOutput(dm: DraftMap){
+  //   this.outputs.push(dm);
+  // }
 
   disableDrag(){
     this.disable_drag = true;
@@ -281,7 +265,8 @@ export class OperationComponent implements OnInit {
   }
 
   onParamChange(id: number, value: number){
-    console.log(value);
+    const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
+    opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});
   }

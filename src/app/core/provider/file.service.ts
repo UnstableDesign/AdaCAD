@@ -16,9 +16,9 @@ import { PatternService } from './pattern.service';
  export interface NodeComponentProxy{
   node_id: number,
   type: string,
-  active: boolean,
   bounds: Bounds; 
   draft_id: number;
+  draft_visible: boolean;
  }
 
  export interface TreeNodeProxy{
@@ -74,18 +74,18 @@ export interface LoadResponse{
 
 
 interface Fileloader{
-  ada: (data: any) => LoadResponse,
-  wif: (data: any) => LoadResponse,
-  bmp: (data: any) => LoadResponse,
-  jpg: (data: any) => LoadResponse,
-  form: (data: any) => LoadResponse
+  ada: (data: any) => Promise<LoadResponse>,
+  wif: (data: any) => Promise<LoadResponse>,
+  bmp: (data: any) => Promise<LoadResponse>,
+  jpg: (data: any) => Promise<LoadResponse>,
+  form: (data: any) => Promise<LoadResponse>
 }
 
 interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean) => string,
-  wif: (draft: Draft, loom: Loom) => string,
-  bmp: (canvas: HTMLCanvasElement) => string,
-  jpg: (canvas: HTMLCanvasElement) => string
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean) => Promise<string>,
+  wif: (draft: Draft, loom: Loom) => Promise<string>,
+  bmp: (canvas: HTMLCanvasElement) => Promise<string>,
+  jpg: (canvas: HTMLCanvasElement) => Promise<string>
 }
 
 
@@ -121,7 +121,7 @@ export class FileService {
 
   const dloader: Fileloader = {
 
-    ada: (data: any) : LoadResponse => {
+     ada: async (data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -135,12 +135,11 @@ export class FileService {
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
 
-      
-
 
       drafts = data.drafts.map(draftdata => {
         const draft: Draft =  new Draft({wefts: draftdata.wefts, warps: draftdata.warps, pattern: draftdata.pattern});
         if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
+        if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
         
         if(draftdata.shuttles !== undefined){
             //if there is only one draft here we are loading into the mixer and should add materials
@@ -230,11 +229,11 @@ export class FileService {
         ops: ops
       }
 
-      return {data: envt, status: 0}; 
+      return Promise.resolve({data: envt, status: 0}); 
 
 
     }, 
-    wif: (data: any) : LoadResponse => {
+    wif: async (data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -302,25 +301,31 @@ export class FileService {
     draft.recalculateDraft(tieups, treadling, threading);
 
 
+    const proxies = this.tree.getNewDraftProxies(draft, []);
+
+    
     const f: FileObj = {
       drafts: drafts,
       looms: looms,
-      nodes: [], 
-      treenodes: [],
+      nodes: [proxies.node], 
+      treenodes: [proxies.treenode],
       ops: []
     }
 
-    return {data: f ,status: 0};
+
+    return Promise.resolve({data: f ,status: 0});
     },
     /**
      * takes in a jpg, creates as many drafts as there are unique colors in the image. 
      * @param data 
      * @returns 
      */
-    jpg: (data: any) : LoadResponse => {
+    jpg: async (data: any) : Promise<LoadResponse> => {
       console.log("processing JPG data")
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
+      let nodes: Array<NodeComponentProxy> = [];
+      let treenodes: Array<TreeNodeProxy> = [];
 
       this.ns.resetNotes(); 
       this.ps.resetPatterns();
@@ -405,9 +410,9 @@ export class FileService {
         ops: []
       }
   
-      return {data: f ,status: 0};  
+      return Promise.resolve({data: f ,status: 0});  
     },
-    bmp: (data: any) : LoadResponse => {
+    bmp: async (data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -439,25 +444,27 @@ export class FileService {
       }
   
       const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
-      drafts.push(draft);
+      drafts= [ draft];
       
       //create a blank loom to accompany this
       const loom:Loom = new Loom(draft, 8, 10);
       loom.overloadType('jacquard');
       looms.push(loom);
 
+      const proxies = this.tree.getNewDraftProxies(draft, []);
 
+    
       const f: FileObj = {
         drafts: drafts,
         looms: looms,
-        nodes: [], 
-        treenodes: [],
+        nodes: [proxies.node], 
+        treenodes: [proxies.treenode],
         ops: []
       }
   
-      return {data: f ,status: 0};    
+      return Promise.resolve({data: f ,status: 0});  
     },
-    form: (f:any):LoadResponse =>{
+    form: async (f:any):Promise<LoadResponse> =>{
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -511,16 +518,20 @@ export class FileService {
       loom.overloadEpi(epi);
       loom.overloadUnits(units);
     
+
+      const proxies = this.tree.getNewDraftProxies(draft, []);
+
     
       const envt: FileObj = {
         drafts: drafts,
         looms: looms,
-        nodes: [],
-        treenodes: [],
+        nodes: [proxies.node], 
+        treenodes: [proxies.treenode],
         ops: []
       }
+    
 
-      return {data: envt, status: 0};
+      return Promise.resolve({data: envt, status: 0});
     }
   }
 
@@ -533,7 +544,7 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
-    ada:  (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean) : string => {
+     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean) : Promise<string> => {
       //eventually need to add saved patterns here as well
       const out: SaveObj = {
         type: type,
@@ -548,12 +559,12 @@ export class FileService {
       }
 
       var theJSON = JSON.stringify(out);
-      if(for_timeline) return theJSON;
+      if(for_timeline) return Promise.resolve(theJSON);
 
       const href:string = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
       return href;
     },
-    wif: (draft: Draft, loom: Loom) : string => {
+    wif: async (draft: Draft, loom: Loom) : Promise<string> => {
       const shuttles: Array<Shuttle> = this.ms.getShuttles();
         //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
       var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=3.0\n[CONTENTS]";
@@ -659,14 +670,14 @@ export class FileService {
       }
 
       const href:string = "data:" + fileType +";base64," + btoa(fileContents);
-      return href;
+      return Promise.resolve(href);
     },
-    bmp: (canvas:HTMLCanvasElement) : string => {
-      return canvas.toDataURL("image/jpg");
+    bmp: async (canvas:HTMLCanvasElement) : Promise<string> => {
+      return Promise.resolve(canvas.toDataURL("image/jpg"));
 
     },
-    jpg: (canvas:HTMLCanvasElement) : string => {
-      return canvas.toDataURL("image/jpg");
+    jpg: async (canvas:HTMLCanvasElement) : Promise<string> => {
+      return Promise.resolve(canvas.toDataURL("image/jpg"));
     }
   }
 

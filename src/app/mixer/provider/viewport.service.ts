@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
-import { thresholdFreedmanDiaconis } from 'd3';
-import { Observable } from 'rxjs';
 import { Bounds, Interlacement, Point } from '../../core/model/datatypes';
 
 
-const locations = new Observable((observer) => {
-  let watchId: number;
-});
 
 @Injectable({
   providedIn: 'root'

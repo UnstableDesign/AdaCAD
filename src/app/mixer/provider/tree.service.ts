@@ -1,12 +1,22 @@
+import { K } from '@angular/cdk/keycodes';
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
+import { timeStamp } from 'console';
+import { cloneDeep, map } from 'lodash';
+import { Cell } from '../../core/model/cell';
+import { DraftMap } from '../../core/model/datatypes';
 import { Draft } from '../../core/model/draft';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
+import { OperationService } from './operation.service';
 /**
  * this class registers the relationships between subdrafts, operations, and connections
  */
+
+
+
+
 
 /**
  * this stores a reference to a component on the palette with its id and some
@@ -14,15 +24,28 @@ import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
  * @param view_id is ndx to reference to this object in the ViewComponentRef (for deleting)
  * @param id is a unique id linked forever to this component 
  * @param component is a reference to the component object
- * @param active describes if is on the screen or hidden. 
+ * @param dirty describes if this needs to be recalcuated or redrawn 
  */
-interface Node{
-  type: 'draft' | 'op' | 'cxn';
+type BaseNode = {
+  type: 'draft' | 'op' | 'cxn',
   ref: ViewRef,
   id: number, //this will be unique for every instance
   component: SubdraftComponent | OperationComponent | ConnectionComponent,
-  active: boolean
+  dirty: boolean
+  // opnode: OpGraphNode; //if draft, this will be the draft, op, stores params
+  // draft: Draft
 }
+
+export type OpNode = BaseNode & {
+  name: string,
+  params: Array<number> 
+ }
+
+ export type DraftNode = BaseNode & {
+  draft: Draft
+ }
+
+ type Node = BaseNode | OpNode | DraftNode;
 
 /**
  * A tree node stores relationships between the components created by operations
@@ -36,7 +59,7 @@ interface Node{
   *   
 */
 
-interface TreeNode{
+export interface TreeNode{
   node: Node,
   parent: TreeNode,
   inputs: Array<TreeNode>,
@@ -50,21 +73,163 @@ export class TreeService {
 
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
-  num_created: number = 0;
   open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
+  preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
-  constructor() { 
+  constructor(private ops: OperationService) { 
+  }
+
+
+  /**
+   * this returns what the next id would be based on current nodes and any preloaded "additional" nodes
+   * @param additional 
+   */
+  getUniqueId(additional: Array<number>) : number {
+    const all_ids = this.nodes.map(el => el.id)
+    .concat(additional);
+
+    const max = all_ids.reduce((acc,el) => {
+      if(el > acc) return el;
+    }, -1);
+
+    console.log("unique id is ", max+1);
+    return (max+1);
+  }
+
+
+  async loadOpData(id: number, name: string, params:Array<number>) : Promise<OpNode>{
+    
+    const nodes = this.nodes.filter(el => el.id === id);
+
+    if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+id);
+
+
+    const params_in = this.ops.getOp(name).params.map(el => el.value);
+    const params_out = params_in.map((p, ndx) => {
+      if(ndx < params.length) return params[ndx];
+      else return p;
+    });
+
+  
+    nodes[0].dirty = false;
+    (<OpNode> nodes[0]).name = name;
+    (<OpNode> nodes[0]).params = params_out.slice();
+
+
+   return Promise.resolve(<OpNode> nodes[0]);
+
+  }
+
+
+  setPreview(sd: any, draft: Draft) : Promise<DraftNode>{
+    this.preview = {
+      id: -1,
+      type: "draft",
+      ref: sd.hostView,
+      component: <SubdraftComponent> sd.instance,
+      dirty: true, 
+      draft: cloneDeep(draft)
+    }
+
+    sd.dirty = true;
+
+    return Promise.resolve(this.preview);
+  
+  }
+
+  setPreviewDraft(draft: Draft) : Promise<DraftNode>{
+    if(this.preview === undefined) return Promise.reject("preview undefined");
+      this.preview.draft = cloneDeep(draft);
+      this.preview.dirty = true;
+      (<SubdraftComponent> this.preview.component).draft = draft;
+      return Promise.resolve(this.preview);
+  }
+
+
+
+  unsetPreview(){
+    this.preview = undefined;
+  }
+
+  hasPreview():boolean{
+      if(this.preview === undefined) return false;
+      return true;
+  }
+
+
+  getPreview() : DraftNode{
+    return this.preview;
+  }
+
+  getPreviewComponent() : SubdraftComponent{
+    return <SubdraftComponent> this.preview.component;
+  }
+
+  /**
+   * returns a list of all the node ids of drafts that are dirty (including preview)
+   */
+  getDirtyDrafts() : Array<number> {
+
+    return this.nodes.filter(el => el.type === "draft")
+      .concat(this.preview)
+      .filter(el => el.dirty)
+      .map(el => el.id);
+  }
+
+
+
+  loadDraftData(id: number, draft: Draft) : Promise<DraftNode>{
+
+    const nodes = this.nodes.filter(el => el.id === id);
+
+    if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+id);
+
+    nodes[0].dirty = true;
+
+   (<DraftNode> nodes[0]).draft = cloneDeep(draft);
+
+   return Promise.resolve(<DraftNode> nodes[0]);
+
   }
 
   /**called from the file loader before a compoment has been initalized */
-  loadNode(type: 'draft'|'op'|'cxn', id: number, active:boolean): number{
-    const node: Node = {
-      type: type,
-      ref: null,
-      id: id,
-      component: null,
-      active: active
+  loadNode(type: 'draft'|'op'|'cxn', id: number): number{
+
+    let node: Node;
+
+    switch(type){
+      case 'draft':
+        node = <DraftNode> {
+          type: type,
+          ref: null,
+          id: id,
+          component: null,
+          dirty: false,
+          draft: null
+        }
+        break;
+      case 'op': 
+      node = <OpNode> {
+        type: type,
+        ref: null,
+        id: id,
+        component: null,
+        dirty: false,
+        params: [],
+        name: ''
+      }
+      break;
+      default: 
+       node = {
+        type: type,
+        ref: null,
+        id: id,
+        component: null,
+        dirty: false,
+      }
+      break;
     }
+
 
     this.nodes.push(node);
 
@@ -75,11 +240,23 @@ export class TreeService {
         inputs: []
       });
 
-    this.num_created++;
 
-    
-
+  
     return node.id;
+  }
+
+
+
+
+  getConnectionsInvolving(node_id: number) : {from: number, to: number}{
+
+    const tn = this.getTreeNode(node_id);
+    if(tn.outputs.length !== 1) console.error("connection node has more than one to");
+    if(tn.inputs.length !== 1) console.error("connection node has more than one from");
+
+    return {from: tn.inputs[0].node.id, to: tn.outputs[0].node.id};
+
+
   }
 
   /**
@@ -125,17 +302,17 @@ export class TreeService {
   clear(){
     this.tree = [];
     this.nodes = [];
-    this.num_created = 0;
   }
 
 
-  /**called from the file loader before a compoment has been initalized */
   /** depends on having nodes created first so that all tree nodes are present */
-  loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>){
+  async loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): Promise<TreeNode>{
     const tn: TreeNode = this.getTreeNode(node_id);
+    console.log("loading", node_id, parent_id);
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
     tn.inputs = inputs.map(id => this.getTreeNode(id));
     tn.outputs = outputs.map(id => this.getTreeNode(id));
+    return Promise.resolve(tn);
   }
 
 
@@ -149,12 +326,40 @@ export class TreeService {
    */
   createNode(type: 'draft'|'op'|'cxn', component: SubdraftComponent | OperationComponent | ConnectionComponent, ref: ViewRef):number{
 
-    const node: Node = {
-      type: type,
-      ref: ref,
-      id: this.num_created++,
-      component: component,
-      active: true
+
+    let node: Node;
+
+    switch(type){
+      case 'draft':
+        node = <DraftNode> {
+          type: type,
+          ref: ref,
+          id: this.getUniqueId([]),
+          component: component,
+          dirty: false,
+          draft: null
+        }
+        break;
+      case 'op': 
+      node = <OpNode> {
+        type: type,
+        ref: ref,
+        id: this.getUniqueId([]),
+        component: component,
+        dirty: false,
+        params: [],
+        name: ''
+      }
+      break;
+      default: 
+       node = {
+        type: type,
+        ref: ref,
+        id: this.getUniqueId([]),
+        component: component,
+        dirty: false,
+      }
+      break;
     }
 
     this.nodes.push(node);
@@ -210,8 +415,12 @@ export class TreeService {
    */
   getSubdraftParent(sd_id: number):number{
     const tn: TreeNode = this.getTreeNode(sd_id);
-    if(tn.parent !== null) return tn.parent.node.id;
-    else return -1;
+    if(tn.parent === null || tn.parent === undefined) return -1;
+    else return tn.parent.node.id;
+  }
+
+  hasParent(sd_id: number) : boolean{
+    return (this.getSubdraftParent(sd_id) === -1) ? false : true;
   }
 
   /**
@@ -304,6 +513,16 @@ export class TreeService {
     const tn: TreeNode = this.getTreeNode(id);
     return (tn.outputs.length > 0);
   }
+
+  /**
+   * test if this node is a seed (e.g. has no inputs)
+   * @param id 
+   * @returns a boolean 
+   */
+    isSeedDraft(id: number):boolean{
+      const tn: TreeNode = this.getTreeNode(id);
+      return (this.getType(id) === "draft" && tn.inputs.length === 0);
+    }
 
     /**
    * test if this node has just one child. 
@@ -414,6 +633,26 @@ export class TreeService {
       return ops;
     }
 
+   /**
+   * given an operation, get any operations that are linked by only one subdraft
+   * @param id 
+   * @returns an array of operation ids whose outputs form 
+   */
+     getInputOpsToAnOp(op_id: number):Array<number>{
+      
+      //and array of subdrafts
+      const inputs = this.getNonCxnInputs(op_id);
+      const nodes = inputs.map(el => this.getTreeNode(el));
+
+
+      const val  = nodes
+      .filter(el => el.parent !== null)
+      .map(el => el.parent.node.id);
+
+      return val;
+
+    }
+
     /**
    * given a node, recusively walks the tree and returns a list of all the drafts that are linked up the chain to this component
    * @param id 
@@ -464,20 +703,183 @@ export class TreeService {
 
   }
 
+
+
+
+  /**
+   * searches within the downstream ops for all opnodes and when a "dirty" node has all possible inputs fulfilled
+   * @returns return a list of those nodes
+   */
+  getNodesWithDependenciesSatisfied() : Array<OpNode>{
+
+    const dependency_nodes: Array<OpNode> = this.nodes
+    .filter(el => el.dirty && el.type === "op")
+    .map(el => <OpNode> el);
+
+    // const dependency_nodes: Array<OpNode> = ds
+    // .map(el => <OpNode> this.getNode(el))
+    // .filter(el => el.dirty);
+
+    const ready: Array<OpNode> = dependency_nodes.filter((el, ndx) => {
+      const depends_on: Array<number> = this.getUpstreamOperations(el.id);
+      const needs = depends_on.map(id => this.getNode(id).dirty);
+
+      const find_true = needs.findIndex(el => el === true);
+      if(find_true === -1) return el;
+    });
+  
+    return ready;
+  }
+
+
+ /**
+   * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
+   * since this function cannot delete nodes, it makes nodes that no longer need to exist as null for later collection
+   * @param res the list of results from perform op
+   * @returns a list of the draft nodes touched. 
+   */
+  async updateDraftsFromResults(parent: number, res: Array<Draft>) : Promise<Array<number>>{
+
+    const out = this.getNonCxnOutputs(parent);
+    const touched: Array<number> = [];
+
+    if(out.length === res.length){
+      out.forEach((output, ndx) => {
+        this.setDraft(output, res[ndx]);
+        touched.push(output);
+      });
+    }else if(out.length > res.length){
+      for(let i = res.length; i < out.length; i++){
+        const dn = <DraftNode> this.getNode(out[i]);
+        dn.draft = null;
+        dn.dirty = true;
+        touched.push(out[i]);
+      }
+    }else{
+      for(let i = out.length; i < res.length; i++){
+        const id = this.createNode('draft', null, null);
+        const cxn = this.createNode('cxn', null, null);
+        this.loadDraftData(id, res[i]);
+        this.addConnection(parent, id, cxn);
+        touched.push(id);
+      }
+    }
+
+    return touched;
+
+  }
+
+
+  performTopLevelOps(): Promise<any> {
+
+    //mark all ops as dirty to start
+    this.nodes.forEach(el => {
+      if(el.type == "op") el.dirty = true;
+    })
+
+    const top_level_nodes = 
+      this.nodes
+      .filter(el => el.type === 'op')
+      .filter(el => this.getUpstreamOperations(el.id).length === 0)
+      .map(el => el.id);
+
+    return this.performGenerationOps(top_level_nodes);
+
+  }
+
+  /**
+   * given a list of operations to perform, recursively performs all on nodes that have dependencies satisified
+   * only after entire generation has been calculated
+   * @param op_fn_list 
+   * @returns //need a way to get this to return any drafts that it touched along the way
+   */
+  performGenerationOps(op_node_list: Array<number>) : Promise<any> {
+    const op_fn_list = op_node_list.map(el => this.performOp(el));
+   
+    return Promise.all(op_fn_list).then( out => {
+      const flat:Array<number> = out.reduce((acc, el, ndx)=>{
+        return acc.concat(el);
+      }, []);
+
+      return this.getNodesWithDependenciesSatisfied();
+
+    }).then(needs_performing => {
+     
+      const fns = needs_performing.map(el => el.id);
+      if(needs_performing.length === 0) return [];
+      return  this.performGenerationOps(fns);    
+    });
+
+    
+  }
+
+
+
+
+/**
+ * performs the given operation
+ * returns the list of draft ids affected by this calculation
+ * @param op_id the operation triggering this series of update
+ */
+ async performOp(id:number) : Promise<Array<number>> {
+
+
+  //mark all downsteam nodes as dirty; 
+  const ds = this.getDownstreamOperations(id);
+  //ds.forEach(el => this.setDirty(el));
+
+  const node = <OpNode> this.getNode(id);
+  const op = this.ops.getOp(node.name);
+
+  const inputs = this.getNonCxnInputs(id);
+  const input_drafts: Array<Draft> =  inputs
+    .map(input => (<DraftNode> this.getNode(input)).draft)
+    .filter(el => el !== null);
+  
+  return op.perform(input_drafts, node.params)
+    .then(res => {
+      node.dirty = false;
+      return this.updateDraftsFromResults(id, res)
+    })
+  }
+
+
+
+
+  getDraftNodes():Array<DraftNode>{
+    return this.nodes.filter(el => el.type === 'draft').map(el => <DraftNode> el);
+  }
+
   getDrafts():Array<SubdraftComponent>{
     const draft_nodes: Array<Node> = this.nodes.filter(el => el.type == 'draft');
     const draft_comps: Array<SubdraftComponent> = draft_nodes.map(el => <SubdraftComponent>el.component);
     return draft_comps;
   }
 
+
+  getDraft(id: number):Draft{
+    if(id === -1) return this.preview.draft;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined) return null;
+    return dn.draft;
+  }
+
+  getDraftName(id: number):string{
+    if(id === -1) return this.preview.draft.name;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined || dn.draft === null) return "null draft";
+    return dn.draft.name;
+  }
+
+
   getConnections():Array<ConnectionComponent>{
-    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type == 'cxn');
+    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type === 'cxn');
     const draft_comps: Array<ConnectionComponent> = draft_nodes.map(el => <ConnectionComponent>el.component);
     return draft_comps;
   }
 
   getOperations():Array<OperationComponent>{
-    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type == 'op');
+    const draft_nodes: Array<Node> = this.nodes.filter(el => el.type === 'op');
     const draft_comps: Array<OperationComponent> = draft_nodes.map(el => <OperationComponent>el.component);
     return draft_comps;
   }
@@ -488,19 +890,20 @@ export class TreeService {
    */
 
   getUnusuedConnections():Array<number>{
-    const comps: Array<ConnectionComponent> = this.getConnections();
+    const comps: Array<ConnectionComponent> = this.getConnections().filter(el => el !== null);
     const nodes: Array<TreeNode> = comps.map(el => this.getTreeNode(el.id));
     const to_delete: Array<TreeNode> = nodes.filter(el => (el.inputs.length == 0 || el.outputs.length == 0));
     return to_delete.map(el => el.node.id);
   }
 
-  addNode(type: string){
-
-  }
 
   getTreeNode(id:number): TreeNode{
-    //only searches top level - though all should be in one level
-    return this.tree.find(el => el.node.id == id);
+    const found =  this.tree.find(el => el.node.id === id);
+    if(found === undefined){
+      console.error("Tree node for ", id, "not found");
+      return undefined;
+    }
+    return this.tree.find(el => el.node.id === id);
   }
 
   /**
@@ -508,19 +911,21 @@ export class TreeService {
    * subdraft -> op (input to op)
    * op -> subdraft (output generatedd by op)
    * @returns an array of the ids of the elements connected to this op
-   * @todo add validation step here to make sure we don't end up in a loop
 
    */
   addConnection(from:number, to:number, cxn:number): Array<number>{
-    
+
+
     let from_tn: TreeNode = this.getTreeNode(from);
-    let to_tn: TreeNode = this.getTreeNode(to);;
+    let to_tn: TreeNode = this.getTreeNode(to);
     const cxn_tn: TreeNode = this.getTreeNode(cxn);
 
     from_tn.outputs.push(cxn_tn);
     cxn_tn.inputs.push(from_tn);
     cxn_tn.outputs.push(to_tn);
     to_tn.inputs.push(cxn_tn);
+
+    if(from_tn.node.type === 'op') to_tn.parent = from_tn;
 
     return this.getNonCxnInputs(to);
 
@@ -601,7 +1006,6 @@ export class TreeService {
         return output_treenode.outputs.findIndex(op_treenode => op_treenode.node.id === to) !== -1;
       });
 
-      console.log(cxn_node, sd_node.outputs, to);
       if(cxn_node === undefined) return -1;
       
       return cxn_node.node.id;
@@ -668,6 +1072,33 @@ export class TreeService {
   }
 
 
+  /**
+   * returns the ids of the total set of operations that, when performed, will chain down to the other operations
+   */
+  getTopLevelOps() : Array<number> {
+
+    return this.nodes
+    .filter(el => el.type === "op")
+    .filter(el => this.getUpstreamOperations(el.id).length === 0)
+    .map(el => el.id);
+  }
+
+  /**
+   * returns a list of any drafts that have no parents
+   */
+  getTopLevelDrafts() : Array<number>{
+    
+    return this.nodes
+    .filter(el => el.type === "draft")
+    .map(el => this.getTreeNode(el.id))
+    .filter(el => el.parent === null)
+    .map(el => el.node.id);
+
+    
+
+  }
+
+
   
 
   getGenerationChildren(parents: Array<number>) : Array<number> {
@@ -727,15 +1158,15 @@ export class TreeService {
     const objs: Array<any> = []; 
 
     this.nodes.forEach(node => {
-
       const savable: NodeComponentProxy = {
-        active: node.active,
         node_id: node.id,
         type: node.type,
         bounds: node.component.bounds,
-        draft_id: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft.id : -1) 
+        draft_id: (node.type === 'draft') ? (<DraftNode>node).draft.id : -1,
+        draft_visible: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft_visible : true) 
       }
       objs.push(savable);
+
     })
 
     return objs;
@@ -743,42 +1174,96 @@ export class TreeService {
   }
 
   /**
- * exports only the drafts that have not been generated by other values
- * @returns an array of objects that describe nodes
- */
-  exportSeedDraftsForSaving() : Array<any> {
+   * this function is used when the file loader needs to create a template for an object that doesn't yet exist in the tree
+   * but will be loaded into the tree.
+   * @param draft : the draft that will be loaded into this node
+   * @param preloaded : a list of preloaded node ids to factor in when creating this new id.  
+   */
+  getNewDraftProxies(draft: Draft, preloaded: Array<number>){
+    const node: NodeComponentProxy = {
+      node_id: this.getUniqueId(preloaded),
+      draft_id: draft.id,
+      draft_visible: true,
+      type: "draft",
+      bounds: null
+    };
+    const treenode: TreeNodeProxy = {
+      node: node.node_id,
+      parent: -1, 
+      inputs:[],
+      outputs:[]
+    };
 
-    const objs: Array<any> = []; 
-    const gens: Array<Array<number>> = this.convertTreeToGenerations(); 
+    return {node, treenode}
+  }
 
-    if(gens.length == 0) return objs;
+  setNodesClear(){
+    this.nodes.forEach(node => node.dirty = false);
+  }
 
-    const seeds: Array<number> = gens.shift();
-
-
-    seeds.forEach(id => {
-
-      const savable = {
-        id: id,
-        draft: (<SubdraftComponent>this.getComponent(id)).draft
-      }
-      objs.push(savable);
-    })
-
-    return objs;
+  setDirty(id: number){
+    this.getNode(id).dirty = true;
 
   }
 
-   /**
+  setDraftClean(id: number){
+    if(id === -1){
+      this.preview.dirty = false;
+      return;
+    } 
+
+    const node = this.getNode(id);
+    if(node === undefined){
+      console.error("no node found at ", id);
+      return;
+    } 
+    node.dirty = false;
+  }
+
+  /**
+   * sets a new draft
+   * @param temp the draft to set this component to
+   */
+  setDraft(id: number, temp: Draft) {
+
+    const dn = <DraftNode> this.getNode(id);
+    if(dn.draft === null) dn.draft = temp;
+    else dn.draft.reload(temp);
+    dn.dirty = true;
+    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
+    
+  }
+
+
+  /**
+   * sets a new draft
+   * @param temp the draft to set this component to
+   */
+  setDraftPattern(id: number, pattern: Array<Array<Cell>>) {
+
+    const dn = <DraftNode> this.getNode(id);
+    dn.draft.pattern = cloneDeep(pattern);
+    (<SubdraftComponent> dn.component).draft = dn.draft;
+    dn.dirty = true;    
+  }
+
+
+       /**
  * exports ALL drafts associated with this tree
  * @returns an array of Drafts
  */
-    exportDraftsForSaving() : Array<Draft> {
+        // exportDraftsForSaving() : Array<Draft> {
 
-      const drafts: Array<SubdraftComponent> = this.getDrafts();
-      const out: Array<Draft> = drafts.map(c => c.draft);
-      return out;
-    }
+        //   const drafts: Array<SubdraftComponent> = this.getDrafts();
+        //   const out: Array<Draft> = drafts.map(c => c.draft);
+        //   return out;
+        // }
+
+
+
+  getOpNode(id: number) : OpNode{
+    return <OpNode> this.getNode(id);
+  }
 
   /**
    * exports all operation nodes with information that can be reloaded
@@ -812,7 +1297,7 @@ export class TreeService {
 
       const savable:TreeNodeProxy = {
         node: treenode.node.id,
-        parent: (treenode.parent !== null) ?  treenode.parent.node.id : -1,
+        parent: (treenode.parent !== null && treenode.parent !== undefined) ?  treenode.parent.node.id : -1,
         inputs: treenode.inputs.map(el => el.node.id),
         outputs: treenode.outputs.map(el => el.node.id)
       }
@@ -822,6 +1307,36 @@ export class TreeService {
     return objs;
 
   }
+
+   /**
+ * exports only the drafts that have not been generated by other values
+ * @returns an array of objects that describe nodes
+ */
+  // exportSeedDraftsForSaving() : Array<DraftNode> {
+
+  //     const objs: Array<any> = []; 
+  //     const gens: Array<Array<number>> = this.convertTreeToGenerations(); 
+  
+  //     if(gens.length == 0) return objs;
+  
+  //     const seeds: Array<number> = gens.shift();
+  
+  //     return seeds.map(seed => this.getDraftNode(seed));
+  
+  
+  //   }
+  
+     /**
+   * exports TopLevel drafts associated with this tree
+   * @returns an array of Drafts
+   */
+    exportDraftsForSaving() : Array<Draft> {
+  
+      return this.getDraftNodes()
+      .filter(el => this.getSubdraftParent(el.id) === -1)
+      .map(el => el.draft);
+  
+    }
 
 
 

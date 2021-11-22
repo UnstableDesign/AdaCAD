@@ -385,7 +385,10 @@ class Util {
    * 
    */
   public getMaxWefts(inputs: Array<Draft>) : number{
-    const max_wefts:number = inputs.reduce((acc, draft)=>{
+
+    const max_wefts:number = inputs
+    .filter(el => el !== null)
+    .reduce((acc, draft)=>{
       if(draft.wefts > acc) return draft.wefts;
       return acc;
       }, 0);
@@ -396,7 +399,11 @@ class Util {
  * returns the number of warps that is greatest out of all the input drafts
  */
     public getMaxWarps(inputs: Array<Draft>) : number{
-    const max_warps:number = inputs.reduce((acc, draft)=>{
+
+
+    const max_warps:number = inputs
+    .filter(el => el !== null)
+    .reduce((acc, draft)=>{
       if(draft.warps > acc) return draft.warps;
       return acc;
       }, 0);

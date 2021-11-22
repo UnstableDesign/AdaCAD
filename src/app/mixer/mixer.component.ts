@@ -10,16 +10,15 @@ import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 import { Draft } from '../core/model/draft';
-import { TreeService } from './provider/tree.service';
-import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj } from '../core/provider/file.service';
-import { OperationComponent } from './palette/operation/operation.component';
-import { SubdraftComponent } from './palette/subdraft/subdraft.component';
-import { MixerViewComponent } from './modal/mixerview/mixerview.component';
-import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
+import { TreeService, TreeNode } from './provider/tree.service';
+import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy } from '../core/provider/file.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { NotesService } from '../core/provider/notes.service';
+import { SDK_VERSION } from 'firebase';
+import { Cell } from '../core/model/cell';
+
 
 //disables some angular checking mechanisms
 //enableProdMode();
@@ -136,9 +135,10 @@ export class MixerComponent implements OnInit {
   loadNewFile(result: LoadResponse){
     this.tree.clear();
     this.palette.clearComponents();
-    this.processFileData(result.data);
-    this.palette.changeDesignmode('move');
-
+    this.processFileData(result.data).then(
+      this.palette.changeDesignmode('move')
+    );
+    
   }
 
 
@@ -150,102 +150,248 @@ export class MixerComponent implements OnInit {
    importNewFile(result: LoadResponse){
     
     console.log("imported new file", result, result.data);
-    this.processFileData(result.data);
-    this.palette.changeDesignmode('move');
+    this.processFileData(result.data).then(
+      this.palette.changeDesignmode('move')
+    );
+  }
+
+
+
+  async loadNodes(nodes: Array<NodeComponentProxy>) : Promise<any> {
+
+    const functions = nodes.map(n => this.tree.loadNode(<'draft'|'op'|'cxn'> n.type, n.node_id));
+    return Promise.all(functions);
 
   }
+
+
+  async loadTreeNodes(tns: Array<TreeNodeProxy>) : Promise<Array<TreeNode>> {
+
+    const functions = tns.map(tn => this.tree.loadTreeNodeData(tn.node, tn.parent, tn.inputs, tn.outputs));
+    return Promise.all(functions);
+
+  }
+
+
+  // /**
+  //  * instantiates the screen components
+  //  * @param nodes - the node proxies loaded
+  //  * @param drafts - the drafts loaded
+  //  * @param ops - the operations loaded
+  //  */
+  // async createAllComponents(nodes: Array<NodeComponentProxy>, drafts:Array<Draft>, ops: Array<OpComponentProxy>){
+
+  //   const gen_fxns = [];
+
+  //   nodes.forEach(nodep => {
+  //     const node = this.tree.getNode(nodep.node_id);
+
+  //     switch (node.type) {
+  //       case 'draft' :
+  //         const draft = drafts.find(el => el.id === nodep.draft_id);
+  //         if(draft === undefined) break;
+  //         gen_fxns.push(this.palette.loadSubDraft(nodep.node_id, draft, nodep)); 
+  //         break;
+  //       case 'op' :
+  //         const op = ops.find(el => el.node_id === nodep.node_id); 
+  //         if(op === undefined) Promise.reject("no op found for given id ");
+  //         gen_fxns.push(this.palette.loadOperation(nodep.node_id, op.name, op.params, nodep.bounds));
+  //       break;
+  //       case 'cxn' :
+  //         const to_from = this.tree.getConnectionsInvolving(nodep.node_id);
+  //         gen_fxns.push(this.palette.loadConnection(nodep.node_id, to_from.from, to_from.to));
+  //         break;
+  //     }
+
+  //     return Promise.all(gen_fxns);
+  //   });
+
+
+  // }
 
   /** 
    * Take a fileObj returned from the fileservice and process
    */
-  processFileData(data: FileObj){
+   async processFileData(data: FileObj) : Promise<string>{
 
-    //generate the notes components
+    console.log("data", data);
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
     });
-   
-   
-    const id_map: Array<{old: number, new: number}> = []; 
-   
-    const nodes: Array<NodeComponentProxy> = data.nodes;
-   
-   //move through all the drafts 
-    data.drafts.forEach(draft => {
-    
-      const np:NodeComponentProxy = nodes.find(el => el.draft_id == draft.id);
-      let new_id: number = -1;
-      if(np === undefined){
-         new_id = this.palette.createSubDraft(draft);
-      }else{
-        new_id = this.palette.loadSubDraft(draft, np.bounds);
-        id_map.push({old: np.node_id, new: new_id});    
+
+
+    this.loadNodes(data.nodes)
+    .then(el => {
+        return this.loadTreeNodes(data.treenodes);
       }
-    });
+    ).then(loadedtreenodes => {
 
-    data.ops.forEach(opProxy => {
-      const np: NodeComponentProxy = nodes.find(el => el.node_id === opProxy.node_id);
-      const new_id: number = this.palette.loadOperation(opProxy.name, opProxy.params, np.bounds);
-      id_map.push({old: np.node_id, new: new_id});
-    });
-
-
-    nodes.forEach(nodeproxy => {
+      console.log("returned tree nodes", loadedtreenodes);
      
-      switch(nodeproxy.type){
-      case 'cxn':
-        const tn: number = data.treenodes.findIndex(node => node.node == nodeproxy.node_id);    
-        if(tn !== -1){
-          const old_input_id: number = data.treenodes[tn].inputs[0];
-          const old_output_id: number = data.treenodes[tn].outputs[0];
-          const new_input_id: number = id_map.find(el => el.old == old_input_id).new;
-          const new_output_id: number = id_map.find(el => el.old == old_output_id).new;      
-          const outs: any = this.palette.createConnection(new_input_id, new_output_id);
-          id_map.push({old: nodeproxy.node_id, new: outs.id});
-
-        }else{
-          console.log("ERROR: cannot find treenode associated with node id: ", nodeproxy.node_id);
+      const seednodes: Array<number> = loadedtreenodes
+        .filter(tn => this.tree.isSeedDraft(tn.node.id))
+        .map(tn => tn.node.id);
+     
+      const seeds: Array<{id, draft}> = seednodes
+      .map(sn =>  {
+        return {
+        id: sn,
+        draft: data.drafts.find(draft => draft.id === data.nodes.find(node => node.node_id === sn).draft_id)
         }
-        break;
-      }
-    });
+      });
 
-    //now move through the drafts and update their parent operations
-    data.treenodes.forEach( tn => {
-      const np: NodeComponentProxy = nodes.find(node => node.node_id == tn.node);    
-      switch(np.type){
       
+      const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.id, seed.draft));
+      const op_fns = data.ops.map(op => this.tree.loadOpData(op.node_id, op.name, op.params));
       
-      
-        case 'draft':
-          if(tn.parent != -1){
-            const new_id = id_map.find(el => el.old == tn.node).new;
-            const parent_id = id_map.find(el => el.old == tn.parent).new;
-            const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_id);
-            sd.parent_id = parent_id;
-          }
-        break;
+      return Promise.all([seed_fns, op_fns]);
 
-        case 'op' :
-          const new_op_id:number = id_map.find(el => el.old == tn.node).new;
-          const op_comp: OperationComponent = <OperationComponent> this.tree.getComponent(new_op_id);
-         // op_comp.has_connections_in = (tn.inputs.length > 0);
-          tn.outputs.forEach(out => {
-            
-            const out_cxn_id:number = id_map.find(el => el.old === out).new;
-            const new_out_id: number = this.tree.getConnectionOutput(out_cxn_id);
-            
-            const draft_comp:SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_out_id);
-            op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.draft});
-          });
-        break;
-      }
+    }).then(el => {
+       return this.tree.performTopLevelOps();
+    })
+    .then(el => {
+      //delete any nodes that no longer need to exist
+      this.tree.getDraftNodes()
+      .filter(el => el.draft === null)
+      .forEach(el => {
+        if(this.tree.hasParent(el.id)){
+          el.draft = new Draft({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
+        } else{
+          console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
+          this.tree.removeNode(el.id);
+        } 
+      })
+    })
+    .then(el => {
+
+      return this.tree.nodes.forEach(node => {
+        console.log("attempting to load node ", node)
+        if(!(node.component === null || node.component === undefined)) return;
+        switch (node.type){
+          case 'draft':
+          this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === node.id));
+            break;
+          case 'op':
+            const op = this.tree.getOpNode(node.id);
+            this.palette.loadOperation(op.id, op.name, op.params, data.nodes.find(el => el.node_id === node.id).bounds);
+            break;
+        }
+      })
 
 
+    }
+    ).then(el => {
+      return this.tree.nodes.forEach(node => {
+        if(!(node.component === null || node.component === undefined)) return;
+        switch (node.type){
+          case 'cxn':
+            this.palette.loadConnection(node.id, this.tree.getConnectionInput(node.id), this.tree.getConnectionOutput(node.id))
+            break;
+        }
+      })
+    })
+    .catch(console.error);
 
-    });
+    return Promise.resolve("all done");
+
 
   }
+
+ 
+
+
+  // /** 
+  //  * Take a fileObj returned from the fileservice and process
+  //  */
+  // processFileData(data: FileObj){
+
+  //   //generate the notes components
+  //   this.notes.notes.forEach(note => {
+  //       this.palette.loadNote(note);
+  //   });
+   
+  //   //map the draft ids in the file to the new ids created in this instance
+  //   const id_map: Array<{old: number, new: number}> = []; 
+   
+  //   const nodes: Array<NodeComponentProxy> = data.nodes;
+   
+  //  //move through all the drafts, in later save files, this will only be the top level drafts
+  //   data.drafts.forEach(draft => {
+    
+  //     const np:NodeComponentProxy = nodes.find(el => el.draft_id === draft.id);
+  //     let new_id: number = -1;
+
+  //     if(np === undefined){
+  //        new_id = this.palette.createSubDraft(draft);
+  //     }else{
+  //       new_id = this.palette.loadSubDraft(draft, np.bounds, np.draft_visible);
+  //       id_map.push({old: np.node_id, new: new_id});    
+  //     }
+  //   });
+
+  //   data.ops.forEach(opProxy => {
+  //     const np: NodeComponentProxy = nodes.find(el => el.node_id === opProxy.node_id);
+  //     const new_id: number = this.palette.loadOperation(opProxy.name, opProxy.params, np.bounds);
+  //     id_map.push({old: np.node_id, new: new_id});
+  //   });
+
+
+  //   nodes.forEach(nodeproxy => {
+     
+  //     switch(nodeproxy.type){
+  //     case 'cxn':
+  //       const tn: number = data.treenodes.findIndex(node => node.node == nodeproxy.node_id);    
+  //       if(tn !== -1){
+  //         const old_input_id: number = data.treenodes[tn].inputs[0];
+  //         const old_output_id: number = data.treenodes[tn].outputs[0];
+  //         const new_input_id: number = id_map.find(el => el.old == old_input_id).new;
+  //         const new_output_id: number = id_map.find(el => el.old == old_output_id).new;      
+  //         const outs: any = this.palette.createConnection(new_input_id, new_output_id);
+  //         id_map.push({old: nodeproxy.node_id, new: outs.id});
+
+  //       }else{
+  //         console.log("ERROR: cannot find treenode associated with node id: ", nodeproxy.node_id);
+  //       }
+  //       break;
+  //     }
+  //   });
+
+  //   //now move through the drafts and update their parent operations
+  //   data.treenodes.forEach( tn => {
+  //     const np: NodeComponentProxy = nodes.find(node => node.node_id == tn.node);    
+  //     switch(np.type){
+      
+      
+      
+  //       case 'draft':
+  //         if(tn.parent != -1){
+  //           const new_id = id_map.find(el => el.old == tn.node).new;
+  //           const parent_id = id_map.find(el => el.old == tn.parent).new;
+  //           const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_id);
+  //           sd.parent_id = parent_id;
+  //         }
+  //       break;
+
+  //       case 'op' :
+  //         const new_op_id:number = id_map.find(el => el.old == tn.node).new;
+  //         const op_comp: OperationComponent = <OperationComponent> this.tree.getComponent(new_op_id);
+  //        // op_comp.has_connections_in = (tn.inputs.length > 0);
+  //         tn.outputs.forEach(out => {
+            
+  //           const out_cxn_id:number = id_map.find(el => el.old === out).new;
+  //           const new_out_id: number = this.tree.getConnectionOutput(out_cxn_id);
+            
+  //           const draft_comp:SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_out_id);
+  //           op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.draft});
+  //         });
+  //       break;
+  //     }
+
+
+
+  //   });
+
+  // }
   
   ngOnInit(){
     
@@ -280,15 +426,19 @@ export class MixerComponent implements OnInit {
 
     let so: string = this.timeline.restorePreviousMixerHistoryState();
     
-    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
-    this.loadNewFile(lr);
+    this.fs.loader.ada(JSON.parse(so)).then(
+      lr => this.loadNewFile(lr)
+    );
+
+  
   }
 
   redo() {
 
     let so: string = this.timeline.restoreNextMixerHistoryState();
-    const lr: LoadResponse = this.fs.loader.ada(JSON.parse(so));
-    this.loadNewFile(lr);
+    this.fs.loader.ada(JSON.parse(so))
+    .then(lr =>  this.loadNewFile(lr));
+
    
   }
 
@@ -435,34 +585,39 @@ export class MixerComponent implements OnInit {
 
     switch(e.type){
       case 'jpg': 
-      link.href = this.fs.saver.jpg(this.palette.getPrintableCanvas(e));
-      link.download = e.name + ".jpg";
-      this.palette.clearCanvas();
-      link.click();
+
+      return this.fs.saver.jpg(this.palette.getPrintableCanvas(e))
+      .then(href => {
+        link.href= href;
+        link.download = e.name + ".jpg";
+        this.palette.clearCanvas();
+        link.click();
+      });
 
       break;
 
       case 'wif': 
-      this.palette.downloadVisibleDraftsAsWif();
+         this.palette.downloadVisibleDraftsAsWif();
+         return Promise.resolve(null);
       break;
 
       case 'ada': 
-      link.href = this.fs.saver.ada(
+      this.fs.saver.ada(
         'mixer', 
         this.tree.exportDraftsForSaving(),
         [],
-        false);
-        link.download = e.name + ".ada";
-        link.click();
+        false).then(href => {
+          link.href = href;
+          link.download = e.name + ".ada";
+          link.click();
+        })
       break;
 
       case 'bmp':
         this.palette.downloadVisibleDraftsAsBmp();
+        return Promise.resolve(null);
       break;
     }
-    return Promise.resolve(null);
-
-
   }
 
   /**
