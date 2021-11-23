@@ -6,6 +6,8 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 import { DesignMode } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { Draft } from '../../model/draft';
+import { GloballoomService } from '../../provider/globalloom.service';
+import { E } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-loom-modal',
@@ -43,22 +45,31 @@ export class LoomModal implements OnInit {
   density_units:Array<DesignMode> = [];
   warp_locked:boolean = false;
   width:number = 0; 
+  type: string = 'local';
 
   constructor(
+             private global_loom: GloballoomService,
              private dm: DesignmodesService,
              private dialogRef: MatDialogRef<LoomModal>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
 
-     const loom:Loom  =  data.loom;
-     this.draft = data.draft;
-     this.loom  = loom;
-     this.epi = loom.epi;
-     this.warps = loom.threading.length;
-     this.wefts = loom.treadling.length;
-     this.units = loom.units;
-     this.frames = loom.min_frames;
-     this.treadles = loom.min_treadles;
-     this.loomtype = loom.type;
+
+     this.type = data.type;
+
+     if(this.type === 'local'){
+      const loom:Loom  =  data.loom;
+      this.draft = data.draft;
+      this.loom  = loom;
+      this.warps = data.draft.warps;
+      this.wefts = data.draft.wefts;
+     }
+    
+     this.epi = global_loom.epi;
+    
+     this.units = global_loom.units;
+     this.frames = global_loom.min_frames;
+     this.treadles = global_loom.min_treadles;
+     this.loomtype = global_loom.type;
 
      this.width = (this.units =='cm') ? this.warps / this.epi * 10 : this.warps / this.epi;
 
@@ -90,33 +101,43 @@ export class LoomModal implements OnInit {
     } 
 
     f.value.treadles = Math.ceil(f.value.treadles);
-    this.loom.setMinTreadles( f.value.treadles);
+    this.global_loom.min_treadles= f.value.treadles;
 
     this.onChange.emit();
   }
 
   updateMinFrames(f: NgForm){
+    
     if(!f.value.frames){
       f.value.frames = 2; 
       this.frames = f.value.frames;
 
-    } 
+    }
+     
+
     f.value.frames = Math.ceil(f.value.frames);
-    this.loom.setMinFrames(f.value.frames);
+    console.log("min frames", f.value.frames);   
+    this.global_loom.min_frames = f.value.frames;
+    
+    //this.loom.setMinFrames(f.value.frames);
+    
     this.onChange.emit();
 
   }
 
 
   loomChange(e:any){
-    this.loom.overloadType(e.value.loomtype);
+    this.global_loom.type = e.value.loomtype;
     this.dm.selectDesignMode(e.value.loomtype, 'loom_types');
     this.onChange.emit();
+
 
   }
 
   unitChange(e:any){
-    this.loom.overloadUnits(e.value.units);
+    this.global_loom.units = e.value.units;
+    //this.loom.overloadUnits(e.value.units);
+    this.onChange.emit();
 
   }
 
@@ -221,20 +242,23 @@ export class LoomModal implements OnInit {
       this.epi = f.value.epi;
     } 
     
-    this.loom.overloadEpi(f.value.epi);
+    //this.loom.overloadEpi(f.value.epi);
+    this.global_loom.epi = f.value.epi;
 
-    if(this.warp_locked){
-      //change the width
-      this.width = (this.units =='cm') ? f.value.warps / f.value.epi * 10 : f.value.warps / f.value.epi;
-      f.value.width = this.width;
-      
-    }else{
-      var new_warps = (this.units === "in") 
-      ? Math.ceil(f.value.width * f.value.epi) : 
-      Math.ceil((10 * f.value.warps / f.value.width));
-      f.value.warps = new_warps;
-      this.warps = new_warps;
-      this.warpNumChange({warps: new_warps});
+    if(this.type === "local"){
+      if(this.warp_locked){
+        //change the width
+        this.width = (this.units =='cm') ? f.value.warps / f.value.epi * 10 : f.value.warps / f.value.epi;
+        f.value.width = this.width;
+        
+      }else{
+        var new_warps = (this.units === "in") 
+        ? Math.ceil(f.value.width * f.value.epi) : 
+        Math.ceil((10 * f.value.warps / f.value.width));
+        f.value.warps = new_warps;
+        this.warps = new_warps;
+        this.warpNumChange({warps: new_warps});
+      }
     }
 
 

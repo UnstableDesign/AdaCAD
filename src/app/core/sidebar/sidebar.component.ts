@@ -38,6 +38,7 @@ export class SidebarComponent implements OnInit {
   @Output() onShowWeftSystem: any = new EventEmitter();
   @Output() onHideWeftSystem: any = new EventEmitter();
   @Output() onLoomChange: any = new EventEmitter();
+  @Output() onGlobalLoomChange: any = new EventEmitter();
   @Output() onOperationAdded: any = new EventEmitter();
   @Output() onImport: any = new EventEmitter();
   @Output() onViewPortMove: any = new EventEmitter();
@@ -68,6 +69,7 @@ export class SidebarComponent implements OnInit {
   materials_modal: MatDialogRef<MaterialModal, any>;
   patterns_modal: MatDialogRef<PatternModal, any>;
   equipment_modal: MatDialogRef<LoomModal, any>;
+  global_loom_modal: MatDialogRef<LoomModal, any>;
   upload_modal: MatDialogRef<InitModal, any>;
   ml_modal: MatDialogRef<MlModal, any>;
 
@@ -263,7 +265,7 @@ openLoomModal(){
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
-      data: {loom: this.loom, draft:this.draft}});
+      data: {loom: this.loom, draft:this.draft, type: "local"}});
 
 
       this.equipment_modal.componentInstance.onChange.subscribe(event => { this.onLoomChange.emit();});
@@ -271,6 +273,27 @@ openLoomModal(){
   
       this.equipment_modal.afterClosed().subscribe(result => {
         this.onLoomChange.emit();
+       // dialogRef.componentInstance.onChange.removeSubscription();
+    });
+}
+
+openGlobalLoomModal(){
+
+  if(this.global_loom_modal != undefined && this.global_loom_modal.componentInstance != null) return;
+
+
+  this.global_loom_modal =   this.dialog.open(LoomModal,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {loom: this.loom, draft:this.draft, type: "global"}});
+
+
+      this.global_loom_modal.componentInstance.onChange.subscribe(event => { this.onGlobalLoomChange.emit();});
+
+  
+      this.global_loom_modal.afterClosed().subscribe(result => {
+        this.onGlobalLoomChange.emit();
        // dialogRef.componentInstance.onChange.removeSubscription();
     });
 }

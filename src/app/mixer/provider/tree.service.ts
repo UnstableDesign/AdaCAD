@@ -1,11 +1,10 @@
-import { K } from '@angular/cdk/keycodes';
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
-import { timeStamp } from 'console';
 import { cloneDeep, map } from 'lodash';
 import { Cell } from '../../core/model/cell';
-import { DraftMap } from '../../core/model/datatypes';
 import { Draft } from '../../core/model/draft';
+import { Loom } from '../../core/model/loom';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
+import { GloballoomService } from '../../core/provider/globalloom.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
@@ -42,7 +41,8 @@ export type OpNode = BaseNode & {
  }
 
  export type DraftNode = BaseNode & {
-  draft: Draft
+  draft: Draft,
+  loom: Loom
  }
 
  type Node = BaseNode | OpNode | DraftNode;
@@ -76,7 +76,9 @@ export class TreeService {
   open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
   preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
-  constructor(private ops: OperationService) { 
+  constructor(
+    private globalloom: GloballoomService,
+    private ops: OperationService) { 
   }
 
 
@@ -121,6 +123,21 @@ export class TreeService {
   }
 
 
+  /**
+   * call to update all local looms by the global loom setting
+   */
+  updateLooms(){
+
+    this.getDraftNodes().forEach(dn => {
+      dn.loom.overloadType(this.globalloom.type);
+      dn.loom.overloadUnits(<"in" | "cm"> this.globalloom.units);
+      dn.loom.setMinFrames(this.globalloom.min_frames);
+      dn.loom.setMinTreadles(this.globalloom.min_treadles);
+    });
+
+  }
+
+
   setPreview(sd: any, draft: Draft) : Promise<DraftNode>{
     this.preview = {
       id: -1,
@@ -128,7 +145,8 @@ export class TreeService {
       ref: sd.hostView,
       component: <SubdraftComponent> sd.instance,
       dirty: true, 
-      draft: cloneDeep(draft)
+      draft: cloneDeep(draft),
+      loom: null
     }
 
     sd.dirty = true;
@@ -187,6 +205,7 @@ export class TreeService {
     nodes[0].dirty = true;
 
    (<DraftNode> nodes[0]).draft = cloneDeep(draft);
+   (<DraftNode> nodes[0]).loom = new Loom(draft, this.globalloom.min_frames, this.globalloom.min_treadles);
 
    return Promise.resolve(<DraftNode> nodes[0]);
 
@@ -205,7 +224,8 @@ export class TreeService {
           id: id,
           component: null,
           dirty: false,
-          draft: null
+          draft: null,
+          loom:null
         }
         break;
       case 'op': 
@@ -745,7 +765,7 @@ export class TreeService {
 
     if(out.length === res.length){
       out.forEach((output, ndx) => {
-        this.setDraft(output, res[ndx]);
+        this.setDraft(output, res[ndx],null);
         touched.push(output);
       });
     }else if(out.length > res.length){
@@ -856,6 +876,12 @@ export class TreeService {
     return draft_comps;
   }
 
+  getLoom(id: number):Loom{
+    if(id === -1) return null;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined) return null;
+    return dn.loom;
+  }
 
   getDraft(id: number):Draft{
     if(id === -1) return this.preview.draft;
@@ -1224,11 +1250,15 @@ export class TreeService {
    * sets a new draft
    * @param temp the draft to set this component to
    */
-  setDraft(id: number, temp: Draft) {
+  setDraft(id: number, temp: Draft, loom: Loom) {
 
     const dn = <DraftNode> this.getNode(id);
     if(dn.draft === null) dn.draft = temp;
     else dn.draft.reload(temp);
+
+    if(loom === null) dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
+    else dn.loom = loom;
+
     dn.dirty = true;
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
     

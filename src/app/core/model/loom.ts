@@ -21,7 +21,7 @@ import utilInstance from './util';
 export class Loom{
 
     draft_id = -1;
-    type: string = 'frame';
+    type: string = 'jacquard';
     epi: number = 10;
     units: string = 'in';
     width: number;

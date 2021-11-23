@@ -637,7 +637,10 @@ export class MixerComponent implements OnInit {
 
  
   
-
+  public globalLoomChange(e: any){
+    console.log("global loom change");
+    this.tree.updateLooms();
+  }
 
 
   public updatePatterns(e: any) {

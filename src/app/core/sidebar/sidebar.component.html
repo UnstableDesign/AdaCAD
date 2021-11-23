@@ -310,6 +310,15 @@
         <i class="fas fa-chess-board"></i>
         </button>
 
+
+        <button 
+        mat-icon-button
+        matTooltip= "Loom Settings"
+        [class.is-active] = "global_loom_modal && global_loom_modal.componentInstance != null"
+        (click)="openGlobalLoomModal()">
+        <i class="fas fa-cog"></i></button>
+
+
     </div>
 
 <!-- EQUIPMENT SETTINGS -->

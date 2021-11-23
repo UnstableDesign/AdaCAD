@@ -757,14 +757,14 @@ export class SubdraftComponent implements OnInit {
       //if this is already open, don't reopen it
       if(this.modal != undefined && this.modal.componentInstance != null) return;
       const draft = this.tree.getDraft(this.id);
-
+      const loom = this.tree.getLoom(this.id);
 
       this.modal = this.dialog.open(DraftdetailComponent,
         {disableClose: true,
           hasBackdrop: false,
           data: {
-            draft: this.draft,
-            loom: this.loom,
+            draft: draft,
+            loom: loom,
             ink: this.inks.getInk(this.ink).viewValue}
         });
 
