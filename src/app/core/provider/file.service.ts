@@ -181,6 +181,7 @@ export class FileService {
 
       if(data.looms === undefined && data.loom !== undefined) data.looms = [data.loom];
       else data.looms = [];
+
       looms = data.looms.map((data, ndx) => {
 
         let draft: Draft = null;

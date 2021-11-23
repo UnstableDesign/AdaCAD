@@ -199,8 +199,6 @@ export class SubdraftComponent implements OnInit {
       y: this.interlacement.i * scale
     };
 
-    console.log("subdraft interlacement ", this.interlacement, scale);
-
     this.bounds.width = this.draft.warps * scale;
     this.bounds.height = this.draft.wefts * scale;
 
@@ -586,7 +584,6 @@ export class SubdraftComponent implements OnInit {
       height: this.bounds.height
     });
 
-    console.log("")
     // this.bounds.topleft = adj;
 
      const ndx = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);

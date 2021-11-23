@@ -410,6 +410,30 @@ class Util {
       return max_warps;
   }
 
+  /**
+   * given a list of values, return the value that occurs the most
+   * @param vals 
+   */
+  public getMostCommon(vals: Array<any>): any{
+
+
+    const freq: Array<any>  = vals.reduce((acc, el) => {
+      const ndx = acc.findIndex(el => el.i === el);  
+      if(ndx === -1){
+        acc.push({i: el, count: 1});
+      }else{
+        acc[ndx].count++;
+      }
+      return acc;
+    }, []);
+
+    const common:any = freq.reduce((acc, el) => {
+      if(el.count > acc.count) return el;
+    }, {i:null, count: 0});
+    
+    return common.i;
+  }
+
   getInt(val, e) {
     var index = e.search(val);
     if (index != -1) {

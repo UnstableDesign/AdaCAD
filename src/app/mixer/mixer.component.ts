@@ -18,6 +18,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { NotesService } from '../core/provider/notes.service';
 import { SDK_VERSION } from 'firebase';
 import { Cell } from '../core/model/cell';
+import { GloballoomService } from '../core/provider/globalloom.service';
 
 
 //disables some angular checking mechanisms
@@ -71,8 +72,7 @@ export class MixerComponent implements OnInit {
     public scroll: ScrollDispatcher,
     private fs: FileService,
     private vp: ViewportService,
-    private dialog: MatDialog,
-    private http: HttpClient,
+    private gl: GloballoomService,
     private notes: NotesService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
@@ -214,13 +214,15 @@ export class MixerComponent implements OnInit {
    */
    async processFileData(data: FileObj) : Promise<string>{
 
-    console.log("data", data);
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
     });
 
 
-    this.loadNodes(data.nodes)
+    this.gl.inferData(data.looms.concat(this.tree.getLooms()))
+    .then(el => {     
+      return this.loadNodes(data.nodes)
+    })
     .then(el => {
         return this.loadTreeNodes(data.treenodes);
       }
@@ -605,7 +607,7 @@ export class MixerComponent implements OnInit {
       this.fs.saver.ada(
         'mixer', 
         this.tree.exportDraftsForSaving(),
-        [],
+        this.tree.exportLoomsForSaving(),
         false).then(href => {
           link.href = href;
           link.download = e.name + ".ada";

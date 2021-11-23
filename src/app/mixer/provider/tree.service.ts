@@ -884,6 +884,11 @@ export class TreeService {
     return dn.loom;
   }
 
+  getLooms():Array<Loom>{
+    const dns = this.getDraftNodes();
+    return dns.map(el => el.loom);
+  }
+
   getDraft(id: number):Draft{
     if(id === -1) return this.preview.draft;
     const dn: DraftNode = <DraftNode> this.getNode(id);
@@ -1372,6 +1377,17 @@ export class TreeService {
   
     }
 
+         /**
+   * exports TopLevel looms associated with this tree
+   * @returns an array of Drafts
+   */
+    exportLoomsForSaving() : Array<Loom> {
+
+      return this.getDraftNodes()
+      .filter(el => this.getSubdraftParent(el.id) === -1)
+      .map(el => el.loom);
+  
+    }
 
 
  
