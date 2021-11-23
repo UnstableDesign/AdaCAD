@@ -19,6 +19,7 @@ import { NotesService } from '../core/provider/notes.service';
 import { SDK_VERSION } from 'firebase';
 import { Cell } from '../core/model/cell';
 import { GloballoomService } from '../core/provider/globalloom.service';
+import { Loom } from '../core/model/loom';
 
 
 //disables some angular checking mechanisms
@@ -218,6 +219,7 @@ export class MixerComponent implements OnInit {
         this.palette.loadNote(note);
     });
 
+    console.log("data looms", data.looms);
 
     this.gl.inferData(data.looms.concat(this.tree.getLooms()))
     .then(el => {     
@@ -228,27 +230,36 @@ export class MixerComponent implements OnInit {
       }
     ).then(loadedtreenodes => {
 
-      console.log("returned tree nodes", loadedtreenodes);
      
       const seednodes: Array<number> = loadedtreenodes
         .filter(tn => this.tree.isSeedDraft(tn.node.id))
         .map(tn => tn.node.id);
      
-      const seeds: Array<{id, draft}> = seednodes
+      const seeds: Array<{id, draft, loom}> = seednodes
       .map(sn =>  {
+        let d =  data.drafts.find(draft => draft.id === data.nodes.find(node => node.node_id === sn).draft_id);
+        if(d === undefined) d = new Draft({wefts: 1, warps: 1, pattern: [[new Cell(false)]]});
+
+        let l = data.looms.find(loom => loom.draft_id === data.nodes.find(node => node.node_id === sn).draft_id);
+        if(l === undefined){
+          l = new Loom(d, this.gl.min_frames, this.gl.min_treadles);
+          l.recomputeLoom(d);
+        } 
         return {
         id: sn,
-        draft: data.drafts.find(draft => draft.id === data.nodes.find(node => node.node_id === sn).draft_id)
+        draft: d,
+        loom: l
         }
       });
 
       
-      const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.id, seed.draft));
+      const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.id, seed.draft, seed.loom));
       const op_fns = data.ops.map(op => this.tree.loadOpData(op.node_id, op.name, op.params));
       
       return Promise.all([seed_fns, op_fns]);
 
     }).then(el => {
+      console.log("loaded draft nodes", el[0]);
        return this.tree.performTopLevelOps();
     })
     .then(el => {

@@ -168,7 +168,6 @@ export class WeaverComponent implements OnInit {
     this.draft.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.draft);
     
-    this.render.view_frames = (this.loom.type === 'frame') ? true : false;     
     this.render.updateVisible(this.draft);
     
 
@@ -194,7 +193,6 @@ export class WeaverComponent implements OnInit {
     this.render = new Render(true, this.draft);
     this.draft.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.draft);  
-    this.render.view_frames = (this.loom.type === 'frame') ? true : false;     
     
   }
 
@@ -468,7 +466,7 @@ export class WeaverComponent implements OnInit {
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original', this.render.visibleRows, this.loom);
 
-    if(this.render.showingFrames()) this.loom.recomputeLoom(this.draft);
+    if(this.loom.isFrame()) this.loom.recomputeLoom(this.draft);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
     
@@ -492,7 +490,7 @@ export class WeaverComponent implements OnInit {
 
     this.draft.fillArea(this.weaveRef.selection, p, 'original', this.render.visibleRows, this.loom)
 
-    if(this.render.showingFrames()) this.loom.recomputeLoom(this.draft);
+    if(this.loom.isFrame()) this.loom.recomputeLoom(this.draft);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
@@ -668,10 +666,7 @@ export class WeaverComponent implements OnInit {
     
     this.loom.overloadType(e.loomtype);
 
-    if(this.loom.type == 'jacquard'){
-      this.render.view_frames = false;
-    }else{
-      this.render.view_frames = true;
+    if(this.loom.type === 'frame'){
       this.weaveRef.recomputeLoom();
     }
     
@@ -778,14 +773,10 @@ export class WeaverComponent implements OnInit {
 
      if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
-      if(this.loom.type == 'frame'){
+      if(this.loom.type === 'frame'){
         this.loom.recomputeLoom(this.draft);
-        this.render.view_frames = true;
-      }else{
-        this.render.view_frames = false;
       }
 
-      console.log('render view frames', this.render.view_frames, this.loom.type);
      this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
 
   }

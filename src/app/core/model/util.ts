@@ -416,9 +416,8 @@ class Util {
    */
   public getMostCommon(vals: Array<any>): any{
 
-
-    const freq: Array<any>  = vals.reduce((acc, el) => {
-      const ndx = acc.findIndex(el => el.i === el);  
+    const freq: Array<{i: any,count: any}>  = vals.reduce((acc, el) => {
+      const ndx = acc.findIndex(acc_el => acc_el.i === el);  
       if(ndx === -1){
         acc.push({i: el, count: 1});
       }else{
@@ -427,10 +426,10 @@ class Util {
       return acc;
     }, []);
 
-    const common:any = freq.reduce((acc, el) => {
+    const common:{i: any,count: any} = freq.reduce((acc, el) => {
       if(el.count > acc.count) return el;
     }, {i:null, count: 0});
-    
+
     return common.i;
   }
 
@@ -702,7 +701,6 @@ class Util {
     //update the existing drafts given the new ids
       const new_map: Array<number> = material_mapping.map(index => {
         const mapping: MaterialMap = index_map.find(el => el.old_id === index);
-        console.log("update ", mapping);
         if(mapping !== undefined){
           return mapping.new_id;
         }else{

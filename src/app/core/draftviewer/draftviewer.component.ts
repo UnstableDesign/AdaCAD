@@ -1224,7 +1224,7 @@ export class DraftviewerComponent implements OnInit {
       // }
 
       if(!this.dm.isSelected('material', 'draw_modes'))   
-        if(this.render.showingFrames()) this.loom.updateLoomFromDraft(currentPos, this.weave);
+        if(this.loom.isFrame()) this.loom.updateLoomFromDraft(currentPos, this.weave);
       
       this.redraw({drawdown:true, loom:true});
       
@@ -2136,7 +2136,7 @@ public redraw(flags:any){
       this.drawWarpMaterials(this.cxWarpMaterials, this.warpMaterialsCanvas);
     }
 
-    if(flags.loom !== undefined && this.render.showingFrames()){
+    if(flags.loom !== undefined && this.loom.isFrame()){
        this.redrawLoom();
     }
 
@@ -2318,7 +2318,7 @@ public redraw(flags:any){
     context.fillRect(0,0,b.width,b.height);
     
     //use this to solve 0 width errors on drawIMage
-    if(this.render.showingFrames()){
+    if(this.loom.isFrame()){
 
       context.drawImage(this.threadingCanvas, 0, dims.h*3);
       context.drawImage(this.tieupsCanvas, (this.weave.warps +1)* dims.w, 3*dims.h);
@@ -2489,18 +2489,6 @@ public redraw(flags:any){
     this.timeline.addHistoryState(this.weave);
   }
 
-  public toggleViewFrames(){
-
-    this.render.toggleViewFrames();
-
-    if(this.render.view_frames && this.loom.type == "frame"){
-      this.recomputeLoom();
-    }
-
-    this.redraw({loom:true});
-   
-  }
-
 
   /**
    * Tell the weave directive to fill selection with pattern.
@@ -2514,7 +2502,7 @@ public redraw(flags:any){
     
     this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom);
 
-    if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+    if(this.loom.isFrame()) this.loom.recomputeLoom(this.weave);
 
     if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
     
@@ -2538,7 +2526,7 @@ public redraw(flags:any){
 
     this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom)
 
-    if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+    if(this.loom.isFrame())this.loom.recomputeLoom(this.weave);
 
     if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
 
@@ -2575,7 +2563,7 @@ public redraw(flags:any){
     switch(this.selection.getTargetId()){    
       case 'drawdown':
         //if you do this when updates come from loom, it will erase those updates
-        if(this.render.showingFrames()) this.loom.recomputeLoom(this.weave);
+        if(this.loom.isFrame()) this.loom.recomputeLoom(this.weave);
        break;
       
     }

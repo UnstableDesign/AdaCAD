@@ -179,14 +179,13 @@ export class FileService {
       });
 
 
-      if(data.looms === undefined && data.loom !== undefined) data.looms = [data.loom];
-      else data.looms = [];
+      console.log("data looms in fileloader", data.looms);
+      if(data.looms === undefined || data.looms.length === 0) data.looms = [];
 
       looms = data.looms.map((data, ndx) => {
 
         let draft: Draft = null;
-        if(data.draft_id !== undefined) draft = drafts.find(draft => draft.id == data.id);
-        else draft = drafts[ndx];
+        if(data.draft_id !== undefined) draft = drafts.find(draft => draft.id === data.draft_id);
 
         const frames: number = (data.min_frames === undefined) ? 8 : data.min_frames;
         const treadles: number = (data.min_treadles === undefined) ? 8 : data.min_treadles;
@@ -558,6 +557,7 @@ export class FileService {
         notes: this.ns.exportForSaving(),
         materials: this.ms.exportForSaving()
       }
+
 
       var theJSON = JSON.stringify(out);
       if(for_timeline) return Promise.resolve(theJSON);

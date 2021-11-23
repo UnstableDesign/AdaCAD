@@ -133,6 +133,7 @@ export class TreeService {
       dn.loom.overloadUnits(<"in" | "cm"> this.globalloom.units);
       dn.loom.setMinFrames(this.globalloom.min_frames);
       dn.loom.setMinTreadles(this.globalloom.min_treadles);
+      dn.loom.recomputeLoom(dn.draft);
     });
 
   }
@@ -195,8 +196,14 @@ export class TreeService {
   }
 
 
-
-  loadDraftData(id: number, draft: Draft) : Promise<DraftNode>{
+ /**
+  * load the data into the draft node
+  * @param id the id of this node, which should match the component
+  * @param draft the draft to associate with this node
+  * @param loom the loom to associate with this node
+  * @returns the created draft node
+  */
+  loadDraftData(id: number, draft: Draft, loom: Loom) : Promise<DraftNode>{
 
     const nodes = this.nodes.filter(el => el.id === id);
 
@@ -205,8 +212,13 @@ export class TreeService {
     nodes[0].dirty = true;
 
    (<DraftNode> nodes[0]).draft = cloneDeep(draft);
+
+   if(loom === null){
    (<DraftNode> nodes[0]).loom = new Loom(draft, this.globalloom.min_frames, this.globalloom.min_treadles);
    (<DraftNode> nodes[0]).loom.recomputeLoom(draft);
+   }else{
+    (<DraftNode> nodes[0]).loom = loom;
+   }
 
    return Promise.resolve(<DraftNode> nodes[0]);
 
@@ -329,7 +341,6 @@ export class TreeService {
   /** depends on having nodes created first so that all tree nodes are present */
   async loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): Promise<TreeNode>{
     const tn: TreeNode = this.getTreeNode(node_id);
-    console.log("loading", node_id, parent_id);
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
     tn.inputs = inputs.map(id => this.getTreeNode(id));
     tn.outputs = outputs.map(id => this.getTreeNode(id));
@@ -780,7 +791,7 @@ export class TreeService {
       for(let i = out.length; i < res.length; i++){
         const id = this.createNode('draft', null, null);
         const cxn = this.createNode('cxn', null, null);
-        this.loadDraftData(id, res[i]);
+        this.loadDraftData(id, res[i], null); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
         this.addConnection(parent, id, cxn);
         touched.push(id);
       }

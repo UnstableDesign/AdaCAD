@@ -190,6 +190,10 @@ export class Loom{
       this.treadling.splice(i,1);
     }
 
+    isFrame():boolean{
+      return (this.type === "frame");
+    }
+
 
     /**
      * updates the size of min frames from load or UI

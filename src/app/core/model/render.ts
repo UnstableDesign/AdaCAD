@@ -6,7 +6,7 @@ import { Draft } from "./draft";
  */
 export class Render {
 
-  view_frames: boolean;
+ // view_frames: boolean;
 
   current_view: string;
   
@@ -34,7 +34,7 @@ export class Render {
 
     //max values
     this.zoom = 1;
-    this.view_frames = view_frames;
+   // this.view_frames = view_frames;
     this.current_view = 'pattern';
     this.view_front = true;
 
@@ -181,13 +181,6 @@ export class Render {
     else return 0;
   }
 
-  toggleViewFrames(){
-    this.view_frames = !this.view_frames;
-  }
-
-  showingFrames():boolean{
-    return this.view_frames;
-  }
 
   isYarnBasedView(): boolean{
     return (this.current_view == 'visual' || this.current_view == 'yarn');
