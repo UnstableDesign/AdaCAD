@@ -7,7 +7,6 @@ import { DesignMode } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { Draft } from '../../model/draft';
 import { GloballoomService } from '../../provider/globalloom.service';
-import { E } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-loom-modal',

@@ -6,7 +6,6 @@ import utilInstance from '../../../core/model/util';
 import { OperationService } from '../../provider/operation.service';
 import { TreeService } from '../../provider/tree.service';
 import { FileService } from '../../../core/provider/file.service';
-import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
@@ -125,7 +124,6 @@ export class SubdraftComponent implements OnInit {
 
   modal: MatDialogRef<DraftdetailComponent, any>;
 
-  loom: Loom; //each draft must be accompanied by a matching loom
   draft_visible: boolean = true;
 
 
@@ -160,9 +158,6 @@ export class SubdraftComponent implements OnInit {
       this.bounds.width = draft.warps * this.scale;
       this.bounds.height = draft.wefts * this.scale;
     }
-
-    this.loom = new Loom(this.draft, 8, 10);
-    this.loom.recomputeLoom(this.draft);
 
   }
 
@@ -705,11 +700,9 @@ export class SubdraftComponent implements OnInit {
     async saveAsWif() {
 
       const draft = this.tree.getDraft(this.id);
+      const loom = this.tree.getLoom(this.id);
 
-      //make a loom for saving
-      let loom = new Loom(draft, 8, 10);
-      loom.overloadType("frame");
-      loom.recomputeLoom(draft);
+      
       
 
       const a = document.createElement('a');

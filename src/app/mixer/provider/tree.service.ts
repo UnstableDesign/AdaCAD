@@ -206,6 +206,7 @@ export class TreeService {
 
    (<DraftNode> nodes[0]).draft = cloneDeep(draft);
    (<DraftNode> nodes[0]).loom = new Loom(draft, this.globalloom.min_frames, this.globalloom.min_treadles);
+   (<DraftNode> nodes[0]).loom.recomputeLoom(draft);
 
    return Promise.resolve(<DraftNode> nodes[0]);
 
@@ -1256,7 +1257,10 @@ export class TreeService {
     if(dn.draft === null) dn.draft = temp;
     else dn.draft.reload(temp);
 
-    if(loom === null) dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
+    if(loom === null){
+      dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
+      dn.loom.recomputeLoom(temp);
+    } 
     else dn.loom = loom;
 
     dn.dirty = true;
