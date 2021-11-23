@@ -35,6 +35,10 @@ export class GloballoomService {
     console.log("loading looms", looms)
     if(looms.length === 0) return Promise.resolve("no looms");
 
+    //filter out null or undefined looms
+    looms = looms.filter(el => !(el === undefined || el === null)); 
+
+
     this.min_frames = utilInstance.getMostCommon(
       looms.map(el => el.min_frames)
     );

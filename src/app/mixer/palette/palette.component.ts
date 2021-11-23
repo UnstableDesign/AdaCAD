@@ -368,7 +368,6 @@ export class PaletteComponent implements OnInit{
   rescale(scale:number){
 
 
-    console.log("PALETTE RESCALE CALLED");
     this.scale = scale;
 
     const zoom_factor: number = this.scale / this.default_cell_size;
@@ -553,9 +552,9 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
-    return this.tree.loadDraftData(id, d, null)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null)
       .then(d => {
-        d.draft.setName("draft_"+id);
+        d.dn.draft.setName("draft_"+id);
         return Promise.resolve(subdraft.instance);
         }
       )
@@ -571,8 +570,6 @@ export class PaletteComponent implements OnInit{
    * @param nodep the component proxy used to define
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy){
-
-    console.log("loading ", id, d, nodep);
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -614,7 +611,7 @@ export class PaletteComponent implements OnInit{
       const op = this.vc.createComponent<OperationComponent>(factory);
       const id = this.tree.createNode('op', op.instance, op.hostView);
       
-      this.tree.loadOpData(id, name, []);
+      this.tree.loadOpData({prev_id: -1, cur_id: id}, name, []);
       this.setOperationSubscriptions(op.instance);
 
       op.instance.name = name;
@@ -667,6 +664,7 @@ export class PaletteComponent implements OnInit{
       
       const op:OperationComponent = this.createOperation(name);
           
+          this.tree.setOpParams(op.id, params);
           op.loaded_inputs = params;
           op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
           op.bounds.width = bounds.width;
@@ -746,7 +744,6 @@ export class PaletteComponent implements OnInit{
    */
   removeSubdraft(id: number, called_by: number){
 
-    console.log("removing subdraft id", id);
 
     const parent_id = this.tree.getSubdraftParent(id);
     const outputs = this.tree.getNonCxnOutputs(id);
@@ -789,7 +786,6 @@ export class PaletteComponent implements OnInit{
    */
   removeOperation(id:number){
 
-    console.log("remove op", id);
 
     if(id === undefined) return;
 
