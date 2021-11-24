@@ -1049,30 +1049,56 @@ export class OperationService {
       name: 'satin',
       dx: 'generates or fills with a satin structure described by the inputs',
       params: [
-        {name: 'unders',
-        min: 1,
+        {name: 'repeat',
+        min: 5,
         max: 100,
-        value: 1,
-        dx: 'number of weft unders (this would typically be 1 with satin, but why not play with it'
+        value: 5,
+        dx: 'the width and height of the pattern'
         },
-        {name: 'overs',
+        {name: 'move',
         min: 1,
         max: 100,
-        value: 4,
-        dx: 'number of weft overs'
+        value: 2,
+        dx: 'the move number on each row'
         }
       ],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
        
-        const shift: number = Math.ceil(input_params[1]/2);
 
-        this.getOp('twill').perform(inputs, input_params)
-          .then(d => {
-            return Promise.resolve(this.getOp('slope').perform(d, [shift, 1]));
-          })
+        const pattern:Array<Array<Cell>> = [];
+        for(let i = 0; i < input_params[0]; i++){
+          pattern.push([]);
+          for(let j = 0; j < input_params[0]; j++){
+            pattern[i][j] = (j===(i*input_params[1])%input_params[0]) ? new Cell(true) : new Cell(false);
+          }
+        }
+
+        let outputs: Array<Draft> = [];
+        if(inputs.length === 0){
+          const d: Draft = new Draft({warps: input_params[0], wefts: input_params[0], pattern: pattern});
+          outputs.push(d);
+        }else{
+           outputs = inputs.map(input => {
+            const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, 'mask');
+            return d;
+          });
+        }
+              
+      
+        return Promise.resolve(outputs);
+        // return inputs.map(input => {
+        //   return input;
+        // })
+
+        // const shift: number = Math.ceil(input_params[1]/2);
+
+        // return this.getOp('twill').perform(inputs, input_params)
+        //   .then(d => {
+        //     return Promise.resolve(this.getOp('slope').perform(d, [shift, 1]));
+        //   })
         
-          return Promise.resolve([]);
       }        
     }
 
