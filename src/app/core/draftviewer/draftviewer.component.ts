@@ -342,12 +342,15 @@ export class DraftviewerComponent implements OnInit {
   setPosAndDraw(target:HTMLElement, shift: boolean, currentPos:Interlacement){
 
       if (target && target.id =='treadling') {
+        if(this.viewonly) return;
         currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
       } else if (target && target.id === 'tieups') {
+        if(this.viewonly) return;
         currentPos.i = this.loom.frame_mapping[currentPos.i];
         this.drawOnTieups(currentPos);
       } else if (target && target.id === ('threading')) {
+        if(this.viewonly) return;
         currentPos.i = this.loom.frame_mapping[currentPos.i];
         this.drawOnThreading(currentPos);
       } else if(target && target.id === ('weft-systems')){
@@ -361,6 +364,7 @@ export class DraftviewerComponent implements OnInit {
       }else if(target && target.id === ('warp-materials')){
         this.drawOnWarpMaterials(currentPos);
       } else{
+        if(this.viewonly) return;
         currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnDrawdown(currentPos, shift);
       }
@@ -380,7 +384,6 @@ export class DraftviewerComponent implements OnInit {
   private onStart(event) {
 
 
-    if(this.viewonly) return;
     //get dimis based on zoom.
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,

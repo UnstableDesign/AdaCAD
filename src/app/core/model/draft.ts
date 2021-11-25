@@ -84,7 +84,7 @@ export class Draft{
     //parse the input pattern
     this.pattern = this.parsePattern(params.pattern);
    
-    this.rowShuttleMapping = this.initMapping(this.wefts, 0);
+    this.rowShuttleMapping = this.initMapping(this.wefts, 1);
     this.rowSystemMapping = this.initMapping(this.wefts, 0);
     this.colShuttleMapping = this.initMapping(this.warps, 0);
     this.colSystemMapping = this.initMapping(this.warps, 0);

@@ -110,4 +110,9 @@ export class MaterialsService {
     return this.materials;
   }
 
+  getFirstShuttle()  : Shuttle {
+    if(this.materials.length === 0) return null;
+    return this.materials[0];
+  }
+
 }

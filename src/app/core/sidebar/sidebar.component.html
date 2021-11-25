@@ -134,7 +134,6 @@
         mat-icon-button
         matTooltip= "Edit Draft Cells"
         [matMenuTriggerFor]="inks"
-        [disabled]= "viewonly"
         [class.is-active]="dm.isSelected('draw','design_modes')"        >
         <i class="fas fa-edit"></i>
         </button>
@@ -146,6 +145,7 @@
             mat-menu-item 
             [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
             [name] = "mode.value"
+            [disabled]= "viewonly"
             (click)="drawModeChange(mode.value)">
                 <span class="{{mode.icon}}"></span>
                 <span>{{mode.viewValue}}</span>
@@ -167,7 +167,6 @@
         <button 
         mat-icon-button
         matTooltip= "Select Region"
-        [disabled]= "viewonly"
         [class.is-active]="dm.isSelected('select','design_modes')"
         (click)="select()">
         <i class="fas fa-expand"></i>
