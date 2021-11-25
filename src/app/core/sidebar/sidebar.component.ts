@@ -26,6 +26,7 @@ export class SidebarComponent implements OnInit {
   @Input() timeline;
   @Input() render;
   @Input() source;
+  @Input() viewonly;
 
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();

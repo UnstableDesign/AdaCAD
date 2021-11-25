@@ -38,6 +38,7 @@ export class WeaverComponent implements OnInit {
   @ViewChild(SidebarComponent, {static: true}) sidebar;
   
   @Input()  draft: Draft; 
+  @Input()  viewonly: boolean; 
   @Input() loom: Loom;
 
 

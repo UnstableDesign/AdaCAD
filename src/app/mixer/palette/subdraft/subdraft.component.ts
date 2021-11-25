@@ -755,7 +755,8 @@ export class SubdraftComponent implements OnInit {
           data: {
             draft: draft,
             loom: loom,
-            ink: this.inks.getInk(this.ink).viewValue}
+            ink: this.inks.getInk(this.ink).viewValue,
+            viewonly: (this.parent_id !== -1)}
         });
 
 
@@ -765,7 +766,6 @@ export class SubdraftComponent implements OnInit {
             if(this.parent_id == -1){
               draft.reload(result);
               this.draft = draft;
-              //this.drawDraft();
               this.onDesignAction.emit({id: this.id});
               //flag for downstream calculations
             }else{

@@ -1,13 +1,12 @@
 
 <!-- UNDO / REDO -->
 <div class="sidebar">
-
     <!--on both weaver and mixer-->
     <div class="tool-chunk" *ngIf="source !== 'weaverinmixer'">
         <button #undoEvent 
         mat-icon-button 
         (click)="undoClicked($event);"
-        [disabled]="timeline.undo_disabled"
+        [disabled]="timeline.undo_disabled || viewonly"
         matTooltip ="undo">
         <i class="fas fa-undo"></i>
         </button>
@@ -15,7 +14,7 @@
         <button #redoEvent 
         mat-icon-button 
         (click)="redoClicked($event);"
-        [disabled]="timeline.redo_disabled"
+        [disabled]="timeline.redo_disabled  || viewonly"
         matTooltip ="redo">
         <i class="fas fa-redo"></i>
         </button>
@@ -135,6 +134,7 @@
         mat-icon-button
         matTooltip= "Edit Draft Cells"
         [matMenuTriggerFor]="inks"
+        [disabled]= "viewonly"
         [class.is-active]="dm.isSelected('draw','design_modes')"        >
         <i class="fas fa-edit"></i>
         </button>
@@ -167,6 +167,7 @@
         <button 
         mat-icon-button
         matTooltip= "Select Region"
+        [disabled]= "viewonly"
         [class.is-active]="dm.isSelected('select','design_modes')"
         (click)="select()">
         <i class="fas fa-expand"></i>
@@ -327,6 +328,8 @@
         <button 
         mat-icon-button
         matTooltip= "Equipment Settings"
+        [disabled]= "viewonly"
+
         [class.is-active] = "equipment_modal && equipment_modal.componentInstance != null"
         (click)="openLoomModal()">
         <i class="fas fa-cog"></i></button>

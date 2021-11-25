@@ -13,7 +13,8 @@
         [timeline]="timeline"
         [draft]="draft"
         [loom]="loom"  
-        [render]="render"  
+        [render]="render" 
+        [viewonly]="viewonly" 
         source="weaver"
         (onUndo)="undo();" 
         (onRedo)="redo();"
@@ -51,6 +52,7 @@
     [timeline]="timeline" 
     [draft]="draft" 
     [loom]="loom" 
+    [viewonly]="viewonly"
     (onNewSelection) = "updateSelection($event)">
     </app-draftviewer>
 

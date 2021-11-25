@@ -7,13 +7,14 @@
     <p mat-dialog-title
       cdkDrag
        cdkDragRootElement=".cdk-overlay-pane" 
-       cdkDragHandle>Draft Detail</p>
+       cdkDragHandle>Draft Detail <i *ngIf="viewonly">view only</i></p>
     </div>
   
 
   <app-weaver #weaver
   [draft]="draft"
   [loom]="loom"
+  [viewonly]="viewonly"
   ></app-weaver>
 
 

@@ -45,6 +45,7 @@ export class MixerComponent implements OnInit {
    */
    timeline: Timeline = new Timeline();
 
+   viewonly: boolean = false;
 
    manual_scroll: boolean = false;
 
@@ -155,7 +156,7 @@ export class MixerComponent implements OnInit {
 
 
   /**
-   * this uses the node data on input to create new nodes, in addition to any nodes that may already exist
+   * this uses the uploaded node data to create new nodes, in addition to any nodes that may already exist
    * @param nodes the nodes from the upload
    * @returns an array of uploaded ids mapped to unique ids in this instance
    */

@@ -43,6 +43,7 @@ export class DraftdetailComponent implements OnInit {
 
   scrollingSubscription: any;
 
+  viewonly: boolean = false;
 
 
   constructor(private dialogRef: MatDialogRef<DraftdetailComponent>,
@@ -62,9 +63,9 @@ export class DraftdetailComponent implements OnInit {
                this.draft = data.draft;
                this.ink = data.ink;
                this.loom = data.loom;
+               this.viewonly = data.viewonly;
                console.log('this.ink:', this.ink);
 
-               this.draft.computeYarnPaths(this.ms.getShuttles());
 
 
 

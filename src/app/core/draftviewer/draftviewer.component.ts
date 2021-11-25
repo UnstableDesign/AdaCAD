@@ -79,7 +79,7 @@ export class DraftviewerComponent implements OnInit {
    */
    @Input('timeline') timeline: any;
  
- 
+   @Input() viewonly: boolean;
  
    @Input() copy: Pattern;
  
@@ -380,6 +380,7 @@ export class DraftviewerComponent implements OnInit {
   private onStart(event) {
 
 
+    if(this.viewonly) return;
     //get dimis based on zoom.
     let dims ={
       w: this.warpSystemsCanvas.width / this.weave.warps,
