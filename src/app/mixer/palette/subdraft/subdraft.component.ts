@@ -12,6 +12,7 @@ import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.compon
 import { Cell } from '../../../core/model/cell';
 import { OperationComponent } from '../operation/operation.component';
 import { Draft } from '../../../core/model/draft';
+import { GloballoomService } from '../../../core/provider/globalloom.service';
 
 
 
@@ -132,7 +133,8 @@ export class SubdraftComponent implements OnInit {
     private tree: TreeService,
     private fs: FileService,
     private viewport: ViewportService,
-    private dialog: MatDialog) { 
+    private dialog: MatDialog,
+    private gl: GloballoomService) { 
 
       this.zndx = layer.createLayer();
 
@@ -768,8 +770,6 @@ export class SubdraftComponent implements OnInit {
               this.draft = draft;
               this.onDesignAction.emit({id: this.id});
               //flag for downstream calculations
-            }else{
-              console.log('has operation parent, create and caluculate diff');
             }
           }
         })   
