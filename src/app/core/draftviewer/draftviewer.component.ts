@@ -1921,36 +1921,36 @@ public drawWeftEnd(top, left, shuttle){
 
 
 
-  public redrawYarnView(){
+  //public redrawYarnView(){
 
     //draw from bottom to top 
 
 
-    //first, just draw all the wefts 
-   const shuttles: Array<number> =  this.render.visibleRows.map(el => this.weave.rowShuttleMapping[el]);
+  //   //first, just draw all the wefts 
+  //  const shuttles: Array<number> =  this.render.visibleRows.map(el => this.weave.rowShuttleMapping[el]);
 
-   shuttles.forEach((shuttle, i) => {
-      this.drawWeft(i, this.ms.getShuttle(shuttle));
-   });
+  //  shuttles.forEach((shuttle, i) => {
+  //     this.drawWeft(i, this.ms.getShuttle(shuttle));
+  //  });
 
-    const crossings: Array<Array<Crossing>> = this.weave.getRelationalDraft();
-    const visible_crossings = crossings.filter((el, i) => this.render.visibleRows.find(el => el == i) !== -1);
+  //   const crossings: Array<Array<Crossing>> = this.weave.getRelationalDraft();
+  //   const visible_crossings = crossings.filter((el, i) => this.render.visibleRows.find(el => el == i) !== -1);
 
-    visible_crossings.forEach((row, i) =>{
+  //   visible_crossings.forEach((row, i) =>{
 
-      let cur_j = 0;
-      let cur_state: boolean = false;
+  //     let cur_j = 0;
+  //     let cur_state: boolean = false;
 
-      row.forEach(crossing => {
+  //     row.forEach(crossing => {
 
-        if(cur_j < crossing.j){
-          cur_state = crossing.type.t;
-        }
+  //       if(cur_j < crossing.j){
+  //         cur_state = crossing.type.t;
+  //       }
 
-      });
+  //     });
 
 
-    });  
+  //   });  
 
 
 
@@ -1980,6 +1980,37 @@ public drawWeftEnd(top, left, shuttle){
 
     //   }
     // }
+
+  //}
+
+
+  public redrawYarnView(){
+
+
+    for(let i = 0; i < this.render.visibleRows.length; i++){
+
+      let index_row = this.render.visibleRows[i];
+
+      let row_values = this.weave.pattern[index_row];
+
+      let shuttle_id = this.weave.rowShuttleMapping[index_row];
+
+      let s = this.ms.getShuttle(shuttle_id);
+
+      //iterate through the rows
+      for(let j = 0; j < row_values.length; j++){
+        
+        let p = row_values[j];
+
+        if(p.isEastWest())  this.drawWeftOver(i,j,s);
+        if(p.isSouthWest()) this.drawWeftBottomLeft(i,j,s);
+       // if(p.isNorthSouth())this.drawWeftUp(i, j, s);
+        if(p.isSouthEast()) this.drawWeftBottomRight(i,j,s);
+        if(p.isNorthWest()) this.drawWeftLeftUp(i,j,s);
+        if(p.isNorthEast()) this.drawWeftRightUp(i, j, s);
+
+      }
+    }
 
   }
 
@@ -2256,6 +2287,10 @@ public redraw(flags:any){
    * @returns {void}
    */
   public redrawVisualView() {
+
+    console.log("drawing visual view");
+
+    this.weave.computeYarnPaths(this.ms.getShuttles());
 
     this.cx.fillStyle = "#3d3d3d";
     this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);

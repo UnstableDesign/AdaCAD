@@ -993,15 +993,15 @@ export class Draft{
 
 
 
-  // getDirection(neighbors:number, is_up:boolean) : string{
+  getDirection(neighbors:number, is_up:boolean) : string{
 
-  //   var is_up_dirs =     ["ew","ew", "ns", "sw", "ew", "ew", "se", "ew", "ns", "nw", "ns", "ew", "ne", "ew", "ew", "ew"];
-  //   var not_is_up_dirs = ["x", "x", "x",  "sw", "x",  "ew", "se", "ew", "x",  "nw", "ns", "sw", "ne", "ew", "sw", "ew"];
+    var is_up_dirs =     ["ew","ew", "ns", "sw", "ew", "ew", "se", "ew", "ns", "nw", "ns", "ew", "ne", "ew", "ew", "ew"];
+    var not_is_up_dirs = ["x", "x", "x",  "sw", "x",  "ew", "se", "ew", "x",  "nw", "ns", "sw", "ne", "ew", "sw", "ew"];
     
-  //   if(is_up) return is_up_dirs[neighbors];
-  //   else return not_is_up_dirs[neighbors];
+    if(is_up) return is_up_dirs[neighbors];
+    else return not_is_up_dirs[neighbors];
 
-  // }
+  }
 
 
   updatePoles(i: number, j: number){
@@ -1016,137 +1016,137 @@ export class Draft{
    * @returns a bit string value created by adding a 1 on the string n,e,s,w where the direction is true
    */ 
 
-  // pingNeighbors(i:number, j:number): number{
+  pingNeighbors(i:number, j:number): number{
 
-  //   let cell:Cell = new Cell(null);
-  //   let shuttle_id: number = this.rowShuttleMapping[i];
+    let cell:Cell = new Cell(null);
+    let shuttle_id: number = this.rowShuttleMapping[i];
 
 
-  //   if(this.hasNorthNeighbor(i,j,shuttle_id)) cell.setNorth(); 
-  //   if(this.hasEastNeighbor(i,j)) cell.setEast();             
-  //   if(this.hasSouthNeighbor(i,j,shuttle_id)) cell.setSouth(); 
-  //   if(this.hasWestNeighbor(i,j)) cell.setWest();            
+    if(this.hasNorthNeighbor(i,j,shuttle_id)) cell.setNorth(); 
+    if(this.hasEastNeighbor(i,j)) cell.setEast();             
+    if(this.hasSouthNeighbor(i,j,shuttle_id)) cell.setSouth(); 
+    if(this.hasWestNeighbor(i,j)) cell.setWest();            
 
-  //   return cell.getPoles();
-  // }
+    return cell.getPoles();
+  }
 
   //searches to the west (on this row only) for an interlacement
-  // hasWestNeighbor(i:number, j:number): boolean{
+  hasWestNeighbor(i:number, j:number): boolean{
 
-  //     for(var ndx = j-1; ndx >= 0; ndx--){
-  //       if(this.pattern[i][ndx].isUp()) return true;
-  //     }
-  //     return false;
-  // }
-
-
-  // /***
-  // If this doesn't have east set, then there is nothing to the west
-  // */
-  // setWestNeighbors(i:number, j:number){
-
-  //     for(var ndx = j-1; ndx >= 0; ndx--){
-  //       this.pattern[i][ndx].setEast();
-  //       if(this.pattern[i][ndx].isUp()) return;
-  //     }
-
-  //     return;
-  // }
-
-  // unsetWestNeighbors(i:number, j:number){
-
-  //     //there is something else for the western cells to reference
-  //     if(this.hasEastNeighbor(i,j)) return; 
-
-  //     //unset until you find the next set cell
-  //     for(var ndx = j-1; ndx >= 0; ndx--){
-  //       this.pattern[i][ndx].unsetEast(); 
-  //       if(this.pattern[i][ndx].isUp()) return;
-  //     }
-
-  //     return;
-  // }
+      for(var ndx = j-1; ndx >= 0; ndx--){
+        if(this.pattern[i][ndx].isUp()) return true;
+      }
+      return false;
+  }
 
 
-  // //searches to the east (on this row only) for an interlacement
-  // hasEastNeighbor(i:number, j:number): boolean{
+  /***
+  If this doesn't have east set, then there is nothing to the west
+  */
+  setWestNeighbors(i:number, j:number){
+
+      for(var ndx = j-1; ndx >= 0; ndx--){
+        this.pattern[i][ndx].setEast();
+        if(this.pattern[i][ndx].isUp()) return;
+      }
+
+      return;
+  }
+
+  unsetWestNeighbors(i:number, j:number){
+
+      //there is something else for the western cells to reference
+      if(this.hasEastNeighbor(i,j)) return; 
+
+      //unset until you find the next set cell
+      for(var ndx = j-1; ndx >= 0; ndx--){
+        this.pattern[i][ndx].unsetEast(); 
+        if(this.pattern[i][ndx].isUp()) return;
+      }
+
+      return;
+  }
+
+
+  //searches to the east (on this row only) for an interlacement
+  hasEastNeighbor(i:number, j:number): boolean{
       
-  //     for(var ndx = j+1; ndx < this.warps; ndx++){
-  //       if(this.pattern[i][ndx].isUp()) return true;
-  //     }
-  //     return false;
-  // }
+      for(var ndx = j+1; ndx < this.warps; ndx++){
+        if(this.pattern[i][ndx].isUp()) return true;
+      }
+      return false;
+  }
 
 
-  // //walks to the east until it hits another set cell, adds "west" to each 
-  // setEastNeighbors(i:number, j:number){
+  //walks to the east until it hits another set cell, adds "west" to each 
+  setEastNeighbors(i:number, j:number){
 
-  //     for(var ndx = j+1; ndx < this.warps; ndx++){
-  //       this.pattern[i][ndx].setWest();
-  //       if(this.pattern[i][ndx].isUp()) return;
-  //     }
+      for(var ndx = j+1; ndx < this.warps; ndx++){
+        this.pattern[i][ndx].setWest();
+        if(this.pattern[i][ndx].isUp()) return;
+      }
 
-  //     return;
-  // }
+      return;
+  }
 
-  // unsetEastNeighbors(i:number, j:number){
+  unsetEastNeighbors(i:number, j:number){
 
-  //     //there is something else for the western cells to reference
-  //     if(this.hasWestNeighbor(i,j)) return; 
+      //there is something else for the western cells to reference
+      if(this.hasWestNeighbor(i,j)) return; 
 
-  //     //unset until you find the next set cell
-  //      for(var ndx = j+1; ndx < this.warps; ndx++){
-  //       this.pattern[i][ndx].unsetWest(); 
-  //       if(this.pattern[i][ndx].isUp()) return;
-  //     }
+      //unset until you find the next set cell
+       for(var ndx = j+1; ndx < this.warps; ndx++){
+        this.pattern[i][ndx].unsetWest(); 
+        if(this.pattern[i][ndx].isUp()) return;
+      }
 
-  //     return;
-  // }
+      return;
+  }
 
-  // //searches rows to the north for any interlacement on the same shuttle
-  // hasNorthNeighbor(i:number, j:number, shuttle_id: number): boolean{
-  //     for(var ndx = i-1; ndx >= 0; ndx--){
-  //       if(this.rowShuttleMapping[ndx] === shuttle_id){
-  //         if(this.pattern[ndx][j].isUp()) return true;
-  //         if(this.hasWestNeighbor(ndx,j)) return true;
-  //         if(this.hasEastNeighbor(ndx,j)) return true;
-  //       }
-  //     }
-  //     return false;
-  // }
+  //searches rows to the north for any interlacement on the same shuttle
+  hasNorthNeighbor(i:number, j:number, shuttle_id: number): boolean{
+      for(var ndx = i-1; ndx >= 0; ndx--){
+        if(this.rowShuttleMapping[ndx] === shuttle_id){
+          if(this.pattern[ndx][j].isUp()) return true;
+          if(this.hasWestNeighbor(ndx,j)) return true;
+          if(this.hasEastNeighbor(ndx,j)) return true;
+        }
+      }
+      return false;
+  }
 
-  // //searches rows to the north for any interlacement on the same shuttle
-  // setNorthNeighbors(i:number, j:number, shuttle_id: number): boolean{
-  //     var c: Cell;
+  //searches rows to the north for any interlacement on the same shuttle
+  setNorthNeighbors(i:number, j:number, shuttle_id: number): boolean{
+      var c: Cell;
 
-  //     for(var ndx = i-1; ndx >= 0; ndx--){
-  //       if(this.rowShuttleMapping[ndx] === shuttle_id){
+      for(var ndx = i-1; ndx >= 0; ndx--){
+        if(this.rowShuttleMapping[ndx] === shuttle_id){
           
              
 
-  //         for(var col = 0; col < this.warps; col++){
+          for(var col = 0; col < this.warps; col++){
             
-  //         }
+          }
 
-  //         if(this.pattern[ndx][j].isUp()) return true;
-  //         if(this.hasWestNeighbor(ndx,j)) return true;
-  //         if(this.hasEastNeighbor(ndx,j)) return true;
-  //       }
-  //     }
-  //     return false;
-  // }
+          if(this.pattern[ndx][j].isUp()) return true;
+          if(this.hasWestNeighbor(ndx,j)) return true;
+          if(this.hasEastNeighbor(ndx,j)) return true;
+        }
+      }
+      return false;
+  }
 
-  // //searches rows to the south for any interlacement on the same shuttle
-  // hasSouthNeighbor(i:number, j:number, shuttle_id:number): boolean{
-  //     for(var ndx = i+1; ndx < this.wefts; ndx++){
-  //       if(this.rowShuttleMapping[ndx] === shuttle_id){
-  //         if(this.pattern[ndx][j].isUp()) return true;
-  //         if(this.hasWestNeighbor(ndx,j)) return true;
-  //         if(this.hasEastNeighbor(ndx,j)) return true;
-  //       }
-  //     }
-  //     return false;
-  // }
+  //searches rows to the south for any interlacement on the same shuttle
+  hasSouthNeighbor(i:number, j:number, shuttle_id:number): boolean{
+      for(var ndx = i+1; ndx < this.wefts; ndx++){
+        if(this.rowShuttleMapping[ndx] === shuttle_id){
+          if(this.pattern[ndx][j].isUp()) return true;
+          if(this.hasWestNeighbor(ndx,j)) return true;
+          if(this.hasEastNeighbor(ndx,j)) return true;
+        }
+      }
+      return false;
+  }
 
 
  
@@ -1175,42 +1175,42 @@ export class Draft{
 
 
 
-// setNorthSouth(row:number, i:number){
+setNorthSouth(row:number, i:number){
 
-//   if(i > 0 && i < this.warps){
-//     this.pattern[row][i].setNorthSouth();
-//   }
-// }
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setNorthSouth();
+  }
+}
 
-// setEastWest(row:number, i:number){
-//   if(i > 0 && i < this.warps){
-//     this.pattern[row][i].setEastWest();
-//   }
-// }
+setEastWest(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setEastWest();
+  }
+}
 
-// setSouth(row:number, i:number){
-//   if(i > 0 && i < this.warps){
-//     this.pattern[row][i].setSouth();
-//   }
-// }
+setSouth(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setSouth();
+  }
+}
 
-// setNorth(row:number, i:number){
-//   if(i > 0 && i < this.warps){
-//     this.pattern[row][i].setNorth();
-//   }
-// }
+setNorth(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setNorth();
+  }
+}
 
-// setEast(row:number, i:number){
-//   if(i > 0 && i < this.warps){
-//     this.pattern[row][i].setEast();
-//   }
-// }
+setEast(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setEast();
+  }
+}
 
-// setWest(row:number, i:number){
-//   if(i > 0 && i < this.warps){
-//     this.pattern[row][i].setWest();
-//   }
-// }
+setWest(row:number, i:number){
+  if(i > 0 && i < this.warps){
+    this.pattern[row][i].setWest();
+  }
+}
 
 getNextPath(paths, i){
   if(i+1 < paths.length){
@@ -1274,134 +1274,134 @@ getRelationalDraft() : Array<Array<Crossing>> {
 computeYarnPaths(shuttles: Array<Shuttle>){
 
     // //unset_all
-    // for(let i = 0; i < this.pattern.length; i++){
-    //   for(let j = 0; j < this.pattern[i].length; j++){
-    //     this.pattern[i][j].unsetPoles();
-    //   }
-    // }
+    for(let i = 0; i < this.pattern.length; i++){
+      for(let j = 0; j < this.pattern[i].length; j++){
+        this.pattern[i][j].unsetPoles();
+      }
+    }
 
 
-    // for (var l = 0; l < shuttles.length; l++) {
+    for (var l = 0; l < shuttles.length; l++) {
 
-    //   // Draw each shuttle on by one.
-    //   var shuttle = shuttles[l];
+      // Draw each shuttle on by one.
+      var shuttle = shuttles[l];
 
-    //   //acc is an array of row_ids that are assigned to this shuttle
-    //   const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
+      //acc is an array of row_ids that are assigned to this shuttle
+      const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
 
-    //   //screen rows are reversed to go from bottom to top
-    //   //[row index] -> (indexes where there is interlacement)
-    //   let path = [];
-    //   for (var i = 0; i < acc.length ; i++) {
+      //screen rows are reversed to go from bottom to top
+      //[row index] -> (indexes where there is interlacement)
+      let path = [];
+      for (var i = 0; i < acc.length ; i++) {
        
-    //     //this gets the row
-    //     const row_values = this.pattern[acc[i]];
+        //this gets the row
+        const row_values = this.pattern[acc[i]];
 
 
-    //     const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
+        const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
 
-    //     //only push the rows with at least one interlacement     
-    //     if(overs.length > 0 && overs.length < row_values.length){
-    //       path.push({row: acc[i], overs:overs});
-    //     }
+        //only push the rows with at least one interlacement     
+        if(overs.length > 0 && overs.length < row_values.length){
+          path.push({row: acc[i], overs:overs});
+        }
       
-    //   }
+      }
 
-    //   var started = false;
-    //   var last = {
-    //     row: 0,
-    //     ndx: 0
-    //   };
+      var started = false;
+      var last = {
+        row: 0,
+        ndx: 0
+      };
 
-    //   path = path.reverse();
+      path = path.reverse();
 
 
-    //   for(let k = 0; k < path.length; k++){
+      for(let k = 0; k < path.length; k++){
 
-    //     let row:number = parseInt(path[k].row); 
-    //     let overs:Array<number> = path[k].overs; 
+        let row:number = parseInt(path[k].row); 
+        let overs:Array<number> = path[k].overs; 
 
-    //     let next_path = this.getNextPath(path, k);
+        let next_path = this.getNextPath(path, k);
 
-    //     let min_ndx:number = overs.shift();
-    //     let max_ndx:number = overs.pop();
+        let min_ndx:number = overs.shift();
+        let max_ndx:number = overs.pop();
         
-    //     let next_min_ndx:number;
-    //     let next_max_ndx:number;
+        let next_min_ndx:number;
+        let next_max_ndx:number;
         
-    //     if(next_path.row !== -1 ){
+        if(next_path.row !== -1 ){
          
-    //       next_max_ndx = next_path.overs[next_path.overs.length-1];
-    //       next_min_ndx = next_path.overs[0];
+          next_max_ndx = next_path.overs[next_path.overs.length-1];
+          next_min_ndx = next_path.overs[0];
 
-    //     }else{
-    //       next_min_ndx = min_ndx;
-    //       next_max_ndx = max_ndx;
-    //     }  
+        }else{
+          next_min_ndx = min_ndx;
+          next_max_ndx = max_ndx;
+        }  
 
 
 
-    //     let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
+        let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
 
-    //     if(moving_left){
-    //       if(started) max_ndx = Math.max(max_ndx, last.ndx);
-    //       min_ndx = Math.min(min_ndx, next_min_ndx);
-    //     } else {
-    //       max_ndx = Math.max(max_ndx, next_max_ndx);
-    //       if(started) min_ndx = Math.min(min_ndx, last.ndx);
+        if(moving_left){
+          if(started) max_ndx = Math.max(max_ndx, last.ndx);
+          min_ndx = Math.min(min_ndx, next_min_ndx);
+        } else {
+          max_ndx = Math.max(max_ndx, next_max_ndx);
+          if(started) min_ndx = Math.min(min_ndx, last.ndx);
 
-    //     }
+        }
        
-    //     //draw upwards if required
-    //     if(started){
+        //draw upwards if required
+        if(started){
 
           
-    //      // console.log("row/last.row", row, last.row);
-    //       // for(let j = last.row-1; j > row; j--){
-    //       //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
-    //       //  else this.setNorthSouth(j, last.ndx-1);
-    //       // }
-    //     }
+         // console.log("row/last.row", row, last.row);
+          // for(let j = last.row-1; j > row; j--){
+          //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
+          //  else this.setNorthSouth(j, last.ndx-1);
+          // }
+        }
 
-    //     //set by lookiing at the ends ends
-    //     if(moving_left){
+        //set by lookiing at the ends ends
+        if(moving_left){
 
-    //       if(started){
-    //          this.setSouth(row,max_ndx+1); //set where it came from
-    //       } 
+          if(started){
+             this.setSouth(row,max_ndx+1); //set where it came from
+          } 
           
-    //       this.setWest(row, max_ndx+1);
+          this.setWest(row, max_ndx+1);
 
-    //       this.setNorth(row, min_ndx-1);
-    //       this.setEast(row, min_ndx-1);
+          this.setNorth(row, min_ndx-1);
+          this.setEast(row, min_ndx-1);
 
-    //       last.ndx = min_ndx;
+          last.ndx = min_ndx;
 
-    //     }else{
+        }else{
 
-    //       if(started){
-    //         this.setSouth(row, min_ndx-1);
-    //       }
+          if(started){
+            this.setSouth(row, min_ndx-1);
+          }
 
-    //       this.setEast(row, min_ndx-1);
+          this.setEast(row, min_ndx-1);
           
-    //       this.setNorth(row, max_ndx+1);
-    //       this.setWest(row, max_ndx+1);
+          this.setNorth(row, max_ndx+1);
+          this.setWest(row, max_ndx+1);
           
-    //       last.ndx = max_ndx;
+          last.ndx = max_ndx;
 
-    //     } 
+        } 
 
-    //     //set in between
-    //     for(i = min_ndx; i <= max_ndx; i++){
-    //        this.setEastWest(row, i); 
-    //     }
+        //set in between
+        for(i = min_ndx; i <= max_ndx; i++){
+           this.setEastWest(row, i); 
+        }
 
-    //     started = true;
-    //     last.row = row;
+        started = true;
+        last.row = row;
        
-    //   } 
-    // }
+      } 
+    }
         
 
   }
