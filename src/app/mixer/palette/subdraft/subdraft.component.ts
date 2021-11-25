@@ -6,12 +6,13 @@ import utilInstance from '../../../core/model/util';
 import { OperationService } from '../../provider/operation.service';
 import { TreeService } from '../../provider/tree.service';
 import { FileService } from '../../../core/provider/file.service';
-import { Loom } from '../../../core/model/loom';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
+import { Cell } from '../../../core/model/cell';
 import { OperationComponent } from '../operation/operation.component';
 import { Draft } from '../../../core/model/draft';
+import { GloballoomService } from '../../../core/provider/globalloom.service';
 
 
 
@@ -132,9 +133,11 @@ export class SubdraftComponent implements OnInit {
     private tree: TreeService,
     private fs: FileService,
     private viewport: ViewportService,
-    private dialog: MatDialog) { 
+    private dialog: MatDialog,
+    private gl: GloballoomService) { 
 
       this.zndx = layer.createLayer();
+
   }
 
   ngOnInit(){
@@ -157,7 +160,6 @@ export class SubdraftComponent implements OnInit {
       this.bounds.width = draft.warps * this.scale;
       this.bounds.height = draft.wefts * this.scale;
     }
-
 
   }
 
@@ -198,8 +200,6 @@ export class SubdraftComponent implements OnInit {
       x: this.interlacement.j * scale,
       y: this.interlacement.i * scale
     };
-
-    console.log("subdraft interlacement ", this.interlacement, scale);
 
     this.bounds.width = this.draft.warps * scale;
     this.bounds.height = this.draft.wefts * scale;
@@ -586,7 +586,6 @@ export class SubdraftComponent implements OnInit {
       height: this.bounds.height
     });
 
-    console.log("")
     // this.bounds.topleft = adj;
 
      const ndx = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
@@ -700,11 +699,9 @@ export class SubdraftComponent implements OnInit {
     async saveAsWif() {
 
       const draft = this.tree.getDraft(this.id);
+      const loom = this.tree.getLoom(this.id);
 
-      //make a loom for saving
-      let loom = new Loom(draft, 8, 10);
-      loom.overloadType("frame");
-      loom.recomputeLoom(draft);
+      
       
 
       const a = document.createElement('a');
@@ -752,14 +749,16 @@ export class SubdraftComponent implements OnInit {
       //if this is already open, don't reopen it
       if(this.modal != undefined && this.modal.componentInstance != null) return;
       const draft = this.tree.getDraft(this.id);
-
+      const loom = this.tree.getLoom(this.id);
 
       this.modal = this.dialog.open(DraftdetailComponent,
         {disableClose: true,
           hasBackdrop: false,
           data: {
             draft: draft,
-            ink: this.inks.getInk(this.ink).viewValue}
+            loom: loom,
+            ink: this.inks.getInk(this.ink).viewValue,
+            viewonly: (this.parent_id !== -1)}
         });
 
 
@@ -769,11 +768,8 @@ export class SubdraftComponent implements OnInit {
             if(this.parent_id == -1){
               draft.reload(result);
               this.draft = draft;
-              //this.drawDraft();
               this.onDesignAction.emit({id: this.id});
               //flag for downstream calculations
-            }else{
-              console.log('has operation parent, create and caluculate diff');
             }
           }
         })   

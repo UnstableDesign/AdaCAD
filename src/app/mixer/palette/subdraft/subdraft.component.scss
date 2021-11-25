@@ -110,10 +110,11 @@ button.output{
     justify-content: space-between;
     width: 100%;
 	min-width: 60px;
-	height: 30px;
 	overflow: hidden;
 }
-
+.error{
+	color: #ff3860;
+  }
 .mat-icon{
 	height: auto;
 }

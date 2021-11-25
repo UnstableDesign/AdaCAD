@@ -24,6 +24,7 @@ source="mixer"
         [draft]="draft"
         [loom]="loom"  
         [render]=""
+        [viewonly]="viewonly"
         source='mixer'
         (onUndo)="undo();" 
         (onRedo)="redo();"
@@ -35,6 +36,7 @@ source="mixer"
         (onViewPortMove) ="setScroll($event);"
         (onNoteCreate) ="createNote($event);"
         (onMaterialChange) = "materialChange($event)"
+        (onGlobalLoomChange) = "globalLoomChange($event)"
         ></app-sidebar>
 
 

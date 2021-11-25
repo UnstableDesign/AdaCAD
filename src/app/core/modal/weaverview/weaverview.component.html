@@ -48,6 +48,14 @@
         </mat-slide-toggle>
       </div>
 
+      <!-- <div class="view_slider">
+        View Crossings
+        <mat-slide-toggle
+            [checked]="dm.isSelected('crossings', 'view_modes')"
+            (change)="toggleCrossingView()">
+        </mat-slide-toggle>
+      </div> -->
+
       <div class="system-viz">
 
         <ng-container *ngIf="draft.weft_systems.length > 1">

@@ -21,7 +21,7 @@ import utilInstance from './util';
 export class Loom{
 
     draft_id = -1;
-    type: string = 'frame';
+    type: string = 'jacquard';
     epi: number = 10;
     units: string = 'in';
     width: number;
@@ -142,7 +142,7 @@ export class Loom{
       this.threading = l.threading.map(el => el);
 
       this.min_frames = l.min_frames;
-      this.num_frames = l.num_treadles;
+      this.num_frames = l.num_frames;
       this.min_treadles = l.min_treadles;
       this.num_treadles = l.num_treadles;
   
@@ -188,6 +188,10 @@ export class Loom{
 
     deleteRow(i: number){
       this.treadling.splice(i,1);
+    }
+
+    isFrame():boolean{
+      return (this.type === "frame");
     }
 
 

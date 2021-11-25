@@ -30,15 +30,48 @@
   font-size: .8em;
 }
 
+.titledata{
+  display: flex;
+  flex-direction: column;
+}
+
 .toprow{
   display: flex;
   flex-direction: row;
   line-height: 1em;
+  margin-bottom: 20px;
 }
 
+.ink-block{
+  display: flex;
+  flex-direction: column;
+  width: 42%;
+}
+
+.mat-dialog-title {
+  margin: 0px;
+  display: block;
+}
+
+.error{
+  color: #ff3860;
+}
+
+.viewonly{
+  font-size: .8em;
+}
+
+.weave_stats{
+  display: flex;
+  flex-direction: column;
+}
 
 .draft-detail-footer{
   width: 80%;
+  font-size: .8em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 

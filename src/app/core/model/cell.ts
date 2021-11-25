@@ -10,8 +10,6 @@ export class Cell {
   poles: number;
   is_up: boolean;
   is_set: boolean;
-  mask_id: number;
-
   /**
    * 
    * @param setting describes if the Cell should be set to heddle up or not. Null value leaves cell unset. 
@@ -19,7 +17,6 @@ export class Cell {
   constructor(setting: boolean) {
 
     this.poles = 0b0000;
-    this.mask_id = -1;
     if(setting === null || setting === undefined){
       this.is_set = false;
       this.is_up = false;
@@ -48,7 +45,6 @@ export class Cell {
     if(params.is_set !== undefined){
       this.is_set = params.is_set;
     }
-    this.mask_id = (params.mask_id === undefined) ? false : params.mask_id;
     this.poles = (params.poles === undefined) ? 0 : params.poles;
 
   }
@@ -173,9 +169,6 @@ export class Cell {
     return this.poles;
   }
 
-  getMaskId(){
-    return this.mask_id;
-  }
 
   /**
    * sets the value to true or false. If null, will unset the heddle
@@ -216,13 +209,6 @@ export class Cell {
     this.poles = poles;
   }
 
-  setMaskId(id: number){
-    this.mask_id = id;
-  }
-
-  unsetMaskId(){
-    this.mask_id = -1;
-  }
 
   unsetHeddle(){
     this.is_up = false;

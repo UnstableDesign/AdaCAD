@@ -53,7 +53,7 @@ export class MaterialsService {
    * @returns the offset of the new ids to the old ones
    */
   addShuttles(shuttles: Array<Shuttle>) : Array<MaterialMap>{
-    console.log(shuttles);
+
     const map: Array<MaterialMap> = [];
 
     const offset: number = this.materials.length;
@@ -108,6 +108,11 @@ export class MaterialsService {
 
   exportForSaving() : Array<Shuttle> {
     return this.materials;
+  }
+
+  getFirstShuttle()  : Shuttle {
+    if(this.materials.length === 0) return null;
+    return this.materials[0];
   }
 
 }

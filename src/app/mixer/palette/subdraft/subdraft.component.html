@@ -23,7 +23,7 @@
 				
 			<!-- <ng-container *ngIf="parent_id === -1"> -->
 		
-				<button *ngIf='parent_id === -1'
+				<button 
 				class="button is-small is-primary fas fa-expand-alt"
 				matTooltip ="edit this draft"
 				(click)="finetune()">
@@ -104,6 +104,13 @@
 				<div class='dims_and_name'>
 					<div><input matInput [(ngModel)]="tree.getDraft(id).name"> </div>
 					<div class="dims">{{tree.getDraft(id).warps}} x {{tree.getDraft(id).wefts}} </div>
+					<div *ngIf="gl.type === 'frame' && (gl.min_frames < tree.getLoom(id).num_frames || gl.min_treadles < tree.getLoom(id).num_treadles) "class="frame">
+						<span class="error">
+							<i matTooltip="This draft requires more than the {{gl.min_frames}} frames or {{gl.min_treadles}} treadles than you have specified for your loom" class="fas fa-exclamation-circle"></i> 
+						
+							{{tree.getLoom(id).num_frames}} frames,  {{tree.getLoom(id).num_treadles}} treadles</span></div>
+					
+					
 				</div>
 
 			</div>

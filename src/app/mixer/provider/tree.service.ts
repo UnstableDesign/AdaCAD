@@ -1,15 +1,16 @@
-import { K } from '@angular/cdk/keycodes';
 import { Injectable, ViewChild, ViewChildren, ViewRef } from '@angular/core';
-import { timeStamp } from 'console';
 import { cloneDeep, map } from 'lodash';
 import { Cell } from '../../core/model/cell';
-import { DraftMap } from '../../core/model/datatypes';
 import { Draft } from '../../core/model/draft';
+import { Loom } from '../../core/model/loom';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
+import { GloballoomService } from '../../core/provider/globalloom.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService } from './operation.service';
+import utilInstance from '../../core/model/util';
+
 /**
  * this class registers the relationships between subdrafts, operations, and connections
  */
@@ -42,7 +43,8 @@ export type OpNode = BaseNode & {
  }
 
  export type DraftNode = BaseNode & {
-  draft: Draft
+  draft: Draft,
+  loom: Loom
  }
 
  type Node = BaseNode | OpNode | DraftNode;
@@ -76,32 +78,43 @@ export class TreeService {
   open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
   preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
-  constructor(private ops: OperationService) { 
+  constructor(
+    private globalloom: GloballoomService,
+    private ops: OperationService) { 
   }
 
 
   /**
-   * this returns what the next id would be based on current nodes and any preloaded "additional" nodes
-   * @param additional 
+   * generates an id from the timestamp and random number (to offset effects to two functions running in the same ms)
    */
-  getUniqueId(additional: Array<number>) : number {
-    const all_ids = this.nodes.map(el => el.id)
-    .concat(additional);
+  getUniqueId() : number {
+    
+    console.log(utilInstance.generateId(8));
+    return utilInstance.generateId(8);
 
-    const max = all_ids.reduce((acc,el) => {
-      if(el > acc) return el;
-    }, -1);
 
-    console.log("unique id is ", max+1);
-    return (max+1);
   }
 
 
-  async loadOpData(id: number, name: string, params:Array<number>) : Promise<OpNode>{
-    
-    const nodes = this.nodes.filter(el => el.id === id);
+  setOpParams(id: number, params: Array<number>){
+    this.getOpNode(id).params = params;
+  }
 
-    if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+id);
+  /**
+   * loads data into an operation node from a file load or undo/redo event
+   * @param entry the upload entry associated with this node or null if there was no upload associated
+   * @param name the name of the operation
+   * @param params the parameters to input
+   * @returns the node and the entry
+   */
+  async loadOpData(entry: {prev_id: number, cur_id: number}, name: string, params:Array<number>) : Promise<{on: OpNode, entry:{prev_id: number, cur_id: number}}>{
+    
+    const nodes = this.nodes.filter(el => el.id === entry.cur_id);
+
+    if(nodes.length !== 1){
+      console.log("*** duplicate nodes at ****",nodes);
+      return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
+    } 
 
 
     const params_in = this.ops.getOp(name).params.map(el => el.value);
@@ -116,7 +129,23 @@ export class TreeService {
     (<OpNode> nodes[0]).params = params_out.slice();
 
 
-   return Promise.resolve(<OpNode> nodes[0]);
+   return Promise.resolve({on:<OpNode> nodes[0], entry});
+
+  }
+
+
+  /**
+   * call to update all local looms by the global loom setting
+   */
+  updateLooms(){
+
+    this.getDraftNodes().forEach(dn => {
+      dn.loom.overloadType(this.globalloom.type);
+      dn.loom.overloadUnits(<"in" | "cm"> this.globalloom.units);
+      dn.loom.setMinFrames(this.globalloom.min_frames);
+      dn.loom.setMinTreadles(this.globalloom.min_treadles);
+      dn.loom.recomputeLoom(dn.draft);
+    });
 
   }
 
@@ -128,7 +157,8 @@ export class TreeService {
       ref: sd.hostView,
       component: <SubdraftComponent> sd.instance,
       dirty: true, 
-      draft: cloneDeep(draft)
+      draft: cloneDeep(draft),
+      loom: null
     }
 
     sd.dirty = true;
@@ -177,42 +207,71 @@ export class TreeService {
   }
 
 
+ /**
+  * load the data into the draft node
+  * @param entry the map entry associated with this node, null if not supplied
+  * @param id the id of this node, which should match the component
+  * @param draft the draft to associate with this node
+  * @param loom the loom to associate with this node
+  * @returns the created draft node and the entry associated with this
+  */
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
-  loadDraftData(id: number, draft: Draft) : Promise<DraftNode>{
+    const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
-    const nodes = this.nodes.filter(el => el.id === id);
-
-    if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+id);
+    if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
 
     nodes[0].dirty = true;
 
+    draft.overloadId(entry.cur_id);
    (<DraftNode> nodes[0]).draft = cloneDeep(draft);
 
-   return Promise.resolve(<DraftNode> nodes[0]);
+
+   if(loom === null){
+   (<DraftNode> nodes[0]).loom = new Loom(draft, this.globalloom.min_frames, this.globalloom.min_treadles);
+   (<DraftNode> nodes[0]).loom.recomputeLoom(draft);
+   }else{
+    (<DraftNode> nodes[0]).loom = loom;
+   }
+
+
+   return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
 
-  /**called from the file loader before a compoment has been initalized */
-  loadNode(type: 'draft'|'op'|'cxn', id: number): number{
+
+  /**
+   * loads in data to the nodes, from undo/redo or new file additions.
+   * when loading new files or states, the tree will have been previously cleared. \
+   * when loading new nodes from a file into an existing workspace,new ids must be assigned to ensure they are unique
+   * nodes are loaded before the view has been inititialized 
+   * when new data is loaded, it makes sure each of the ids generated is unique
+   * @param type the type of node to create
+   * @param id the current id of the 
+   * @returns a map representating any id changes
+   */
+  loadNode(type: 'draft'|'op'|'cxn', id: number):{prev_id: number, cur_id: number}{
 
     let node: Node;
 
+  
     switch(type){
       case 'draft':
         node = <DraftNode> {
           type: type,
           ref: null,
-          id: id,
+          id: this.getUniqueId(),
           component: null,
           dirty: false,
-          draft: null
+          draft: null,
+          loom:null
         }
         break;
       case 'op': 
       node = <OpNode> {
         type: type,
         ref: null,
-        id: id,
+        id: this.getUniqueId(),
         component: null,
         dirty: false,
         params: [],
@@ -223,7 +282,7 @@ export class TreeService {
        node = {
         type: type,
         ref: null,
-        id: id,
+        id: this.getUniqueId(),
         component: null,
         dirty: false,
       }
@@ -242,7 +301,7 @@ export class TreeService {
 
 
   
-    return node.id;
+    return {prev_id: id, cur_id: node.id};
   }
 
 
@@ -306,13 +365,27 @@ export class TreeService {
 
 
   /** depends on having nodes created first so that all tree nodes are present */
-  async loadTreeNodeData(node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): Promise<TreeNode>{
+
+
+  /**
+   * this function is called from the mixer when processing file data. It depends on having all nodes created first. 
+   * @param id_map this is a map created on upload that maps uploaded ids to the current ids. 
+   * @param node_id the current node_id
+   * @param parent_id the current treenode id of the parent node
+   * @param inputs the current treenode ids for all inputs
+   * @param outputs the current treenode ids for all outputs
+   * @returns an object that holds the tree node as well as its associated map entry
+   */
+  async loadTreeNodeData(id_map: any, node_id: number, parent_id: number, inputs:Array<number>, outputs:Array<number>): Promise<{tn: TreeNode, entry: {prev_id: number, cur_id: number}}>{
+   
+    const entry = id_map.find(el => el.cur_id === node_id);
+  
+   
     const tn: TreeNode = this.getTreeNode(node_id);
-    console.log("loading", node_id, parent_id);
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
     tn.inputs = inputs.map(id => this.getTreeNode(id));
     tn.outputs = outputs.map(id => this.getTreeNode(id));
-    return Promise.resolve(tn);
+    return Promise.resolve({tn, entry});
   }
 
 
@@ -334,7 +407,7 @@ export class TreeService {
         node = <DraftNode> {
           type: type,
           ref: ref,
-          id: this.getUniqueId([]),
+          id: this.getUniqueId(),
           component: component,
           dirty: false,
           draft: null
@@ -344,7 +417,7 @@ export class TreeService {
       node = <OpNode> {
         type: type,
         ref: ref,
-        id: this.getUniqueId([]),
+        id: this.getUniqueId(),
         component: component,
         dirty: false,
         params: [],
@@ -355,7 +428,7 @@ export class TreeService {
        node = {
         type: type,
         ref: ref,
-        id: this.getUniqueId([]),
+        id: this.getUniqueId(),
         component: component,
         dirty: false,
       }
@@ -622,9 +695,10 @@ export class TreeService {
      getUpstreamOperations(id: number):Array<number>{
       let ops: Array<number> = [];
       const tn: TreeNode = this.getTreeNode(id);
+
       if(tn.inputs.length > 0){
         tn.inputs.forEach(el => {
-          if(el.node.type == 'op'){
+          if(el.node.type === 'op'){
             ops.push(el.node.id);  
           }
           ops = ops.concat(this.getUpstreamOperations(el.node.id));
@@ -661,6 +735,7 @@ export class TreeService {
      getUpstreamDrafts(id: number):Array<number>{
       let ops: Array<number> = [];
       const tn: TreeNode = this.getTreeNode(id);
+      
       if(tn.inputs.length > 0){
         tn.inputs.forEach(el => {
           if(el.node.type == 'draft'){
@@ -745,13 +820,14 @@ export class TreeService {
 
     if(out.length === res.length){
       out.forEach((output, ndx) => {
-        this.setDraft(output, res[ndx]);
+        this.setDraft(output, res[ndx],null);
         touched.push(output);
       });
     }else if(out.length > res.length){
       for(let i = res.length; i < out.length; i++){
         const dn = <DraftNode> this.getNode(out[i]);
         dn.draft = null;
+        dn.loom = null;
         dn.dirty = true;
         touched.push(out[i]);
       }
@@ -759,7 +835,7 @@ export class TreeService {
       for(let i = out.length; i < res.length; i++){
         const id = this.createNode('draft', null, null);
         const cxn = this.createNode('cxn', null, null);
-        this.loadDraftData(id, res[i]);
+        this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
         this.addConnection(parent, id, cxn);
         touched.push(id);
       }
@@ -769,12 +845,15 @@ export class TreeService {
 
   }
 
-
-  performTopLevelOps(): Promise<any> {
+/**
+ * deteremines which ops are "top level" meaning there is no op above them 
+ * @returns 
+ */
+  async performTopLevelOps(): Promise<any> {
 
     //mark all ops as dirty to start
     this.nodes.forEach(el => {
-      if(el.type == "op") el.dirty = true;
+      if(el.type === "op") el.dirty = true;
     })
 
     const top_level_nodes = 
@@ -856,6 +935,17 @@ export class TreeService {
     return draft_comps;
   }
 
+  getLoom(id: number):Loom{
+    if(id === -1) return null;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined) return null;
+    return dn.loom;
+  }
+
+  getLooms():Array<Loom>{
+    const dns = this.getDraftNodes();
+    return dns.map(el => el.loom);
+  }
 
   getDraft(id: number):Draft{
     if(id === -1) return this.preview.draft;
@@ -1181,7 +1271,7 @@ export class TreeService {
    */
   getNewDraftProxies(draft: Draft, preloaded: Array<number>){
     const node: NodeComponentProxy = {
-      node_id: this.getUniqueId(preloaded),
+      node_id: this.getUniqueId(),
       draft_id: draft.id,
       draft_visible: true,
       type: "draft",
@@ -1220,15 +1310,26 @@ export class TreeService {
     node.dirty = false;
   }
 
-  /**
-   * sets a new draft
-   * @param temp the draft to set this component to
-   */
-  setDraft(id: number, temp: Draft) {
+/**
+ * sets a new draft and loom at node specified by id. 
+ * @param id the node to update
+ * @param temp the draft to add
+ * @param loom  the loom to add (or null if a loom should be generated)
+ */
+  setDraft(id: number, temp: Draft, loom: Loom) {
 
     const dn = <DraftNode> this.getNode(id);
     if(dn.draft === null) dn.draft = temp;
     else dn.draft.reload(temp);
+    dn.draft.overloadId(id);
+
+    if(loom === null){
+      dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
+      dn.loom.recomputeLoom(temp);
+    } 
+    else dn.loom = loom;
+    dn.loom.draft_id = id;
+
     dn.dirty = true;
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
     
@@ -1338,6 +1439,17 @@ export class TreeService {
   
     }
 
+         /**
+   * exports TopLevel looms associated with this tree
+   * @returns an array of Drafts
+   */
+    exportLoomsForSaving() : Array<Loom> {
+
+      return this.getDraftNodes()
+      .filter(el => this.getSubdraftParent(el.id) === -1)
+      .map(el => el.loom);
+  
+    }
 
 
  

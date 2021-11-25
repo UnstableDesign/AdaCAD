@@ -74,15 +74,15 @@ export class TabComponent implements OnInit {
 
   }
 
-  loadGeneratedDraft(id: number){
-    console.log('hi'+id);
-    //scan through generated_dafts and get the one with this id. 
-    const draft: Draft = this.generated_drafts.find(el => el.id == id);
+  // loadGeneratedDraft(id: number){
+  //   console.log('hi'+id);
+  //   //scan through generated_dafts and get the one with this id. 
+  //   const draft: Draft = this.generated_drafts.find(el => el.id == id);
 
-    //emit that draft ot the parent and tell the parent to load it. 
-    if(draft != undefined) this.onDraftSelected.emit(draft);
+  //   //emit that draft ot the parent and tell the parent to load it. 
+  //   if(draft != undefined) this.onDraftSelected.emit(draft);
 
 
-  }
+  // }
 
 }

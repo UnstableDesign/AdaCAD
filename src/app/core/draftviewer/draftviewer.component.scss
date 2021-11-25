@@ -18,6 +18,12 @@ canvas{
   margin-top: 10px;
 }
 
+#draft-container{
+  display: block;
+  max-height: 60vh;
+  overflow: scroll;
+}
+
 #draft-scale-container{
   margin: auto;
   border: #fff;

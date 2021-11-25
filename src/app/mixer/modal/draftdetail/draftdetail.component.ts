@@ -8,6 +8,7 @@ import { OperationService } from '../../provider/operation.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { WeaverComponent } from '../../../weaver/weaver.component';
 import { MaterialsService } from '../../../core/provider/materials.service';
+import { GloballoomService } from '../../../core/provider/globalloom.service';
 
 
 /**
@@ -43,6 +44,7 @@ export class DraftdetailComponent implements OnInit {
 
   scrollingSubscription: any;
 
+  viewonly: boolean = false;
 
 
   constructor(private dialogRef: MatDialogRef<DraftdetailComponent>,
@@ -51,7 +53,8 @@ export class DraftdetailComponent implements OnInit {
              private inks: InkService,
              private dm: DesignmodesService,
              private ops: OperationService,
-             private ms: MaterialsService) { 
+             private ms: MaterialsService,
+             private gl: GloballoomService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()
@@ -61,21 +64,13 @@ export class DraftdetailComponent implements OnInit {
 
                this.draft = data.draft;
                this.ink = data.ink;
+               this.loom = data.loom;
+               this.viewonly = data.viewonly;
                console.log('this.ink:', this.ink);
 
-               this.draft.computeYarnPaths(this.ms.getShuttles());
 
 
-
-              //default loom
-               this.loom = new Loom(this.draft, 8, 10);
-               this.dm.selectDesignMode('jacquard', 'loom_types');
-               this.loom.type = "jacquard";
-
-
-               //this.loom.recomputeLoom(this.draft);
-
-              
+          
                
     
 

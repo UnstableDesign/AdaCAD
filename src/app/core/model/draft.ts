@@ -4,11 +4,12 @@ import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
 import { Selection } from '../../core/model/selection';
-import { Point, Interlacement } from './datatypes';
+import { crossType, Interlacement, Crossing } from './datatypes';
 
 import * as _ from 'lodash';
 import { SelectionComponent } from '../draftviewer/selection/selection.component';
 import { MaterialsService } from '../provider/materials.service';
+import utilInstance from './util';
 
 
 /**
@@ -18,7 +19,7 @@ import { MaterialsService } from '../provider/materials.service';
  * @param a unique id for this draft
  */
 export class Draft{
-  name: string = "adacad_draft";
+  name: string = "unnamed draft";
   id: number = -1;
 
   pattern: Array<Array<Cell>> = [[new Cell(false)]]; // the single design pattern
@@ -27,7 +28,7 @@ export class Draft{
   //   new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#ffffff", thickness: 100, type: 0, notes: ""}), 
   //   new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
   
-    notes: string = "";
+  notes: string = "";
 
   //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number> = [0];
@@ -58,7 +59,7 @@ export class Draft{
    * pattern
    */
   constructor({...params}) {
-    this.id = Date.now();
+    this.id = utilInstance.generateId(8);
     //set warps and weft
     if(params.wefts === undefined){
       if(params.pattern === undefined){
@@ -83,7 +84,7 @@ export class Draft{
     //parse the input pattern
     this.pattern = this.parsePattern(params.pattern);
    
-    this.rowShuttleMapping = this.initMapping(this.wefts, 0);
+    this.rowShuttleMapping = this.initMapping(this.wefts, 1);
     this.rowSystemMapping = this.initMapping(this.wefts, 0);
     this.colShuttleMapping = this.initMapping(this.warps, 0);
     this.colSystemMapping = this.initMapping(this.warps, 0);
@@ -1223,9 +1224,56 @@ getNextPath(paths, i){
 
 }
 
+/** return the value of the heddle at i, j or null if no heddle */
+getHeddle(i: number, j: number) : boolean {
+  if(i > this.pattern.length || j > this.pattern[0].length) return null;
+  return this.pattern[i][j].getHeddle();
+}
+
+
+/**
+ * takes a position and returns the crossing along its bottom boundary
+ * @param i 
+ * @param j 
+ * @returns 
+ */
+getCrossingType(i: number, j: number) : crossType{
+
+  const h: boolean = this.getHeddle(i, j);
+  const next: boolean = this.getHeddle(i+1, j);
+
+  if(h === next) return {t:null, b:null};
+  
+  return <crossType>{t: h, b: next};
+}
+
+/**
+ * returns information about the relationship between two neighboring draft cells (in weft direction)
+ * stores information only when the yarn from unset and/or bottom to top between cell i and cell i+1
+ * @returns and array represnting crossings in the weft direction. 
+ */
+getRelationalDraft() : Array<Array<Crossing>> {
+
+ //Classify all cells
+  const all_warp_crosses: Array<Array<Crossing>> = this.pattern.map((row, i) =>{
+    return row.map((cell, j) => {
+      return {j:j, type: this.getCrossingType(i, j)} 
+    }); 
+  });
+
+  //filter out any "FLOATS"
+  const sparce: Array<Array<Crossing>> = all_warp_crosses.map(row => {
+    return row.filter(crossing => crossing.type !== {t:null, b:null})
+  })
+
+  return sparce;
+
+}
+
+
 computeYarnPaths(shuttles: Array<Shuttle>){
 
-    //unset_all
+    // //unset_all
     for(let i = 0; i < this.pattern.length; i++){
       for(let j = 0; j < this.pattern[i].length; j++){
         this.pattern[i][j].unsetPoles();
@@ -1358,145 +1406,145 @@ computeYarnPaths(shuttles: Array<Shuttle>){
 
   }
 
-  /**
-   * iterates through the draft calculates the directinaliity and position of each yarn
-   * this iteratioon takes into account unset yarns which indicate that no weft yarn travels through a given cell
-   */
-  computeYarnPathsWithUnset(shuttles: Array<Shuttle>){
+  // /**
+  //  * iterates through the draft calculates the directinaliity and position of each yarn
+  //  * this iteratioon takes into account unset yarns which indicate that no weft yarn travels through a given cell
+  //  */
+  // computeYarnPathsWithUnset(shuttles: Array<Shuttle>){
 
-    //unset_all
-    for(let i = 0; i < this.pattern.length; i++){
-      for(let j = 0; j < this.pattern[i].length; j++){
-        this.pattern[i][j].unsetPoles();
-      }
-    }
+  //   //unset_all
+  //   for(let i = 0; i < this.pattern.length; i++){
+  //     for(let j = 0; j < this.pattern[i].length; j++){
+  //       this.pattern[i][j].unsetPoles();
+  //     }
+  //   }
 
 
-    for (var l = 0; l < shuttles.length; l++) {
+  //   for (var l = 0; l < shuttles.length; l++) {
 
-      // Draw each shuttle on by one.
-      var shuttle = shuttles[l];
+  //     // Draw each shuttle on by one.
+  //     var shuttle = shuttles[l];
 
-      //acc is an array of row_ids that are assigned to this shuttle
-      const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
+  //     //acc is an array of row_ids that are assigned to this shuttle
+  //     const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
 
-      //screen rows are reversed to go from bottom to top
-      //[row index] -> (indexes where there is interlacement)
-      let path = [];
-      for (var i = 0; i < acc.length ; i++) {
+  //     //screen rows are reversed to go from bottom to top
+  //     //[row index] -> (indexes where there is interlacement)
+  //     let path = [];
+  //     for (var i = 0; i < acc.length ; i++) {
        
-        //this gets the row
-        const row_values = this.pattern[acc[i]];
+  //       //this gets the row
+  //       const row_values = this.pattern[acc[i]];
 
         
-        const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
-        const unset_cells = row_values.reduce((unsets, v, idx) => !v.isSet() ? unsets.concat([idx]) : unsets, []);
+  //       const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
+  //       const unset_cells = row_values.reduce((unsets, v, idx) => !v.isSet() ? unsets.concat([idx]) : unsets, []);
 
-        //only push the rows that are not completely unset
-        if(unset_cells.length < row_values.length){
-          path.push({row: acc[i], unsets: unset_cells, overs:overs});
-        }
+  //       //only push the rows that are not completely unset
+  //       if(unset_cells.length < row_values.length){
+  //         path.push({row: acc[i], unsets: unset_cells, overs:overs});
+  //       }
       
-      }
+  //     }
 
-      var started = false;
-      var last = {
-        row: 0,
-        ndx: 0
-      };
+  //     var started = false;
+  //     var last = {
+  //       row: 0,
+  //       ndx: 0
+  //     };
 
-      path = path.reverse();
+  //     path = path.reverse();
 
 
-      for(let k = 0; k < path.length; k++){
+  //     for(let k = 0; k < path.length; k++){
 
-        let row:number = parseInt(path[k].row); 
-        let overs:Array<number> = path[k].overs; 
+  //       let row:number = parseInt(path[k].row); 
+  //       let overs:Array<number> = path[k].overs; 
 
-        let next_path = this.getNextPath(path, k);
+  //       let next_path = this.getNextPath(path, k);
 
-        let min_ndx:number = overs.shift();
-        let max_ndx:number = overs.pop();
+  //       let min_ndx:number = overs.shift();
+  //       let max_ndx:number = overs.pop();
         
-        let next_min_ndx:number;
-        let next_max_ndx:number;
+  //       let next_min_ndx:number;
+  //       let next_max_ndx:number;
         
-        if(next_path.row !== -1 ){
+  //       if(next_path.row !== -1 ){
          
-          next_max_ndx = next_path.overs[next_path.overs.length-1];
-          next_min_ndx = next_path.overs[0];
+  //         next_max_ndx = next_path.overs[next_path.overs.length-1];
+  //         next_min_ndx = next_path.overs[0];
 
-        }else{
-          next_min_ndx = min_ndx;
-          next_max_ndx = max_ndx;
-        }  
+  //       }else{
+  //         next_min_ndx = min_ndx;
+  //         next_max_ndx = max_ndx;
+  //       }  
 
 
 
-        let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
+  //       let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
 
-        if(moving_left){
-          if(started) max_ndx = Math.max(max_ndx, last.ndx);
-          min_ndx = Math.min(min_ndx, next_min_ndx);
-        } else {
-          max_ndx = Math.max(max_ndx, next_max_ndx);
-          if(started) min_ndx = Math.min(min_ndx, last.ndx);
+  //       if(moving_left){
+  //         if(started) max_ndx = Math.max(max_ndx, last.ndx);
+  //         min_ndx = Math.min(min_ndx, next_min_ndx);
+  //       } else {
+  //         max_ndx = Math.max(max_ndx, next_max_ndx);
+  //         if(started) min_ndx = Math.min(min_ndx, last.ndx);
 
-        }
+  //       }
        
-        //draw upwards if required
-        if(started){
+  //       //draw upwards if required
+  //       if(started){
 
           
-         // console.log("row/last.row", row, last.row);
-          // for(let j = last.row-1; j > row; j--){
-          //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
-          //  else this.setNorthSouth(j, last.ndx-1);
-          // }
-        }
+  //        // console.log("row/last.row", row, last.row);
+  //         // for(let j = last.row-1; j > row; j--){
+  //         //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
+  //         //  else this.setNorthSouth(j, last.ndx-1);
+  //         // }
+  //       }
 
-        //set by lookiing at the ends ends
-        if(moving_left){
+  //       //set by lookiing at the ends ends
+  //       if(moving_left){
 
-          if(started){
-             this.setSouth(row,max_ndx+1); //set where it came from
-          } 
+  //         if(started){
+  //            this.setSouth(row,max_ndx+1); //set where it came from
+  //         } 
           
-          this.setWest(row, max_ndx+1);
+  //         this.setWest(row, max_ndx+1);
 
-          this.setNorth(row, min_ndx-1);
-          this.setEast(row, min_ndx-1);
+  //         this.setNorth(row, min_ndx-1);
+  //         this.setEast(row, min_ndx-1);
 
-          last.ndx = min_ndx;
+  //         last.ndx = min_ndx;
 
-        }else{
+  //       }else{
 
-          if(started){
-            this.setSouth(row, min_ndx-1);
-          }
+  //         if(started){
+  //           this.setSouth(row, min_ndx-1);
+  //         }
 
-          this.setEast(row, min_ndx-1);
+  //         this.setEast(row, min_ndx-1);
           
-          this.setNorth(row, max_ndx+1);
-          this.setWest(row, max_ndx+1);
+  //         this.setNorth(row, max_ndx+1);
+  //         this.setWest(row, max_ndx+1);
           
-          last.ndx = max_ndx;
+  //         last.ndx = max_ndx;
 
-        } 
+  //       } 
 
-        //set in between
-        for(i = min_ndx; i <= max_ndx; i++){
-           this.setEastWest(row, i); 
-        }
+  //       //set in between
+  //       for(i = min_ndx; i <= max_ndx; i++){
+  //          this.setEastWest(row, i); 
+  //       }
 
-        started = true;
-        last.row = row;
+  //       started = true;
+  //       last.row = row;
        
-      } 
-    }
+  //     } 
+  //   }
         
 
-  }
+  // }
 
 
 
