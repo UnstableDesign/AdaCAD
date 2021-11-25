@@ -554,7 +554,6 @@ export class PaletteComponent implements OnInit{
 
     return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null)
       .then(d => {
-        d.dn.draft.setName("draft_"+id);
         return Promise.resolve(subdraft.instance);
         }
       )

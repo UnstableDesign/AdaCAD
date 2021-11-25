@@ -9,6 +9,8 @@ import { ConnectionComponent } from '../palette/connection/connection.component'
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService } from './operation.service';
+import utilInstance from '../../core/model/util';
+
 /**
  * this class registers the relationships between subdrafts, operations, and connections
  */
@@ -86,8 +88,11 @@ export class TreeService {
    * generates an id from the timestamp and random number (to offset effects to two functions running in the same ms)
    */
   getUniqueId() : number {
-    const stamp = Date.now() + Math.ceil(100* Math.random());
-    return stamp;
+    
+    console.log(utilInstance.generateId(8));
+    return utilInstance.generateId(8);
+
+
   }
 
 
@@ -106,7 +111,10 @@ export class TreeService {
     
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
-    if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
+    if(nodes.length !== 1){
+      console.log("*** duplicate nodes at ****",nodes);
+      return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
+    } 
 
 
     const params_in = this.ops.getOp(name).params.map(el => el.value);
@@ -231,15 +239,6 @@ export class TreeService {
 
   }
 
-  /**
-   * checks to see if a given id is unique 
-   * @param id 
-   * @returns 
-   */
-  idIsUnique(id:number){
-    return (this.nodes.find(el => el.id === id) === undefined) ? true : false; 
-  }
-
 
   /**
    * loads in data to the nodes, from undo/redo or new file additions.
@@ -255,14 +254,13 @@ export class TreeService {
 
     let node: Node;
 
-    let cur_id:number = (this.idIsUnique(id)) ? id : this.getUniqueId();
-
+  
     switch(type){
       case 'draft':
         node = <DraftNode> {
           type: type,
           ref: null,
-          id: cur_id,
+          id: this.getUniqueId(),
           component: null,
           dirty: false,
           draft: null,
@@ -273,7 +271,7 @@ export class TreeService {
       node = <OpNode> {
         type: type,
         ref: null,
-        id: cur_id,
+        id: this.getUniqueId(),
         component: null,
         dirty: false,
         params: [],
@@ -284,7 +282,7 @@ export class TreeService {
        node = {
         type: type,
         ref: null,
-        id: cur_id,
+        id: this.getUniqueId(),
         component: null,
         dirty: false,
       }
@@ -695,9 +693,9 @@ export class TreeService {
    * @returns an array of operation ids that influence this draft
    */
      getUpstreamOperations(id: number):Array<number>{
-       console.log("getting upstream from", id);
       let ops: Array<number> = [];
       const tn: TreeNode = this.getTreeNode(id);
+
       if(tn.inputs.length > 0){
         tn.inputs.forEach(el => {
           if(el.node.type === 'op'){
@@ -737,6 +735,7 @@ export class TreeService {
      getUpstreamDrafts(id: number):Array<number>{
       let ops: Array<number> = [];
       const tn: TreeNode = this.getTreeNode(id);
+      
       if(tn.inputs.length > 0){
         tn.inputs.forEach(el => {
           if(el.node.type == 'draft'){

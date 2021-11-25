@@ -1003,7 +1003,7 @@ export class OperationService {
         min: 0,
         max: 1,
         value: 0,
-        dx: '0 for S, 1 for Z'
+        dx: '0 for S twist, 1 for Z twist'
         }
       ],
       max_inputs: 1,

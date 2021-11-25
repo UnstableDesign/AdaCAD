@@ -416,6 +416,7 @@ class Util {
    */
   public getMostCommon(vals: Array<any>): any{
 
+
     const freq: Array<{i: any,count: any}>  = vals.reduce((acc, el) => {
       const ndx = acc.findIndex(acc_el => acc_el.i === el);  
       if(ndx === -1){
@@ -428,8 +429,10 @@ class Util {
 
     const common:{i: any,count: any} = freq.reduce((acc, el) => {
       if(el.count > acc.count) return el;
+      else return acc;
     }, {i:null, count: 0});
 
+    console.log("common ", common)
     return common.i;
   }
 
@@ -793,6 +796,16 @@ class Util {
     }
     return pattern;
 }
+
+                                                                          
+                                                                                                                   
+  // generateId :: Integer -> String                                                                                                  
+  generateId = (len:number) : number => {                              
+    const arr = new Uint8Array((len || 40) / 2)                                                                  
+    window.crypto.getRandomValues(arr)            
+    return parseInt(arr.join(''))                                                                                  
+  }                                                                                                                
+
 
 
 }

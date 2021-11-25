@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
@@ -134,7 +134,7 @@ export class MixerComponent implements OnInit {
     this.palette.clearComponents();
     this.processFileData(result.data).then(
       this.palette.changeDesignmode('move')
-    );
+    ).catch(console.error);
     
   }
 
@@ -248,11 +248,17 @@ export class MixerComponent implements OnInit {
       }
     ).then(treenodes => {
 
+      console.log("returned ", treenodes.map(el => el.tn.node.id));
+      console.log("tree nodes ", this.tree.nodes.map(el => el.id));
+      console.log("tree treenodes ", this.tree.tree.map(el => el.node.id));
 
       const seednodes: Array<{prev_id: number, cur_id: number}> = treenodes
         .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
         .map(tn => tn.entry);
      
+
+      console.log("seed ndoes", seednodes);
+
       const seeds: Array<{entry, id, draft, loom}> = seednodes
       .map(sn =>  {
 
@@ -275,7 +281,7 @@ export class MixerComponent implements OnInit {
 
 
           const located_loom = data.looms.find(loom => loom.draft_id === draft_node.draft_id);
-          if(located_loom === undefined) console.error("could not find loom with this draft id");
+          if(located_loom === undefined) console.error("could not find loom with this draft id ", draft_node.draft_id);
           else l = located_loom;
           
           l.recomputeLoom(d);
@@ -297,6 +303,8 @@ export class MixerComponent implements OnInit {
         }
       });
 
+      console.log("seed nodes mapped ", seeds);
+
 
       
       const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom));
@@ -309,7 +317,7 @@ export class MixerComponent implements OnInit {
       return Promise.all([seed_fns, op_fns]);
 
     }).then(el => {
-      console.log(this.tree.tree);
+      console.log("performing top level ops");
        return  this.tree.performTopLevelOps();
     })
     .then(el => {

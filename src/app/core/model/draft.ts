@@ -9,6 +9,7 @@ import { crossType, Interlacement, Crossing } from './datatypes';
 import * as _ from 'lodash';
 import { SelectionComponent } from '../draftviewer/selection/selection.component';
 import { MaterialsService } from '../provider/materials.service';
+import utilInstance from './util';
 
 
 /**
@@ -18,7 +19,7 @@ import { MaterialsService } from '../provider/materials.service';
  * @param a unique id for this draft
  */
 export class Draft{
-  name: string = "adacad_draft";
+  name: string = "unnamed draft";
   id: number = -1;
 
   pattern: Array<Array<Cell>> = [[new Cell(false)]]; // the single design pattern
@@ -58,7 +59,7 @@ export class Draft{
    * pattern
    */
   constructor({...params}) {
-    this.id = Date.now();
+    this.id = utilInstance.generateId(8);
     //set warps and weft
     if(params.wefts === undefined){
       if(params.pattern === undefined){
