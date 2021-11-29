@@ -89,7 +89,6 @@ export class TreeService {
    */
   getUniqueId() : number {
     
-    console.log(utilInstance.generateId(8));
     return utilInstance.generateId(8);
 
 

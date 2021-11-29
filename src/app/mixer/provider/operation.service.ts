@@ -1594,16 +1594,14 @@ export class OperationService {
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         if(inputs.length === 0) return Promise.resolve([]);
         const inputDraft = inputs[0]
+
+        const loom:Loom = new Loom(inputDraft, 8, 10);
+        loom.recomputeLoom(inputDraft);
+        let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
+        const draft_seed =  utilInstance.patternToSize(pattern, 48, 48);
+
   
-        return this.vae.loadModels('german')
-          .then(() => {
-            const loom:Loom = new Loom(inputDraft, 8, 10);
-            loom.recomputeLoom(inputDraft);
-            let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
-          
-            return utilInstance.patternToSize(pattern, 48, 48);
-          })
-          .then(draftSeed=> this.vae.generateFromSeed(draftSeed))
+        return this.vae.generateFromSeed(draft_seed, 'german')
           .then(suggestions => suggestions.map(suggestion => {
                   const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
                   const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
@@ -1635,16 +1633,14 @@ export class OperationService {
         perform: (inputs: Array<Draft>, input_params: Array<number>) => {
           if(inputs.length === 0) return Promise.resolve([]);
           const inputDraft = inputs[0]
+
+          const loom:Loom = new Loom(inputDraft, 8, 10);
+          loom.recomputeLoom(inputDraft);
+          let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
+        
+          const draft_seed =  utilInstance.patternToSize(pattern, 52, 52);
     
-          return this.vae.loadModels('crackle_weave')
-            .then(() => {
-              const loom:Loom = new Loom(inputDraft, 8, 10);
-              loom.recomputeLoom(inputDraft);
-              let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
-            
-              return utilInstance.patternToSize(pattern, 52, 52);
-            })
-            .then(draftSeed=> this.vae.generateFromSeed(draftSeed))
+          return this.vae.generateFromSeed(draft_seed, 'crackle_weave')
             .then(suggestions => suggestions.map(suggestion => {
                     const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
                     const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
@@ -1680,7 +1676,6 @@ export class OperationService {
             threading.name = "threading_"+inputs[0].name;
 
             l.threading.forEach((frame, j) =>{
-              console.log("looping", frame, j)
               if(frame !== -1) threading.pattern[frame][j].setHeddle(true);
             });
 

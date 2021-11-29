@@ -2,27 +2,70 @@ import * as tf from '@tensorflow/tfjs'
 import { std, mean } from 'mathjs'
 import { Injectable } from '@angular/core';
 
+
+interface Model{
+    name: string,
+    decoder: any,
+    encoder_log_var: any, 
+    encoder_mean: any
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class VaeService {
   private epsilons: any = [];
   private batch_size: number = 16;
-  private decoder;
-  private encoder_log_var;
-  private encoder_mean;
+  private models: Array<Model> = [];
+  private collections: Array<string> = ['crackle_weave', 'german'];
   
-  constructor() { }
+  /**
+   * add models on load
+   */
+  constructor() { 
 
-  async loadModels(collection: string) {
-      console.log("collection", collection);
-    this.decoder = await tf.loadLayersModel('../../../assets/' + collection + '/decoder/model.json');
-    this.encoder_log_var = await tf.loadLayersModel('../../../assets/' + collection + '/encoder_log_var/model.json');
-    this.encoder_mean = await tf.loadLayersModel('../../../assets/' + collection + '/encoder_mean/model.json');
-}
 
-printDecoder(){
-    console.log(this.decoder);
+    this.collections.forEach(
+        collection =>  {
+
+            return Promise.all(
+                [tf.loadLayersModel('../../../assets/' + collection + '/decoder/model.json'), 
+                tf.loadLayersModel('../../../assets/' + collection + '/encoder_log_var/model.json'),
+                tf.loadLayersModel('../../../assets/' + collection + '/encoder_mean/model.json')
+            ]).then(model => {
+                 this.models.push(<Model> {
+                    name: collection,
+                    decoder: model[0],
+                    encoder_log_var:model [1],
+                    encoder_mean: model[2]
+                });
+                }
+            ).catch(console.error);
+
+           
+        }
+    ) 
+
+  
+
+ 
+
+
+
+  }
+
+  getModel(name: string) : Model {
+      const m = this.models.find(el => el.name === name);
+      if(m === undefined) console.error("cannot find model with name ", name);
+      return m;
+  }
+
+
+printDecoder(collection: string){
+    
+    const m: Model = this.getModel(collection);
+    console.log(m.decoder);
 }
 
 cleanDraft(draft) {
@@ -43,7 +86,10 @@ cleanDraft(draft) {
     return thresholded_draft;
 }
 
-async generateFromSeed(draft) {
+async generateFromSeed(draft, collection) {
+
+    const m: Model = this.getModel(collection);
+
     var newDraft = [];
     for (var i = 0; i < draft.length; i++) {
         newDraft.push([]);
@@ -51,8 +97,11 @@ async generateFromSeed(draft) {
             newDraft[i].push([draft[i][j]]);
         }
     }
-    let mean = this.encoder_mean.predict(tf.tensor([newDraft]));
-    let log_var = this.encoder_log_var.predict(tf.tensor([newDraft]));
+
+    console.log("new draft is", newDraft);
+
+    let mean = m.encoder_mean.predict(tf.tensor([newDraft]));
+    let log_var = m.encoder_log_var.predict(tf.tensor([newDraft]));
 
     let epsilon_shape = mean.shape;
     this.epsilons.push([]);
@@ -65,7 +114,7 @@ async generateFromSeed(draft) {
     
     var z_sample = tf.add(tf.add(mean, tf.exp(log_var)), this.epsilons[this.epsilons.length-1]);
     let tile_multiple = [this.batch_size, 1];
-    let x_decoded = this.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
+    let x_decoded = m.decoder.predict(tf.tile(z_sample, tile_multiple), this.batch_size);
     var draftSuggestions = [];
     await x_decoded.array().then(array => 
         {
