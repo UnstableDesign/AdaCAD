@@ -25,6 +25,7 @@ export interface Operation {
 
  export interface OperationClassification{
   category: string,
+  dx: string,
   ops: Array<Operation> 
  }
  
@@ -287,8 +288,8 @@ export class OperationService {
     }
 
     const overlay: Operation = {
-      name: 'overlay',
-      dx: 'overlays the two drafts together. offsets the second (and further drafts) by the input values',
+      name: 'overlay, (a,b) => (a OR b)',
+      dx: 'keeps any region that is marked as black/true in either draft',
       params: [
         {name: 'left offset',
         min: 0,
@@ -303,7 +304,7 @@ export class OperationService {
         dx: "the amount to offset the overlaying inputs from the top"
         }
       ],
-      max_inputs: 100,
+      max_inputs: 2,
       perform: (inputs: Array<Draft>, input_params: Array<number>)=> {
 
         if(inputs.length < 1) return Promise.resolve([]);
@@ -347,8 +348,8 @@ export class OperationService {
     }
 
     const atop: Operation = {
-      name: 'set atop',
-      dx: 'sets the drafts on top of eachother, with the first draft on bottom and remaining on top',
+      name: 'set atop, (a, b) => a',
+      dx: 'sets cells of a on top of b, no matter the value of b',
       params: [
         {name: 'left offset',
         min: 0,
@@ -363,7 +364,7 @@ export class OperationService {
         dx: "the amount to offset the overlaying inputs from the top"
         }
       ],
-      max_inputs: 100,
+      max_inputs: 2,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
 
         if(inputs.length < 1) return Promise.resolve([]);
@@ -406,8 +407,8 @@ export class OperationService {
     }
 
     const knockout: Operation = {
-      name: 'knockout',
-      dx: 'overlays the input drafts. Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
+      name: 'knockout, (a, b) => (a XOR b)',
+      dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
       params: [
         {name: 'left offset',
         min: 0,
@@ -422,7 +423,7 @@ export class OperationService {
         dx: "the amount to offset the overlaying inputs from the top"
         }
       ],
-      max_inputs: 100,
+      max_inputs: 2,
       perform: (inputs: Array<Draft>, input_params: Array<number>)=> {
 
         if(inputs.length < 1) return Promise.resolve([]);
@@ -465,8 +466,8 @@ export class OperationService {
     }
 
     const mask: Operation = {
-      name: 'mask',
-      dx: 'only shows areas of the first draft that are marked as "up" in the second draft',
+      name: 'mask, (a,b) => (a AND b)',
+      dx: 'only shows areas of the first draft in regions where the second draft has black/true cells',
       params: [
         {name: 'left offset',
         min: 0,
@@ -481,7 +482,7 @@ export class OperationService {
         dx: "the amount to offset the overlaying inputs from the top"
         }
       ],
-      max_inputs: 100,
+      max_inputs: 2,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
 
         if(inputs.length < 1) return Promise.resolve([]);
@@ -524,8 +525,8 @@ export class OperationService {
     }
 
     const erase: Operation = {
-      name: 'erase',
-      dx: 'erases  areas of the first draft that are marked as "up" in the second draft',
+      name: 'erase,  (a,b) => (NOT a OR b)',
+      dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
       params: [
         {name: 'left offset',
         min: 0,
@@ -540,7 +541,7 @@ export class OperationService {
         dx: "the amount to offset the overlaying inputs from the top"
         }
       ],
-      max_inputs: 100,
+      max_inputs: 2,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
 
         if(inputs.length < 1) return Promise.resolve([]);
@@ -634,38 +635,50 @@ export class OperationService {
 
     const tabby: Operation = {
       name: 'tabby',
-      dx: 'generates or fills input a draft with tabby structure',
-      params: [],
+      dx: 'also known as plain weave generates or fills input a draft with tabby structure or derivitae',
+      params: [
+        {name: 'repeats',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: 'the number or reps to adjust evenly through the structure'
+        },
+      ],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
 
 
+        const width: number = input_params[0]*2;
+        const height: number = input_params[0]*2;
+
+        let alt_rows, alt_cols, val: boolean = false;
         const pattern:Array<Array<Cell>> = [];
-        for(let i = 0; i < 2; i++){
+        for(let i = 0; i < height; i++){
+          alt_rows = (i < input_params[0]);
           pattern.push([]);
-          for(let j = 0; j < 2; j++){
-            pattern[i][j] = (i == j) ? new Cell(true) : new Cell(false);
+          for(let j = 0; j < width; j++){
+            alt_cols = (j < input_params[0]);
+            val = (alt_cols && alt_rows) || (!alt_cols && !alt_rows);
+            pattern[i][j] =  new Cell(val);
           }
         }
 
         let outputs: Array<Draft> = [];
         if(inputs.length == 0){
-          const d: Draft = new Draft({warps: 2, wefts: 2, pattern: pattern});
+          const d: Draft = new Draft({warps: width, wefts: height, pattern: pattern});
           outputs.push(d);
         }else{
-           outputs = inputs.map(input => {
+          outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
-              d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
-              d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
-              d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
-              d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
             return d;
           });
         }
 
         return Promise.resolve(outputs);
-      }        
+      
+
+      }
     }
 
     const basket: Operation = {
@@ -916,6 +929,61 @@ export class OperationService {
 
             return d;
         });
+
+        return Promise.resolve(outputs);
+      }
+          
+    }
+
+    const warp_rep: Operation = {
+      name: 'warprep',
+      dx: 'specifies an alternating pattern along the warp',
+      params: [
+        {name: 'unders',
+        min: 1,
+        max: 100,
+        value: 2,
+        dx: 'number of weft unders in a pic'
+        },
+        {name: 'overs',
+        min: 1,
+        max: 100,
+        value: 2,
+        dx: 'number of weft overs in a pic'
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+
+
+        const sum: number = input_params[0] + input_params[1];
+        const repeats: number = input_params[2];
+        const width: number = sum;
+        const height: number = repeats * 2;
+
+        let alt_rows, alt_cols, val: boolean = false;
+        const pattern:Array<Array<Cell>> = [];
+        for(let i = 0; i < height; i++){
+          alt_rows = (i < repeats);
+          pattern.push([]);
+          for(let j = 0; j < width; j++){
+            alt_cols = (j % sum < input_params[0]);
+            val = (alt_cols && alt_rows) || (!alt_cols && !alt_rows);
+            pattern[i][j] =  new Cell(val);
+          }
+        }
+
+        let outputs: Array<Draft> = [];
+        if(inputs.length == 0){
+          const d: Draft = new Draft({warps: width, wefts: height, pattern: pattern});
+          outputs.push(d);
+        }else{
+          outputs = inputs.map(input => {
+            const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, 'mask');
+            return d;
+          });
+        }
 
         return Promise.resolve(outputs);
       }
@@ -1789,35 +1857,55 @@ export class OperationService {
 
 
     //** Give it a classification here */
+
+    this.classification.push(
+      {category: 'structure',
+      dx: "0-1 inputs, 1 output, algorithmically generates weave structures based on parameters",
+      ops: [tabby, twill, satin, basket, rib, random]}
+    );
+
     this.classification.push(
       {category: 'block design',
-      ops: [rect, clear, set, unset]
+      dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
+      ops: [rect, crop, margin, tile]
     }
     );
-
-    this.classification.push(
-      {category: 'structures',
-      ops: [tabby, twill, satin, basket, rib, random, variants]}
-    );
-
     this.classification.push(
       {category: 'transformations',
-      ops: [fill, invert, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, margin, crop]}
-    );
+      dx: "1 input, 1 output, applies an operation to the input that transforms it in some way",
+      ops: [invert, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, margin, crop, clear, set, unset]}
+      );
 
     this.classification.push(
-      {category: 'compose',
-      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
-    );
+        {category: 'combine',
+        dx: "2+ inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
+        ops: [interlace, layer, joinleft, jointop]}
+  //      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
+        );
+    
+     this.classification.push(
+          {category: 'binary',
+          dx: "2 inputs, 1 output, operations take two inputs and perform binary operations on the interlacements",
+          ops: [atop, overlay, mask, knockout]}
+          );
+    
+      this.classification.push(
+            {category: 'helper',
+            dx: "variable inputs, variable outputs, supports common drafting requirements to ensure good woven structure",
+            ops: [selvedge, variants]}
+            );
 
-    this.classification.push(
-      {category: 'machine learning',
-      ops: [germanify, crackleify]}
-    );
+
+      this.classification.push(
+        {category: 'machine learning',
+        dx: "1 input, 1 output, experimental functions that attempt to apply a style from one genre of weaving to your draft. Currently, we have trained models on German Weave Drafts and Crackle Weave Drafts ",
+        ops: [germanify, crackleify]}
+      );
 
 
     this.classification.push(
       {category: 'frame loom support',
+      dx: "variable inputs, variable outputs, offer specific supports for working with frame looms",
       ops: [makeloom, drawdown]}
     );
 
