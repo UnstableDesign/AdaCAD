@@ -1,14 +1,29 @@
 .mat-stroked-button{
     margin: 0px 4px 4px 0px;
     /* background-color: #00d1b2; */
-    color: #333333;
+    background: #333333;
+    color: white;
     text-align: left;
     font-weight: bold;
 }
 
-h3{
+.mat-form-field{
+    width: 100%;
+}
+
+
+
+.op-group h3{
+    width: 95%;
     font-size: 100%;
+    font-weight: bold;
     padding: 20px 0px 10px 14px;
+}
+
+.op-group  p{
+    width: 95%;
+    font-size: .8em;
+    padding: 0px 0px 10px 14px;
 }
 
 .toprow{
