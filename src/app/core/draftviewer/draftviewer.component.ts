@@ -896,7 +896,7 @@ export class DraftviewerComponent implements OnInit {
          cx.font = "10px Arial";
 
          const sys = this.weave.getWarpSystemId(j);
-         cx.fillText(this.ss.getWeftSystemCode(sys),(dims.w*j)+dims.w/3, dims.w-(margin*3));
+         cx.fillText(this.ss.getWarpSystemCode(sys),(dims.w*j)+dims.w/3, dims.w-(margin*3));
 
 
   }

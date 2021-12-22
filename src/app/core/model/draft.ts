@@ -74,13 +74,38 @@ export class Draft{
       this.warps = params.warps;
     }
 
+    if(params.colShuttleMapping === undefined){
+      this.colShuttleMapping = this.initMapping(this.warps, 0);
+    }else{
+      this.colShuttleMapping = params.colShuttleMapping;
+    }
+
+    if(params.colSystemMapping === undefined){
+      this.colSystemMapping = this.initMapping(this.warps, 0);
+    }else{
+      this.colSystemMapping = params.colSystemMapping;
+    }
+
+    if(params.rowShuttleMapping === undefined){
+      this.rowShuttleMapping = this.initMapping(this.wefts, 1);
+    }else{
+      this.rowShuttleMapping = params.rowShuttleMapping;
+    }
+
+    if(params.rowSystemMapping === undefined){
+      this.rowSystemMapping = this.initMapping(this.wefts, 0);
+    }else{
+      this.rowSystemMapping = params.rowSystemMapping;
+    }
+
+
     //parse the input pattern
     this.pattern = this.parsePattern(params.pattern);
    
-    this.rowShuttleMapping = this.initMapping(this.wefts, 1);
-    this.rowSystemMapping = this.initMapping(this.wefts, 0);
-    this.colShuttleMapping = this.initMapping(this.warps, 0);
-    this.colSystemMapping = this.initMapping(this.warps, 0);
+    // this.rowShuttleMapping = this.initMapping(this.wefts, 1);
+    // this.rowSystemMapping = this.initMapping(this.wefts, 0);
+    // this.colShuttleMapping = this.initMapping(this.warps, 0);
+    // this.colSystemMapping = this.initMapping(this.warps, 0);
   }
 
 

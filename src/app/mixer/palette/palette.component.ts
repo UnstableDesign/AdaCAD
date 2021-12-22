@@ -1150,7 +1150,15 @@ export class PaletteComponent implements OnInit{
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
         const sd_draft = <Draft> this.tree.getDraft(obj.id);
         
-      this.createSubDraft(new Draft({wefts: sd_draft.wefts, warps: sd_draft.warps, pattern: sd_draft.pattern}), -1)
+      this.createSubDraft(new Draft(
+        {wefts: sd_draft.wefts, 
+          warps: sd_draft.warps, 
+          pattern: sd_draft.pattern, 
+          rowShuttleMapping: sd_draft.rowShuttleMapping,
+          colShuttleMapping: sd_draft.colShuttleMapping,
+          rowSystemMapping: sd_draft.rowSystemMapping,
+          colSystemMapping: sd_draft.colSystemMapping
+        }), -1)
         .then(new_sd => {
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
           new_sd.setPosition({
