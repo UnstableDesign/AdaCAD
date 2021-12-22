@@ -9,8 +9,10 @@ import { Pattern } from '../model/pattern';
 import { Shuttle } from '../model/shuttle';
 import utilInstance from '../model/util';
 import { MaterialMap, MaterialsService } from './materials.service';
+import { SystemsService } from './systems.service';
 import { Note, NotesService } from './notes.service';
 import { PatternService } from './pattern.service';
+import { System } from '../model/system';
 
 
  export interface NodeComponentProxy{
@@ -111,7 +113,8 @@ export class FileService {
     private tree: TreeService, 
     private ns: NotesService,
     private ps: PatternService,
-    private ms: MaterialsService) { 
+    private ms: MaterialsService,
+    private ss: SystemsService) { 
   
   this.status = [
     {id: 0, message: 'success', success: true},
@@ -166,9 +169,13 @@ export class FileService {
           }
         }
        
-        if(data.weft_systems !== undefined) draft.overloadWeftSystems(data.weft_systems); 
-        if(data.warp_systems !== undefined) draft.overloadWarpSystems(data.warp_systems); 
-       
+        if(data.weft_systems !== undefined){
+          data.weft_systems.forEach(el => this.ss.addWeftSystem(el));
+        }
+
+        if(data.weft_systems !== undefined){
+          data.warp_systems.forEach(el => this.ss.addWarpSystem(el));
+        }
         if(data.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(data.rowShuttleMapping); 
         if(data.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(data.colShuttleMapping); 
         if(data.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(data.rowSystemMapping); 

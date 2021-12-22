@@ -68,9 +68,8 @@ export class OperationService {
           d.fill(inputs[0].pattern, 'original');
           d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
           d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
-          d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping, inputs[0].warp_systems);
-          d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping, inputs[0].weft_systems);
-
+          d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+          d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
         }
 
 
@@ -92,8 +91,8 @@ export class OperationService {
           if(inputs.length > 0){
             d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
             d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
-            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping, inputs[0].warp_systems);
-            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping, inputs[0].weft_systems);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
           }
           return  d;
         });
@@ -120,8 +119,8 @@ export class OperationService {
           if(inputs.length > 0){
             d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
             d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
-            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping, inputs[0].warp_systems);
-            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping, inputs[0].weft_systems);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
           }
           return d;
         });
@@ -146,8 +145,8 @@ export class OperationService {
           if(inputs.length > 0){
             d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
             d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
-            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping, inputs[0].warp_systems);
-            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping, inputs[0].weft_systems);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
           }
           return d;
         });
@@ -175,8 +174,8 @@ export class OperationService {
           if(inputs.length > 0){
             d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
             d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
-            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping, inputs[0].warp_systems);
-            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping, inputs[0].weft_systems);
+            d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
           }
 
           return d;
@@ -185,7 +184,6 @@ export class OperationService {
       }        
     }
 
-    /**TO DO - handle materials */
     const interlace:Operation = {
       name: 'interlace',
       dx: 'interlace the input drafts together in alternating lines',
@@ -197,16 +195,20 @@ export class OperationService {
 
         const max_wefts:number = utilInstance.getMaxWefts(inputs);
         const max_warps:number = utilInstance.getMaxWarps(inputs);
+
         const rowSystems: Array<Array<number>> = inputs.map(el => el.rowSystemMapping);
        
         const uniqueSystemRows: Array<Array<number>> = utilInstance.makeSystemsUnique(rowSystems);
+
 
         //create a draft to hold the merged values
         const d:Draft = new Draft({warps: max_warps, wefts:(max_wefts * inputs.length)});
 
         d.pattern.forEach((row, ndx) => {
+
             const select_array: number = ndx % inputs.length; 
             const select_row: number = Math.floor(ndx / inputs.length);
+
             row.forEach((cell, j) =>{
                 if(inputs[select_array].hasCell(select_row, j)){
                     cell.setHeddle(inputs[select_array].pattern[select_row][j].getHeddle());
@@ -272,8 +274,8 @@ export class OperationService {
             if(inputs.length > 0){
               d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
               d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
-              d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping, inputs[0].warp_systems);
-              d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping, inputs[0].weft_systems);
+              d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+              d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
             }
             for(let i = 0; i < input.wefts; i++){
               for(let j = 0; j < input.warps; j++){

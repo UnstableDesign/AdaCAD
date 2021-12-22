@@ -8,6 +8,7 @@ import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/a
 import {MatChipInputEvent} from '@angular/material/chips';
 import { Draft } from '../../model/draft';
 import { MaterialsService } from '../../provider/materials.service';
+import { SystemsService } from '../../provider/systems.service';
 
 @Component({
   selector: 'app-actions',
@@ -73,7 +74,10 @@ export class ActionsComponent implements OnInit {
    @Output() onUpdateWeftShuttles: any = new EventEmitter();
 
 
-  constructor(private ms: MaterialsService, private dialog: MatDialog,
+  constructor(
+    private ms: MaterialsService, 
+    private ss: SystemsService,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<ActionsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
 
@@ -119,7 +123,7 @@ export class ActionsComponent implements OnInit {
 
         let warp_sys_id = this.idFromString((value || '').trim());
         console.log("value is ", warp_sys_id);
-        if (warp_sys_id >= 0 && warp_sys_id < this.draft.warp_systems.length) {
+        if (warp_sys_id >= 0 && warp_sys_id < this.ss.warp_systems.length) {
           this.draft.colSystemPattern.push(this.idFromString(value.trim()));
         }
         this.warpSystemCtrl.setValue(null);
@@ -144,7 +148,7 @@ export class ActionsComponent implements OnInit {
       case 'wesy':
 
         let weft_sys_id = this.idFromString((value || '').trim());
-        if (weft_sys_id >= 0 && weft_sys_id < this.draft.warp_systems.length) {
+        if (weft_sys_id >= 0 && weft_sys_id < this.ss.warp_systems.length) {
           this.draft.rowSystemPattern.push(weft_sys_id);
         }
         this.weftSystemCtrl.setValue(null);

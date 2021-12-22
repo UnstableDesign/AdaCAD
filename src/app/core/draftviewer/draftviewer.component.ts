@@ -10,14 +10,15 @@ import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
 import {cloneDeep, forEach, now} from 'lodash';
 import { FileService } from '../provider/file.service';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { SelectionComponent } from './selection/selection.component';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { PatternService } from '../provider/pattern.service';
 import { MaterialsService } from '../provider/materials.service';
+import { SystemsService } from '../provider/systems.service';
 import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { cross } from 'd3-array';
+import { System } from '../model/system';
 
 @Component({
   selector: 'app-draftviewer',
@@ -247,7 +248,8 @@ export class DraftviewerComponent implements OnInit {
     private fs: FileService,
     private dm: DesignmodesService,
     private ps: PatternService,
-    private ms: MaterialsService
+    private ms: MaterialsService,
+    private ss: SystemsService
     ) { 
 
     this.flag_recompute = false;
@@ -680,12 +682,12 @@ export class DraftviewerComponent implements OnInit {
     if(this.selection.getTargetId() === 'weft-systems'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
-        for(var j = 0; j < this.weave.weft_systems.length; j++){
+        for(var j = 0; j < this.ss.weft_systems.length; j++){
           temp_copy[i].push(false);
         }
       }
     }else if(this.selection.getTargetId()=== 'warp-systems'){
-      for(var i = 0; i < this.weave.warp_systems.length; i++){
+      for(var i = 0; i < this.ss.warp_systems.length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
           temp_copy[i].push(false);
@@ -850,7 +852,9 @@ export class DraftviewerComponent implements OnInit {
          
          cx.fillStyle = "#ffffff";  
          cx.font = "10px Arial";
-         cx.fillText(this.weave.getWeftSystemCode(i, this.render.visibleRows), dims.w/3, (dims.h*i)+3*dims.h/4);
+
+         const sys = this.weave.getWeftSystemId(i, this.render.visibleRows);
+         cx.fillText(this.ss.getWeftSystemCode(sys), dims.w/3, (dims.h*i)+3*dims.h/4);
 
   }
 
@@ -890,7 +894,9 @@ export class DraftviewerComponent implements OnInit {
   
          cx.fillStyle = "#ffffff";  
          cx.font = "10px Arial";
-         cx.fillText(this.weave.getWarpSystemCode(j),(dims.w*j)+dims.w/3, dims.w-(margin*3));
+
+         const sys = this.weave.getWarpSystemId(j);
+         cx.fillText(this.ss.getWeftSystemCode(sys),(dims.w*j)+dims.w/3, dims.w-(margin*3));
 
 
   }
@@ -1035,11 +1041,11 @@ export class DraftviewerComponent implements OnInit {
 
     if(screen_row < 0){ return; }
 
-    var newSystem = this.weave.getNextWeftSystem(draft_row);
+    var newSystem = this.ss.getNextWeftSystem(draft_row, this.weave);
 
     this.weave.rowSystemMapping[draft_row] = newSystem;
 
-    this.weave.updateSystemVisibility('weft');
+    //this.weave.updateSystemVisibility('weft');
 
     this.redraw({weft_systems: true});
 
@@ -1095,11 +1101,11 @@ export class DraftviewerComponent implements OnInit {
 
     if(col < 0){ return; }
 
-    var newSystem = this.weave.getNextWarpSystem(col);
+    var newSystem = this.ss.getNextWarpSystem(col, this.weave);
 
     this.weave.colSystemMapping[col] = newSystem;
 
-    this.weave.updateSystemVisibility('warp');
+    //this.weave.updateSystemVisibility('warp');
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
     this.redraw({warp_systems: true});
   }
@@ -1911,7 +1917,7 @@ public drawWeftEnd(top, left, shuttle){
         for(var o in overs){
             const shuttle_id = this.weave.colShuttleMapping[overs[o]];
             const system_id = this.weave.colSystemMapping[overs[o]];
-            if(this.weave.warp_systems[system_id].isVisible()) this.drawWeftUp(i, overs[o], this.ms.getShuttle(shuttle_id));
+            if(this.ss.warp_systems[system_id].isVisible()) this.drawWeftUp(i, overs[o], this.ms.getShuttle(shuttle_id));
         }
 
     }
@@ -2203,7 +2209,7 @@ public redraw(flags:any){
      for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
      
       var id = this.weave.colShuttleMapping[x];
-      var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
+      var system = this.ss.warp_systems[this.weave.colSystemMapping[x]];
       var shuttle = this.ms.getShuttle(id);
 
         if(!system.visible){
@@ -2235,7 +2241,7 @@ public redraw(flags:any){
     for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
      
       var id = this.weave.colShuttleMapping[x];
-      var system = this.weave.warp_systems[this.weave.colSystemMapping[x]];
+      var system = this.ss.warp_systems[this.weave.colSystemMapping[x]];
       var shuttle = this.ms.getShuttle(id);
 
       if(system.visible){

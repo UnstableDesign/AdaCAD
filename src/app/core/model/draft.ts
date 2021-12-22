@@ -3,12 +3,10 @@ import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
-import { Selection } from '../../core/model/selection';
 import { crossType, Interlacement, Crossing } from './datatypes';
 
 import * as _ from 'lodash';
 import { SelectionComponent } from '../draftviewer/selection/selection.component';
-import { MaterialsService } from '../provider/materials.service';
 import utilInstance from './util';
 
 
@@ -23,11 +21,7 @@ export class Draft{
   id: number = -1;
 
   pattern: Array<Array<Cell>> = [[new Cell(false)]]; // the single design pattern
-  // shuttles: Array<Shuttle> = [
-  //   new Shuttle({id: 0, name: 'shuttle 0', insert: true, visible: true, color: "#333333", thickness: 100, type: 0, notes: ""}), 
-  //   new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#ffffff", thickness: 100, type: 0, notes: ""}), 
-  //   new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
-  
+
   notes: string = "";
 
   //tracks stores row/col index, shuttle index
@@ -41,11 +35,10 @@ export class Draft{
   colSystemMapping: Array<number> = [0];
   rowSystemPattern: Array<number> = [0]; //stores a pattern used for rows
   colSystemPattern: Array<number> = [0]; //stores a pattern of ids of cols
-
   masks: Array<String> = []; //associates a mask id with a name
   
-  weft_systems: Array<System> = [new System()]; //weft-systems
-  warp_systems: Array<System> = [new System()]; //warp-systems
+ // weft_systems: Array<System> = [new System()]; //weft-systems
+  //warp_systems: Array<System> = [new System()]; //warp-systems
   
   wefts: number = 1;
   warps: number = 1;
@@ -139,8 +132,8 @@ export class Draft{
     this.pattern = this.parsePattern(d.pattern);
     this.notes = d.notes;
     // this.ms.overloadShuttles(d.shuttles);
-    this.overloadWeftSystems(d.weft_systems);
-    this.overloadWarpSystems(d.warp_systems);
+    // this.overloadWeftSystems(d.weft_systems);
+    // this.overloadWarpSystems(d.warp_systems);
     
     this.overloadRowShuttleMapping(d.rowShuttleMapping);
     this.overloadColShuttleMapping(d.colShuttleMapping);
@@ -184,28 +177,28 @@ export class Draft{
 
 
 
-  overloadWarpSystems(systems: Array<System>){
+  // overloadWarpSystems(systems: Array<System>){
 
-    if(systems.length > 0){
-      this.warp_systems = [];
-    }
+  //   if(systems.length > 0){
+  //     this.warp_systems = [];
+  //   }
 
-    systems.forEach(system => {
-      this.warp_systems.push(new System(system));
-    });
-  }
+  //   systems.forEach(system => {
+  //     this.warp_systems.push(new System(system));
+  //   });
+  // }
 
-  overloadWeftSystems(systems: Array<System>){
-      if(systems.length > 0){
-        this.weft_systems = [];
-      }
+  // overloadWeftSystems(systems: Array<System>){
+  //     if(systems.length > 0){
+  //       this.weft_systems = [];
+  //     }
 
-      systems.forEach(system => {
-        this.weft_systems.push(new System(system));
-      });
+  //     systems.forEach(system => {
+  //       this.weft_systems.push(new System(system));
+  //     });
     
     
-  }
+  // }
 
 
 
@@ -282,9 +275,8 @@ export class Draft{
   // }
 
   //gets a string from interface and updates accordingly
-  updateWarpSystemsFromPattern(pattern:Array<number>, systems: Array<System>){
+  updateWarpSystemsFromPattern(pattern:Array<number>){
 
-    if(systems !== null)   this.warp_systems = systems.slice();
   
 
     //repopulate the system map
@@ -302,9 +294,7 @@ export class Draft{
 
 
   //gets a string from interface and updates accordingly
-  updateWeftSystemsFromPattern(pattern:Array<number>, systems: Array<System>){
-
-    if(systems !== null) this.weft_systems = systems.slice();
+  updateWeftSystemsFromPattern(pattern:Array<number>){
 
 
     //repopulate the system map
@@ -319,7 +309,6 @@ export class Draft{
       this.rowSystemMapping[i] = this.rowSystemPattern[ndx];
     }
 
-    console.log("updated weft system to", this.rowSystemMapping, this.weft_systems)
   }
 
     //any{id, name, color}
@@ -774,89 +763,10 @@ export class Draft{
 
   // }
 
-  /**
-   * checks if we should move to the next system id or create a new empty system.
-   * @returns the id of the created or empty system to add to
-  */
-  getNextWeftSystem(ndx: number): number{
-
-    var system_id = this.rowSystemMapping[ndx];
-
-    //are any other rows assigned to this system or is this the first
-    const count: number = this.rowSystemMapping.reduce((acc,val) => {
-      if(val === system_id){
-        acc = acc + 1;
-      } 
-      return acc;
-    }, 0);
 
 
-    //this is the only one assigned
-    if(count === 1){
-      return 0; // return the starting index
-    }else{
-      //you need the next id
-      system_id ++;
+  
 
-      if(system_id < this.weft_systems.length){
-        return system_id;
-      }else if(system_id === this.weft_systems.length){
-        this.addWeftSystem(new System());
-        return system_id;
-      }else{
-        return 0;
-      }
-    }
-
-  }
-
-  addWeftSystem(system) {
-    system.setID(this.weft_systems.length);
-    system.setVisible(true);
-    this.weft_systems.push(system);
-  }
-
-  /**
-   * checks if we should move to the next system id or create a new empty system.
-   * @returns the id of the created or empty system to add to
-  */
-   getNextWarpSystem(ndx: number): number{
-
-    var system_id = this.colSystemMapping[ndx];
-
-    //are any other rows assigned to this system or is this the first
-    const count: number = this.colSystemMapping.reduce((acc,val) => {
-      if(val === system_id){
-        acc = acc + 1;
-      } 
-      return acc;
-    }, 0);
-
-
-    //this is the only one assigned
-    if(count === 1){
-      return 0; // return the starting index
-    }else{
-      //you need the next id
-      system_id ++;
-
-      if(system_id < this.warp_systems.length){
-        return system_id;
-      }else if(system_id === this.warp_systems.length){
-        this.addWarpSystem(new System());
-        return system_id;
-      }else{
-        return 0;
-      }
-    }
-
-  }
-
-  addWarpSystem(system) {
-    system.setID(this.warp_systems.length);
-    system.setVisible(true);
-    this.warp_systems.push(system);
-  }
 
   //image adds to mask
   // insertImage(shuttle) {
@@ -869,22 +779,14 @@ export class Draft{
   //   }
   // }
 
-
-  getWeftSystemCode(index, visibleRows) {
+  getWeftSystemId(index, visibleRows) {
     var row = visibleRows[index];
-    var id = this.rowSystemMapping[row];
-    var system = this.weft_systems[id];
-
-
-    return String.fromCharCode(97 + system.id);
+    return this.rowSystemMapping[row];
   }
 
-  getWarpSystemCode(index) {
 
-     var col = this.colSystemMapping[index];
-     var system = this.warp_systems[col];
-
-    return  String.fromCharCode(97 + system.id);
+  getWarpSystemId(index){
+    return this.colSystemMapping[index];
   }
 
 
@@ -1162,24 +1064,24 @@ export class Draft{
  
 
   //checks system assignments and updates visibility of systems that are being used
-  updateSystemVisibility(type:string){
+  // updateSystemVisibility(type:string){
 
-    var mapping;
-    var systems;
+  //   var mapping;
+  //   var systems;
 
-    if(type == "weft"){
-      mapping = this.rowSystemMapping;
-      systems = this.weft_systems;
-    } else {
-      mapping = this.colSystemMapping;
-      systems = this.warp_systems;
-    }
+  //   if(type == "weft"){
+  //     mapping = this.rowSystemMapping;
+  //     systems = this.weft_systems;
+  //   } else {
+  //     mapping = this.colSystemMapping;
+  //     systems = this.warp_systems;
+  //   }
 
 
-    for(var i =0; i < systems.length; i++){
-      systems[i].setVisible(mapping.includes(systems[i].id));
-    }
-  }
+  //   for(var i =0; i < systems.length; i++){
+  //     systems[i].setVisible(mapping.includes(systems[i].id));
+  //   }
+  // }
 
 
 
@@ -1717,14 +1619,16 @@ computeYarnPaths(shuttles: Array<Shuttle>){
             case 'weft-systems':
               var draft_row = visibleRows[row];
               val = pattern.pattern[i % rows][j % cols].isUp();
-              if(val && col < this.weft_systems.length) this.rowSystemMapping[draft_row] = col;
+              if(val) this.rowSystemMapping[draft_row] = col;
+              //if(val && col < this.draft.weft_systems.length) this.rowSystemMapping[draft_row] = col;
             
             break;
             case 'warp-systems':
               val = pattern.pattern[i % rows][j % cols].isUp();
-              if(val && row < this.warp_systems.length){
-                  this.colSystemMapping[col] = row;
-              }
+              // if(val && row < this.draft.warp_systems.length){
+              //     this.colSystemMapping[col] = row;
+              // }
+              if(val) this.colSystemMapping[col] = row;
             break;
             case 'weft-materials':
               var draft_row = visibleRows[row];

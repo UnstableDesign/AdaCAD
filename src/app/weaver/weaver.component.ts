@@ -16,6 +16,7 @@ import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component'
 import {DesignmodesService} from '../core/provider/designmodes.service'
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { MaterialsService } from '../core/provider/materials.service';
+import { SystemsService } from '../core/provider/systems.service';
 import { Cell } from '../core/model/cell';
 
 //disables some angular checking mechanisms
@@ -119,7 +120,8 @@ export class WeaverComponent implements OnInit {
     private fs: FileService,
     private dm: DesignmodesService,
     public scroll: ScrollDispatcher,
-    private ms: MaterialsService) {
+    private ms: MaterialsService,
+    private ss: SystemsService) {
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -191,7 +193,7 @@ export class WeaverComponent implements OnInit {
   ngOnInit(){
 
     //if(d !== undefined) this.draft = new Draft(JSON.parse(d));
-    this.render = new Render(true, this.draft);
+    this.render = new Render(true, this.draft, this.ss);
     this.draft.computeYarnPaths(this.ms.getShuttles());
     this.timeline.addHistoryState(this.draft);  
     
@@ -564,7 +566,7 @@ export class WeaverComponent implements OnInit {
 
   public updateWarpSystems(pattern: Array<number>) {
     console.log("update warp sys", pattern);
-    this.draft.updateWarpSystemsFromPattern(pattern, null);
+    this.draft.updateWarpSystemsFromPattern(pattern);
     this.weaveRef.redraw({drawdown: true, warp_systems: true});
 
   }
@@ -572,7 +574,7 @@ export class WeaverComponent implements OnInit {
   public updateWeftSystems(pattern: Array<number>) {
     console.log("update weft sys", pattern);
 
-    this.draft.updateWeftSystemsFromPattern(pattern, null);
+    this.draft.updateWeftSystemsFromPattern(pattern);
     this.weaveRef.redraw({drawdown: true, weft_systems: true});
 
   }
@@ -603,13 +605,13 @@ export class WeaverComponent implements OnInit {
     this.ms.addShuttle(e.shuttle); 
   }
 
-  public createWarpSystem(e: any) {
-    this.draft.addWarpSystem(e.system);
-  }
+  // public createWarpSystem(e: any) {
+  //   this.draft.addWarpSystem(e.system);
+  // }
 
-  public createWeftSystem(e: any) {
-    this.draft.addWarpSystem(e.system);
-  }
+  // public createWeftSystem(e: any) {
+  //   this.draft.addWarpSystem(e.system);
+  // }
 
   public hideWarpSystem(e:any) {
     

@@ -1,3 +1,4 @@
+import { SystemsService } from "../provider/systems.service";
 import { Draft } from "./draft";
 
 /**
@@ -30,7 +31,7 @@ export class Render {
     offset_y: {max: number, min: number};
   }
 
-  constructor(view_frames:boolean, draft: Draft) {
+  constructor(view_frames:boolean, draft: Draft, private ss: SystemsService) {
 
     //max values
     this.zoom = 1;
@@ -203,24 +204,13 @@ export class Render {
   }
 
   updateVisible(draft: Draft) {
-    var i = 0;
-    var systems = [];
-    var visible = [];
 
+    this.visibleRows = 
+      draft.rowSystemMapping.map((val, ndx) => {
+        return (this.ss.weftSystemIsVisible(val)) ? ndx : -1;  
+      })
+      .filter(el => el !== -1);
 
-    for (i = 0; i < draft.weft_systems.length; i++) {
-      systems.push(draft.weft_systems[i].visible);
-    }
-
-    for (i = 0; i< draft.rowSystemMapping.length; i++) {
-      var show = systems[draft.rowSystemMapping[i]];
-
-      if (show) {
-        visible.push(i);
-      }
-    }
-
-    this.visibleRows = visible;
   }
 
 
