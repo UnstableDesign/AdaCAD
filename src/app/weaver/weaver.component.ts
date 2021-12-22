@@ -564,7 +564,7 @@ export class WeaverComponent implements OnInit {
 
   public updateWarpSystems(pattern: Array<number>) {
     console.log("update warp sys", pattern);
-    this.draft.updateWarpSystemsFromPattern(pattern);
+    this.draft.updateWarpSystemsFromPattern(pattern, null);
     this.weaveRef.redraw({drawdown: true, warp_systems: true});
 
   }
@@ -572,7 +572,7 @@ export class WeaverComponent implements OnInit {
   public updateWeftSystems(pattern: Array<number>) {
     console.log("update weft sys", pattern);
 
-    this.draft.updateWeftSystemsFromPattern(pattern);
+    this.draft.updateWeftSystemsFromPattern(pattern, null);
     this.weaveRef.redraw({drawdown: true, weft_systems: true});
 
   }

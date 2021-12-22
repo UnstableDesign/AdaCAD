@@ -282,7 +282,10 @@ export class Draft{
   // }
 
   //gets a string from interface and updates accordingly
-  updateWarpSystemsFromPattern(pattern:Array<number>){
+  updateWarpSystemsFromPattern(pattern:Array<number>, systems: Array<System>){
+
+    if(systems !== null)   this.warp_systems = systems.slice();
+  
 
     //repopulate the system map
     this.colSystemPattern = [];
@@ -299,7 +302,10 @@ export class Draft{
 
 
   //gets a string from interface and updates accordingly
-  updateWeftSystemsFromPattern(pattern:Array<number>){
+  updateWeftSystemsFromPattern(pattern:Array<number>, systems: Array<System>){
+
+    if(systems !== null) this.weft_systems = systems.slice();
+
 
     //repopulate the system map
     this.rowSystemPattern = [];
@@ -312,11 +318,14 @@ export class Draft{
       let ndx = i % this.rowSystemPattern.length;
       this.rowSystemMapping[i] = this.rowSystemPattern[ndx];
     }
+
+    console.log("updated weft system to", this.rowSystemMapping, this.weft_systems)
   }
 
     //any{id, name, color}
   updateWeftShuttlesFromPattern(pattern:Array<number>){
 
+    
     //repopulate the system map
     this.rowShuttlePattern = []
     for(let i = 0; i < pattern.length; i++){
@@ -865,6 +874,7 @@ export class Draft{
     var row = visibleRows[index];
     var id = this.rowSystemMapping[row];
     var system = this.weft_systems[id];
+
 
     return String.fromCharCode(97 + system.id);
   }
