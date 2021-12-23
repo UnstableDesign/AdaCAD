@@ -6,6 +6,7 @@ import { VaeService} from "../../core/provider/vae.service"
 import { PatternfinderService} from "../../core/provider/patternfinder.service"
 import utilInstance from '../../core/model/util';
 import { Loom } from '../../core/model/loom';
+import { SystemsService } from '../../core/provider/systems.service';
 
 export interface OperationParams {
   name: string,
@@ -38,7 +39,10 @@ export class OperationService {
   ops: Array<Operation> = [];
   classification: Array<OperationClassification> = [];
 
-  constructor(private vae: VaeService, private pfs: PatternfinderService) { 
+  constructor(
+    private vae: VaeService, 
+    private pfs: PatternfinderService,
+    private ss: SystemsService) { 
 
     const rect: Operation = {
       name: 'rectangle',
@@ -198,8 +202,8 @@ export class OperationService {
 
         const rowSystems: Array<Array<number>> = inputs.map(el => el.rowSystemMapping);
        
-        const uniqueSystemRows: Array<Array<number>> = utilInstance.makeSystemsUnique(rowSystems);
-
+        const uniqueSystemRows: Array<Array<number>> = this.ss.makeWeftSystemsUnique(rowSystems);
+        console.log("Unique systems", uniqueSystemRows);
 
         //create a draft to hold the merged values
         const d:Draft = new Draft({warps: max_warps, wefts:(max_wefts * inputs.length)});

@@ -731,35 +731,7 @@ class Util {
     return max;
   }
 
-  /**
-   * when interlacing two drafts, make sure that each draft maps to a unique set of systems before merging. for instance 
-   * merging systems of type a and a generates an a b sequence
-   * @param systems the system mappings to compare
-   */
-  makeSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
-   
-    const max_in_systems: Array<number> = systems.map(el => this.getArrayMax(el));
-    let max_total: number = this.getArrayMax(max_in_systems);
-
-
-    const visited_systems: Array<Array<number>> = [];
-
-    systems.forEach((system, ndx) => {
-      if(visited_systems.length > 0){
-
-        const has_repeat: Array<number> = system.map(el => visited_systems.findIndex(el => el));
-        system = has_repeat.map((el, ndx) => {
-          if(el != -1){
-            return el = system[ndx] + max_total;
-          } 
-        });
-        max_total += max_in_systems[ndx];
-
-      }
-      visited_systems.push(system);
-    });
-    return visited_systems;
-  }
+  
 
   public patternToSize(pattern, warpSize, weftSize) {
     if (pattern[0].length > warpSize) {

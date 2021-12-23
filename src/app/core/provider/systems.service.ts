@@ -1,6 +1,8 @@
+import { I } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
 import { Draft } from '../model/draft';
 import { System } from '../model/system';
+import utilInstance from '../model/util';
 
 @Injectable({
   providedIn: 'root'
@@ -133,19 +135,67 @@ export class SystemsService {
   }
 
   getWeftSystemCode(id: number) : string {
-    var system = this.weft_systems[id];
+    var system = this.getWeftSystem(id);
+    if(system === undefined) return "err";
     return String.fromCharCode(97 + system.id);
   }
 
   getWarpSystemCode(id: number) {
 
-    var system = this.warp_systems[id];
+    var system = this.getWarpSystem(id);
+    if(system === undefined) return "err";
    return  String.fromCharCode(97 + system.id);
  }
 
+ /**
+   * takes system maps and makes them all unique by adding a base value to the n+1th map. This helps when interlacing 
+   * drafts that have different system mappings, and making sure they are each unique.
+   * @param systems the system mappings to compare
+   */
+  private makeSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
+   
+    if(systems.length === 0) return [];
 
-  
+    const max_in_systems: Array<number> = systems.map(el => utilInstance.getArrayMax(el));
+    let max_total: number = utilInstance.getArrayMax(max_in_systems);
+   
+    let last_max = 0;
+    const unique_systems = systems.map((sys, ndx) => {
+      if(ndx > 0){
+        last_max += (max_in_systems[ndx -1]+1)
+        return sys.map(el => el + last_max);
+      }else{
+        return sys;
+      }
+    });  
 
-  
+    return unique_systems;
+  }
+
+  makeWeftSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
+
+    const unique = this.makeSystemsUnique(systems);
+
+    unique.forEach(system => {
+      system.forEach(el => {
+        if(this.getWeftSystem(el) === undefined) this.addWeftSystemFromId(el);
+      })
+    })
+
+    return unique;
+  }
+
+  makeWarpSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
+
+    const unique = this.makeSystemsUnique(systems);
+
+    unique.forEach(system => {
+      system.forEach(el => {
+        if(this.getWarpSystem(el) === undefined) this.addWarpSystemFromId(el);
+      })
+    })
+
+    return unique;
+  }
 
 }
