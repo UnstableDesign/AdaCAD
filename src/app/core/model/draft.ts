@@ -98,6 +98,7 @@ export class Draft{
       this.rowSystemMapping = params.rowSystemMapping;
     }
 
+    if(params.name !== undefined) this.name = params.name;
 
     //parse the input pattern
     this.pattern = this.parsePattern(params.pattern);

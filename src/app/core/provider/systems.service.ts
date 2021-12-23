@@ -16,6 +16,29 @@ export class SystemsService {
 
   constructor() { }
 
+  getWeftSystem(id: number) : System{
+    return this.weft_systems.find(el => el.id === id);
+  }
+
+  getWarpSystem(id: number) : System{
+    return this.warp_systems.find(el => el.id === id);
+  }
+
+  addWeftSystemFromId(id: number) {
+    const system = new System();
+    system.setID(id);
+    system.setVisible(true);
+    this.weft_systems.push(system);
+  }
+
+  addWarpSystemFromId(id: number) {
+    const system = new System();
+    system.setID(id);
+    system.setVisible(true);
+    this.warp_systems.push(system);
+  }
+
+
   addWeftSystem(system) {
     system.setID(this.weft_systems.length);
     system.setVisible(true);

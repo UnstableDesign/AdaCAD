@@ -141,6 +141,7 @@ export class FileService {
 
       drafts = data.drafts.map(draftdata => {
         const draft: Draft =  new Draft({wefts: draftdata.wefts, warps: draftdata.warps, pattern: draftdata.pattern});
+       
         if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
         if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
         
@@ -168,25 +169,41 @@ export class FileService {
             }
           }
         }
-       
-        if(data.weft_systems !== undefined){
-          data.weft_systems.forEach(el => this.ss.addWeftSystem(el));
-        }
 
-        if(data.weft_systems !== undefined){
-          data.warp_systems.forEach(el => this.ss.addWarpSystem(el));
-        }
-        if(data.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(data.rowShuttleMapping); 
-        if(data.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(data.colShuttleMapping); 
-        if(data.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(data.rowSystemMapping); 
-        if(data.colSystemMapping !== undefined) draft.overloadColSystemMapping(data.colSystemMapping);
-        if(data.notes !== undefined) draft.overloadNotes(data.notes);
-        if(data.name !== undefined) draft.overloadName(data.name);
+        //scan the systems and add any that need to be added
+        if(draftdata.rowSystemMapping !== undefined){
+          
+          draftdata.rowSystemMapping.forEach(el => {
+            if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
+          });
+
+          draft.overloadRowSystemMapping(draftdata.rowSystemMapping);
+        }  
+
+          //scan the systems and add any that need to be added
+          if(draftdata.colSystemMapping !== undefined){
+          
+            draftdata.colSystemMapping.forEach(el => {
+              if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
+            });
+  
+            draft.overloadColSystemMapping(draftdata.rowSystemMapping);
+          }  
+  
+
+        console.log("draft data", draftdata);
+
+        if(draftdata.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(draftdata.rowShuttleMapping); 
+        if(draftdata.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(draftdata.colShuttleMapping); 
+        // if(draftdata.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(draftdata.rowSystemMapping); 
+        // if(draftdata.colSystemMapping !== undefined) draft.overloadColSystemMapping(draftdata.colSystemMapping);
+        if(draftdata.notes !== undefined) draft.overloadNotes(draftdata.notes);
+
         return draft; 
+
       });
 
 
-      console.log("data looms in fileloader", data.looms);
       if(data.looms === undefined || data.looms.length === 0) data.looms = [];
 
       looms = data.looms.map((data, ndx) => {

@@ -1157,7 +1157,8 @@ export class PaletteComponent implements OnInit{
           rowShuttleMapping: sd_draft.rowShuttleMapping,
           colShuttleMapping: sd_draft.colShuttleMapping,
           rowSystemMapping: sd_draft.rowSystemMapping,
-          colSystemMapping: sd_draft.colSystemMapping
+          colSystemMapping: sd_draft.colSystemMapping,
+          name: sd_draft.name+" copy"
         }), -1)
         .then(new_sd => {
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
