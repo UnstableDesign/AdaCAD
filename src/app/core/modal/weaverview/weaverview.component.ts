@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Draft } from '../../../core/model/draft';
 import { Render } from '../../../core/model/render';
 import { DesignmodesService } from '../../provider/designmodes.service';
+import { SystemsService } from '../../provider/systems.service';
 
 @Component({
   selector: 'app-weaverview',
@@ -29,7 +30,10 @@ export class WeaverViewComponent implements OnInit {
   @Output() onHideWeftSystem: any = new EventEmitter();
 
 
- constructor(private dm: DesignmodesService, private dialog: MatDialog,
+ constructor(
+   private ss: SystemsService,
+   private dm: DesignmodesService, 
+   private dialog: MatDialog,
   private dialogRef: MatDialogRef<WeaverViewComponent>,
            @Inject(MAT_DIALOG_DATA) public data: any) { 
 

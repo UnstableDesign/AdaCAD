@@ -7,6 +7,7 @@ import { PatternfinderService} from "../../core/provider/patternfinder.service"
 import utilInstance from '../../core/model/util';
 import { Loom } from '../../core/model/loom';
 import { SystemsService } from '../../core/provider/systems.service';
+import { MaterialsService } from '../../core/provider/materials.service';
 
 export interface OperationParams {
   name: string,
@@ -42,6 +43,7 @@ export class OperationService {
   constructor(
     private vae: VaeService, 
     private pfs: PatternfinderService,
+    private ms: MaterialsService,
     private ss: SystemsService) { 
 
     const rect: Operation = {
@@ -195,15 +197,21 @@ export class OperationService {
       max_inputs: 100,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
+        if(inputs.length === 0) return Promise.resolve([]);
         const outputs: Array<Draft> = [];
 
         const max_wefts:number = utilInstance.getMaxWefts(inputs);
         const max_warps:number = utilInstance.getMaxWarps(inputs);
 
         const rowSystems: Array<Array<number>> = inputs.map(el => el.rowSystemMapping);
-       
+        const colSystems: Array<Array<number>> = inputs.map(el => el.colSystemMapping);
         const uniqueSystemRows: Array<Array<number>> = this.ss.makeWeftSystemsUnique(rowSystems);
-        console.log("Unique systems", uniqueSystemRows);
+        const uniqueSystemCols: Array<Array<number>> = this.ss.makeWarpSystemsUnique(colSystems);
+     
+        const rowShuttles: Array<Array<number>> = inputs.map(el => el.rowShuttleMapping);
+        const colShuttles: Array<Array<number>> = inputs.map(el => el.colShuttleMapping);
+        const standardShuttleRows: Array<Array<number>> = this.ms.standardizeLists(rowShuttles);
+        const standardShuttleCols: Array<Array<number>> = this.ms.standardizeLists(colShuttles);
 
         //create a draft to hold the merged values
         const d:Draft = new Draft({warps: max_warps, wefts:(max_wefts * inputs.length)});
@@ -220,16 +228,25 @@ export class OperationService {
                     cell.setHeddle(null);
                 }
 
-                d.colShuttleMapping[j] = inputs[select_array].colShuttleMapping[j];
-                d.colSystemMapping[j] = inputs[select_array].colSystemMapping[j];
-
                 //this should throw an error if all drafts are using different warp colorings.
             });
-            d.rowShuttleMapping[ndx] = inputs[select_array].rowShuttleMapping[select_row];
+
+          
             d.rowSystemMapping[ndx] = uniqueSystemRows[select_array][select_row];
+            d.rowShuttleMapping[ndx] = standardShuttleRows[select_array][select_row];
 
         });
 
+        //extend systems out so they fit 
+        
+
+        d.colShuttleMapping = standardShuttleCols.shift();
+        d.colSystemMapping = uniqueSystemCols.shift();
+
+        
+
+
+        console.log("created draft ", d);
         outputs.push(d);
         return Promise.resolve(outputs);
       }     

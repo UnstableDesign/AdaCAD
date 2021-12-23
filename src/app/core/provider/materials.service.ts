@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import * as _ from 'lodash';
 import { ShuttlesModal } from '../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../model/shuttle';
 
@@ -113,6 +114,35 @@ export class MaterialsService {
   getFirstShuttle()  : Shuttle {
     if(this.materials.length === 0) return null;
     return this.materials[0];
+  }
+
+  /**
+   * given a list of material mappings, returns a list where they are all teh same size, 
+   * @param systems the system mappings to compare
+   */
+  standardizeLists(shuttles: Array<Array<number>>) : Array<Array<number>> {
+   
+    if(shuttles.length === 0) return [];
+
+    const standard = _.cloneDeep(shuttles);
+
+     //standardize teh lengths of all the returned arrays 
+     const max_length:number = standard.reduce((acc, el) => {
+      const len = el.length;
+      if(len > acc) return len;
+      else return acc;
+    }, 0);
+
+
+    standard.forEach((sys, ndx) => {
+      if(sys.length < max_length){
+        for(let i = sys.length; i < max_length; i++){
+          sys.push(sys[0]);
+        }
+      }
+    });
+
+    return standard;
   }
 
 }

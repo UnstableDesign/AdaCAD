@@ -58,8 +58,8 @@
 
       <div class="system-viz">
 
-        <ng-container *ngIf="draft.weft_systems.length > 1">
-            <ng-container *ngFor="let system of draft.weft_systems">
+        <ng-container *ngIf="ss.weft_systems.length > 1">
+            <ng-container *ngFor="let system of ss.weft_systems">
               <div class="view_slider">
 
               <mat-slide-toggle
@@ -70,9 +70,9 @@
           </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="draft.warp_systems.length > 1">
+        <ng-container *ngIf="ss.warp_systems.length > 1">
 
-        <ng-container *ngFor="let system of draft.warp_systems">
+        <ng-container *ngFor="let system of ss.warp_systems">
           <div class="view_slider">
 
           <mat-slide-toggle

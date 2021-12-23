@@ -1,5 +1,6 @@
 import { I } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
+import { symbolSquare } from 'd3-shape';
 import { Draft } from '../model/draft';
 import { System } from '../model/system';
 import utilInstance from '../model/util';
@@ -149,15 +150,16 @@ export class SystemsService {
 
  /**
    * takes system maps and makes them all unique by adding a base value to the n+1th map. This helps when interlacing 
-   * drafts that have different system mappings, and making sure they are each unique.
+   * drafts that have different system mappings, and making sure they are each unique. 
+   * This function will also return standard sized arrays = to the maximum sized input
    * @param systems the system mappings to compare
    */
   private makeSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
    
     if(systems.length === 0) return [];
 
+
     const max_in_systems: Array<number> = systems.map(el => utilInstance.getArrayMax(el));
-    let max_total: number = utilInstance.getArrayMax(max_in_systems);
    
     let last_max = 0;
     const unique_systems = systems.map((sys, ndx) => {
@@ -169,6 +171,22 @@ export class SystemsService {
       }
     });  
 
+     //standardize teh lengths of all the returned arrays 
+     const max_length:number = unique_systems.reduce((acc, el) => {
+      const len = el.length;
+      if(len > acc) return len;
+      else return acc;
+    }, 0);
+
+
+    unique_systems.forEach((sys, ndx) => {
+      if(sys.length < max_length){
+        for(let i = sys.length; i < max_length; i++){
+          sys.push(sys[0]);
+        }
+      }
+    });
+
     return unique_systems;
   }
 
@@ -176,11 +194,13 @@ export class SystemsService {
 
     const unique = this.makeSystemsUnique(systems);
 
+    //add any weft systems required
     unique.forEach(system => {
       system.forEach(el => {
         if(this.getWeftSystem(el) === undefined) this.addWeftSystemFromId(el);
       })
     })
+
 
     return unique;
   }
