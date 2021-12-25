@@ -42,16 +42,18 @@ export class SystemsService {
   }
 
 
-  addWeftSystem(system) {
+  addWeftSystem(system) : number {
     system.setID(this.weft_systems.length);
     system.setVisible(true);
     this.weft_systems.push(system);
+    return system.id;
   }
 
-  addWarpSystem(system) {
+  addWarpSystem(system) : number {
     system.setID(this.warp_systems.length);
     system.setVisible(true);
     this.warp_systems.push(system);
+    return system.id;
   }
 
 
