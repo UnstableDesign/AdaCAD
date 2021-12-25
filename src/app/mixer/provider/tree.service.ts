@@ -10,6 +10,7 @@ import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService } from './operation.service';
 import utilInstance from '../../core/model/util';
+import { I } from '@angular/cdk/keycodes';
 
 /**
  * this class registers the relationships between subdrafts, operations, and connections
@@ -94,6 +95,27 @@ export class TreeService {
 
   }
 
+  /** scan through nodes and return all that our valid */
+  async validateNodes() : Promise<boolean>{
+
+    const err_ops: Array<Node> = this.nodes
+            .filter(el => el.type === "op")
+            .filter(el => this.ops.getOp((<OpNode> el).name) === undefined)
+
+    console.log("found invalid nodes", err_ops);
+
+
+    err_ops.forEach(node => {
+      this.removeOperationNode(node.id);
+    });
+
+
+  
+
+    return (err_ops.length === 0);
+
+  }
+
 
   setOpParams(id: number, params: Array<number>){
     this.getOpNode(id).params = params;
@@ -122,7 +144,6 @@ export class TreeService {
       else return p;
     });
 
-  
     nodes[0].dirty = false;
     (<OpNode> nodes[0]).name = name;
     (<OpNode> nodes[0]).params = params_out.slice();
@@ -267,6 +288,7 @@ export class TreeService {
         }
         break;
       case 'op': 
+
       node = <OpNode> {
         type: type,
         ref: null,
@@ -746,6 +768,59 @@ export class TreeService {
       return ops;
     }
 
+/**
+   * removes only the the node data associated with this subdraft (used when there is an error loading an opteration)
+   * updates the tree view_id's in response
+   * @param id {number}  
+   * @param called_by {number} tells us if this has been called by an operation parent
+
+   */
+ removeSubdraftNode(id: number, called_by: number){
+
+  console.log("REMOVING Subdraft NODE", id, called_by);
+
+  const parent_id = this.getSubdraftParent(id);
+  const outputs = this.getNonCxnOutputs(id);
+
+  //remove the node but get all the ops before it is removed 
+
+  this.removeNode(id);
+
+  const old_cxns:Array<number> = this.getUnusuedConnections();
+  old_cxns.forEach(cxn => {
+    this.removeNode(cxn);
+  });    
+
+  // if the parent op has no children, remove the operation parent as well
+  if(called_by !== parent_id && parent_id !== -1 && !this.isParent(parent_id)){
+    this.removeOperationNode(parent_id);
+  }
+
+}
+
+removeOperationNode(id:number){
+
+
+  if(id === undefined) return;
+
+  console.log("REMOVING OP NODE", (<OpNode> this.getNode(id)));
+
+  //remove the node but get alll the ops before it is removed 
+  const outputs:Array<number> = this.getNonCxnOutputs(id);
+
+  outputs.forEach(output => {
+    console.log("REMOVING Output Draft", (<DraftNode> this.getNode(output)));
+      this.removeSubdraftNode(output, id);
+  })
+
+  this.removeNode(id);
+
+  const old_cxns:Array<number> = this.getUnusuedConnections();
+  old_cxns.forEach(cxn => {
+    this.removeNode(cxn);
+  });    
+    
+}
 
 
 /**
@@ -911,8 +986,10 @@ export class TreeService {
 
   const inputs = this.getNonCxnInputs(id);
   const input_drafts: Array<Draft> =  inputs
-    .map(input => (<DraftNode> this.getNode(input)).draft)
-    .filter(el => el !== null);
+    .map(input => (<DraftNode> this.getNode(input)))
+    .filter(el => el !== null && el !== undefined)
+    .map(input_node => input_node.draft)
+    .filter(el => el !== null && el !== undefined);
   
   return op.perform(input_drafts, node.params)
     .then(res => {

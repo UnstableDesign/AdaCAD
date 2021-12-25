@@ -249,9 +249,6 @@ export class MixerComponent implements OnInit {
       }
     ).then(treenodes => {
 
-      console.log("returned ", treenodes.map(el => el.tn.node.id));
-      console.log("tree nodes ", this.tree.nodes.map(el => el.id));
-      console.log("tree treenodes ", this.tree.tree.map(el => el.node.id));
 
       const seednodes: Array<{prev_id: number, cur_id: number}> = treenodes
         .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
@@ -317,8 +314,13 @@ export class MixerComponent implements OnInit {
       
       return Promise.all([seed_fns, op_fns]);
 
-    }).then(el => {
+    })
+    .then(el => {
+        return this.tree.validateNodes();
+    })
+    .then(el => {
       console.log("performing top level ops");
+
        return  this.tree.performTopLevelOps();
     })
     .then(el => {
