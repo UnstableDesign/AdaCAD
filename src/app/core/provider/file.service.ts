@@ -55,6 +55,7 @@ import { System } from '../model/system';
  }
 
 export interface FileObj{
+ filename: string,
  nodes: Array<NodeComponentProxy>,
  treenodes: Array<TreeNodeProxy>,
  drafts: Array<Draft>,
@@ -76,10 +77,10 @@ export interface LoadResponse{
 
 
 interface Fileloader{
-  ada: (data: any) => Promise<LoadResponse>,
-  wif: (data: any) => Promise<LoadResponse>,
-  bmp: (data: any) => Promise<LoadResponse>,
-  jpg: (data: any) => Promise<LoadResponse>,
+  ada: (filename: string, data: any) => Promise<LoadResponse>,
+  wif: (filename: string, data: any) => Promise<LoadResponse>,
+  bmp: (filename: string, data: any) => Promise<LoadResponse>,
+  jpg: (filename: string, data: any) => Promise<LoadResponse>,
   form: (data: any) => Promise<LoadResponse>
 }
 
@@ -124,7 +125,7 @@ export class FileService {
 
   const dloader: Fileloader = {
 
-     ada: async (data: any) : Promise<LoadResponse> => {
+     ada: async (filename: string, data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -246,6 +247,7 @@ export class FileService {
 
 
       const envt: FileObj = {
+        filename: filename,
         drafts: drafts,
         looms: looms,
         nodes: (data.nodes === undefined) ? [] : data.nodes,
@@ -257,7 +259,7 @@ export class FileService {
 
 
     }, 
-    wif: async (data: any) : Promise<LoadResponse> => {
+    wif: async (filename: string, data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -329,6 +331,7 @@ export class FileService {
 
     
     const f: FileObj = {
+      filename: filename,
       drafts: drafts,
       looms: looms,
       nodes: [proxies.node], 
@@ -344,7 +347,7 @@ export class FileService {
      * @param data 
      * @returns 
      */
-    jpg: async (data: any) : Promise<LoadResponse> => {
+    jpg: async (filename: string, data: any) : Promise<LoadResponse> => {
       console.log("processing JPG data")
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -427,6 +430,7 @@ export class FileService {
 
 
       const f: FileObj = {
+        filename: filename,
         drafts: drafts,
         looms: looms,
         nodes: [], 
@@ -436,7 +440,7 @@ export class FileService {
   
       return Promise.resolve({data: f ,status: 0});  
     },
-    bmp: async (data: any) : Promise<LoadResponse> => {
+    bmp: async (filename: string, data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -479,6 +483,7 @@ export class FileService {
 
     
       const f: FileObj = {
+        filename: filename,
         drafts: drafts,
         looms: looms,
         nodes: [proxies.node], 
@@ -547,6 +552,7 @@ export class FileService {
 
     
       const envt: FileObj = {
+        filename: "adacad mixer",
         drafts: drafts,
         looms: looms,
         nodes: [proxies.node], 

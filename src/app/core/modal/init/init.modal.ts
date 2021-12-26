@@ -65,17 +65,17 @@ export class InitModal implements OnInit {
 
     switch(e.type){
       case 'image': 
-      return this.fls.loader.bmp(e.data).then(
+      return this.fls.loader.bmp(e.name, e.data).then(
         res => this.dialogRef.close(res)
       );
       case 'wif': 
-        return this.fls.loader.wif(e.data)
+        return this.fls.loader.wif(e.name, e.data)
         .then(
           res => this.dialogRef.close(res)
         );
       
       case 'ada': 
-        return this.fls.loader.ada(e.data)
+        return this.fls.loader.ada(e.name, e.data)
         .then(
           res => this.dialogRef.close(res)
         );

@@ -133,6 +133,7 @@ export class MixerComponent implements OnInit {
   loadNewFile(result: LoadResponse){
     this.tree.clear();
     this.palette.clearComponents();
+    console.log("loaded new file", result, result.data)
     this.processFileData(result.data).then(
       this.palette.changeDesignmode('move')
     ).catch(console.error);
@@ -234,6 +235,7 @@ export class MixerComponent implements OnInit {
    async processFileData(data: FileObj) : Promise<string>{
 
     let entry_mapping = [];
+    this.filename = data.filename;
 
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
@@ -503,7 +505,7 @@ export class MixerComponent implements OnInit {
 
     let so: string = this.timeline.restorePreviousMixerHistoryState();
     
-    this.fs.loader.ada(JSON.parse(so)).then(
+    this.fs.loader.ada(this.filename, JSON.parse(so)).then(
       lr => this.loadNewFile(lr)
     );
 
@@ -513,7 +515,7 @@ export class MixerComponent implements OnInit {
   redo() {
 
     let so: string = this.timeline.restoreNextMixerHistoryState();
-    this.fs.loader.ada(JSON.parse(so))
+    this.fs.loader.ada(this.filename, JSON.parse(so))
     .then(lr =>  this.loadNewFile(lr));
 
    
