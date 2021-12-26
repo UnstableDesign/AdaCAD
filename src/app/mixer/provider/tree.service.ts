@@ -102,14 +102,17 @@ export class TreeService {
             .filter(el => el.type === "op")
             .filter(el => this.ops.getOp((<OpNode> el).name) === undefined)
 
-    console.log("found invalid nodes", err_ops);
+    console.error("found invalid op nodes", err_ops);
 
 
     err_ops.forEach(node => {
       this.removeOperationNode(node.id);
     });
 
-
+    ///also check to see that all connections exist
+    const cxns = this.getUnusuedConnections();
+    console.log("unusued connections found", cxns);
+    cxns.forEach(el => this.removeNode(el));
   
 
     return (err_ops.length === 0);
@@ -134,8 +137,11 @@ export class TreeService {
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
     if(nodes.length !== 1){
-      console.log("*** duplicate nodes at ****",nodes);
       return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
+    } 
+
+    if(this.ops.getOp(name) === undefined){
+      return Promise.reject("no op of name:"+name+" exists");
     } 
 
 
@@ -1122,14 +1128,33 @@ removeOperationNode(id:number) : Array<Node>{
   }
 
   /**
-   * scans the connections and marks any missing a to or from to delete
+   * scans the connections and checks that the to and from nodes still exist
    * @returns an array of connections to delete
    */
 
   getUnusuedConnections():Array<number>{
-    const comps: Array<ConnectionComponent> = this.getConnections().filter(el => el !== null);
+    const comps: Array<Node> = this.nodes.filter(el => el.type === 'cxn');
     const nodes: Array<TreeNode> = comps.map(el => this.getTreeNode(el.id));
-    const to_delete: Array<TreeNode> = nodes.filter(el => (el.inputs.length === 0 || el.outputs.length === 0));
+    const to_delete: Array<TreeNode> = [];
+    
+
+    nodes.forEach(el =>{
+      if(el.inputs.length === 0 || el.outputs.length === 0){
+        to_delete.push(el);
+        return;
+      } 
+      
+      const null_inputs = el.inputs.filter(el => el.node === null || el.node === undefined);
+      null_inputs.forEach(el => {
+        to_delete.push(el);
+      })
+
+      const null_outputs = el.outputs.filter(el => el.node === null || el.node === undefined);
+      null_outputs.forEach(el => {
+        to_delete.push(el);
+      })
+    });
+
     return to_delete.map(el => el.node.id);
   }
 
