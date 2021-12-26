@@ -15,7 +15,6 @@ import { NotesService } from '../core/provider/notes.service';
 import { Cell } from '../core/model/cell';
 import { GloballoomService } from '../core/provider/globalloom.service';
 import { Loom } from '../core/model/loom';
-import { E } from '@angular/cdk/keycodes';
 
 
 //disables some angular checking mechanisms

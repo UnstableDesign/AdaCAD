@@ -264,6 +264,14 @@ export class OperationComponent implements OnInit {
 
   }
 
+  onCheckboxParamChange(id: number, value: number){
+    const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
+    console.log("value", value)
+    opnode.params[id] = (value) ? 1 : 0;
+    this.op_inputs[id].setValue(value);
+    this.onOperationParamChange.emit({id: this.id});
+  }
+
   onParamChange(id: number, value: number){
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.params[id] = value;
