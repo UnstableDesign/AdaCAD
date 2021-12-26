@@ -188,12 +188,11 @@ export class Cell {
    * sets the value to true or false. If null, will unset the heddle
    * @param value 
    */
-     getHeddle():boolean{
+    getHeddle():boolean{
        if(this.is_set){
         return this.is_up;
        }
        return null;
-      
     }
 
   toggleHeddle(){

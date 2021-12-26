@@ -738,37 +738,22 @@ export class PaletteComponent implements OnInit{
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
-   * @param called_by {number} tells us if this has been called by an operation parent
 
    */
-  removeSubdraft(id: number, called_by: number){
+  removeSubdraft(id: number){
 
 
-    const parent_id = this.tree.getSubdraftParent(id);
+    if(id === undefined) return;
+
     const outputs = this.tree.getNonCxnOutputs(id);
+    const delted_nodes = this.tree.removeSubdraftNode(id);
+    console.log("delted nodes", delted_nodes);
 
-    //remove the node but get all the ops before it is removed 
-    const ref:ViewRef = this.tree.getViewRef(id);
+    delted_nodes.forEach(node => {
+      this.removeFromViewContainer(node.ref);
+      this.viewport.removeObj(node.id);
+    })
 
-    this.tree.removeNode(id);
- 
-    const old_cxns:Array<number> = this.tree.getUnusuedConnections();
-    old_cxns.forEach(cxn => {
-      const cxn_view_ref = this.tree.getViewRef(cxn);
-      this.removeFromViewContainer(cxn_view_ref);
-      this.tree.removeNode(cxn);
-    });    
-
-    //calls manually here so that the affected branches can be pinged before the node is deleted 
-    this.removeFromViewContainer(ref);
-    this.viewport.removeObj(id);
-
-
-
-    // if the parent op has no children, remove the operation parent as well
-    if(called_by !== parent_id && parent_id !== -1 && !this.tree.isParent(parent_id)){
-      this.removeOperation(parent_id);
-    }
 
     outputs.forEach(out => {
       this.performAndUpdateDownstream(out);
@@ -777,10 +762,8 @@ export class PaletteComponent implements OnInit{
   }
 
   /**
-   * this function will
-   * 1. delete the associated output subdrafts
-   * 2. recompue downsteam operations
-   * 3. delete all input + output connections
+   * this calls the tree to delete the operation.
+   * the tree returns a list of all nodes deleted and this function updates the view to remove those elements
    * @param id 
    */
   removeOperation(id:number){
@@ -788,28 +771,13 @@ export class PaletteComponent implements OnInit{
 
     if(id === undefined) return;
 
+    const delted_nodes = this.tree.removeOperationNode(id);
+    console.log("delted nodes", delted_nodes);
 
-    //remove the node but get alll the ops before it is removed 
-    const ref:ViewRef = this.tree.getViewRef(id);
-    const outputs:Array<number> = this.tree.getNonCxnOutputs(id);
-
-    outputs.forEach(output => {
-        this.removeSubdraft(output, id);
+    delted_nodes.forEach(node => {
+      this.removeFromViewContainer(node.ref);
+      this.viewport.removeObj(node.id);
     })
-
-    this.tree.removeNode(id);
-
-
-    const old_cxns:Array<number> = this.tree.getUnusuedConnections();
-    old_cxns.forEach(cxn => {
-      const cxn_view_ref = this.tree.getViewRef(cxn);
-      this.removeFromViewContainer(cxn_view_ref);
-      this.tree.removeNode(cxn);
-    });    
-
-    //calls manually here so that the affected branches can be pinged before the node is deleted 
-    this.removeFromViewContainer(ref);
-    this.viewport.removeObj(id);
 
   }
 
@@ -1079,7 +1047,7 @@ export class PaletteComponent implements OnInit{
       
       console.log("deleting "+obj.id);
       if(obj === null) return;
-      this.removeSubdraft(obj.id, -1);
+      this.removeSubdraft(obj.id);
       this.addTimelineState();
    }
 
@@ -2118,7 +2086,7 @@ drawStarted(){
 
       if(el.isSameBoundsAs(ibound)){
          console.log("Component had same Bounds as Intersection, Consumed");
-         this.removeSubdraft(el.id, -1);
+         this.removeSubdraft(el.id);
       }
 
     });
@@ -2382,7 +2350,7 @@ drawStarted(){
 
     //remove the intersecting drafts from the view containier and from subrefts
     isect.forEach(element => {
-      this.removeSubdraft(element.id, -1);
+      this.removeSubdraft(element.id);
     });
     return true;
   }

@@ -1,5 +1,5 @@
 
-<div id="con-{{tree.getDraft(id).id}}" class="subdraft-container" [class.is_preview] = "is_preview"
+<div *ngIf="tree.getDraft(id) !== null" id="con-{{tree.getDraft(id).id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
 	[style.z-index] = "zndx"
 	[class.drawing] = "disable_drag && !is_preview"

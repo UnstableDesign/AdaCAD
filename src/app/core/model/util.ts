@@ -5,6 +5,7 @@
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
+import { Cell } from "./cell";
 import { Point, Interlacement, Bounds } from "./datatypes";
 import { Draft } from "./draft";
 import { Shuttle } from "./shuttle";
@@ -729,6 +730,13 @@ class Util {
       else return acc;
     }, 0);
     return max;
+  }
+
+  rowIsNull(row: Array<Cell>) : boolean{
+
+    const hasValue = row.find(el => el.getHeddle() !== null);
+    if(hasValue === undefined) return true;
+    else return false;
   }
 
   

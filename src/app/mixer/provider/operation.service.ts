@@ -1,4 +1,4 @@
-import { D, E } from '@angular/cdk/keycodes';
+import { D, E, I } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
@@ -109,9 +109,15 @@ export class OperationService {
     }
 
     const set: Operation = {
-      name: 'set unset to down',
-      dx: "this sets all unset heddles in this draft to heddle downs (white squares)",
-      params: [],
+      name: 'set unset',
+      dx: "this sets all unset heddles in this draft to the specified value",
+      params: [ 
+        {name: 'width',
+        min: 0,
+        max: 1,
+        value: 1,
+        dx: "up?"
+        }],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>)=> {
         const outputs: Array<Draft> = inputs.map(draft => {
@@ -119,7 +125,10 @@ export class OperationService {
           const d: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
           draft.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
-              if(!cell.isSet()) d.pattern[i][j] = new Cell(false);
+              if(!cell.isSet()){
+                if(input_params[0] === 0) d.pattern[i][j] = new Cell(false);
+                else d.pattern[i][j] = new Cell(true);
+              } 
               else d.pattern[i][j] = new Cell(cell.isUp());
             });
           });
@@ -300,17 +309,17 @@ export class OperationService {
       }     
     }
 
-    const explode:Operation = {
-      name: 'explode',
-      dx: 'take this draft and split it across rows',
+    const assignwefts:Operation = {
+      name: 'assign weft systems',
+      dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval',
       params: [  
-        {name: 'num',
+        {name: 'total',
         min: 1,
         max: 100,
         value: 2,
         dx: "how many systems total"
         },
-        {name: 'assign',
+        {name: 'shift',
         min: 0,
         max: 100,
         value: 0,
@@ -321,18 +330,99 @@ export class OperationService {
         
         if(inputs.length === 0) return Promise.resolve([]);
         const outputs = [];
-        //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: inputs[0].warps, wefts:inputs[0].wefts*input_params[0], colShuttleMapping: inputs[0].colShuttleMapping, colSystemMapping: inputs[0].colSystemMapping});
 
+        const system_maps = [inputs[0]];
+        for(let i = 1; i < input_params[0]; i++){
+          system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        }
+
+        const uniqueSystemRows = this.ss.makeWeftSystemsUnique(system_maps.map(el => el.rowSystemMapping));
+
+        const d:Draft = new Draft({warps: inputs[0].warps, wefts:inputs[0].wefts*input_params[0], colShuttleMapping: inputs[0].colShuttleMapping, colSystemMapping: inputs[0].colSystemMapping});
 
         d.pattern.forEach((row, i) => {
           const use_row = i % input_params[0] === input_params[1];
           const use_index = Math.floor(i / input_params[0]);
+          d.rowShuttleMapping[i] = d.rowShuttleMapping[use_index];
+          d.rowSystemMapping[i] = uniqueSystemRows[i % input_params[0]][use_index];
           row.forEach((cell, j)=> {
             if(use_row){
               cell.setHeddle(inputs[0].pattern[use_index][j].getHeddle());
             }else{
               cell.setHeddle(null);
+            }
+          })
+        });
+        
+
+        
+        // this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
+        d.name = this.formatName(inputs, "explode")
+        outputs.push(d);
+        return Promise.resolve(outputs);
+      }     
+    }
+
+    const assignwarps:Operation = {
+      name: 'assign warp systems',
+      dx: 'splits each warp of the draft apart, allowing it to repeat at a specified interval and shift within that interval. An additional button is used to specify if these systems correspond to layers, and fills in draft accordingly',
+      params: [  
+        {name: 'total',
+        min: 1,
+        max: 100,
+        value: 2,
+        dx: "how many warp systems (or layers) total"
+        },
+        {name: 'shift',
+        min: 0,
+        max: 100,
+        value: 0,
+        dx: "which system/layer to assign this draft"
+        },
+        {name: 'layers?',
+        min: 0,
+        max: 1,
+        value: 0,
+        dx: "map this system to a layer (fills in other layer pickups)"
+        }
+      ],
+      max_inputs: 1,
+      perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+        
+        if(inputs.length === 0) return Promise.resolve([]);
+
+        const system_maps = [inputs[0]];
+        for(let i = 1; i < input_params[0]; i++){
+          system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        }
+
+        const uniqueSystemCols = this.ss.makeWarpSystemsUnique(system_maps.map(el => el.colSystemMapping));
+
+        const outputs = [];
+        //create a draft to hold the merged values
+        const d:Draft = new Draft({warps: inputs[0].warps*input_params[0], wefts:inputs[0].wefts, rowShuttleMapping: inputs[0].rowShuttleMapping, rowSystemMapping: inputs[0].rowSystemMapping});
+
+
+        d.pattern.forEach((row, i) => {
+          const row_is_null = utilInstance.rowIsNull(inputs[0].pattern[i]);
+          row.forEach((cell, j)=> {
+            const sys_id = j % input_params[0];
+            const use_col = sys_id === input_params[1];
+            const use_index = Math.floor(j / input_params[0]);
+            d.colShuttleMapping[j] = d.colShuttleMapping[use_index];
+            d.colSystemMapping[j] = uniqueSystemCols[sys_id][use_index];
+            if(use_col){
+              cell.setHeddle(inputs[0].pattern[i][use_index].getHeddle());
+            }else{
+              if(input_params[2] == 1 && !row_is_null){
+                if(sys_id < input_params[1]){
+                  cell.setHeddle(true);
+                }else if(sys_id >= input_params[1]){
+                  cell.setHeddle(false);
+                }
+              }else{
+                cell.setHeddle(null);
+              }
             }
           })
         });
@@ -1801,6 +1891,39 @@ export class OperationService {
           
     }
 
+    const erase_blank: Operation = {
+      name: 'erase blank rows',
+      dx: 'erases any rows that are entirely unset',
+      params: [],
+      max_inputs: 100, 
+      perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+          
+        if(inputs.length === 0) return Promise.resolve([]);
+
+        const rows_out = inputs[0].pattern.reduce((acc, el, ndx) => {
+          if(!utilInstance.rowIsNull(el)) acc++;
+          return acc;
+        }, 0);
+
+        const out = new Draft({wefts: rows_out, warps: inputs[0].warps, colShuttleMapping: inputs[0].colShuttleMapping, colSystemMapping: inputs[0].colSystemMapping});
+        let ndx = 0;
+        inputs[0].pattern.forEach((row, i) => {
+          if(!utilInstance.rowIsNull(row)){
+            row.forEach((cell, j) => {
+              out.pattern[ndx][j].setHeddle(cell.getHeddle()); 
+            });
+            out.rowShuttleMapping[ndx] = inputs[0].rowShuttleMapping[i];
+            out.rowSystemMapping[ndx] = inputs[0].rowSystemMapping[i];
+            ndx++;
+          }
+        })
+
+        return Promise.resolve([out]);
+        
+      }
+    }
+
+
     const jointop: Operation = {
       name: 'join top',
       dx: 'attaches inputs toether into one draft in a column orientation',
@@ -2059,7 +2182,8 @@ export class OperationService {
     this.ops.push(random);
     this.ops.push(interlace);
     this.ops.push(splicein);
-    this.ops.push(explode);
+    this.ops.push(assignwefts);
+    this.ops.push(assignwarps);
     this.ops.push(invert);
     this.ops.push(vertcut);
    this.ops.push(replicate);
@@ -2093,6 +2217,7 @@ export class OperationService {
     this.ops.push(crop);
     this.ops.push(makeloom);
     this.ops.push(drawdown);
+    this.ops.push(erase_blank);
 
 
     //** Give it a classification here */
@@ -2112,7 +2237,7 @@ export class OperationService {
     this.classification.push(
       {category: 'transformations',
       dx: "1 input, 1 output, applies an operation to the input that transforms it in some way",
-      ops: [invert, explode, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, margin, crop, clear, set, unset]}
+      ops: [invert, assignwefts, assignwarps, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, margin, crop, clear, set, unset]}
       );
 
     this.classification.push(
@@ -2131,7 +2256,7 @@ export class OperationService {
       this.classification.push(
             {category: 'helper',
             dx: "variable inputs, variable outputs, supports common drafting requirements to ensure good woven structure",
-            ops: [selvedge, vertcut, variants]}
+            ops: [selvedge, erase_blank, variants]}
             );
 
 
@@ -2249,10 +2374,11 @@ export class OperationService {
   formatName(inputs: Array<Draft>, op_name: string) : string{
 
     const combined = inputs.reduce((acc, el) => {
-      return acc+","+el.name
+      return acc+"+"+el.name
     }, "");
 
-    return op_name+"("+combined.substr(1)+")";
+    //return op_name+"("+combined.substr(1)+")";
+    return combined.substr(1);
   }
 
 

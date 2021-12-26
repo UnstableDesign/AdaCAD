@@ -118,6 +118,7 @@ export class TreeService {
 
 
   setOpParams(id: number, params: Array<number>){
+    console.log("id, params", id, params)
     this.getOpNode(id).params = params;
   }
 
@@ -769,56 +770,129 @@ export class TreeService {
     }
 
 /**
-   * removes only the the node data associated with this subdraft (used when there is an error loading an opteration)
-   * updates the tree view_id's in response
+   * removes a subdraft and all associated connections from the tree, returns the nodes
    * @param id {number}  
-   * @param called_by {number} tells us if this has been called by an operation parent
 
    */
- removeSubdraftNode(id: number, called_by: number){
+ removeSubdraftNode(id: number) : Array<Node>{
 
-  console.log("REMOVING Subdraft NODE", id, called_by);
 
-  const parent_id = this.getSubdraftParent(id);
-  const outputs = this.getNonCxnOutputs(id);
+  const deleted:Array<Node> = []; 
+  if(id === undefined) return;
 
-  //remove the node but get all the ops before it is removed 
 
-  this.removeNode(id);
+  console.log("REMOVING SUBDRAFT NODE", id);
 
-  const old_cxns:Array<number> = this.getUnusuedConnections();
-  old_cxns.forEach(cxn => {
-    this.removeNode(cxn);
-  });    
 
-  // if the parent op has no children, remove the operation parent as well
-  if(called_by !== parent_id && parent_id !== -1 && !this.isParent(parent_id)){
-    this.removeOperationNode(parent_id);
-  }
+  //get any input ops and connections
+  const ops_in: Array<number> = this.getNonCxnInputs(id);
+  const cxns_in: Array<number> = this.getInputs(id);
+
+  //get output connections and subdrafts
+  const cxns_out: Array<number> = this.getOutputs(id); //the connection between the op and child subdrafts
+  const ops_out: Array<number> = this.getNonCxnOutputs(id); //get all 
+  
+  //get all the output connections of those subdrafts
+  const op_in_cxns: Array<number> = ops_in.reduce((acc, el) => {
+    return acc.concat(this.getInputs(el))
+  }, []);
+
+  console.log("Ops in", ops_in);
+  console.log("CXNs in", cxns_in);
+  console.log("CXNs out", cxns_out);
+  console.log("OPSs out", ops_out);
+  console.log("op connections in", op_in_cxns);
+
+  deleted.push(this.removeNode(id));
+
+  cxns_in.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+
+  cxns_out.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+
+
+  ops_in.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+
+
+  op_in_cxns.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+ // deleted.concat(sds_in.map(el => this.removeNode(el)));
+ // deleted.concat(cxns_in.map(el => {return this.removeNode(el)}));
+ // deleted.concat(cxns_out.map(el => {return this.removeNode(el)}));
+  //deleted.concat(sds_out.map(el => {return this.removeNode(el)}));
+  //deleted.concat(sds_out_cxns.map(el => {return this.removeNode(el)}));
+  
+  return deleted;
 
 }
 
-removeOperationNode(id:number){
+/**
+ * deletes an operation node and any associated subdrafts and connections
+ * @param id - the operation to remove
+ * @returns a list of all nodes removed as a result of this action
+ */
+removeOperationNode(id:number) : Array<Node>{
 
 
+  const deleted:Array<Node> = []; 
   if(id === undefined) return;
 
-  console.log("REMOVING OP NODE", (<OpNode> this.getNode(id)));
 
-  //remove the node but get alll the ops before it is removed 
-  const outputs:Array<number> = this.getNonCxnOutputs(id);
+  console.log("REMOVING OP NODE", id);
 
-  outputs.forEach(output => {
-    console.log("REMOVING Output Draft", (<DraftNode> this.getNode(output)));
-      this.removeSubdraftNode(output, id);
-  })
 
-  this.removeNode(id);
+  //get any input subdrafts and connections
+  const sds_in: Array<number> = this.getNonCxnInputs(id);
+  
+  const cxns_in: Array<number> = this.getInputs(id);
 
-  const old_cxns:Array<number> = this.getUnusuedConnections();
-  old_cxns.forEach(cxn => {
-    this.removeNode(cxn);
-  });    
+  //get output connections and subdrafts
+  const cxns_out: Array<number> = this.getOutputs(id); //the connection between the op and child subdrafts
+  const sds_out: Array<number> = this.getNonCxnOutputs(id); //get all 
+  
+  //get all the output connections of those subdrafts
+  const sds_out_cxns: Array<number> = sds_out.reduce((acc, el) => {
+    return acc.concat(this.getOutputs(el))
+  }, []);
+
+  console.log("SDs in", sds_in);
+  console.log("CXNs in", cxns_in);
+  console.log("CXNs out", cxns_out);
+  console.log("SDs out", sds_out);
+  console.log("sd connections out", sds_out_cxns);
+
+  deleted.push(this.removeNode(id));
+
+  cxns_in.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+
+  cxns_out.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+
+
+  sds_out.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+
+
+  sds_out_cxns.forEach(el => {
+    deleted.push( this.removeNode(el));
+  });
+ // deleted.concat(sds_in.map(el => this.removeNode(el)));
+ // deleted.concat(cxns_in.map(el => {return this.removeNode(el)}));
+ // deleted.concat(cxns_out.map(el => {return this.removeNode(el)}));
+  //deleted.concat(sds_out.map(el => {return this.removeNode(el)}));
+  //deleted.concat(sds_out_cxns.map(el => {return this.removeNode(el)}));
+  
+  return deleted;
     
 }
 
@@ -826,30 +900,27 @@ removeOperationNode(id:number){
 /**
  * this removes a node from the list and tree
  * @param id the id of the node to be removed
+ * @returns the node it removed
  */
-  removeNode(id: number){
+  removeNode(id: number) : Node{
+
+    const deleted: Array<Node> = [];
 
     const node: Node = this.getNode(id);
+    deleted.push(node);
     if(node === undefined) return;
-
-    let unusued: Array<number> = [];
 
 
     this.removeNodeTreeAssociations(node.id);
-
-    switch(node.type){
-      case 'draft':
-      case 'op':
-       unusued = this.getUnusuedConnections();
-      break;
-    }
-
+   
     //remove all connections connecting to and from this node
     const ndx: number = this.getNodeIndex(id);
     const i: number = this.tree.findIndex(el => (el.node.id == id));
     this.tree.splice(i, 1);
     this.nodes.splice(ndx, 1);
 
+    return node;
+  
   }
 
 
@@ -1058,7 +1129,7 @@ removeOperationNode(id:number){
   getUnusuedConnections():Array<number>{
     const comps: Array<ConnectionComponent> = this.getConnections().filter(el => el !== null);
     const nodes: Array<TreeNode> = comps.map(el => this.getTreeNode(el.id));
-    const to_delete: Array<TreeNode> = nodes.filter(el => (el.inputs.length == 0 || el.outputs.length == 0));
+    const to_delete: Array<TreeNode> = nodes.filter(el => (el.inputs.length === 0 || el.outputs.length === 0));
     return to_delete.map(el => el.node.id);
   }
 
@@ -1069,7 +1140,7 @@ removeOperationNode(id:number){
       console.error("Tree node for ", id, "not found");
       return undefined;
     }
-    return this.tree.find(el => el.node.id === id);
+    return found;
   }
 
   /**
@@ -1111,12 +1182,14 @@ removeOperationNode(id:number){
 
 
   /**
-   * updates inputs and outputs of this node and delete this node from the list
-   * returns a list of all the deleted non-connection nodes
-   * @param cxn_id 
+   * this removes the given id from the tree
+   * given the structure of the code, this will never be called on a connection node, as only ops and subdrafts can be 
+   * explicitly deleted.
+   * @param id the id to delete 
    */
   private removeNodeTreeAssociations(id:number){
     const tn:TreeNode = this.getTreeNode(id);
+    if(tn === undefined) return;
 
     //travel to all the trreenode's inputs, and erase this from their output
     tn.inputs.forEach(el => {
