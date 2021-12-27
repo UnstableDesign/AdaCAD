@@ -168,6 +168,28 @@ export class OperationService {
       }        
     }
 
+
+    const apply_mats: Operation = {
+      name: 'apply materials',
+      dx: "applies the materials from the second draft onto the first draft. If they are uneven sizes, it will repeat the materials as a pattern",
+      params: [],
+      max_inputs: 2,
+      perform: (inputs: Array<Draft>, input_params: Array<number>) => {
+        
+        if(inputs.length < 2) return Promise.resolve(inputs);
+        const d: Draft = new Draft({warps: inputs[0].wefts, wefts:inputs[0].warps});
+        inputs[0].pattern.forEach((row, i) => {
+          row.forEach((cell, j) => {
+            d.pattern[i][j] = new Cell(cell.getHeddle());
+          });
+        });
+
+        this.transferSystemsAndShuttles(d, inputs, input_params, 'materialsonly');
+        return Promise.resolve([d]);
+      }        
+    }
+
+
     const rotate: Operation = {
       name: 'rotate',
       dx: "this turns the draft by 90 degrees but leaves materials in same place",
@@ -2216,6 +2238,7 @@ export class OperationService {
     this.ops.push(makeloom);
     this.ops.push(drawdown);
     this.ops.push(erase_blank);
+    this.ops.push(apply_mats);
 
 
     //** Give it a classification here */
@@ -2276,6 +2299,12 @@ export class OperationService {
       ops: [makeloom, drawdown]}
     );
 
+    this.classification.push(
+      {category: 'aesthetics',
+      dx: "2 inputs, i output: applys pattern information from second draft onto the first. To be used for specifiying color repeats",
+      ops: [apply_mats]}
+    );
+
   }
 
   /**
@@ -2306,6 +2335,11 @@ export class OperationService {
           d.updateWarpSystemsFromPattern(input_to_use.colSystemMapping);
           d.updateWeftSystemsFromPattern(input_to_use.rowSystemMapping);
           break;
+
+      case 'materialsonly':
+          d.updateWarpShuttlesFromPattern(inputs[1].colShuttleMapping);
+          d.updateWeftShuttlesFromPattern(inputs[1].rowShuttleMapping);
+        break;
 
       case 'interlace':
       case 'layer':

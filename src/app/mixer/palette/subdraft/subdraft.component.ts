@@ -13,6 +13,7 @@ import { Cell } from '../../../core/model/cell';
 import { OperationComponent } from '../operation/operation.component';
 import { Draft } from '../../../core/model/draft';
 import { GloballoomService } from '../../../core/provider/globalloom.service';
+import { MaterialsService } from '../../../core/provider/materials.service';
 
 
 
@@ -130,6 +131,7 @@ export class SubdraftComponent implements OnInit {
 
   constructor(private inks: InkService, 
     private layer: LayersService, 
+    private ms: MaterialsService, 
     private tree: TreeService,
     private fs: FileService,
     private viewport: ViewportService,
@@ -257,23 +259,6 @@ export class SubdraftComponent implements OnInit {
    */
    rescaleForBitmap(){
 
-    // this.scale = scale;
-    // const zoom_factor:number = scale/this.default_cell;
-
-
-    // //redraw at scale
-    // const container: HTMLElement = document.getElementById('scale-'+this.draft.id);
-    // container.style.transformOrigin = 'top left';
-    // container.style.transform = 'scale(' + zoom_factor + ')';
-
-   
-    // this.bounds.topleft = {
-    //   x: this.interlacement.j * this.scale,
-    //   y: this.interlacement.i * this.scale
-    // };
-
-    // this.bounds.width = this.draft.warps * this.scale;
-    // this.bounds.height = this.draft.wefts * this.scale;
     
     if(this.canvas === undefined) return;
     const draft = this.tree.getDraft(this.id);
@@ -284,20 +269,7 @@ export class SubdraftComponent implements OnInit {
 
     for (let i = 0; i < draft.wefts; i++) {
       for (let j = 0; j < draft.warps; j++) {
-        let is_up = draft.isUp(i,j);
-        let is_set = draft.isSet(i, j);
-        if(is_set){
-          if(this.ink === 'unset' && is_up){
-            this.cx.fillStyle = "#999999"; 
-          }else{
-            this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
-          }
-        } else{
-          this.cx.fillStyle =  '#0000000d';
-         // this.cx.fillStyle =  '#ff0000';
-
-        }
-        this.cx.fillRect(j, i, 1, 1);
+        this.drawCell(draft, 1, i, j, false);
       }
     }
   }
@@ -456,6 +428,29 @@ export class SubdraftComponent implements OnInit {
     this.bounds.height = height;
   }
 
+  async drawCell(draft, cell_size, i, j, usecolor){
+    let is_up = draft.isUp(i,j);
+    let is_set = draft.isSet(i, j);
+    let color = "#ffffff"
+    if(is_set){
+      if(this.ink === 'unset' && is_up){
+        this.cx.fillStyle = "#999999"; 
+      }else{
+        if(is_up){
+          color = usecolor ? this.ms.getColor(draft.getWarpShuttleId(j)) : '#000000';
+        }else{
+          color = usecolor ? this.ms.getColor(draft.getWeftShuttleId(i)) : '#ffffff';
+        }
+        this.cx.fillStyle = color;
+      }
+    } else{
+      this.cx.fillStyle =  '#0000000d';
+    // this.cx.fillStyle =  '#ff0000';
+
+    }
+    this.cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
+  }
+
 
   /**
    * draw whetever is stored in the draft object to the screen
@@ -475,20 +470,7 @@ export class SubdraftComponent implements OnInit {
 
       for (let i = 0; i < draft.wefts; i++) {
         for (let j = 0; j < draft.warps; j++) {
-          let is_up = draft.isUp(i,j);
-          let is_set = draft.isSet(i, j);
-          if(is_set){
-            if(this.ink === 'unset' && is_up){
-              this.cx.fillStyle = "#999999"; 
-            }else{
-              this.cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
-            }
-          } else{
-            this.cx.fillStyle =  '#0000000d';
-          // this.cx.fillStyle =  '#ff0000';
-
-          }
-          this.cx.fillRect(j*this.default_cell, i*this.default_cell, this.default_cell, this.default_cell);
+          this.drawCell(draft, this.default_cell, i, j, true);
         }
       }
     }
@@ -503,32 +485,32 @@ export class SubdraftComponent implements OnInit {
    */
    drawForPrint(canvas, cx, scale: number) {
 
-    if(canvas === undefined) return;
-    const draft = this.tree.getDraft(this.id);
+    // if(canvas === undefined) return;
+    // const draft = this.tree.getDraft(this.id);
 
-    for (let i = 0; i < draft.wefts; i++) {
-      for (let j = 0; j < draft.warps; j++) {
-        let is_up = draft.isUp(i,j);
-        let is_set = draft.isSet(i, j);
-        if(is_set){
-          if(this.ink === 'unset' && is_up){
-            cx.fillStyle = "#999999"; 
-          }else{
-            cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
-          }
-        } else{
-          cx.fillStyle =  '#0000000d';
-        }
-        cx.fillRect(j*scale+this.bounds.topleft.x, i*scale+this.bounds.topleft.y, scale, scale);
-      }
-    }
+    // for (let i = 0; i < draft.wefts; i++) {
+    //   for (let j = 0; j < draft.warps; j++) {
+    //     let is_up = draft.isUp(i,j);
+    //     let is_set = draft.isSet(i, j);
+    //     if(is_set){
+    //       if(this.ink === 'unset' && is_up){
+    //         cx.fillStyle = "#999999"; 
+    //       }else{
+    //         cx.fillStyle = (is_up) ?  '#000000' :  '#ffffff';
+    //       }
+    //     } else{
+    //       cx.fillStyle =  '#0000000d';
+    //     }
+    //     cx.fillRect(j*scale+this.bounds.topleft.x, i*scale+this.bounds.topleft.y, scale, scale);
+    //   }
+    // }
 
-    //draw the supplemental info like size
-    cx.fillStyle = "#666666";
-    cx.font = "20px Verdana";
+    // //draw the supplemental info like size
+    // cx.fillStyle = "#666666";
+    // cx.font = "20px Verdana";
 
-    let datastring: string =  draft.warps + " x " + draft.wefts;
-    cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+this.bounds.height + 20 );
+    // let datastring: string =  draft.warps + " x " + draft.wefts;
+    // cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+this.bounds.height + 20 );
 
   }
 

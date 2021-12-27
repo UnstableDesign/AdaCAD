@@ -805,6 +805,21 @@ export class Draft{
   //   }
   // }
 
+  getWarpShuttleId(j: number):number{
+    
+    if(j >= this.colShuttleMapping.length) return 0;
+
+    return this.colShuttleMapping[j];
+
+  }
+
+  getWeftShuttleId(i: number):number{
+    if(i >= this.colShuttleMapping.length) return 1;
+
+    return this.rowShuttleMapping[i];
+
+  }
+
   getWeftSystemId(index, visibleRows) {
     var row = visibleRows[index];
     return this.rowSystemMapping[row];
