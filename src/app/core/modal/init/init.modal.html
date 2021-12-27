@@ -74,9 +74,46 @@
 
   <ng-container *ngIf="(selected == 'example')">
     <div class="preloaded_files">
-      <h2>Load an Example</h2>
+      <mat-card >
+        <mat-card-title>Operations Playground</mat-card-title>
+        <img mat-card-image src="/assets/example_img/operation_playground.png" alt="Screenshot of the File Contents">
+          <mat-card-content>
+            <p>
+              A file that shows all possible operations currently supported by AdaCAD, allowing you to manipulate and play
+            </p>
+          </mat-card-content>
+        <mat-card-actions>
+          <button (click)="loadExample('operation_playground')" mat-raised-button color="primary">Load</button>
+        </mat-card-actions>
+      </mat-card>
 
-      <button mat-button color="primary" (click)="loadExample('operation_playground')">Operations Playground</button>
+      <mat-card>
+        <mat-card-title>E-Textiles Sampler</mat-card-title>
+        <img mat-card-image src="/assets/example_img/etextile.png" alt="Screenshot of the File Contents">
+          <mat-card-content>
+            <p>
+              Shows partiuclar techniques that can be particularly useful for creating e-textile LED circuits, force sensors, or electrodes
+            </p>
+          </mat-card-content>
+        <mat-card-actions>
+          <button (click)="loadExample('etextile')" mat-raised-button color="primary">Load</button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- <mat-card>
+        <mat-card-title>Floor Loom</mat-card-title>
+        <img mat-card-image src="/assets/example_img/etextiles.png" alt="Screenshot of the File Contents">
+          <mat-card-content>
+            <p>
+              Shows partiuclar techniques that can be particularly useful for creating e-textile LED circuits, force sensors, or electrodes
+            </p>
+          </mat-card-content>
+        <mat-card-actions>
+          <button (click)="loadExample('etextiles')" mat-raised-button color="primary">Load</button>
+        </mat-card-actions>
+      </mat-card> -->
+
+      <!-- <button mat-button color="primary" (click)="loadExample('operation_playground')">Operations Playground</button>
       <p>A file that shows all possible operations currently supported by AdaCAD, allowing you to manipulate and play</p>
 
       <button mat-button color="accent">Floor Loom Drafting Example</button>
@@ -87,7 +124,7 @@
 
       <button mat-button color="accent">E-Textile Structures</button>
       <p>A file containing several possible weaving structures for common e-textile operations (e.g. LED circuit, force sensing, electrodes)</p>
-
+ -->
 
 
     </div>    
@@ -101,7 +138,7 @@
 
 </mat-dialog-content>
 
- <ng-container>
+ <ng-container *ngIf="(selected !== 'example')">
     <mat-dialog-actions>
         <button [disabled]="!warps && !valid" class="mat-raised-button mat-primary" (click)="save(initForm, loomtype, epi, frame_num, treadle_num)">Load</button>
     </mat-dialog-actions>

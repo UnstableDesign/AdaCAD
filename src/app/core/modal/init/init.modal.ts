@@ -93,7 +93,7 @@ export class InitModal implements OnInit {
 
   loadExample(filename: string){
     console.log("loading example: ", filename);
-    this.http.get('assets/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
+    this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
 
       console.log("res", res);
 
