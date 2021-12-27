@@ -112,11 +112,11 @@ export class OperationService {
       name: 'set unset',
       dx: "this sets all unset heddles in this draft to the specified value",
       params: [ 
-        {name: 'width',
+        {name: 'up/down',
         min: 0,
         max: 1,
         value: 1,
-        dx: "up?"
+        dx: "toggles the value to which to set the unset cells (heddle up or down)"
         }],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>)=> {
@@ -383,7 +383,7 @@ export class OperationService {
         min: 0,
         max: 1,
         value: 0,
-        dx: "map this system to a layer (fills in other layer pickups)"
+        dx: "fill in the draft such that each warp system corresponds to a layer (0 is top)"
         }
       ],
       max_inputs: 1,
@@ -1368,11 +1368,11 @@ export class OperationService {
         value: 3,
         dx: 'number of weft overs'
         },
-        {name: 'direction',
+        {name: 'S/Z',
         min: 0,
         max: 1,
         value: 0,
-        dx: '0 for S twist, 1 for Z twist'
+        dx: 'unchecked for S twist, checked for Z twist'
         }
       ],
       max_inputs: 1,
@@ -2237,7 +2237,7 @@ export class OperationService {
     this.classification.push(
       {category: 'transformations',
       dx: "1 input, 1 output, applies an operation to the input that transforms it in some way",
-      ops: [invert, assignwefts, assignwarps, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, margin, crop, clear, set, unset]}
+      ops: [invert, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, margin, crop, clear, set, unset]}
       );
 
     this.classification.push(
@@ -2256,7 +2256,7 @@ export class OperationService {
       this.classification.push(
             {category: 'helper',
             dx: "variable inputs, variable outputs, supports common drafting requirements to ensure good woven structure",
-            ops: [selvedge, erase_blank, variants]}
+            ops: [selvedge, variants]}
             );
 
 
@@ -2266,6 +2266,11 @@ export class OperationService {
         ops: [germanify, crackleify]}
       );
 
+      this.classification.push(
+        {category: 'jacquard',
+        dx: "1 input, 1 output, functions designed specifically for working with jacquard-style drafting",
+        ops: [assignwarps, assignwefts, erase_blank]}
+      );
 
     this.classification.push(
       {category: 'frame loom support',
