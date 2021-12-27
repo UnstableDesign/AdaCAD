@@ -5,6 +5,7 @@ import { Draft } from '../../model/draft';
 import { Loom } from '../../model/loom';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { FileService, LoadResponse, FileObj } from '../../provider/file.service';
+import { HttpClient } from '@angular/common/http';
 
 
 interface StartOptions {
@@ -26,11 +27,13 @@ export class InitModal implements OnInit {
 
 
   opts: StartOptions[] = [
-      {value: 'new', viewValue: 'Empty Draft'},
+      {value: 'example', viewValue: 'Load an Example'},
       {value: 'ada', viewValue: 'AdaCAD (.ada) File'},
       {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File'},
       // {value: 'jpg', viewValue: 'Image (.jpg) File'},
-      {value: 'wif', viewValue: 'WIF (.wif) File'}   
+      {value: 'wif', viewValue: 'WIF (.wif) File'},   
+      {value: 'new', viewValue: 'Empty Draft'}
+
     ];
 
   //form: any = {};
@@ -44,7 +47,10 @@ export class InitModal implements OnInit {
   error: string;
 
 
-  constructor(private dm: DesignmodesService, private dialogRef: MatDialogRef<InitModal>, 
+  constructor(
+    private dm: DesignmodesService, 
+    private http: HttpClient,
+    private dialogRef: MatDialogRef<InitModal>, 
     @Inject(MAT_DIALOG_DATA) private data: any, private fls: FileService) {
       this.source = data.source;
       this.error = "";
@@ -83,6 +89,19 @@ export class InitModal implements OnInit {
 
     }
   
+  }
+
+  loadExample(filename: string){
+    console.log("loading example: ", filename);
+    this.http.get('assets/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
+
+      console.log("res", res);
+
+      return this.fls.loader.ada(filename+".ada", res.body)
+        .then(
+          res => this.dialogRef.close(res)
+        );
+    }); 
   }
 
 

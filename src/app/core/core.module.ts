@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {DragDropModule} from '@angular/cdk/drag-drop';
-
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -59,6 +60,8 @@ import { PatternfinderService } from './provider/patternfinder.service';
 @NgModule({
   imports: [
     CommonModule,
+    BrowserModule,
+    HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
@@ -121,6 +124,8 @@ import { PatternfinderService } from './provider/patternfinder.service';
   exports: [
     CommonModule,
     FormsModule,
+    BrowserModule,
+    HttpClientModule,
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatButtonModule,
