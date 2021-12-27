@@ -890,15 +890,16 @@ export class OperationService {
           outputs.push(d);
         }
 
-        if(inputs.length == 3){
+        if(inputs.length === 3){
           let d = new Draft({warps:inputs[0].warps, wefts: inputs[0].wefts, pattern:inputs[0].pattern});
           let di = new Draft({warps:inputs[0].warps, wefts: inputs[0].wefts, pattern:inputs[0].pattern});
           di.fill(inputs[0].pattern, 'invert');
           di.fill(inputs[2].pattern, 'mask');
           d.fill(inputs[1].pattern, 'mask');
 
-          const op: Operation = this.getOp('overlay');
+          const op: Operation = this.getOp('overlay, (a,b) => (a OR b)');
 
+          console.log(d, di);
         
           op.perform([d, di], [0, 0])
             .then(out => {
@@ -907,9 +908,6 @@ export class OperationService {
               outputs.push(out[0]);
               
             });
-
-          // op.perform([d, di], [0, 0]);
-          // outputs.push(out[0]);
 
 
         }
@@ -2237,13 +2235,13 @@ export class OperationService {
     this.classification.push(
       {category: 'transformations',
       dx: "1 input, 1 output, applies an operation to the input that transforms it in some way",
-      ops: [invert, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, margin, crop, clear, set, unset]}
+      ops: [invert, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, clear, set, unset]}
       );
 
     this.classification.push(
         {category: 'combine',
         dx: "2+ inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [interlace, splicein, layer, joinleft, jointop]}
+        ops: [interlace, splicein, layer, fill, joinleft, jointop]}
   //      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
         );
     
