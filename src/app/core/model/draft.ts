@@ -814,7 +814,7 @@ export class Draft{
   }
 
   getWeftShuttleId(i: number):number{
-    if(i >= this.colShuttleMapping.length) return 1;
+    if(i >= this.rowShuttleMapping.length) return 1;
 
     return this.rowShuttleMapping[i];
 

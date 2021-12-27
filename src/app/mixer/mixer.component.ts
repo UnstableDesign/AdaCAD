@@ -377,99 +377,6 @@ export class MixerComponent implements OnInit {
 
  
 
-
-  // /** 
-  //  * Take a fileObj returned from the fileservice and process
-  //  */
-  // processFileData(data: FileObj){
-
-  //   //generate the notes components
-  //   this.notes.notes.forEach(note => {
-  //       this.palette.loadNote(note);
-  //   });
-   
-  //   //map the draft ids in the file to the new ids created in this instance
-  //   const id_map: Array<{old: number, new: number}> = []; 
-   
-  //   const nodes: Array<NodeComponentProxy> = data.nodes;
-   
-  //  //move through all the drafts, in later save files, this will only be the top level drafts
-  //   data.drafts.forEach(draft => {
-    
-  //     const np:NodeComponentProxy = nodes.find(el => el.draft_id === draft.id);
-  //     let new_id: number = -1;
-
-  //     if(np === undefined){
-  //        new_id = this.palette.createSubDraft(draft);
-  //     }else{
-  //       new_id = this.palette.loadSubDraft(draft, np.bounds, np.draft_visible);
-  //       id_map.push({old: np.node_id, new: new_id});    
-  //     }
-  //   });
-
-  //   data.ops.forEach(opProxy => {
-  //     const np: NodeComponentProxy = nodes.find(el => el.node_id === opProxy.node_id);
-  //     const new_id: number = this.palette.loadOperation(opProxy.name, opProxy.params, np.bounds);
-  //     id_map.push({old: np.node_id, new: new_id});
-  //   });
-
-
-  //   nodes.forEach(nodeproxy => {
-     
-  //     switch(nodeproxy.type){
-  //     case 'cxn':
-  //       const tn: number = data.treenodes.findIndex(node => node.node == nodeproxy.node_id);    
-  //       if(tn !== -1){
-  //         const old_input_id: number = data.treenodes[tn].inputs[0];
-  //         const old_output_id: number = data.treenodes[tn].outputs[0];
-  //         const new_input_id: number = id_map.find(el => el.old == old_input_id).new;
-  //         const new_output_id: number = id_map.find(el => el.old == old_output_id).new;      
-  //         const outs: any = this.palette.createConnection(new_input_id, new_output_id);
-  //         id_map.push({old: nodeproxy.node_id, new: outs.id});
-
-  //       }else{
-  //         console.log("ERROR: cannot find treenode associated with node id: ", nodeproxy.node_id);
-  //       }
-  //       break;
-  //     }
-  //   });
-
-  //   //now move through the drafts and update their parent operations
-  //   data.treenodes.forEach( tn => {
-  //     const np: NodeComponentProxy = nodes.find(node => node.node_id == tn.node);    
-  //     switch(np.type){
-      
-      
-      
-  //       case 'draft':
-  //         if(tn.parent != -1){
-  //           const new_id = id_map.find(el => el.old == tn.node).new;
-  //           const parent_id = id_map.find(el => el.old == tn.parent).new;
-  //           const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_id);
-  //           sd.parent_id = parent_id;
-  //         }
-  //       break;
-
-  //       case 'op' :
-  //         const new_op_id:number = id_map.find(el => el.old == tn.node).new;
-  //         const op_comp: OperationComponent = <OperationComponent> this.tree.getComponent(new_op_id);
-  //        // op_comp.has_connections_in = (tn.inputs.length > 0);
-  //         tn.outputs.forEach(out => {
-            
-  //           const out_cxn_id:number = id_map.find(el => el.old === out).new;
-  //           const new_out_id: number = this.tree.getConnectionOutput(out_cxn_id);
-            
-  //           const draft_comp:SubdraftComponent = <SubdraftComponent> this.tree.getComponent(new_out_id);
-  //           op_comp.outputs.push({component_id: new_out_id, draft: draft_comp.draft});
-  //         });
-  //       break;
-  //     }
-
-
-
-  //   });
-
-  // }
   
   ngOnInit(){
     
@@ -478,17 +385,6 @@ export class MixerComponent implements OnInit {
   ngAfterViewInit() {
 
     this.palette.addTimelineState();
-
-
-    // this.http.get('assets/demo_file.ada', {observe: 'response'}).subscribe((res) => {
-    //   console.log(res.body);
-    //   const lr:LoadResponse = this.fs.loader.ada(res.body);
-    //   this.loadNewFile(lr);
-    // }); 
-
-
- 
-
 
 
   }
@@ -526,8 +422,18 @@ export class MixerComponent implements OnInit {
    */
   @HostListener('window:keydown.d', ['$event'])
   private keyChangetoDrawMode(e) {
-    this.dm.selectDesignMode('draw', 'design_modes');
-    this.designModeChange('draw');
+    // console.log("event", e);
+
+    // //make sure the path doesn't change if we're typing
+    // const from_ta = e.path.find(el => el.localName === 'textarea');
+
+    // if(from_ta !== undefined){
+    //   return;
+    // } 
+    
+
+    // this.dm.selectDesignMode('draw', 'design_modes');
+    // this.designModeChange('draw');
   }
 
   /**
@@ -536,8 +442,8 @@ export class MixerComponent implements OnInit {
    */
    @HostListener('window:keydown.s', ['$event'])
    private keyChangeToSelect(e) {
-     this.dm.selectDesignMode('marquee','design_modes');
-     this.designModeChange('marquee');
+    //  this.dm.selectDesignMode('marquee','design_modes');
+    //  this.designModeChange('marquee');
    }
 
 
@@ -547,8 +453,8 @@ export class MixerComponent implements OnInit {
    */
       @HostListener('window:keydown.m', ['$event'])
       private keyChangeToMove(e) {
-        this.dm.selectDesignMode('move','design_modes');
-        this.designModeChange('move');
+        // this.dm.selectDesignMode('move','design_modes');
+        // this.designModeChange('move');
       }
    
 
