@@ -146,20 +146,27 @@ export class OperationService {
     const unset: Operation = {
       name: 'set down to unset',
       dx: "this sets all down heddles in this draft to unset",
-      params: [],
+      params: [
+        {name: 'up/down',
+        min: 0,
+        max: 1,
+        value: 1,
+        dx: "toggles which values to map to unselected)"
+      }],
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         const outputs: Array<Draft> = inputs.map(draft => {
           const d: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
           draft.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
-              if(!cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
+              if(input_params[0] === 1 && !cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
+              else if(input_params[0] === 0 && cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
               else d.pattern[i][j] = new Cell(cell.getHeddle());
             });
           });
           if(inputs.length > 0){
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "down->unset");
+            d.name = this.formatName(inputs, "unset");
 
           }
           return d;
@@ -177,7 +184,7 @@ export class OperationService {
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
         if(inputs.length < 2) return Promise.resolve(inputs);
-        const d: Draft = new Draft({warps: inputs[0].wefts, wefts:inputs[0].warps});
+        const d: Draft = new Draft({warps: inputs[0].warps, wefts:inputs[0].wefts});
         inputs[0].pattern.forEach((row, i) => {
           row.forEach((cell, j) => {
             d.pattern[i][j] = new Cell(cell.getHeddle());
@@ -268,7 +275,7 @@ export class OperationService {
       name: 'splice in wefts',
       dx: 'splices the second draft into the first every nth row',
       params: [  
-        {name: 'separation',
+        {name: 'distance',
         min: 1,
         max: 100,
         value: 1,

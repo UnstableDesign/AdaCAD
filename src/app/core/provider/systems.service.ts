@@ -27,6 +27,14 @@ export class SystemsService {
     return this.warp_systems.find(el => el.id === id);
   }
 
+  getFirstWarpSystem() : System {
+    return this.warp_systems[0];
+  }
+
+  getFirstWeftSystem() : System {
+    return this.weft_systems[0];
+  }
+
   addWeftSystemFromId(id: number) {
     const system = new System();
     system.setID(id);

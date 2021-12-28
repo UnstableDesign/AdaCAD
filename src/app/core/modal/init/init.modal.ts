@@ -97,7 +97,7 @@ export class InitModal implements OnInit {
 
       console.log("res", res);
 
-      return this.fls.loader.ada(filename+".ada", res.body)
+      return this.fls.loader.ada(filename, res.body)
         .then(
           res => this.dialogRef.close(res)
         );

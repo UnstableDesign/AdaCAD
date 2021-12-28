@@ -56,6 +56,8 @@ export class MixerComponent implements OnInit {
 
   scrollingSubscription: any;
 
+  scale: number = 5;
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
@@ -192,42 +194,6 @@ export class MixerComponent implements OnInit {
   }
 
 
-  // /**
-  //  * instantiates the screen components
-  //  * @param nodes - the node proxies loaded
-  //  * @param drafts - the drafts loaded
-  //  * @param ops - the operations loaded
-  //  */
-  // async createAllComponents(nodes: Array<NodeComponentProxy>, drafts:Array<Draft>, ops: Array<OpComponentProxy>){
-
-  //   const gen_fxns = [];
-
-  //   nodes.forEach(nodep => {
-  //     const node = this.tree.getNode(nodep.node_id);
-
-  //     switch (node.type) {
-  //       case 'draft' :
-  //         const draft = drafts.find(el => el.id === nodep.draft_id);
-  //         if(draft === undefined) break;
-  //         gen_fxns.push(this.palette.loadSubDraft(nodep.node_id, draft, nodep)); 
-  //         break;
-  //       case 'op' :
-  //         const op = ops.find(el => el.node_id === nodep.node_id); 
-  //         if(op === undefined) Promise.reject("no op found for given id ");
-  //         gen_fxns.push(this.palette.loadOperation(nodep.node_id, op.name, op.params, nodep.bounds));
-  //       break;
-  //       case 'cxn' :
-  //         const to_from = this.tree.getConnectionsInvolving(nodep.node_id);
-  //         gen_fxns.push(this.palette.loadConnection(nodep.node_id, to_from.from, to_from.to));
-  //         break;
-  //     }
-
-  //     return Promise.all(gen_fxns);
-  //   });
-
-
-  // }
-
   /** 
    * Take a fileObj returned from the fileservice and process
    */
@@ -239,6 +205,7 @@ export class MixerComponent implements OnInit {
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
     });
+
 
     this.gl.inferData(data.looms.concat(this.tree.getLooms()))
     .then(el => {     
@@ -347,11 +314,11 @@ export class MixerComponent implements OnInit {
 
         switch (node.type){
           case 'draft':
-            this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id));
+            this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.scale);
             break;
           case 'op':
             const op = this.tree.getOpNode(node.id);
-            this.palette.loadOperation(op.id, op.name, op.params, data.nodes.find(el => el.node_id === entry.prev_id).bounds);
+            this.palette.loadOperation(op.id, op.name, op.params, data.nodes.find(el => el.node_id === entry.prev_id).bounds, data.scale);
             break;
         }
       })
@@ -369,6 +336,7 @@ export class MixerComponent implements OnInit {
       })
     })
     .catch(console.error);
+
 
     return Promise.resolve("all done");
 
@@ -590,7 +558,8 @@ export class MixerComponent implements OnInit {
         'mixer', 
         this.tree.exportDraftsForSaving(),
         this.tree.exportLoomsForSaving(),
-        false).then(href => {
+        false,
+        this.scale).then(href => {
           link.href = href;
           link.download = e.name + ".ada";
           link.click();
@@ -612,12 +581,13 @@ export class MixerComponent implements OnInit {
    */
   public renderChange(event: any) {
 
-     const scale = event.value;
-     this.palette.rescale(scale);
-
+    this.scale = event.value;
+     this.palette.rescale(this.scale);
 
 
   }
+
+
 
  
   

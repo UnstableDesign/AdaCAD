@@ -102,7 +102,7 @@ export class TreeService {
             .filter(el => el.type === "op")
             .filter(el => this.ops.getOp((<OpNode> el).name) === undefined)
 
-    console.error("found invalid op nodes", err_ops);
+    //console.error("found invalid op nodes", err_ops);
 
 
     err_ops.forEach(node => {
@@ -111,7 +111,7 @@ export class TreeService {
 
     ///also check to see that all connections exist
     const cxns = this.getUnusuedConnections();
-    console.log("unusued connections found", cxns);
+   // console.log("unusued connections found", cxns);
     cxns.forEach(el => this.removeNode(el));
   
 
@@ -1417,7 +1417,7 @@ removeOperationNode(id:number) : Array<Node>{
    * converts all of the nodes in this tree for saving. 
    * @returns an array of objects that describe nodes
    */
-  exportNodesForSaving() : Array<NodeComponentProxy> {
+  exportNodesForSaving(current_scale: number) : Array<NodeComponentProxy> {
 
     const objs: Array<any> = []; 
 

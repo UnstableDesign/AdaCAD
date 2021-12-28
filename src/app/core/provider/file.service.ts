@@ -49,9 +49,10 @@ import { System } from '../model/system';
   drafts: Array<Draft>,
   looms: Array<Loom>,
   patterns: Array<Pattern>, 
-  ops: Array<any>;
-  notes: Array<Note>
-  materials: Array<Shuttle>
+  ops: Array<any>,
+  notes: Array<Note>,
+  materials: Array<Shuttle>,
+  scale: number
  }
 
 export interface FileObj{
@@ -61,6 +62,7 @@ export interface FileObj{
  drafts: Array<Draft>,
  looms: Array<Loom>,
  ops: Array<OpComponentProxy>
+ scale: number
 }
 
 interface StatusMessage{
@@ -85,7 +87,7 @@ interface Fileloader{
 }
 
 interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean) => Promise<string>,
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<string>,
   wif: (draft: Draft, loom: Loom) => Promise<string>,
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
@@ -252,7 +254,8 @@ export class FileService {
         looms: looms,
         nodes: (data.nodes === undefined) ? [] : data.nodes,
         treenodes: (data.tree === undefined) ? [] : data.tree,
-        ops: ops
+        ops: ops,
+        scale: (data.scale === undefined) ? 5 : data.scale
       }
 
       return Promise.resolve({data: envt, status: 0}); 
@@ -336,7 +339,8 @@ export class FileService {
       looms: looms,
       nodes: [proxies.node], 
       treenodes: [proxies.treenode],
-      ops: []
+      ops: [],
+      scale: 5
     }
 
 
@@ -435,7 +439,8 @@ export class FileService {
         looms: looms,
         nodes: [], 
         treenodes: [],
-        ops: []
+        ops: [],
+        scale: 5
       }
   
       return Promise.resolve({data: f ,status: 0});  
@@ -488,7 +493,8 @@ export class FileService {
         looms: looms,
         nodes: [proxies.node], 
         treenodes: [proxies.treenode],
-        ops: []
+        ops: [],
+        scale: 5
       }
   
       return Promise.resolve({data: f ,status: 0});  
@@ -557,7 +563,8 @@ export class FileService {
         looms: looms,
         nodes: [proxies.node], 
         treenodes: [proxies.treenode],
-        ops: []
+        ops: [],
+        scale: 5
       }
     
 
@@ -574,18 +581,19 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
-     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean) : Promise<string> => {
+     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean, current_scale: number) : Promise<string> => {
       //eventually need to add saved patterns here as well
       const out: SaveObj = {
         type: type,
         drafts: drafts,
         looms: looms,
         patterns: this.ps.exportPatternsForSaving(),
-        nodes: this.tree.exportNodesForSaving(),
+        nodes: this.tree.exportNodesForSaving(current_scale),
         tree: this.tree.exportTreeForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
         notes: this.ns.exportForSaving(),
-        materials: this.ms.exportForSaving()
+        materials: this.ms.exportForSaving(),
+        scale: current_scale
       }
 
 

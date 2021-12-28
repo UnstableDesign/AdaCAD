@@ -2213,9 +2213,14 @@ public redraw(flags:any){
 
      for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
      
+      let system;
+
       var id = this.weave.colShuttleMapping[x];
-      var system = this.ss.warp_systems[this.weave.colSystemMapping[x]];
+      if(id === undefined) system = this.ss.getFirstWarpSystem();
+      else system = this.ss.getWarpSystem(id);
       var shuttle = this.ms.getShuttle(id);
+
+
 
         if(!system.visible){
           var c = "#3d3d3d";
@@ -2245,8 +2250,11 @@ public redraw(flags:any){
     var schematic = (this.render.getCurrentView() === "yarn");
     for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
      
+      let system;
       var id = this.weave.colShuttleMapping[x];
-      var system = this.ss.warp_systems[this.weave.colSystemMapping[x]];
+      if(id === undefined) system = this.ss.getFirstWarpSystem();
+      else system = this.ss.getWarpSystem(id);
+
       var shuttle = this.ms.getShuttle(id);
 
       if(system.visible){
@@ -2421,33 +2429,33 @@ public redraw(flags:any){
    *
    *
    */
-    public onSave(e: any) {
+    // public onSave(e: any) {
 
-      e.bitmap = this.bitmap;
+    //   e.bitmap = this.bitmap;
   
-      if (e.type === "bmp"){
-        let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.bmp(this.getBMPCanvas(e));
-        link.download = e.name + ".jpg"; //Canvas2Bitmap  seems to be broken now
-      } 
-      else if (e.type === "ada"){
-        let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.ada('draft', [this.weave], [this.loom],  false);
-        link.download = e.name + ".ada";
-      } 
-      else if (e.type === "wif"){
-        let link = e.downloadLink.nativeElement;
-        link.href= this.fs.saver.wif(this.weave, this.loom);
-        link.download = e.filename +".wif";
+    //   if (e.type === "bmp"){
+    //     let link = e.downloadLink.nativeElement;
+    //     link.href = this.fs.saver.bmp(this.getBMPCanvas(e));
+    //     link.download = e.name + ".jpg"; //Canvas2Bitmap  seems to be broken now
+    //   } 
+    //   else if (e.type === "ada"){
+    //     let link = e.downloadLink.nativeElement;
+    //     link.href = this.fs.saver.ada('draft', [this.weave], [this.loom],  false, 5);
+    //     link.download = e.name + ".ada";
+    //   } 
+    //   else if (e.type === "wif"){
+    //     let link = e.downloadLink.nativeElement;
+    //     link.href= this.fs.saver.wif(this.weave, this.loom);
+    //     link.download = e.filename +".wif";
   
-      } 
-      else if (e.type === "jpg"){
-        let link = e.downloadLink.nativeElement;
-        link.href = this.fs.saver.jpg(this.getPrintableCanvas(e));
-        link.download = e.name + ".jpg";
-      } 
+    //   } 
+    //   else if (e.type === "jpg"){
+    //     let link = e.downloadLink.nativeElement;
+    //     link.href = this.fs.saver.jpg(this.getPrintableCanvas(e));
+    //     link.download = e.name + ".jpg";
+    //   } 
       
-    }
+    // }
 
     /**
    * inserts an empty row just below the clicked row

@@ -314,7 +314,8 @@ export class PaletteComponent implements OnInit{
       'mixer', 
       this.tree.exportDraftsForSaving(),
       [],
-      true)
+      true,
+      this.scale)
       .then(so => {
         this.timeline.addMixerHistoryState(so);
       });
@@ -568,23 +569,37 @@ export class PaletteComponent implements OnInit{
    * @param d the draft object to load into this subdraft
    * @param nodep the component proxy used to define
    */
-   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy){
+   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, saved_scale: number){
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const node = this.tree.getNode(id)
     node.component = subdraft.instance;
     node.ref = subdraft.hostView;
-
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
     subdraft.instance.patterns = this.patterns;
     subdraft.instance.draft_visible = (nodep.draft_visible === undefined)? true : nodep.draft_visible;
-    if(nodep.bounds !== null) subdraft.instance.bounds = nodep.bounds;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
+
+    if(nodep.bounds !== null){
+      
+      const topleft_ilace = {j: nodep.bounds.topleft.x/saved_scale, i: nodep.bounds.topleft.y/saved_scale};
+      const adj_topleft: Point = {x: topleft_ilace.j*this.scale, y: topleft_ilace.i*this.scale};
+      
+      const new_bounds: Bounds = {
+        topleft: adj_topleft,
+        width: nodep.bounds.width / saved_scale * this.scale,
+        height: nodep.bounds.height / saved_scale * this.scale,
+      }
+
+      subdraft.instance.bounds = new_bounds;
+      
+    } 
+
   }
 
   /**
@@ -627,7 +642,7 @@ export class PaletteComponent implements OnInit{
    * @params params the input data to be used in this operation
    * @returns the id of the node this has been assigned to
    */
-     loadOperation(id: number, name: string, params: Array<number>, bounds:Bounds){
+     loadOperation(id: number, name: string, params: Array<number>, bounds:Bounds, saved_scale: number){
       
 
       const factory = this.resolver.resolveComponentFactory(OperationComponent);
@@ -645,10 +660,25 @@ export class PaletteComponent implements OnInit{
       op.instance.default_cell = this.default_cell_size;
 
       op.instance.loaded_inputs = params;
-      op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
-      op.instance.bounds.width = bounds.width;
-      op.instance.bounds.height = bounds.height;
+      // op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+      // op.instance.bounds.width = bounds.width;
+      // op.instance.bounds.height = bounds.height;
       op.instance.loaded = true;
+
+      if(bounds !== null){
+      
+        const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
+        const adj_topleft: Point = {x: topleft_ilace.j*this.scale, y: topleft_ilace.i*this.scale};
+        
+        const new_bounds: Bounds = {
+          topleft: adj_topleft,
+          width: bounds.width / saved_scale * this.scale,
+          height: bounds.height / saved_scale * this.scale,
+        }
+  
+        op.instance.bounds = new_bounds;
+        
+      } 
 
      
     }
@@ -1393,6 +1423,8 @@ calculateInitialLocaiton(id: number) : Bounds {
     height: draft.wefts * this.default_cell_size
   }
 
+  
+
   //if it has a parent, align it to the bottom edge
   if(this.tree.hasParent(id)){
     const parent_id = this.tree.getSubdraftParent(id);
@@ -1421,6 +1453,10 @@ calculateInitialLocaiton(id: number) : Bounds {
   console.log("new bounds", new_bounds);
   return new_bounds;
 }
+
+
+
+
 /**
  * this calls a function for an operation to perform and then subsequently calls all children 
  * to recalculate. After each calculation, it redraws and or creates any new subdrafts
@@ -1452,7 +1488,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
             draft_id: (<DraftNode>el).draft.id,
             draft_visible: true,
             bounds: this.calculateInitialLocaiton(el.id)
-          });
+          }, this.scale);
         });
       
 

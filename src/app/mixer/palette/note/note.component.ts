@@ -36,6 +36,7 @@ export class NoteComponent implements OnInit {
 
   ngOnInit() {
     this.note = this.notes.get(this.id);
+
     this.interlacement = this.note.interlacement;
     this.bounds.topleft = {
       x: this.interlacement.j * this.scale,
@@ -72,6 +73,11 @@ export class NoteComponent implements OnInit {
    */
    rescale(scale:number, default_cell: number){
 
+    if(this.note === undefined){
+      console.error("note is undefined on rescale");
+      return;
+    }
+
     this.scale = scale;
     const zoom_factor:number = scale/default_cell;
 
@@ -80,6 +86,7 @@ export class NoteComponent implements OnInit {
     const container: HTMLElement = document.getElementById('scalenote-'+this.note.id);
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
+
 
    
     this.bounds.topleft = {
