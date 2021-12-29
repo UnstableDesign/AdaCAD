@@ -162,9 +162,6 @@ export class OperationComponent implements OnInit {
 
   rescale(scale:number){
 
-
-    console.log("recale op called")
-
     const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
     if(container === null) return;

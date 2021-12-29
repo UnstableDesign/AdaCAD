@@ -67,8 +67,6 @@ export class InitModal implements OnInit {
    */
   async handleFile(e: any) : Promise<any>{
 
-    console.log("handle file", e);
-
     switch(e.type){
       case 'image': 
       return this.fls.loader.bmp(e.name, e.data).then(

@@ -892,12 +892,26 @@ removeOperationNode(id:number) : Array<Node>{
   sds_out_cxns.forEach(el => {
     deleted.push( this.removeNode(el));
   });
- // deleted.concat(sds_in.map(el => this.removeNode(el)));
- // deleted.concat(cxns_in.map(el => {return this.removeNode(el)}));
- // deleted.concat(cxns_out.map(el => {return this.removeNode(el)}));
-  //deleted.concat(sds_out.map(el => {return this.removeNode(el)}));
-  //deleted.concat(sds_out_cxns.map(el => {return this.removeNode(el)}));
-  
+  return deleted;
+    
+}
+
+/**
+ * deletes a connection
+ * @param id - the connection to remove
+ * @returns a list of all nodes removed as a result of this action
+ */
+ removeConnectionNode(from:number, to:number) : Array<Node>{
+
+
+  const cxn_id:number = this.getConnection(from, to);
+
+
+  const deleted:Array<Node> = []; 
+  if(cxn_id === undefined) return;
+
+  deleted.push(this.removeNode(cxn_id));
+
   return deleted;
     
 }
@@ -969,6 +983,8 @@ removeOperationNode(id:number) : Array<Node>{
     const out = this.getNonCxnOutputs(parent);
     const touched: Array<number> = [];
 
+    console.log("resulting drafts", res, out);
+
     if(out.length === res.length){
       out.forEach((output, ndx) => {
         this.setDraft(output, res[ndx],null);
@@ -977,8 +993,8 @@ removeOperationNode(id:number) : Array<Node>{
     }else if(out.length > res.length){
       for(let i = res.length; i < out.length; i++){
         const dn = <DraftNode> this.getNode(out[i]);
-        dn.draft = null;
-        dn.loom = null;
+        dn.draft = new Draft({wefts:0, warps:0});
+        dn.loom = new Loom(dn.draft, this.globalloom.min_frames, this.globalloom.min_treadles);
         dn.dirty = true;
         touched.push(out[i]);
       }
@@ -1068,6 +1084,7 @@ removeOperationNode(id:number) : Array<Node>{
     .map(input_node => input_node.draft)
     .filter(el => el !== null && el !== undefined);
   
+    console.log("input drafts", input_drafts);
   return op.perform(input_drafts, node.params)
     .then(res => {
       node.dirty = false;
@@ -1249,30 +1266,36 @@ removeOperationNode(id:number) : Array<Node>{
   }
 
   /**
-   * given a to and from node, return the id of the connection
-   * @param from id for a subdraft node 
-   * @param to id for a object node
+   * given two nodes, returns the id of the connection node connecting them
+   * @param a one connection node
+   * @param b the other node
    * @returns the node id of the connection, or -1 if that connection is not found
    */
-  getConnection(from: number, to:number) : number{
-    
-      if(this.getType(from) != 'draft' || this.getType(to) != 'op')
-        console.error("looking for connection of wrong type");
+  getConnection(a: number, b:number) : number{
 
-      const sd_node:TreeNode = this.getTreeNode(from);
 
-      if(sd_node.outputs.length == 0){
-        console.log("Error: subdraft node did not have outputs");
-        return -1;
-      } 
-  
-      const cxn_node: TreeNode = sd_node.outputs.find(output_treenode => {
-        return output_treenode.outputs.findIndex(op_treenode => op_treenode.node.id === to) !== -1;
-      });
+     const set_a = this.nodes
+     .filter(el => el.type === 'cxn')
+     .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === a)))
+     .filter(el => (this.getInputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === b)));
 
-      if(cxn_node === undefined) return -1;
-      
-      return cxn_node.node.id;
+     const set_b = this.nodes
+     .filter(el => el.type === 'cxn')
+     .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === b)))
+     .filter(el => (this.getInputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === a)));
+
+     const combined = set_a.concat(set_b);
+
+    if(combined.length === 0){
+      console.error("No connection found between", a, b);
+      return -1;
+    } 
+
+    if(combined.length > 1){
+      console.error("more than one connection found");
+    }
+
+    return combined[0].id;
   
   }
 

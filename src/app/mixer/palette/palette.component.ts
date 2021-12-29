@@ -400,7 +400,6 @@ export class PaletteComponent implements OnInit{
 
      if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.scale;
 
-     //this.changeDesignmode('move');
   }
 
   
@@ -570,6 +569,8 @@ export class PaletteComponent implements OnInit{
    * @param nodep the component proxy used to define
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, saved_scale: number){
+
+    console.log("loading new subdraft", id);
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -1465,15 +1466,18 @@ calculateInitialLocaiton(id: number) : Bounds {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
+  console.log("Performing", op_id);
+
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
 
   return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
-    //const draftnodes = draft_ids.map(el => this.tree.getNode(el));
-    //functions to redraw existing nodes
+
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
       .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
+
+
 
     //create any new subdrafts nodes
     const new_drafts = this.tree.getDraftNodes()
@@ -1536,36 +1540,21 @@ connectionMade(id:number){
 }
 
 /**
- * emitted from subdraft when it receives a hit on its connection button but already 
- * had something assigned there
- * @param id the subdraft id that called the function
- */
+ * Called when a connection is explicitly deleted
+*/
  removeConnection(obj: {from: number, to: number}){
 
+  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to);  
+  to_delete.forEach(node => this.removeFromViewContainer(node.ref));
 
+ 
+ // if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
 
-  const cxn:number = this.tree.getConnection(obj.from, obj.to);
-  if(cxn == -1){
-    console.error("no connection found", obj);
-    return;
-  } 
-
-  console.log("removing connection ", obj, "connection id=", cxn);
+   this.processConnectionEnd();
   
-  const view_ref = this.tree.getViewRef(cxn);
-  this.removeFromViewContainer(view_ref);
-  this.tree.removeNode(cxn);
-
-  const to_delete:Array<number> = this.tree.getUnusuedConnections();
-
-  if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
-
-  //this list has to be calculated before the node is deleted, and udpated after
-  this.processConnectionEnd();
-  
-  if(this.tree.getType(obj.to)==="op"){
-    this.performAndUpdateDownstream(obj.to);
-  }
+   if(this.tree.getType(obj.to)==="op"){
+     this.performAndUpdateDownstream(obj.to);
+   }
   
   this.addTimelineState();
 

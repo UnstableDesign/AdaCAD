@@ -69,9 +69,15 @@ export class MaterialsService {
     return map;
   }
 
-  getColor(index: number,) {
+  /**
+   * returns the color of the shuttle at this index
+   * @param index  the id of the shuttly to get
+   * @returns the color or white if null
+   */
+  getColor(index: number) {
 
     const s: Shuttle = this.getShuttle(index);
+    if(s === null) return "#ffffff";
     return s.color;
   }
 

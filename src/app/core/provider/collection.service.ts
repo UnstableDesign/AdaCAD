@@ -18,7 +18,6 @@ export class CollectionService {
                       weftSize: 0
                     };
     if (snapshot.exists()) {
-      console.log('snapshot exists');
       snapshot.forEach(function(collection) {
         var name: string = collection.val().name;
         if (name == collectionName) {

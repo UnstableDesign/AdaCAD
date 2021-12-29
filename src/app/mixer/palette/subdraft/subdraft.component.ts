@@ -186,12 +186,16 @@ export class SubdraftComponent implements OnInit {
   rescale(scale:number){
 
 
-    if(this.draft === null) return;
+    if(this.draft === null){
+      console.error("subdraft draft null in rescale")
+      return;
+    } 
 
     const zoom_factor:number = scale/this.default_cell;
 
     //redraw at scale
     const container: HTMLElement = document.getElementById('scale-'+this.draft.id);
+   
     if(container === null) return;
 
     container.style.transformOrigin = 'top left';
@@ -459,6 +463,7 @@ export class SubdraftComponent implements OnInit {
   async drawDraft(draft: Draft) : Promise<any> {
 
     if(this.canvas === undefined) return;
+    this.cx = this.canvas.getContext("2d");
    
     if(draft === null){
       this.canvas.width = 0;
