@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Draft } from '../model/draft';
 import {cloneDeep, now} from 'lodash';
 import { SaveObj } from '../provider/file.service';
-import { AngularFirestore, AngularFirestoreDocument} from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
 
 
@@ -26,21 +25,23 @@ export class StateService {
   undo_disabled: boolean;
   redo_disabled: boolean;
   timeline: Array<HistoryState>; //new states are always pushed to front of draft
-  private itemDoc: AngularFirestoreDocument<Item>;
+  // private itemDoc: AngularFirestoreDocument<Item>;
   item: Observable<Item>;
   
-  constructor(private afs: AngularFirestore) { 
+  constructor(
+    // private afs: AngularFirestore
+    ) { 
     this.active_id = 0;
     this.timeline = [];
     this.undo_disabled = true;
     this.redo_disabled = true;
-    this.itemDoc = afs.doc<Item>('patterns/1');
-    console.log("this.itemDoc", this.itemDoc)
-    this.item = this.itemDoc.valueChanges(); 
+    // this.itemDoc = afs.doc<Item>('patterns/1');
+    // console.log("this.itemDoc", this.itemDoc)
+    // this.item = this.itemDoc.valueChanges(); 
   }
 
   update(item: Item) {
-    this.itemDoc.update(item);
+    // this.itemDoc.update(item);
   }
 
 

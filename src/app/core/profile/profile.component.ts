@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../provider/auth.service';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -10,7 +10,7 @@ export class ProfileComponent implements OnInit {
 
   uid: string;
 
-  constructor(private authService: AuthService, db: AngularFireStorage) { 
+  constructor(private authService: AuthService) { 
 
     console.log("getting name", authService.getUid())
     this.uid = authService.getUid();

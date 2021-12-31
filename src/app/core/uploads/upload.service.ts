@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse, HttpClient, HttpHeaders } from '@angular/common/http';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
- import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Upload } from './upload';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-import * as firebase from 'firebase/compat/app';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -17,9 +12,10 @@ const httpOptions = {
 @Injectable()
 export class UploadService {
 
-  constructor(private af: AngularFireAuth, 
-              private db: AngularFireDatabase,
-              private st: AngularFireStorage,
+   constructor(
+    //private af: AngularFireAuth, 
+  //             private db: AngularFireDatabase,
+  //             private st: AngularFireStorage,
               private http: HttpClient,
               private httpClient: HttpClient) { }
 
@@ -40,27 +36,27 @@ export class UploadService {
 
   pushUpload(upload: Upload) {
 
-    //LD - Right now we're just writing an ID to the database, not sure why
-    const id = Math.random().toString(36).substring(2);
-    let storageRef = this.st.ref(id);
-    let uploadTask = storageRef.put(upload.file);
+    // //LD - Right now we're just writing an ID to the database, not sure why
+    // const id = Math.random().toString(36).substring(2);
+    // // let storageRef = this.st.ref(id);
+    // let uploadTask = storageRef.put(upload.file);
 
 
-    this.uploadProgress = uploadTask.percentageChanges();
+    // this.uploadProgress = uploadTask.percentageChanges();
 
-    this.uploadProgress.subscribe((p) => {
-      upload.progress = p;
-    });
+    // this.uploadProgress.subscribe((p) => {
+    //   upload.progress = p;
+    // });
 
-    upload.name = id;
+    // upload.name = id;
 
-    this.saveFileData(upload);
-    return uploadTask.snapshotChanges();
+    // this.saveFileData(upload);
+    // return uploadTask.snapshotChanges();
   }
 
   getDownloadURL(id) {
-    let storageRef = this.st.ref('');
-    return storageRef.child(id).getDownloadURL();
+    // let storageRef = this.st.ref('');
+    // return storageRef.child(id).getDownloadURL();
   }
 
 
@@ -80,7 +76,7 @@ export class UploadService {
 
   // Deletes the file details from the realtime db
   private deleteFileData(key: string) {
-    return this.db.list(`${this.basePath}/`).remove(key);
+    // return this.db.list(`${this.basePath}/`).remove(key);
   }
 
   // Firebase files must have unique names in their respective storage dir
