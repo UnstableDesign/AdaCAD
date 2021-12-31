@@ -1,5 +1,5 @@
 import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Draft } from '../../../core/model/draft';
 import { Loom } from '../../../core/model/loom';
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';

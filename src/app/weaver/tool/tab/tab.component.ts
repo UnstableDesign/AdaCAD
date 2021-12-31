@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostListener } from '@angular/core';
-import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MlModal } from '../../../core/modal/ml/ml.modal';
 import { NgForm } from '@angular/forms';
 import * as _ from 'lodash';
