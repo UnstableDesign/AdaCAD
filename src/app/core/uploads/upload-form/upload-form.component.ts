@@ -17,7 +17,7 @@ export class UploadFormComponent implements OnInit {
   currentUpload: Upload;
   uploading: boolean = false;
   imageToShow: any;
-  @ViewChild('uploadImage', {static: false}) canvas: ElementRef;
+  @ViewChild('uploadImage') canvas: ElementRef;
   @Output() onData: any = new EventEmitter();
 
   constructor(private upSvc: UploadService, private httpClient: HttpClient) { }

@@ -32,8 +32,8 @@ import { StateService } from '../core/provider/state.service';
 })
 export class MixerComponent implements OnInit {
 
-  @ViewChild(PaletteComponent, {static: false}) palette;
-  @ViewChild(SidebarComponent, {static: false}) view_tool;
+  @ViewChild(PaletteComponent) palette;
+  @ViewChild(SidebarComponent) view_tool;
 
 
   filename = "adacad_mixer";

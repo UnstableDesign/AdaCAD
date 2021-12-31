@@ -26,7 +26,7 @@ import { System } from '../model/system';
 })
 export class DraftviewerComponent implements OnInit {
 
-  @ViewChild('bitmapImage', {static: false}) bitmap;
+  @ViewChild('bitmapImage') bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
 
   // @Input('design_actions')  design_actions;

@@ -82,7 +82,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onConnectionStarted:any = new EventEmitter();
   @Output() onSubdraftViewChange:any = new EventEmitter();
 
-  @ViewChild('bitmapImage', {static: false}) bitmap: any;
+  @ViewChild('bitmapImage') bitmap: any;
 
 
 
