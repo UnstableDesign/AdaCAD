@@ -17,7 +17,6 @@ import { MaterialsService } from '../provider/materials.service';
 import { SystemsService } from '../provider/systems.service';
 import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
-import { cross } from 'd3-array';
 import { System } from '../model/system';
 
 @Component({

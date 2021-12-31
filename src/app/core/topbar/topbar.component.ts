@@ -1,7 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { LoginComponent } from '../login/login.component';
 import { AboutModal } from '../modal/about/about.modal';
 import { InitModal } from '../modal/init/init.modal';
+import { AuthService } from '../provider/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -29,7 +31,7 @@ export class TopbarComponent implements OnInit {
   @Input() density_units;
   @Input() source; 
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialog: MatDialog, private auth: AuthService) { }
 
   ngOnInit(){
   }
@@ -83,6 +85,9 @@ export class TopbarComponent implements OnInit {
   openAboutDialog() {
     const dialogRef = this.dialog.open(AboutModal);
 
+  }
+  openLoginDialog() {
+      const dialogRef = this.dialog.open(LoginComponent);
   }
 
   //need to handle this and load the file somehow

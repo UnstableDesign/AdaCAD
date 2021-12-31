@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Login</h2>
+
+<mat-dialog-content>
+<p>Logging in helps us to know blah and saves your files</p>
+  <div class="form-container">
+    <div class="left">
+    <button mat-raised-button (click)="loginGoogle()" class="google">Login or Signup With Google</button>
+    </div>
+    <div class="right">
+      <form #formData='ngForm' (ngSubmit)='onEmailSubmit(formData)'>
+        <mat-form-field appearance="fill" class="example-full-width">
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="email" value="" (ngModel)="email" name="email" class="input-txt" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="example-full-width">
+          <mat-label>Password</mat-label>
+          <input matInput placeholder="password" value="" (ngModel)="password" name="password" class="input-txt" required>
+        </mat-form-field>
+
+        <div class="email_input">
+        <button mat-raised-button type="submit" [disabled]="!formData.valid" class="auth-btn">Sign Up</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!formData.valid" class="auth-btn">Log in</button>
+      </div>
+      </form>
+    </div>
+    </div>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Continue Without an Account</button>
+    <button mat-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+  </mat-dialog-content>

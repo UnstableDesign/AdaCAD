@@ -2,7 +2,6 @@ import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, Chan
 import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { Timeline } from '../core/model/timeline';
 import { Pattern } from '../core/model/pattern';
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
@@ -15,6 +14,7 @@ import { NotesService } from '../core/provider/notes.service';
 import { Cell } from '../core/model/cell';
 import { GloballoomService } from '../core/provider/globalloom.service';
 import { Loom } from '../core/model/loom';
+import { StateService } from '../core/provider/state.service';
 
 
 //disables some angular checking mechanisms
@@ -42,7 +42,6 @@ export class MixerComponent implements OnInit {
    * The weave Timeline object.
    * @property {Timeline}
    */
-   timeline: Timeline = new Timeline();
 
    viewonly: boolean = false;
 
@@ -72,7 +71,8 @@ export class MixerComponent implements OnInit {
     private fs: FileService,
     private vp: ViewportService,
     private gl: GloballoomService,
-    private notes: NotesService) {
+    private notes: NotesService,
+    private ss: StateService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -366,7 +366,7 @@ export class MixerComponent implements OnInit {
 
   undo() {
 
-    let so: string = this.timeline.restorePreviousMixerHistoryState();
+    let so: string = this.ss.restorePreviousMixerHistoryState();
     
     this.fs.loader.ada(this.filename, JSON.parse(so)).then(
       lr => this.loadNewFile(lr)
@@ -377,7 +377,7 @@ export class MixerComponent implements OnInit {
 
   redo() {
 
-    let so: string = this.timeline.restoreNextMixerHistoryState();
+    let so: string = this.ss.restoreNextMixerHistoryState();
     this.fs.loader.ada(this.filename, JSON.parse(so))
     .then(lr =>  this.loadNewFile(lr));
 

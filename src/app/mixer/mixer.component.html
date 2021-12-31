@@ -1,7 +1,6 @@
 <app-topbar 
 [drawer] = "drawer"
 [loomtypes] = "loomtypes"
-[timeline] = "timeline"
 [density_units] = "density_units"
 [undoItem]="undoItem" 
 [redoItem]="redoItem"
@@ -20,7 +19,6 @@ source="mixer"
 
 
         <app-sidebar #view_tool
-        [timeline]="timeline"
         [draft]="draft"
         [loom]="loom"  
         [render]=""
@@ -98,7 +96,6 @@ source="mixer"
 
   <app-palette  [style.width.px]='vp.getAbsoluteWidth()' [style.height.px]='vp.getAbsoluteHeight()' #palette  id="scrollable-container"
   [patterns] = "default_patterns"
-  [timeline] = "timeline"
   (onDesignModeChange)="designModeChange($event)" >
   </app-palette>
 

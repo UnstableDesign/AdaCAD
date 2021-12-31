@@ -1,6 +1,5 @@
 import { I } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
-import { symbolSquare } from 'd3-shape';
 import { Draft } from '../model/draft';
 import { System } from '../model/system';
 import utilInstance from '../model/util';

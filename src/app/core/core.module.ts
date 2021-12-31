@@ -56,6 +56,11 @@ import { LoomModal } from './modal/loom/loom.modal';
 import { Action } from 'rxjs/internal/scheduler/Action';
 import { VaeService } from './provider/vae.service';
 import { PatternfinderService } from './provider/patternfinder.service';
+import { LoginComponent } from './login/login.component';
+import { SignupComponent } from './signup/signup.component';
+import { ProfileComponent } from './profile/profile.component';
+import { EmailComponent } from './email/email.component';
+import { AuthService } from './provider/auth.service';
 
 @NgModule({
   imports: [
@@ -109,7 +114,11 @@ import { PatternfinderService } from './provider/patternfinder.service';
     DraftviewerComponent,
     SelectionComponent,
     SidebarComponent,
-    WeaverViewComponent
+    WeaverViewComponent,
+    LoginComponent,
+    SignupComponent,
+    ProfileComponent,
+    EmailComponent
    ],
 
   providers: [
@@ -118,7 +127,8 @@ import { PatternfinderService } from './provider/patternfinder.service';
     CollectionService,
     FileService,
     VaeService,
-    PatternfinderService
+    PatternfinderService,
+    AuthService
   ],
 
   exports: [
@@ -179,7 +189,8 @@ import { PatternfinderService } from './provider/patternfinder.service';
       LoomModal,
       DraftviewerComponent,
       ActionsComponent,
-      WeaverViewComponent
+      WeaverViewComponent,
+      LoginComponent
     ],
 })
 export class CoreModule { }

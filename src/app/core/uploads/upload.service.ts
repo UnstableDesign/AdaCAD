@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse, HttpClient, HttpHeaders } from '@angular/common/http';
-import { AngularFireAuth } from 'angularfire2/auth';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
-import { AngularFireStorage } from 'angularfire2/storage';
+import { AngularFireAuth } from '@angular/fire/auth';
+ import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
+import { AngularFireStorage } from '@angular/fire/storage';
 import { Upload } from './upload';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';

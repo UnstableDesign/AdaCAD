@@ -13,6 +13,7 @@ import { ActionsComponent } from '../modal/actions/actions.component';
 import { InitModal } from '../../core/modal/init/init.modal';
 import { MaterialsService } from '../provider/materials.service';
 import { MlModal } from '../modal/ml/ml.modal';
+import { StateService } from '../provider/state.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -77,7 +78,8 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     private dm: DesignmodesService, 
-    private is:InkService ,
+    private is:InkService,
+    private ss: StateService,
     private ms: MaterialsService, 
     private dialog: MatDialog) { 
     this.view = this.dm.getSelectedDesignMode('view_modes').value;
