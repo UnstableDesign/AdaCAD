@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Draft } from '../model/draft';
 import {cloneDeep, now} from 'lodash';
 import { SaveObj } from '../provider/file.service';
-import { AngularFirestore, AngularFirestoreDocument} from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreDocument} from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
 
 

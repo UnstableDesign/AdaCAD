@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse, HttpClient, HttpHeaders } from '@angular/common/http';
-import { AngularFireAuth } from '@angular/fire/auth';
- import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
-import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+ import { AngularFireDatabase, AngularFireList } from '@angular/fire/compat/database';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Upload } from './upload';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import * as firebase from 'firebase/app';
+import * as firebase from 'firebase/compat/app';
 
 const httpOptions = {
   headers: new HttpHeaders({
