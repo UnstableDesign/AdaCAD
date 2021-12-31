@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import * as firebase from 'firebase/compat/app';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -9,67 +7,72 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 export class AuthService {
 
   private uid:string;
-  public user: firebase.User = undefined;
+  public user: any = undefined;
   private username: string = "";
 
-  constructor( private afAuth: AngularFireAuth,
+  // constructor( private afAuth: AngularFireAuth,
+  //   private router: Router) {}
+
+
+
+  constructor(
     private router: Router) {}
 
   login(email: string, password: string) {
-        this.afAuth.auth.signInWithEmailAndPassword(email, password)
-        .then(value => {
-          console.log('Nice, it worked!');
-          this.uid = value.user.uid;
-          this.user = value.user;
-          this.username = value.user.displayName;
-          this.router.navigateByUrl('');
-        })
-        .catch(err => {
-          console.log('Something went wrong: ', err.message);
-        });
+        // this.afAuth.auth.signInWithEmailAndPassword(email, password)
+        // .then(value => {
+        //   console.log('Nice, it worked!');
+        //   this.uid = value.user.uid;
+        //   this.user = value.user;
+        //   this.username = value.user.displayName;
+        //   this.router.navigateByUrl('');
+        // })
+        // .catch(err => {
+        //   console.log('Something went wrong: ', err.message);
+        // });
      }
 
      emailSignup(email: string, password: string) {
-      this.afAuth.auth.createUserWithEmailAndPassword(email, password)
-      .then(value => {
-       console.log('Sucess', value);
-       this.uid = value.user.uid;
-       this.user = value.user;
-       this.username = value.user.displayName;
-       this.router.navigateByUrl('');
-      })
-      .catch(error => {
-        console.log('Something went wrong: ', error);
-      });
+      // this.afAuth.auth.createUserWithEmailAndPassword(email, password)
+      // .then(value => {
+      //  console.log('Sucess', value);
+      //  this.uid = value.user.uid;
+      //  this.user = value.user;
+      //  this.username = value.user.displayName;
+      //  this.router.navigateByUrl('');
+      // })
+      // .catch(error => {
+      //   console.log('Something went wrong: ', error);
+      // });
     }
   
     googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      return this.oAuthLogin(provider)
-        .then(value => {
-          this.uid = value.user.uid;
-          this.user = value.user;
-          this.username = value.user.displayName;
-       console.log('Sucess', value),
-       this.router.navigateByUrl('');
-     })
-      .catch(error => {
-        console.log('Something went wrong: ', error);
-      });
+    //   const provider = new firebase.auth.GoogleAuthProvider();
+    //   return this.oAuthLogin(provider)
+    //     .then(value => {
+    //       this.uid = value.user.uid;
+    //       this.user = value.user;
+    //       this.username = value.user.displayName;
+    //    console.log('Sucess', value),
+    //    this.router.navigateByUrl('');
+    //  })
+    //   .catch(error => {
+    //     console.log('Something went wrong: ', error);
+    //   });
     }
 
   
     logout() {
-      this.afAuth.auth.signOut().then(() => {
-        this.user === undefined;
-        this.router.navigate(['/']);
+      // this.afAuth.auth.signOut().then(() => {
+      //   this.user === undefined;
+      //   this.router.navigate(['/']);
 
 
-      });
+      // });
     }
   
     private oAuthLogin(provider) {
-      return this.afAuth.auth.signInWithPopup(provider);
+      //return this.afAuth.auth.signInWithPopup(provider);
     }
 
     loggedIn():boolean{

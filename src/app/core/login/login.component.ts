@@ -35,10 +35,10 @@ export class LoginComponent implements OnInit {
   }
 
   loginGoogle() {
-    this.authService.googleLogin().then(logged_in=> {
-      console.log("auth finished running")
-      this.dialogRef.close('Log In Via Google Success!');
-    });
+    // this.authService.googleLogin().then(logged_in=> {
+    //   console.log("auth finished running")
+    //   this.dialogRef.close('Log In Via Google Success!');
+    // });
   }
 
   openEmailLogin(){
