@@ -42,9 +42,9 @@
     "firebase": ">= 5.5.7 <8"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "0.1202.14",
-    "@angular-devkit/build-angular": "~12.2.14",
-    "@angular/cli": "^12.2.14",
+    "@angular-devkit/architect": "0.1301.2",
+    "@angular-devkit/build-angular": "~13.1.2",
+    "@angular/cli": "^13.1.2",
     "@angular/compiler-cli": "^13.1.1",
     "@angular/language-service": "^13.1.1",
     "@tensorflow/tfjs": "3.8.0",
