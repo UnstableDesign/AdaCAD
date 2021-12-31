@@ -11,6 +11,8 @@ import { AuthService } from '../provider/auth.service';
 export class LoginComponent implements OnInit {
 
   method: string = "";
+  password: string = "";
+  email: string = "";
 
   constructor(private router: Router, private authService: AuthService, private dialogRef: MatDialogRef<LoginComponent>,
     @Inject(MAT_DIALOG_DATA) private data: any) { }

@@ -163,7 +163,7 @@ export class PaletteComponent implements OnInit{
     private resolver: ComponentFactoryResolver, 
     private fs: FileService,
     private _snackBar: MatSnackBar,
-    private viewport: ViewportService,
+    public viewport: ViewportService,
     private notes: NotesService,
     private ss: StateService) { 
     this.shape_vtxs = [];

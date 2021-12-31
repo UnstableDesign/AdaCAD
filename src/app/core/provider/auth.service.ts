@@ -9,7 +9,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 export class AuthService {
 
   private uid:string;
-  private user: firebase.User = undefined;
+  public user: firebase.User = undefined;
   private username: string = "";
 
   constructor( private afAuth: AngularFireAuth,

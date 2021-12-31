@@ -30,9 +30,11 @@ import { ScrollingModule} from '@angular/cdk/scrolling';
 
 import { CoreModule } from '../core/core.module';
 import { WeaverComponent } from './weaver.component';
-import { TabComponent } from './tool/tab/tab.component';
 
 @NgModule({
+    declarations: [
+        WeaverComponent
+    ],
     imports: [
         CommonModule,
         CoreModule,
@@ -61,10 +63,7 @@ import { TabComponent } from './tool/tab/tab.component';
         MatTooltipModule,
         ColorPickerModule,
         MatChipsModule,
-        ScrollingModule,
-    ],
-    declarations: [
-        WeaverComponent
+        ScrollingModule
     ],
     exports: [
         WeaverComponent

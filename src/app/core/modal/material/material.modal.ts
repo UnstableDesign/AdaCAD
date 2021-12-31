@@ -5,7 +5,6 @@ import { Shuttle } from '../../../core/model/shuttle';
 import { Draft } from '../../model/draft';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
-import { ShuttlesModal } from '../shuttles/shuttles.modal';
 import { DraftNode, TreeService } from '../../../mixer/provider/tree.service';
 import utilInstance from '../../model/util';
 import { OperationService } from '../../../mixer/provider/operation.service';
@@ -27,10 +26,11 @@ export class MaterialModal{
   replacements: Array<number> = [];
   types: any;
   newshuttle: Shuttle = new Shuttle();
+  addmaterial: boolean = false;
 
   constructor(
       private dm: DesignmodesService,
-      private ms: MaterialsService,
+      public ms: MaterialsService,
       private tree: TreeService,
       private dialogRef: MatDialogRef<MaterialModal>,
       @Inject(MAT_DIALOG_DATA) public data: {draft:Draft}) {

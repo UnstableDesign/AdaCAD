@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
-import { ShuttlesModal } from '../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../model/shuttle';
 
 

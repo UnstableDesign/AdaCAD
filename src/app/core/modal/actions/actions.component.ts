@@ -75,8 +75,8 @@ export class ActionsComponent implements OnInit {
 
 
   constructor(
-    private ms: MaterialsService, 
-    private ss: SystemsService,
+    public ms: MaterialsService, 
+    public ss: SystemsService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<ActionsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) {

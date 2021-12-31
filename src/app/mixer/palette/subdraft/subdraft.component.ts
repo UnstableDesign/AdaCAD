@@ -132,7 +132,7 @@ export class SubdraftComponent implements OnInit {
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ms: MaterialsService, 
-    private tree: TreeService,
+    public tree: TreeService,
     private fs: FileService,
     private viewport: ViewportService,
     private dialog: MatDialog,

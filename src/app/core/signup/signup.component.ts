@@ -8,6 +8,9 @@ import { AuthService } from '../provider/auth.service';
 })
 export class SignupComponent implements OnInit {
 
+password: string = ""
+email: string = ""
+
   constructor(public authService: AuthService) { }
 
   ngOnInit() {

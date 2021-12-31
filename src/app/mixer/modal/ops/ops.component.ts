@@ -20,7 +20,7 @@ export class OpsComponent implements OnInit {
   myControl = new FormControl();
   filteredOptions: Observable<string[]>;
   
-  constructor(private ops: OperationService, private dialog: MatDialog,
+  constructor(public ops: OperationService, private dialog: MatDialog,
     private dialogRef: MatDialogRef<OpsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) { }
 

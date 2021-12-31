@@ -92,8 +92,8 @@ export class OperationComponent implements OnInit {
     private operations: OperationService, 
     private dialog: MatDialog,
     private viewport: ViewportService,
-    private tree: TreeService,
-    private dm: DesignmodesService) { 
+    public tree: TreeService,
+    public dm: DesignmodesService) { 
     
       //this.outputs = [];
   
@@ -241,7 +241,7 @@ export class OperationComponent implements OnInit {
     return this.op.max_inputs;
   }
 
-  inputSelected(event: any, ndx: number){
+  inputSelected(event: any){
     this.disableDrag();
     this.onInputAdded.emit(this.id);
   }

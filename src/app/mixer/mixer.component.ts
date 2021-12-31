@@ -64,12 +64,12 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private dm: DesignmodesService, 
+  constructor(public dm: DesignmodesService, 
     private ps: PatternService, 
     private tree: TreeService,
     public scroll: ScrollDispatcher,
     private fs: FileService,
-    private vp: ViewportService,
+    public vp: ViewportService,
     private gl: GloballoomService,
     private notes: NotesService,
     private ss: StateService) {
@@ -100,7 +100,7 @@ export class MixerComponent implements OnInit {
     }
   }
 
-  private setScroll(delta: any) {
+ setScroll(delta: any) {
     this.palette.handleScroll(delta);
     this.manual_scroll = true;
    //this.view_tool.updateViewPort(data);
@@ -111,7 +111,7 @@ export class MixerComponent implements OnInit {
    * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
    * @param name the name of the current design mode
    */
-  private designModeChange(name: string){
+  designModeChange(name: string){
     this.palette.designModeChanged();
   }
 

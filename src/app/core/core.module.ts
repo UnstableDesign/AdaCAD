@@ -46,7 +46,6 @@ import { MlModal } from './modal/ml/ml.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
-import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 
 import { WeaverViewComponent } from './modal/weaverview/weaverview.component';
@@ -105,7 +104,6 @@ import { AuthService } from './provider/auth.service';
         TopbarComponent,
         ActionsComponent,
         PatternModal,
-        ShuttlesModal,
         InitModal,
         AboutModal,
         MlModal,

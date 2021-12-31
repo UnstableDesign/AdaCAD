@@ -1,5 +1,5 @@
 import { Component, Input, Output, OnInit,EventEmitter } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { WeaverViewComponent } from '../modal/weaverview/weaverview.component';
 import { MixerViewComponent } from '../../mixer/modal/mixerview/mixerview.component';
 import { OpsComponent } from '../../mixer/modal/ops/ops.component';

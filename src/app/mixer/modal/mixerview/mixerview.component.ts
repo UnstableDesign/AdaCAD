@@ -34,7 +34,7 @@ export class MixerViewComponent implements OnInit {
 
   div: Element;
 
- constructor(private viewport: ViewportService,
+ constructor(public viewport: ViewportService,
   private dialog: MatDialog,
     private dialogRef: MatDialogRef<MixerViewComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) { 

@@ -1,12 +1,7 @@
 <app-topbar 
 [drawer] = "drawer"
-[loomtypes] = "loomtypes"
-[density_units] = "density_units"
-[undoItem]="undoItem" 
-[redoItem]="redoItem"
 [filename]="filename"
 source="mixer"
-[draftelement]="draftelement"
   (onUndo)="undo();" 
   (onRedo)="redo();"
   (onLoadNewFile)="loadNewFile($event);"
@@ -19,8 +14,6 @@ source="mixer"
 
 
         <app-sidebar #view_tool
-        [draft]="draft"
-        [loom]="loom"  
         [render]=""
         [viewonly]="viewonly"
         source='mixer'
@@ -32,8 +25,8 @@ source="mixer"
         (onImport) = "importNewFile($event)"
         (onZoomChange) ="renderChange($event);"
         (onViewPortMove) ="setScroll($event);"
-        (onNoteCreate) ="createNote($event);"
-        (onMaterialChange) = "materialChange($event)"
+        (onNoteCreate) ="createNote();"
+        (onMaterialChange) = "materialChange()"
         (onGlobalLoomChange) = "globalLoomChange($event)"
         ></app-sidebar>
 
@@ -94,8 +87,10 @@ source="mixer"
   </app-palette> -->
 
 
-  <app-palette  [style.width.px]='vp.getAbsoluteWidth()' [style.height.px]='vp.getAbsoluteHeight()' #palette  id="scrollable-container"
-  [patterns] = "default_patterns"
+  <app-palette  
+  [style.width.px]='vp.getAbsoluteWidth()' 
+  [style.height.px]='vp.getAbsoluteHeight()' 
+  #palette  id="scrollable-container"
   (onDesignModeChange)="designModeChange($event)" >
   </app-palette>
 

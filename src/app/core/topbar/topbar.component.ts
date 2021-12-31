@@ -31,7 +31,9 @@ export class TopbarComponent implements OnInit {
   @Input() density_units;
   @Input() source; 
 
-  constructor(private dialog: MatDialog, private auth: AuthService) { }
+  collapsed: boolean = false;
+
+  constructor(private dialog: MatDialog, public auth: AuthService) { }
 
   ngOnInit(){
   }
@@ -40,7 +42,7 @@ export class TopbarComponent implements OnInit {
 
   }
 
-  public saveAsBmp(e: any) {
+  public saveAsBmp() {
     var obj: any = {
       name: this.filename,
       type: "bmp"
@@ -49,7 +51,7 @@ export class TopbarComponent implements OnInit {
   	this.onSave.emit(obj);
   }
 
-  public saveAsAda(e: any) {
+  public saveAsAda() {
     var obj: any = {
       name: this.filename,
       type: "ada"
@@ -58,7 +60,7 @@ export class TopbarComponent implements OnInit {
     this.onSave.emit(obj);
   }
 
-  public saveAsWif(e: any) {
+  public saveAsWif() {
     var obj: any = {
       name: this.filename,
       type: "wif"
@@ -66,7 +68,7 @@ export class TopbarComponent implements OnInit {
     this.onSave.emit(obj);
   }
 
-  public saveAsPrint(e: any) {
+  public saveAsPrint() {
     var obj: any = {
       name: this.filename,
       type: "jpg"
@@ -74,11 +76,11 @@ export class TopbarComponent implements OnInit {
     this.onSave.emit(obj);
   }
 
-  undoClicked(e:any) {
+  undoClicked() {
     this.onUndo.emit();
   }
 
-  redoClicked(e:any) {
+  redoClicked() {
     this.onRedo.emit();
   }
 

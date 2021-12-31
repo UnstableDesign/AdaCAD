@@ -1,5 +1,5 @@
 
-<mat-expansion-panel  expanded [hideToggle] = "collapsed">
+<mat-expansion-panel  expanded>
   <mat-expansion-panel-header>
     <mat-panel-title>
      <span>Freehand Tools</span>
@@ -12,14 +12,14 @@
   
   <!-- <h3>Draw, Select, Arrange</h3> -->
 
-  <ng-container *ngFor="let mode of design_modes.modes">
+  <ng-container *ngFor="let mode of dm.getOptionSet('design_modes')">
     <ng-container *ngIf="mode.value === 'shape'">
       <button mat-button
       [matTooltip]=mode.viewValue
       [name]=mode.value 
       [matMenuTriggerFor] = 'shape'
       class="button is-small is-primary {{mode.icon}}"
-      [class.is-active]="design_modes.isSelected(mode.value)"
+      [class.is-active]="dm.isSelected(mode.value, 'design_modes')"
       [style.color]="button_color"
       (click)="designModeChange($event)">
       </button> 
@@ -30,7 +30,7 @@
         [matTooltip]=mode.viewValue
         [name]=mode.value 
         class="button is-small is-primary {{mode.icon}}"
-        [class.is-active]="design_modes.isSelected(mode.value)"
+        [class.is-active]="dm.isSelected(mode.value)"
         [style.color]="button_color"
         (click)="designModeChange($event)">
         </button> 
@@ -39,12 +39,12 @@
     
 
     <mat-menu #shape="matMenu">
-    <ng-container *ngFor="let mode of design_modes.getMode('shape').children">
+    <ng-container *ngFor="let mode of dm.getDesignMode('shape', 'design_modes').children">
       <button 
       [matTooltip]=mode.viewValue
       [name]=mode.value 
       class="button is-small is-primary {{mode.icon}}"
-      [class.is-active]="design_modes.isSelected(mode.value)"
+      [class.is-active]="dm.isSelected(mode.value)"
       [style.color]="button_color"
       (click)="designModeChange($event)">
       </button> 

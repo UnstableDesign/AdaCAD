@@ -19,7 +19,7 @@ cdkDrag
         <button 
         class="button is-small input"
         [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
-        (click)="inputSelected($event, ndx)">
+        (click)="inputSelected($event)">
         <i class="fas fa-chevron-right"></i>
         </button>
 
@@ -56,7 +56,7 @@ cdkDrag
     <button 
     matTooltip= "Duplilcate"
     class="button is-small is-primary fa fa-clone"
-    (click)="duplicate('duplicate')">
+    (click)="duplicate()">
     </button>
     
 

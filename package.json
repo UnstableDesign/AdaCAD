@@ -32,14 +32,14 @@
     "bulma": "^0.8.0",
     "canvas2image": "^1.0.5",
     "core-js": "^3.6.4",
+    "firebase": ">= 5.5.7 <8",
     "lodash": "^4.17.15",
     "mathjs": ">=7.5.1",
     "ngx-color-picker": "^8.2.0",
     "rxjs": "^6.5.4",
     "tar": ">=5.0.10",
-    "tslib": "^2.0.0",
-    "zone.js": "~0.11.4",
-    "firebase": ">= 5.5.7 <8"
+    "tslib": "^2.3.1",
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/architect": "0.1301.2",

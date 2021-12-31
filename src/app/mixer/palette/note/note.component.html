@@ -1,7 +1,7 @@
 
+<!--TODO add z index support here-->
 <div class="note-container" 
 cdkDrag
-[style.z-index] = "zndx"
 [cdkDragFreeDragPosition]="bounds.topleft"
 (cdkDragMoved)="dragMove($event)">
 
@@ -20,7 +20,6 @@ cdkDrag
       <button 
       matTooltip= "Delete"
       class="button is-small is-primary fas fa-times"
-      [style.color]="button_color" 
       [name]="delete"
       (click)="delete(note.id)">
       </button>

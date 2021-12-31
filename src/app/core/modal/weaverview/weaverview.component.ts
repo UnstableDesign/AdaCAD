@@ -1,6 +1,5 @@
-import { D } from '@angular/cdk/keycodes';
 import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Draft } from '../../../core/model/draft';
 import { Render } from '../../../core/model/render';
 import { DesignmodesService } from '../../provider/designmodes.service';
@@ -20,6 +19,7 @@ export class WeaverViewComponent implements OnInit {
 
   render:Render;
   draft: Draft;
+  front: boolean = true;
 
   @Output() onViewChange: any = new EventEmitter();
   @Output() onViewFront: any = new EventEmitter();
@@ -31,7 +31,7 @@ export class WeaverViewComponent implements OnInit {
 
 
  constructor(
-   private ss: SystemsService,
+   public ss: SystemsService,
    private dm: DesignmodesService, 
    private dialog: MatDialog,
   private dialogRef: MatDialogRef<WeaverViewComponent>,

@@ -13,7 +13,7 @@
 
 <span class="center">
    <button mat-icon-button
-      (click)="openAboutDialog(null)"
+      (click)="openAboutDialog()"
       matTooltip ="about AdaCAD"
       >
       <i class="fas fa-info-circle"></i>
@@ -43,14 +43,14 @@
 
      <button mat-icon-button="Open" 
      matTooltip ="open a new workspace"
-     (click)="openNewFileDialog(null)">
+     (click)="openNewFileDialog()">
      <i class="fas fa-folder-open"></i>
     </button>
 
 
  <mat-form-field class="filename">
         <mat-label>Filename</mat-label>
-        <input matInput type="text" [(ngModel)]="filename">
+        <input matInput type="text">
       </mat-form-field>
 
 

@@ -23,7 +23,7 @@ export class MixerDesignComponent implements OnInit {
 
   selected = 0;
 
-  constructor(public dialog: MatDialog, private dm: DesignmodesService, private inks: InkService) { 
+  constructor(public dialog: MatDialog, public dm: DesignmodesService, private inks: InkService) { 
   }
 
   ngOnInit() {

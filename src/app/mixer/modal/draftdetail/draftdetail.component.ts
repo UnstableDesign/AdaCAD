@@ -50,11 +50,11 @@ export class DraftdetailComponent implements OnInit {
   constructor(private dialogRef: MatDialogRef<DraftdetailComponent>,
              @Inject(MAT_DIALOG_DATA) private data: any, 
              private scroll: ScrollDispatcher,
-             private inks: InkService,
+             public inks: InkService,
              private dm: DesignmodesService,
              private ops: OperationService,
              private ms: MaterialsService,
-             private gl: GloballoomService) { 
+             public gl: GloballoomService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()
