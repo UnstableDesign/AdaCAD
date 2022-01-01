@@ -9,6 +9,12 @@ import { CoreModule } from './core/core.module';
 import { WeaverModule } from './weaver/weaver.module';
 import { MixerModule } from './mixer/mixer.module';
 import { secrets } from '../environments/secrets';
+import { initializeApp,provideFirebaseApp } from '@angular/fire/app';
+import { environment } from '../environments/environment';
+import { provideAnalytics,getAnalytics,ScreenTrackingService,UserTrackingService } from '@angular/fire/analytics';
+import { provideAuth,getAuth } from '@angular/fire/auth';
+import { provideDatabase,getDatabase } from '@angular/fire/database';
+import { provideFirestore,getFirestore } from '@angular/fire/firestore';
 
 
 export const firebaseConfig = secrets;
@@ -23,11 +29,16 @@ export const firebaseConfig = secrets;
     HttpClientModule,
     WeaverModule,
     MixerModule,
-    BrowserAnimationsModule  ],
+    BrowserAnimationsModule,
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideAnalytics(() => getAnalytics()),
+    provideAuth(() => getAuth()),
+    provideDatabase(() => getDatabase()),
+    provideFirestore(() => getFirestore())  ],
   providers: [{ 
     provide: HAMMER_GESTURE_CONFIG, 
     useClass: HammerGestureConfig 
-  }],
+  }, ScreenTrackingService,UserTrackingService],
   bootstrap: [AppComponent]
 })
 export class AppModule { 

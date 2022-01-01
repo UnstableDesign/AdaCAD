@@ -92,7 +92,13 @@
         },
         "deploy": {
           "builder": "@angular/fire:deploy",
-          "options": {}
+          "options": {
+            "prerender": false,
+            "ssr": false,
+            "browserTarget": "adacad-weaver:build:production",
+            "firebaseProject": "adacad-weaver",
+            "firebaseHostingSite": "adacad-weaver"
+          }
         }
       }
     },
