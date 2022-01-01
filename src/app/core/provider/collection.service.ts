@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { } from '@angular/fire/database'
+import { Firestore, collectionData, collection } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+
 /**
  * Definition of pattern provider.
  * @class
