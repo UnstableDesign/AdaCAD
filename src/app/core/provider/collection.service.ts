@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { } from '@angular/fire/database'
 /**
  * Definition of pattern provider.
  * @class
@@ -13,26 +14,26 @@ export class CollectionService {
   indicator: boolean = false;
 
  
-  async getCollection(collectionName) {
-    // var snapshot = await this.db.database.ref("collections/").once('value');
-    // var returnVal = { warpSize: 0,
-    //                   weftSize: 0
-    //                 };
-    // if (snapshot.exists()) {
-    //   snapshot.forEach(function(collection) {
-    //     var name: string = collection.val().name;
-    //     if (name == collectionName) {
-    //       returnVal.warpSize = collection.val().Warps;
-    //       returnVal.weftSize = collection.val().Wefts;
-    //     }
-    //   });
-    //   console.log("Success");
-    //   return returnVal;
-    // } else {
-    //   console.log("Error");
-    //   return null;
-    // }
-  }
+  // async getCollection(collectionName) {
+  //   var snapshot = await this.db.database.ref("collections/").once('value');
+  //   var returnVal = { warpSize: 0,
+  //                     weftSize: 0
+  //                   };
+  //   if (snapshot.exists()) {
+  //     snapshot.forEach(function(collection) {
+  //       var name: string = collection.val().name;
+  //       if (name == collectionName) {
+  //         returnVal.warpSize = collection.val().Warps;
+  //         returnVal.weftSize = collection.val().Wefts;
+  //       }
+  //     });
+  //     console.log("Success");
+  //     return returnVal;
+  //   } else {
+  //     console.log("Error");
+  //     return null;
+  //   }
+  // }
 
   async getCollectionNames() {
     // var ref = this.db.database.ref("collections/");
