@@ -12,7 +12,6 @@ import { DesignmodesService } from '../provider/designmodes.service';
 import { ActionsComponent } from '../modal/actions/actions.component';
 import { InitModal } from '../../core/modal/init/init.modal';
 import { MaterialsService } from '../provider/materials.service';
-import { MlModal } from '../modal/ml/ml.modal';
 import { StateService } from '../provider/state.service';
 
 @Component({
@@ -73,7 +72,6 @@ export class SidebarComponent implements OnInit {
   equipment_modal: MatDialogRef<LoomModal, any>;
   global_loom_modal: MatDialogRef<LoomModal, any>;
   upload_modal: MatDialogRef<InitModal, any>;
-  ml_modal: MatDialogRef<MlModal, any>;
 
 
   constructor(
@@ -103,25 +101,25 @@ export class SidebarComponent implements OnInit {
      this.onDesignModeChange.emit(obj);
   }
 
-  engageMLMode() {
-    if(this.ml_modal != undefined && this.ml_modal.componentInstance != null) return;
-    console.log('engaged ML mode');
+  // engageMLMode() {
+  //   if(this.ml_modal != undefined && this.ml_modal.componentInstance != null) return;
+  //   console.log('engaged ML mode');
 
-    this.ml_modal =  this.dialog.open(MlModal,
-      {
-        maxWidth:350, 
-        hasBackdrop: false,
-        data: {draft:this.draft}});
+  //   this.ml_modal =  this.dialog.open(MlModal,
+  //     {
+  //       maxWidth:350, 
+  //       hasBackdrop: false,
+  //       data: {draft:this.draft}});
   
   
-        this.ml_modal.componentInstance.onChange.subscribe(event => { this.onMLChange.emit();});
+  //       this.ml_modal.componentInstance.onChange.subscribe(event => { this.onMLChange.emit();});
   
     
-      //   this.materials_modal.afterClosed().subscribe(result => {
-      //     this.onMLChange.emit();
-      // });
+  //     //   this.materials_modal.afterClosed().subscribe(result => {
+  //     //     this.onMLChange.emit();
+  //     // });
 
-  }
+  // }
 
   closeWeaverModals(){
     if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) this.materials_modal.close();
@@ -129,7 +127,6 @@ export class SidebarComponent implements OnInit {
     if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) this.patterns_modal.close();
     if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
     if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
-    if(this.ml_modal != undefined && this.ml_modal.componentInstance != null) this.ml_modal.close();
   }
 
   shapeChange(name:string){

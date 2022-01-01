@@ -34,7 +34,6 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
 import {MatBadgeModule} from '@angular/material/badge';
 
 import { PatternService } from './provider/pattern.service';
-import { CollectionService } from './provider/collection.service';
 import { UploadService } from './uploads/upload.service';
 import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
@@ -42,7 +41,6 @@ import { TopbarComponent } from './topbar/topbar.component';
 import { ActionsComponent} from './modal/actions/actions.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
-import { MlModal } from './modal/ml/ml.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
@@ -106,7 +104,6 @@ import { AuthService } from './provider/auth.service';
         PatternModal,
         InitModal,
         AboutModal,
-        MlModal,
         MaterialModal,
         LoomModal,
         DraftviewerComponent,
@@ -121,7 +118,6 @@ import { AuthService } from './provider/auth.service';
     providers: [
         PatternService,
         UploadService,
-        CollectionService,
         FileService,
         VaeService,
         PatternfinderService,
@@ -168,7 +164,6 @@ import { AuthService } from './provider/auth.service';
         PatternModal,
         InitModal,
         AboutModal,
-        MlModal,
         MaterialModal,
         LoomModal,
         DraftviewerComponent,
