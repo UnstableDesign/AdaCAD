@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Draft } from '../model/draft';
 import {cloneDeep, now} from 'lodash';
-import { SaveObj } from '../provider/file.service';
+import { traceUntilFirst } from '@angular/fire/performance';
+import { doc, docData, Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-
-
+import { map } from 'mathjs';
+import {getDatabase, ref as fbref, set as fbset, onValue} from '@angular/fire/database'
+import { authInstanceFactory } from '@angular/fire/auth/auth.module';
+import { AuthService } from './auth.service';
 /**
  * stores a state within the undo/redo timeline
  * weaver uses draft, mixer uses ada
@@ -14,43 +17,75 @@ import { Observable } from 'rxjs';
   ada: string;
 }
 
-export interface Item { name: string; }
-
 @Injectable({
   providedIn: 'root'
 })
 export class StateService {
+
+  public readonly testDocValue$: Observable<any>;
+
   active_id = 0;
   max_size = 10;
   undo_disabled: boolean;
   redo_disabled: boolean;
   timeline: Array<HistoryState>; //new states are always pushed to front of draft
   // private itemDoc: AngularFirestoreDocument<Item>;
-  item: Observable<Item>;
   
-  constructor(
-    // private afs: AngularFirestore
-    ) { 
+  constructor(firestore: Firestore, public auth: AuthService) {
+
+    const db = getDatabase();
+    const starCountRef = fbref(db, 'users/alovelace');
+    onValue(starCountRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log("data in", data);
+    });
+
     this.active_id = 0;
     this.timeline = [];
     this.undo_disabled = true;
     this.redo_disabled = true;
-    // this.itemDoc = afs.doc<Item>('patterns/1');
-    // console.log("this.itemDoc", this.itemDoc)
-    // this.item = this.itemDoc.valueChanges(); 
+
   }
 
-  update(item: Item) {
-    // this.itemDoc.update(item);
+  printValue(value: any){
+    console.log("printing", value);
+  }
+
+  public writeUserData(cur_state: any) {
+
+    console.log("with uid", this.auth.uid);
+    if(this.auth.uid === undefined) return;
+
+    console.log("writing", cur_state);
+    const db = getDatabase();
+    fbset(fbref(db, 'users/' + this.auth.uid), {
+      timestamp: Date.now(),
+      ada: cur_state
+    });
   }
 
 
+  // update(item: Item) {
+  //   // this.itemDoc.update(item);
+  // }
+
+  // public writeUserData(userId, name, email, imageUrl) {
+  //   const db = getDatabase();
+  //   fbset(fbref(db, 'users/' + userId), {
+  //     username: name,
+  //     email: email,
+  //     profile_picture : imageUrl
+  //   });
+  // }
+
+ 
  
 /**
  * used in weaver - adds a draft to the history state
  * @param draft 
  */
   public addHistoryState(draft:Draft):void{
+
 
     var state = {
       draft: cloneDeep(draft),
@@ -82,12 +117,16 @@ export class StateService {
  * used in mixer - adds an ada file to the history state
  * @param ada 
  */
-  public addMixerHistoryState(ada:string):void{
+  public addMixerHistoryState(ada:any):void{
+    console.log("adding history");
 
     var state = {
       draft: null,
       ada: cloneDeep(ada),
     }
+
+    this.writeUserData(ada.file);
+
 
     //we are looking at the most recent state
     if(this.active_id > 0){

@@ -12,8 +12,8 @@ export class ProfileComponent implements OnInit {
 
   constructor(private authService: AuthService) { 
 
-    console.log("getting name", authService.getUid())
-    this.uid = authService.getUid();
+    // console.log("getting name", authService.getUid())
+    // this.uid = authService.getUid();
 
   }
 

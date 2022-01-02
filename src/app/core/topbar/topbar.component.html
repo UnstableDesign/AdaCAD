@@ -1,8 +1,8 @@
 <mat-toolbar color="primary">
 
 <span class="left">
-  <button *ngIf="(auth.user===undefined)" mat-raised-button matTooltip="login/logout" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Sign In</button>
-  <div class="auth" *ngIf="auth.user !== undefined">
+  <button *ngIf="(auth.showLoginButton)" mat-raised-button matTooltip="login/logout" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Sign In</button>
+  <div class="auth" *ngIf="(auth.showLogoutButton)">
     Hi {{auth.username}} <a mat-raised-button matTooltip="login/logout"><i class="fa fa-sign-out"></i></a>
   </div>
   

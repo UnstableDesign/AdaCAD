@@ -89,7 +89,8 @@ export class TopbarComponent implements OnInit {
 
   }
   openLoginDialog() {
-      const dialogRef = this.dialog.open(LoginComponent);
+     this.auth.login();
+     // const dialogRef = this.dialog.open(LoginComponent);
   }
 
   //need to handle this and load the file somehow

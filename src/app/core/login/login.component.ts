@@ -25,13 +25,13 @@ export class LoginComponent implements OnInit {
   }
 
   onEmailSubmit(formData) {
-    if (formData.valid) {
-      console.log(formData.value);
-      this.authService.login(
-        formData.value.email,
-        formData.value.password
-      );
-    }
+    // if (formData.valid) {
+    //   console.log(formData.value);
+    //   this.authService.login(
+    //     formData.value.email,
+    //     formData.value.password
+    //   );
+    // }
   }
 
   loginGoogle() {

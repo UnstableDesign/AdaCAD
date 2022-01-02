@@ -17,13 +17,13 @@ export class EmailComponent implements OnInit {
   }
 
   onSubmit(formData) {
-    if (formData.valid) {
-      console.log(formData.value);
-      this.authService.login(
-        formData.value.email,
-        formData.value.password
-      );
-    }
+    // if (formData.valid) {
+    //   console.log(formData.value);
+    //   this.authService.login(
+    //     formData.value.email,
+    //     formData.value.password
+    //   );
+    // }
   }
 
 }

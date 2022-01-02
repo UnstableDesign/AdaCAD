@@ -17,13 +17,13 @@ email: string = ""
   }
 
   onSubmit(formData) {
-    if (formData.valid) {
-      console.log(formData.value);
-      this.authService.emailSignup(
-        formData.value.email,
-        formData.value.password
-      );
-    }
+    // if (formData.valid) {
+    //   console.log(formData.value);
+    //   this.authService.emailSignup(
+    //     formData.value.email,
+    //     formData.value.password
+    //   );
+    // }
   }
 
 }

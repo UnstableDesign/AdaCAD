@@ -1,89 +1,64 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, Optional } from '@angular/core';
+import { Auth, authState, signInAnonymously, signOut, User, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { EMPTY, Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { traceUntilFirst } from '@angular/fire/performance';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private uid:string;
-  public user: any = undefined;
-  private username: string = "";
+  private readonly userDisposable: Subscription|undefined;
+  public readonly user: Observable<User | null> = EMPTY;
 
-  // constructor( private afAuth: AngularFireAuth,
-  //   private router: Router) {}
+  showLoginButton = false;
+  showLogoutButton = false;
+
+  public uid:string;
+  public username: string = "";
 
 
+  constructor(@Optional() private auth: Auth) {
 
-  constructor(
-    private router: Router) {}
+    if (auth) {
+      this.user = authState(this.auth);
+      this.user.subscribe(user => {
+        this.username = user.displayName
+        this.uid = user.uid;
+      })
+      this.userDisposable = authState(this.auth).pipe(
+        traceUntilFirst('auth'),
+        map(u => !!u)
+      ).subscribe(isLoggedIn => {
+        this.showLoginButton = !isLoggedIn;
+        this.showLogoutButton = isLoggedIn;
+        console.log("auth user", this.user, isLoggedIn);
+      });
+    }
+  }
 
-  login(email: string, password: string) {
-        // this.afAuth.auth.signInWithEmailAndPassword(email, password)
-        // .then(value => {
-        //   console.log('Nice, it worked!');
-        //   this.uid = value.user.uid;
-        //   this.user = value.user;
-        //   this.username = value.user.displayName;
-        //   this.router.navigateByUrl('');
-        // })
-        // .catch(err => {
-        //   console.log('Something went wrong: ', err.message);
-        // });
-     }
+  async login() {
+    return await signInWithPopup(this.auth, new GoogleAuthProvider());
+  }
 
-     emailSignup(email: string, password: string) {
-      // this.afAuth.auth.createUserWithEmailAndPassword(email, password)
-      // .then(value => {
-      //  console.log('Sucess', value);
-      //  this.uid = value.user.uid;
-      //  this.user = value.user;
-      //  this.username = value.user.displayName;
-      //  this.router.navigateByUrl('');
-      // })
-      // .catch(error => {
-      //   console.log('Something went wrong: ', error);
-      // });
+  async loginAnonymously() {
+    return await signInAnonymously(this.auth);
+  }
+
+  async logout() {
+    return await signOut(this.auth);
+  }
+
+    ngOnDestroy(): void {
+      if (this.userDisposable) {
+        this.userDisposable.unsubscribe();
+      }
     }
   
-    googleLogin() {
-    //   const provider = new firebase.auth.GoogleAuthProvider();
-    //   return this.oAuthLogin(provider)
-    //     .then(value => {
-    //       this.uid = value.user.uid;
-    //       this.user = value.user;
-    //       this.username = value.user.displayName;
-    //    console.log('Sucess', value),
-    //    this.router.navigateByUrl('');
-    //  })
-    //   .catch(error => {
-    //     console.log('Something went wrong: ', error);
-    //   });
-    }
-
-  
-    logout() {
-      // this.afAuth.auth.signOut().then(() => {
-      //   this.user === undefined;
-      //   this.router.navigate(['/']);
-
-
-      // });
-    }
-  
-    private oAuthLogin(provider) {
-      //return this.afAuth.auth.signInWithPopup(provider);
-    }
-
-    loggedIn():boolean{
-      console.log("checking login", this.user);
-      return this.user !== undefined;
-    }
-
-
-    getUid() : string{
-      return this.uid;
-    }
 
 
 

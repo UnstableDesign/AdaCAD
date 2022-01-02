@@ -87,7 +87,7 @@ interface Fileloader{
 }
 
 interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<string>,
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
   wif: (draft: Draft, loom: Loom) => Promise<string>,
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
@@ -581,7 +581,7 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
-     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean, current_scale: number) : Promise<string> => {
+     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
       //eventually need to add saved patterns here as well
       const out: SaveObj = {
         type: type,
@@ -596,12 +596,11 @@ export class FileService {
         scale: current_scale
       }
 
-
+      //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
-      if(for_timeline) return Promise.resolve(theJSON);
+      return Promise.resolve({json: theJSON, file: out});
 
-      const href:string = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
-      return href;
+
     },
     wif: async (draft: Draft, loom: Loom) : Promise<string> => {
       const shuttles: Array<Shuttle> = this.ms.getShuttles();

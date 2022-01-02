@@ -559,8 +559,8 @@ export class MixerComponent implements OnInit {
         this.tree.exportDraftsForSaving(),
         this.tree.exportLoomsForSaving(),
         false,
-        this.scale).then(href => {
-          link.href = href;
+        this.scale).then(out => {
+          link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
           link.download = e.name + ".ada";
           link.click();
         })

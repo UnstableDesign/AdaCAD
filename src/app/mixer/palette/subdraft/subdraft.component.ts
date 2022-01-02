@@ -676,8 +676,8 @@ export class SubdraftComponent implements OnInit {
       const draft = this.tree.getDraft(this.id);
 
       const a = document.createElement('a');
-      return this.fs.saver.ada('draft', [draft], [], false, this.scale).then(href => {
-        a.href = href;
+      return this.fs.saver.ada('draft', [draft], [], false, this.scale).then(out => {
+        a.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
         a.download = draft.name + ".ada";
         a.click();
       }); 
