@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { timeStamp } from 'console';
 import { LoginComponent } from '../login/login.component';
 import { AboutModal } from '../modal/about/about.modal';
 import { InitModal } from '../modal/init/init.modal';
@@ -106,8 +107,12 @@ export class TopbarComponent implements OnInit {
 
    });
 
+
+
   }
 
-
+  logout(){
+    this.auth.logout();
+  }
 
 }

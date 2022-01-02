@@ -3,7 +3,7 @@
 <span class="left">
   <button *ngIf="(auth.showLoginButton)" mat-raised-button matTooltip="login/logout" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Sign In</button>
   <div class="auth" *ngIf="(auth.showLogoutButton)">
-    Hi {{auth.username}} <a mat-raised-button matTooltip="login/logout"><i class="fa fa-sign-out"></i></a>
+    Hi {{auth.username}} <a mat-raised-button matTooltip="login/logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
   </div>
   
   <a mat-raised-button matTooltip="help" href="https://adacad.unstable.design" target='_blank'><i class="fas fa-question"></i> Help</a>

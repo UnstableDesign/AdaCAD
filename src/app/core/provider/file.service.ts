@@ -83,7 +83,8 @@ interface Fileloader{
   wif: (filename: string, data: any) => Promise<LoadResponse>,
   bmp: (filename: string, data: any) => Promise<LoadResponse>,
   jpg: (filename: string, data: any) => Promise<LoadResponse>,
-  form: (data: any) => Promise<LoadResponse>
+  form: (data: any) => Promise<LoadResponse>,
+  db: (data: SaveObj) => Promise<LoadResponse>
 }
 
 interface FileSaver{
@@ -251,7 +252,7 @@ export class FileService {
       const envt: FileObj = {
         filename: filename,
         drafts: drafts,
-        looms: looms,
+        looms: (looms === undefined) ? [] : looms,
         nodes: (data.nodes === undefined) ? [] : data.nodes,
         treenodes: (data.tree === undefined) ? [] : data.tree,
         ops: ops,
@@ -262,6 +263,20 @@ export class FileService {
 
 
     }, 
+    db: async (data: SaveObj) : Promise<LoadResponse> => {
+      const envt: FileObj = {
+        filename: "recovered draft",
+        drafts: (data.drafts === undefined) ? [] : data.drafts,
+        looms: (data.looms === undefined) ? [] : data.looms,
+        nodes: (data.nodes === undefined) ? [] : data.nodes,
+        treenodes: (data.tree === undefined) ? [] : data.tree,
+        ops: (data.ops === undefined) ? [] : data.ops,
+        scale: (data.scale === undefined) ? 5 : data.scale
+      }
+      return Promise.resolve({data: envt, status: 0}); 
+
+    },
+
     wif: async (filename: string, data: any) : Promise<LoadResponse> => {
 
       let drafts: Array<Draft> = [];
@@ -582,7 +597,6 @@ export class FileService {
 
   const dsaver: FileSaver = {
      ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
-      //eventually need to add saved patterns here as well
       const out: SaveObj = {
         type: type,
         drafts: drafts,

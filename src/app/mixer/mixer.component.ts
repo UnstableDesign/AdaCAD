@@ -15,6 +15,10 @@ import { Cell } from '../core/model/cell';
 import { GloballoomService } from '../core/provider/globalloom.service';
 import { Loom } from '../core/model/loom';
 import { StateService } from '../core/provider/state.service';
+import { AuthService } from '../core/provider/auth.service';
+import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
+import { i } from 'mathjs';
+import { unwatchFile } from 'fs';
 
 
 //disables some angular checking mechanisms
@@ -72,7 +76,8 @@ export class MixerComponent implements OnInit {
     public vp: ViewportService,
     private gl: GloballoomService,
     private notes: NotesService,
-    private ss: StateService) {
+    private ss: StateService,
+    private auth: AuthService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -132,6 +137,7 @@ export class MixerComponent implements OnInit {
    * @param result 
    */
   loadNewFile(result: LoadResponse){
+    console.log(result);
     this.tree.clear();
     this.palette.clearComponents();
     console.log("loaded new file", result, result.data)
@@ -181,10 +187,23 @@ export class MixerComponent implements OnInit {
     //map the old ids to the new ids
     const updated_tnp: Array<TreeNodeProxy> = tns.map(tn => {
 
+
       tn.node = id_map.find(el => el.prev_id === tn.node).cur_id;
       tn.parent = (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id;
-      tn.inputs = tn.inputs.map(input => id_map.find(el => el.prev_id === input).cur_id);
-      tn.outputs = tn.outputs.map(output => id_map.find(el => el.prev_id === output).cur_id);
+      
+      if(tn.inputs === undefined){
+        tn.inputs = [];
+      }else{
+        tn.inputs = tn.inputs.map(input => id_map.find(el => el.prev_id === input).cur_id);
+      }
+
+      if(tn.outputs === undefined){
+        tn.outputs =[];
+      }else{
+        tn.outputs = tn.outputs.map(output => id_map.find(el => el.prev_id === output).cur_id);
+
+      }
+      
       return tn;
     })
 
@@ -205,6 +224,7 @@ export class MixerComponent implements OnInit {
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
     });
+
 
 
     this.gl.inferData(data.looms.concat(this.tree.getLooms()))
@@ -352,7 +372,50 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    this.palette.addTimelineState();
+    this.auth.user.subscribe(user => {
+      console.log("USER", user);
+      if(user !== null){
+
+        const db = fbref(getDatabase());
+
+
+        fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+          if (snapshot.exists()) {
+            console.log(snapshot.val());
+            this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
+              this.loadNewFile(lr);
+            });
+          } else {
+            console.log("No data available");
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+
+
+        //****
+      //   const adaFile = fbref(db, 'users/' + this.auth.uid + '/ada');
+       
+      //   //**called any time a realtime value is changed */
+      //   onValue(adaFile, (snapshot) => {
+      //     const data = snapshot.val();
+      //     console.log("data", data);
+
+      //     if(data === null) return;
+
+      //     this.fs.loader.ada("recovered draft", data).then(lr => {
+      //       this.loadNewFile(lr);
+      //     });
+          
+      // })    
+    }else{
+        this.palette.addTimelineState();
+      }
+  
+});
+
+  
+
 
 
   }

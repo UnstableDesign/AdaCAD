@@ -14,6 +14,7 @@ export class AuthService {
 
   private readonly userDisposable: Subscription|undefined;
   public readonly user: Observable<User | null> = EMPTY;
+  private readonly userData: Subscription|undefined;
 
   showLoginButton = false;
   showLogoutButton = false;
@@ -26,10 +27,7 @@ export class AuthService {
 
     if (auth) {
       this.user = authState(this.auth);
-      this.user.subscribe(user => {
-        this.username = user.displayName
-        this.uid = user.uid;
-      })
+
       this.userDisposable = authState(this.auth).pipe(
         traceUntilFirst('auth'),
         map(u => !!u)
@@ -37,7 +35,21 @@ export class AuthService {
         this.showLoginButton = !isLoggedIn;
         this.showLogoutButton = isLoggedIn;
         console.log("auth user", this.user, isLoggedIn);
+        
       });
+
+      this.userData = authState(this.auth).subscribe(user => {
+        console.log("user state change")
+        if(user === undefined || user === null){
+          this.username = ""
+          this.uid = undefined;
+          return;
+        } 
+        this.username = user.displayName
+        this.uid = user.uid;
+      }
+
+      )
     }
   }
 
@@ -56,6 +68,10 @@ export class AuthService {
     ngOnDestroy(): void {
       if (this.userDisposable) {
         this.userDisposable.unsubscribe();
+      }
+
+      if (this.userData) {
+        this.userData.unsubscribe();
       }
     }
   
