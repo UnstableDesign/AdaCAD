@@ -24,12 +24,12 @@ cdkDrag
         </button>
 
         
-            <button *ngFor="let input of tree.getNonCxnInputs(id); index as i;"
-            matTooltip = "click to remove this connection"
-            class="button is-small cxn"
-            (click)="removeConnectionTo(input)">
-            <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
-            </button>   
+        <button *ngFor="let input of tree.getNonCxnInputs(id); index as i;"
+        matTooltip = "click to remove this connection"
+        class="button is-small cxn"
+        (click)="removeConnectionTo(input)">
+        <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
+        </button>   
 
         
     

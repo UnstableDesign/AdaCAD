@@ -265,6 +265,7 @@ export class PaletteComponent implements OnInit{
    */
    clearComponents(){
     this.unsubscribeFromAll();
+    this.note_refs.forEach(ref => this.removeFromViewContainer(ref));
     this.vc.clear();
   }
 
@@ -393,7 +394,7 @@ export class PaletteComponent implements OnInit{
     });
 
     this.note_components.forEach(el => {
-      el.rescale(scale, this.default_cell_size);
+      el.scale = scale;
     });
 
   
@@ -487,6 +488,7 @@ export class PaletteComponent implements OnInit{
     this.note_components.push(notecomp.instance);
     notecomp.instance.id = note.id;
     notecomp.instance.scale = this.scale;
+    notecomp.instance.default_cell = this.default_cell_size;
 
     this.changeDesignmode('move');
 
@@ -509,6 +511,7 @@ export class PaletteComponent implements OnInit{
 
       notecomp.instance.id = note.id;
       notecomp.instance.scale = this.scale;
+      notecomp.instance.default_cell = this.default_cell_size;
   
       return notecomp.instance;
     }
@@ -521,6 +524,7 @@ export class PaletteComponent implements OnInit{
    */
   setNoteSubscriptions(note: NoteComponent){
     this.noteSubscriptions.push(note.deleteNote.subscribe(this.deleteNote.bind(this)));
+    this.noteSubscriptions.push(note.saveNoteText.subscribe(this.saveNote.bind(this)));
   }
 
   deleteNote(id: number){
@@ -528,6 +532,11 @@ export class PaletteComponent implements OnInit{
     this.removeFromViewContainer(ref);
     this.note_refs = this.note_refs.filter((el, ndx) => ndx!= id);
     this.note_components = this.note_components.filter((el, ndx) => ndx!= id);
+  }
+
+  saveNote(){
+    this.changeDesignmode('move');
+    this.addTimelineState();
   }
 
 

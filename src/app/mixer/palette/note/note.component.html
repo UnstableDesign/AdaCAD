@@ -25,6 +25,7 @@ cdkDrag
       </button>
     </div>
 
+    <div class="text-entry">
     
     <form class="example-form">
  
@@ -34,6 +35,16 @@ cdkDrag
         </mat-form-field>
     </form>
 
+
+   <button *ngIf="note.text !== ''"
+      mat-stroked-button
+      matTooltip= "Save"
+      class="button is-primary"
+      [name]="save"
+      (click)="save()">Save
+      </button>
+
+    </div>
  
  </div>
 

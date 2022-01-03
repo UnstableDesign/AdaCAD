@@ -25,7 +25,7 @@ export class OperationComponent implements OnInit {
    get scale(): number { return this._scale; }
    set scale(value: number) {
      this._scale = value;
-     this.rescale(value);
+     this.rescale();
    }
    private _scale:number = 5;
  
@@ -127,7 +127,7 @@ export class OperationComponent implements OnInit {
 
 
   ngAfterViewInit(){
-    this.rescale(this.scale);
+    this.rescale();
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
   }
 
@@ -160,7 +160,7 @@ export class OperationComponent implements OnInit {
 
 
 
-  rescale(scale:number){
+  rescale(){
 
     const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
@@ -170,8 +170,8 @@ export class OperationComponent implements OnInit {
     container.style.transform = 'scale(' + zoom_factor + ')';
 
     this.bounds.topleft = {
-      x: this.interlacement.j * scale,
-      y: this.interlacement.i * scale
+      x: this.interlacement.j * this.scale,
+      y: this.interlacement.i * this.scale
     };
 
     this.bounds.height = this.base_height * zoom_factor;
@@ -203,14 +203,13 @@ export class OperationComponent implements OnInit {
   }
 
    /**
-   * updates this components position based on the input component's position
+   * updates this components position based on the child component's position
    * */
     updatePositionFromChild(child: SubdraftComponent){
 
 
        const container = <HTMLElement> document.getElementById("scale-"+this.id);
-  
-      this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - container.offsetHeight});
+       this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
   
     }
 

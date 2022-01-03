@@ -42,7 +42,7 @@ export class SubdraftComponent implements OnInit {
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
-    this.rescale(value);
+    this.rescale();
   }
   private _scale:number = 5;
 
@@ -172,7 +172,7 @@ export class SubdraftComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
     this.cx = this.canvas.getContext("2d");
     this.drawDraft(this.draft); //force call here because it likely didn't render previously. 
-    this.rescale(this.scale);
+    this.rescale();
     this.updateViewport(this.bounds);
 
   }
@@ -183,32 +183,33 @@ export class SubdraftComponent implements OnInit {
    * so it remains at the same coords. 
    * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
    */
-  rescale(scale:number){
+  rescale(){
 
+    
 
     if(this.draft === null){
-      console.error("subdraft draft null in rescale")
       return;
     } 
 
-    const zoom_factor:number = scale/this.default_cell;
+    const zoom_factor:number = this.scale/this.default_cell;
 
     //redraw at scale
-    const container: HTMLElement = document.getElementById('scale-'+this.draft.id);
+    const container: HTMLElement = document.getElementById('scale-'+this.id.toString());
    
     if(container === null) return;
+
 
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
    
     this.bounds.topleft = {
-      x: this.interlacement.j * scale,
-      y: this.interlacement.i * scale
+      x: this.interlacement.j * this.scale,
+      y: this.interlacement.i * this.scale
     };
 
-    this.bounds.width = this.draft.warps * scale;
-    this.bounds.height = this.draft.wefts * scale;
+    this.bounds.width = this.draft.warps * this.scale;
+    this.bounds.height = this.draft.wefts * this.scale;
 
   }
 
