@@ -18,6 +18,9 @@ import { SystemsService } from '../provider/systems.service';
 import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { System } from '../model/system';
+import { GloballoomService } from '../provider/globalloom.service';
+import { G } from '@angular/cdk/keycodes';
+import { StateService } from '../provider/state.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -29,7 +32,9 @@ export class DraftviewerComponent implements OnInit {
   @ViewChild('bitmapImage') bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
 
-  // @Input('design_actions')  design_actions;
+
+  @Input('id') id;
+
 
 
   /**
@@ -53,8 +58,7 @@ export class DraftviewerComponent implements OnInit {
     * @property {Draft}
     */
    @Input('draft') weave: Draft;
- 
- 
+  
    /**
   * The Draft object containing the pattern and shuttle information.
   * It is defined and inputed from the HTML declaration of the WeaveDirective.
@@ -62,22 +66,13 @@ export class DraftviewerComponent implements OnInit {
   */
   @Input('loom') loom: Loom;
  
- 
- 
- /**
-    * The Render object containing the variables about zoom and cell sizes.
-    * It is defined and inputed from the HTML declaration of the WeaveDirective.
-    * @property {Render}
-   */
-   @Input('render') render:Render;
- 
- 
+
  
  /**
     * The Timeline object containing state histories for undo and redo
     * @property {Timeline}
    */
-   @Input('timeline') timeline: any;
+  //  @Input('timeline') timeline: any;
  
    @Input() viewonly: boolean;
  
@@ -236,6 +231,8 @@ export class DraftviewerComponent implements OnInit {
    private lastPos: Interlacement;
  
  
+   render: Render;
+
  
    /// ANGULAR FUNCTIONS
    /**
@@ -248,7 +245,9 @@ export class DraftviewerComponent implements OnInit {
     private dm: DesignmodesService,
     private ps: PatternService,
     private ms: MaterialsService,
-    private ss: SystemsService
+    private ss: SystemsService,
+    public gl: GloballoomService,
+    public timeline: StateService
     ) { 
 
     this.flag_recompute = false;
@@ -257,6 +256,7 @@ export class DraftviewerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.render = new Render(this.gl.isFrame(), this.weave, this.ss);
 
   }
 
@@ -2628,7 +2628,7 @@ public redraw(flags:any){
     
     if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
 
-    this.timeline.addHistoryState(this.weave);
+    //this.timeline.addHistoryState(this.weave);
 
     this.copyArea();
 
