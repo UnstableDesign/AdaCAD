@@ -19,6 +19,8 @@ import { AuthService } from '../core/provider/auth.service';
 import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 import { i } from 'mathjs';
 import { unwatchFile } from 'fs';
+import { MaterialsService } from '../core/provider/materials.service';
+import { SystemsService } from '../core/provider/systems.service';
 
 
 //disables some angular checking mechanisms
@@ -69,6 +71,8 @@ export class MixerComponent implements OnInit {
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
   constructor(public dm: DesignmodesService, 
+    private ms: MaterialsService,
+    private sys: SystemsService,
     private ps: PatternService, 
     private tree: TreeService,
     public scroll: ScrollDispatcher,
@@ -137,9 +141,9 @@ export class MixerComponent implements OnInit {
    * @param result 
    */
   loadNewFile(result: LoadResponse){
-    console.log(result);
-    this.tree.clear();
-    this.palette.clearComponents();
+
+    this.clearView();
+
     console.log("loaded new file", result, result.data)
     this.processFileData(result.data).then(
       this.palette.changeDesignmode('move')
@@ -217,6 +221,7 @@ export class MixerComponent implements OnInit {
    * Take a fileObj returned from the fileservice and process
    */
    async processFileData(data: FileObj) : Promise<string>{
+    console.log("notes", this.notes)
 
     let entry_mapping = [];
     this.filename = data.filename;
@@ -224,8 +229,6 @@ export class MixerComponent implements OnInit {
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
     });
-
-
 
     this.gl.inferData(data.looms.concat(this.tree.getLooms()))
     .then(el => {     
@@ -373,8 +376,7 @@ export class MixerComponent implements OnInit {
   ngAfterViewInit() {
 
     this.auth.user.subscribe(user => {
-      console.log("USER", user);
-      if(user !== null){
+      if(user !== null && this.tree.nodes.length === 0){
 
         const db = fbref(getDatabase());
 
@@ -391,26 +393,8 @@ export class MixerComponent implements OnInit {
         }).catch((error) => {
           console.error(error);
         });
-
-
-        //****
-      //   const adaFile = fbref(db, 'users/' + this.auth.uid + '/ada');
-       
-      //   //**called any time a realtime value is changed */
-      //   onValue(adaFile, (snapshot) => {
-      //     const data = snapshot.val();
-      //     console.log("data", data);
-
-      //     if(data === null) return;
-
-      //     this.fs.loader.ada("recovered draft", data).then(lr => {
-      //       this.loadNewFile(lr);
-      //     });
-          
-      // })    
-    }else{
-        this.palette.addTimelineState();
-      }
+  
+    }
   
 });
 
@@ -419,6 +403,21 @@ export class MixerComponent implements OnInit {
 
 
   }
+
+
+  clearView() : void {
+    this.palette.clearComponents();
+    this.vp.clear();
+
+  }
+
+  clearAll() : void{
+    this.palette.addTimelineState();
+    this.fs.clearAll();
+    this.clearView();
+
+  }
+
 
 
   ngOnDestroy(): void {

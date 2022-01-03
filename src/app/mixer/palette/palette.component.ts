@@ -1218,6 +1218,8 @@ export class PaletteComponent implements OnInit{
   */
  onConnectionStarted(obj: any){
 
+  console.log("on connection started", obj);
+
   const valid = this.tree.setOpenConnection(obj.id);
   if(!valid) return;
 
@@ -1522,6 +1524,9 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
  * emitted from operation when it receives a hit on its connection button, the id refers to the operation id
  */
 connectionMade(id:number){
+
+  console.log("connection made", id);
+  console.log("this.tree has open", this.tree.hasOpenConnection());
 
   if(!this.tree.hasOpenConnection()) return;
 

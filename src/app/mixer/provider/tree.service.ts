@@ -76,7 +76,7 @@ export class TreeService {
 
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
-  open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
+  private open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
   preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
   constructor(
@@ -352,12 +352,15 @@ export class TreeService {
    * @returns  true if the id maps to a subdraft
    */
   setOpenConnection(id: number) : boolean {
+    console.log("setting open connection", id, this.getType(id));
     if(this.getType(id) !== 'draft') return false;
     this.open_connection = id; 
+    console.log("set open connection", id)
     return true;
   }
 
   hasOpenConnection():boolean{
+    console.log("has connection", this.open_connection)
     return this.open_connection !== -1;
   }
 
@@ -366,13 +369,15 @@ export class TreeService {
   }
 
   /**
+   * TEMP DISABLE DUE TO CAUSING PROBLEMS 
    * unsets the open connection
    * @returns  true if it indeed changed the value
    */
   unsetOpenConnection() : boolean{
-    const b = this.open_connection != -1;
-    this.open_connection = -1;
-    return b;
+    // console.log("unsetting open cxn")
+    // const b = this.open_connection !== -1;
+    // this.open_connection = -1;
+      return true;
   }
 
   setNodeComponent(id: number, c: SubdraftComponent | OperationComponent | ConnectionComponent){
@@ -576,7 +581,7 @@ export class TreeService {
    */
   canAcceptConnections(id: number) : boolean {
 
-    if(this.open_connection == -1) {
+    if(this.open_connection === -1) {
     console.error("no open connection");
     return false;    //there is no open connection
     }
@@ -1333,6 +1338,7 @@ removeOperationNode(id:number) : Array<Node>{
 
   getInputs(node_id: number):Array<number>{
     const tn = this.getTreeNode(node_id);
+    if(tn === undefined) return [];
     const input_ids: Array<number> = tn.inputs.map(child => child.node.id);
     return input_ids;
   }
@@ -1346,6 +1352,7 @@ removeOperationNode(id:number) : Array<Node>{
 
   getOutputs(node_id: number):Array<number>{
     const tn = this.getTreeNode(node_id);
+    if(tn === undefined) return [];
     const ids: Array<number> = tn.outputs.map(child => child.node.id);
     return ids;
   }

@@ -15,12 +15,17 @@
 .left {
     width:33%;
     text-align: left;
+    display: flex;
+    flex-direction: row;
+}
 
-
+.left a{
+    margin: 0px 2px;
 }
 
 .auth{
-    font-size: .8em;
+    font-size: .6em;
+    font-weight: 400;
 }
 
 .center{

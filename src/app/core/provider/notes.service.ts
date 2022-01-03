@@ -26,6 +26,10 @@ export class NotesService {
     this.notes = [];
   }
 
+  clear(){
+    this.notes = [];
+  }
+
   createBlankNode(i: Interlacement) : Note{
     const note: Note = {
       id: this.notes.length,

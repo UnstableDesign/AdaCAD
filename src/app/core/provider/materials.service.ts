@@ -31,6 +31,13 @@ export class MaterialsService {
       new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
   }
 
+  reset() {
+    this.materials = [
+      new Shuttle({id: 0, name: 'shuttle 0', insert: true, visible: true, color: "#333333", thickness: 100, type: 0, notes: ""}), 
+      new Shuttle({id: 1, name: 'shuttle 1', insert: true, visible: true, color: "#ffffff", thickness: 100, type: 0, notes: ""}), 
+      new Shuttle({id: 2, name: 'conductive', insert: true, visible: true, color: "#ff4081", thickness: 100, type: 1, notes: ""})];
+  }
+
 
 
   /**

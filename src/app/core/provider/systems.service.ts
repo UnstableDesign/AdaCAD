@@ -18,6 +18,11 @@ export class SystemsService {
 
   constructor() { }
 
+  reset() {
+    this.weft_systems = [new System()];
+    this.warp_systems  = [new System()];
+  }
+
   getWeftSystem(id: number) : System{
     return this.weft_systems.find(el => el.id === id);
   }

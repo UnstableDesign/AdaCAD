@@ -21,6 +21,7 @@ export class TopbarComponent implements OnInit {
   @Output() onRedo: any = new EventEmitter();
   @Output() onAboutCreate: any = new EventEmitter();
   @Output() onLoadNewFile: any = new EventEmitter();
+  @Output() onClearScreen: any = new EventEmitter();
 
   @Input() drawer;
   @Input() filename;
@@ -90,8 +91,9 @@ export class TopbarComponent implements OnInit {
 
   }
   openLoginDialog() {
-     this.auth.login();
-     // const dialogRef = this.dialog.open(LoginComponent);
+      const dialogRef = this.dialog.open(LoginComponent, {
+        width: '600px',
+      });
   }
 
   //need to handle this and load the file somehow
@@ -113,6 +115,10 @@ export class TopbarComponent implements OnInit {
 
   logout(){
     this.auth.logout();
+  }
+
+  clear(){
+  	this.onClearScreen.emit();
   }
 
 }

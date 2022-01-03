@@ -1,9 +1,9 @@
 <mat-toolbar color="primary">
 
 <span class="left">
-  <button *ngIf="(auth.showLoginButton)" mat-raised-button matTooltip="login/logout" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Sign In</button>
+  <button *ngIf="(auth.showLoginButton)" mat-raised-button matTooltip="login or signup" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Sign In</button>
   <div class="auth" *ngIf="(auth.showLogoutButton)">
-    Hi {{auth.username}} <a mat-raised-button matTooltip="login/logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+    Hi {{auth.username}} <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
   </div>
   
   <a mat-raised-button matTooltip="help" href="https://adacad.unstable.design" target='_blank'><i class="fas fa-question"></i> Help</a>
@@ -26,6 +26,10 @@
     <!-- <button mat-icon-button matTooltip ="print screen" (click)="saveAsPrint()" >
       <i class="fas fa-print"></i>
     </button> -->
+
+    <button mat-icon-button matTooltip ="clear screen" (click)="clear()" >
+      <i class="fas fa-eraser"></i>
+    </button>
 
     
   <button mat-icon-button 

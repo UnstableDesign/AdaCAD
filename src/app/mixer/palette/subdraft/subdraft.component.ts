@@ -79,8 +79,8 @@ export class SubdraftComponent implements OnInit {
   @Output() onConnectionMade = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onDesignAction = new  EventEmitter <any>();
-  @Output() onConnectionStarted:any = new EventEmitter();
-  @Output() onSubdraftViewChange:any = new EventEmitter();
+  @Output() onConnectionStarted:any = new EventEmitter<any>();
+  @Output() onSubdraftViewChange:any = new EventEmitter<any>();
 
   @ViewChild('bitmapImage') bitmap: any;
 

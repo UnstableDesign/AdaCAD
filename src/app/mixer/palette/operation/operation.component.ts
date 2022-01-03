@@ -241,7 +241,8 @@ export class OperationComponent implements OnInit {
     return this.op.max_inputs;
   }
 
-  inputSelected(event: any){
+  inputSelected(){
+    console.log("Input")
     this.disableDrag();
     this.onInputAdded.emit(this.id);
   }

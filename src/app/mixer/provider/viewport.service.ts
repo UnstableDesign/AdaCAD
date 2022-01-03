@@ -45,6 +45,10 @@ export class ViewportService {
 
    }
 
+   clear(){
+     this.objs = [];
+   }
+
   /**
    * called when a new subdraft is added
    * @param id the id of the subdraft

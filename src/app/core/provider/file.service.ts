@@ -83,9 +83,7 @@ interface Fileloader{
   wif: (filename: string, data: any) => Promise<LoadResponse>,
   bmp: (filename: string, data: any) => Promise<LoadResponse>,
   jpg: (filename: string, data: any) => Promise<LoadResponse>,
-  form: (data: any) => Promise<LoadResponse>,
-  db: (data: SaveObj) => Promise<LoadResponse>
-}
+  form: (data: any) => Promise<LoadResponse>}
 
 interface FileSaver{
   ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
@@ -112,7 +110,6 @@ export class FileService {
   loader: Fileloader = null;
   saver: FileSaver = null;
 
-
   constructor(
     private tree: TreeService, 
     private ns: NotesService,
@@ -133,11 +130,8 @@ export class FileService {
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
-     
-
-      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
-      else this.ns.resetNotes(); 
-      
+    
+      this.clearAll();
 
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
@@ -248,6 +242,8 @@ export class FileService {
         });
       }
 
+      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
+
 
       const envt: FileObj = {
         filename: filename,
@@ -256,28 +252,17 @@ export class FileService {
         nodes: (data.nodes === undefined) ? [] : data.nodes,
         treenodes: (data.tree === undefined) ? [] : data.tree,
         ops: ops,
-        scale: (data.scale === undefined) ? 5 : data.scale
+        scale: (data.scale === undefined) ? 5 : data.scale,
       }
 
       return Promise.resolve({data: envt, status: 0}); 
 
 
     }, 
-    db: async (data: SaveObj) : Promise<LoadResponse> => {
-      const envt: FileObj = {
-        filename: "recovered draft",
-        drafts: (data.drafts === undefined) ? [] : data.drafts,
-        looms: (data.looms === undefined) ? [] : data.looms,
-        nodes: (data.nodes === undefined) ? [] : data.nodes,
-        treenodes: (data.tree === undefined) ? [] : data.tree,
-        ops: (data.ops === undefined) ? [] : data.ops,
-        scale: (data.scale === undefined) ? 5 : data.scale
-      }
-      return Promise.resolve({data: envt, status: 0}); 
-
-    },
 
     wif: async (filename: string, data: any) : Promise<LoadResponse> => {
+      this.clearAll();
+
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -368,6 +353,8 @@ export class FileService {
      */
     jpg: async (filename: string, data: any) : Promise<LoadResponse> => {
       console.log("processing JPG data")
+      this.clearAll();
+
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let nodes: Array<NodeComponentProxy> = [];
@@ -461,13 +448,10 @@ export class FileService {
       return Promise.resolve({data: f ,status: 0});  
     },
     bmp: async (filename: string, data: any) : Promise<LoadResponse> => {
+      this.clearAll();
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-
-      this.ns.resetNotes(); 
-      this.ps.resetPatterns();
-
 
       let e = data;
       const warps = e.width;
@@ -515,12 +499,10 @@ export class FileService {
       return Promise.resolve({data: f ,status: 0});  
     },
     form: async (f:any):Promise<LoadResponse> =>{
+      this.clearAll();
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-
-      this.ns.resetNotes(); 
-      this.ps.resetPatterns();
 
       var warps = 20;
       if(f.value.warps !== undefined) warps = f.value.warps;
@@ -597,6 +579,9 @@ export class FileService {
 
   const dsaver: FileSaver = {
      ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
+      
+      console.log("on save", this.ns.exportForSaving())
+     
       const out: SaveObj = {
         type: type,
         drafts: drafts,
@@ -741,7 +726,14 @@ export class FileService {
 
   }
 
+  clearAll(){
+    this.tree.clear();
+    this.ms.reset();
+    this.ss.reset(),
+    this.ps.resetPatterns();
+    this.ns.resetNotes();
 
+  }
 
 
 

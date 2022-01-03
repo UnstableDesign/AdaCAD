@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Component, OnInit, OnDestroy, Optional } from '@angular/core';
-import { Auth, authState, signInAnonymously, signOut, User, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { Auth, authState, signInAnonymously, signOut, User, GoogleAuthProvider, signInWithPopup,signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { EMPTY, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { traceUntilFirst } from '@angular/fire/performance';
@@ -34,23 +34,52 @@ export class AuthService {
       ).subscribe(isLoggedIn => {
         this.showLoginButton = !isLoggedIn;
         this.showLogoutButton = isLoggedIn;
-        console.log("auth user", this.user, isLoggedIn);
         
       });
 
       this.userData = authState(this.auth).subscribe(user => {
-        console.log("user state change")
+        console.log("user state change", user)
         if(user === undefined || user === null){
           this.username = ""
           this.uid = undefined;
           return;
         } 
-        this.username = user.displayName
+        this.username = (user.displayName === null) ? user.email : user.displayName;
         this.uid = user.uid;
       }
 
       )
     }
+  }
+
+  async emailSignUp(email, password) : Promise<string>{
+    return await createUserWithEmailAndPassword(this.auth, email, password)
+    .then((userCredential) => {
+      // Signed in 
+      return "";
+      // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      return errorCode;
+    });
+  }
+
+  async emailSignIn(email, password) : Promise<string>{
+    return await signInWithEmailAndPassword(this.auth, email, password)
+    .then((userCredential) => {
+      // Signed in 
+      const user = userCredential.user;
+      return "";
+      // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      return error.code;
+    });
+
   }
 
   async login() {
