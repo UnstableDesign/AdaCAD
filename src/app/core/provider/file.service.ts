@@ -204,11 +204,13 @@ export class FileService {
         return loom;
       });
 
+      console.log("DATA PATTERNS", data.patterns);
       if(data.patterns !== undefined){
         const patterns: Array<Pattern> = data.patterns.map(pattern => {
           const p:Pattern = new Pattern(pattern);
           return p;
         });
+        console.log("new patterns", patterns)
         this.ps.overridePatterns(patterns)
       }else{
         this.ps.resetPatterns();

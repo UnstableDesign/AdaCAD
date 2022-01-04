@@ -1,4 +1,4 @@
-import { Observable, Subscription, fromEvent, from, iif } from 'rxjs';
+import { Observable,  Subscription, fromEvent, from, iif } from 'rxjs';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
@@ -426,6 +426,7 @@ export class PaletteComponent implements OnInit{
    * @param bounds 
    */
   updateSnackBar(message: string, bounds:Bounds){
+
     this.snack_bounds = bounds;
     this.snack_message = message;
   }
@@ -917,7 +918,12 @@ export class PaletteComponent implements OnInit{
     this.cx.lineWidth = 1;
     this.cx.setLineDash([this.scale, 2]);
     this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
-      
+    this.cx.fillStyle = "#ff4081";
+    this.cx.font = "12px Arial";
+    const w = Math.round(this.selection.bounds.width / this.scale);
+    const h = Math.round(this.selection.bounds.height / this.scale);
+    this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
+
   }
 
   /**
@@ -1581,7 +1587,6 @@ connectionMade(id:number){
 
   this.selection.start = this.last;
   this.selection.active = true;
-  this.startSnackBar("drag to create an empty draft or select a portion of another draft", this.selection.bounds);
  }
 
  /**
@@ -2020,7 +2025,6 @@ drawStarted(){
      this.drawSelection(ndx);
      const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
      this.selection.setPositionAndSize(bounds);
-     this.updateSnackBar("drag to create an empty draft or select a portion of another draft",  bounds);
 
     
     }else if(this.dm.getDesignMode("draw", 'design_modes').selected){

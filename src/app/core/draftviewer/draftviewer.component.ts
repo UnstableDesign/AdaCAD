@@ -59,13 +59,9 @@ export class DraftviewerComponent implements OnInit {
     */
    @Input('draft') weave: Draft;
   
-   /**
-  * The Draft object containing the pattern and shuttle information.
-  * It is defined and inputed from the HTML declaration of the WeaveDirective.
-  * @property {Draft}
-  */
   @Input('loom') loom: Loom;
  
+  @Input('render') render: Render;
 
  
  /**
@@ -230,8 +226,6 @@ export class DraftviewerComponent implements OnInit {
  
    private lastPos: Interlacement;
  
- 
-   render: Render;
 
  
    /// ANGULAR FUNCTIONS
@@ -256,7 +250,6 @@ export class DraftviewerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.render = new Render(this.gl.isFrame(), this.weave, this.ss);
 
   }
 
@@ -2124,7 +2117,6 @@ public drawWeftEnd(top, left, shuttle){
   }
 
 public drawDrawdown(){
-  console.log("this.render.getCurrentView", this.render.getCurrentView())
 
    switch(this.render.getCurrentView()){
       case 'pattern':
@@ -2254,7 +2246,7 @@ public redraw(flags:any){
 
       var shuttle = this.ms.getShuttle(id);
 
-      if(system.visible){
+      if(system !== undefined && system.visible){
           var c = shuttle.getColor();
           var t = shuttle.getThickness();
           var center = base_dims.w/2;

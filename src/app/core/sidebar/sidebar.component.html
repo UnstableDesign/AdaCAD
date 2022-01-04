@@ -2,7 +2,7 @@
 <!-- UNDO / REDO -->
 <div class="sidebar">
     <!--on both weaver and mixer-->
-    <div class="tool-chunk" *ngIf="source !== 'weaverinmixer'">
+    <div class="tool-chunk" *ngIf="source !== 'weaver'">
         <button #undoEvent 
         mat-icon-button 
         (click)="undoClicked($event);"
@@ -302,13 +302,13 @@
         </button>
 
 
-        <button 
+        <!-- <button 
         mat-icon-button
         matTooltip= "Open Pattern Library"
         [class.is-active] = "patterns_modal && patterns_modal.componentInstance != null"
         (click)="openPatternsModal()">
         <i class="fas fa-chess-board"></i>
-        </button>
+        </button> -->
 
 
         <button 
