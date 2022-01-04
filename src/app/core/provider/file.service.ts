@@ -144,27 +144,11 @@ export class FileService {
         if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
         
         if(draftdata.shuttles !== undefined){
-            //if there is only one draft here we are loading into the mixer and should add materials
-          if(data.drafts.length === 1){
-            const mapping:Array<MaterialMap> = this.ms.addShuttles(draftdata.shuttles);
-            draft.rowShuttleMapping = utilInstance.updateMaterialIds(draftdata.rowShuttleMapping, mapping, 0);
-            draft.colShuttleMapping = utilInstance.updateMaterialIds(draftdata.colShuttleMapping, mapping, 0);
-            
-          }else{
-           this.ms.overloadShuttles(data.shuttles); 
-          }
+          this.ms.overloadShuttles(data.shuttles);
 
         }else{
           if(data.materials !== undefined){
-             //if there is only one draft here we are loading into the mixer and should add materials
-            if(data.drafts.length === 1){
-              const mapping:Array<MaterialMap> = this.ms.addShuttles(data.materials);
-              draft.rowShuttleMapping = utilInstance.updateMaterialIds(draftdata.rowShuttleMapping, mapping, 0);
-              draft.colShuttleMapping = utilInstance.updateMaterialIds(draftdata.colShuttleMapping, mapping, 0);
-
-            }else{
               this.ms.overloadShuttles(data.materials); 
-            }
           }
         }
 

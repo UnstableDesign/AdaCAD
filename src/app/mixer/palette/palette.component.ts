@@ -1196,7 +1196,7 @@ export class PaletteComponent implements OnInit{
       if(moving === null) return; 
 
 
-      this.startSnackBar("Using Ink: "+moving.ink, moving.bounds);
+      this.startSnackBar("Using Ink: "+moving.ink, null);
       
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
@@ -1253,7 +1253,7 @@ export class PaletteComponent implements OnInit{
     height: this.scale
   };
 
-  this.startSnackBar("Click an empty space on the palette to stop selecting", this.shape_bounds);
+  this.startSnackBar("click an empty space on the palette to stop selecting", null);
 
  }
 
@@ -1581,7 +1581,7 @@ connectionMade(id:number){
 
   this.selection.start = this.last;
   this.selection.active = true;
-  this.startSnackBar("Select Drafts to Join", this.selection.bounds);
+  this.startSnackBar("drag to create an empty draft or select a portion of another draft", this.selection.bounds);
  }
 
  /**
@@ -2018,9 +2018,9 @@ drawStarted(){
     if(this.dm.getDesignMode("marquee",'design_modes').selected){
 
      this.drawSelection(ndx);
-     const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
      this.selection.setPositionAndSize(bounds);
-     this.updateSnackBar("Select Drafts to Join",  this.selection.bounds);
+     this.updateSnackBar("drag to create an empty draft or select a portion of another draft",  bounds);
 
     
     }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
@@ -2136,16 +2136,6 @@ drawStarted(){
     
     
    
-
-  }
-
-
-
-  updateSubdraftFromOp(){
-
-  }
-
-  updateOpFromSubdraft(){
 
   }
 
@@ -2283,7 +2273,7 @@ drawStarted(){
       if(moving === null) return; 
 
 
-      this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
+      this.updateSnackBar("Using Ink: "+moving.ink,null);
       this.updateAttachedComponents(moving.id, true);
 
 

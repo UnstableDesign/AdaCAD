@@ -1134,10 +1134,8 @@ export class DraftviewerComponent implements OnInit {
         const material_id:string = material_mode.children[0].value;
         this.weave.colShuttleMapping[col] = parseInt(material_id);
     }else{
-      const len = this.ms.getShuttles().length;
-      var shuttle_id = this.weave.colShuttleMapping[col];
-      var newShuttle_id = (shuttle_id + 1) % len;
-      this.weave.colShuttleMapping[col] = newShuttle_id;
+      const newShuttle = this.ms.getNextShuttle( this.weave.colShuttleMapping[col]);
+      this.weave.colShuttleMapping[col] = newShuttle.id;
     }
 
   
@@ -2216,12 +2214,12 @@ public redraw(flags:any){
 
       var id = this.weave.colShuttleMapping[x];
       if(id === undefined) system = this.ss.getFirstWarpSystem();
+
       else system = this.ss.getWarpSystem(id);
       var shuttle = this.ms.getShuttle(id);
 
 
-
-        if(!system.visible){
+        if(system !== undefined && !system.visible){
           var c = "#3d3d3d";
           var t = 100;
 
