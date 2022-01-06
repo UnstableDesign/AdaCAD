@@ -145,10 +145,6 @@ export class FileService {
         if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
         if(draftdata.ud_name !== undefined || draftdata.ud_name !== '') draft.overloadName(draftdata.ud_name);
 
-
-        console.log("DRAFT DATA NAME", draftdata.name, draftdata.ud_name, draftdata.gen_name);
-
-
         if(draftdata.shuttles !== undefined){
           this.ms.overloadShuttles(data.shuttles);
 

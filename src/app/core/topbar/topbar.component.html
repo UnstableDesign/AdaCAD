@@ -63,7 +63,7 @@
 
  <mat-form-field class="filename">
         <mat-label>Filename</mat-label>
-        <input matInput type="text" placeholder="Filename" [value]="filename">
+        <div><input matInput [(ngModel)]="filename" placeholder="Filename"> </div>
       </mat-form-field>
 
 
