@@ -585,6 +585,7 @@ export class OperationService {
       }        
     }
 
+    //TODO, check for null rows and cols and do add colors from those
     const overlay: Operation = {
       name: 'overlay, (a,b) => (a OR b)',
       dx: 'keeps any region that is marked as black/true in either draft',

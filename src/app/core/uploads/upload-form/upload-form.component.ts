@@ -26,103 +26,159 @@ export class UploadFormComponent implements OnInit {
       this.selectedFiles = event.target.files;
   }
 
-  
 
   uploadSingle() {
 
     this.uploading = true;
 
-    let file = this.selectedFiles.item(0)
+    let file:File = this.selectedFiles.item(0)
     let fileType = file.name.split(".").pop();
  
     this.currentUpload = new Upload(file);
+    this.upSvc.pushUpload(this.currentUpload).then(snapshot => {
+      return this.upSvc.getDownloadData(this.currentUpload.name)
+    }).then(url => {
+        
+            switch(fileType){
+              case 'ada':
+                this.httpClient.get(url).subscribe(data => {
+                  console.log("Got File Type", fileType);
+                  var obj = {
+                    name: file.name.split(".")[0],
+                    data: data,
+                    type: 'ada',
+                  }
+                  console.log(obj);
+                  this.onData.emit(obj);
+                });  
+              break;
 
-    var p, id;
-    p = this.upSvc.pushUpload(this.currentUpload);
+             case 'jpg':
+             case 'bmp':
+             case 'png':
 
-    p.pipe(
-        finalize(() => {
+              this.httpClient.get(url, {responseType: 'blob'}).subscribe(data => {
+                var image = new Image();
+                image.src = url;
+                image.crossOrigin = "Anonymous";
+  
+                var canvas = this.canvas.nativeElement;
+                var ctx = canvas.getContext('2d');
+  
+                image.onload = (() => {
+                
+                    canvas.width = image.naturalWidth;
+                    canvas.height = image.naturalHeight; 
+                        
+                    ctx.mozImageSmoothingEnabled = false;
+                    ctx.webkitImageSmoothingEnabled = false;
+                    ctx.msImageSmoothingEnabled = false;
+                    ctx.imageSmoothingEnabled = false;
+    
+                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  
+                    var imgdata = ctx.getImageData(0,0, canvas.width, canvas.height);
+                    var obj = {
+                      name: file.name.split(".")[0],
+                      data: imgdata,
+                      type: 'image',
+                    }
+                    this.onData.emit(obj);
+                });
+              });
 
-          if (fileType != "ada" && fileType!= "wif") {
-            // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-            //   var image = new Image();
-            //   image.src = url;
-            //   image.crossOrigin = "Anonymous";
+               break;
+            }
 
-            //   var canvas = this.canvas.nativeElement;
-            //   var ctx = canvas.getContext('2d');
+              
+          
+      });
+  
+      
 
-            //   image.onload = (() => {
-            //     if (this.type === "shuttle") {
-            //       canvas.width = this.warps;
-            //       canvas.height = image.naturalHeight * (this.warps / image.naturalWidth);
-            //     }
-            //     else if (this.type === "init") {
-            //       canvas.width = image.naturalWidth;
-            //       canvas.height = image.naturalHeight;
-            //     }
+    // p.pipe(
+    //     finalize(() => {
+
+    //       if (fileType != "ada" && fileType!= "wif") {
+    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
+    //         //   var image = new Image();
+    //         //   image.src = url;
+    //         //   image.crossOrigin = "Anonymous";
+
+    //         //   var canvas = this.canvas.nativeElement;
+    //         //   var ctx = canvas.getContext('2d');
+
+    //         //   image.onload = (() => {
+    //         //     if (this.type === "shuttle") {
+    //         //       canvas.width = this.warps;
+    //         //       canvas.height = image.naturalHeight * (this.warps / image.naturalWidth);
+    //         //     }
+    //         //     else if (this.type === "init") {
+    //         //       canvas.width = image.naturalWidth;
+    //         //       canvas.height = image.naturalHeight;
+    //         //     }
                 
                 
-            //     ctx.mozImageSmoothingEnabled = false;
-            //     ctx.webkitImageSmoothingEnabled = false;
-            //     ctx.msImageSmoothingEnabled = false;
-            //     ctx.imageSmoothingEnabled = false;
+    //         //     ctx.mozImageSmoothingEnabled = false;
+    //         //     ctx.webkitImageSmoothingEnabled = false;
+    //         //     ctx.msImageSmoothingEnabled = false;
+    //         //     ctx.imageSmoothingEnabled = false;
 
-            //     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    //         //     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-            //     var data = ctx.getImageData(0,0, canvas.width, canvas.height);
-            //     var obj = {
-            //       name: file.name.split(".")[0],
-            //       data: data,
-            //       type: 'image',
-            //     }
-            //     this.onData.emit(obj);
-            //   });
-            // });
-          }
-          else if (fileType === "ada") {
+    //         //     var data = ctx.getImageData(0,0, canvas.width, canvas.height);
+    //         //     var obj = {
+    //         //       name: file.name.split(".")[0],
+    //         //       data: data,
+    //         //       type: 'image',
+    //         //     }
+    //         //     this.onData.emit(obj);
+    //         //   });
+    //         // });
+    //       }
+    //       else if (fileType === "ada") {
 
-            // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-            //   this.httpClient.get(url).subscribe(data => {
-            //     var obj = {
-            //       name: file.name.split(".")[0],
-            //       data: data,
-            //       type: 'ada',
-            //     }
-            //     console.log(obj);
-            //     this.onData.emit(obj);
-            //   });
-            // });
-          }
-          else if (fileType === "wif") {
-            // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-            //   this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
-            //    var obj = {
-            //       name: file.name.split(".")[0],
-            //       data: data,
-            //       type: 'wif',
-            //     }
-            //     this.onData.emit(obj);
-            //   });
-            // });
-          }
-          else if (fileType === "wif") {
-            // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-            //   this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
-            //    var obj = {
-            //       name: file.name.split(".")[0],
-            //       data: data,
-            //       type: 'wif',
-            //     }
-            //     this.onData.emit(obj);
-            //   });
-            // });
-          }
-        })
-     )
-    .subscribe((e) => {
-      this.progress = this.currentUpload.progress;
-    });
+    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
+    //         //   this.httpClient.get(url).subscribe(data => {
+    //         //     var obj = {
+    //         //       name: file.name.split(".")[0],
+    //         //       data: data,
+    //         //       type: 'ada',
+    //         //     }
+    //         //     console.log(obj);
+    //         //     this.onData.emit(obj);
+    //         //   });
+    //         // });
+    //       }
+    //       else if (fileType === "wif") {
+    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
+    //         //   this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
+    //         //    var obj = {
+    //         //       name: file.name.split(".")[0],
+    //         //       data: data,
+    //         //       type: 'wif',
+    //         //     }
+    //         //     this.onData.emit(obj);
+    //         //   });
+    //         // });
+    //       }
+    //       else if (fileType === "wif") {
+    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
+    //         //   this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
+    //         //    var obj = {
+    //         //       name: file.name.split(".")[0],
+    //         //       data: data,
+    //         //       type: 'wif',
+    //         //     }
+    //         //     this.onData.emit(obj);
+    //         //   });
+    //         // });
+    //       }
+    //     })
+    //  )
+    // .subscribe((e) => {
+    //   this.progress = this.currentUpload.progress;
+    // });
   }
 
   ngOnInit() {
