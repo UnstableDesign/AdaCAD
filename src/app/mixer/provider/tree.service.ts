@@ -10,8 +10,7 @@ import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService } from './operation.service';
 import utilInstance from '../../core/model/util';
-import { I } from '@angular/cdk/keycodes';
-import { e } from 'mathjs';
+
 
 /**
  * this class registers the relationships between subdrafts, operations, and connections
@@ -1466,6 +1465,7 @@ removeOperationNode(id:number) : Array<Node>{
         type: node.type,
         bounds: node.component.bounds,
         draft_id: (node.type === 'draft') ? (<DraftNode>node).draft.id : -1,
+        draft_name: (node.type === 'draft') ? (<DraftNode>node).draft.ud_name : '',
         draft_visible: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft_visible : true) 
       }
       objs.push(savable);
@@ -1488,6 +1488,7 @@ removeOperationNode(id:number) : Array<Node>{
       draft_id: draft.id,
       draft_visible: true,
       type: "draft",
+      draft_name: draft.ud_name,
       bounds: null
     };
     const treenode: TreeNodeProxy = {

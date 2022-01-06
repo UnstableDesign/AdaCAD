@@ -1513,6 +1513,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
             node_id: el.id,
             type: el.type,
             draft_id: (<DraftNode>el).draft.id,
+            draft_name: (<DraftNode>el).draft.ud_name,
             draft_visible: true,
             bounds: this.calculateInitialLocaiton(el.id)
           }, this.scale);

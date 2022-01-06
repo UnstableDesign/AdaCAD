@@ -6,7 +6,7 @@ import { Pattern } from '../core/model/pattern';
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { Draft } from '../core/model/draft';
-import { TreeService, TreeNode } from './provider/tree.service';
+import { TreeService, TreeNode, DraftNode } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy } from '../core/provider/file.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
@@ -21,6 +21,7 @@ import { i } from 'mathjs';
 import { unwatchFile } from 'fs';
 import { MaterialsService } from '../core/provider/materials.service';
 import { SystemsService } from '../core/provider/systems.service';
+import { D } from '@angular/cdk/keycodes';
 
 
 //disables some angular checking mechanisms
@@ -226,9 +227,11 @@ export class MixerComponent implements OnInit {
     let entry_mapping = [];
     this.filename = data.filename;
 
+
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
     });
+
 
     this.gl.inferData(data.looms.concat(this.tree.getLooms()))
     .then(el => {     
@@ -245,8 +248,6 @@ export class MixerComponent implements OnInit {
         .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
         .map(tn => tn.entry);
      
-
-      console.log("seed ndoes", seednodes);
 
       const seeds: Array<{entry, id, draft, loom}> = seednodes
       .map(sn =>  {
@@ -266,6 +267,7 @@ export class MixerComponent implements OnInit {
           else{
             d.reload(located_draft);
             d.overloadId(located_draft.id);
+            d.overloadName(draft_node.draft_name);
           } 
 
 
@@ -337,6 +339,7 @@ export class MixerComponent implements OnInit {
 
         switch (node.type){
           case 'draft':
+        
             this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.scale);
             break;
           case 'op':
@@ -357,6 +360,19 @@ export class MixerComponent implements OnInit {
             break;
         }
       })
+    })
+    .then(el => {
+
+      //LOAD IN ALL OF THE DRAFT NAMES
+      data.nodes.forEach(np => {
+        const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
+        const node = this.tree.getNode(new_id.cur_id);
+        if(node === undefined) return;
+        if(node.type === "draft"){
+          (<DraftNode> node).draft.overloadName(np.draft_name);
+        }
+      })
+
     })
     .catch(console.error);
 

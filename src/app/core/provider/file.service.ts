@@ -20,6 +20,7 @@ import { System } from '../model/system';
   type: string,
   bounds: Bounds; 
   draft_id: number;
+  draft_name: string;
   draft_visible: boolean;
  }
 
@@ -143,7 +144,10 @@ export class FileService {
         if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
         if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
         if(draftdata.ud_name !== undefined || draftdata.ud_name !== '') draft.overloadName(draftdata.ud_name);
-        console.log("DRAFT DATA", draftdata)
+
+
+        console.log("DRAFT DATA NAME", draftdata.name, draftdata.ud_name, draftdata.gen_name);
+
 
         if(draftdata.shuttles !== undefined){
           this.ms.overloadShuttles(data.shuttles);
@@ -174,9 +178,6 @@ export class FileService {
             draft.overloadColSystemMapping(draftdata.rowSystemMapping);
           }  
   
-
-        console.log("draft data", draftdata);
-
         if(draftdata.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(draftdata.rowShuttleMapping); 
         if(draftdata.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(draftdata.colShuttleMapping); 
         // if(draftdata.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(draftdata.rowSystemMapping); 
@@ -205,13 +206,11 @@ export class FileService {
         return loom;
       });
 
-      console.log("DATA PATTERNS", data.patterns);
       if(data.patterns !== undefined){
         const patterns: Array<Pattern> = data.patterns.map(pattern => {
           const p:Pattern = new Pattern(pattern);
           return p;
         });
-        console.log("new patterns", patterns)
         this.ps.overridePatterns(patterns)
       }else{
         this.ps.resetPatterns();
