@@ -2576,5 +2576,4 @@ drawStarted(){
         sd.redrawExistingDraft();
       })
     }
-
   }

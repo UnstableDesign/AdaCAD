@@ -1,4 +1,4 @@
-import { D, E, I } from '@angular/cdk/keycodes';
+import { D, E, G, I } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
@@ -340,7 +340,7 @@ export class OperationService {
 
     const assignwefts:Operation = {
       name: 'assign weft systems',
-      dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval',
+      dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval. Currently this will overwrite any system information that has been defined upstream',
       params: [  
         {name: 'total',
         min: 1,
@@ -359,21 +359,35 @@ export class OperationService {
         
         if(inputs.length === 0) return Promise.resolve([]);
         const outputs = [];
+        const systems = [];
 
-        const system_maps = [inputs[0]];
-        for(let i = 1; i < input_params[0]; i++){
-          system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        //create a list of the systems
+        for(let n = 0;  n < input_params[0]; n++){
+          const sys = ss.getWeftSystem(n);
+          if(sys === undefined) ss.addWeftSystemFromId(n);
+          systems[n] = n;
         }
 
-        const uniqueSystemRows = this.ss.makeWeftSystemsUnique(system_maps.map(el => el.rowSystemMapping));
+        // const system_maps = [inputs[0]];
+        // for(let i = 1; i < input_params[0]; i++){
+        //   system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        // }
 
-        const d:Draft = new Draft({warps: inputs[0].warps, wefts:inputs[0].wefts*input_params[0], colShuttleMapping: inputs[0].colShuttleMapping, colSystemMapping: inputs[0].colSystemMapping});
+        // const uniqueSystemRows = this.ss.makeWeftSystemsUnique(system_maps.map(el => el.rowSystemMapping));
+
+        const d:Draft = new Draft({
+          warps: inputs[0].warps, 
+          wefts:inputs[0].wefts*input_params[0], 
+          colShuttleMapping: inputs[0].colShuttleMapping, 
+          colSystemMapping: inputs[0].colSystemMapping,
+          rowSystemMapping: systems});
+
 
         d.pattern.forEach((row, i) => {
           const use_row = i % input_params[0] === input_params[1];
           const use_index = Math.floor(i / input_params[0]);
           //this isn't working
-          d.rowSystemMapping[i] = uniqueSystemRows[i % input_params[0]][use_index];
+          //d.rowSystemMapping[i] = uniqueSystemRows[i % input_params[0]][use_index];
           row.forEach((cell, j)=> {
             if(use_row){
               d.rowShuttleMapping[i] = inputs[0].rowShuttleMapping[use_index];
@@ -386,6 +400,8 @@ export class OperationService {
         
         // this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
         d.gen_name = this.formatName(inputs, "assign wefts")
+        const sys_char = String.fromCharCode(97 + input_params[1]);
+        d.gen_name = '-'+sys_char+':'+d.gen_name;
         outputs.push(d);
         return Promise.resolve(outputs);
       }     
@@ -419,16 +435,33 @@ export class OperationService {
         
         if(inputs.length === 0) return Promise.resolve([]);
 
-        const system_maps = [inputs[0]];
-        for(let i = 1; i < input_params[0]; i++){
-          system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        const outputs = [];
+        const systems = [];
+
+        //create a list of the systems
+        for(let n = 0;  n < input_params[0]; n++){
+          const sys = ss.getWarpSystem(n);
+          if(sys === undefined) ss.addWarpSystemFromId(n);
+          systems[n] = n;
         }
 
-        const uniqueSystemCols = this.ss.makeWarpSystemsUnique(system_maps.map(el => el.colSystemMapping));
 
-        const outputs = [];
-        //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: inputs[0].warps*input_params[0], wefts:inputs[0].wefts, rowShuttleMapping: inputs[0].rowShuttleMapping, rowSystemMapping: inputs[0].rowSystemMapping});
+        // const system_maps = [inputs[0]];
+        // for(let i = 1; i < input_params[0]; i++){
+        //   system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        // }
+
+        // const uniqueSystemCols = this.ss.makeWarpSystemsUnique(system_maps.map(el => el.colSystemMapping));
+
+        // const outputs = [];
+        // //create a draft to hold the merged values
+        
+        const d:Draft = new Draft({
+          warps: inputs[0].warps*input_params[0], 
+          wefts:inputs[0].wefts, 
+          rowShuttleMapping: inputs[0].rowShuttleMapping, 
+          rowSystemMapping: inputs[0].rowSystemMapping,
+          colSystemMapping: systems});
 
 
         d.pattern.forEach((row, i) => {
@@ -437,7 +470,7 @@ export class OperationService {
             const sys_id = j % input_params[0];
             const use_col = sys_id === input_params[1];
             const use_index = Math.floor(j / input_params[0]);
-            d.colSystemMapping[j] = uniqueSystemCols[sys_id][use_index];
+            //d.colSystemMapping[j] = uniqueSystemCols[sys_id][use_index];
             if(use_col){
               d.colShuttleMapping[j] = inputs[0].colShuttleMapping[use_index];
               cell.setHeddle(inputs[0].pattern[i][use_index].getHeddle());
@@ -458,7 +491,10 @@ export class OperationService {
 
         
         // this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
-        d.gen_name = this.formatName(inputs, "explode")
+        d.gen_name = this.formatName(inputs, "assign warps")
+        const sys_char = String.fromCharCode(97 + input_params[1]);
+        d.gen_name = '|'+sys_char+':'+d.gen_name;
+
         outputs.push(d);
         return Promise.resolve(outputs);
       }     

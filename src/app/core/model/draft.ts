@@ -76,29 +76,26 @@ export class Draft{
       this.warps = Math.round(params.warps);
     }
 
-    if(params.colShuttleMapping === undefined){
-      this.colShuttleMapping = this.initMapping(this.warps, 0);
-    }else{
-      this.colShuttleMapping = params.colShuttleMapping.slice();
+    this.colShuttleMapping = this.initMapping(this.warps, 0);
+    if(params.colShuttleMapping !== undefined){
+      this.updateWarpShuttlesFromPattern(params.colShuttleMapping)
     }
 
-    if(params.colSystemMapping === undefined){
-      this.colSystemMapping = this.initMapping(this.warps, 0);
-    }else{
-      this.colSystemMapping = params.colSystemMapping.slice();
+    this.colSystemMapping = this.initMapping(this.warps, 0);
+    if(params.colSysytemMapping !== undefined){
+      this.updateWarpSystemsFromPattern(params.colSysytemMapping)
     }
 
-    if(params.rowShuttleMapping === undefined){
-      this.rowShuttleMapping = this.initMapping(this.wefts, 1);
-    }else{
-      this.rowShuttleMapping = params.rowShuttleMapping.slice();
+    this.rowShuttleMapping = this.initMapping(this.wefts, 1);
+    if(params.rowShuttleMapping !== undefined){
+      this.updateWeftShuttlesFromPattern(params.rowShuttleMapping)
     }
 
-    if(params.rowSystemMapping === undefined){
-      this.rowSystemMapping = this.initMapping(this.wefts, 0).slice();
-    }else{
-      this.rowSystemMapping = params.rowSystemMapping;
+    this.rowSystemMapping = this.initMapping(this.wefts, 1);
+    if(params.rowSystemMapping !== undefined){
+      this.updateWeftSystemsFromPattern(params.rowSystemMapping)
     }
+    
 
     if(params.name !== undefined) this.gen_name = params.name;
 
@@ -356,16 +353,14 @@ export class Draft{
     }
   }
 
-      //any{id, name, color}
   updateWarpShuttlesFromPattern(pattern:Array<number>){
 
-    //repopulate the system map
     this.colShuttlePattern = []
     for(let i = 0; i < pattern.length; i++){
       this.colShuttlePattern.push(pattern[i]);
     }
 
-    //update the rowShuttleMapping
+    //update the warpShuttleMapping
     for(let i = 0; i < this.colShuttleMapping.length; i++){
       let ndx = i % this.colShuttlePattern.length;
       this.colShuttleMapping[i] = this.colShuttlePattern[ndx];
