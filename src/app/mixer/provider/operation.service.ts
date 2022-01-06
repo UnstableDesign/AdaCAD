@@ -372,10 +372,11 @@ export class OperationService {
         d.pattern.forEach((row, i) => {
           const use_row = i % input_params[0] === input_params[1];
           const use_index = Math.floor(i / input_params[0]);
-          d.rowShuttleMapping[i] = d.rowShuttleMapping[use_index];
+          //this isn't working
           d.rowSystemMapping[i] = uniqueSystemRows[i % input_params[0]][use_index];
           row.forEach((cell, j)=> {
             if(use_row){
+              d.rowShuttleMapping[i] = inputs[0].rowShuttleMapping[use_index];
               cell.setHeddle(inputs[0].pattern[use_index][j].getHeddle());
             }else{
               cell.setHeddle(null);
@@ -383,10 +384,8 @@ export class OperationService {
           })
         });
         
-
-        
         // this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
-        d.name = this.formatName(inputs, "explode")
+        d.name = this.formatName(inputs, "assign wefts")
         outputs.push(d);
         return Promise.resolve(outputs);
       }     
@@ -438,9 +437,9 @@ export class OperationService {
             const sys_id = j % input_params[0];
             const use_col = sys_id === input_params[1];
             const use_index = Math.floor(j / input_params[0]);
-            d.colShuttleMapping[j] = d.colShuttleMapping[use_index];
             d.colSystemMapping[j] = uniqueSystemCols[sys_id][use_index];
             if(use_col){
+              d.colShuttleMapping[j] = inputs[0].colShuttleMapping[use_index];
               cell.setHeddle(inputs[0].pattern[i][use_index].getHeddle());
             }else{
               if(input_params[2] == 1 && !row_is_null){
