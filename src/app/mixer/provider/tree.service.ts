@@ -855,9 +855,6 @@ removeOperationNode(id:number) : Array<Node>{
   if(id === undefined) return;
 
 
-  console.log("REMOVING OP NODE", id);
-
-
   //get any input subdrafts and connections
   const sds_in: Array<number> = this.getNonCxnInputs(id);
   
@@ -872,11 +869,11 @@ removeOperationNode(id:number) : Array<Node>{
     return acc.concat(this.getOutputs(el))
   }, []);
 
-  console.log("SDs in", sds_in);
-  console.log("CXNs in", cxns_in);
-  console.log("CXNs out", cxns_out);
-  console.log("SDs out", sds_out);
-  console.log("sd connections out", sds_out_cxns);
+  // console.log("SDs in", sds_in);
+  // console.log("CXNs in", cxns_in);
+  // console.log("CXNs out", cxns_out);
+  // console.log("SDs out", sds_out);
+  // console.log("sd connections out", sds_out_cxns);
 
   deleted.push(this.removeNode(id));
 

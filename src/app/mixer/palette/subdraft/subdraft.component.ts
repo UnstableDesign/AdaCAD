@@ -38,15 +38,6 @@ export class SubdraftComponent implements OnInit {
   @Input()  patterns: any;
   @Input()  default_cell: number;
 
-  @Input()
-  get name(): string { return this.draft.ud_name; }
-  set name(value: string) {
-    this._name = value;
-    this.draft.ud_name = value;
-    this.onNameChange.emit(this.id);
-    //console.log("draft names", this.draft.gen_name, this.draft.ud_name, this.draft.getName());
-  }
-  private _name:string = '';
 
   @Input()
   get scale(): number { return this._scale; }
@@ -186,6 +177,11 @@ export class SubdraftComponent implements OnInit {
     this.rescale();
     this.updateViewport(this.bounds);
 
+  }
+
+  nameFocusOut(){
+    console.log("FOCUS OUT")
+    this.onNameChange.emit(this.id);
   }
 
 
@@ -467,6 +463,9 @@ export class SubdraftComponent implements OnInit {
     this.cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
   }
 
+  redrawExistingDraft(){
+    this.drawDraft(this.draft);
+  }
 
   /**
    * draw whetever is stored in the draft object to the screen

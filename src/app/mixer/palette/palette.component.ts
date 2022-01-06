@@ -2569,5 +2569,12 @@ drawStarted(){
       }
     })
   }
+    
+  redrawAllSubdrafts(){
+      const comps = this.tree.getDrafts();
+      comps.forEach(sd => {
+        sd.redrawExistingDraft();
+      })
+    }
 
-}
+  }

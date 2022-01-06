@@ -700,9 +700,8 @@ export class MixerComponent implements OnInit {
    * there is a modal showing materials open and update it if there is
    */
    public materialChange() {
-    console.log('material change')
-
     this.palette.redrawOpenModals();
+    this.palette.redrawAllSubdrafts();
  }
 
 

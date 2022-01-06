@@ -3,14 +3,16 @@
  
 </div>
 <mat-dialog-content>
-<p>Creating a user account allows us to save the state of your design so that if the system crashes or closes for any reason you can recover your file on the next load.</p>
+<p>Creating a user account allows us to save the state of your design so that if the system crashes or closes for any reason you can recover your file when you reload AdaCAD.</p>
   <div class="form-container">
     <div class="left">
     <button mat-raised-button (click)="loginGoogle()" class="google">Login or Signup With Google</button>
+
     </div>
     <div class="right">
+      <p><i>We currently only support logging in through google, more methods coming soon</i></p>
 
-      <button *ngIf="useemail == false" mat-raised-button (click)="useemail = true" class="google">Login or Signup With Email</button>
+      <!--<button *ngIf="useemail == false" mat-raised-button (click)="useemail = true" class="google">Login or Signup With Email</button>-->
 
       <div *ngIf="useemail">
         <mat-form-field appearance="fill" class="example-full-width">

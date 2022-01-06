@@ -26,10 +26,19 @@
     <!-- <button mat-icon-button matTooltip ="print screen" (click)="saveAsPrint()" >
       <i class="fas fa-print"></i>
     </button> -->
+        
+  <button mat-icon-button 
+  [matMenuTriggerFor]="clearScreen"
+  matTooltip ="clear screen"
+  >
+  <i class="fas fa-eraser"></i>
+</button> 
+    <mat-menu #clearScreen mat-raised-button>
+      <a  (click)="clear()" mat-menu-item> Really? Clear the workspace?</a>
+    </mat-menu>
 
-    <button mat-icon-button matTooltip ="clear screen" (click)="clear()" >
-      <i class="fas fa-eraser"></i>
-    </button>
+    <!---->
+    
 
     
   <button mat-icon-button 
