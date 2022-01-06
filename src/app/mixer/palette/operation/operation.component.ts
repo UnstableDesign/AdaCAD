@@ -135,7 +135,7 @@ export class OperationComponent implements OnInit {
   getInputName(id: number) : string {
     const sd = this.tree.getDraft(id);
     if(sd === null || sd === undefined) return "null draft"
-    return sd.name;
+    return sd.getName();
   }
 
 

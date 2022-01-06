@@ -102,7 +102,7 @@
 			
 					
 				<div class='dims_and_name'>
-					<div><input matInput [(ngModel)]="tree.getDraft(id).name"> </div>
+					<div><input matInput [(ngModel)]="name" [placeholder]="tree.getDraft(id).gen_name"> </div>
 					<div class="dims">{{tree.getDraft(id).warps}} x {{tree.getDraft(id).wefts}} </div>
 					<div *ngIf="gl.type === 'frame' && (gl.min_frames < tree.getLoom(id).num_frames || gl.min_treadles < tree.getLoom(id).num_treadles) "class="frame">
 						<span class="error">

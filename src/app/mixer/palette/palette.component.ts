@@ -470,6 +470,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.push(sd.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
+    this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
   }
 
   /**
@@ -579,8 +580,6 @@ export class PaletteComponent implements OnInit{
    * @param nodep the component proxy used to define
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, saved_scale: number){
-
-    console.log("loading new subdraft", id);
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -788,7 +787,6 @@ export class PaletteComponent implements OnInit{
 
     const outputs = this.tree.getNonCxnOutputs(id);
     const delted_nodes = this.tree.removeSubdraftNode(id);
-    console.log("delted nodes", delted_nodes);
 
     delted_nodes.forEach(node => {
       this.removeFromViewContainer(node.ref);
@@ -813,7 +811,6 @@ export class PaletteComponent implements OnInit{
     if(id === undefined) return;
 
     const delted_nodes = this.tree.removeOperationNode(id);
-    console.log("delted nodes", delted_nodes);
 
     delted_nodes.forEach(node => {
       this.removeFromViewContainer(node.ref);
@@ -1091,7 +1088,6 @@ export class PaletteComponent implements OnInit{
    */
     onDeleteSubdraftCalled(obj: any){
       
-      console.log("deleting "+obj.id);
       if(obj === null) return;
       this.removeSubdraft(obj.id);
       this.addTimelineState();
@@ -1102,7 +1098,6 @@ export class PaletteComponent implements OnInit{
    */
       onDeleteOperationCalled(obj: any){
       
-        console.log("deleting op "+obj.id);
         if(obj === null) return;
         this.removeOperation(obj.id);
         this.addTimelineState();
@@ -1112,7 +1107,6 @@ export class PaletteComponent implements OnInit{
    * Duplicates the operation that called this function.
    */
     onDuplicateOpCalled(obj: any){
-      console.log("duplicating "+obj.id);
       if(obj === null) return;
 
       const op = <OperationComponent> this.tree.getComponent(obj.id);
@@ -1158,7 +1152,6 @@ export class PaletteComponent implements OnInit{
    * Deletes the subdraft that called this function.
    */
     onDuplicateSubdraftCalled(obj: any){
-        console.log("duplicating "+obj.id);
         if(obj === null) return;
 
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
@@ -1172,7 +1165,7 @@ export class PaletteComponent implements OnInit{
           colShuttleMapping: sd_draft.colShuttleMapping,
           rowSystemMapping: sd_draft.rowSystemMapping,
           colSystemMapping: sd_draft.colSystemMapping,
-          name: sd_draft.name+" copy"
+          gen_name: sd_draft.getName()+" copy"
         }), -1)
         .then(new_sd => {
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
@@ -1232,8 +1225,6 @@ export class PaletteComponent implements OnInit{
   * @param obj - contains event, id of component who called
   */
  onConnectionStarted(obj: any){
-
-  console.log("on connection started", obj);
 
   const valid = this.tree.setOpenConnection(obj.id);
   if(!valid) return;
@@ -1363,6 +1354,24 @@ export class PaletteComponent implements OnInit{
 
    }
 
+      /**
+    * this is called when an subdraft updates its show/hide value
+    */
+    onSubdraftNameChange(id: number){
+
+      const outs = this.tree.getNonCxnOutputs(id);
+      const to_perform = outs.map(el => this.performAndUpdateDownstream(el));
+      return Promise.all(to_perform) 
+      .then(el => 
+        {
+          this.addTimelineState(); 
+        })
+        .catch(console.error);;
+
+       
+    }
+    
+
 
  /**
    * draws when a user is using the mouse to identify an input to a component
@@ -1468,7 +1477,6 @@ calculateInitialLocaiton(id: number) : Bounds {
 
   }
 
-  console.log("new bounds", new_bounds);
   return new_bounds;
 }
 
@@ -1482,8 +1490,6 @@ calculateInitialLocaiton(id: number) : Bounds {
  * @returns 
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
-
-  console.log("Performing", op_id);
 
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
 
@@ -2197,7 +2203,6 @@ drawStarted(){
    * @returns 
    */
   onSubdraftAction(obj: any){
-    console.log("on subdraft action", obj);
     if(obj === null) return;
 
     const outputs = this.tree.getNonCxnOutputs(obj.id);
@@ -2217,13 +2222,11 @@ drawStarted(){
    */
    async operationParamChanged(obj: any){
 
-    console.log("recalc operation", obj.id);
     if(obj === null) return;
 
     return this.performAndUpdateDownstream(obj.id)
       .then(el => 
       {
-        console.log("adding timeline state")
         this.addTimelineState(); 
       })
       .catch(console.error);
@@ -2505,7 +2508,7 @@ drawStarted(){
   
         const primary_draft = this.tree.getDraft(primary.id);
 
-        const temp: Draft = new Draft({id: primary_draft.id, name: primary_draft.name, warps: Math.floor(bounds.width / this.scale), wefts: Math.floor(bounds.height / this.scale)});
+        const temp: Draft = new Draft({id: primary_draft.id, name: primary_draft.getName(), warps: Math.floor(bounds.width / this.scale), wefts: Math.floor(bounds.height / this.scale)});
     
         for(var i = 0; i < temp.wefts; i++){
           const top: number = bounds.topleft.y + (i * this.scale);

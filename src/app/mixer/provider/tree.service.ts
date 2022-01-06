@@ -988,8 +988,6 @@ removeOperationNode(id:number) : Array<Node>{
     const out = this.getNonCxnOutputs(parent);
     const touched: Array<number> = [];
 
-    console.log("resulting drafts", res, out);
-
     if(out.length === res.length){
       out.forEach((output, ndx) => {
         this.setDraft(output, res[ndx],null);
@@ -1089,7 +1087,6 @@ removeOperationNode(id:number) : Array<Node>{
     .map(input_node => input_node.draft)
     .filter(el => el !== null && el !== undefined);
   
-    console.log("input drafts", input_drafts);
   return op.perform(input_drafts, node.params)
     .then(res => {
       node.dirty = false;
@@ -1130,10 +1127,10 @@ removeOperationNode(id:number) : Array<Node>{
   }
 
   getDraftName(id: number):string{
-    if(id === -1) return this.preview.draft.name;
+    if(id === -1) return this.preview.draft.ud_name;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined || dn.draft === null) return "null draft";
-    return dn.draft.name;
+    return (dn.draft.ud_name === "") ?  dn.draft.gen_name : dn.draft.ud_name; 
   }
 
 
@@ -1523,9 +1520,20 @@ removeOperationNode(id:number) : Array<Node>{
   setDraft(id: number, temp: Draft, loom: Loom) {
 
     const dn = <DraftNode> this.getNode(id);
-    if(dn.draft === null) dn.draft = temp;
-    else dn.draft.reload(temp);
+    let ud_name = temp.ud_name;
+
+    if(dn.draft === null){
+      dn.draft = temp;
+    } 
+    else{
+      ud_name = dn.draft.ud_name;
+      dn.draft.reload(temp);
+    } 
+
+    
+
     dn.draft.overloadId(id);
+    if(ud_name !== '') dn.draft.overloadName(ud_name);
 
     if(loom === null){
       dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
@@ -1637,6 +1645,11 @@ removeOperationNode(id:number) : Array<Node>{
    */
     exportDraftsForSaving() : Array<Draft> {
   
+      //make sure the name values are not undefined
+      this.getDraftNodes().forEach(node => {
+        if(node.draft.ud_name === undefined) node.draft.ud_name = '';
+      });
+
       return this.getDraftNodes()
       .filter(el => this.getSubdraftParent(el.id) === -1)
       .map(el => el.draft);

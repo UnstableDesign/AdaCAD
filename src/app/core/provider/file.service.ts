@@ -142,7 +142,9 @@ export class FileService {
        
         if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
         if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
-        
+        if(draftdata.ud_name !== undefined || draftdata.ud_name !== '') draft.overloadName(draftdata.ud_name);
+        console.log("DRAFT DATA", draftdata)
+
         if(draftdata.shuttles !== undefined){
           this.ms.overloadShuttles(data.shuttles);
 
@@ -179,7 +181,6 @@ export class FileService {
         if(draftdata.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(draftdata.colShuttleMapping); 
         // if(draftdata.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(draftdata.rowSystemMapping); 
         // if(draftdata.colSystemMapping !== undefined) draft.overloadColSystemMapping(draftdata.colSystemMapping);
-        if(draftdata.notes !== undefined) draft.overloadNotes(draftdata.notes);
 
         return draft; 
 

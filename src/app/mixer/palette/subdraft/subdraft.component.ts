@@ -39,6 +39,16 @@ export class SubdraftComponent implements OnInit {
   @Input()  default_cell: number;
 
   @Input()
+  get name(): string { return this.draft.ud_name; }
+  set name(value: string) {
+    this._name = value;
+    this.draft.ud_name = value;
+    this.onNameChange.emit(this.id);
+    //console.log("draft names", this.draft.gen_name, this.draft.ud_name, this.draft.getName());
+  }
+  private _name:string = '';
+
+  @Input()
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
@@ -81,6 +91,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onDesignAction = new  EventEmitter <any>();
   @Output() onConnectionStarted:any = new EventEmitter<any>();
   @Output() onSubdraftViewChange:any = new EventEmitter<any>();
+  @Output() onNameChange:any = new EventEmitter<any>();
 
   @ViewChild('bitmapImage') bitmap: any;
 
@@ -662,7 +673,7 @@ export class SubdraftComponent implements OnInit {
     return this.fs.saver.bmp(b)
     .then(href => {
       a.href =  href;
-      a.download = draft.name + "_bitmap.jpg";
+      a.download = draft.getName() + "_bitmap.jpg";
       a.click();
       this.drawDraft(draft);
 
@@ -679,7 +690,7 @@ export class SubdraftComponent implements OnInit {
       const a = document.createElement('a');
       return this.fs.saver.ada('draft', [draft], [], false, this.scale).then(out => {
         a.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-        a.download = draft.name + ".ada";
+        a.download = draft.getName() + ".ada";
         a.click();
       }); 
     }
@@ -696,7 +707,7 @@ export class SubdraftComponent implements OnInit {
       return this.fs.saver.wif(draft, loom)
       .then(href => {
         a.href = href;
-        a.download  = draft.name +".wif";
+        a.download  = draft.getName() +".wif";
         a.click();
       });
     
@@ -724,7 +735,7 @@ export class SubdraftComponent implements OnInit {
       return this.fs.saver.jpg(b)
         .then(href => {
           a.href =  href;
-          a.download = draft.name + ".jpg";
+          a.download = draft.getName() + ".jpg";
           a.click();
       
         });

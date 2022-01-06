@@ -733,13 +733,11 @@ class Util {
     return max;
   }
 
-  rowIsNull(row: Array<Cell>) : boolean{
-
-    const hasValue = row.find(el => el.getHeddle() !== null);
+  hasOnlyUnset(cells: Array<Cell>) : boolean{
+    const hasValue = cells.find(el => el.getHeddle() !== null);
     if(hasValue === undefined) return true;
     else return false;
   }
-
   
 
   public patternToSize(pattern, warpSize, weftSize) {

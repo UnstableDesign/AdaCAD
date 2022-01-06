@@ -639,8 +639,8 @@ export class WeaverComponent implements OnInit {
 
   public notesChanged(e:any) {
 
-    console.log(e);
-   this.draft.notes = e;
+  //   console.log(e);
+  //  this.draft.notes = e;
   }
 
   // public hideShuttle(e:any) {
