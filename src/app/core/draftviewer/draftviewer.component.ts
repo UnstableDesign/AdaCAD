@@ -2300,8 +2300,6 @@ public redraw(flags:any){
    */
   public redrawVisualView() {
 
-    console.log("drawing visual view");
-
     this.weave.computeYarnPaths(this.ms.getShuttles());
 
     this.cx.fillStyle = "#3d3d3d";
@@ -2317,10 +2315,6 @@ public redraw(flags:any){
 
     this.cx.strokeStyle = "#000";
     this.cx.fillStyle = "#000";
-  }
-
-  public onUndoRedo() {
-
   }
 
   /**

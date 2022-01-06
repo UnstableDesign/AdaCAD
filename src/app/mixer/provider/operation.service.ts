@@ -1963,24 +1963,40 @@ export class OperationService {
         }, 0);
 
         const max_warps:number = utilInstance.getMaxWarps(inputs);
-        
-        const combined: {d: Draft, n: number} = inputs.reduce((acc, input, ndx) => {
+        const draft: Draft = new Draft({warps: max_warps, wefts: total});
+        //make a array of the values from col j
+        for(let j = 0; j < max_warps; j++){
+          
+          const col_as_row: Array<Cell> = inputs.reduce((acc, input, arr_ndx) => {
+              let c = [];
+              if(j < input.pattern.length){
+                 c = input.pattern.map(el => el[j]);
+              }else{
+                const d = new Draft({warps: 1, wefts: input.wefts});
+                d.pattern.forEach(el => el[0].setHeddle(null));
+                c = d.pattern.map(el => el[0]);
+              }
+              return acc.concat(c);
+          }, []);
 
-          input.pattern.forEach((row, i) => {
-            row.forEach((cell, j) => {
-              acc.d.pattern[acc.n + i][j].setHeddle(cell.getHeddle());
-            });
-          });
+          console.log("Col as row", col_as_row)
+         for(let i = 0; i < total; i++){
+           draft.pattern[i][j].setHeddle(col_as_row[i].getHeddle());
+         }
 
-          acc.n = input.pattern.length;
-          return acc;
+        }
 
-        }, {d: new Draft({warps: max_warps, wefts: total}), n: 0});
+        draft.rowSystemMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.rowSystemMapping);
+        }, []);
+       
+        draft.rowShuttleMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.rowShuttleMapping);
+        }, []);
 
-        
-        this.transferSystemsAndShuttles(combined.d, inputs, input_params, 'first');
-        combined.d.name = this.formatName(inputs, "top");
-        return Promise.resolve([combined.d]);
+        this.transferSystemsAndShuttles(draft, inputs, input_params, 'jointop');
+        draft.name = this.formatName(inputs, "top");
+        return Promise.resolve([draft]);
         
       }
     }
@@ -1988,7 +2004,7 @@ export class OperationService {
 
     const joinleft: Operation = {
       name: 'join left',
-      dx: 'attaches inputs toether into one draft with each iniput side by side',
+      dx: 'joins drafts together from left to right',
       params: [],
       max_inputs: 100, 
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
@@ -2002,29 +2018,43 @@ export class OperationService {
         
         const d: Draft = new Draft({warps: total, wefts: max_wefts});
         for(let i = 0; i < max_wefts; i++){
-            const combined_rows: Array<Cell> = inputs.reduce((acc, draft) => {
+           
+          const combined_rows: Array<Cell> = inputs.reduce((acc, draft) => {
              
               let  r: Array<Cell> = [];
               //if the draft doesn't have this row, just make a blank one
               if(i >= draft.wefts){
                 const nd = new Draft({warps: draft.warps, wefts: 1});
+                nd.pattern[0].forEach(el => el.setHeddle(null));
                 r = nd.pattern[0];
+
               }
               else r =  draft.pattern[i];
+
+              //transfer warps here
+              
               return acc.concat(r);
             }, []);
             
-          
             combined_rows.forEach((cell,j) => {
               d.pattern[i][j].setHeddle(cell.getHeddle());
             });
         }
+      
+      
+        d.colSystemMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.colSystemMapping);
+        }, []);
+        
+        d.colShuttleMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.colShuttleMapping);
+        }, []);
              
-        this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
+        this.transferSystemsAndShuttles(d, inputs, input_params, 'joinleft');
         d.name = this.formatName(inputs, "left");
         outputs.push(d);
         return Promise.resolve(outputs);
-        ;
+        
       }
     }
 
@@ -2334,7 +2364,22 @@ export class OperationService {
         d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
         d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
         break;
+        case 'jointop':
 
+          //if there are multiple inputs, 
+  
+          d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+          d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+
+          break;
+
+          case 'joinleft':
+
+            //if there are multiple inputs, 
+            d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+  
+            break;
       case 'second':
           const input_to_use = (inputs.length < 2) ? inputs[0] : inputs[1];
           d.updateWarpShuttlesFromPattern(input_to_use.colShuttleMapping);
@@ -2346,6 +2391,8 @@ export class OperationService {
       case 'materialsonly':
           d.updateWarpShuttlesFromPattern(inputs[1].colShuttleMapping);
           d.updateWeftShuttlesFromPattern(inputs[1].rowShuttleMapping);
+          d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+          d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
         break;
 
       case 'interlace':

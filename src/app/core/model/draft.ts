@@ -58,20 +58,20 @@ export class Draft{
       if(params.pattern === undefined){
         this.wefts = 1;
       }else{
-        this.wefts = params.pattern.length;
+        this.wefts = Math.round(params.pattern.length);
       }
     }else{
-      this.wefts = params.wefts;
+      this.wefts = Math.round(params.wefts);
     }
 
     if(params.warps === undefined){
       if(params.pattern === undefined){
         this.warps = 1;
       }else{
-        this.warps = params.pattern[0].length;
+        this.warps = Math.round(params.pattern[0].length);
       }
     }else{
-      this.warps = params.warps;
+      this.warps = Math.round(params.warps);
     }
 
     if(params.colShuttleMapping === undefined){

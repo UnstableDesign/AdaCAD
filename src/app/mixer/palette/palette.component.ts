@@ -1259,7 +1259,7 @@ export class PaletteComponent implements OnInit{
     height: this.scale
   };
 
-  this.startSnackBar("click an empty space on the palette to stop selecting", null);
+  this.startSnackBar("select an input or click an empty space to stop selecting", null);
 
  }
 
