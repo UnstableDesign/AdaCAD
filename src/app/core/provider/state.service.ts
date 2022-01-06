@@ -51,12 +51,15 @@ export class StateService {
     console.log("printing", value);
   }
 
+  /**
+   * this writes the most current state of the program to the user's entry to the realtime database
+   * @param cur_state returned from file saver, constains the JSON string of the file as well as the obj
+   * @returns 
+   */
   public writeUserData(cur_state: any) {
 
-    console.log("with uid", this.auth.uid);
     if(this.auth.uid === undefined) return;
 
-    console.log("writing", cur_state);
     const db = getDatabase();
     fbset(fbref(db, 'users/' + this.auth.uid), {
       timestamp: Date.now(),

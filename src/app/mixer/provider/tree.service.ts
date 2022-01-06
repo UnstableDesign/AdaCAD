@@ -11,6 +11,7 @@ import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService } from './operation.service';
 import utilInstance from '../../core/model/util';
 import { I } from '@angular/cdk/keycodes';
+import { e } from 'mathjs';
 
 /**
  * this class registers the relationships between subdrafts, operations, and connections
@@ -134,6 +135,8 @@ export class TreeService {
    */
   async loadOpData(entry: {prev_id: number, cur_id: number}, name: string, params:Array<number>) : Promise<{on: OpNode, entry:{prev_id: number, cur_id: number}}>{
     
+
+
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
     if(nodes.length !== 1){
@@ -144,10 +147,22 @@ export class TreeService {
       return Promise.reject("no op of name:"+name+" exists");
     } 
 
+    //convert all params to number
+    if(params === undefined){
+      params = [];
+    }
+    const formatted_params = params.map(el => {
+      if(typeof el === 'boolean'){
+        return (el) ? 1 : 0;
+      }else{
+        return el;
+      }
+    });
+
 
     const params_in = this.ops.getOp(name).params.map(el => el.value);
     const params_out = params_in.map((p, ndx) => {
-      if(ndx < params.length) return params[ndx];
+      if(ndx < params.length) return formatted_params[ndx];
       else return p;
     });
 

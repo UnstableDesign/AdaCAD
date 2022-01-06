@@ -192,6 +192,7 @@ export class OperationService {
         });
 
         this.transferSystemsAndShuttles(d, inputs, input_params, 'materialsonly');
+        d.gen_name = this.formatName(inputs, 'materials')
         return Promise.resolve([d]);
       }        
     }

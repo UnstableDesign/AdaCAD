@@ -107,7 +107,6 @@ export class OperationComponent implements OnInit {
     this.op = this.operations.getOp(this.name);
     const graph_node = <OpNode> this.tree.getNode(this.id);
 
-
     this.op.params.forEach((val, ndx) => {
       if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx]));
       else this.op_inputs.push(new FormControl(val.value));
