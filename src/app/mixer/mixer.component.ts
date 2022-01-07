@@ -17,11 +17,9 @@ import { Loom } from '../core/model/loom';
 import { StateService } from '../core/provider/state.service';
 import { AuthService } from '../core/provider/auth.service';
 import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
-import { i } from 'mathjs';
-import { unwatchFile } from 'fs';
 import { MaterialsService } from '../core/provider/materials.service';
 import { SystemsService } from '../core/provider/systems.service';
-import { D } from '@angular/cdk/keycodes';
+import { HttpClient } from '@angular/common/http';
 
 
 //disables some angular checking mechanisms
@@ -82,7 +80,8 @@ export class MixerComponent implements OnInit {
     private gl: GloballoomService,
     private notes: NotesService,
     private ss: StateService,
-    private auth: AuthService) {
+    private auth: AuthService,
+    private http: HttpClient) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -222,7 +221,6 @@ export class MixerComponent implements OnInit {
    * Take a fileObj returned from the fileservice and process
    */
    async processFileData(data: FileObj) : Promise<string>{
-    console.log("notes", this.notes)
 
     let entry_mapping = [];
     this.filename = data.filename;
@@ -399,17 +397,21 @@ export class MixerComponent implements OnInit {
 
         fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
           if (snapshot.exists()) {
-            console.log(snapshot.val());
             this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
               this.loadNewFile(lr);
             });
-          } else {
-            console.log("No data available");
           }
         }).catch((error) => {
           console.error(error);
         });
   
+    }else{
+      this.http.get('assets/examples/intro.ada', {observe: 'response'}).subscribe((res) => {
+
+        return this.fs.loader.ada('introduction', res.body)
+          .then(lr => {  this.loadNewFile(lr);}
+          );
+      }); 
     }
   
 });

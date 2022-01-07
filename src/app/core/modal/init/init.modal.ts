@@ -99,8 +99,6 @@ export class InitModal implements OnInit {
     console.log("loading example: ", filename);
     this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
 
-      console.log("res", res);
-
       return this.fls.loader.ada(filename, res.body)
         .then(
           res => this.dialogRef.close(res)
