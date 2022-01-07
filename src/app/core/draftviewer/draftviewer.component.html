@@ -9,10 +9,10 @@
       [render]="render"
       [loom]="loom"
       (onFill)="onFill($event)"
-      (onCopy)="onCopy($event)"
+      (onCopy)="onCopy()"
       (onClear)="onClear($event)"
       (onPaste)="onPaste($event)"
-      (onSelectionEnd)="onSelectionEnd($event)"
+      (onSelectionEnd)="onSelectionEnd()"
       ></app-selection>
      
       
@@ -51,14 +51,14 @@
         <canvas id="warp-materials" #warp_materials>  </canvas>
       </div>
 
-      <div [class.hidden]="!loom.isFrame()" class="threading-tieup-container">
+      <div [class.hidden]="!gl.isFrame()" class="threading-tieup-container">
         <canvas id="threading"></canvas>
         <canvas id="tieups" #tieups ></canvas>
       </div>
 
       <div class="drawdown-container">
         <canvas id="drawdown" #drawDown >  </canvas>
-        <canvas [class.hidden]="!loom.isFrame()" id="treadling" #treadling></canvas>
+        <canvas [class.hidden]="!gl.isFrame()" id="treadling" #treadling></canvas>
         
         <div class="weft-systems-container">
           <canvas id="weft-materials" #weft_materials>  </canvas>

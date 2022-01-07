@@ -6,15 +6,28 @@
 
   <form #initForm="ngForm">
 
-    <mat-form-field appearance="fill">
-      <mat-label *ngIf="source !== 'import'">Where would you like to begin?</mat-label>
-      <mat-label *ngIf="source === 'import'">Where kind of file would you like to import?</mat-label>
-    <mat-select [(value)]="selected">
-      <mat-option *ngFor="let opt of opts" [value]="opt.value">
-        {{opt.viewValue}}
-      </mat-option>
-    </mat-select>
-    </mat-form-field>
+      <ng-container *ngIf="source !== 'import'">
+        <mat-form-field appearance="fill">
+          <mat-label>Where would you like to begin?</mat-label>
+        <mat-select [(value)]="selected">
+          <mat-option *ngFor="let opt of opts" [value]="opt.value">
+            {{opt.viewValue}}
+          </mat-option>
+        </mat-select>
+        </mat-form-field>
+      </ng-container>
+
+      <ng-container *ngIf="source === 'import'">
+        <mat-form-field appearance="fill">
+
+        <mat-label >What kind of file would you like to import?</mat-label>
+        <mat-select [(value)]="selected">
+         <mat-option *ngFor="let opt of import_opts" [value]="opt.value">
+         {{opt.viewValue}}
+         </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
 
     <ng-container *ngIf="(selected == 'new')">
 

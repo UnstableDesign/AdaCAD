@@ -57,15 +57,15 @@ export class ActionsComponent implements OnInit {
   // fruits: string[] = ['Lemon'];
   // allFruits: string[] = ['Apple', 'Lemon', 'Lime', 'Orange', 'Strawberry'];
 
-  @ViewChild('warpSystemInput', {static: false}) warpSystemInput: ElementRef<HTMLInputElement>;
-  @ViewChild('weftSystemInput', {static: false}) weftSystemInput: ElementRef<HTMLInputElement>;
-  @ViewChild('warpShuttleInput', {static: false}) warpShuttleInput: ElementRef<HTMLInputElement>;
-  @ViewChild('weftShuttleInput', {static: false}) weftShuttleInput: ElementRef<HTMLInputElement>;
+  @ViewChild('warpSystemInput') warpSystemInput: ElementRef<HTMLInputElement>;
+  @ViewChild('weftSystemInput') weftSystemInput: ElementRef<HTMLInputElement>;
+  @ViewChild('warpShuttleInput') warpShuttleInput: ElementRef<HTMLInputElement>;
+  @ViewChild('weftShuttleInput') weftShuttleInput: ElementRef<HTMLInputElement>;
   
-  @ViewChild('auto_wasy', {static: false}) matAutocompleteWasy: MatAutocomplete;
-  @ViewChild('auto_wesy', {static: false}) matAutocompleteWesy: MatAutocomplete;
-  @ViewChild('auto_wash', {static: false}) matAutocompleteWash: MatAutocomplete;
-  @ViewChild('auto_wesh', {static: false}) matAutocompleteWesh: MatAutocomplete;
+  @ViewChild('auto_wasy') matAutocompleteWasy: MatAutocomplete;
+  @ViewChild('auto_wesy') matAutocompleteWesy: MatAutocomplete;
+  @ViewChild('auto_wash') matAutocompleteWash: MatAutocomplete;
+  @ViewChild('auto_wesh') matAutocompleteWesh: MatAutocomplete;
 
 
    @Output() onUpdateWarpSystems: any = new EventEmitter();
@@ -75,8 +75,8 @@ export class ActionsComponent implements OnInit {
 
 
   constructor(
-    private ms: MaterialsService, 
-    private ss: SystemsService,
+    public ms: MaterialsService, 
+    public ss: SystemsService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<ActionsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) {

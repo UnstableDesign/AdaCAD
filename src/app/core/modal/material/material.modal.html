@@ -37,13 +37,13 @@
     </mat-form-field>
 
      
-    <mat-form-field class="is-fullwidth">
+    <!-- <mat-form-field class="is-fullwidth">
       <mat-select placeholder="Yarn Type" name="type" [(ngModel)]="shuttle.type">
         <mat-option *ngFor="let type of types" [value]="type.value">
           {{ type.viewValue }}
         </mat-option>
       </mat-select>
-    </mat-form-field>
+    </mat-form-field> -->
 
    <div class="is-fullwidth">
       <mat-form-field class="form-field">
@@ -62,12 +62,12 @@
      
     </div>
 
-    <div class="is-fullwidth">
+    <!-- <div class="is-fullwidth">
        Insert From Left
        <mat-slide-toggle matInput (change)="change()" [(ngModel)]="shuttle.insert" name="insert" required>
        </mat-slide-toggle>
        Insert From Right
-  </div>
+  </div> -->
 
   <div class="is-fullwidth">
       <mat-form-field class="is-fullwidth">
@@ -76,8 +76,12 @@
     </mat-form-field>
   </div>
 
+  <div class="is-fullwidth" >
+    <button class="is-fullwidth" mat-flat-button color="primary" (click)="save(shuttle.id)"> <i class="fa fa-save" aria-hidden="true"></i> Save</button>
+  </div>
+
       <div class="is-fullwidth" *ngIf="ms.materials.length > 1">
-      <button class="is-fullwidth" mat-flat-button color="accent" (click)="delete(shuttle.id)"> <i class="fa fa-trash" aria-hidden="true"></i> Delete and Reassign to:</button>
+      <button class="is-fullwidth" mat-flat-button color="grey" (click)="delete(shuttle.id)"> <i class="fa fa-trash" aria-hidden="true"></i> Delete and Reassign to:</button>
       <mat-select lass="is-fullwidth" placeholder="Replacement" name="replacement" [(ngModel)]="replacements[shuttle.id]">
         <mat-option *ngFor="let rep of ms.materials" [value]="rep.id">
           {{ rep.name }}

@@ -17,8 +17,10 @@ import { MaterialsService } from '../provider/materials.service';
 import { SystemsService } from '../provider/systems.service';
 import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
-import { cross } from 'd3-array';
 import { System } from '../model/system';
+import { GloballoomService } from '../provider/globalloom.service';
+import { G } from '@angular/cdk/keycodes';
+import { StateService } from '../provider/state.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -27,10 +29,12 @@ import { System } from '../model/system';
 })
 export class DraftviewerComponent implements OnInit {
 
-  @ViewChild('bitmapImage', {static: false}) bitmap;
+  @ViewChild('bitmapImage') bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
 
-  // @Input('design_actions')  design_actions;
+
+  @Input('id') id;
+
 
 
   /**
@@ -54,31 +58,17 @@ export class DraftviewerComponent implements OnInit {
     * @property {Draft}
     */
    @Input('draft') weave: Draft;
- 
- 
-   /**
-  * The Draft object containing the pattern and shuttle information.
-  * It is defined and inputed from the HTML declaration of the WeaveDirective.
-  * @property {Draft}
-  */
+  
   @Input('loom') loom: Loom;
  
- 
- 
- /**
-    * The Render object containing the variables about zoom and cell sizes.
-    * It is defined and inputed from the HTML declaration of the WeaveDirective.
-    * @property {Render}
-   */
-   @Input('render') render:Render;
- 
- 
+  @Input('render') render: Render;
+
  
  /**
     * The Timeline object containing state histories for undo and redo
     * @property {Timeline}
    */
-   @Input('timeline') timeline: any;
+  //  @Input('timeline') timeline: any;
  
    @Input() viewonly: boolean;
  
@@ -236,7 +226,7 @@ export class DraftviewerComponent implements OnInit {
  
    private lastPos: Interlacement;
  
- 
+
  
    /// ANGULAR FUNCTIONS
    /**
@@ -249,7 +239,9 @@ export class DraftviewerComponent implements OnInit {
     private dm: DesignmodesService,
     private ps: PatternService,
     private ms: MaterialsService,
-    private ss: SystemsService
+    private ss: SystemsService,
+    public gl: GloballoomService,
+    public timeline: StateService
     ) { 
 
     this.flag_recompute = false;
@@ -1135,10 +1127,8 @@ export class DraftviewerComponent implements OnInit {
         const material_id:string = material_mode.children[0].value;
         this.weave.colShuttleMapping[col] = parseInt(material_id);
     }else{
-      const len = this.ms.getShuttles().length;
-      var shuttle_id = this.weave.colShuttleMapping[col];
-      var newShuttle_id = (shuttle_id + 1) % len;
-      this.weave.colShuttleMapping[col] = newShuttle_id;
+      const newShuttle = this.ms.getNextShuttle( this.weave.colShuttleMapping[col]);
+      this.weave.colShuttleMapping[col] = newShuttle.id;
     }
 
   
@@ -2127,7 +2117,6 @@ public drawWeftEnd(top, left, shuttle){
   }
 
 public drawDrawdown(){
-  console.log("this.render.getCurrentView", this.render.getCurrentView())
 
    switch(this.render.getCurrentView()){
       case 'pattern':
@@ -2217,12 +2206,12 @@ public redraw(flags:any){
 
       var id = this.weave.colShuttleMapping[x];
       if(id === undefined) system = this.ss.getFirstWarpSystem();
+
       else system = this.ss.getWarpSystem(id);
       var shuttle = this.ms.getShuttle(id);
 
 
-
-        if(!system.visible){
+        if(system !== undefined && !system.visible){
           var c = "#3d3d3d";
           var t = 100;
 
@@ -2257,7 +2246,7 @@ public redraw(flags:any){
 
       var shuttle = this.ms.getShuttle(id);
 
-      if(system.visible){
+      if(system !== undefined && system.visible){
           var c = shuttle.getColor();
           var t = shuttle.getThickness();
           var center = base_dims.w/2;
@@ -2311,8 +2300,6 @@ public redraw(flags:any){
    */
   public redrawVisualView() {
 
-    console.log("drawing visual view");
-
     this.weave.computeYarnPaths(this.ms.getShuttles());
 
     this.cx.fillStyle = "#3d3d3d";
@@ -2328,10 +2315,6 @@ public redraw(flags:any){
 
     this.cx.strokeStyle = "#000";
     this.cx.fillStyle = "#000";
-  }
-
-  public onUndoRedo() {
-
   }
 
   /**
@@ -2629,7 +2612,7 @@ public redraw(flags:any){
     
     if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
 
-    this.timeline.addHistoryState(this.weave);
+    //this.timeline.addHistoryState(this.weave);
 
     this.copyArea();
 

@@ -1,5 +1,5 @@
 
-<div *ngIf="tree.getDraft(id) !== null" id="con-{{tree.getDraft(id).id}}" class="subdraft-container" [class.is_preview] = "is_preview"
+<div *ngIf="tree.getDraft(id) !== null" id="con-{{id}}" class="subdraft-container" [class.is_preview] = "is_preview"
 	cdkDrag
 	[style.z-index] = "zndx"
 	[class.drawing] = "disable_drag && !is_preview"
@@ -11,7 +11,7 @@
 	(cdkDragStarted)="dragStart($event)">
 
 
-	<div id="scale-{{tree.getDraft(id).id}}" class="subdraft-container">
+	<div id="scale-{{id}}" class="subdraft-container">
 
 	
 
@@ -59,7 +59,7 @@
 				<mat-menu #downloadDropdown mat-raised-button>
 					<a  (click)="saveAsPrint()" mat-menu-item>as Printable Image</a>
 					<a   (click)="saveAsBmp()" mat-menu-item> as Bitmap</a>
-					<a  (click)="saveAsAda()" mat-menu-item> as AdaCAD file</a>
+					<!-- <a  (click)="saveAsAda()" mat-menu-item> as AdaCAD file</a> -->
 					<a  (click)="saveAsWif()" mat-menu-item> as Wif file</a>
 				</mat-menu>
 			
@@ -102,7 +102,7 @@
 			
 					
 				<div class='dims_and_name'>
-					<div><input matInput [(ngModel)]="tree.getDraft(id).name"> </div>
+					<div><input matInput [(ngModel)]="tree.getDraft(id).ud_name" [placeholder]="tree.getDraft(id).gen_name"  (focusout)="nameFocusOut($event)"> </div>
 					<div class="dims">{{tree.getDraft(id).warps}} x {{tree.getDraft(id).wefts}} </div>
 					<div *ngIf="gl.type === 'frame' && (gl.min_frames < tree.getLoom(id).num_frames || gl.min_treadles < tree.getLoom(id).num_treadles) "class="frame">
 						<span class="error">

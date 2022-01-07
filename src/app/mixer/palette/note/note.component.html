@@ -1,7 +1,7 @@
 
+<!--TODO add z index support here-->
 <div class="note-container" 
 cdkDrag
-[style.z-index] = "zndx"
 [cdkDragFreeDragPosition]="bounds.topleft"
 (cdkDragMoved)="dragMove($event)">
 
@@ -20,21 +20,22 @@ cdkDrag
       <button 
       matTooltip= "Delete"
       class="button is-small is-primary fas fa-times"
-      [style.color]="button_color" 
       [name]="delete"
       (click)="delete(note.id)">
       </button>
     </div>
 
+    <div class="text-entry">
     
     <form class="example-form">
  
         <mat-form-field class="example-full-width" appearance="fill">
           <mat-label>Comment #{{note.id}}</mat-label>
-          <textarea cdkTextareaAutosize matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text"></textarea>
+          <textarea cdkTextareaAutosize matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
         </mat-form-field>
     </form>
 
+    </div>
  
  </div>
 

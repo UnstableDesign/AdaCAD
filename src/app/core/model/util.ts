@@ -702,6 +702,7 @@ class Util {
    */
   updateMaterialIds(material_mapping: Array<number>, index_map: Array<MaterialMap>, replacement_ndx:number) : Array<number>{
 
+    if(material_mapping === undefined) material_mapping = [];
     //update the existing drafts given the new ids
       const new_map: Array<number> = material_mapping.map(index => {
         const mapping: MaterialMap = index_map.find(el => el.old_id === index);
@@ -732,13 +733,11 @@ class Util {
     return max;
   }
 
-  rowIsNull(row: Array<Cell>) : boolean{
-
-    const hasValue = row.find(el => el.getHeddle() !== null);
+  hasOnlyUnset(cells: Array<Cell>) : boolean{
+    const hasValue = cells.find(el => el.getHeddle() !== null);
     if(hasValue === undefined) return true;
     else return false;
   }
-
   
 
   public patternToSize(pattern, warpSize, weftSize) {

@@ -1,4 +1,4 @@
-import { D, E, I } from '@angular/cdk/keycodes';
+import { D, E, G, I } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
@@ -74,11 +74,11 @@ export class OperationService {
         
         if(inputs.length == 0){
           d.fill([[new Cell(false)]], 'clear');
-          d.name = "rect"
+          d.gen_name = "rect"
         }else{
           d.fill(inputs[0].pattern, 'original');
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.name = this.formatName(inputs, "rect");
+          d.gen_name = this.formatName(inputs, "rect");
         }
 
 
@@ -100,7 +100,7 @@ export class OperationService {
           d.fill([[new Cell(false)]], 'clear');
           if(inputs.length > 0){
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "clear");
+            d.gen_name = this.formatName(inputs, "clear");
           }
           return  d;
         });
@@ -135,7 +135,7 @@ export class OperationService {
          
           if(inputs.length > 0){
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "unset->down");
+            d.gen_name = this.formatName(inputs, "unset->down");
           }
           return d;
         });
@@ -166,7 +166,7 @@ export class OperationService {
           });
           if(inputs.length > 0){
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "unset");
+            d.gen_name = this.formatName(inputs, "unset");
 
           }
           return d;
@@ -192,6 +192,7 @@ export class OperationService {
         });
 
         this.transferSystemsAndShuttles(d, inputs, input_params, 'materialsonly');
+        d.gen_name = this.formatName(inputs, 'materials')
         return Promise.resolve([d]);
       }        
     }
@@ -216,7 +217,7 @@ export class OperationService {
 
           if(inputs.length > 0){
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "rot");
+            d.gen_name = this.formatName(inputs, "rot");
 
           }
 
@@ -264,7 +265,7 @@ export class OperationService {
         
 
         this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
-        d.name = this.formatName(inputs, "ilace")
+        d.gen_name = this.formatName(inputs, "ilace")
 
         outputs.push(d);
         return Promise.resolve(outputs);
@@ -332,7 +333,7 @@ export class OperationService {
 
         }
         // this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
-        d.name = this.formatName(inputs, "splice")
+        d.gen_name = this.formatName(inputs, "splice")
         outputs.push(d);
         return Promise.resolve(outputs);
       }     
@@ -340,7 +341,7 @@ export class OperationService {
 
     const assignwefts:Operation = {
       name: 'assign weft systems',
-      dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval',
+      dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval. Currently this will overwrite any system information that has been defined upstream',
       params: [  
         {name: 'total',
         min: 1,
@@ -359,23 +360,38 @@ export class OperationService {
         
         if(inputs.length === 0) return Promise.resolve([]);
         const outputs = [];
+        const systems = [];
 
-        const system_maps = [inputs[0]];
-        for(let i = 1; i < input_params[0]; i++){
-          system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        //create a list of the systems
+        for(let n = 0;  n < input_params[0]; n++){
+          const sys = ss.getWeftSystem(n);
+          if(sys === undefined) ss.addWeftSystemFromId(n);
+          systems[n] = n;
         }
 
-        const uniqueSystemRows = this.ss.makeWeftSystemsUnique(system_maps.map(el => el.rowSystemMapping));
+        // const system_maps = [inputs[0]];
+        // for(let i = 1; i < input_params[0]; i++){
+        //   system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        // }
 
-        const d:Draft = new Draft({warps: inputs[0].warps, wefts:inputs[0].wefts*input_params[0], colShuttleMapping: inputs[0].colShuttleMapping, colSystemMapping: inputs[0].colSystemMapping});
+        // const uniqueSystemRows = this.ss.makeWeftSystemsUnique(system_maps.map(el => el.rowSystemMapping));
+
+        const d:Draft = new Draft({
+          warps: inputs[0].warps, 
+          wefts:inputs[0].wefts*input_params[0], 
+          colShuttleMapping: inputs[0].colShuttleMapping, 
+          colSystemMapping: inputs[0].colSystemMapping,
+          rowSystemMapping: systems});
+
 
         d.pattern.forEach((row, i) => {
           const use_row = i % input_params[0] === input_params[1];
           const use_index = Math.floor(i / input_params[0]);
-          d.rowShuttleMapping[i] = d.rowShuttleMapping[use_index];
-          d.rowSystemMapping[i] = uniqueSystemRows[i % input_params[0]][use_index];
+          //this isn't working
+          //d.rowSystemMapping[i] = uniqueSystemRows[i % input_params[0]][use_index];
           row.forEach((cell, j)=> {
             if(use_row){
+              d.rowShuttleMapping[i] = inputs[0].rowShuttleMapping[use_index];
               cell.setHeddle(inputs[0].pattern[use_index][j].getHeddle());
             }else{
               cell.setHeddle(null);
@@ -383,10 +399,10 @@ export class OperationService {
           })
         });
         
-
-        
         // this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
-        d.name = this.formatName(inputs, "explode")
+        d.gen_name = this.formatName(inputs, "assign wefts")
+        const sys_char = String.fromCharCode(97 + input_params[1]);
+        d.gen_name = '-'+sys_char+':'+d.gen_name;
         outputs.push(d);
         return Promise.resolve(outputs);
       }     
@@ -420,27 +436,44 @@ export class OperationService {
         
         if(inputs.length === 0) return Promise.resolve([]);
 
-        const system_maps = [inputs[0]];
-        for(let i = 1; i < input_params[0]; i++){
-          system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        const outputs = [];
+        const systems = [];
+
+        //create a list of the systems
+        for(let n = 0;  n < input_params[0]; n++){
+          const sys = ss.getWarpSystem(n);
+          if(sys === undefined) ss.addWarpSystemFromId(n);
+          systems[n] = n;
         }
 
-        const uniqueSystemCols = this.ss.makeWarpSystemsUnique(system_maps.map(el => el.colSystemMapping));
 
-        const outputs = [];
-        //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: inputs[0].warps*input_params[0], wefts:inputs[0].wefts, rowShuttleMapping: inputs[0].rowShuttleMapping, rowSystemMapping: inputs[0].rowSystemMapping});
+        // const system_maps = [inputs[0]];
+        // for(let i = 1; i < input_params[0]; i++){
+        //   system_maps.push(new Draft({wefts: inputs[0].wefts, warps: inputs[0].warps}));
+        // }
+
+        // const uniqueSystemCols = this.ss.makeWarpSystemsUnique(system_maps.map(el => el.colSystemMapping));
+
+        // const outputs = [];
+        // //create a draft to hold the merged values
+        
+        const d:Draft = new Draft({
+          warps: inputs[0].warps*input_params[0], 
+          wefts:inputs[0].wefts, 
+          rowShuttleMapping: inputs[0].rowShuttleMapping, 
+          rowSystemMapping: inputs[0].rowSystemMapping,
+          colSystemMapping: systems});
 
 
         d.pattern.forEach((row, i) => {
-          const row_is_null = utilInstance.rowIsNull(inputs[0].pattern[i]);
+          const row_is_null = utilInstance.hasOnlyUnset(inputs[0].pattern[i]);
           row.forEach((cell, j)=> {
             const sys_id = j % input_params[0];
             const use_col = sys_id === input_params[1];
             const use_index = Math.floor(j / input_params[0]);
-            d.colShuttleMapping[j] = d.colShuttleMapping[use_index];
-            d.colSystemMapping[j] = uniqueSystemCols[sys_id][use_index];
+            //d.colSystemMapping[j] = uniqueSystemCols[sys_id][use_index];
             if(use_col){
+              d.colShuttleMapping[j] = inputs[0].colShuttleMapping[use_index];
               cell.setHeddle(inputs[0].pattern[i][use_index].getHeddle());
             }else{
               if(input_params[2] == 1 && !row_is_null){
@@ -459,7 +492,10 @@ export class OperationService {
 
         
         // this.transferSystemsAndShuttles(d, inputs, input_params, 'interlace');
-        d.name = this.formatName(inputs, "explode")
+        d.gen_name = this.formatName(inputs, "assign warps")
+        const sys_char = String.fromCharCode(97 + input_params[1]);
+        d.gen_name = '|'+sys_char+':'+d.gen_name;
+
         outputs.push(d);
         return Promise.resolve(outputs);
       }     
@@ -519,7 +555,7 @@ export class OperationService {
             });
           });
 
-          d.name = this.formatName(inputs, "cut+"+i)
+          d.gen_name = this.formatName(inputs, "cut+"+i)
           outputs.push(d);
           console.log("created d", d);
         }
@@ -569,7 +605,7 @@ export class OperationService {
             d.fill(pattern, 'original');
             if(inputs.length > 0){
               this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-              d.name = this.formatName(inputs, "sel")
+              d.gen_name = this.formatName(inputs, "sel")
 
             }
             for(let i = 0; i < input.wefts; i++){
@@ -608,7 +644,8 @@ export class OperationService {
 
         if(inputs.length < 1) return Promise.resolve([]);
 
-        const first: Draft = inputs.shift();
+        const inputs_divided = inputs.slice();
+        const first: Draft = inputs_divided.shift();
 
         const outputs: Array<Draft> = [];
 
@@ -620,20 +657,32 @@ export class OperationService {
 
 
         //initialize the base container with the first draft at 0,0, unset for anythign wider
-        const init_draft: Draft = new Draft({wefts: height, warps: width});
+        const init_draft: Draft = new Draft({
+          wefts: height, 
+          warps: width, 
+          colSystemMapping: first.colSystemMapping, 
+          colShuttleMapping: first.colShuttleMapping,
+          rowSystemMapping: first.rowSystemMapping,
+          rowShuttleMapping: first.rowShuttleMapping});
           
         first.pattern.forEach((row, i) => {
-            row.forEach((cell, j) => {
-              init_draft.pattern[i][j].setHeddle(cell.getHeddle());
-            });
+          row.forEach((cell, j) => {
+            init_draft.pattern[i][j].setHeddle(cell.getHeddle());
           });
+        });
 
         //now merge in all of the additional inputs offset by the inputs
-        const d: Draft = inputs.reduce((acc, input) => {
+        const d: Draft = inputs_divided.reduce((acc, input) => {
           input.pattern.forEach((row, i) => {
+            const adj_i: number = i+input_params[1];
+
+            //if the new draft has only nulls on this row, set the value to the input value
+            if(utilInstance.hasOnlyUnset(acc.pattern[adj_i])){
+              acc.rowSystemMapping[adj_i] = input.rowSystemMapping[i]
+              acc.rowShuttleMapping[adj_i] = input.rowShuttleMapping[i]
+            }
             row.forEach((cell, j) => {
               //if i or j is less than input params 
-              const adj_i: number = i+input_params[1];
               const adj_j: number = j+input_params[0];
               acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('or', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
             });
@@ -643,8 +692,11 @@ export class OperationService {
         }, init_draft);
 
 
-        this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-        d.name = this.formatName(inputs, "overlay")
+        //this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
+        //d.name = this.formatName(inputs, "overlay")
+        d.gen_name = inputs.reduce((acc, el) => {
+          return acc+"+"+el.getName()
+        }, "").substring(1);
 
         outputs.push(d);
         return Promise.resolve(outputs);
@@ -706,7 +758,7 @@ export class OperationService {
 
         }, init_draft);
         this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-        d.name = this.formatName(inputs, "atop")
+        d.gen_name = this.formatName(inputs, "atop")
 
         outputs.push(d);
         return Promise.resolve(outputs);
@@ -768,7 +820,7 @@ export class OperationService {
 
         }, init_draft);
         this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-        d.name = this.formatName(inputs, "ko");
+        d.gen_name = this.formatName(inputs, "ko");
         outputs.push(d);
         return Promise.resolve(outputs);
       }        
@@ -829,7 +881,7 @@ export class OperationService {
 
         }, init_draft);
         this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-        d.name = this.formatName(inputs, "mask")
+        d.gen_name = this.formatName(inputs, "mask")
         outputs.push(d);
         return Promise.resolve(outputs);
       }        
@@ -890,7 +942,7 @@ export class OperationService {
 
         }, init_draft);
         this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-        d.name = this.formatName(inputs, "erase")
+        d.gen_name = this.formatName(inputs, "erase")
         outputs.push(d);
         return Promise.resolve(outputs);
       }        
@@ -910,11 +962,25 @@ export class OperationService {
         }
 
         if(inputs.length == 1){
-          outputs.push(new Draft({warps:inputs[0].warps, wefts: inputs[0].wefts, pattern:inputs[0].pattern}));
+          outputs.push(new Draft(
+            {warps:inputs[0].warps, 
+              wefts: inputs[0].wefts, 
+              pattern:inputs[0].pattern,
+              rowShuttleMapping: inputs[0].rowShuttleMapping,
+              colShuttleMapping: inputs[0].colSystemMapping,
+              rowSystemMapping: inputs[0].rowSystemMapping,
+              colSystemMapping: inputs[0].colSystemMapping}));
         }
 
         if(inputs.length == 2){
-          let d = new Draft({warps:inputs[0].warps, wefts: inputs[0].wefts, pattern:inputs[0].pattern});
+          let d = new Draft({
+            warps:inputs[0].warps, 
+            wefts: inputs[0].wefts, 
+            pattern:inputs[0].pattern,
+            rowShuttleMapping: inputs[1].rowShuttleMapping,
+            colShuttleMapping: inputs[1].colSystemMapping,
+            rowSystemMapping: inputs[1].rowSystemMapping,
+            colSystemMapping: inputs[1].colSystemMapping});
           d.fill(inputs[1].pattern, 'mask');
           outputs.push(d);
         }
@@ -927,21 +993,17 @@ export class OperationService {
           d.fill(inputs[1].pattern, 'mask');
 
           const op: Operation = this.getOp('overlay, (a,b) => (a OR b)');
-
-          console.log(d, di);
         
           op.perform([d, di], [0, 0])
             .then(out => {
-              this.transferSystemsAndShuttles(d, inputs, input_params, 'second');
-              d.name = this.formatName(inputs, "fill")
-              outputs.push(out[0]);
-              
+              d.gen_name = this.formatName(inputs, "fill")
+              outputs.push(out[0]);              
             });
-
-
         }
 
+        //ADD Transfer here
 
+        
 
         return Promise.resolve(outputs);
       }        
@@ -986,7 +1048,7 @@ export class OperationService {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "tabby")
+            d.gen_name = this.formatName(inputs, "tabby")
             return d;
           });
         }
@@ -1043,7 +1105,7 @@ export class OperationService {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "basket")
+            d.gen_name = this.formatName(inputs, "basket")
             return d;
           });
         }
@@ -1089,7 +1151,7 @@ export class OperationService {
               }
             });
             this.transferSystemsAndShuttles(d, inputs, input_params, 'stretch');
-            d.name = this.formatName(inputs, "stretch")
+            d.gen_name = this.formatName(inputs, "stretch")
             return d;
             
         });
@@ -1131,7 +1193,7 @@ export class OperationService {
                 });
             });
             this.transferSystemsAndShuttles(d, inputs, input_params, 'stretch');
-            d.name = this.formatName(inputs, "resize")
+            d.gen_name = this.formatName(inputs, "resize")
             return d;
         });
 
@@ -1185,15 +1247,16 @@ export class OperationService {
               });
             });
             input.pattern.forEach((row, i) => {
+                d.rowShuttleMapping[i+input_params[0]] = input.rowShuttleMapping[i];
+                d.rowSystemMapping[i+input_params[0]] = input.rowSystemMapping[i];
                 row.forEach((cell, j) => {
                   d.pattern[i+input_params[0]][j+input_params[3]].setHeddle(cell.getHeddle());
-                  d.colShuttleMapping[j+input_params[3]] = input.rowShuttleMapping[j];
-                  d.colSystemMapping[j+input_params[3]] = input.rowShuttleMapping[j];
+                  d.colShuttleMapping[j+input_params[3]] = input.colShuttleMapping[j];
+                  d.colSystemMapping[j+input_params[3]] = input.colSystemMapping[j];
                 });
-                d.rowShuttleMapping[i+input_params[0]] = input.rowShuttleMapping[i];
-                d.rowSystemMapping[i+input_params[0]] = input.rowShuttleMapping[i];
+                
             });
-            d.name = this.formatName(inputs, "margin");
+            d.gen_name = this.formatName(inputs, "margin");
             return d;
         });
 
@@ -1252,7 +1315,7 @@ export class OperationService {
               });
             });
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "crop");
+            d.gen_name = this.formatName(inputs, "crop");
             return d;
         });
 
@@ -1368,8 +1431,8 @@ export class OperationService {
           outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
-            this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "rib");
+            this.transferSystemsAndShuttles(d, inputs, input_params, 'second');
+            d.gen_name = this.formatName(inputs, "rib");
             return d;
           });
         }
@@ -1428,7 +1491,7 @@ export class OperationService {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "twill");
+            d.gen_name = this.formatName(inputs, "twill");
             return d;
           });
         }
@@ -1481,7 +1544,7 @@ export class OperationService {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "satin");
+            d.gen_name = this.formatName(inputs, "satin");
             return d;
           });
         }
@@ -1537,7 +1600,7 @@ export class OperationService {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "random");
+            d.gen_name = this.formatName(inputs, "random");
             return d;
           });
         }
@@ -1556,7 +1619,7 @@ export class OperationService {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
           d.fill(d.pattern, 'invert');
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.name = this.formatName(inputs, "invert");
+          d.gen_name = this.formatName(inputs, "invert");
           return d;
         });
         return Promise.resolve(outputs);
@@ -1573,7 +1636,7 @@ export class OperationService {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
           d.fill(d.pattern, 'mirrorY');
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.name = this.formatName(inputs, "fhoriz");
+          d.gen_name = this.formatName(inputs, "fhoriz");
           return d;
         });
         return  Promise.resolve(outputs);
@@ -1590,7 +1653,7 @@ export class OperationService {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
           d.fill(d.pattern, 'mirrorX');
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.name = this.formatName(inputs, "fvert");
+          d.gen_name = this.formatName(inputs, "fvert");
           return d;
         });
         return  Promise.resolve(outputs);
@@ -1615,7 +1678,7 @@ export class OperationService {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             for(let i = 0; i < input_params[0]; i++){
               this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-              d.name = this.formatName(inputs, "shiftx");
+              d.gen_name = this.formatName(inputs, "shiftx");
               d.fill(d.pattern, 'shiftLeft');
             }
           return d;
@@ -1643,7 +1706,7 @@ export class OperationService {
             for(let i = 0; i < input_params[0]; i++){
               d.fill(d.pattern, 'shiftUp');
               this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-              d.name = this.formatName(inputs, "shifty");
+              d.gen_name = this.formatName(inputs, "shifty");
             }
           return d;
         });
@@ -1686,7 +1749,7 @@ export class OperationService {
               }
             }
             this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-            d.name = this.formatName(inputs, "slope");
+            d.gen_name = this.formatName(inputs, "slope");
           return d;
         });
         return  Promise.resolve(outputs);
@@ -1785,7 +1848,7 @@ export class OperationService {
             });
           });
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.name = this.formatName(inputs, "bindweft");
+          d.gen_name = this.formatName(inputs, "bindweft");
           return d;
         });
         return  Promise.resolve(outputs);
@@ -1875,7 +1938,7 @@ export class OperationService {
 
               console.log("returning ", d)
               this.transferSystemsAndShuttles(d, inputs, input_params, 'layer');
-              d.name = this.formatName(inputs, "layer");
+              d.gen_name = this.formatName(inputs, "layer");
               return [d];
             });
       }
@@ -1909,7 +1972,7 @@ export class OperationService {
           const d: Draft = new Draft({warps: width, wefts: height});
           d.fill(input.pattern, 'original');
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.name = this.formatName(inputs, "tile");
+          d.gen_name = this.formatName(inputs, "tile");
           return d;
         });
 
@@ -1928,14 +1991,14 @@ export class OperationService {
         if(inputs.length === 0) return Promise.resolve([]);
 
         const rows_out = inputs[0].pattern.reduce((acc, el, ndx) => {
-          if(!utilInstance.rowIsNull(el)) acc++;
+          if(!utilInstance.hasOnlyUnset(el)) acc++;
           return acc;
         }, 0);
 
         const out = new Draft({wefts: rows_out, warps: inputs[0].warps, colShuttleMapping: inputs[0].colShuttleMapping, colSystemMapping: inputs[0].colSystemMapping});
         let ndx = 0;
         inputs[0].pattern.forEach((row, i) => {
-          if(!utilInstance.rowIsNull(row)){
+          if(!utilInstance.hasOnlyUnset(row)){
             row.forEach((cell, j) => {
               out.pattern[ndx][j].setHeddle(cell.getHeddle()); 
             });
@@ -1963,24 +2026,40 @@ export class OperationService {
         }, 0);
 
         const max_warps:number = utilInstance.getMaxWarps(inputs);
-        
-        const combined: {d: Draft, n: number} = inputs.reduce((acc, input, ndx) => {
+        const draft: Draft = new Draft({warps: max_warps, wefts: total});
+        //make a array of the values from col j
+        for(let j = 0; j < max_warps; j++){
+          
+          const col_as_row: Array<Cell> = inputs.reduce((acc, input, arr_ndx) => {
+              let c = [];
+              if(j < input.pattern.length){
+                 c = input.pattern.map(el => el[j]);
+              }else{
+                const d = new Draft({warps: 1, wefts: input.wefts});
+                d.pattern.forEach(el => el[0].setHeddle(null));
+                c = d.pattern.map(el => el[0]);
+              }
+              return acc.concat(c);
+          }, []);
 
-          input.pattern.forEach((row, i) => {
-            row.forEach((cell, j) => {
-              acc.d.pattern[acc.n + i][j].setHeddle(cell.getHeddle());
-            });
-          });
+          console.log("Col as row", col_as_row)
+         for(let i = 0; i < total; i++){
+           draft.pattern[i][j].setHeddle(col_as_row[i].getHeddle());
+         }
 
-          acc.n = input.pattern.length;
-          return acc;
+        }
 
-        }, {d: new Draft({warps: max_warps, wefts: total}), n: 0});
+        draft.rowSystemMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.rowSystemMapping);
+        }, []);
+       
+        draft.rowShuttleMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.rowShuttleMapping);
+        }, []);
 
-        
-        this.transferSystemsAndShuttles(combined.d, inputs, input_params, 'first');
-        combined.d.name = this.formatName(inputs, "top");
-        return Promise.resolve([combined.d]);
+        this.transferSystemsAndShuttles(draft, inputs, input_params, 'jointop');
+        draft.gen_name = this.formatName(inputs, "top");
+        return Promise.resolve([draft]);
         
       }
     }
@@ -1988,7 +2067,7 @@ export class OperationService {
 
     const joinleft: Operation = {
       name: 'join left',
-      dx: 'attaches inputs toether into one draft with each iniput side by side',
+      dx: 'joins drafts together from left to right',
       params: [],
       max_inputs: 100, 
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
@@ -2002,29 +2081,43 @@ export class OperationService {
         
         const d: Draft = new Draft({warps: total, wefts: max_wefts});
         for(let i = 0; i < max_wefts; i++){
-            const combined_rows: Array<Cell> = inputs.reduce((acc, draft) => {
+           
+          const combined_rows: Array<Cell> = inputs.reduce((acc, draft) => {
              
               let  r: Array<Cell> = [];
               //if the draft doesn't have this row, just make a blank one
               if(i >= draft.wefts){
                 const nd = new Draft({warps: draft.warps, wefts: 1});
+                nd.pattern[0].forEach(el => el.setHeddle(null));
                 r = nd.pattern[0];
+
               }
               else r =  draft.pattern[i];
+
+              //transfer warps here
+              
               return acc.concat(r);
             }, []);
             
-          
             combined_rows.forEach((cell,j) => {
               d.pattern[i][j].setHeddle(cell.getHeddle());
             });
         }
+      
+      
+        d.colSystemMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.colSystemMapping);
+        }, []);
+        
+        d.colShuttleMapping = inputs.reduce((acc, draft) => {
+          return acc.concat(draft.colShuttleMapping);
+        }, []);
              
-        this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-        d.name = this.formatName(inputs, "left");
+        this.transferSystemsAndShuttles(d, inputs, input_params, 'joinleft');
+        d.gen_name = this.formatName(inputs, "left");
         outputs.push(d);
         return Promise.resolve(outputs);
-        ;
+        
       }
     }
 
@@ -2063,7 +2156,7 @@ export class OperationService {
                     }
 
                     this.transferSystemsAndShuttles(draft, inputs, input_params, 'first');
-                    draft.name = this.formatName(inputs, "germanify");
+                    draft.gen_name = this.formatName(inputs, "germanify");
                   return draft
                 
                 })
@@ -2104,7 +2197,7 @@ export class OperationService {
                         }
                       }
                       this.transferSystemsAndShuttles(draft, inputs, input_params, 'first');
-                      draft.name = this.formatName(inputs, "crackleify");
+                      draft.gen_name = this.formatName(inputs, "crackleify");
                     return draft
                   
                   })
@@ -2127,7 +2220,7 @@ export class OperationService {
             l.recomputeLoom(inputs[0]);
 
             const threading: Draft = new Draft({warps: inputs[0].warps, wefts: l.num_frames});
-            threading.name = "threading_"+inputs[0].name;
+            threading.gen_name = "threading_"+inputs[0].getName();
 
             l.threading.forEach((frame, j) =>{
               if(frame !== -1) threading.pattern[frame][j].setHeddle(true);
@@ -2138,7 +2231,7 @@ export class OperationService {
             l.treadling.forEach((treadle_num, i) =>{
               if(treadle_num !== -1) treadling.pattern[i][treadle_num].setHeddle(true);
             });
-            treadling.name = "treadling_"+inputs[0].name;
+            treadling.gen_name = "treadling_"+inputs[0].getName();
 
             const tieup: Draft = new Draft({warps: l.num_treadles, wefts: l.num_frames});
             l.tieup.forEach((row, i) => {
@@ -2146,7 +2239,7 @@ export class OperationService {
                 tieup.pattern[i][j].setHeddle(val);
               })
             });
-            tieup.name = "tieup_"+inputs[0].name;
+            tieup.gen_name = "tieup_"+inputs[0].getName();
 
 
             return Promise.resolve([threading, tieup, treadling]);
@@ -2334,7 +2427,22 @@ export class OperationService {
         d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
         d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
         break;
+        case 'jointop':
 
+          //if there are multiple inputs, 
+  
+          d.updateWarpShuttlesFromPattern(inputs[0].colShuttleMapping);
+          d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+
+          break;
+
+          case 'joinleft':
+
+            //if there are multiple inputs, 
+            d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
+            d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
+  
+            break;
       case 'second':
           const input_to_use = (inputs.length < 2) ? inputs[0] : inputs[1];
           d.updateWarpShuttlesFromPattern(input_to_use.colShuttleMapping);
@@ -2346,6 +2454,8 @@ export class OperationService {
       case 'materialsonly':
           d.updateWarpShuttlesFromPattern(inputs[1].colShuttleMapping);
           d.updateWeftShuttlesFromPattern(inputs[1].rowShuttleMapping);
+          d.updateWarpSystemsFromPattern(inputs[0].colSystemMapping);
+          d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
         break;
 
       case 'interlace':
@@ -2418,7 +2528,7 @@ export class OperationService {
   formatName(inputs: Array<Draft>, op_name: string) : string{
 
     const combined = inputs.reduce((acc, el) => {
-      return acc+"+"+el.name
+      return acc+"+"+el.getName()
     }, "");
 
     //return op_name+"("+combined.substr(1)+")";

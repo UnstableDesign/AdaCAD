@@ -3,7 +3,6 @@ import {enableProdMode} from '@angular/core';
 
 import { PatternService } from '../core/provider/pattern.service';
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
-import { Timeline } from '../core/model/timeline';
 import { Draft } from '../core/model/draft';
 import { Render } from '../core/model/render';
 import { Pattern } from '../core/model/pattern';
@@ -50,10 +49,10 @@ export class WeaverComponent implements OnInit {
   render: Render;
 
  /**
-   * The weave Timeline object.
-   * @property {Timeline}
-   */
-  timeline: Timeline = new Timeline();
+  //  * The weave Timeline object.
+  //  * @property {Timeline}
+  //  */
+  // timeline: Timeline = new Timeline();
 
  /**
    * A collection of patterns to use in this space
@@ -169,7 +168,7 @@ export class WeaverComponent implements OnInit {
 
 
     this.draft.computeYarnPaths(this.ms.getShuttles());
-    this.timeline.addHistoryState(this.draft);
+    //this.ss.addHistoryState(this.draft);
     
     this.render.updateVisible(this.draft);
     
@@ -195,7 +194,7 @@ export class WeaverComponent implements OnInit {
     //if(d !== undefined) this.draft = new Draft(JSON.parse(d));
     this.render = new Render(true, this.draft, this.ss);
     this.draft.computeYarnPaths(this.ms.getShuttles());
-    this.timeline.addHistoryState(this.draft);  
+    //this.timeline.addHistoryState(this.draft);  
     
   }
 
@@ -224,38 +223,38 @@ export class WeaverComponent implements OnInit {
   }
 
   undo() {
-    let d: Draft = this.timeline.restorePreviousHistoryState();
-    if(d === undefined || d === null) return;
+    // let d: Draft = this.timeline.restorePreviousHistoryState();
+    // if(d === undefined || d === null) return;
 
-    this.draft.reload(d);    
-    this.weaveRef.onNewDraftLoaded();
-    this.weaveRef.redraw({
-      drawdown: true, 
-      loom:true, 
-      warp_systems: true, 
-      weft_systems: true, 
-      warp_materials: true,
-      weft_materials:true
-    });
+    // this.draft.reload(d);    
+    // this.weaveRef.onNewDraftLoaded();
+    // this.weaveRef.redraw({
+    //   drawdown: true, 
+    //   loom:true, 
+    //   warp_systems: true, 
+    //   weft_systems: true, 
+    //   warp_materials: true,
+    //   weft_materials:true
+    // });
 
   }
 
   redo() {
-    let d: Draft = this.timeline.restoreNextHistoryState();
+    // let d: Draft = this.timeline.restoreNextHistoryState();
 
-    if(d === undefined || d === null) return;
+    // if(d === undefined || d === null) return;
 
 
-    this.draft.reload(d);    
-    this.weaveRef.onNewDraftLoaded();
-    this.weaveRef.redraw({
-      drawdown: true, 
-      loom:true, 
-      warp_systems: true, 
-      weft_systems: true, 
-      warp_materials: true,
-      weft_materials:true
-    });
+    // this.draft.reload(d);    
+    // this.weaveRef.onNewDraftLoaded();
+    // this.weaveRef.redraw({
+    //   drawdown: true, 
+    //   loom:true, 
+    //   warp_systems: true, 
+    //   weft_systems: true, 
+    //   warp_materials: true,
+    //   weft_materials:true
+    // });
 
   }
 
@@ -477,7 +476,7 @@ export class WeaverComponent implements OnInit {
 
     this.weaveRef.redraw({drawdown:true, loom:true});
 
-    this.timeline.addHistoryState(this.draft);
+    //this.timeline.addHistoryState(this.draft);
     
   }
 
@@ -501,7 +500,7 @@ export class WeaverComponent implements OnInit {
 
     this.weaveRef.redraw({drawdown:true, loom:true});
 
-    this.timeline.addHistoryState(this.draft);
+   // this.timeline.addHistoryState(this.draft);
 
   }
 
@@ -542,7 +541,7 @@ export class WeaverComponent implements OnInit {
    */
    public materialChange() {
     this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
-    this.timeline.addHistoryState(this.draft);
+    //this.timeline.addHistoryState(this.draft);
   }
 
 
@@ -554,7 +553,7 @@ export class WeaverComponent implements OnInit {
    */
   public shuttleColorChange() {
     this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
-    this.timeline.addHistoryState(this.draft);
+   // this.timeline.addHistoryState(this.draft);
   }
 
   
@@ -640,8 +639,8 @@ export class WeaverComponent implements OnInit {
 
   public notesChanged(e:any) {
 
-    console.log(e);
-   this.draft.notes = e;
+  //   console.log(e);
+  //  this.draft.notes = e;
   }
 
   // public hideShuttle(e:any) {
@@ -708,7 +707,7 @@ export class WeaverComponent implements OnInit {
 
     }
 
-    this.timeline.addHistoryState(this.draft);
+   // this.timeline.addHistoryState(this.draft);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
@@ -739,7 +738,7 @@ export class WeaverComponent implements OnInit {
 
     this.render.updateVisible(this.draft);
 
-    this.timeline.addHistoryState(this.draft);
+    //this.timeline.addHistoryState(this.draft);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
@@ -772,7 +771,7 @@ export class WeaverComponent implements OnInit {
 
       this.render.updateVisible(this.draft);
 
-      this.timeline.addHistoryState(this.draft);
+    //  this.timeline.addHistoryState(this.draft);
 
      if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 

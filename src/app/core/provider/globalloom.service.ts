@@ -24,6 +24,10 @@ export class GloballoomService {
 
 
 
+  isFrame() : boolean{
+    if(this.type === 'frame') return true;
+    return false;
+  }
 
 
   /**

@@ -26,11 +26,11 @@ export class SelectionComponent implements OnInit {
 
   private start: Interlacement;
   private end: Interlacement;
-  private width: number;
-  private height: number;
+  public width: number;
+  public height: number;
   private target: any;
 
-  private design_actions: Array<any>;
+  public design_actions: Array<any>;
 
   screen_width: number;
   screen_height: number;
@@ -43,6 +43,7 @@ export class SelectionComponent implements OnInit {
   
   hide_parent:boolean;
   hide_options: boolean;
+  hide_selection: boolean = false;
 
   /**
    * reference to the SVG element edrawing the boundary

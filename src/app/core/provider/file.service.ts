@@ -20,6 +20,7 @@ import { System } from '../model/system';
   type: string,
   bounds: Bounds; 
   draft_id: number;
+  draft_name: string;
   draft_visible: boolean;
  }
 
@@ -83,11 +84,10 @@ interface Fileloader{
   wif: (filename: string, data: any) => Promise<LoadResponse>,
   bmp: (filename: string, data: any) => Promise<LoadResponse>,
   jpg: (filename: string, data: any) => Promise<LoadResponse>,
-  form: (data: any) => Promise<LoadResponse>
-}
+  form: (data: any) => Promise<LoadResponse>}
 
 interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<string>,
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
   wif: (draft: Draft, loom: Loom) => Promise<string>,
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
@@ -111,7 +111,6 @@ export class FileService {
   loader: Fileloader = null;
   saver: FileSaver = null;
 
-
   constructor(
     private tree: TreeService, 
     private ns: NotesService,
@@ -132,11 +131,8 @@ export class FileService {
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
-     
-
-      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
-      else this.ns.resetNotes(); 
-      
+    
+      this.clearAll();
 
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
@@ -147,29 +143,14 @@ export class FileService {
        
         if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
         if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
-        
+        if(draftdata.ud_name !== undefined || draftdata.ud_name !== '') draft.overloadName(draftdata.ud_name);
+
         if(draftdata.shuttles !== undefined){
-            //if there is only one draft here we are loading into the mixer and should add materials
-          if(data.drafts.length === 1){
-            const mapping:Array<MaterialMap> = this.ms.addShuttles(draftdata.shuttles);
-            draft.rowShuttleMapping = utilInstance.updateMaterialIds(draftdata.rowShuttleMapping, mapping, 0);
-            draft.colShuttleMapping = utilInstance.updateMaterialIds(draftdata.colShuttleMapping, mapping, 0);
-            
-          }else{
-           this.ms.overloadShuttles(data.shuttles); 
-          }
+          this.ms.overloadShuttles(data.shuttles);
 
         }else{
           if(data.materials !== undefined){
-             //if there is only one draft here we are loading into the mixer and should add materials
-            if(data.drafts.length === 1){
-              const mapping:Array<MaterialMap> = this.ms.addShuttles(data.materials);
-              draft.rowShuttleMapping = utilInstance.updateMaterialIds(draftdata.rowShuttleMapping, mapping, 0);
-              draft.colShuttleMapping = utilInstance.updateMaterialIds(draftdata.colShuttleMapping, mapping, 0);
-
-            }else{
               this.ms.overloadShuttles(data.materials); 
-            }
           }
         }
 
@@ -193,14 +174,10 @@ export class FileService {
             draft.overloadColSystemMapping(draftdata.rowSystemMapping);
           }  
   
-
-        console.log("draft data", draftdata);
-
         if(draftdata.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(draftdata.rowShuttleMapping); 
         if(draftdata.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(draftdata.colShuttleMapping); 
         // if(draftdata.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(draftdata.rowSystemMapping); 
         // if(draftdata.colSystemMapping !== undefined) draft.overloadColSystemMapping(draftdata.colSystemMapping);
-        if(draftdata.notes !== undefined) draft.overloadNotes(draftdata.notes);
 
         return draft; 
 
@@ -247,22 +224,27 @@ export class FileService {
         });
       }
 
+      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
+
 
       const envt: FileObj = {
         filename: filename,
         drafts: drafts,
-        looms: looms,
+        looms: (looms === undefined) ? [] : looms,
         nodes: (data.nodes === undefined) ? [] : data.nodes,
         treenodes: (data.tree === undefined) ? [] : data.tree,
         ops: ops,
-        scale: (data.scale === undefined) ? 5 : data.scale
+        scale: (data.scale === undefined) ? 5 : data.scale,
       }
 
       return Promise.resolve({data: envt, status: 0}); 
 
 
     }, 
+
     wif: async (filename: string, data: any) : Promise<LoadResponse> => {
+      this.clearAll();
+
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
@@ -353,6 +335,8 @@ export class FileService {
      */
     jpg: async (filename: string, data: any) : Promise<LoadResponse> => {
       console.log("processing JPG data")
+      this.clearAll();
+
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let nodes: Array<NodeComponentProxy> = [];
@@ -446,13 +430,10 @@ export class FileService {
       return Promise.resolve({data: f ,status: 0});  
     },
     bmp: async (filename: string, data: any) : Promise<LoadResponse> => {
+      this.clearAll();
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-
-      this.ns.resetNotes(); 
-      this.ps.resetPatterns();
-
 
       let e = data;
       const warps = e.width;
@@ -500,12 +481,10 @@ export class FileService {
       return Promise.resolve({data: f ,status: 0});  
     },
     form: async (f:any):Promise<LoadResponse> =>{
+      this.clearAll();
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
-
-      this.ns.resetNotes(); 
-      this.ps.resetPatterns();
 
       var warps = 20;
       if(f.value.warps !== undefined) warps = f.value.warps;
@@ -581,8 +560,10 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
-     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean, current_scale: number) : Promise<string> => {
-      //eventually need to add saved patterns here as well
+     ada:  async (type: string, drafts: Array<Draft>, looms: Array<Loom>,  for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
+      
+      console.log("on save", this.ns.exportForSaving())
+     
       const out: SaveObj = {
         type: type,
         drafts: drafts,
@@ -596,12 +577,11 @@ export class FileService {
         scale: current_scale
       }
 
-
+      //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
-      if(for_timeline) return Promise.resolve(theJSON);
+      return Promise.resolve({json: theJSON, file: out});
 
-      const href:string = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
-      return href;
+
     },
     wif: async (draft: Draft, loom: Loom) : Promise<string> => {
       const shuttles: Array<Shuttle> = this.ms.getShuttles();
@@ -728,7 +708,14 @@ export class FileService {
 
   }
 
+  clearAll(){
+    this.tree.clear();
+    this.ms.reset();
+    this.ss.reset(),
+    this.ps.resetPatterns();
+    this.ns.resetNotes();
 
+  }
 
 
 

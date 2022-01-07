@@ -11,6 +11,7 @@ import { HttpClient } from '@angular/common/http';
 interface StartOptions {
   value: string;
   viewValue: string;
+  mixeronly: boolean;
 }
 
 
@@ -27,14 +28,16 @@ export class InitModal implements OnInit {
 
 
   opts: StartOptions[] = [
-      {value: 'example', viewValue: 'Load an Example'},
-      {value: 'ada', viewValue: 'AdaCAD (.ada) File'},
-      {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File'},
-      // {value: 'jpg', viewValue: 'Image (.jpg) File'},
-      {value: 'wif', viewValue: 'WIF (.wif) File'},   
-      {value: 'new', viewValue: 'Empty Draft'}
+      {value: 'example', viewValue: 'Load an Example', mixeronly: true},
+      {value: 'ada', viewValue: 'AdaCAD (.ada) File', mixeronly: true},
+      {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File', mixeronly: false},
+      // {value: 'jpg', viewValue: 'Image (.jpg) File', mixeronly: false},
+      // {value: 'wif', viewValue: 'WIF (.wif) File', mixeronly: false},   
+      {value: 'new', viewValue: 'Empty Draft', mixeronly: false}
 
     ];
+
+  import_opts: StartOptions[] = [];
 
   //form: any = {};
   selected:string = null;
@@ -54,6 +57,7 @@ export class InitModal implements OnInit {
     @Inject(MAT_DIALOG_DATA) private data: any, private fls: FileService) {
       this.source = data.source;
       this.error = "";
+      this.import_opts = this.opts.filter(el => !el.mixeronly)
 
   }
 
@@ -66,6 +70,8 @@ export class InitModal implements OnInit {
    * @param e 
    */
   async handleFile(e: any) : Promise<any>{
+
+    console.log("handle file", e);
 
     switch(e.type){
       case 'image': 

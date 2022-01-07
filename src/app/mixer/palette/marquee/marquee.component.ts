@@ -35,6 +35,9 @@ export class MarqueeComponent implements OnInit{
 
   public setPositionAndSize(bounds: Bounds){
     this.bounds  = bounds;
+    console.log("set bounds to", this.bounds);
+
+
   }
 
 

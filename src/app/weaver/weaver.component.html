@@ -10,7 +10,6 @@
         ></app-tab>  -->
 
         <app-sidebar #sidebar
-        [timeline]="timeline"
         [draft]="draft"
         [loom]="loom"  
         [render]="render" 
@@ -26,7 +25,7 @@
         (onShowWeftSystem)="showWeftSystem($event);"
         (onHideWarpSystem)="hideWarpSystem($event);"
         (onShowWarpSystem)="showWarpSystem($event);"
-        (onLoomChange)="onLoomChange($event)"
+        (onLoomChange)="onLoomChange()"
         (onUpdateWarpSystems) = "updateWarpSystems($event)"
         (onUpdateWeftSystems) = "updateWeftSystems($event)"
         (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
@@ -46,12 +45,10 @@
   </mat-drawer>
 
     <app-draftviewer 
+    [draft]="draft"
+    [loom]="loom"  
+    [render]="render"
     source = "weaver"
-    [render]="render" 
-    [(copy)]="copy" 
-    [timeline]="timeline" 
-    [draft]="draft" 
-    [loom]="loom" 
     [viewonly]="viewonly"
     (onNewSelection) = "updateSelection($event)">
     </app-draftviewer>

@@ -34,7 +34,6 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
 import {MatBadgeModule} from '@angular/material/badge';
 
 import { PatternService } from './provider/pattern.service';
-import { CollectionService } from './provider/collection.service';
 import { UploadService } from './uploads/upload.service';
 import { FilterPipe } from './pipe/filter.pipe';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
@@ -42,11 +41,9 @@ import { TopbarComponent } from './topbar/topbar.component';
 import { ActionsComponent} from './modal/actions/actions.component'
 import { InitModal } from './modal/init/init.modal';
 import { AboutModal } from './modal/about/about.modal';
-import { MlModal } from './modal/ml/ml.modal';
 import { PatternModal } from './modal/pattern/pattern.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { FileService } from './provider/file.service';
-import { ShuttlesModal } from './modal/shuttles/shuttles.modal';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 
 import { WeaverViewComponent } from './modal/weaverview/weaverview.component';
@@ -56,130 +53,123 @@ import { LoomModal } from './modal/loom/loom.modal';
 import { Action } from 'rxjs/internal/scheduler/Action';
 import { VaeService } from './provider/vae.service';
 import { PatternfinderService } from './provider/patternfinder.service';
+import { LoginComponent } from './login/login.component';
+import { SignupComponent } from './signup/signup.component';
+import { ProfileComponent } from './profile/profile.component';
+import { EmailComponent } from './email/email.component';
+import { AuthService } from './provider/auth.service';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatSlideToggleModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatDividerModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatMenuModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatSliderModule,
-    MatTabsModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatTreeModule,
-    ColorPickerModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    ScrollingModule,
-    DragDropModule,
-    MatProgressBarModule,
-    MatBadgeModule
-  ],
-  declarations: [
-    FilterPipe, 
-    UploadFormComponent,
-    TopbarComponent,
-    ActionsComponent,
-    PatternModal,
-    ShuttlesModal,
-    InitModal,
-    AboutModal,
-    MlModal,
-    MaterialModal,
-    LoomModal,
-    DraftviewerComponent,
-    SelectionComponent,
-    SidebarComponent,
-    WeaverViewComponent
-   ],
-
-  providers: [
-    PatternService, 
-    UploadService,
-    CollectionService,
-    FileService,
-    VaeService,
-    PatternfinderService
-  ],
-
-  exports: [
-    CommonModule,
-    FormsModule,
-    BrowserModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatSlideToggleModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatDividerModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatMenuModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatSliderModule,
-    MatTabsModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    MatTreeModule,
-    ColorPickerModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    ScrollingModule,
-    MatBadgeModule,
-    DragDropModule,
-    FilterPipe, 
-    UploadFormComponent,
-    TopbarComponent,
-    ActionsComponent,
-    PatternModal,
-    InitModal,
-    AboutModal,
-    MlModal,
-    MaterialModal,
-    LoomModal,
-    DraftviewerComponent,
-    SelectionComponent,
-    SidebarComponent,
-    WeaverViewComponent],
-  
-    entryComponents: [
-      InitModal,
-      AboutModal,
-      MlModal,
-      PatternModal,
-      MaterialModal,
-      LoomModal,
-      DraftviewerComponent,
-      ActionsComponent,
-      WeaverViewComponent
+    imports: [
+        CommonModule,
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatButtonToggleModule,
+        MatSlideToggleModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatDividerModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatMenuModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatSliderModule,
+        MatTabsModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatTreeModule,
+        ColorPickerModule,
+        MatChipsModule,
+        MatSnackBarModule,
+        ScrollingModule,
+        DragDropModule,
+        MatProgressBarModule,
+        MatBadgeModule
     ],
+    declarations: [
+        FilterPipe,
+        UploadFormComponent,
+        TopbarComponent,
+        ActionsComponent,
+        PatternModal,
+        InitModal,
+        AboutModal,
+        MaterialModal,
+        LoomModal,
+        DraftviewerComponent,
+        SelectionComponent,
+        SidebarComponent,
+        WeaverViewComponent,
+        LoginComponent,
+        SignupComponent,
+        ProfileComponent,
+        EmailComponent
+    ],
+    providers: [
+        PatternService,
+        UploadService,
+        FileService,
+        VaeService,
+        PatternfinderService,
+        AuthService
+    ],
+    exports: [
+        CommonModule,
+        FormsModule,
+        BrowserModule,
+        HttpClientModule,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatButtonToggleModule,
+        MatSlideToggleModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatDividerModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatMenuModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatSliderModule,
+        MatTabsModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatTreeModule,
+        ColorPickerModule,
+        MatChipsModule,
+        MatSnackBarModule,
+        ScrollingModule,
+        MatBadgeModule,
+        DragDropModule,
+        FilterPipe,
+        UploadFormComponent,
+        TopbarComponent,
+        ActionsComponent,
+        PatternModal,
+        InitModal,
+        AboutModal,
+        MaterialModal,
+        LoomModal,
+        DraftviewerComponent,
+        SelectionComponent,
+        SidebarComponent,
+        WeaverViewComponent
+    ]
 })
 export class CoreModule { }

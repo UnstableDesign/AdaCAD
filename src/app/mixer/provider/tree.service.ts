@@ -10,7 +10,7 @@ import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService } from './operation.service';
 import utilInstance from '../../core/model/util';
-import { I } from '@angular/cdk/keycodes';
+
 
 /**
  * this class registers the relationships between subdrafts, operations, and connections
@@ -76,7 +76,7 @@ export class TreeService {
 
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
-  open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
+  private open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
   preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
   constructor(
@@ -134,6 +134,8 @@ export class TreeService {
    */
   async loadOpData(entry: {prev_id: number, cur_id: number}, name: string, params:Array<number>) : Promise<{on: OpNode, entry:{prev_id: number, cur_id: number}}>{
     
+
+
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
     if(nodes.length !== 1){
@@ -144,10 +146,22 @@ export class TreeService {
       return Promise.reject("no op of name:"+name+" exists");
     } 
 
+    //convert all params to number
+    if(params === undefined){
+      params = [];
+    }
+    const formatted_params = params.map(el => {
+      if(typeof el === 'boolean'){
+        return (el) ? 1 : 0;
+      }else{
+        return el;
+      }
+    });
+
 
     const params_in = this.ops.getOp(name).params.map(el => el.value);
     const params_out = params_in.map((p, ndx) => {
-      if(ndx < params.length) return params[ndx];
+      if(ndx < params.length) return formatted_params[ndx];
       else return p;
     });
 
@@ -352,12 +366,15 @@ export class TreeService {
    * @returns  true if the id maps to a subdraft
    */
   setOpenConnection(id: number) : boolean {
+    console.log("setting open connection", id, this.getType(id));
     if(this.getType(id) !== 'draft') return false;
     this.open_connection = id; 
+    console.log("set open connection", id)
     return true;
   }
 
   hasOpenConnection():boolean{
+    console.log("has connection", this.open_connection)
     return this.open_connection !== -1;
   }
 
@@ -366,13 +383,15 @@ export class TreeService {
   }
 
   /**
+   * TEMP DISABLE DUE TO CAUSING PROBLEMS 
    * unsets the open connection
    * @returns  true if it indeed changed the value
    */
   unsetOpenConnection() : boolean{
-    const b = this.open_connection != -1;
-    this.open_connection = -1;
-    return b;
+    // console.log("unsetting open cxn")
+    // const b = this.open_connection !== -1;
+    // this.open_connection = -1;
+      return true;
   }
 
   setNodeComponent(id: number, c: SubdraftComponent | OperationComponent | ConnectionComponent){
@@ -576,7 +595,7 @@ export class TreeService {
    */
   canAcceptConnections(id: number) : boolean {
 
-    if(this.open_connection == -1) {
+    if(this.open_connection === -1) {
     console.error("no open connection");
     return false;    //there is no open connection
     }
@@ -850,9 +869,6 @@ removeOperationNode(id:number) : Array<Node>{
   if(id === undefined) return;
 
 
-  console.log("REMOVING OP NODE", id);
-
-
   //get any input subdrafts and connections
   const sds_in: Array<number> = this.getNonCxnInputs(id);
   
@@ -867,11 +883,11 @@ removeOperationNode(id:number) : Array<Node>{
     return acc.concat(this.getOutputs(el))
   }, []);
 
-  console.log("SDs in", sds_in);
-  console.log("CXNs in", cxns_in);
-  console.log("CXNs out", cxns_out);
-  console.log("SDs out", sds_out);
-  console.log("sd connections out", sds_out_cxns);
+  // console.log("SDs in", sds_in);
+  // console.log("CXNs in", cxns_in);
+  // console.log("CXNs out", cxns_out);
+  // console.log("SDs out", sds_out);
+  // console.log("sd connections out", sds_out_cxns);
 
   deleted.push(this.removeNode(id));
 
@@ -983,8 +999,6 @@ removeOperationNode(id:number) : Array<Node>{
     const out = this.getNonCxnOutputs(parent);
     const touched: Array<number> = [];
 
-    console.log("resulting drafts", res, out);
-
     if(out.length === res.length){
       out.forEach((output, ndx) => {
         this.setDraft(output, res[ndx],null);
@@ -1084,7 +1098,6 @@ removeOperationNode(id:number) : Array<Node>{
     .map(input_node => input_node.draft)
     .filter(el => el !== null && el !== undefined);
   
-    console.log("input drafts", input_drafts);
   return op.perform(input_drafts, node.params)
     .then(res => {
       node.dirty = false;
@@ -1125,10 +1138,10 @@ removeOperationNode(id:number) : Array<Node>{
   }
 
   getDraftName(id: number):string{
-    if(id === -1) return this.preview.draft.name;
+    if(id === -1) return this.preview.draft.ud_name;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined || dn.draft === null) return "null draft";
-    return dn.draft.name;
+    return (dn.draft.ud_name === "") ?  dn.draft.gen_name : dn.draft.ud_name; 
   }
 
 
@@ -1333,6 +1346,7 @@ removeOperationNode(id:number) : Array<Node>{
 
   getInputs(node_id: number):Array<number>{
     const tn = this.getTreeNode(node_id);
+    if(tn === undefined) return [];
     const input_ids: Array<number> = tn.inputs.map(child => child.node.id);
     return input_ids;
   }
@@ -1346,6 +1360,7 @@ removeOperationNode(id:number) : Array<Node>{
 
   getOutputs(node_id: number):Array<number>{
     const tn = this.getTreeNode(node_id);
+    if(tn === undefined) return [];
     const ids: Array<number> = tn.outputs.map(child => child.node.id);
     return ids;
   }
@@ -1450,6 +1465,7 @@ removeOperationNode(id:number) : Array<Node>{
         type: node.type,
         bounds: node.component.bounds,
         draft_id: (node.type === 'draft') ? (<DraftNode>node).draft.id : -1,
+        draft_name: (node.type === 'draft') ? (<DraftNode>node).draft.ud_name : '',
         draft_visible: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft_visible : true) 
       }
       objs.push(savable);
@@ -1472,6 +1488,7 @@ removeOperationNode(id:number) : Array<Node>{
       draft_id: draft.id,
       draft_visible: true,
       type: "draft",
+      draft_name: draft.ud_name,
       bounds: null
     };
     const treenode: TreeNodeProxy = {
@@ -1516,9 +1533,20 @@ removeOperationNode(id:number) : Array<Node>{
   setDraft(id: number, temp: Draft, loom: Loom) {
 
     const dn = <DraftNode> this.getNode(id);
-    if(dn.draft === null) dn.draft = temp;
-    else dn.draft.reload(temp);
+    let ud_name = temp.ud_name;
+
+    if(dn.draft === null){
+      dn.draft = temp;
+    } 
+    else{
+      ud_name = dn.draft.ud_name;
+      dn.draft.reload(temp);
+    } 
+
+    
+
     dn.draft.overloadId(id);
+    if(ud_name !== '') dn.draft.overloadName(ud_name);
 
     if(loom === null){
       dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
@@ -1630,6 +1658,11 @@ removeOperationNode(id:number) : Array<Node>{
    */
     exportDraftsForSaving() : Array<Draft> {
   
+      //make sure the name values are not undefined
+      this.getDraftNodes().forEach(node => {
+        if(node.draft.ud_name === undefined) node.draft.ud_name = '';
+      });
+
       return this.getDraftNodes()
       .filter(el => this.getSubdraftParent(el.id) === -1)
       .map(el => el.draft);

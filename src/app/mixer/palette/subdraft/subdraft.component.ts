@@ -38,11 +38,12 @@ export class SubdraftComponent implements OnInit {
   @Input()  patterns: any;
   @Input()  default_cell: number;
 
+
   @Input()
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
-    this.rescale(value);
+    this.rescale();
   }
   private _scale:number = 5;
 
@@ -79,10 +80,11 @@ export class SubdraftComponent implements OnInit {
   @Output() onConnectionMade = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onDesignAction = new  EventEmitter <any>();
-  @Output() onConnectionStarted:any = new EventEmitter();
-  @Output() onSubdraftViewChange:any = new EventEmitter();
+  @Output() onConnectionStarted:any = new EventEmitter<any>();
+  @Output() onSubdraftViewChange:any = new EventEmitter<any>();
+  @Output() onNameChange:any = new EventEmitter<any>();
 
-  @ViewChild('bitmapImage', {static: false}) bitmap: any;
+  @ViewChild('bitmapImage') bitmap: any;
 
 
 
@@ -132,7 +134,7 @@ export class SubdraftComponent implements OnInit {
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ms: MaterialsService, 
-    private tree: TreeService,
+    public tree: TreeService,
     private fs: FileService,
     private viewport: ViewportService,
     private dialog: MatDialog,
@@ -172,9 +174,14 @@ export class SubdraftComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
     this.cx = this.canvas.getContext("2d");
     this.drawDraft(this.draft); //force call here because it likely didn't render previously. 
-    this.rescale(this.scale);
+    this.rescale();
     this.updateViewport(this.bounds);
 
+  }
+
+  nameFocusOut(){
+    console.log("FOCUS OUT")
+    this.onNameChange.emit(this.id);
   }
 
 
@@ -183,32 +190,33 @@ export class SubdraftComponent implements OnInit {
    * so it remains at the same coords. 
    * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
    */
-  rescale(scale:number){
+  rescale(){
 
+    
 
     if(this.draft === null){
-      console.error("subdraft draft null in rescale")
       return;
     } 
 
-    const zoom_factor:number = scale/this.default_cell;
+    const zoom_factor:number = this.scale/this.default_cell;
 
     //redraw at scale
-    const container: HTMLElement = document.getElementById('scale-'+this.draft.id);
+    const container: HTMLElement = document.getElementById('scale-'+this.id.toString());
    
     if(container === null) return;
+
 
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
    
     this.bounds.topleft = {
-      x: this.interlacement.j * scale,
-      y: this.interlacement.i * scale
+      x: this.interlacement.j * this.scale,
+      y: this.interlacement.i * this.scale
     };
 
-    this.bounds.width = this.draft.warps * scale;
-    this.bounds.height = this.draft.wefts * scale;
+    this.bounds.width = this.draft.warps * this.scale;
+    this.bounds.height = this.draft.wefts * this.scale;
 
   }
 
@@ -455,6 +463,9 @@ export class SubdraftComponent implements OnInit {
     this.cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
   }
 
+  redrawExistingDraft(){
+    this.drawDraft(this.draft);
+  }
 
   /**
    * draw whetever is stored in the draft object to the screen
@@ -661,7 +672,7 @@ export class SubdraftComponent implements OnInit {
     return this.fs.saver.bmp(b)
     .then(href => {
       a.href =  href;
-      a.download = draft.name + "_bitmap.jpg";
+      a.download = draft.getName() + "_bitmap.jpg";
       a.click();
       this.drawDraft(draft);
 
@@ -676,9 +687,9 @@ export class SubdraftComponent implements OnInit {
       const draft = this.tree.getDraft(this.id);
 
       const a = document.createElement('a');
-      return this.fs.saver.ada('draft', [draft], [], false, this.scale).then(href => {
-        a.href = href;
-        a.download = draft.name + ".ada";
+      return this.fs.saver.ada('draft', [draft], [], false, this.scale).then(out => {
+        a.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
+        a.download = draft.getName() + ".ada";
         a.click();
       }); 
     }
@@ -695,7 +706,7 @@ export class SubdraftComponent implements OnInit {
       return this.fs.saver.wif(draft, loom)
       .then(href => {
         a.href = href;
-        a.download  = draft.name +".wif";
+        a.download  = draft.getName() +".wif";
         a.click();
       });
     
@@ -723,7 +734,7 @@ export class SubdraftComponent implements OnInit {
       return this.fs.saver.jpg(b)
         .then(href => {
           a.href =  href;
-          a.download = draft.name + ".jpg";
+          a.download = draft.getName() + ".jpg";
           a.click();
       
         });

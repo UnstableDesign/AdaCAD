@@ -30,49 +30,43 @@ import { ScrollingModule} from '@angular/cdk/scrolling';
 
 import { CoreModule } from '../core/core.module';
 import { WeaverComponent } from './weaver.component';
-import { TabComponent } from './tool/tab/tab.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    CoreModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatSlideToggleModule,
-    MatCardModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatDividerModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatListModule,
-    MatMenuModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatSidenavModule,
-    MatSliderModule,
-    MatTabsModule,
-    MatToolbarModule,
-    MatTooltipModule,
-    ColorPickerModule,
-    MatChipsModule,
-    ScrollingModule,
-    
-
-  ],
-  declarations: [
-    WeaverComponent    
-  ],
-    exports: [
-      WeaverComponent
+    declarations: [
+        WeaverComponent
     ],
-  entryComponents: [
-  WeaverComponent],
-    
+    imports: [
+        CommonModule,
+        CoreModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
+        MatButtonModule,
+        MatButtonToggleModule,
+        MatSlideToggleModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatDividerModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatListModule,
+        MatMenuModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatSidenavModule,
+        MatSliderModule,
+        MatTabsModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        ColorPickerModule,
+        MatChipsModule,
+        ScrollingModule
+    ],
+    exports: [
+        WeaverComponent
+    ]
 })
 export class WeaverModule { }

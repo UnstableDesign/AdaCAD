@@ -1,10 +1,8 @@
 import { Shuttle } from './shuttle';
-import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
 import { crossType, Interlacement, Crossing } from './datatypes';
-
 import * as _ from 'lodash';
 import { SelectionComponent } from '../draftviewer/selection/selection.component';
 import utilInstance from './util';
@@ -13,16 +11,22 @@ import utilInstance from './util';
 /**
  * Definition and implementation of draft object.
  * @class stores the draft 
- * @param a user defined for this draft used for saving
- * @param a unique id for this draft
+ * @param gen_name the default name for this, generated from the operations
+ * @param ud_name a user defined name (overwrites gen_name)
+ * @param id a unique id for this draft, generated onload
+ * @param wefts the number of wefts in this draft
+ * @param warps the number of warps in this draft
+ * @param pattern a 2D array of Cell objects describing the state (true/up, down/false, null/unset) for each draft position
+ * @param rowShuttleMapping a map from rows to shuttle ids
+ * @param rowSystemMapping a map from rows to system ids
  */
 export class Draft{
-  name: string = "unnamed draft";
+  gen_name: string = "draft";
+  ud_name: string = "";
+
   id: number = -1;
 
   pattern: Array<Array<Cell>> = [[new Cell(false)]]; // the single design pattern
-
-  notes: string = "";
 
   //tracks stores row/col index, shuttle index
   rowShuttleMapping: Array<number> = [0];
@@ -35,10 +39,6 @@ export class Draft{
   colSystemMapping: Array<number> = [0];
   rowSystemPattern: Array<number> = [0]; //stores a pattern used for rows
   colSystemPattern: Array<number> = [0]; //stores a pattern of ids of cols
-  masks: Array<String> = []; //associates a mask id with a name
-  
- // weft_systems: Array<System> = [new System()]; //weft-systems
-  //warp_systems: Array<System> = [new System()]; //warp-systems
   
   wefts: number = 1;
   warps: number = 1;
@@ -58,47 +58,50 @@ export class Draft{
       if(params.pattern === undefined){
         this.wefts = 1;
       }else{
-        this.wefts = params.pattern.length;
+        this.wefts = Math.round(params.pattern.length);
       }
     }else{
-      this.wefts = params.wefts;
+      this.wefts = Math.round(params.wefts);
     }
 
     if(params.warps === undefined){
       if(params.pattern === undefined){
         this.warps = 1;
       }else{
-        this.warps = params.pattern[0].length;
+        this.warps = Math.round(params.pattern[0].length);
       }
     }else{
-      this.warps = params.warps;
+      this.warps = Math.round(params.warps);
     }
 
-    if(params.colShuttleMapping === undefined){
-      this.colShuttleMapping = this.initMapping(this.warps, 0);
-    }else{
-      this.colShuttleMapping = params.colShuttleMapping;
+    this.colShuttleMapping = this.initMapping(this.warps, 0);
+    if(params.colShuttleMapping !== undefined){
+      this.updateWarpShuttlesFromPattern(params.colShuttleMapping)
     }
 
-    if(params.colSystemMapping === undefined){
-      this.colSystemMapping = this.initMapping(this.warps, 0);
-    }else{
-      this.colSystemMapping = params.colSystemMapping;
+    this.colSystemMapping = this.initMapping(this.warps, 0);
+    if(params.colSystemMapping !== undefined){
+      this.updateWarpSystemsFromPattern(params.colSystemMapping)
     }
 
-    if(params.rowShuttleMapping === undefined){
-      this.rowShuttleMapping = this.initMapping(this.wefts, 1);
-    }else{
-      this.rowShuttleMapping = params.rowShuttleMapping;
+    this.rowShuttleMapping = this.initMapping(this.wefts, 1);
+    if(params.rowShuttleMapping !== undefined){
+      this.updateWeftShuttlesFromPattern(params.rowShuttleMapping)
     }
 
-    if(params.rowSystemMapping === undefined){
-      this.rowSystemMapping = this.initMapping(this.wefts, 0);
-    }else{
-      this.rowSystemMapping = params.rowSystemMapping;
+    this.rowSystemMapping = this.initMapping(this.wefts, 0);
+    if(params.rowSystemMapping !== undefined){
+      this.updateWeftSystemsFromPattern(params.rowSystemMapping)
     }
+    
 
-    if(params.name !== undefined) this.name = params.name;
+    if(params.name !== undefined) this.gen_name = params.name;
+
+    if(params.gen_name !== undefined) this.gen_name = params.gen_name;
+    else this.gen_name = "";
+
+    if(params.ud_name !== undefined) this.ud_name = params.ud_name;
+    else this.ud_name = "";
 
     //parse the input pattern
     this.pattern = this.parsePattern(params.pattern);
@@ -138,7 +141,6 @@ export class Draft{
     return a;
   }
 
-
   
 
 
@@ -152,11 +154,11 @@ export class Draft{
   reload(d: Draft) {
 
 
-    this.name = d.name;
+    this.ud_name = d.ud_name;
+    this.gen_name = d.gen_name;
     this.warps = d.warps;
     this.wefts = d.wefts;
     this.pattern = this.parsePattern(d.pattern);
-    this.notes = d.notes;
     // this.ms.overloadShuttles(d.shuttles);
     // this.overloadWeftSystems(d.weft_systems);
     // this.overloadWarpSystems(d.warp_systems);
@@ -189,17 +191,11 @@ export class Draft{
     this.id = id; 
   }
 
-  overloadNotes(notes: string){
-    this.notes = notes;
-  }
 
   overloadName(name: string){
-    this.name = name;
+    this.ud_name = name;
   }
 
-  setName(name: string){
-    this.name = name;
-  }
 
 
 
@@ -354,16 +350,14 @@ export class Draft{
     }
   }
 
-      //any{id, name, color}
   updateWarpShuttlesFromPattern(pattern:Array<number>){
 
-    //repopulate the system map
     this.colShuttlePattern = []
     for(let i = 0; i < pattern.length; i++){
       this.colShuttlePattern.push(pattern[i]);
     }
 
-    //update the rowShuttleMapping
+    //update the warpShuttleMapping
     for(let i = 0; i < this.colShuttleMapping.length; i++){
       let ndx = i % this.colShuttlePattern.length;
       this.colShuttleMapping[i] = this.colShuttlePattern[ndx];
@@ -828,6 +822,11 @@ export class Draft{
 
   getWarpSystemId(index){
     return this.colSystemMapping[index];
+  }
+
+  getName(){
+    return (this.ud_name === "") ?  this.gen_name : this.ud_name; 
+
   }
 
 

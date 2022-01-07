@@ -24,8 +24,9 @@ export class PatternService {
   }
 
   overridePatterns(patterns: Array<Pattern>){
+    this.patterns = [];
     console.log("uploading new patterns", patterns);
-    this.patterns = patterns;
+    this.patterns = patterns.concat([]);
   }
 
   exportPatternsForSaving():Array<Pattern>{
@@ -45,16 +46,18 @@ export class PatternService {
   }
 
 
-
+  /**
+   * Temporarily Disabled
+   */
   fetchDefaultPatterns() {
 
-    this.http.get('assets/patterns.json', {observe: 'response'}).subscribe((res) => {
-      for(var i in res.body){
-        const np:Pattern = new Pattern(res.body[i]);
-        if(np.id == -1) np.id = this.patterns.length;
-        this.patterns.push(np);
-      }
-   }); 
+  //   this.http.get('assets/patterns.json', {observe: 'response'}).subscribe((res) => {
+  //     for(var i in res.body){
+  //       const np:Pattern = new Pattern(res.body[i]);
+  //       if(np.id === -1) np.id = this.patterns.length;
+  //       this.patterns.push(np);
+  //     }
+  //  }); 
   }
 
 

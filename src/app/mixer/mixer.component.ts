@@ -2,12 +2,11 @@ import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, Chan
 import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { Timeline } from '../core/model/timeline';
 import { Pattern } from '../core/model/pattern';
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { Draft } from '../core/model/draft';
-import { TreeService, TreeNode } from './provider/tree.service';
+import { TreeService, TreeNode, DraftNode } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy } from '../core/provider/file.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
@@ -15,6 +14,14 @@ import { NotesService } from '../core/provider/notes.service';
 import { Cell } from '../core/model/cell';
 import { GloballoomService } from '../core/provider/globalloom.service';
 import { Loom } from '../core/model/loom';
+import { StateService } from '../core/provider/state.service';
+import { AuthService } from '../core/provider/auth.service';
+import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
+import { i } from 'mathjs';
+import { unwatchFile } from 'fs';
+import { MaterialsService } from '../core/provider/materials.service';
+import { SystemsService } from '../core/provider/systems.service';
+import { D } from '@angular/cdk/keycodes';
 
 
 //disables some angular checking mechanisms
@@ -32,8 +39,8 @@ import { Loom } from '../core/model/loom';
 })
 export class MixerComponent implements OnInit {
 
-  @ViewChild(PaletteComponent, {static: false}) palette;
-  @ViewChild(SidebarComponent, {static: false}) view_tool;
+  @ViewChild(PaletteComponent) palette;
+  @ViewChild(SidebarComponent) view_tool;
 
 
   filename = "adacad_mixer";
@@ -42,7 +49,6 @@ export class MixerComponent implements OnInit {
    * The weave Timeline object.
    * @property {Timeline}
    */
-   timeline: Timeline = new Timeline();
 
    viewonly: boolean = false;
 
@@ -65,14 +71,18 @@ export class MixerComponent implements OnInit {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(private dm: DesignmodesService, 
+  constructor(public dm: DesignmodesService, 
+    private ms: MaterialsService,
+    private sys: SystemsService,
     private ps: PatternService, 
     private tree: TreeService,
     public scroll: ScrollDispatcher,
     private fs: FileService,
-    private vp: ViewportService,
+    public vp: ViewportService,
     private gl: GloballoomService,
-    private notes: NotesService) {
+    private notes: NotesService,
+    private ss: StateService,
+    private auth: AuthService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -100,7 +110,7 @@ export class MixerComponent implements OnInit {
     }
   }
 
-  private setScroll(delta: any) {
+ setScroll(delta: any) {
     this.palette.handleScroll(delta);
     this.manual_scroll = true;
    //this.view_tool.updateViewPort(data);
@@ -111,7 +121,7 @@ export class MixerComponent implements OnInit {
    * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
    * @param name the name of the current design mode
    */
-  private designModeChange(name: string){
+  designModeChange(name: string){
     this.palette.designModeChanged();
   }
 
@@ -132,8 +142,9 @@ export class MixerComponent implements OnInit {
    * @param result 
    */
   loadNewFile(result: LoadResponse){
-    this.tree.clear();
-    this.palette.clearComponents();
+
+    this.clearView();
+
     console.log("loaded new file", result, result.data)
     this.processFileData(result.data).then(
       this.palette.changeDesignmode('move')
@@ -181,10 +192,23 @@ export class MixerComponent implements OnInit {
     //map the old ids to the new ids
     const updated_tnp: Array<TreeNodeProxy> = tns.map(tn => {
 
+
       tn.node = id_map.find(el => el.prev_id === tn.node).cur_id;
       tn.parent = (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id;
-      tn.inputs = tn.inputs.map(input => id_map.find(el => el.prev_id === input).cur_id);
-      tn.outputs = tn.outputs.map(output => id_map.find(el => el.prev_id === output).cur_id);
+      
+      if(tn.inputs === undefined){
+        tn.inputs = [];
+      }else{
+        tn.inputs = tn.inputs.map(input => id_map.find(el => el.prev_id === input).cur_id);
+      }
+
+      if(tn.outputs === undefined){
+        tn.outputs =[];
+      }else{
+        tn.outputs = tn.outputs.map(output => id_map.find(el => el.prev_id === output).cur_id);
+
+      }
+      
       return tn;
     })
 
@@ -198,9 +222,11 @@ export class MixerComponent implements OnInit {
    * Take a fileObj returned from the fileservice and process
    */
    async processFileData(data: FileObj) : Promise<string>{
+    console.log("notes", this.notes)
 
     let entry_mapping = [];
     this.filename = data.filename;
+
 
     this.notes.notes.forEach(note => {
         this.palette.loadNote(note);
@@ -223,8 +249,6 @@ export class MixerComponent implements OnInit {
         .map(tn => tn.entry);
      
 
-      console.log("seed ndoes", seednodes);
-
       const seeds: Array<{entry, id, draft, loom}> = seednodes
       .map(sn =>  {
 
@@ -243,6 +267,7 @@ export class MixerComponent implements OnInit {
           else{
             d.reload(located_draft);
             d.overloadId(located_draft.id);
+            d.overloadName(draft_node.draft_name);
           } 
 
 
@@ -314,6 +339,7 @@ export class MixerComponent implements OnInit {
 
         switch (node.type){
           case 'draft':
+        
             this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.scale);
             break;
           case 'op':
@@ -335,6 +361,19 @@ export class MixerComponent implements OnInit {
         }
       })
     })
+    .then(el => {
+
+      //LOAD IN ALL OF THE DRAFT NAMES
+      data.nodes.forEach(np => {
+        const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
+        const node = this.tree.getNode(new_id.cur_id);
+        if(node === undefined) return;
+        if(node.type === "draft"){
+          (<DraftNode> node).draft.overloadName(np.draft_name);
+        }
+      })
+
+    })
     .catch(console.error);
 
 
@@ -352,10 +391,49 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    this.palette.addTimelineState();
+    this.auth.user.subscribe(user => {
+      if(user !== null && this.tree.nodes.length === 0){
+
+        const db = fbref(getDatabase());
+
+
+        fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+          if (snapshot.exists()) {
+            console.log(snapshot.val());
+            this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
+              this.loadNewFile(lr);
+            });
+          } else {
+            console.log("No data available");
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+  
+    }
+  
+});
+
+  
+
 
 
   }
+
+
+  clearView() : void {
+    this.palette.clearComponents();
+    this.vp.clear();
+
+  }
+
+  clearAll() : void{
+    this.palette.addTimelineState();
+    this.fs.clearAll();
+    this.clearView();
+
+  }
+
 
 
   ngOnDestroy(): void {
@@ -366,7 +444,7 @@ export class MixerComponent implements OnInit {
 
   undo() {
 
-    let so: string = this.timeline.restorePreviousMixerHistoryState();
+    let so: string = this.ss.restorePreviousMixerHistoryState();
     
     this.fs.loader.ada(this.filename, JSON.parse(so)).then(
       lr => this.loadNewFile(lr)
@@ -377,7 +455,7 @@ export class MixerComponent implements OnInit {
 
   redo() {
 
-    let so: string = this.timeline.restoreNextMixerHistoryState();
+    let so: string = this.ss.restoreNextMixerHistoryState();
     this.fs.loader.ada(this.filename, JSON.parse(so))
     .then(lr =>  this.loadNewFile(lr));
 
@@ -559,8 +637,8 @@ export class MixerComponent implements OnInit {
         this.tree.exportDraftsForSaving(),
         this.tree.exportLoomsForSaving(),
         false,
-        this.scale).then(href => {
-          link.href = href;
+        this.scale).then(out => {
+          link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
           link.download = e.name + ".ada";
           link.click();
         })
@@ -638,9 +716,8 @@ export class MixerComponent implements OnInit {
    * there is a modal showing materials open and update it if there is
    */
    public materialChange() {
-    console.log('material change')
-
     this.palette.redrawOpenModals();
+    this.palette.redrawAllSubdrafts();
  }
 
 

@@ -25,7 +25,7 @@ export class OperationComponent implements OnInit {
    get scale(): number { return this._scale; }
    set scale(value: number) {
      this._scale = value;
-     this.rescale(value);
+     this.rescale();
    }
    private _scale:number = 5;
  
@@ -92,8 +92,8 @@ export class OperationComponent implements OnInit {
     private operations: OperationService, 
     private dialog: MatDialog,
     private viewport: ViewportService,
-    private tree: TreeService,
-    private dm: DesignmodesService) { 
+    public tree: TreeService,
+    public dm: DesignmodesService) { 
     
       //this.outputs = [];
   
@@ -106,7 +106,6 @@ export class OperationComponent implements OnInit {
 
     this.op = this.operations.getOp(this.name);
     const graph_node = <OpNode> this.tree.getNode(this.id);
-
 
     this.op.params.forEach((val, ndx) => {
       if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx]));
@@ -127,7 +126,7 @@ export class OperationComponent implements OnInit {
 
 
   ngAfterViewInit(){
-    this.rescale(this.scale);
+    this.rescale();
     if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
   }
 
@@ -135,7 +134,7 @@ export class OperationComponent implements OnInit {
   getInputName(id: number) : string {
     const sd = this.tree.getDraft(id);
     if(sd === null || sd === undefined) return "null draft"
-    return sd.name;
+    return sd.getName();
   }
 
 
@@ -160,7 +159,7 @@ export class OperationComponent implements OnInit {
 
 
 
-  rescale(scale:number){
+  rescale(){
 
     const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
@@ -170,8 +169,8 @@ export class OperationComponent implements OnInit {
     container.style.transform = 'scale(' + zoom_factor + ')';
 
     this.bounds.topleft = {
-      x: this.interlacement.j * scale,
-      y: this.interlacement.i * scale
+      x: this.interlacement.j * this.scale,
+      y: this.interlacement.i * this.scale
     };
 
     this.bounds.height = this.base_height * zoom_factor;
@@ -203,14 +202,13 @@ export class OperationComponent implements OnInit {
   }
 
    /**
-   * updates this components position based on the input component's position
+   * updates this components position based on the child component's position
    * */
     updatePositionFromChild(child: SubdraftComponent){
 
 
        const container = <HTMLElement> document.getElementById("scale-"+this.id);
-  
-      this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - container.offsetHeight});
+       this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
   
     }
 
@@ -241,7 +239,8 @@ export class OperationComponent implements OnInit {
     return this.op.max_inputs;
   }
 
-  inputSelected(event: any, ndx: number){
+  inputSelected(){
+    console.log("Input")
     this.disableDrag();
     this.onInputAdded.emit(this.id);
   }

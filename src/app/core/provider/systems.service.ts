@@ -1,6 +1,5 @@
 import { I } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
-import { symbolSquare } from 'd3-shape';
 import { Draft } from '../model/draft';
 import { System } from '../model/system';
 import utilInstance from '../model/util';
@@ -18,6 +17,11 @@ export class SystemsService {
   warp_systems: Array<System> = [new System()];
 
   constructor() { }
+
+  reset() {
+    this.weft_systems = [new System()];
+    this.warp_systems  = [new System()];
+  }
 
   getWeftSystem(id: number) : System{
     return this.weft_systems.find(el => el.id === id);

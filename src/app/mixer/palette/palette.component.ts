@@ -1,4 +1,4 @@
-import { Observable, Subscription, fromEvent, from, iif } from 'rxjs';
+import { Observable,  Subscription, fromEvent, from, iif } from 'rxjs';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
 import { SubdraftComponent } from './subdraft/subdraft.component';
@@ -17,10 +17,10 @@ import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { DraftNode, TreeService } from '../provider/tree.service';
 import { FileService, NodeComponentProxy, SaveObj } from './../../core/provider/file.service';
-import { Timeline } from '../../core/model/timeline';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
+import { StateService } from '../../core/provider/state.service';
 
 @Component({
   selector: 'app-palette',
@@ -36,7 +36,6 @@ export class PaletteComponent implements OnInit{
    * @property {Array<Pattern>}
    */ 
   @Input() patterns: Array<Pattern>;
-  @Input() timeline: Timeline;
   @Output() onDesignModeChange: any = new EventEmitter();  
 
   /**
@@ -164,8 +163,9 @@ export class PaletteComponent implements OnInit{
     private resolver: ComponentFactoryResolver, 
     private fs: FileService,
     private _snackBar: MatSnackBar,
-    private viewport: ViewportService,
-    private notes: NotesService) { 
+    public viewport: ViewportService,
+    private notes: NotesService,
+    private ss: StateService) { 
     this.shape_vtxs = [];
     this.pointer_events = true;
   }
@@ -265,6 +265,7 @@ export class PaletteComponent implements OnInit{
    */
    clearComponents(){
     this.unsubscribeFromAll();
+    this.note_refs.forEach(ref => this.removeFromViewContainer(ref));
     this.vc.clear();
   }
 
@@ -317,7 +318,7 @@ export class PaletteComponent implements OnInit{
       true,
       this.scale)
       .then(so => {
-        this.timeline.addMixerHistoryState(so);
+        this.ss.addMixerHistoryState(so);
       });
   }
 
@@ -393,7 +394,7 @@ export class PaletteComponent implements OnInit{
     });
 
     this.note_components.forEach(el => {
-      el.rescale(scale, this.default_cell_size);
+      el.scale = scale;
     });
 
   
@@ -425,6 +426,7 @@ export class PaletteComponent implements OnInit{
    * @param bounds 
    */
   updateSnackBar(message: string, bounds:Bounds){
+
     this.snack_bounds = bounds;
     this.snack_message = message;
   }
@@ -468,6 +470,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.push(sd.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
+    this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
   }
 
   /**
@@ -487,6 +490,7 @@ export class PaletteComponent implements OnInit{
     this.note_components.push(notecomp.instance);
     notecomp.instance.id = note.id;
     notecomp.instance.scale = this.scale;
+    notecomp.instance.default_cell = this.default_cell_size;
 
     this.changeDesignmode('move');
 
@@ -509,6 +513,7 @@ export class PaletteComponent implements OnInit{
 
       notecomp.instance.id = note.id;
       notecomp.instance.scale = this.scale;
+      notecomp.instance.default_cell = this.default_cell_size;
   
       return notecomp.instance;
     }
@@ -521,6 +526,7 @@ export class PaletteComponent implements OnInit{
    */
   setNoteSubscriptions(note: NoteComponent){
     this.noteSubscriptions.push(note.deleteNote.subscribe(this.deleteNote.bind(this)));
+    this.noteSubscriptions.push(note.saveNoteText.subscribe(this.saveNote.bind(this)));
   }
 
   deleteNote(id: number){
@@ -528,6 +534,11 @@ export class PaletteComponent implements OnInit{
     this.removeFromViewContainer(ref);
     this.note_refs = this.note_refs.filter((el, ndx) => ndx!= id);
     this.note_components = this.note_components.filter((el, ndx) => ndx!= id);
+  }
+
+  saveNote(){
+    this.changeDesignmode('move');
+    this.addTimelineState();
   }
 
 
@@ -569,8 +580,6 @@ export class PaletteComponent implements OnInit{
    * @param nodep the component proxy used to define
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, saved_scale: number){
-
-    console.log("loading new subdraft", id);
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -778,7 +787,6 @@ export class PaletteComponent implements OnInit{
 
     const outputs = this.tree.getNonCxnOutputs(id);
     const delted_nodes = this.tree.removeSubdraftNode(id);
-    console.log("delted nodes", delted_nodes);
 
     delted_nodes.forEach(node => {
       this.removeFromViewContainer(node.ref);
@@ -803,7 +811,6 @@ export class PaletteComponent implements OnInit{
     if(id === undefined) return;
 
     const delted_nodes = this.tree.removeOperationNode(id);
-    console.log("delted nodes", delted_nodes);
 
     delted_nodes.forEach(node => {
       this.removeFromViewContainer(node.ref);
@@ -908,7 +915,12 @@ export class PaletteComponent implements OnInit{
     this.cx.lineWidth = 1;
     this.cx.setLineDash([this.scale, 2]);
     this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
-      
+    this.cx.fillStyle = "#ff4081";
+    this.cx.font = "12px Arial";
+    const w = Math.round(this.selection.bounds.width / this.scale);
+    const h = Math.round(this.selection.bounds.height / this.scale);
+    this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
+
   }
 
   /**
@@ -1076,7 +1088,6 @@ export class PaletteComponent implements OnInit{
    */
     onDeleteSubdraftCalled(obj: any){
       
-      console.log("deleting "+obj.id);
       if(obj === null) return;
       this.removeSubdraft(obj.id);
       this.addTimelineState();
@@ -1087,7 +1098,6 @@ export class PaletteComponent implements OnInit{
    */
       onDeleteOperationCalled(obj: any){
       
-        console.log("deleting op "+obj.id);
         if(obj === null) return;
         this.removeOperation(obj.id);
         this.addTimelineState();
@@ -1097,7 +1107,6 @@ export class PaletteComponent implements OnInit{
    * Duplicates the operation that called this function.
    */
     onDuplicateOpCalled(obj: any){
-      console.log("duplicating "+obj.id);
       if(obj === null) return;
 
       const op = <OperationComponent> this.tree.getComponent(obj.id);
@@ -1143,7 +1152,6 @@ export class PaletteComponent implements OnInit{
    * Deletes the subdraft that called this function.
    */
     onDuplicateSubdraftCalled(obj: any){
-        console.log("duplicating "+obj.id);
         if(obj === null) return;
 
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
@@ -1157,7 +1165,7 @@ export class PaletteComponent implements OnInit{
           colShuttleMapping: sd_draft.colShuttleMapping,
           rowSystemMapping: sd_draft.rowSystemMapping,
           colSystemMapping: sd_draft.colSystemMapping,
-          name: sd_draft.name+" copy"
+          gen_name: sd_draft.getName()+" copy"
         }), -1)
         .then(new_sd => {
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
@@ -1187,7 +1195,7 @@ export class PaletteComponent implements OnInit{
       if(moving === null) return; 
 
 
-      this.startSnackBar("Using Ink: "+moving.ink, moving.bounds);
+      this.startSnackBar("Using Ink: "+moving.ink, null);
       
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
@@ -1242,7 +1250,7 @@ export class PaletteComponent implements OnInit{
     height: this.scale
   };
 
-  this.startSnackBar("Click an empty space on the palette to stop selecting", this.shape_bounds);
+  this.startSnackBar("select an input or click an empty space to stop selecting", null);
 
  }
 
@@ -1345,6 +1353,24 @@ export class PaletteComponent implements OnInit{
     this.updateAttachedComponents(id, false);
 
    }
+
+      /**
+    * this is called when an subdraft updates its show/hide value
+    */
+    onSubdraftNameChange(id: number){
+
+      const outs = this.tree.getNonCxnOutputs(id);
+      const to_perform = outs.map(el => this.performAndUpdateDownstream(el));
+      return Promise.all(to_perform) 
+      .then(el => 
+        {
+          this.addTimelineState(); 
+        })
+        .catch(console.error);;
+
+       
+    }
+    
 
 
  /**
@@ -1451,7 +1477,6 @@ calculateInitialLocaiton(id: number) : Bounds {
 
   }
 
-  console.log("new bounds", new_bounds);
   return new_bounds;
 }
 
@@ -1465,8 +1490,6 @@ calculateInitialLocaiton(id: number) : Bounds {
  * @returns 
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
-
-  console.log("Performing", op_id);
 
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
 
@@ -1490,6 +1513,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
             node_id: el.id,
             type: el.type,
             draft_id: (<DraftNode>el).draft.id,
+            draft_name: (<DraftNode>el).draft.ud_name,
             draft_visible: true,
             bounds: this.calculateInitialLocaiton(el.id)
           }, this.scale);
@@ -1522,6 +1546,9 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
  * emitted from operation when it receives a hit on its connection button, the id refers to the operation id
  */
 connectionMade(id:number){
+
+  console.log("connection made", id);
+  console.log("this.tree has open", this.tree.hasOpenConnection());
 
   if(!this.tree.hasOpenConnection()) return;
 
@@ -1567,7 +1594,6 @@ connectionMade(id:number){
 
   this.selection.start = this.last;
   this.selection.active = true;
-  this.startSnackBar("Select Drafts to Join", this.selection.bounds);
  }
 
  /**
@@ -2004,9 +2030,8 @@ drawStarted(){
     if(this.dm.getDesignMode("marquee",'design_modes').selected){
 
      this.drawSelection(ndx);
-     const bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
      this.selection.setPositionAndSize(bounds);
-     this.updateSnackBar("Select Drafts to Join",  this.selection.bounds);
 
     
     }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
@@ -2105,6 +2130,7 @@ drawStarted(){
        //get a draft that reflects only the poitns in the selection view
       const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
       this.tree.setDraft(sc.id, new_draft,null)
+    
 
     isect.forEach(el => {
       const ibound = utilInstance.getIntersectionBounds(sc, el);
@@ -2122,16 +2148,6 @@ drawStarted(){
     
     
    
-
-  }
-
-
-
-  updateSubdraftFromOp(){
-
-  }
-
-  updateOpFromSubdraft(){
 
   }
 
@@ -2189,7 +2205,6 @@ drawStarted(){
    * @returns 
    */
   onSubdraftAction(obj: any){
-    console.log("on subdraft action", obj);
     if(obj === null) return;
 
     const outputs = this.tree.getNonCxnOutputs(obj.id);
@@ -2209,13 +2224,11 @@ drawStarted(){
    */
    async operationParamChanged(obj: any){
 
-    console.log("recalc operation", obj.id);
     if(obj === null) return;
 
     return this.performAndUpdateDownstream(obj.id)
       .then(el => 
       {
-        console.log("adding timeline state")
         this.addTimelineState(); 
       })
       .catch(console.error);
@@ -2269,7 +2282,7 @@ drawStarted(){
       if(moving === null) return; 
 
 
-      this.updateSnackBar("Using Ink: "+moving.ink,moving.bounds);
+      this.updateSnackBar("Using Ink: "+moving.ink,null);
       this.updateAttachedComponents(moving.id, true);
 
 
@@ -2497,7 +2510,11 @@ drawStarted(){
   
         const primary_draft = this.tree.getDraft(primary.id);
 
-        const temp: Draft = new Draft({id: primary_draft.id, name: primary_draft.name, warps: Math.floor(bounds.width / this.scale), wefts: Math.floor(bounds.height / this.scale)});
+        const temp: Draft = new Draft({
+          id: primary_draft.id, 
+          gen_name: primary_draft.getName(), 
+          warps: Math.floor(bounds.width / this.scale), 
+          wefts: Math.floor(bounds.height / this.scale)});
     
         for(var i = 0; i < temp.wefts; i++){
           const top: number = bounds.topleft.y + (i * this.scale);
@@ -2553,10 +2570,16 @@ drawStarted(){
   redrawOpenModals(){
     const comps = this.tree.getDrafts();
     comps.forEach(sd => {
-      if(sd.modal !== undefined && sd.modal.componentInstance !== undefined){
+      if(sd.modal !== undefined && sd.modal.componentInstance !== null){
         sd.modal.componentInstance.redraw();
       }
     })
   }
-
-}
+    
+  redrawAllSubdrafts(){
+      const comps = this.tree.getDrafts();
+      comps.forEach(sd => {
+        sd.redrawExistingDraft();
+      })
+    }
+  }

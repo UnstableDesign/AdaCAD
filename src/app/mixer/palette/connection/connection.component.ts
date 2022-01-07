@@ -33,7 +33,7 @@ export class ConnectionComponent implements OnInit {
   cx: any;
 
 
-  constructor(private tree: TreeService) { 
+  constructor(public tree: TreeService) { 
 
 
   }

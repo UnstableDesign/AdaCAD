@@ -25,40 +25,28 @@ import { NoteComponent } from './palette/note/note.component';
 
 
 @NgModule({
-  imports: [
-    CoreModule,
-    WeaverModule
-  ],
-  declarations: [
-    MixerDesignComponent, 
-    MixerComponent,
-    MixerPatternsComponent,
-    MixerViewComponent,
-    SubdraftComponent,
-    PaletteComponent,
-    SnackbarComponent,
-    MarqueeComponent,
-    OperationComponent,
-    ConnectionComponent,
-    TreeComponent,
-    OpsComponent,
-    OpHelpModal,
-    ImageComponent,
-    MixerInitComponent,
-    DraftdetailComponent,
-    NoteComponent,
+    imports: [
+        CoreModule,
+        WeaverModule
     ],
-  entryComponents: [
-    SubdraftComponent,
-    SnackbarComponent,
-    OperationComponent,
-    ConnectionComponent,
-    OpHelpModal,
-    MixerInitComponent,
-    DraftdetailComponent,
-    OpsComponent,
-    MixerViewComponent,
-    NoteComponent
-  ]
+    declarations: [
+        MixerDesignComponent,
+        MixerComponent,
+        MixerPatternsComponent,
+        MixerViewComponent,
+        SubdraftComponent,
+        PaletteComponent,
+        SnackbarComponent,
+        MarqueeComponent,
+        OperationComponent,
+        ConnectionComponent,
+        TreeComponent,
+        OpsComponent,
+        OpHelpModal,
+        ImageComponent,
+        MixerInitComponent,
+        DraftdetailComponent,
+        NoteComponent,
+    ]
 })
 export class MixerModule { }

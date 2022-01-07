@@ -1,7 +1,11 @@
 <mat-toolbar color="primary">
 
 <span class="left">
-
+  <button *ngIf="(auth.showLoginButton)" mat-raised-button matTooltip="login or signup" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Sign In</button>
+  <div class="auth" *ngIf="(auth.showLogoutButton)">
+    Hi {{auth.username}} <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+  </div>
+  
   <a mat-raised-button matTooltip="help" href="https://adacad.unstable.design" target='_blank'><i class="fas fa-question"></i> Help</a>
 
 
@@ -9,7 +13,7 @@
 
 <span class="center">
    <button mat-icon-button
-      (click)="openAboutDialog(null)"
+      (click)="openAboutDialog()"
       matTooltip ="about AdaCAD"
       >
       <i class="fas fa-info-circle"></i>
@@ -22,6 +26,19 @@
     <!-- <button mat-icon-button matTooltip ="print screen" (click)="saveAsPrint()" >
       <i class="fas fa-print"></i>
     </button> -->
+        
+  <button mat-icon-button 
+  [matMenuTriggerFor]="clearScreen"
+  matTooltip ="clear screen"
+  >
+  <i class="fas fa-eraser"></i>
+</button> 
+    <mat-menu #clearScreen mat-raised-button>
+      <a  (click)="clear()" mat-menu-item> Really? Clear the workspace?</a>
+    </mat-menu>
+
+    <!---->
+    
 
     
   <button mat-icon-button 
@@ -39,14 +56,14 @@
 
      <button mat-icon-button="Open" 
      matTooltip ="open a new workspace"
-     (click)="openNewFileDialog(null)">
+     (click)="openNewFileDialog()">
      <i class="fas fa-folder-open"></i>
     </button>
 
 
  <mat-form-field class="filename">
         <mat-label>Filename</mat-label>
-        <input matInput type="text" [(ngModel)]="filename">
+        <div><input matInput [(ngModel)]="filename" placeholder="Filename"> </div>
       </mat-form-field>
 
 
