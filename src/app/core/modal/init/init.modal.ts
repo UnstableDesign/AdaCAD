@@ -1,13 +1,10 @@
-import { RepositionScrollStrategy } from '@angular/cdk/overlay';
 import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Draft } from '../../model/draft';
-import { Loom } from '../../model/loom';
 import { DesignmodesService } from '../../provider/designmodes.service';
-import { FileService, LoadResponse, FileObj } from '../../provider/file.service';
 import { HttpClient } from '@angular/common/http';
-
-
+import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
+import {AuthService} from '../../provider/auth.service'
+import {FileService} from '../../provider/file.service'
 interface StartOptions {
   value: string;
   viewValue: string;
@@ -31,7 +28,6 @@ export class InitModal implements OnInit {
       {value: 'example', viewValue: 'Load an Example', mixeronly: true},
       {value: 'ada', viewValue: 'AdaCAD (.ada) File', mixeronly: true},
       {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File', mixeronly: false},
-      // {value: 'jpg', viewValue: 'Image (.jpg) File', mixeronly: false},
       // {value: 'wif', viewValue: 'WIF (.wif) File', mixeronly: false},   
       {value: 'new', viewValue: 'Empty Draft', mixeronly: false}
 
@@ -41,20 +37,20 @@ export class InitModal implements OnInit {
 
   //form: any = {};
   selected:string = null;
-  loomtype:string = null;
   valid:boolean = false; 
   mixer_envt: any; 
   source: string; 
-  density_units: any;
   // result: LoadResponse;
   error: string;
 
 
   constructor(
+    private auth: AuthService,
+    private fls: FileService,
     private dm: DesignmodesService, 
     private http: HttpClient,
     private dialogRef: MatDialogRef<InitModal>, 
-    @Inject(MAT_DIALOG_DATA) private data: any, private fls: FileService) {
+    @Inject(MAT_DIALOG_DATA) private data: any) {
       this.source = data.source;
       this.error = "";
       this.import_opts = this.opts.filter(el => !el.mixeronly)
@@ -95,17 +91,44 @@ export class InitModal implements OnInit {
   
   }
 
+  selectionMade(selection: any){
+    if(selection === 'recover'){
+      this.loadSavedFile();
+    }
+  }
+
   loadExample(filename: string){
     console.log("loading example: ", filename);
     this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
-
-      console.log("res", res);
 
       return this.fls.loader.ada(filename, res.body)
         .then(
           res => this.dialogRef.close(res)
         );
     }); 
+  }
+
+  loadSavedFile(){
+    this.auth.user.subscribe(user => {
+      if(user !== null){
+
+        const db = fbref(getDatabase());
+
+
+        fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+          if (snapshot.exists()) {
+            this.fls.loader.ada("recovered draft", snapshot.val()).then(lr => {
+              this.dialogRef.close(lr)
+            });
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+  
+    }
+  
+});
+
   }
 
 

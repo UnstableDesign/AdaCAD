@@ -18,10 +18,10 @@ export class AuthService {
 
   showLoginButton = false;
   showLogoutButton = false;
+  isLoggedIn = false;
 
   public uid:string;
   public username: string = "";
-
 
   constructor(@Optional() private auth: Auth) {
 
@@ -34,6 +34,7 @@ export class AuthService {
       ).subscribe(isLoggedIn => {
         this.showLoginButton = !isLoggedIn;
         this.showLogoutButton = isLoggedIn;
+        this.isLoggedIn = isLoggedIn;
         
       });
 

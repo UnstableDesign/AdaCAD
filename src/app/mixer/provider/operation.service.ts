@@ -2042,7 +2042,6 @@ export class OperationService {
               return acc.concat(c);
           }, []);
 
-          console.log("Col as row", col_as_row)
          for(let i = 0; i < total; i++){
            draft.pattern[i][j].setHeddle(col_as_row[i].getHeddle());
          }
