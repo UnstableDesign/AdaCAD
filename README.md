@@ -1,26 +1,22 @@
 # AdaCAD
-AdaCAD is a drafting tool for weavers. It is actively in development and offers specific supports for integrating electronics on jacquard looms. 
+AdaCAD is a drafting tool for weavers. It has particular supports for Jacquard weaving as well as frame loom weaving and focuses on the development and testing of structures. It follows from the principles of generative design by allowing a designer to create a series of parameterized operations that a user connections to generate new drafts. It also offers specific support and examples for those integrating electonics into woven structures. 
 
 You can use the last release of the tool at [https://adacad-weaver.firebaseapp.com/](https://adacad-weaver.firebaseapp.com/).
+More more information about the project and user guides, visit [https://adacad.unstable.design/](https://adacad.unstable.design/)
 
-More more information about the project and user guides, visit [https://unstabledesign.github.io](https://unstabledesign.github.io).
-
-
-## Development Notes
-The master branch is currently hosting two versions of AdaCAD, one called "Weaver" and the other "Mixer". Weaver is the version currently deployed to Firebase and Mixer is an experimental branch for designing drafts using components (modeled after ProWeave and MaxMSP).
 
 ## Development Notes
 There are three core modules in this repo: 
-- Core: contains components, services, directives, etc. that are used by both weaver and mixer modules. Changes to core will affect both deployments and should be checked before pushing.
+- Core: contains components, services, directives, etc. that are used by both weaver (individual draft view) and mixer (generative workspace) modules. Changes to core will affect both deployments and should be checked before pushing.
 
-- Weaver: contains all components, services, directives, etc. that are used by AdaCAD Weaver. This view supports designing on a simulated loom and can be viewed when developing at: localhost:4200/weaver
+- Weaver: contains all components, services, directives, etc. that are used by AdaCAD Weaver. This view supports designing on a simulated loom and viewing yarn paths
 
-- Mixer: contains all components, services, directives, etc. that are used by AdaCAD Mixer. This view supports more freeform experimentation on stitch structures and can be viewed when developing at: localhost:4200/mixer
+- Mixer: contains all components, services, directives, etc. that are used by AdaCAD Mixer. This view supports more freeform experimentation on stitch structures.
 
 
 
 ## Developer Documentation 
-You can use view automatically generated documentation of our project at [https://unstabledesign.github.io/AdaCAD](https://unstabledesign.github.io/AdaCAD).
+You can use view automatically generated documentation of our project at [http://adacad.unstable.design/AdaCAD/](http://adacad.unstable.design/AdaCAD/).
 
 
 ## Development Setup

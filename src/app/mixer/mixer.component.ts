@@ -15,11 +15,11 @@ import { Cell } from '../core/model/cell';
 import { GloballoomService } from '../core/provider/globalloom.service';
 import { Loom } from '../core/model/loom';
 import { StateService } from '../core/provider/state.service';
-import { AuthService } from '../core/provider/auth.service';
-import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 import { MaterialsService } from '../core/provider/materials.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { HttpClient } from '@angular/common/http';
+import { InitModal } from '../core/modal/init/init.modal';
+import { MatDialog } from '@angular/material/dialog';
 
 
 //disables some angular checking mechanisms
@@ -80,8 +80,7 @@ export class MixerComponent implements OnInit {
     private gl: GloballoomService,
     private notes: NotesService,
     private ss: StateService,
-    private auth: AuthService,
-    private http: HttpClient) {
+    private dialog: MatDialog) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -389,36 +388,14 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    this.auth.user.subscribe(user => {
-      if(user !== null && this.tree.nodes.length === 0){
+    const dialogRef = this.dialog.open(InitModal, {
+      data: {source: 'mixer'}
+    });
 
-        const db = fbref(getDatabase());
+    dialogRef.afterClosed().subscribe(loadResponse => {
+      if(loadResponse !== undefined) this.loadNewFile(loadResponse);
 
-
-        fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
-          if (snapshot.exists()) {
-            this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
-              this.loadNewFile(lr);
-            });
-          }
-        }).catch((error) => {
-          console.error(error);
-        });
-  
-    }else{
-      this.http.get('assets/examples/intro.ada', {observe: 'response'}).subscribe((res) => {
-
-        return this.fs.loader.ada('introduction', res.body)
-          .then(lr => {  this.loadNewFile(lr);}
-          );
-      }); 
-    }
-  
-});
-
-  
-
-
+   });
 
   }
 
@@ -446,9 +423,9 @@ export class MixerComponent implements OnInit {
 
   undo() {
 
-    let so: string = this.ss.restorePreviousMixerHistoryState();
-    
-    this.fs.loader.ada(this.filename, JSON.parse(so)).then(
+    let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
+    if(so === null || so === undefined) return;
+    this.fs.loader.ada(this.filename, so).then(
       lr => this.loadNewFile(lr)
     );
 
@@ -457,8 +434,10 @@ export class MixerComponent implements OnInit {
 
   redo() {
 
-    let so: string = this.ss.restoreNextMixerHistoryState();
-    this.fs.loader.ada(this.filename, JSON.parse(so))
+    let so: SaveObj = this.ss.restoreNextMixerHistoryState();
+    if(so === null || so === undefined) return;
+
+    this.fs.loader.ada(this.filename, so)
     .then(lr =>  this.loadNewFile(lr));
 
    
