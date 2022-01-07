@@ -2130,6 +2130,7 @@ drawStarted(){
        //get a draft that reflects only the poitns in the selection view
       const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
       this.tree.setDraft(sc.id, new_draft,null)
+    
 
     isect.forEach(el => {
       const ibound = utilInstance.getIntersectionBounds(sc, el);
@@ -2509,7 +2510,11 @@ drawStarted(){
   
         const primary_draft = this.tree.getDraft(primary.id);
 
-        const temp: Draft = new Draft({id: primary_draft.id, name: primary_draft.getName(), warps: Math.floor(bounds.width / this.scale), wefts: Math.floor(bounds.height / this.scale)});
+        const temp: Draft = new Draft({
+          id: primary_draft.id, 
+          gen_name: primary_draft.getName(), 
+          warps: Math.floor(bounds.width / this.scale), 
+          wefts: Math.floor(bounds.height / this.scale)});
     
         for(var i = 0; i < temp.wefts; i++){
           const top: number = bounds.topleft.y + (i * this.scale);
@@ -2565,7 +2570,7 @@ drawStarted(){
   redrawOpenModals(){
     const comps = this.tree.getDrafts();
     comps.forEach(sd => {
-      if(sd.modal !== undefined && sd.modal.componentInstance !== undefined){
+      if(sd.modal !== undefined && sd.modal.componentInstance !== null){
         sd.modal.componentInstance.redraw();
       }
     })

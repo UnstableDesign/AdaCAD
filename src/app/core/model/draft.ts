@@ -1,10 +1,8 @@
 import { Shuttle } from './shuttle';
-import { System } from './system';
 import { Loom } from './loom';
 import { Cell } from './cell';
 import { Pattern } from './pattern';
 import { crossType, Interlacement, Crossing } from './datatypes';
-
 import * as _ from 'lodash';
 import { SelectionComponent } from '../draftviewer/selection/selection.component';
 import utilInstance from './util';
@@ -82,8 +80,8 @@ export class Draft{
     }
 
     this.colSystemMapping = this.initMapping(this.warps, 0);
-    if(params.colSysytemMapping !== undefined){
-      this.updateWarpSystemsFromPattern(params.colSysytemMapping)
+    if(params.colSystemMapping !== undefined){
+      this.updateWarpSystemsFromPattern(params.colSystemMapping)
     }
 
     this.rowShuttleMapping = this.initMapping(this.wefts, 1);
@@ -91,7 +89,7 @@ export class Draft{
       this.updateWeftShuttlesFromPattern(params.rowShuttleMapping)
     }
 
-    this.rowSystemMapping = this.initMapping(this.wefts, 1);
+    this.rowSystemMapping = this.initMapping(this.wefts, 0);
     if(params.rowSystemMapping !== undefined){
       this.updateWeftSystemsFromPattern(params.rowSystemMapping)
     }
@@ -142,7 +140,6 @@ export class Draft{
     }
     return a;
   }
-
 
   
 

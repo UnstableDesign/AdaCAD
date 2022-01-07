@@ -31,18 +31,9 @@ cdkDrag
  
         <mat-form-field class="example-full-width" appearance="fill">
           <mat-label>Comment #{{note.id}}</mat-label>
-          <textarea cdkTextareaAutosize matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text"></textarea>
+          <textarea cdkTextareaAutosize matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
         </mat-form-field>
     </form>
-
-
-   <button *ngIf="note.text !== ''"
-      mat-stroked-button
-      matTooltip= "Save"
-      class="button is-primary"
-      [name]="save"
-      (click)="save()">Save
-      </button>
 
     </div>
  

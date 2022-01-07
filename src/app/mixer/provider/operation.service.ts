@@ -962,11 +962,25 @@ export class OperationService {
         }
 
         if(inputs.length == 1){
-          outputs.push(new Draft({warps:inputs[0].warps, wefts: inputs[0].wefts, pattern:inputs[0].pattern}));
+          outputs.push(new Draft(
+            {warps:inputs[0].warps, 
+              wefts: inputs[0].wefts, 
+              pattern:inputs[0].pattern,
+              rowShuttleMapping: inputs[0].rowShuttleMapping,
+              colShuttleMapping: inputs[0].colSystemMapping,
+              rowSystemMapping: inputs[0].rowSystemMapping,
+              colSystemMapping: inputs[0].colSystemMapping}));
         }
 
         if(inputs.length == 2){
-          let d = new Draft({warps:inputs[0].warps, wefts: inputs[0].wefts, pattern:inputs[0].pattern});
+          let d = new Draft({
+            warps:inputs[0].warps, 
+            wefts: inputs[0].wefts, 
+            pattern:inputs[0].pattern,
+            rowShuttleMapping: inputs[1].rowShuttleMapping,
+            colShuttleMapping: inputs[1].colSystemMapping,
+            rowSystemMapping: inputs[1].rowSystemMapping,
+            colSystemMapping: inputs[1].colSystemMapping});
           d.fill(inputs[1].pattern, 'mask');
           outputs.push(d);
         }
@@ -979,21 +993,17 @@ export class OperationService {
           d.fill(inputs[1].pattern, 'mask');
 
           const op: Operation = this.getOp('overlay, (a,b) => (a OR b)');
-
-          console.log(d, di);
         
           op.perform([d, di], [0, 0])
             .then(out => {
-              this.transferSystemsAndShuttles(d, inputs, input_params, 'second');
               d.gen_name = this.formatName(inputs, "fill")
-              outputs.push(out[0]);
-              
+              outputs.push(out[0]);              
             });
-
-
         }
 
+        //ADD Transfer here
 
+        
 
         return Promise.resolve(outputs);
       }        
@@ -1237,13 +1247,14 @@ export class OperationService {
               });
             });
             input.pattern.forEach((row, i) => {
+                d.rowShuttleMapping[i+input_params[0]] = input.rowShuttleMapping[i];
+                d.rowSystemMapping[i+input_params[0]] = input.rowSystemMapping[i];
                 row.forEach((cell, j) => {
                   d.pattern[i+input_params[0]][j+input_params[3]].setHeddle(cell.getHeddle());
-                  d.colShuttleMapping[j+input_params[3]] = input.rowShuttleMapping[j];
-                  d.colSystemMapping[j+input_params[3]] = input.rowShuttleMapping[j];
+                  d.colShuttleMapping[j+input_params[3]] = input.colShuttleMapping[j];
+                  d.colSystemMapping[j+input_params[3]] = input.colSystemMapping[j];
                 });
-                d.rowShuttleMapping[i+input_params[0]] = input.rowShuttleMapping[i];
-                d.rowSystemMapping[i+input_params[0]] = input.rowShuttleMapping[i];
+                
             });
             d.gen_name = this.formatName(inputs, "margin");
             return d;
@@ -1420,7 +1431,7 @@ export class OperationService {
           outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
-            this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
+            this.transferSystemsAndShuttles(d, inputs, input_params, 'second');
             d.gen_name = this.formatName(inputs, "rib");
             return d;
           });
