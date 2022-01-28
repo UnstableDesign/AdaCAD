@@ -2070,7 +2070,9 @@ export class OperationService {
       params: [],
       max_inputs: 100, 
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
-          
+        
+        console.log("joining left")
+
         const outputs: Array<Draft> = [];
         const total:number = inputs.reduce((acc, draft)=>{
             return acc + draft.warps;
@@ -2103,18 +2105,23 @@ export class OperationService {
             });
         }
       
-      
+        console.log("joining left, col system map")
+
         d.colSystemMapping = inputs.reduce((acc, draft) => {
           return acc.concat(draft.colSystemMapping);
         }, []);
-        
+        console.log("joining left, col shuttle map")
+
         d.colShuttleMapping = inputs.reduce((acc, draft) => {
           return acc.concat(draft.colShuttleMapping);
         }, []);
              
+        console.log("transfer systems")
+
         this.transferSystemsAndShuttles(d, inputs, input_params, 'joinleft');
         d.gen_name = this.formatName(inputs, "left");
         outputs.push(d);
+
         return Promise.resolve(outputs);
         
       }
@@ -2436,7 +2443,7 @@ export class OperationService {
           break;
 
           case 'joinleft':
-
+          console.log("join left");
             //if there are multiple inputs, 
             d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
             d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
@@ -2519,6 +2526,8 @@ export class OperationService {
       
                 
     }
+
+    console.log("transfered");
 
 
 

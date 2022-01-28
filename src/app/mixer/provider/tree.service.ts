@@ -719,6 +719,7 @@ export class TreeService {
    * @returns an array of operation ids for nodes that need recalculating
    */
   getDownstreamOperations(id: number):Array<number>{
+    console.log("getting downsteam");
 
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
@@ -998,9 +999,13 @@ removeOperationNode(id:number) : Array<Node>{
 
     const out = this.getNonCxnOutputs(parent);
     const touched: Array<number> = [];
+    console.log("update drafts", res, out);
 
     if(out.length === res.length){
+      console.log("for each out", out)
       out.forEach((output, ndx) => {
+        console.log("before set draft", output, ndx)
+
         this.setDraft(output, res[ndx],null);
         touched.push(output);
       });
@@ -1022,6 +1027,7 @@ removeOperationNode(id:number) : Array<Node>{
       }
     }
 
+    console.log("done updating drafts");
     return touched;
 
   }
@@ -1031,6 +1037,7 @@ removeOperationNode(id:number) : Array<Node>{
  * @returns 
  */
   async performTopLevelOps(): Promise<any> {
+    console.log("perform top level");
 
     //mark all ops as dirty to start
     this.nodes.forEach(el => {
@@ -1054,6 +1061,8 @@ removeOperationNode(id:number) : Array<Node>{
    * @returns //need a way to get this to return any drafts that it touched along the way
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
+    console.log("performing generation");
+
     const op_fn_list = op_node_list.map(el => this.performOp(el));
    
     return Promise.all(op_fn_list).then( out => {
@@ -1082,7 +1091,7 @@ removeOperationNode(id:number) : Array<Node>{
  * @param op_id the operation triggering this series of update
  */
  async performOp(id:number) : Promise<Array<number>> {
-
+  console.log("performing op", id);
 
   //mark all downsteam nodes as dirty; 
   const ds = this.getDownstreamOperations(id);
@@ -1100,6 +1109,7 @@ removeOperationNode(id:number) : Array<Node>{
   
   return op.perform(input_drafts, node.params)
     .then(res => {
+      console.log("finished performing op", id);
       node.dirty = false;
       return this.updateDraftsFromResults(id, res)
     })
@@ -1550,14 +1560,15 @@ removeOperationNode(id:number) : Array<Node>{
 
     if(loom === null){
       dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
-      dn.loom.recomputeLoom(temp);
+      //dn.loom.recomputeLoom(temp); //this is too expansive to do synchronously
     } 
     else dn.loom = loom;
     dn.loom.draft_id = id;
 
     dn.dirty = true;
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
-    
+
+
   }
 
 
