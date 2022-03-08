@@ -1,4 +1,3 @@
-import { D, E, G, I } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
@@ -8,17 +7,28 @@ import utilInstance from '../../core/model/util';
 import { Loom } from '../../core/model/loom';
 import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
-import { divNoNan } from '@tensorflow/tfjs-core';
-import { input } from '@tensorflow/tfjs-layers';
-import { System } from '../../core/model/system';
 import * as _ from 'lodash';
 
 export interface OperationParams {
   name: string,
+  type: string, //number, boolean, color, file, string
   min: number,
   max: number,
-  value: number,
+  value: any,
   dx: string
+}
+
+/**
+ * A container operation is one that can run operations before and after its children
+ */
+export interface ParentOperation {
+  name: string,
+  params: Array<OperationParams>, 
+  dx: string,
+  value: any,
+  children: Array<ChildOperation>, 
+  onParamChange: (data: any) => Promise<Array<ChildOperation>>,
+  perform: (inputs: Array<ChildOperation>) => Promise<Array<Draft>>;
 }
 
 export interface Operation {
@@ -28,6 +38,16 @@ export interface Operation {
     params: Array<OperationParams>,
     perform: (input: Array<Draft>, input_params: Array<number>) => Promise<Array<Draft>>
  }
+
+ /**
+  * this is a type that contains a series of smaller operations held under the banner of one larger operation (such as layer)
+  */
+ export interface ChildOperation{
+  operation: Operation,
+  inputs: Array<Draft>,
+  params: Array<OperationParams>
+ }
+
 
  export interface OperationClassification{
   category: string,
@@ -55,12 +75,14 @@ export class OperationService {
       dx: "generates a rectangle of the user specified side, if given an input, fills the rectangle with the input",
       params: [
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 500,
         value: 10,
         dx: "width"
         },
         {name: 'height',
+        type: 'number',
         min: 1,
         max: 500,
         value: 10,
@@ -113,6 +135,7 @@ export class OperationService {
       dx: "this sets all unset heddles in this draft to the specified value",
       params: [ 
         {name: 'up/down',
+        type: 'boolean',
         min: 0,
         max: 1,
         value: 1,
@@ -148,6 +171,7 @@ export class OperationService {
       dx: "this sets all down heddles in this draft to unset",
       params: [
         {name: 'up/down',
+        type: 'boolean',
         min: 0,
         max: 1,
         value: 1,
@@ -277,6 +301,7 @@ export class OperationService {
       dx: 'splices the second draft into the first every nth row',
       params: [  
         {name: 'distance',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -344,12 +369,14 @@ export class OperationService {
       dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval. Currently this will overwrite any system information that has been defined upstream',
       params: [  
         {name: 'total',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: "how many systems total"
         },
         {name: 'shift',
+        type: 'number',
         min: 0,
         max: 100,
         value: 0,
@@ -413,18 +440,21 @@ export class OperationService {
       dx: 'splits each warp of the draft apart, allowing it to repeat at a specified interval and shift within that interval. An additional button is used to specify if these systems correspond to layers, and fills in draft accordingly',
       params: [  
         {name: 'total',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: "how many warp systems (or layers) total"
         },
         {name: 'shift',
+        type: 'number',
         min: 0,
         max: 100,
         value: 0,
         dx: "which system/layer to assign this draft"
         },
         {name: 'layers?',
+        type: 'number',
         min: 0,
         max: 1,
         value: 0,
@@ -509,6 +539,7 @@ export class OperationService {
       dx: 'make a vertical of this structure across two systems, representing the left and right side of an opening in the warp',
       params: [  
         {name: 'systems',
+        type: 'number',
         min: 2,
         max: 100,
         value: 2,
@@ -568,12 +599,14 @@ export class OperationService {
       dx: 'adds a selvedge of a user defined with both sides of the input draft. User can specify the number of row repeats in the selvedge',
       params: [
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 100,
         value: 12,
         dx: "the width in warps of the selvedge"
         },
         {name: 'repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -627,12 +660,14 @@ export class OperationService {
       dx: 'keeps any region that is marked as black/true in either draft',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
         {name: 'top offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
@@ -708,12 +743,14 @@ export class OperationService {
       dx: 'sets cells of a on top of b, no matter the value of b',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
         {name: 'top offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
@@ -770,12 +807,14 @@ export class OperationService {
       dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
         {name: 'top offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
@@ -831,12 +870,14 @@ export class OperationService {
       dx: 'only shows areas of the first draft in regions where the second draft has black/true cells',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
         {name: 'top offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
@@ -892,12 +933,14 @@ export class OperationService {
       dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
         {name: 'top offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
@@ -1014,6 +1057,7 @@ export class OperationService {
       dx: 'also known as plain weave generates or fills input a draft with tabby structure or derivitae',
       params: [
         {name: 'repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1064,12 +1108,14 @@ export class OperationService {
       dx: 'generates a basket structure defined by the inputs',
       params: [
         {name: 'unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of weft unders'
         },
         {name: 'overs',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -1121,12 +1167,14 @@ export class OperationService {
       dx: 'repeats each warp and/or weft by the inputs',
       params: [
         {name: 'warp repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of times to repeat each warp'
         },
         {name: 'weft repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -1166,12 +1214,14 @@ export class OperationService {
       dx: 'stretches or squishes the draft to fit the boundary',
       params: [
         {name: 'warps',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 2,
         dx: 'number of warps to resize to'
         },
         {name: 'weft repeats',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 2,
@@ -1210,24 +1260,28 @@ export class OperationService {
         min: 1,
         max: 10000,
         value: 1,
+        type: 'number',
         dx: 'number of pics of padding to add to the top'
         },
         {name: 'right',
         min: 1,
         max: 10000,
         value: 1,
+        type: 'number',
         dx: 'number of pics of padding to add to the right'
         },
         {name: 'bottom',
         min: 1,
         max: 10000,
         value: 1,
+        type: 'number',
         dx: 'number of pics of padding to add to the bottom'
         },
         {name: 'left',
         min: 1,
         max: 10000,
         value: 1,
+        type: 'number',
         dx: 'number of pics of padding to add to the left'
         }
       ],
@@ -1270,24 +1324,28 @@ export class OperationService {
       dx: 'crops to a region of the input draft. The crop size and placement is given by the parameters',
       params: [
         {name: 'left',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: 'number of pics from the left to start the cut'
         },
         {name: 'top',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: 'number of pics from the top to start the cut'
         },
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 10,
         dx: 'total width of cut'
         },
         {name: 'height',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 10,
@@ -1384,18 +1442,21 @@ export class OperationService {
       dx: 'generates a rib/cord/half-basket structure defined by the inputs',
       params: [
         {name: 'unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of weft unders in a pic'
         },
         {name: 'overs',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of weft overs in a pic'
         },
         {name: 'repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1447,18 +1508,22 @@ export class OperationService {
       dx: 'generates or fills with a twill structure described by the inputs',
       params: [
         {name: 'unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
         dx: 'number of weft unders'
+        
         },
         {name: 'overs',
+        type: 'number',
         min: 1,
         max: 100,
         value: 3,
         dx: 'number of weft overs'
         },
         {name: 'S/Z',
+        type: 'boolean',
         min: 0,
         max: 1,
         value: 0,
@@ -1511,12 +1576,14 @@ export class OperationService {
       dx: 'generates or fills with a satin structure described by the inputs',
       params: [
         {name: 'repeat',
+        type: 'number',
         min: 5,
         max: 100,
         value: 5,
         dx: 'the width and height of the pattern'
         },
         {name: 'move',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -1561,18 +1628,21 @@ export class OperationService {
       dx: 'generates a random draft with width, height, and percetage of weft unders defined by inputs',
       params: [
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 100,
         value: 6,
         dx: 'the width of this structure'
         },
         {name: 'height',
+        type: 'number',
         min: 1,
         max: 100,
         value: 6,
         dx: 'the height of this structure'
         },
         {name: 'percent weft unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 50,
@@ -1665,6 +1735,7 @@ export class OperationService {
       dx: 'generates an output that is shifted left by the number of warps specified in the inputs',
       params: [
         {name: 'amount',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1692,6 +1763,7 @@ export class OperationService {
       dx: 'generates an output that is shifted up by the number of wefts specified in the inputs',
       params: [
         {name: 'amount',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1719,12 +1791,15 @@ export class OperationService {
       dx: 'offsets every nth row by the vaule given in col',
       params: [
         {name: 'col shift',
+        type: 'number',
         min: -100,
         max: 100,
         value: 1,
         dx: 'the amount to shift rows by'
         },
-        {name: 'row shift (n)',
+        {
+        name: 'row shift (n)',
+        type: 'number',
         min: 0,
         max: 100,
         value: 1,
@@ -1762,6 +1837,7 @@ export class OperationService {
       dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
       params: [ {
         name: 'copies',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1819,6 +1895,7 @@ export class OperationService {
       dx: 'adds interlacements to weft floats over the user specified length',
       params: [
         {name: 'length',
+        type: 'number',
         min: 1,
         max: 100,
         value: 10,
@@ -1860,6 +1937,7 @@ export class OperationService {
       dx: 'adds interlacements to warp floats over the user specified length',
       params: [
         {name: 'length',
+        type: 'number',
         min: 1,
         max: 100,
         value: 10,
@@ -1950,12 +2028,14 @@ export class OperationService {
       dx: 'repeats this block along the warp and weft',
       params: [
         {name: 'warp-repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'the number of times to repeat this time across the width'
         },
         {name: 'weft-repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -2132,6 +2212,7 @@ export class OperationService {
       dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
       params: [
         {name: 'output selection',
+        type: 'number',
         min: 1,
         max: 10,
         value: 1,
@@ -2174,6 +2255,7 @@ export class OperationService {
         dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
         params: [
           {name: 'output selection',
+          type: 'number',
           min: 1,
           max: 10,
           value: 1,
