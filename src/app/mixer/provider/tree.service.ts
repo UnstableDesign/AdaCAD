@@ -999,13 +999,10 @@ removeOperationNode(id:number) : Array<Node>{
 
     const out = this.getNonCxnOutputs(parent);
     const touched: Array<number> = [];
-    console.log("update drafts", res, out);
+
 
     if(out.length === res.length){
-      console.log("for each out", out)
       out.forEach((output, ndx) => {
-        console.log("before set draft", output, ndx)
-
         this.setDraft(output, res[ndx],null);
         touched.push(output);
       });
@@ -1027,7 +1024,6 @@ removeOperationNode(id:number) : Array<Node>{
       }
     }
 
-    console.log("done updating drafts");
     return touched;
 
   }
@@ -1037,7 +1033,6 @@ removeOperationNode(id:number) : Array<Node>{
  * @returns 
  */
   async performTopLevelOps(): Promise<any> {
-    console.log("perform top level");
 
     //mark all ops as dirty to start
     this.nodes.forEach(el => {
@@ -1083,10 +1078,27 @@ removeOperationNode(id:number) : Array<Node>{
   }
 
 
+ /**
+  * takes a draft as input, and flips the orientation of the cells 
+  * @param draft 
+  */ 
+flipDraft(draft: Draft) : Draft{
+
+  console.log("draft in", draft)  
+  const reversed:Array<Array<Cell>> = [];
+  for(let i = draft.pattern.length -1; i >= 0; i--){
+    reversed.push(draft.pattern[i]);
+  }
+  draft.pattern = reversed;
+  console.log("draft out", draft);
+  return draft;
+}
+
 
 
 /**
  * performs the given operation
+ * inverts the draft first, so drafts build from bottom up
  * returns the list of draft ids affected by this calculation
  * @param op_id the operation triggering this series of update
  */
@@ -1105,13 +1117,15 @@ removeOperationNode(id:number) : Array<Node>{
     .map(input => (<DraftNode> this.getNode(input)))
     .filter(el => el !== null && el !== undefined)
     .map(input_node => input_node.draft)
-    .filter(el => el !== null && el !== undefined);
+    .filter(el => el !== null && el !== undefined)
+    .map(el => this.flipDraft(el));
   
   return op.perform(input_drafts, node.params)
     .then(res => {
-      console.log("finished performing op", id);
+      const flipped: Array<Draft> = res.map(el => this.flipDraft(el));
+      console.log("finished performing op", id, res, flipped);
       node.dirty = false;
-      return this.updateDraftsFromResults(id, res)
+      return this.updateDraftsFromResults(id, flipped)
     })
   }
 

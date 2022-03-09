@@ -80,8 +80,10 @@ cdkDrag
 
         <div class="param-name">{{param.name}}</div>
 
-
-        <div *ngIf="param.max > 1" class="param-slider">
+        <ng-container  *ngIf="param.type == 'number'">
+        <div class="param-slider">
+         
+         
             <mat-slider 
             thumbLabel
             tickInterval="1"
@@ -96,7 +98,7 @@ cdkDrag
         </div>
 
 
-         <div *ngIf="param.max > 1" class='param-label'>
+         <div class='param-label'>
             <input 
             [formControl]="op_inputs[i]"
             [matTooltip]=param.dx
@@ -110,16 +112,38 @@ cdkDrag
           >
   
         </div>
+      </ng-container>
 
-        <div *ngIf="param.max === 1" class="param-checkbox">
-            <mat-checkbox 
-            [formControl]="op_inputs[i]"
-            [matTooltip]=param.dx
-            value="op_inputs[i].value"
-            (change)= "onCheckboxParamChange(i, op_inputs[i].value)">
-        </mat-checkbox>
-        </div>
+      <ng-container  *ngIf="param.type == 'boolean'">
 
+            <div class="param-checkbox">
+                <mat-checkbox 
+                [formControl]="op_inputs[i]"
+                [matTooltip]=param.dx
+                value="op_inputs[i].value"
+                (change)= "onCheckboxParamChange(i, op_inputs[i].value)">
+                </mat-checkbox>
+            </div>
+        </ng-container>
+
+        <ng-container  *ngIf="param.type == 'string'">
+           
+    
+             <div class='param-label'>
+                <input 
+                [formControl]="op_inputs[i]"
+                [matTooltip]=param.dx
+                type = "text"
+                [name]=param.name
+                [min]=param.min
+                [max]=param.max
+                step = 1
+                value = op_inputs[i].value
+                (change)= "onParamChange(i, op_inputs[i].value)"
+              >
+      
+            </div>
+          </ng-container>
     </div>
     </ng-container>
     </div>
