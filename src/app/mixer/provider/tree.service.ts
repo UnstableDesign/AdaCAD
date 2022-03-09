@@ -1079,26 +1079,30 @@ removeOperationNode(id:number) : Array<Node>{
 
 
  /**
-  * takes a draft as input, and flips the orientation of the cells 
+  * takes a draft as input, and flips the order of the rows, used 
   * @param draft 
   */ 
 flipDraft(draft: Draft) : Draft{
 
-  console.log("draft in", draft)  
-  const reversed:Array<Array<Cell>> = [];
+  const nd: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
+  const reversed_pattern:Array<Array<Cell>> = [];
+  const reversed_row_shut:Array<number> = [];
+  const reversed_row_sys:Array<number> = [];
   for(let i = draft.pattern.length -1; i >= 0; i--){
-    reversed.push(draft.pattern[i]);
+    reversed_pattern.push(draft.pattern[i]);
+    reversed_row_shut.push(draft.rowShuttleMapping[i]);
+    reversed_row_sys.push(draft.rowSystemMapping[i]);
   }
-  draft.pattern = reversed;
-  console.log("draft out", draft);
-  return draft;
+  nd.pattern = reversed_pattern;
+  nd.rowShuttleMapping = reversed_row_shut;
+  nd.rowSystemMapping = reversed_row_sys;
+  return nd;
 }
 
 
 
 /**
  * performs the given operation
- * inverts the draft first, so drafts build from bottom up
  * returns the list of draft ids affected by this calculation
  * @param op_id the operation triggering this series of update
  */
@@ -1120,13 +1124,13 @@ flipDraft(draft: Draft) : Draft{
     .filter(el => el !== null && el !== undefined)
     .map(el => this.flipDraft(el));
   
+    console.log("input drafts", input_drafts.map(el => el.pattern));
   return op.perform(input_drafts, node.params)
     .then(res => {
       const flipped: Array<Draft> = res.map(el => this.flipDraft(el));
-      console.log("finished performing op", id, res, flipped);
       node.dirty = false;
       return this.updateDraftsFromResults(id, flipped)
-    })
+    });
   }
 
 
