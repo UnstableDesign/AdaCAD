@@ -20,6 +20,8 @@ import { SystemsService } from '../core/provider/systems.service';
 import { HttpClient } from '@angular/common/http';
 import { InitModal } from '../core/modal/init/init.modal';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../core/provider/auth.service';
+import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 
 
 //disables some angular checking mechanisms
@@ -70,6 +72,7 @@ export class MixerComponent implements OnInit {
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
   constructor(public dm: DesignmodesService, 
+    private auth: AuthService,
     private ms: MaterialsService,
     private sys: SystemsService,
     private ps: PatternService, 
@@ -388,14 +391,71 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    const dialogRef = this.dialog.open(InitModal, {
-      data: {source: 'mixer'}
-    });
 
-    dialogRef.afterClosed().subscribe(loadResponse => {
-      if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+      this.auth.user.subscribe(user => {
 
-   });
+        if(user === null){
+          const dialogRef = this.dialog.open(InitModal, {
+            data: {source: 'mixer'}
+          });
+
+          dialogRef.afterClosed().subscribe(loadResponse => {
+            if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+      
+         });
+        }else{
+         
+
+          const db = fbref(getDatabase());
+
+
+                  fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+                    if (snapshot.exists()) {
+                      this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
+
+                        console.log(lr);
+                        this.loadNewFile(lr);
+
+
+                      });
+                    }
+                  }).catch((error) => {
+                    console.error(error);
+                  });
+
+        }
+      });
+  
+    console.log(this.auth, this.auth.isLoggedIn);
+
+
+
+
+
+
+  }
+
+
+  loadSavedFile(){
+  //   this.auth.user.subscribe(user => {
+  //       if(user !== null){
+
+  //         const db = fbref(getDatabase());
+
+
+  //         fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+  //           if (snapshot.exists()) {
+  //             this.fls.loader.ada("recovered draft", snapshot.val()).then(lr => {
+  //               this.dialogRef.close(lr)
+  //             });
+  //           }
+  //         }).catch((error) => {
+  //           console.error(error);
+  //         });
+    
+  //     }
+    
+  // });
 
   }
 
