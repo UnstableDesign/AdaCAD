@@ -121,7 +121,6 @@ export class TreeService {
 
 
   setOpParams(id: number, params: Array<number>){
-    console.log("id, params", id, params)
     this.getOpNode(id).params = params;
   }
 
@@ -366,7 +365,6 @@ export class TreeService {
    * @returns  true if the id maps to a subdraft
    */
   setOpenConnection(id: number) : boolean {
-    console.log("setting open connection", id, this.getType(id));
     if(this.getType(id) !== 'draft') return false;
     this.open_connection = id; 
     console.log("set open connection", id)
@@ -374,7 +372,6 @@ export class TreeService {
   }
 
   hasOpenConnection():boolean{
-    console.log("has connection", this.open_connection)
     return this.open_connection !== -1;
   }
 
@@ -719,7 +716,6 @@ export class TreeService {
    * @returns an array of operation ids for nodes that need recalculating
    */
   getDownstreamOperations(id: number):Array<number>{
-    console.log("getting downsteam");
 
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
@@ -823,11 +819,11 @@ export class TreeService {
     return acc.concat(this.getInputs(el))
   }, []);
 
-  console.log("Ops in", ops_in);
-  console.log("CXNs in", cxns_in);
-  console.log("CXNs out", cxns_out);
-  console.log("OPSs out", ops_out);
-  console.log("op connections in", op_in_cxns);
+  // console.log("Ops in", ops_in);
+  // console.log("CXNs in", cxns_in);
+  // console.log("CXNs out", cxns_out);
+  // console.log("OPSs out", ops_out);
+  // console.log("op connections in", op_in_cxns);
 
   deleted.push(this.removeNode(id));
 
@@ -999,13 +995,10 @@ removeOperationNode(id:number) : Array<Node>{
 
     const out = this.getNonCxnOutputs(parent);
     const touched: Array<number> = [];
-    console.log("update drafts", res, out);
+
 
     if(out.length === res.length){
-      console.log("for each out", out)
       out.forEach((output, ndx) => {
-        console.log("before set draft", output, ndx)
-
         this.setDraft(output, res[ndx],null);
         touched.push(output);
       });
@@ -1027,7 +1020,6 @@ removeOperationNode(id:number) : Array<Node>{
       }
     }
 
-    console.log("done updating drafts");
     return touched;
 
   }
@@ -1037,7 +1029,6 @@ removeOperationNode(id:number) : Array<Node>{
  * @returns 
  */
   async performTopLevelOps(): Promise<any> {
-    console.log("perform top level");
 
     //mark all ops as dirty to start
     this.nodes.forEach(el => {
@@ -1061,7 +1052,6 @@ removeOperationNode(id:number) : Array<Node>{
    * @returns //need a way to get this to return any drafts that it touched along the way
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
-    console.log("performing generation");
 
     const op_fn_list = op_node_list.map(el => this.performOp(el));
    
@@ -1083,6 +1073,27 @@ removeOperationNode(id:number) : Array<Node>{
   }
 
 
+ /**
+  * takes a draft as input, and flips the order of the rows, used 
+  * @param draft 
+  */ 
+flipDraft(draft: Draft) : Draft{
+
+  const nd: Draft = new Draft(draft);
+  const reversed_pattern:Array<Array<Cell>> = [];
+  const reversed_row_shut:Array<number> = [];
+  const reversed_row_sys:Array<number> = [];
+  for(let i = draft.pattern.length -1; i >= 0; i--){
+    reversed_pattern.push(draft.pattern[i]);
+    reversed_row_shut.push(draft.rowShuttleMapping[i]);
+    reversed_row_sys.push(draft.rowSystemMapping[i]);
+  }
+  nd.pattern = reversed_pattern;
+  nd.rowShuttleMapping = reversed_row_shut;
+  nd.rowSystemMapping = reversed_row_sys;
+  return nd;
+}
+
 
 
 /**
@@ -1091,7 +1102,6 @@ removeOperationNode(id:number) : Array<Node>{
  * @param op_id the operation triggering this series of update
  */
  async performOp(id:number) : Promise<Array<number>> {
-  console.log("performing op", id);
 
   //mark all downsteam nodes as dirty; 
   const ds = this.getDownstreamOperations(id);
@@ -1105,14 +1115,15 @@ removeOperationNode(id:number) : Array<Node>{
     .map(input => (<DraftNode> this.getNode(input)))
     .filter(el => el !== null && el !== undefined)
     .map(input_node => input_node.draft)
-    .filter(el => el !== null && el !== undefined);
+    .filter(el => el !== null && el !== undefined)
+    .map(el => this.flipDraft(el));
   
   return op.perform(input_drafts, node.params)
     .then(res => {
-      console.log("finished performing op", id);
+      const flipped: Array<Draft> = res.map(el => this.flipDraft(el));
       node.dirty = false;
-      return this.updateDraftsFromResults(id, res)
-    })
+      return this.updateDraftsFromResults(id, flipped)
+    });
   }
 
 
@@ -1543,7 +1554,7 @@ removeOperationNode(id:number) : Array<Node>{
   setDraft(id: number, temp: Draft, loom: Loom) {
 
     const dn = <DraftNode> this.getNode(id);
-    let ud_name = temp.ud_name;
+    let ud_name = temp.getName();
 
     if(dn.draft === null){
       dn.draft = temp;

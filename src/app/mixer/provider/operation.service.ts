@@ -1,4 +1,3 @@
-import { D, E, G, I } from '@angular/cdk/keycodes';
 import { Injectable, Input } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 import { Draft } from "../../core/model/draft";
@@ -8,26 +7,48 @@ import utilInstance from '../../core/model/util';
 import { Loom } from '../../core/model/loom';
 import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
-import { divNoNan } from '@tensorflow/tfjs-core';
-import { input } from '@tensorflow/tfjs-layers';
-import { System } from '../../core/model/system';
 import * as _ from 'lodash';
 
 export interface OperationParams {
   name: string,
+  type: string, //number, boolean, color, file, string
   min: number,
   max: number,
-  value: number,
+  value: any,
   dx: string
+}
+
+/**
+ * A container operation is one that can run operations before and after its children
+ */
+export interface ParentOperation {
+  name: string,
+  params: Array<OperationParams>, 
+  dx: string,
+  value: any,
+  children: Array<ChildOperation>, 
+  onParamChange: (data: any) => Promise<Array<ChildOperation>>,
+  perform: (inputs: Array<ChildOperation>) => Promise<Array<Draft>>;
 }
 
 export interface Operation {
     name: string,
+    displayname: string,
     dx: string,
     max_inputs: number,
     params: Array<OperationParams>,
     perform: (input: Array<Draft>, input_params: Array<number>) => Promise<Array<Draft>>
  }
+
+ /**
+  * this is a type that contains a series of smaller operations held under the banner of one larger operation (such as layer)
+  */
+ export interface ChildOperation{
+  operation: Operation,
+  inputs: Array<Draft>,
+  params: Array<OperationParams>
+ }
+
 
  export interface OperationClassification{
   category: string,
@@ -52,15 +73,18 @@ export class OperationService {
 
     const rect: Operation = {
       name: 'rectangle',
+      displayname: 'rectangle',
       dx: "generates a rectangle of the user specified side, if given an input, fills the rectangle with the input",
       params: [
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 500,
         value: 10,
         dx: "width"
         },
         {name: 'height',
+        type: 'number',
         min: 1,
         max: 500,
         value: 10,
@@ -74,23 +98,20 @@ export class OperationService {
         
         if(inputs.length == 0){
           d.fill([[new Cell(false)]], 'clear');
-          d.gen_name = "rect"
         }else{
           d.fill(inputs[0].pattern, 'original');
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.gen_name = this.formatName(inputs, "rect");
         }
-
-
-
+        d.gen_name = this.formatName(inputs, "rect");
         outputs.push(d);
-        
+
         return Promise.resolve(outputs);
       }        
     }
 
     const clear: Operation = {
       name: 'clear',
+      displayname: 'clear',
       dx: "this sets all heddles to lifted, allowing it to be masked by any pattern",
       params: [],
       max_inputs: 1,
@@ -110,9 +131,11 @@ export class OperationService {
 
     const set: Operation = {
       name: 'set unset',
+      displayname: 'set unset heddle to',
       dx: "this sets all unset heddles in this draft to the specified value",
       params: [ 
         {name: 'up/down',
+        type: 'boolean',
         min: 0,
         max: 1,
         value: 1,
@@ -145,9 +168,11 @@ export class OperationService {
 
     const unset: Operation = {
       name: 'set down to unset',
-      dx: "this sets all down heddles in this draft to unset",
+      displayname: 'set heddles of type to unset',
+      dx: "this sets all  heddles of a particular type in this draft to unset",
       params: [
         {name: 'up/down',
+        type: 'boolean',
         min: 0,
         max: 1,
         value: 1,
@@ -178,6 +203,7 @@ export class OperationService {
 
     const apply_mats: Operation = {
       name: 'apply materials',
+      displayname: 'apply materials',      
       dx: "applies the materials from the second draft onto the first draft. If they are uneven sizes, it will repeat the materials as a pattern",
       params: [],
       max_inputs: 2,
@@ -200,6 +226,7 @@ export class OperationService {
 
     const rotate: Operation = {
       name: 'rotate',
+      displayname: 'rotate',      
       dx: "this turns the draft by 90 degrees but leaves materials in same place",
       params: [],
       max_inputs: 1,
@@ -229,6 +256,7 @@ export class OperationService {
 
     const interlace:Operation = {
       name: 'interlace',
+      displayname: 'interlace',  
       dx: 'interlace the input drafts together in alternating lines',
       params: [],
       max_inputs: 100,
@@ -274,9 +302,11 @@ export class OperationService {
 
     const splicein:Operation = {
       name: 'splice in wefts',
+      displayname: 'splice in wefts',  
       dx: 'splices the second draft into the first every nth row',
       params: [  
         {name: 'distance',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -341,15 +371,18 @@ export class OperationService {
 
     const assignwefts:Operation = {
       name: 'assign weft systems',
+      displayname: 'assign weft systems',  
       dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval. Currently this will overwrite any system information that has been defined upstream',
       params: [  
         {name: 'total',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: "how many systems total"
         },
         {name: 'shift',
+        type: 'number',
         min: 0,
         max: 100,
         value: 0,
@@ -410,21 +443,25 @@ export class OperationService {
 
     const assignwarps:Operation = {
       name: 'assign warp systems',
+      displayname: 'assign warp systems',  
       dx: 'splits each warp of the draft apart, allowing it to repeat at a specified interval and shift within that interval. An additional button is used to specify if these systems correspond to layers, and fills in draft accordingly',
       params: [  
         {name: 'total',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: "how many warp systems (or layers) total"
         },
         {name: 'shift',
+        type: 'number',
         min: 0,
         max: 100,
         value: 0,
         dx: "which system/layer to assign this draft"
         },
         {name: 'layers?',
+        type: 'number',
         min: 0,
         max: 1,
         value: 0,
@@ -506,9 +543,11 @@ export class OperationService {
 
     const vertcut:Operation = {
       name: 'vertical cut',
+      displayname: 'vertical cut',  
       dx: 'make a vertical of this structure across two systems, representing the left and right side of an opening in the warp',
       params: [  
         {name: 'systems',
+        type: 'number',
         min: 2,
         max: 100,
         value: 2,
@@ -517,7 +556,6 @@ export class OperationService {
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
-        console.log("inputs", inputs)
 
         if(inputs.length === 0) return Promise.resolve([]);
 
@@ -557,7 +595,6 @@ export class OperationService {
 
           d.gen_name = this.formatName(inputs, "cut+"+i)
           outputs.push(d);
-          console.log("created d", d);
         }
         return Promise.resolve(outputs);
       }     
@@ -565,15 +602,18 @@ export class OperationService {
 
     const selvedge: Operation = {
       name: 'selvedge',
+      displayname: 'selvedge',  
       dx: 'adds a selvedge of a user defined with both sides of the input draft. User can specify the number of row repeats in the selvedge',
       params: [
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 100,
         value: 12,
         dx: "the width in warps of the selvedge"
         },
         {name: 'repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -624,19 +664,22 @@ export class OperationService {
 
     const overlay: Operation = {
       name: 'overlay, (a,b) => (a OR b)',
+      displayname: 'overlay, (a,b) => (a OR b)',  
       dx: 'keeps any region that is marked as black/true in either draft',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'offset from bottom',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -705,19 +748,22 @@ export class OperationService {
 
     const atop: Operation = {
       name: 'set atop, (a, b) => a',
+      displayname: 'set atop, (a, b) => a',  
       dx: 'sets cells of a on top of b, no matter the value of b',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -767,19 +813,22 @@ export class OperationService {
 
     const knockout: Operation = {
       name: 'knockout, (a, b) => (a XOR b)',
+      displayname: 'knockout, (a, b) => (a XOR b)',  
       dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -828,19 +877,22 @@ export class OperationService {
 
     const mask: Operation = {
       name: 'mask, (a,b) => (a AND b)',
+      displayname: 'mask, (a,b) => (a AND b)',
       dx: 'only shows areas of the first draft in regions where the second draft has black/true cells',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -889,19 +941,22 @@ export class OperationService {
 
     const erase: Operation = {
       name: 'erase,  (a,b) => (NOT a OR b)',
+      displayname: 'erase,  (a,b) => (NOT a OR b)',
       dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
       params: [
         {name: 'left offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -951,6 +1006,7 @@ export class OperationService {
 
     const fill: Operation = {
       name: 'fill',
+      displayname: 'fill',
       dx: 'fills black cells of the first input with the pattern specified by the second input, white cells with third input',
       params: [],
       max_inputs: 3,
@@ -1011,9 +1067,11 @@ export class OperationService {
 
     const tabby: Operation = {
       name: 'tabby',
+      displayname: 'tabby',
       dx: 'also known as plain weave generates or fills input a draft with tabby structure or derivitae',
       params: [
         {name: 'repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1061,15 +1119,18 @@ export class OperationService {
 
     const basket: Operation = {
       name: 'basket',
+      displayname: 'basket',
       dx: 'generates a basket structure defined by the inputs',
       params: [
         {name: 'unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of weft unders'
         },
         {name: 'overs',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -1118,15 +1179,18 @@ export class OperationService {
 
     const stretch: Operation = {
       name: 'stretch',
+      displayname: 'stretch',
       dx: 'repeats each warp and/or weft by the inputs',
       params: [
         {name: 'warp repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of times to repeat each warp'
         },
         {name: 'weft repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -1163,15 +1227,18 @@ export class OperationService {
 
     const resize: Operation = {
       name: 'resize',
+      displayname: 'resize',
       dx: 'stretches or squishes the draft to fit the boundary',
       params: [
         {name: 'warps',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 2,
         dx: 'number of warps to resize to'
         },
         {name: 'weft repeats',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 2,
@@ -1204,30 +1271,35 @@ export class OperationService {
 
     const margin: Operation = {
       name: 'margin',
+      displayname: 'margin',
       dx: 'adds padding of unset cells to the top, right, bottom, left of the block',
       params: [
-        {name: 'top',
+        {name: 'bottom',
         min: 1,
         max: 10000,
         value: 1,
-        dx: 'number of pics of padding to add to the top'
+        type: 'number',
+        dx: 'number of pics of padding to add to the bottom'
         },
         {name: 'right',
         min: 1,
         max: 10000,
         value: 1,
+        type: 'number',
         dx: 'number of pics of padding to add to the right'
         },
-        {name: 'bottom',
+        {name: 'top',
         min: 1,
         max: 10000,
         value: 1,
-        dx: 'number of pics of padding to add to the bottom'
+        type: 'number',
+        dx: 'number of pics of padding to add to the top'
         },
         {name: 'left',
         min: 1,
         max: 10000,
         value: 1,
+        type: 'number',
         dx: 'number of pics of padding to add to the left'
         }
       ],
@@ -1267,27 +1339,32 @@ export class OperationService {
 
     const crop: Operation = {
       name: 'crop',
+      displayname: 'crop',
       dx: 'crops to a region of the input draft. The crop size and placement is given by the parameters',
       params: [
         {name: 'left',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
         dx: 'number of pics from the left to start the cut'
         },
-        {name: 'top',
+        {name: 'bottom',
+        type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: 'number of pics from the top to start the cut'
+        dx: 'number of pics from the bottom to start the cut'
         },
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 10,
         dx: 'total width of cut'
         },
         {name: 'height',
+        type: 'number',
         min: 1,
         max: 10000,
         value: 10,
@@ -1381,21 +1458,25 @@ export class OperationService {
     
     const rib: Operation = {
       name: 'rib',
+      displayname: 'rib',
       dx: 'generates a rib/cord/half-basket structure defined by the inputs',
       params: [
         {name: 'unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of weft unders in a pic'
         },
         {name: 'overs',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'number of weft overs in a pic'
         },
         {name: 'repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1444,25 +1525,30 @@ export class OperationService {
 
     const twill: Operation = {
       name: 'twill',
+      displayname: 'twill',
       dx: 'generates or fills with a twill structure described by the inputs',
       params: [
         {name: 'unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
         dx: 'number of weft unders'
+        
         },
         {name: 'overs',
+        type: 'number',
         min: 1,
         max: 100,
         value: 3,
         dx: 'number of weft overs'
         },
         {name: 'S/Z',
+        type: 'boolean',
         min: 0,
         max: 1,
         value: 0,
-        dx: 'unchecked for S twist, checked for Z twist'
+        dx: 'unchecked for Z twist, checked for S twist'
         }
       ],
       max_inputs: 1,
@@ -1485,7 +1571,9 @@ export class OperationService {
         let outputs: Array<Draft> = [];
         if(inputs.length == 0){
           const d: Draft = new Draft({warps: sum, wefts: sum, pattern: pattern});
+          d.gen_name = this.formatName(inputs, "twill");
           outputs.push(d);
+
         }else{
            outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
@@ -1508,15 +1596,18 @@ export class OperationService {
 
     const satin: Operation = {
       name: 'satin',
+      displayname: 'satin',
       dx: 'generates or fills with a satin structure described by the inputs',
       params: [
         {name: 'repeat',
+        type: 'number',
         min: 5,
         max: 100,
         value: 5,
         dx: 'the width and height of the pattern'
         },
         {name: 'move',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -1558,21 +1649,25 @@ export class OperationService {
 
     const random: Operation = {
       name: 'random',
+      displayname: 'random',
       dx: 'generates a random draft with width, height, and percetage of weft unders defined by inputs',
       params: [
         {name: 'width',
+        type: 'number',
         min: 1,
         max: 100,
         value: 6,
         dx: 'the width of this structure'
         },
         {name: 'height',
+        type: 'number',
         min: 1,
         max: 100,
         value: 6,
         dx: 'the height of this structure'
         },
         {name: 'percent weft unders',
+        type: 'number',
         min: 1,
         max: 100,
         value: 50,
@@ -1611,6 +1706,7 @@ export class OperationService {
 
     const invert: Operation = {
       name: 'invert',
+      displayname: 'invert',
       dx: 'generates an output that is the inverse or backside of the input',
       params: [],
       max_inputs: 1, 
@@ -1628,6 +1724,7 @@ export class OperationService {
 
     const flipx: Operation = {
       name: 'flip horiz',
+      displayname: 'flip horiz',
       dx: 'generates an output that is the left-right mirror of the input',
       params: [],
       max_inputs: 1, 
@@ -1645,6 +1742,7 @@ export class OperationService {
 
     const flipy: Operation = {
       name: 'flip vert',
+      displayname: 'flip vert',
       dx: 'generates an output that is the top-bottom mirror of the input',
       params: [],
       max_inputs: 1, 
@@ -1662,9 +1760,11 @@ export class OperationService {
 
     const shiftx: Operation = {
       name: 'shift left',
+      displayname: 'shift left',
       dx: 'generates an output that is shifted left by the number of warps specified in the inputs',
       params: [
         {name: 'amount',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1689,9 +1789,11 @@ export class OperationService {
 
     const shifty: Operation = {
       name: 'shift up',
+      displayname: 'shift up',
       dx: 'generates an output that is shifted up by the number of wefts specified in the inputs',
       params: [
         {name: 'amount',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1716,15 +1818,19 @@ export class OperationService {
 
     const slope: Operation = {
       name: 'slope',
+      displayname: 'slope',
       dx: 'offsets every nth row by the vaule given in col',
       params: [
         {name: 'col shift',
+        type: 'number',
         min: -100,
         max: 100,
         value: 1,
         dx: 'the amount to shift rows by'
         },
-        {name: 'row shift (n)',
+        {
+        name: 'row shift (n)',
+        type: 'number',
         min: 0,
         max: 100,
         value: 1,
@@ -1759,9 +1865,11 @@ export class OperationService {
 
     const replicate: Operation = {
       name: 'mirror',
+      displayname: 'mirror',
       dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
       params: [ {
         name: 'copies',
+        type: 'number',
         min: 1,
         max: 100,
         value: 1,
@@ -1787,6 +1895,7 @@ export class OperationService {
 
     const variants: Operation = {
       name: 'variants',
+      displayname: 'variants',
       dx: 'for any input draft, create the shifted and flipped values as well',
       params: [],
       max_inputs: 1, 
@@ -1816,9 +1925,11 @@ export class OperationService {
 
     const bindweftfloats: Operation = {
       name: 'bind weft floats',
+      displayname: 'bind weft floats',
       dx: 'adds interlacements to weft floats over the user specified length',
       params: [
         {name: 'length',
+        type: 'number',
         min: 1,
         max: 100,
         value: 10,
@@ -1857,9 +1968,11 @@ export class OperationService {
 
     const bindwarpfloats: Operation = {
       name: 'bind warp floats',
+      displayname: 'bind warp floats',
       dx: 'adds interlacements to warp floats over the user specified length',
       params: [
         {name: 'length',
+        type: 'number',
         min: 1,
         max: 100,
         value: 10,
@@ -1899,6 +2012,7 @@ export class OperationService {
 
     const layer: Operation = {
       name: 'layer',
+      displayname: 'layer',
       dx: 'creates a draft in which each input is assigned to a layer in a multilayered structure, assigns 1 to top layer and so on',
       params: [],
       max_inputs: 100, 
@@ -1936,7 +2050,6 @@ export class OperationService {
                 });
               });
 
-              console.log("returning ", d)
               this.transferSystemsAndShuttles(d, inputs, input_params, 'layer');
               d.gen_name = this.formatName(inputs, "layer");
               return [d];
@@ -1947,15 +2060,18 @@ export class OperationService {
 
     const tile: Operation = {
       name: 'tile',
+      displayname: 'tile',
       dx: 'repeats this block along the warp and weft',
       params: [
         {name: 'warp-repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
         dx: 'the number of times to repeat this time across the width'
         },
         {name: 'weft-repeats',
+        type: 'number',
         min: 1,
         max: 100,
         value: 2,
@@ -1983,6 +2099,7 @@ export class OperationService {
 
     const erase_blank: Operation = {
       name: 'erase blank rows',
+      displayname: 'erase blank rows',
       dx: 'erases any rows that are entirely unset',
       params: [],
       max_inputs: 100, 
@@ -2016,6 +2133,7 @@ export class OperationService {
 
     const jointop: Operation = {
       name: 'join top',
+      displayname: 'join top',
       dx: 'attaches inputs toether into one draft in a column orientation',
       params: [],
       max_inputs: 100, 
@@ -2066,12 +2184,12 @@ export class OperationService {
 
     const joinleft: Operation = {
       name: 'join left',
+      displayname: 'join left',
       dx: 'joins drafts together from left to right',
       params: [],
       max_inputs: 100, 
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
-        console.log("joining left")
 
         const outputs: Array<Draft> = [];
         const total:number = inputs.reduce((acc, draft)=>{
@@ -2105,18 +2223,14 @@ export class OperationService {
             });
         }
       
-        console.log("joining left, col system map")
-
         d.colSystemMapping = inputs.reduce((acc, draft) => {
           return acc.concat(draft.colSystemMapping);
         }, []);
-        console.log("joining left, col shuttle map")
 
         d.colShuttleMapping = inputs.reduce((acc, draft) => {
           return acc.concat(draft.colShuttleMapping);
         }, []);
              
-        console.log("transfer systems")
 
         this.transferSystemsAndShuttles(d, inputs, input_params, 'joinleft');
         d.gen_name = this.formatName(inputs, "left");
@@ -2129,9 +2243,11 @@ export class OperationService {
 
     const germanify: Operation = {
       name: 'gemanify',
+      displayname: 'gemanify',
       dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
       params: [
         {name: 'output selection',
+        type: 'number',
         min: 1,
         max: 10,
         value: 1,
@@ -2171,9 +2287,11 @@ export class OperationService {
       }  
       const crackleify: Operation = {
         name: 'crackle-ify',
+        displayname: 'crackle-ify',
         dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
         params: [
           {name: 'output selection',
+          type: 'number',
           min: 1,
           max: 10,
           value: 1,
@@ -2214,6 +2332,7 @@ export class OperationService {
         
         const makeloom: Operation = {
           name: 'floor loom',
+          displayname: 'floor loom',
           dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
           params: [
 
@@ -2233,7 +2352,6 @@ export class OperationService {
             });
 
             const treadling: Draft = new Draft({warps:l.num_treadles, wefts: inputs[0].wefts});
-            console.log(treadling);
             l.treadling.forEach((treadle_num, i) =>{
               if(treadle_num !== -1) treadling.pattern[i][treadle_num].setHeddle(true);
             });
@@ -2259,6 +2377,7 @@ export class OperationService {
           
           const drawdown: Operation = {
             name: 'drawdown',
+            displayname: 'drawdown',
             dx: 'create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)',
             params: [
   
@@ -2298,7 +2417,7 @@ export class OperationService {
     
 
 
-    //**push operatiinos to the array here */
+    //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
     this.ops.push(twill);
     this.ops.push(satin);
@@ -2348,7 +2467,6 @@ export class OperationService {
 
 
     //** Give it a classification here */
-
     this.classification.push(
       {category: 'structure',
       dx: "0-1 inputs, 1 output, algorithmically generates weave structures based on parameters",
@@ -2443,7 +2561,6 @@ export class OperationService {
           break;
 
           case 'joinleft':
-          console.log("join left");
             //if there are multiple inputs, 
             d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
             d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
@@ -2527,7 +2644,6 @@ export class OperationService {
                 
     }
 
-    console.log("transfered");
 
 
 
@@ -2535,12 +2651,19 @@ export class OperationService {
 
   formatName(inputs: Array<Draft>, op_name: string) : string{
 
-    const combined = inputs.reduce((acc, el) => {
-      return acc+"+"+el.getName()
-    }, "");
+    let combined: string = "";
 
-    //return op_name+"("+combined.substr(1)+")";
-    return combined.substr(1);
+    if(inputs.length == 0){
+      combined = op_name;
+    }else{
+
+      combined = inputs.reduce((acc, el) => {
+        return acc+"+"+el.getName();
+      }, "");
+      combined = op_name+"("+combined.substring(1)+")";
+    }
+
+    return combined;
   }
 
 

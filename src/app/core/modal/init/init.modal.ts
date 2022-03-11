@@ -45,8 +45,8 @@ export class InitModal implements OnInit {
 
 
   constructor(
-    private auth: AuthService,
     private fls: FileService,
+    private auth: AuthService,
     private dm: DesignmodesService, 
     private http: HttpClient,
     private dialogRef: MatDialogRef<InitModal>, 
@@ -91,11 +91,11 @@ export class InitModal implements OnInit {
   
   }
 
-  selectionMade(selection: any){
-    if(selection === 'recover'){
-      this.loadSavedFile();
-    }
-  }
+  // selectionMade(selection: any){
+  //   if(selection === 'recover'){
+  //     this.loadSavedFile();
+  //   }
+  // }
 
   loadExample(filename: string){
     console.log("loading example: ", filename);
@@ -108,28 +108,7 @@ export class InitModal implements OnInit {
     }); 
   }
 
-  loadSavedFile(){
-    this.auth.user.subscribe(user => {
-      if(user !== null){
-
-        const db = fbref(getDatabase());
-
-
-        fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
-          if (snapshot.exists()) {
-            this.fls.loader.ada("recovered draft", snapshot.val()).then(lr => {
-              this.dialogRef.close(lr)
-            });
-          }
-        }).catch((error) => {
-          console.error(error);
-        });
-  
-    }
-  
-});
-
-  }
+ 
 
 
 

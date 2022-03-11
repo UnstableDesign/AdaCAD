@@ -20,6 +20,8 @@ import { SystemsService } from '../core/provider/systems.service';
 import { HttpClient } from '@angular/common/http';
 import { InitModal } from '../core/modal/init/init.modal';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../core/provider/auth.service';
+import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 
 
 //disables some angular checking mechanisms
@@ -70,6 +72,7 @@ export class MixerComponent implements OnInit {
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
   constructor(public dm: DesignmodesService, 
+    private auth: AuthService,
     private ms: MaterialsService,
     private sys: SystemsService,
     private ps: PatternService, 
@@ -158,7 +161,6 @@ export class MixerComponent implements OnInit {
    */
    importNewFile(result: LoadResponse){
     
-    console.log("imported new file", result, result.data);
     this.processFileData(result.data).then(
       this.palette.changeDesignmode('move')
     );
@@ -291,7 +293,6 @@ export class MixerComponent implements OnInit {
         }
       });
 
-      console.log("seed nodes mapped ", seeds);
 
 
       
@@ -309,7 +310,7 @@ export class MixerComponent implements OnInit {
         return this.tree.validateNodes();
     })
     .then(el => {
-      console.log("performing top level ops");
+      //console.log("performing top level ops");
 
        return  this.tree.performTopLevelOps();
     })
@@ -321,7 +322,7 @@ export class MixerComponent implements OnInit {
         if(this.tree.hasParent(el.id)){
           el.draft = new Draft({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
         } else{
-          console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
+       //   console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
           this.tree.removeNode(el.id);
         } 
       })
@@ -388,14 +389,72 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    const dialogRef = this.dialog.open(InitModal, {
-      data: {source: 'mixer'}
-    });
 
-    dialogRef.afterClosed().subscribe(loadResponse => {
-      if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+      this.auth.user.subscribe(user => {
 
-   });
+        if(user === null){
+
+          const dialogRef = this.dialog.open(InitModal, {
+            data: {source: 'mixer'}
+          });
+
+
+          dialogRef.afterClosed().subscribe(loadResponse => {
+            if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+      
+         });
+        }else{
+
+          //in the case someone logs in mid way through, don't replace their work. 
+          if(this.tree.nodes.length > 0) return;
+         
+
+          const db = fbref(getDatabase());
+
+
+                  fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+                    if (snapshot.exists()) {
+                      this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
+                        this.loadNewFile(lr);
+                      });
+                    }
+                  }).catch((error) => {
+                    console.error(error);
+                  });
+
+        }
+      });
+  
+    console.log(this.auth, this.auth.isLoggedIn);
+
+
+
+
+
+
+  }
+
+
+  loadSavedFile(){
+  //   this.auth.user.subscribe(user => {
+  //       if(user !== null){
+
+  //         const db = fbref(getDatabase());
+
+
+  //         fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+  //           if (snapshot.exists()) {
+  //             this.fls.loader.ada("recovered draft", snapshot.val()).then(lr => {
+  //               this.dialogRef.close(lr)
+  //             });
+  //           }
+  //         }).catch((error) => {
+  //           console.error(error);
+  //         });
+    
+  //     }
+    
+  // });
 
   }
 
