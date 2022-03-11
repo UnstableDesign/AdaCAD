@@ -98,17 +98,13 @@ export class OperationService {
         
         if(inputs.length == 0){
           d.fill([[new Cell(false)]], 'clear');
-          d.gen_name = "rect"
         }else{
           d.fill(inputs[0].pattern, 'original');
           this.transferSystemsAndShuttles(d, inputs, input_params, 'first');
-          d.gen_name = this.formatName(inputs, "rect");
         }
-
-
-
+        d.gen_name = this.formatName(inputs, "rect");
         outputs.push(d);
-        
+
         return Promise.resolve(outputs);
       }        
     }
@@ -560,7 +556,6 @@ export class OperationService {
       max_inputs: 1,
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
-        console.log("inputs", inputs)
 
         if(inputs.length === 0) return Promise.resolve([]);
 
@@ -600,7 +595,6 @@ export class OperationService {
 
           d.gen_name = this.formatName(inputs, "cut+"+i)
           outputs.push(d);
-          console.log("created d", d);
         }
         return Promise.resolve(outputs);
       }     
@@ -1554,7 +1548,7 @@ export class OperationService {
         min: 0,
         max: 1,
         value: 0,
-        dx: 'unchecked for S twist, checked for Z twist'
+        dx: 'unchecked for Z twist, checked for S twist'
         }
       ],
       max_inputs: 1,
@@ -1577,7 +1571,9 @@ export class OperationService {
         let outputs: Array<Draft> = [];
         if(inputs.length == 0){
           const d: Draft = new Draft({warps: sum, wefts: sum, pattern: pattern});
+          d.gen_name = this.formatName(inputs, "twill");
           outputs.push(d);
+
         }else{
            outputs = inputs.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
@@ -2054,7 +2050,6 @@ export class OperationService {
                 });
               });
 
-              console.log("returning ", d)
               this.transferSystemsAndShuttles(d, inputs, input_params, 'layer');
               d.gen_name = this.formatName(inputs, "layer");
               return [d];
@@ -2195,7 +2190,6 @@ export class OperationService {
       max_inputs: 100, 
       perform: (inputs: Array<Draft>, input_params: Array<number>) => {
         
-        console.log("joining left")
 
         const outputs: Array<Draft> = [];
         const total:number = inputs.reduce((acc, draft)=>{
@@ -2358,7 +2352,6 @@ export class OperationService {
             });
 
             const treadling: Draft = new Draft({warps:l.num_treadles, wefts: inputs[0].wefts});
-            console.log(treadling);
             l.treadling.forEach((treadle_num, i) =>{
               if(treadle_num !== -1) treadling.pattern[i][treadle_num].setHeddle(true);
             });
@@ -2568,7 +2561,6 @@ export class OperationService {
           break;
 
           case 'joinleft':
-          console.log("join left");
             //if there are multiple inputs, 
             d.updateWeftShuttlesFromPattern(inputs[0].rowShuttleMapping);
             d.updateWeftSystemsFromPattern(inputs[0].rowSystemMapping);
@@ -2652,7 +2644,6 @@ export class OperationService {
                 
     }
 
-    console.log("transfered");
 
 
 
@@ -2660,12 +2651,19 @@ export class OperationService {
 
   formatName(inputs: Array<Draft>, op_name: string) : string{
 
-    const combined = inputs.reduce((acc, el) => {
-      return acc+"+"+el.getName()
-    }, "");
+    let combined: string = "";
 
-    //return op_name+"("+combined.substr(1)+")";
-    return combined.substr(1);
+    if(inputs.length == 0){
+      combined = op_name;
+    }else{
+
+      combined = inputs.reduce((acc, el) => {
+        return acc+"+"+el.getName();
+      }, "");
+      combined = op_name+"("+combined.substring(1)+")";
+    }
+
+    return combined;
   }
 
 

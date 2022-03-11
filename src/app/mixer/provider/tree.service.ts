@@ -121,7 +121,6 @@ export class TreeService {
 
 
   setOpParams(id: number, params: Array<number>){
-    console.log("id, params", id, params)
     this.getOpNode(id).params = params;
   }
 
@@ -366,7 +365,6 @@ export class TreeService {
    * @returns  true if the id maps to a subdraft
    */
   setOpenConnection(id: number) : boolean {
-    console.log("setting open connection", id, this.getType(id));
     if(this.getType(id) !== 'draft') return false;
     this.open_connection = id; 
     console.log("set open connection", id)
@@ -374,7 +372,6 @@ export class TreeService {
   }
 
   hasOpenConnection():boolean{
-    console.log("has connection", this.open_connection)
     return this.open_connection !== -1;
   }
 
@@ -719,7 +716,6 @@ export class TreeService {
    * @returns an array of operation ids for nodes that need recalculating
    */
   getDownstreamOperations(id: number):Array<number>{
-    console.log("getting downsteam");
 
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
@@ -823,11 +819,11 @@ export class TreeService {
     return acc.concat(this.getInputs(el))
   }, []);
 
-  console.log("Ops in", ops_in);
-  console.log("CXNs in", cxns_in);
-  console.log("CXNs out", cxns_out);
-  console.log("OPSs out", ops_out);
-  console.log("op connections in", op_in_cxns);
+  // console.log("Ops in", ops_in);
+  // console.log("CXNs in", cxns_in);
+  // console.log("CXNs out", cxns_out);
+  // console.log("OPSs out", ops_out);
+  // console.log("op connections in", op_in_cxns);
 
   deleted.push(this.removeNode(id));
 
@@ -1056,7 +1052,6 @@ removeOperationNode(id:number) : Array<Node>{
    * @returns //need a way to get this to return any drafts that it touched along the way
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
-    console.log("performing generation");
 
     const op_fn_list = op_node_list.map(el => this.performOp(el));
    
@@ -1084,7 +1079,7 @@ removeOperationNode(id:number) : Array<Node>{
   */ 
 flipDraft(draft: Draft) : Draft{
 
-  const nd: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
+  const nd: Draft = new Draft(draft);
   const reversed_pattern:Array<Array<Cell>> = [];
   const reversed_row_shut:Array<number> = [];
   const reversed_row_sys:Array<number> = [];
@@ -1107,7 +1102,6 @@ flipDraft(draft: Draft) : Draft{
  * @param op_id the operation triggering this series of update
  */
  async performOp(id:number) : Promise<Array<number>> {
-  console.log("performing op", id);
 
   //mark all downsteam nodes as dirty; 
   const ds = this.getDownstreamOperations(id);
@@ -1124,7 +1118,6 @@ flipDraft(draft: Draft) : Draft{
     .filter(el => el !== null && el !== undefined)
     .map(el => this.flipDraft(el));
   
-    console.log("input drafts", input_drafts.map(el => el.pattern));
   return op.perform(input_drafts, node.params)
     .then(res => {
       const flipped: Array<Draft> = res.map(el => this.flipDraft(el));
@@ -1561,7 +1554,7 @@ flipDraft(draft: Draft) : Draft{
   setDraft(id: number, temp: Draft, loom: Loom) {
 
     const dn = <DraftNode> this.getNode(id);
-    let ud_name = temp.ud_name;
+    let ud_name = temp.getName();
 
     if(dn.draft === null){
       dn.draft = temp;

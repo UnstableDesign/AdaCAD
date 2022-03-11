@@ -174,6 +174,7 @@ export class SubdraftComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
     this.cx = this.canvas.getContext("2d");
     this.drawDraft(this.draft); //force call here because it likely didn't render previously. 
+
     this.rescale();
     this.updateViewport(this.bounds);
 
