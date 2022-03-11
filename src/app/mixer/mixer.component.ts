@@ -161,7 +161,6 @@ export class MixerComponent implements OnInit {
    */
    importNewFile(result: LoadResponse){
     
-    console.log("imported new file", result, result.data);
     this.processFileData(result.data).then(
       this.palette.changeDesignmode('move')
     );
@@ -294,7 +293,6 @@ export class MixerComponent implements OnInit {
         }
       });
 
-      console.log("seed nodes mapped ", seeds);
 
 
       
@@ -312,7 +310,7 @@ export class MixerComponent implements OnInit {
         return this.tree.validateNodes();
     })
     .then(el => {
-      console.log("performing top level ops");
+      //console.log("performing top level ops");
 
        return  this.tree.performTopLevelOps();
     })
@@ -324,7 +322,7 @@ export class MixerComponent implements OnInit {
         if(this.tree.hasParent(el.id)){
           el.draft = new Draft({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
         } else{
-          console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
+       //   console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
           this.tree.removeNode(el.id);
         } 
       })
@@ -395,15 +393,20 @@ export class MixerComponent implements OnInit {
       this.auth.user.subscribe(user => {
 
         if(user === null){
+
           const dialogRef = this.dialog.open(InitModal, {
             data: {source: 'mixer'}
           });
+
 
           dialogRef.afterClosed().subscribe(loadResponse => {
             if(loadResponse !== undefined) this.loadNewFile(loadResponse);
       
          });
         }else{
+
+          //in the case someone logs in mid way through, don't replace their work. 
+          if(this.tree.nodes.length > 0) return;
          
 
           const db = fbref(getDatabase());
@@ -412,11 +415,7 @@ export class MixerComponent implements OnInit {
                   fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
                     if (snapshot.exists()) {
                       this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
-
-                        console.log(lr);
                         this.loadNewFile(lr);
-
-
                       });
                     }
                   }).catch((error) => {

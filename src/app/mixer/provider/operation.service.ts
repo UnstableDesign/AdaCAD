@@ -680,12 +680,12 @@ export class OperationService {
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'offset from bottom',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -764,12 +764,12 @@ export class OperationService {
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -829,12 +829,12 @@ export class OperationService {
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -893,12 +893,12 @@ export class OperationService {
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -957,12 +957,12 @@ export class OperationService {
         value: 0,
         dx: "the amount to offset the added inputs from the left"
         },
-        {name: 'top offset',
+        {name: 'bottom offset',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlaying inputs from the top"
+        dx: "the amount to offset the overlaying inputs from the bottom"
         }
       ],
       max_inputs: 2,
@@ -1280,12 +1280,12 @@ export class OperationService {
       displayname: 'margin',
       dx: 'adds padding of unset cells to the top, right, bottom, left of the block',
       params: [
-        {name: 'top',
+        {name: 'bottom',
         min: 1,
         max: 10000,
         value: 1,
         type: 'number',
-        dx: 'number of pics of padding to add to the top'
+        dx: 'number of pics of padding to add to the bottom'
         },
         {name: 'right',
         min: 1,
@@ -1294,12 +1294,12 @@ export class OperationService {
         type: 'number',
         dx: 'number of pics of padding to add to the right'
         },
-        {name: 'bottom',
+        {name: 'top',
         min: 1,
         max: 10000,
         value: 1,
         type: 'number',
-        dx: 'number of pics of padding to add to the bottom'
+        dx: 'number of pics of padding to add to the top'
         },
         {name: 'left',
         min: 1,
@@ -1355,12 +1355,12 @@ export class OperationService {
         value: 0,
         dx: 'number of pics from the left to start the cut'
         },
-        {name: 'top',
+        {name: 'bottom',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: 'number of pics from the top to start the cut'
+        dx: 'number of pics from the bottom to start the cut'
         },
         {name: 'width',
         type: 'number',
