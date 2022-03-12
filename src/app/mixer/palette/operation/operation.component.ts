@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DesignMode, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { OperationService, Operation } from '../../provider/operation.service';
+import { OperationService, Operation, ParentOperation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
@@ -37,6 +37,7 @@ export class OperationComponent implements OnInit {
    @Output() onConnectionMove = new EventEmitter <any>();
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
+   @Output() onParentOperationParamChange = new EventEmitter <any>(); 
    @Output() deleteOp = new EventEmitter <any>(); 
    @Output() duplicateOp = new EventEmitter <any>(); 
    @Output() onInputAdded = new EventEmitter <any> ();
@@ -77,7 +78,7 @@ export class OperationComponent implements OnInit {
      height: 60
    };
    
-   op:Operation;
+   op:Operation | ParentOperation;
 
    //for input params form control
    loaded_inputs: Array<number> = [];
@@ -105,6 +106,8 @@ export class OperationComponent implements OnInit {
 
 
     this.op = this.operations.getOp(this.name);
+;
+
     const graph_node = <OpNode> this.tree.getNode(this.id);
 
     this.op.params.forEach((val, ndx) => {
@@ -120,6 +123,8 @@ export class OperationComponent implements OnInit {
     this.base_height =  60 + 40 * this.op_inputs.length
     this.bounds.height = this.base_height;
 
+    
+
 
 
   }
@@ -127,7 +132,17 @@ export class OperationComponent implements OnInit {
 
   ngAfterViewInit(){
     this.rescale();
-    if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
+
+    if(this.operations.parent_ops.findIndex(el => el.name === this.name) !== -1){
+      const parent_op = <ParentOperation> this.op;
+        parent_op.onInit().then(default_inputs => {
+          this.onParentOperationParamChange.emit({id: this.id, inputs: default_inputs});
+        }
+        );
+    }else{
+      if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
+
+    }
   }
 
 
@@ -262,7 +277,6 @@ export class OperationComponent implements OnInit {
 
   onCheckboxParamChange(id: number, value: number){
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
-    console.log("value", value)
     opnode.params[id] = (value) ? 1 : 0;
     this.op_inputs[id].setValue(value);
     this.onOperationParamChange.emit({id: this.id});

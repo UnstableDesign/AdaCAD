@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { OperationService } from '../../provider/operation.service';
+import { OperationService, ParentOperation, OpInput } from '../../provider/operation.service';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {FormControl} from '@angular/forms';
@@ -46,7 +46,7 @@ export class OpsComponent implements OnInit {
 
 
   addOp(name: string){
-    this.onOperationAdded.emit(name);
+      this.onOperationAdded.emit(name);  
   }
 
   addOpFromSearch(event: any){

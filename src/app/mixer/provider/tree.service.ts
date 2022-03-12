@@ -8,7 +8,7 @@ import { GloballoomService } from '../../core/provider/globalloom.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
-import { OperationService } from './operation.service';
+import { OperationService, OpInput, ParentOperation } from './operation.service';
 import utilInstance from '../../core/model/util';
 
 
@@ -1103,6 +1103,8 @@ flipDraft(draft: Draft) : Draft{
  */
  async performOp(id:number) : Promise<Array<number>> {
 
+
+
   //mark all downsteam nodes as dirty; 
   const ds = this.getDownstreamOperations(id);
   //ds.forEach(el => this.setDirty(el));
@@ -1110,15 +1112,50 @@ flipDraft(draft: Draft) : Draft{
   const node = <OpNode> this.getNode(id);
   const op = this.ops.getOp(node.name);
 
-  const inputs = this.getNonCxnInputs(id);
-  const input_drafts: Array<Draft> =  inputs
+  const drafts_in = this.getDraftInputs(id);
+  const ops_in = this.getOpInputs(id);
+
+  const inputs: Array<OpInput> = [];
+
+  if(drafts_in.length > 0){
+
+    const drafts_coming_in: Array<Draft> =  drafts_in
     .map(input => (<DraftNode> this.getNode(input)))
     .filter(el => el !== null && el !== undefined)
-    .map(input_node => input_node.draft)
+    .map(input_node => {console.log(input_node); return input_node.draft})
     .filter(el => el !== null && el !== undefined)
     .map(el => this.flipDraft(el));
+
+    inputs.push({op_name: '', drafts: drafts_coming_in, params: node.params});
+
+
+  }else if(ops_in.length > 0){
+
+    ops_in.forEach(op => { 
+      const node = <OpNode> this.getNode(op);
+      if(node === null || node !== undefined) return;
+
+      const drafts_in = this.getDraftInputs(id);
+      const input_drafts: Array<Draft> =  drafts_in
+      .map(input => (<DraftNode> this.getNode(input)))
+      .filter(el => el !== null && el !== undefined)
+      .map(input_node => input_node.draft)
+      .filter(el => el !== null && el !== undefined)
+      .map(el => this.flipDraft(el));
+
+      inputs.push({op_name: node.name, drafts:input_drafts, params: node.params});
+    });
+  }
   
-  return op.perform(input_drafts, node.params)
+  //make sure never to send an empty arrage of inputs, there should always be one, even if it has nothing in it
+   if(inputs.length === 0){
+    inputs.push({op_name: '', drafts: [], params: node.params});
+
+  }
+
+
+  
+  return op.perform(inputs)
     .then(res => {
       const flipped: Array<Draft> = res.map(el => this.flipDraft(el));
       node.dirty = false;
@@ -1349,10 +1386,45 @@ flipDraft(draft: Draft) : Draft{
  */
  getNonCxnInputs(id: number):Array<number>{
     const inputs: Array<number> = this.getInputs(id);
-    const node_list:Array<Node> = inputs.map(id => (this.getNode(id)));
-    const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
+    const id_list:Array<number> = inputs
+    .map(id => (this.getNode(id)))
+    .filter(node => node.type === 'cxn')
+    .map(node => this.getConnectionInput(node.id))
+   // const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): -1);
     return id_list;
   }
+
+/**
+ * returns the ids of all nodes connected to the input node that are op nodes
+ * @param op_id 
+ */
+ getOpInputs(id: number):Array<number>{
+  const inputs: Array<number> = this.getInputs(id);
+  const node_list:Array<Node> = inputs.map(id => (this.getNode(id)));
+  //const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
+  const id_list: Array<number> = node_list
+      .filter(node => node.type === 'cxn')
+      .map(node => this.getNode(this.getConnectionInput(node.id)))
+      .filter(node => node.type === 'op')
+      .map(node => node.id)
+  return id_list;
+}
+
+/**
+ * returns the ids of all nodes connected to the input node that are op nodes
+ * @param op_id 
+ */
+ getDraftInputs(id: number):Array<number>{
+  const inputs: Array<number> = this.getInputs(id);
+  const node_list:Array<Node> = inputs.map(id => (this.getNode(id)));
+  //const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
+  const id_list: Array<number> = node_list
+      .filter(node => node.type === 'cxn')
+      .map(node => this.getNode(this.getConnectionInput(node.id)))
+      .filter(node => node.type === 'draft')
+      .map(node => node.id)
+  return id_list;
+}
 
   /**
  * returns the ids of all nodes connected to the output node that are not connection nodes
@@ -1361,8 +1433,11 @@ flipDraft(draft: Draft) : Draft{
  getNonCxnOutputs(id: number):Array<number>{
   const outputs: Array<number> = this.getOutputs(id);
   const node_list:Array<Node> = outputs.map(id => (this.getNode(id)));
-  const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionOutput(node.id): node.id);
-  return id_list;
+  const id_list:Array<number> = node_list
+    .map(node => (this.getNode(node.id)))
+    .filter(node => node.type === 'cxn')
+    .map(node => this.getConnectionOutput(node.id))
+    return id_list;
 }
 
   getInputs(node_id: number):Array<number>{

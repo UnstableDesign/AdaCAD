@@ -357,11 +357,13 @@ export class PaletteComponent implements OnInit{
 
   /**
   //  * called anytime an operation is added
-  //  * @param name 
+  //  * @param name the name of the operation to add
   //  */
   addOperation(name:string){
-    const op:OperationComponent = this.createOperation(name);
+      const op:OperationComponent = this.createOperation(name);
   }
+
+
 
   /**
    * redraws each operation and subdraft at the new scale, then redraws each of their connections
@@ -619,11 +621,13 @@ export class PaletteComponent implements OnInit{
   setOperationSubscriptions(op: OperationComponent){
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
+    this.operationSubscriptions.push(op.onParentOperationParamChange.subscribe(this.parentOperationParamChanged.bind(this)));
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
     this.subdraftSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
     this.subdraftSubscriptions.push(op.onInputAdded.subscribe(this.connectionMade.bind(this)));
   }
+
 
   /**
    * creates an operation component
@@ -2235,6 +2239,35 @@ drawStarted(){
    
     
 
+  }
+
+  /**
+   * emitted from an operatioin when its param has changed 
+   * checks for a child subdraft, recomputes, redraws. 
+   * @param obj with attribute id describing the operation that called this and the OpInputs to generate
+   * @returns 
+   */
+   async parentOperationParamChanged(obj: any){
+
+    if(obj === null) return;
+
+    //dynamically create teh children and connect them as INPUTS to this parent. 
+    obj.inputs.forEach(op_input => {
+      const op_comp = this.createOperation(op_input.op_name);
+      this.tree.setOpParams(op_comp.id, op_input.params);
+      this.createConnection(op_comp.id, obj.id);
+
+
+    })
+
+
+    return this.performAndUpdateDownstream(obj.id)
+      .then(el => 
+      {
+        this.addTimelineState(); 
+      })
+      .catch(console.error);
+   
   }
 
   /**

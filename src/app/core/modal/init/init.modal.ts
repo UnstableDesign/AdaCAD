@@ -46,7 +46,6 @@ export class InitModal implements OnInit {
 
   constructor(
     private fls: FileService,
-    private auth: AuthService,
     private dm: DesignmodesService, 
     private http: HttpClient,
     private dialogRef: MatDialogRef<InitModal>, 
