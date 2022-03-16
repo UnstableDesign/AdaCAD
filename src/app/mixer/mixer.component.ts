@@ -334,10 +334,11 @@ export class MixerComponent implements OnInit {
         if(!(node.component === null || node.component === undefined)) return;
 
         const entry = entry_mapping.find(el => el.cur_id === node.id);
+        if(entry === undefined) return;
 
         switch (node.type){
           case 'draft':
-        
+            
             this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.scale);
             break;
           case 'op':

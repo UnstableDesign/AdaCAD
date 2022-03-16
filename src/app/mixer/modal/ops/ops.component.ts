@@ -26,7 +26,8 @@ export class OpsComponent implements OnInit {
 
   ngOnInit() {
 
-    this.opnames = this.ops.ops.map(el => el.name);
+    const allops = this.ops.ops.concat(this.ops.parent_ops);
+    this.opnames = allops.map(el => el.name);
 
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),

@@ -38,13 +38,13 @@ cdkDrag
     </div>
 
 
-    <div class="top-row">
+    <div class="top-row" [class.child]="has_parent" >
 
 
 
     <div class="operation-details">
         <!-- <div class="name">{{op.name}} // {{id}}</div> -->
-        <div class="name">{{op.name}}</div>
+        <div class="name">{{op.displayname}}</div>
         <button 
         class="help"
         (click)="openHelpDialog()">
@@ -53,14 +53,14 @@ cdkDrag
     </div>
 
 
-    <button 
+    <button *ngIf="!has_parent"
     matTooltip= "Duplilcate"
     class="button is-small is-primary fa fa-clone"
     (click)="duplicate()">
     </button>
     
 
-    <button 
+    <button *ngIf="!has_parent"
     class="button is-small is-primary"
     (click)="delete()">
     <i class="fas fa-times"></i>

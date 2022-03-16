@@ -639,6 +639,7 @@ export class PaletteComponent implements OnInit{
       const op = this.vc.createComponent<OperationComponent>(factory);
       const id = this.tree.createNode('op', op.instance, op.hostView);
       
+      console.log("creating op", name)
       this.tree.loadOpData({prev_id: -1, cur_id: id}, name, []);
       this.setOperationSubscriptions(op.instance);
 
@@ -2184,7 +2185,7 @@ drawStarted(){
    //if this an operation with one child, move the child. 
    if(this.tree.getType(moving.id) === "op" && outs.length === 1){
       const out = <SubdraftComponent> this.tree.getComponent(outs[0]);
-      out.updatePositionFromParent(moving);
+      if(this.tree.getType(out.id) === 'draft') out.updatePositionFromParent(moving);
       this.updateAttachedComponents(out.id, false);
     }
 
@@ -2249,16 +2250,40 @@ drawStarted(){
    */
    async parentOperationParamChanged(obj: any){
 
+
+
     if(obj === null) return;
 
-    //dynamically create teh children and connect them as INPUTS to this parent. 
-    obj.inputs.forEach(op_input => {
-      const op_comp = this.createOperation(op_input.op_name);
-      this.tree.setOpParams(op_comp.id, op_input.params);
-      this.createConnection(op_comp.id, obj.id);
+    //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
+    const current_ins: Array<number> = this.tree.getOpInputs(obj.id);
 
 
-    })
+    if(current_ins.length === obj.inputs.length) return; 
+
+    console.log("On INit returned", current_ins, obj.inputs);
+
+    //there are more objects returned from the param change than currently exist (add ops)
+   if(current_ins.length < obj.inputs.length){
+      
+    for(let i = current_ins.length; i < obj.inputs.length; i++){
+        const op_input = obj.inputs[i];
+        const op_comp = this.createOperation(op_input.op_name);
+        this.tree.setOpParams(op_comp.id, op_input.params);
+        this.createConnection(op_comp.id, obj.id);
+        op_comp.has_parent = true;
+      }
+   }else{
+    //remove ops
+      for(let i = current_ins.length-1; i >= 0; i--){
+      const to_remove = current_ins[i];
+      this.removeConnection({from: to_remove, to: obj.id })
+      this.removeOperation(to_remove)
+      }
+
+
+  }
+
+   
 
 
     return this.performAndUpdateDownstream(obj.id)

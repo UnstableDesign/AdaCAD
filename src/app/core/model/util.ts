@@ -776,6 +776,55 @@ class Util {
     return pattern;
 }
 
+/**
+ * in connection with lcm, the gcd (greatest common divisor) determines the largest number that can divide into both inputs
+ * I used Eulers algorithm with Euclidan Divison for determining this. 
+ * assumes non-zero inputs
+ */
+gcd(a: number, b: number) : number {
+
+  if(b === 0) return a;
+
+  const max = (a > b) ? a : b;
+  const min = (a <= b) ? a : b;
+
+  return this.gcd(min, max % min);
+
+
+}
+
+
+/**
+ * this is an algorithm for finding the least common multiple of a give set of input numbers 
+ * it works based on the formulat lcd (a,b) = a*b / gcd(a,b), and then caculates in a pairwise fashion.
+ * this has the risk of breaking with very large sets of inputs and/or prime numbers of a large size
+ */
+lcm(set: Array<number>) : number{
+
+
+  if(set.length === 0) return 0;
+  if(set.length === 1) return set[0];
+
+  const a: number = set.shift();
+  const b: number = set.shift();
+
+  let mult: number = a * b; 
+  let gcd = this.gcd(a, b);
+
+  let lcd = mult / gcd; 
+
+
+  while(set.length > 0){
+    const c = set.shift();
+    mult = c * lcd;
+    gcd = this.gcd(c, lcd);
+    lcd = mult/gcd;
+  }
+
+  return lcd;
+
+}
+
                                                                           
                                                                                                                    
   // generateId :: Integer -> String                                                                                                  

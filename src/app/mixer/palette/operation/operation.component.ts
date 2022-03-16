@@ -89,6 +89,9 @@ export class OperationComponent implements OnInit {
   // has_connections_in: boolean = false;
    subdraft_visible: boolean = true;
 
+   //store whether or not this is an input to a parent Opeartion
+   has_parent: boolean = false;
+
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
@@ -136,6 +139,7 @@ export class OperationComponent implements OnInit {
     if(this.operations.parent_ops.findIndex(el => el.name === this.name) !== -1){
       const parent_op = <ParentOperation> this.op;
         parent_op.onInit().then(default_inputs => {
+
           this.onParentOperationParamChange.emit({id: this.id, inputs: default_inputs});
         }
         );

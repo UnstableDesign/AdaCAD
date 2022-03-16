@@ -503,6 +503,7 @@ export class TreeService {
 
   getNode(id:number):Node{
     const ndx: number = this.getNodeIndex(id);
+    if(ndx === -1) return null;
     return this.nodes[ndx]; 
   }
 
@@ -993,7 +994,7 @@ removeOperationNode(id:number) : Array<Node>{
    */
   async updateDraftsFromResults(parent: number, res: Array<Draft>) : Promise<Array<number>>{
 
-    const out = this.getNonCxnOutputs(parent);
+    const out = this.getDraftOutputs(parent);
     const touched: Array<number> = [];
 
 
@@ -1131,11 +1132,15 @@ flipDraft(draft: Draft) : Draft{
 
   }else if(ops_in.length > 0){
 
+    //push this as the parent first
+    inputs.push({op_name: op.name, drafts: [], params: node.params});
+
     ops_in.forEach(op => { 
       const node = <OpNode> this.getNode(op);
-      if(node === null || node !== undefined) return;
+      if(node === null || node === undefined) return;
 
-      const drafts_in = this.getDraftInputs(id);
+      const drafts_in = this.getDraftInputs(op);
+
       const input_drafts: Array<Draft> =  drafts_in
       .map(input => (<DraftNode> this.getNode(input)))
       .filter(el => el !== null && el !== undefined)
@@ -1411,7 +1416,7 @@ flipDraft(draft: Draft) : Draft{
 }
 
 /**
- * returns the ids of all nodes connected to the input node that are op nodes
+ * returns the ids of all nodes connected to the input node that are draft nodes
  * @param op_id 
  */
  getDraftInputs(id: number):Array<number>{
@@ -1439,6 +1444,22 @@ flipDraft(draft: Draft) : Draft{
     .map(node => this.getConnectionOutput(node.id))
     return id_list;
 }
+
+  /**
+ * returns the ids of all nodes connected to the output node that are not connection nodes
+ * @param op_id 
+ */
+   getDraftOutputs(id: number):Array<number>{
+    const outputs: Array<number> = this.getOutputs(id);
+    const node_list:Array<Node> = outputs.map(id => (this.getNode(id)));
+    const id_list:Array<number> = node_list
+      .map(node => (this.getNode(node.id)))
+      .filter(node => node.type === 'cxn')
+      .map(node => this.getConnectionOutput(node.id))
+      .filter(node => this.getType(node) === 'draft');
+      return id_list;
+  }
+  
 
   getInputs(node_id: number):Array<number>{
     const tn = this.getTreeNode(node_id);
@@ -1629,6 +1650,7 @@ flipDraft(draft: Draft) : Draft{
   setDraft(id: number, temp: Draft, loom: Loom) {
 
     const dn = <DraftNode> this.getNode(id);
+
     let ud_name = temp.getName();
 
     if(dn.draft === null){
@@ -1693,14 +1715,12 @@ flipDraft(draft: Draft) : Draft{
    * @returns 
    */
   exportOpMetaForSaving() : Array<OpComponentProxy> {
-
     const objs: Array<any> = []; 
 
     this.getOperations().forEach(op_node => {
-
       const savable:OpComponentProxy = {
         node_id: op_node.id,
-        name: op_node.op.name,
+        name: op_node.name,
         params: op_node.op_inputs.map(el => el.value)
       }
       objs.push(savable);

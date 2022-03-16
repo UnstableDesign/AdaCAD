@@ -9,6 +9,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { promise } from 'protractor';
+import { all } from 'mathjs';
 
 export interface OperationParams {
   name: string,
@@ -556,7 +557,27 @@ export class OperationService {
       }     
     }
 
-    
+    //this is an internal function used to preprocess any inputs prior to sending them to assign layers function
+    const assigntolayer:Operation = {
+      name: 'assign_to_layer',
+      displayname: 'layer',  
+      dx: 'assigns the inputs to the layer indicated',
+      params: [  
+        {name: 'layer number',
+        type: 'number',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: "upon which layer should the input be assigned"
+        }
+      ],
+      max_inputs: 1,
+      perform: (op_inputs: Array<OpInput>) => {
+        const op_input = op_inputs[0];        
+        return Promise.resolve(op_input.drafts);
+      }     
+    }
+   
 
 
     const vertcut:Operation = {
@@ -2130,6 +2151,13 @@ export class OperationService {
           max: 100,
           value: 2,
           dx: 'the total number of layers in this cloth'
+        },
+        {name: 'standardize size',
+          type: 'boolean',
+          min: 0,
+          max: 1,
+          value: 1,
+          dx: 'automatically adjust the width and height of draft to ensure equal repeats (checked) or just assign to layers directly as provided'
         }
       ],
       onInit: () => {
@@ -2137,9 +2165,9 @@ export class OperationService {
 
         for(let i = 0; i < 2; i++){
           default_ops.push({
-            op_name: 'layer',
+            op_name: 'assign_to_layer',
             drafts: [],
-            params: [1]
+            params: [i+1]
           });
         }
 
@@ -2147,44 +2175,90 @@ export class OperationService {
       },
       perform: (op_inputs: Array<OpInput>)=> {
           
-          console.log("performing!", op_inputs);
-          // const layers =op_input.drafts.length;
-          // if(layers == 0) return Promise.resolve([]);
+        //split the inputs into the input associated with 
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assignlayers");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assign_to_layer");
+        const num_layers = parent_inputs[0].params[0];
+        const factor_in_repeats = parent_inputs[0].params[1];
 
-          // const max_wefts:number = utilInstance.getMaxWefts(op_input.drafts);
-          // const max_warps:number = utilInstance.getMaxWarps(op_input.drafts);
+        //now just get all the drafts
+        const all_drafts: Array<Draft> = child_inputs.reduce((acc, el) => {
+           el.drafts.forEach(draft => {acc.push(draft)});
+           return acc;
+        }, []);
+      
+        if(all_drafts.length === 0) return Promise.resolve([]);
+        
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
+        if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+        else  total_wefts = utilInstance.getMaxWefts(all_drafts);
+
+        let total_warps: number = 0;
+        const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
+        if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
+        else  total_warps = utilInstance.getMaxWarps(all_drafts);
+
+        
+
+        //create a map from layers to drafts
+        const layer_draft_map: Array<any> = child_inputs.map(el => { return {layer: el.params[0]-1, drafts: el.drafts}}); 
 
 
+        const outputs = [];
+        const systems = [];
 
-          // //set's base pattern that assigns warp 1...n to layers 1...n 
-          // const pattern: Array<Array<Cell>> = [];
-          // for(let i = 0; i < layers; i++){
-          //   pattern.push([]);
-          //   for(let j = 0; j < layers; j++){
-          //     let val: boolean = (j < i) ? true : false; 
-          //     pattern[i].push(new Cell(val));
-          //   }
-          // }
+           //create a list of systems as large as the total number of layers
+           for(let n = 0;  n < num_layers; n++){
+            const sys = ss.getWarpSystem(n);
+            if(sys === undefined) ss.addWarpSystemFromId(n);
+            systems[n] = n;
+          }
 
 
-          // return this.getOp('interlace').perform(op_input.drafts, [])
-          //   .then(overlay => {
+        layer_draft_map.forEach(layer_map => {
+          const layer_num = layer_map.layer;
+          layer_map.drafts.forEach(draft => {
+            const d:Draft = new Draft({
+              warps:total_warps*systems.length, 
+              wefts:total_wefts*all_drafts.length, 
+              rowShuttleMapping:draft.rowShuttleMapping, 
+              rowSystemMapping:draft.rowSystemMapping,
+              colShuttleMapping: draft.colShuttleMapping,
+              colSystemMapping: systems});
+        
+              d.pattern.forEach((row, i) => {
+                row.forEach((cell, j)=> {
+                  const sys_id = j % num_layers;
+                  const use_col = sys_id === layer_num;
+                  const use_index = Math.floor(j /num_layers);
+                  if(use_col){
+                    d.colShuttleMapping[j] =draft.colShuttleMapping[use_index%draft.warps];
+                    cell.setHeddle(draft.pattern[i%draft.wefts][use_index%draft.warps].getHeddle());
+                  }else{
+                    if(sys_id < layer_num){
+                      cell.setHeddle(true);
+                    }else if(sys_id >=layer_num){
+                      cell.setHeddle(false);
+                    }
+                  }
+                })
+              });
               
-          //     const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
-          //     d.fill(pattern, "original");
-  
-          //     overlay[0].pattern.forEach((row, ndx) => {
-          //       const layer_id:number = ndx % layers;
-          //       row.forEach((c, j) => {
-          //         d.pattern[ndx][j*layers+layer_id].setHeddle(c.getHeddle());
-          //       });
-          //     });
+              outputs.push(d);
 
-          //     this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'layer');
-          //     d.gen_name = this.formatName(op_input.drafts, "layer");
-          //     return [d];
-          //   });
-          return Promise.resolve([]);
+          })
+
+     
+
+
+      });
+     
+        
+
+      
+      return this.getOp('interlace').perform([{op_name: "", drafts:outputs, params:[]}]);
+
       }
       
     }
@@ -2575,6 +2649,7 @@ export class OperationService {
     this.ops.push(splicein);
     this.ops.push(assignwefts);
     this.ops.push(assignwarps);
+    this.ops.push(assigntolayer);
     this.ops.push(invert);
     this.ops.push(vertcut);
    this.ops.push(replicate);
@@ -2634,7 +2709,7 @@ export class OperationService {
     this.classification.push(
         {category: 'combine',
         dx: "2+op_input.drafts, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [interlace, splicein, layer, assignlayers,  fill, joinleft, jointop]}
+        ops: [interlace, splicein, layer, assignlayers, assigntolayer,  fill, joinleft, jointop]}
   //      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
         );
     

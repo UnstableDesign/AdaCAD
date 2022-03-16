@@ -15,6 +15,14 @@
     height: 30px;
 }
 
+.top-row .child{
+    background: #999999;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    height: 30px;
+}
+
 button.input{
     position: relative;
 	background-color: #00d1b2;
