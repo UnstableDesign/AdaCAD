@@ -8,8 +8,7 @@ import { Loom } from '../../core/model/loom';
 import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
-import { promise } from 'protractor';
-import { all } from 'mathjs';
+
 
 export interface OperationParams {
   name: string,
@@ -20,15 +19,26 @@ export interface OperationParams {
   dx: string
 }
 
+
+
 /**
- * A container operation is one that can run operations before and after its children
+ * A container operation that takes drafts with some parameter assigned to them 
+ * @param name the internal name of this operation used for index (DO NOT CHANGE THESE NAMES!)
+ * @param displayname the name to show the viewer 
+ * @param params the parameters that one can directly input to the parent
+ * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
+ * @param dynamic_param_type the type of parameter that we look to generate
+ * @param max_inputs but the nubmer of drafts to input directly, without parameterization.
+ * @param dx the description of this operation
  */
 export interface ParentOperation {
   name: string,
   displayname: string,
   params: Array<OperationParams>, 
-  dx: string,
+  dynamic_param_id: number,
+  dynamic_param_type: string,
   max_inputs: number,
+  dx: string,
   onInit: () => Promise<Array<OpInput>>,
   perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
@@ -2143,6 +2153,8 @@ export class OperationService {
       name: 'assignlayers',
       displayname: 'assign layers',
       dx: 'creates a draft in whichop_input.drafts can be assigned a placed on a given layer within the cloth',
+      dynamic_param_type: 'number',
+      dynamic_param_id: 0,
       max_inputs: 0,
       params: [
           {name: 'layers',

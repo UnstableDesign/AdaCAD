@@ -21,6 +21,7 @@ import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
+import { OperationService } from '../provider/operation.service';
 
 @Component({
   selector: 'app-palette',
@@ -648,6 +649,7 @@ export class PaletteComponent implements OnInit{
       op.instance.zndx = this.layers.createLayer();
       op.instance.scale = this.scale;
       op.instance.default_cell = this.default_cell_size;
+
       return op.instance;
     }
 
@@ -680,6 +682,8 @@ export class PaletteComponent implements OnInit{
       // op.instance.bounds.height = bounds.height;
       op.instance.loaded = true;
 
+      console.log("loading op ", name, this.tree.getDraftOutputs(id));
+
       if(bounds !== null){
       
         const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
@@ -704,11 +708,11 @@ export class PaletteComponent implements OnInit{
      * @params params the input data to be used in this operation
      * @returns the id of the node this has been assigned to
      */
-     duplicateOperation(name: string, params: Array<number>, bounds:Bounds):number{
+     duplicateOperation(name: string, params: Array<number>, bounds:Bounds, draft_inputs: Array<any>):number{
       
       const op:OperationComponent = this.createOperation(name);
           
-          this.tree.setOpParams(op.id, params);
+          this.tree.setOpParams(op.id, params, draft_inputs);
           op.loaded_inputs = params;
           op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
           op.bounds.width = bounds.width;
@@ -745,12 +749,12 @@ export class PaletteComponent implements OnInit{
      * creates a connection component and registers it with the tree
      * @returns the list of all id's connected to the "to" node 
      */
-     createConnection(id_from: number, id_to:number):{input_ids: Array<number>, id: number}{
+     createConnection(id_from: number, id_to:number, to_ndx: number):{input_ids: Array<number>, id: number}{
 
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
-      const to_input_ids: Array<number> =  this.tree.addConnection(id_from, id_to, id);
+      const to_input_ids: Array<number> =  this.tree.addConnection(id_from, id_to, id, to_ndx);
       
       cxn.instance.id = id;
       cxn.instance.scale = this.scale;
@@ -1142,7 +1146,7 @@ export class PaletteComponent implements OnInit{
       }
 
 
-      const id: number = this.duplicateOperation(op.name, params, new_bounds);
+      const id: number = this.duplicateOperation(op.name, params, new_bounds, op.draft_inputs);
       const new_op = <OperationComponent> this.tree.getComponent(id);
 
       //this.operationParamChanged({id: id});
@@ -1550,20 +1554,20 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
 /**
  * emitted from operation when it receives a hit on its connection button, the id refers to the operation id
  */
-connectionMade(id:number){
+connectionMade(obj: any){
 
-  console.log("connection made", id);
+  console.log("connection made", obj.id);
   console.log("this.tree has open", this.tree.hasOpenConnection());
 
   if(!this.tree.hasOpenConnection()) return;
 
   //this is defined in the order that the line was drawn
-  const op:OperationComponent = <OperationComponent>this.tree.getComponent(id);
+  const op:OperationComponent = <OperationComponent>this.tree.getComponent(obj.id);
   const sd: SubdraftComponent = <SubdraftComponent> this.tree.getOpenConnection();
   
-  this.createConnection(sd.id, id);
+  this.createConnection(sd.id, obj.id, obj.ndx);
 
-  this.performAndUpdateDownstream(id).then(el => {
+  this.performAndUpdateDownstream(obj.id).then(el => {
     this.addTimelineState();
   });
 
@@ -2252,46 +2256,43 @@ drawStarted(){
 
 
 
-    if(obj === null) return;
+  //   if(obj === null) return;
 
-    //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
-    const current_ins: Array<number> = this.tree.getOpInputs(obj.id);
+  //   //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
+  //   const current_ins: Array<number> = this.tree.getOpInputs(obj.id);
 
 
-    if(current_ins.length === obj.inputs.length) return; 
+  //   if(current_ins.length === obj.inputs.length) return; 
 
-    console.log("On INit returned", current_ins, obj.inputs);
-
-    //there are more objects returned from the param change than currently exist (add ops)
-   if(current_ins.length < obj.inputs.length){
+  //   //there are more objects returned from the param change than currently exist (add ops)
+  //  if(current_ins.length < obj.inputs.length){
       
-    for(let i = current_ins.length; i < obj.inputs.length; i++){
-        const op_input = obj.inputs[i];
-        const op_comp = this.createOperation(op_input.op_name);
-        this.tree.setOpParams(op_comp.id, op_input.params);
-        this.createConnection(op_comp.id, obj.id);
-        op_comp.has_parent = true;
-      }
-   }else{
-    //remove ops
-      for(let i = current_ins.length-1; i >= 0; i--){
-      const to_remove = current_ins[i];
-      this.removeConnection({from: to_remove, to: obj.id })
-      this.removeOperation(to_remove)
-      }
+  //   for(let i = current_ins.length; i < obj.inputs.length; i++){
+  //       const op_input = obj.inputs[i];
+  //       const op_comp = this.createOperation(op_input.op_name);
+  //       this.tree.setOpParams(op_comp.id, op_input.params);
+  //       this.createConnection(op_comp.id, obj.id);
+  //     }
+  //  }else{
+  //   //remove ops
+  //     for(let i = current_ins.length-1; i >= 0; i--){
+  //     const to_remove = current_ins[i];
+  //     this.removeConnection({from: to_remove, to: obj.id })
+  //     this.removeOperation(to_remove)
+  //     }
 
 
-  }
+  // }
 
    
 
 
-    return this.performAndUpdateDownstream(obj.id)
-      .then(el => 
-      {
-        this.addTimelineState(); 
-      })
-      .catch(console.error);
+  //   return this.performAndUpdateDownstream(obj.id)
+  //     .then(el => 
+  //     {
+  //       this.addTimelineState(); 
+  //     })
+  //     .catch(console.error);
    
   }
 

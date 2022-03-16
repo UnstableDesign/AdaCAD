@@ -23,6 +23,17 @@
     height: 30px;
 }
 
+.input-group{
+    display: flex;
+    flex-direction: row;
+    background-color: #00d1b2;
+    margin-right: 8px;
+}
+
+.input-group input{
+    width: 25px;
+}
+
 button.input{
     position: relative;
 	background-color: #00d1b2;

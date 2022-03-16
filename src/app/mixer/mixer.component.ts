@@ -6,7 +6,7 @@ import { Pattern } from '../core/model/pattern';
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
 import { Draft } from '../core/model/draft';
-import { TreeService, TreeNode, DraftNode } from './provider/tree.service';
+import { TreeService, TreeNode, DraftNode, InputParam } from './provider/tree.service';
 import { FileObj, FileService, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy } from '../core/provider/file.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
@@ -191,25 +191,35 @@ export class MixerComponent implements OnInit {
 
     //map the old ids to the new ids
     const updated_tnp: Array<TreeNodeProxy> = tns.map(tn => {
+      const new_tn: TreeNodeProxy = {
+        node: id_map.find(el => el.prev_id === tn.node).cur_id,
+        parent: (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id,
+        inputs: [],
+        outputs:[]
+      }
 
-
-      tn.node = id_map.find(el => el.prev_id === tn.node).cur_id;
-      tn.parent = (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id;
       
-      if(tn.inputs === undefined){
-        tn.inputs = [];
-      }else{
-        tn.inputs = tn.inputs.map(input => id_map.find(el => el.prev_id === input).cur_id);
+    
+
+      if(tn.inputs !== undefined){
+        tn.inputs.forEach(input => {
+          //handle files of old type, before inputs were broken into two fields
+          if(typeof input === 'number') input = {tn: input, ndx: -1};
+          const input_in_map = id_map.find(el => el.prev_id === input.tn);
+          if(input_in_map !== undefined){
+            new_tn.inputs.push({tn: input_in_map.cur_id, ndx: input.ndx});
+          }
+        })
       }
 
       if(tn.outputs === undefined){
-        tn.outputs =[];
+        new_tn.outputs =[];
       }else{
-        tn.outputs = tn.outputs.map(output => id_map.find(el => el.prev_id === output).cur_id);
+        new_tn.outputs = tn.outputs.map(output => id_map.find(el => el.prev_id === output).cur_id);
 
       }
       
-      return tn;
+      return new_tn;
     })
 
     const functions = updated_tnp.map(tn => this.tree.loadTreeNodeData(id_map, tn.node, tn.parent, tn.inputs, tn.outputs));

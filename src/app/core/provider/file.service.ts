@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { isBuffer } from 'lodash';
-import { TreeService } from '../../mixer/provider/tree.service';
+import { InputParam, TreeService } from '../../mixer/provider/tree.service';
 import { Cell } from '../model/cell';
 import { Bounds, Interlacement } from '../model/datatypes';
 import { Draft } from '../model/draft';
@@ -27,14 +27,15 @@ import { System } from '../model/system';
  export interface TreeNodeProxy{
   node: number,
   parent: number; 
-  inputs: Array<number>;
+  inputs: Array<{tn: number, ndx: number}>;
   outputs: Array<number>; 
  }
 
  export interface OpComponentProxy{
   node_id: number,
   name: string,
-  params: Array<number>; 
+  params: Array<any>; 
+  draft_inputs: Array<any>;
  }
 
  export interface CxnComponentProxy{
@@ -218,7 +219,8 @@ export class FileService {
           const op: OpComponentProxy = {
             node_id: data.node_id,
             name: data.name,
-            params: data.params
+            params: data.params,
+            draft_inputs: (data.draft_inputs === undefined) ? [] : data.draft_inputs 
           }
           return op;
         });

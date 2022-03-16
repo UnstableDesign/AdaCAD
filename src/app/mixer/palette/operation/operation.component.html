@@ -10,35 +10,45 @@ cdkDrag
 
 <div id='scale-{{id}}' class="operation-container">
 
-
-    
-    
-
     <div class="cxn-row">
+
+
+        <div class="input-group" *ngFor="let input of draft_inputs; let i = index">
+
+
 
         <button 
         class="button is-small input"
         [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
-        (click)="inputSelected()">
+        (click)="inputSelected(i)">
         <i class="fas fa-chevron-right"></i>
-        </button>
 
         
-        <button *ngFor="let input of tree.getNonCxnInputs(id); index as i;"
+        </button>
+
+        <input *ngIf="is_parent_op"
+        [formControl]="input"
+        type = "number"
+        value = input.value
+        (change)= "onDraftInputChange(i, op_inputs[i].value)"
+        >
+
+
+        
+        <button *ngFor="let input of tree.getOpComponentInputs(id, i);"
         matTooltip = "click to remove this connection"
         class="button is-small cxn"
         (click)="removeConnectionTo(input)">
         <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
         </button>   
 
-        
-    
+        </div>
 
        
     </div>
 
 
-    <div class="top-row" [class.child]="has_parent" >
+    <div class="top-row" [class.child]="has_parent_op" >
 
 
 
@@ -53,14 +63,14 @@ cdkDrag
     </div>
 
 
-    <button *ngIf="!has_parent"
+    <button *ngIf="!has_parent_op"
     matTooltip= "Duplilcate"
     class="button is-small is-primary fa fa-clone"
     (click)="duplicate()">
     </button>
     
 
-    <button *ngIf="!has_parent"
+    <button *ngIf="!has_parent_op"
     class="button is-small is-primary"
     (click)="delete()">
     <i class="fas fa-times"></i>

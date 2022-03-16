@@ -86,11 +86,18 @@ export class OperationComponent implements OnInit {
    //these are the input parameters
    op_inputs: Array<FormControl> = [];
 
+
+   //these are the drafts with any input parameters
+   draft_inputs: Array<FormControl> = [];
+
+
   // has_connections_in: boolean = false;
    subdraft_visible: boolean = true;
 
    //store whether or not this is an input to a parent Opeartion
-   has_parent: boolean = false;
+   has_parent_op: boolean = false;
+
+   is_parent_op: boolean = false;
 
   constructor(
     private operations: OperationService, 
@@ -109,7 +116,9 @@ export class OperationComponent implements OnInit {
 
 
     this.op = this.operations.getOp(this.name);
-;
+    
+   
+    this.is_parent_op = this.operations.parent_ops.findIndex(el => el.name === this.name )!== -1 ? true : false;
 
     const graph_node = <OpNode> this.tree.getNode(this.id);
 
@@ -117,6 +126,24 @@ export class OperationComponent implements OnInit {
       if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx]));
       else this.op_inputs.push(new FormControl(val.value));
     });
+
+
+    if(this.is_parent_op){
+      //get the current param value and generate input slots
+      const dynamic_param: number = (<ParentOperation>this.op).dynamic_param_id;
+      const dynamic_type: string = (<ParentOperation>this.op).dynamic_param_type;
+      const dynamic_value: number = this.op.params[dynamic_param].value;
+
+      for(let i = 0; i < dynamic_value; i++){
+        if(dynamic_type === 'number'){
+          this.draft_inputs.push(new FormControl(i));
+        }
+      }
+    }else{
+      this.draft_inputs.push(new FormControl(this.op.max_inputs));
+    }
+
+
 
     const tl: Point = this.viewport.getTopLeft();
    
@@ -258,10 +285,10 @@ export class OperationComponent implements OnInit {
     return this.op.max_inputs;
   }
 
-  inputSelected(){
-    console.log("Input")
+  inputSelected(input_id: number){
+    console.log("Input", input_id);
     this.disableDrag();
-    this.onInputAdded.emit(this.id);
+    this.onInputAdded.emit({id: this.id, ndx: input_id});
   }
 
 
@@ -290,7 +317,13 @@ export class OperationComponent implements OnInit {
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
-    this.onOperationParamChange.emit({id: this.id});
+
+    if(this.is_parent_op){
+      this.onParentOperationParamChange.emit({id: this.id});
+    }else{
+      this.onOperationParamChange.emit({id: this.id});
+    }
+   
   }
 
   delete(){

@@ -21,7 +21,7 @@ export class ConnectionComponent implements OnInit {
   b_to: Point;
   disable_drag:boolean = true;
   orientation: boolean = true;
-  
+  op_to_op: boolean = false;
 
   bounds: Bounds = {
     topleft: {x: 0, y:0},
@@ -46,7 +46,16 @@ export class ConnectionComponent implements OnInit {
 
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
-     const comp = this.tree.getComponent(this.to);
+    
+    const from_node = this.tree.getNode(this.from);
+    const to_node = this.tree.getNode(this.to);
+
+    if(from_node.type === "op" && to_node.type === "op"){
+      console.log("op to op connection detected")
+    }
+
+
+    const comp = this.tree.getComponent(this.to);
     
      if(comp !== null){
       this.b_to = comp.bounds.topleft;
