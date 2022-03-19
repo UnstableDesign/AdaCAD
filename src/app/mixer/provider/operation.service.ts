@@ -31,7 +31,7 @@ export interface OperationParams {
  * @param max_inputs but the nubmer of drafts to input directly, without parameterization.
  * @param dx the description of this operation
  */
-export interface ParentOperation {
+export interface DynamicOperation {
   name: string,
   displayname: string,
   params: Array<OperationParams>, 
@@ -46,6 +46,9 @@ export interface ParentOperation {
 
  /**
   * this is a type that contains a series of smaller operations held under the banner of one larger operation (such as layer)
+  * @param op_name the name of the operation or "child" if this is an assignment to an input parameter
+  * @param drafts the drafts associated with this input
+  * @param params the parameters associated with this operation OR child input
   */
   export interface OpInput{
     op_name: string,
@@ -53,7 +56,14 @@ export interface ParentOperation {
     params: Array<any>
    }
   
-
+/**
+ * a standard opeartion
+ * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
+ * @param displayname the name to show upon this operation
+ * @param dx the description of this operation
+ * @param max_inputs the maximum number of inputs (drafts) allowed directly into this operation
+ * @param params the parameters associated with this operation
+ */
 export interface Operation {
     name: string,
     displayname: string,
@@ -78,7 +88,7 @@ export interface Operation {
 export class OperationService {
 
   ops: Array<Operation> = [];
-  parent_ops: Array<ParentOperation> = [];
+  dynamic_ops: Array<DynamicOperation> = [];
   classification: Array<OperationClassification> = [];
 
   constructor(
@@ -567,27 +577,7 @@ export class OperationService {
       }     
     }
 
-    //this is an internal function used to preprocess any inputs prior to sending them to assign layers function
-    const assigntolayer:Operation = {
-      name: 'assign_to_layer',
-      displayname: 'layer',  
-      dx: 'assigns the inputs to the layer indicated',
-      params: [  
-        {name: 'layer number',
-        type: 'number',
-        min: 1,
-        max: 100,
-        value: 1,
-        dx: "upon which layer should the input be assigned"
-        }
-      ],
-      max_inputs: 1,
-      perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];        
-        return Promise.resolve(op_input.drafts);
-      }     
-    }
-   
+    
 
 
     const vertcut:Operation = {
@@ -1854,9 +1844,10 @@ export class OperationService {
       ],
       max_inputs: 1, 
       perform: (op_inputs: Array<OpInput>)=> {
+       
         const op_input = op_inputs[0];
 
-          
+        
           const outputs:Array<Draft> =op_input.drafts.map(input => {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             for(let i = 0; i <op_input.params[0]; i++){
@@ -2149,9 +2140,9 @@ export class OperationService {
       
     }
 
-    const assignlayers: ParentOperation = {
+    const assignlayers: DynamicOperation = {
       name: 'assignlayers',
-      displayname: 'assign layers',
+      displayname: 'assign drafts to layers',
       dx: 'creates a draft in whichop_input.drafts can be assigned a placed on a given layer within the cloth',
       dynamic_param_type: 'number',
       dynamic_param_id: 0,
@@ -2164,7 +2155,7 @@ export class OperationService {
           value: 2,
           dx: 'the total number of layers in this cloth'
         },
-        {name: 'standardize size',
+        {name: 'repeat',
           type: 'boolean',
           min: 0,
           max: 1,
@@ -2187,11 +2178,16 @@ export class OperationService {
       },
       perform: (op_inputs: Array<OpInput>)=> {
           
+        console.log("op_inputs", op_inputs);
+
         //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assignlayers");
-        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assign_to_layer");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        
+        //parent param
         const num_layers = parent_inputs[0].params[0];
         const factor_in_repeats = parent_inputs[0].params[1];
+
 
         //now just get all the drafts
         const all_drafts: Array<Draft> = child_inputs.reduce((acc, el) => {
@@ -2211,10 +2207,10 @@ export class OperationService {
         if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
         else  total_warps = utilInstance.getMaxWarps(all_drafts);
 
-        
+
 
         //create a map from layers to drafts
-        const layer_draft_map: Array<any> = child_inputs.map(el => { return {layer: el.params[0]-1, drafts: el.drafts}}); 
+        const layer_draft_map: Array<any> = child_inputs.map(el => { return {layer: el.params[0], drafts: el.drafts}}); 
 
 
         const outputs = [];
@@ -2245,8 +2241,15 @@ export class OperationService {
                   const use_col = sys_id === layer_num;
                   const use_index = Math.floor(j /num_layers);
                   if(use_col){
-                    d.colShuttleMapping[j] =draft.colShuttleMapping[use_index%draft.warps];
-                    cell.setHeddle(draft.pattern[i%draft.wefts][use_index%draft.warps].getHeddle());
+                      //handle non-repeating here if we want
+                      if(factor_in_repeats == 1){
+                        d.colShuttleMapping[j] =draft.colShuttleMapping[use_index%draft.warps];
+                        cell.setHeddle(draft.pattern[i%draft.wefts][use_index%draft.warps].getHeddle());
+                      }else{
+                        if(i < draft.wefts && use_index < draft.warps) cell.setHeddle(draft.pattern[i][use_index].getHeddle());
+                        else cell.setHeddle(null);
+                      }
+                    
                   }else{
                     if(sys_id < layer_num){
                       cell.setHeddle(true);
@@ -2647,7 +2650,7 @@ export class OperationService {
     
 
 
-    this.parent_ops.push(assignlayers);
+    this.dynamic_ops.push(assignlayers);
 
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
@@ -2661,7 +2664,6 @@ export class OperationService {
     this.ops.push(splicein);
     this.ops.push(assignwefts);
     this.ops.push(assignwarps);
-    this.ops.push(assigntolayer);
     this.ops.push(invert);
     this.ops.push(vertcut);
    this.ops.push(replicate);
@@ -2721,7 +2723,7 @@ export class OperationService {
     this.classification.push(
         {category: 'combine',
         dx: "2+op_input.drafts, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [interlace, splicein, layer, assignlayers, assigntolayer,  fill, joinleft, jointop]}
+        ops: [interlace, splicein, layer, assignlayers,  fill, joinleft, jointop]}
   //      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
         );
     
@@ -2899,12 +2901,18 @@ export class OperationService {
     return combined;
   }
 
+  isDynamic(name: string) : boolean{
+    const parent_ndx: number = this.dynamic_ops.findIndex(el => el.name === name);
+    if(parent_ndx == -1) return false;
+    return true;
+  }
 
-  getOp(name: string): Operation | ParentOperation{
+
+  getOp(name: string): Operation | DynamicOperation{
     const op_ndx: number = this.ops.findIndex(el => el.name === name);
-    const parent_ndx: number = this.parent_ops.findIndex(el => el.name === name);
+    const parent_ndx: number = this.dynamic_ops.findIndex(el => el.name === name);
     if(op_ndx !== -1) return this.ops[op_ndx];
-    if(parent_ndx !== -1) return this.parent_ops[parent_ndx];
+    if(parent_ndx !== -1) return this.dynamic_ops[parent_ndx];
     return null;
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { OperationService, ParentOperation, OpInput } from '../../provider/operation.service';
+import { OperationService, DynamicOperation, OpInput } from '../../provider/operation.service';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {FormControl} from '@angular/forms';
@@ -26,7 +26,7 @@ export class OpsComponent implements OnInit {
 
   ngOnInit() {
 
-    const allops = this.ops.ops.concat(this.ops.parent_ops);
+    const allops = this.ops.ops.concat(this.ops.dynamic_ops);
     this.opnames = allops.map(el => el.name);
 
     this.filteredOptions = this.myControl.valueChanges.pipe(

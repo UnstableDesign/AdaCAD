@@ -31,7 +31,7 @@
 }
 
 .input-group input{
-    width: 25px;
+    width: 35px;
 }
 
 button.input{
@@ -69,6 +69,12 @@ button.is-primary{
     background-color: transparent;
     overflow: visible;
 
+}
+
+.cxn-row input{
+    border: none;
+    background: #00d1b2;
+    color: white;
 }
 
 

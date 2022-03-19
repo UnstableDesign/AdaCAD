@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DesignMode, DraftMap, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { OperationService, Operation, ParentOperation } from '../../provider/operation.service';
+import { OperationService, Operation, DynamicOperation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Form, FormControl } from '@angular/forms';
@@ -9,6 +9,8 @@ import { ViewportService } from '../../provider/viewport.service';
 import { OpNode, TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
+import { Console } from 'console';
+import { toUnicode } from 'punycode';
 
 @Component({
   selector: 'app-operation',
@@ -37,7 +39,6 @@ export class OperationComponent implements OnInit {
    @Output() onConnectionMove = new EventEmitter <any>();
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
-   @Output() onParentOperationParamChange = new EventEmitter <any>(); 
    @Output() deleteOp = new EventEmitter <any>(); 
    @Output() duplicateOp = new EventEmitter <any>(); 
    @Output() onInputAdded = new EventEmitter <any> ();
@@ -78,7 +79,7 @@ export class OperationComponent implements OnInit {
      height: 60
    };
    
-   op:Operation | ParentOperation;
+   op:Operation | DynamicOperation;
 
    //for input params form control
    loaded_inputs: Array<number> = [];
@@ -88,16 +89,13 @@ export class OperationComponent implements OnInit {
 
 
    //these are the drafts with any input parameters
-   draft_inputs: Array<FormControl> = [];
+   inlets: Array<FormControl> = [];
 
 
   // has_connections_in: boolean = false;
    subdraft_visible: boolean = true;
 
-   //store whether or not this is an input to a parent Opeartion
-   has_parent_op: boolean = false;
-
-   is_parent_op: boolean = false;
+   is_dynamic_op: boolean = false;
 
   constructor(
     private operations: OperationService, 
@@ -116,9 +114,7 @@ export class OperationComponent implements OnInit {
 
 
     this.op = this.operations.getOp(this.name);
-    
-   
-    this.is_parent_op = this.operations.parent_ops.findIndex(el => el.name === this.name )!== -1 ? true : false;
+    this.is_dynamic_op = this.operations.isDynamic(this.name);
 
     const graph_node = <OpNode> this.tree.getNode(this.id);
 
@@ -128,21 +124,38 @@ export class OperationComponent implements OnInit {
     });
 
 
-    if(this.is_parent_op){
+    if(this.is_dynamic_op){
       //get the current param value and generate input slots
-      const dynamic_param: number = (<ParentOperation>this.op).dynamic_param_id;
-      const dynamic_type: string = (<ParentOperation>this.op).dynamic_param_type;
+      const dynamic_param: number = (<DynamicOperation>this.op).dynamic_param_id;
+      const dynamic_type: string = (<DynamicOperation>this.op).dynamic_param_type;
       const dynamic_value: number = this.op.params[dynamic_param].value;
+      const inlet_values: Array<any> = graph_node.inlets.slice();
 
+      
+      console.log("ON INIT", inlet_values, dynamic_value);
+  
       for(let i = 0; i < dynamic_value; i++){
-        if(dynamic_type === 'number'){
-          this.draft_inputs.push(new FormControl(i));
+        if(i < inlet_values.length){
+
+          /**@todo hacky way around inlet default values to 0 is to assume that user can never explicity set zero */
+          if(inlet_values[i] === 0)   this.inlets.push(new FormControl(i+1));
+          else   this.inlets.push(new FormControl(inlet_values[i]))
+        
+        }else{
+          this.inlets.push(new FormControl(i+1));
         }
       }
-    }else{
-      this.draft_inputs.push(new FormControl(this.op.max_inputs));
-    }
 
+      if(inlet_values.length > dynamic_value){
+        for(let j = dynamic_value; j < inlet_values.length; j++){
+          this.inlets.push(new FormControl(j+1));
+        }
+      }
+
+    }else{
+      this.inlets.push(new FormControl(0));
+
+    }
 
 
     const tl: Point = this.viewport.getTopLeft();
@@ -162,18 +175,8 @@ export class OperationComponent implements OnInit {
 
   ngAfterViewInit(){
     this.rescale();
+    this.onOperationParamChange.emit({id: this.id});
 
-    if(this.operations.parent_ops.findIndex(el => el.name === this.name) !== -1){
-      const parent_op = <ParentOperation> this.op;
-        parent_op.onInit().then(default_inputs => {
-
-          this.onParentOperationParamChange.emit({id: this.id, inputs: default_inputs});
-        }
-        );
-    }else{
-      if(!this.loaded) this.onOperationParamChange.emit({id: this.id});
-
-    }
   }
 
 
@@ -292,7 +295,7 @@ export class OperationComponent implements OnInit {
   }
 
 
-  removeConnectionTo(sd_id: number){
+  removeConnectionTo(sd_id: number, ndx: number){
     this.onConnectionRemoved.emit({from: sd_id, to: this.id});
   }
 
@@ -314,15 +317,47 @@ export class OperationComponent implements OnInit {
   }
 
   onParamChange(id: number, value: number){
+
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
+    
+    if(this.is_dynamic_op){
+      //check to see if we should add or remove draft inputs
+      if(id === (<DynamicOperation>this.op).dynamic_param_id){
+        switch((<DynamicOperation>this.op).dynamic_param_type){
 
-    if(this.is_parent_op){
-      this.onParentOperationParamChange.emit({id: this.id});
-    }else{
-      this.onOperationParamChange.emit({id: this.id});
+          case 'number':
+            if(value > this.inlets.length){
+              for(let i = this.inlets.length; i < value; i++){
+                this.inlets.push(new FormControl(i+1));
+                opnode.inlets.push(i+1);
+              }
+            }else if(value < this.inlets.length){
+              this.inlets.splice(value, this.inlets.length - value);
+              opnode.inlets.splice(value, this.inlets.length - value);
+            }
+          break;
+
+        }
+      }
     }
+    
+    
+    this.onOperationParamChange.emit({id: this.id});
+   
+  }
+
+  /**
+   * 
+   * @param id 
+   * @param value 
+   */
+  onDraftInputChange(id: number, value: number){
+    const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
+    opnode.inlets[id] = value;
+    this.inlets[id].setValue(value);
+    this.onOperationParamChange.emit({id: this.id});
    
   }
 

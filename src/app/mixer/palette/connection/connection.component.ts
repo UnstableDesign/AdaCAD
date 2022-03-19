@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../provider/tree.service';
+import { OperationComponent } from '../operation/operation.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 @Component({
@@ -17,11 +18,14 @@ export class ConnectionComponent implements OnInit {
 
   from: number; 
   to: number; 
+  to_ndx: number; 
+  
   b_from: Point;
   b_to: Point;
+
+
   disable_drag:boolean = true;
   orientation: boolean = true;
-  op_to_op: boolean = false;
 
   bounds: Bounds = {
     topleft: {x: 0, y:0},
@@ -35,10 +39,16 @@ export class ConnectionComponent implements OnInit {
 
   constructor(public tree: TreeService) { 
 
-
   }
 
   ngOnInit() {
+    const treenode = this.tree.getTreeNode(this.id);
+    const from_io = treenode.inputs[0];
+    const to_io = treenode.outputs[0];
+
+    this.from = from_io.tn.node.id;
+    this.to = to_io.tn.node.id;
+
   }
 
   ngAfterViewInit(){
@@ -46,13 +56,6 @@ export class ConnectionComponent implements OnInit {
 
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
-    
-    const from_node = this.tree.getNode(this.from);
-    const to_node = this.tree.getNode(this.to);
-
-    if(from_node.type === "op" && to_node.type === "op"){
-      console.log("op to op connection detected")
-    }
 
 
     const comp = this.tree.getComponent(this.to);
@@ -81,7 +84,7 @@ export class ConnectionComponent implements OnInit {
   }
 
   //the to position is always the top left corner of the element it is going into
-  updateToPosition(to: any){
+  updateToPosition(to: OperationComponent | SubdraftComponent){
    
     if(to.id != this.to) console.error("attempting to move wrong TO connection", to.id, this.to);
     this.b_to = to.bounds.topleft;

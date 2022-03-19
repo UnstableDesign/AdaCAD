@@ -13,7 +13,7 @@ cdkDrag
     <div class="cxn-row">
 
 
-        <div class="input-group" *ngFor="let input of draft_inputs; let i = index">
+        <div class="input-group" *ngFor="let input of inlets; let i = index">
 
 
 
@@ -26,11 +26,11 @@ cdkDrag
         
         </button>
 
-        <input *ngIf="is_parent_op"
+        <input *ngIf="is_dynamic_op"
         [formControl]="input"
         type = "number"
         value = input.value
-        (change)= "onDraftInputChange(i, op_inputs[i].value)"
+        (change)= "onDraftInputChange(i, input.value)"
         >
 
 
@@ -38,7 +38,7 @@ cdkDrag
         <button *ngFor="let input of tree.getOpComponentInputs(id, i);"
         matTooltip = "click to remove this connection"
         class="button is-small cxn"
-        (click)="removeConnectionTo(input)">
+        (click)="removeConnectionTo(input, i)">
         <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
         </button>   
 
@@ -48,7 +48,7 @@ cdkDrag
     </div>
 
 
-    <div class="top-row" [class.child]="has_parent_op" >
+    <div class="top-row" >
 
 
 
@@ -63,14 +63,14 @@ cdkDrag
     </div>
 
 
-    <button *ngIf="!has_parent_op"
+    <button 
     matTooltip= "Duplilcate"
     class="button is-small is-primary fa fa-clone"
     (click)="duplicate()">
     </button>
     
 
-    <button *ngIf="!has_parent_op"
+    <button 
     class="button is-small is-primary"
     (click)="delete()">
     <i class="fas fa-times"></i>

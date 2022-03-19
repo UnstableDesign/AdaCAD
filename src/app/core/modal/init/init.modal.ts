@@ -90,11 +90,9 @@ export class InitModal implements OnInit {
   
   }
 
-  // selectionMade(selection: any){
-  //   if(selection === 'recover'){
-  //     this.loadSavedFile();
-  //   }
-  // }
+  selectionMade(selection: any){
+
+  }
 
   loadExample(filename: string){
     console.log("loading example: ", filename);

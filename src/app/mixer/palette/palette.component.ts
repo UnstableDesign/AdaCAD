@@ -22,6 +22,7 @@ import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
 import { OperationService } from '../provider/operation.service';
+import { timeStamp } from 'console';
 
 @Component({
   selector: 'app-palette',
@@ -622,7 +623,6 @@ export class PaletteComponent implements OnInit{
   setOperationSubscriptions(op: OperationComponent){
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
-    this.operationSubscriptions.push(op.onParentOperationParamChange.subscribe(this.parentOperationParamChanged.bind(this)));
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
     this.subdraftSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
@@ -641,7 +641,7 @@ export class PaletteComponent implements OnInit{
       const id = this.tree.createNode('op', op.instance, op.hostView);
       
       console.log("creating op", name)
-      this.tree.loadOpData({prev_id: -1, cur_id: id}, name, []);
+      this.tree.loadOpData({prev_id: -1, cur_id: id}, name, [], [0]);
       this.setOperationSubscriptions(op.instance);
 
       op.instance.name = name;
@@ -659,48 +659,47 @@ export class PaletteComponent implements OnInit{
    * @params params the input data to be used in this operation
    * @returns the id of the node this has been assigned to
    */
-     loadOperation(id: number, name: string, params: Array<number>, bounds:Bounds, saved_scale: number){
+    loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, bounds:Bounds, saved_scale: number){
       
 
-      const factory = this.resolver.resolveComponentFactory(OperationComponent);
-      const op = this.vc.createComponent<OperationComponent>(factory);
-      const node = this.tree.getNode(id)
-      node.component = op.instance;
-      node.ref = op.hostView;
+        const factory = this.resolver.resolveComponentFactory(OperationComponent);
+        const op = this.vc.createComponent<OperationComponent>(factory);
+        const node = this.tree.getNode(id)
+        node.component = op.instance;
+        node.ref = op.hostView;
+    
+        this.setOperationSubscriptions(op.instance);
   
-      this.setOperationSubscriptions(op.instance);
-
-      op.instance.name = name;
-      op.instance.id = id;
-      op.instance.zndx = this.layers.createLayer();
-      op.instance.scale = this.scale;
-      op.instance.default_cell = this.default_cell_size;
-
-      op.instance.loaded_inputs = params;
-      // op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
-      // op.instance.bounds.width = bounds.width;
-      // op.instance.bounds.height = bounds.height;
-      op.instance.loaded = true;
-
-      console.log("loading op ", name, this.tree.getDraftOutputs(id));
-
-      if(bounds !== null){
-      
-        const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
-        const adj_topleft: Point = {x: topleft_ilace.j*this.scale, y: topleft_ilace.i*this.scale};
-        
-        const new_bounds: Bounds = {
-          topleft: adj_topleft,
-          width: bounds.width / saved_scale * this.scale,
-          height: bounds.height / saved_scale * this.scale,
-        }
+        op.instance.name = name;
+        op.instance.id = id;
+        op.instance.zndx = this.layers.createLayer();
+        op.instance.scale = this.scale;
+        op.instance.default_cell = this.default_cell_size;
+        op.instance.loaded_inputs = params;
+        // op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+        // op.instance.bounds.width = bounds.width;
+        // op.instance.bounds.height = bounds.height;
+        op.instance.loaded = true;
   
-        op.instance.bounds = new_bounds;
+        if(bounds !== null){
         
-      } 
+          const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
+          const adj_topleft: Point = {x: topleft_ilace.j*this.scale, y: topleft_ilace.i*this.scale};
+          
+          const new_bounds: Bounds = {
+            topleft: adj_topleft,
+            width: bounds.width / saved_scale * this.scale,
+            height: bounds.height / saved_scale * this.scale,
+          }
+    
+          op.instance.bounds = new_bounds;
+          
+        } 
+  
+       
+      }
 
-     
-    }
+   
 
     /**
      * duplicates an operation with the information supplied. 
@@ -708,11 +707,11 @@ export class PaletteComponent implements OnInit{
      * @params params the input data to be used in this operation
      * @returns the id of the node this has been assigned to
      */
-     duplicateOperation(name: string, params: Array<number>, bounds:Bounds, draft_inputs: Array<any>):number{
+     duplicateOperation(name: string, params: Array<number>, bounds:Bounds, inlets: Array<any>):number{
       
       const op:OperationComponent = this.createOperation(name);
           
-          this.tree.setOpParams(op.id, params, draft_inputs);
+          this.tree.setOpParams(op.id, params, inlets);
           op.loaded_inputs = params;
           op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
           op.bounds.width = bounds.width;
@@ -725,21 +724,20 @@ export class PaletteComponent implements OnInit{
 
 
     /**
-     * creates a connection component and registers it with the tree
-     * @returns the list of all id's connected to the "to" node 
+     * creates a connection and draws it to screen
+     * @param id - the id of this node
      */
-     loadConnection(id: number, id_from: number, id_to:number){
+     loadConnection(id: number){
 
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
-      const node = this.tree.getNode(id)
+      const node = this.tree.getNode(id);
+      const tn = this.tree.getTreeNode(id);
       node.component = cxn.instance;
       node.ref = cxn.hostView;
         
       cxn.instance.id = id;
       cxn.instance.scale = this.scale;
-      cxn.instance.from = id_from;
-      cxn.instance.to = id_to;
 
     }
 
@@ -754,7 +752,7 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
-      const to_input_ids: Array<number> =  this.tree.addConnection(id_from, id_to, id, to_ndx);
+      const to_input_ids: Array<number> =  this.tree.addConnection(id_from, 0, id_to, to_ndx, id);
       
       cxn.instance.id = id;
       cxn.instance.scale = this.scale;
@@ -1146,7 +1144,7 @@ export class PaletteComponent implements OnInit{
       }
 
 
-      const id: number = this.duplicateOperation(op.name, params, new_bounds, op.draft_inputs);
+      const id: number = this.duplicateOperation(op.name, params, new_bounds, op.inlets);
       const new_op = <OperationComponent> this.tree.getComponent(id);
 
       //this.operationParamChanged({id: id});
@@ -1534,12 +1532,13 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
        
   }).then(el => {
     const loads =[];
-    const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);    
+    const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);   
+    console.log("got new connections", new_cxns); 
     new_cxns.forEach(cxn => {
       const from_node:Array<number> = this.tree.getInputs(cxn.id);
       const to_node:Array<number> = this.tree.getOutputs(cxn.id);
       if(from_node.length !== 1 || to_node.length !== 1) Promise.reject("connection has zero or more than one input or output");
-      loads.push(this.loadConnection(cxn.id, from_node[0], to_node[0]));
+      loads.push(this.loadConnection(cxn.id));
     })
 
     return Promise.all(loads);
@@ -1578,9 +1577,9 @@ connectionMade(obj: any){
 /**
  * Called when a connection is explicitly deleted
 */
- removeConnection(obj: {from: number, to: number}){
+ removeConnection(obj: {from: number, to: number, ndx: number}){
 
-  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to);  
+  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to, obj.ndx);  
   to_delete.forEach(node => this.removeFromViewContainer(node.ref));
 
  
@@ -2235,6 +2234,19 @@ drawStarted(){
 
     if(obj === null) return;
 
+    //we need to sweep any connections that are pointing to inputs that no longer exist
+
+    //if this is a dynamic operation
+    //const opnode = this.tree.getOpNode(obj.id);
+    // const num_inputs = opnode.draft_inputs.length;
+    // const cxns = this.tree.getInputsWithNdx(obj.id);
+    // console.log("cxns in", cxns);
+
+    // const to_delete = cxns.filter(el => el.ndx >= num_inputs);
+    //this.removeConnection()
+
+
+
     return this.performAndUpdateDownstream(obj.id)
       .then(el => 
       {
@@ -2255,7 +2267,7 @@ drawStarted(){
    async parentOperationParamChanged(obj: any){
 
 
-
+    //needs to 
   //   if(obj === null) return;
 
   //   //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
