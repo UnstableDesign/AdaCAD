@@ -236,7 +236,7 @@ export class MixerComponent implements OnInit {
       const input_list = tn.inputs.map(input => {
         if(typeof input === 'number'){
           const input_in_map = id_map.find(el => el.prev_id === input);
-          
+
           if(input_in_map !== undefined){
             return {tn: input_in_map.cur_id, ndx: 0};
           }else{
@@ -317,7 +317,7 @@ export class MixerComponent implements OnInit {
       }
     ).then(treenodes => {
 
-      this.printTreeStatus("after load", this.tree.tree);
+      //this.printTreeStatus("after load", this.tree.tree);
 
       const seednodes: Array<{prev_id: number, cur_id: number}> = treenodes
         .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
@@ -375,7 +375,6 @@ export class MixerComponent implements OnInit {
       const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom));
      
       const op_fns = data.ops.map(op => {
-        console.log("SINGLE OP", op);
         const entry = entry_mapping.find(el => el.prev_id == op.node_id);
         return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
       });

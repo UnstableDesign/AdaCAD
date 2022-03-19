@@ -30,7 +30,8 @@ cdkDrag
         [formControl]="input"
         type = "number"
         value = input.value
-        (change)= "onDraftInputChange(i, input.value)"
+        min = 1
+        (change)= "onInletChange(i, input.value)"
         >
 
 

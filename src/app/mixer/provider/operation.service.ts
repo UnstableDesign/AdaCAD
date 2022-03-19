@@ -2178,7 +2178,7 @@ export class OperationService {
       },
       perform: (op_inputs: Array<OpInput>)=> {
           
-        console.log("op_inputs", op_inputs);
+        console.log("op inputs", op_inputs)
 
         //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assignlayers");
@@ -2210,7 +2210,7 @@ export class OperationService {
 
 
         //create a map from layers to drafts
-        const layer_draft_map: Array<any> = child_inputs.map(el => { return {layer: el.params[0], drafts: el.drafts}}); 
+        const layer_draft_map: Array<any> = child_inputs.map(el => { return {layer: el.params[0]-1, drafts: el.drafts}}); 
 
 
         const outputs = [];

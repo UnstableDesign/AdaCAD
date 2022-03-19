@@ -56,7 +56,7 @@ export class StateService {
 
     if(this.auth.uid === undefined) return;
 
-    console.log("Writing", cur_state);
+    //console.log("Writing", cur_state);
 
     const db = getDatabase();
     fbset(fbref(db, 'users/' + this.auth.uid), {

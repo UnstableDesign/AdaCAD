@@ -131,9 +131,7 @@ export class OperationComponent implements OnInit {
       const dynamic_value: number = this.op.params[dynamic_param].value;
       const inlet_values: Array<any> = graph_node.inlets.slice();
 
-      
-      console.log("ON INIT", inlet_values, dynamic_value);
-  
+        
       for(let i = 0; i < dynamic_value; i++){
         if(i < inlet_values.length){
 
@@ -335,7 +333,7 @@ export class OperationComponent implements OnInit {
               }
             }else if(value < this.inlets.length){
               this.inlets.splice(value, this.inlets.length - value);
-              opnode.inlets.splice(value, this.inlets.length - value);
+              opnode.inlets.splice(value,  opnode.inlets.length - value);
             }
           break;
 
@@ -353,7 +351,8 @@ export class OperationComponent implements OnInit {
    * @param id 
    * @param value 
    */
-  onDraftInputChange(id: number, value: number){
+  onInletChange(id: number, value: number){
+    console.log("inlet change", id, value);
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.inlets[id] = value;
     this.inlets[id].setValue(value);

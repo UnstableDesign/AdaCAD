@@ -1533,7 +1533,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
   }).then(el => {
     const loads =[];
     const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);   
-    console.log("got new connections", new_cxns); 
     new_cxns.forEach(cxn => {
       const from_node:Array<number> = this.tree.getInputs(cxn.id);
       const to_node:Array<number> = this.tree.getOutputs(cxn.id);
@@ -1577,9 +1576,9 @@ connectionMade(obj: any){
 /**
  * Called when a connection is explicitly deleted
 */
- removeConnection(obj: {from: number, to: number, ndx: number}){
+ removeConnection(obj: {from: number, to: number}){
 
-  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to, obj.ndx);  
+  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to);  
   to_delete.forEach(node => this.removeFromViewContainer(node.ref));
 
  
@@ -2232,22 +2231,17 @@ drawStarted(){
    */
    async operationParamChanged(obj: any){
 
+    console.log("Op PARAM CHANGE");
+
     if(obj === null) return;
 
-    //we need to sweep any connections that are pointing to inputs that no longer exist
-
-    //if this is a dynamic operation
-    //const opnode = this.tree.getOpNode(obj.id);
-    // const num_inputs = opnode.draft_inputs.length;
-    // const cxns = this.tree.getInputsWithNdx(obj.id);
-    // console.log("cxns in", cxns);
-
-    // const to_delete = cxns.filter(el => el.ndx >= num_inputs);
-    //this.removeConnection()
-
-
-
-    return this.performAndUpdateDownstream(obj.id)
+    return this.tree.sweepInlets(obj.id)
+      .then(viewRefs => {
+        viewRefs.forEach(el => {
+          this.removeFromViewContainer(el)
+        });
+        this.performAndUpdateDownstream(obj.id)
+      } )
       .then(el => 
       {
         this.addTimelineState(); 
@@ -2268,7 +2262,7 @@ drawStarted(){
 
 
     //needs to 
-  //   if(obj === null) return;
+     if(obj === null) return;
 
   //   //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
   //   const current_ins: Array<number> = this.tree.getOpInputs(obj.id);
@@ -2299,12 +2293,12 @@ drawStarted(){
    
 
 
-  //   return this.performAndUpdateDownstream(obj.id)
-  //     .then(el => 
-  //     {
-  //       this.addTimelineState(); 
-  //     })
-  //     .catch(console.error);
+    return this.performAndUpdateDownstream(obj.id)
+      .then(el => 
+      {
+        this.addTimelineState(); 
+      })
+      .catch(console.error);
    
   }
 

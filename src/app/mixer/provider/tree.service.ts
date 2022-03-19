@@ -171,6 +171,8 @@ export class TreeService {
       }else{
         inlets = [0];
       }
+    }else{
+      inlets = [0];
     }
 
 
@@ -392,6 +394,32 @@ export class TreeService {
   }
 
   /**
+   * before performing a dynamic op, make sure that their are no connections that are pointing to an inlet that nolonger exists
+   * @param id - the object id we are checking
+   * @returns an array of viewRefs for Connections to remove.
+   */
+  sweepInlets(id: number) : Promise<Array<ViewRef>>{
+
+     const opnode: OpNode = this.getOpNode(id);
+     const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
+
+   //filter out inputs that are matched to an index highter than what we offer
+    const missing_inlets: Array<TreeNode> = inputs_to_op
+      .filter((el) => el.ndx >= opnode.inlets.length)
+      .map(el => el.tn);
+
+    const viewRefs = missing_inlets.map(el => el.node.ref);
+    
+    missing_inlets.forEach(el => {
+        this.removeConnectionNode(el.inputs[0].tn.node.id, el.outputs[0].tn.node.id);
+    });
+
+    return Promise.resolve(viewRefs);
+
+  }
+    
+
+  /**
    * sets the open connection
    * @param id the value to set the open connection to
    * @returns  true if the id maps to a subdraft
@@ -453,7 +481,6 @@ export class TreeService {
    * @returns an object that holds the tree node as well as its associated map entry
    */
   async loadTreeNodeData(id_map: any, node_id: number, parent_id: number, inputs:Array<{tn: number, ndx: number}>,  outputs:Array<{tn: number, ndx: number}>): Promise<{tn: TreeNode, entry: {prev_id: number, cur_id: number}}>{
-    console.log("data in", inputs, outputs);
 
     const entry = id_map.find(el => el.cur_id === node_id);
   
@@ -461,7 +488,6 @@ export class TreeService {
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
     tn.inputs = inputs.map(input => {return {tn: this.getTreeNode(input.tn), ndx: input.ndx}});
     tn.outputs = outputs.map(output => {return {tn: this.getTreeNode(output.tn), ndx: output.ndx}});
-    console.log("loaded tn", tn);
     return Promise.resolve({tn, entry});
 
 
@@ -934,10 +960,10 @@ removeOperationNode(id:number) : Array<Node>{
  * @param id - the connection to remove
  * @returns a list of all nodes removed as a result of this action
  */
- removeConnectionNode(from:number, to:number, ndx: number) : Array<Node>{
+ removeConnectionNode(from:number, to:number) : Array<Node>{
 
 
-  const cxn_id:number = this.getConnection(from, to, ndx);
+  const cxn_id:number = this.getConnection(from, to);
 
 
   const deleted:Array<Node> = []; 
@@ -956,6 +982,8 @@ removeOperationNode(id:number) : Array<Node>{
  * @returns the node it removed
  */
   removeNode(id: number) : Node{
+
+    console.log("REMOVE NODE CALLED ON ", id);
 
     const deleted: Array<Node> = [];
 
@@ -1214,7 +1242,6 @@ flipDraft(draft: Draft) : Draft{
 
   const drafts_in = this.getNonCxnInputs(id);
   const all_inputs = this.getInputsWithNdx(id);
-
   
   //create the array of inputs, always with the parent inputs first. 
 
@@ -1231,7 +1258,7 @@ flipDraft(draft: Draft) : Draft{
       const draft_node_in = el.tn.inputs[0].tn;
       const drafts_in = (draft_node_in.node.type === "draft") ? (<DraftNode>draft_node_in.node).draft : null;
       if(drafts_in != null){
-      inputs.push({op_name:'child', drafts: [this.flipDraft(drafts_in)], params: [el.ndx]});
+      inputs.push({op_name:'child', drafts: [this.flipDraft(drafts_in)], params: [node.inlets[el.ndx]]});
       }
     })
 
@@ -1344,7 +1371,6 @@ flipDraft(draft: Draft) : Draft{
   getTreeNode(id:number): TreeNode{
     const found =  this.tree.find(el => el.node.id === id);
     if(found === undefined){
-      console.log("looking for ", id, this.tree.map(el => el.node.id));
       console.error("Tree node for ", id, "not found");
       return undefined;
     }
@@ -1437,18 +1463,18 @@ flipDraft(draft: Draft) : Draft{
    * @param ndx the param to which this attaches on the input side.
    * @returns the node id of the connection, or -1 if that connection is not found
    */
-  getConnection(a: number, b:number, ndx: number) : number{
+  getConnection(a: number, b:number) : number{
 
 
      const set_a = this.nodes
      .filter(el => el.type === 'cxn')
      .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === a)))
-     .filter(el => (this.getInputsWithNdx(el.id).find(ip => ip.tn.node.id === b && ip.ndx === ndx)));
+     .filter(el => (this.getInputsWithNdx(el.id).find(ip => ip.tn.node.id === b )));
 
      const set_b = this.nodes
      .filter(el => el.type === 'cxn')
      .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === b)))
-     .filter(el => (this.getInputsWithNdx(el.id).find(ip => ip.tn.node.id === a && ip.ndx == ndx)));
+     .filter(el => (this.getInputsWithNdx(el.id).find(ip => ip.tn.node.id === a )));
 
      const combined = set_a.concat(set_b);
 
@@ -1699,10 +1725,10 @@ flipDraft(draft: Draft) : Draft{
       const savable: NodeComponentProxy = {
         node_id: node.id,
         type: node.type,
-        bounds: node.component.bounds,
+        bounds: (node.component !== null) ? node.component.bounds : {topleft: {x: 0, y: 0}, width: 0 ,height: 0},
         draft_id: (node.type === 'draft') ? (<DraftNode>node).draft.id : -1,
         draft_name: (node.type === 'draft') ? (<DraftNode>node).draft.ud_name : '',
-        draft_visible: ((node.type === 'draft') ? (<SubdraftComponent>node.component).draft_visible : true) 
+        draft_visible: ((node.type === 'draft' && node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true) 
       }
       objs.push(savable);
 
