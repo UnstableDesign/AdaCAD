@@ -4,7 +4,6 @@ import { CoreModule } from '../core/core.module';
 
 import { MixerComponent} from './mixer.component';
 import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
-import { MixerPatternsComponent } from './tool/mixerpatterns/mixerpatterns.component';
 import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { PaletteComponent } from './palette/palette.component';
@@ -32,7 +31,6 @@ import { NoteComponent } from './palette/note/note.component';
     declarations: [
         MixerDesignComponent,
         MixerComponent,
-        MixerPatternsComponent,
         MixerViewComponent,
         SubdraftComponent,
         PaletteComponent,
@@ -46,7 +44,6 @@ import { NoteComponent } from './palette/note/note.component';
         ImageComponent,
         MixerInitComponent,
         DraftdetailComponent,
-        NoteComponent
-        ]
+        NoteComponent        ]
 })
 export class MixerModule { }

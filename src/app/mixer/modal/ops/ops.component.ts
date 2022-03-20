@@ -17,6 +17,7 @@ export class OpsComponent implements OnInit {
   @Output() onImport:any = new EventEmitter();
   
   opnames:Array<string> = [];
+  displaynames:Array<string> = [];
   myControl = new FormControl();
   filteredOptions: Observable<string[]>;
   
@@ -28,6 +29,7 @@ export class OpsComponent implements OnInit {
 
     const allops = this.ops.ops.concat(this.ops.dynamic_ops);
     this.opnames = allops.map(el => el.name);
+    this.displaynames = allops.map(el => el.displayname);
 
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
@@ -37,7 +39,7 @@ export class OpsComponent implements OnInit {
 
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.opnames.filter(option => option.toLowerCase().includes(filterValue));
+    return this.displaynames.filter(option => option.toLowerCase().includes(filterValue));
   }
 
   close() {
@@ -51,7 +53,14 @@ export class OpsComponent implements OnInit {
   }
 
   addOpFromSearch(event: any){
-    this.onOperationAdded.emit(event.option.value);
+    console.log("event", event);
+    //need to convert display name toname here
+    const ndx = this.displaynames.findIndex(el => el === event.option.value);
+    if(ndx !== -1){
+      this.onOperationAdded.emit(this.opnames[ndx]);
+    }
+
+
   }
 
 

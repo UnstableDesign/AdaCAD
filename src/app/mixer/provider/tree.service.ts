@@ -393,6 +393,27 @@ export class TreeService {
 
   }
 
+
+  /**
+   * given an operation and a connection, return the inlet to which this connection inserts 
+   * @param op_id 
+   * @param cxn_id 
+   * @param returns the position index of the cxn or -1 if not found
+   */
+  getInletOfCxn(op_id: number, cxn_id) : number {
+    const inputs = this.getInputsWithNdx(op_id);
+    const ndx:Array<number> = inputs
+      .filter(el => el.tn.node.id === cxn_id)
+      .map(el => el.ndx);
+
+    if(ndx.length === 0 ) return -1;
+    if(ndx.length === 1) return ndx[0];
+
+    console.error("connection found at more than one inlet");
+    return -1;
+      
+  }
+
   /**
    * before performing a dynamic op, make sure that their are no connections that are pointing to an inlet that nolonger exists
    * @param id - the object id we are checking

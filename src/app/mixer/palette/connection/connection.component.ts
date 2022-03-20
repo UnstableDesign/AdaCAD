@@ -58,21 +58,16 @@ export class ConnectionComponent implements OnInit {
     this.cx = this.canvas.getContext("2d");
 
 
-    const comp = this.tree.getComponent(this.to);
+    const to_comp = this.tree.getComponent(this.to);
     
-     if(comp !== null){
-      this.b_to = comp.bounds.topleft;
+     if(to_comp !== null){
+      this.b_to = to_comp.bounds.topleft;
       this.updateFromPosition(this.tree.getComponent(this.from));
-     }else{
-
-    }
-    // this.b_from = 
-    //   {x: from.bounds.topleft.x, 
-    //    y: from.bounds.topleft.y + from.bounds.height};
-   
-    // this.b_to = this.tree.getComponent(this.to).bounds.topleft;
-
+      this.updateToPosition(<SubdraftComponent | OperationComponent> to_comp);
+     }
   }
+
+
 
   disableDrag(){
     this.disable_drag = true;
@@ -83,27 +78,49 @@ export class ConnectionComponent implements OnInit {
     this.disable_drag = true;
   }
 
-  //the to position is always the top left corner of the element it is going into
+  /**
+   * if every connection goes from one node to another, the to node is always the topleft corner
+   * unless the to node is a dynamic operation, in which case we must move to an inlet. 
+   * @param to the id of the component this connection goes to
+   */
   updateToPosition(to: OperationComponent | SubdraftComponent){
    
     if(to.id != this.to) console.error("attempting to move wrong TO connection", to.id, this.to);
     this.b_to = to.bounds.topleft;
+
+    if(this.tree.getType(to.id) === 'op'){
+      // get the inlet value 
+      const ndx = this.tree.getInletOfCxn(to.id, this.id);
+      if(ndx !== -1){
+        const left_offset = document.getElementById('inlet'+to.id+"-"+ndx).offsetLeft;
+        this.b_to = {x: to.bounds.topleft.x + left_offset, y: to.bounds.topleft.y}
+      }
+    }
+
+
     this.calculateBounds();
     this.drawConnection();
   }
 
+
+  /**
+   * if every connection goes from one node to another, the from node depends on the kind of object
+   * @param from the id of the component this connection goes to
+   */
   updateFromPosition(from: any){
 
     if(from.id != this.from) console.error("attempting to move wrong FROM connection", from.id, this.from);
 
     if((<SubdraftComponent>from).draft_visible){
+      const top_offset = document.getElementById(from.id+"-out").offsetTop;
+
       this.b_from = 
-      {x: from.bounds.topleft.x, 
-       y: from.bounds.topleft.y + from.bounds.height};
+      {x: from.bounds.topleft.x+ 15, 
+       y: from.bounds.topleft.y + top_offset + 30};
     }else{
       this.b_from = 
-      {x: from.bounds.topleft.x, 
-       y: from.bounds.topleft.y};
+      {x: from.bounds.topleft.x + 15, 
+       y: from.bounds.topleft.y + 30};
     }
 
     this.calculateBounds();

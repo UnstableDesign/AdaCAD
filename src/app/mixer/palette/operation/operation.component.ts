@@ -128,13 +128,13 @@ export class OperationComponent implements OnInit {
       //get the current param value and generate input slots
       const dynamic_param: number = (<DynamicOperation>this.op).dynamic_param_id;
       const dynamic_type: string = (<DynamicOperation>this.op).dynamic_param_type;
-      const dynamic_value: number = this.op.params[dynamic_param].value;
+
+      const dynamic_value: number = graph_node.params[dynamic_param];
       const inlet_values: Array<any> = graph_node.inlets.slice();
 
-        
+
       for(let i = 0; i < dynamic_value; i++){
         if(i < inlet_values.length){
-
           /**@todo hacky way around inlet default values to 0 is to assume that user can never explicity set zero */
           if(inlet_values[i] === 0)   this.inlets.push(new FormControl(i+1));
           else   this.inlets.push(new FormControl(inlet_values[i]))
@@ -152,9 +152,12 @@ export class OperationComponent implements OnInit {
 
     }else{
       this.inlets.push(new FormControl(0));
-
     }
 
+    //make sure the graph is aligned with these values
+    this.inlets.forEach((fc, ndx) => {
+      graph_node.inlets[ndx] = fc.value;
+    })
 
     const tl: Point = this.viewport.getTopLeft();
    
@@ -352,7 +355,6 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onInletChange(id: number, value: number){
-    console.log("inlet change", id, value);
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.inlets[id] = value;
     this.inlets[id].setValue(value);

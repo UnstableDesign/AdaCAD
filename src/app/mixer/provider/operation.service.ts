@@ -39,7 +39,6 @@ export interface DynamicOperation {
   dynamic_param_type: string,
   max_inputs: number,
   dx: string,
-  onInit: () => Promise<Array<OpInput>>,
   perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 
@@ -2143,7 +2142,7 @@ export class OperationService {
     const assignlayers: DynamicOperation = {
       name: 'assignlayers',
       displayname: 'assign drafts to layers',
-      dx: 'creates a draft in whichop_input.drafts can be assigned a placed on a given layer within the cloth',
+      dx: 'creates a multi-layer draft from inputs that are each assigned a layer.',
       dynamic_param_type: 'number',
       dynamic_param_id: 0,
       max_inputs: 0,
@@ -2163,23 +2162,8 @@ export class OperationService {
           dx: 'automatically adjust the width and height of draft to ensure equal repeats (checked) or just assign to layers directly as provided'
         }
       ],
-      onInit: () => {
-       const default_ops: Array<OpInput> = [];
-
-        for(let i = 0; i < 2; i++){
-          default_ops.push({
-            op_name: 'assign_to_layer',
-            drafts: [],
-            params: [i+1]
-          });
-        }
-
-       return Promise.resolve(default_ops);
-      },
       perform: (op_inputs: Array<OpInput>)=> {
           
-        console.log("op inputs", op_inputs)
-
         //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assignlayers");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
@@ -2225,7 +2209,9 @@ export class OperationService {
 
 
         layer_draft_map.forEach(layer_map => {
+
           const layer_num = layer_map.layer;
+
           layer_map.drafts.forEach(draft => {
             const d:Draft = new Draft({
               warps:total_warps*systems.length, 
@@ -2278,6 +2264,7 @@ export class OperationService {
       
     }
 
+  
     const tile: Operation = {
       name: 'tile',
       displayname: 'tile',
@@ -2704,7 +2691,7 @@ export class OperationService {
     //** Give it a classification here */
     this.classification.push(
       {category: 'structure',
-      dx: "0-1op_input.drafts, 1 output, algorithmically generates weave structures based on parameters",
+      dx: "0-1 input, 1 output, algorithmically generates weave structures based on parameters",
       ops: [tabby, twill, satin, basket, rib, random]}
     );
 
@@ -2722,20 +2709,20 @@ export class OperationService {
 
     this.classification.push(
         {category: 'combine',
-        dx: "2+op_input.drafts, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [interlace, splicein, layer, assignlayers,  fill, joinleft, jointop]}
+        dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
+        ops: [interlace, splicein, assignlayers, layer,  fill, joinleft, jointop]}
   //      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
         );
     
      this.classification.push(
           {category: 'binary',
-          dx: "2op_input.drafts, 1 output, operations take twoop_input.drafts and perform binary operations on the interlacements",
+          dx: "2 inputs, 1 output, operations take twoop_input.drafts and perform binary operations on the interlacements",
           ops: [atop, overlay, mask, knockout]}
           );
     
       this.classification.push(
             {category: 'helper',
-            dx: "variableop_input.drafts, variable outputs, supports common drafting requirements to ensure good woven structure",
+            dx: "variable inputs, variable outputs, supports common drafting requirements to ensure good woven structure",
             ops: [selvedge, variants]}
             );
 
@@ -2754,13 +2741,13 @@ export class OperationService {
 
     this.classification.push(
       {category: 'frame loom support',
-      dx: "variableop_input.drafts, variable outputs, offer specific supports for working with frame looms",
+      dx: "variable input drafts, variable outputs, offer specific supports for working with frame looms",
       ops: [makeloom, drawdown]}
     );
 
     this.classification.push(
       {category: 'aesthetics',
-      dx: "2op_input.drafts, i output: applys pattern information from second draft onto the first. To be used for specifiying color repeats",
+      dx: "2 inputs, 1 output: applys pattern information from second draft onto the first. To be used for specifiying color repeats",
       ops: [apply_mats]}
     );
 
