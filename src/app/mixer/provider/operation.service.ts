@@ -8,6 +8,7 @@ import { Loom } from '../../core/model/loom';
 import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
+import { number } from 'mathjs';
 
 
 export interface OperationParams {
@@ -1460,6 +1461,77 @@ export class OperationService {
           
     }
 
+    const trim: Operation = {
+      name: 'trim',
+      displayname: 'trim',
+      dx: 'trims off the edges of an input draft',
+      params: [
+        {name: 'left',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: 'number of warps from the left to start the cut'
+        },
+        {name: 'top',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: 'number of pics from the top to start the cut'
+        },
+        {name: 'right',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: 'number of warps from the right to start the cut'
+        },
+        {name: 'bottom',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 0,
+        dx: 'number of pics from the bottom to start the cut'
+        }
+      ],
+      max_inputs: 1,
+      perform: (op_inputs: Array<OpInput>) => {
+
+
+        const op_input = op_inputs[0];
+
+        const outputs: Array<Draft> =op_input.drafts.map(input => {
+
+
+            const left = op_input.params[0];
+            const top = op_input.params[3];
+            const right = op_input.params[2];
+            const bottom = op_input.params[1];
+            
+            let new_warps = input.warps - right - left;
+            if(new_warps < 0) new_warps = 0;
+
+            let new_wefts = input.wefts - top - bottom;
+            if(new_wefts < 0) new_wefts = 0;
+
+            const d: Draft = new Draft({warps: new_warps, wefts: new_wefts});
+
+            d.pattern.forEach((row, i) => {
+              row.forEach((cell, j) => {
+                cell.setHeddle(input.pattern[i+top][j+left].getHeddle());                             
+              });
+            });
+            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
+            d.gen_name = this.formatName(op_input.drafts, "trim");
+            return d;
+        });
+
+        return Promise.resolve(outputs);
+      }
+          
+    }
+
     // const warp_rep: Operation = {
     //   name: 'warprep',
     //   dx: 'specifies an alternating pattern along the warp',
@@ -1586,7 +1658,7 @@ export class OperationService {
     const twill: Operation = {
       name: 'twill',
       displayname: 'twill',
-      dx: 'generates or fills with a twill structure described by theop_input.drafts',
+      dx: 'generates or fills with a twill structure described by the input drafts',
       params: [
         {name: 'unders',
         type: 'number',
@@ -1653,6 +1725,282 @@ export class OperationService {
         }
       }        
     }
+
+
+    const complextwill: Operation = {
+      name: 'complextwill',
+      displayname: 'complex twill',
+      dx: 'generates a specified by the input parameters, alternating warp and weft facing with each input value',
+      params: [
+        {name: 'pattern',
+        type: 'string',
+        min: 1,
+        max: 100,
+        value: '2 2 3 3',
+        dx: 'the under over pattern of this twill (e.g. 2 2 3 3)'
+        },
+        {name: 'S/Z',
+        type: 'boolean',
+        min: 0,
+        max: 1,
+        value: 0,
+        dx: 'unchecked for Z twist, checked for S twist'
+        }
+      ],
+      max_inputs: 1,
+      perform: (op_inputs: Array<OpInput>) => {
+
+        const op_input = op_inputs[0];
+        const twist = op_input.params[1];
+        const pattern_string: String = String(op_input.params[0]);
+
+       const sequence: Array<number> = pattern_string.split(' ').map(el => parseInt(el));
+
+
+
+        let sum: number =sequence.reduce( (acc, val) => {
+            return val + acc;
+        }, 0);
+
+        const starting_line: Array<boolean>  = [];
+        let under = true;
+        sequence.forEach(input => {
+          for(let j = 0; j < input; j++){
+            starting_line.push(under);
+          }
+          under = !under;
+        });
+
+
+        const pattern:Array<Array<Cell>> = [];
+        let twist_val = (twist == 0) ? 1 : -1;
+        for(let i = 0; i < sum; i++){
+          pattern.push([]);
+          for(let j = 0; j < sum; j++){
+            let ndx = (j+(twist_val*i)) % sum;
+            if(ndx < 0) ndx = sum + ndx;
+            pattern[i].push(new Cell(starting_line[ndx]));
+          }
+        }
+
+
+        let outputs: Array<Draft> = [];
+        const d: Draft = new Draft({warps: sum, wefts: sum, pattern: pattern});
+        d.gen_name = this.formatName([], "twill");
+        outputs.push(d);
+
+        return  Promise.resolve(outputs)
+
+       
+      }        
+    }
+
+
+
+    const waffle: Operation = {
+      name: 'waffle',
+      displayname: 'waffle',
+      dx: 'generates or fills with a waffle structure',
+      params: [
+        {name: 'width',
+        type: 'number',
+        min: 1,
+        max: 100,
+        value: 8,
+        dx: 'width'
+        
+        },
+        {name: 'height',
+        type: 'number',
+        min: 1,
+        max: 100,
+        value: 8,
+        dx: 'height'
+        },
+        {name: 'tabby variation',
+        type: 'number',
+        min: 0,
+        max: 100,
+        value: 1,
+        dx: 'builds tabby around the edges of the central diamond, crating some strange patterns'
+        }
+      ],
+      max_inputs: 1,
+      perform: (op_inputs: Array<OpInput>) => {
+
+        const op_input = op_inputs[0];
+        const width = op_input.params[0];
+        const height = op_input.params[1];
+        const bindings = op_input.params[2];
+
+
+        let outputs: Array<Draft> = [];
+
+        const pattern: Array<Array<Cell>> = [];
+        const mid_warp: number = Math.floor(width / 2);  //for 5 this is 2
+        const mid_weft: number = Math.floor(height / 2); //for 5 this is 2
+        const warps_to_wefts_ratio = mid_warp/mid_weft;
+
+        //first create the diamond
+        for(let i = 0; i < height; i++){
+          pattern.push([]);
+          const row_offset = (i > mid_weft) ? height - i : i;
+          for(let j = 0; j < width; j++){
+            if(j >= mid_warp - row_offset*warps_to_wefts_ratio && j <= mid_warp + row_offset*warps_to_wefts_ratio) pattern[i][j] = new Cell(true);
+            else pattern[i][j] = new Cell(false);
+          }
+        }
+
+        //carve out the tabby
+        if(bindings > 0){
+        const tabby_range_size = bindings * 2 + 1;
+        for(let i = 0; i < height; i++){
+          const row_offset = (i > mid_weft) ? height - i : i;
+          const range_size = Math.floor((mid_warp + row_offset*warps_to_wefts_ratio) - (mid_warp - row_offset*warps_to_wefts_ratio)) + 1;
+
+            //figure out how many bindings we're dealing with here - alterlate to the inside and outside of the diamong
+            for(let b = 1; b <= bindings; b++){
+              const inside = (b % 2 == 1) ? true : false;
+              if(inside){
+                const increment = Math.floor(b+1 / 2)
+                const diff = Math.ceil((range_size - tabby_range_size) / 2);
+                const left_j = mid_warp - (diff * increment);
+                const right_j = mid_warp + (diff * increment);
+                if(left_j > 0 && left_j < width) pattern[i][left_j].setHeddle(false);
+                if(right_j > 0 && right_j < width) pattern[i][right_j].setHeddle(false);
+              }else{
+                const increment = Math.floor(b / 2);
+                const left_j = (mid_warp - Math.floor((range_size-1)/2)) - (increment*2);
+                const right_j = (mid_warp + Math.floor((range_size-1)/2)) + (increment*2);
+                if(left_j > 0 && left_j < width) pattern[i][left_j].setHeddle(true);
+                if(right_j > 0 && right_j < width) pattern[i][right_j].setHeddle(true);
+              }
+
+            }
+          
+        }
+      }
+
+
+        if(op_input.drafts.length == 0){
+        
+          const d: Draft = new Draft({warps: width, wefts: height, pattern: pattern});
+          d.gen_name = this.formatName(op_input.drafts, "waffle");
+          outputs.push(d);
+
+        }else{
+           outputs =op_input.drafts.map(input => {
+            const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
+            d.fill(pattern, 'mask');
+            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
+            d.gen_name = this.formatName(op_input.drafts, "waffle");
+            return d;
+          });
+        }
+        return Promise.resolve(outputs);
+
+      }        
+
+
+    }
+
+    const makesymmetric: Operation = {
+      name: 'makesymmetric',
+      displayname: 'make symmetric',
+      dx: 'rotates the draft around a corner, creating rotational symmetry around the selected point',
+      params: [
+        {name: 'corner',
+        type: 'number',
+        min: 0,
+        max: 3,
+        value: 0,
+        dx: 'corner to which this draft is rotated around 0 is top left, 1 top right, 2 bottom right, 3 bottom left'
+        },
+        {name: 'even/odd',
+        type: 'boolean',
+        min: 0,
+        max: 1,
+        value: 0,
+        dx: 'select if you would like the output to be an even or odd number, an odd number shares a single central point'
+        }
+
+      ],
+      max_inputs: 1,
+      perform: (op_inputs: Array<OpInput>) => {
+
+        const op_input = op_inputs[0];
+        const corner = op_input.params[0];
+        const even = op_input.params[1] === 0;
+
+        if(op_input.drafts.length == 0) return Promise.resolve([]);
+        const d = op_input.drafts[0];
+        
+      
+        const pattern: Array<Array<Cell>> = [];
+
+        let use_i = 0;
+        let use_j = 0;
+
+        let weft_num = d.wefts * 2;
+        let warp_num = d.warps * 2;
+
+        for(let i =0; i < weft_num; i++){
+          pattern.push([]);
+          for(let j = 0; j < warp_num; j++){
+            switch(corner){
+
+
+              case 0:
+                use_i = (i >= d.wefts) ? d.wefts - (i - d.wefts)-1: i;
+                use_j = (j >= d.warps) ? j - d.warps : d.warps-1 - j; 
+              break;
+
+              case 1:
+                use_i = (i >= d.wefts) ? d.wefts - (i - d.wefts)-1: i;
+                use_j = (j >= d.warps) ? d.warps - (j - d.warps)-1  : j; 
+              break;
+              
+
+              case 2:
+                use_i = (i >= d.wefts) ? i - d.wefts : d.wefts-1 - i;
+                use_j = (j >= d.warps) ? d.warps - (j - d.warps)-1  : j; 
+              break;
+
+              case 3:
+                use_i = (i >= d.wefts) ? i - d.wefts : d.wefts-1 - i;
+                use_j = (j >= d.warps) ? j - d.warps : d.warps-1 - j; 
+              break;              
+            }
+            
+            const value: boolean = d.pattern[use_i][use_j].getHeddle();
+            pattern[i].push(new Cell(value));
+          }
+        }
+
+        let usepattern; 
+        //delete one of the central rows
+        if(!even){
+          const deletedweft = pattern.filter((el, i) => i !== d.wefts);
+          usepattern = deletedweft.map(row => row.filter((el, j) => j !== d.warps));
+        }else{
+          usepattern = pattern;
+        }
+
+
+      
+        const draft: Draft = new Draft({warps: usepattern[0].length, wefts: usepattern.length, pattern: usepattern});
+        draft.gen_name = this.formatName(op_input.drafts, "4-way");
+    
+
+      
+
+        return Promise.resolve([draft]);
+
+      }        
+
+
+    }
+
 
     
 
@@ -2452,6 +2800,96 @@ export class OperationService {
       }
     }
 
+    const dynamic_join_left: DynamicOperation = {
+      name: 'dynamicjoinleft',
+      displayname: 'join left (with positions)',
+      dynamic_param_id: 0,
+      dynamic_param_type: "number",
+      dx: 'takes each input draft and assign it a position from left to right',
+      params: [   
+        {name: 'sections',
+        type: 'number',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: 'the number of equally sized sections to include in the draft'
+    },
+    {name: 'width',
+      type: 'number',
+      min: 1,
+      max: 10000,
+      value: 100,
+      dx: 'the total width of the draft'
+    }],
+      max_inputs: 0, 
+      perform: (op_inputs: Array<OpInput>) => {
+      
+        //split the inputs into the input associated with 
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "dynamicjoinleft");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        
+        //parent param
+        const sections = parent_inputs[0].params[0];
+        const total_width = parent_inputs[0].params[1];
+      
+        const warps_in_section = total_width / sections;
+      
+        //now just get all the drafts
+        const all_drafts: Array<Draft> = child_inputs.reduce((acc, el) => {
+          el.drafts.forEach(draft => {acc.push(draft)});
+          return acc;
+       }, []);
+
+       if(all_drafts.length === 0) return Promise.resolve([]);
+       
+       let total_warps: number = 0;
+       const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
+        total_warps = utilInstance.lcm(all_warps);
+
+
+        //create a map from layers to drafts
+        const section_draft_map: Array<any> = child_inputs.map(el => { return {section: el.params[0]-1, draft: el.drafts.shift()}}); 
+        const first_draft: Draft = section_draft_map[0].draft;
+
+        const d:Draft = new Draft({
+          warps:total_width, 
+          wefts:total_warps,
+          rowShuttleMapping: first_draft.rowShuttleMapping,
+          rowSystemMapping: first_draft.rowSystemMapping
+         });
+
+
+         d.pattern.forEach((row, i) => {
+          row.forEach((cell, j) => {
+              const use_section = Math.floor(j / warps_in_section);
+              const warp_in_section = j % warps_in_section;
+              const use_draft_map = section_draft_map.find(el => el.section === use_section);
+              console.log(use_draft_map, warps_in_section, use_section, i, j);
+              if(use_draft_map !== undefined){
+                const use_draft = use_draft_map.draft;
+                cell.setHeddle(use_draft.pattern[i%use_draft.wefts][warp_in_section%use_draft.warps].getHeddle());
+              }
+          });
+         });
+
+         d.colShuttleMapping.forEach((val, j) => {
+              const use_section = Math.floor(j / warps_in_section);
+              const warp_in_section = j % warps_in_section;
+              const use_draft_map = section_draft_map.find(el => el.section === use_section);
+              if(use_draft_map !== undefined){
+                const use_draft = use_draft_map.draft;
+                val = use_draft.colShuttleMapping[warp_in_section%use_draft.warps];
+                d.colSystemMapping = use_draft.colSystemMapping[warp_in_section%use_draft.warps];
+              }
+         });
+
+
+
+        return Promise.resolve([d]);
+        
+      }
+    }
+
     const germanify: Operation = {
       name: 'gemanify',
       displayname: 'gemanify',
@@ -2638,10 +3076,13 @@ export class OperationService {
 
 
     this.dynamic_ops.push(assignlayers);
+    this.dynamic_ops.push(dynamic_join_left);
 
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
     this.ops.push(twill);
+    this.ops.push(complextwill);
+    this.ops.push(waffle);
     this.ops.push(satin);
     this.ops.push(tabby);
     this.ops.push(basket);
@@ -2673,6 +3114,7 @@ export class OperationService {
     this.ops.push(set);
     this.ops.push(unset);
     this.ops.push(rotate);
+    this.ops.push(makesymmetric);
     this.ops.push(fill);
     this.ops.push(overlay);
     this.ops.push(atop);
@@ -2682,6 +3124,7 @@ export class OperationService {
     this.ops.push(variants);
     this.ops.push(knockout);
     this.ops.push(crop);
+    this.ops.push(trim);
     this.ops.push(makeloom);
     this.ops.push(drawdown);
     this.ops.push(erase_blank);
@@ -2692,26 +3135,25 @@ export class OperationService {
     this.classification.push(
       {category: 'structure',
       dx: "0-1 input, 1 output, algorithmically generates weave structures based on parameters",
-      ops: [tabby, twill, satin, basket, rib, random]}
+      ops: [tabby, twill, satin, basket, rib, waffle, complextwill, random]}
     );
 
     this.classification.push(
       {category: 'block design',
       dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
-      ops: [rect, crop, margin, tile]
+      ops: [rect, crop, trim, margin, tile]
     }
     );
     this.classification.push(
       {category: 'transformations',
       dx: "1 input, 1 output, applies an operation to the input that transforms it in some way",
-      ops: [invert, flipx, flipy, shiftx, shifty, rotate, slope, stretch, resize, clear, set, unset]}
+      ops: [invert, flipx, flipy, shiftx, shifty, rotate, makesymmetric, slope, stretch, resize, clear, set, unset]}
       );
 
     this.classification.push(
         {category: 'combine',
         dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [interlace, splicein, assignlayers, layer,  fill, joinleft, jointop]}
-  //      ops: [interlace, layer, tile, joinleft, jointop, selvedge, atop, overlay, mask, knockout, bindweftfloats, bindwarpfloats]}
+        ops: [interlace, splicein, assignlayers, layer,  fill, joinleft, dynamic_join_left, jointop]}
         );
     
      this.classification.push(

@@ -15,6 +15,11 @@
     height: 30px;
 }
 
+.text-err{
+    color: red;
+    width: 500px;
+}
+
 .top-row .child{
     background: #999999;
     display: flex;
@@ -96,14 +101,25 @@ button.is-primary{
     line-height: 40px;
 }
 
-.param-sider{
+.param-slider{
     width: 50%;
+    text-align: left;
+    position: relative;
+    left: 10px;
+    overflow: hidden;
+}
+
+.param-text{
+    width: 50%;
+    text-align: left;
+    padding: 0px 10px;
     overflow: hidden;
 }
 
 .param-checkbox{
     overflow: hidden;
-    width: 60%;
+    width: 28px;
+    text-align: right;
 }
 
 .param-inputs{

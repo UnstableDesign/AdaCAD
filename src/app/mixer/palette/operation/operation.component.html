@@ -140,20 +140,36 @@ cdkDrag
         <ng-container  *ngIf="param.type == 'string'">
            
     
-             <div class='param-label'>
+             <div class='param-text'>
                 <input 
                 [formControl]="op_inputs[i]"
+                [errorStateMatcher]="textValidate"
                 [matTooltip]=param.dx
                 type = "text"
                 [name]=param.name
-                [min]=param.min
-                [max]=param.max
-                step = 1
                 value = op_inputs[i].value
                 (change)= "onParamChange(i, op_inputs[i].value)"
               >
-      
             </div>
+
+            <div class='param-label'>
+                <button mat-icon-button
+                color="accent"
+                matTooltip="update draft with input values"
+                (click)= "onParamChange(i, op_inputs[i].value)">
+                <i class="fas fa-redo"></i></button>
+            </div>
+
+
+              <div class="text-err" *ngIf="op_inputs[i].hasError('required')">
+                 an input is required 
+                </div>
+        
+              <div class="text-err" *ngIf="op_inputs[i].hasError('pattern')">
+                invalid, pattern can only contain numbers and spaces
+            </div>
+      
+    
           </ng-container>
     </div>
     </ng-container>

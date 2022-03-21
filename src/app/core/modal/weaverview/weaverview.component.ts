@@ -1,7 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { util } from '@tensorflow/tfjs';
 import { Draft } from '../../../core/model/draft';
 import { Render } from '../../../core/model/render';
+import { System } from '../../model/system';
+import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { SystemsService } from '../../provider/systems.service';
 
@@ -21,6 +24,10 @@ export class WeaverViewComponent implements OnInit {
   draft: Draft;
   front: boolean = true;
 
+  weft_systems: Array<System>;
+  warp_systems: Array<System>;
+  collective_systems: Array<{id: number, weft: System, warp: System}> = [];
+
   @Output() onViewChange: any = new EventEmitter();
   @Output() onViewFront: any = new EventEmitter();
   @Output() onZoomChange: any = new EventEmitter();
@@ -39,7 +46,25 @@ export class WeaverViewComponent implements OnInit {
 
             this.render = data.render;
             this.draft = data.draft;
-           }
+
+            console.log("unique rows", utilInstance.filterToUniqueValues(this.draft.rowSystemMapping))
+
+            this.weft_systems = utilInstance.filterToUniqueValues(this.draft.rowSystemMapping).map(el => this.ss.getWeftSystem(el));
+            this.warp_systems = utilInstance.filterToUniqueValues(this.draft.colSystemMapping).map(el => this.ss.getWarpSystem(el));;
+            
+            this.weft_systems.forEach(system => {
+              this.collective_systems.push({id: system.id, weft: system, warp: null});
+            })
+
+            this.warp_systems.forEach(system => {
+              const ndx = this.collective_systems.findIndex(el => el.id === system.id);
+              if(ndx !== -1) this.collective_systems[ndx].warp = system;
+              else this.collective_systems.push({id: system.id, weft: null, warp: system});
+            })
+
+
+
+  }
  
   ngOnInit() {
   }
@@ -68,6 +93,32 @@ export class WeaverViewComponent implements OnInit {
     e.source = source;
     e.value = !value;
     this.onViewFront.emit(e);
+  }
+
+  showOnly(id){
+    
+    this.collective_systems.forEach(data => {
+      if(data.id === id){
+        if(data.warp !== null){
+          data.warp.visible = true;
+          this.onShowWarpSystem.emit({systemId: data.id});
+        }  
+        if(data.weft !== null){
+          data.weft.visible = true;
+          this.onShowWeftSystem.emit({systemId: data.id});
+        }  
+      }else{
+        if(data.warp !== null){
+          this.onHideWarpSystem.emit({systemId: data.id});
+          data.warp.visible = false;
+        }  
+        if(data.weft !== null){
+          data.weft.visible = false;
+          this.onHideWeftSystem.emit({systemId: data.id});
+        }  
+      }
+    });
+
   }
   
  visibleButton(id, visible, type) {

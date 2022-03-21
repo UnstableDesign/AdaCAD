@@ -4,13 +4,20 @@ import utilInstance from '../../../core/model/util';
 import { OperationService, Operation, DynamicOperation } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Form, FormControl } from '@angular/forms';
+import { Form, FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
 import { OpNode, TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
-import { Console } from 'console';
-import { toUnicode } from 'punycode';
+import {ErrorStateMatcher} from '@angular/material/core';
+
+
+/** Error when invalid control is dirty, touched, or submitted. */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+}
 
 @Component({
   selector: 'app-operation',
@@ -97,6 +104,8 @@ export class OperationComponent implements OnInit {
 
    is_dynamic_op: boolean = false;
 
+   textValidate: any;
+
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
@@ -106,7 +115,7 @@ export class OperationComponent implements OnInit {
     
       //this.outputs = [];
   
-
+      this.textValidate = new MyErrorStateMatcher();
 
   }
 
@@ -119,7 +128,7 @@ export class OperationComponent implements OnInit {
     const graph_node = <OpNode> this.tree.getNode(this.id);
 
     this.op.params.forEach((val, ndx) => {
-      if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx]));
+      if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx], [Validators.required, Validators.pattern('[1-9 ]*')]));
       else this.op_inputs.push(new FormControl(val.value));
     });
 
@@ -318,6 +327,8 @@ export class OperationComponent implements OnInit {
   }
 
   onParamChange(id: number, value: number){
+
+    //if(this.op_inputs[id].hasError('pattern') || this.op_inputs[id].hasError('required')) return;
 
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.params[id] = value;

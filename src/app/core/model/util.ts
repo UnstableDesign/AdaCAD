@@ -825,6 +825,19 @@ lcm(set: Array<number>) : number{
 
 }
 
+
+filterToUniqueValues(arr: Array<any>) : Array<any>{
+
+  const unique: Array<any> = [];
+  arr.forEach(el => {
+    const ndx = unique.findIndex(uel => uel === el);
+    if(ndx === -1) unique.push(el);
+  });
+
+  return unique;
+
+}
+
                                                                           
                                                                                                                    
   // generateId :: Integer -> String                                                                                                  

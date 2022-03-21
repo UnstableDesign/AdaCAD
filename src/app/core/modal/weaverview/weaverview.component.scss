@@ -30,6 +30,25 @@ h4{
   margin:auto;
 }
 
+.system-matrix{
+  display: flex;
+  flex-direction: column;
+}
+
+.system-row{
+  display: flex;
+  flex-direction: row;
+}
+
+.system-activate{
+  width: 50%;
+}
+
+.weft-system,
+.warp-system{
+  width: 25%;
+}
+
 // mat-slide-toggle{
 //     padding: 0px 8px;
 // }

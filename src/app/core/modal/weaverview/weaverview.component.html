@@ -55,33 +55,52 @@
         </mat-slide-toggle>
       </div> -->
 
-      <div class="system-viz">
 
-        <ng-container *ngIf="ss.weft_systems.length > 1">
-            <ng-container *ngFor="let system of ss.weft_systems">
-              <div class="view_slider">
+      <div class = "system-matrix">
 
-              <mat-slide-toggle
-              [checked]="!system.visible"
-              (change)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'weft')">
-            </mat-slide-toggle> Hide Weft System {{system.getChar()}}
-            </div>
-          </ng-container>
-        </ng-container>
+        <div class="system-row">
+        <div class = "system-activate">
+          
+        </div>
 
-        <ng-container *ngIf="ss.warp_systems.length > 1">
+        <div class = "weft-system">
+          show wefts
+        </div>
 
-        <ng-container *ngFor="let system of ss.warp_systems">
-          <div class="view_slider">
-
-          <mat-slide-toggle
-          [checked]="!system.visible"
-          (change)="system.visible = !system.visible; visibleButton(system.id, system.visible, 'warp')">
-          </mat-slide-toggle> Hide Warp System {{system.getChar()}}
-          </div>
-        </ng-container>
-        </ng-container>
+        <div class = "warp-system">
+         show warps
+        </div>
       </div>
+
+        <div *ngFor="let system_data of collective_systems;" class = "system-row">
+
+
+          <div class = "system-activate">
+            <button mat-stroked-button (click) = "showOnly(system_data.id)"> System {{system_data.id}}</button>
+          </div>
+
+          <div class = "weft-system">
+            <mat-slide-toggle *ngIf="system_data.weft !== null"
+            [checked]="system_data.weft.visible"
+            (change)="system_data.weft.visible = !system_data.weft.visible; visibleButton(system_data.id, system_data.weft.visible, 'weft')">
+          </mat-slide-toggle>
+          </div>
+
+          <div class = "warp-system">
+            <mat-slide-toggle *ngIf="system_data.warp !== null"
+            [checked]="system_data.warp.visible"
+            (change)="system_data.warp.visible = !system_data.warp.visible; visibleButton(system_data.id, system_data.warp.visible, 'warp')">
+          </mat-slide-toggle>
+          </div>
+      
+
+        </div>
+
+
+      </div>
+
+
+    
 
 
 

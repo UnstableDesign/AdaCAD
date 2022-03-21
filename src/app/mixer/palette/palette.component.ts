@@ -1118,12 +1118,16 @@ export class PaletteComponent implements OnInit{
 
       const op = <OperationComponent> this.tree.getComponent(obj.id);
       const params = [];
+      const inlets = [];
       let new_bounds: Bounds = null;
+
       op.op_inputs.forEach((input,ndx) => {
        params.push(input.value);
       });
 
-
+      op.inlets.forEach((input,ndx) => {
+       inlets.push(input.value);
+      });
 
       if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
 
@@ -1144,7 +1148,7 @@ export class PaletteComponent implements OnInit{
       }
 
 
-      const id: number = this.duplicateOperation(op.name, params, new_bounds, op.inlets);
+      const id: number = this.duplicateOperation(op.name, params, new_bounds, inlets);
       const new_op = <OperationComponent> this.tree.getComponent(id);
 
       //this.operationParamChanged({id: id});
