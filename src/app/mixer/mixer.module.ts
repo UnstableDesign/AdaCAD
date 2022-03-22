@@ -3,7 +3,6 @@ import { CoreModule } from '../core/core.module';
 
 
 import { MixerComponent} from './mixer.component';
-import { MixerDesignComponent } from './tool/mixerdesign/mixerdesign.component';
 import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { PaletteComponent } from './palette/palette.component';
@@ -28,7 +27,6 @@ import { NoteComponent } from './palette/note/note.component';
         WeaverModule
     ],
     declarations: [
-        MixerDesignComponent,
         MixerComponent,
         MixerViewComponent,
         SubdraftComponent,
