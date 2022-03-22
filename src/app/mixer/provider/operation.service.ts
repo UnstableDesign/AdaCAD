@@ -9,6 +9,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { number } from 'mathjs';
+import { C } from '@angular/cdk/keycodes';
 
 
 export interface OperationParams {
@@ -293,29 +294,51 @@ export class OperationService {
       name: 'interlace',
       displayname: 'interlace',  
       dx: 'interlace the input drafts together in alternating lines',
-      params: [],
+      params: [
+        {name: 'repeat',
+        type: 'boolean',
+        min: 0,
+        max: 1,
+        value: 1,
+        dx: "controls if the inputs are intelaced in the exact format sumitted or repeated to fill evenly"
+      }],
       max_inputs: 100,
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
+        const factor_in_repeats = op_input.params[0];
 
         if(op_input.drafts.length === 0) return Promise.resolve([]);
         const outputs: Array<Draft> = [];
 
-        const max_wefts:number = utilInstance.getMaxWefts(op_input.drafts);
-        const max_warps:number = utilInstance.getMaxWarps(op_input.drafts);
+    
+        //now just get all the drafts
+        const all_drafts: Array<Draft> = op_input.drafts;
 
-      
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
+        if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+        else  total_wefts = utilInstance.getMaxWefts(all_drafts);
+
+        let total_warps: number = 0;
+        const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
+        if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
+        else  total_warps = utilInstance.getMaxWarps(all_drafts);
+
+
+
+
         //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: max_warps, wefts:(max_wefts *op_input.drafts.length)});
+        const d:Draft = new Draft({warps: total_warps, wefts:(total_wefts *op_input.drafts.length)});
 
         d.pattern.forEach((row, ndx) => {
 
             const select_array: number = ndx %op_input.drafts.length; 
-            const select_row: number = Math.floor(ndx /op_input.drafts.length);
+            const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /op_input.drafts.length) % op_input.drafts[select_array].wefts : Math.floor(ndx /op_input.drafts.length);
 
             row.forEach((cell, j) =>{
-                if(op_input.drafts[select_array].hasCell(select_row, j)){
-                    cell.setHeddle(op_input.drafts[select_array].pattern[select_row][j].getHeddle());
+                const select_col = (factor_in_repeats === 1) ? j % op_input.drafts[select_array].warps : j;
+                if(op_input.drafts[select_array].hasCell(select_row, select_col)){
+                    cell.setHeddle(op_input.drafts[select_array].pattern[select_row][select_col].getHeddle());
                 }else{
                     cell.setHeddle(null);
                 }
