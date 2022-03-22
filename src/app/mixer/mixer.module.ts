@@ -13,7 +13,6 @@ import { ConnectionComponent } from './palette/connection/connection.component';
 import { OpsComponent } from './modal/ops/ops.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
-import { MixerInitComponent } from './modal/mixerinit/mixerinit.component';
 import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component';
 import { WeaverModule } from '../weaver/weaver.module';
 import { NoteComponent } from './palette/note/note.component';
@@ -38,7 +37,6 @@ import { NoteComponent } from './palette/note/note.component';
         OpsComponent,
         OpHelpModal,
         ImageComponent,
-        MixerInitComponent,
         DraftdetailComponent,
         NoteComponent        ]
 })
