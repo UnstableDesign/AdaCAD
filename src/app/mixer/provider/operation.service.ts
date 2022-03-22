@@ -2635,6 +2635,36 @@ export class OperationService {
       
     }
 
+
+    const color_map: DynamicOperation = {
+      name: 'colormap',
+      displayname: 'color map',
+      dx: 'uploads an image and creates an input for each color in the image. Assigning the draft to the color creates a draft',
+      dynamic_param_type: 'color',
+      dynamic_param_id: 1,
+      max_inputs: 0,
+      params: [
+          {name: 'image file (.jpg or .png)',
+          type: 'file',
+          min: 1,
+          max: 100,
+          value: 'null',
+          dx: 'the total number of layers in this cloth'
+        }
+      ],
+      perform: (op_inputs: Array<OpInput>)=> {
+          
+        //split the inputs into the input associated with 
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "colormap");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        
+      
+      return Promise.resolve([]);
+
+      }
+      
+    }
+
   
     const tile: Operation = {
       name: 'tile',
@@ -3099,6 +3129,7 @@ export class OperationService {
 
     this.dynamic_ops.push(assignlayers);
     this.dynamic_ops.push(dynamic_join_left);
+    this.dynamic_ops.push(color_map);
 
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
@@ -3163,7 +3194,7 @@ export class OperationService {
     this.classification.push(
       {category: 'block design',
       dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
-      ops: [rect, crop, trim, margin, tile]
+      ops: [color_map, rect, crop, trim, margin, tile]
     }
     );
     this.classification.push(

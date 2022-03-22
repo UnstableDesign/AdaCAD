@@ -35,6 +35,9 @@ export class UploadFormComponent implements OnInit {
     let fileType = file.name.split(".").pop();
  
     this.currentUpload = new Upload(file);
+
+    this.progress = this.currentUpload.progress;
+
     this.upSvc.pushUpload(this.currentUpload).then(snapshot => {
       return this.upSvc.getDownloadData(this.currentUpload.name)
     }).then(url => {
@@ -86,7 +89,7 @@ export class UploadFormComponent implements OnInit {
                     this.onData.emit(obj);
                 });
               });
-
+              console.log("returning obj");
                break;
             }
 
@@ -94,7 +97,8 @@ export class UploadFormComponent implements OnInit {
           
       });
   
-      
+      this.progress = this.currentUpload.progress;
+
 
     // p.pipe(
     //     finalize(() => {

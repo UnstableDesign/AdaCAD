@@ -170,7 +170,22 @@ cdkDrag
             </div>
       
     
-          </ng-container>
+        </ng-container>
+
+
+
+        <ng-container  *ngIf="param.type == 'file'">
+           
+    
+          <div class='param-file'>
+            <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
+            <div class="error">{{error}}</div> 
+         </div>
+
+     </ng-container>
+
+
+
     </div>
     </ng-container>
     </div>

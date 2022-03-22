@@ -13,7 +13,7 @@
       </button>
    </div>
    <div *ngIf="uploading" class="progress-bar">
-      <mat-progress-bar mode="indeterminate" [value]="progress"></mat-progress-bar>
+      <mat-progress-bar mode="determinate" [value]="upSvc.progress"></mat-progress-bar>
    </div>
 </div>
 <canvas #uploadImage class="hidden"></canvas>

@@ -360,6 +360,11 @@ export class OperationComponent implements OnInit {
    
   }
 
+  //returned from a file upload event
+  handleFile(obj: any){
+    console.log("obj", obj);
+  }
+
   /**
    * 
    * @param id 
