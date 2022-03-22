@@ -11,7 +11,6 @@ import { SnackbarComponent } from './palette/snackbar/snackbar.component';
 import { MarqueeComponent } from './palette/marquee/marquee.component';
 import { OperationComponent } from './palette/operation/operation.component';
 import { ConnectionComponent } from './palette/connection/connection.component';
-import { TreeComponent } from './tool/tree/tree.component';
 import { OpsComponent } from './modal/ops/ops.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
@@ -38,7 +37,6 @@ import { NoteComponent } from './palette/note/note.component';
         MarqueeComponent,
         OperationComponent,
         ConnectionComponent,
-        TreeComponent,
         OpsComponent,
         OpHelpModal,
         ImageComponent,

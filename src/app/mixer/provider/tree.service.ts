@@ -172,7 +172,7 @@ export class TreeService {
         inlets = [0];
       }
     }else{
-      inlets = [0];
+      inlets = inlets;
     }
 
 

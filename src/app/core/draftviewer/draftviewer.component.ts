@@ -1992,6 +1992,9 @@ public drawWeftEnd(top, left, shuttle){
   public redrawYarnView(){
 
 
+    
+
+
     for(let i = 0; i < this.render.visibleRows.length; i++){
 
       let index_row = this.render.visibleRows[i];

@@ -2832,7 +2832,7 @@ export class OperationService {
         const sections = parent_inputs[0].params[0];
         const total_width = parent_inputs[0].params[1];
       
-        const warps_in_section = total_width / sections;
+        const warps_in_section = Math.ceil(total_width / sections);
       
         //now just get all the drafts
         const all_drafts: Array<Draft> = child_inputs.reduce((acc, el) => {
@@ -2864,7 +2864,6 @@ export class OperationService {
               const use_section = Math.floor(j / warps_in_section);
               const warp_in_section = j % warps_in_section;
               const use_draft_map = section_draft_map.find(el => el.section === use_section);
-              console.log(use_draft_map, warps_in_section, use_section, i, j);
               if(use_draft_map !== undefined){
                 const use_draft = use_draft_map.draft;
                 cell.setHeddle(use_draft.pattern[i%use_draft.wefts][warp_in_section%use_draft.warps].getHeddle());

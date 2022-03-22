@@ -1151,8 +1151,20 @@ export class PaletteComponent implements OnInit{
       const id: number = this.duplicateOperation(op.name, params, new_bounds, inlets);
       const new_op = <OperationComponent> this.tree.getComponent(id);
 
+      //duplicate the connections as well
+      const cxns = this.tree.getInputsWithNdx(op.id);
+      console.log("DUPLICATED CONNECTION", cxns);
+      cxns.forEach(cxn => {
+        if(cxn.tn.inputs.length > 0){
+        const from = cxn.tn.inputs[0].tn.node.id;
+        this.createConnection(from, new_op.id, cxn.ndx);
+        }
+      })
+
+
+
       //this.operationParamChanged({id: id});
-     // this.addTimelineState();
+      this.addTimelineState();
  }
 
 
@@ -2234,8 +2246,6 @@ drawStarted(){
    * @returns 
    */
    async operationParamChanged(obj: any){
-
-    console.log("Op PARAM CHANGE");
 
     if(obj === null) return;
 
