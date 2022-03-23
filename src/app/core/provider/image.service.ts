@@ -34,10 +34,6 @@ export class ImageService {
         return  this.processImage(obj);
       
     }).then(data => {
-
-      console.log("data", data);
-
-     
   
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
@@ -102,6 +98,7 @@ export class ImageService {
           name: id,
           data: imgdata,
           colors: unique,
+          image: image,
           image_map: image_map,
           width: imgdata.width,
           height: imgdata.height,
@@ -119,12 +116,12 @@ export class ImageService {
   
 
   getImageData(id: string){
+    console.log("images", id, this.images)
     return this.images.find(el => el.id === id);
   
   }
 
   setImageData(id: string, data: any){
-    console.log("set image data for ", id, this.images);
     const entry = this.getImageData(id);
     entry.data = data;
   }

@@ -16,7 +16,6 @@ export class UploadFormComponent implements OnInit {
   @Input() type: string;
   progress:number = 0;
   selectedFiles: FileList;
-  currentUpload: Upload;
   uploading: boolean = false;
   imageToShow: any;
   downloadid: string;
@@ -42,6 +41,8 @@ export class UploadFormComponent implements OnInit {
         }
         console.log(obj);
         this.onData.emit(obj);
+        this.uploading = false;
+        this.selectedFiles = null;
       });  
 
             
@@ -55,6 +56,9 @@ export class UploadFormComponent implements OnInit {
     }).then(uploaded => {
       const obj = this.imageService.getImageData(upload.name);
       this.onData.emit(obj);
+      this.uploading = false;
+      this.selectedFiles = null;
+
     }); 
   }
 

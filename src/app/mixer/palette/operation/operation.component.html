@@ -15,42 +15,44 @@ cdkDrag
 
         <div  *ngFor="let input of inlets; let i = index" class="input-group" id = "inlet{{id}}-{{i}}">
 
+            <ng-container *ngIf="!is_dynamic_op || (is_dynamic_op && i > 0)">
+
+            <button 
+            class="button is-small input"
+            [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
+            (click)="inputSelected(i)">
+            <i class="fas fa-chevron-right"></i>
+            </button>
+
+            
+            <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'number'"
+            [formControl]="input"
+            type = "number"
+            value = input.value
+            min = 1
+            (change)= "onInletChange(i, input.value)"
+            >
+
+            <div *ngIf="is_dynamic_op && op.dynamic_param_type === 'color'"
+            [matTooltip]="input.value"
+            [style.background-color] = input.value
+            class="input-color"></div>
 
 
-        <button 
-        class="button is-small input"
-        [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
-        (click)="inputSelected(i)">
-        <i class="fas fa-chevron-right"></i>
+            
+            <button *ngFor="let input of tree.getOpComponentInputs(id, i);"
+            matTooltip = "click to remove this connection"
+            class="button is-small cxn"
+            (click)="removeConnectionTo(input, i)">
+            <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
+            </button>   
+
 
         
-        </button>
 
-        
-        <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'number'"
-        [formControl]="input"
-        type = "number"
-        value = input.value
-        min = 1
-        (change)= "onInletChange(i, input.value)"
-        >
-
-        <div *ngIf="is_dynamic_op && op.dynamic_param_type === 'color'"
-        [matTooltip]="input.value"
-        [style.background-color] = input.value
-        class="input-color"></div>
-
-
-        
-        <button *ngFor="let input of tree.getOpComponentInputs(id, i);"
-        matTooltip = "click to remove this connection"
-        class="button is-small cxn"
-        (click)="removeConnectionTo(input, i)">
-        <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
-        </button>   
+          </ng-container>
 
         </div>
-
        
     </div>
 
@@ -92,8 +94,23 @@ cdkDrag
 
 <div class="params">
 
+
+  <div class='param-image' id="param-image-{{id}}" >
+    <div id="image_preview-{{id}}">
+      <canvas id="preview_canvas-{{id}}"></canvas>
+    </div>
+    <div class="error"><p>{{filewarning}}</p></div> 
+   </div>
+
+   <div class="param-list">
+   
     <ng-container *ngFor="let param of op.params; let i = index">
-        <div class="param-row">
+      
+
+      <div class="param-row">
+
+      
+
 
         <div class="param-name">{{param.name}}</div>
 
@@ -185,15 +202,17 @@ cdkDrag
     
           <div class='param-file'>
             <upload-form type="init" (onData)="handleFile(i, $event)" class="button"></upload-form>
-            <div class="error">{{filewarning}}</div> 
          </div>
 
+       
      </ng-container>
 
 
 
     </div>
     </ng-container>
+
+  </div>
     </div>
 </div>
 </div>

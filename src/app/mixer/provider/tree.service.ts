@@ -186,27 +186,23 @@ export class TreeService {
       params = [];
     }
 
-    const default_param_values = this.ops.getOp(name).params.map(el => el.value);
     const param_types = this.ops.getOp(name).params.map(el => el.type);
-
-   
-
-
 
 
       const formatted_params = param_types.map((type, ndx) => {
         switch(type){
           case "boolean":
-            return (default_param_values[ndx]) ? 1 : 0;
+            return (params[ndx]) ? 1 : 0;
           
             case "file":
               return params[ndx];
         
             default:
-              return default_param_values[ndx];
+              return params[ndx];
         }
       });
   
+      const default_param_values = this.ops.getOp(name).params.map(el => el.value);
   
       //this gets teh default values for the opration
       //this overwrites some of those with any value that has been previous added
@@ -453,6 +449,7 @@ export class TreeService {
       .map(el => el.tn);
 
     const viewRefs = missing_inlets.map(el => el.node.ref);
+    console.log("IN SWEEP", inputs_to_op, opnode.inlets, missing_inlets);
     
     missing_inlets.forEach(el => {
         this.removeConnectionNode(el.inputs[0].tn.node.id, el.outputs[0].tn.node.id);
@@ -1380,6 +1377,10 @@ flipDraft(draft: Draft) : Draft{
     return draft_comps;
   }
 
+  getOpNodes():Array<OpNode>{
+    return this.nodes.filter(el => el.type === 'op').map(el => (<OpNode> el));
+  }
+
   /**
    * @todo update this to handle clear nodes whole input indexes no longer exist
    * scans the connections and checks that the to and from nodes AND INDEXES still exist
@@ -1907,13 +1908,13 @@ flipDraft(draft: Draft) : Draft{
   exportOpMetaForSaving() : Array<OpComponentProxy> {
     const objs: Array<any> = []; 
 
-    this.getOperations().forEach(op_node => {
+    this.getOpNodes().forEach(op_node => {
 
       const savable:OpComponentProxy = {
         node_id: op_node.id,
         name: op_node.name,
-        params: op_node.op_inputs.map(el => el.value),
-        inlets: op_node.inlets.map(el => el.value)
+        params: op_node.params,
+        inlets: op_node.inlets
       }
 
       

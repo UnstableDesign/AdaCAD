@@ -8,8 +8,7 @@ import { Loom } from '../../core/model/loom';
 import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
-import { number } from 'mathjs';
-import { C } from '@angular/cdk/keycodes';
+import { ImageService } from '../../core/provider/image.service';
 
 
 export interface OperationParams {
@@ -96,7 +95,8 @@ export class OperationService {
     private vae: VaeService, 
     private pfs: PatternfinderService,
     private ms: MaterialsService,
-    private ss: SystemsService) { 
+    private ss: SystemsService,
+    private is: ImageService) { 
 
     const rect: Operation = {
       name: 'rectangle',
@@ -2636,12 +2636,12 @@ export class OperationService {
     }
 
 
-    const color_map: DynamicOperation = {
-      name: 'colormap',
-      displayname: 'color map',
-      dx: 'uploads an image and creates an input for each color in the image. Assigning the draft to the color creates a draft',
+    const imagemap: DynamicOperation = {
+      name: 'imagemap',
+      displayname: 'image map',
+      dx: 'uploads an image and creates an input for each color found in the image. Assigning a draft to the color fills the color region with the selected draft',
       dynamic_param_type: 'color',
-      dynamic_param_id: 1,
+      dynamic_param_id: 0,
       max_inputs: 0,
       params: [
           {name: 'image file (.jpg or .png)',
@@ -2650,25 +2650,71 @@ export class OperationService {
           max: 100,
           value: 'noinput',
           dx: 'the total number of layers in this cloth'
-        }
+        },
+        {name: 'draft width',
+        type: 'number',
+        min: 1,
+        max: 10000,
+        value: 300,
+        dx: 'resize the input image to the width specified'
+      },
+        {name: 'draft height',
+        type: 'number',
+        min: 1,
+        max: 10000,
+        value: 200,
+        dx: 'resize the input image to the height specified'
+    }
       ],
       perform: (op_inputs: Array<OpInput>)=> {
           
         //split the inputs into the input associated with 
-        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "colormap");
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "imagemap");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
 
-        const image_data = parent_inputs[0].params[0];
-
-        console.log("IN RECOMPUTE", parent_inputs[0].params[0]);
-        
-        
+        const image_data = this.is.getImageData(parent_inputs[0].params[0]);
+        const res_w = parent_inputs[0].params[1];
+        const res_h = parent_inputs[0].params[2];
 
 
+        if(image_data === undefined) return Promise.resolve([]);
+        const data = image_data.data;
 
-        
-      
-      return Promise.resolve([]);
+        const color_to_drafts = data.colors.map((color, ndx) => {
+          const child_of_color = child_inputs.find(input => (input.params.findIndex(param => param === color) !== -1));
+          if(child_of_color === undefined) return {color: color, draft: null};
+          else return {color: color, draft: child_of_color.drafts[0]};
+        });
+
+
+        const pattern: Array<Array<Cell>> = [];
+        for(let i = 0; i < res_h; i++){
+          pattern.push([]);
+          for(let j = 0; j < res_w; j++){
+
+            const i_ratio = data.height / res_h;
+            const j_ratio = data.width / res_w;
+
+            const map_i = Math.floor(i * i_ratio);
+            const map_j = Math.floor(j * j_ratio);
+
+            const color_ndx = data.image_map[map_i][map_j];
+            const color_draft = color_to_drafts[color_ndx].draft;
+            if(color_draft === null) pattern[i].push(new Cell(false));
+            else {
+              const draft_i = i % color_draft.wefts;
+              const draft_j = j % color_draft.warps;
+              pattern[i].push(new Cell(color_draft.pattern[draft_i][draft_j].getHeddle()));
+            }
+
+          }
+        }
+
+
+
+        const draft: Draft = new Draft({wefts: res_h, warps: res_w, pattern: pattern});
+
+      return Promise.resolve([draft]);
 
       }
       
@@ -3138,7 +3184,7 @@ export class OperationService {
 
     this.dynamic_ops.push(assignlayers);
     this.dynamic_ops.push(dynamic_join_left);
-    this.dynamic_ops.push(color_map);
+    this.dynamic_ops.push(imagemap);
 
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
@@ -3203,7 +3249,7 @@ export class OperationService {
     this.classification.push(
       {category: 'block design',
       dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
-      ops: [color_map, rect, crop, trim, margin, tile]
+      ops: [imagemap, rect, crop, trim, margin, tile]
     }
     );
     this.classification.push(

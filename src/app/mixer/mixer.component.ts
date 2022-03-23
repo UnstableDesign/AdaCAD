@@ -495,7 +495,9 @@ export class MixerComponent implements OnInit {
 
 
           dialogRef.afterClosed().subscribe(loadResponse => {
+            this.palette.changeDesignmode('move');
             if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+          
       
          });
         }else{

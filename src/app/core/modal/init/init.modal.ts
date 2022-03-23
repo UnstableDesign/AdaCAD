@@ -27,7 +27,7 @@ export class InitModal implements OnInit {
   opts: StartOptions[] = [
       {value: 'example', viewValue: 'Load an Example', mixeronly: true},
       {value: 'ada', viewValue: 'AdaCAD (.ada) File', mixeronly: true},
-      {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File', mixeronly: false},
+     // {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File', mixeronly: false},
       // {value: 'wif', viewValue: 'WIF (.wif) File', mixeronly: false},   
       {value: 'new', viewValue: 'Empty Draft', mixeronly: false}
 

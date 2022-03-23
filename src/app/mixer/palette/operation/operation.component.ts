@@ -11,6 +11,7 @@ import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import {ErrorStateMatcher} from '@angular/material/core';
 import { ImageService } from '../../../core/provider/image.service';
+import { findBackendFactory, image } from '@tensorflow/tfjs';
 
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -95,6 +96,7 @@ export class OperationComponent implements OnInit {
    //these are the input parameters
    op_inputs: Array<FormControl> = [];
 
+   has_image_preview: boolean = false;
 
    //these are the drafts with any input parameters
    inlets: Array<FormControl> = [];
@@ -137,6 +139,10 @@ export class OperationComponent implements OnInit {
     });
 
 
+    /**
+     * Dynamic ops will always have one inlet, valued zero, and all additional inputs are added on top of that
+     * we do not draw the 0th element to the screen
+     */
     if(this.is_dynamic_op){
       //get the current param value and generate input slots
       const dynamic_param: number = (<DynamicOperation>this.op).dynamic_param_id;
@@ -145,39 +151,49 @@ export class OperationComponent implements OnInit {
       const inlet_values: Array<any> = graph_node.inlets.slice();
 
       if(dynamic_type === 'color'){
-        dynamic_value = inlet_values.length;
+        dynamic_value = inlet_values.length-1;
       }else{
         dynamic_value = graph_node.params[dynamic_param];
       }
 
-      for(let i = 0; i < dynamic_value; i++){
 
-          if(i < inlet_values.length){
-            /**@todo hacky way around inlet default values to 0 is to assume that user can never explicity set zero */
-            if(inlet_values[i] === 0) {
-              if(dynamic_type !== 'color') this.inlets.push(new FormControl(i+1));
-            }  
-            else   this.inlets.push(new FormControl(inlet_values[i]))
-          
-          }else{
-            this.inlets.push(new FormControl(i+1));
+      //if inlet values is greater than 1, then we need to load the existing values in
+      if(inlet_values.length > 1){
+        //push the first zero calue
+        inlet_values.forEach(inlet => {
+          this.inlets.push(new FormControl(inlet));
+        });
+
+      }else{
+        //we need to load the default values 
+        for(let i = 0; i < dynamic_value+1; i++){
+        
+          switch(dynamic_type){
+            case 'color':
+              this.inlets.push(new FormControl(i));
+              if(i >=graph_node.inlets.length) graph_node.inlets.push(i);
+              break;
+            case 'number':
+              this.inlets.push(new FormControl(i));
+              if(i >=graph_node.inlets.length) graph_node.inlets.push(i);
+              break;
           }
-      }
 
-      if(inlet_values.length > dynamic_value){
-        for(let j = dynamic_value; j < inlet_values.length; j++){
-          this.inlets.push(new FormControl(j+1));
         }
-      }
 
+      }
+    
     }else{
-      this.inlets.push(new FormControl(0));
+
+      graph_node.inlets.forEach(inlet => {
+        this.inlets.push(new FormControl(0));
+      });
     }
 
-    //make sure the graph is aligned with these values
-    this.inlets.forEach((fc, ndx) => {
-      graph_node.inlets[ndx] = fc.value;
-    })
+    if(graph_node.inlets.length != this.inlets.length ) console.error("inlets do not match", graph_node.inlets, this.inlets)
+
+
+
 
     const tl: Point = this.viewport.getTopLeft();
    
@@ -187,8 +203,6 @@ export class OperationComponent implements OnInit {
     this.base_height =  60 + 40 * this.op_inputs.length
     this.bounds.height = this.base_height;
 
-    
-
 
 
   }
@@ -197,7 +211,26 @@ export class OperationComponent implements OnInit {
   ngAfterViewInit(){
     this.rescale();
     this.onOperationParamChange.emit({id: this.id});
+    if(this.name == 'imagemap'){
+      this.drawImagePreview();
+    }
 
+  }
+
+  drawImagePreview(){
+      const obj = this.imageService.getImageData(this.op_inputs[0].value);
+      if(obj === undefined) return;
+
+      this.has_image_preview = true;
+      const image_div =  document.getElementById('param-image-'+this.id);
+      image_div.style.display = 'flex';
+      
+      const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.id);
+      const ctx = canvas.getContext('2d');
+
+      const max_dim = (obj.data.width > obj.data.height) ? obj.data.width : obj.data.height;
+
+      ctx.drawImage(obj.data.image, 0, 0, obj.data.width / max_dim * 100, obj.data.height / max_dim * 100);
   }
 
 
@@ -311,6 +344,7 @@ export class OperationComponent implements OnInit {
 
   inputSelected(input_id: number){
     this.disableDrag();
+    console.log("input_id", input_id);
     this.onInputAdded.emit({id: this.id, ndx: input_id});
   }
 
@@ -343,8 +377,11 @@ export class OperationComponent implements OnInit {
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
+
+    console.log("updating param", id, value);
     
     if(this.is_dynamic_op){
+      value = value+1;
       //check to see if we should add or remove draft inputs
       if(id === (<DynamicOperation>this.op).dynamic_param_id){
         switch((<DynamicOperation>this.op).dynamic_param_type){
@@ -352,8 +389,8 @@ export class OperationComponent implements OnInit {
           case 'number':
             if(value > this.inlets.length){
               for(let i = this.inlets.length; i < value; i++){
-                this.inlets.push(new FormControl(i+1));
-                opnode.inlets.push(i+1);
+                this.inlets.push(new FormControl(i));
+                opnode.inlets.push(i);
               }
             }else if(value < this.inlets.length){
               this.inlets.splice(value, this.inlets.length - value);
@@ -376,19 +413,13 @@ export class OperationComponent implements OnInit {
    * @param obj 
    */
   handleFile(id: number, obj: any){
-    console.log("obj incoming", obj);
-    const max_loops = 10;
-    let loops = 0;
-    
-    //hang until you can find the data. 
-    while(obj.data === null && loops < max_loops){
-      //what happens if I try to hang here until 
-      obj = this.imageService.getImageData(obj.id);
-      console.log("obj in while", obj);
-      loops++;
-    }
+
+    const image_div =  document.getElementById('param-image-'+this.id);
+    image_div.style.display = 'none';
+
 
     obj = obj.data;
+
 
     switch(obj.type){
       case 'image':
@@ -396,26 +427,44 @@ export class OperationComponent implements OnInit {
         if(this.operations.isDynamic(this.name) && (<DynamicOperation> this.op).dynamic_param_type !== 'color') return;
 
         if(obj.warning !== ''){
+          image_div.style.display = 'flex';
           this.filewarning = obj.warning;
         }else{
 
+   
+
+
           const opnode = this.tree.getOpNode(this.id);
           this.op_inputs[id].setValue(obj.id);
+          opnode.params[id] = obj.id;
+
 
           obj.colors.forEach(hex => {
 
             //add any new colors
-            const ndx = this.inlets.findIndex(el => el === hex);
+            const ndx = this.inlets.findIndex(el => el.value === hex);
             if(ndx === -1){
               this.inlets.push(new FormControl(hex));
               opnode.inlets.push(hex);
             }
-
-            //remove colors that are no longer used
-            this.inlets = this.inlets.filter( fc => obj.colors.findIndex(hex => hex === fc.value) !== -1);
-            opnode.inlets = opnode.inlets.filter( fc => obj.colors.findIndex(hex => hex === fc.value) !== -1);
-
           });
+
+          const remove = [];
+          //now remove any inlets that no longer have values
+          opnode.inlets.forEach((inlet, ndx) => {
+            if(inlet === 0) return;
+            const found = obj.colors.find(el => el === inlet);
+            if(found === undefined){
+              remove.push(ndx);
+            }
+          })
+          remove.forEach(removeid => {
+            opnode.inlets.splice(removeid, 1);
+            this.inlets.splice(removeid, 1);
+          });
+          this.drawImagePreview();
+
+
         }
         break;
     }
@@ -427,6 +476,7 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onInletChange(id: number, value: number){
+    console.log("inlet id", id);
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.inlets[id] = value;
     this.inlets[id].setValue(value);
