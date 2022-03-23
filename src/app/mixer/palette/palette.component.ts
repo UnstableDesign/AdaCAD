@@ -640,7 +640,6 @@ export class PaletteComponent implements OnInit{
       const op = this.vc.createComponent<OperationComponent>(factory);
       const id = this.tree.createNode('op', op.instance, op.hostView);
       
-      console.log("creating op", name)
       this.tree.loadOpData({prev_id: -1, cur_id: id}, name, [], [0]);
       this.setOperationSubscriptions(op.instance);
 

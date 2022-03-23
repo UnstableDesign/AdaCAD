@@ -2648,7 +2648,7 @@ export class OperationService {
           type: 'file',
           min: 1,
           max: 100,
-          value: 'null',
+          value: 'noinput',
           dx: 'the total number of layers in this cloth'
         }
       ],
@@ -2657,6 +2657,15 @@ export class OperationService {
         //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "colormap");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+
+        const image_data = parent_inputs[0].params[0];
+
+        console.log("IN RECOMPUTE", parent_inputs[0].params[0]);
+        
+        
+
+
+
         
       
       return Promise.resolve([]);

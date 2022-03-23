@@ -10,6 +10,7 @@ import { OpNode, TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import {ErrorStateMatcher} from '@angular/material/core';
+import { ImageService } from '../../../core/provider/image.service';
 
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -106,12 +107,15 @@ export class OperationComponent implements OnInit {
 
    textValidate: any;
 
+   filewarning: string = "";
+
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
     private viewport: ViewportService,
     public tree: TreeService,
-    public dm: DesignmodesService) { 
+    public dm: DesignmodesService,
+    private imageService: ImageService) { 
     
       //this.outputs = [];
   
@@ -137,20 +141,27 @@ export class OperationComponent implements OnInit {
       //get the current param value and generate input slots
       const dynamic_param: number = (<DynamicOperation>this.op).dynamic_param_id;
       const dynamic_type: string = (<DynamicOperation>this.op).dynamic_param_type;
-
-      const dynamic_value: number = graph_node.params[dynamic_param];
+      let dynamic_value: number = 0;
       const inlet_values: Array<any> = graph_node.inlets.slice();
 
+      if(dynamic_type === 'color'){
+        dynamic_value = inlet_values.length;
+      }else{
+        dynamic_value = graph_node.params[dynamic_param];
+      }
 
       for(let i = 0; i < dynamic_value; i++){
-        if(i < inlet_values.length){
-          /**@todo hacky way around inlet default values to 0 is to assume that user can never explicity set zero */
-          if(inlet_values[i] === 0)   this.inlets.push(new FormControl(i+1));
-          else   this.inlets.push(new FormControl(inlet_values[i]))
-        
-        }else{
-          this.inlets.push(new FormControl(i+1));
-        }
+
+          if(i < inlet_values.length){
+            /**@todo hacky way around inlet default values to 0 is to assume that user can never explicity set zero */
+            if(inlet_values[i] === 0) {
+              if(dynamic_type !== 'color') this.inlets.push(new FormControl(i+1));
+            }  
+            else   this.inlets.push(new FormControl(inlet_values[i]))
+          
+          }else{
+            this.inlets.push(new FormControl(i+1));
+          }
       }
 
       if(inlet_values.length > dynamic_value){
@@ -299,7 +310,6 @@ export class OperationComponent implements OnInit {
   }
 
   inputSelected(input_id: number){
-    console.log("Input", input_id);
     this.disableDrag();
     this.onInputAdded.emit({id: this.id, ndx: input_id});
   }
@@ -361,8 +371,54 @@ export class OperationComponent implements OnInit {
   }
 
   //returned from a file upload event
-  handleFile(obj: any){
-    console.log("obj", obj);
+  /**
+   * get the data type and process it here
+   * @param obj 
+   */
+  handleFile(id: number, obj: any){
+    console.log("obj incoming", obj);
+    const max_loops = 10;
+    let loops = 0;
+    
+    //hang until you can find the data. 
+    while(obj.data === null && loops < max_loops){
+      //what happens if I try to hang here until 
+      obj = this.imageService.getImageData(obj.id);
+      console.log("obj in while", obj);
+      loops++;
+    }
+
+    obj = obj.data;
+
+    switch(obj.type){
+      case 'image':
+
+        if(this.operations.isDynamic(this.name) && (<DynamicOperation> this.op).dynamic_param_type !== 'color') return;
+
+        if(obj.warning !== ''){
+          this.filewarning = obj.warning;
+        }else{
+
+          const opnode = this.tree.getOpNode(this.id);
+          this.op_inputs[id].setValue(obj.id);
+
+          obj.colors.forEach(hex => {
+
+            //add any new colors
+            const ndx = this.inlets.findIndex(el => el === hex);
+            if(ndx === -1){
+              this.inlets.push(new FormControl(hex));
+              opnode.inlets.push(hex);
+            }
+
+            //remove colors that are no longer used
+            this.inlets = this.inlets.filter( fc => obj.colors.findIndex(hex => hex === fc.value) !== -1);
+            opnode.inlets = opnode.inlets.filter( fc => obj.colors.findIndex(hex => hex === fc.value) !== -1);
+
+          });
+        }
+        break;
+    }
   }
 
   /**

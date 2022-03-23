@@ -26,13 +26,19 @@ cdkDrag
         
         </button>
 
-        <input *ngIf="is_dynamic_op"
+        
+        <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'number'"
         [formControl]="input"
         type = "number"
         value = input.value
         min = 1
         (change)= "onInletChange(i, input.value)"
         >
+
+        <div *ngIf="is_dynamic_op && op.dynamic_param_type === 'color'"
+        [matTooltip]="input.value"
+        [style.background-color] = input.value
+        class="input-color"></div>
 
 
         
@@ -178,8 +184,8 @@ cdkDrag
            
     
           <div class='param-file'>
-            <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
-            <div class="error">{{error}}</div> 
+            <upload-form type="init" (onData)="handleFile(i, $event)" class="button"></upload-form>
+            <div class="error">{{filewarning}}</div> 
          </div>
 
      </ng-container>

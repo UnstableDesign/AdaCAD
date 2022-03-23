@@ -160,4 +160,9 @@ export class UploadService {
 
   }
 
+
+  //lets try this again here with an emitter
+
+  
+
 }

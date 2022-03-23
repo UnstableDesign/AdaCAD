@@ -23,6 +23,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../core/provider/auth.service';
 import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 import { InputSpec } from '@tensorflow/tfjs';
+import { ImageService } from '../core/provider/image.service';
+import { OperationService } from './provider/operation.service';
 
 
 //disables some angular checking mechanisms
@@ -84,7 +86,9 @@ export class MixerComponent implements OnInit {
     private gl: GloballoomService,
     private notes: NotesService,
     private ss: StateService,
-    private dialog: MatDialog) {
+    private dialog: MatDialog,
+    private image: ImageService,
+    private ops: OperationService) {
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -306,8 +310,22 @@ export class MixerComponent implements OnInit {
         this.palette.loadNote(note);
     });
 
+    //start processing images first thing 
+    const images_to_load = [];
+    data.ops.forEach(op => {
+      const internal_op = this.ops.getOp(op.name); 
+      if(internal_op === undefined) return;
+      const param_types = internal_op.params.map(el => el.type);
+      console.log(param_types, op.params);
+      param_types.forEach((p, ndx) => {
+        if(p === 'file') images_to_load.push(op.params[ndx]);
+      });
+    })
 
-    this.gl.inferData(data.looms.concat(this.tree.getLooms()))
+
+    this.image.loadFiles(images_to_load).then(el => {
+      this.gl.inferData(data.looms.concat(this.tree.getLooms()))
+    })
     .then(el => {     
       return this.loadNodes(data.nodes)
     })
@@ -378,7 +396,7 @@ export class MixerComponent implements OnInit {
         const entry = entry_mapping.find(el => el.prev_id == op.node_id);
         return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
       });
-      
+
       return Promise.all([seed_fns, op_fns]);
 
     })

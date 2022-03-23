@@ -10,6 +10,7 @@ import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService, OpInput, DynamicOperation } from './operation.service';
 import utilInstance from '../../core/model/util';
+import { UploadService } from '../../core/uploads/upload.service';
 
 
 /**
@@ -94,7 +95,8 @@ export class TreeService {
 
   constructor(
     private globalloom: GloballoomService,
-    private ops: OperationService) { 
+    private ops: OperationService,
+    private upSvc: UploadService) { 
   }
 
 
@@ -138,6 +140,9 @@ export class TreeService {
     this.getOpNode(id).inlets = inlets;
   }
 
+
+
+
   /**
    * loads data into an operation node from a file load or undo/redo event
    * @param entry the upload entry associated with this node or null if there was no upload associated
@@ -146,8 +151,9 @@ export class TreeService {
    * @param inlets an array containing the paramteres that get mapped to inputs at each inlets
    * @returns the node and the entry
    */
-  async loadOpData(entry: {prev_id: number, cur_id: number}, name: string, params:Array<number>, inlets: Array<any>) : Promise<{on: OpNode, entry:{prev_id: number, cur_id: number}}>{
+   loadOpData(entry: {prev_id: number, cur_id: number}, name: string, params:Array<any>, inlets: Array<any>) : Promise<{on: OpNode, entry:{prev_id: number, cur_id: number}}>{
     
+
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
     const op = this.ops.getOp(name);
 
@@ -173,37 +179,54 @@ export class TreeService {
       }
     }else{
       inlets = inlets;
-    }
+    }    
 
 
     if(params === undefined){
       params = [];
     }
-    const formatted_params = params.map(el => {
-      if(typeof el === 'boolean'){
-        return (el) ? 1 : 0;
-      }else{
-        return el;
-      }
-    });
 
-    //this gets teh default values for the opration
-    const params_in = this.ops.getOp(name).params.map(el => el.value);
+    const default_param_values = this.ops.getOp(name).params.map(el => el.value);
+    const param_types = this.ops.getOp(name).params.map(el => el.type);
 
-    //this overwrites some of those with any value that has been previous added
-    const params_out = params_in.map((p, ndx) => {
-      if(ndx < params.length) return formatted_params[ndx];
-      else return p;
-    });
-
-    node.dirty = false;
-    (<OpNode> node).name = name;
-    (<OpNode> node).params = params_out.slice();
-    (<OpNode> node).inlets = inlets;
+   
 
 
-   return Promise.resolve({on:<OpNode> nodes[0], entry});
 
+
+      const formatted_params = param_types.map((type, ndx) => {
+        switch(type){
+          case "boolean":
+            return (default_param_values[ndx]) ? 1 : 0;
+          
+            case "file":
+              return params[ndx];
+        
+            default:
+              return default_param_values[ndx];
+        }
+      });
+  
+  
+      //this gets teh default values for the opration
+      //this overwrites some of those with any value that has been previous added
+      const params_out = default_param_values.map((p, ndx) => {
+        if(ndx < params.length) return formatted_params[ndx];
+        else return p;
+      });
+  
+  
+      node.dirty = false;
+      (<OpNode> node).name = name;
+      (<OpNode> node).params = params_out.slice();
+      (<OpNode> node).inlets = inlets;
+  
+  
+     return Promise.resolve({on:<OpNode> nodes[0], entry});
+  
+
+
+  
   }
 
 
@@ -1295,6 +1318,7 @@ flipDraft(draft: Draft) : Draft{
     inputs.push({op_name: '', drafts: drafts_coming_in, params: node.params});
 
   }
+
   
   return op.perform(inputs)
     .then(res => {
@@ -1884,12 +1908,16 @@ flipDraft(draft: Draft) : Draft{
     const objs: Array<any> = []; 
 
     this.getOperations().forEach(op_node => {
+
       const savable:OpComponentProxy = {
         node_id: op_node.id,
         name: op_node.name,
         params: op_node.op_inputs.map(el => el.value),
         inlets: op_node.inlets.map(el => el.value)
       }
+
+      
+      console.log("SAVABLE", savable);
       objs.push(savable);
     })
 
