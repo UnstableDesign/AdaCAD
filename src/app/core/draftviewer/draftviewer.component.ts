@@ -1501,7 +1501,7 @@ export class DraftviewerComponent implements OnInit {
 
      //cx.fillStyle = color;
      cx.fillStyle = color;
-     if(color != '#FFFFFF') cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+     cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 
 
   }
@@ -1559,7 +1559,15 @@ export class DraftviewerComponent implements OnInit {
   private redrawRow(y, i, cx) {
  
     for (var j = 0; j < this.weave.warps; j++) {
-      this.drawCell(this.cx, i, j, "drawdown");
+      //get the system at this warp
+      const sys_id = this.weave.colSystemMapping[j];
+      const sys = this.ss.getWarpSystem(sys_id)
+    
+      if(sys.isVisible()){
+        this.drawCell(this.cx, i, j, "drawdown");
+      }else{
+
+      } 
     }
   }
 
@@ -2189,7 +2197,7 @@ public redraw(flags:any){
   public redrawDraft() {
     
     var base_dims = this.render.getCellDims("base");
-    this.cx.fillStyle = "white";
+    this.cx.fillStyle = "grey";
     this.cx.fillRect(base_dims.w,base_dims.h,this.canvasEl.width - base_dims.w*2,this.canvasEl.height-base_dims.h*2);
 
     var i,j;
@@ -2203,28 +2211,28 @@ public redraw(flags:any){
     }
 
 
-     for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
+    //  for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
      
-      let system;
+    //   let system;
 
-      var id = this.weave.colShuttleMapping[x];
-      if(id === undefined) system = this.ss.getFirstWarpSystem();
+    //   var id = this.weave.colShuttleMapping[x];
+    //   if(id === undefined) system = this.ss.getFirstWarpSystem();
 
-      else system = this.ss.getWarpSystem(id);
-      var shuttle = this.ms.getShuttle(id);
+    //   else system = this.ss.getWarpSystem(id);
+    //   var shuttle = this.ms.getShuttle(id);
 
 
-        if(system !== undefined && !system.visible){
-          var c = "#3d3d3d";
-          var t = 100;
+    //     if(system !== undefined && !system.visible){
+    //       var c = "#3d3d3d";
+    //       var t = 100;
 
-          var width = base_dims.w;
-          var w_margin = base_dims.w;
-          this.cx.fillStyle = c;
-          this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.render.visibleRows.length);
+    //       var width = base_dims.w;
+    //       var w_margin = base_dims.w;
+    //       this.cx.fillStyle = c;
+    //       this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.render.visibleRows.length);
 
-        }
-    }   
+    //     }
+    // }   
 
     this.drawGrid(this.cx,this.canvasEl);
 

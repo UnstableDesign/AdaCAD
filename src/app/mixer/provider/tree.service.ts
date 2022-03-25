@@ -1291,7 +1291,7 @@ flipDraft(draft: Draft) : Draft{
 
   if(this.ops.isDynamic(node.name)){
     //first push the parent params
-    inputs.push({op_name: op.name, drafts: [], params: node.params});
+    inputs.push({op_name: op.name, drafts: [], inlet: 0, params: node.params});
 
     //then push each of the children
     all_inputs.forEach(el =>{
@@ -1299,7 +1299,7 @@ flipDraft(draft: Draft) : Draft{
       const draft_node_in = el.tn.inputs[0].tn;
       const drafts_in = (draft_node_in.node.type === "draft") ? (<DraftNode>draft_node_in.node).draft : null;
       if(drafts_in != null){
-      inputs.push({op_name:'child', drafts: [this.flipDraft(drafts_in)], params: [node.inlets[el.ndx]]});
+      inputs.push({op_name:'child', drafts: [this.flipDraft(drafts_in)], inlet: el.ndx ,params: [node.inlets[el.ndx]]});
       }
     })
 
@@ -1312,7 +1312,7 @@ flipDraft(draft: Draft) : Draft{
     .filter(el => el !== null && el !== undefined)
     .map(el => this.flipDraft(el));
 
-    inputs.push({op_name: '', drafts: drafts_coming_in, params: node.params});
+    inputs.push({op_name: '', drafts: drafts_coming_in, inlet: 0, params: node.params});
 
   }
 
@@ -1918,7 +1918,6 @@ flipDraft(draft: Draft) : Draft{
       }
 
       
-      console.log("SAVABLE", savable);
       objs.push(savable);
     })
 

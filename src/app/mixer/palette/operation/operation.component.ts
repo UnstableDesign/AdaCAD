@@ -107,6 +107,8 @@ export class OperationComponent implements OnInit {
 
    is_dynamic_op: boolean = false;
 
+   all_system_codes: Array<string> = [];
+
    textValidate: any;
 
    filewarning: string = "";
@@ -122,6 +124,10 @@ export class OperationComponent implements OnInit {
       //this.outputs = [];
   
       this.textValidate = new MyErrorStateMatcher();
+
+      for(let i = 0; i < 26; i++){
+        this.all_system_codes.push(String.fromCharCode(i+97));
+      }
 
   }
 
@@ -161,7 +167,16 @@ export class OperationComponent implements OnInit {
       if(inlet_values.length > 1){
         //push the first zero calue
         inlet_values.forEach(inlet => {
-          this.inlets.push(new FormControl(inlet));
+
+          switch(dynamic_type){
+            case 'system':
+              this.inlets.push(new FormControl(this.all_system_codes[inlet]));
+              break;
+
+              default:
+                this.inlets.push(new FormControl(inlet));
+                break;
+          }
         });
 
       }else{
@@ -176,6 +191,11 @@ export class OperationComponent implements OnInit {
             case 'number':
               this.inlets.push(new FormControl(i));
               if(i >=graph_node.inlets.length) graph_node.inlets.push(i);
+              break;
+            case 'system':
+              let adj_i = (i > 0) ? i -1 : i;
+              this.inlets.push(new FormControl(this.all_system_codes[adj_i]));
+              if(i >=graph_node.inlets.length) graph_node.inlets.push(adj_i);
               break;
           }
 
@@ -384,19 +404,23 @@ export class OperationComponent implements OnInit {
       value = value+1;
       //check to see if we should add or remove draft inputs
       if(id === (<DynamicOperation>this.op).dynamic_param_id){
-        switch((<DynamicOperation>this.op).dynamic_param_type){
+        const type = (<DynamicOperation>this.op).dynamic_param_type;
+        switch(type){
 
           case 'number':
+          case 'system':
             if(value > this.inlets.length){
               for(let i = this.inlets.length; i < value; i++){
-                this.inlets.push(new FormControl(i));
-                opnode.inlets.push(i);
+                (type === 'number') ? this.inlets.push(new FormControl(i)) : this.inlets.push(new FormControl(this.all_system_codes[i-1]));
+                opnode.inlets.push(i-1);
               }
             }else if(value < this.inlets.length){
               this.inlets.splice(value, this.inlets.length - value);
               opnode.inlets.splice(value,  opnode.inlets.length - value);
             }
           break;
+
+            
 
         }
       }
@@ -475,11 +499,34 @@ export class OperationComponent implements OnInit {
    * @param id 
    * @param value 
    */
-  onInletChange(id: number, value: number){
+  onInletChange(id: number, value: any){
     console.log("inlet id", id);
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
-    opnode.inlets[id] = value;
+    console.log("setting value", value)
     this.inlets[id].setValue(value);
+
+    
+    if(this.is_dynamic_op){
+      const type = (<DynamicOperation> this.op).dynamic_param_type;
+      console.log("type", type);
+      switch(type){
+        case 'system':
+          opnode.inlets[id] = this.all_system_codes.findIndex(el => el === value);
+          break;
+
+        default:
+          opnode.inlets[id] = value;
+        break;
+      }
+
+    }else{
+      opnode.inlets[id] = value;
+    }
+  
+    console.log("setting value", value)
+    this.inlets[id].setValue(value);
+
+    
     this.onOperationParamChange.emit({id: this.id});
    
   }

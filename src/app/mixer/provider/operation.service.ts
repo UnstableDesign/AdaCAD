@@ -49,11 +49,13 @@ export interface DynamicOperation {
   * @param op_name the name of the operation or "child" if this is an assignment to an input parameter
   * @param drafts the drafts associated with this input
   * @param params the parameters associated with this operation OR child input
+  * @param inlets the index of the inlet for which the draft is entering upon
   */
   export interface OpInput{
     op_name: string,
     drafts: Array<Draft>,
-    params: Array<any>
+    params: Array<any>,
+    inlet: number
    }
   
 /**
@@ -1124,6 +1126,7 @@ export class OperationService {
           gen_inputs.push({
             op_name: "fill",
             drafts:[d, di], 
+            inlet: 0,
             params:[0, 0 ]
           })
 
@@ -1742,7 +1745,7 @@ export class OperationService {
         }
 
         if(op_input.params[2] === 1){
-          return (<Operation>this.getOp('flip horiz')).perform([{drafts:outputs, params:[], op_name:""}]);
+          return (<Operation>this.getOp('flip horiz')).perform([{drafts:outputs, params:[], inlet: 0, op_name:""}]);
         }else{
           return Promise.resolve(outputs);
         }
@@ -2352,16 +2355,16 @@ export class OperationService {
         if(op_input.drafts.length == 0)  return  Promise.resolve([]);
 
         const functions: Array<Promise<Array<Draft>>> = [
-        (<Operation>this.getOp('flip horiz')).perform([{op_name:"", drafts: op_input.drafts,params: op_input.params}]),
-        (<Operation>this.getOp('invert')).perform([{op_name:"", drafts: op_input.drafts,params: op_input.params}])
+        (<Operation>this.getOp('flip horiz')).perform([{op_name:"", drafts: op_input.drafts,inlet: 0,params: op_input.params}]),
+        (<Operation>this.getOp('invert')).perform([{op_name:"", drafts: op_input.drafts,inlet: 0,params: op_input.params}])
       ];
 
         for(let i = 1; i <op_input.drafts[0].warps; i+=2){
-          functions.push( (<Operation>this.getOp('shift left')).perform([{op_name:"", drafts: op_input.drafts,params: op_input.params[i]}]));
+          functions.push( (<Operation>this.getOp('shift left')).perform([{op_name:"", drafts: op_input.drafts,inlet: 0, params: op_input.params[i]}]));
         }
 
         for(let i = 1; i <op_input.drafts[0].wefts; i+=2){
-          functions.push( (<Operation>this.getOp('shift up')).perform([{op_name:"", drafts: op_input.drafts,params: op_input.params[i]}]))
+          functions.push( (<Operation>this.getOp('shift up')).perform([{op_name:"", drafts: op_input.drafts,inlet: 0, params: op_input.params[i]}]))
         }
         return Promise.all(functions)
         .then(allDrafts => allDrafts
@@ -2489,7 +2492,7 @@ export class OperationService {
           }
 
 
-          return  (<Operation>this.getOp('interlace')).perform([{op_name:"", drafts: op_input.drafts,params: []}])
+          return  (<Operation>this.getOp('interlace')).perform([{op_name:"", drafts: op_input.drafts,inlet: 0,params: []}])
             .then(overlay => {
               
               const d: Draft = new Draft({warps: max_warps*layers, wefts: max_wefts*layers});
@@ -2514,7 +2517,7 @@ export class OperationService {
       name: 'assignlayers',
       displayname: 'assign drafts to layers',
       dx: 'creates a multi-layer draft from inputs that are each assigned a layer.',
-      dynamic_param_type: 'number',
+      dynamic_param_type: 'system',
       dynamic_param_id: 0,
       max_inputs: 0,
       params: [
@@ -2565,61 +2568,90 @@ export class OperationService {
 
 
         //create a map from layers to drafts
-        const layer_draft_map: Array<any> = child_inputs.map(el => { return {layer: el.params[0]-1, drafts: el.drafts}}); 
+        const layer_draft_map: Array<any> = child_inputs.map((el, ndx) => { return {layer: el.inlet, system: el.params[0], drafts: el.drafts}}); 
+
+        const max_system = layer_draft_map.reduce((acc, el) => {
+          if(el.system > acc) return el.system;
+          return acc;
+        }, 0);
+
+        
+
 
 
         const outputs = [];
-        const systems = [];
+        const warp_systems = [];
+
 
            //create a list of systems as large as the total number of layers
            for(let n = 0;  n < num_layers; n++){
             const sys = ss.getWarpSystem(n);
             if(sys === undefined) ss.addWarpSystemFromId(n);
-            systems[n] = n;
+            warp_systems[n] = n;
           }
 
+          console.log("LDM", layer_draft_map)
+        const layer_draft_map_sorted = [];
+        //sort the layer draft map by system, push empty drafts
+        for(let i = 0; i <= max_system; i++){
+          const ldm = layer_draft_map.find(el => el.system == i);
+          if(ldm === undefined){
+            layer_draft_map_sorted.push({layer: -1, system: i, drafts:[]})
+          }else{
+            layer_draft_map_sorted.push(ldm);
+          }
+        }
 
-        layer_draft_map.forEach(layer_map => {
 
-          const layer_num = layer_map.layer;
+        console.log("layer map sorted", layer_draft_map_sorted)
 
-          layer_map.drafts.forEach(draft => {
-            const d:Draft = new Draft({
-              warps:total_warps*systems.length, 
-              wefts:total_wefts*all_drafts.length, 
-              rowShuttleMapping:draft.rowShuttleMapping, 
-              rowSystemMapping:draft.rowSystemMapping,
-              colShuttleMapping: draft.colShuttleMapping,
-              colSystemMapping: systems});
-        
-              d.pattern.forEach((row, i) => {
-                row.forEach((cell, j)=> {
-                  const sys_id = j % num_layers;
-                  const use_col = sys_id === layer_num;
-                  const use_index = Math.floor(j /num_layers);
-                  if(use_col){
-                      //handle non-repeating here if we want
-                      if(factor_in_repeats == 1){
-                        d.colShuttleMapping[j] =draft.colShuttleMapping[use_index%draft.warps];
-                        cell.setHeddle(draft.pattern[i%draft.wefts][use_index%draft.warps].getHeddle());
-                      }else{
-                        if(i < draft.wefts && use_index < draft.warps) cell.setHeddle(draft.pattern[i][use_index].getHeddle());
-                        else cell.setHeddle(null);
+        layer_draft_map_sorted.forEach(layer_map => {
+
+          const layer_num = layer_map.layer -1;
+          if(layer_num < 0){
+            outputs.push(new Draft(
+              {warps: 1, 
+                wefts: 1, 
+                pattern: [[new Cell(null)]]}));
+          }else{
+            layer_map.drafts.forEach(draft => {
+              const d:Draft = new Draft({
+                warps:total_warps*warp_systems.length, 
+                wefts:total_wefts, 
+                rowShuttleMapping:draft.rowShuttleMapping, 
+                colShuttleMapping: draft.colShuttleMapping,
+                colSystemMapping: warp_systems});
+          
+                d.pattern.forEach((row, i) => {
+                  row.forEach((cell, j)=> {
+                    const sys_id = j % num_layers;
+                    const use_col = sys_id === layer_num;
+                    const use_index = Math.floor(j /num_layers);
+                    if(use_col){
+                        //handle non-repeating here if we want
+                        if(factor_in_repeats == 1){
+                          d.colShuttleMapping[j] =draft.colShuttleMapping[use_index%draft.warps];
+                          cell.setHeddle(draft.pattern[i%draft.wefts][use_index%draft.warps].getHeddle());
+                        }else{
+                          if(i < draft.wefts && use_index < draft.warps) cell.setHeddle(draft.pattern[i][use_index].getHeddle());
+                          else cell.setHeddle(null);
+                        }
+                      
+                    }else{
+                      if(sys_id < layer_num){
+                        cell.setHeddle(true);
+                      }else if(sys_id >=layer_num){
+                        cell.setHeddle(false);
                       }
-                    
-                  }else{
-                    if(sys_id < layer_num){
-                      cell.setHeddle(true);
-                    }else if(sys_id >=layer_num){
-                      cell.setHeddle(false);
                     }
-                  }
-                })
-              });
-              
-              outputs.push(d);
+                  })
+                });
+                
+                outputs.push(d);
 
-          })
+            })
+
+          }
 
      
 
@@ -2629,7 +2661,7 @@ export class OperationService {
         
 
       
-      return this.getOp('interlace').perform([{op_name: "", drafts:outputs, params:[]}]);
+      return this.getOp('interlace').perform([{op_name: "", drafts: outputs, inlet: 0,  params:[]}]);
 
       }
       
@@ -2710,9 +2742,21 @@ export class OperationService {
           }
         }
 
+        
 
+        let first_draft: Draft = null;
+        child_inputs.forEach(el =>{
+          if(el.drafts.length > 0 && first_draft == null) first_draft = el.drafts[0];
+        })
 
-        const draft: Draft = new Draft({wefts: res_h, warps: res_w, pattern: pattern});
+        const draft: Draft = new Draft({
+          wefts: res_h, 
+          warps: res_w,
+           pattern: pattern,
+          rowSystemMapping: first_draft.rowSystemMapping,
+          rowShuttleMapping: first_draft.rowShuttleMapping,
+          colSystemMapping: first_draft.colSystemMapping,
+          colShuttleMapping: first_draft.colShuttleMapping});
 
       return Promise.resolve([draft]);
 

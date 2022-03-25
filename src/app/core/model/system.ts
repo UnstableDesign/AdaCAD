@@ -8,6 +8,7 @@ export class System {
   name: string;
   notes: string;
   visible: boolean;
+  in_use: boolean;
 
   constructor(systemDict = null) {
 
@@ -16,6 +17,7 @@ export class System {
     this.name = "weft system"
     this.notes = "";
     this.visible = true;
+    this.in_use = false;
 
     if (systemDict) this.updateVariables(systemDict);
   }

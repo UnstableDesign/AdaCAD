@@ -33,6 +33,28 @@ cdkDrag
             (change)= "onInletChange(i, input.value)"
             >
 
+            <ng-container *ngIf="is_dynamic_op && op.dynamic_param_type === 'system'">
+            <span class="inlet-label">{{i}}</span>
+
+            <!--<mat-label>weft system</mat-label>-->
+            <mat-select 
+            [formControl]="input"
+            matTooltip="select the system to associate with this layer" 
+            (selectionChange)="onInletChange(i, input.value)">
+              <mat-option *ngFor="let sys of all_system_codes" [value]="sys">
+                {{sys}}
+              </mat-option>
+            </mat-select>
+         
+
+            <!-- <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'system'"
+            [formControl]="input"
+            type = "text"
+            value = input.value
+            (change)= "onInletChange(i, input.value)"
+            > -->
+            </ng-container>
+
             <div *ngIf="is_dynamic_op && op.dynamic_param_type === 'color'"
             [matTooltip]="input.value"
             [style.background-color] = input.value
