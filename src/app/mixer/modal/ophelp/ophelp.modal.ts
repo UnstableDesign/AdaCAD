@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { DynamicOperation, OperationService } from '../../provider/operation.service';
 
 @Component({
   selector: 'app-ophelp',
@@ -10,66 +11,33 @@ export class OpHelpModal implements OnInit {
   
   documenation: any ="";
   name: string;
+  is_dynamic_op: boolean;
+  params: Array<any>;
+  dynamic_type: string ="";
+  dynamic_param_id: number = 0;
+  dynamic_param_name: string = '';
+
+
+
 
   constructor(private dialogRef: MatDialogRef<OpHelpModal>,
-             @Inject(MAT_DIALOG_DATA) public data: any) { 
+             @Inject(MAT_DIALOG_DATA) public data: any, private ops:OperationService) { 
         
+        const op = this.ops.getOp(data.op.name);
         this.name = data.op.name;
+        this.is_dynamic_op = this.ops.isDynamic(this.name);
+        this.params = op.params;
+        if(this.is_dynamic_op){
+          this.dynamic_type = (<DynamicOperation> op).dynamic_param_type;
+          this.dynamic_param_id =(<DynamicOperation> op).dynamic_param_id;
+          this.dynamic_param_name = this.params[this.dynamic_param_id].name;
+        }
+        
 
-        // const ngHtmlParser = require('angular-html-parser');
-
-        //     //** need to write a note here to locate the text we are interested in. */
-
-        // (async () => {
-        //   const response = await fetch('https://unstabledesign.github.io/docs');
-        //   const text = await response.text();
-        //   const { rootNodes, errors } = ngHtmlParser.parse(text);
-        //   this.findDocumentation(this.name, rootNodes[2]);
-        //   const el: HTMLElement = document.getElementById("docs");
-        //   el.innerHTML = this.documenation;
-        // })();
 
     }
 
-  /**
-   * traverses all divs in the "body" in search of the element that matches this name
-   * @param name 
-   * @param element the "html" element of the returned page
-   * @returns a string of the contained documentation
-   */
-  // private findDocumentation (name: string, element: any){
-
-
-  //   element.children.forEach(child => {
-  //     if(child.name == "body" || child.name == "div" || child.name == "section") {
-
-  //       if(child.attrs.findIndex(at => (at.name == "id" && at.value.toString() == name.toString())) != -1){
-  //         this.documenation = this.extractDocumentationFromDiv(child);
-  //       }else{
-  //         this.findDocumentation(name, child);
-  //       }
-
-  //     }
-
-  //   });
-
-
-  // }
-
-  // private extractDocumentationFromDiv(el: any): string{
-  //   console.log("extract called on", el);
-  //   let docs:string = "";
-  //   const ndx: number = el.children.findIndex(child => child.name=="div");
-  //   console.log("found div at ", ndx);
-  //   if(ndx == -1) return docs;
-
-  //   const div: any = el.children[ndx];
-  //   docs = div.children[0].value;
-  //   console.log(docs, div.children[0]);
-
-  //   return docs;
-  // }
-
+  
   ngOnInit() {
   }
 

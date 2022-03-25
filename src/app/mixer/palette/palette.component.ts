@@ -707,7 +707,7 @@ export class PaletteComponent implements OnInit{
      * @returns the id of the node this has been assigned to
      */
      duplicateOperation(name: string, params: Array<number>, bounds:Bounds, inlets: Array<any>):number{
-      
+
       const op:OperationComponent = this.createOperation(name);
           
           this.tree.setOpParams(op.id, params, inlets);
@@ -1121,8 +1121,6 @@ export class PaletteComponent implements OnInit{
       const op = this.tree.getOpNode(obj.id);
       const op_comp = <OperationComponent> this.tree.getComponent(obj.id);
 
-
-      console.log(op);
 
       let new_bounds: Bounds = null;
 

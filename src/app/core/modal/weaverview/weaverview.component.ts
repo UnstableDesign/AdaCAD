@@ -103,42 +103,75 @@ export class WeaverViewComponent implements OnInit {
    */
   showOnly(id){
 
-
     //need to look down the warps on this system and look for alternating values
     //if there is an alternating value, then that weft system is part of this. 
-
-    // this.draft.colSystemMapping.forEach((sys_id, j)=> {
-    //   if(sys_id !== id) return;
-
-    //   const col = this.draft.pattern.filter(row => row[j]);
-    //   const alternati = 
-
-
-    // });
-
-
-    
+    //hilde the other warps
     this.collective_systems.forEach(data => {
       if(data.id === id){
         if(data.warp !== null){
           data.warp.visible = true;
           this.onShowWarpSystem.emit({systemId: data.id});
         }  
-        if(data.weft !== null){
-          data.weft.visible = true;
-          this.onShowWeftSystem.emit({systemId: data.id});
-        }  
+      
       }else{
         if(data.warp !== null){
           this.onHideWarpSystem.emit({systemId: data.id});
           data.warp.visible = false;
         }  
-        if(data.weft !== null){
-          data.weft.visible = false;
-          this.onHideWeftSystem.emit({systemId: data.id});
-        }  
+       
       }
     });
+
+
+      //for each system
+      this.collective_systems.forEach(cs => {
+        const  system_id = cs.id;
+
+        const sys_draft:Array<Array<boolean>> = [];
+        this.draft.pattern.forEach((row, i) => {
+          if(this.draft.rowSystemMapping[i] !== system_id) return;
+          sys_draft.push([]);
+          row.forEach((col, j) => {
+            if(this.draft.colSystemMapping[j] !== id) return;
+              sys_draft[sys_draft.length-1].push(this.draft.pattern[i][j].getHeddle());
+          });
+        });
+
+
+        if(sys_draft.length == 0){
+          const sys = this.collective_systems.find(el => el.id == system_id);
+          if(sys.weft !== null){
+            sys.weft.visible = false;
+            this.onHideWeftSystem.emit({systemId: sys.id});
+          }
+        }else{
+          //now we have a draft that includes only the layer id and the system id disclosed
+          const first_val:boolean = sys_draft[0][0];
+          let found: boolean = false; 
+          for(let i = 0; i < sys_draft.length && !found; i++){
+            const diff = sys_draft[i].find(el => el !== first_val);
+            if(diff !== undefined){
+              found = true;
+              const sys = this.collective_systems.find(el => el.id == system_id);
+              if(sys.weft !== null){
+              sys.weft.visible = true;
+              this.onShowWeftSystem.emit({systemId: sys.id});
+              }
+            }
+          }
+
+          if(!found){
+            const sys = this.collective_systems.find(el => el.id == system_id);
+            if(sys.weft !== null){
+            sys.weft.visible = false;
+            this.onHideWeftSystem.emit({systemId: system_id});
+            }
+          }
+
+        }
+        
+      });
+  
 
   }
   

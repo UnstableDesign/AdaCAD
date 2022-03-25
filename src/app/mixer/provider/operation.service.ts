@@ -2517,7 +2517,7 @@ export class OperationService {
     const assignlayers: DynamicOperation = {
       name: 'assignlayers',
       displayname: 'assign drafts to layers',
-      dx: 'creates a multi-layer draft from inputs that are each assigned a layer.',
+      dx: 'when given a number of layers, it creates inputs to assign one or more drafts to each the specified layer. You are allowed to specify a weft system with the input to each layer, this controls the ordering of the input drafts in the layers. For instance, if you give layer 1 system a, and layer 2 system b, your output draft will order the rows ababab.... If you give two inputs to layer 1 and assign them to system a, then one input layer 2, and give it system b, the output will order the rows aabaab. This essentially allows you to control weft systems at the same time as layers, aligning weft systems across multiple drafts. Systems will always be organized alphbetically, and blank rows will be inserted in place of unused systems. For instance, if you have two layers and you assign them to systems a and c, the code will insert a blank system b for the resulting pattern of abcabcabc....',
       dynamic_param_type: 'system',
       dynamic_param_id: 0,
       max_inputs: 0,
