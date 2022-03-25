@@ -11,7 +11,7 @@ import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import {ErrorStateMatcher} from '@angular/material/core';
 import { ImageService } from '../../../core/provider/image.service';
-import { findBackendFactory, image } from '@tensorflow/tfjs';
+import { SystemsService } from '../../../core/provider/systems.service';
 
 
 /** Error when invalid control is dirty, touched, or submitted. */
@@ -107,11 +107,11 @@ export class OperationComponent implements OnInit {
 
    is_dynamic_op: boolean = false;
 
-   all_system_codes: Array<string> = [];
-
    textValidate: any;
 
    filewarning: string = "";
+
+   all_system_codes: Array<string> = [];
 
   constructor(
     private operations: OperationService, 
@@ -119,15 +119,15 @@ export class OperationComponent implements OnInit {
     private viewport: ViewportService,
     public tree: TreeService,
     public dm: DesignmodesService,
-    private imageService: ImageService) { 
+    private imageService: ImageService,
+    public systems: SystemsService) { 
     
       //this.outputs = [];
   
       this.textValidate = new MyErrorStateMatcher();
 
-      for(let i = 0; i < 26; i++){
-        this.all_system_codes.push(String.fromCharCode(i+97));
-      }
+      this.all_system_codes = this.systems.weft_systems.map(el => el.name);
+     
 
   }
 
@@ -162,6 +162,8 @@ export class OperationComponent implements OnInit {
         dynamic_value = graph_node.params[dynamic_param];
       }
 
+      console.log("inlet values", inlet_values)
+
 
       //if inlet values is greater than 1, then we need to load the existing values in
       if(inlet_values.length > 1){
@@ -170,7 +172,8 @@ export class OperationComponent implements OnInit {
 
           switch(dynamic_type){
             case 'system':
-              this.inlets.push(new FormControl(this.all_system_codes[inlet]));
+              this.inlets.push(new FormControl(this.systems.weft_systems[inlet].name));
+              this.systems.weft_systems[inlet].in_use = true;
               break;
 
               default:
@@ -194,8 +197,10 @@ export class OperationComponent implements OnInit {
               break;
             case 'system':
               let adj_i = (i > 0) ? i -1 : i;
-              this.inlets.push(new FormControl(this.all_system_codes[adj_i]));
+              this.inlets.push(new FormControl(this.systems.weft_systems[adj_i].name));
               if(i >=graph_node.inlets.length) graph_node.inlets.push(adj_i);
+              this.systems.weft_systems[adj_i].in_use = true;
+
               break;
           }
 
@@ -397,8 +402,6 @@ export class OperationComponent implements OnInit {
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
     opnode.params[id] = value;
     this.op_inputs[id].setValue(value);
-
-    console.log("updating param", id, value);
     
     if(this.is_dynamic_op){
       value = value+1;
@@ -411,7 +414,12 @@ export class OperationComponent implements OnInit {
           case 'system':
             if(value > this.inlets.length){
               for(let i = this.inlets.length; i < value; i++){
-                (type === 'number') ? this.inlets.push(new FormControl(i)) : this.inlets.push(new FormControl(this.all_system_codes[i-1]));
+                if(type === 'number'){
+                  this.inlets.push(new FormControl(i));
+                }else{
+                  this.inlets.push(new FormControl(this.systems.weft_systems[i-1].name))
+                  this.systems.weft_systems[i-1].in_use = true;
+                } 
                 opnode.inlets.push(i-1);
               }
             }else if(value < this.inlets.length){
@@ -500,18 +508,15 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onInletChange(id: number, value: any){
-    console.log("inlet id", id);
     const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
-    console.log("setting value", value)
     this.inlets[id].setValue(value);
 
     
     if(this.is_dynamic_op){
       const type = (<DynamicOperation> this.op).dynamic_param_type;
-      console.log("type", type);
       switch(type){
         case 'system':
-          opnode.inlets[id] = this.all_system_codes.findIndex(el => el === value);
+          opnode.inlets[id] = this.systems.weft_systems.findIndex(el => el.name === value);
           break;
 
         default:
@@ -523,7 +528,6 @@ export class OperationComponent implements OnInit {
       opnode.inlets[id] = value;
     }
   
-    console.log("setting value", value)
     this.inlets[id].setValue(value);
 
     

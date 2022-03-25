@@ -95,7 +95,28 @@ export class WeaverViewComponent implements OnInit {
     this.onViewFront.emit(e);
   }
 
+
+  /**
+   * assumes layers
+   * hows all weft systems placed upon a given layer
+   * @param id 
+   */
   showOnly(id){
+
+
+    //need to look down the warps on this system and look for alternating values
+    //if there is an alternating value, then that weft system is part of this. 
+
+    // this.draft.colSystemMapping.forEach((sys_id, j)=> {
+    //   if(sys_id !== id) return;
+
+    //   const col = this.draft.pattern.filter(row => row[j]);
+    //   const alternati = 
+
+
+    // });
+
+
     
     this.collective_systems.forEach(data => {
       if(data.id === id){

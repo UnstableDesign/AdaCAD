@@ -737,6 +737,7 @@ export class PaletteComponent implements OnInit{
         
       cxn.instance.id = id;
       cxn.instance.scale = this.scale;
+      cxn.instance.default_cell_size = this.default_cell_size;
 
     }
 
@@ -757,6 +758,8 @@ export class PaletteComponent implements OnInit{
       cxn.instance.scale = this.scale;
       cxn.instance.from = id_from;
       cxn.instance.to = id_to;
+      cxn.instance.default_cell_size = this.default_cell_size;
+
 
 
       return {input_ids: to_input_ids, id: id};
@@ -1115,39 +1118,35 @@ export class PaletteComponent implements OnInit{
     onDuplicateOpCalled(obj: any){
       if(obj === null) return;
 
-      const op = <OperationComponent> this.tree.getComponent(obj.id);
-      const params = [];
-      const inlets = [];
+      const op = this.tree.getOpNode(obj.id);
+      const op_comp = <OperationComponent> this.tree.getComponent(obj.id);
+
+
+      console.log(op);
+
       let new_bounds: Bounds = null;
 
-      op.op_inputs.forEach((input,ndx) => {
-       params.push(input.value);
-      });
-
-      op.inlets.forEach((input,ndx) => {
-       inlets.push(input.value);
-      });
 
       if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
 
         new_bounds = {
-          topleft: {x: op.bounds.topleft.x + 200 + this.scale * 2, y: op.bounds.topleft.y},
+          topleft: {x: op_comp.bounds.topleft.x + 200 + this.scale * 2, y: op_comp.bounds.topleft.y},
           width: 200,
-          height: op.bounds.height
+          height: op_comp.bounds.height
         }
 
       }else{
 
         new_bounds = {
-          topleft: {x: op.bounds.topleft.x + op.bounds.width + this.scale * 2, y: op.bounds.topleft.y},
-          width: op.bounds.width,
-          height: op.bounds.height
+          topleft: {x: op_comp.bounds.topleft.x + op_comp.bounds.width + this.scale * 2, y: op_comp.bounds.topleft.y},
+          width: op_comp.bounds.width,
+          height: op_comp.bounds.height
         }
 
       }
 
 
-      const id: number = this.duplicateOperation(op.name, params, new_bounds, inlets);
+      const id: number = this.duplicateOperation(op.name, op.params, new_bounds, op.inlets);
       const new_op = <OperationComponent> this.tree.getComponent(id);
 
       //duplicate the connections as well

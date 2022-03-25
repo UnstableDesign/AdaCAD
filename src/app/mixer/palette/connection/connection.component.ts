@@ -14,6 +14,7 @@ export class ConnectionComponent implements OnInit {
 
   @Input() id: number;
   @Input() scale: number;
+  @Input() default_cell_size: number;
 
 
   from: number; 
@@ -93,7 +94,7 @@ export class ConnectionComponent implements OnInit {
       const ndx = this.tree.getInletOfCxn(to.id, this.id);
       if(ndx !== -1){
         const left_offset = document.getElementById('inlet'+to.id+"-"+ndx).offsetLeft;
-        this.b_to = {x: to.bounds.topleft.x + left_offset, y: to.bounds.topleft.y}
+        this.b_to = {x: to.bounds.topleft.x + left_offset*this.scale/this.default_cell_size, y: to.bounds.topleft.y}
       }
     }
 
@@ -114,13 +115,14 @@ export class ConnectionComponent implements OnInit {
     if((<SubdraftComponent>from).draft_visible){
       const top_offset = document.getElementById(from.id+"-out").offsetTop;
 
+
       this.b_from = 
-      {x: from.bounds.topleft.x+ 15, 
-       y: from.bounds.topleft.y + top_offset + 30};
+      {x: from.bounds.topleft.x+ 3*this.scale, 
+       y: from.bounds.topleft.y + top_offset*this.scale/this.default_cell_size};
     }else{
       this.b_from = 
-      {x: from.bounds.topleft.x + 15, 
-       y: from.bounds.topleft.y + 30};
+      {x: from.bounds.topleft.x + 3*this.scale, 
+       y: from.bounds.topleft.y};
     }
 
     this.calculateBounds();
@@ -134,6 +136,9 @@ export class ConnectionComponent implements OnInit {
     let p1: Point = this.b_from;
     let p2: Point = this.b_to;
     let bottomright: Point = {x:0, y:0};
+
+    if(p1 === undefined || p2 === undefined) return;
+
 
     this.orientation = true;
     
@@ -200,9 +205,12 @@ export class ConnectionComponent implements OnInit {
 
     const from_comp: any = this.tree.getComponent(this.from);
     const to_comp: any = this.tree.getComponent(this.to);
+
+    this.updateFromPosition(from_comp);
+    this.updateToPosition(to_comp);
    
-    this.b_from = {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y + from_comp.bounds.height};
-    this.b_to = {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y};
+    // this.b_from = {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y + from_comp.bounds.height};
+    // this.b_to = {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y};
      
     this.scale = scale;
     this.calculateBounds();

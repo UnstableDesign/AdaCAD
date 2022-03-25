@@ -9,6 +9,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
+import { IFFT } from '@tensorflow/tfjs';
 
 
 export interface OperationParams {
@@ -2583,42 +2584,41 @@ export class OperationService {
         const warp_systems = [];
 
 
-           //create a list of systems as large as the total number of layers
-           for(let n = 0;  n < num_layers; n++){
-            const sys = ss.getWarpSystem(n);
-            if(sys === undefined) ss.addWarpSystemFromId(n);
-            warp_systems[n] = n;
-          }
+        //create a list of systems as large as the total number of layers
+        for(let n = 0;  n < num_layers; n++){
+          const sys = ss.getWarpSystem(n);
+          if(sys === undefined) ss.addWarpSystemFromId(n);
+          warp_systems[n] = n;
+        }
 
-          console.log("LDM", layer_draft_map)
         const layer_draft_map_sorted = [];
         //sort the layer draft map by system, push empty drafts
         for(let i = 0; i <= max_system; i++){
-          const ldm = layer_draft_map.find(el => el.system == i);
-          if(ldm === undefined){
+          const ldms:Array<any> = layer_draft_map.filter(el => el.system == i);
+          if(ldms.length == 0){
             layer_draft_map_sorted.push({layer: -1, system: i, drafts:[]})
           }else{
-            layer_draft_map_sorted.push(ldm);
+            ldms.forEach(ldm => {layer_draft_map_sorted.push(ldm);})
           }
         }
 
 
-        console.log("layer map sorted", layer_draft_map_sorted)
 
         layer_draft_map_sorted.forEach(layer_map => {
 
           const layer_num = layer_map.layer -1;
           if(layer_num < 0){
             outputs.push(new Draft(
-              {warps: 1, 
-                wefts: 1, 
-                pattern: [[new Cell(null)]]}));
+              {warps: total_warps*warp_systems.length, 
+                wefts: total_wefts,
+                rowSystemMapping: [layer_map.system]}));
           }else{
             layer_map.drafts.forEach(draft => {
               const d:Draft = new Draft({
                 warps:total_warps*warp_systems.length, 
                 wefts:total_wefts, 
                 rowShuttleMapping:draft.rowShuttleMapping, 
+                rowSystemMapping: [layer_map.system],
                 colShuttleMapping: draft.colShuttleMapping,
                 colSystemMapping: warp_systems});
           
@@ -2646,22 +2646,47 @@ export class OperationService {
                     }
                   })
                 });
-                
+                d.gen_name = this.formatName([draft], "");
                 outputs.push(d);
 
             })
 
           }
-
-     
-
-
       });
+
+
+      //outputs has all the drafts now we need to interlace them (all layer 1's then all layer 2's)
+      const pattern: Array<Array<Cell>> = [];
+      const row_sys_mapping: Array<number> = [];
+      const row_shut_mapping: Array<number> = [];
+      for(let i = 0; i < total_wefts * outputs.length; i++){
+        pattern.push([]);
+        const use_draft_id = i % outputs.length;
+        const use_row = Math.floor(i / outputs.length);
+        row_sys_mapping.push(outputs[use_draft_id].rowSystemMapping[use_row])
+        row_shut_mapping.push(outputs[use_draft_id].rowShuttleMapping[use_row])
+        for(let j = 0; j < total_warps * warp_systems.length; j++){
+          const val:boolean = outputs[use_draft_id].pattern[use_row][j].getHeddle();
+          pattern[i].push(new Cell(val));
+        }
+      }
+
+
+
+      const interlaced = new Draft({
+        warps: total_warps * warp_systems.length,
+        wefts: total_wefts * outputs.length,
+        colShuttleMapping: outputs[0].colShuttleMapping,
+        colSystemMapping: warp_systems,
+        pattern: pattern,
+        rowSystemMapping: row_sys_mapping,
+        rowShuttleMapping: row_shut_mapping
+      })
      
         
-
+      interlaced.gen_name = this.formatName(outputs, "layer");
       
-      return this.getOp('interlace').perform([{op_name: "", drafts: outputs, inlet: 0,  params:[]}]);
+      return Promise.resolve([interlaced]);
 
       }
       
@@ -2747,7 +2772,11 @@ export class OperationService {
         let first_draft: Draft = null;
         child_inputs.forEach(el =>{
           if(el.drafts.length > 0 && first_draft == null) first_draft = el.drafts[0];
-        })
+        });
+
+        if(first_draft == null) first_draft = new Draft({warps: 1, wefts: 1, pattern: [[new Cell(null)]]})
+
+        
 
         const draft: Draft = new Draft({
           wefts: res_h, 
