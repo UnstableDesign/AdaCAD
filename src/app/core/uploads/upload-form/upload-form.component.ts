@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { UploadService } from '../upload.service';
 import { Upload } from '../upload';
 import { finalize } from 'rxjs/operators';
+import utilInstance from '../../model/util';
+import { ImageService } from '../../provider/image.service';
 
 @Component({
   selector: 'upload-form',
@@ -14,16 +16,50 @@ export class UploadFormComponent implements OnInit {
   @Input() type: string;
   progress:number = 0;
   selectedFiles: FileList;
-  currentUpload: Upload;
   uploading: boolean = false;
   imageToShow: any;
+  downloadid: string;
   @ViewChild('uploadImage') canvas: ElementRef;
   @Output() onData: any = new EventEmitter();
 
-  constructor(private upSvc: UploadService, private httpClient: HttpClient) { }
+  constructor(private upSvc: UploadService, private httpClient: HttpClient, private imageService: ImageService) { }
 
   detectFiles(event) {
       this.selectedFiles = event.target.files;
+  }
+
+  uploadAda(upload: Upload, file: File){
+    this.upSvc.pushUpload(upload).then(snapshot => {
+    return this.upSvc.getDownloadData(upload.name)
+    }).then(url => {
+        
+      this.httpClient.get(url).subscribe(data => {
+        var obj = {
+          name: file.name.split(".")[0],
+          data: data,
+          type: 'ada',
+        }
+        console.log(obj);
+        this.onData.emit(obj);
+        this.uploading = false;
+        this.selectedFiles = null;
+      });  
+
+            
+    });
+  
+  }
+
+  async uploadImage(upload: Upload, file: File){
+     await this.upSvc.pushUpload(upload).then(snapshot => {
+      return  this.imageService.loadFiles([upload.name]);
+    }).then(uploaded => {
+      const obj = this.imageService.getImageData(upload.name);
+      this.onData.emit(obj);
+      this.uploading = false;
+      this.selectedFiles = null;
+
+    }); 
   }
 
 
@@ -33,152 +69,24 @@ export class UploadFormComponent implements OnInit {
 
     let file:File = this.selectedFiles.item(0)
     let fileType = file.name.split(".").pop();
- 
-    this.currentUpload = new Upload(file);
-    this.upSvc.pushUpload(this.currentUpload).then(snapshot => {
-      return this.upSvc.getDownloadData(this.currentUpload.name)
-    }).then(url => {
-        
-            switch(fileType){
-              case 'ada':
-                this.httpClient.get(url).subscribe(data => {
-                  console.log("Got File Type", fileType);
-                  var obj = {
-                    name: file.name.split(".")[0],
-                    data: data,
-                    type: 'ada',
-                  }
-                  console.log(obj);
-                  this.onData.emit(obj);
-                });  
-              break;
+   const upload = new Upload(file);
 
-             case 'jpg':
-             case 'bmp':
-             case 'png':
 
-              this.httpClient.get(url, {responseType: 'blob'}).subscribe(data => {
-                var image = new Image();
-                image.src = url;
-                image.crossOrigin = "Anonymous";
-  
-                var canvas = this.canvas.nativeElement;
-                var ctx = canvas.getContext('2d');
-  
-                image.onload = (() => {
-                
-                    canvas.width = image.naturalWidth;
-                    canvas.height = image.naturalHeight; 
-                        
-                    ctx.mozImageSmoothingEnabled = false;
-                    ctx.webkitImageSmoothingEnabled = false;
-                    ctx.msImageSmoothingEnabled = false;
-                    ctx.imageSmoothingEnabled = false;
-    
-                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-  
-                    var imgdata = ctx.getImageData(0,0, canvas.width, canvas.height);
-                    var obj = {
-                      name: file.name.split(".")[0],
-                      data: imgdata,
-                      type: 'image',
-                    }
-                    this.onData.emit(obj);
-                });
-              });
+    switch(fileType){
+      case 'ada':
+        this.uploadAda(upload, file);
+      break;
 
-               break;
-            }
+      case 'jpg':
+      case 'bmp':
+      case 'png':
 
-              
-          
-      });
-  
-      
+      this.uploadImage(upload, file);
+      break;
+    }
 
-    // p.pipe(
-    //     finalize(() => {
 
-    //       if (fileType != "ada" && fileType!= "wif") {
-    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-    //         //   var image = new Image();
-    //         //   image.src = url;
-    //         //   image.crossOrigin = "Anonymous";
 
-    //         //   var canvas = this.canvas.nativeElement;
-    //         //   var ctx = canvas.getContext('2d');
-
-    //         //   image.onload = (() => {
-    //         //     if (this.type === "shuttle") {
-    //         //       canvas.width = this.warps;
-    //         //       canvas.height = image.naturalHeight * (this.warps / image.naturalWidth);
-    //         //     }
-    //         //     else if (this.type === "init") {
-    //         //       canvas.width = image.naturalWidth;
-    //         //       canvas.height = image.naturalHeight;
-    //         //     }
-                
-                
-    //         //     ctx.mozImageSmoothingEnabled = false;
-    //         //     ctx.webkitImageSmoothingEnabled = false;
-    //         //     ctx.msImageSmoothingEnabled = false;
-    //         //     ctx.imageSmoothingEnabled = false;
-
-    //         //     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-    //         //     var data = ctx.getImageData(0,0, canvas.width, canvas.height);
-    //         //     var obj = {
-    //         //       name: file.name.split(".")[0],
-    //         //       data: data,
-    //         //       type: 'image',
-    //         //     }
-    //         //     this.onData.emit(obj);
-    //         //   });
-    //         // });
-    //       }
-    //       else if (fileType === "ada") {
-
-    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-    //         //   this.httpClient.get(url).subscribe(data => {
-    //         //     var obj = {
-    //         //       name: file.name.split(".")[0],
-    //         //       data: data,
-    //         //       type: 'ada',
-    //         //     }
-    //         //     console.log(obj);
-    //         //     this.onData.emit(obj);
-    //         //   });
-    //         // });
-    //       }
-    //       else if (fileType === "wif") {
-    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-    //         //   this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
-    //         //    var obj = {
-    //         //       name: file.name.split(".")[0],
-    //         //       data: data,
-    //         //       type: 'wif',
-    //         //     }
-    //         //     this.onData.emit(obj);
-    //         //   });
-    //         // });
-    //       }
-    //       else if (fileType === "wif") {
-    //         // this.upSvc.getDownloadURL(this.currentUpload.name).subscribe((url) => {
-    //         //   this.httpClient.get(url, {responseType: 'text'}).subscribe(data => {
-    //         //    var obj = {
-    //         //       name: file.name.split(".")[0],
-    //         //       data: data,
-    //         //       type: 'wif',
-    //         //     }
-    //         //     this.onData.emit(obj);
-    //         //   });
-    //         // });
-    //       }
-    //     })
-    //  )
-    // .subscribe((e) => {
-    //   this.progress = this.currentUpload.progress;
-    // });
   }
 
   ngOnInit() {

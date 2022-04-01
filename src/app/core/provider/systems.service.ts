@@ -1,5 +1,7 @@
 import { I } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
+import { util } from '@tensorflow/tfjs';
+import { uniq } from 'lodash';
 import { Draft } from '../model/draft';
 import { System } from '../model/system';
 import utilInstance from '../model/util';
@@ -13,22 +15,51 @@ import utilInstance from '../model/util';
  */
 export class SystemsService {
 
-  weft_systems: Array<System> = [new System()];
-  warp_systems: Array<System> = [new System()];
+  
+  weft_systems: Array<System> = [];
+  warp_systems: Array<System> = [];
 
-  constructor() { }
+  constructor() { 
+
+    for(let i = 0; i < 26; i++){
+      const weft = new System();
+      weft.id = i; 
+      weft.name = String.fromCharCode(i+97);
+      this.weft_systems.push(weft);
+
+      const warp = new System();
+      warp.id = i; 
+      warp.name = ""+(i+1);
+      this.warp_systems.push(warp);
+    }
+
+    this.weft_systems[0].in_use = true;
+    this.warp_systems[0].in_use = true;
+
+
+  }
 
   reset() {
-    this.weft_systems = [new System()];
-    this.warp_systems  = [new System()];
+
+    this.weft_systems.forEach(el => {
+      el.in_use = false;
+      el.visible = true;
+    })
+
+    this.warp_systems.forEach(el => {
+      el.in_use = false;
+      el.visible = true;
+    })
+
+   
   }
 
   getWeftSystem(id: number) : System{
-    return this.weft_systems.find(el => el.id === id);
+    return this.weft_systems[id];
   }
 
   getWarpSystem(id: number) : System{
-    return this.warp_systems.find(el => el.id === id);
+    return this.warp_systems[id];
   }
 
   getFirstWarpSystem() : System {
@@ -40,33 +71,29 @@ export class SystemsService {
   }
 
   addWeftSystemFromId(id: number) {
-    const system = new System();
-    system.setID(id);
-    system.setVisible(true);
-    this.weft_systems.push(system);
+    this.weft_systems[id].in_use = true;
+
   }
 
   addWarpSystemFromId(id: number) {
-    const system = new System();
-    system.setID(id);
-    system.setVisible(true);
-    this.warp_systems.push(system);
+    this.warp_systems[id].in_use = true;
+
   }
 
 
-  addWeftSystem(system) : number {
-    system.setID(this.weft_systems.length);
-    system.setVisible(true);
-    this.weft_systems.push(system);
-    return system.id;
-  }
+  // addWeftSystem(system) : number {
+  //   system.setID(this.weft_systems.length);
+  //   system.setVisible(true);
+  //   this.weft_systems.push(system);
+  //   return system.id;
+  // }
 
-  addWarpSystem(system) : number {
-    system.setID(this.warp_systems.length);
-    system.setVisible(true);
-    this.warp_systems.push(system);
-    return system.id;
-  }
+  // addWarpSystem(system) : number {
+  //   system.setID(this.warp_systems.length);
+  //   system.setVisible(true);
+  //   this.warp_systems.push(system);
+  //   return system.id;
+  // }
 
 
   weftSystemIsVisible(id: number){
@@ -75,6 +102,47 @@ export class SystemsService {
 
   warpSystemIsVisible(id: number){
     return this.warp_systems[id].isVisible();
+  }
+
+    /**
+   * looks for the next in use system after the ndx submitted.
+   * @param ndx 
+   */
+     getNextWarpSystemFrom(ndx: number): number{
+      const in_use = this.warp_systems.filter(el => el.in_use);
+      let use_ndx = in_use.findIndex(el => el.id == ndx);
+      use_ndx++;
+  
+      if(use_ndx === -1){
+      }else if(use_ndx < in_use.length){
+        return in_use[use_ndx].id;
+      }else{
+        //get the last used number an dincrement one
+        let next = in_use[in_use.length-1].id + 1;
+        this.weft_systems[next].in_use = true;
+        return next;
+      }
+    }
+  
+
+  /**
+   * looks for the next in use system after the ndx submitted.
+   * @param ndx 
+   */
+  getNextWeftSystemFrom(ndx: number): number{
+    const in_use = this.weft_systems.filter(el => el.in_use);
+    let use_ndx = in_use.findIndex(el => el.id == ndx);
+    use_ndx++;
+
+    if(use_ndx === -1){
+    }else if(use_ndx < in_use.length){
+      return in_use[use_ndx].id;
+    }else{
+      //get the last used number an dincrement one
+      let next = in_use[in_use.length-1].id + 1;
+      this.weft_systems[next].in_use = true;
+      return next;
+    }
   }
 
   /**
@@ -93,22 +161,11 @@ export class SystemsService {
       return acc;
     }, 0);
 
-
     //this is the only one assigned
     if(count === 1){
       return 0; // return the starting index
     }else{
-      //you need the next id
-      system_id ++;
-
-      if(system_id < this.warp_systems.length){
-        return system_id;
-      }else if(system_id === this.warp_systems.length){
-        this.addWarpSystem(new System());
-        return system_id;
-      }else{
-        return 0;
-      }
+      return this.getNextWarpSystemFrom(system_id);
     }
 
   }
@@ -134,17 +191,7 @@ export class SystemsService {
     if(count === 1){
       return 0; // return the starting index
     }else{
-      //you need the next id
-      system_id ++;
-
-      if(system_id < this.weft_systems.length){
-        return system_id;
-      }else if(system_id === this.weft_systems.length){
-        this.addWeftSystem(new System());
-        return system_id;
-      }else{
-        return 0;
-      }
+      return this.getNextWeftSystemFrom(system_id);
     }
 
   }
@@ -152,14 +199,14 @@ export class SystemsService {
   getWeftSystemCode(id: number) : string {
     var system = this.getWeftSystem(id);
     if(system === undefined) return "err";
-    return String.fromCharCode(97 + system.id);
+    return system.name;
   }
 
   getWarpSystemCode(id: number) {
 
     var system = this.getWarpSystem(id);
     if(system === undefined) return "err";
-   return  String.fromCharCode(97 + system.id);
+   return  system.name;
  }
 
  /**

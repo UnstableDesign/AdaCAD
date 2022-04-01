@@ -3,12 +3,14 @@ import { HttpResponse, HttpClient, HttpHeaders } from '@angular/common/http';
 import { Upload } from './upload';
 import { Observable, of } from 'rxjs';
 import { map as httpmap } from 'rxjs/operators';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, uploadBytesResumable } from "firebase/storage";
 
 const httpOptions = {
   headers: new HttpHeaders({
   })
 };
+
+
 
 @Injectable()
 export class UploadService {
@@ -17,6 +19,7 @@ export class UploadService {
 
   private basePath:string = '/uploads';
   uploadProgress: Observable<number>;
+  progress: number;
   imageToShow: any;
 
   createImageFromBlob(image: Blob) {
@@ -38,8 +41,30 @@ export class UploadService {
     const storage = getStorage();
     const storageRef = ref(storage, 'uploads/'+id);
 
+
+    const uploadTask = uploadBytesResumable(storageRef, upload.file);
+
+    uploadTask
+      .on('state_changed', (snapshot) => {
+          // Observe state change events such as progress, pause, and resume
+          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+          this.progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + this.progress + '% done');
+          switch (snapshot.state) {
+            case 'paused':
+              console.log('Upload is paused');
+              break;
+            case 'running':
+              console.log('Upload is running');
+              break;
+          }
+        },
+        (error) => {},
+        () => {
+          
+        });
+
     return uploadBytes(storageRef, upload.file).then((snapshot) => {
-      console.log('Uploaded');
       upload.name = id;
       return snapshot;
     });
@@ -134,5 +159,10 @@ export class UploadService {
 
 
   }
+
+
+  //lets try this again here with an emitter
+
+  
 
 }

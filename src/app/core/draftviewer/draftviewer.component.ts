@@ -292,7 +292,6 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded() {  
     var dims = this.render.getCellDims("base");
-
     this.canvasEl.width = this.weave.warps * dims.w;
     this.canvasEl.height = this.weave.wefts * dims.h;
     this.threadingCanvas.width = this.weave.warps * dims.w;
@@ -1279,7 +1278,7 @@ export class DraftviewerComponent implements OnInit {
    * @returns {void}
    */
   private drawOnThreading( currentPos: Interlacement ) {
-
+    
 
     if (!this.cxThreading || !currentPos) { return; }
     
@@ -1501,7 +1500,7 @@ export class DraftviewerComponent implements OnInit {
 
      //cx.fillStyle = color;
      cx.fillStyle = color;
-     if(color != '#FFFFFF') cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+     cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 
 
   }
@@ -1559,7 +1558,15 @@ export class DraftviewerComponent implements OnInit {
   private redrawRow(y, i, cx) {
  
     for (var j = 0; j < this.weave.warps; j++) {
-      this.drawCell(this.cx, i, j, "drawdown");
+      //get the system at this warp
+      const sys_id = this.weave.colSystemMapping[j];
+      const sys = this.ss.getWarpSystem(sys_id)
+    
+      if(sys !== undefined && sys.isVisible()){
+        this.drawCell(this.cx, i, j, "drawdown");
+      }else{
+
+      } 
     }
   }
 
@@ -1992,6 +1999,9 @@ public drawWeftEnd(top, left, shuttle){
   public redrawYarnView(){
 
 
+    
+
+
     for(let i = 0; i < this.render.visibleRows.length; i++){
 
       let index_row = this.render.visibleRows[i];
@@ -2085,7 +2095,7 @@ public drawWeftEnd(top, left, shuttle){
     //else this.drawBlank(this.cxTieups,this.tieupsCanvas);
     
 
-
+    console.log("this.loom.threading", this.loom.threading);
     for (var j = 0; j < this.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.loom.threading[j], j, "threading");
     }
@@ -2140,6 +2150,7 @@ public drawDrawdown(){
 //takes inputs about what, exactly to redraw
 public redraw(flags:any){
 
+
     var base_dims = this.render.getCellDims("base");
 
     if(flags.drawdown !== undefined){
@@ -2171,7 +2182,8 @@ public redraw(flags:any){
       this.drawWarpMaterials(this.cxWarpMaterials, this.warpMaterialsCanvas);
     }
 
-    if(flags.loom !== undefined && this.loom.isFrame()){
+  
+    if(flags.loom !== undefined){
        this.redrawLoom();
     }
 
@@ -2186,7 +2198,7 @@ public redraw(flags:any){
   public redrawDraft() {
     
     var base_dims = this.render.getCellDims("base");
-    this.cx.fillStyle = "white";
+    this.cx.fillStyle = "grey";
     this.cx.fillRect(base_dims.w,base_dims.h,this.canvasEl.width - base_dims.w*2,this.canvasEl.height-base_dims.h*2);
 
     var i,j;
@@ -2200,28 +2212,28 @@ public redraw(flags:any){
     }
 
 
-     for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
+    //  for (var x = 0; x < this.weave.colShuttleMapping.length; x++) {
      
-      let system;
+    //   let system;
 
-      var id = this.weave.colShuttleMapping[x];
-      if(id === undefined) system = this.ss.getFirstWarpSystem();
+    //   var id = this.weave.colShuttleMapping[x];
+    //   if(id === undefined) system = this.ss.getFirstWarpSystem();
 
-      else system = this.ss.getWarpSystem(id);
-      var shuttle = this.ms.getShuttle(id);
+    //   else system = this.ss.getWarpSystem(id);
+    //   var shuttle = this.ms.getShuttle(id);
 
 
-        if(system !== undefined && !system.visible){
-          var c = "#3d3d3d";
-          var t = 100;
+    //     if(system !== undefined && !system.visible){
+    //       var c = "#3d3d3d";
+    //       var t = 100;
 
-          var width = base_dims.w;
-          var w_margin = base_dims.w;
-          this.cx.fillStyle = c;
-          this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.render.visibleRows.length);
+    //       var width = base_dims.w;
+    //       var w_margin = base_dims.w;
+    //       this.cx.fillStyle = c;
+    //       this.cx.fillRect(x*base_dims.w+w_margin, 0, width, base_dims.h*this.render.visibleRows.length);
 
-        }
-    }   
+    //     }
+    // }   
 
     this.drawGrid(this.cx,this.canvasEl);
 

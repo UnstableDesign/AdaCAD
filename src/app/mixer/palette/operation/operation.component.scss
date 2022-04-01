@@ -15,6 +15,31 @@
     height: 30px;
 }
 
+.text-err,
+.error{
+    color: red;
+    width: 500px;
+}
+
+.top-row .child{
+    background: #999999;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    height: 30px;
+}
+
+.input-group{
+    display: flex;
+    flex-direction: row;
+    background-color: #00d1b2;
+    margin-right: 8px;
+}
+
+.input-group input{
+    width: 35px;
+}
+
 button.input{
     position: relative;
 	background-color: #00d1b2;
@@ -52,6 +77,12 @@ button.is-primary{
 
 }
 
+.cxn-row input{
+    border: none;
+    background: #00d1b2;
+    color: white;
+}
+
 
 .param-row{
     vertical-align:middle;
@@ -65,20 +96,48 @@ button.is-primary{
 
 }
 
+.input-color{
+    width: 30px;
+    height: 30px;
+    border: thin solid white;
+}
+
+.param-image{
+    padding: 8px;
+    width: 100px;
+    display: none;
+    flex-direction: column;
+}
+
+
+
+
+
 .param-name{
     width: 25%;
     overflow: hidden;
     line-height: 40px;
 }
 
-.param-sider{
+.param-slider{
     width: 50%;
+    text-align: left;
+    position: relative;
+    left: 10px;
+    overflow: hidden;
+}
+
+.param-text{
+    width: 50%;
+    text-align: left;
+    padding: 0px 10px;
     overflow: hidden;
 }
 
 .param-checkbox{
     overflow: hidden;
-    width: 60%;
+    width: 28px;
+    text-align: right;
 }
 
 .param-inputs{
@@ -112,14 +171,39 @@ button.is-primary.is-active{
     margin: 0px 8px; 
     color: white;
     line-height: 30px;
-    min-width: 100px;
+    min-width: 200px;
+}
+
+.mat-select{
+    width: 34px;
+    padding-left: 4px;
+    line-height: 30px;
+    background-color: #fff;
+}
+
+.mat-select-value{
+    color: #fff !important;
+}
+
+
+.inlet-label{
+    color: #fff;
+    line-height: 30px;
+    display: flex;
+    padding-right: 6px;
 }
 
 .params{
     display:flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: flex-end;
     background: rgba(255,255,255,0.8);
+}
+
+.param-list{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 2;
 }
 
 .inputs{

@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { OperationService } from '../../provider/operation.service';
+import { OperationService, DynamicOperation, OpInput } from '../../provider/operation.service';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {FormControl} from '@angular/forms';
@@ -17,6 +17,7 @@ export class OpsComponent implements OnInit {
   @Output() onImport:any = new EventEmitter();
   
   opnames:Array<string> = [];
+  displaynames:Array<string> = [];
   myControl = new FormControl();
   filteredOptions: Observable<string[]>;
   
@@ -26,7 +27,9 @@ export class OpsComponent implements OnInit {
 
   ngOnInit() {
 
-    this.opnames = this.ops.ops.map(el => el.name);
+    const allops = this.ops.ops.concat(this.ops.dynamic_ops);
+    this.opnames = allops.map(el => el.name);
+    this.displaynames = allops.map(el => el.displayname);
 
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
@@ -36,7 +39,7 @@ export class OpsComponent implements OnInit {
 
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    return this.opnames.filter(option => option.toLowerCase().includes(filterValue));
+    return this.displaynames.filter(option => option.toLowerCase().includes(filterValue));
   }
 
   close() {
@@ -46,11 +49,17 @@ export class OpsComponent implements OnInit {
 
 
   addOp(name: string){
-    this.onOperationAdded.emit(name);
+      this.onOperationAdded.emit(name);  
   }
 
   addOpFromSearch(event: any){
-    this.onOperationAdded.emit(event.option.value);
+    //need to convert display name toname here
+    const ndx = this.displaynames.findIndex(el => el === event.option.value);
+    if(ndx !== -1){
+      this.onOperationAdded.emit(this.opnames[ndx]);
+    }
+
+
   }
 
 

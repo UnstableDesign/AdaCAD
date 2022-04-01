@@ -27,7 +27,7 @@ export class InitModal implements OnInit {
   opts: StartOptions[] = [
       {value: 'example', viewValue: 'Load an Example', mixeronly: true},
       {value: 'ada', viewValue: 'AdaCAD (.ada) File', mixeronly: true},
-      {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File', mixeronly: false},
+     // {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File', mixeronly: false},
       // {value: 'wif', viewValue: 'WIF (.wif) File', mixeronly: false},   
       {value: 'new', viewValue: 'Empty Draft', mixeronly: false}
 
@@ -46,7 +46,6 @@ export class InitModal implements OnInit {
 
   constructor(
     private fls: FileService,
-    private auth: AuthService,
     private dm: DesignmodesService, 
     private http: HttpClient,
     private dialogRef: MatDialogRef<InitModal>, 
@@ -91,11 +90,9 @@ export class InitModal implements OnInit {
   
   }
 
-  // selectionMade(selection: any){
-  //   if(selection === 'recover'){
-  //     this.loadSavedFile();
-  //   }
-  // }
+  selectionMade(selection: any){
+
+  }
 
   loadExample(filename: string){
     console.log("loading example: ", filename);

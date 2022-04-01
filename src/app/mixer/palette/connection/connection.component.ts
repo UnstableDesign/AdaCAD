@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { i } from 'mathjs';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../provider/tree.service';
+import { OperationComponent } from '../operation/operation.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 @Component({
@@ -13,15 +15,19 @@ export class ConnectionComponent implements OnInit {
 
   @Input() id: number;
   @Input() scale: number;
+  @Input() default_cell_size: number;
 
 
   from: number; 
   to: number; 
+  to_ndx: number; 
+  
   b_from: Point;
   b_to: Point;
+
+
   disable_drag:boolean = true;
   orientation: boolean = true;
-  
 
   bounds: Bounds = {
     topleft: {x: 0, y:0},
@@ -35,10 +41,16 @@ export class ConnectionComponent implements OnInit {
 
   constructor(public tree: TreeService) { 
 
-
   }
 
   ngOnInit() {
+    const treenode = this.tree.getTreeNode(this.id);
+    const from_io = treenode.inputs[0];
+    const to_io = treenode.outputs[0];
+
+    this.from = from_io.tn.node.id;
+    this.to = to_io.tn.node.id;
+
   }
 
   ngAfterViewInit(){
@@ -47,16 +59,17 @@ export class ConnectionComponent implements OnInit {
     this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
     this.cx = this.canvas.getContext("2d");
 
-    
-    this.b_to = this.tree.getComponent(this.to).bounds.topleft;
-    this.updateFromPosition(this.tree.getComponent(this.from));
-    // this.b_from = 
-    //   {x: from.bounds.topleft.x, 
-    //    y: from.bounds.topleft.y + from.bounds.height};
-   
-    // this.b_to = this.tree.getComponent(this.to).bounds.topleft;
 
+    const to_comp = this.tree.getComponent(this.to);
+    
+     if(to_comp !== null){
+      this.b_to = to_comp.bounds.topleft;
+      this.updateFromPosition(this.tree.getComponent(this.from));
+      this.updateToPosition(<SubdraftComponent | OperationComponent> to_comp);
+     }
   }
+
+
 
   disableDrag(){
     this.disable_drag = true;
@@ -67,26 +80,52 @@ export class ConnectionComponent implements OnInit {
     this.disable_drag = true;
   }
 
-  //the to position is always the top left corner of the element it is going into
-  updateToPosition(to: any){
+  /**
+   * if every connection goes from one node to another, the to node is always the topleft corner
+   * unless the to node is a dynamic operation, in which case we must move to an inlet. 
+   * @param to the id of the component this connection goes to
+   */
+  updateToPosition(to: OperationComponent | SubdraftComponent){
    
     if(to.id != this.to) console.error("attempting to move wrong TO connection", to.id, this.to);
     this.b_to = to.bounds.topleft;
+
+    if(this.tree.getType(to.id) === 'op'){
+      // get the inlet value 
+      const ndx = this.tree.getInletOfCxn(to.id, this.id);
+      if(ndx !== -1){
+        const element = document.getElementById('inlet'+to.id+"-"+ndx);
+        if(element !== undefined && element !== null){
+          const left_offset = element.offsetLeft;
+          this.b_to = {x: to.bounds.topleft.x + left_offset*this.scale/this.default_cell_size, y: to.bounds.topleft.y}
+        }
+      }
+    }
+
+
     this.calculateBounds();
     this.drawConnection();
   }
 
+
+  /**
+   * if every connection goes from one node to another, the from node depends on the kind of object
+   * @param from the id of the component this connection goes to
+   */
   updateFromPosition(from: any){
 
     if(from.id != this.from) console.error("attempting to move wrong FROM connection", from.id, this.from);
 
     if((<SubdraftComponent>from).draft_visible){
+      const top_offset = document.getElementById(from.id+"-out").offsetTop;
+
+
       this.b_from = 
-      {x: from.bounds.topleft.x, 
-       y: from.bounds.topleft.y + from.bounds.height};
+      {x: from.bounds.topleft.x+ 3*this.scale, 
+       y: from.bounds.topleft.y + top_offset*this.scale/this.default_cell_size};
     }else{
       this.b_from = 
-      {x: from.bounds.topleft.x, 
+      {x: from.bounds.topleft.x + 3*this.scale, 
        y: from.bounds.topleft.y};
     }
 
@@ -101,6 +140,9 @@ export class ConnectionComponent implements OnInit {
     let p1: Point = this.b_from;
     let p2: Point = this.b_to;
     let bottomright: Point = {x:0, y:0};
+
+    if(p1 === undefined || p2 === undefined) return;
+
 
     this.orientation = true;
     
@@ -167,9 +209,12 @@ export class ConnectionComponent implements OnInit {
 
     const from_comp: any = this.tree.getComponent(this.from);
     const to_comp: any = this.tree.getComponent(this.to);
+
+    this.updateFromPosition(from_comp);
+    this.updateToPosition(to_comp);
    
-    this.b_from = {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y + from_comp.bounds.height};
-    this.b_to = {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y};
+    // this.b_from = {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y + from_comp.bounds.height};
+    // this.b_to = {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y};
      
     this.scale = scale;
     this.calculateBounds();

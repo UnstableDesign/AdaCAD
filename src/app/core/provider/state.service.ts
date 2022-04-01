@@ -56,6 +56,8 @@ export class StateService {
 
     if(this.auth.uid === undefined) return;
 
+    //console.log("Writing", cur_state);
+
     const db = getDatabase();
     fbset(fbref(db, 'users/' + this.auth.uid), {
       timestamp: Date.now(),
@@ -108,7 +110,6 @@ export class StateService {
 
     if(this.timeline.length > 1) this.undo_disabled = false;
 
-    this.logState(draft);
 
   }
 
@@ -222,23 +223,6 @@ public restoreNextMixerHistoryState(): SaveObj{
       return this.timeline[this.active_id].ada;
        
    }
-
-   /**
-    * writes the current draft to local storage for reloading if somehoow the page closes
-    * this is not being used at the moment
-    * @param draft 
-    * @returns 
-    */
-  public logState(draft: Draft){
-
-  //this just lags on big drafts
-  if(draft.warps*draft.wefts > 10000) return;
-
-  var timestamp = Math.floor(Date.now() / 1000);
-  var theJSON = JSON.stringify(draft);
-  if(theJSON.length < 5000000) localStorage.setItem("draft", theJSON);
-   
- }
 
 
 }

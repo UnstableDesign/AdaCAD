@@ -114,7 +114,7 @@ import { AuthService } from './provider/auth.service';
         SignupComponent,
         ProfileComponent,
         EmailComponent
-    ],
+        ],
     providers: [
         PatternService,
         UploadService,
