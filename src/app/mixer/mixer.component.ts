@@ -316,7 +316,6 @@ export class MixerComponent implements OnInit {
       const internal_op = this.ops.getOp(op.name); 
       if(internal_op === undefined) return;
       const param_types = internal_op.params.map(el => el.type);
-      console.log(param_types, op.params);
       param_types.forEach((p, ndx) => {
         if(p === 'file') images_to_load.push(op.params[ndx]);
       });
@@ -416,7 +415,7 @@ export class MixerComponent implements OnInit {
         if(this.tree.hasParent(el.id)){
           el.draft = new Draft({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
         } else{
-       //   console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
+          console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
           this.tree.removeNode(el.id);
         } 
       })

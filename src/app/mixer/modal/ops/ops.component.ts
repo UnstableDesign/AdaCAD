@@ -53,7 +53,6 @@ export class OpsComponent implements OnInit {
   }
 
   addOpFromSearch(event: any){
-    console.log("event", event);
     //need to convert display name toname here
     const ndx = this.displaynames.findIndex(el => el === event.option.value);
     if(ndx !== -1){

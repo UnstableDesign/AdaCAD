@@ -66,14 +66,10 @@ export class DraftdetailComponent implements OnInit {
                this.ink = data.ink;
                this.loom = data.loom;
                this.viewonly = data.viewonly;
-               console.log('this.ink:', this.ink);
 
 
 
-          
-               
-    
-
+        
                             
 
               // this.modal_height = (this.draft.wefts+20) * this.render.getCellDims('base').h;

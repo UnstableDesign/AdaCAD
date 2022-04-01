@@ -113,6 +113,7 @@ export class TreeService {
   /** scan through nodes and return all that our valid */
   async validateNodes() : Promise<boolean>{
 
+
     const err_ops: Array<Node> = this.nodes
             .filter(el => el.type === "op")
             .filter(el => this.ops.getOp((<OpNode> el).name) === undefined)
@@ -126,6 +127,8 @@ export class TreeService {
 
     ///also check to see that all connections exist
     const cxns = this.getUnusuedConnections();
+    console.log("in validate nodes", cxns);
+
    // console.log("unusued connections found", cxns);
     cxns.forEach(el => this.removeNode(el));
   
@@ -445,11 +448,12 @@ export class TreeService {
 
    //filter out inputs that are matched to an index highter than what we offer
     const missing_inlets: Array<TreeNode> = inputs_to_op
-      .filter((el) => el.ndx >= opnode.inlets.length)
+      .filter((el) => el.ndx > opnode.inlets.length)
       .map(el => el.tn);
 
+
     const viewRefs = missing_inlets.map(el => el.node.ref);
-    console.log("IN SWEEP", inputs_to_op, opnode.inlets, missing_inlets);
+
     
     missing_inlets.forEach(el => {
         this.removeConnectionNode(el.inputs[0].tn.node.id, el.outputs[0].tn.node.id);
@@ -1010,6 +1014,7 @@ removeOperationNode(id:number) : Array<Node>{
   const deleted:Array<Node> = []; 
   if(cxn_id === undefined) return;
 
+  console.log("removeing node in connection")
   deleted.push(this.removeNode(cxn_id));
 
   return deleted;

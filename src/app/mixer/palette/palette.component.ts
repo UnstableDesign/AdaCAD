@@ -802,7 +802,6 @@ export class PaletteComponent implements OnInit{
       this.viewport.removeObj(node.id);
     })
 
-
     outputs.forEach(out => {
       this.performAndUpdateDownstream(out);
     })
@@ -819,11 +818,21 @@ export class PaletteComponent implements OnInit{
 
     if(id === undefined) return;
 
-    const delted_nodes = this.tree.removeOperationNode(id);
+    const drafts_out = this.tree.getNonCxnOutputs(id);
 
+    const outputs:Array<number> = drafts_out.reduce((acc, el) => {
+      return acc.concat(this.tree.getNonCxnOutputs(el));
+    }, []);
+
+
+    const delted_nodes = this.tree.removeOperationNode(id);
     delted_nodes.forEach(node => {
       this.removeFromViewContainer(node.ref);
       this.viewport.removeObj(node.id);
+    });
+
+    outputs.forEach(out => {
+      this.performAndUpdateDownstream(out);
     })
 
   }

@@ -221,7 +221,7 @@ export class FileService {
             node_id: data.node_id,
             name: data.name,
             params: data.params,
-            inlets: (data.inlets === undefined) ? [] : data.inlets 
+            inlets: (data.inlets === undefined) ? [0] : data.inlets 
           }
           return op;
         });

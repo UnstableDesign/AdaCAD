@@ -341,7 +341,8 @@ export class OperationService {
             row.forEach((cell, j) =>{
                 const select_col = (factor_in_repeats === 1) ? j % op_input.drafts[select_array].warps : j;
                 if(op_input.drafts[select_array].hasCell(select_row, select_col)){
-                    cell.setHeddle(op_input.drafts[select_array].pattern[select_row][select_col].getHeddle());
+                    const pattern = op_input.drafts[select_array].pattern;
+                    cell.setHeddle(pattern[select_row][select_col].getHeddle());
                 }else{
                     cell.setHeddle(null);
                 }
@@ -669,7 +670,7 @@ export class OperationService {
     const selvedge: Operation = {
       name: 'selvedge',
       displayname: 'selvedge',  
-      dx: 'adds a selvedge of a user defined with both sides of the input draft. User can specify the number of row repeats in the selvedge',
+      dx: 'adds a selvedge of a user defined width (in ends) on both sides of the input draft. The second input functions as the selvedge pattern, and if none is selected, a selvedge is generated',
       params: [
         {name: 'width',
         type: 'number',
@@ -677,55 +678,63 @@ export class OperationService {
         max: 100,
         value: 12,
         dx: "the width in warps of the selvedge"
-        },
-        {name: 'repeats',
-        type: 'number',
-        min: 1,
-        max: 100,
-        value: 1,
-        dx: "the number of pics to repeat each selvedge structure, usually equal to the number of shuttles thrown"
         }
       ],
-      max_inputs: 1,
+      max_inputs: 2,
       perform: (op_inputs: Array<OpInput>)=> {
         const op_input = op_inputs[0];
+        if(op_input.drafts.length == 0) return Promise.resolve([]);
+       
+        const num_systems = utilInstance.filterToUniqueValues(op_input.drafts[0].rowSystemMapping).length;
+        const height = 2*num_systems;
 
-        const height = 2*op_input.params[1];
 
-        const pattern:Array<Array<Cell>> = [];
-        for(let i = 0; i < height; i++){
-          pattern.push([]);
-          let alt: boolean =  i <op_input.params[1];
-          for(let j = 0; j < 2; j++){
-            pattern[i][j] = ((alt && j%2 ==0) || (!alt && j%2 ==1)) ? new Cell(true) : new Cell(false);
+        let pattern:Array<Array<Cell>> = [];
+        
+        if(op_input.drafts.length == 2){
+          pattern = op_input.drafts[1].pattern;
+        }else{
+          for(let i = 0; i < height; i++){
+            pattern.push([]);
+            let alt: boolean =  i <num_systems;
+            for(let j = 0; j < 2; j++){
+              pattern[i][j] = ((alt && j%2 ==0) || (!alt && j%2 ==1)) ? new Cell(true) : new Cell(false);
+            }
+          }
+        }
+        
+        
+ 
+        const input: Draft = op_input.drafts[0];
+        const d: Draft = new Draft({warps: input.warps +op_input.params[0]*2, wefts: input.wefts});
+            
+            
+        for(let i = 0; i < d.wefts; i++){
+          for(let j = 0; j < d.warps; j++){
+            if(j < op_input.params[0]){
+              //left selvedge
+              d.pattern[i][j].setHeddle(pattern[(i+1)%pattern.length][j%pattern[0].length].getHeddle());
+
+            }else if(j < op_input.params[0]+input.warps){
+              //pattern
+              d.pattern[i][j].setHeddle(input.pattern[i][j - op_input.params[0]].getHeddle());
+
+            }else{
+              //right selvedge
+              d.pattern[i][j].setHeddle(pattern[i%pattern.length][j%pattern[0].length].getHeddle());
+
+            }
           }
         }
 
-        let outputs: Array<Draft> = [];
-        if(op_input.drafts.length == 0){
-          const d: Draft = new Draft({warps:op_input.params[0]*2, wefts: height});
-          d.fill(pattern, 'original');
-          outputs.push(d);
-        }else{
-           outputs =op_input.drafts.map(input => {
-            const d: Draft = new Draft({warps: input.warps +op_input.params[0]*2, wefts: input.wefts});
-            d.fill(pattern, 'original');
-            if(op_input.drafts.length > 0){
-              this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-              d.gen_name = this.formatName(op_input.drafts, "sel")
+        if(op_input.drafts.length > 0){
+          this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
+          d.gen_name = this.formatName(op_input.drafts, "sel")
 
-            }
-            for(let i = 0; i < input.wefts; i++){
-              for(let j = 0; j < input.warps; j++){
-                d.pattern[i][j+op_input.params[0]].setHeddle(input.pattern[i][j].getHeddle()) ;
-              }
-            }
-
-            return d;
-          });
         }
 
-        return Promise.resolve(outputs);
+        
+        return Promise.resolve([d]);
       }        
     }
 
@@ -3028,8 +3037,7 @@ export class OperationService {
         total_warps = utilInstance.lcm(all_warps);
 
 
-        //create a map from layers to drafts
-        const section_draft_map: Array<any> = child_inputs.map(el => { return {section: el.params[0]-1, draft: el.drafts.shift()}}); 
+        const section_draft_map: Array<any> = child_inputs.map(el => { return {section: el.inlet-1, draft: el.drafts.shift()}}); 
         const first_draft: Draft = section_draft_map[0].draft;
 
         const d:Draft = new Draft({
@@ -3282,8 +3290,8 @@ export class OperationService {
     this.ops.push(shifty);
     this.ops.push(layer);
     this.ops.push(selvedge);
-    this.ops.push(bindweftfloats);
-    this.ops.push(bindwarpfloats);
+    // this.ops.push(bindweftfloats);
+    // this.ops.push(bindwarpfloats);
     this.ops.push(joinleft);
     this.ops.push(jointop);
     this.ops.push(slope);
@@ -3322,7 +3330,7 @@ export class OperationService {
     this.classification.push(
       {category: 'block design',
       dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
-      ops: [imagemap, rect, crop, trim, margin, tile]
+      ops: [rect, crop, trim, margin, tile]
     }
     );
     this.classification.push(
@@ -3334,7 +3342,7 @@ export class OperationService {
     this.classification.push(
         {category: 'combine',
         dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [interlace, splicein, assignlayers, layer,  fill, joinleft, dynamic_join_left, jointop]}
+        ops: [imagemap, interlace, splicein, assignlayers, layer,  fill, joinleft, dynamic_join_left, jointop]}
         );
     
      this.classification.push(

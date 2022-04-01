@@ -292,7 +292,6 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded() {  
     var dims = this.render.getCellDims("base");
-
     this.canvasEl.width = this.weave.warps * dims.w;
     this.canvasEl.height = this.weave.wefts * dims.h;
     this.threadingCanvas.width = this.weave.warps * dims.w;
@@ -1279,7 +1278,7 @@ export class DraftviewerComponent implements OnInit {
    * @returns {void}
    */
   private drawOnThreading( currentPos: Interlacement ) {
-
+    
 
     if (!this.cxThreading || !currentPos) { return; }
     
@@ -1563,7 +1562,7 @@ export class DraftviewerComponent implements OnInit {
       const sys_id = this.weave.colSystemMapping[j];
       const sys = this.ss.getWarpSystem(sys_id)
     
-      if(sys.isVisible()){
+      if(sys !== undefined && sys.isVisible()){
         this.drawCell(this.cx, i, j, "drawdown");
       }else{
 
@@ -2096,7 +2095,7 @@ public drawWeftEnd(top, left, shuttle){
     //else this.drawBlank(this.cxTieups,this.tieupsCanvas);
     
 
-
+    console.log("this.loom.threading", this.loom.threading);
     for (var j = 0; j < this.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.loom.threading[j], j, "threading");
     }
@@ -2151,6 +2150,7 @@ public drawDrawdown(){
 //takes inputs about what, exactly to redraw
 public redraw(flags:any){
 
+
     var base_dims = this.render.getCellDims("base");
 
     if(flags.drawdown !== undefined){
@@ -2182,7 +2182,8 @@ public redraw(flags:any){
       this.drawWarpMaterials(this.cxWarpMaterials, this.warpMaterialsCanvas);
     }
 
-    if(flags.loom !== undefined && this.loom.isFrame()){
+  
+    if(flags.loom !== undefined){
        this.redrawLoom();
     }
 

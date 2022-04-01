@@ -162,8 +162,6 @@ export class OperationComponent implements OnInit {
         dynamic_value = graph_node.params[dynamic_param];
       }
 
-      console.log("inlet values", inlet_values)
-
 
       //if inlet values is greater than 1, then we need to load the existing values in
       if(inlet_values.length > 1){
@@ -209,7 +207,7 @@ export class OperationComponent implements OnInit {
       }
     
     }else{
-
+      console.log(graph_node.inlets);
       graph_node.inlets.forEach(inlet => {
         this.inlets.push(new FormControl(0));
       });
@@ -414,14 +412,17 @@ export class OperationComponent implements OnInit {
           case 'system':
             if(value > this.inlets.length){
               for(let i = this.inlets.length; i < value; i++){
+
                 if(type === 'number'){
                   this.inlets.push(new FormControl(i));
+                  opnode.inlets.push(i);
                 }else{
                   this.inlets.push(new FormControl(this.systems.weft_systems[i-1].name))
                   this.systems.weft_systems[i-1].in_use = true;
+                  opnode.inlets.push(i-1);
                 } 
-                opnode.inlets.push(i-1);
               }
+
             }else if(value < this.inlets.length){
               this.inlets.splice(value, this.inlets.length - value);
               opnode.inlets.splice(value,  opnode.inlets.length - value);

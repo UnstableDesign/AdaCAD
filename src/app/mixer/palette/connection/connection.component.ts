@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { i } from 'mathjs';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../provider/tree.service';
 import { OperationComponent } from '../operation/operation.component';
@@ -93,8 +94,11 @@ export class ConnectionComponent implements OnInit {
       // get the inlet value 
       const ndx = this.tree.getInletOfCxn(to.id, this.id);
       if(ndx !== -1){
-        const left_offset = document.getElementById('inlet'+to.id+"-"+ndx).offsetLeft;
-        this.b_to = {x: to.bounds.topleft.x + left_offset*this.scale/this.default_cell_size, y: to.bounds.topleft.y}
+        const element = document.getElementById('inlet'+to.id+"-"+ndx);
+        if(element !== undefined && element !== null){
+          const left_offset = element.offsetLeft;
+          this.b_to = {x: to.bounds.topleft.x + left_offset*this.scale/this.default_cell_size, y: to.bounds.topleft.y}
+        }
       }
     }
 
