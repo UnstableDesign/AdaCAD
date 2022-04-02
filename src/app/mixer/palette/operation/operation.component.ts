@@ -207,7 +207,6 @@ export class OperationComponent implements OnInit {
       }
     
     }else{
-      console.log(graph_node.inlets);
       graph_node.inlets.forEach(inlet => {
         this.inlets.push(new FormControl(0));
       });
@@ -367,7 +366,6 @@ export class OperationComponent implements OnInit {
 
   inputSelected(input_id: number){
     this.disableDrag();
-    console.log("input_id", input_id);
     this.onInputAdded.emit({id: this.id, ndx: input_id});
   }
 

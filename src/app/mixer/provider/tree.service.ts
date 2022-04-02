@@ -1284,8 +1284,6 @@ flipDraft(draft: Draft) : Draft{
   const node = <OpNode> this.getNode(id);
   const op = this.ops.getOp(node.name);
 
-
-
   const drafts_in = this.getNonCxnInputs(id);
   const all_inputs = this.getInputsWithNdx(id);
   
@@ -1304,7 +1302,8 @@ flipDraft(draft: Draft) : Draft{
       const draft_node_in = el.tn.inputs[0].tn;
       const drafts_in = (draft_node_in.node.type === "draft") ? (<DraftNode>draft_node_in.node).draft : null;
       if(drafts_in != null){
-      inputs.push({op_name:'child', drafts: [this.flipDraft(drafts_in)], inlet: el.ndx ,params: [node.inlets[el.ndx]]});
+      //inputs.push({op_name:'child', drafts: [this.flipDraft(drafts_in)], inlet: el.ndx ,params: [node.inlets[el.ndx]]});
+      inputs.push({op_name:'child', drafts: [drafts_in], inlet: el.ndx ,params: [node.inlets[el.ndx]]});
       }
     })
 
@@ -1314,8 +1313,8 @@ flipDraft(draft: Draft) : Draft{
     .map(input => (<DraftNode> this.getNode(input)))
     .filter(el => el !== null && el !== undefined)
     .map(input_node => input_node.draft)
-    .filter(el => el !== null && el !== undefined)
-    .map(el => this.flipDraft(el));
+    .filter(el => el !== null && el !== undefined);
+    // .map(el => this.flipDraft(el));
 
     inputs.push({op_name: '', drafts: drafts_coming_in, inlet: 0, params: node.params});
 
