@@ -362,6 +362,7 @@ export class PaletteComponent implements OnInit{
   //  * @param name the name of the operation to add
   //  */
   addOperation(name:string){
+      
       const op:OperationComponent = this.createOperation(name);
   }
 
@@ -648,6 +649,8 @@ export class PaletteComponent implements OnInit{
       op.instance.zndx = this.layers.createLayer();
       op.instance.scale = this.scale;
       op.instance.default_cell = this.default_cell_size;
+
+      console.log("created operation", name);
 
       return op.instance;
     }
@@ -1534,6 +1537,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
     const new_drafts = this.tree.getDraftNodes()
       .filter(el => el.component === null)
       .map(el => {
+        console.log("loading new subdraft", (<DraftNode>el).draft);
         return this.loadSubDraft(
           el.id, 
           (<DraftNode>el).draft, 
@@ -2261,10 +2265,6 @@ drawStarted(){
         });
         this.performAndUpdateDownstream(obj.id)
       } )
-      .then(el => 
-      {
-        this.addTimelineState(); 
-      })
       .catch(console.error);
    
     

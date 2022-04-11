@@ -323,7 +323,8 @@ export class MixerComponent implements OnInit {
 
 
     this.image.loadFiles(images_to_load).then(el => {
-      this.gl.inferData(data.looms.concat(this.tree.getLooms()))
+        this.gl.inferData(data.looms.concat(this.tree.getLooms()))
+      
     })
     .then(el => {     
       return this.loadNodes(data.nodes)

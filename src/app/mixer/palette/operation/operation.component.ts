@@ -207,7 +207,6 @@ export class OperationComponent implements OnInit {
       }
     
     }else{
-      console.log(graph_node.inlets);
       graph_node.inlets.forEach(inlet => {
         this.inlets.push(new FormControl(0));
       });
@@ -244,17 +243,24 @@ export class OperationComponent implements OnInit {
       const obj = this.imageService.getImageData(this.op_inputs[0].value);
       if(obj === undefined) return;
 
+      console.log("obj data image", obj.data.image);
+
       this.has_image_preview = true;
       const image_div =  document.getElementById('param-image-'+this.id);
       image_div.style.display = 'flex';
-      
+
+      const dims_div =  document.getElementById('param-image-dims-'+this.id);
+      dims_div.innerHTML=obj.data.width+"px x "+obj.data.height+"px";
+
       const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.id);
       const ctx = canvas.getContext('2d');
 
       const max_dim = (obj.data.width > obj.data.height) ? obj.data.width : obj.data.height;
-
+      canvas.width = obj.data.width / max_dim * 100;
+      canvas.height = obj.data.height / max_dim * 100;
       ctx.drawImage(obj.data.image, 0, 0, obj.data.width / max_dim * 100, obj.data.height / max_dim * 100);
-  }
+     
+    }
 
 
   getInputName(id: number) : string {
@@ -472,6 +478,8 @@ export class OperationComponent implements OnInit {
           opnode.params[id] = obj.id;
 
 
+
+
           obj.colors.forEach(hex => {
 
             //add any new colors
@@ -495,6 +503,14 @@ export class OperationComponent implements OnInit {
             opnode.inlets.splice(removeid, 1);
             this.inlets.splice(removeid, 1);
           });
+
+
+          //now update the default parameters to the original size 
+          this.op_inputs[1].setValue(obj.data.width/10);
+          this.op_inputs[2].setValue(obj.data.height/10);
+          opnode.params[1] = obj.data.width/10;
+          opnode.params[2] = obj.data.height/10;
+
           this.drawImagePreview();
 
 

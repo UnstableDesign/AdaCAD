@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpResponse, HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import { Upload } from './upload';
 import { Observable, of } from 'rxjs';
-import { map as httpmap } from 'rxjs/operators';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, uploadBytesResumable } from "firebase/storage";
-
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, uploadBytesResumable, UploadMetadata, listAll } from "firebase/storage";
+import { AuthService } from '../provider/auth.service';
 const httpOptions = {
   headers: new HttpHeaders({
   })
@@ -15,7 +14,7 @@ const httpOptions = {
 @Injectable()
 export class UploadService {
 
-   constructor() { }
+   constructor(private auth: AuthService) { }
 
   private basePath:string = '/uploads';
   uploadProgress: Observable<number>;
@@ -34,17 +33,43 @@ export class UploadService {
   }
 
 
-  pushUpload(upload: Upload) : Promise<any> {
-    const id = Math.random().toString(36).substring(2);
-    console.log("push upload", upload);
+  getHash(upload: Upload) : Promise<string>{
+    let file = upload.file;
+    
+    return new Promise((resolve, reject) => {
+      let reader = new FileReader();
+     
+      reader.onload = function (event) {
+        let data = event.target.result;
+        let ret: any = data;
+        if (data) {
+          let uintArBuff = new Uint8Array(ret);   //Does an array buffer convert to a Uint8Array?
+            crypto.subtle.digest('SHA-1', uintArBuff).then(data => {
+              var base64 = btoa(
+                new Uint8Array(data)
+                  .reduce((data, byte) => data + String.fromCharCode(byte), '')
+              );
+              resolve(base64);
+            }
+          );
+        }else{
+            reject('null')
+        }  
+      }
+      reader.readAsArrayBuffer(file);
 
-    const storage = getStorage();
-    const storageRef = ref(storage, 'uploads/'+id);
+      });
+  }
 
+  
 
-    const uploadTask = uploadBytesResumable(storageRef, upload.file);
+  uploadData(id: string, upload: Upload, metadata: UploadMetadata){
+      const storage = getStorage();
+      const storageRef = ref(storage, 'uploads/'+id);
+      console.log("upload data" , upload);
+      const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
-    uploadTask
+      uploadTask
       .on('state_changed', (snapshot) => {
           // Observe state change events such as progress, pause, and resume
           // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
@@ -59,46 +84,56 @@ export class UploadService {
               break;
           }
         },
-        (error) => {},
+        (error) => {
+          console.error(error);
+        },
         () => {
           
         });
 
-    return uploadBytes(storageRef, upload.file).then((snapshot) => {
-      upload.name = id;
+    return uploadBytes(storageRef, upload.file, metadata).then((snapshot) => {
       return snapshot;
-    });
+    }).catch(console.error); //error on get hash
+  }
+
   
-  
-  // this.uploadProgress = uploadTask.();
-
-  //    this.uploadProgress.subscribe((p) => {
-  //     upload.progress = p;
-  //   });
 
 
-    //LD - Right now we're just writing an ID to the database, not sure why
-    // const id = Math.random().toString(36).substring(2);
-    // // let storageRef = this.st.ref(id);
-    // let uploadTask = storageRef.put(upload.file);
+  /**
+   * runs checks and, if cleared, pushes the upload to the firebase storage server
+   * @param upload the upload data
+   * @returns Promise of the result of firebase's upload task, snapshot of the file
+   */
+  pushUpload(upload: Upload) : Promise<any> {
+   
+    //const id = Math.random().toString(36).substring(2);
+    let id = '';
+    let metadata: UploadMetadata = null;
+    return this.getHash(upload)
+    .then(hash => {
+      id = hash;
+      upload.name = id;
+      metadata  = {
+        customMetadata: {user: this.auth.uid, filename: upload.file.name} 
+      };
 
-
-    // this.uploadProgress = uploadTask.percentageChanges();
-
-    // this.uploadProgress.subscribe((p) => {
-    //   upload.progress = p;
-    // });
-
-    // upload.name = id;
-
+      return this.alreadyLoaded(id);
+    })
+    .then(already_loaded => {
+      if(!already_loaded){
+        return this.uploadData(id, upload, metadata);
+      }
+    }).catch(console.error);
      
   }
 
-  getDownloadData(id) : Promise<any> {
+  getDownloadData(id: string) : Promise<any> {
+    console.log('getdownload data for', id)
     const storage = getStorage();
+    if(id === 'noinput') return Promise.resolve('');
     return getDownloadURL(ref(storage, 'uploads/'+id))
       .then((url) => {
-
+        console.log("url", url)
         const xhr = new XMLHttpRequest();
         xhr.responseType = 'blob';
         xhr.onload = (event) => {
@@ -106,18 +141,16 @@ export class UploadService {
         };
         xhr.open('GET', url);
         xhr.send();
-        console.log("Got download URL")
-        return url;
+        return Promise.resolve(url);
       })
       .catch((error) => {
-
-        console.error(error);
-
+        
         // A full list of error codes is available at
     // https://firebase.google.com/docs/storage/web/handle-errors
         switch (error.code) {
           case 'storage/object-not-found':
             console.error("file does not exist")
+            Promise.reject("not found");
             break;
           case 'storage/unauthorized':
             console.error("not authorized")
@@ -142,6 +175,48 @@ export class UploadService {
     });
   }
 
+  alreadyLoaded(id) : Promise<boolean> {
+    const storage = getStorage();
+    if(id === 'noinput') return Promise.resolve(false);
+    
+    return getDownloadURL(ref(storage, 'uploads/'+id))
+      .then((url) => {
+        return Promise.resolve(true);
+      })
+      .catch((error) => {
+
+        switch (error.code) {
+          case 'storage/object-not-found':
+            console.error("file does not exist")
+            return Promise.resolve(false);
+            break;
+          case 'storage/unauthorized':
+            console.error("not authorized")
+            // User doesn't have permission to access the object
+            return Promise.resolve(false);
+            break;
+          case 'storage/canceled':
+            // User canceled the upload
+            console.error("canceled")
+            return Promise.resolve(false);
+            break;
+
+        
+          case 'storage/unknown':
+            // Unknown error occurred, inspect the server response
+            console.error('unknown')
+            return Promise.resolve(false);
+
+            break;
+
+          default: 
+          console.error("unhandled error", error.code);
+          return Promise.resolve(false);
+
+        }
+    });
+  }
+
 
   deleteUpload(upload: Upload) {
  
@@ -159,9 +234,6 @@ export class UploadService {
 
 
   }
-
-
-  //lets try this again here with an emitter
 
   
 
