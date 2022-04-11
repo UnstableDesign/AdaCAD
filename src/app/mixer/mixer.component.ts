@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR, enableProdMode } from '@angular/core';
 import { PatternService } from '../core/provider/pattern.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
@@ -29,7 +29,7 @@ import { OperationService } from './provider/operation.service';
 
 
 //disables some angular checking mechanisms
-//enableProdMode();
+enableProdMode();
 
 
 

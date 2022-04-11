@@ -1262,6 +1262,7 @@ flipDraft(draft: Draft) : Promise<Draft>{
 
   const opnode = <OpNode> this.getNode(id);
   const op = this.ops.getOp(opnode.name);
+
   const drafts_in = this.getNonCxnInputs(id);
   const all_inputs = this.getInputsWithNdx(id);
   
@@ -1271,6 +1272,7 @@ flipDraft(draft: Draft) : Promise<Draft>{
   if(this.ops.isDynamic(opnode.name)){
     
     //first push the parent params
+
     inputs.push({op_name: op.name, drafts: [], inlet: 0, params: opnode.params});
 
       const flip_fns = [];
@@ -1296,6 +1298,7 @@ flipDraft(draft: Draft) : Promise<Draft>{
 
       inputs = inputs.concat(paraminputs);
       return op.perform(inputs);
+
     })
     .then(res => {
           return Promise.all(res.map(el => this.flipDraft(el)));
@@ -1325,9 +1328,6 @@ flipDraft(draft: Draft) : Promise<Draft>{
           })
             
         });
-
-
-
     }
 
   

@@ -373,7 +373,6 @@ export class OperationComponent implements OnInit {
 
   inputSelected(input_id: number){
     this.disableDrag();
-    console.log("input_id", input_id);
     this.onInputAdded.emit({id: this.id, ndx: input_id});
   }
 
