@@ -28,22 +28,27 @@ export class UploadFormComponent implements OnInit {
       this.selectedFiles = event.target.files;
   }
 
-  uploadAda(upload: Upload, file: File){
-    this.upSvc.pushUpload(upload).then(snapshot => {
+  async uploadAda(upload: Upload, file: File){
+    await this.upSvc.pushUpload(upload).then(snapshot => {
     return this.upSvc.getDownloadData(upload.name)
-    }).then(url => {
-        
-      this.httpClient.get(url).subscribe(data => {
+    }).then(url => {  
+      console.log("got download", url)
+      this.httpClient.get(url).toPromise()
+      .then(data => {
         var obj = {
           name: file.name.split(".")[0],
           data: data,
           type: 'ada',
         }
-        console.log(obj);
         this.onData.emit(obj);
         this.uploading = false;
         this.selectedFiles = null;
-      });  
+        this.upSvc.deleteUpload(upload);
+
+      })
+        
+     
+
 
             
     });
@@ -52,6 +57,7 @@ export class UploadFormComponent implements OnInit {
 
   async uploadImage(upload: Upload, file: File){
      await this.upSvc.pushUpload(upload).then(snapshot => {
+       console.log("loading :", upload.name)
       return  this.imageService.loadFiles([upload.name]);
     }).then(uploaded => {
       const obj = this.imageService.getImageData(upload.name);
@@ -59,7 +65,7 @@ export class UploadFormComponent implements OnInit {
       this.uploading = false;
       this.selectedFiles = null;
 
-    }); 
+    }).catch(console.error); 
   }
 
 
@@ -82,6 +88,9 @@ export class UploadFormComponent implements OnInit {
       case 'png':
 
       this.uploadImage(upload, file);
+      break;
+
+      default: 
       break;
     }
 

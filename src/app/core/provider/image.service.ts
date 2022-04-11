@@ -30,11 +30,12 @@ export class ImageService {
     
     //const data = ids.map(id => this.upSvc.getDownloadData(id));
     return this.upSvc.getDownloadData(id).then(obj =>{
+        if(obj === '') return Promise.resolve(null)
         url = obj;
         return  this.processImage(obj);
       
     }).then(data => {
-  
+      if(data == null) return Promise.reject('nulldata');
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       var image = new Image();
@@ -44,11 +45,9 @@ export class ImageService {
       return image.decode().then(() => {
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight; 
-            
-        // ctx.mozImageSmoothingEnabled = false;
-        // ctx.webkitImageSmoothingEnabled = false;
-        // ctx.msImageSmoothingEnabled = false;
-        // ctx.imageSmoothingEnabled = false;
+
+        if(image.naturalWidth > 10000) Promise.reject('width error');
+        if(image.naturalHeight > 10000) Promise.reject('height error');
 
         ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
@@ -78,7 +77,10 @@ export class ImageService {
         
         let filewarning = "";
         let image_map: Array<Array<number>> = [];
-        if(unique.length > 100) filewarning = "this image contains "+unique.length+" color and will take too much time to process, consider indexing to a smaller color space"
+        if(unique.length > 100){
+          filewarning = "this image contains "+unique.length+" color and will take too much time to process, consider indexing to a smaller color space"
+          Promise.reject('color');
+        } 
         else{
           const image_map_flat: Array<number> = all_colors.map(color => unique.findIndex(el => el === color));
 
@@ -116,9 +118,7 @@ export class ImageService {
   
 
   getImageData(id: string){
-    console.log("images", id, this.images)
     return this.images.find(el => el.id === id);
-  
   }
 
   setImageData(id: string, data: any){

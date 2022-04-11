@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 import {AuthService} from '../../provider/auth.service'
 import {FileService} from '../../provider/file.service'
+import { getAnalytics, logEvent } from "@angular/fire/analytics";
+
 interface StartOptions {
   value: string;
   viewValue: string;
@@ -46,6 +48,7 @@ export class InitModal implements OnInit {
 
   constructor(
     private fls: FileService,
+    private auth: AuthService,
     private dm: DesignmodesService, 
     private http: HttpClient,
     private dialogRef: MatDialogRef<InitModal>, 
@@ -95,6 +98,12 @@ export class InitModal implements OnInit {
   }
 
   loadExample(filename: string){
+    
+    const analytics = getAnalytics();
+    logEvent(analytics, 'onloadexample', {
+      items: [{ uid: this.auth.uid, name: filename }]
+    });
+
     console.log("loading example: ", filename);
     this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
 
