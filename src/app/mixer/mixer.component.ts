@@ -22,6 +22,7 @@ import { InitModal } from '../core/modal/init/init.modal';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../core/provider/auth.service';
 import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
+import {getAnalytics, logEvent} from '@angular/fire/analytics'
 import { InputSpec } from '@tensorflow/tfjs';
 import { ImageService } from '../core/provider/image.service';
 import { OperationService } from './provider/operation.service';
@@ -479,6 +480,10 @@ export class MixerComponent implements OnInit {
 
   
   ngOnInit(){
+    const analytics = getAnalytics();
+    logEvent(analytics, 'onload', {
+      items: [{ uid: this.auth.uid }]
+    });
     
   }
 
