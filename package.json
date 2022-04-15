@@ -1,7 +1,7 @@
 {
   "name": "adacad-weaver",
   "version": "2.2.0",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
