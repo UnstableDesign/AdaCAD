@@ -580,6 +580,7 @@ export class FileService {
 
       //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
+      console.log("out", out);
       return Promise.resolve({json: theJSON, file: out});
 
 

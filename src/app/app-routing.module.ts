@@ -14,6 +14,11 @@ const routes: Routes = [
     path: 'weaver',
     component: WeaverComponent,
     children: []
+  },
+  {
+    path: '**',
+    component: MixerComponent,
+    children: []
   }
 ];
 
