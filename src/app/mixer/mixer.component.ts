@@ -494,10 +494,13 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-       console.log("PATH", window.location.pathname);
+    let searchParams = new URLSearchParams(window.location.search);
 
-    if(window.location.pathname !== '/'){
-      this.loadExampleAtURL();  
+    console.log("PATH",searchParams, searchParams.has('ex'), searchParams.get('ex'));      // true);
+
+
+    if(searchParams.has('ex')){
+      this.loadExampleAtURL(searchParams.get('ex'));  
     }else{
       this.loadLoggedInUser();
     }
@@ -505,14 +508,14 @@ export class MixerComponent implements OnInit {
   }
 
 
-  loadExampleAtURL(){
+  loadExampleAtURL(name: string){
     const analytics = getAnalytics();
     logEvent(analytics, 'onurl', {
-      items: [{ uid: this.auth.uid, name: window.location.pathname }]
+      items: [{ uid: this.auth.uid, name: name }]
     });
 
-    console.log("loading example: ", window.location.pathname);
-    this.http.get('assets/examples'+window.location.pathname+".ada", {observe: 'response'}).subscribe((res) => {
+    console.log("loading example: ",name);
+    this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
       return this.fs.loader.ada(window.location.pathname, res.body)
