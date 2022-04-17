@@ -713,8 +713,8 @@ export class PaletteComponent implements OnInit{
 
       const op:OperationComponent = this.createOperation(name);
           
-          this.tree.setOpParams(op.id, params, inlets);
-          op.loaded_inputs = params;
+          this.tree.setOpParams(op.id, params.slice(), inlets.slice());
+          op.loaded_inputs = params.slice();
           op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
           op.bounds.width = bounds.width;
           op.bounds.height = bounds.height;

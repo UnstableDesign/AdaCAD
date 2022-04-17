@@ -89,7 +89,10 @@ export class MixerComponent implements OnInit {
     private ss: StateService,
     private dialog: MatDialog,
     private image: ImageService,
-    private ops: OperationService) {
+    private ops: OperationService,
+    private http: HttpClient,
+    ) {
+
 
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
@@ -103,8 +106,8 @@ export class MixerComponent implements OnInit {
    
     this.patterns = this.ps.getPatterns();
 
-
   }
+
 
 
 
@@ -484,55 +487,80 @@ export class MixerComponent implements OnInit {
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
     });
+
+
     
   }
 
   ngAfterViewInit() {
 
+       console.log("PATH", window.location.pathname);
 
-      this.auth.user.subscribe(user => {
+    if(window.location.pathname !== '/'){
+      this.loadExampleAtURL();  
+    }else{
+      this.loadLoggedInUser();
+    }
 
-        if(user === null){
-
-          const dialogRef = this.dialog.open(InitModal, {
-            data: {source: 'mixer'}
-          });
-
-
-          dialogRef.afterClosed().subscribe(loadResponse => {
-            this.palette.changeDesignmode('move');
-            if(loadResponse !== undefined) this.loadNewFile(loadResponse);
-          
-      
-         });
-        }else{
-
-          //in the case someone logs in mid way through, don't replace their work. 
-          if(this.tree.nodes.length > 0) return;
-         
-
-          const db = fbref(getDatabase());
+  }
 
 
-                  fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
-                    if (snapshot.exists()) {
-                      this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
-                        this.loadNewFile(lr);
-                      });
-                    }
-                  }).catch((error) => {
-                    console.error(error);
-                  });
+  loadExampleAtURL(){
+    const analytics = getAnalytics();
+    logEvent(analytics, 'onurl', {
+      items: [{ uid: this.auth.uid, name: window.location.pathname }]
+    });
 
-        }
-      });
-  
-    //console.log(this.auth, this.auth.isLoggedIn);
+    console.log("loading example: ", window.location.pathname);
+    this.http.get('assets/examples'+window.location.pathname+".ada", {observe: 'response'}).subscribe((res) => {
+      console.log(res);
+      if(res.status == 404) return;
+      return this.fs.loader.ada(window.location.pathname, res.body)
+     .then(loadresponse => {
+       this.loadNewFile(loadresponse)
+     });
+    }); 
+  }
 
 
+  loadLoggedInUser(){
+
+    this.auth.user.subscribe(user => {
+
+      if(user === null){
+
+        const dialogRef = this.dialog.open(InitModal, {
+          data: {source: 'mixer'}
+        });
 
 
+        dialogRef.afterClosed().subscribe(loadResponse => {
+          this.palette.changeDesignmode('move');
+          if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+        
+    
+       });
+      }else{
 
+        //in the case someone logs in mid way through, don't replace their work. 
+        if(this.tree.nodes.length > 0) return;
+       
+
+        const db = fbref(getDatabase());
+
+
+                fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+                  if (snapshot.exists()) {
+                    this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
+                      this.loadNewFile(lr);
+                    });
+                  }
+                }).catch((error) => {
+                  console.error(error);
+                });
+
+      }
+    });
 
   }
 
