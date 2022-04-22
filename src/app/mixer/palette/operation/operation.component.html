@@ -15,7 +15,7 @@ cdkDrag
 
         <div  *ngFor="let input of inlets; let i = index" class="input-group" id = "inlet{{id}}-{{i}}">
 
-            <ng-container *ngIf="!is_dynamic_op || (is_dynamic_op && i > 0)">
+            <ng-container *ngIf="!is_dynamic_op || (is_dynamic_op && i > 0) || (is_dynamic_op && op.dynamic_param_type =='notation')">
 
             <button 
             class="button is-small input"
@@ -30,6 +30,13 @@ cdkDrag
             type = "number"
             value = input.value
             min = 1
+            (change)= "onInletChange(i, input.value)"
+            >
+
+            <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'notation'"
+            [formControl]="input"
+            type = "string"
+            value = input.value
             (change)= "onInletChange(i, input.value)"
             >
 
@@ -183,7 +190,7 @@ cdkDrag
             </div>
         </ng-container>
 
-        <ng-container  *ngIf="param.type == 'string'">
+        <ng-container  *ngIf="param.type == 'string' || param.type == 'notation'">
            
     
              <div class='param-text'>
@@ -212,7 +219,7 @@ cdkDrag
                 </div>
         
               <div class="text-err" *ngIf="op_inputs[i].hasError('pattern')">
-                invalid, pattern can only contain numbers and spaces
+                the input pattern does not match
             </div>
       
     

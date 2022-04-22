@@ -1831,6 +1831,47 @@ export class OperationService {
       }        
     }
 
+    const layernotation: DynamicOperation = {
+      name: 'notation',
+      displayname: 'layer notation',
+      dynamic_param_id: 0,
+      dynamic_param_type: 'notation',
+      dx: 'uses a notation system to assign drafts to different warp and weft patterns on different layers. Layers are represented by () so (1a)(2b) puts warp1 and weft a on layer 1, warp 2 and weft b on layer 2',
+      params: [
+        {name: 'pattern',
+        type: 'notation',
+        min: 1,
+        max: 100,
+        value: '(a1)(b2)',
+        dx: 'the notation to use'
+        }
+      ],
+      max_inputs: 1,
+      perform: (op_inputs: Array<OpInput>) => {
+
+                
+        // //split the inputs into the input associated with 
+        // const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
+        // const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+
+        // const pattern_string: String = String(parent_inputs[0].params[0]);
+
+
+
+
+        
+        let outputs: Array<Draft> = [];
+      //  const d: Draft = new Draft({warps: sum, wefts: sum, pattern: pattern});
+        //d.gen_name = this.formatName([], "twill");
+        //outputs.push(d);
+
+        return  Promise.resolve(outputs)
+
+       
+      }        
+    }
+
+
 
 
     const waffle: Operation = {
@@ -3276,7 +3317,7 @@ export class OperationService {
     this.dynamic_ops.push(assignlayers);
     this.dynamic_ops.push(dynamic_join_left);
     this.dynamic_ops.push(imagemap);
-
+    this.dynamic_ops.push(layernotation);
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
     this.ops.push(twill);
@@ -3352,7 +3393,7 @@ export class OperationService {
     this.classification.push(
         {category: 'combine',
         dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [imagemap, interlace, splicein, assignlayers, layer,  fill, joinleft, dynamic_join_left, jointop]}
+        ops: [imagemap, interlace, splicein, assignlayers, layer, layernotation,  fill, joinleft, dynamic_join_left, jointop]}
         );
     
      this.classification.push(

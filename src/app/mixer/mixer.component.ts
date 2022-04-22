@@ -514,11 +514,10 @@ export class MixerComponent implements OnInit {
       items: [{ uid: this.auth.uid, name: name }]
     });
 
-    console.log("loading example: ",name);
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
-      return this.fs.loader.ada(window.location.pathname, res.body)
+      return this.fs.loader.ada(name, res.body)
      .then(loadresponse => {
        this.loadNewFile(loadresponse)
      });

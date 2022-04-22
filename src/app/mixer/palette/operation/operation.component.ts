@@ -136,12 +136,24 @@ export class OperationComponent implements OnInit {
 
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
-
     const graph_node = <OpNode> this.tree.getNode(this.id);
 
+
+    //initalize the form controls for the parameters: 
+
     this.op.params.forEach((val, ndx) => {
-      if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx], [Validators.required, Validators.pattern('[1-9 ]*')]));
-      else this.op_inputs.push(new FormControl(val.value));
+      
+      switch(val.type){
+        case 'string':
+          if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx], [Validators.required, Validators.pattern('[1-9 ]*')]));
+          break;
+        case 'notation':
+          this.op_inputs.push(new FormControl(graph_node.params[ndx], [Validators.required, Validators.pattern(/.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/ig)]));
+          break;
+        default:
+          this.op_inputs.push(new FormControl(val.value));
+          break;
+      }
     });
 
 
@@ -150,59 +162,57 @@ export class OperationComponent implements OnInit {
      * we do not draw the 0th element to the screen
      */
     if(this.is_dynamic_op){
-      //get the current param value and generate input slots
-      const dynamic_param: number = (<DynamicOperation>this.op).dynamic_param_id;
-      const dynamic_type: string = (<DynamicOperation>this.op).dynamic_param_type;
-      let dynamic_value: number = 0;
-      const inlet_values: Array<any> = graph_node.inlets.slice();
+    //get the current param value and generate input slots
+    let dynamic_value: any;
+    const dynamic_param: number = (<DynamicOperation>this.op).dynamic_param_id;
+    const dynamic_type: string = (<DynamicOperation>this.op).dynamic_param_type;
+    const inlet_values: Array<any> = graph_node.inlets.slice();
 
-      if(dynamic_type === 'color'){
-        dynamic_value = inlet_values.length-1;
-      }else{
-        dynamic_value = graph_node.params[dynamic_param];
-      }
+      switch(dynamic_type){
 
-
-      //if inlet values is greater than 1, then we need to load the existing values in
-      if(inlet_values.length > 1){
-        //push the first zero calue
-        inlet_values.forEach(inlet => {
-
-          switch(dynamic_type){
-            case 'system':
-              this.inlets.push(new FormControl(this.systems.weft_systems[inlet].name));
-              this.systems.weft_systems[inlet].in_use = true;
-              break;
-
-              default:
-                this.inlets.push(new FormControl(inlet));
-                break;
-          }
-        });
-
-      }else{
-        //we need to load the default values 
-        for(let i = 0; i < dynamic_value+1; i++){
-        
-          switch(dynamic_type){
-            case 'color':
+        case 'color':
+          if(inlet_values.length > 1){
+            inlet_values.forEach(inlet => this.inlets.push(new FormControl(inlet)));
+          }else{
+            for(let i = 0; i < inlet_values.length; i++){
               this.inlets.push(new FormControl(i));
               if(i >=graph_node.inlets.length) graph_node.inlets.push(i);
-              break;
-            case 'number':
+            }
+          }
+          break;
+
+        case 'notation':
+          if(inlet_values.length > 1){
+            inlet_values.forEach(inlet => this.inlets.push(new FormControl(inlet)));
+          }else{
+            const make_inlets = this.makeInletsFromNotationRegex(graph_node.params[dynamic_param]);
+            for(let i = 0; i < make_inlets.length; i++){
+              this.inlets.push(new FormControl(make_inlets[i]));
+              if(i >=graph_node.inlets.length) graph_node.inlets.push(make_inlets[i]);     
+            }    
+          }
+        break;
+
+        case 'number':
+          if(inlet_values.length > 1){
+            inlet_values.forEach(inlet => this.inlets.push(new FormControl(inlet)));
+          }else{
+            for(let i = 0; i < graph_node.params[dynamic_param]; i++){
               this.inlets.push(new FormControl(i));
               if(i >=graph_node.inlets.length) graph_node.inlets.push(i);
-              break;
-            case 'system':
-              let adj_i = (i > 0) ? i -1 : i;
-              this.inlets.push(new FormControl(this.systems.weft_systems[adj_i].name));
-              if(i >=graph_node.inlets.length) graph_node.inlets.push(adj_i);
-              this.systems.weft_systems[adj_i].in_use = true;
+            }
+          }
+          break;
 
-              break;
+         case 'system':
+          for(let i = 0; i < graph_node.params[dynamic_param]; i++){
+            let adj_i = (i > 0) ? i -1 : i;
+            this.inlets.push(new FormControl(this.systems.weft_systems[adj_i].name));
+            if(i >=graph_node.inlets.length) graph_node.inlets.push(adj_i);
+            this.systems.weft_systems[adj_i].in_use = true;
           }
 
-        }
+          break;
 
       }
     
@@ -267,6 +277,20 @@ export class OperationComponent implements OnInit {
     const sd = this.tree.getDraft(id);
     if(sd === null || sd === undefined) return "null draft"
     return sd.getName();
+  }
+
+  /**
+   *  takes the input to the notation string and creates the inlets required to handle
+   * @param input the input string
+   */
+  makeInletsFromNotationRegex(input: string) :Array<string>{
+
+    const regex: RegExp = /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/ig;
+    const string_tok = input.match(regex);
+    
+    const inlets = string_tok.map(el => el.substring(1, el.length-1));
+    return inlets;
+
   }
 
 
@@ -412,6 +436,10 @@ export class OperationComponent implements OnInit {
       if(id === (<DynamicOperation>this.op).dynamic_param_id){
         const type = (<DynamicOperation>this.op).dynamic_param_type;
         switch(type){
+
+          case 'notation':
+            
+            break;
 
           case 'number':
           case 'system':
