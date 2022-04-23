@@ -29,6 +29,7 @@ export class ParameterComponent implements OnInit {
   @Input() opid:  number;
   @Input() paramid:  number;
   @Output() onOperationParamChange = new EventEmitter <any>(); 
+  @Output() onFileUpload = new EventEmitter <any>(); 
 
   //you need these to access values unique to each type.
   numparam: NumParam;
@@ -44,6 +45,8 @@ export class ParameterComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.opnode = this.tree.getOpNode(this.opid);
 
      //initalize the form controls for the parameters: 
 
@@ -115,8 +118,12 @@ export class ParameterComponent implements OnInit {
    
   }
 
-  handleFile(){
-
+  handleFile(obj: any){
+    console.log("in param", obj);
+    this.fc.setValue(obj.data.name);
+    this.opnode.params[this.paramid] = obj.id;
+    this.onFileUpload.emit({id: obj.id, data: obj.data});
   }
+
 
 }

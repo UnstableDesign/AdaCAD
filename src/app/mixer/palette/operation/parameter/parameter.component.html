@@ -5,14 +5,13 @@
     <ng-container  *ngIf="param.type == 'number'">
         <div class="param-slider">
             <mat-slider 
-            thumbLabel
+            [ngModel] = "opnode.params[paramid]"
             tickInterval="1"
             [formControl]="fc"
             [matTooltip]=param.dx
             [min]=numparam.min
             [max]=numparam.max
             step="1" 
-            value="fc.value"
             (change)= "onParamChange(fc.value)">
         </mat-slider>
         </div>
@@ -20,6 +19,7 @@
 
         <div class='param-label'>
             <input 
+            [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
             [matTooltip]=param.dx
             type = "number"
@@ -27,7 +27,6 @@
             [min]=param.min
             [max]=param.max
             step = 1
-            value = fc.value
             (change)= "onParamChange(fc.value)"
         >
 
@@ -38,6 +37,7 @@
     <div class="param-select">
 
         <mat-select 
+            [ngModel] = "opnode.params[paramid]"
             [matTooltip]=param.dx
             [formControl]="fc"
             (selectionChange)='onParamChange(fc.value)'>
@@ -54,9 +54,9 @@
 
         <div class="param-toggle">
             <mat-slide-toggle
+            [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
             [matTooltip]=param.dx
-            value="fc.value"
             (change)= "onParamChange(fc.value)"
             >
             <span *ngIf="fc.value==1">{{boolparam.truestate}}</span>
@@ -70,12 +70,12 @@
 
          <div class='param-text'>
             <input 
+            [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
             [errorStateMatcher]="textValidate"
             [matTooltip]=param.dx
             type = "text"
             [name]=param.name
-            value = fc.value
             (change)= "onParamChange(fc.value)"
           >
         </div>
@@ -105,7 +105,7 @@
     <ng-container  *ngIf="param.type == 'file'">
        
       <div class='param-file'>
-        <upload-form type="init" (onData)="handleFile(i, $event)" class="button"></upload-form>
+        <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
      </div>
 
    

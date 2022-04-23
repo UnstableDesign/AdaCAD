@@ -11,6 +11,7 @@ import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { ImageService } from '../../../core/provider/image.service';
 import { SystemsService } from '../../../core/provider/systems.service';
+import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 
 
 
@@ -86,8 +87,8 @@ export class OperationComponent implements OnInit {
    //for input params form control
    loaded_inputs: Array<number> = [];
 
-   //these are the input parameters
-   op_inputs: Array<FormControl> = [];
+  //  //these are the input parameters
+  //  op_inputs: Array<FormControl> = [];
 
    has_image_preview: boolean = false;
 
@@ -203,7 +204,7 @@ export class OperationComponent implements OnInit {
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
-    this.base_height =  60 + 40 * this.op_inputs.length
+    this.base_height =  60 + 40 * graph_node.params.length
     this.bounds.height = this.base_height;
 
 
@@ -221,7 +222,13 @@ export class OperationComponent implements OnInit {
   }
 
   drawImagePreview(){
-      const obj = this.imageService.getImageData(this.op_inputs[0].value);
+
+      const opnode = this.tree.getOpNode(this.id);
+      const paramid = this.op.params.findIndex(el => el.type === 'file');
+      const obj = this.imageService.getImageData(opnode.params[paramid]);
+
+      console.log("draw image at ", obj, paramid, this.op.params)
+
       if(obj === undefined) return;
 
       console.log("obj data image", obj.data.image);
@@ -318,9 +325,10 @@ export class OperationComponent implements OnInit {
     cx.font = this.scale*2+"px Verdana";
 
     let datastring: string = this.name+" // ";
+    let opnode = this.tree.getOpNode(this.id);
 
     this.op.params.forEach((p, ndx) => {
-      datastring = datastring + p.name +": "+ this.op_inputs[ndx].value + ", ";
+      datastring = datastring + p.name +": "+ opnode.params[ndx] + ", ";
     });
 
     cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+25 );
@@ -386,12 +394,6 @@ export class OperationComponent implements OnInit {
 
   }
 
-  onCheckboxParamChange(id: number, value: number){
-    const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
-    opnode.params[id] = (value) ? 1 : 0;
-    this.op_inputs[id].setValue(value);
-    this.onOperationParamChange.emit({id: this.id});
-  }
 
   /**
    * called from the child parameter when a value has changed, this functin then updates the inlets
@@ -454,8 +456,10 @@ export class OperationComponent implements OnInit {
    * get the data type and process it here
    * @param obj 
    */
-  handleFile(id: number, obj: any){
+  handleFile(obj: any){
 
+
+    console.log("obj is", obj);
     const image_div =  document.getElementById('param-image-'+this.id);
     image_div.style.display = 'none';
 
@@ -473,15 +477,7 @@ export class OperationComponent implements OnInit {
           this.filewarning = obj.warning;
         }else{
 
-   
-
-
           const opnode = this.tree.getOpNode(this.id);
-          this.op_inputs[id].setValue(obj.id);
-          opnode.params[id] = obj.id;
-
-
-
 
           obj.colors.forEach(hex => {
 
@@ -507,13 +503,11 @@ export class OperationComponent implements OnInit {
             this.inlets.splice(removeid, 1);
           });
 
-
+        
           //now update the default parameters to the original size 
-          this.op_inputs[1].setValue(obj.data.width/10);
-          this.op_inputs[2].setValue(obj.data.height/10);
           opnode.params[1] = obj.data.width/10;
           opnode.params[2] = obj.data.height/10;
-
+          console.log("op node, set params", opnode.params);
           this.drawImagePreview();
 
 
