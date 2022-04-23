@@ -1811,8 +1811,8 @@ export class OperationService {
         },
         <BoolParam>{name: 'S/Z',
         type: 'boolean',
-        falsestate: 'Z twist',
-        truestate: 'S twist',
+        truestate: 'Z twist',
+        falsestate: 'S twist',
         value: 0,
         dx: 'toggle to change twist direction'
         }
