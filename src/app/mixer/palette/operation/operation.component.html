@@ -136,110 +136,16 @@ cdkDrag
    
     <ng-container *ngFor="let param of op.params; let i = index">
       
-
-      <div class="param-row">
-
-      
-
-
-        <div class="param-name">{{param.name}}</div>
-
-        <ng-container  *ngIf="param.type == 'number'">
-        <div class="param-slider">
-         
-         
-            <mat-slider 
-            thumbLabel
-            tickInterval="1"
-            [formControl]="op_inputs[i]"
-            [matTooltip]=param.dx
-            [min]=param.min
-            [max]=param.max
-            step="1" 
-            value="op_inputs[i].value"
-            (change)= "onParamChange(i, op_inputs[i].value)">
-        </mat-slider>
-        </div>
+      <app-parameter 
+      [param]='param' 
+      [opid]='id' 
+      [paramid]='i'
+      (onOperationParamChange) = onParamChange(id)>
+     </app-parameter>
 
 
-         <div class='param-label'>
-            <input 
-            [formControl]="op_inputs[i]"
-            [matTooltip]=param.dx
-            type = "number"
-            [name]=param.name
-            [min]=param.min
-            [max]=param.max
-            step = 1
-            value = op_inputs[i].value
-            (change)= "onParamChange(i, op_inputs[i].value)"
-          >
-  
-        </div>
-      </ng-container>
 
-      <ng-container  *ngIf="param.type == 'boolean'">
-
-            <div class="param-checkbox">
-                <mat-checkbox 
-                [formControl]="op_inputs[i]"
-                [matTooltip]=param.dx
-                value="op_inputs[i].value"
-                (change)= "onCheckboxParamChange(i, op_inputs[i].value)">
-                </mat-checkbox>
-            </div>
-        </ng-container>
-
-        <ng-container  *ngIf="param.type == 'string' || param.type == 'notation'">
-           
     
-             <div class='param-text'>
-                <input 
-                [formControl]="op_inputs[i]"
-                [errorStateMatcher]="textValidate"
-                [matTooltip]=param.dx
-                type = "text"
-                [name]=param.name
-                value = op_inputs[i].value
-                (change)= "onParamChange(i, op_inputs[i].value)"
-              >
-            </div>
-
-            <div class='param-label'>
-                <button mat-icon-button
-                color="accent"
-                matTooltip="update draft with input values"
-                (click)= "onParamChange(i, op_inputs[i].value)">
-                <i class="fas fa-redo"></i></button>
-            </div>
-
-
-              <div class="text-err" *ngIf="op_inputs[i].hasError('required')">
-                 an input is required 
-                </div>
-        
-              <div class="text-err" *ngIf="op_inputs[i].hasError('pattern')">
-                the input pattern does not match
-            </div>
-      
-    
-        </ng-container>
-
-
-
-        <ng-container  *ngIf="param.type == 'file'">
-           
-    
-          <div class='param-file'>
-            <upload-form type="init" (onData)="handleFile(i, $event)" class="button"></upload-form>
-         </div>
-
-       
-     </ng-container>
-
-
-
-    </div>
     </ng-container>
 
   </div>

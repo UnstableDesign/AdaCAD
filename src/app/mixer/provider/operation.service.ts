@@ -11,15 +11,50 @@ import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
 
 
-export interface OperationParams {
+
+
+
+
+/**
+ * an operation param describes what data be provided to this operation
+ * all operations have a name, type, value (default value), and description. 
+ * some type of operations inherent from this to offer more specific validation data 
+ */
+export type OperationParam = {
   name: string,
-  type: string, //number, boolean, color, file, string
-  min: number,
-  max: number,
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string',
   value: any,
   dx: string
 }
 
+/**
+ * numbers must have a min and max value
+ */
+export type NumParam = OperationParam & {
+  min: number,
+  max: number
+}
+
+export type SelectParam = OperationParam & {
+  selectlist: Array<{name: string, value: number}>
+}
+
+export type BoolParam = OperationParam & {
+  falsestate: string,
+  truestate: string
+}
+
+export type FileParam = OperationParam & {
+}
+
+/**
+ * strings must come with a regex used to validate their structure
+ * test and make regex using RegEx101 website
+ */
+export type StringParam = OperationParam & {
+  regex: RegExp,
+  error: string
+}
 
 
 /**
@@ -29,13 +64,13 @@ export interface OperationParams {
  * @param params the parameters that one can directly input to the parent
  * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
  * @param dynamic_param_type the type of parameter that we look to generate
- * @param max_inputs but the nubmer of drafts to input directly, without parameterization.
+ * @param max_inputs but the nubmer of drafts to input directly
  * @param dx the description of this operation
  */
 export interface DynamicOperation {
   name: string,
   displayname: string,
-  params: Array<OperationParams>, 
+  params: Array<OperationParam>, 
   dynamic_param_id: number,
   dynamic_param_type: string,
   max_inputs: number,
@@ -71,7 +106,7 @@ export interface Operation {
     displayname: string,
     dx: string,
     max_inputs: number,
-    params: Array<OperationParams>,
+    params: Array<OperationParam>,
     perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>
  }
 
@@ -104,7 +139,7 @@ export class OperationService {
       name: 'rectangle',
       displayname: 'rectangle',
       dx: "generates a rectangle of the user specified side, if given an input, fills the rectangle with the input",
-      params: [
+      params: <Array<NumParam>>[
         {name: 'width',
         type: 'number',
         min: 1,
@@ -166,11 +201,11 @@ export class OperationService {
       name: 'set unset',
       displayname: 'set unset heddle to',
       dx: "this sets all unset heddles in this draft to the specified value",
-      params: [ 
+      params: <Array<BoolParam>>[ 
         {name: 'up/down',
         type: 'boolean',
-        min: 0,
-        max: 1,
+        falsestate: 'unset to heddle up',
+        truestate: 'unset to heddle down',
         value: 1,
         dx: "toggles the value to which to set the unset cells (heddle up or down)"
         }],
@@ -205,11 +240,11 @@ export class OperationService {
       name: 'set down to unset',
       displayname: 'set heddles of type to unset',
       dx: "this sets all  heddles of a particular type in this draft to unset",
-      params: [
+      params: <Array<BoolParam>>[
         {name: 'up/down',
         type: 'boolean',
-        min: 0,
-        max: 1,
+        falsestate: 'heddle up to unset',
+        truestate: 'heddle down to unset',
         value: 1,
         dx: "toggles which values to map to unselected)"
       }],
@@ -296,11 +331,11 @@ export class OperationService {
       name: 'interlace',
       displayname: 'interlace',  
       dx: 'interlace the input drafts together in alternating lines',
-      params: [
+      params: <Array<BoolParam>>[
         {name: 'repeat',
         type: 'boolean',
-        min: 0,
-        max: 1,
+        falsestate: 'do not repeat inputs to match size',
+        truestate: 'repeat inputs to match size',
         value: 1,
         dx: "controls if the inputs are intelaced in the exact format sumitted or repeated to fill evenly"
       }],
@@ -367,7 +402,7 @@ export class OperationService {
       name: 'splice in wefts',
       displayname: 'splice in wefts',  
       dx: 'splices the second draft into the first every nth row',
-      params: [  
+      params: <Array<NumParam>>[  
         {name: 'distance',
         type: 'number',
         min: 1,
@@ -437,7 +472,7 @@ export class OperationService {
       name: 'assign weft systems',
       displayname: 'assign weft systems',  
       dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval. Currently this will overwrite any system information that has been defined upstream',
-      params: [  
+      params: <Array<NumParam>>[  
         {name: 'total',
         type: 'number',
         min: 1,
@@ -510,7 +545,7 @@ export class OperationService {
       name: 'assign warp systems',
       displayname: 'assign warp systems',  
       dx: 'splits each warp of the draft apart, allowing it to repeat at a specified interval and shift within that interval. An additional button is used to specify if these systems correspond to layers, and fills in draft accordingly',
-      params: [  
+      params: <Array<NumParam>>[  
         {name: 'total',
         type: 'number',
         min: 1,
@@ -611,7 +646,7 @@ export class OperationService {
       name: 'vertical cut',
       displayname: 'vertical cut',  
       dx: 'make a vertical of this structure across two systems, representing the left and right side of an opening in the warp',
-      params: [  
+      params: <Array<NumParam>>[  
         {name: 'systems',
         type: 'number',
         min: 2,
@@ -671,7 +706,7 @@ export class OperationService {
       name: 'selvedge',
       displayname: 'selvedge',  
       dx: 'adds a selvedge of a user defined width (in ends) on both sides of the input draft. The second input functions as the selvedge pattern, and if none is selected, a selvedge is generated',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'width',
         type: 'number',
         min: 1,
@@ -742,7 +777,7 @@ export class OperationService {
       name: 'overlay, (a,b) => (a OR b)',
       displayname: 'overlay, (a,b) => (a OR b)',  
       dx: 'keeps any region that is marked as black/true in either draft',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'left offset',
         type: 'number',
         min: 0,
@@ -827,7 +862,7 @@ export class OperationService {
       name: 'set atop, (a, b) => a',
       displayname: 'set atop, (a, b) => a',  
       dx: 'sets cells of a on top of b, no matter the value of b',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'left offset',
         type: 'number',
         min: 0,
@@ -893,7 +928,7 @@ export class OperationService {
       name: 'knockout, (a, b) => (a XOR b)',
       displayname: 'knockout, (a, b) => (a XOR b)',  
       dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'left offset',
         type: 'number',
         min: 0,
@@ -958,7 +993,7 @@ export class OperationService {
       name: 'mask, (a,b) => (a AND b)',
       displayname: 'mask, (a,b) => (a AND b)',
       dx: 'only shows areas of the first draft in regions where the second draft has black/true cells',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'left offset',
         type: 'number',
         min: 0,
@@ -1023,7 +1058,7 @@ export class OperationService {
       name: 'erase,  (a,b) => (NOT a OR b)',
       displayname: 'erase,  (a,b) => (NOT a OR b)',
       dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'left offset',
         type: 'number',
         min: 0,
@@ -1159,7 +1194,7 @@ export class OperationService {
       name: 'tabby',
       displayname: 'tabby',
       dx: 'also known as plain weave generates or fills input a draft with tabby structure or derivitae',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'repeats',
         type: 'number',
         min: 1,
@@ -1212,7 +1247,7 @@ export class OperationService {
       name: 'basket',
       displayname: 'basket',
       dx: 'generates a basket structure defined by theop_input.drafts',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'unders',
         type: 'number',
         min: 1,
@@ -1273,7 +1308,7 @@ export class OperationService {
       name: 'stretch',
       displayname: 'stretch',
       dx: 'repeats each warp and/or weft by theop_input.drafts',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'warp repeats',
         type: 'number',
         min: 1,
@@ -1322,7 +1357,7 @@ export class OperationService {
       name: 'resize',
       displayname: 'resize',
       dx: 'stretches or squishes the draft to fit the boundary',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'warps',
         type: 'number',
         min: 1,
@@ -1367,7 +1402,7 @@ export class OperationService {
       name: 'margin',
       displayname: 'margin',
       dx: 'adds padding of unset cells to the top, right, bottom, left of the block',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'bottom',
         min: 1,
         max: 10000,
@@ -1436,7 +1471,7 @@ export class OperationService {
       name: 'crop',
       displayname: 'crop',
       dx: 'crops to a region of the input draft. The crop size and placement is given by the parameters',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'left',
         type: 'number',
         min: 0,
@@ -1501,7 +1536,7 @@ export class OperationService {
       name: 'trim',
       displayname: 'trim',
       dx: 'trims off the edges of an input draft',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'left',
         type: 'number',
         min: 0,
@@ -1627,7 +1662,7 @@ export class OperationService {
       name: 'rib',
       displayname: 'rib',
       dx: 'generates a rib/cord/half-basket structure defined by theop_input.drafts',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'unders',
         type: 'number',
         min: 1,
@@ -1696,7 +1731,7 @@ export class OperationService {
       displayname: 'twill',
       dx: 'generates or fills with a twill structure described by the input drafts',
       params: [
-        {name: 'unders',
+        <NumParam> {name: 'unders',
         type: 'number',
         min: 1,
         max: 100,
@@ -1704,19 +1739,19 @@ export class OperationService {
         dx: 'number of weft unders'
         
         },
-        {name: 'overs',
+        <NumParam>{name: 'overs',
         type: 'number',
         min: 1,
         max: 100,
         value: 3,
         dx: 'number of weft overs'
         },
-        {name: 'S/Z',
+        <BoolParam> {name: 'S/Z',
         type: 'boolean',
-        min: 0,
-        max: 1,
+        falsestate: 'Z twist',
+        truestate: 'S twist',
         value: 0,
-        dx: 'unchecked for Z twist, checked for S twist'
+        dx: 'toggle to switch the twist direction'
         }
       ],
       max_inputs: 1,
@@ -1768,19 +1803,18 @@ export class OperationService {
       displayname: 'complex twill',
       dx: 'generates a specified by the input parameters, alternating warp and weft facing with each input value',
       params: [
-        {name: 'pattern',
+        <StringParam>{name: 'pattern',
         type: 'string',
-        min: 1,
-        max: 100,
+        regex: /(\d+)/gm,
         value: '2 2 3 3',
         dx: 'the under over pattern of this twill (e.g. 2 2 3 3)'
         },
-        {name: 'S/Z',
+        <BoolParam>{name: 'S/Z',
         type: 'boolean',
-        min: 0,
-        max: 1,
+        falsestate: 'Z twist',
+        truestate: 'S twist',
         value: 0,
-        dx: 'unchecked for Z twist, checked for S twist'
+        dx: 'toggle to change twist direction'
         }
       ],
       max_inputs: 1,
@@ -1837,13 +1871,13 @@ export class OperationService {
       dynamic_param_id: 0,
       dynamic_param_type: 'notation',
       dx: 'uses a notation system to assign drafts to different warp and weft patterns on different layers. Layers are represented by () so (1a)(2b) puts warp1 and weft a on layer 1, warp 2 and weft b on layer 2',
-      params: [
+      params: <Array<StringParam>>[
         {name: 'pattern',
-        type: 'notation',
-        min: 1,
-        max: 100,
+        type: 'string',
         value: '(a1)(b2)',
-        dx: 'the notation to use'
+        regex: /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/ig,
+        error: 'invalid entry',
+        dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
         }
       ],
       max_inputs: 1,
@@ -1878,7 +1912,7 @@ export class OperationService {
       name: 'waffle',
       displayname: 'waffle',
       dx: 'generates or fills with a waffle structure',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'width',
         type: 'number',
         min: 1,
@@ -1986,17 +2020,21 @@ export class OperationService {
       displayname: 'make symmetric',
       dx: 'rotates the draft around a corner, creating rotational symmetry around the selected point',
       params: [
-        {name: 'corner',
-        type: 'number',
-        min: 0,
-        max: 3,
+        <SelectParam>{name: 'corner',
+        type: 'select',
+        selectlist: [
+          {name: 'top left corner', value: 0},
+          {name: 'top right corner', value: 1},
+          {name: 'bottom right corner', value: 2},
+          {name: 'bottom left corner', value: 3}
+        ],
         value: 0,
         dx: 'corner to which this draft is rotated around 0 is top left, 1 top right, 2 bottom right, 3 bottom left'
         },
-        {name: 'even/odd',
+        <BoolParam>{name: 'even/odd',
         type: 'boolean',
-        min: 0,
-        max: 1,
+        falsestate: "make output an odd number",
+        truestate: "make output an even number",
         value: 0,
         dx: 'select if you would like the output to be an even or odd number, an odd number shares a single central point'
         }
@@ -2085,7 +2123,7 @@ export class OperationService {
       name: 'satin',
       displayname: 'satin',
       dx: 'generates or fills with a satin structure described by theop_input.drafts',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'repeat',
         type: 'number',
         min: 5,
@@ -2139,7 +2177,7 @@ export class OperationService {
       name: 'random',
       displayname: 'random',
       dx: 'generates a random draft with width, height, and percetage of weft unders defined byop_input.drafts',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'width',
         type: 'number',
         min: 1,
@@ -2258,7 +2296,7 @@ export class OperationService {
       name: 'shift left',
       displayname: 'shift left',
       dx: 'generates an output that is shifted left by the number of warps specified in theop_input.drafts',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'amount',
         type: 'number',
         min: 1,
@@ -2290,7 +2328,7 @@ export class OperationService {
       name: 'shift up',
       displayname: 'shift up',
       dx: 'generates an output that is shifted up by the number of wefts specified in theop_input.drafts',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'amount',
         type: 'number',
         min: 1,
@@ -2320,7 +2358,7 @@ export class OperationService {
       name: 'slope',
       displayname: 'slope',
       dx: 'offsets every nth row by the vaule given in col',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'col shift',
         type: 'number',
         min: -100,
@@ -2368,7 +2406,7 @@ export class OperationService {
       name: 'mirror',
       displayname: 'mirror',
       dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
-      params: [ {
+      params: <Array<NumParam>>[ {
         name: 'copies',
         type: 'number',
         min: 1,
@@ -2431,7 +2469,7 @@ export class OperationService {
       name: 'bind weft floats',
       displayname: 'bind weft floats',
       dx: 'adds interlacements to weft floats over the user specified length',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'length',
         type: 'number',
         min: 1,
@@ -2475,7 +2513,7 @@ export class OperationService {
       name: 'bind warp floats',
       displayname: 'bind warp floats',
       dx: 'adds interlacements to warp floats over the user specified length',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'length',
         type: 'number',
         min: 1,
@@ -2573,18 +2611,18 @@ export class OperationService {
       dynamic_param_id: 0,
       max_inputs: 0,
       params: [
-          {name: 'layers',
+        <NumParam>{name: 'layers',
           type: 'number',
           min: 1,
           max: 100,
           value: 2,
           dx: 'the total number of layers in this cloth'
         },
-        {name: 'repeat',
+        <BoolParam>{name: 'repeat',
           type: 'boolean',
-          min: 0,
-          max: 1,
           value: 1,
+          truestate: 'repeat inputs to matching size',
+          falsestate: 'do not repeat inputs to matching size',
           dx: 'automatically adjust the width and height of draft to ensure equal repeats (checked) or just assign to layers directly as provided'
         }
       ],
@@ -2751,7 +2789,7 @@ export class OperationService {
       dynamic_param_type: 'color',
       dynamic_param_id: 0,
       max_inputs: 0,
-      params: [
+      params: <Array<NumParam>>[
           {name: 'image file (.jpg or .png)',
           type: 'file',
           min: 1,
@@ -2858,7 +2896,7 @@ export class OperationService {
       name: 'tile',
       displayname: 'tile',
       dx: 'repeats this block along the warp and weft',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'warp-repeats',
         type: 'number',
         min: 1,
@@ -3047,7 +3085,7 @@ export class OperationService {
       dynamic_param_id: 0,
       dynamic_param_type: "number",
       dx: 'takes each input draft and assign it a position from left to right',
-      params: [   
+      params: <Array<NumParam>>[   
         {name: 'sections',
         type: 'number',
         min: 1,
@@ -3133,7 +3171,7 @@ export class OperationService {
       name: 'gemanify',
       displayname: 'gemanify',
       dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
-      params: [
+      params: <Array<NumParam>>[
         {name: 'output selection',
         type: 'number',
         min: 1,
@@ -3179,7 +3217,7 @@ export class OperationService {
         name: 'crackle-ify',
         displayname: 'crackle-ify',
         dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
-        params: [
+        params: <Array<NumParam>>[
           {name: 'output selection',
           type: 'number',
           min: 1,

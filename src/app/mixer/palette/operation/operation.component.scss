@@ -84,18 +84,6 @@ button.is-primary{
 }
 
 
-.param-row{
-    vertical-align:middle;
-    font-size: .8em;
-    display: flex;
-    flex-direction: row;
-    height: 40px;
-    text-align: right;
-    line-height: 40px;
-    padding: 0 4px;
-
-}
-
 .input-color{
     width: 30px;
     height: 30px;
@@ -113,48 +101,6 @@ button.is-primary{
     font-size: .5em;
 }
 
-
-
-
-
-.param-name{
-    width: 25%;
-    overflow: hidden;
-    line-height: 40px;
-}
-
-.param-slider{
-    width: 50%;
-    text-align: left;
-    position: relative;
-    left: 10px;
-    overflow: hidden;
-}
-
-.param-text{
-    width: 50%;
-    text-align: left;
-    padding: 0px 10px;
-    overflow: hidden;
-}
-
-.param-checkbox{
-    overflow: hidden;
-    width: 28px;
-    text-align: right;
-}
-
-.param-inputs{
-    min-width: 75%;
-    overflow: visible;
-    text-align: left;
-    margin-left: 6px;
-}
-
-.mat-slider{
-    height: 40px;
-    padding: 0px;
-}
 
 button.is-primary.is-active{
     background-color: rgb(255, 64, 129);

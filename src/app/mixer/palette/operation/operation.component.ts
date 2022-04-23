@@ -9,17 +9,10 @@ import { ViewportService } from '../../provider/viewport.service';
 import { OpNode, TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
-import {ErrorStateMatcher} from '@angular/material/core';
 import { ImageService } from '../../../core/provider/image.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 
 
-/** Error when invalid control is dirty, touched, or submitted. */
-export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    return !!(control && control.invalid && (control.dirty || control.touched));
-  }
-}
 
 @Component({
   selector: 'app-operation',
@@ -107,8 +100,6 @@ export class OperationComponent implements OnInit {
 
    is_dynamic_op: boolean = false;
 
-   textValidate: any;
-
    filewarning: string = "";
 
    all_system_codes: Array<string> = [];
@@ -124,8 +115,6 @@ export class OperationComponent implements OnInit {
     
       //this.outputs = [];
   
-      this.textValidate = new MyErrorStateMatcher();
-
       this.all_system_codes = this.systems.weft_systems.map(el => el.name);
      
 
@@ -137,24 +126,6 @@ export class OperationComponent implements OnInit {
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
     const graph_node = <OpNode> this.tree.getNode(this.id);
-
-
-    //initalize the form controls for the parameters: 
-
-    this.op.params.forEach((val, ndx) => {
-      
-      switch(val.type){
-        case 'string':
-          if(ndx < graph_node.params.length) this.op_inputs.push(new FormControl(graph_node.params[ndx], [Validators.required, Validators.pattern('[1-9 ]*')]));
-          break;
-        case 'notation':
-          this.op_inputs.push(new FormControl(graph_node.params[ndx], [Validators.required, Validators.pattern(/.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/ig)]));
-          break;
-        default:
-          this.op_inputs.push(new FormControl(val.value));
-          break;
-      }
-    });
 
 
     /**
@@ -422,15 +393,20 @@ export class OperationComponent implements OnInit {
     this.onOperationParamChange.emit({id: this.id});
   }
 
-  onParamChange(id: number, value: number){
+  /**
+   * called from the child parameter when a value has changed, this functin then updates the inlets
+   * @param id the id of hte parameter that has changed
+   * @param value 
+   */
+  onParamChange(id: number){
 
     //if(this.op_inputs[id].hasError('pattern') || this.op_inputs[id].hasError('required')) return;
 
-    const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
-    opnode.params[id] = value;
-    this.op_inputs[id].setValue(value);
-    
+    console.log("on param change in parent op", id);
     if(this.is_dynamic_op){
+      const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
+      let value = opnode.params[id];
+ 
       value = value+1;
       //check to see if we should add or remove draft inputs
       if(id === (<DynamicOperation>this.op).dynamic_param_id){
