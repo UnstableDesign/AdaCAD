@@ -1,0 +1,55 @@
+
+    <button 
+    class="button is-small input"
+    (click)="inputSelected()">
+         <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <input *ngIf="type === 'number'"
+    [ngModel]="opnode.inlets[inletid]"
+    [formControl]="fc"
+    type = "number"
+    min = 1
+    (change)= "inletChange(fc.value)"
+    >
+
+    <input *ngIf="type === 'notation'"
+    [ngModel]="opnode.inlets[inletid]"
+    [formControl]="fc"
+    type = "string"
+    (change)= "inletChange(fc.value)"
+    >
+
+    <ng-container *ngIf="type === 'system'">
+        <span class="inlet-label">{{inletid+1}}</span>
+
+        <mat-select 
+        [formControl]="fc"
+        [ngModel]="opnode.inlets[inletid]"
+        matTooltip="select the system to associate with this layer" 
+        (selectionChange)="inletChange(fc.value)">
+        <mat-option *ngFor="let sys of all_system_codes; let i= index" [value]="i">
+            {{sys}}
+        </mat-option>
+        </mat-select>
+ 
+
+    </ng-container>
+
+    <div *ngIf="type === 'color'"
+    [matTooltip]="fc.value"
+    [ngModel]="opnode.inlets[inletid]"
+    [style.background-color] = fc.value
+    class="input-color"></div>
+
+
+    <!-- list everything attached here-->
+    <button *ngFor="let input of tree.getOpComponentInputs(opid, inletid);"
+    matTooltip = "click to remove this connection"
+    class="button is-small cxn"
+    (click)="removeConnectionTo(input, inletid)">
+    <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
+    </button>   
+
+
+

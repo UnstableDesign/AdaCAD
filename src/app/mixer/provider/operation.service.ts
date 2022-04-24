@@ -2642,6 +2642,7 @@ export class OperationService {
            el.drafts.forEach(draft => {acc.push(draft)});
            return acc;
         }, []);
+
       
         if(all_drafts.length === 0) return Promise.resolve([]);
         
@@ -2692,7 +2693,7 @@ export class OperationService {
         }
 
 
-
+        console.log("layer draft map", layer_draft_map_sorted)
         layer_draft_map_sorted.forEach(layer_map => {
 
           const layer_num = layer_map.layer -1;

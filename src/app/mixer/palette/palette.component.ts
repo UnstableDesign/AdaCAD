@@ -21,8 +21,7 @@ import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
-import { OperationService } from '../provider/operation.service';
-import { timeStamp } from 'console';
+import { DynamicOperation, OperationService } from '../provider/operation.service';
 
 @Component({
   selector: 'app-palette',
@@ -358,12 +357,15 @@ export class PaletteComponent implements OnInit{
 
 
   /**
-  //  * called anytime an operation is added
+  //  * called anytime an operation is added. Adds the operation to the tree. 
   //  * @param name the name of the operation to add
   //  */
   addOperation(name:string){
       
-      const op:OperationComponent = this.createOperation(name);
+      const opcomp:OperationComponent = this.createOperation(name);
+      console.log("Performing op", opcomp.id);
+      this.performAndUpdateDownstream(opcomp.id);
+      
   }
 
 
@@ -640,8 +642,11 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(OperationComponent);
       const op = this.vc.createComponent<OperationComponent>(factory);
       const id = this.tree.createNode('op', op.instance, op.hostView);
-      
-      this.tree.loadOpData({prev_id: -1, cur_id: id}, name, [], [0]);
+
+
+
+
+      this.tree.loadOpData({prev_id: -1, cur_id: id}, name, undefined, undefined);
       this.setOperationSubscriptions(op.instance);
 
       op.instance.name = name;
@@ -650,7 +655,9 @@ export class PaletteComponent implements OnInit{
       op.instance.scale = this.scale;
       op.instance.default_cell = this.default_cell_size;
 
-      console.log("created operation", name);
+     
+
+
 
       return op.instance;
     }
@@ -1522,6 +1529,7 @@ calculateInitialLocaiton(id: number) : Bounds {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
+  this.tree.getOpNode(op_id).dirty = true;
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
 
   return this.tree.performGenerationOps([op_id])
@@ -2249,12 +2257,14 @@ drawStarted(){
   }
 
   /**
-   * emitted from an operatioin when its param has changed 
+   * emitted from an operatioin when its param has changed. This is automatically called on load 
+   * which is annoying because it recomputes everything!
    * checks for a child subdraft, recomputes, redraws. 
    * @param obj with attribute id describing the operation that called this
    * @returns 
    */
    async operationParamChanged(obj: any){
+    console.log("op param changed", obj);
 
     if(obj === null) return;
 
@@ -2271,55 +2281,54 @@ drawStarted(){
 
   }
 
-  /**
-   * emitted from an operatioin when its param has changed 
-   * checks for a child subdraft, recomputes, redraws. 
-   * @param obj with attribute id describing the operation that called this and the OpInputs to generate
-   * @returns 
-   */
-   async parentOperationParamChanged(obj: any){
+  // /**
+  //  * checks for a child subdraft, recomputes, redraws. 
+  //  * @param obj with attribute id describing the operation that called this and the OpInputs to generate
+  //  * @returns 
+  //  */
+  //  async parentOperationParamChanged(obj: any){
 
 
-    //needs to 
-     if(obj === null) return;
+  //   //needs to 
+  //    if(obj === null) return;
 
-  //   //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
-  //   const current_ins: Array<number> = this.tree.getOpInputs(obj.id);
+  // //   //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
+  // //   const current_ins: Array<number> = this.tree.getOpInputs(obj.id);
 
 
-  //   if(current_ins.length === obj.inputs.length) return; 
+  // //   if(current_ins.length === obj.inputs.length) return; 
 
-  //   //there are more objects returned from the param change than currently exist (add ops)
-  //  if(current_ins.length < obj.inputs.length){
+  // //   //there are more objects returned from the param change than currently exist (add ops)
+  // //  if(current_ins.length < obj.inputs.length){
       
-  //   for(let i = current_ins.length; i < obj.inputs.length; i++){
-  //       const op_input = obj.inputs[i];
-  //       const op_comp = this.createOperation(op_input.op_name);
-  //       this.tree.setOpParams(op_comp.id, op_input.params);
-  //       this.createConnection(op_comp.id, obj.id);
-  //     }
-  //  }else{
-  //   //remove ops
-  //     for(let i = current_ins.length-1; i >= 0; i--){
-  //     const to_remove = current_ins[i];
-  //     this.removeConnection({from: to_remove, to: obj.id })
-  //     this.removeOperation(to_remove)
-  //     }
+  // //   for(let i = current_ins.length; i < obj.inputs.length; i++){
+  // //       const op_input = obj.inputs[i];
+  // //       const op_comp = this.createOperation(op_input.op_name);
+  // //       this.tree.setOpParams(op_comp.id, op_input.params);
+  // //       this.createConnection(op_comp.id, obj.id);
+  // //     }
+  // //  }else{
+  // //   //remove ops
+  // //     for(let i = current_ins.length-1; i >= 0; i--){
+  // //     const to_remove = current_ins[i];
+  // //     this.removeConnection({from: to_remove, to: obj.id })
+  // //     this.removeOperation(to_remove)
+  // //     }
 
 
+  // // }
+
+   
+
+
+  //   return this.performAndUpdateDownstream(obj.id)
+  //     .then(el => 
+  //     {
+  //       this.addTimelineState(); 
+  //     })
+  //     .catch(console.error);
+   
   // }
-
-   
-
-
-    return this.performAndUpdateDownstream(obj.id)
-      .then(el => 
-      {
-        this.addTimelineState(); 
-      })
-      .catch(console.error);
-   
-  }
 
   /**
    * gets a list of all the drafts that have been reset and redraws them

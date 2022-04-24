@@ -8,9 +8,10 @@ import { GloballoomService } from '../../core/provider/globalloom.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
-import { OperationService, OpInput, DynamicOperation } from './operation.service';
+import { OperationService, OpInput, DynamicOperation, Operation, StringParam } from './operation.service';
 import utilInstance from '../../core/model/util';
 import { UploadService } from '../../core/uploads/upload.service';
+import { element } from 'protractor';
 
 
 /**
@@ -144,6 +145,22 @@ export class TreeService {
 
 
 
+  /**
+   *  takes the input to the notation string and creates the inlets required to handle
+   * @param input the input string
+   */
+   makeInletsFromNotationRegex(input: string, name: string, param_id: number) :Array<string>{
+
+    const op:Operation = this.ops.getOp(name);
+    console.log("op", op, param_id, name)
+    if(op.params[param_id].type !== 'string') return [];
+    const string_tok = input.match((<StringParam>op.params[param_id]).regex);
+    const inlets = string_tok.map(el => el.substring(1, el.length-1));
+    return inlets;
+
+  }
+
+
 
   /**
    * loads data into an operation node from a file load or undo/redo event
@@ -165,27 +182,18 @@ export class TreeService {
 
     const node = nodes[0];
 
-    if(this.ops.getOp(name) === undefined){
+    if(op === undefined){
       return Promise.reject("no op of name:"+name+" exists");
-    } 
+    }  
 
-    if(inlets === undefined){
-      if(this.ops.isDynamic(name)){
-        const dynamic_param_id = (<DynamicOperation> op).dynamic_param_id;
-        const default_value = (<DynamicOperation> op).params[dynamic_param_id].value;
-        for(let i = 0; i < default_value; i++){
-          inlets.push(i);
-        }
-      }else{
-        inlets = [0];
-      }
-    }else{
-      inlets = inlets;
-    }    
 
 
     if(params === undefined){
       params = [];
+    }
+
+    if(params === undefined){
+      inlets = [];
     }
 
     const param_types = this.ops.getOp(name).params.map(el => el.type);
@@ -212,6 +220,51 @@ export class TreeService {
         if(ndx < params.length) return formatted_params[ndx];
         else return p;
       });
+
+      
+      if(inlets === undefined || inlets.length == 0){
+        
+        if(inlets === undefined) inlets = [];
+
+        if(op.max_inputs > 0) inlets.push(0);
+
+
+        if(this.ops.isDynamic(name)){
+          const dynamic_param_id = (<DynamicOperation> op).dynamic_param_id;
+          const default_value = (<DynamicOperation> op).params[dynamic_param_id].value;
+          const dynamic_type = (<DynamicOperation>op).dynamic_param_type;
+  
+          //first push as many as max input allows
+
+          switch(dynamic_type){
+            case 'color':
+              break;
+
+              case 'notation':
+                const make_inlets = this.makeInletsFromNotationRegex(params_out[dynamic_param_id], name, dynamic_param_id);
+                for(let i = 0; i < make_inlets.length; i++){
+                  inlets.push(make_inlets[i]);     
+                }    
+              break;
+  
+              case 'number':
+                for(let i = 0; i < params_out[dynamic_param_id]; i++){
+                  inlets.push(i+1);
+                }                
+                break;
+  
+                case 'system':
+
+                for(let i = 0; i < params_out[dynamic_param_id]; i++){
+                    inlets.push(i);
+                  }
+                  break;
+          }
+  
+        }
+      }else{
+        inlets = inlets;
+      }   
   
   
       node.dirty = false;
@@ -575,6 +628,8 @@ export class TreeService {
         params: [],
         name: ''
       }
+
+
       break;
       default: 
        node = {
@@ -1070,7 +1125,6 @@ removeOperationNode(id:number) : Array<Node>{
     const ready: Array<OpNode> = dependency_nodes.filter((el, ndx) => {
       const depends_on: Array<number> = this.getUpstreamOperations(el.id);
       const needs = depends_on.map(id => this.getNode(id).dirty);
-
       const find_true = needs.findIndex(el => el === true);
       if(find_true === -1) return el;
     });
@@ -1078,51 +1132,6 @@ removeOperationNode(id:number) : Array<Node>{
     return ready;
   }
 
-
-//  /**
-//    * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
-//    * since this function cannot delete nodes, it makes nodes that no longer need to exist as null for later collection
-//    * @param res the list of results from perform op
-//    * @returns a list of the draft nodes touched. 
-//    */
-//   async updateDraftsFromResults(parent: number, res: Array<Draft>) : Promise<Array<number>>{
-
-//     const out = this.getNonCxnOutputs(parent);
-//     const touched: Array<number> = [];
-
-//     console.log("updating drafts from results", res, out);
-
-//     if(out.length === res.length){
-//       console.log("set draft");
-//       out.forEach((output, ndx) => {
-//         this.setDraft(output, res[ndx],null);
-//         touched.push(output);
-//       });
-//     }else if(out.length > res.length){
-//       console.log("remove draft");
-
-//       for(let i = res.length; i < out.length; i++){
-//         const dn = <DraftNode> this.getNode(out[i]);
-//         dn.draft = new Draft({wefts:0, warps:0});
-//         dn.loom = new Loom(dn.draft, this.globalloom.min_frames, this.globalloom.min_treadles);
-//         dn.dirty = true;
-//         touched.push(out[i]);
-//       }
-//     }else{
-//       console.log("create draft");
-
-//       for(let i = out.length; i < res.length; i++){
-//         const id = this.createNode('draft', null, null);
-//         const cxn = this.createNode('cxn', null, null);
-//         this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
-//         this.addConnection(parent, 0, id, 0, cxn);
-//         touched.push(id);
-//       }
-//     }
-
-//     return touched;
-
-//   }
 
 /**
    * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
@@ -1134,6 +1143,8 @@ removeOperationNode(id:number) : Array<Node>{
 
   const out = this.getNonCxnOutputs(parent);
   const touched: Array<number> = [];
+
+
 
   //console.log("updating drafts, there are currently: ", out.length, "existing ouputs and ", res.length, "new outputs");
 
@@ -1185,6 +1196,8 @@ removeOperationNode(id:number) : Array<Node>{
  */
   async performTopLevelOps(): Promise<any> {
 
+
+
     //mark all ops as dirty to start
     this.nodes.forEach(el => {
       if(el.type === "op") el.dirty = true;
@@ -1195,6 +1208,7 @@ removeOperationNode(id:number) : Array<Node>{
       .filter(el => el.type === 'op')
       .filter(el => this.getUpstreamOperations(el.id).length === 0)
       .map(el => el.id);
+
 
     return this.performGenerationOps(top_level_nodes);
 
@@ -1208,8 +1222,14 @@ removeOperationNode(id:number) : Array<Node>{
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
 
-    const op_fn_list = op_node_list.map(el => this.performOp(el));
+
+    const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
+
+    if(needs_computing.length == 0) return Promise.resolve([]);
+
+    const op_fn_list = needs_computing.map(el => this.performOp(el));
    
+    
     return Promise.all(op_fn_list).then( out => {
       const flat:Array<number> = out.reduce((acc, el, ndx)=>{
         return acc.concat(el);
@@ -1218,8 +1238,7 @@ removeOperationNode(id:number) : Array<Node>{
       return this.getNodesWithDependenciesSatisfied();
 
     }).then(needs_performing => {
-     
-      const fns = needs_performing.map(el => el.id);
+      const fns = needs_performing.filter(el => el.dirty).map(el => el.id);
       if(needs_performing.length === 0) return [];
       return  this.performGenerationOps(fns);    
     });

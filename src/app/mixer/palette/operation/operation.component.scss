@@ -29,43 +29,15 @@
     height: 30px;
 }
 
-.input-group{
-    display: flex;
-    flex-direction: row;
-    background-color: #00d1b2;
-    margin-right: 8px;
-}
 
-.input-group input{
-    width: 35px;
-}
 
-button.input{
-    position: relative;
-	background-color: #00d1b2;
-	color: white;
-	border: none;
-    width:30px;
-}
 
-button.cxn{
-    background-color: #00d1b2;
-    border: none;
-    border-left: thin solid white;
-    color: white;
-}
 
 button.is-primary{
     background-color: #333333;
     border-color: transparent;
     color: #fff;
 }
-
-.input-name{
-    margin-left: 8px;
-    line-height: 30px;
-}
-
 
 .cxn-row{
     font-size: .8em;
@@ -90,6 +62,55 @@ button.is-primary{
     border: thin solid white;
 }
 
+button.input{
+    position: relative;
+	background-color: #00d1b2;
+	color: white;
+	border: none;
+    width:30px;
+}
+
+button.cxn{
+    background-color: #00d1b2;
+    border: none;
+    border-left: thin solid white;
+    color: white;
+}
+
+.input-name{
+    margin-left: 8px;
+    line-height: 30px;
+}
+
+
+.inputs{
+    display: flex;
+    justify-content: flex-start;
+    text-align: center;
+}
+
+
+.mat-select{
+    width: 34px;
+    padding-left: 4px;
+    line-height: 30px;
+    background-color: #fff;
+}
+
+.mat-select-value{
+    color: #fff !important;
+}
+
+
+.inlet-label{
+    color: #fff;
+    line-height: 30px;
+    display: flex;
+    padding-right: 6px;
+}
+
+
+
 .param-image{
     padding: 8px;
     width: 116px;
@@ -100,6 +121,18 @@ button.is-primary{
 .image_preview{
     font-size: .5em;
 }
+
+.input-group{
+    display: flex;
+    flex-direction: row;
+    background-color: #00d1b2;
+    margin-right: 8px;
+}
+
+.input-group input{
+    width: 35px;
+}
+
 
 
 button.is-primary.is-active{
@@ -124,24 +157,7 @@ button.is-primary.is-active{
     min-width: 200px;
 }
 
-.mat-select{
-    width: 34px;
-    padding-left: 4px;
-    line-height: 30px;
-    background-color: #fff;
-}
 
-.mat-select-value{
-    color: #fff !important;
-}
-
-
-.inlet-label{
-    color: #fff;
-    line-height: 30px;
-    display: flex;
-    padding-right: 6px;
-}
 
 .params{
     display:flex;
@@ -154,12 +170,6 @@ button.is-primary.is-active{
     display: flex;
     flex-direction: column;
     flex-grow: 2;
-}
-
-.inputs{
-    display: flex;
-    justify-content: flex-start;
-    text-align: center;
 }
 
 .operation-details{

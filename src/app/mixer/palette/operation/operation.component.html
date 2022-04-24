@@ -13,74 +13,17 @@ cdkDrag
     <div class="cxn-row">
 
 
-        <div  *ngFor="let input of inlets; let i = index" class="input-group" id = "inlet{{id}}-{{i}}">
+        <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group" id = "inlet{{id}}-{{i}}">
 
-            <ng-container *ngIf="!is_dynamic_op || (is_dynamic_op && i > 0) || (is_dynamic_op && op.dynamic_param_type =='notation')">
-
-            <button 
-            class="button is-small input"
-            [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
-            (click)="inputSelected(i)">
-            <i class="fas fa-chevron-right"></i>
-            </button>
-
-            
-            <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'number'"
-            [formControl]="input"
-            type = "number"
-            value = input.value
-            min = 1
-            (change)= "onInletChange(i, input.value)"
-            >
-
-            <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'notation'"
-            [formControl]="input"
-            type = "string"
-            value = input.value
-            (change)= "onInletChange(i, input.value)"
-            >
-
-            <ng-container *ngIf="is_dynamic_op && op.dynamic_param_type === 'system'">
-            <span class="inlet-label">{{i}}</span>
-
-            <!--<mat-label>weft system</mat-label>-->
-            <mat-select 
-            [formControl]="input"
-            matTooltip="select the system to associate with this layer" 
-            (selectionChange)="onInletChange(i, input.value)">
-              <mat-option *ngFor="let sys of all_system_codes" [value]="sys">
-                {{sys}}
-              </mat-option>
-            </mat-select>
-         
-
-            <!-- <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'system'"
-            [formControl]="input"
-            type = "text"
-            value = input.value
-            (change)= "onInletChange(i, input.value)"
-            > -->
-            </ng-container>
-
-            <div *ngIf="is_dynamic_op && op.dynamic_param_type === 'color'"
-            [matTooltip]="input.value"
-            [style.background-color] = input.value
-            class="input-color"></div>
-
-
-            
-            <button *ngFor="let input of tree.getOpComponentInputs(id, i);"
-            matTooltip = "click to remove this connection"
-            class="button is-small cxn"
-            (click)="removeConnectionTo(input, i)">
-            <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
-            </button>   
-
-
-        
-
-          </ng-container>
-
+          <app-inlet
+          [opid]='id'
+          [inletid]='i'
+          [dynamic]='is_dynamic_op'
+          [type]="dynamic_type"
+          (onInputSelected)="inputSelected($event)"
+          (onConnectionRemoved)="removeConnectionTo($event)"
+          (onInletChange)="onInletChange($event)"
+          ></app-inlet>
         </div>
        
     </div>

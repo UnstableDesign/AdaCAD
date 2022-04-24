@@ -1,0 +1,57 @@
+
+.input-color{
+    width: 30px;
+    height: 30px;
+    border: thin solid white;
+}
+
+button.input{
+    position: relative;
+	background-color: #00d1b2;
+	color: white;
+	border: none;
+    width:30px;
+}
+
+button.cxn{
+    background-color: #00d1b2;
+    border: none;
+    border-left: thin solid white;
+    color: white;
+}
+
+.input-name{
+    margin-left: 8px;
+    line-height: 30px;
+}
+
+
+.inputs{
+    display: flex;
+    justify-content: flex-start;
+    text-align: center;
+}
+
+
+.mat-select{
+    width: 34px;
+    padding-left: 4px;
+    line-height: 30px;
+    background-color: #fff;
+}
+
+.mat-select-value{
+    color: #fff !important;
+}
+
+input{
+    width: 35px;
+}
+
+
+
+.inlet-label{
+    color: #fff;
+    line-height: 30px;
+    padding-right: 6px;
+}

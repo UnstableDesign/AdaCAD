@@ -62,6 +62,7 @@ export class ParameterComponent implements OnInit {
           break;
 
         case 'select':
+          
           this.selectparam = <SelectParam> this.param;
           this.fc = new FormControl(this.param.value);
           break;
@@ -72,6 +73,7 @@ export class ParameterComponent implements OnInit {
           break;
 
         case 'string':
+          //if(this.fc.hasError('pattern') || this.fc.hasError('required')) return;
           this.stringparam = <StringParam> this.param;
           this.fc = new FormControl(this.param.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
           break;
@@ -113,13 +115,11 @@ export class ParameterComponent implements OnInit {
         break;
     }
 
-    console.log("in param change", value);
     this.onOperationParamChange.emit({id: this.paramid});
    
   }
 
   handleFile(obj: any){
-    console.log("in param", obj);
     this.fc.setValue(obj.data.name);
     this.opnode.params[this.paramid] = obj.id;
     this.onFileUpload.emit({id: obj.id, data: obj.data});
