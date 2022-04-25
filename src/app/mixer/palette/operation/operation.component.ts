@@ -86,7 +86,7 @@ export class OperationComponent implements OnInit {
    has_image_preview: boolean = false;
 
    //these are the drafts with any input parameters
-   inlets: Array<FormControl> = [];
+  //  inlets: Array<FormControl> = [];
 
 
   // has_connections_in: boolean = false;
@@ -311,44 +311,39 @@ export class OperationComponent implements OnInit {
 
   /**
    * called from the child parameter when a value has changed, this functin then updates the inlets
-   * @param id the id of hte parameter that has changed
+   * @param id an object containing the id of hte parameter that has changed
    * @param value 
    */
-  onParamChange(id: number){
+  onParamChange(obj: any){
 
-    console.log("on param change", id);
 
     if(this.is_dynamic_op){
       const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
-      let value = opnode.params[id];
- 
+      let value = opnode.params[obj.id];
+
       value = value+1;
       //check to see if we should add or remove draft inputs
-      if(id === (<DynamicOperation>this.op).dynamic_param_id){
+      if(obj.id === (<DynamicOperation>this.op).dynamic_param_id){
         const type = (<DynamicOperation>this.op).dynamic_param_type;
         switch(type){
 
           case 'notation':
-            
             break;
 
           case 'number':
           case 'system':
-            if(value > this.inlets.length){
-              for(let i = this.inlets.length; i < value; i++){
+            if(value > opnode.inlets.length){
+              for(let i = opnode.inlets.length; i < value; i++){
 
                 if(type === 'number'){
-                  this.inlets.push(new FormControl(i));
                   opnode.inlets.push(i);
                 }else{
-                  this.inlets.push(new FormControl(this.systems.weft_systems[i-1].name))
                   this.systems.weft_systems[i-1].in_use = true;
                   opnode.inlets.push(i-1);
                 } 
               }
 
-            }else if(value < this.inlets.length){
-              this.inlets.splice(value, this.inlets.length - value);
+            }else if(value < opnode.inlets.length){
               opnode.inlets.splice(value,  opnode.inlets.length - value);
             }
           break;
@@ -357,9 +352,10 @@ export class OperationComponent implements OnInit {
 
         }
       }
+
     }
     
-    
+
     this.onOperationParamChange.emit({id: this.id});
    
   }
@@ -372,7 +368,6 @@ export class OperationComponent implements OnInit {
   handleFile(obj: any){
 
 
-    console.log("obj is", obj);
     const image_div =  document.getElementById('param-image-'+this.id);
     image_div.style.display = 'none';
 
@@ -395,9 +390,8 @@ export class OperationComponent implements OnInit {
           obj.colors.forEach(hex => {
 
             //add any new colors
-            const ndx = this.inlets.findIndex(el => el.value === hex);
+            const ndx = opnode.inlets.findIndex(el => el.value === hex);
             if(ndx === -1){
-              this.inlets.push(new FormControl(hex));
               opnode.inlets.push(hex);
             }
           });
@@ -413,7 +407,6 @@ export class OperationComponent implements OnInit {
           })
           remove.forEach(removeid => {
             opnode.inlets.splice(removeid, 1);
-            this.inlets.splice(removeid, 1);
           });
 
         

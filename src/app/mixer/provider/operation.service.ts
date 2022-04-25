@@ -2628,6 +2628,8 @@ export class OperationService {
       ],
       perform: (op_inputs: Array<OpInput>)=> {
           
+        console.log("op inputs", op_inputs);
+
         //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assignlayers");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
@@ -2657,17 +2659,14 @@ export class OperationService {
         else  total_warps = utilInstance.getMaxWarps(all_drafts);
 
 
-
-        //create a map from layers to drafts
-        const layer_draft_map: Array<any> = child_inputs.map((el, ndx) => { return {layer: el.inlet, system: el.params[0], drafts: el.drafts}}); 
+        const layer_draft_map: Array<any> = child_inputs.map((el, ndx) => { return {layer: el.inlet-1, system: el.params[0], drafts: el.drafts}}); 
 
         const max_system = layer_draft_map.reduce((acc, el) => {
           if(el.system > acc) return el.system;
           return acc;
         }, 0);
 
-        
-
+      
 
 
         const outputs = [];
@@ -2696,7 +2695,7 @@ export class OperationService {
         console.log("layer draft map", layer_draft_map_sorted)
         layer_draft_map_sorted.forEach(layer_map => {
 
-          const layer_num = layer_map.layer -1;
+          const layer_num = layer_map.layer;
           if(layer_num < 0){
             outputs.push(new Draft(
               {warps: total_warps*warp_systems.length, 
@@ -2744,7 +2743,7 @@ export class OperationService {
           }
       });
 
-
+      console.log("outputs", outputs);
       //outputs has all the drafts now we need to interlace them (all layer 1's then all layer 2's)
       const pattern: Array<Array<Cell>> = [];
       const row_sys_mapping: Array<number> = [];
@@ -2775,7 +2774,7 @@ export class OperationService {
      
         
       interlaced.gen_name = this.formatName(outputs, "layer");
-      
+      console.log("interlaced", interlaced);
       return Promise.resolve([interlaced]);
 
       }

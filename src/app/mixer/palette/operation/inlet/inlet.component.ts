@@ -35,7 +35,6 @@ export class InletComponent implements OnInit {
     this.opnode = this.tree.getOpNode(this.opid);
     this.fc = new FormControl(this.opnode.inlets[this.inletid]);
 
-
   }
 
   inputSelected(){
@@ -64,7 +63,9 @@ export class InletComponent implements OnInit {
         opnode.inlets[this.inletid] = value;
         break;
       case 'system':
-        opnode.inlets[this.inletid] = this.systems.weft_systems.findIndex(el => el.name === value);
+        console.log("value", value)
+        opnode.inlets[this.inletid] = value;
+        console.log("inlets", opnode.inlets);
         break;
       case 'color':
         opnode.inlets[this.inletid] = value;

@@ -21,8 +21,7 @@
     >
 
     <ng-container *ngIf="type === 'system'">
-        <span class="inlet-label">{{inletid+1}}</span>
-
+        <span class="inlet-label">{{inletid}}</span>
         <mat-select 
         [formControl]="fc"
         [ngModel]="opnode.inlets[inletid]"

@@ -224,10 +224,8 @@ export class TreeService {
       
       if(inlets === undefined || inlets.length == 0){
         
-        if(inlets === undefined) inlets = [];
-
-        if(op.max_inputs > 0) inlets.push(0);
-
+        //every operation has the first inlet assigned to be the static input
+        if(inlets === undefined) inlets = [0];
 
         if(this.ops.isDynamic(name)){
           const dynamic_param_id = (<DynamicOperation> op).dynamic_param_id;
@@ -1301,7 +1299,7 @@ flipDraft(draft: Draft) : Promise<Draft>{
         const cxn_tn = el.tn;
         const type = draft_tn.node.type;
         if(type === 'draft'){
-          draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id})
+          draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id, cxn: cxn_tn.node.id})
           flip_fns.push(this.flipDraft((<DraftNode>draft_tn.node).draft));
         }
       });
@@ -1310,9 +1308,10 @@ flipDraft(draft: Draft) : Promise<Draft>{
    
     return Promise.all(flip_fns)
     .then(flipped_drafts => {
-      const paraminputs = flipped_drafts.map(el =>  {
-        const node = draft_id_to_ndx.find(input => input.draft_id === el.id);
-        return {op_name:'child', drafts: [el], inlet: node.ndx ,params: [opnode.inlets[node.ndx]]}
+
+      const paraminputs = draft_id_to_ndx.map(el => {
+        const draft = flipped_drafts.find(draft => draft.id === el.draft_id);
+        return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
       })
 
       inputs = inputs.concat(paraminputs);
