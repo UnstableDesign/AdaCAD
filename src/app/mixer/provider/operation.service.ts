@@ -9,9 +9,26 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
+import { DeclareFunctionStmt } from '@angular/compiler';
 
 
 
+
+/**
+ * each operation has 0 or more inlets. These are areas where drafts can be entered as inputs to the operation
+ * @param name the display name to show with this inlet
+ * @param type the type of parameter that becomes mapped to inputs at this inlet, static means that the user cannot change this value
+ * @param value the assigned value of the parameter. 
+ * @param dx the description of this inlet
+ * @param num_drafts the total number of drafts accepted into this inlet (or -1 if unlimited)
+ */
+ export type OperationInlet = {
+  name: string,
+  type: 'main' | 'number' | 'notation' | 'system' | 'color' | 'static',
+  value: any,
+  dx: string,
+  num_drafts: number
+}
 
 
 
@@ -64,7 +81,7 @@ export type StringParam = OperationParam & {
  * @param params the parameters that one can directly input to the parent
  * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
  * @param dynamic_param_type the type of parameter that we look to generate
- * @param max_inputs but the nubmer of drafts to input directly
+ * @param inlets the inlets available for input by default on this operation
  * @param dx the description of this operation
  */
 export interface DynamicOperation {
@@ -73,7 +90,7 @@ export interface DynamicOperation {
   params: Array<OperationParam>, 
   dynamic_param_id: number,
   dynamic_param_type: string,
-  max_inputs: number,
+  inlets: Array<OperationInlet>,
   dx: string,
   perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
@@ -99,14 +116,14 @@ export interface DynamicOperation {
  * @param displayname the name to show upon this operation
  * @param dx the description of this operation
  * @param max_inputs the maximum number of inputs (drafts) allowed directly into this operation
- * @param params the parameters associated with this operation
+r * @param params the parameters associated with this operation
  */
 export interface Operation {
     name: string,
     displayname: string,
     dx: string,
-    max_inputs: number,
     params: Array<OperationParam>,
+    inlets: Array<OperationInlet>,
     perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>
  }
 
@@ -155,7 +172,13 @@ export class OperationService {
         dx: "height"
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'input draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft with which you would like to fill this rectangle',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -181,7 +204,13 @@ export class OperationService {
       displayname: 'clear',
       dx: "this sets all heddles to lifted, allowing it to be masked by any pattern",
       params: [],
-      max_inputs: 1,
+      inlets: [{
+        name: 'input draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to clear',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
         const outputs: Array<Draft> =op_input.drafts.map(draft => {
@@ -209,7 +238,13 @@ export class OperationService {
         value: 1,
         dx: "toggles the value to which to set the unset cells (heddle up or down)"
         }],
-      max_inputs: 1,
+       inlets: [{
+          name: 'input draft', 
+          type: 'static',
+          value: null,
+          dx: 'the draft you would like to modify',
+          num_drafts: 1
+        }],
       perform: (op_inputs: Array<OpInput>)=> {
         const op_input = op_inputs[0];
 
@@ -248,7 +283,13 @@ export class OperationService {
         value: 1,
         dx: "toggles which values to map to unselected)"
       }],
-      max_inputs: 1,
+      inlets: [{
+        name: 'input draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to modify',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
         const outputs: Array<Draft> =op_input.drafts.map(draft => {
@@ -277,7 +318,21 @@ export class OperationService {
       displayname: 'apply materials',      
       dx: "applies the materials from the second draft onto the first draft. If they are uneven sizes, it will repeat the materials as a pattern",
       params: [],
-      max_inputs: 2,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to which you would like to apply materials',
+        num_drafts: 1
+      },
+      {
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'a draft which has the materials youd like to apply',
+        num_drafts: 1
+      }
+    ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -299,26 +354,130 @@ export class OperationService {
     const rotate: Operation = {
       name: 'rotate',
       displayname: 'rotate',      
-      dx: "this turns the draft by 90 degrees but leaves materials in same place",
-      params: [],
-      max_inputs: 1,
+      dx: "this turns the draft by the amount specified",
+      params: [
+        <SelectParam>{name: 'amount',
+        type: 'select',
+        selectlist: [
+          {name: '90', value: 0},
+          {name: '180', value: 1},
+          {name: '270', value: 2},
+        ],
+          value: 0,
+          dx: 'corner to which this draft is rotated around 0 is top left, 1 top right, 2 bottom right, 3 bottom left'
+        },
+        <BoolParam>{
+          name: 'rotate materials?',
+          type: 'boolean',
+          falsestate: 'no',
+          truestate: 'yes',
+          value: 1, 
+          dx: 'if your draft has materials assigned, you can choose wether you want to rotate the draft or the materials only'
+
+        }
+        ],
+      inlets: [
+        {
+        name: 'input draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to modify',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
         const outputs: Array<Draft> =op_input.drafts.map(draft => {
-          const d: Draft = new Draft({warps: draft.wefts, wefts:draft.warps});
-          //get each column from the input, save it as the ror in the output
 
-          for(var r = 0; r < draft.warps; r++){
-            const col: Array<Cell> = draft.pattern.map(row => row[r]);
-            col.forEach((cell, i) => {
-              d.pattern[r][i].setHeddle(cell.getHeddle());
-            });
+          const num_rots = op_input.params[0];
+          const rotate_mats = (op_input.params[1] === 0) ? false : true;
+          const rotated_wefts = ( num_rots % 2 == 0) ? draft.warps : draft.wefts;
+          const rotated_warps = ( num_rots % 2 == 0) ? draft.wefts : draft.warps;
+
+          const d: Draft = new Draft({warps: rotated_warps, wefts:rotated_wefts});
+
+
+          for(var i = 0; i < draft.wefts; i++){
+            for(var j = 0; j < draft.warps; j++){
+              const heddle_val = draft.pattern[i][j].getHeddle();
+              switch(num_rots){
+                case 0: 
+                  d.pattern[(draft.warps - 1) - j][i].setHeddle(heddle_val);
+                 
+                break;
+                case 1: 
+                  d.pattern[(draft.wefts - 1) - i][(draft.warps - 1) - j].setHeddle(heddle_val);
+                  
+                break;
+                case 2: 
+                  d.pattern[j][(draft.wefts - 1)  - i].setHeddle(heddle_val);
+                  
+                break;
+
+              }
+            }
+          }
+
+          if(rotate_mats){
+          for(var i = 0; i < draft.wefts; i++){
+              switch(num_rots){
+                case 0: 
+                    d.colShuttleMapping[i] = draft.rowShuttleMapping[i];
+                    d.colSystemMapping[i] = draft.rowSystemMapping[i];
+                  
+                break;
+                case 1: 
+                  d.rowShuttleMapping[(draft.wefts - 1) - i] = draft.rowShuttleMapping[i];
+                  d.rowSystemMapping[(draft.wefts - 1) - i] = draft.rowSystemMapping[i];
+
+                  
+                  
+                break;
+                case 2: 
+
+                  d.colShuttleMapping[draft.wefts-1-i] = draft.rowShuttleMapping[i];
+                  d.colSystemMapping[draft.wefts-1-i] = draft.rowSystemMapping[i];
+                  
+                break;
+
+              }
+
+              for(var j = 0; j < draft.warps; j++){
+                switch(num_rots){
+                  case 0: 
+                    d.rowShuttleMapping[j] =  draft.colShuttleMapping[j];
+                    d.rowSystemMapping[j] = draft.colSystemMapping[j];
+                  break;
+                  case 1: 
+                    
+                    d.colShuttleMapping[(draft.warps - 1) - j] =  draft.colShuttleMapping[j];
+                    d.colSystemMapping[(draft.warps - 1) - j] = draft.colSystemMapping[j];
+
+                  break;
+                  case 2: 
+
+                    d.rowShuttleMapping[(draft.warps - 1)  - j] =  draft.colShuttleMapping[j];
+                    d.rowSystemMapping[(draft.warps - 1)  - j] = draft.colSystemMapping[j];
+             
+                  break;
+  
+                }
+              }
+              
+
+            }
+          }else{
+           for(var i = 0; i < d.wefts; i++){
+             d.rowShuttleMapping[i] = draft.rowShuttleMapping[i];
+             d.rowSystemMapping[i] = draft.rowSystemMapping[i];
+           }
+           for(var j = 0; j < d.warps; j++){
+            d.colShuttleMapping[j] = draft.colShuttleMapping[j];
+            d.colSystemMapping[j] = draft.colSystemMapping[j];
+          }
           }
 
           if(op_input.drafts.length > 0){
-            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
             d.gen_name = this.formatName(op_input.drafts, "rot");
-
           }
 
           return d;
@@ -339,7 +498,15 @@ export class OperationService {
         value: 1,
         dx: "controls if the inputs are intelaced in the exact format sumitted or repeated to fill evenly"
       }],
-      max_inputs: 100,
+      inlets: [
+        {
+          name: 'drafts', 
+          type: 'static',
+          value: null,
+          dx: 'all the drafts you would like to interlace',
+          num_drafts: -1
+        }
+      ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
         const factor_in_repeats = op_input.params[0];
@@ -410,7 +577,21 @@ export class OperationService {
         value: 1,
         dx: "the distance between each spliced in row"
         }],
-      max_inputs: 2,
+        inlets: [{
+          name: 'receiving draft', 
+          type: 'static',
+          value: null,
+          dx: 'all the drafts you would like to interlace',
+          num_drafts: 1
+        },
+        {
+          name: 'splicing draft', 
+          type: 'static',
+          value: null,
+          dx: 'the draft you would like to splice into the recieving draft',
+          num_drafts: 1
+        }
+      ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -487,7 +668,15 @@ export class OperationService {
         value: 0,
         dx: "which posiiton to assign this draft"
         }],
-      max_inputs: 1,
+      inlets: [
+        {
+          name: 'draft',
+          type: 'static',
+          value: null,
+          dx: "the draft that will be assigned to a given system",
+          num_drafts: 1
+        }
+      ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -568,7 +757,15 @@ export class OperationService {
         dx: "fill in the draft such that each warp system corresponds to a layer (0 is top)"
         }
       ],
-      max_inputs: 1,
+      inlets: [
+        {
+          name: 'draft',
+          type: 'static',
+          value: null,
+          dx: "the draft that will be assigned to a given system",
+          num_drafts: 1
+        }
+      ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -654,7 +851,15 @@ export class OperationService {
         value: 2,
         dx: "how many different systems you want to move this structure onto"
         }],
-      max_inputs: 1,
+        inlets: [
+          {
+            name: 'draft',
+            type: 'static',
+            value: null,
+            dx: "the draft that will be assigned to a given system",
+            num_drafts: 1
+          }
+        ],
       perform: (op_inputs: Array<OpInput>) => {
         
         const op_input = op_inputs[0];
@@ -715,7 +920,22 @@ export class OperationService {
         dx: "the width in warps of the selvedge"
         }
       ],
-      max_inputs: 2,
+      inlets: [
+        {
+          name: 'draft',
+          type: 'static',
+          value: null,
+          dx: "the draft that will have a selvedge added",
+          num_drafts: 1
+        },
+        {
+          name: 'selvedge',
+          type: 'static',
+          value: null,
+          dx: "the pattern to use for the selvedge",
+          num_drafts: 1
+        }
+      ],
       perform: (op_inputs: Array<OpInput>)=> {
         const op_input = op_inputs[0];
         if(op_input.drafts.length == 0) return Promise.resolve([]);
@@ -793,7 +1013,21 @@ export class OperationService {
         dx: "the amount to offset the overlayingop_input.drafts from the bottom"
         }
       ],
-      max_inputs: 2,
+      inlets: [{
+        name: 'base draft', 
+        type: 'static',
+        value: null,
+        dx: 'all the drafts you would like to overlay another onto',
+        num_drafts: 1
+      },
+      {
+        name: 'overlay', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to overlay onto the base',
+        num_drafts: 1
+      }
+    ],
       perform: (op_inputs: Array<OpInput>)=> {
         const op_input = op_inputs[0];
 
@@ -878,7 +1112,21 @@ export class OperationService {
         dx: "the amount to offset the overlayingop_input.drafts from the bottom"
         }
       ],
-      max_inputs: 2,
+      inlets: [{
+        name: 'base draft', 
+        type: 'static',
+        value: null,
+        dx: 'all the drafts you would like to set another on top of',
+        num_drafts: 1
+      },
+      {
+        name: 'atop', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to set atop the base',
+        num_drafts: 1
+      }
+    ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -944,7 +1192,21 @@ export class OperationService {
         dx: "the amount to offset the overlayingop_input.drafts from the bottom"
         }
       ],
-      max_inputs: 2,
+      inlets: [{
+        name: 'base draft', 
+        type: 'static',
+        value: null,
+        dx: 'all the drafts you would like to xor another onto',
+        num_drafts: 1
+      },
+      {
+        name: 'xor', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to xor over the base',
+        num_drafts: 1
+      }
+    ],
       perform: (op_inputs: Array<OpInput>)=> {
         const op_input = op_inputs[0];
 
@@ -1009,7 +1271,21 @@ export class OperationService {
         dx: "the amount to offset the overlayingop_input.drafts from the bottom"
         }
       ],
-      max_inputs: 2,
+      inlets: [{
+        name: 'base draft', 
+        type: 'static',
+        value: null,
+        dx: 'all the draft you would like to mask',
+        num_drafts: 1
+      },
+      {
+        name: 'mask', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to use as the mask',
+        num_drafts: 1
+      }
+    ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -1074,7 +1350,21 @@ export class OperationService {
         dx: "the amount to offset the overlayingop_input.drafts from the bottom"
         }
       ],
-      max_inputs: 2,
+      inlets: [{
+        name: 'base draft', 
+        type: 'static',
+        value: null,
+        dx: 'all the drafts you would like to have erased by another draft',
+        num_drafts: 1
+      },
+      {
+        name: 'erase', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to use to erase the base',
+        num_drafts: 1
+      }
+    ],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -1125,7 +1415,28 @@ export class OperationService {
       displayname: 'fill',
       dx: 'fills black cells of the first input with the pattern specified by the second input, white cells with third input',
       params: [],
-      max_inputs: 3,
+      inlets: [{
+        name: 'pattern', 
+        type: 'static',
+        value: null,
+        dx: 'the draft you would like to fill',
+        num_drafts: 1
+      },
+      {
+        name: 'black cell structure', 
+        type: 'static',
+        value: null,
+        dx: 'the structure you would like to repeat in in the black regions of the base draft',
+        num_drafts: 1
+      },
+      {
+        name: 'white cell structure', 
+        type: 'static',
+        value: null,
+        dx: 'the structure you would like to repeat in in the white regions of the base draft',
+        num_drafts: 1
+      }
+    ],
       perform: (op_inputs: Array<OpInput>) => {
         let outputs: Array<Draft> = [];
         const op_input = op_inputs[0];
@@ -1203,7 +1514,13 @@ export class OperationService {
         dx: 'the number or reps to adjust evenly through the structure'
         },
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with tabby',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -1263,7 +1580,13 @@ export class OperationService {
         dx: 'number of weft overs'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with this twill',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -1324,7 +1647,13 @@ export class OperationService {
         dx: 'number of weft overs in a pic'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to stretch',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -1373,7 +1702,13 @@ export class OperationService {
         dx: 'number of wefts to resize to'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to resize',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -1432,7 +1767,13 @@ export class OperationService {
         dx: 'number of pics of padding to add to the left'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to add margins to',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -1501,7 +1842,13 @@ export class OperationService {
         dx: 'height of the cutting box'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to crop',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
 
@@ -1566,7 +1913,13 @@ export class OperationService {
         dx: 'number of pics from the bottom to start the cut'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to trim',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
 
@@ -1685,7 +2038,13 @@ export class OperationService {
         dx: 'number of weft pics to repeat within the structure'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with this twill',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -1754,7 +2113,13 @@ export class OperationService {
         dx: 'toggle to switch the twist direction'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with twill',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -1817,7 +2182,13 @@ export class OperationService {
         dx: 'toggle to change twist direction'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with this twill',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -1880,7 +2251,13 @@ export class OperationService {
         dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'systems draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft that describes the system ordering we will add input structures within',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
                 
@@ -1936,7 +2313,13 @@ export class OperationService {
         dx: 'builds tabby around the edges of the central diamond, crating some strange patterns'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with waffle',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -2040,7 +2423,13 @@ export class OperationService {
         }
 
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to make symmetric',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
         const op_input = op_inputs[0];
@@ -2139,7 +2528,13 @@ export class OperationService {
         dx: 'the move number on each row'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with tabby',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2200,7 +2595,13 @@ export class OperationService {
         dx: 'percentage of weft unders to be used'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'shape', 
+        type: 'static',
+        value: null,
+        dx: 'the shape you would like to fill with random',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2236,7 +2637,13 @@ export class OperationService {
       displayname: 'invert',
       dx: 'generates an output that is the inverse or backside of the input',
       params: [],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to invert',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2256,7 +2663,13 @@ export class OperationService {
       displayname: 'flip horiz',
       dx: 'generates an output that is the left-right mirror of the input',
       params: [],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to flip horizontally',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
         console.log("recomputing flip horiz with ", op_input)
@@ -2277,7 +2690,13 @@ export class OperationService {
       displayname: 'flip vert',
       dx: 'generates an output that is the top-bottom mirror of the input',
       params: [],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to flip vertically',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>)=> {
         const op_input = op_inputs[0];
 
@@ -2305,7 +2724,13 @@ export class OperationService {
         dx: 'the amount of warps to shift by'
         }
       ],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to shift',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>)=> {
        
         const op_input = op_inputs[0];
@@ -2337,7 +2762,13 @@ export class OperationService {
         dx: 'the number of wefts to shift by'
         }
       ],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to shift',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2375,7 +2806,13 @@ export class OperationService {
         dx: 'describes how many rows we should apply the shift to'
         }
       ],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to slope',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2414,7 +2851,13 @@ export class OperationService {
         value: 1,
         dx: 'the number of mirrors to produce'
       }],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to mirror',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         
         const op_input = op_inputs[0];
@@ -2438,7 +2881,13 @@ export class OperationService {
       displayname: 'variants',
       dx: 'for any input draft, create the shifted and flipped values as well',
       params: [],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to create varients of',
+        num_drafts: 1
+      }], 
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2478,7 +2927,13 @@ export class OperationService {
         dx: 'the maximum length of a weft float'
         }
       ],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to bind',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2522,7 +2977,13 @@ export class OperationService {
         dx: 'the maximum length of a warp float'
         }
       ],
-      max_inputs: 1, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to bind',
+        num_drafts: 1
+      }], 
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2559,7 +3020,13 @@ export class OperationService {
       displayname: 'layer',
       dx: 'creates a draft in which each input is assigned to a layer in a multilayered structure, assigns 1 to top layer and so on',
       params: [],
-      max_inputs: 100, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the drafts to layer (from top to bottom)',
+        num_drafts: -1
+      }],
       perform: (op_inputs: Array<OpInput>)=> {
         const op_input = op_inputs[0];
 
@@ -2609,7 +3076,7 @@ export class OperationService {
       dx: 'when given a number of layers, it creates inputs to assign one or more drafts to each the specified layer. You are allowed to specify a weft system with the input to each layer, this controls the ordering of the input drafts in the layers. For instance, if you give layer 1 system a, and layer 2 system b, your output draft will order the rows ababab.... If you give two inputs to layer 1 and assign them to system a, then one input layer 2, and give it system b, the output will order the rows aabaab. This essentially allows you to control weft systems at the same time as layers, aligning weft systems across multiple drafts. Systems will always be organized alphbetically, and blank rows will be inserted in place of unused systems. For instance, if you have two layers and you assign them to systems a and c, the code will insert a blank system b for the resulting pattern of abcabcabc....',
       dynamic_param_type: 'system',
       dynamic_param_id: 0,
-      max_inputs: 0,
+      inlets: [],
       params: [
         <NumParam>{name: 'layers',
           type: 'number',
@@ -2628,7 +3095,6 @@ export class OperationService {
       ],
       perform: (op_inputs: Array<OpInput>)=> {
           
-        console.log("op inputs", op_inputs);
 
         //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "assignlayers");
@@ -2692,7 +3158,6 @@ export class OperationService {
         }
 
 
-        console.log("layer draft map", layer_draft_map_sorted)
         layer_draft_map_sorted.forEach(layer_map => {
 
           const layer_num = layer_map.layer;
@@ -2743,7 +3208,6 @@ export class OperationService {
           }
       });
 
-      console.log("outputs", outputs);
       //outputs has all the drafts now we need to interlace them (all layer 1's then all layer 2's)
       const pattern: Array<Array<Cell>> = [];
       const row_sys_mapping: Array<number> = [];
@@ -2774,7 +3238,6 @@ export class OperationService {
      
         
       interlaced.gen_name = this.formatName(outputs, "layer");
-      console.log("interlaced", interlaced);
       return Promise.resolve([interlaced]);
 
       }
@@ -2788,7 +3251,7 @@ export class OperationService {
       dx: 'uploads an image and creates an input for each color found in the image. Assigning a draft to the color fills the color region with the selected draft',
       dynamic_param_type: 'color',
       dynamic_param_id: 0,
-      max_inputs: 0,
+      inlets: [],
       params: <Array<NumParam>>[
           {name: 'image file (.jpg or .png)',
           type: 'file',
@@ -2912,7 +3375,13 @@ export class OperationService {
         dx: 'the number of times to repeat this time across the length'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to tile',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2937,7 +3406,13 @@ export class OperationService {
       displayname: 'erase blank rows',
       dx: 'erases any rows that are entirely unset',
       params: [],
-      max_inputs: 100, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to erase blank rows from',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -2972,7 +3447,13 @@ export class OperationService {
       displayname: 'join top',
       dx: 'attachesop_input.drafts toether into one draft in a column orientation',
       params: [],
-      max_inputs: 100, 
+      inlets: [{
+        name: 'drafts', 
+        type: 'static',
+        value: null,
+        dx: 'the drafts you would like to join vertically',
+        num_drafts: -1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -3024,7 +3505,13 @@ export class OperationService {
       displayname: 'join left',
       dx: 'joins drafts together from left to right',
       params: [],
-      max_inputs: 100, 
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to join horizontally',
+        num_drafts: -1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -3100,7 +3587,7 @@ export class OperationService {
       value: 100,
       dx: 'the total width of the draft'
     }],
-      max_inputs: 0, 
+    inlets: [],
       perform: (op_inputs: Array<OpInput>) => {
       
         //split the inputs into the input associated with 
@@ -3180,7 +3667,13 @@ export class OperationService {
         dx: 'which pattern to select from the variations'
         }
       ],
-      max_inputs: 1,
+      inlets: [{
+        name: 'draft', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to germanify',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
         const op_input = op_inputs[0];
 
@@ -3226,7 +3719,13 @@ export class OperationService {
           dx: 'which pattern to select from the variations'
           }
         ],
-        max_inputs: 1,
+        inlets: [{
+          name: 'draft', 
+          type: 'static',
+          value: null,
+          dx: 'the draft to craclify',
+          num_drafts: 1
+        }],
         perform: (op_inputs: Array<OpInput>) => {
           const op_input = op_inputs[0];
 
@@ -3267,7 +3766,13 @@ export class OperationService {
           params: [
 
           ],
-          max_inputs: 1,
+          inlets: [{
+            name: 'drawdown', 
+            type: 'static',
+            value: null,
+            dx: 'the drawdown from which to create threading, tieup and treadling data from',
+            num_drafts: 1
+          }],
           perform: (op_inputs: Array<OpInput>) => {
             const op_input = op_inputs[0];
 
@@ -3314,7 +3819,27 @@ export class OperationService {
             params: [
   
             ],
-            max_inputs: 3,
+            inlets: [{
+              name: 'threading', 
+              type: 'static',
+              value: null,
+              dx: 'the draft to use as threading',
+              num_drafts: 1
+            }, {
+              name: 'tieup', 
+              type: 'static',
+              value: null,
+              dx: 'the draft to use as tieup',
+              num_drafts: 1
+            },
+            {
+              name: 'treadling', 
+              type: 'static',
+              value: null,
+              dx: 'the draft to use as treadling',
+              num_drafts: 1
+            }
+           ],
             perform: (op_inputs: Array<OpInput>) => {
 
               const op_input = op_inputs[0];

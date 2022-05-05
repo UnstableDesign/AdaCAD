@@ -225,7 +225,7 @@ export class TreeService {
       if(inlets === undefined || inlets.length == 0){
         
         //every operation has the first inlet assigned to be the static input
-        if(inlets === undefined) inlets = [0];
+        if(inlets === undefined) inlets = [];
 
         if(this.ops.isDynamic(name)){
           const dynamic_param_id = (<DynamicOperation> op).dynamic_param_id;
@@ -259,8 +259,17 @@ export class TreeService {
                   break;
           }
   
+        }else {
+          console.log("op inlets", op.inlets)
+          op.inlets.forEach(el => {
+            if(el.value == null)  inlets.push(0);
+            else inlets.push(el.value);
+          });
+          console.log("inlets after", inlets);
         }
+
       }else{
+
         inlets = inlets;
       }   
   
@@ -751,8 +760,9 @@ export class TreeService {
   /**
    * called on an operation to check if it can accept connections from a given subdraft
    * @param id - the id of the operation in question
+   * @param inlet - the inlet id we are looking at
    */
-  canAcceptConnections(id: number) : boolean {
+  canAcceptConnections(id: number, inlet: number) : boolean {
 
     if(this.open_connection === -1) {
     console.error("no open connection");
@@ -765,14 +775,15 @@ export class TreeService {
       return false; //can't be an input to your parent
     } 
 
-    const is_already_connected = this.getInputs(id).length > 0 && this.getInputs(id).find(el => el === this.open_connection) !== undefined;
+    const is_already_connected = this.getInputsAtNdx(id, inlet).length > 0 && this.getInputs(id).find(el => el === this.open_connection) !== undefined;
     if(is_already_connected){
      // console.error("already connected, draft=", this.open_connection, " opid=", id);
       return false; //these two things are already directly connected
     } 
 
+    
 
-    const has_room = (this.getInputs(id).length < (<OperationComponent> this.getComponent(id)).op.max_inputs);
+    const has_room = (this.getInputs(id).length < (<OperationComponent> this.getComponent(id)).op.inlets[inlet].num_drafts || (<OperationComponent> this.getComponent(id)).op.inlets[inlet].num_drafts == -1);
     if(!has_room) return false;
 
     if(parent_op === -1 && has_room) return true; //if you don't have a parent and there is room, go for it
@@ -1684,6 +1695,12 @@ flipDraft(draft: Draft) : Promise<Draft>{
     const tn = this.getTreeNode(node_id);
     if(tn === undefined) return [];
     return tn.inputs;
+  }
+
+  getInputsAtNdx(node_id: number, inlet_ndx: number):Array<IOTuple>{
+    const tn = this.getTreeNode(node_id);
+    if(tn === undefined) return [];
+    return tn.inputs.filter(el => el.ndx == inlet_ndx);
   }
 
   getConnectionInput(node_id: number):number{

@@ -14,12 +14,11 @@ cdkDrag
 
 
         <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group" id = "inlet{{id}}-{{i}}">
-
-          <app-inlet *ngIf='i != 0 || (i == 0 && op.max_inputs > 0)'
+          
+          <app-inlet 
           [opid]='id'
           [inletid]='i'
           [dynamic]='is_dynamic_op'
-          [type]="dynamic_type"
           (onInputSelected)="inputSelected($event)"
           (onConnectionRemoved)="removeConnectionTo($event)"
           (onInletChange)="onInletChange($event)"

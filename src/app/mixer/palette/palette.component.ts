@@ -2281,65 +2281,6 @@ drawStarted(){
 
   }
 
-  // /**
-  //  * checks for a child subdraft, recomputes, redraws. 
-  //  * @param obj with attribute id describing the operation that called this and the OpInputs to generate
-  //  * @returns 
-  //  */
-  //  async parentOperationParamChanged(obj: any){
-
-
-  //   //needs to 
-  //    if(obj === null) return;
-
-  // //   //this function needs to check that it doesn't need to add or remove exisitng to meet the param. 
-  // //   const current_ins: Array<number> = this.tree.getOpInputs(obj.id);
-
-
-  // //   if(current_ins.length === obj.inputs.length) return; 
-
-  // //   //there are more objects returned from the param change than currently exist (add ops)
-  // //  if(current_ins.length < obj.inputs.length){
-      
-  // //   for(let i = current_ins.length; i < obj.inputs.length; i++){
-  // //       const op_input = obj.inputs[i];
-  // //       const op_comp = this.createOperation(op_input.op_name);
-  // //       this.tree.setOpParams(op_comp.id, op_input.params);
-  // //       this.createConnection(op_comp.id, obj.id);
-  // //     }
-  // //  }else{
-  // //   //remove ops
-  // //     for(let i = current_ins.length-1; i >= 0; i--){
-  // //     const to_remove = current_ins[i];
-  // //     this.removeConnection({from: to_remove, to: obj.id })
-  // //     this.removeOperation(to_remove)
-  // //     }
-
-
-  // // }
-
-   
-
-
-  //   return this.performAndUpdateDownstream(obj.id)
-  //     .then(el => 
-  //     {
-  //       this.addTimelineState(); 
-  //     })
-  //     .catch(console.error);
-   
-  // }
-
-  /**
-   * gets a list of all the drafts that have been reset and redraws them
-   * */
-  // async redrawDirtyDrafts() : Promise<any> {
-
-  //    const fns =  this.tree.getDirtyDrafts().map(el => (<SubdraftComponent> this.tree.getNode(el).component).drawDraft())
-  //    return Promise.all(fns);
-    
-  // }
-
 
 /**
  * called from an operatiino cmoponent when it is dragged

@@ -1,11 +1,14 @@
 
-    <button 
+    <button *ngIf="inlet.type === 'static'"
     class="button is-small input"
+    [matTooltip]='inlet.dx'
     (click)="inputSelected()">
          <i class="fas fa-chevron-right"></i>
     </button>
 
-    <input *ngIf="type === 'number'"
+    <span class="inlet-name">{{inlet.name}}</span>
+
+    <input *ngIf="inlet.type === 'number'"
     [ngModel]="opnode.inlets[inletid]"
     [formControl]="fc"
     type = "number"
@@ -13,14 +16,14 @@
     (change)= "inletChange(fc.value)"
     >
 
-    <input *ngIf="type === 'notation'"
+    <input *ngIf="inlet.type === 'notation' && inletid !== 0"
     [ngModel]="opnode.inlets[inletid]"
     [formControl]="fc"
     type = "string"
     (change)= "inletChange(fc.value)"
     >
 
-    <ng-container *ngIf="type === 'system'">
+    <ng-container *ngIf="inlet.type === 'system'">
         <span class="inlet-label">{{inletid}}</span>
         <mat-select 
         [formControl]="fc"
@@ -35,7 +38,7 @@
 
     </ng-container>
 
-    <div *ngIf="type === 'color'"
+    <div *ngIf="inlet.type === 'color'"
     [matTooltip]="fc.value"
     [ngModel]="opnode.inlets[inletid]"
     [style.background-color] = fc.value

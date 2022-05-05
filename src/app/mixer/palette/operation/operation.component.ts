@@ -133,13 +133,15 @@ export class OperationComponent implements OnInit {
 
   }
 
-
   ngAfterViewInit(){
     this.rescale();
    // this.onOperationParamChange.emit({id: this.id});
     if(this.name == 'imagemap'){
       this.drawImagePreview();
     }
+
+    const container: HTMLElement = document.getElementById('scale-'+this.id);
+    this.bounds.height = container.offsetHeight;
 
   }
 
@@ -167,29 +169,6 @@ export class OperationComponent implements OnInit {
       ctx.drawImage(obj.data.image, 0, 0, obj.data.width / max_dim * 100, obj.data.height / max_dim * 100);
      
     }
-
-
-
-  /**
-   *  takes the input to the notation string and creates the inlets required to handle
-   * @param input the input string
-   */
-  // makeInletsFromNotationRegex(input: string) :Array<string>{
-
-  //   const regex: RegExp = /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/ig;
-  //   const string_tok = input.match(regex);
-    
-  //   const inlets = string_tok.map(el => el.substring(1, el.length-1));
-  //   return inlets;
-
-  // }
-
-
-  // setOutputs(dms: Array<DraftMap>){
-  //    // this.outputs = dms.slice();
-
-  // }
-
 
 
   setBounds(bounds:Bounds){
@@ -283,9 +262,6 @@ export class OperationComponent implements OnInit {
     console.log("dropped");
   }
 
-  maxInputs():number{
-    return this.op.max_inputs;
-  }
 
   inputSelected(input_id: number){
     this.disableDrag();
@@ -413,7 +389,6 @@ export class OperationComponent implements OnInit {
           //now update the default parameters to the original size 
           opnode.params[1] = obj.data.width/10;
           opnode.params[2] = obj.data.height/10;
-          console.log("op node, set params", opnode.params);
           this.drawImagePreview();
 
 

@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
+import { OperationInlet, OperationService } from '../../../provider/operation.service';
 import { SystemsService } from '../../../../core/provider/systems.service';
 import { OpNode, TreeService } from '../../../provider/tree.service';
 
@@ -14,7 +15,6 @@ export class InletComponent implements OnInit {
 
   @Input() opid:  number;
   @Input() inletid:  number;
-  @Input() type:  'main' | 'number' | 'notation' | 'system' | 'color';
   @Input() dynamic: boolean;
   @Output() onInputSelected = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
@@ -24,15 +24,17 @@ export class InletComponent implements OnInit {
   textValidate: any;
   all_system_codes: Array<any>;
   opnode: OpNode;
+  inlet: OperationInlet;
 
-  constructor(public tree: TreeService, private systems: SystemsService) { 
-    this.all_system_codes = this.systems.weft_systems.map(el => el.name);
-  
+  constructor(public tree: TreeService, private systems: SystemsService, private ops: OperationService) { 
 
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void {    
     this.opnode = this.tree.getOpNode(this.opid);
+    this.all_system_codes = this.systems.weft_systems.map(el => el.name);
+    const op = this.ops.getOp(this.opnode.name);
+    this.inlet = op.inlets[this.inletid];
     this.fc = new FormControl(this.opnode.inlets[this.inletid]);
 
   }
@@ -55,7 +57,7 @@ export class InletComponent implements OnInit {
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
     this.fc.setValue(value);
     
-    switch(this.type){
+    switch(this.inlet.type){
       case 'main':
         opnode.inlets[this.inletid] = 0;
         break;
