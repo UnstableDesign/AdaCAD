@@ -1,19 +1,15 @@
-<h2 mat-dialog-title *ngIf="source !== 'import'">Open a Workspace</h2>
-<h2 mat-dialog-title *ngIf="source === 'import'">Import Into Block</h2>
+<h2 mat-dialog-title>Open a Workspace</h2>
 
 <mat-dialog-content>
 
 
   <form #initForm="ngForm">
 
-      <ng-container *ngIf="source !== 'import'">
+      <ng-container>
         <mat-form-field appearance="fill">
           <mat-label>Where would you like to begin?</mat-label>
         <mat-select [(value)]="selected" (selectionChange)="selectionMade(selected)">
           
-          <!-- <mat-option *ngIf="auth.isLoggedIn" value="recover">
-            Recover Previous Workspace
-          </mat-option> -->
           
           <mat-option *ngFor="let opt of opts" [value]="opt.value">
             {{opt.viewValue}}
@@ -22,19 +18,9 @@
         </mat-form-field>
       </ng-container>
 
-      <ng-container *ngIf="source === 'import'">
-        <mat-form-field appearance="fill">
-
-        <mat-label >What kind of file would you like to import?</mat-label>
-        <mat-select [(value)]="selected">
-         <mat-option *ngFor="let opt of import_opts" [value]="opt.value">
-         {{opt.viewValue}}
-         </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </ng-container>
 
     <ng-container *ngIf="(selected == 'new')">
+      <p>just so you know, you'll be able to change these values at any time</p>
 
       <mat-form-field appearance="fill">
           <mat-label>Which type of loom are you designing for?</mat-label>

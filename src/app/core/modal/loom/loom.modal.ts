@@ -15,21 +15,10 @@ import { GloballoomService } from '../../provider/globalloom.service';
 })
 export class LoomModal implements OnInit {
 
-  /**
-   * stores a copy of the submitted pattern, so as not to upddate the original
-   */
+
+  @Output() onChange: any = new EventEmitter();
   
 
-  //  @Output() onLoomTypeChange = new EventEmitter();
-  //  @Output() onFrameChange = new EventEmitter();
-  //  @Output() onTreadleChange = new EventEmitter();
-  //  @Output() onWarpNumChange: any = new EventEmitter();
-  //  @Output() onWeftNumChange: any = new EventEmitter();
-  //  @Output() onEpiNumChange: any = new EventEmitter();
-    @Output() onChange: any = new EventEmitter();
-  
-  //  warp_locked = false;
-  //  loom = ""; 
 
   draft: Draft;
   loom:Loom
@@ -47,7 +36,7 @@ export class LoomModal implements OnInit {
   type: string = 'local';
 
   constructor(
-             private global_loom: GloballoomService,
+             public global_loom: GloballoomService,
              private dm: DesignmodesService,
              private dialogRef: MatDialogRef<LoomModal>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -100,7 +89,9 @@ export class LoomModal implements OnInit {
     } 
 
     f.value.treadles = Math.ceil(f.value.treadles);
-    this.global_loom.min_treadles= f.value.treadles;
+   
+    if(this.type == "global") this.global_loom.min_treadles= f.value.treadles;
+    else this.loom.setMinTreadles(f.value.treadles);
 
     this.onChange.emit();
   }
@@ -115,10 +106,11 @@ export class LoomModal implements OnInit {
      
 
     f.value.frames = Math.ceil(f.value.frames);
-    console.log("min frames", f.value.frames);   
-    this.global_loom.min_frames = f.value.frames;
+    console.log("min frames", f.value.frames);  
     
-    //this.loom.setMinFrames(f.value.frames);
+    if(this.type == "global")   this.global_loom.min_frames = f.value.frames;
+    else  this.loom.setMinFrames(f.value.frames);
+    
     
     this.onChange.emit();
 
@@ -126,7 +118,9 @@ export class LoomModal implements OnInit {
 
 
   loomChange(e:any){
-    this.global_loom.type = e.value.loomtype;
+    if(this.type == 'global') this.global_loom.type = e.value.loomtype;
+    else this.loom.changeType(e.value.loomtype);
+
     this.dm.selectDesignMode(e.value.loomtype, 'loom_types');
     this.onChange.emit();
 
@@ -134,8 +128,8 @@ export class LoomModal implements OnInit {
   }
 
   unitChange(e:any){
-    this.global_loom.units = e.value.units;
-    //this.loom.overloadUnits(e.value.units);
+    if(this.type == 'global') this.global_loom.units = e.value.units;
+    else this.loom.overloadUnits(e.value.units);
     this.onChange.emit();
 
   }

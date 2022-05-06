@@ -30,7 +30,9 @@ export class DesignmodesService {
 
 
     this.loom_types = [
-      {value: 'frame', viewValue: 'Shaft',icon: "fas fa-slash", children: [], selected: false},
+      //{value: 'rigid', viewValue: 'Ridid Heddle Loom',icon: "fas fa-slash", children: [], selected: false},
+     // {value: 'direct', viewValue: 'Direct Tieup Shaft Loom',icon: "fas fa-slash", children: [], selected: false},
+      {value: 'frame', viewValue: 'Shaft/Treadle Loom',icon: "fas fa-slash", children: [], selected: false},
       {value: 'jacquard', viewValue: 'Jacquard',icon: "fas fa-slash", children: [], selected: true}
     ];
   

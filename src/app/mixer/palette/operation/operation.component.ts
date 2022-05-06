@@ -83,7 +83,7 @@ export class OperationComponent implements OnInit {
    disable_drag: boolean = false;
  
    bounds: Bounds = {
-     topleft: {x: 0, y:0},
+     topleft: {x: 60, y:60},
      width: 200,
      height: 60
    };
@@ -218,7 +218,10 @@ export class OperationComponent implements OnInit {
 
 
     const tl: Point = this.viewport.getTopLeft();
-   
+    //offset it a bit so can hover and see options
+
+
+
     if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
