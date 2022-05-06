@@ -40,20 +40,20 @@ export class Loom{
     tieup: Array<Array<boolean>> = []; 
 
     
-    constructor(d: Draft, frames: number, treadles: number) {
+    constructor(d: Draft, type: string, frames: number, treadles: number) {
       this.draft_id = d.id;
       this.width = d.warps / this.epi; 
-   
+      this.type = type;
       this.min_treadles = treadles;
       this.min_frames =frames;
       this.num_treadles = treadles;
       this.num_frames =frames;
       
-      this.resetThreading(d.warps);
-      this.resetTreadling(d.wefts);
+      this.resetThreading(d.warps, this.type);
+      this.resetTreadling(d.wefts, this.type);
         
-      this.resetTieup(this.num_frames, this.num_treadles);
-      this.resetFrameMapping(this.min_frames);
+      this.resetTieup(this.num_frames, this.num_treadles, this.type);
+      this.resetFrameMapping(this.min_frames, this.type);
       this.recomputeWidth();
     }
     
@@ -84,6 +84,11 @@ export class Loom{
 
     overloadType(type:string){
       this.type = type;
+    }
+
+    changeType(type:string){
+      this.type = type;
+      //Write some code here to compute changes
     }
 
 
@@ -124,10 +129,10 @@ export class Loom{
         this.num_treadles = treadles;
 
 
-        this.resetFrameMapping(frames);
-        this.resetThreading(warps);
-        this.resetTreadling(wefts);
-        this.resetTieup(frames, treadles);
+        this.resetFrameMapping(frames, type);
+        this.resetThreading(warps, type);
+        this.resetTreadling(wefts, type);
+        this.resetTieup(frames, treadles, type);
       
     }
 
@@ -207,7 +212,7 @@ export class Loom{
       if(frames >= this.num_frames){
         this.min_frames = frames;
         this.num_frames = frames;
-        this.resetFrameMapping(frames);
+        this.resetFrameMapping(frames, this.type);
       }else{
         this.min_frames = frames;
       }
@@ -269,7 +274,7 @@ export class Loom{
     }
 
     //always sets in reverse order (for now)
-    resetFrameMapping(frames: number){
+    resetFrameMapping(frames: number, type: string){
        this.frame_mapping = [];
         for(var i = 0; i < frames; i++){
           this.frame_mapping.push((frames-1)-i);
@@ -285,10 +290,10 @@ export class Loom{
     clearAllData(warps:number, wefts:number){
       this.num_frames = this.min_frames;
       this.num_treadles = this.min_treadles;
-      this.resetFrameMapping(this.min_frames);
-      this.resetThreading(warps);
-      this.resetTreadling(wefts);
-      this.resetTieup(this.min_frames, this.min_treadles);
+      this.resetFrameMapping(this.min_frames, this.type);
+      this.resetThreading(warps, this.type);
+      this.resetTreadling(wefts, this.type);
+      this.resetTieup(this.min_frames, this.min_treadles, this.type);
     }
 
     recomputeWidth(){
@@ -297,14 +302,23 @@ export class Loom{
 
 
 
-    resetThreading(warps:number){
+    resetThreading(warps:number, type: string){
       this.threading = [];
-        for (var i = 0; i < warps; i++) {
+      
+
+        if(type=='rigid'){
+          for (var i = 0; i < warps; i++) {
+            if(i%0 == 0) this.threading.push(0);
+            else this.threading.push(1);
+          }
+        }else{
+          for (var i = 0; i < warps; i++) {
             this.threading.push(-1);
+          }
         }
     }
 
-    resetTieup(frames:number, treadles:number){
+    resetTieup(frames:number, treadles:number, type:string){
 
       this.tieup = [];
         for (var i = 0; i < frames; i++) {
@@ -315,7 +329,7 @@ export class Loom{
         }
     }
 
-    resetTreadling(wefts:number){
+    resetTreadling(wefts:number, type: string){
 
         this.treadling = [];
         for (var i = 0; i < wefts; i++) {
@@ -465,7 +479,7 @@ getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
         this.threading[config.ndx.j] = config.frame;
         updates.threading.push({i: config.frame, j: config.ndx.j, val: true})
         this.updateNumFramesFromThreading();
-        this.resetFrameMapping(this.num_frames);
+        this.resetFrameMapping(this.num_frames, this.type);
       }
 
 
@@ -886,7 +900,7 @@ getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
                   //delete a frame
                   //this.num_frames--;
                   this.updateNumFramesFromThreading();
-                  this.resetFrameMapping(this.num_frames);
+                  this.resetFrameMapping(this.num_frames, this.type);
                   this.tieup.splice(i, 1);
                 }else{
                   this.clearTieupRow(i);
@@ -917,7 +931,7 @@ getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
               if(type === "threading"){
                 //this.num_frames--;
                 this.updateNumFramesFromThreading();
-                this.resetFrameMapping(this.num_frames);
+                this.resetFrameMapping(this.num_frames, this.type);
                 this.tieup.splice(i, 1);
 
               } else{

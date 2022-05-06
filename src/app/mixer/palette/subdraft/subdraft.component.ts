@@ -65,7 +65,7 @@ export class SubdraftComponent implements OnInit {
   }
 
   private _bounds:Bounds = {
-    topleft: {x: 0, y: 0},
+    topleft: {x: 60, y: 60},
     width: 0, 
     height: 0
   };

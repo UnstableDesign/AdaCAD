@@ -27,12 +27,12 @@ export class InitModal implements OnInit {
 
 
   opts: StartOptions[] = [
-      {value: 'example', viewValue: 'Load an Example', mixeronly: true},
-      {value: 'ada', viewValue: 'AdaCAD (.ada) File', mixeronly: true},
+      {value: 'example', viewValue: 'Browse Examples', mixeronly: true},
+      {value: 'blank', viewValue: 'Open an Empty Workspace', mixeronly: false},
+      {value: 'ada', viewValue: 'Open an AdaCAD (.ada) File from you Computer', mixeronly: true},
      // {value: 'bmp', viewValue: 'Two Color Image (.bmp, .jpg, .png) File', mixeronly: false},
       // {value: 'wif', viewValue: 'WIF (.wif) File', mixeronly: false},   
-      {value: 'new', viewValue: 'Empty Draft', mixeronly: false}
-
+      {value: 'new', viewValue: 'Create a Blank Draft', mixeronly: false}
     ];
 
   import_opts: StartOptions[] = [];
@@ -94,7 +94,7 @@ export class InitModal implements OnInit {
   }
 
   selectionMade(selection: any){
-
+    if(selection === 'blank') this.dialogRef.close();
   }
 
   loadExample(filename: string){

@@ -284,17 +284,13 @@ openGlobalLoomModal(){
 
   this.global_loom_modal =   this.dialog.open(LoomModal,
     {disableClose: true,
-      maxWidth:350, 
+      maxWidth:600, 
       hasBackdrop: false,
       data: {loom: this.loom, draft:this.draft, type: "global"}});
-
-
-      this.global_loom_modal.componentInstance.onChange.subscribe(event => { this.onGlobalLoomChange.emit();});
 
   
       this.global_loom_modal.afterClosed().subscribe(result => {
         this.onGlobalLoomChange.emit();
-       // dialogRef.componentInstance.onChange.removeSubscription();
     });
 }
 

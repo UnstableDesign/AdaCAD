@@ -18,7 +18,7 @@ import { SystemsService } from '../provider/systems.service';
 import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { System } from '../model/system';
-import { GloballoomService } from '../provider/globalloom.service';
+//import { GloballoomService } from '../provider/globalloom.service';
 import { G } from '@angular/cdk/keycodes';
 import { StateService } from '../provider/state.service';
 
@@ -240,7 +240,7 @@ export class DraftviewerComponent implements OnInit {
     private ps: PatternService,
     private ms: MaterialsService,
     private ss: SystemsService,
-    public gl: GloballoomService,
+   // public gl: GloballoomService,
     public timeline: StateService
     ) { 
 
@@ -1310,13 +1310,8 @@ export class DraftviewerComponent implements OnInit {
 
       this.redraw({drawdown:true, loom:true});
 
-      //temporarily disabled, as it causes errors, for now, just redraw the whole state
-      // for(var u in updates){
-      //   this.drawCell(this.cxThreading,updates[u].i, updates[u].j, "threading");
-      // }
-          
-     // if(unused) this.redrawLoom();
-
+     
+        
     }
   }
 
@@ -1502,6 +1497,12 @@ export class DraftviewerComponent implements OnInit {
      cx.fillStyle = color;
      cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 
+    if(type =='threading'){
+      cx.font = "12px Arial";
+      cx.fillStyle = "white";
+      cx.fillText(this.loom.threading[j]+1, 4+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
+      
+    }
 
   }
 
@@ -2046,6 +2047,7 @@ public drawWeftEnd(top, left, shuttle){
 
     for(var u in updates.threading){    
        this.drawCell( this.cxThreading, updates.threading[u].i, updates.threading[u].j, "threading");
+       
     }
 
    
@@ -2095,7 +2097,6 @@ public drawWeftEnd(top, left, shuttle){
     //else this.drawBlank(this.cxTieups,this.tieupsCanvas);
     
 
-    console.log("this.loom.threading", this.loom.threading);
     for (var j = 0; j < this.loom.threading.length; j++) {
       this.drawCell(this.cxThreading, this.loom.threading[j], j, "threading");
     }
@@ -2505,7 +2506,7 @@ public redraw(flags:any){
 
 
     //flip the index based on the flipped view
-    i = (this.weave.warps + 1) - i;
+    i = (this.weave.warps ) - i;
     
 
     this.weave.insertCol(i, shuttle,system);

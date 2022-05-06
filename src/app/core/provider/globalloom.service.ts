@@ -13,10 +13,13 @@ export class GloballoomService {
 
   min_frames: number = 8; 
   min_treadles: number = 10;
-  type: string = 'jacquard';
+  type: string = 'jacquard'; //'rigid', 'direct', 'frame', 'jacquard'
   show_errors: boolean = true;
   epi: number = 10;
   units: string = 'in';
+  show_materials: boolean = true;
+  black_cell_up: boolean = true;
+  number_threading: boolean = false;
 
 
 
