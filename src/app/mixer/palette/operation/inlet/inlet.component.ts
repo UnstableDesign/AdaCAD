@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
-import { OperationInlet, OperationService } from '../../../provider/operation.service';
+import { OperationInlet, OperationService, DynamicOperation } from '../../../provider/operation.service';
 import { SystemsService } from '../../../../core/provider/systems.service';
 import { OpNode, TreeService } from '../../../provider/tree.service';
 
@@ -33,9 +33,27 @@ export class InletComponent implements OnInit {
   ngOnInit(): void {    
     this.opnode = this.tree.getOpNode(this.opid);
     this.all_system_codes = this.systems.weft_systems.map(el => el.name);
-    const op = this.ops.getOp(this.opnode.name);
-    this.inlet = op.inlets[this.inletid];
+    const op = this.ops.getOp(this.opnode.name);  
+    
+    console.log("dynamic", this.dynamic, this.inletid, this.opnode.inlets.length)
+    if(this.inletid >= op.inlets.length && this.dynamic){
+      const type = (<DynamicOperation> op).dynamic_param_type;
+      this.inlet = <OperationInlet>{
+        type: type,
+        name: '',
+        value: this.opnode.inlets[this.inletid],
+        num_drafts: 1,
+        dx: ''
+      }
+    }else{
+      this.inlet = op.inlets[this.inletid];
+    }
+    
+
+
     this.fc = new FormControl(this.opnode.inlets[this.inletid]);
+
+    console.log("TEST:", this.opnode, this.inlet)
 
   }
 

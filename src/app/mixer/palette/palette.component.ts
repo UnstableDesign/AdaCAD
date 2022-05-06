@@ -1464,16 +1464,6 @@ connectionDragged(mouse: Point, shift: boolean){
 } 
 
 
-
-
- //called on load, asks each object from top down to perform itself to update the downstream elements 
-// async performTopLevelOps() : Promise<any> {
-
-//    const fns = this.tree.getTopLevelOps()
-//      .map(el => this.performAndUpdateDownstream(el));
-//    return Promise.all(fns);
-// }
-
 /**
  * calculates the default topleft position for this node based on the width and size of its parent and/or neighbors
  * @param id the id of the component to position
