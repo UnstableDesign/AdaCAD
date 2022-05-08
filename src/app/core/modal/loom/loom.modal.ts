@@ -50,14 +50,20 @@ export class LoomModal implements OnInit {
       this.loom  = loom;
       this.warps = data.draft.warps;
       this.wefts = data.draft.wefts;
+      this.epi = data.loom.epi;
+      this.units = data.loom.units;
+      this.frames = data.loom.min_frames;
+      this.treadles = data.loom.min_treadles;
+      this.loomtype = data.loom.type;
+     }else{
+      this.epi = global_loom.epi;
+      this.units = global_loom.units;
+      this.frames = global_loom.min_frames;
+      this.treadles = global_loom.min_treadles;
+      this.loomtype = global_loom.type;
      }
     
-     this.epi = global_loom.epi;
     
-     this.units = global_loom.units;
-     this.frames = global_loom.min_frames;
-     this.treadles = global_loom.min_treadles;
-     this.loomtype = global_loom.type;
 
      this.width = (this.units =='cm') ? this.warps / this.epi * 10 : this.warps / this.epi;
 
