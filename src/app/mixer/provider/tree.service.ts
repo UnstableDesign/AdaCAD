@@ -372,7 +372,6 @@ export class TreeService {
   loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
-    console.log("loading draft to ", nodes);
 
     if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
 
@@ -383,11 +382,13 @@ export class TreeService {
 
 
    if(loom === null){
-   (<DraftNode> nodes[0]).loom = new Loom(draft, this.globalloom.min_frames, this.globalloom.min_treadles);
+   (<DraftNode> nodes[0]).loom = new Loom(draft, this.globalloom.type, this.globalloom.min_frames, this.globalloom.min_treadles);
+
    (<DraftNode> nodes[0]).loom.recomputeLoom(draft);
    }else{
     (<DraftNode> nodes[0]).loom = loom;
    }
+
 
 
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
@@ -1168,7 +1169,7 @@ removeOperationNode(id:number) : Array<Node>{
     for(let i = res.length; i < out.length; i++){
       const dn = <DraftNode> this.getNode(out[i]);
       dn.draft = new Draft({wefts:1, warps:1, pattern:[[new Cell(false)]]});
-      dn.loom = new Loom(dn.draft, this.globalloom.min_frames, this.globalloom.min_treadles);
+      dn.loom = new Loom(dn.draft, this.globalloom.type, this.globalloom.min_frames, this.globalloom.min_treadles);
       dn.dirty = true;
       touched.push(out[i]);
     }
@@ -1902,8 +1903,8 @@ flipDraft(draft: Draft) : Promise<Draft>{
     if(ud_name !== '') dn.draft.overloadName(ud_name);
 
     if(loom === null){
-      dn.loom = new Loom(temp, this.globalloom.min_frames, this.globalloom.min_treadles);
-      //dn.loom.recomputeLoom(temp); //this is too expansive to do synchronously
+      dn.loom = new Loom(temp,this.globalloom.type, this.globalloom.min_frames, this.globalloom.min_treadles);
+      //dn.loom.recomputeLoom(temp); //this is too expensive to do synchronously
     } 
     else dn.loom = loom;
     dn.loom.draft_id = id;

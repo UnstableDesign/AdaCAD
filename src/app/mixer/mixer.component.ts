@@ -350,7 +350,7 @@ export class MixerComponent implements OnInit {
       .map(sn =>  {
 
         let d = new Draft({wefts: 1, warps: 1, pattern: [[new Cell(false)]]});
-        let l = new Loom(d, this.gl.min_frames, this.gl.min_treadles);
+        let l = new Loom(d, this.gl.type, this.gl.min_frames, this.gl.min_treadles);
 
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
@@ -840,11 +840,13 @@ export class MixerComponent implements OnInit {
 
 
  
-  
+  /**
+   * global loom ahs just changed to be deafults, so we don't need to update specific looms based on the outcomes
+   * @param e 
+   */
   public globalLoomChange(e: any){
-    console.log("global loom change");
-    this.tree.updateLooms();
-    
+    //this.tree.updateLooms();
+    //we may need to redraw 
   }
 
 

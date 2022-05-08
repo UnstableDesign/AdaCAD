@@ -195,9 +195,9 @@ export class FileService {
 
         const frames: number = (data.min_frames === undefined) ? 8 : data.min_frames;
         const treadles: number = (data.min_treadles === undefined) ? 8 : data.min_treadles;
+        const type: string = (data.type === undefined) ? 'jacquard' : data.type;
 
-        const loom = new Loom(draft, frames, treadles);
-        if(data.type !== undefined) loom.overloadType(data.type); 
+        const loom = new Loom(draft, type, frames, treadles);
         if(data.threading !== undefined) loom.overloadThreading(data.threading);
         if(data.treadling !== undefined) loom.overloadTreadling(data.treadling);
         if(data.tieup !== undefined) loom.overloadTieup(data.tieup);
@@ -274,8 +274,7 @@ export class FileService {
     let frames = utilInstance.getInt("Shafts", data);
     let treadles = utilInstance.getInt("Treadles", data);
     
-    const loom:Loom = new Loom(draft, frames, treadles);
-    loom.overloadType('frame');
+    const loom:Loom = new Loom(draft, 'frame', frames, treadles);
     looms.push(loom);
 
     // draft.loom.tieup = []
@@ -388,8 +387,7 @@ export class FileService {
           else draft.pattern[r][c].unsetHeddle();
         });
         drafts.push(draft);
-        const loom:Loom = new Loom(draft, 8, 10);
-        loom.overloadType('jacquard');
+        const loom:Loom = new Loom(draft, 'jacquard', 8, 10);
         looms.push(loom);
       })
 
@@ -464,8 +462,7 @@ export class FileService {
       drafts= [ draft];
       
       //create a blank loom to accompany this
-      const loom:Loom = new Loom(draft, 8, 10);
-      loom.overloadType('jacquard');
+      const loom:Loom = new Loom(draft, 'jacquard', 8, 10);
       looms.push(loom);
 
       const proxies = this.tree.getNewDraftProxies(draft, []);
@@ -500,28 +497,15 @@ export class FileService {
       const draft: Draft = new Draft({warps: warps, wefts: wefts});
       drafts.push(draft);
 
-      const randomColor = Math.floor(Math.random()*16777215).toString(16);
-      let s0 = new Shuttle({id: 0, name: 'Color 1', type: 0,  thickness:50, color: '#333333', visible: true, insert:false, notes: ""});
-      let s1 = new Shuttle({id: 1, name: 'Color 2', type: 0, thickness:50, color: '#'+randomColor, visible:true, insert:false, notes: ""});
-      let s2 = new Shuttle({id: 2, name: 'Conductive', type: 1, thickness:50, color: '#61c97d', visible:true, insert:false, notes: ""});
-      
-      this.ms.addShuttle(s0);
-      this.ms.addShuttle(s1);
-      this.ms.addShuttle(s2);
-
-
-      this.ms.overloadShuttles([s0, s1, s2]);
+      console.log("form data", f.value)
 
       var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
       var treadle_num = (f.value.treadle_num === undefined) ? 10 : f.value.treadle_num;
-      
+      var loomtype = (f.value.loomtype === undefined) ? 'frame' : f.value.loomtype;
 
-      const loom: Loom = new Loom(draft, frame_num, treadle_num);
+
+      const loom: Loom = new Loom(draft, loomtype, frame_num, treadle_num);
       looms.push(loom);
-
-      var loomtype = "jacquard";
-      if(f.value.loomtype !== undefined || f.value.loomtype) loom.overloadType(f.value.loomtype);
-  
   
      // var loomtype = (f.value.loomtype === undefined || !f.value.loomtype) ? "frame" : f.value.loomtype;
       var frame_num = (f.value.frame_num === undefined) ? 2 : f.value.frame_num;

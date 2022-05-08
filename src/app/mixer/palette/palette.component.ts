@@ -784,7 +784,7 @@ export class PaletteComponent implements OnInit{
    */
   addSubdraftFromDraft(d: Draft){
     this.createSubDraft(d, -1).then(sd => {
-      sd.setPosition({x: this.viewport.getTopLeft().x, y: this.viewport.getTopLeft().y});
+      sd.setPosition({x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + 60});
       // const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
       // this.viewport.addObj(sd.id, interlacement);
       this.addTimelineState();

@@ -1,46 +1,61 @@
 # AdaCAD
-AdaCAD is a drafting tool for weavers. It has particular supports for Jacquard weaving as well as frame loom weaving and focuses on the development and testing of structures. It follows from the principles of generative design by allowing a designer to create a series of parameterized operations that a user connections to generate new drafts. It also offers specific support and examples for those integrating electonics into woven structures. 
+AdaCAD is a drafting tool for weavers focuses on the development and testing of structures. It supports Jacquard weaving, as well as frame loom weaving. The interface follows principles of generative design by allowing a designer to create a series of parameterized operations, which they then connect or "mix" to generate new drafts. It also offers specific support for integrating electonics into woven structures, and examples of such. 
 
-You can use the last release of the tool at [https://adacad-weaver.firebaseapp.com/](https://adacad-weaver.firebaseapp.com/).
-More more information about the project and user guides, visit [https://adacad.unstable.design/](https://adacad.unstable.design/)
+You can use the last release of the tool at [https://adacad.org/](https://https://adacad.org/).
+For more information about the project and user guides, visit [https://adacad.unstable.design/](https://adacad.unstable.design/)
 
+AdaCAD does not require any installing or downloading anything on your device, just [open the app in your browser](https://adacad.org/) (same link as above). 
+
+We invite anyone interested to hack on AdaCAD, should you wish to dive into the code. If that describes you, read on!
 
 ## Development Notes
 There are three core modules in this repo: 
 - Core: contains components, services, directives, etc. that are used by both weaver (individual draft view) and mixer (generative workspace) modules. Changes to core will affect both deployments and should be checked before pushing.
 
-- Weaver: contains all components, services, directives, etc. that are used by AdaCAD Weaver. This view supports designing on a simulated loom and viewing yarn paths
+- Weaver: contains all components, services, directives, etc. that are used by AdaCAD Weaver. This view supports designing on a simulated loom and viewing yarn paths.
 
 - Mixer: contains all components, services, directives, etc. that are used by AdaCAD Mixer. This view supports more freeform experimentation on stitch structures.
-
-
 
 ## Developer Documentation 
 You can use view automatically generated documentation of our project at [http://adacad.unstable.design/AdaCAD/](http://adacad.unstable.design/AdaCAD/).
 
-
 ## Development Setup
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
+AdaCAD is built with Angular, a web development framework for progressive web apps. This project was generated with Angular CLI version 7.3.8.
 
-To download the requirements run `npm install`.
+### Prerequisites
+- [Node.JS](https://nodejs.dev/learn/how-to-install-nodejs) and [Node Package Manager (npm)](https://nodejs.dev/learn/an-introduction-to-the-npm-package-manager)
+- Intermediate JavasScript/TypeScript – if you know JavaScript but not TypeScript, it should be fairly easy to pick up [TypeScript basics](https://www.typescriptlang.org/docs/handbook/2/basic-types.html).
+- Basic HTML/CSS – enough to understand how these file types are structured and interact with scripts
 
-### Development server
+### Installation for developers
+1. Clone this repository onto your local hard drive.
+2. Open your terminal on the local root directory and run `npm install` to download the requirements. This can take a while.
+3. Once installed, run `ng serve` in the terminal and wait for Angular to compile the app. It should tell you once it's ready. 
+4. Navigate to `http://localhost:4200/` and you should see AdaCAD!
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+### Code organization
+The information here references Angular documentation, such as this page on [Angular concepts and architectural patterns](https://angular.io/guide/architecture).
+* An Angular app like AdaCAD is organized into **modules** (bundles of functionality), each of which has their directory in `src/app/<module-name>`. The modules are currently `core`, `mixer`, and `weaver` as described previously.
+* Each module provides a "view" into the user's design process. The building blocks of these views are Angular **components** that display some of the data that the user manipulates when designing. Each component has its own subfolder within the module.
+* Components don't handle the actual data manipulation, such as editing drafts or logging the user's history of design operations. For that, we have Angular **services**, which components use as dependencies. Each module has a `provider` subdirectory (e.g. `src/app/core/provider`) that holds the relevant services.
+* Many of the files in the repository are automatically generated by the Angular CLI to make each component or service function properly. See the Code scaffolding section for some useful commands when making a new entity.
+ 
+## Angular CLI Tips
 
 ### Code scaffolding
+The Angular CLI provides built-in commands to generate the utility files for components, services, and other such things categorized as "**schematics**". These files will be generated in the current directory of the terminal, so navigate to the appropriate subdirectory first.
+* New component: 
+  1. Make a subfolder in the appropriate module named `<component-name>`
+  2. In this subfolder, run `ng generate component <component-name>`
+* New service:
+  1. In the appropriate module's `provider` subfolder, run `ng generate service <service-name>`
+* For other options, refer to the [Angular CLI documentation](https://angular.io/cli/generate).
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|module`.
+### Development server
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you save changes in any of the source files.
 
 ### Build
-
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
 
-### Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
-
 ### Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+To get more help on the Angular CLI, use `ng help` or go to the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
