@@ -56,8 +56,8 @@ export class ConnectionComponent implements OnInit {
   ngAfterViewInit(){
 
 
-    this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
-    this.cx = this.canvas.getContext("2d");
+    // this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
+    // this.cx = this.canvas.getContext("2d");
 
 
     const to_comp = this.tree.getComponent(this.to);
@@ -160,24 +160,24 @@ export class ConnectionComponent implements OnInit {
   drawConnection(){
 
     //make the canvas big enough to encase the point, starting from the topleft of the view
-    this.canvas.width = this.bounds.width;
-    this.canvas.height = this.bounds.height;
+    // this.canvas.width = this.bounds.width;
+    // this.canvas.height = this.bounds.height;
 
 
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.cx.beginPath();
-    this.cx.strokeStyle = "#ff4081";
-    this.cx.setLineDash([this.scale, 2]);
-    this.cx.lineWidth = 2;
-    // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
-    if(this.orientation){
-      this.cx.moveTo(0, 0);
-      this.cx.lineTo(this.bounds.width, this.bounds.height);
-    }else{
-      this.cx.moveTo(0, this.bounds.height);
-      this.cx.lineTo(this.bounds.width, 0);
-    }
-    this.cx.stroke();
+    // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // this.cx.beginPath();
+    // this.cx.strokeStyle = "#ff4081";
+    // this.cx.setLineDash([this.scale, 2]);
+    // this.cx.lineWidth = 2;
+    // // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
+    // if(this.orientation){
+    //   this.cx.moveTo(0, 0);
+    //   this.cx.lineTo(this.bounds.width, this.bounds.height);
+    // }else{
+    //   this.cx.moveTo(0, this.bounds.height);
+    //   this.cx.lineTo(this.bounds.width, 0);
+    // }
+    // this.cx.stroke();
 
   
 
