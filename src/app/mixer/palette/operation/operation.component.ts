@@ -40,6 +40,7 @@ export class OperationComponent implements OnInit {
    @Output() onConnectionRemoved = new EventEmitter <any>();
    @Output() onConnectionMove = new EventEmitter <any>();
    @Output() onOperationMove = new EventEmitter <any>(); 
+   @Output() onOperationMoveEnded = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
    @Output() deleteOp = new EventEmitter <any>(); 
    @Output() duplicateOp = new EventEmitter <any>(); 
@@ -300,7 +301,6 @@ export class OperationComponent implements OnInit {
       const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
       let value = opnode.params[obj.id];
 
-      value = value+1;
       //check to see if we should add or remove draft inputs
       if(obj.id === (<DynamicOperation>this.op).dynamic_param_id){
         const type = (<DynamicOperation>this.op).dynamic_param_type;
@@ -436,7 +436,8 @@ export class OperationComponent implements OnInit {
 
 
   dragEnd($event: any) {
-   
+    this.onOperationMoveEnded.emit();
+
   }
  
 

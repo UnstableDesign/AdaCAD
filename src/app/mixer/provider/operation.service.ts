@@ -24,11 +24,22 @@ import { DeclareFunctionStmt } from '@angular/compiler';
  */
  export type OperationInlet = {
   name: string,
-  type: 'main' | 'number' | 'notation' | 'system' | 'color' | 'static',
-  value: any,
+  type: 'number' | 'notation' | 'system' | 'color' | 'static',
   dx: string,
+  value: number | string,
   num_drafts: number
 }
+
+
+/**
+ * numbers must have a min and max value
+ */
+ export type NumInlet = OperationInlet & {
+  value: number,
+  min: number,
+  max: number
+}
+
 
 
 
@@ -3125,7 +3136,7 @@ export class OperationService {
         else  total_warps = utilInstance.getMaxWarps(all_drafts);
 
 
-        const layer_draft_map: Array<any> = child_inputs.map((el, ndx) => { return {layer: el.inlet-1, system: el.params[0], drafts: el.drafts}}); 
+        const layer_draft_map: Array<any> = child_inputs.map((el, ndx) => { return {layer: el.inlet, system: el.params[0], drafts: el.drafts}}); 
 
         const max_system = layer_draft_map.reduce((acc, el) => {
           if(el.system > acc) return el.system;

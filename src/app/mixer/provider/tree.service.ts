@@ -508,16 +508,15 @@ export class TreeService {
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
 
    //filter out inputs that are matched to an index highter than what we offer
-    const missing_inlets: Array<TreeNode> = inputs_to_op
+    const missing_inlets: Array<IOTuple> = inputs_to_op
       .filter((el) => el.ndx > opnode.inlets.length)
-      .map(el => el.tn);
 
 
-    const viewRefs = missing_inlets.map(el => el.node.ref);
+    const viewRefs = missing_inlets.map(el => el.tn.node.ref);
 
     
     missing_inlets.forEach(el => {
-        this.removeConnectionNode(el.inputs[0].tn.node.id, el.outputs[0].tn.node.id);
+        this.removeConnectionNode(el.tn.inputs[0].tn.node.id, el.tn.outputs[0].tn.node.id, el.ndx);
     });
 
     return Promise.resolve(viewRefs);
@@ -1070,10 +1069,10 @@ removeOperationNode(id:number) : Array<Node>{
  * @param id - the connection to remove
  * @returns a list of all nodes removed as a result of this action
  */
- removeConnectionNode(from:number, to:number) : Array<Node>{
+ removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
 
 
-  const cxn_id:number = this.getConnection(from, to);
+  const cxn_id:number = this.getConnectionAtInlet(from, to, inletid);
 
 
   const deleted:Array<Node> = []; 
@@ -1541,11 +1540,25 @@ flipDraft(draft: Draft) : Promise<Draft>{
 
   }
 
+   /**
+   * given a from, to, and inlet index, return the connection id 
+   * @param from
+   * @returns the node id of the connection, or -1 if that connection is not found
+   */
+  getConnectionAtInlet(from: number, to:number, ndx: number) : number{
+
+    const inputs:Array<IOTuple> = this.getInputsWithNdx(to);
+    const connection: IOTuple = inputs.find(el => el.ndx == ndx);
+    if(connection === undefined) return -1;
+
+    return connection.tn.node.id;
+   
+   }
+
   /**
    * given two nodes, returns the id of the connection node connecting them
    * @param a one node
    * @param b the otehr node node
-   * @param ndx the param to which this attaches on the input side.
    * @returns the node id of the connection, or -1 if that connection is not found
    */
   getConnection(a: number, b:number) : number{

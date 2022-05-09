@@ -364,7 +364,10 @@ export class PaletteComponent implements OnInit{
       
       const opcomp:OperationComponent = this.createOperation(name);
       console.log("Performing op", opcomp.id);
-      this.performAndUpdateDownstream(opcomp.id);
+      this.performAndUpdateDownstream(opcomp.id).then(el => {
+        this.addTimelineState();
+      });
+
       
   }
 
@@ -625,6 +628,7 @@ export class PaletteComponent implements OnInit{
    */
   setOperationSubscriptions(op: OperationComponent){
     this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
+    this.operationSubscriptions.push(op.onOperationMoveEnded.subscribe(this.operationMoveEnded.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
@@ -1599,9 +1603,9 @@ connectionMade(obj: any){
 /**
  * Called when a connection is explicitly deleted
 */
- removeConnection(obj: {from: number, to: number}){
+ removeConnection(obj: {from: number, to: number, inletid: number}){
 
-  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to);  
+  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to, obj.inletid);  
   to_delete.forEach(node => this.removeFromViewContainer(node.ref));
 
  
@@ -2265,6 +2269,9 @@ drawStarted(){
         });
         this.performAndUpdateDownstream(obj.id)
       } )
+      .then(el => {
+        this.addTimelineState();
+      })
       .catch(console.error);
    
     
@@ -2284,9 +2291,21 @@ drawStarted(){
     if(moving === null) return; 
     this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
     this.updateAttachedComponents(obj.id, true);
-    //this.addTimelineState();
 
   }
+
+  /**
+ * called from an operation component when it is done moving 
+ * this allows us to not write postioin continuously, but just once on end
+ * @param obj (id, point of toplleft)
+ */
+   operationMoveEnded(obj: any){
+    if(obj === null) return;
+
+    this.addTimelineState();
+
+  }
+
 
 
 

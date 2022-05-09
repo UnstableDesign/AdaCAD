@@ -94,6 +94,7 @@ export class MixerComponent implements OnInit {
     ) {
 
 
+
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll

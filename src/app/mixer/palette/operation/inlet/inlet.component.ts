@@ -25,6 +25,7 @@ export class InletComponent implements OnInit {
   all_system_codes: Array<any>;
   opnode: OpNode;
   inlet: OperationInlet;
+  selectedValue: number; 
 
   constructor(public tree: TreeService, private systems: SystemsService, private ops: OperationService) { 
 
@@ -35,13 +36,13 @@ export class InletComponent implements OnInit {
     this.all_system_codes = this.systems.weft_systems.map(el => el.name);
     const op = this.ops.getOp(this.opnode.name);  
     
-    console.log("dynamic", this.dynamic, this.inletid, this.opnode.inlets.length)
+    // initalize any dyanmic inlets
     if(this.inletid >= op.inlets.length && this.dynamic){
       const type = (<DynamicOperation> op).dynamic_param_type;
       this.inlet = <OperationInlet>{
         type: type,
         name: '',
-        value: this.opnode.inlets[this.inletid],
+        value: this.parseDefaultInletValue(type, this.opnode.inlets[this.inletid]),
         num_drafts: 1,
         dx: ''
       }
@@ -51,18 +52,30 @@ export class InletComponent implements OnInit {
     
 
 
-    this.fc = new FormControl(this.opnode.inlets[this.inletid]);
+    this.fc = new FormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));
 
-    console.log("TEST:", this.opnode, this.inlet)
+  }
 
+  parseDefaultInletValue(type: string, value: any) : any {
+    switch (type){
+      case 'number':
+      case 'system':
+        return parseInt(value);
+        break;
+      case 'notation':
+      case 'string':
+      case 'color':
+        return value.slice();
+      
+    }
   }
 
   inputSelected(){
     this.onInputSelected.emit(this.inletid);
   }
 
-  removeConnectionTo(sd_id: number, ndx: number){
-    this.onConnectionRemoved.emit({from: sd_id, to: this.opid});
+  removeConnectionTo(sd_id: number){
+    this.onConnectionRemoved.emit({from: sd_id, to: this.opid, inletid: this.inletid});
   }
 
   getInputName(id: number) : string {
@@ -74,18 +87,14 @@ export class InletComponent implements OnInit {
   inletChange(value: any){
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
     this.fc.setValue(value);
+    console.log("Inlet change Before", this.inletid, value, this.inlet, opnode.inlets)
     
     switch(this.inlet.type){
-      case 'main':
-        opnode.inlets[this.inletid] = 0;
-        break;
       case 'number':
         opnode.inlets[this.inletid] = value;
         break;
       case 'system':
-        console.log("value", value)
-        opnode.inlets[this.inletid] = value;
-        console.log("inlets", opnode.inlets);
+        //opnode.inlets[this.inletid] = value;
         break;
       case 'color':
         opnode.inlets[this.inletid] = value;
@@ -97,7 +106,8 @@ export class InletComponent implements OnInit {
     }
 
     this.onInletChange.emit({id: this.inletid});
-   
+    console.log("Inlet change After", this.inletid, value, this.inlet, opnode.inlets)
+
   }
 
 
