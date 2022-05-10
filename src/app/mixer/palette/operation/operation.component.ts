@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Bounds, Interlacement, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { OperationService, Operation, DynamicOperation } from '../../provider/operation.service';
+import { OperationService, Operation, DynamicOperation, StringParam } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl} from '@angular/forms';
@@ -307,8 +307,28 @@ export class OperationComponent implements OnInit {
         switch(type){
 
           case 'notation':
+            console.log("obj", obj)
+            const matches = utilInstance.parseRegex(obj.value, (<StringParam>this.op.params[0]).regex);
+            console.log('matches', matches);
+
+            console.log('opnode', opnode.inlets);
+            const static_ndxs:number = this.op.inlets.filter(el => el.type == 'static').length;
+            const updates = utilInstance.getInletsToUpdate(matches, opnode.inlets.filter((el, ndx) => ndx >= static_ndxs));
+            console.log("updates", updates);
             
-            break;
+            updates.toadd.forEach(inlet => {
+              opnode.inlets.push(inlet);
+            })
+
+            updates.toremove.forEach(inlet => {
+              const ndx = opnode.inlets.findIndex(el => el === inlet);
+              opnode.inlets.splice(ndx, 1);
+            });
+
+            //remove any no longer used inlets
+
+
+          break;
 
           case 'number':
           case 'system':

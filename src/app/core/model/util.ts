@@ -3,6 +3,8 @@
  * @class
  */
 
+import { digest } from "@angular/compiler/src/i18n/digest";
+import { accessSync } from "fs";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
 import { Cell } from "./cell";
@@ -825,7 +827,11 @@ lcm(set: Array<number>) : number{
 
 }
 
-
+/**
+ * take any input array and return an array of only the unique elements
+ * @param arr 
+ * @returns 
+ */
 filterToUniqueValues(arr: Array<any>) : Array<any>{
 
   const unique: Array<any> = [];
@@ -833,19 +839,46 @@ filterToUniqueValues(arr: Array<any>) : Array<any>{
     const ndx = unique.findIndex(uel => uel === el);
     if(ndx === -1) unique.push(el);
   });
-
   return unique;
+}
+
+/**
+ * takes an input string and a regex and returns each match as an array
+ * @param input 
+ */
+parseRegex(input:string, regex: RegExp) : Array<any> {
+  const matches = input.match(regex);
+  return matches.map(el => el.slice(1, -1));
 
 }
 
+/**
+ * compares two lists of values and returns a list of the elements from newInlets that need to be added to the current list, 
+ * as well as the elements in currentInlets that no longer need to exist. 
+ * @param newInlets 
+ * @returns the list of elements that needed to be added to or removed from current Inlets to make it match the list in newInlets
+ */
+getInletsToUpdate(newInlets: Array<any>, currentInlets: Array<any>) : {toadd: Array<any>, toremove: Array<any>} {
+
+  const toadd = newInlets.reduce((acc, inlet) => {
+    if(currentInlets.find(el => el == inlet) === undefined) acc.push(inlet);
+    return acc;
+  }, []);
+  const toremove = currentInlets.reduce((acc, inlet) => {
+    if(newInlets.find(el => el == inlet) === undefined) acc.push(inlet);
+    return acc;
+  }, []);
+
+  return {toadd, toremove};
+}
                                                                           
                                                                                                                    
-  // generateId :: Integer -> String                                                                                                  
-  generateId = (len:number) : number => {                              
-    const arr = new Uint8Array((len || 40) / 2)                                                                  
-    window.crypto.getRandomValues(arr)            
-    return parseInt(arr.join(''))                                                                                  
-  }                                                                                                                
+// generateId :: Integer -> String                                                                                                  
+generateId = (len:number) : number => {                              
+  const arr = new Uint8Array((len || 40) / 2)                                                                  
+  window.crypto.getRandomValues(arr)            
+  return parseInt(arr.join(''))                                                                                  
+}                                                                                                                
 
 
 

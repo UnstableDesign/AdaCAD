@@ -89,7 +89,7 @@ export class ParameterComponent implements OnInit {
    */
   onParamChange(value: number){
 
-    console.log("fc", this.fc)
+    console.log("param changed", this.fc)
 
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 
@@ -97,25 +97,28 @@ export class ParameterComponent implements OnInit {
       case 'number': 
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
+        this.onOperationParamChange.emit({id: this.paramid, value: value});
         break;
 
       case 'boolean':
         opnode.params[this.paramid] = (value) ? 1 : 0;
         this.fc.setValue(value);
+        this.onOperationParamChange.emit({id: this.paramid, value: value});
         break;
 
       case 'string':
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
+        if(!this.fc.hasError('forbiddenInput'))this.onOperationParamChange.emit({id: this.paramid, value: value});
         break;
 
       case 'select':
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
+        this.onOperationParamChange.emit({id: this.paramid, value: value});
         break;
     }
 
-    this.onOperationParamChange.emit({id: this.paramid});
    
   }
 

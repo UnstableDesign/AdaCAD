@@ -79,13 +79,15 @@
           >
         </div>
 
-        <!-- <div class='param-label'>
-            <button mat-icon-button
-            color="accent"
-            matTooltip="update draft with input values"
-            (click)= "onParamChange(fc.value)">
+        <div class='param-label'>
+            <button class="refresh" 
+            mat-icon-button
+            color = "accent"
+            (click)= "onParamChange(fc.value)"
+            [disabled]="!fc.dirty || fc.hasError('required') || fc.hasError('forbiddenInput')"
+            matTooltip="update draft with input values">
             <i class="fas fa-redo"></i></button>
-        </div> -->
+        </div>
 
       
   

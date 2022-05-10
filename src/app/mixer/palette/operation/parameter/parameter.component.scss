@@ -78,6 +78,12 @@
 button.is-primary.is-active{
     background-color: rgb(255, 64, 129);
 }
+
+
+.refresh .dirty{
+    color: rgb(255, 64, 129); 
+}
+
 .text-err,
 .error{
     color: red;
