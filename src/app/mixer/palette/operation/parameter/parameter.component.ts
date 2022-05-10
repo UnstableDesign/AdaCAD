@@ -1,15 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
+import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { OpNode, TreeService } from '../../../provider/tree.service';
 import { BoolParam, FileParam, NumParam, OperationParam, SelectParam, StringParam } from '../../../provider/operation.service';
 
 
-/** Error when invalid control is dirty, touched, or submitted. */
-export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    return !!(control && control.invalid && (control.dirty || control.touched));
-  }
+export function regexValidator(nameRe: RegExp): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const valid =  nameRe.test(control.value);
+    console.log("testing", control.value, valid, nameRe);
+    return !valid ? {forbiddenInput: {value: control.value}} : null;
+  };
 }
 
 
@@ -21,9 +21,9 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 })
 export class ParameterComponent implements OnInit {
   
-  textValidate: any;
   fc: FormControl;
   opnode: OpNode;
+  name: any;
 
   @Input() param:  NumParam | StringParam | SelectParam | BoolParam | FileParam;
   @Input() opid:  number;
@@ -40,7 +40,6 @@ export class ParameterComponent implements OnInit {
 
 
   constructor(public tree: TreeService) { 
-    this.textValidate = new MyErrorStateMatcher();
   }
 
   ngOnInit(): void {
@@ -72,9 +71,9 @@ export class ParameterComponent implements OnInit {
           break;
 
         case 'string':
-          //if(this.fc.hasError('pattern') || this.fc.hasError('required')) return;
+          console.log("regex", (<StringParam>this.param).regex);
           this.stringparam = <StringParam> this.param;
-          this.fc = new FormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
+          this.fc = new FormControl(this.stringparam.value, [Validators.required, regexValidator((<StringParam>this.param).regex)]);
           break;
        
       }
@@ -90,6 +89,8 @@ export class ParameterComponent implements OnInit {
    */
   onParamChange(value: number){
 
+    console.log("fc", this.fc)
+
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 
     switch(this.param.type){
@@ -104,7 +105,6 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'string':
-        console.log("value", value)
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
         break;

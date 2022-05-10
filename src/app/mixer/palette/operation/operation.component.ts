@@ -307,6 +307,7 @@ export class OperationComponent implements OnInit {
         switch(type){
 
           case 'notation':
+            
             break;
 
           case 'number':

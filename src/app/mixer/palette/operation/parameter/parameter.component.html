@@ -70,32 +70,24 @@
 
          <div class='param-text'>
             <input 
-            [ngModel] = "opnode.params[paramid]"
+            [(ngModel)] = "opnode.params[paramid]"
             [formControl]="fc"
-            [errorStateMatcher]="textValidate"
+            [errorStateMatcher]="regexValidator"
             [matTooltip]=param.dx
             type = "text"
-            [name]=param.name
             (change)= "onParamChange(fc.value)"
           >
         </div>
 
-        <div class='param-label'>
+        <!-- <div class='param-label'>
             <button mat-icon-button
             color="accent"
             matTooltip="update draft with input values"
             (click)= "onParamChange(fc.value)">
             <i class="fas fa-redo"></i></button>
-        </div>
+        </div> -->
 
-
-          <div class="text-err" *ngIf="fc.hasError('required')">
-             an input is required 
-            </div>
-    
-          <div class="text-err" *ngIf="fc.hasError('pattern')">
-            the input pattern does not match
-        </div>
+      
   
 
     </ng-container>
@@ -114,3 +106,12 @@
 
 
 </div>
+
+
+  <div class="text-err" *ngIf="fc.hasError('required')">
+     an input is required 
+    </div>
+
+  <div class="text-err" *ngIf="fc.hasError('forbiddenInput')">
+    the current input is not correctly formatted
+    </div>

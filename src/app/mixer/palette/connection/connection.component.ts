@@ -38,6 +38,7 @@ export class ConnectionComponent implements OnInit {
 
   svg: HTMLElement;
 
+  no_draw: boolean;
 
   constructor(public tree: TreeService) { 
 
@@ -50,6 +51,8 @@ export class ConnectionComponent implements OnInit {
 
     this.from = from_io.tn.node.id;
     this.to = to_io.tn.node.id;
+
+    this.no_draw =this.tree.getType(this.from) === 'op';
 
   }
 
@@ -158,12 +161,13 @@ export class ConnectionComponent implements OnInit {
     this.bounds.height = bottomright.y - this.bounds.topleft.y + 2;
   }
 
+
+
+  
   drawConnection(){
-
-    if(this.svg === null) console.log("count not find ", 'svg-'+this.id)
     
+    if(this.no_draw) return;
 
-    console.log(this.orientation_x, this.orientation_y)
     if(this.orientation_x && this.orientation_y){
       this.svg.innerHTML = ' <path d="M 0 0 C 0 50, '+this.bounds.width+' '+(this.bounds.height-50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
     }else if(!this.orientation_x && !this.orientation_y){
@@ -171,7 +175,6 @@ export class ConnectionComponent implements OnInit {
     }else if(!this.orientation_x && this.orientation_y){
       this.svg.innerHTML = ' <path d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-50)+', 0 '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
     }else{
-      console.log('edge');
       this.svg.innerHTML = ' <path d="M 0 '+this.bounds.height+' C 0 '+(this.bounds.height+50)+', '+this.bounds.width+' -50, '+this.bounds.width+' 0" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
 
     }

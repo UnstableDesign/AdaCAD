@@ -34,7 +34,7 @@
 }
 
 .param-text{
-    width: 50%;
+    width: 75%;
     text-align: left;
     padding: 0px 10px;
     overflow: hidden;
@@ -42,7 +42,10 @@
 
 .param-row input{
     width: 60px;
-    
+}
+
+.param-row .param-text input{
+    width: 100%;
 }
 
 .input-color{
@@ -75,7 +78,14 @@
 button.is-primary.is-active{
     background-color: rgb(255, 64, 129);
 }
-
+.text-err,
+.error{
+    color: red;
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    font-size: .8em;
+}
 
 .inputs{
     display: flex;
