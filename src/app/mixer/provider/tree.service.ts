@@ -146,23 +146,6 @@ export class TreeService {
 
 
   /**
-   *  takes the input to the notation string and creates the inlets required to handle
-   * @param input the input string
-   */
-   makeInletsFromNotationRegex(input: string, name: string, param_id: number) :Array<string>{
-
-    const op:Operation = this.ops.getOp(name);
-    console.log("op", op, param_id, name)
-    if(op.params[param_id].type !== 'string') return [];
-    const string_tok = input.match((<StringParam>op.params[param_id]).regex);
-    const inlets = string_tok.map(el => el.substring(1, el.length-1));
-    return inlets;
-
-  }
-
-
-
-  /**
    * loads data into an operation node from a file load or undo/redo event
    * @param entry the upload entry associated with this node or null if there was no upload associated
    * @param name the name of the operation
@@ -227,6 +210,13 @@ export class TreeService {
         //every operation has the first inlet assigned to be the static input
         if(inlets === undefined) inlets = [];
 
+        if(op.inlets.length > 0){
+          op.inlets.forEach(el => {
+            if(el.value == null)  inlets.push(0);
+            else inlets.push(el.value);
+          });
+        }
+
         if(this.ops.isDynamic(name)){
           const dynamic_param_id = (<DynamicOperation> op).dynamic_param_id;
           const default_value = (<DynamicOperation> op).params[dynamic_param_id].value;
@@ -239,7 +229,8 @@ export class TreeService {
               break;
 
               case 'notation':
-                const make_inlets = this.makeInletsFromNotationRegex(params_out[dynamic_param_id], name, dynamic_param_id);
+                const make_inlets = utilInstance.parseRegex(params_out[dynamic_param_id], (<StringParam> op.params[0]).regex);
+                console.log("make inlets", make_inlets)
                 for(let i = 0; i < make_inlets.length; i++){
                   inlets.push(make_inlets[i]);     
                 }    
@@ -259,13 +250,6 @@ export class TreeService {
                   break;
           }
   
-        }else {
-          console.log("op inlets", op.inlets)
-          op.inlets.forEach(el => {
-            if(el.value == null)  inlets.push(0);
-            else inlets.push(el.value);
-          });
-          console.log("inlets after", inlets);
         }
 
       }else{
@@ -505,12 +489,14 @@ export class TreeService {
   sweepInlets(id: number) : Promise<Array<ViewRef>>{
 
      const opnode: OpNode = this.getOpNode(id);
+     const op: Operation = this.ops.getOp(opnode.name);
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
 
-   //filter out inputs that are matched to an index highter than what we offer
-    const missing_inlets: Array<IOTuple> = inputs_to_op
-      .filter((el) => el.ndx > opnode.inlets.length)
+    const num_constant_inlets = op.inlets.length;
 
+    //filter out inputs that are matched to an index highter than what we offer
+    const missing_inlets: Array<IOTuple> = inputs_to_op
+      .filter((el) => el.ndx >= opnode.inlets.length)
 
     const viewRefs = missing_inlets.map(el => el.tn.node.ref);
 

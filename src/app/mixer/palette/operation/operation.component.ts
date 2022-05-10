@@ -307,26 +307,27 @@ export class OperationComponent implements OnInit {
         switch(type){
 
           case 'notation':
-            console.log("obj", obj)
-            const matches = utilInstance.parseRegex(obj.value, (<StringParam>this.op.params[0]).regex);
-            console.log('matches', matches);
 
-            console.log('opnode', opnode.inlets);
-            const static_ndxs:number = this.op.inlets.filter(el => el.type == 'static').length;
-            const updates = utilInstance.getInletsToUpdate(matches, opnode.inlets.filter((el, ndx) => ndx >= static_ndxs));
-            console.log("updates", updates);
-            
-            updates.toadd.forEach(inlet => {
-              opnode.inlets.push(inlet);
+
+            const matches = utilInstance.parseRegex(obj.value, (<StringParam>this.op.params[0]).regex);
+            opnode.inlets = opnode.inlets.slice(0,1);
+            matches.forEach(el => {
+              opnode.inlets.push(el);
             })
 
-            updates.toremove.forEach(inlet => {
-              const ndx = opnode.inlets.findIndex(el => el === inlet);
-              opnode.inlets.splice(ndx, 1);
-            });
+            // const static_ndxs:number = this.op.inlets.filter(el => el.type == 'static').length;
+            // const updates = utilInstance.getInletsToUpdate(matches, opnode.inlets.filter((el, ndx) => ndx >= static_ndxs));
+            
+            // updates.toadd.forEach(inlet => {
+            //   opnode.inlets.push(inlet);
+            // })
 
-            //remove any no longer used inlets
+            // updates.toremove.forEach(inlet => {
+            //   const ndx = opnode.inlets.findIndex(el => el === inlet);
+            //   opnode.inlets.splice(ndx, 1);
+            // });
 
+         
 
           break;
 

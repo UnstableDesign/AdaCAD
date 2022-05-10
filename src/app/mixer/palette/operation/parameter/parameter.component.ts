@@ -7,7 +7,6 @@ import { BoolParam, FileParam, NumParam, OperationParam, SelectParam, StringPara
 export function regexValidator(nameRe: RegExp): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const valid =  nameRe.test(control.value);
-    console.log("testing", control.value, valid, nameRe);
     return !valid ? {forbiddenInput: {value: control.value}} : null;
   };
 }
@@ -71,7 +70,6 @@ export class ParameterComponent implements OnInit {
           break;
 
         case 'string':
-          console.log("regex", (<StringParam>this.param).regex);
           this.stringparam = <StringParam> this.param;
           this.fc = new FormControl(this.stringparam.value, [Validators.required, regexValidator((<StringParam>this.param).regex)]);
           break;

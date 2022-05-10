@@ -79,6 +79,7 @@ export type FileParam = OperationParam & {
 /**
  * strings must come with a regex used to validate their structure
  * test and make regex using RegEx101 website
+ * do not use global (g) flag, as it creates unpredictable results in test functions used to validate inputs
  */
 export type StringParam = OperationParam & {
   regex: RegExp,
@@ -2182,7 +2183,7 @@ export class OperationService {
       params: [
         <StringParam>{name: 'pattern',
         type: 'string',
-        regex: /(\d+)/gm,
+        regex: /(\d+)/,
         value: '2 2 3 3',
         dx: 'the under over pattern of this twill (e.g. 2 2 3 3)'
         },
@@ -2258,7 +2259,7 @@ export class OperationService {
         {name: 'pattern',
         type: 'string',
         value: '(a1)(b2)',
-        regex: /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/ig,
+        regex: /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
         error: 'invalid entry',
         dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
         }
@@ -2277,10 +2278,7 @@ export class OperationService {
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
 
-        
-        console.log("parent input", parent_inputs);
-        console.log("child input", child_inputs);
-
+  
         if(child_inputs.length == 0) return Promise.resolve([]);
 
         //now just get all the drafts
@@ -2289,11 +2287,9 @@ export class OperationService {
           return acc;
         }, []);
 
-        console.log("all drafts", all_drafts);
 
 
         const system_map = child_inputs.find(el => el.inlet === 0);
-        console.log("system  map", system_map)
 
         if(system_map === undefined) return Promise.resolve([]); ;
 
@@ -2311,7 +2307,6 @@ export class OperationService {
         const system_draft_map = child_inputs
         .filter(el => el.inlet > 0)
         .map(el => {
-          console.log(el.params, el.inlet);
           return  {
             wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
             wasy: el.params[0].match(/\d/g).map(el => parseInt(el)), //pull out all the nubmers into warp systems
@@ -2322,7 +2317,6 @@ export class OperationService {
           }
         });
         
-        console.log("system draft map", system_draft_map)
 
         const d: Draft = new Draft({
           warps: total_warps, 
@@ -2342,12 +2336,8 @@ export class OperationService {
           d.pattern.push([]);
           for(let j = 0; j < total_warps; j++){
             let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
-            console.log("active wasy", active_wasy);
             const active_warp_entry = system_draft_map.find(el => el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1);
             const entry = system_draft_map.find(el => (el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1 && el.wesy.findIndex(wesyel => wesyel === active_wesy)!== -1));
-
-            console.log("active warp and weft", active_wesy, active_wasy, active_weft_entry, active_warp_entry);
-
 
             if(active_weft_entry === undefined || active_warp_entry === undefined){
               //no input draft is assigned to this system, set all as undefined
@@ -2377,8 +2367,6 @@ export class OperationService {
 
 
         }
-
-        console.log('d', d)
         
         d.gen_name = this.formatName([], "notation");
 
