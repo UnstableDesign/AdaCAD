@@ -3,5 +3,10 @@
 <ng-container #vc>
 <div id="palette"  class="palette-container" [class.no-pointer]="!pointer_events" [style.width.px]="viewport.getAbsoluteWidth()"  [style.height.px]="viewport.getAbsoluteHeight()">
 </div>
+
+<svg id="scratch_svg">
+    
+</svg>
+
 <canvas id="scratch" [style.z-index]="canvas_zndx" [class.no-pointer]="!pointer_events" [style.left.px]="viewport.vp.topleft.x" [style.top.px]="viewport.vp.topleft.y"></canvas>
 </ng-container>

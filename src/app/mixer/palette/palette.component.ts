@@ -1428,23 +1428,34 @@ connectionDragged(mouse: Point, shift: boolean){
   this.shape_bounds.width =  (adj.x - this.shape_bounds.topleft.x);
   this.shape_bounds.height =  (adj.y - this.shape_bounds.topleft.y);
 
-  if(shift){
 
-  }
+  const svg = document.getElementById('scratch_svg');
+  svg.innerHTML = ' <path d="M '
+  +(this.shape_bounds.topleft.x+this.scale)+' '
+  +(this.shape_bounds.topleft.y+this.scale)+' C '
+  +(this.shape_bounds.topleft.x+this.scale)+' '
+  +(this.shape_bounds.topleft.y+this.scale+50)+', '
+  +(this.shape_bounds.topleft.x + this.shape_bounds.width)+' '
+  +(this.shape_bounds.topleft.y + this.shape_bounds.height-50)+', '
+  +(this.shape_bounds.topleft.x + this.shape_bounds.width)+' '
+  +(this.shape_bounds.topleft.y + this.shape_bounds.height)
+  +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
 
-  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  this.cx.beginPath();
-  this.cx.fillStyle = "#ff4081";
-  this.cx.strokeStyle = "#ff4081";
-  //  this.cx.fillStyle = "#0000ff";
-  //  this.cx.strokeStyle = "#0000ff";
-  this.cx.setLineDash([this.scale, 2]);
-  this.cx.lineWidth = 2;
+  // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  // this.cx.beginPath();
+  // this.cx.fillStyle = "#ff4081";
+  // this.cx.strokeStyle = "#ff4081";
+  // //  this.cx.fillStyle = "#0000ff";
+  // //  this.cx.strokeStyle = "#0000ff";
+  // this.cx.setLineDash([this.scale, 2]);
+  // this.cx.lineWidth = 2;
 
 
-  this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
-  this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
-  this.cx.stroke();
+  // this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
+  // this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+  // this.cx.stroke();
+
+
  
 
 }
@@ -1456,6 +1467,9 @@ connectionDragged(mouse: Point, shift: boolean){
  processConnectionEnd(){
   this.closeSnackBar();
   this.selecting_connection = false;
+  const svg = document.getElementById('scratch_svg');
+  svg.innerHTML = ' ' ;
+
   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.changeDesignmode('move');
 

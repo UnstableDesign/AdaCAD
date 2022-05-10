@@ -41,7 +41,6 @@ export class ParameterComponent implements OnInit {
 
   constructor(public tree: TreeService) { 
     this.textValidate = new MyErrorStateMatcher();
-
   }
 
   ngOnInit(): void {
@@ -75,7 +74,7 @@ export class ParameterComponent implements OnInit {
         case 'string':
           //if(this.fc.hasError('pattern') || this.fc.hasError('required')) return;
           this.stringparam = <StringParam> this.param;
-          this.fc = new FormControl(this.param.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
+          this.fc = new FormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
           break;
        
       }
@@ -105,6 +104,7 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'string':
+        console.log("value", value)
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
         break;
