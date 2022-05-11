@@ -1422,39 +1422,23 @@ export class PaletteComponent implements OnInit{
    */
 connectionDragged(mouse: Point, shift: boolean){
 
+  //get the mouse position relative to the view frame
   const adj: Point = {x: mouse.x - this.viewport.getTopLeft().x, y: mouse.y - this.viewport.getTopLeft().y}
-
-
   this.shape_bounds.width =  (adj.x - this.shape_bounds.topleft.x);
   this.shape_bounds.height =  (adj.y - this.shape_bounds.topleft.y);
 
 
   const svg = document.getElementById('scratch_svg');
-  svg.innerHTML = ' <path d="M '
-  +(this.shape_bounds.topleft.x)+' '
-  +(this.shape_bounds.topleft.y)+' C '
-  +(this.shape_bounds.topleft.x)+' '
-  +(this.shape_bounds.topleft.y+50)+', '
-  +(this.shape_bounds.topleft.x + this.shape_bounds.width)+' '
-  +(this.shape_bounds.topleft.y + this.shape_bounds.height-50)+', '
-  +(this.shape_bounds.topleft.x + this.shape_bounds.width)+' '
-  +(this.shape_bounds.topleft.y + this.shape_bounds.height)
+  svg.style.top = (this.viewport.getTopLeft().y+this.shape_bounds.topleft.y)+"px";
+  svg.style.left = (this.viewport.getTopLeft().x+this.shape_bounds.topleft.x)+"px"
+
+ 
+  svg.innerHTML = ' <path d="M 0 0 C 0 50,'
+  +(this.shape_bounds.width)+' '
+  +(this.shape_bounds.height-50)+', '
+  +(this.shape_bounds.width)+' '
+  +(this.shape_bounds.height)
   +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
-
-  // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  // this.cx.beginPath();
-  // this.cx.fillStyle = "#ff4081";
-  // this.cx.strokeStyle = "#ff4081";
-  // //  this.cx.fillStyle = "#0000ff";
-  // //  this.cx.strokeStyle = "#0000ff";
-  // this.cx.setLineDash([this.scale, 2]);
-  // this.cx.lineWidth = 2;
-
-
-  // this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
-  // this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
-  // this.cx.stroke();
-
 
  
 
@@ -1488,7 +1472,6 @@ connectionDragged(mouse: Point, shift: boolean){
  * @returns a promise for the updated bounds
  */
 calculateInitialLocaiton(id: number) : Bounds {
-  console.log("CALCULATE INITAL");
 
   const draft = this.tree.getDraft(id);
   
@@ -1502,7 +1485,6 @@ calculateInitialLocaiton(id: number) : Bounds {
   if(this.tree.hasParent(id)){
 
     const parent_id = this.tree.getSubdraftParent(id);
-    const parent_bounds = this.tree.getComponent(parent_id).bounds;
     const opnode = this.tree.getNode(parent_id);
 
     //component is not yet initalized on this calculation so we do it manually
