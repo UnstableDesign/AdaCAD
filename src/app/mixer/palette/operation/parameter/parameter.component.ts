@@ -6,7 +6,8 @@ import { BoolParam, FileParam, NumParam, OperationParam, SelectParam, StringPara
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    const valid =  nameRe.test(control.value);
+    const globalRegex = new RegExp(nameRe, 'g');
+    const valid =  globalRegex.test(control.value);
     return !valid ? {forbiddenInput: {value: control.value}} : null;
   };
 }

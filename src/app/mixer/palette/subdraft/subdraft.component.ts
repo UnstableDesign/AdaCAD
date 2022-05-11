@@ -65,7 +65,7 @@ export class SubdraftComponent implements OnInit {
   }
 
   private _bounds:Bounds = {
-    topleft: {x: 60, y: 60},
+    topleft: {x: 0, y: 0},
     width: 0, 
     height: 0
   };
@@ -148,9 +148,10 @@ export class SubdraftComponent implements OnInit {
 
     if(!this.is_preview) this.parent_id = this.tree.getSubdraftParent(this.id);
     const tl: Point = this.viewport.getTopLeft();
-   
+    const tl_offset = {x: tl.x + 60, y: tl.y};
 
-    if(this.bounds.topleft.x === 0 && this.bounds.topleft.y === 0) this.setPosition(tl);
+
+    if(this.bounds.topleft.x === 0 && this.bounds.topleft.y === 0) this.setPosition(tl_offset);
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
 
     if(!this.is_preview) this.viewport.addObj(this.id, this.interlacement);

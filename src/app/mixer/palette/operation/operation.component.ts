@@ -72,9 +72,9 @@ export class OperationComponent implements OnInit {
    disable_drag: boolean = false;
  
    bounds: Bounds = {
-     topleft: {x: 60, y:60},
+     topleft: {x: 0, y:0},
      width: 200,
-     height: 60
+     height: 100
    };
    
    op:Operation | DynamicOperation;
@@ -109,31 +109,25 @@ export class OperationComponent implements OnInit {
     public dm: DesignmodesService,
     private imageService: ImageService,
     public systems: SystemsService) { 
-           
+     
+      const tl: Point = this.viewport.getTopLeft();
+      const tl_offset = {x: tl.x + 60, y: tl.y};
+
+      if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl_offset);
+      this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+  
 
   }
 
   ngOnInit() {
 
-
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
+    
     this.opnode = <OpNode> this.tree.getNode(this.id);
-    this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
-
-
-    const tl: Point = this.viewport.getTopLeft();
-    //offset it a bit so can hover and see options
-
-
-
-    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl);
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
-
+    if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
     this.base_height =  60 + 40 * this.opnode.params.length
     this.bounds.height = this.base_height;
-
-
 
   }
 

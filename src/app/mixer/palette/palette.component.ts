@@ -15,7 +15,7 @@ import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
-import { DraftNode, TreeService } from '../provider/tree.service';
+import { DraftNode, OpNode, TreeService } from '../provider/tree.service';
 import { FileService, NodeComponentProxy, SaveObj } from './../../core/provider/file.service';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
@@ -1276,12 +1276,12 @@ export class PaletteComponent implements OnInit{
 
   const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
 
-    let adj: Point;
+  let adj: Point;
 
   if(sd.draft_visible)
    adj = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 15, y: (sd.bounds.topleft.y+sd.bounds.height) - this.viewport.getTopLeft().y+30}
   else 
-  adj = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 10, y: (sd.bounds.topleft.y) - this.viewport.getTopLeft().y+30}
+   adj = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 10, y: (sd.bounds.topleft.y) - this.viewport.getTopLeft().y+30}
 
 
   this.unfreezePaletteObjects();
@@ -1431,10 +1431,10 @@ connectionDragged(mouse: Point, shift: boolean){
 
   const svg = document.getElementById('scratch_svg');
   svg.innerHTML = ' <path d="M '
-  +(this.shape_bounds.topleft.x+this.scale)+' '
-  +(this.shape_bounds.topleft.y+this.scale)+' C '
-  +(this.shape_bounds.topleft.x+this.scale)+' '
-  +(this.shape_bounds.topleft.y+this.scale+50)+', '
+  +(this.shape_bounds.topleft.x)+' '
+  +(this.shape_bounds.topleft.y)+' C '
+  +(this.shape_bounds.topleft.x)+' '
+  +(this.shape_bounds.topleft.y+50)+', '
   +(this.shape_bounds.topleft.x + this.shape_bounds.width)+' '
   +(this.shape_bounds.topleft.y + this.shape_bounds.height-50)+', '
   +(this.shape_bounds.topleft.x + this.shape_bounds.width)+' '
@@ -1489,20 +1489,26 @@ connectionDragged(mouse: Point, shift: boolean){
  */
 calculateInitialLocaiton(id: number) : Bounds {
 
+
   const draft = this.tree.getDraft(id);
+  
   const new_bounds = {
     topleft: this.viewport.getTopLeft(), 
     width: draft.warps * this.default_cell_size,
     height: draft.wefts * this.default_cell_size
-  }
-
-  
+  }  
 
   //if it has a parent, align it to the bottom edge
   if(this.tree.hasParent(id)){
+
     const parent_id = this.tree.getSubdraftParent(id);
     const parent_bounds = this.tree.getComponent(parent_id).bounds;
-    new_bounds.topleft = {x: parent_bounds.topleft.x, y: parent_bounds.topleft.y + parent_bounds.height};
+    const opnode = this.tree.getNode(parent_id);
+
+    //component is not yet initalized on this calculation so we do it manually
+    const default_height =  60 + 40 * (<OpNode> opnode).params.length;
+
+    new_bounds.topleft = {x: parent_bounds.topleft.x, y: parent_bounds.topleft.y + default_height};
 
     const outs = this.tree.getNonCxnOutputs(parent_id);
     if(outs.length > 1){
@@ -1522,7 +1528,6 @@ calculateInitialLocaiton(id: number) : Bounds {
     }
 
   }
-
   return new_bounds;
 }
 
