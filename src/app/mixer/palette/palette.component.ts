@@ -673,7 +673,7 @@ export class PaletteComponent implements OnInit{
    * @returns the id of the node this has been assigned to
    */
     loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, bounds:Bounds, saved_scale: number){
-      
+        console.log("bounds", id, bounds);
 
         const factory = this.resolver.resolveComponentFactory(OperationComponent);
         const op = this.vc.createComponent<OperationComponent>(factory);
@@ -689,9 +689,9 @@ export class PaletteComponent implements OnInit{
         op.instance.scale = this.scale;
         op.instance.default_cell = this.default_cell_size;
         op.instance.loaded_inputs = params;
-        // op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
-        // op.instance.bounds.width = bounds.width;
-        // op.instance.bounds.height = bounds.height;
+        op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
+        op.instance.bounds.width = bounds.width;
+        op.instance.bounds.height = bounds.height;
         op.instance.loaded = true;
   
         if(bounds !== null){
@@ -1488,7 +1488,7 @@ connectionDragged(mouse: Point, shift: boolean){
  * @returns a promise for the updated bounds
  */
 calculateInitialLocaiton(id: number) : Bounds {
-
+  console.log("CALCULATE INITAL");
 
   const draft = this.tree.getDraft(id);
   
@@ -1506,9 +1506,9 @@ calculateInitialLocaiton(id: number) : Bounds {
     const opnode = this.tree.getNode(parent_id);
 
     //component is not yet initalized on this calculation so we do it manually
-    const default_height =  60 + 40 * (<OpNode> opnode).params.length;
+    const default_height =  (60 + 40 * (<OpNode> opnode).params.length) * this.scale/this.default_cell_size;
 
-    new_bounds.topleft = {x: parent_bounds.topleft.x, y: parent_bounds.topleft.y + default_height};
+    new_bounds.topleft = {x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + default_height};
 
     const outs = this.tree.getNonCxnOutputs(parent_id);
     if(outs.length > 1){

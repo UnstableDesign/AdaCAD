@@ -239,7 +239,9 @@ export class SubdraftComponent implements OnInit {
       return;
     }
 
-    this.setPosition({x: parent.bounds.topleft.x, y: parent.bounds.topleft.y + parent.bounds.height})
+    const container = <HTMLElement> document.getElementById("scale-"+this.parent_id);
+    this.setPosition({x: parent.bounds.topleft.x, y: parent.bounds.topleft.y + (container.offsetHeight * this.scale/this.default_cell) });
+
 
   }
 

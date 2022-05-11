@@ -110,12 +110,7 @@ export class OperationComponent implements OnInit {
     private imageService: ImageService,
     public systems: SystemsService) { 
      
-      const tl: Point = this.viewport.getTopLeft();
-      const tl_offset = {x: tl.x + 60, y: tl.y};
 
-      if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl_offset);
-      this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
-  
 
   }
 
@@ -124,6 +119,14 @@ export class OperationComponent implements OnInit {
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
     
+
+    const tl: Point = this.viewport.getTopLeft();
+    const tl_offset = {x: tl.x + 60, y: tl.y};
+
+    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl_offset);
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+
+
     this.opnode = <OpNode> this.tree.getNode(this.id);
     if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
     this.base_height =  60 + 40 * this.opnode.params.length
