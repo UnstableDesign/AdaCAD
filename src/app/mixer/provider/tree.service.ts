@@ -1,5 +1,5 @@
 import { Injectable, ViewRef } from '@angular/core';
-import { cloneDeep, map, toNumber } from 'lodash';
+import { cloneDeep, flip, map, toNumber } from 'lodash';
 import { Cell } from '../../core/model/cell';
 import { Draft } from '../../core/model/draft';
 import { Loom } from '../../core/model/loom';
@@ -1283,33 +1283,33 @@ flipDraft(draft: Draft) : Promise<Draft>{
 
   let inputs: Array<OpInput> = [];
 
-  if(this.ops.isDynamic(opnode.name)){
+  //if(this.ops.isDynamic(opnode.name)){
     
     //first push the parent params
 
-    inputs.push({op_name: op.name, drafts: [], inlet: 0, params: opnode.params});
+    inputs.push({op_name: op.name, drafts: [], inlet: -1, params: opnode.params});
 
-      const flip_fns = [];
-      const draft_id_to_ndx = [];
-      all_inputs.filter(el => el !== undefined && el !== null).forEach((el) => {
-        const draft_tn = el.tn.inputs[0].tn;
-        const cxn_tn = el.tn;
-        const type = draft_tn.node.type;
-        if(type === 'draft'){
-          draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id, cxn: cxn_tn.node.id})
-          flip_fns.push(this.flipDraft((<DraftNode>draft_tn.node).draft));
-        }
-      });
+    const flip_fns = [];
+    const draft_id_to_ndx = [];
+    all_inputs.filter(el => el !== undefined && el !== null).forEach((el) => {
+      const draft_tn = el.tn.inputs[0].tn;
+      const cxn_tn = el.tn;
+      const type = draft_tn.node.type;
+      if(type === 'draft'){
+        draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id, cxn: cxn_tn.node.id})
+        flip_fns.push(this.flipDraft((<DraftNode>draft_tn.node).draft));
+      }
+    });
 
 
    
     return Promise.all(flip_fns)
     .then(flipped_drafts => {
-
-      const paraminputs = draft_id_to_ndx.map(el => {
-        const draft = flipped_drafts.find(draft => draft.id === el.draft_id);
-        return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
-      })
+        const paraminputs = draft_id_to_ndx.map(el => {
+          const draft = flipped_drafts.find(draft => draft.id === el.draft_id);
+          return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
+        })
+      
 
       inputs = inputs.concat(paraminputs);
       return op.perform(inputs);
@@ -1324,26 +1324,26 @@ flipDraft(draft: Draft) : Promise<Draft>{
       });
           
 
-    }else{
-      const drafts_coming_in: Array<any> =  drafts_in
-      .map(input => (<DraftNode> this.getNode(input)))
-      .filter(el => el !== null && el !== undefined)
-      .map(input_node => input_node.draft)
-      .filter(el => el !== null && el !== undefined)
-      .map(el => this.flipDraft(el));
+    // }else{
+    //   const drafts_coming_in: Array<any> =  drafts_in
+    //   .map(input => (<DraftNode> this.getNode(input)))
+    //   .filter(el => el !== null && el !== undefined)
+    //   .map(input_node => input_node.draft)
+    //   .filter(el => el !== null && el !== undefined)
+    //   .map(el => this.flipDraft(el));
 
-      return Promise.all(drafts_coming_in).then(drafts =>{
-          inputs.push({op_name: '', drafts: drafts, inlet: 0, params: opnode.params});
-          return op.perform(inputs)
-          .then(res => {
-            return Promise.all(res.map(el => this.flipDraft(el)))
-          }).then(flipped => {
-            opnode.dirty = false;
-            return this.updateDraftsFromResults(id, flipped)
-          })
+    //   return Promise.all(drafts_coming_in).then(drafts =>{
+    //       inputs.push({op_name: '', drafts: drafts, inlet: 0, params: opnode.params});
+    //       return op.perform(inputs)
+    //       .then(res => {
+    //         return Promise.all(res.map(el => this.flipDraft(el)))
+    //       }).then(flipped => {
+    //         opnode.dirty = false;
+    //         return this.updateDraftsFromResults(id, flipped)
+    //       })
             
-        });
-    }
+    //     });
+    // }
 
   
 

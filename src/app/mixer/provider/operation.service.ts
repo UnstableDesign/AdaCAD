@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
 import { DeclareFunctionStmt } from '@angular/compiler';
 import { reauthenticateWithCredential } from 'firebase/auth';
+import { child } from 'firebase/database';
 
 
 
@@ -193,17 +194,17 @@ export class OperationService {
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
-
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'rectangle');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
         const outputs: Array<Draft> = [];
-        const d: Draft = new Draft({warps:op_input.params[0], wefts:op_input.params[1]});
+        const d: Draft = new Draft({warps:parent_input.params[0], wefts:parent_input.params[1]});
         
-        if(op_input.drafts.length == 0){
+        if(child_input === undefined){
           d.fill([[new Cell(false)]], 'clear');
         }else{
-          d.fill(op_input.drafts[0].pattern, 'original');
-          this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
+          d.fill(child_input.drafts[0].pattern, 'original');
+          this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
         }
         d.gen_name = this.formatName(op_inputs[0].drafts, "rect");
         outputs.push(d);
@@ -225,13 +226,18 @@ export class OperationService {
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
-        const outputs: Array<Draft> =op_input.drafts.map(draft => {
+        const parent_input = op_inputs.find(el => el.op_name == 'clear');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+
+        if(child_input === undefined) return Promise.resolve([]);
+       
+
+        const outputs: Array<Draft> =child_input.drafts.map(draft => {
           const d: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
           d.fill([[new Cell(false)]], 'clear');
-          if(op_input.drafts.length > 0){
-            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-            d.gen_name = this.formatName(op_input.drafts, "clear");
+          if(child_input.drafts.length > 0){
+            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
+            d.gen_name = this.formatName(child_input.drafts, "clear");
           }
           return  d;
         });
@@ -259,24 +265,28 @@ export class OperationService {
           num_drafts: 1
         }],
       perform: (op_inputs: Array<OpInput>)=> {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'set unset');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
-        const outputs: Array<Draft> =op_input.drafts.map(draft => {
+        if(child_input === undefined) return Promise.resolve([]);
+       
+
+        const outputs: Array<Draft> =child_input.drafts.map(draft => {
          
           const d: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
           draft.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
               if(!cell.isSet()){
-                if(op_input.params[0] === 0) d.pattern[i][j] = new Cell(false);
+                if(parent_input.params[0] === 0) d.pattern[i][j] = new Cell(false);
                 else d.pattern[i][j] = new Cell(true);
               } 
               else d.pattern[i][j] = new Cell(cell.isUp());
             });
           });
          
-          if(op_input.drafts.length > 0){
-            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-            d.gen_name = this.formatName(op_input.drafts, "unset->down");
+          if(child_input.drafts.length > 0){
+            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
+            d.gen_name = this.formatName(child_input.drafts, "unset->down");
           }
           return d;
         });
@@ -304,19 +314,23 @@ export class OperationService {
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
-        const outputs: Array<Draft> =op_input.drafts.map(draft => {
+        const parent_input = op_inputs.find(el => el.op_name == 'set down to unset');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+
+        if(child_input === undefined) return Promise.resolve([]);
+  
+        const outputs: Array<Draft> =child_input.drafts.map(draft => {
           const d: Draft = new Draft({warps: draft.warps, wefts:draft.wefts});
           draft.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
-              if(op_input.params[0] === 1 && !cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
-              else if(op_input.params[0] === 0 && cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
+              if(parent_input.params[0] === 1 && !cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
+              else if(parent_input.params[0] === 0 && cell.isUp() && cell.isSet()) d.pattern[i][j] = new Cell(null);
               else d.pattern[i][j] = new Cell(cell.getHeddle());
             });
           });
-          if(op_input.drafts.length > 0){
-            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-            d.gen_name = this.formatName(op_input.drafts, "unset");
+          if(child_input.drafts.length > 0){
+            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
+            d.gen_name = this.formatName(child_input.drafts, "unset");
 
           }
           return d;
@@ -339,7 +353,7 @@ export class OperationService {
         num_drafts: 1
       },
       {
-        name: 'draft', 
+        name: 'materials', 
         type: 'static',
         value: null,
         dx: 'a draft which has the materials youd like to apply',
@@ -347,22 +361,35 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'apply materials');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        const materials = op_inputs.find(el => el.inlet == 1);
+        const inputdraft = op_inputs.find(el => el.inlet == 0);
 
-        if(op_input.drafts.length < 2) return Promise.resolve(op_input.drafts);
-        const d: Draft = new Draft({warps:op_input.drafts[0].warps, wefts:op_input.drafts[0].wefts});
-       op_input.drafts[0].pattern.forEach((row, i) => {
+        if(child_input === undefined) return Promise.resolve([]);
+        if(materials === undefined) return Promise.resolve([inputdraft.drafts[0]])
+        if(inputdraft === undefined) return Promise.resolve([materials.drafts[0]])
+
+        const d: Draft = new Draft(
+          {warps:inputdraft.drafts[0].warps, 
+          wefts:inputdraft.drafts[0].wefts,
+          rowShuttleMapping: materials.drafts[0].rowShuttleMapping,
+          rowSystemMapping: materials.drafts[0].rowSystemMapping,
+          ocolShuttleMapping: materials.drafts[0].colShuttleMapping,
+          colSystemMapping: materials.drafts[0].colSystemMapping,
+        });
+        inputdraft.drafts[0].pattern.forEach((row, i) => {
           row.forEach((cell, j) => {
             d.pattern[i][j] = new Cell(cell.getHeddle());
           });
         });
 
-        this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'materialsonly');
-        d.gen_name = this.formatName(op_input.drafts, 'materials')
+        d.gen_name = this.formatName(inputdraft.drafts, 'materials')
         return Promise.resolve([d]);
       }        
     }
 
+  
 
     const rotate: Operation = {
       name: 'rotate',
@@ -380,10 +407,10 @@ export class OperationService {
           dx: 'corner to which this draft is rotated around 0 is top left, 1 top right, 2 bottom right, 3 bottom left'
         },
         <BoolParam>{
-          name: 'rotate materials?',
+          name: 'materials?',
           type: 'boolean',
-          falsestate: 'no',
-          truestate: 'yes',
+          falsestate: 'no, don\'t rotate materials',
+          truestate: 'yes, rotate materials',
           value: 1, 
           dx: 'if your draft has materials assigned, you can choose wether you want to rotate the draft or the materials only'
 
@@ -398,11 +425,15 @@ export class OperationService {
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
-        const outputs: Array<Draft> =op_input.drafts.map(draft => {
+        const parent_input = op_inputs.find(el => el.op_name == 'rotate');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
-          const num_rots = op_input.params[0];
-          const rotate_mats = (op_input.params[1] === 0) ? false : true;
+        if(child_input === undefined) return Promise.resolve([]);
+
+        const outputs: Array<Draft> =child_input.drafts.map(draft => {
+
+          const num_rots = parent_input.params[0];
+          const rotate_mats = (parent_input.params[1] === 0) ? false : true;
           const rotated_wefts = ( num_rots % 2 == 0) ? draft.warps : draft.wefts;
           const rotated_warps = ( num_rots % 2 == 0) ? draft.wefts : draft.warps;
 
@@ -489,8 +520,8 @@ export class OperationService {
           }
           }
 
-          if(op_input.drafts.length > 0){
-            d.gen_name = this.formatName(op_input.drafts, "rot");
+          if(child_input.drafts.length > 0){
+            d.gen_name = this.formatName(child_input.drafts, "rot");
           }
 
           return d;
@@ -521,16 +552,19 @@ export class OperationService {
         }
       ],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
-        const factor_in_repeats = op_input.params[0];
+       
+        const parent_input = op_inputs.find(el => el.op_name == 'interlace');
+        const child_input = op_inputs.filter(el => el.op_name == 'child');
+        const all_drafts = child_input.map(el => el.drafts[0]);
 
-        if(op_input.drafts.length === 0) return Promise.resolve([]);
+        if(child_input === undefined) return Promise.resolve([]);
+
+        const factor_in_repeats = parent_input.params[0];
+
         const outputs: Array<Draft> = [];
 
     
-        //now just get all the drafts
-        const all_drafts: Array<Draft> = op_input.drafts;
-
+     
         let total_wefts: number = 0;
         const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
         if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
@@ -545,17 +579,17 @@ export class OperationService {
 
 
         //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: total_warps, wefts:(total_wefts *op_input.drafts.length)});
+        const d:Draft = new Draft({warps: total_warps, wefts:(total_wefts *all_drafts.length)});
 
         d.pattern.forEach((row, ndx) => {
 
-            const select_array: number = ndx %op_input.drafts.length; 
-            const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /op_input.drafts.length) % op_input.drafts[select_array].wefts : Math.floor(ndx /op_input.drafts.length);
+            const select_array: number = ndx %all_drafts.length; 
+            const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /all_drafts.length) % all_drafts[select_array].wefts : Math.floor(ndx /all_drafts.length);
 
             row.forEach((cell, j) =>{
-                const select_col = (factor_in_repeats === 1) ? j % op_input.drafts[select_array].warps : j;
-                if(op_input.drafts[select_array].hasCell(select_row, select_col)){
-                    const pattern = op_input.drafts[select_array].pattern;
+                const select_col = (factor_in_repeats === 1) ? j % all_drafts[select_array].warps : j;
+                if(all_drafts[select_array].hasCell(select_row, select_col)){
+                    const pattern = all_drafts[select_array].pattern;
                     //console.log("in interlace", cell, pattern, select_row, select_col);
                     cell.setHeddle(pattern[select_row][select_col].getHeddle());
                 }else{
@@ -566,12 +600,10 @@ export class OperationService {
             });
 
         });
-
-        //extend systems out so they fit 
         
 
-        this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'interlace');
-        d.gen_name = this.formatName(op_input.drafts, "ilace")
+        this.transferSystemsAndShuttles(d,all_drafts,parent_input.params, 'interlace');
+        d.gen_name = this.formatName(all_drafts, "ilace")
 
         outputs.push(d);
         return Promise.resolve(outputs);
@@ -583,12 +615,12 @@ export class OperationService {
       displayname: 'splice in wefts',  
       dx: 'splices the second draft into the first every nth row',
       params: <Array<NumParam>>[  
-        {name: 'distance',
+        {name: 'pics between insertions',
         type: 'number',
         min: 1,
         max: 100,
         value: 1,
-        dx: "the distance between each spliced in row"
+        dx: "the number of pics to keep between each splice row"
         }],
         inlets: [{
           name: 'receiving draft', 
@@ -606,19 +638,28 @@ export class OperationService {
         }
       ],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'splice in wefts');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        const static_inlet = op_inputs.find(el => el.inlet == 0);
+        const splicing_inlet = op_inputs.find(el => el.inlet == 1);
 
-        if(op_input.drafts.length === 0) return Promise.resolve([]);
-        if(op_input.drafts.length === 1) return Promise.resolve(op_input.drafts);
+        if(child_input === undefined) return Promise.resolve([]);
+        if(static_inlet === undefined) return Promise.resolve([splicing_inlet.drafts[0]]);
+        if(splicing_inlet === undefined) return Promise.resolve([static_inlet.drafts[0]]);
         const outputs: Array<Draft> = [];
 
-        const max_warps:number = utilInstance.getMaxWarps(op_input.drafts);
+        const static_input = static_inlet.drafts[0];
+        const splicing_input = splicing_inlet.drafts[0];
 
-        let sum_rows =op_input.drafts.reduce((acc, el) => {
+        const all_drafts = [static_input, splicing_input];
+
+        const max_warps:number = utilInstance.getMaxWarps(all_drafts);
+
+        let sum_rows =all_drafts.reduce((acc, el) => {
           return acc + el.wefts;
         }, 0);
 
-        const uniqueSystemRows = this.ss.makeWeftSystemsUnique(op_input.drafts.map(el => el.rowSystemMapping));
+        const uniqueSystemRows = this.ss.makeWeftSystemsUnique(all_drafts.map(el => el.rowSystemMapping));
 
 
 
@@ -626,25 +667,25 @@ export class OperationService {
         let array_b_ndx = 0;
       
         //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: max_warps, wefts:sum_rows, colShuttleMapping:op_input.drafts[0].colShuttleMapping, colSystemMapping:op_input.drafts[0].colSystemMapping});
+        const d:Draft = new Draft({warps: max_warps, wefts:sum_rows, colShuttleMapping:static_input.colShuttleMapping, colSystemMapping:static_input.colSystemMapping});
 
         for(let i = 0; i < d.wefts; i++){
-          let select_array: number = (i % (op_input.params[0]+1) ===op_input.params[0]) ? 1 : 0; 
-          if(array_b_ndx >=op_input.drafts[1].wefts) select_array = 0;
-          if(array_a_ndx >=op_input.drafts[0].wefts) select_array = 1;
+          let select_array: number = (i % (parent_input.params[0]+1) ===parent_input.params[0]) ? 1 : 0; 
+          if(array_b_ndx >=splicing_input.wefts) select_array = 0;
+          if(array_a_ndx >=static_input.wefts) select_array = 1;
 
           let ndx = (select_array === 0) ? array_a_ndx : array_b_ndx;
 
           d.pattern[i].forEach((cell, j) => {
-            if(op_input.drafts[select_array].hasCell(ndx, j)){
-              cell.setHeddle(op_input.drafts[select_array].pattern[ndx][j].getHeddle());
+            if(all_drafts[select_array].hasCell(ndx, j)){
+              cell.setHeddle(all_drafts[select_array].pattern[ndx][j].getHeddle());
             }else{
               cell.setHeddle(null);
             }   
           });
 
           d.rowSystemMapping[i] = uniqueSystemRows[select_array][ndx];
-          d.rowShuttleMapping[i] =op_input.drafts[select_array].rowShuttleMapping[ndx];
+          d.rowShuttleMapping[i] =all_drafts[select_array].rowShuttleMapping[ndx];
 
 
           if(select_array === 0){
@@ -656,7 +697,7 @@ export class OperationService {
 
         }
         // this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'interlace');
-        d.gen_name = this.formatName(op_input.drafts, "splice")
+        d.gen_name = this.formatName(all_drafts, "splice")
         outputs.push(d);
         return Promise.resolve(outputs);
       }     
@@ -670,14 +711,14 @@ export class OperationService {
         {name: 'total',
         type: 'number',
         min: 1,
-        max: 100,
+        max: 26,
         value: 2,
         dx: "how many systems total"
         },
         {name: 'shift',
         type: 'number',
         min: 0,
-        max: 100,
+        max: 26,
         value: 0,
         dx: "which posiiton to assign this draft"
         }],
@@ -691,14 +732,15 @@ export class OperationService {
         }
       ],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'assign weft systems');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
-        if(op_input.drafts.length === 0) return Promise.resolve([]);
+        if(child_input === undefined) return Promise.resolve([]);
         const outputs = [];
         const systems = [];
 
         //create a list of the systems
-        for(let n = 0;  n <op_input.params[0]; n++){
+        for(let n = 0;  n <parent_input.params[0]; n++){
           const sys = ss.getWeftSystem(n);
           if(sys === undefined) ss.addWeftSystemFromId(n);
           systems[n] = n;
@@ -712,22 +754,22 @@ export class OperationService {
         // const uniqueSystemRows = this.ss.makeWeftSystemsUnique(system_maps.map(el => el.rowSystemMapping));
 
         const d:Draft = new Draft({
-          warps:op_input.drafts[0].warps, 
-          wefts:op_input.drafts[0].wefts*op_input.params[0], 
-          colShuttleMapping:op_input.drafts[0].colShuttleMapping, 
-          colSystemMapping:op_input.drafts[0].colSystemMapping,
+          warps:child_input.drafts[0].warps, 
+          wefts:child_input.drafts[0].wefts*parent_input.params[0], 
+          colShuttleMapping:child_input.drafts[0].colShuttleMapping, 
+          colSystemMapping:child_input.drafts[0].colSystemMapping,
           rowSystemMapping: systems});
 
 
         d.pattern.forEach((row, i) => {
-          const use_row = i %op_input.params[0] ===op_input.params[1];
-          const use_index = Math.floor(i /op_input.params[0]);
+          const use_row = i %parent_input.params[0] ===parent_input.params[1];
+          const use_index = Math.floor(i /parent_input.params[0]);
           //this isn't working
           //d.rowSystemMapping[i] = uniqueSystemRows[i %op_input.params[0]][use_index];
           row.forEach((cell, j)=> {
             if(use_row){
-              d.rowShuttleMapping[i] =op_input.drafts[0].rowShuttleMapping[use_index];
-              cell.setHeddle(op_input.drafts[0].pattern[use_index][j].getHeddle());
+              d.rowShuttleMapping[i] =child_input.drafts[0].rowShuttleMapping[use_index];
+              cell.setHeddle(child_input.drafts[0].pattern[use_index][j].getHeddle());
             }else{
               cell.setHeddle(null);
             }
@@ -735,8 +777,8 @@ export class OperationService {
         });
         
         // this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'interlace');
-        d.gen_name = this.formatName(op_input.drafts, "assign wefts")
-        const sys_char = String.fromCharCode(97 +op_input.params[1]);
+        d.gen_name = this.formatName(child_input.drafts, "assign wefts")
+        const sys_char = String.fromCharCode(97 +parent_input.params[1]);
         d.gen_name = '-'+sys_char+':'+d.gen_name;
         outputs.push(d);
         return Promise.resolve(outputs);
@@ -751,19 +793,19 @@ export class OperationService {
         {name: 'total',
         type: 'number',
         min: 1,
-        max: 100,
+        max: 26,
         value: 2,
         dx: "how many warp systems (or layers) total"
         },
         {name: 'shift',
         type: 'number',
         min: 0,
-        max: 100,
+        max: 26,
         value: 0,
         dx: "which system/layer to assign this draft"
         },
-        {name: 'layers?',
-        type: 'number',
+        {name: 'map warp systems to layers?',
+        type: 'boolean',
         min: 0,
         max: 1,
         value: 0,
@@ -780,54 +822,44 @@ export class OperationService {
         }
       ],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'assign warp systems');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
-        if(op_input.drafts.length === 0) return Promise.resolve([]);
+        if(child_input === undefined) return Promise.resolve([]);
 
         const outputs = [];
         const systems = [];
 
         //create a list of the systems
-        for(let n = 0;  n < op_input.params[0]; n++){
+        for(let n = 0;  n < parent_input.params[0]; n++){
           const sys = ss.getWarpSystem(n);
           if(sys === undefined) ss.addWarpSystemFromId(n);
           systems[n] = n;
         }
-
-
-        // const system_maps = [inputs[0]];
-        // for(let i = 1; i <op_input.params[0]; i++){
-        //   system_maps.push(new Draft({wefts:op_input.drafts[0].wefts, warps:op_input.drafts[0].warps}));
-        // }
-
-        // const uniqueSystemCols = this.ss.makeWarpSystemsUnique(system_maps.map(el => el.colSystemMapping));
-
-        // const outputs = [];
-        // //create a draft to hold the merged values
         
         const d:Draft = new Draft({
-          warps:op_input.drafts[0].warps*op_input.params[0], 
-          wefts:op_input.drafts[0].wefts, 
-          rowShuttleMapping:op_input.drafts[0].rowShuttleMapping, 
-          rowSystemMapping:op_input.drafts[0].rowSystemMapping,
+          warps:child_input.drafts[0].warps*parent_input.params[0], 
+          wefts:child_input.drafts[0].wefts, 
+          rowShuttleMapping:child_input.drafts[0].rowShuttleMapping, 
+          rowSystemMapping:child_input.drafts[0].rowSystemMapping,
           colSystemMapping: systems});
 
 
         d.pattern.forEach((row, i) => {
-          const row_is_null = utilInstance.hasOnlyUnset(op_input.drafts[0].pattern[i]);
+          const row_is_null = utilInstance.hasOnlyUnset(child_input.drafts[0].pattern[i]);
           row.forEach((cell, j)=> {
-            const sys_id = j %op_input.params[0];
-            const use_col = sys_id ===op_input.params[1];
-            const use_index = Math.floor(j /op_input.params[0]);
+            const sys_id = j %parent_input.params[0];
+            const use_col = sys_id ===parent_input.params[1];
+            const use_index = Math.floor(j /parent_input.params[0]);
             //d.colSystemMapping[j] = uniqueSystemCols[sys_id][use_index];
             if(use_col){
-              d.colShuttleMapping[j] =op_input.drafts[0].colShuttleMapping[use_index];
-              cell.setHeddle(op_input.drafts[0].pattern[i][use_index].getHeddle());
+              d.colShuttleMapping[j] =child_input.drafts[0].colShuttleMapping[use_index];
+              cell.setHeddle(child_input.drafts[0].pattern[i][use_index].getHeddle());
             }else{
-              if(op_input.params[2] == 1 && !row_is_null){
-                if(sys_id <op_input.params[1]){
+              if(parent_input.params[2] == 1 && !row_is_null){
+                if(sys_id <parent_input.params[1]){
                   cell.setHeddle(true);
-                }else if(sys_id >=op_input.params[1]){
+                }else if(sys_id >=parent_input.params[1]){
                   cell.setHeddle(false);
                 }
               }else{
@@ -840,8 +872,8 @@ export class OperationService {
 
         
         // this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'interlace');
-        d.gen_name = this.formatName(op_input.drafts, "assign warps")
-        const sys_char = String.fromCharCode(97 +op_input.params[1]);
+        d.gen_name = this.formatName(child_input.drafts, "assign warps")
+        const sys_char = String.fromCharCode(97 +parent_input.params[1]);
         d.gen_name = '|'+sys_char+':'+d.gen_name;
 
         outputs.push(d);
@@ -874,46 +906,46 @@ export class OperationService {
           }
         ],
       perform: (op_inputs: Array<OpInput>) => {
-        
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'vertical cut');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
-        if(op_input.drafts.length === 0) return Promise.resolve([]);
+        if(child_input === undefined) return Promise.resolve([]);
 
 
         const outputs: Array<Draft> = [];
-        const outwefts =op_input.params[0]*op_input.drafts[0].wefts;
+        const outwefts =parent_input.params[0]*child_input.drafts[0].wefts;
 
         const rep_inputs = [];
 
-        for(let i = 0; i <op_input.params[0]; i++){
-          rep_inputs.push(_.cloneDeep(op_input.drafts[0]));
+        for(let i = 0; i <parent_input.params[0]; i++){
+          rep_inputs.push(_.cloneDeep(child_input.drafts[0]));
         }
 
         const uniqueSystemRows = this.ss.makeWeftSystemsUnique(rep_inputs.map(el => el.rowSystemMapping));
 
-        for(let i = 0; i <op_input.params[0]; i++){
+        for(let i = 0; i <parent_input.params[0]; i++){
 
-          const d: Draft = new Draft({wefts: outwefts, warps:op_input.drafts[0].warps, colShuttleMapping:op_input.drafts[0].colShuttleMapping, colSystemMapping:op_input.drafts[0].colSystemMapping});
+          const d: Draft = new Draft({wefts: outwefts, warps:child_input.drafts[0].warps, colShuttleMapping:child_input.drafts[0].colShuttleMapping, colSystemMapping:child_input.drafts[0].colSystemMapping});
           d.pattern.forEach((row, row_ndx) => {
             row.forEach((cell, j) => {
 
-              const use_row: boolean = row_ndx%op_input.params[0] === i;
-              const input_ndx: number = Math.floor(row_ndx /op_input.params[0]);
-              d.rowShuttleMapping[row_ndx] =op_input.drafts[0].rowShuttleMapping[input_ndx];
+              const use_row: boolean = row_ndx%parent_input.params[0] === i;
+              const input_ndx: number = Math.floor(row_ndx /parent_input.params[0]);
+              d.rowShuttleMapping[row_ndx] =child_input.drafts[0].rowShuttleMapping[input_ndx];
 
 
               if(use_row){
-                cell.setHeddle(op_input.drafts[0].pattern[input_ndx][j].getHeddle());
+                cell.setHeddle(child_input.drafts[0].pattern[input_ndx][j].getHeddle());
                 d.rowSystemMapping[row_ndx] = uniqueSystemRows[i][input_ndx]
               } 
               else{
                 cell.setHeddle(null);
-                d.rowSystemMapping[row_ndx] = uniqueSystemRows[row_ndx%op_input.params[0]][input_ndx]
+                d.rowSystemMapping[row_ndx] = uniqueSystemRows[row_ndx%parent_input.params[0]][input_ndx]
               }
             });
           });
 
-          d.gen_name = this.formatName(op_input.drafts, "cut+"+i)
+          d.gen_name = this.formatName(child_input.drafts, "cut+"+i)
           outputs.push(d);
         }
         return Promise.resolve(outputs);
@@ -950,17 +982,26 @@ export class OperationService {
         }
       ],
       perform: (op_inputs: Array<OpInput>)=> {
-        const op_input = op_inputs[0];
-        if(op_input.drafts.length == 0) return Promise.resolve([]);
+
+        const parent_input = op_inputs.find(el => el.op_name == 'selvedge');
+        const child_input = op_inputs.filter(el => el.op_name == 'child');
+        const draft_inlet = op_inputs.find(el => el.inlet == 0);
+        const selvedge_inlet = op_inputs.find(el => el.inlet == 1);
+
+        if(child_input.length === 0) return Promise.resolve([]);
+        if(draft_inlet === undefined) return Promise.resolve([selvedge_inlet.drafts[0]]);
+        if(selvedge_inlet === undefined) return Promise.resolve([draft_inlet.drafts[0]]);
+
+        const all_drafts = [draft_inlet.drafts[0], selvedge_inlet.drafts[0]];
        
-        const num_systems = utilInstance.filterToUniqueValues(op_input.drafts[0].rowSystemMapping).length;
+        const num_systems = utilInstance.filterToUniqueValues(all_drafts[0].rowSystemMapping).length;
         const height = 2*num_systems;
 
 
         let pattern:Array<Array<Cell>> = [];
         
-        if(op_input.drafts.length == 2){
-          pattern = op_input.drafts[1].pattern;
+        if(selvedge_inlet !== undefined){
+          pattern = all_drafts[1].pattern;
         }else{
           for(let i = 0; i < height; i++){
             pattern.push([]);
@@ -973,19 +1014,19 @@ export class OperationService {
         
         
  
-        const input: Draft = op_input.drafts[0];
-        const d: Draft = new Draft({warps: input.warps +op_input.params[0]*2, wefts: input.wefts});
+        const input: Draft = all_drafts[0];
+        const d: Draft = new Draft({warps: input.warps +parent_input.params[0]*2, wefts: input.wefts});
             
             
         for(let i = 0; i < d.wefts; i++){
           for(let j = 0; j < d.warps; j++){
-            if(j < op_input.params[0]){
+            if(j < parent_input.params[0]){
               //left selvedge
               d.pattern[i][j].setHeddle(pattern[(i+1)%pattern.length][j%pattern[0].length].getHeddle());
 
-            }else if(j < op_input.params[0]+input.warps){
+            }else if(j < parent_input.params[0]+input.warps){
               //pattern
-              d.pattern[i][j].setHeddle(input.pattern[i][j - op_input.params[0]].getHeddle());
+              d.pattern[i][j].setHeddle(input.pattern[i][j - parent_input.params[0]].getHeddle());
 
             }else{
               //right selvedge
@@ -995,9 +1036,9 @@ export class OperationService {
           }
         }
 
-        if(op_input.drafts.length > 0){
-          this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-          d.gen_name = this.formatName(op_input.drafts, "sel")
+        if(all_drafts.length > 0){
+          this.transferSystemsAndShuttles(d,all_drafts,parent_input.params, 'first');
+          d.gen_name = this.formatName(all_drafts, "sel")
 
         }
 
@@ -1027,14 +1068,14 @@ export class OperationService {
         }
       ],
       inlets: [{
-        name: 'base draft', 
+        name: 'a', 
         type: 'static',
         value: null,
         dx: 'all the drafts you would like to overlay another onto',
         num_drafts: 1
       },
       {
-        name: 'overlay', 
+        name: 'b', 
         type: 'static',
         value: null,
         dx: 'the draft you would like to overlay onto the base',
@@ -1042,18 +1083,25 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>)=> {
-        const op_input = op_inputs[0];
 
-        if(op_input.drafts.length < 1) return Promise.resolve([]);
+        const parent_input = op_inputs.find(el => el.op_name == 'overlay, (a,b) => (a OR b)');
+        const child_inputs = op_inputs.filter(el => el.op_name == 'child');
+        const base = op_inputs.find(el => el.inlet == 0);
+        const top = op_inputs.find(el => el.inlet == 1);
 
-        const inputs_divided =op_input.drafts.slice();
+        if(child_inputs.length == 0) return Promise.resolve([]);
+        if(base === undefined) return Promise.resolve([top.drafts[0]]);
+        if(top === undefined) return Promise.resolve([base.drafts[0]]);
+
+        const alldrafts = [base.drafts[0], top.drafts[0]];
+        const inputs_divided =alldrafts.slice();
         const first: Draft =inputs_divided.shift();
 
         const outputs: Array<Draft> = [];
 
 
-        let width: number = utilInstance.getMaxWarps(op_input.drafts) +op_input.params[0];
-        let height: number = utilInstance.getMaxWefts(op_input.drafts) +op_input.params[1];
+        let width: number = utilInstance.getMaxWarps(alldrafts) +parent_input.params[0];
+        let height: number = utilInstance.getMaxWefts(alldrafts) +parent_input.params[1];
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
@@ -1076,7 +1124,7 @@ export class OperationService {
         //now merge in all of the additionalop_input.drafts offset by theop_input.drafts
         const d: Draft =inputs_divided.reduce((acc, input) => {
           input.pattern.forEach((row, i) => {
-            const adj_i: number = i+op_input.params[1];
+            const adj_i: number = i+parent_input.params[1];
 
             //if the new draft has only nulls on this row, set the value to the input value
             if(utilInstance.hasOnlyUnset(acc.pattern[adj_i])){
@@ -1085,7 +1133,7 @@ export class OperationService {
             }
             row.forEach((cell, j) => {
               //if i or j is less than input params 
-              const adj_j: number = j+op_input.params[0];
+              const adj_j: number = j+parent_input.params[0];
               acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('or', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
             });
           });
@@ -1096,7 +1144,7 @@ export class OperationService {
 
         //this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
         //d.name = this.formatName(op_input.drafts, "overlay")
-        d.gen_name =op_input.drafts.reduce((acc, el) => {
+        d.gen_name =alldrafts.reduce((acc, el) => {
           return acc+"+"+el.getName()
         }, "").substring(1);
 
@@ -1126,14 +1174,14 @@ export class OperationService {
         }
       ],
       inlets: [{
-        name: 'base draft', 
+        name: 'a', 
         type: 'static',
         value: null,
         dx: 'all the drafts you would like to set another on top of',
         num_drafts: 1
       },
       {
-        name: 'atop', 
+        name: 'b', 
         type: 'static',
         value: null,
         dx: 'the draft you would like to set atop the base',
@@ -1141,17 +1189,24 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'set atop, (a, b) => a');
+        const child_inputs = op_inputs.filter(el => el.op_name == 'child');
+        const base = op_inputs.find(el => el.inlet == 0);
+        const top = op_inputs.find(el => el.inlet == 1);
 
-        if(op_input.drafts.length < 1) return Promise.resolve([]);
+        if(child_inputs.length == 0) return Promise.resolve([]);
+        if(base === undefined) return Promise.resolve([top.drafts[0]]);
+        if(top === undefined) return Promise.resolve([base.drafts[0]]);
 
-        const first: Draft =op_input.drafts.shift();
+        const alldrafts = [base.drafts[0], top.drafts[0]];
+
+        const first: Draft =alldrafts.shift();
 
         const outputs: Array<Draft> = [];
 
 
-        let width: number = utilInstance.getMaxWarps(op_input.drafts) +op_input.params[0];
-        let height: number = utilInstance.getMaxWefts(op_input.drafts) +op_input.params[1];
+        let width: number = utilInstance.getMaxWarps(alldrafts) +parent_input.params[0];
+        let height: number = utilInstance.getMaxWefts(alldrafts) +parent_input.params[1];
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
@@ -1165,20 +1220,20 @@ export class OperationService {
           });
 
         //now merge in all of the additionalop_input.drafts offset by theop_input.drafts
-        const d: Draft =op_input.drafts.reduce((acc, input) => {
+        const d: Draft =alldrafts.reduce((acc, input) => {
           input.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
               //if i or j is less than input params 
-              const adj_i: number = i+op_input.params[1];
-              const adj_j: number = j+op_input.params[0];
+              const adj_i: number = i+parent_input.params[1];
+              const adj_j: number = j+parent_input.params[0];
               acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('up', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
             });
           });
           return acc;
 
         }, init_draft);
-        this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-        d.gen_name = this.formatName(op_input.drafts, "atop")
+        this.transferSystemsAndShuttles(d,alldrafts,parent_input.params, 'first');
+        d.gen_name = this.formatName(alldrafts, "atop")
 
         outputs.push(d);
         return Promise.resolve(outputs);
@@ -1206,14 +1261,14 @@ export class OperationService {
         }
       ],
       inlets: [{
-        name: 'base draft', 
+        name: 'a', 
         type: 'static',
         value: null,
         dx: 'all the drafts you would like to xor another onto',
         num_drafts: 1
       },
       {
-        name: 'xor', 
+        name: 'b', 
         type: 'static',
         value: null,
         dx: 'the draft you would like to xor over the base',
@@ -1221,17 +1276,23 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>)=> {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'knockout, (a, b) => (a XOR b)');
+        const child_inputs = op_inputs.filter(el => el.op_name == 'child');
+        const base = op_inputs.find(el => el.inlet == 0);
+        const top = op_inputs.find(el => el.inlet == 1);
 
-        if(op_input.drafts.length < 1) return Promise.resolve([]);
+        if(child_inputs.length == 0) return Promise.resolve([]);
+        if(base === undefined) return Promise.resolve([top.drafts[0]]);
+        if(top === undefined) return Promise.resolve([base.drafts[0]]);
 
-        const first: Draft =op_input.drafts.shift();
+        const alldrafts = [base.drafts[0], top.drafts[0]];
+        const first: Draft =alldrafts.shift();
 
         const outputs: Array<Draft> = [];
 
 
-        let width: number = utilInstance.getMaxWarps(op_input.drafts) +op_input.params[0];
-        let height: number = utilInstance.getMaxWefts(op_input.drafts) +op_input.params[1];
+        let width: number = utilInstance.getMaxWarps(alldrafts) +parent_input.params[0];
+        let height: number = utilInstance.getMaxWefts(alldrafts) +parent_input.params[1];
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
@@ -1245,20 +1306,20 @@ export class OperationService {
           });
 
         //now merge in all of the additionalop_input.drafts offset by theop_input.drafts
-        const d: Draft =op_input.drafts.reduce((acc, input) => {
+        const d: Draft =alldrafts.reduce((acc, input) => {
           input.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
               //if i or j is less than input params 
-              const adj_i: number = i+op_input.params[1];
-              const adj_j: number = j+op_input.params[0];
+              const adj_i: number = i+parent_input.params[1];
+              const adj_j: number = j+parent_input.params[0];
               acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('neq', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
             });
           });
           return acc;
 
         }, init_draft);
-        this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-        d.gen_name = this.formatName(op_input.drafts, "ko");
+        this.transferSystemsAndShuttles(d,alldrafts,parent_input.params, 'first');
+        d.gen_name = this.formatName(alldrafts, "ko");
         outputs.push(d);
         return Promise.resolve(outputs);
       }        
@@ -1285,14 +1346,14 @@ export class OperationService {
         }
       ],
       inlets: [{
-        name: 'base draft', 
+        name: 'a', 
         type: 'static',
         value: null,
         dx: 'all the draft you would like to mask',
         num_drafts: 1
       },
       {
-        name: 'mask', 
+        name: 'b', 
         type: 'static',
         value: null,
         dx: 'the draft to use as the mask',
@@ -1300,17 +1361,23 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'mask, (a,b) => (a AND b)');
+        const child_inputs = op_inputs.filter(el => el.op_name == 'child');
+        const base = op_inputs.find(el => el.inlet == 0);
+        const top = op_inputs.find(el => el.inlet == 1);
 
-        if(op_input.drafts.length < 1) return Promise.resolve([]);
+        if(child_inputs.length == 0) return Promise.resolve([]);
+        if(base === undefined) return Promise.resolve([top.drafts[0]]);
+        if(top === undefined) return Promise.resolve([base.drafts[0]]);
 
-        const first: Draft =op_input.drafts.shift();
+        const alldrafts = [base.drafts[0], top.drafts[0]];
+        const first: Draft =alldrafts.shift();
 
         const outputs: Array<Draft> = [];
 
 
-        let width: number = utilInstance.getMaxWarps(op_input.drafts) +op_input.params[0];
-        let height: number = utilInstance.getMaxWefts(op_input.drafts) +op_input.params[1];
+        let width: number = utilInstance.getMaxWarps(alldrafts) +parent_input.params[0];
+        let height: number = utilInstance.getMaxWefts(alldrafts) +parent_input.params[1];
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
@@ -1324,104 +1391,26 @@ export class OperationService {
           });
 
         //now merge in all of the additionalop_input.drafts offset by theop_input.drafts
-        const d: Draft =op_input.drafts.reduce((acc, input) => {
+        const d: Draft =alldrafts.reduce((acc, input) => {
           input.pattern.forEach((row, i) => {
             row.forEach((cell, j) => {
               //if i or j is less than input params 
-              const adj_i: number = i+op_input.params[1];
-              const adj_j: number = j+op_input.params[0];
+              const adj_i: number = i+parent_input.params[1];
+              const adj_j: number = j+parent_input.params[0];
               acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('and', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
             });
           });
           return acc;
 
         }, init_draft);
-        this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-        d.gen_name = this.formatName(op_input.drafts, "mask")
+        this.transferSystemsAndShuttles(d,alldrafts,parent_input.params, 'first');
+        d.gen_name = this.formatName(alldrafts, "mask")
         outputs.push(d);
         return Promise.resolve(outputs);
       }        
     }
 
-    const erase: Operation = {
-      name: 'erase,  (a,b) => (NOT a OR b)',
-      displayname: 'erase,  (a,b) => (NOT a OR b)',
-      dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
-      params: <Array<NumParam>>[
-        {name: 'left offset',
-        type: 'number',
-        min: 0,
-        max: 10000,
-        value: 0,
-        dx: "the amount to offset the addedop_input.drafts from the left"
-        },
-        {name: 'bottom offset',
-        type: 'number',
-        min: 0,
-        max: 10000,
-        value: 0,
-        dx: "the amount to offset the overlayingop_input.drafts from the bottom"
-        }
-      ],
-      inlets: [{
-        name: 'base draft', 
-        type: 'static',
-        value: null,
-        dx: 'all the drafts you would like to have erased by another draft',
-        num_drafts: 1
-      },
-      {
-        name: 'erase', 
-        type: 'static',
-        value: null,
-        dx: 'the draft you would like to use to erase the base',
-        num_drafts: 1
-      }
-    ],
-      perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
-
-        if(op_input.drafts.length < 1) return Promise.resolve([]);
-
-        const first: Draft =op_input.drafts.shift();
-
-        const outputs: Array<Draft> = [];
-
-
-        let width: number = utilInstance.getMaxWarps(op_input.drafts) +op_input.params[0];
-        let height: number = utilInstance.getMaxWefts(op_input.drafts) +op_input.params[1];
-        if(first.warps > width) width = first.warps;
-        if(first.wefts > height) height = first.wefts;
-
-        //initialize the base container with the first draft at 0,0, unset for anythign wider
-        const init_draft: Draft = new Draft({wefts: height, warps: width});
-          
-        first.pattern.forEach((row, i) => {
-            row.forEach((cell, j) => {
-              init_draft.pattern[i][j].setHeddle(cell.getHeddle());
-            });
-          });
-
-        //now merge in all of the additionalop_input.drafts offset by theop_input.drafts
-        const d: Draft =op_input.drafts.reduce((acc, input) => {
-          input.pattern.forEach((row, i) => {
-            row.forEach((cell, j) => {
-              //if i or j is less than input params 
-              const adj_i: number = i+op_input.params[1];
-              const adj_j: number = j+op_input.params[0];
-              acc.pattern[adj_i][adj_j].setHeddle(utilInstance.computeFilter('down', cell.getHeddle(), acc.pattern[adj_i][adj_j].getHeddle()));
-            });
-          });
-          return acc;
-
-        }, init_draft);
-        this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-        d.gen_name = this.formatName(op_input.drafts, "erase")
-        outputs.push(d);
-        return Promise.resolve(outputs);
-      }        
-    }
-
+   
 
     const fill: Operation = {
       name: 'fill',
@@ -1451,66 +1440,45 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>) => {
-        let outputs: Array<Draft> = [];
-        const op_input = op_inputs[0];
 
-        if(op_input.drafts.length == 0){
-          outputs.push(new Draft({warps:0, wefts: 0}));
-        }
+        const child_inputs = op_inputs.filter(el => el.op_name == 'child');
+        const base = op_inputs.find(el => el.inlet == 0);
+        const black = op_inputs.find(el => el.inlet == 1);
+        const white = op_inputs.find(el => el.inlet == 2);
 
-        if(op_input.drafts.length == 1){
-          outputs.push(new Draft(
-            {warps: op_input.drafts[0].warps, 
-              wefts:op_input.drafts[0].wefts, 
-              pattern:op_input.drafts[0].pattern,
-              rowShuttleMapping:op_input.drafts[0].rowShuttleMapping,
-              colShuttleMapping:op_input.drafts[0].colSystemMapping,
-              rowSystemMapping:op_input.drafts[0].rowSystemMapping,
-              colSystemMapping:op_input.drafts[0].colSystemMapping}));
-        }
+        if(child_inputs.length == 0) return Promise.resolve([]);
+        if(base === undefined) return Promise.resolve([]);
+        if(black === undefined && white === undefined) return Promise.resolve([base.drafts[0]]);
 
-        if(op_input.drafts.length == 2){
-          let d = new Draft({
-            warps:op_input.drafts[0].warps, 
-            wefts:op_input.drafts[0].wefts, 
-            pattern:op_input.drafts[0].pattern,
-            rowShuttleMapping:op_input.drafts[1].rowShuttleMapping,
-            colShuttleMapping:op_input.drafts[1].colSystemMapping,
-            rowSystemMapping:op_input.drafts[1].rowSystemMapping,
-            colSystemMapping:op_input.drafts[1].colSystemMapping});
-          d.fill(op_input.drafts[1].pattern, 'mask');
-          outputs.push(d);
-        }
+        const alldrafts = [base.drafts[0], black?.drafts[0], white?.drafts[0]];
+    
+        const d = new Draft(
+          {warps: alldrafts[0].warps, 
+            wefts:alldrafts[0].wefts, 
+            pattern:alldrafts[0].pattern,
+            rowShuttleMapping:alldrafts[0].rowShuttleMapping,
+            colShuttleMapping:alldrafts[0].colSystemMapping,
+            rowSystemMapping:alldrafts[0].rowSystemMapping,
+            colSystemMapping:alldrafts[0].colSystemMapping});
+      
+        for(let i = 0; i < d.wefts; i++){
+          for(let j = 0; j < d.warps; j++){
+            const val = d.pattern[i][j].getHeddle();
+            if(val !== null){
+              if(val && black !== undefined){
+                const adj_i = i%alldrafts[1].wefts;
+                const adj_j = j%alldrafts[1].warps;
+                d.pattern[i][j].setHeddle(alldrafts[1].pattern[adj_i][adj_j].getHeddle())
+              }else if(!val && white !== undefined){
+                const adj_i = i%alldrafts[2].wefts;
+                const adj_j = j%alldrafts[2].warps;
+                d.pattern[i][j].setHeddle(alldrafts[2].pattern[adj_i][adj_j].getHeddle())
+              }
+            }
+          }
+        }    
 
-        if(op_input.drafts.length === 3){
-          let d = new Draft({warps:op_input.drafts[0].warps, wefts:op_input.drafts[0].wefts, pattern:op_input.drafts[0].pattern});
-          let di = new Draft({warps:op_input.drafts[0].warps, wefts:op_input.drafts[0].wefts, pattern:op_input.drafts[0].pattern});
-          di.fill(op_input.drafts[0].pattern, 'invert');
-          di.fill(op_input.drafts[2].pattern, 'mask');
-          d.fill(op_input.drafts[1].pattern, 'mask');
-
-          const op: Operation = <Operation> this.getOp('overlay, (a,b) => (a OR b)');
-        
-          const gen_inputs:Array<OpInput> = [];
-          gen_inputs.push({
-            op_name: "fill",
-            drafts:[d, di], 
-            inlet: 0,
-            params:[0, 0 ]
-          })
-
-          op.perform(gen_inputs)
-            .then(out => {
-              d.gen_name = this.formatName(op_input.drafts, "fill")
-              outputs.push(out[0]);              
-            });
-        }
-
-        //ADD Transfer here
-
-        
-
-        return Promise.resolve(outputs);
+        return Promise.resolve([d]);
       }        
     }
 
@@ -1536,33 +1504,34 @@ export class OperationService {
       }],
       perform: (op_inputs: Array<OpInput>) => {
 
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'tabby');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
-        const width: number =op_input.params[0]*2;
-        const height: number =op_input.params[0]*2;
+        const width: number =parent_input.params[0]*2;
+        const height: number =parent_input.params[0]*2;
 
         let alt_rows, alt_cols, val: boolean = false;
         const pattern:Array<Array<Cell>> = [];
         for(let i = 0; i < height; i++){
-          alt_rows = (i <op_input.params[0]);
+          alt_rows = (i <parent_input.params[0]);
           pattern.push([]);
           for(let j = 0; j < width; j++){
-            alt_cols = (j <op_input.params[0]);
+            alt_cols = (j <parent_input.params[0]);
             val = (alt_cols && alt_rows) || (!alt_cols && !alt_rows);
             pattern[i][j] =  new Cell(val);
           }
         }
 
         let outputs: Array<Draft> = [];
-        if(op_input.drafts.length == 0){
+        if(child_input  == undefined){
           const d: Draft = new Draft({warps: width, wefts: height, pattern: pattern});
           outputs.push(d);
         }else{
-          outputs =op_input.drafts.map(input => {
+          outputs =child_input.drafts.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
-            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-            d.gen_name = this.formatName(op_input.drafts, "tabby")
+            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
+            d.gen_name = this.formatName(child_input.drafts, "tabby")
             return d;
           });
         }
@@ -1602,34 +1571,35 @@ export class OperationService {
       }],
       perform: (op_inputs: Array<OpInput>) => {
 
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'basket');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
 
-        const sum: number =op_input.params.reduce( (acc, val) => {
+        const sum: number =parent_input.params.reduce( (acc, val) => {
             return val + acc;
         }, 0);
 
         let alt_rows, alt_cols, val: boolean = false;
         const pattern:Array<Array<Cell>> = [];
         for(let i = 0; i < sum; i++){
-          alt_rows = (i % sum <op_input.params[0]);
+          alt_rows = (i % sum <parent_input.params[0]);
           pattern.push([]);
           for(let j = 0; j < sum; j++){
-            alt_cols = (j % sum <op_input.params[0]);
+            alt_cols = (j % sum <parent_input.params[0]);
             val = (alt_cols && alt_rows) || (!alt_cols && !alt_rows);
             pattern[i][j] =  new Cell(val);
           }
         }
 
         let outputs: Array<Draft> = [];
-        if(op_input.drafts.length == 0){
+        if(child_input  == undefined){
           const d: Draft = new Draft({warps: sum, wefts: sum, pattern: pattern});
           outputs.push(d);
         }else{
-          outputs =op_input.drafts.map(input => {
+          outputs =child_input.drafts.map(input => {
             const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
             d.fill(pattern, 'mask');
-            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-            d.gen_name = this.formatName(op_input.drafts, "basket")
+            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
+            d.gen_name = this.formatName(child_input.drafts, "basket")
             return d;
           });
         }
@@ -1668,24 +1638,26 @@ export class OperationService {
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'stretch');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        if(child_input == undefined) return Promise.resolve([]);
 
-        const outputs: Array<Draft> =op_input.drafts.map(input => {
-            const d: Draft = new Draft({warps:op_input.params[0]*input.warps, wefts:op_input.params[1]*input.wefts});
+        const outputs: Array<Draft> =child_input.drafts.map(input => {
+            const d: Draft = new Draft({warps:parent_input.params[0]*input.warps, wefts:parent_input.params[1]*input.wefts});
             input.pattern.forEach((row, i) => {
-              for(let p = 0; p <op_input.params[1]; p++){
-                let i_ndx =op_input.params[1] * i + p;
+              for(let p = 0; p <parent_input.params[1]; p++){
+                let i_ndx =parent_input.params[1] * i + p;
                 row.forEach((cell, j) => {
-                  for(let r = 0; r <op_input.params[0]; r++){
-                    let j_ndx =op_input.params[0] * j + r;
+                  for(let r = 0; r <parent_input.params[0]; r++){
+                    let j_ndx =parent_input.params[0] * j + r;
                     d.pattern[i_ndx][j_ndx].setHeddle(cell.getHeddle());
                   }
                 });
 
               }
             });
-            this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'stretch');
-            d.gen_name = this.formatName(op_input.drafts, "stretch")
+            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'stretch');
+            d.gen_name = this.formatName(child_input.drafts, "stretch")
             return d;
             
         });

@@ -52,7 +52,7 @@ export class ConnectionComponent implements OnInit {
     this.from = from_io.tn.node.id;
     this.to = to_io.tn.node.id;
 
-    this.no_draw =this.tree.getType(this.from) === 'op';
+    this.no_draw = this.tree.getType(this.from) === 'op' && this.tree.hasSingleChild(this.from);
 
   }
 

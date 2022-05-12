@@ -673,7 +673,6 @@ export class PaletteComponent implements OnInit{
    * @returns the id of the node this has been assigned to
    */
     loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, bounds:Bounds, saved_scale: number){
-        console.log("bounds", id, bounds);
 
         const factory = this.resolver.resolveComponentFactory(OperationComponent);
         const op = this.vc.createComponent<OperationComponent>(factory);
@@ -1486,11 +1485,18 @@ calculateInitialLocaiton(id: number) : Bounds {
 
     const parent_id = this.tree.getSubdraftParent(id);
     const opnode = this.tree.getNode(parent_id);
+    const parent_bounds = opnode.component.bounds;
 
-    //component is not yet initalized on this calculation so we do it manually
-    const default_height =  (60 + 40 * (<OpNode> opnode).params.length) * this.scale/this.default_cell_size;
+    //this component was just generated and needs a postion
+    if(parent_bounds.topleft.x == 0 && parent_bounds.topleft.y == 0){
 
-    new_bounds.topleft = {x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + default_height};
+      //component is not yet initalized on this calculation so we do it manually
+      const default_height =  (60 + 40 * (<OpNode> opnode).params.length) * this.scale/this.default_cell_size;
+      new_bounds.topleft = {x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + default_height};
+
+    }else{
+      new_bounds.topleft = {x: parent_bounds.topleft.x, y: parent_bounds.topleft.y + parent_bounds.height};
+    }
 
     const outs = this.tree.getNonCxnOutputs(parent_id);
     if(outs.length > 1){
