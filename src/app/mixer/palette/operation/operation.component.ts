@@ -11,6 +11,7 @@ import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { ImageService } from '../../../core/provider/image.service';
 import { SystemsService } from '../../../core/provider/systems.service';
+import { stat } from 'fs';
 
 
 
@@ -301,6 +302,10 @@ export class OperationComponent implements OnInit {
       //check to see if we should add or remove draft inputs
       if(obj.id === (<DynamicOperation>this.op).dynamic_param_id){
         const type = (<DynamicOperation>this.op).dynamic_param_type;
+
+        let static_inputs = this.op.inlets.filter(el => el.type === 'static');
+        let num_dynamic_inlets = opnode.inlets.length - static_inputs.length;
+
         switch(type){
 
           case 'notation':
@@ -329,20 +334,30 @@ export class OperationComponent implements OnInit {
           break;
 
           case 'number':
-          case 'system':
-            if(value > opnode.inlets.length){
-              for(let i = opnode.inlets.length; i < value; i++){
 
-                if(type === 'number'){
-                  opnode.inlets.push(i);
-                }else{
-                  this.systems.weft_systems[i-1].in_use = true;
-                  opnode.inlets.push(i-1);
-                } 
+      
+            if(value > num_dynamic_inlets){
+              for(let i = num_dynamic_inlets; i < value; i++){
+                  opnode.inlets.push(i+1);
+              }
+            }else if(value < num_dynamic_inlets){
+              const delete_num = num_dynamic_inlets - value;
+              opnode.inlets = opnode.inlets.slice(0, -delete_num);
+            }
+
+          break;
+          case 'system':
+             static_inputs = this.op.inlets.filter(el => el.type === 'static');
+             num_dynamic_inlets = opnode.inlets.length - static_inputs.length;
+
+            if(value > num_dynamic_inlets){
+              for(let i = num_dynamic_inlets; i < value; i++){
+                  this.systems.weft_systems[i].in_use = true;
+                  opnode.inlets.push(i);  
               }
 
-            }else if(value < opnode.inlets.length){
-              opnode.inlets.splice(value,  opnode.inlets.length - value);
+            }else if(value < num_dynamic_inlets){
+              opnode.inlets = opnode.inlets.splice(value+static_inputs,  num_dynamic_inlets - value);
             }
           break;
 

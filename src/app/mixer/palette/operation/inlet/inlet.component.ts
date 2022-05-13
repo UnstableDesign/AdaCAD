@@ -87,7 +87,6 @@ export class InletComponent implements OnInit {
   inletChange(value: any){
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
     this.fc.setValue(value);
-    console.log("Inlet change Before", this.inletid, value, this.inlet, opnode.inlets)
     
     switch(this.inlet.type){
       case 'number':
@@ -106,7 +105,6 @@ export class InletComponent implements OnInit {
     }
 
     this.onInletChange.emit({id: this.inletid});
-    console.log("Inlet change After", this.inletid, value, this.inlet, opnode.inlets)
 
   }
 

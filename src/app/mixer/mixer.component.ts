@@ -319,7 +319,7 @@ export class MixerComponent implements OnInit {
     const images_to_load = [];
     data.ops.forEach(op => {
       const internal_op = this.ops.getOp(op.name); 
-      if(internal_op === undefined) return;
+      if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
       const param_types = internal_op.params.map(el => el.type);
       param_types.forEach((p, ndx) => {
         if(p === 'file') images_to_load.push(op.params[ndx]);

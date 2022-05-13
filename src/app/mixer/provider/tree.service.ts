@@ -165,7 +165,7 @@ export class TreeService {
 
     const node = nodes[0];
 
-    if(op === undefined){
+    if(op === undefined || op === null){
       return Promise.reject("no op of name:"+name+" exists");
     }  
 
@@ -179,7 +179,7 @@ export class TreeService {
       inlets = [];
     }
 
-    const param_types = this.ops.getOp(name).params.map(el => el.type);
+    const param_types = op.params.map(el => el.type);
 
 
       const formatted_params = param_types.map((type, ndx) => {
@@ -1305,13 +1305,16 @@ flipDraft(draft: Draft) : Promise<Draft>{
    
     return Promise.all(flip_fns)
     .then(flipped_drafts => {
-        const paraminputs = draft_id_to_ndx.map(el => {
+       
+      const paraminputs = draft_id_to_ndx.map(el => {
           const draft = flipped_drafts.find(draft => draft.id === el.draft_id);
-          return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
+          if(draft === undefined) return undefined;
+          else return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
         })
       
+      const cleaned_inputs = paraminputs.filter(el => el != undefined);
 
-      inputs = inputs.concat(paraminputs);
+      inputs = inputs.concat(cleaned_inputs);
       return op.perform(inputs);
 
     })
