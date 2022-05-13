@@ -116,7 +116,9 @@ export class InitModal implements OnInit {
 
  
 
-
+  close(): void {
+    this.dialogRef.close(null);
+  }
 
  
   onNoClick(): void {

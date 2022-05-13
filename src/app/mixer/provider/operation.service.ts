@@ -375,9 +375,9 @@ export class OperationService {
           {warps:inputdraft.drafts[0].warps, 
           wefts:inputdraft.drafts[0].wefts,
           rowShuttleMapping: materials.drafts[0].rowShuttleMapping,
-          rowSystemMapping: materials.drafts[0].rowSystemMapping,
+          rowSystemMapping: inputdraft.drafts[0].rowSystemMapping,
           colShuttleMapping: materials.drafts[0].colShuttleMapping,
-          colSystemMapping: materials.drafts[0].colSystemMapping,
+          colSystemMapping: inputdraft.drafts[0].colSystemMapping,
         });
         inputdraft.drafts[0].pattern.forEach((row, i) => {
           row.forEach((cell, j) => {
@@ -2162,7 +2162,7 @@ export class OperationService {
 
         if(child_input === undefined){
           const d: Draft = new Draft({warps: sum, wefts: sum, pattern: pattern});
-          d.gen_name = this.formatName([], "complet twill");
+          d.gen_name = this.formatName([], "complex twill");
           outputs.push(d);
   
 
@@ -2213,6 +2213,7 @@ export class OperationService {
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
 
+        console.log("child inputs", child_inputs);
   
         if(child_inputs.length == 0) return Promise.resolve([]);
 
@@ -2227,14 +2228,18 @@ export class OperationService {
         const system_map = child_inputs.find(el => el.inlet === 0);
 
         if(system_map === undefined) return Promise.resolve([]); ;
+       
+        
+        const draft_inlets = child_inputs.filter(el => el.inlet > 0).map(el => el.drafts[0]);
 
         let total_wefts: number = 0;
-        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
+        const all_wefts = draft_inlets.map(el => el.wefts).filter(el => el > 0);
         total_wefts = utilInstance.lcm(all_wefts);
 
         let total_warps: number = 0;
-        const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
+        const all_warps = draft_inlets.map(el => el.warps).filter(el => el > 0);
         total_warps = utilInstance.lcm(all_warps);
+
 
 
         //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
@@ -2254,8 +2259,8 @@ export class OperationService {
         
 
         const d: Draft = new Draft({
-          warps: total_warps, 
-          wefts: total_wefts,
+          warps: total_warps*system_map.drafts[0].warps, 
+          wefts: total_wefts*system_map.drafts[0].wefts,
           rowShuttleMapping: system_map.drafts[0].rowShuttleMapping,
           rowSystemMapping: system_map.drafts[0].rowSystemMapping,
           colShuttleMapping: system_map.drafts[0].colShuttleMapping,
@@ -2263,13 +2268,13 @@ export class OperationService {
         });
 
         d.pattern = [];
-        for(let i = 0; i < total_wefts; i++){
+        for(let i = 0; i < d.wefts; i++){
           let active_wesy = this.ss.getWeftSystem(d.rowSystemMapping[i]).name;
           const active_weft_entry = system_draft_map.find(el => el.wesy.findIndex(wesyel => wesyel === active_wesy) !== -1);
           let increment_flag = false;
 
           d.pattern.push([]);
-          for(let j = 0; j < total_warps; j++){
+          for(let j = 0; j < d.warps; j++){
             let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
             const active_warp_entry = system_draft_map.find(el => el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1);
             const entry = system_draft_map.find(el => (el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1 && el.wesy.findIndex(wesyel => wesyel === active_wesy)!== -1));
@@ -2304,7 +2309,7 @@ export class OperationService {
         }
         
         d.gen_name = this.formatName([], "notation");
-
+        console.log("output draft", d);
         return  Promise.resolve([d]);
 
        
