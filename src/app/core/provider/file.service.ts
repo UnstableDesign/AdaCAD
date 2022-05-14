@@ -497,7 +497,6 @@ export class FileService {
       const draft: Draft = new Draft({warps: warps, wefts: wefts});
       drafts.push(draft);
 
-      console.log("form data", f.value)
 
       var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
       var treadle_num = (f.value.treadle_num === undefined) ? 10 : f.value.treadle_num;
@@ -564,7 +563,6 @@ export class FileService {
 
       //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
-      console.log("out", out);
       return Promise.resolve({json: theJSON, file: out});
 
 

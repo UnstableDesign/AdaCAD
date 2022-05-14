@@ -85,24 +85,24 @@ export class InletComponent implements OnInit {
   }
 
   inletChange(value: any){
-    const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
-    this.fc.setValue(value);
+    // const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
+    // this.fc.setValue(value);
     
-    switch(this.inlet.type){
-      case 'number':
-        opnode.inlets[this.inletid] = value;
-        break;
-      case 'system':
-        //opnode.inlets[this.inletid] = value;
-        break;
-      case 'color':
-        opnode.inlets[this.inletid] = value;
-        break;
-      case 'notation':
-        opnode.inlets[this.inletid] = value;
-        break;
+    // switch(this.inlet.type){
+    //   case 'number':
+    //     opnode.inlets[this.inletid] = value;
+    //     break;
+    //   case 'system':
+    //     opnode.inlets[this.inletid] = value;
+    //     break;
+    //   case 'color':
+    //     opnode.inlets[this.inletid] = value;
+    //     break;
+    //   case 'notation':
+    //     opnode.inlets[this.inletid] = value;
+    //     break;
 
-    }
+    // }
 
     this.onInletChange.emit({id: this.inletid});
 

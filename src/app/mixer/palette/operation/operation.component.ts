@@ -294,83 +294,13 @@ export class OperationComponent implements OnInit {
    */
   onParamChange(obj: any){
 
-
     if(this.is_dynamic_op){
-      const opnode: OpNode = <OpNode> this.tree.getNode(this.id);
-      let value = opnode.params[obj.id];
-
-      //check to see if we should add or remove draft inputs
-      if(obj.id === (<DynamicOperation>this.op).dynamic_param_id){
-        const type = (<DynamicOperation>this.op).dynamic_param_type;
-
-        let static_inputs = this.op.inlets.filter(el => el.type === 'static');
-        let num_dynamic_inlets = opnode.inlets.length - static_inputs.length;
-
-        switch(type){
-
-          case 'notation':
-
-
-            const matches = utilInstance.parseRegex(obj.value, (<StringParam>this.op.params[0]).regex);
-            opnode.inlets = opnode.inlets.slice(0,1);
-            matches.forEach(el => {
-              opnode.inlets.push(el);
-            })
-
-            // const static_ndxs:number = this.op.inlets.filter(el => el.type == 'static').length;
-            // const updates = utilInstance.getInletsToUpdate(matches, opnode.inlets.filter((el, ndx) => ndx >= static_ndxs));
-            
-            // updates.toadd.forEach(inlet => {
-            //   opnode.inlets.push(inlet);
-            // })
-
-            // updates.toremove.forEach(inlet => {
-            //   const ndx = opnode.inlets.findIndex(el => el === inlet);
-            //   opnode.inlets.splice(ndx, 1);
-            // });
-
-         
-
-          break;
-
-          case 'number':
-
-      
-            if(value > num_dynamic_inlets){
-              for(let i = num_dynamic_inlets; i < value; i++){
-                  opnode.inlets.push(i+1);
-              }
-            }else if(value < num_dynamic_inlets){
-              const delete_num = num_dynamic_inlets - value;
-              opnode.inlets = opnode.inlets.slice(0, -delete_num);
-            }
-
-          break;
-          case 'system':
-             static_inputs = this.op.inlets.filter(el => el.type === 'static');
-             num_dynamic_inlets = opnode.inlets.length - static_inputs.length;
-
-            if(value > num_dynamic_inlets){
-              for(let i = num_dynamic_inlets; i < value; i++){
-                  this.systems.weft_systems[i].in_use = true;
-                  opnode.inlets.push(i);  
-              }
-
-            }else if(value < num_dynamic_inlets){
-              opnode.inlets = opnode.inlets.splice(value+static_inputs,  num_dynamic_inlets - value);
-            }
-          break;
-
-            
-
-        }
-      }
-
+      const opnode = <OpNode> this.tree.getNode(this.id);
+      const new_inlets = this.tree.onDynanmicOperationParamChange(this.name, opnode.inlets, obj.id, obj.value)
+      this.opnode.inlets = new_inlets.slice();
     }
     
-
     this.onOperationParamChange.emit({id: this.id});
-   
   }
 
   //returned from a file upload event

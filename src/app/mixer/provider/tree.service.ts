@@ -12,15 +12,12 @@ import { OperationService, OpInput, DynamicOperation, Operation, StringParam } f
 import utilInstance from '../../core/model/util';
 import { UploadService } from '../../core/uploads/upload.service';
 import { element } from 'protractor';
+import { SystemsService } from '../../core/provider/systems.service';
 
 
 /**
  * this class registers the relationships between subdrafts, operations, and connections
  */
-
-
-
-
 
 /**
  * this stores a reference to a component on the palette with its id and some
@@ -97,7 +94,8 @@ export class TreeService {
   constructor(
     private globalloom: GloballoomService,
     private ops: OperationService,
-    private upSvc: UploadService) { 
+    private upSvc: UploadService,
+    private systemsservice: SystemsService) { 
   }
 
 
@@ -143,10 +141,89 @@ export class TreeService {
     this.getOpNode(id).inlets = inlets;
   }
 
+  /**
+   * this is called when a dynamic operation's parameter updates and therefore, must change inlet values
+   * @param node_id an object containing the id of hte parameter that has changed
+   * @param param_id the id of the parameter that changed
+   * @param value the value at that parameter
+   * @returns a list of inlet values to add.
+   */
+   onDynanmicOperationParamChange(name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
+
+
+    const op = this.ops.getOp(name);
+    console.log("dynamic inlets called", name, op);
+
+      let param_type = op.params[param_id].type;
+
+      //check to see if we should add or remove draft inputs
+      if(param_id === (<DynamicOperation>op).dynamic_param_id){
+        const type = (<DynamicOperation>op).dynamic_param_type;
+
+        let static_inputs = op.inlets.filter(el => el.type === 'static');
+        let num_dynamic_inlets = inlets.length - static_inputs.length;
+
+        switch(type){
+
+          case 'notation':
+
+
+            const matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
+            inlets = inlets.slice(0,static_inputs.length);
+            matches.forEach(el => {
+              inlets.push(el);
+            })
+
+          break;
+
+
+          
+          case 'number':
+
+          if(param_type === 'number'){
+            if(param_val > num_dynamic_inlets){
+              for(let i = num_dynamic_inlets; i < param_val; i++){
+                  inlets.push(i+1);
+              }
+            }else if(param_val < num_dynamic_inlets){
+              const delete_num = num_dynamic_inlets - param_val;
+              inlets = inlets.slice(0, -delete_num);
+            }
+          }else if(param_type == 'string'){
+            const all_inputs = param_val.split(' ');
+            const unique_values = utilInstance.filterToUniqueValues(all_inputs);
+            inlets = inlets.slice(0,static_inputs.length);
+            unique_values.forEach(el => {
+              inlets.push(el);
+            })
+          }
+
+          break;
+          case 'system':
+             static_inputs = op.inlets.filter(el => el.type === 'static');
+             num_dynamic_inlets = inlets.length - static_inputs.length;
+
+            if(param_val > num_dynamic_inlets){
+              for(let i = num_dynamic_inlets; i < param_val; i++){
+                  this.systemsservice.weft_systems[i].in_use = true;
+                  inlets.push(i);  
+              }
+            }else if(param_val < num_dynamic_inlets){
+              inlets = inlets.slice(0, param_val+static_inputs);
+            }
+          break;
+
+            
+
+        }
+      }
+    return inlets;
+  }
+
 
 
   /**
-   * loads data into an operation node from a file load or undo/redo event
+   * loads data into an operation node from a file load, or when an operation is first instantiated,  or undo/redo event
    * @param entry the upload entry associated with this node or null if there was no upload associated
    * @param name the name of the operation
    * @param params the parameters to input
@@ -155,6 +232,7 @@ export class TreeService {
    */
    loadOpData(entry: {prev_id: number, cur_id: number}, name: string, params:Array<any>, inlets: Array<any>) : Promise<{on: OpNode, entry:{prev_id: number, cur_id: number}}>{
     
+    console.log("LOAD OP DATA");
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
     const op = this.ops.getOp(name);
@@ -204,64 +282,27 @@ export class TreeService {
         else return p;
       });
 
-      
+      console.log("inlets ", inlets);
+      const default_inlet_values = this.ops.getOp(name).inlets.map(el => el.value);
+
       if(inlets === undefined || inlets.length == 0){
-        
-        //every operation has the first inlet assigned to be the static input
-        if(inlets === undefined) inlets = [];
-
-        if(op.inlets.length > 0){
-          op.inlets.forEach(el => {
-            if(el.value == null)  inlets.push(0);
-            else inlets.push(el.value);
-          });
-        }
-
+        inlets = default_inlet_values.slice();
+        console.log("default inlet values", default_inlet_values);
         if(this.ops.isDynamic(name)){
-          const dynamic_param_id = (<DynamicOperation> op).dynamic_param_id;
-          const default_value = (<DynamicOperation> op).params[dynamic_param_id].value;
-          const dynamic_type = (<DynamicOperation>op).dynamic_param_type;
-  
-          //first push as many as max input allows
-
-          switch(dynamic_type){
-            case 'color':
-              break;
-
-              case 'notation':
-                const make_inlets = utilInstance.parseRegex(params_out[dynamic_param_id], (<StringParam> op.params[0]).regex);
-                console.log("make inlets", make_inlets)
-                for(let i = 0; i < make_inlets.length; i++){
-                  inlets.push(make_inlets[i]);     
-                }    
-              break;
-  
-              case 'number':
-                for(let i = 0; i < params_out[dynamic_param_id]; i++){
-                  inlets.push(i+1);
-                }                
-                break;
-  
-                case 'system':
-
-                for(let i = 0; i < params_out[dynamic_param_id]; i++){
-                    inlets.push(i);
-                  }
-                  break;
-          }
-  
+          const op = <DynamicOperation> this.ops.getOp(name);
+          let dynamic_inlets = this.onDynanmicOperationParamChange(name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
+          inlets = dynamic_inlets.slice();
         }
+      }
 
-      }else{
+       inlets = inlets.map(el => (el === null) ? 0 : el); 
+        console.log(inlets);
 
-        inlets = inlets;
-      }   
-  
   
       node.dirty = false;
       (<OpNode> node).name = name;
       (<OpNode> node).params = params_out.slice();
-      (<OpNode> node).inlets = inlets;
+      (<OpNode> node).inlets = inlets.slice();
   
   
      return Promise.resolve({on:<OpNode> nodes[0], entry});

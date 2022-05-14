@@ -13,6 +13,7 @@ import { DeclareFunctionStmt } from '@angular/compiler';
 import { reauthenticateWithCredential } from 'firebase/auth';
 import { child } from 'firebase/database';
 import { D } from '@angular/cdk/keycodes';
+import { string } from 'mathjs';
 
 
 
@@ -2213,7 +2214,6 @@ export class OperationService {
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
 
-        console.log("child inputs", child_inputs);
   
         if(child_inputs.length == 0) return Promise.resolve([]);
 
@@ -2309,7 +2309,103 @@ export class OperationService {
         }
         
         d.gen_name = this.formatName([], "notation");
-        console.log("output draft", d);
+        return  Promise.resolve([d]);
+
+       
+      }        
+    }
+
+    const warp_profile: DynamicOperation = {
+      name: 'warp_profile',
+      displayname: 'profile draft (cloth width)',
+      dynamic_param_id: 0,
+      dynamic_param_type: 'number',
+      dx: 'if you describe a numeric pattern, it will repeat the inputs in the same pattern',
+      params: <Array<StringParam>>[
+        {name: 'pattern',
+        type: 'string',
+        value: '1 1 2 1 3 1 1',
+        regex: /(\d)*\D/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        error: 'invalid entry',
+        dx: 'all entries must be numbers separated by a space'
+        }
+      ],
+      inlets: [{
+        name: 'weft pattern', 
+        type: 'static',
+        value: null,
+        dx: 'optional, define a custom weft material or system pattern here',
+        num_drafts: 1
+      }],
+      perform: (op_inputs: Array<OpInput>) => {
+
+                
+        // //split the inputs into the input associated with 
+        const parent_input: OpInput = op_inputs.find(el => el.op_name === "warp_profile");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        const weft_system: OpInput = op_inputs.find(el => el.inlet == 0);
+  
+
+        if(child_inputs.length == 0) return Promise.resolve([]);
+
+        let weft_mapping;
+        if(weft_system === undefined) weft_mapping = new Draft({warps: 1, wefts:1});
+        else weft_mapping = weft_system.drafts[0];
+    
+
+        //now just get all the drafts
+        const all_drafts: Array<Draft> = child_inputs
+        .filter(el => el.inlet > 0)
+        .reduce((acc, el) => {
+          el.drafts.forEach(draft => {acc.push(draft)});
+          return acc;
+        }, []);
+       
+      
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
+        total_wefts = utilInstance.lcm(all_wefts);
+
+        let total_warps: number = 0;
+        const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
+        total_warps = utilInstance.lcm(all_warps);
+
+        let pattern = parent_input.params[0].split(' ');
+
+        //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
+        //get the total number of layers
+        const profile_draft_map = child_inputs
+        .map(el => {
+          return  {
+            id: el.inlet, //pull all the letters out into weft system ids
+            draft: el.drafts[0]
+          }
+        });
+
+        
+        const d: Draft = new Draft({
+          warps: total_warps*pattern.length, 
+          wefts: total_wefts,
+          rowShuttleMapping: weft_mapping.rowShuttleMapping,
+          rowSystemMapping: weft_mapping.rowSystemMapping,
+        });
+
+        for(let i = 0; i < d.wefts; i++){
+          for(let j = 0; j < d.warps; j++){
+            const pattern_ndx = Math.floor(j / total_warps);
+            const ndx = pattern[pattern_ndx];
+            const select_draft = profile_draft_map.find(el => el.id === parseInt(ndx));
+            if(select_draft === undefined){
+              d.pattern[i][j] = new Cell(null);
+            }else{
+              const sd: Draft = select_draft.draft;
+              let val = sd.pattern[i%sd.wefts][j%sd.warps].getHeddle();
+              d.pattern[i][j] = new Cell(val);
+            }
+          }
+        }
+
+        d.gen_name = this.formatName([], "warp profile");
         return  Promise.resolve([d]);
 
        
@@ -2722,7 +2818,6 @@ export class OperationService {
       
         if(child_input === undefined) return Promise.resolve([]);
 
-          console.log("child input", child_input)
           const outputs:Array<Draft> =child_input.drafts.map(input => {
           const d: Draft = new Draft({warps: input.warps, wefts: input.wefts, pattern: input.pattern});
           d.fill(d.pattern, 'mirrorY');
@@ -4095,6 +4190,8 @@ export class OperationService {
     this.dynamic_ops.push(dynamic_join_left);
     this.dynamic_ops.push(imagemap);
     this.dynamic_ops.push(layernotation);
+    this.dynamic_ops.push(warp_profile);
+
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
     this.ops.push(twill);
@@ -4158,7 +4255,7 @@ export class OperationService {
     this.classification.push(
       {category: 'block design',
       dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
-      ops: [rect, crop, trim, margin, tile]
+      ops: [rect, crop, trim, margin, tile, warp_profile]
     }
     );
     this.classification.push(

@@ -19,10 +19,9 @@
 
         <input 
         [(ngModel)]="opnode.inlets[inletid]"
-        [formControl]="fc"
         type = "number"
         min = 1
-        (change)= "inletChange(fc.value)"
+        (change)= "inletChange()"
         >
 
     </ng-container>
@@ -50,10 +49,9 @@
         </button>
         <span class="inlet-label">layer {{inletid+1}}, system: </span>
             <mat-select 
-            [formControl]="fc"
             [(ngModel)]="opnode.inlets[inletid]"
             matTooltip="select the system to associate with this layer" 
-            (selectionChange)="inletChange(fc.value)">
+            (selectionChange)="inletChange()">
             <mat-option *ngFor="let sys of all_system_codes; let i= index" [value]="i">
                 {{sys}}
             </mat-option>

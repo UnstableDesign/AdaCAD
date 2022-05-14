@@ -2265,7 +2265,6 @@ drawStarted(){
    * @returns 
    */
    async operationParamChanged(obj: any){
-    console.log("op param changed", obj);
 
     if(obj === null) return;
 
