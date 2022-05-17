@@ -109,6 +109,31 @@ export class TreeService {
 
   }
 
+    /**
+     * go through the list of nodes being loaded and replace any with names that have been outdated.  
+     * **/
+    
+    async replaceOutdatedOps(nodes: Array<any>) : Promise<Array<any>>{
+
+      console.log("nodes", nodes);
+      const correctedNodes = nodes.map(node => {
+        if(this.ops.getOp(node.name) === null){
+          const op =  this.ops.getOpByOldName(node.name);
+          console.log("got ", node.name, ' from ', op);
+          node.name = op.name
+          node.inlets = op.inlets;
+        }
+        return node;
+      });
+
+      
+
+      console.log("nodes", nodes, correctedNodes);
+      return Promise.resolve(correctedNodes);
+    }
+
+
+
   /** scan through nodes and return all that our valid */
   async validateNodes() : Promise<boolean>{
 
@@ -137,8 +162,8 @@ export class TreeService {
 
 
   setOpParams(id: number, params: Array<any>, inlets: Array<any>){
-    this.getOpNode(id).params = params;
-    this.getOpNode(id).inlets = inlets;
+    this.getOpNode(id).params = params.slice();
+    this.getOpNode(id).inlets = inlets.slice();
   }
 
   /**
@@ -232,10 +257,9 @@ export class TreeService {
    */
    loadOpData(entry: {prev_id: number, cur_id: number}, name: string, params:Array<any>, inlets: Array<any>) : Promise<{on: OpNode, entry:{prev_id: number, cur_id: number}}>{
     
-    console.log("LOAD OP DATA");
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
-    const op = this.ops.getOp(name);
+    let op = this.ops.getOp(name);
 
     if(nodes.length !== 1){
       return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
@@ -244,7 +268,8 @@ export class TreeService {
     const node = nodes[0];
 
     if(op === undefined || op === null){
-      return Promise.reject("no op of name:"+name+" exists");
+       return Promise.reject("no op of name:"+name+" exists");
+
     }  
 
 
@@ -303,7 +328,7 @@ export class TreeService {
       (<OpNode> node).name = name;
       (<OpNode> node).params = params_out.slice();
       (<OpNode> node).inlets = inlets.slice();
-  
+      console.log("node is", node);
   
      return Promise.resolve({on:<OpNode> nodes[0], entry});
   
@@ -1100,7 +1125,7 @@ removeOperationNode(id:number) : Array<Node>{
 
 
   const cxn_id:number = this.getConnectionAtInlet(from, to, inletid);
-
+  console.log("got connection ", cxn_id);
 
   const deleted:Array<Node> = []; 
   if(cxn_id === undefined) return;
@@ -1306,6 +1331,17 @@ flipDraft(draft: Draft) : Promise<Draft>{
 }
 
 
+isValidIOTuple(io: IOTuple) : boolean {
+  if(io === null || io === undefined) return false;
+  const draft_tn = io.tn.inputs[0].tn;
+  const cxn_tn = io.tn;
+  const type = draft_tn.node.type;  
+  const draft: Draft = (<DraftNode>draft_tn.node).draft;
+  if(draft === null || draft === undefined) return false;
+  if(draft.wefts == 0 || draft.warps == 0) return false;
+  return true;
+}
+
 
 
 /**
@@ -1332,7 +1368,9 @@ flipDraft(draft: Draft) : Promise<Draft>{
 
     const flip_fns = [];
     const draft_id_to_ndx = [];
-    all_inputs.filter(el => el !== undefined && el !== null).forEach((el) => {
+    all_inputs.filter(el => this.isValidIOTuple(el))
+    .forEach((el) => {
+      
       const draft_tn = el.tn.inputs[0].tn;
       const cxn_tn = el.tn;
       const type = draft_tn.node.type;
@@ -1576,12 +1614,23 @@ flipDraft(draft: Draft) : Promise<Draft>{
    * @returns the node id of the connection, or -1 if that connection is not found
    */
   getConnectionAtInlet(from: number, to:number, ndx: number) : number{
+    let found = -1;
 
     const inputs:Array<IOTuple> = this.getInputsWithNdx(to);
-    const connection: IOTuple = inputs.find(el => el.ndx == ndx);
+    const connection: Array<IOTuple> = inputs.filter(el => el.ndx == ndx);
     if(connection === undefined) return -1;
 
-    return connection.tn.node.id;
+    if(connection.length == 1) return connection[0].tn.node.id;
+    else{
+      connection.forEach(connectionAtInlet => {
+        const non_cnx_inputs = this.getInputs(connectionAtInlet.tn.node.id);
+        console.log(connectionAtInlet, from,non_cnx_inputs);
+        const match_from = non_cnx_inputs.find(el => el === from);
+        if(match_from !== undefined) found =  connectionAtInlet.tn.node.id;
+      });
+    }
+
+    return found;
    
    }
 

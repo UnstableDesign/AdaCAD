@@ -1171,7 +1171,6 @@ export class PaletteComponent implements OnInit{
 
       //duplicate the connections as well
       const cxns = this.tree.getInputsWithNdx(op.id);
-      console.log("DUPLICATED CONNECTION", cxns);
       cxns.forEach(cxn => {
         if(cxn.tn.inputs.length > 0){
         const from = cxn.tn.inputs[0].tn.node.id;
@@ -1181,17 +1180,11 @@ export class PaletteComponent implements OnInit{
 
 
 
-      //this.operationParamChanged({id: id});
+      this.operationParamChanged({id: id});
       this.addTimelineState();
  }
 
 
-
-
-
-     /**
-   * Deletes the subdraft that called this function.
-   */
     onDuplicateSubdraftCalled(obj: any){
         if(obj === null) return;
 
@@ -1613,6 +1606,7 @@ connectionMade(obj: any){
  removeConnection(obj: {from: number, to: number, inletid: number}){
 
   const to_delete = this.tree.removeConnectionNode(obj.from, obj.to, obj.inletid);  
+
   to_delete.forEach(node => this.removeFromViewContainer(node.ref));
 
  

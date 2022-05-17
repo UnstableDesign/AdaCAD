@@ -88,8 +88,6 @@ export class ParameterComponent implements OnInit {
    */
   onParamChange(value: number){
 
-    console.log("param changed", this.fc)
-
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 
     switch(this.param.type){

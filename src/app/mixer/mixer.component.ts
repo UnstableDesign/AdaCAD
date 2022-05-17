@@ -331,7 +331,11 @@ export class MixerComponent implements OnInit {
         this.gl.inferData(data.looms.concat(this.tree.getLooms()))
       
     })
-    .then(el => {     
+    .then(el => {
+      return this.tree.replaceOutdatedOps(data.ops);
+    })
+    .then(correctedOps => {    
+      data.ops = correctedOps; 
       return this.loadNodes(data.nodes)
     })
     .then(id_map => {

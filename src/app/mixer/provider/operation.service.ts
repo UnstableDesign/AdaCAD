@@ -108,6 +108,7 @@ export interface DynamicOperation {
   dynamic_param_type: string,
   inlets: Array<OperationInlet>,
   dx: string,
+  old_names: Array<string>,
   perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 
@@ -140,6 +141,7 @@ export interface Operation {
     dx: string,
     params: Array<OperationParam>,
     inlets: Array<OperationInlet>,
+    old_names: Array<string>,
     perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>
  }
 
@@ -171,6 +173,7 @@ export class OperationService {
     const rect: Operation = {
       name: 'rectangle',
       displayname: 'rectangle',
+      old_names:[],
       dx: "generates a rectangle of the user specified side, if given an input, fills the rectangle with the input",
       params: <Array<NumParam>>[
         {name: 'width',
@@ -218,6 +221,7 @@ export class OperationService {
     const clear: Operation = {
       name: 'clear',
       displayname: 'clear',
+      old_names:[],
       dx: "this sets all heddles to lifted, allowing it to be masked by any pattern",
       params: [],
       inlets: [{
@@ -250,6 +254,7 @@ export class OperationService {
     const set: Operation = {
       name: 'set unset',
       displayname: 'set unset heddle to',
+      old_names:['unset'],
       dx: "this sets all unset heddles in this draft to the specified value",
       params: <Array<BoolParam>>[ 
         {name: 'up/down',
@@ -299,6 +304,7 @@ export class OperationService {
     const unset: Operation = {
       name: 'set down to unset',
       displayname: 'set heddles of type to unset',
+      old_names:['set'],
       dx: "this sets all  heddles of a particular type in this draft to unset",
       params: <Array<BoolParam>>[
         {name: 'up/down',
@@ -344,7 +350,8 @@ export class OperationService {
 
     const apply_mats: Operation = {
       name: 'apply materials',
-      displayname: 'apply materials',      
+      displayname: 'apply materials',  
+      old_names:[],    
       dx: "applies the materials from the second draft onto the first draft. If they are uneven sizes, it will repeat the materials as a pattern",
       params: [],
       inlets: [{
@@ -395,7 +402,8 @@ export class OperationService {
 
     const rotate: Operation = {
       name: 'rotate',
-      displayname: 'rotate',      
+      displayname: 'rotate', 
+      old_names:[],     
       dx: "this turns the draft by the amount specified",
       params: [
         <SelectParam>{name: 'amount',
@@ -535,6 +543,7 @@ export class OperationService {
     const interlace:Operation = {
       name: 'interlace',
       displayname: 'interlace',  
+      old_names:[],
       dx: 'interlace the input drafts together in alternating lines',
       params: <Array<BoolParam>>[
         {name: 'repeat',
@@ -593,6 +602,7 @@ export class OperationService {
     const splicein:Operation = {
       name: 'splice in wefts',
       displayname: 'splice in wefts',  
+      old_names:[],
       dx: 'splices the second draft into the first every nth row',
       params: <Array<NumParam>>[  
         {name: 'pics between insertions',
@@ -685,7 +695,8 @@ export class OperationService {
 
     const assignwefts:Operation = {
       name: 'assign weft systems',
-      displayname: 'assign weft systems',  
+      displayname: 'assign weft systems', 
+      old_names:[], 
       dx: 'splits each pic of the draft apart, allowing it to repeat at a specified interval and shift within that interval. Currently this will overwrite any system information that has been defined upstream',
       params: <Array<NumParam>>[  
         {name: 'total',
@@ -767,7 +778,8 @@ export class OperationService {
 
     const assignwarps:Operation = {
       name: 'assign warp systems',
-      displayname: 'assign warp systems',  
+      displayname: 'assign warp systems', 
+      old_names:[], 
       dx: 'splits each warp of the draft apart, allowing it to repeat at a specified interval and shift within that interval. An additional button is used to specify if these systems correspond to layers, and fills in draft accordingly',
       params: <Array<NumParam>>[  
         {name: 'total',
@@ -868,6 +880,7 @@ export class OperationService {
       name: 'vertical cut',
       displayname: 'vertical cut',  
       dx: 'make a vertical of this structure across two systems, representing the left and right side of an opening in the warp',
+      old_names:[],
       params: <Array<NumParam>>[  
         {name: 'systems',
         type: 'number',
@@ -934,6 +947,7 @@ export class OperationService {
 
     const selvedge: Operation = {
       name: 'selvedge',
+      old_names:[],
       displayname: 'selvedge',  
       dx: 'adds a selvedge of a user defined width (in ends) on both sides of the input draft. The second input functions as the selvedge pattern, and if none is selected, a selvedge is generated',
       params: <Array<NumParam>>[
@@ -1029,7 +1043,8 @@ export class OperationService {
 
     const overlay: Operation = {
       name: 'overlay, (a,b) => (a OR b)',
-      displayname: 'overlay, (a,b) => (a OR b)',  
+      displayname: 'overlay, (a,b) => (a OR b)', 
+      old_names:['overlay'], 
       dx: 'keeps any region that is marked as black/true in either draft',
       params: <Array<NumParam>>[
         {name: 'left offset',
@@ -1135,7 +1150,8 @@ export class OperationService {
 
     const atop: Operation = {
       name: 'set atop, (a, b) => a',
-      displayname: 'set atop, (a, b) => a',  
+      displayname: 'set atop, (a, b) => a', 
+      old_names:['set atop'], 
       dx: 'sets cells of a on top of b, no matter the value of b',
       params: <Array<NumParam>>[
         {name: 'left offset',
@@ -1222,7 +1238,8 @@ export class OperationService {
 
     const knockout: Operation = {
       name: 'knockout, (a, b) => (a XOR b)',
-      displayname: 'knockout, (a, b) => (a XOR b)',  
+      displayname: 'knockout, (a, b) => (a XOR b)', 
+      old_names:['knockout'], 
       dx: 'Flips the value of overlapping cells of the same value, effectively knocking out the image of the second draft upon the first',
       params: <Array<NumParam>>[
         {name: 'left offset',
@@ -1308,6 +1325,7 @@ export class OperationService {
     const mask: Operation = {
       name: 'mask, (a,b) => (a AND b)',
       displayname: 'mask, (a,b) => (a AND b)',
+      old_names:['mask'],
       dx: 'only shows areas of the first draft in regions where the second draft has black/true cells',
       params: <Array<NumParam>>[
         {name: 'left offset',
@@ -1395,6 +1413,7 @@ export class OperationService {
     const fill: Operation = {
       name: 'fill',
       displayname: 'fill',
+      old_names:[],
       dx: 'fills black cells of the first input with the pattern specified by the second input, white cells with third input',
       params: [],
       inlets: [{
@@ -1465,6 +1484,7 @@ export class OperationService {
     const tabby: Operation = {
       name: 'tabby',
       displayname: 'tabby',
+      old_names:[],
       dx: 'also known as plain weave generates or fills input a draft with tabby structure or derivitae',
       params: <Array<NumParam>>[
         {name: 'repeats',
@@ -1526,6 +1546,7 @@ export class OperationService {
     const basket: Operation = {
       name: 'basket',
       displayname: 'basket',
+      old_names:[],
       dx: 'generates a basket structure defined by theop_input.drafts',
       params: <Array<NumParam>>[
         {name: 'unders',
@@ -1595,6 +1616,7 @@ export class OperationService {
     const stretch: Operation = {
       name: 'stretch',
       displayname: 'stretch',
+      old_names:[],
       dx: 'repeats each warp and/or weft by theop_input.drafts',
       params: <Array<NumParam>>[
         {name: 'warp repeats',
@@ -1652,6 +1674,7 @@ export class OperationService {
     const resize: Operation = {
       name: 'resize',
       displayname: 'resize',
+      old_names:[],
       dx: 'stretches or squishes the draft to fit the boundary',
       params: <Array<NumParam>>[
         {name: 'warps',
@@ -1707,6 +1730,7 @@ export class OperationService {
     const margin: Operation = {
       name: 'margin',
       displayname: 'add margins',
+      old_names:[],
       dx: 'adds padding of unset cells to the top, right, bottom, left of the block',
       params: <Array<NumParam>>[
         {name: 'bottom',
@@ -1786,6 +1810,7 @@ export class OperationService {
     const crop: Operation = {
       name: 'crop',
       displayname: 'crop',
+      old_names:[],
       dx: 'crops to a region of the input draft. The crop size and placement is given by the parameters',
       params: <Array<NumParam>>[
         {name: 'left',
@@ -1860,6 +1885,7 @@ export class OperationService {
     const trim: Operation = {
       name: 'trim',
       displayname: 'trim',
+      old_names:[],
       dx: 'trims off the edges of an input draft',
       params: <Array<NumParam>>[
         {name: 'left',
@@ -1942,6 +1968,7 @@ export class OperationService {
     const rib: Operation = {
       name: 'rib',
       displayname: 'rib',
+      old_names:[],
       dx: 'generates a rib/cord/half-basket structure defined by the parameters',
       params: <Array<NumParam>>[
         {name: 'unders',
@@ -1970,7 +1997,7 @@ export class OperationService {
         name: 'shape', 
         type: 'static',
         value: null,
-        dx: 'the shape you would like to fill with this twill',
+        dx: 'the shape you would like to fill with this rib structure',
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
@@ -2019,6 +2046,7 @@ export class OperationService {
     const twill: Operation = {
       name: 'twill',
       displayname: 'twill',
+      old_names:[],
       dx: 'generates or fills with a twill structure described by the input drafts',
       params: [
         <NumParam> {name: 'unders',
@@ -2087,7 +2115,7 @@ export class OperationService {
         }
 
         if(parent_input.params[2] === 1){
-          return (<Operation>this.getOp('flip horiz')).perform([{drafts:outputs, params:[], inlet: 0, op_name:""}]);
+          return (<Operation>this.getOp('flip horiz')).perform([{drafts:[], params:[], inlet: 0, op_name:"flip horiz"}, {drafts:outputs, params:[], inlet: 0, op_name:"child"}]);
         }else{
           return Promise.resolve(outputs);
         }
@@ -2098,6 +2126,7 @@ export class OperationService {
     const complextwill: Operation = {
       name: 'complextwill',
       displayname: 'complex twill',
+      old_names:[],
       dx: 'generates a specified by the input parameters, alternating warp and weft facing with each input value',
       params: [
         <StringParam>{name: 'pattern',
@@ -2188,6 +2217,7 @@ export class OperationService {
     const layernotation: DynamicOperation = {
       name: 'notation',
       displayname: 'layer notation',
+      old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: 'notation',
       dx: 'uses a notation system to assign drafts to different warp and weft patterns on different layers. Layers are represented by () so (1a)(2b) puts warp1 and weft a on layer 1, warp 2 and weft b on layer 2',
@@ -2318,6 +2348,7 @@ export class OperationService {
     const warp_profile: DynamicOperation = {
       name: 'warp_profile',
       displayname: 'profile draft (cloth width)',
+      old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: 'number',
       dx: 'if you describe a numeric pattern, it will repeat the inputs in the same pattern',
@@ -2418,6 +2449,7 @@ export class OperationService {
     const waffle: Operation = {
       name: 'waffle',
       displayname: 'waffle',
+      old_names:[],
       dx: 'generates or fills with a waffle structure',
       params: <Array<NumParam>>[
         {name: 'width',
@@ -2533,6 +2565,7 @@ export class OperationService {
 
     const makesymmetric: Operation = {
       name: 'makesymmetric',
+      old_names:[],
       displayname: 'make symmetric',
       dx: 'rotates the draft around a corner, creating rotational symmetry around the selected point',
       params: [
@@ -2647,6 +2680,7 @@ export class OperationService {
     const satin: Operation = {
       name: 'satin',
       displayname: 'satin',
+      old_names:[],
       dx: 'generates or fills with a satin structure described by theop_input.drafts',
       params: <Array<NumParam>>[
         {name: 'repeat',
@@ -2709,6 +2743,7 @@ export class OperationService {
     const random: Operation = {
       name: 'random',
       displayname: 'random',
+      old_names:[],
       dx: 'generates a random draft with width, height, and percetage of weft unders defined byop_input.drafts',
       params: <Array<NumParam>>[
         {name: 'width',
@@ -2775,6 +2810,7 @@ export class OperationService {
     const invert: Operation = {
       name: 'invert',
       displayname: 'invert',
+      old_names:[],
       dx: 'generates an output that is the inverse or backside of the input',
       params: [],
       inlets: [{
@@ -2803,6 +2839,7 @@ export class OperationService {
     const flipx: Operation = {
       name: 'flip horiz',
       displayname: 'flip horiz',
+      old_names:[],
       dx: 'generates an output that is the left-right mirror of the input',
       params: [],
       inlets: [{
@@ -2832,6 +2869,7 @@ export class OperationService {
     const flipy: Operation = {
       name: 'flip vert',
       displayname: 'flip vert',
+      old_names:[],
       dx: 'generates an output that is the top-bottom mirror of the input',
       params: [],
       inlets: [{
@@ -2862,6 +2900,7 @@ export class OperationService {
     const shiftx: Operation = {
       name: 'shift left',
       displayname: 'shift left',
+      old_names:[],
       dx: 'generates an output that is shifted left by the number of warps specified in theop_input.drafts',
       params: <Array<NumParam>>[
         {name: 'amount',
@@ -2903,6 +2942,7 @@ export class OperationService {
     const shifty: Operation = {
       name: 'shift up',
       displayname: 'shift up',
+      old_names:[],
       dx: 'generates an output that is shifted up by the number of wefts specified in theop_input.drafts',
       params: <Array<NumParam>>[
         {name: 'amount',
@@ -2944,6 +2984,7 @@ export class OperationService {
     const slope: Operation = {
       name: 'slope',
       displayname: 'slope',
+      old_names:[],
       dx: 'offsets every nth row by the vaule given in col',
       params: <Array<NumParam>>[
         {name: 'col shift',
@@ -3001,6 +3042,7 @@ export class OperationService {
     const replicate: Operation = {
       name: 'mirror',
       displayname: 'mirror',
+      old_names:[],
       dx: 'generates an linked copy of the input draft, changes to the input draft will then populate on the replicated draft',
       params: <Array<NumParam>>[ {
         name: 'copies',
@@ -3050,6 +3092,7 @@ export class OperationService {
     const variants: Operation = {
       name: 'variants',
       displayname: 'variants',
+      old_names:[],
       dx: 'for any input draft, create the shifted and flipped values as well',
       params: [],
       inlets: [{
@@ -3090,6 +3133,7 @@ export class OperationService {
     const bindweftfloats: Operation = {
       name: 'bind weft floats',
       displayname: 'bind weft floats',
+      old_names:[],
       dx: 'adds interlacements to weft floats over the user specified length',
       params: <Array<NumParam>>[
         {name: 'length',
@@ -3147,6 +3191,7 @@ export class OperationService {
     const bindwarpfloats: Operation = {
       name: 'bind warp floats',
       displayname: 'bind warp floats',
+      old_names:[],
       dx: 'adds interlacements to warp floats over the user specified length',
       params: <Array<NumParam>>[
         {name: 'length',
@@ -3198,6 +3243,7 @@ export class OperationService {
     const layer: Operation = {
       name: 'layer',
       displayname: 'layer',
+      old_names:[],
       dx: 'creates a draft in which each input is assigned to a layer in a multilayered structure, assigns 1 to top layer and so on',
       params: [],
       inlets: [{
@@ -3253,6 +3299,7 @@ export class OperationService {
     const assignlayers: DynamicOperation = {
       name: 'assignlayers',
       displayname: 'assign drafts to layers',
+      old_names:[],
       dx: 'when given a number of layers, it creates inputs to assign one or more drafts to each the specified layer. You are allowed to specify a weft system with the input to each layer, this controls the ordering of the input drafts in the layers. For instance, if you give layer 1 system a, and layer 2 system b, your output draft will order the rows ababab.... If you give two inputs to layer 1 and assign them to system a, then one input layer 2, and give it system b, the output will order the rows aabaab. This essentially allows you to control weft systems at the same time as layers, aligning weft systems across multiple drafts. Systems will always be organized alphbetically, and blank rows will be inserted in place of unused systems. For instance, if you have two layers and you assign them to systems a and c, the code will insert a blank system b for the resulting pattern of abcabcabc....',
       dynamic_param_type: 'system',
       dynamic_param_id: 0,
@@ -3428,6 +3475,7 @@ export class OperationService {
     const imagemap: DynamicOperation = {
       name: 'imagemap',
       displayname: 'image map',
+      old_names:[],
       dx: 'uploads an image and creates an input for each color found in the image. Assigning a draft to the color fills the color region with the selected draft',
       dynamic_param_type: 'color',
       dynamic_param_id: 0,
@@ -3539,6 +3587,7 @@ export class OperationService {
       name: 'tile',
       displayname: 'tile',
       dx: 'repeats this block along the warp and weft',
+      old_names:[],
       params: <Array<NumParam>>[
         {name: 'warp-repeats',
         type: 'number',
@@ -3588,6 +3637,7 @@ export class OperationService {
     const erase_blank: Operation = {
       name: 'erase blank rows',
       displayname: 'erase blank rows',
+      old_names:[],
       dx: 'erases any rows that are entirely unset',
       params: [],
       inlets: [{
@@ -3630,6 +3680,7 @@ export class OperationService {
     const jointop: Operation = {
       name: 'join top',
       displayname: 'join top',
+      old_names:[],
       dx: 'attachesop_input.drafts toether into one draft in a column orientation',
       params: [ 
         <BoolParam>{name: 'repeat',
@@ -3719,6 +3770,7 @@ export class OperationService {
     const joinleft: Operation = {
       name: 'join left',
       displayname: 'join left',
+      old_names:[],
       dx: 'joins drafts together from left to right',
       params: [ 
         <BoolParam>{name: 'repeat',
@@ -3818,6 +3870,7 @@ export class OperationService {
     const dynamic_join_left: DynamicOperation = {
       name: 'dynamicjoinleft',
       displayname: 'join left (with positions)',
+      old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: "number",
       dx: 'takes each input draft and assign it a position from left to right',
@@ -3929,6 +3982,7 @@ export class OperationService {
     const germanify: Operation = {
       name: 'gemanify',
       displayname: 'germanify',
+      old_names:[],
       dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
       params: <Array<NumParam>>[
         {name: 'output selection',
@@ -3982,6 +4036,7 @@ export class OperationService {
       const crackleify: Operation = {
         name: 'crackle-ify',
         displayname: 'crackle-ify',
+        old_names:[],
         dx: 'uses ML to edit the input based on patterns in a german drafts weave set',
         params: <Array<NumParam>>[
           {name: 'output selection',
@@ -4037,6 +4092,7 @@ export class OperationService {
         const makeloom: Operation = {
           name: 'floor loom',
           displayname: 'floor loom',
+          old_names:[],
           dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
           params: [
             <NumParam>{name: 'frames',
@@ -4111,6 +4167,7 @@ export class OperationService {
           const drawdown: Operation = {
             name: 'drawdown',
             displayname: 'drawdown',
+            old_names:[],
             dx: 'create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)',
             params: [
   
@@ -4476,5 +4533,21 @@ export class OperationService {
     if(op_ndx !== -1) return this.ops[op_ndx];
     if(parent_ndx !== -1) return this.dynamic_ops[parent_ndx];
     return null;
+  }
+
+  hasOldName(op: Operation | DynamicOperation, name: string) : boolean {
+    return (op.old_names.find(el => el === name) !== undefined );
+  }
+
+  getOpByOldName(name: string): Operation | DynamicOperation{
+    const allops = this.ops.concat(this.dynamic_ops);
+    const old_name = allops.filter(el => this.hasOldName(el, name));
+
+    if(old_name.length == 0){
+      return this.getOp('rectangle');
+    }else{
+      return old_name[0]; 
+    }
+
   }
 }
