@@ -110,6 +110,27 @@ export class MixerComponent implements OnInit {
   }
 
 
+  ngOnInit(){
+    const analytics = getAnalytics();
+    logEvent(analytics, 'onload', {
+      items: [{ uid: this.auth.uid }]
+    });
+
+
+    
+  }
+
+  ngAfterViewInit() {
+
+    let searchParams = new URLSearchParams(window.location.search);
+
+    if(searchParams.has('ex')){
+      this.loadExampleAtURL(searchParams.get('ex'));  
+    }else{
+      this.loadLoggedInUser();
+    }
+
+  }
 
 
   private onWindowScroll(data: any) {
@@ -487,30 +508,6 @@ export class MixerComponent implements OnInit {
  
 
   
-  ngOnInit(){
-    const analytics = getAnalytics();
-    logEvent(analytics, 'onload', {
-      items: [{ uid: this.auth.uid }]
-    });
-
-
-    
-  }
-
-  ngAfterViewInit() {
-
-    let searchParams = new URLSearchParams(window.location.search);
-
-    console.log("PATH",searchParams, searchParams.has('ex'), searchParams.get('ex'));      // true);
-
-
-    if(searchParams.has('ex')){
-      this.loadExampleAtURL(searchParams.get('ex'));  
-    }else{
-      this.loadLoggedInUser();
-    }
-
-  }
 
 
   loadExampleAtURL(name: string){
@@ -543,7 +540,10 @@ export class MixerComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(loadResponse => {
           this.palette.changeDesignmode('move');
-          if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+          if(loadResponse !== undefined){
+            if(loadResponse.status == -1) this.clearAll();
+            else this.loadNewFile(loadResponse);
+          } 
         
     
        });
