@@ -2397,25 +2397,34 @@ export class OperationService {
         const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
         total_wefts = utilInstance.lcm(all_wefts);
 
-        let total_warps: number = 0;
-        const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
-        total_warps = utilInstance.lcm(all_warps);
 
         let pattern = parent_input.params[0].split(' ');
 
+  
         //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
         //get the total number of layers
         const profile_draft_map = child_inputs
         .map(el => {
           return  {
-            id: el.inlet, //pull all the letters out into weft system ids
+            id: el.inlet, 
             draft: el.drafts[0]
           }
         });
 
+        let total_warps = 0;
+        const warp_map = [];
+        pattern.forEach(el => {
+          const d = profile_draft_map.find(dm => dm.id === parseInt(el));
+          if(d !== undefined){
+            warp_map.push({id: parseInt(el), start: total_warps, end: total_warps+d.draft.warps});
+            total_warps += d.draft.warps;
+          } 
+        })
+
+
         
         const d: Draft = new Draft({
-          warps: total_warps*pattern.length, 
+          warps: total_warps, 
           wefts: total_wefts,
           rowShuttleMapping: weft_mapping.rowShuttleMapping,
           rowSystemMapping: weft_mapping.rowSystemMapping,
@@ -2423,7 +2432,10 @@ export class OperationService {
 
         for(let i = 0; i < d.wefts; i++){
           for(let j = 0; j < d.warps; j++){
-            const pattern_ndx = Math.floor(j / total_warps);
+            //const pattern_ndx = Math.floor(j / total_warps);
+
+            const pattern_ndx = warp_map.find(el => j >= el.start && j < el.end).id;
+
             const ndx = pattern[pattern_ndx];
             const select_draft = profile_draft_map.find(el => el.id === parseInt(ndx));
             if(select_draft === undefined){

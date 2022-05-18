@@ -177,7 +177,6 @@ export class TreeService {
 
 
     const op = this.ops.getOp(name);
-    console.log("dynamic inlets called", name, op);
 
       let param_type = op.params[param_id].type;
 
@@ -307,12 +306,10 @@ export class TreeService {
         else return p;
       });
 
-      console.log("inlets ", inlets);
       const default_inlet_values = this.ops.getOp(name).inlets.map(el => el.value);
 
       if(inlets === undefined || inlets.length == 0){
         inlets = default_inlet_values.slice();
-        console.log("default inlet values", default_inlet_values);
         if(this.ops.isDynamic(name)){
           const op = <DynamicOperation> this.ops.getOp(name);
           let dynamic_inlets = this.onDynanmicOperationParamChange(name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
@@ -321,14 +318,12 @@ export class TreeService {
       }
 
        inlets = inlets.map(el => (el === null) ? 0 : el); 
-        console.log(inlets);
 
   
       node.dirty = false;
       (<OpNode> node).name = name;
       (<OpNode> node).params = params_out.slice();
       (<OpNode> node).inlets = inlets.slice();
-      console.log("node is", node);
   
      return Promise.resolve({on:<OpNode> nodes[0], entry});
   
