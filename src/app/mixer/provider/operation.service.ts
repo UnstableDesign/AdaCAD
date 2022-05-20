@@ -2707,6 +2707,13 @@ export class OperationService {
         max: 100,
         value: 2,
         dx: 'the move number on each row'
+        },
+        <BoolParam>{name: 'face',
+        type: 'boolean',
+        falsestate: "weft facing",
+        truestate: "warp facing",
+        value: 0,
+        dx: 'select to toggle warp and weft facing variations of this satin'
         }
       ],
       inlets: [{
@@ -2721,11 +2728,13 @@ export class OperationService {
         const parent_input = op_inputs.find(el => el.op_name == 'satin');
         const child_input = op_inputs.find(el => el.op_name == 'child');
        
+
         const pattern:Array<Array<Cell>> = [];
         for(let i = 0; i <parent_input.params[0]; i++){
           pattern.push([]);
           for(let j = 0; j <parent_input.params[0]; j++){
-            pattern[i][j] = (j===(i*parent_input.params[1])%parent_input.params[0]) ? new Cell(true) : new Cell(false);
+            if(parent_input.params[2]=== 0) pattern[i][j] = (j===(i*parent_input.params[1])%parent_input.params[0]) ? new Cell(true) : new Cell(false);
+            else pattern[i][j] = (j===(i*parent_input.params[1])%parent_input.params[0]) ? new Cell(false) : new Cell(true);
           }
         }
 
