@@ -2063,10 +2063,10 @@ export class OperationService {
         value: 3,
         dx: 'number of weft overs'
         },
-        <BoolParam> {name: 'S/Z',
+        <BoolParam> {name: 'Z/S',
         type: 'boolean',
-        falsestate: 'Z twist',
-        truestate: 'S twist',
+        falsestate: 'Z',
+        truestate: 'S',
         value: 0,
         dx: 'toggle to switch the twist direction'
         }
@@ -2134,12 +2134,12 @@ export class OperationService {
         value: '2 2 3 3',
         dx: 'the under over pattern of this twill (e.g. 2 2 3 3)'
         },
-        <BoolParam>{name: 'S/Z',
+        <BoolParam>{name: 'Z/S',
         type: 'boolean',
-        truestate: 'Z twist',
-        falsestate: 'S twist',
+        falsestate: 'Z',
+        truestate: 'S',
         value: 0,
-        dx: 'toggle to change twist direction'
+        dx: 'toggle to change twill direction'
         }
       ],
       inlets: [{
@@ -2178,7 +2178,7 @@ export class OperationService {
 
 
         const pattern:Array<Array<Cell>> = [];
-        let twist_val = (twist == 0) ? 1 : -1;
+        let twist_val = (twist == 0) ? -1 : 1;
         for(let i = 0; i < sum; i++){
           pattern.push([]);
           for(let j = 0; j < sum; j++){
