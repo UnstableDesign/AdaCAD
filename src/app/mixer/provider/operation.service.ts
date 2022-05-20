@@ -1074,14 +1074,14 @@ export class OperationService {
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the addedop_input.drafts from the left"
+        dx: "the amount to offset b from the left"
         },
-        {name: 'offset from bottom',
+        {name: 'bottom offset',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlayingop_input.drafts from the bottom"
+        dx: "the amount to offset b from the bottom"
         }
       ],
       inlets: [{
@@ -1122,6 +1122,7 @@ export class OperationService {
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
+    
 
         //initialize the base container with the first draft at 0,0, unset for anythign wider
         const init_draft: Draft = new Draft({
