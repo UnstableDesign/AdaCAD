@@ -610,7 +610,14 @@ export class OperationService {
         max: 100,
         value: 1,
         dx: "the number of pics to keep between each splice row"
-        }],
+        },
+        {name: 'repeat',
+        type: 'boolean',
+        falsestate: 'do not repeat inputs to match size',
+        truestate: 'repeat inputs to match size',
+        value: 1,
+        dx: "controls if the inputs are repeated to make drafts of the same size or not"
+      }],
         inlets: [{
           name: 'receiving draft', 
           type: 'static',
@@ -632,6 +639,8 @@ export class OperationService {
         const static_inlet = op_inputs.find(el => el.inlet == 0);
         const splicing_inlet = op_inputs.find(el => el.inlet == 1);
 
+
+        
         if(child_input === undefined) return Promise.resolve([]);
         if(static_inlet === undefined) return Promise.resolve([splicing_inlet.drafts[0]]);
         if(splicing_inlet === undefined) return Promise.resolve([static_inlet.drafts[0]]);
@@ -639,14 +648,26 @@ export class OperationService {
 
         const static_input = static_inlet.drafts[0];
         const splicing_input = splicing_inlet.drafts[0];
+        const factor_in_repeats = parent_input.params[1];
 
         const all_drafts = [static_input, splicing_input];
 
-        const max_warps:number = utilInstance.getMaxWarps(all_drafts);
-
-        let sum_rows =all_drafts.reduce((acc, el) => {
-          return acc + el.wefts;
-        }, 0);
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
+        if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+        else  {
+          total_wefts =all_drafts.reduce((acc, el) => {
+            return acc + el.wefts;
+          }, 0);
+  
+        }
+      
+        let total_warps: number = 0;
+        const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
+      
+        if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
+        else  total_warps = utilInstance.getMaxWarps(all_drafts);
+      
 
         const uniqueSystemRows = this.ss.makeWeftSystemsUnique(all_drafts.map(el => el.rowSystemMapping));
 
@@ -656,21 +677,23 @@ export class OperationService {
         let array_b_ndx = 0;
       
         //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: max_warps, wefts:sum_rows, colShuttleMapping:static_input.colShuttleMapping, colSystemMapping:static_input.colSystemMapping});
+        const d:Draft = new Draft({warps: total_warps, wefts:total_wefts, colShuttleMapping:static_input.colShuttleMapping, colSystemMapping:static_input.colSystemMapping});
 
         for(let i = 0; i < d.wefts; i++){
           let select_array: number = (i % (parent_input.params[0]+1) ===parent_input.params[0]) ? 1 : 0; 
-          if(array_b_ndx >=splicing_input.wefts) select_array = 0;
-          if(array_a_ndx >=static_input.wefts) select_array = 1;
 
-          let ndx = (select_array === 0) ? array_a_ndx : array_b_ndx;
+          if(!factor_in_repeats){
+            if(array_b_ndx >=splicing_input.wefts) select_array = 0;
+            if(array_a_ndx >=static_input.wefts) select_array = 1;
+          }
+          
+          let cur_weft_num = all_drafts[select_array].wefts
+          let ndx = (select_array === 0) ? array_a_ndx%cur_weft_num : array_b_ndx%cur_weft_num;
 
           d.pattern[i].forEach((cell, j) => {
-            if(all_drafts[select_array].hasCell(ndx, j)){
-              cell.setHeddle(all_drafts[select_array].pattern[ndx][j].getHeddle());
-            }else{
-              cell.setHeddle(null);
-            }   
+            let cur_warp_num = all_drafts[select_array].warps;
+            cell.setHeddle(all_drafts[select_array].pattern[ndx][j%cur_warp_num].getHeddle());
+            if(j >= cur_warp_num && !factor_in_repeats) cell.setHeddle(null);
           });
 
           d.rowSystemMapping[i] = uniqueSystemRows[select_array][ndx];
@@ -2346,7 +2369,7 @@ export class OperationService {
 
     const warp_profile: DynamicOperation = {
       name: 'warp_profile',
-      displayname: 'profile draft (cloth width)',
+      displayname: 'pattern across width',
       old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: 'number',
