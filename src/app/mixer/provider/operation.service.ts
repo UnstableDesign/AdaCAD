@@ -589,7 +589,6 @@ export class OperationService {
 
         const d: Draft = utilInstance.interlace(all_drafts, factor_in_repeats, warp_system_draft);
      
-     
     
         this.transferSystemsAndShuttles(d,all_drafts,parent_input.params, 'interlace');
         d.gen_name = this.formatName(all_drafts, "ilace")
@@ -2239,7 +2238,7 @@ export class OperationService {
       }],
       perform: (op_inputs: Array<OpInput>) => {
 
-                
+
         // //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
@@ -2291,10 +2290,10 @@ export class OperationService {
         const d: Draft = new Draft({
           warps: total_warps*system_map.drafts[0].warps, 
           wefts: total_wefts*system_map.drafts[0].wefts,
-          rowShuttleMapping: system_map.drafts[0].rowShuttleMapping,
-          rowSystemMapping: system_map.drafts[0].rowSystemMapping,
-          colShuttleMapping: system_map.drafts[0].colShuttleMapping,
-          colSystemMapping: system_map.drafts[0].colSystemMapping,
+          rowShuttleMapping: system_map.drafts[0].rowShuttleMapping.slice(),
+          rowSystemMapping: system_map.drafts[0].rowSystemMapping.slice(),
+          colShuttleMapping: system_map.drafts[0].colShuttleMapping.slice(),
+          colSystemMapping: system_map.drafts[0].colSystemMapping.slice(),
         });
 
         d.pattern = [];

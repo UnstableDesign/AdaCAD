@@ -40,7 +40,6 @@ export class SystemsService {
 
   reset() {
 
-    console.log("RESET CALLED");
     this.weft_systems.forEach(el => {
       el.in_use = false;
       el.visible = true;
@@ -54,8 +53,6 @@ export class SystemsService {
     this.weft_systems[0].in_use = true;
     this.warp_systems[0].in_use = true;
 
-
-   
   }
 
   getWeftSystem(id: number) : System{
@@ -84,22 +81,6 @@ export class SystemsService {
 
   }
 
-
-  // addWeftSystem(system) : number {
-  //   system.setID(this.weft_systems.length);
-  //   system.setVisible(true);
-  //   this.weft_systems.push(system);
-  //   return system.id;
-  // }
-
-  // addWarpSystem(system) : number {
-  //   system.setID(this.warp_systems.length);
-  //   system.setVisible(true);
-  //   this.warp_systems.push(system);
-  //   return system.id;
-  // }
-
-
   weftSystemIsVisible(id: number){
     return this.weft_systems[id].isVisible();
   }
@@ -113,18 +94,18 @@ export class SystemsService {
    * @param ndx 
    */
     getNextWarpSystemFrom(ndx: number): number{
-      const in_use = this.warp_systems.filter(el => el.in_use);
-      let use_ndx = in_use.findIndex(el => el.id == ndx);
-      use_ndx++;
+      return ndx + 1 ;
+      // const in_use = this.warp_systems.filter(el => el.in_use);
+      // let use_ndx = in_use.findIndex(el => el.id === ndx);
+      // use_ndx++;
   
-      console.log(in_use, use_ndx);
-      if(use_ndx < in_use.length){
-        return in_use[use_ndx].id;
-      }else{
-        //get the last used number an dincrement one
-        this.warp_systems[use_ndx].in_use = true;
-        return use_ndx;
-      }
+      // if(use_ndx < in_use.length){
+      //   return in_use[use_ndx].id;
+      // }else{
+      //   //get the last used number an dincrement one
+      //   this.warp_systems[use_ndx].in_use = true;
+      //   return use_ndx;
+      // }
 
     }
   
@@ -134,17 +115,18 @@ export class SystemsService {
    * @param ndx 
    */
   getNextWeftSystemFrom(ndx: number): number{
-    const in_use = this.weft_systems.filter(el => el.in_use);
-    let use_ndx = in_use.findIndex(el => el.id == ndx);
-    use_ndx++;
+    return ndx + 1;
+    // const in_use = this.weft_systems.filter(el => el.in_use);
+    // let use_ndx = in_use.findIndex(el => el.id == ndx);
+    // use_ndx++;
 
-    if(use_ndx < in_use.length){
-      return in_use[use_ndx].id;
-    }else{
-      //get the last used number an dincrement one
-      this.weft_systems[use_ndx].in_use = true;
-      return use_ndx;
-    }
+    // if(use_ndx < in_use.length){
+    //   return in_use[use_ndx].id;
+    // }else{
+    //   //get the last used number an dincrement one
+    //   this.weft_systems[use_ndx].in_use = true;
+    //   return use_ndx;
+    // }
   }
 
   /**
@@ -154,8 +136,7 @@ export class SystemsService {
    getNextWarpSystem(ndx: number, draft: Draft): number{
 
     var system_id = draft.colSystemMapping[ndx];
-
-    //are any other rows assigned to this system or is this the first
+    // //are any other rows assigned to this system or is this the first
     const count: number = draft.colSystemMapping.reduce((acc,val) => {
       if(val === system_id){
         acc = acc + 1;
@@ -179,7 +160,6 @@ export class SystemsService {
    getNextWeftSystem(ndx: number, draft: Draft): number{
 
     var system_id = draft.rowSystemMapping[ndx];
-
     //are any other rows assigned to this system or is this the first
     const count: number = draft.rowSystemMapping.reduce((acc,val) => {
       if(val === system_id){
@@ -219,7 +199,8 @@ export class SystemsService {
    */
   private makeSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
    
-    if(systems.length === 0) return [];
+
+     if(systems.length === 0) return [];
 
 
     const max_in_systems: Array<number> = systems.map(el => utilInstance.getArrayMax(el));

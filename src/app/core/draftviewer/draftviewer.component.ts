@@ -1043,6 +1043,7 @@ export class DraftviewerComponent implements OnInit {
 
     //this.weave.updateSystemVisibility('weft');
 
+
     this.redraw({weft_systems: true});
 
 
@@ -1077,6 +1078,7 @@ export class DraftviewerComponent implements OnInit {
       var newShuttle = (shuttle_id + 1) % len;
       this.weave.rowShuttleMapping[draft_row] = newShuttle;
     }
+
     this.redraw({weft_materials: true, drawdown:true});
 
   }
@@ -1102,6 +1104,7 @@ export class DraftviewerComponent implements OnInit {
     this.weave.colSystemMapping[col] = newSystem;
 
     //this.weave.updateSystemVisibility('warp');
+
     this.drawWarpSelectorCell(this.cxWarpSystems,(col));
     this.redraw({warp_systems: true});
   }
@@ -1130,7 +1133,6 @@ export class DraftviewerComponent implements OnInit {
       this.weave.colShuttleMapping[col] = newShuttle.id;
     }
 
-  
     this.drawWarpSelectorCell(this.cxWarpMaterials,col);
     this.redraw({warp_materials:true, drawdown:true}); //full redraw or just this column?
   }

@@ -809,8 +809,7 @@ interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft)
       colShuttleMapping: warp_patterns.colShuttleMapping,
       colSystemMapping: warp_patterns.colSystemMapping});
 
-      console.log(d);
-  d.pattern.forEach((row, ndx) => {
+    d.pattern.forEach((row, ndx) => {
 
       const select_array: number = ndx %drafts.length; 
       const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % drafts[select_array].wefts : Math.floor(ndx /drafts.length);

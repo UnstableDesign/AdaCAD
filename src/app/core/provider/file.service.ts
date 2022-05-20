@@ -178,7 +178,7 @@ export class FileService {
               if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
             });
   
-            draft.overloadColSystemMapping(draftdata.rowSystemMapping);
+            draft.overloadColSystemMapping(draftdata.colSystemMapping);
           }  
   
         if(draftdata.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(draftdata.rowShuttleMapping); 
