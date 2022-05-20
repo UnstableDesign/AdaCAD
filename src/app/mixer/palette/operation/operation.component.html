@@ -13,67 +13,16 @@ cdkDrag
     <div class="cxn-row">
 
 
-        <div  *ngFor="let input of inlets; let i = index" class="input-group" id = "inlet{{id}}-{{i}}">
-
-            <ng-container *ngIf="!is_dynamic_op || (is_dynamic_op && i > 0)">
-
-            <button 
-            class="button is-small input"
-            [class.is-active]=" dm.isSelected('operation', 'design_modes') && tree.canAcceptConnections(id)"
-            (click)="inputSelected(i)">
-            <i class="fas fa-chevron-right"></i>
-            </button>
-
-            
-            <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'number'"
-            [formControl]="input"
-            type = "number"
-            value = input.value
-            min = 1
-            (change)= "onInletChange(i, input.value)"
-            >
-
-            <ng-container *ngIf="is_dynamic_op && op.dynamic_param_type === 'system'">
-            <span class="inlet-label">{{i}}</span>
-
-            <!--<mat-label>weft system</mat-label>-->
-            <mat-select 
-            [formControl]="input"
-            matTooltip="select the system to associate with this layer" 
-            (selectionChange)="onInletChange(i, input.value)">
-              <mat-option *ngFor="let sys of all_system_codes" [value]="sys">
-                {{sys}}
-              </mat-option>
-            </mat-select>
-         
-
-            <!-- <input *ngIf="is_dynamic_op && op.dynamic_param_type === 'system'"
-            [formControl]="input"
-            type = "text"
-            value = input.value
-            (change)= "onInletChange(i, input.value)"
-            > -->
-            </ng-container>
-
-            <div *ngIf="is_dynamic_op && op.dynamic_param_type === 'color'"
-            [matTooltip]="input.value"
-            [style.background-color] = input.value
-            class="input-color"></div>
-
-
-            
-            <button *ngFor="let input of tree.getOpComponentInputs(id, i);"
-            matTooltip = "click to remove this connection"
-            class="button is-small cxn"
-            (click)="removeConnectionTo(input, i)">
-            <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
-            </button>   
-
-
-        
-
-          </ng-container>
-
+        <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group" id = "inlet{{id}}-{{i}}">
+          
+          <app-inlet 
+          [opid]='id'
+          [inletid]='i'
+          [dynamic]='is_dynamic_op'
+          (onInputSelected)="inputSelected($event)"
+          (onConnectionRemoved)="removeConnectionTo($event)"
+          (onInletChange)="onInletChange($event)"
+          ></app-inlet>
         </div>
        
     </div>
@@ -129,110 +78,17 @@ cdkDrag
    
     <ng-container *ngFor="let param of op.params; let i = index">
       
-
-      <div class="param-row">
-
-      
-
-
-        <div class="param-name">{{param.name}}</div>
-
-        <ng-container  *ngIf="param.type == 'number'">
-        <div class="param-slider">
-         
-         
-            <mat-slider 
-            thumbLabel
-            tickInterval="1"
-            [formControl]="op_inputs[i]"
-            [matTooltip]=param.dx
-            [min]=param.min
-            [max]=param.max
-            step="1" 
-            value="op_inputs[i].value"
-            (change)= "onParamChange(i, op_inputs[i].value)">
-        </mat-slider>
-        </div>
+      <app-parameter 
+      [param]='param' 
+      [opid]='id' 
+      [paramid]='i'
+      (onOperationParamChange) = onParamChange($event)
+      (onFileUpload) = handleFile($event)>
+     </app-parameter>
 
 
-         <div class='param-label'>
-            <input 
-            [formControl]="op_inputs[i]"
-            [matTooltip]=param.dx
-            type = "number"
-            [name]=param.name
-            [min]=param.min
-            [max]=param.max
-            step = 1
-            value = op_inputs[i].value
-            (change)= "onParamChange(i, op_inputs[i].value)"
-          >
-  
-        </div>
-      </ng-container>
 
-      <ng-container  *ngIf="param.type == 'boolean'">
-
-            <div class="param-checkbox">
-                <mat-checkbox 
-                [formControl]="op_inputs[i]"
-                [matTooltip]=param.dx
-                value="op_inputs[i].value"
-                (change)= "onCheckboxParamChange(i, op_inputs[i].value)">
-                </mat-checkbox>
-            </div>
-        </ng-container>
-
-        <ng-container  *ngIf="param.type == 'string'">
-           
     
-             <div class='param-text'>
-                <input 
-                [formControl]="op_inputs[i]"
-                [errorStateMatcher]="textValidate"
-                [matTooltip]=param.dx
-                type = "text"
-                [name]=param.name
-                value = op_inputs[i].value
-                (change)= "onParamChange(i, op_inputs[i].value)"
-              >
-            </div>
-
-            <div class='param-label'>
-                <button mat-icon-button
-                color="accent"
-                matTooltip="update draft with input values"
-                (click)= "onParamChange(i, op_inputs[i].value)">
-                <i class="fas fa-redo"></i></button>
-            </div>
-
-
-              <div class="text-err" *ngIf="op_inputs[i].hasError('required')">
-                 an input is required 
-                </div>
-        
-              <div class="text-err" *ngIf="op_inputs[i].hasError('pattern')">
-                invalid, pattern can only contain numbers and spaces
-            </div>
-      
-    
-        </ng-container>
-
-
-
-        <ng-container  *ngIf="param.type == 'file'">
-           
-    
-          <div class='param-file'>
-            <upload-form type="init" (onData)="handleFile(i, $event)" class="button"></upload-form>
-         </div>
-
-       
-     </ng-container>
-
-
-
-    </div>
     </ng-container>
 
   </div>

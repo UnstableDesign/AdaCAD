@@ -13,6 +13,8 @@ import { SystemsService } from './systems.service';
 import { Note, NotesService } from './notes.service';
 import { PatternService } from './pattern.service';
 import { System } from '../model/system';
+import { version } from 'process';
+import { VersionService } from './version.service';
 
 
  export interface NodeComponentProxy{
@@ -45,6 +47,7 @@ import { System } from '../model/system';
 
 
  export interface SaveObj{
+  version: string,
   type: string,
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
@@ -58,6 +61,7 @@ import { System } from '../model/system';
  }
 
 export interface FileObj{
+ version: string,
  filename: string,
  nodes: Array<NodeComponentProxy>,
  treenodes: Array<TreeNodeProxy>,
@@ -117,7 +121,8 @@ export class FileService {
     private ns: NotesService,
     private ps: PatternService,
     private ms: MaterialsService,
-    private ss: SystemsService) { 
+    private ss: SystemsService,
+    private vs: VersionService) { 
   
   this.status = [
     {id: 0, message: 'success', success: true},
@@ -231,6 +236,7 @@ export class FileService {
 
 
       const envt: FileObj = {
+        version: data.version,
         filename: filename,
         drafts: drafts,
         looms: (looms === undefined) ? [] : looms,
@@ -318,6 +324,7 @@ export class FileService {
 
     
     const f: FileObj = {
+      version: 'na',
       filename: filename,
       drafts: drafts,
       looms: looms,
@@ -336,7 +343,6 @@ export class FileService {
      * @returns 
      */
     jpg: async (filename: string, data: any) : Promise<LoadResponse> => {
-      console.log("processing JPG data")
       this.clearAll();
 
       let drafts: Array<Draft> = [];
@@ -420,6 +426,7 @@ export class FileService {
 
       const f: FileObj = {
         filename: filename,
+        version: 'na',
         drafts: drafts,
         looms: looms,
         nodes: [], 
@@ -470,6 +477,7 @@ export class FileService {
     
       const f: FileObj = {
         filename: filename,
+        version: 'na',
         drafts: drafts,
         looms: looms,
         nodes: [proxies.node], 
@@ -497,7 +505,6 @@ export class FileService {
       const draft: Draft = new Draft({warps: warps, wefts: wefts});
       drafts.push(draft);
 
-      console.log("form data", f.value)
 
       var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
       var treadle_num = (f.value.treadle_num === undefined) ? 10 : f.value.treadle_num;
@@ -525,6 +532,7 @@ export class FileService {
     
       const envt: FileObj = {
         filename: "adacad mixer",
+        version: 'na',
         drafts: drafts,
         looms: looms,
         nodes: [proxies.node], 
@@ -551,6 +559,7 @@ export class FileService {
            
       const out: SaveObj = {
         type: type,
+        version: this.vs.currentVersion(),
         drafts: drafts,
         looms: looms,
         patterns: this.ps.exportPatternsForSaving(),
@@ -564,7 +573,6 @@ export class FileService {
 
       //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
-      console.log("out", out);
       return Promise.resolve({json: theJSON, file: out});
 
 

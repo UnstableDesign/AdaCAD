@@ -1,0 +1,119 @@
+<div class="param-row">
+
+    <div class="param-name">{{param.name}}:</div>
+
+    <ng-container  *ngIf="param.type == 'number'">
+        <div class="param-slider">
+            <mat-slider 
+            [ngModel] = "opnode.params[paramid]"
+            tickInterval="1"
+            [formControl]="fc"
+            [matTooltip]=param.dx
+            [min]=numparam.min
+            [max]=numparam.max
+            step="1" 
+            (change)= "onParamChange(fc.value)">
+        </mat-slider>
+        </div>
+
+
+        <div class='param-label'>
+            <input 
+            [ngModel] = "opnode.params[paramid]"
+            [formControl]="fc"
+            [matTooltip]=param.dx
+            type = "number"
+            [name]=param.name
+            [min]=param.min
+            [max]=param.max
+            step = 1
+            (change)= "onParamChange(fc.value)"
+        >
+
+    </div>
+  </ng-container>
+
+  <ng-container  *ngIf="param.type == 'select'">
+    <div class="param-select">
+
+        <mat-select 
+            [ngModel] = "opnode.params[paramid]"
+            [matTooltip]=param.dx
+            [formControl]="fc"
+            (selectionChange)='onParamChange(fc.value)'>
+          <mat-option *ngFor="let opt of selectparam.selectlist" [value]="opt.value">
+            {{opt.name}}
+          </mat-option>
+        </mat-select>
+      
+    </div>
+
+ </ng-container>
+
+  <ng-container  *ngIf="param.type == 'boolean'">
+
+        <div class="param-toggle">
+            <mat-slide-toggle
+            [ngModel] = "opnode.params[paramid]"
+            [formControl]="fc"
+            [matTooltip]=param.dx
+            (change)= "onParamChange(fc.value)"
+            >
+            <span *ngIf="fc.value==1">{{boolparam.truestate}}</span>
+            <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span>
+        </mat-slide-toggle>
+        </div>
+    </ng-container>
+
+    <ng-container  *ngIf="param.type == 'string'">
+       
+
+         <div class='param-text'>
+            <input 
+            [(ngModel)] = "opnode.params[paramid]"
+            [formControl]="fc"
+            [errorStateMatcher]="regexValidator"
+            [matTooltip]=param.dx
+            type = "text"
+            (change)= "onParamChange(fc.value)"
+          >
+        </div>
+
+        <div class='param-label'>
+            <button class="refresh" 
+            mat-icon-button
+            color = "accent"
+            (click)= "onParamChange(fc.value)"
+            [disabled]="!fc.dirty || fc.hasError('required') || fc.hasError('forbiddenInput')"
+            matTooltip="update draft with input values">
+            <i class="fas fa-redo"></i></button>
+        </div>
+
+      
+  
+
+    </ng-container>
+
+
+
+    <ng-container  *ngIf="param.type == 'file'">
+       
+      <div class='param-file'>
+        <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
+     </div>
+
+   
+ </ng-container>
+
+
+
+</div>
+
+
+  <div class="text-err" *ngIf="fc.hasError('required')">
+     an input is required 
+    </div>
+
+  <div class="text-err" *ngIf="fc.hasError('forbiddenInput')">
+    the current input is not correctly formatted
+    </div>

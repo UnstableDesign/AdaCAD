@@ -1,10 +1,16 @@
-<div *ngIf="tree.getNode(id) !== null" class="connection-container"
+<div *ngIf="tree.getNode(id) !== null && !no_draw" class="connection-container"
 cdkDrag
 [cdkDragDisabled] = disable_drag
 [style.z-index] = "zndx"
 [cdkDragFreeDragPosition]="bounds.topleft"
+
 >
-<canvas id="cxn-{{id}}"></canvas>
+
+<svg id="svg-{{id}}"  width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+
+  </svg>
+
+
 </div>
 
 

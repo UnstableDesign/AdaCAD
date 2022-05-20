@@ -16,6 +16,8 @@ import { ImageComponent } from './palette/image/image.component';
 import { DraftdetailComponent } from './modal/draftdetail/draftdetail.component';
 import { WeaverModule } from '../weaver/weaver.module';
 import { NoteComponent } from './palette/note/note.component';
+import { ParameterComponent } from './palette/operation/parameter/parameter.component';
+import { InletComponent } from './palette/operation/inlet/inlet.component';
 
 
 
@@ -38,6 +40,8 @@ import { NoteComponent } from './palette/note/note.component';
         OpHelpModal,
         ImageComponent,
         DraftdetailComponent,
-        NoteComponent        ]
+        NoteComponent,
+        ParameterComponent,
+        InletComponent        ]
 })
 export class MixerModule { }

@@ -1,0 +1,100 @@
+
+.param-row{
+    vertical-align:middle;
+    font-size: .8em;
+    display: flex;
+    flex-direction: row;
+    height: 40px;
+    text-align: right;
+    line-height: 40px;
+    padding: 0 4px;
+
+}
+
+
+.param-name{
+    width: 25%;
+    overflow: hidden;
+    line-height: 40px;
+}
+
+.param-slider{
+    width: 50%;
+    text-align: left;
+    position: relative;
+    left: 10px;
+    overflow: hidden;
+}
+
+.param-select{
+    width: 70%;
+    text-align: left;
+    position: relative;
+    left: 10px;
+}
+
+.param-text{
+    width: 75%;
+    text-align: left;
+    padding: 0px 10px;
+    overflow: hidden;
+}
+
+.param-row input{
+    width: 60px;
+}
+
+.param-row .param-text input{
+    width: 100%;
+}
+
+.input-color{
+    width: 30px;
+    height: 30px;
+    border: thin solid white;
+}
+
+
+.param-toggle{
+    width: 70%;
+    text-align: left;
+    position: relative;
+    left: 10px;
+    overflow: hidden;
+}
+
+.param-inputs{
+    min-width: 75%;
+    overflow: visible;
+    text-align: left;
+    margin-left: 6px;
+}
+
+.mat-slider{
+    height: 40px;
+    padding: 0px;
+}
+
+button.is-primary.is-active{
+    background-color: rgb(255, 64, 129);
+}
+
+
+.refresh .dirty{
+    color: rgb(255, 64, 129); 
+}
+
+.text-err,
+.error{
+    color: red;
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    font-size: .8em;
+}
+
+.inputs{
+    display: flex;
+    justify-content: flex-start;
+    text-align: center;
+}

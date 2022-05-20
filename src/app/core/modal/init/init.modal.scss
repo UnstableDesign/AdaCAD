@@ -4,6 +4,11 @@
 	display:block;
 }
 
+.toprow{
+	display: flex;
+	flex-direction: row;
+}
+
 p{
 	font: 100;
 	font-style: italic;

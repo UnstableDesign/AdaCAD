@@ -1,0 +1,91 @@
+
+    <button *ngIf="inlet.type === 'static'"
+    class="button is-small input"
+    [matTooltip]='inlet.dx'
+    (click)="inputSelected()">
+         <i class="fas fa-chevron-down"></i>
+    </button>
+
+    <span class="inlet-name">{{inlet.name}}</span>
+
+    <ng-container *ngIf="inlet.type === 'number'">
+
+        <button
+        class="button is-small input"
+        [matTooltip]='inlet.dx'
+        (click)="inputSelected()">
+             <i class="fas fa-chevron-down"></i>
+        </button>
+
+       <!-- // <span class="inlet-label">{{opnode.inlets[inletid]}}</span> -->
+
+        <input 
+        [(ngModel)]="opnode.inlets[inletid]"
+        type = "number"
+        min = 1
+        (change)= "inletChange()"
+        >
+
+
+
+    </ng-container>
+
+    
+    <ng-container *ngIf="inlet.type === 'notation'">
+
+        <button
+        class="button is-small input"
+        [matTooltip]='inlet.dx'
+        (click)="inputSelected()">
+             <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <span class="inlet-label"> ({{opnode.inlets[inletid]}})</span>
+
+    </ng-container>
+
+    <ng-container *ngIf="inlet.type === 'system'">
+        <button
+        class="button is-small input"
+        [matTooltip]='inlet.dx'
+        (click)="inputSelected()">
+             <i class="fas fa-chevron-down"></i>
+        </button>
+        <span class="inlet-label">layer {{inletid+1}}, system: </span>
+            <mat-select 
+            [(ngModel)]="opnode.inlets[inletid]"
+            matTooltip="select the system to associate with this layer" 
+            (selectionChange)="inletChange()">
+            <mat-option *ngFor="let sys of all_system_codes; let i= index" [value]="i">
+                {{sys}}
+            </mat-option>
+        </mat-select>
+ 
+
+    </ng-container>
+
+    <ng-container *ngIf="inlet.type === 'color'">
+       
+        <button 
+        class="button is-small input"
+        (click)="inputSelected()">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div *ngIf="inlet.type === 'color'"
+        [matTooltip]="fc.value"
+        [style.background-color] = fc.value
+        class="input-color"></div>
+
+    </ng-container>
+
+
+    <!-- list everything attached here-->
+    <button *ngFor="let input of tree.getOpComponentInputs(opid, inletid);"
+    matTooltip = "click to remove this connection"
+    class="button is-small cxn"
+    (click)="removeConnectionTo(input)">
+    <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
+    </button>   
+
+
+

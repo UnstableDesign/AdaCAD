@@ -5,6 +5,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    width: max-content;
 }
 
 .top-row{
@@ -15,11 +16,7 @@
     height: 30px;
 }
 
-.text-err,
-.error{
-    color: red;
-    width: 500px;
-}
+
 
 .top-row .child{
     background: #999999;
@@ -29,43 +26,15 @@
     height: 30px;
 }
 
-.input-group{
-    display: flex;
-    flex-direction: row;
-    background-color: #00d1b2;
-    margin-right: 8px;
-}
 
-.input-group input{
-    width: 35px;
-}
 
-button.input{
-    position: relative;
-	background-color: #00d1b2;
-	color: white;
-	border: none;
-    width:30px;
-}
 
-button.cxn{
-    background-color: #00d1b2;
-    border: none;
-    border-left: thin solid white;
-    color: white;
-}
 
 button.is-primary{
     background-color: #333333;
     border-color: transparent;
     color: #fff;
 }
-
-.input-name{
-    margin-left: 8px;
-    line-height: 30px;
-}
-
 
 .cxn-row{
     font-size: .8em;
@@ -84,28 +53,59 @@ button.is-primary{
 }
 
 
-.param-row{
-    vertical-align:middle;
-    font-size: .8em;
-    display: flex;
-    flex-direction: row;
-    height: 40px;
-    text-align: right;
-    line-height: 40px;
-    padding: 0 4px;
-
-}
-
-.param-row input{
-    width: 60px;
-    
-}
-
 .input-color{
     width: 30px;
     height: 30px;
     border: thin solid white;
 }
+
+button.input{
+    position: relative;
+	background-color: #00d1b2;
+	color: white;
+	border: none;
+    width:30px;
+}
+
+button.cxn{
+    background-color: #00d1b2;
+    border: none;
+    border-left: thin solid white;
+    color: white;
+}
+
+.input-name{
+    margin-left: 8px;
+    line-height: 30px;
+}
+
+
+.inputs{
+    display: flex;
+    justify-content: flex-start;
+    text-align: center;
+}
+
+
+.mat-select{
+    width: 34px;
+    padding-left: 4px;
+    line-height: 30px;
+    background-color: #fff;
+}
+
+.mat-select-value{
+    color: #fff !important;
+}
+
+
+.inlet-label{
+    color: #fff;
+    line-height: 30px;
+    display: flex;
+    padding-right: 6px;
+}
+
 
 .param-image{
     padding: 8px;
@@ -118,48 +118,18 @@ button.is-primary{
     font-size: .5em;
 }
 
-
-
-
-
-.param-name{
-    width: 25%;
-    overflow: hidden;
-    line-height: 40px;
+.input-group{
+    display: flex;
+    flex-direction: row;
+    background-color: #00d1b2;
+    margin-right: 8px;
 }
 
-.param-slider{
-    width: 50%;
-    text-align: left;
-    position: relative;
-    left: 10px;
-    overflow: hidden;
+.input-group input{
+    width: 35px;
 }
 
-.param-text{
-    width: 50%;
-    text-align: left;
-    padding: 0px 10px;
-    overflow: hidden;
-}
 
-.param-checkbox{
-    overflow: hidden;
-    width: 28px;
-    text-align: right;
-}
-
-.param-inputs{
-    min-width: 75%;
-    overflow: visible;
-    text-align: left;
-    margin-left: 6px;
-}
-
-.mat-slider{
-    height: 40px;
-    padding: 0px;
-}
 
 button.is-primary.is-active{
     background-color: rgb(255, 64, 129);
@@ -183,24 +153,7 @@ button.is-primary.is-active{
     min-width: 200px;
 }
 
-.mat-select{
-    width: 34px;
-    padding-left: 4px;
-    line-height: 30px;
-    background-color: #fff;
-}
 
-.mat-select-value{
-    color: #fff !important;
-}
-
-
-.inlet-label{
-    color: #fff;
-    line-height: 30px;
-    display: flex;
-    padding-right: 6px;
-}
 
 .params{
     display:flex;
@@ -213,12 +166,6 @@ button.is-primary.is-active{
     display: flex;
     flex-direction: column;
     flex-grow: 2;
-}
-
-.inputs{
-    display: flex;
-    justify-content: flex-start;
-    text-align: center;
 }
 
 .operation-details{

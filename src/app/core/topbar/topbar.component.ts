@@ -24,6 +24,7 @@ export class TopbarComponent implements OnInit {
   @Output() onClearScreen: any = new EventEmitter();
 
   @Input() drawer;
+  @Input() version;
   @Input() filename;
   @Input() timeline;
   @Input() undoItem;

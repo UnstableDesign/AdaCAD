@@ -27,7 +27,8 @@ export class ConnectionComponent implements OnInit {
 
 
   disable_drag:boolean = true;
-  orientation: boolean = true;
+  orientation_x: boolean = true;
+  orientation_y: boolean = true;
 
   bounds: Bounds = {
     topleft: {x: 0, y:0},
@@ -35,9 +36,9 @@ export class ConnectionComponent implements OnInit {
     height:0
   };
 
-  canvas: HTMLCanvasElement;
-  cx: any;
+  svg: HTMLElement;
 
+  no_draw: boolean;
 
   constructor(public tree: TreeService) { 
 
@@ -51,20 +52,20 @@ export class ConnectionComponent implements OnInit {
     this.from = from_io.tn.node.id;
     this.to = to_io.tn.node.id;
 
+    this.no_draw = this.tree.getType(this.from) === 'op' && this.tree.hasSingleChild(this.from);
+
   }
 
   ngAfterViewInit(){
 
-
-    this.canvas = <HTMLCanvasElement> document.getElementById("cxn-"+this.id.toString());
-    this.cx = this.canvas.getContext("2d");
-
-
+    this.svg = document.getElementById('svg-'+this.id.toString());
     const to_comp = this.tree.getComponent(this.to);
     
      if(to_comp !== null){
-      this.b_to = to_comp.bounds.topleft;
-      this.updateFromPosition(this.tree.getComponent(this.from));
+      this.b_to = {
+        x:  to_comp.bounds.topleft.x + 15*this.scale/this.default_cell_size,
+        y: to_comp.bounds.topleft.y
+      };      this.updateFromPosition(this.tree.getComponent(this.from));
       this.updateToPosition(<SubdraftComponent | OperationComponent> to_comp);
      }
   }
@@ -86,9 +87,13 @@ export class ConnectionComponent implements OnInit {
    * @param to the id of the component this connection goes to
    */
   updateToPosition(to: OperationComponent | SubdraftComponent){
-   
+
     if(to.id != this.to) console.error("attempting to move wrong TO connection", to.id, this.to);
-    this.b_to = to.bounds.topleft;
+   
+    this.b_to = {
+      x:  to.bounds.topleft.x + 3*this.scale/this.default_cell_size +  15* this.scale/this.default_cell_size,
+      y: to.bounds.topleft.y
+    };
 
     if(this.tree.getType(to.id) === 'op'){
       // get the inlet value 
@@ -97,11 +102,10 @@ export class ConnectionComponent implements OnInit {
         const element = document.getElementById('inlet'+to.id+"-"+ndx);
         if(element !== undefined && element !== null){
           const left_offset = element.offsetLeft;
-          this.b_to = {x: to.bounds.topleft.x + left_offset*this.scale/this.default_cell_size, y: to.bounds.topleft.y}
+          this.b_to = {x: to.bounds.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to.bounds.topleft.y}
         }
       }
     }
-
 
     this.calculateBounds();
     this.drawConnection();
@@ -119,14 +123,13 @@ export class ConnectionComponent implements OnInit {
     if((<SubdraftComponent>from).draft_visible){
       const top_offset = document.getElementById(from.id+"-out").offsetTop;
 
-
       this.b_from = 
       {x: from.bounds.topleft.x+ 3*this.scale, 
-       y: from.bounds.topleft.y + top_offset*this.scale/this.default_cell_size};
+       y: from.bounds.topleft.y + (top_offset+30)*this.scale/this.default_cell_size};
     }else{
       this.b_from = 
       {x: from.bounds.topleft.x + 3*this.scale, 
-       y: from.bounds.topleft.y};
+       y: from.bounds.topleft.y + 30};
     }
 
     this.calculateBounds();
@@ -144,10 +147,11 @@ export class ConnectionComponent implements OnInit {
     if(p1 === undefined || p2 === undefined) return;
 
 
-    this.orientation = true;
+    this.orientation_x = true;
+    this.orientation_y = true;
     
-    if(p2.x < p1.x) this.orientation = !this.orientation;
-    if(p2.y < p1.y) this.orientation = !this.orientation;
+    if(p2.x < p1.x) this.orientation_x = !this.orientation_x;
+    if(p2.y < p1.y) this.orientation_y = !this.orientation_y;
 
     bottomright.x = Math.max(p1.x, p2.x);
     bottomright.y = Math.max(p1.y, p2.y);
@@ -157,47 +161,42 @@ export class ConnectionComponent implements OnInit {
     this.bounds.height = bottomright.y - this.bounds.topleft.y + 2;
   }
 
+
+
+  
   drawConnection(){
+    
+    if(this.no_draw) return;
 
-    //make the canvas big enough to encase the point, starting from the topleft of the view
-    this.canvas.width = this.bounds.width;
-    this.canvas.height = this.bounds.height;
-
-
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.cx.beginPath();
-    this.cx.strokeStyle = "#ff4081";
-    this.cx.setLineDash([this.scale, 2]);
-    this.cx.lineWidth = 2;
-    // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
-    if(this.orientation){
-      this.cx.moveTo(0, 0);
-      this.cx.lineTo(this.bounds.width, this.bounds.height);
+    if(this.orientation_x && this.orientation_y){
+      this.svg.innerHTML = ' <path d="M 0 0 C 0 50, '+this.bounds.width+' '+(this.bounds.height-50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+    }else if(!this.orientation_x && !this.orientation_y){
+      this.svg.innerHTML = ' <path d="M 0 0 c 0 -50, '+this.bounds.width+' '+(this.bounds.height+50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+    }else if(!this.orientation_x && this.orientation_y){
+      this.svg.innerHTML = ' <path d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-50)+', 0 '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
     }else{
-      this.cx.moveTo(0, this.bounds.height);
-      this.cx.lineTo(this.bounds.width, 0);
-    }
-    this.cx.stroke();
+      this.svg.innerHTML = ' <path d="M 0 '+this.bounds.height+' C 0 '+(this.bounds.height+50)+', '+this.bounds.width+' -50, '+this.bounds.width+' 0" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
 
+    }
   
 
   }
 
   drawForPrint(canvas, cx, scale: number) {
 
-    cx.beginPath();
-    cx.strokeStyle = "#ff4081";
-    cx.setLineDash([scale, 2]);
-    cx.lineWidth = 2;
-    // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
-    if(this.orientation){
-      cx.moveTo(this.bounds.topleft.x, this.bounds.topleft.y);
-      cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y + this.bounds.height);
-    }else{
-      cx.moveTo(this.bounds.topleft.x, this.bounds.height+ this.bounds.topleft.y);
-      cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y);
-    }
-    cx.stroke();
+    // cx.beginPath();
+    // cx.strokeStyle = "#ff4081";
+    // cx.setLineDash([scale, 2]);
+    // cx.lineWidth = 2;
+    // // this.cx.strokeRect(0,0, this.bounds.width, this.bounds.height);
+    // if(this.orientation){
+    //   cx.moveTo(this.bounds.topleft.x, this.bounds.topleft.y);
+    //   cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y + this.bounds.height);
+    // }else{
+    //   cx.moveTo(this.bounds.topleft.x, this.bounds.height+ this.bounds.topleft.y);
+    //   cx.lineTo(this.bounds.width + this.bounds.topleft.x, this.bounds.topleft.y);
+    // }
+    // cx.stroke();
   }
 
   /**

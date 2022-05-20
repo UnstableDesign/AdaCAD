@@ -94,6 +94,7 @@ export class MixerComponent implements OnInit {
     ) {
 
 
+
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
@@ -109,6 +110,27 @@ export class MixerComponent implements OnInit {
   }
 
 
+  ngOnInit(){
+    const analytics = getAnalytics();
+    logEvent(analytics, 'onload', {
+      items: [{ uid: this.auth.uid }]
+    });
+
+
+    
+  }
+
+  ngAfterViewInit() {
+
+    let searchParams = new URLSearchParams(window.location.search);
+
+    if(searchParams.has('ex')){
+      this.loadExampleAtURL(searchParams.get('ex'));  
+    }else{
+      this.loadLoggedInUser();
+    }
+
+  }
 
 
   private onWindowScroll(data: any) {
@@ -318,7 +340,7 @@ export class MixerComponent implements OnInit {
     const images_to_load = [];
     data.ops.forEach(op => {
       const internal_op = this.ops.getOp(op.name); 
-      if(internal_op === undefined) return;
+      if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
       const param_types = internal_op.params.map(el => el.type);
       param_types.forEach((p, ndx) => {
         if(p === 'file') images_to_load.push(op.params[ndx]);
@@ -330,7 +352,11 @@ export class MixerComponent implements OnInit {
         this.gl.inferData(data.looms.concat(this.tree.getLooms()))
       
     })
-    .then(el => {     
+    .then(el => {
+      return this.tree.replaceOutdatedOps(data.ops);
+    })
+    .then(correctedOps => {    
+      data.ops = correctedOps; 
       return this.loadNodes(data.nodes)
     })
     .then(id_map => {
@@ -482,30 +508,6 @@ export class MixerComponent implements OnInit {
  
 
   
-  ngOnInit(){
-    const analytics = getAnalytics();
-    logEvent(analytics, 'onload', {
-      items: [{ uid: this.auth.uid }]
-    });
-
-
-    
-  }
-
-  ngAfterViewInit() {
-
-    let searchParams = new URLSearchParams(window.location.search);
-
-    console.log("PATH",searchParams, searchParams.has('ex'), searchParams.get('ex'));      // true);
-
-
-    if(searchParams.has('ex')){
-      this.loadExampleAtURL(searchParams.get('ex'));  
-    }else{
-      this.loadLoggedInUser();
-    }
-
-  }
 
 
   loadExampleAtURL(name: string){
@@ -514,11 +516,10 @@ export class MixerComponent implements OnInit {
       items: [{ uid: this.auth.uid, name: name }]
     });
 
-    console.log("loading example: ",name);
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
-      return this.fs.loader.ada(window.location.pathname, res.body)
+      return this.fs.loader.ada(name, res.body)
      .then(loadresponse => {
        this.loadNewFile(loadresponse)
      });
@@ -539,7 +540,10 @@ export class MixerComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(loadResponse => {
           this.palette.changeDesignmode('move');
-          if(loadResponse !== undefined) this.loadNewFile(loadResponse);
+          if(loadResponse !== undefined){
+            if(loadResponse.status == -1) this.clearAll();
+            else this.loadNewFile(loadResponse);
+          } 
         
     
        });

@@ -1,5 +1,5 @@
 import { Injectable, ViewRef } from '@angular/core';
-import { cloneDeep, map, toNumber } from 'lodash';
+import { cloneDeep, flip, map, toNumber } from 'lodash';
 import { Cell } from '../../core/model/cell';
 import { Draft } from '../../core/model/draft';
 import { Loom } from '../../core/model/loom';
@@ -8,18 +8,16 @@ import { GloballoomService } from '../../core/provider/globalloom.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
-import { OperationService, OpInput, DynamicOperation } from './operation.service';
+import { OperationService, OpInput, DynamicOperation, Operation, StringParam } from './operation.service';
 import utilInstance from '../../core/model/util';
 import { UploadService } from '../../core/uploads/upload.service';
+import { element } from 'protractor';
+import { SystemsService } from '../../core/provider/systems.service';
 
 
 /**
  * this class registers the relationships between subdrafts, operations, and connections
  */
-
-
-
-
 
 /**
  * this stores a reference to a component on the palette with its id and some
@@ -96,7 +94,8 @@ export class TreeService {
   constructor(
     private globalloom: GloballoomService,
     private ops: OperationService,
-    private upSvc: UploadService) { 
+    private upSvc: UploadService,
+    private systemsservice: SystemsService) { 
   }
 
 
@@ -109,6 +108,31 @@ export class TreeService {
 
 
   }
+
+    /**
+     * go through the list of nodes being loaded and replace any with names that have been outdated.  
+     * **/
+    
+    async replaceOutdatedOps(nodes: Array<any>) : Promise<Array<any>>{
+
+      console.log("nodes", nodes);
+      const correctedNodes = nodes.map(node => {
+        if(this.ops.getOp(node.name) === null){
+          const op =  this.ops.getOpByOldName(node.name);
+          console.log("got ", node.name, ' from ', op);
+          node.name = op.name
+          node.inlets = op.inlets;
+        }
+        return node;
+      });
+
+      
+
+      console.log("nodes", nodes, correctedNodes);
+      return Promise.resolve(correctedNodes);
+    }
+
+
 
   /** scan through nodes and return all that our valid */
   async validateNodes() : Promise<boolean>{
@@ -138,15 +162,92 @@ export class TreeService {
 
 
   setOpParams(id: number, params: Array<any>, inlets: Array<any>){
-    this.getOpNode(id).params = params;
-    this.getOpNode(id).inlets = inlets;
+    this.getOpNode(id).params = params.slice();
+    this.getOpNode(id).inlets = inlets.slice();
+  }
+
+  /**
+   * this is called when a dynamic operation's parameter updates and therefore, must change inlet values
+   * @param node_id an object containing the id of hte parameter that has changed
+   * @param param_id the id of the parameter that changed
+   * @param value the value at that parameter
+   * @returns a list of inlet values to add.
+   */
+   onDynanmicOperationParamChange(name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
+
+
+    const op = this.ops.getOp(name);
+
+      let param_type = op.params[param_id].type;
+
+      //check to see if we should add or remove draft inputs
+      if(param_id === (<DynamicOperation>op).dynamic_param_id){
+        const type = (<DynamicOperation>op).dynamic_param_type;
+
+        let static_inputs = op.inlets.filter(el => el.type === 'static');
+        let num_dynamic_inlets = inlets.length - static_inputs.length;
+
+        switch(type){
+
+          case 'notation':
+
+
+            const matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
+            inlets = inlets.slice(0,static_inputs.length);
+            matches.forEach(el => {
+              inlets.push(el);
+            })
+
+          break;
+
+
+          
+          case 'number':
+
+          if(param_type === 'number'){
+            if(param_val > num_dynamic_inlets){
+              for(let i = num_dynamic_inlets; i < param_val; i++){
+                  inlets.push(i+1);
+              }
+            }else if(param_val < num_dynamic_inlets){
+              const delete_num = num_dynamic_inlets - param_val;
+              inlets = inlets.slice(0, -delete_num);
+            }
+          }else if(param_type == 'string'){
+            const all_inputs = param_val.split(' ');
+            const unique_values = utilInstance.filterToUniqueValues(all_inputs);
+            inlets = inlets.slice(0,static_inputs.length);
+            unique_values.forEach(el => {
+              inlets.push(el);
+            })
+          }
+
+          break;
+          case 'system':
+             static_inputs = op.inlets.filter(el => el.type === 'static');
+             num_dynamic_inlets = inlets.length - static_inputs.length;
+
+            if(param_val > num_dynamic_inlets){
+              for(let i = num_dynamic_inlets; i < param_val; i++){
+                  this.systemsservice.weft_systems[i].in_use = true;
+                  inlets.push(i);  
+              }
+            }else if(param_val < num_dynamic_inlets){
+              inlets = inlets.slice(0, param_val+static_inputs);
+            }
+          break;
+
+            
+
+        }
+      }
+    return inlets;
   }
 
 
 
-
   /**
-   * loads data into an operation node from a file load or undo/redo event
+   * loads data into an operation node from a file load, or when an operation is first instantiated,  or undo/redo event
    * @param entry the upload entry associated with this node or null if there was no upload associated
    * @param name the name of the operation
    * @param params the parameters to input
@@ -157,7 +258,7 @@ export class TreeService {
     
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
-    const op = this.ops.getOp(name);
+    let op = this.ops.getOp(name);
 
     if(nodes.length !== 1){
       return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
@@ -165,30 +266,22 @@ export class TreeService {
 
     const node = nodes[0];
 
-    if(this.ops.getOp(name) === undefined){
-      return Promise.reject("no op of name:"+name+" exists");
-    } 
+    if(op === undefined || op === null){
+       return Promise.reject("no op of name:"+name+" exists");
 
-    if(inlets === undefined){
-      if(this.ops.isDynamic(name)){
-        const dynamic_param_id = (<DynamicOperation> op).dynamic_param_id;
-        const default_value = (<DynamicOperation> op).params[dynamic_param_id].value;
-        for(let i = 0; i < default_value; i++){
-          inlets.push(i);
-        }
-      }else{
-        inlets = [0];
-      }
-    }else{
-      inlets = inlets;
-    }    
+    }  
+
 
 
     if(params === undefined){
       params = [];
     }
 
-    const param_types = this.ops.getOp(name).params.map(el => el.type);
+    if(params === undefined){
+      inlets = [];
+    }
+
+    const param_types = op.params.map(el => el.type);
 
 
       const formatted_params = param_types.map((type, ndx) => {
@@ -212,13 +305,25 @@ export class TreeService {
         if(ndx < params.length) return formatted_params[ndx];
         else return p;
       });
-  
+
+      const default_inlet_values = this.ops.getOp(name).inlets.map(el => el.value);
+
+      if(inlets === undefined || inlets.length == 0){
+        inlets = default_inlet_values.slice();
+        if(this.ops.isDynamic(name)){
+          const op = <DynamicOperation> this.ops.getOp(name);
+          let dynamic_inlets = this.onDynanmicOperationParamChange(name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
+          inlets = dynamic_inlets.slice();
+        }
+      }
+
+       inlets = inlets.map(el => (el === null) ? 0 : el); 
+
   
       node.dirty = false;
       (<OpNode> node).name = name;
       (<OpNode> node).params = params_out.slice();
-      (<OpNode> node).inlets = inlets;
-  
+      (<OpNode> node).inlets = inlets.slice();
   
      return Promise.resolve({on:<OpNode> nodes[0], entry});
   
@@ -445,19 +550,20 @@ export class TreeService {
   sweepInlets(id: number) : Promise<Array<ViewRef>>{
 
      const opnode: OpNode = this.getOpNode(id);
+     const op: Operation = this.ops.getOp(opnode.name);
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
 
-   //filter out inputs that are matched to an index highter than what we offer
-    const missing_inlets: Array<TreeNode> = inputs_to_op
-      .filter((el) => el.ndx > opnode.inlets.length)
-      .map(el => el.tn);
+    const num_constant_inlets = op.inlets.length;
 
+    //filter out inputs that are matched to an index highter than what we offer
+    const missing_inlets: Array<IOTuple> = inputs_to_op
+      .filter((el) => el.ndx >= opnode.inlets.length)
 
-    const viewRefs = missing_inlets.map(el => el.node.ref);
+    const viewRefs = missing_inlets.map(el => el.tn.node.ref);
 
     
     missing_inlets.forEach(el => {
-        this.removeConnectionNode(el.inputs[0].tn.node.id, el.outputs[0].tn.node.id);
+        this.removeConnectionNode(el.tn.inputs[0].tn.node.id, el.tn.outputs[0].tn.node.id, el.ndx);
     });
 
     return Promise.resolve(viewRefs);
@@ -576,6 +682,8 @@ export class TreeService {
         params: [],
         name: ''
       }
+
+
       break;
       default: 
        node = {
@@ -699,8 +807,9 @@ export class TreeService {
   /**
    * called on an operation to check if it can accept connections from a given subdraft
    * @param id - the id of the operation in question
+   * @param inlet - the inlet id we are looking at
    */
-  canAcceptConnections(id: number) : boolean {
+  canAcceptConnections(id: number, inlet: number) : boolean {
 
     if(this.open_connection === -1) {
     console.error("no open connection");
@@ -713,14 +822,15 @@ export class TreeService {
       return false; //can't be an input to your parent
     } 
 
-    const is_already_connected = this.getInputs(id).length > 0 && this.getInputs(id).find(el => el === this.open_connection) !== undefined;
+    const is_already_connected = this.getInputsAtNdx(id, inlet).length > 0 && this.getInputs(id).find(el => el === this.open_connection) !== undefined;
     if(is_already_connected){
      // console.error("already connected, draft=", this.open_connection, " opid=", id);
       return false; //these two things are already directly connected
     } 
 
+    
 
-    const has_room = (this.getInputs(id).length < (<OperationComponent> this.getComponent(id)).op.max_inputs);
+    const has_room = (this.getInputs(id).length < (<OperationComponent> this.getComponent(id)).op.inlets[inlet].num_drafts || (<OperationComponent> this.getComponent(id)).op.inlets[inlet].num_drafts == -1);
     if(!has_room) return false;
 
     if(parent_op === -1 && has_room) return true; //if you don't have a parent and there is room, go for it
@@ -1006,11 +1116,11 @@ removeOperationNode(id:number) : Array<Node>{
  * @param id - the connection to remove
  * @returns a list of all nodes removed as a result of this action
  */
- removeConnectionNode(from:number, to:number) : Array<Node>{
+ removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
 
 
-  const cxn_id:number = this.getConnection(from, to);
-
+  const cxn_id:number = this.getConnectionAtInlet(from, to, inletid);
+  console.log("got connection ", cxn_id);
 
   const deleted:Array<Node> = []; 
   if(cxn_id === undefined) return;
@@ -1071,7 +1181,6 @@ removeOperationNode(id:number) : Array<Node>{
     const ready: Array<OpNode> = dependency_nodes.filter((el, ndx) => {
       const depends_on: Array<number> = this.getUpstreamOperations(el.id);
       const needs = depends_on.map(id => this.getNode(id).dirty);
-
       const find_true = needs.findIndex(el => el === true);
       if(find_true === -1) return el;
     });
@@ -1079,51 +1188,6 @@ removeOperationNode(id:number) : Array<Node>{
     return ready;
   }
 
-
-//  /**
-//    * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
-//    * since this function cannot delete nodes, it makes nodes that no longer need to exist as null for later collection
-//    * @param res the list of results from perform op
-//    * @returns a list of the draft nodes touched. 
-//    */
-//   async updateDraftsFromResults(parent: number, res: Array<Draft>) : Promise<Array<number>>{
-
-//     const out = this.getNonCxnOutputs(parent);
-//     const touched: Array<number> = [];
-
-//     console.log("updating drafts from results", res, out);
-
-//     if(out.length === res.length){
-//       console.log("set draft");
-//       out.forEach((output, ndx) => {
-//         this.setDraft(output, res[ndx],null);
-//         touched.push(output);
-//       });
-//     }else if(out.length > res.length){
-//       console.log("remove draft");
-
-//       for(let i = res.length; i < out.length; i++){
-//         const dn = <DraftNode> this.getNode(out[i]);
-//         dn.draft = new Draft({wefts:0, warps:0});
-//         dn.loom = new Loom(dn.draft, this.globalloom.min_frames, this.globalloom.min_treadles);
-//         dn.dirty = true;
-//         touched.push(out[i]);
-//       }
-//     }else{
-//       console.log("create draft");
-
-//       for(let i = out.length; i < res.length; i++){
-//         const id = this.createNode('draft', null, null);
-//         const cxn = this.createNode('cxn', null, null);
-//         this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
-//         this.addConnection(parent, 0, id, 0, cxn);
-//         touched.push(id);
-//       }
-//     }
-
-//     return touched;
-
-//   }
 
 /**
    * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
@@ -1135,6 +1199,8 @@ removeOperationNode(id:number) : Array<Node>{
 
   const out = this.getNonCxnOutputs(parent);
   const touched: Array<number> = [];
+
+
 
   //console.log("updating drafts, there are currently: ", out.length, "existing ouputs and ", res.length, "new outputs");
 
@@ -1186,6 +1252,8 @@ removeOperationNode(id:number) : Array<Node>{
  */
   async performTopLevelOps(): Promise<any> {
 
+
+
     //mark all ops as dirty to start
     this.nodes.forEach(el => {
       if(el.type === "op") el.dirty = true;
@@ -1196,6 +1264,7 @@ removeOperationNode(id:number) : Array<Node>{
       .filter(el => el.type === 'op')
       .filter(el => this.getUpstreamOperations(el.id).length === 0)
       .map(el => el.id);
+
 
     return this.performGenerationOps(top_level_nodes);
 
@@ -1209,8 +1278,14 @@ removeOperationNode(id:number) : Array<Node>{
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
 
-    const op_fn_list = op_node_list.map(el => this.performOp(el));
+
+    const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
+
+    if(needs_computing.length == 0) return Promise.resolve([]);
+
+    const op_fn_list = needs_computing.map(el => this.performOp(el));
    
+    
     return Promise.all(op_fn_list).then( out => {
       const flat:Array<number> = out.reduce((acc, el, ndx)=>{
         return acc.concat(el);
@@ -1219,8 +1294,7 @@ removeOperationNode(id:number) : Array<Node>{
       return this.getNodesWithDependenciesSatisfied();
 
     }).then(needs_performing => {
-     
-      const fns = needs_performing.map(el => el.id);
+      const fns = needs_performing.filter(el => el.dirty).map(el => el.id);
       if(needs_performing.length === 0) return [];
       return  this.performGenerationOps(fns);    
     });
@@ -1252,6 +1326,17 @@ flipDraft(draft: Draft) : Promise<Draft>{
 }
 
 
+isValidIOTuple(io: IOTuple) : boolean {
+  if(io === null || io === undefined) return false;
+  const draft_tn = io.tn.inputs[0].tn;
+  const cxn_tn = io.tn;
+  const type = draft_tn.node.type;  
+  const draft: Draft = (<DraftNode>draft_tn.node).draft;
+  if(draft === null || draft === undefined) return false;
+  if(draft.wefts == 0 || draft.warps == 0) return false;
+  return true;
+}
+
 
 
 /**
@@ -1270,34 +1355,40 @@ flipDraft(draft: Draft) : Promise<Draft>{
 
   let inputs: Array<OpInput> = [];
 
-  if(this.ops.isDynamic(opnode.name)){
+  //if(this.ops.isDynamic(opnode.name)){
     
     //first push the parent params
 
-    inputs.push({op_name: op.name, drafts: [], inlet: 0, params: opnode.params});
+    inputs.push({op_name: op.name, drafts: [], inlet: -1, params: opnode.params});
 
-      const flip_fns = [];
-      const draft_id_to_ndx = [];
-      all_inputs.filter(el => el !== undefined && el !== null).forEach((el) => {
-        const draft_tn = el.tn.inputs[0].tn;
-        const cxn_tn = el.tn;
-        const type = draft_tn.node.type;
-        if(type === 'draft'){
-          draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id})
-          flip_fns.push(this.flipDraft((<DraftNode>draft_tn.node).draft));
-        }
-      });
+    const flip_fns = [];
+    const draft_id_to_ndx = [];
+    all_inputs.filter(el => this.isValidIOTuple(el))
+    .forEach((el) => {
+      
+      const draft_tn = el.tn.inputs[0].tn;
+      const cxn_tn = el.tn;
+      const type = draft_tn.node.type;
+      if(type === 'draft'){
+        draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id, cxn: cxn_tn.node.id})
+        flip_fns.push(this.flipDraft((<DraftNode>draft_tn.node).draft));
+      }
+    });
 
 
    
     return Promise.all(flip_fns)
     .then(flipped_drafts => {
-      const paraminputs = flipped_drafts.map(el =>  {
-        const node = draft_id_to_ndx.find(input => input.draft_id === el.id);
-        return {op_name:'child', drafts: [el], inlet: node.ndx ,params: [opnode.inlets[node.ndx]]}
-      })
+       
+      const paraminputs = draft_id_to_ndx.map(el => {
+          const draft = flipped_drafts.find(draft => draft.id === el.draft_id);
+          if(draft === undefined) return undefined;
+          else return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
+        })
+      
+      const cleaned_inputs = paraminputs.filter(el => el != undefined);
 
-      inputs = inputs.concat(paraminputs);
+      inputs = inputs.concat(cleaned_inputs);
       return op.perform(inputs);
 
     })
@@ -1310,26 +1401,26 @@ flipDraft(draft: Draft) : Promise<Draft>{
       });
           
 
-    }else{
-      const drafts_coming_in: Array<any> =  drafts_in
-      .map(input => (<DraftNode> this.getNode(input)))
-      .filter(el => el !== null && el !== undefined)
-      .map(input_node => input_node.draft)
-      .filter(el => el !== null && el !== undefined)
-      .map(el => this.flipDraft(el));
+    // }else{
+    //   const drafts_coming_in: Array<any> =  drafts_in
+    //   .map(input => (<DraftNode> this.getNode(input)))
+    //   .filter(el => el !== null && el !== undefined)
+    //   .map(input_node => input_node.draft)
+    //   .filter(el => el !== null && el !== undefined)
+    //   .map(el => this.flipDraft(el));
 
-      return Promise.all(drafts_coming_in).then(drafts =>{
-          inputs.push({op_name: '', drafts: drafts, inlet: 0, params: opnode.params});
-          return op.perform(inputs)
-          .then(res => {
-            return Promise.all(res.map(el => this.flipDraft(el)))
-          }).then(flipped => {
-            opnode.dirty = false;
-            return this.updateDraftsFromResults(id, flipped)
-          })
+    //   return Promise.all(drafts_coming_in).then(drafts =>{
+    //       inputs.push({op_name: '', drafts: drafts, inlet: 0, params: opnode.params});
+    //       return op.perform(inputs)
+    //       .then(res => {
+    //         return Promise.all(res.map(el => this.flipDraft(el)))
+    //       }).then(flipped => {
+    //         opnode.dirty = false;
+    //         return this.updateDraftsFromResults(id, flipped)
+    //       })
             
-        });
-    }
+    //     });
+    // }
 
   
 
@@ -1512,11 +1603,36 @@ flipDraft(draft: Draft) : Promise<Draft>{
 
   }
 
+   /**
+   * given a from, to, and inlet index, return the connection id 
+   * @param from
+   * @returns the node id of the connection, or -1 if that connection is not found
+   */
+  getConnectionAtInlet(from: number, to:number, ndx: number) : number{
+    let found = -1;
+
+    const inputs:Array<IOTuple> = this.getInputsWithNdx(to);
+    const connection: Array<IOTuple> = inputs.filter(el => el.ndx == ndx);
+    if(connection === undefined) return -1;
+
+    if(connection.length == 1) return connection[0].tn.node.id;
+    else{
+      connection.forEach(connectionAtInlet => {
+        const non_cnx_inputs = this.getInputs(connectionAtInlet.tn.node.id);
+        console.log(connectionAtInlet, from,non_cnx_inputs);
+        const match_from = non_cnx_inputs.find(el => el === from);
+        if(match_from !== undefined) found =  connectionAtInlet.tn.node.id;
+      });
+    }
+
+    return found;
+   
+   }
+
   /**
    * given two nodes, returns the id of the connection node connecting them
    * @param a one node
    * @param b the otehr node node
-   * @param ndx the param to which this attaches on the input side.
    * @returns the node id of the connection, or -1 if that connection is not found
    */
   getConnection(a: number, b:number) : number{
@@ -1667,6 +1783,12 @@ flipDraft(draft: Draft) : Promise<Draft>{
     const tn = this.getTreeNode(node_id);
     if(tn === undefined) return [];
     return tn.inputs;
+  }
+
+  getInputsAtNdx(node_id: number, inlet_ndx: number):Array<IOTuple>{
+    const tn = this.getTreeNode(node_id);
+    if(tn === undefined) return [];
+    return tn.inputs.filter(el => el.ndx == inlet_ndx);
   }
 
   getConnectionInput(node_id: number):number{

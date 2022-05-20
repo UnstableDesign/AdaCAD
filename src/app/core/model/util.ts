@@ -3,6 +3,9 @@
  * @class
  */
 
+import { digest } from "@angular/compiler/src/i18n/digest";
+import { accessSync } from "fs";
+import { or } from "mathjs";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
 import { Cell } from "./cell";
@@ -777,6 +780,59 @@ class Util {
 }
 
 /**
+ * take an array of drafts and interlace them, in the order in which they appear in the array
+ * this will also interlace weft systems and materials, but will use the first draft as the indication for the warp materials
+ * @param drafts the drafts whose wefts we will be interlacing
+ * @param factor_in_repeats should we calculate the size such that the pattern repeats in even intervals? 
+ * @param warp_patterns a draft to use to represent the warp systems. 
+ */
+interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft): Draft {
+
+
+  let total_wefts: number = 0;
+  const all_wefts = drafts.map(el => el.wefts).filter(el => el > 0);
+  if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+  else  total_wefts = utilInstance.getMaxWefts(drafts);
+
+  let total_warps: number = 0;
+  const all_warps = drafts.map(el => el.warps).filter(el => el > 0);
+
+  if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
+  else  total_warps = utilInstance.getMaxWarps(drafts);
+
+
+
+  //create a draft to hold the merged values
+  const d:Draft = new Draft(
+    {warps: total_warps, 
+      wefts:(total_wefts *drafts.length),
+      colShuttleMapping: warp_patterns.colShuttleMapping,
+      colSystemMapping: warp_patterns.colSystemMapping});
+
+      console.log(d);
+  d.pattern.forEach((row, ndx) => {
+
+      const select_array: number = ndx %drafts.length; 
+      const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % drafts[select_array].wefts : Math.floor(ndx /drafts.length);
+      row.forEach((cell, j) =>{
+          const select_col = (factor_in_repeats === 1) ? j % drafts[select_array].warps : j;
+          if(drafts[select_array].hasCell(select_row, select_col)){
+              const pattern = drafts[select_array].pattern;
+              cell.setHeddle(pattern[select_row][select_col].getHeddle());
+
+          }else{
+              cell.setHeddle(null);
+          }
+      });
+
+  });
+  
+
+  return d;
+
+}
+
+/**
  * in connection with lcm, the gcd (greatest common divisor) determines the largest number that can divide into both inputs
  * I used Eulers algorithm with Euclidan Divison for determining this. 
  * assumes non-zero inputs
@@ -799,8 +855,9 @@ gcd(a: number, b: number) : number {
  * it works based on the formulat lcd (a,b) = a*b / gcd(a,b), and then caculates in a pairwise fashion.
  * this has the risk of breaking with very large sets of inputs and/or prime numbers of a large size
  */
-lcm(set: Array<number>) : number{
+lcm(original: Array<number>) : number{
 
+  const set = original.slice();
 
   if(set.length === 0) return 0;
   if(set.length === 1) return set[0];
@@ -825,7 +882,11 @@ lcm(set: Array<number>) : number{
 
 }
 
-
+/**
+ * take any input array and return an array of only the unique elements
+ * @param arr 
+ * @returns 
+ */
 filterToUniqueValues(arr: Array<any>) : Array<any>{
 
   const unique: Array<any> = [];
@@ -833,19 +894,47 @@ filterToUniqueValues(arr: Array<any>) : Array<any>{
     const ndx = unique.findIndex(uel => uel === el);
     if(ndx === -1) unique.push(el);
   });
-
   return unique;
+}
+
+/**
+ * takes an input string and a regex and returns each match as an array
+ * @param input 
+ */
+parseRegex(input:string, regex: RegExp) : Array<any> {
+  const global_regex = new RegExp(regex, 'g');
+  const matches = input.match(global_regex);
+  return matches.map(el => el.slice(1, -1));
 
 }
 
+/**
+ * compares two lists of values and returns a list of the elements from newInlets that need to be added to the current list, 
+ * as well as the elements in currentInlets that no longer need to exist. 
+ * @param newInlets 
+ * @returns the list of elements that needed to be added to or removed from current Inlets to make it match the list in newInlets
+ */
+getInletsToUpdate(newInlets: Array<any>, currentInlets: Array<any>) : {toadd: Array<any>, toremove: Array<any>} {
+
+  const toadd = newInlets.reduce((acc, inlet) => {
+    if(currentInlets.find(el => el == inlet) === undefined) acc.push(inlet);
+    return acc;
+  }, []);
+  const toremove = currentInlets.reduce((acc, inlet) => {
+    if(newInlets.find(el => el == inlet) === undefined) acc.push(inlet);
+    return acc;
+  }, []);
+
+  return {toadd, toremove};
+}
                                                                           
                                                                                                                    
-  // generateId :: Integer -> String                                                                                                  
-  generateId = (len:number) : number => {                              
-    const arr = new Uint8Array((len || 40) / 2)                                                                  
-    window.crypto.getRandomValues(arr)            
-    return parseInt(arr.join(''))                                                                                  
-  }                                                                                                                
+// generateId :: Integer -> String                                                                                                  
+generateId = (len:number) : number => {                              
+  const arr = new Uint8Array((len || 40) / 2)                                                                  
+  window.crypto.getRandomValues(arr)            
+  return parseInt(arr.join(''))                                                                                  
+}                                                                                                                
 
 
 

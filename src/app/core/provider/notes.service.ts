@@ -59,8 +59,13 @@ export class NotesService {
     this.notes = ns;
   }
 
+  /**
+   * gets the note associated with a given id. 
+   * @param id 
+   * @returns the note object or undefined if not found
+   */
   get(id: number) : Note {
-    return this.notes[id];
+    return this.notes.find(el => el.id == id);
   }
 
   delete(id: number){
