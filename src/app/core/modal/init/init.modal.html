@@ -86,8 +86,25 @@
   <ng-container *ngIf="(selected == 'example')">
     <div class="preloaded_files">
 
+     
       <mat-card >
-        <mat-card-title>Introduction
+        <mat-card-title>Introduction, Lesson 1
+          <button (click)="loadExample('lesson1')" mat-raised-button color="white">Load</button>
+
+        </mat-card-title>
+        <img mat-card-image src="/assets/example_img/lesson1.png" alt="Screenshot of the File Contents">
+          <mat-card-content>
+            <p>
+              If this is your first time using AdaCAD, start here to learn our vocabulary and how you can go
+            </p>
+          </mat-card-content>
+        <mat-card-actions>
+          <button (click)="loadExample('lesson1')" mat-raised-button color="primary">Load</button>
+        </mat-card-actions>
+      </mat-card>
+     
+      <mat-card >
+        <mat-card-title>A Sample Draft
           <button (click)="loadExample('intro')" mat-raised-button color="white">Load</button>
 
         </mat-card-title>

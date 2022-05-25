@@ -1173,7 +1173,7 @@ export class OperationService {
 
     const atop: Operation = {
       name: 'set atop, (a, b) => a',
-      displayname: 'set atop, (a, b) => a', 
+      displayname: 'set atop, (a, b) => b', 
       old_names:['set atop'], 
       dx: 'sets cells of a on top of b, no matter the value of b',
       params: <Array<NumParam>>[
