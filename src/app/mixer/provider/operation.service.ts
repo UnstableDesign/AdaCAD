@@ -610,7 +610,14 @@ export class OperationService {
         max: 100,
         value: 1,
         dx: "the number of pics to keep between each splice row"
-        }],
+        },
+        {name: 'repeat',
+        type: 'boolean',
+        falsestate: 'do not repeat inputs to match size',
+        truestate: 'repeat inputs to match size',
+        value: 1,
+        dx: "controls if the inputs are repeated to make drafts of the same size or not"
+      }],
         inlets: [{
           name: 'receiving draft', 
           type: 'static',
@@ -632,6 +639,8 @@ export class OperationService {
         const static_inlet = op_inputs.find(el => el.inlet == 0);
         const splicing_inlet = op_inputs.find(el => el.inlet == 1);
 
+
+        
         if(child_input === undefined) return Promise.resolve([]);
         if(static_inlet === undefined) return Promise.resolve([splicing_inlet.drafts[0]]);
         if(splicing_inlet === undefined) return Promise.resolve([static_inlet.drafts[0]]);
@@ -639,14 +648,26 @@ export class OperationService {
 
         const static_input = static_inlet.drafts[0];
         const splicing_input = splicing_inlet.drafts[0];
+        const factor_in_repeats = parent_input.params[1];
 
         const all_drafts = [static_input, splicing_input];
 
-        const max_warps:number = utilInstance.getMaxWarps(all_drafts);
-
-        let sum_rows =all_drafts.reduce((acc, el) => {
-          return acc + el.wefts;
-        }, 0);
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
+        if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+        else  {
+          total_wefts =all_drafts.reduce((acc, el) => {
+            return acc + el.wefts;
+          }, 0);
+  
+        }
+      
+        let total_warps: number = 0;
+        const all_warps = all_drafts.map(el => el.warps).filter(el => el > 0);
+      
+        if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
+        else  total_warps = utilInstance.getMaxWarps(all_drafts);
+      
 
         const uniqueSystemRows = this.ss.makeWeftSystemsUnique(all_drafts.map(el => el.rowSystemMapping));
 
@@ -656,21 +677,23 @@ export class OperationService {
         let array_b_ndx = 0;
       
         //create a draft to hold the merged values
-        const d:Draft = new Draft({warps: max_warps, wefts:sum_rows, colShuttleMapping:static_input.colShuttleMapping, colSystemMapping:static_input.colSystemMapping});
+        const d:Draft = new Draft({warps: total_warps, wefts:total_wefts, colShuttleMapping:static_input.colShuttleMapping, colSystemMapping:static_input.colSystemMapping});
 
         for(let i = 0; i < d.wefts; i++){
           let select_array: number = (i % (parent_input.params[0]+1) ===parent_input.params[0]) ? 1 : 0; 
-          if(array_b_ndx >=splicing_input.wefts) select_array = 0;
-          if(array_a_ndx >=static_input.wefts) select_array = 1;
 
-          let ndx = (select_array === 0) ? array_a_ndx : array_b_ndx;
+          if(!factor_in_repeats){
+            if(array_b_ndx >=splicing_input.wefts) select_array = 0;
+            if(array_a_ndx >=static_input.wefts) select_array = 1;
+          }
+          
+          let cur_weft_num = all_drafts[select_array].wefts
+          let ndx = (select_array === 0) ? array_a_ndx%cur_weft_num : array_b_ndx%cur_weft_num;
 
           d.pattern[i].forEach((cell, j) => {
-            if(all_drafts[select_array].hasCell(ndx, j)){
-              cell.setHeddle(all_drafts[select_array].pattern[ndx][j].getHeddle());
-            }else{
-              cell.setHeddle(null);
-            }   
+            let cur_warp_num = all_drafts[select_array].warps;
+            cell.setHeddle(all_drafts[select_array].pattern[ndx][j%cur_warp_num].getHeddle());
+            if(j >= cur_warp_num && !factor_in_repeats) cell.setHeddle(null);
           });
 
           d.rowSystemMapping[i] = uniqueSystemRows[select_array][ndx];
@@ -1051,14 +1074,14 @@ export class OperationService {
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the addedop_input.drafts from the left"
+        dx: "the amount to offset b from the left"
         },
-        {name: 'offset from bottom',
+        {name: 'bottom offset',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlayingop_input.drafts from the bottom"
+        dx: "the amount to offset b from the bottom"
         }
       ],
       inlets: [{
@@ -1099,6 +1122,7 @@ export class OperationService {
         if(first.warps > width) width = first.warps;
         if(first.wefts > height) height = first.wefts;
 
+    
 
         //initialize the base container with the first draft at 0,0, unset for anythign wider
         const init_draft: Draft = new Draft({
@@ -1149,7 +1173,7 @@ export class OperationService {
 
     const atop: Operation = {
       name: 'set atop, (a, b) => a',
-      displayname: 'set atop, (a, b) => a', 
+      displayname: 'set atop, (a, b) => b', 
       old_names:['set atop'], 
       dx: 'sets cells of a on top of b, no matter the value of b',
       params: <Array<NumParam>>[
@@ -2063,10 +2087,10 @@ export class OperationService {
         value: 3,
         dx: 'number of weft overs'
         },
-        <BoolParam> {name: 'S/Z',
+        <BoolParam> {name: 'Z/S',
         type: 'boolean',
-        falsestate: 'Z twist',
-        truestate: 'S twist',
+        falsestate: 'Z',
+        truestate: 'S',
         value: 0,
         dx: 'toggle to switch the twist direction'
         }
@@ -2134,12 +2158,12 @@ export class OperationService {
         value: '2 2 3 3',
         dx: 'the under over pattern of this twill (e.g. 2 2 3 3)'
         },
-        <BoolParam>{name: 'S/Z',
+        <BoolParam>{name: 'Z/S',
         type: 'boolean',
-        truestate: 'Z twist',
-        falsestate: 'S twist',
+        falsestate: 'Z',
+        truestate: 'S',
         value: 0,
-        dx: 'toggle to change twist direction'
+        dx: 'toggle to change twill direction'
         }
       ],
       inlets: [{
@@ -2178,7 +2202,7 @@ export class OperationService {
 
 
         const pattern:Array<Array<Cell>> = [];
-        let twist_val = (twist == 0) ? 1 : -1;
+        let twist_val = (twist == 0) ? -1 : 1;
         for(let i = 0; i < sum; i++){
           pattern.push([]);
           for(let j = 0; j < sum; j++){
@@ -2346,7 +2370,7 @@ export class OperationService {
 
     const warp_profile: DynamicOperation = {
       name: 'warp_profile',
-      displayname: 'profile draft (cloth width)',
+      displayname: 'pattern across width',
       old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: 'number',
@@ -2707,6 +2731,13 @@ export class OperationService {
         max: 100,
         value: 2,
         dx: 'the move number on each row'
+        },
+        <BoolParam>{name: 'face',
+        type: 'boolean',
+        falsestate: "weft facing",
+        truestate: "warp facing",
+        value: 0,
+        dx: 'select to toggle warp and weft facing variations of this satin'
         }
       ],
       inlets: [{
@@ -2721,11 +2752,13 @@ export class OperationService {
         const parent_input = op_inputs.find(el => el.op_name == 'satin');
         const child_input = op_inputs.find(el => el.op_name == 'child');
        
+
         const pattern:Array<Array<Cell>> = [];
         for(let i = 0; i <parent_input.params[0]; i++){
           pattern.push([]);
           for(let j = 0; j <parent_input.params[0]; j++){
-            pattern[i][j] = (j===(i*parent_input.params[1])%parent_input.params[0]) ? new Cell(true) : new Cell(false);
+            if(parent_input.params[2]=== 0) pattern[i][j] = (j===(i*parent_input.params[1])%parent_input.params[0]) ? new Cell(true) : new Cell(false);
+            else pattern[i][j] = (j===(i*parent_input.params[1])%parent_input.params[0]) ? new Cell(false) : new Cell(true);
           }
         }
 

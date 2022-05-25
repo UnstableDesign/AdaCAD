@@ -20,14 +20,6 @@ import { SystemsService } from '../../provider/systems.service';
 
 export class ActionsComponent implements OnInit {
 
-  // @Input() warp_systems: any;
-  // @Input() weft_systems: any;
-  // @Input() warp_systems_pattern: any;
-  // @Input() weft_systems_pattern: any;
-  // @Input() shuttles: any;
-  // @Input() warp_shuttles_pattern: any;
-  // @Input() weft_shuttles_pattern: any;
-
   draft:Draft;
 
   //chip params

@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { MaterialModal } from '../../modal/material/material.modal';
-import { ShuttlesModal } from '../../modal/shuttles/shuttles.modal';
 import { Shuttle } from '../../../core/model/shuttle';
 import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 
