@@ -185,16 +185,25 @@ export class TreeService {
         switch(type){
 
           case 'notation':
-
-
             const matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
             inlets = inlets.slice(0,static_inputs.length);
             matches.forEach(el => {
               inlets.push(el);
             })
-
           break;
 
+          case 'draft':
+            if(param_val !== -1){
+              const draftNode = <DraftNode> this.getNode(param_val);
+              const uniqueVals = utilInstance.filterToUniqueValues(draftNode.loom.threading);
+              const inlet_nums = uniqueVals.length;
+              console.log("loom is ", draftNode.loom)
+              inlets = inlets.slice(0,static_inputs.length);
+              for(let i = 0; i < inlet_nums; i++){
+                inlets.push(i+1);
+              }
+            }
+          break;
 
           
           case 'number':

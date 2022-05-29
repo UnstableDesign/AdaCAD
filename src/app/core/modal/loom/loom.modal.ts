@@ -7,6 +7,7 @@ import { DesignMode } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { Draft } from '../../model/draft';
 import { GloballoomService } from '../../provider/globalloom.service';
+import { WorkspaceService } from '../../provider/workspace.service';
 
 @Component({
   selector: 'app-loom-modal',
@@ -34,9 +35,11 @@ export class LoomModal implements OnInit {
   warp_locked:boolean = false;
   width:number = 0; 
   type: string = 'local';
+  origin_options: any = null;
 
   constructor(
              public global_loom: GloballoomService,
+             private ws: WorkspaceService,
              private dm: DesignmodesService,
              private dialogRef: MatDialogRef<LoomModal>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
@@ -56,6 +59,7 @@ export class LoomModal implements OnInit {
       this.treadles = data.loom.min_treadles;
       this.loomtype = data.loom.type;
      }else{
+      this.origin_options = this.ws.getOriginOptions();
       this.epi = global_loom.epi;
       this.units = global_loom.units;
       this.frames = global_loom.min_frames;

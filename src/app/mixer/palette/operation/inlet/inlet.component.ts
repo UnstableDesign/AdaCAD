@@ -60,6 +60,7 @@ export class InletComponent implements OnInit {
     switch (type){
       case 'number':
       case 'system':
+      case 'draft':
         return parseInt(value);
         break;
       case 'notation':

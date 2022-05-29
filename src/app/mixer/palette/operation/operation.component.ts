@@ -6,7 +6,7 @@ import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl} from '@angular/forms';
 import { ViewportService } from '../../provider/viewport.service';
-import { OpNode, TreeService } from '../../provider/tree.service';
+import { IOTuple, OpNode, TreeService } from '../../provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { ImageService } from '../../../core/provider/image.service';
@@ -296,6 +296,18 @@ export class OperationComponent implements OnInit {
 
     if(this.is_dynamic_op){
       const opnode = <OpNode> this.tree.getNode(this.id);
+      const op = <DynamicOperation> this.operations.getOp(opnode.name);
+      //this is a hack to use an input draft to generate inlets
+      if(op.params[obj.id].type == 'draft'){
+        const inputs:Array<IOTuple> = this.tree.getInputsAtNdx(this.id, 0);
+        if(inputs.length === 0) obj.value = -1;
+        else {
+          const draft_node_in_id = inputs[0].tn.inputs[0].tn.node.id;
+          obj.value = draft_node_in_id;
+        }
+        
+      }
+      console.log("object values are ", obj);
       const new_inlets = this.tree.onDynanmicOperationParamChange(this.name, opnode.inlets, obj.id, obj.value)
       this.opnode.inlets = new_inlets.slice();
     }

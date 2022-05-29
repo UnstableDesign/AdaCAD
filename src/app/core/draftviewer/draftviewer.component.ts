@@ -1,10 +1,8 @@
-import { ComponentFactoryResolver, ElementRef, HostListener, Inject } from '@angular/core';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, HostListener, Output, ViewChild } from '@angular/core';
 import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Render } from '../model/render';
-import { Selection } from '../model/selection';
 import { Cell } from '../model/cell';
-import { Crossing, DesignMode, Interlacement } from '../model/datatypes';
+import { DesignMode, Interlacement } from '../model/datatypes';
 import { Draft } from '../model/draft';
 import { Loom } from '../model/loom';
 import { Pattern } from '../model/pattern';
@@ -21,6 +19,7 @@ import { System } from '../model/system';
 //import { GloballoomService } from '../provider/globalloom.service';
 import { G } from '@angular/cdk/keycodes';
 import { StateService } from '../provider/state.service';
+import { WorkspaceService } from '../provider/workspace.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -213,7 +212,6 @@ export class DraftviewerComponent implements OnInit {
    tieupsCanvas: HTMLCanvasElement;
  
  
- 
    weftSystemsCanvas: HTMLCanvasElement;
    warpSystemsCanvas: HTMLCanvasElement;
  
@@ -240,7 +238,7 @@ export class DraftviewerComponent implements OnInit {
     private ps: PatternService,
     private ms: MaterialsService,
     private ss: SystemsService,
-   // public gl: GloballoomService,
+    public ws: WorkspaceService,
     public timeline: StateService
     ) { 
 
@@ -1500,9 +1498,11 @@ export class DraftviewerComponent implements OnInit {
      cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 
     if(type =='threading'){
-      cx.font = "12px Arial";
+      cx.font = "10px Arial";
       cx.fillStyle = "white";
-      cx.fillText(this.loom.threading[j]+1, 4+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
+      let thread_val = this.loom.threading[j]+1;
+      if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = this.loom.num_frames - this.loom.threading[j];
+      cx.fillText(thread_val, 2+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
       
     }
 

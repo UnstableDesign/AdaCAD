@@ -94,6 +94,23 @@
 
     </ng-container>
 
+    <ng-container  *ngIf="param.type == 'draft'">
+       
+
+     <div class='param-label'>
+         <button class="refresh" 
+         mat-icon-button
+         color = "accent"
+         (click)= "onParamChange(fc.value)"
+         matTooltip="update draft with input values">
+         <i class="fas fa-redo"></i></button>
+     </div>
+
+   
+
+
+ </ng-container>
+
 
 
     <ng-container  *ngIf="param.type == 'file'">
