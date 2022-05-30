@@ -2600,12 +2600,19 @@ export class OperationService {
         if(child_inputs.length == 0) return Promise.resolve([]);
         if(profile_input === undefined || profile_input.drafts.length === 0) return Promise.resolve([]);
 
-         const loom = new Loom(profile_input.drafts[0], 'shaft', child_inputs.length, child_inputs.length);
-         loom.recomputeLoom(profile_input.drafts[0]);
-         
-         let warp_acrx_pattern = loom.threading;
+        //create an index of each row where there is a "true" for each warp
+        const pd: Draft = profile_input.drafts[0];
+        const warp_acrx_pattern:Array<number> = [];
+        for(let j = 0; j < pd.warps; j++){
+          const col: Array<Cell> = pd.pattern.map(el => el[j]);
+          console.log("col value", col);
+          const found_ndx = col.findIndex(el => el.getHeddle()===true);
+          if(found_ndx != -1) warp_acrx_pattern.push(found_ndx);
+          else warp_acrx_pattern.push(0);
+        }
 
-  
+
+        
   
         // //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
         const profile_draft_map = child_inputs
