@@ -45,7 +45,7 @@ interface Interlacement {
 interface LoomCoords{
   ndx: Interlacement
   frame: number,
-  treadle:number,
+  treadle:Array<number>,
   drawdown: Array<Array<Cell>>
 }
 

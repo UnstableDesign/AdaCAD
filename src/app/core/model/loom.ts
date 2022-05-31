@@ -1,3 +1,4 @@
+import { WSAETOOMANYREFS } from 'constants';
 import { Cell } from './cell';
 import { Interlacement, InterlacementVal, LoomCoords, LoomUpdate } from './datatypes';
 import { Draft } from './draft';
@@ -27,12 +28,14 @@ export class Loom{
     width: number;
 
 
+    // in our supported looms, each warp end can only be assigned to one frame
     threading: Array<number> = []; 
     min_frames: number = 8; 
     num_frames: number = 8; //the number frames in use
     frame_mapping: Array<number> = [];
     
-    treadling: Array<number> = [];
+    //in frame, threadling is 1 row to one treadle, in direct tieup, you can assign multiple
+    treadling: Array<Array<number>> = [];
     min_treadles: number = 10;
     num_treadles: number = 10;
 
@@ -318,22 +321,36 @@ export class Loom{
         }
     }
 
+    /**
+     * creates an empty tieup. If direct tieup, instantiates a direct draw
+     * @param frames 
+     * @param treadles 
+     * @param type 
+     */
     resetTieup(frames:number, treadles:number, type:string){
 
       this.tieup = [];
+
+      if(type == 'direct') treadles = frames;
+
         for (var i = 0; i < frames; i++) {
             this.tieup.push([]);
             for(var j = 0; j < treadles; j++){
-              this.tieup[i].push(false);
+              if(type == 'direct' && i == j) this.tieup[i].push(true);
+              else this.tieup[i].push(false);
             }
         }
     }
 
-    resetTreadling(wefts:number, type: string){
+    /**
+     * creates an empty treadling pattern
+     * @param wefts 
+     */
+    resetTreadling(wefts:number){
 
         this.treadling = [];
         for (var i = 0; i < wefts; i++) {
-            this.treadling.push(-1);
+            this.treadling.push([]);
         }
     }
 
@@ -354,18 +371,25 @@ export class Loom{
     }
 
 
-    getEmptyTreadle(){
+    /**
+     * seaches through the current treadling to indentify any unassigned treadles
+     * @returns the id of the unusued treadle or the current value of num_treadles if all are used.
+     */
+    getEmptyTreadle() : Array<number> {
 
       for(var i = 0; i < this.num_treadles; i++){
-        const idx = this.treadling.find(element => element === i);
-        if(idx === undefined) return i;
+        const idx = this.treadling.find(el => (el.findIndex(subel => subel === i) !== -1));
+        if(idx === undefined) return [i];
       }
 
-      return this.num_treadles;
+      return [this.num_treadles];
     }
 
-    //this will always get the first empty frame
-    getEmptyFrame(){
+    /**
+     * search for the first available emptry frame. 
+     * @returns the id of the first empty frame
+     */
+    getEmptyFrame() : number{
 
       for(var i = 0; i < this.num_frames; i++){
         const idx = this.threading.find(element => element === i);
@@ -375,19 +399,26 @@ export class Loom{
       return this.num_frames;
     }
 
+
+getConfig(ndx: Interlacement, drawdown: Array<Array<Cell>>){
+  if(this.type === 'frame') return this.getFrameConfig(ndx, drawdown);
+  if(this.type === 'direct') return this.getDirectConfig(ndx, drawdown);
+}
+
+
 /**
- * describes the required frame andd treadle assignment for a given interlacement within the drawdown
+ * For a Frameloom. describes the required frame and treadle assignment for a given interlacement within the current drawdown
  * @param ndx 
  * @param drawdown 
  * @returns a description of the assigned frames and treadles
  */
-getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
+getFrameConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
 
 
       var config: LoomCoords = {
         ndx: ndx,
         frame: -1,
-        treadle:-1,
+        treadle:[],
         drawdown: drawdown
       }
 
@@ -406,17 +437,19 @@ getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
           const idx = drawdown[i].find((element, ndx) => element.isUp() !== i_pattern[ndx].isUp());
           if(idx === undefined){
               found = true;
-              config.treadle = this.treadling[i];
+              config.treadle = this.treadling[i].slice();
           }
         }
       }
 
       if(!found){
+        //not remembering what is happening here but seems to be handling the case where we are moving this 
+        //value from one to another
         var count = utilInstance.countOccurrences(this.treadling, this.treadling[ndx.i]);
-        if(this.treadling[ndx.i] != -1 && count == 1){
-          config.treadle = this.treadling[ndx.i];
+        if(this.treadling[ndx.i].length != 0 && count == 1){
+          config.treadle = this.treadling[ndx.i].slice();
         }else{
-          config.treadle = this.getEmptyTreadle();
+          config.treadle = this.getEmptyTreadle();          
         }
       }
 
@@ -446,6 +479,88 @@ getConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
 
       return config;
     }
+
+/**
+ * For a Direct tieup. describes the required frame and treadle assignment for a given interlacement within the current drawdown
+ * @param ndx 
+ * @param drawdown 
+ * @returns a description of the assigned frames and treadles
+ */
+getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
+
+
+  //does this row already exist? if yes, just copy treadling
+  //steps, decompose the row into the current list of frames. 
+  //write all matching frames to treadles
+  //create any new frames to handle cases where a complete match is not found. 
+
+
+  var config: LoomCoords = {
+    ndx: ndx,
+    frame: -1,
+    treadle:[],
+    drawdown: drawdown
+  }
+
+
+  var j_pattern = drawdown.map(element => element[ndx.j]);
+  var i_pattern = drawdown[ndx.i];
+  
+
+  //(1) check if the row is unique
+  var found = false;
+  for(var i = 0; i < drawdown.length && !found; i++){
+    
+    //don't check the row we are currently in
+    if(i != ndx.i){
+
+      const idx = drawdown[i].find((element, ndx) => element.isUp() !== i_pattern[ndx].isUp());
+      if(idx === undefined){
+          found = true;
+          config.treadle = this.treadling[i].slice();
+      }
+    }
+  }
+
+  if(!found){
+    //not remembering what is happening here but seems to be handling the case where we are moving this 
+    //value from one to another
+    var count = utilInstance.countOccurrences(this.treadling, this.treadling[ndx.i]);
+    if(this.treadling[ndx.i].length != 0 && count == 1){
+      config.treadle = this.treadling[ndx.i].slice();
+    }else{
+      config.treadle = this.getEmptyTreadle();          
+    }
+  }
+
+ //(1) check if the column is unique
+  found = false;
+  for(var j = 0; j < drawdown[0].length && !found; j++){
+    if(j != ndx.j){
+      const col = drawdown.map(element => element[j]);
+      const idx = col.find((element, ndx) => element.isUp() !== j_pattern[ndx].isUp());
+
+      if(idx === undefined){
+          found = true;
+          config.frame = this.threading[j];
+      }
+    }
+  }
+
+
+  if(!found ){
+    var count = utilInstance.countOccurrences(this.threading, this.threading[ndx.j]);
+    if(this.threading[ndx.j] != -1 && count == 1){
+      config.frame = this.threading[ndx.j];
+    }else{
+      config.frame = this.getEmptyFrame();
+    }
+  }
+
+  return config;
+}
+
+
 
 
 
