@@ -12,7 +12,7 @@ import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
 import { NotesService } from '../core/provider/notes.service';
 import { Cell } from '../core/model/cell';
-import { GloballoomService } from '../core/provider/globalloom.service';
+import { WorkspaceService } from '../core/provider/workspace.service';
 import { Loom } from '../core/model/loom';
 import { StateService } from '../core/provider/state.service';
 import { MaterialsService } from '../core/provider/materials.service';
@@ -83,8 +83,8 @@ export class MixerComponent implements OnInit {
     private tree: TreeService,
     public scroll: ScrollDispatcher,
     private fs: FileService,
+    public ws: WorkspaceService,
     public vp: ViewportService,
-    private gl: GloballoomService,
     private notes: NotesService,
     private ss: StateService,
     private dialog: MatDialog,
@@ -349,7 +349,7 @@ export class MixerComponent implements OnInit {
 
 
     this.image.loadFiles(images_to_load).then(el => {
-        this.gl.inferData(data.looms.concat(this.tree.getLooms()))
+        this.ws.inferData(data.looms.concat(this.tree.getLooms()))
       
     })
     .then(el => {
@@ -376,7 +376,7 @@ export class MixerComponent implements OnInit {
       .map(sn =>  {
 
         let d = new Draft({wefts: 1, warps: 1, pattern: [[new Cell(false)]]});
-        let l = new Loom(d, this.gl.type, this.gl.min_frames, this.gl.min_treadles);
+        let l = new Loom(d, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
 
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 

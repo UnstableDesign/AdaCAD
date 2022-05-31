@@ -4,7 +4,6 @@ import { Cell } from '../../core/model/cell';
 import { Draft } from '../../core/model/draft';
 import { Loom } from '../../core/model/loom';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
-import { GloballoomService } from '../../core/provider/globalloom.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
@@ -13,6 +12,7 @@ import utilInstance from '../../core/model/util';
 import { UploadService } from '../../core/uploads/upload.service';
 import { element } from 'protractor';
 import { SystemsService } from '../../core/provider/systems.service';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 
 
 /**
@@ -92,7 +92,7 @@ export class TreeService {
   preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
   constructor(
-    private globalloom: GloballoomService,
+    private ws: WorkspaceService,
     private ops: OperationService,
     private upSvc: UploadService,
     private systemsservice: SystemsService) { 
@@ -343,10 +343,10 @@ export class TreeService {
   updateLooms(){
 
     this.getDraftNodes().forEach(dn => {
-      dn.loom.overloadType(this.globalloom.type);
-      dn.loom.overloadUnits(<"in" | "cm"> this.globalloom.units);
-      dn.loom.setMinFrames(this.globalloom.min_frames);
-      dn.loom.setMinTreadles(this.globalloom.min_treadles);
+      dn.loom.overloadType(this.ws.type);
+      dn.loom.overloadUnits(<"in" | "cm"> this.ws.units);
+      dn.loom.setMinFrames(this.ws.min_frames);
+      dn.loom.setMinTreadles(this.ws.min_treadles);
       dn.loom.recomputeLoom(dn.draft);
     });
 
@@ -431,7 +431,7 @@ export class TreeService {
 
 
    if(loom === null){
-   (<DraftNode> nodes[0]).loom = new Loom(draft, this.globalloom.type, this.globalloom.min_frames, this.globalloom.min_treadles);
+   (<DraftNode> nodes[0]).loom = new Loom(draft, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
 
    (<DraftNode> nodes[0]).loom.recomputeLoom(draft);
    }else{
@@ -1217,7 +1217,7 @@ removeOperationNode(id:number) : Array<Node>{
     for(let i = res.length; i < out.length; i++){
       const dn = <DraftNode> this.getNode(out[i]);
       dn.draft = new Draft({wefts:1, warps:1, pattern:[[new Cell(false)]]});
-      dn.loom = new Loom(dn.draft, this.globalloom.type, this.globalloom.min_frames, this.globalloom.min_treadles);
+      dn.loom = new Loom(dn.draft, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
       dn.dirty = true;
       touched.push(out[i]);
     }
@@ -1991,7 +1991,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(ud_name !== '') dn.draft.overloadName(ud_name);
 
     if(loom === null){
-      dn.loom = new Loom(temp,this.globalloom.type, this.globalloom.min_frames, this.globalloom.min_treadles);
+      dn.loom = new Loom(temp,this.ws.type, this.ws.min_frames, this.ws.min_treadles);
       //dn.loom.recomputeLoom(temp); //this is too expensive to do synchronously
     } 
     else dn.loom = loom;

@@ -2605,7 +2605,6 @@ export class OperationService {
         const warp_acrx_pattern:Array<number> = [];
         for(let j = 0; j < pd.warps; j++){
           const col: Array<Cell> = pd.pattern.map(el => el[j]);
-          console.log("col value", col);
           const found_ndx = col.findIndex(el => el.getHeddle()===true);
           if(found_ndx != -1) warp_acrx_pattern.push(found_ndx);
           else warp_acrx_pattern.push(0);

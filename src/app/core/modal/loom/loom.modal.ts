@@ -6,7 +6,6 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 import { DesignMode } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { Draft } from '../../model/draft';
-import { GloballoomService } from '../../provider/globalloom.service';
 import { WorkspaceService } from '../../provider/workspace.service';
 
 @Component({
@@ -38,7 +37,6 @@ export class LoomModal implements OnInit {
   origin_options: any = null;
 
   constructor(
-             public global_loom: GloballoomService,
              private ws: WorkspaceService,
              private dm: DesignmodesService,
              private dialogRef: MatDialogRef<LoomModal>,
@@ -60,11 +58,11 @@ export class LoomModal implements OnInit {
       this.loomtype = data.loom.type;
      }else{
       this.origin_options = this.ws.getOriginOptions();
-      this.epi = global_loom.epi;
-      this.units = global_loom.units;
-      this.frames = global_loom.min_frames;
-      this.treadles = global_loom.min_treadles;
-      this.loomtype = global_loom.type;
+      this.epi = ws.epi;
+      this.units = ws.units;
+      this.frames = ws.min_frames;
+      this.treadles = ws.min_treadles;
+      this.loomtype = ws.type;
      }
     
     
@@ -100,7 +98,7 @@ export class LoomModal implements OnInit {
 
     f.value.treadles = Math.ceil(f.value.treadles);
    
-    if(this.type == "global") this.global_loom.min_treadles= f.value.treadles;
+    if(this.type == "global") this.ws.min_treadles= f.value.treadles;
     else this.loom.setMinTreadles(f.value.treadles);
 
     this.onChange.emit();
@@ -118,7 +116,7 @@ export class LoomModal implements OnInit {
     f.value.frames = Math.ceil(f.value.frames);
     console.log("min frames", f.value.frames);  
     
-    if(this.type == "global")   this.global_loom.min_frames = f.value.frames;
+    if(this.type == "global")   this.ws.min_frames = f.value.frames;
     else  this.loom.setMinFrames(f.value.frames);
     
     
@@ -128,7 +126,7 @@ export class LoomModal implements OnInit {
 
 
   loomChange(e:any){
-    if(this.type == 'global') this.global_loom.type = e.value.loomtype;
+    if(this.type == 'global') this.ws.type = e.value.loomtype;
     else this.loom.changeType(e.value.loomtype);
 
     this.dm.selectDesignMode(e.value.loomtype, 'loom_types');
@@ -138,7 +136,7 @@ export class LoomModal implements OnInit {
   }
 
   unitChange(e:any){
-    if(this.type == 'global') this.global_loom.units = e.value.units;
+    if(this.type == 'global') this.ws.units = e.value.units;
     else this.loom.overloadUnits(e.value.units);
     this.onChange.emit();
 
@@ -246,7 +244,7 @@ export class LoomModal implements OnInit {
     } 
     
     //this.loom.overloadEpi(f.value.epi);
-    this.global_loom.epi = f.value.epi;
+    this.ws.epi = f.value.epi;
 
     if(this.type === "local"){
       if(this.warp_locked){

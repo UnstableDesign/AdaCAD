@@ -8,7 +8,7 @@ import { OperationService } from '../../provider/operation.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { WeaverComponent } from '../../../weaver/weaver.component';
 import { MaterialsService } from '../../../core/provider/materials.service';
-import { GloballoomService } from '../../../core/provider/globalloom.service';
+import { WorkspaceService } from '../../../core/provider/workspace.service';
 
 
 /**
@@ -54,7 +54,7 @@ export class DraftdetailComponent implements OnInit {
              private dm: DesignmodesService,
              private ops: OperationService,
              private ms: MaterialsService,
-             public gl: GloballoomService) { 
+             public ws: WorkspaceService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()

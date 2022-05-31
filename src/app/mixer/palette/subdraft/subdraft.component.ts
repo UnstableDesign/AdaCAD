@@ -12,7 +12,7 @@ import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.compon
 import { Cell } from '../../../core/model/cell';
 import { OperationComponent } from '../operation/operation.component';
 import { Draft } from '../../../core/model/draft';
-import { GloballoomService } from '../../../core/provider/globalloom.service';
+import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
 
 
@@ -138,7 +138,7 @@ export class SubdraftComponent implements OnInit {
     private fs: FileService,
     private viewport: ViewportService,
     private dialog: MatDialog,
-    private gl: GloballoomService) { 
+    private ws: WorkspaceService) { 
 
       this.zndx = layer.createLayer();
 
