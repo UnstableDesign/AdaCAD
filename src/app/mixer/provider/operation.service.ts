@@ -4378,10 +4378,12 @@ export class OperationService {
 
 
             const treadling: Draft = new Draft({warps:l.num_treadles, wefts:child_input.drafts[0].wefts});
-            l.treadling.forEach((treadle_num, i) =>{
-              if(treadle_num !== -1) treadling.pattern[i][treadle_num].setHeddle(true);
-            });
-            treadling.gen_name = "treadling_"+child_input.drafts[0].getName();
+            //TODO UPDATE THIS WITH NEW TREADLING FORMAT
+   
+            // l.treadling.forEach((treadle_num, i) =>{
+            //   if(treadle_num.length !== 0) treadling.pattern[i][treadle_num].setHeddle(true);
+            // });
+            // treadling.gen_name = "treadling_"+child_input.drafts[0].getName();
 
             const tieup: Draft = new Draft({warps: l.num_treadles, wefts: l.num_frames});
             l.tieup.forEach((row, i) => {

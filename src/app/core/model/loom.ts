@@ -53,7 +53,7 @@ export class Loom{
       this.num_frames =frames;
       
       this.resetThreading(d.warps, this.type);
-      this.resetTreadling(d.wefts, this.type);
+      this.resetTreadling(d.wefts);
         
       this.resetTieup(this.num_frames, this.num_treadles, this.type);
       this.resetFrameMapping(this.min_frames, this.type);
@@ -102,7 +102,7 @@ export class Loom{
       this.recomputeWidth();
     }
 
-    overloadTreadling(treadling: Array<number>){
+    overloadTreadling(treadling: Array<Array<number>>){
       this.treadling = treadling; 
       this.updateNumTreadlesFromTreadling();
       this.updateTieupSize();
@@ -134,7 +134,7 @@ export class Loom{
 
         this.resetFrameMapping(frames, type);
         this.resetThreading(warps, type);
-        this.resetTreadling(wefts, type);
+        this.resetTreadling(wefts);
         this.resetTieup(frames, treadles, type);
       
     }
@@ -187,7 +187,7 @@ export class Loom{
     }
 
     insertRow(i: number){
-      this.treadling.splice(i, 0, -1);
+      this.treadling.splice(i, 0, []);
     }
 
     cloneRow(i:number){
@@ -199,7 +199,7 @@ export class Loom{
     }
 
     isFrame():boolean{
-      return (this.type === "frame");
+      return (this.type === "frame" || this.type == "direct");
     }
 
 
@@ -226,7 +226,6 @@ export class Loom{
 
     setMinTreadles(treadles:number){
 
-      console.log("setting min treadles", treadles);
       this.updateNumTreadlesFromTreadling();
 
       if(treadles >= this.num_treadles){
@@ -295,7 +294,7 @@ export class Loom{
       this.num_treadles = this.min_treadles;
       this.resetFrameMapping(this.min_frames, this.type);
       this.resetThreading(warps, this.type);
-      this.resetTreadling(wefts, this.type);
+      this.resetTreadling(wefts);
       this.resetTieup(this.min_frames, this.min_treadles, this.type);
     }
 
@@ -319,6 +318,14 @@ export class Loom{
             this.threading.push(-1);
           }
         }
+    }
+
+
+
+    getTreadle(i: number, j: number) : boolean{
+      const value = this.treadling[i].find(el => el === j);
+      if(value === undefined) return false;
+      return true;
     }
 
     /**
@@ -562,32 +569,45 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
 
 
 
+  /**
+   * takes a set of changes to make to the loom and implements those changes
+   * @param config a sketch of the changes that need to be made
+   * @returns a list of the changes made
+   */
+  updateConfig(config:LoomCoords):LoomUpdate{
+
+    if(this.type === 'frame') return this.updateFrameConfig(config);
+    else return this.updateFrameConfig(config);
+
+  }
 
 
-
-
-
-    updateConfig(config:LoomCoords):LoomUpdate{
+   /**
+   * takes a set of changes to make to the loom and implements those changes
+   * @param config a sketch of the changes that need to be made
+   * @returns a list of the changes made
+   */
+    updateFrameConfig(config:LoomCoords):LoomUpdate{
 
       var updates:LoomUpdate = {
         threading: [],
         treadling: [],
         tieup: []
       }
-
-
+  
+  
       //if this is within the existing frames
       if(config.frame < this.num_frames){
         
         if(this.threading[config.ndx.j] != -1){
           updates.threading.push({i: this.threading[config.ndx.j], j: config.ndx.j, val: false});
         }
-
+  
         this.threading[config.ndx.j] = config.frame;
         updates.threading.push({i: config.frame, j: config.ndx.j, val: true});
-
-
-
+  
+  
+  
       }else{
         
         //add a frame and then assign this to it
@@ -596,31 +616,35 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
         this.updateNumFramesFromThreading();
         this.resetFrameMapping(this.num_frames, this.type);
       }
-
-
-
-
-      if(config.treadle < this.num_treadles){
-        if(this.treadling[config.ndx.i] != -1){
-          updates.treadling.push({i: config.ndx.i, j: this.treadling[config.ndx.i], val: false});
-          this.treadling[config.ndx.i] = -1;
-
+  
+  
+  
+  
+      if(config.treadle.length == 0 || config.treadle[0] < this.num_treadles){
+        //if there is somethign already assigned at this locatino, unassign it
+        if(this.treadling[config.ndx.i].length > 0){
+          updates.treadling.push({i: config.ndx.i, j: this.treadling[config.ndx.i][0], val: false});
+          this.treadling[config.ndx.i] = [];
+  
         }
+        //now sit it to this treadle
+        this.treadling[config.ndx.i] = config.treadle.slice();
+        config.treadle.forEach(treadle => {
+          updates.treadling.push({i: config.ndx.i, j: treadle, val: true});
 
-        this.treadling[config.ndx.i] = config.treadle;
-        updates.treadling.push({i: config.ndx.i, j:  config.treadle, val: true});
-
+        })
+  
       }else{
-
-
+  
+  
         this.treadling[config.ndx.i] = config.treadle;
-        updates.treadling.push({i: config.ndx.i, j:  config.treadle, val: true});
-
+        updates.treadling.push({i: config.ndx.i, j:  config.treadle[0], val: true});
+  
         //this.num_treadles = (config.treadle+1);
         this.updateNumTreadlesFromTreadling();
-
+  
       }
-
+  
       //make the tieups match the size
       for(var i = 0; i < this.num_frames; i++){
         updates.tieup.push([]);
@@ -641,19 +665,19 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
           }
         }
       }
-
+  
       
       //look through each treadle, and see if the tie up needs to be updated
       for(var j = 0; j < this.num_treadles; j++){
-          const idx = this.treadling.findIndex(element => element === j);
-
+          const idx = this.treadling.findIndex(element => element.findIndex(subel => subel === j));
+  
         if(idx !== -1){
             //clear the tieup associated with this treadle
             for(var i = 0; i < this.num_frames; i++){
                 this.tieup[i][j] = false;
                 updates.tieup[i][j].val = false; 
             }
-
+  
             //iterate through the draft row in question and update tieups
             for(var jj = 0; jj < config.drawdown[idx].length; jj++){
               if(config.drawdown[idx][jj].isUp()){
@@ -664,11 +688,75 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
             }
         }
       }
-
+  
       return updates;
-
+  
     }
+   
 
+    /**
+   * takes a set of changes to make to the loom and implements those changes
+   * @param config a sketch of the changes that need to be made
+   * @returns a list of the changes made
+   */
+     updateDirectConfig(config:LoomCoords):LoomUpdate{
+
+      var updates:LoomUpdate = {
+        threading: [],
+        treadling: [],
+        tieup: []
+      }
+  
+  
+      //if this is within the existing frames
+      if(config.frame < this.num_frames){
+        
+        if(this.threading[config.ndx.j] != -1){
+          updates.threading.push({i: this.threading[config.ndx.j], j: config.ndx.j, val: false});
+        }
+  
+        this.threading[config.ndx.j] = config.frame;
+        updates.threading.push({i: config.frame, j: config.ndx.j, val: true});
+  
+  
+  
+      }else{
+        
+        //add a frame and then assign this to it
+        this.threading[config.ndx.j] = config.frame;
+        updates.threading.push({i: config.frame, j: config.ndx.j, val: true})
+        this.updateNumFramesFromThreading();
+        this.resetFrameMapping(this.num_frames, this.type);
+      }
+  
+  
+      //TODO - handle treadling assignments 
+      config.treadle.forEach(treadle => {
+          //make sure conig nums are in treadling nums
+          const ndx = this.treadling[config.ndx.i].find(el => el == treadle);
+          if(ndx === undefined){
+            this.treadling[config.ndx.i].push(treadle);
+            updates.threading.push({i: config.ndx.i, j: treadle, val: true})
+          }
+       })
+
+       const todelete = [];
+       this.treadling[config.ndx.i].forEach((treadle, ndx) => {
+        //make sure conig nums are in treadling nums
+        const found = config.treadle.findIndex(el => el == treadle);
+        if(found === -1){
+          todelete.push(ndx);
+          updates.threading.push({i: config.ndx.i, j: treadle, val: false})
+        }
+     });
+     todelete.forEach(del => {
+      this.treadling[config.ndx.i].splice(del, 1);
+    });
+  
+      return updates;
+  
+    }
+  
 
 /***
    * takes in an object describing where the change in loom took place and returns a list of affected rows and columns in the draw dow
@@ -795,7 +883,7 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
      */
     isInTreadle(weft:number, treadle:number):boolean{
       if(!this.inTreadlingRange({i: weft, j:treadle, si: -1})) return null;
-      else return (this.treadling[weft] === treadle); 
+      else return this.treadling[weft].findIndex(el => el === treadle) !== -1; 
     }
 
 
@@ -840,27 +928,37 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
     }
 
 
+    /**
+     * adds the interlacement specified to the treadling list
+     * @param ndx 
+     * @returns 
+     */
     updateTreadling(ndx: InterlacementVal):Array<InterlacementVal>{
       var updates = [];
-      var treadle = this.treadling[ndx.i];
+      var treadle_arr: Array<number> = this.treadling[ndx.i].slice();
 
 
       if(!this.inTreadlingRange({i:ndx.i, j:ndx.j, si: -1})) return updates;
 
-      if(ndx.val){
+      // if(ndx.val){
+      const to_delete = [];
+      if(treadle_arr.length !== 0){
+        treadle_arr.forEach((treadle, arr_ndx) => {
+          if(this.type === 'frame'){
+            to_delete.push(treadle);
+            updates.push({i:ndx.i, j: arr_ndx, val:false});
+          } 
+        });
 
-        if(treadle !== -1) updates.push({i:ndx.i, j: treadle, val:false});
-        updates.push({i:ndx.i, j: ndx.j, val:true});
-        this.treadling[ndx.i] = ndx.j;
-
-      }else{
-
-        if(treadle === ndx.j){
-          updates.push({i:ndx.i, j: ndx.j, val:false});
-          this.treadling[ndx.i] = -1;
-        }
-
+        to_delete.forEach(del => {
+          this.treadling[ndx.i] = this.treadling[ndx.i].filter(el => el !== del);
+        })
       }
+       
+      if(treadle_arr.find(el => el === ndx.j) === undefined){
+        this.treadling[ndx.i].push(ndx.j);
+        updates.push({i:ndx.i, j: ndx.j, val:true});
+      } 
 
       return updates;
 
@@ -886,12 +984,18 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
      */
     updateNumTreadlesFromTreadling(){
       //sets num_frames from values in the threading draft
-      var max = -1;
-      for(var j= 0; j < this.treadling.length; j++){
-        if(this.treadling[j] > max) max = this.treadling[j];
-      }
 
-      this.num_treadles = max + 1;
+      const max_used:number = this.treadling.reduce((acc, row, ndx) => {
+        const max_in_row = row.reduce((subacc, treadle_val) => {
+          if(treadle_val > subacc) subacc = treadle_val;
+          return subacc;
+        }, 0);
+        if(max_in_row > acc) acc = max_in_row;
+        return acc;
+      }, 0);
+
+  
+      this.num_treadles = max_used + 1;
       if(this.num_treadles < this.min_treadles) this.num_treadles = this.min_treadles;
     }
 
@@ -934,7 +1038,7 @@ getDirectConfig(ndx:Interlacement, drawdown: Array<Array<Cell>>):LoomCoords{
      * @param type describes if it is threadling or threading
      * @returns boolean indicating whether or not condensing took place
      */
-    updateUnused(struct:Array<number>, min:number, num:number, type:string):boolean{
+    updateUnused(struct:Array<number> | Array<Array<number>>, min:number, num:number, type:string):boolean{
 
         var status = [];
         var zeros = []; 

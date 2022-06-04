@@ -670,10 +670,11 @@ export class FileService {
         fileContents += (i+1).toString() + "=" + (draft.colShuttleMapping[(draft.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
       }
 
+      //THIS WILL ONLY WORK WTIH FRAME LOOM DRAFT STYLE
       fileContents += "[TREADLING]\n";
       for (var i = 0; i < loom.treadling.length; i++) {
-        if (loom.treadling[i] != null && loom.treadling[i] != -1){
-          fileContents += (i+1).toString() + "=" + (loom.treadling[i]+1).toString() + "\n";
+        if (loom.treadling[i].length != 0 && loom.treadling[i][0] != -1){
+          fileContents += (i+1).toString() + "=" + (loom.treadling[i][0]+1).toString() + "\n";
         }
       }
 

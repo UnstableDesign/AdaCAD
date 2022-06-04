@@ -1324,7 +1324,6 @@ export class DraftviewerComponent implements OnInit {
    */
   private drawOnTreadling( currentPos: Interlacement ) {
 
-
     if (!this.cxTreadling || !currentPos) { return; }
     
     var val = false;
@@ -1338,7 +1337,7 @@ export class DraftviewerComponent implements OnInit {
           val = false;
           break;
         case 'toggle':
-          val = !(this.loom.treadling[currentPos.i] === currentPos.j);
+          val = !this.loom.getTreadle(currentPos.i, currentPos.j);
           break;
         default:
           break;
@@ -1353,6 +1352,7 @@ export class DraftviewerComponent implements OnInit {
         this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling")
       }
       this.redraw({drawdown:true, loom:true});
+      console.log(this.loom.treadling)
 
     }
    }
@@ -1484,7 +1484,6 @@ export class DraftviewerComponent implements OnInit {
       case 'treadling':
         //i and j is going to come from the UI which is only showing visible rows
         var row = this.render.visibleRows[i];
-        beyond = this.loom.treadling[row] > this.loom.min_treadles; 
         is_up = (this.loom.treadling[row] == j);
         has_mask = false;
         if(is_up)  color = "#333333";
@@ -2105,7 +2104,9 @@ public drawWeftEnd(top, left, shuttle){
 
     //only cycle through the visible rows
     for (var i = 0; i < this.render.visibleRows.length; i++) {
-       this.drawCell(this.cxTreadling, i, this.loom.treadling[this.render.visibleRows[i]], "treadling");
+      this.loom.treadling[this.render.visibleRows[i]].forEach(cell => {
+        this.drawCell(this.cxTreadling, i, cell, "treadling");
+      })
     }
 
     for (var i = 0; i < this.loom.tieup.length; i++) {
