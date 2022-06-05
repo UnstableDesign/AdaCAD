@@ -653,9 +653,13 @@ export class OperationService {
         const all_drafts = [static_input, splicing_input];
 
         let total_wefts: number = 0;
-        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
-        if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+        if(factor_in_repeats === 1){
+
+          const factors = [static_input.wefts, splicing_input.wefts*(parent_input.params[0]+1)];
+          total_wefts = utilInstance.lcm(factors);
+        }  
         else  {
+          //sums the wefts from all the drafts
           total_wefts =all_drafts.reduce((acc, el) => {
             return acc + el.wefts;
           }, 0);
