@@ -37,7 +37,7 @@ class Util {
     * given a drawdown and a column index, return the column number of the first matching column
     * @param j 
     * @param drawdown 
-    * @returns the row id of the match or -1;
+    * @returns the col id of the match or -1;
     */
     hasMatchingColumn(j: number, drawdown: Array<Array<Cell>>) : number {
         
@@ -60,6 +60,34 @@ class Util {
 
 
     }
+
+    /**
+    * given a drawdown and a row index, return the row number of the first matching row
+    * @param j 
+    * @param drawdown 
+    * @returns the row id of the match or -1;
+    */
+    hasMatchingRow(i: number, drawdown: Array<Array<Cell>>) : number {
+    
+    let unmatch = false;
+    for(let i_comp = 0; i_comp < drawdown.length; i_comp++){
+      unmatch = false;
+      if(i_comp != i){
+        for(let j = 0; j < drawdown[i_comp].length && !unmatch; j++){
+          if(drawdown[i][j].getHeddle() !== drawdown[i_comp][j].getHeddle()){
+            unmatch = true;
+          }
+        }
+        if(!unmatch){
+          return i_comp;
+        }
+      }
+    }
+
+    return -1;
+
+
+  }
 
     /**
      * A function to count the number of occurances of a give value within an array
