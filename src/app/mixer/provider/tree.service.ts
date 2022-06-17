@@ -10,9 +10,9 @@ import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService, OpInput, DynamicOperation, Operation, StringParam } from './operation.service';
 import utilInstance from '../../core/model/util';
 import { UploadService } from '../../core/uploads/upload.service';
-import { element } from 'protractor';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
 
 
 /**
@@ -93,6 +93,7 @@ export class TreeService {
 
   constructor(
     private ws: WorkspaceService,
+    private dm: DesignmodesService,
     private ops: OperationService,
     private upSvc: UploadService,
     private systemsservice: SystemsService) { 
@@ -347,7 +348,8 @@ export class TreeService {
       dn.loom.overloadUnits(<"in" | "cm"> this.ws.units);
       dn.loom.setMinFrames(this.ws.min_frames);
       dn.loom.setMinTreadles(this.ws.min_treadles);
-      dn.loom.recomputeLoom(dn.draft);
+      const loom_mode = this.dm.getSelectedDesignMode('loom_types');
+      dn.loom.recomputeLoom(dn.draft, loom_mode.value);
     });
 
   }
@@ -432,8 +434,9 @@ export class TreeService {
 
    if(loom === null){
    (<DraftNode> nodes[0]).loom = new Loom(draft, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
-
-   (<DraftNode> nodes[0]).loom.recomputeLoom(draft);
+   const loom_mode = this.dm.getSelectedDesignMode('loom_types');
+    console.log("loom mode", loom_mode.value);
+   (<DraftNode> nodes[0]).loom.recomputeLoom(draft, loom_mode.value);
    }else{
     (<DraftNode> nodes[0]).loom = loom;
    }

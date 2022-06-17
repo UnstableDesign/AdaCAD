@@ -159,8 +159,8 @@ export class WeaverComponent implements OnInit {
       if(!success) console.log("ERROR, could not attach loom to draft of different size");
     }else{
       console.log("WARNING, there were no looms associated with this file");
-      this.loom.clearAllData(this.draft.warps, this.draft.wefts);
-      this.loom.recomputeLoom(this.draft);
+      this.loom.clearAllData(this.draft.warps, this.draft.wefts, this.loom.type);
+      this.loom.recomputeLoom(this.draft, this.loom.type);
 
       const success: boolean = this.loom.overloadDraft(this.draft);
       if(!success) console.log("ERROR, could not attach loom to draft of different size");
@@ -468,7 +468,7 @@ export class WeaverComponent implements OnInit {
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original', this.render.visibleRows, this.loom);
 
-    if(this.loom.isFrame()) this.loom.recomputeLoom(this.draft);
+    this.loom.recomputeLoom(this.draft, this.loom.type);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
     
@@ -492,7 +492,7 @@ export class WeaverComponent implements OnInit {
 
     this.draft.fillArea(this.weaveRef.selection, p, 'original', this.render.visibleRows, this.loom)
 
-    if(this.loom.isFrame()) this.loom.recomputeLoom(this.draft);
+    this.loom.recomputeLoom(this.draft, this.loom.type);
 
     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
@@ -775,10 +775,8 @@ export class WeaverComponent implements OnInit {
 
      if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
-      if(this.loom.type === 'frame'){
-        this.loom.recomputeLoom(this.draft);
-      }
-
+      this.loom.recomputeLoom(this.draft, this.loom.type);
+    
      this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
 
   }

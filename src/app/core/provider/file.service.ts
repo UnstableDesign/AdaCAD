@@ -138,11 +138,13 @@ export class FileService {
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
-    
+      let version = "0.0.0";
+      
       this.clearAll();
 
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
+      if(data.version !== undefined) version = data.version;
 
 
       drafts = data.drafts.map(draftdata => {
@@ -204,7 +206,7 @@ export class FileService {
 
         const loom = new Loom(draft, type, frames, treadles);
         if(data.threading !== undefined) loom.overloadThreading(data.threading);
-        if(data.treadling !== undefined) loom.overloadTreadling(data.treadling);
+        if(data.treadling !== undefined) loom.overloadTreadling(data.treadling, version, draft.wefts);
         if(data.tieup !== undefined) loom.overloadTieup(data.tieup);
         return loom;
       });
@@ -257,6 +259,7 @@ export class FileService {
 
       let drafts: Array<Draft> = [];
       let looms: Array<Loom> = [];
+      let version = '0.0.0';
      
       var stringWithoutMetadata = utilInstance.getSubstringAfter("CONTENTS", data);
       const warps:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WARP]",stringWithoutMetadata));
@@ -294,7 +297,7 @@ export class FileService {
 
     if (utilInstance.getBool("TREADLING", stringWithoutMetadata)) {
       var treadling = utilInstance.getTreadling(stringWithoutMetadata, draft);
-      loom.overloadTreadling(treadling);
+      loom.overloadTreadling(treadling, version, pattern.length);
     }
     if (utilInstance.getBool("THREADING", stringWithoutMetadata)) {
       var threading = utilInstance.getThreading(stringWithoutMetadata, draft);

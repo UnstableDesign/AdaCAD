@@ -771,7 +771,6 @@ export class SubdraftComponent implements OnInit {
               draft.reload(result);
               this.draft = draft;
               this.onDesignAction.emit({id: this.id});
-              //flag for downstream calculations
             }
           }
         })   

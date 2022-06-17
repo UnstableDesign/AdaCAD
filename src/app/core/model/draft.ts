@@ -845,18 +845,19 @@ export class Draft{
 
 /***
    * updates the draft based on changes that happened within the threading.
-   * @param update{i: threading frame, j: threading warp, val: true or false for setting}
+   * @param update {i: threading frame, j: threading warp, val: true or false for setting}
    * more than one update object may be sent in the case where a thread is switching from one frame to another
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
   updateDraftFromThreading(updates, loom){
+
+    console.log("updates", updates)
 
     for(var u in updates){
 
       if(updates[u].i !== undefined){
 
         var idxs = loom.getAffectedDrawdownPoints({warp: updates[u].j, frame: updates[u].i});
-        var conflicts = [];
 
         for(var i = 0; i < idxs.wefts.length; i++){
           for (var j = 0; j < idxs.warps.length; j++){
@@ -1697,8 +1698,8 @@ computeYarnPaths(shuttles: Array<Shuttle>){
 
     console.log("this loom", loom);
 
-    var u_threading = loom.updateUnused(loom.threading, loom.min_frames, loom.num_frames, "threading");
-    var u_treadling = loom.updateUnused(loom.treadling, loom.min_treadles, loom.num_treadles, "treadling");
+    var u_threading = loom.updateUnused(loom.threading, loom.min_frames, loom.num_frames, "threading", loom.type);
+    var u_treadling = loom.updateUnused(loom.treadling, loom.min_treadles, loom.num_treadles, "treadling", loom.type);
 
 
 

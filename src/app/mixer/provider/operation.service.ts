@@ -4245,7 +4245,7 @@ export class OperationService {
         const inputDraft =child_input.drafts[0]
 
         const loom:Loom = new Loom(inputDraft, 'frame', 8, 10);
-        loom.recomputeLoom(inputDraft);
+        loom.recomputeLoom(inputDraft, 'frame');
         let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
         const draft_seed =  utilInstance.patternToSize(pattern, 48, 48);
 
@@ -4300,7 +4300,7 @@ export class OperationService {
           const inputDraft =child_input.drafts[0]
 
           const loom:Loom = new Loom(inputDraft, 'frame', 8, 10);
-          loom.recomputeLoom(inputDraft);
+          loom.recomputeLoom(inputDraft, 'frame');
           let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
         
           const draft_seed =  utilInstance.patternToSize(pattern, 52, 52);
@@ -4328,7 +4328,7 @@ export class OperationService {
         
         const makeloom: Operation = {
           name: 'floor loom',
-          displayname: 'floor loom',
+          displayname: 'shaft/treadle loom',
           old_names:[],
           dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
           params: [
@@ -4365,9 +4365,9 @@ export class OperationService {
 
             if(child_input === undefined || child_input.drafts === undefined) return Promise.resolve([]);
   
-            
+          
             const l:Loom = new Loom(child_input.drafts[0],'frame', frames, treadles);
-            l.recomputeLoom(child_input.drafts[0]);
+            l.recomputeLoom(child_input.drafts[0], 'frame');
 
             const threading: Draft = new Draft({warps:child_input.drafts[0].warps, wefts: l.num_frames});
 

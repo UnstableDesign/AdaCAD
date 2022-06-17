@@ -337,7 +337,7 @@ export class DraftviewerComponent implements OnInit {
         currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnTreadling(currentPos);
       } else if (target && target.id === 'tieups') {
-        if(this.viewonly) return;
+        if(this.viewonly || this.loom.type === "direct") return;
         currentPos.i = this.loom.frame_mapping[currentPos.i];
         this.drawOnTieups(currentPos);
       } else if (target && target.id === ('threading')) {
@@ -1180,6 +1180,7 @@ export class DraftviewerComponent implements OnInit {
 
   private drawOnDrawdown( currentPos: Interlacement, shift: boolean) {
 
+
     var updates;
     var val  = false;
 
@@ -1227,8 +1228,7 @@ export class DraftviewerComponent implements OnInit {
       //   this.drawYarn(currentPos.si, currentPos.j, val);
       // }
 
-      if(!this.dm.isSelected('material', 'draw_modes'))   
-        if(this.loom.isFrame()) this.loom.updateLoomFromDraft(currentPos, this.weave);
+      if(!this.dm.isSelected('material', 'draw_modes'))  this.loom.updateLoomFromDraft(currentPos, this.weave, this.loom.type);
       
       this.redraw({drawdown:true, loom:true});
       
@@ -1305,7 +1305,7 @@ export class DraftviewerComponent implements OnInit {
       this.weave.updateDraftFromThreading(updates, this.loom);
 
       if(this.loom.min_frames < this.loom.num_frames){
-        this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading")
+        this.loom.updateUnused(this.loom.threading, this.loom.min_frames, this.loom.num_frames, "threading", this.loom.type)
       }  
 
       this.redraw({drawdown:true, loom:true});
@@ -1349,10 +1349,9 @@ export class DraftviewerComponent implements OnInit {
       this.weave.updateDraftFromTreadling(updates, this.loom);
 
       if( this.loom.min_treadles <  this.loom.num_treadles){
-        this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling")
+        this.loom.updateUnused(this.loom.treadling, this.loom.min_treadles, this.loom.num_treadles, "treadling", this.loom.type)
       }
       this.redraw({drawdown:true, loom:true});
-      console.log(this.loom.treadling)
 
     }
    }
@@ -1484,7 +1483,7 @@ export class DraftviewerComponent implements OnInit {
       case 'treadling':
         //i and j is going to come from the UI which is only showing visible rows
         var row = this.render.visibleRows[i];
-        is_up = (this.loom.treadling[row] == j);
+        is_up = (this.loom.treadling[row].find(el => el == j)) !== undefined;
         has_mask = false;
         if(is_up)  color = "#333333";
 
@@ -2119,10 +2118,12 @@ public drawWeftEnd(top, left, shuttle){
 
   }
 
-//callled when frames become visible or drawdown without frame info is loaded
+/**
+ * callled when frames become visible or drawdown without frame info is loaded
+ */
   public recomputeLoom(){
 
-    this.loom.recomputeLoom(this.weave);
+    this.loom.recomputeLoom(this.weave, this.loom.type);
   }
 
 
@@ -2291,7 +2292,6 @@ public redraw(flags:any){
    */
   public redrawCrossings() {
 
-    console.log('redraw crossings')
 
     var base_dims = this.render.getCellDims("base");
     this.cx.fillStyle = "white";
@@ -2559,7 +2559,7 @@ public redraw(flags:any){
     
     this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom);
 
-    if(this.loom.isFrame()) this.loom.recomputeLoom(this.weave);
+    this.loom.recomputeLoom(this.weave, this.loom.type);
 
     if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
     
@@ -2583,7 +2583,7 @@ public redraw(flags:any){
 
     this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom)
 
-    if(this.loom.isFrame())this.loom.recomputeLoom(this.weave);
+    this.loom.recomputeLoom(this.weave, this.loom.type);
 
     if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
 
@@ -2620,7 +2620,7 @@ public redraw(flags:any){
     switch(this.selection.getTargetId()){    
       case 'drawdown':
         //if you do this when updates come from loom, it will erase those updates
-        if(this.loom.isFrame()) this.loom.recomputeLoom(this.weave);
+       this.loom.recomputeLoom(this.weave, this.loom.type);
        break;
       
     }

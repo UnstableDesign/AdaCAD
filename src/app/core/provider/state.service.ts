@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Draft } from '../model/draft';
-import {cloneDeep, now} from 'lodash';
-import { traceUntilFirst } from '@angular/fire/performance';
-import { doc, docData, Firestore } from '@angular/fire/firestore';
+import {cloneDeep} from 'lodash';
+import {Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { map } from 'mathjs';
 import {getDatabase, ref as fbref, set as fbset, onValue} from '@angular/fire/database'
-import { authInstanceFactory } from '@angular/fire/auth/auth.module';
 import { AuthService } from './auth.service';
 import { SaveObj } from './file.service';
 /**

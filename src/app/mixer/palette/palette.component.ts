@@ -22,6 +22,7 @@ import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
 import { DynamicOperation, OperationService } from '../provider/operation.service';
+import { fn } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-palette',
@@ -315,7 +316,7 @@ export class PaletteComponent implements OnInit{
    this.fs.saver.ada(
       'mixer', 
       this.tree.exportDraftsForSaving(),
-      [],
+      this.tree.exportLoomsForSaving(),
       true,
       this.scale)
       .then(so => {
@@ -2240,14 +2241,17 @@ drawStarted(){
    * @returns 
    */
   onSubdraftAction(obj: any){
+
     if(obj === null) return;
 
     const outputs = this.tree.getNonCxnOutputs(obj.id);
-    outputs.forEach(out => {
-      this.performAndUpdateDownstream(out);
-    });
-    this.addTimelineState();
-    this.changeDesignmode('move');
+    const fns = outputs.map(out => this.performAndUpdateDownstream(out));
+    Promise.all(fns).then(el => {
+      this.addTimelineState();
+      this.changeDesignmode('move');
+    })
+
+
 
   }
 

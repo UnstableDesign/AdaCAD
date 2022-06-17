@@ -33,14 +33,43 @@ class Util {
       }
     }
 
+   /**
+    * given a drawdown and a column index, return the column number of the first matching column
+    * @param j 
+    * @param drawdown 
+    * @returns the row id of the match or -1;
+    */
+    hasMatchingColumn(j: number, drawdown: Array<Array<Cell>>) : number {
+        
+      let unmatch = false;
+      for(let j_comp = 0; j_comp < drawdown[0].length; j_comp++){
+        unmatch = false;
+        if(j_comp != j){
+          for(let i = 0; i < drawdown.length && !unmatch; i++){
+            if(drawdown[i][j].getHeddle() !== drawdown[i][j_comp].getHeddle()){
+              unmatch = true;
+            }
+          }
+          if(!unmatch){
+            return j_comp;
+          }
+        }
+      }
+
+      return -1;
+
+
+    }
+
     /**
      * A function to count the number of occurances of a give value within an array
-     * @param arr the arary to search
+     * @param arr the 1D array to search
      * @param val the value we are seeking
      * @returns number of occurances
      */
-    public countOccurrences = (arr, val) => arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
-
+    countOccurrences(arr, val){
+      return arr.reduce((a, v) => (v === val ? a + 1 : a), 0)
+    }
       
     /*Input: an array of booleans
     Result: the number of "ones" in the "bitstring" (in this context, returns the number of true valued booleans in the array of booleans)
@@ -926,6 +955,28 @@ getInletsToUpdate(newInlets: Array<any>, currentInlets: Array<any>) : {toadd: Ar
 
   return {toadd, toremove};
 }
+
+  /**
+   * takes two versions and compares them
+   * returns true if versions are same or version a is greater than b, returns false if a older than b
+   * @param compare 
+   */
+   compareVersions(a: string, b: string ) : boolean {
+    const a_spl = a.split('.');
+    const b_spl = b.split('.');
+
+
+    a_spl.forEach((value, ndx) => {
+      
+      if(ndx < b_spl.length){
+        if(parseInt(value) < parseInt(b_spl[ndx])) return false;
+        if(parseInt(value) > parseInt(b_spl[ndx])) return true;
+      }
+    })
+    //if it reaches this point, values are same
+    return true;
+
+  }
                                                                           
                                                                                                                    
 // generateId :: Integer -> String                                                                                                  

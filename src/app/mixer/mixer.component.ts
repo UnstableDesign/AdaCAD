@@ -398,7 +398,9 @@ export class MixerComponent implements OnInit {
           if(located_loom === undefined) console.error("could not find loom with this draft id ", draft_node.draft_id);
           else l = located_loom;
           
-          l.recomputeLoom(d);
+          console.log("loom is ", l)
+          //looms should have already been computed on load
+          //l.recomputeLoom(d);
 
         }else{
           console.error("draft node could not be found")
