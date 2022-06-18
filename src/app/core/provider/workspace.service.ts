@@ -19,7 +19,7 @@ export class WorkspaceService {
   type: string = 'jacquard'; //'rigid', 'direct', 'frame', 'jacquard'
   show_errors: boolean = true;
   epi: number = 10;
-  units: string = 'in';
+  units: 'in' | 'cm' = 'in';
 
   show_materials: boolean = true;
   black_cell_up: boolean = true;

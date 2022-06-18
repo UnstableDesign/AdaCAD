@@ -574,6 +574,11 @@ export class FileService {
         scale: current_scale
       }
 
+      //flatten the list of loom treadling values
+      looms.map(loom => {
+        loom.treadling
+      })
+
       //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
       return Promise.resolve({json: theJSON, file: out});

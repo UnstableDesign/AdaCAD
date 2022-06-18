@@ -17,6 +17,7 @@ import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { MaterialsService } from '../core/provider/materials.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { Cell } from '../core/model/cell';
+import { LoomutilsService } from '../core/provider/loomutils.service';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -120,7 +121,8 @@ export class WeaverComponent implements OnInit {
     private dm: DesignmodesService,
     public scroll: ScrollDispatcher,
     private ms: MaterialsService,
-    private ss: SystemsService) {
+    private ss: SystemsService,
+    private loom_utils:LoomutilsService) {
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -160,10 +162,16 @@ export class WeaverComponent implements OnInit {
     }else{
       console.log("WARNING, there were no looms associated with this file");
       this.loom.clearAllData(this.draft.warps, this.draft.wefts, this.loom.type);
-      this.loom.recomputeLoom(this.draft, this.loom.type);
+     
+      const utils = this.loom_utils.getUtils(this.loom.type);
+      utils.updateFromDrawdown(this.draft).then(loom => {
+        this.loom = loom;
+        const success: boolean = this.loom.overloadDraft(this.draft);
+        if(!success) console.log("ERROR, could not attach loom to draft of different size");
+      });
+  
 
-      const success: boolean = this.loom.overloadDraft(this.draft);
-      if(!success) console.log("ERROR, could not attach loom to draft of different size");
+     
     }
 
 
@@ -468,13 +476,20 @@ export class WeaverComponent implements OnInit {
     
     this.draft.fillArea(this.weaveRef.selection, p, 'original', this.render.visibleRows, this.loom);
 
-    this.loom.recomputeLoom(this.draft, this.loom.type);
+    const utils = this.loom_utils.getUtils(this.loom.type);
+    utils.updateFromDrawdown(this.draft).then(loom => {
+      
+      this.loom = loom;
 
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
+      if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
     
-    this.weaveRef.copyArea();
+      this.weaveRef.copyArea();
+  
+      this.weaveRef.redraw({drawdown:true, loom:true});
+    });
 
-    this.weaveRef.redraw({drawdown:true, loom:true});
+
+    
 
     //this.timeline.addHistoryState(this.draft);
     
@@ -492,13 +507,18 @@ export class WeaverComponent implements OnInit {
 
     this.draft.fillArea(this.weaveRef.selection, p, 'original', this.render.visibleRows, this.loom)
 
-    this.loom.recomputeLoom(this.draft, this.loom.type);
+    const utils = this.loom_utils.getUtils(this.loom.type);
+    utils.updateFromDrawdown(this.draft).then(loom => {
+      this.loom = loom;
 
-    if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
+      if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
-    this.weaveRef.copyArea();
-
-    this.weaveRef.redraw({drawdown:true, loom:true});
+      this.weaveRef.copyArea();
+  
+      this.weaveRef.redraw({drawdown:true, loom:true});
+    });
+    
+   
 
    // this.timeline.addHistoryState(this.draft);
 
@@ -775,9 +795,12 @@ export class WeaverComponent implements OnInit {
 
      if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
 
-      this.loom.recomputeLoom(this.draft, this.loom.type);
+    const utils = this.loom_utils.getUtils(this.loom.type);
+    utils.updateFromDrawdown(this.draft).then(loom => {
+      this.loom = loom;
+      this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
+    });
     
-     this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
 
   }
 

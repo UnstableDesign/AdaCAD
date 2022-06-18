@@ -3,9 +3,6 @@
  * @class
  */
 
-import { digest } from "@angular/compiler/src/i18n/digest";
-import { accessSync } from "fs";
-import { or } from "mathjs";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
 import { Cell } from "./cell";

@@ -2,7 +2,6 @@ import { Injectable, ViewRef } from '@angular/core';
 import { cloneDeep, flip, map, toNumber } from 'lodash';
 import { Cell } from '../../core/model/cell';
 import { Draft } from '../../core/model/draft';
-import { Loom } from '../../core/model/loom';
 import { NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/provider/file.service';
 import { ConnectionComponent } from '../palette/connection/connection.component';
 import { OperationComponent } from '../palette/operation/operation.component';
@@ -13,6 +12,7 @@ import { UploadService } from '../../core/uploads/upload.service';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { Loom, LoomSettings, LoomUtil, LoomutilsService } from '../../core/provider/loomutils.service';
 
 
 /**
@@ -43,7 +43,9 @@ export type OpNode = BaseNode & {
 
  export type DraftNode = BaseNode & {
   draft: Draft,
-  loom: Loom
+  loom: Loom,
+  loom_utils: LoomUtil,
+  loom_settings: LoomSettings
  }
 
  type Node = BaseNode | OpNode | DraftNode;
@@ -96,7 +98,8 @@ export class TreeService {
     private dm: DesignmodesService,
     private ops: OperationService,
     private upSvc: UploadService,
-    private systemsservice: SystemsService) { 
+    private systemsservice: SystemsService,
+    private loom_utils: LoomutilsService) { 
   }
 
 
@@ -337,24 +340,28 @@ export class TreeService {
   
   }
 
-
   /**
-   * call to update all local looms by the global loom setting
+   * recomputes the value of every loom. 
    */
   updateLooms(){
 
     this.getDraftNodes().forEach(dn => {
-      dn.loom.overloadType(this.ws.type);
-      dn.loom.overloadUnits(<"in" | "cm"> this.ws.units);
-      dn.loom.setMinFrames(this.ws.min_frames);
-      dn.loom.setMinTreadles(this.ws.min_treadles);
-      const loom_mode = this.dm.getSelectedDesignMode('loom_types');
-      dn.loom.recomputeLoom(dn.draft, loom_mode.value);
+    
+      dn.loom_utils.computeLoomFromDrawdown(dn.draft).then(loom => {
+        dn.loom = loom;
+      });
     });
 
   }
 
 
+  /**
+   * a preview is a temporary object that is created when two drafts overlap in drawing mode
+   * it just needs to contain a draft (and no loom as it will be deleted when the active operation ends)
+   * @param sd 
+   * @param draft 
+   * @returns 
+   */
   setPreview(sd: any, draft: Draft) : Promise<DraftNode>{
     this.preview = {
       id: -1,
@@ -363,7 +370,9 @@ export class TreeService {
       component: <SubdraftComponent> sd.instance,
       dirty: true, 
       draft: cloneDeep(draft),
-      loom: null
+      loom: null,
+      loom_utils: null,
+      loom_settings: null
     }
 
     sd.dirty = true;
@@ -420,7 +429,7 @@ export class TreeService {
   * @param loom the loom to associate with this node
   * @returns the created draft node and the entry associated with this
   */
-  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, loomtype: string) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -432,14 +441,32 @@ export class TreeService {
    (<DraftNode> nodes[0]).draft = cloneDeep(draft);
 
 
+
+   if(loom_settings === null){
+    (<DraftNode> nodes[0]).loom_settings = {
+      type: this.ws.type,
+      epi: this.ws.epi,
+      units: this.ws.units,
+      frames: this.ws.min_frames,
+      treadles: this.ws.min_treadles
+    }
+
+   }else{
+    (<DraftNode> nodes[0]).loom_settings = loom_settings;
+   }
+
+   (<DraftNode> nodes[0]).loom_utils = this.loom_utils.getUtils( (<DraftNode> nodes[0]).loom_settings.type);
+
+
    if(loom === null){
-   (<DraftNode> nodes[0]).loom = new Loom(draft, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
-   const loom_mode = this.dm.getSelectedDesignMode('loom_types');
-    console.log("loom mode", loom_mode.value);
-   (<DraftNode> nodes[0]).loom.recomputeLoom(draft, loom_mode.value);
+    (<DraftNode> nodes[0]).loom_utils.computeLoomFromDrawdown(draft).then(loom => {
+      (<DraftNode> nodes[0]).loom = loom;
+    });
    }else{
     (<DraftNode> nodes[0]).loom = loom;
    }
+
+
 
 
 
@@ -1211,16 +1238,29 @@ removeOperationNode(id:number) : Array<Node>{
 
   if(out.length === res.length){
     out.forEach((output, ndx) => {
-      this.setDraft(output, res[ndx],null);
+      this.setDraft(output, res[ndx],this.getLoomSettings(output));
       touched.push(output);
     });
     return Promise.resolve(touched);
 
   }else if(out.length > res.length){
+    //create a new draft node for each outcome
     for(let i = res.length; i < out.length; i++){
       const dn = <DraftNode> this.getNode(out[i]);
       dn.draft = new Draft({wefts:1, warps:1, pattern:[[new Cell(false)]]});
-      dn.loom = new Loom(dn.draft, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
+      dn.loom_settings = {
+        type: this.ws.type,
+        units: this.ws.units,
+        epi: this.ws.epi,
+        frames: this.ws.min_frames,
+        treadles: this.ws.min_treadles
+      }
+
+      dn.loom_utils = this.loom_utils.getUtils(dn.loom_settings.type);
+      dn.loom_utils.computeLoomFromDrawdown(dn.draft)
+      .then(loom => {
+        dn.loom = loom;
+      })
       dn.dirty = true;
       touched.push(out[i]);
     }
@@ -1231,7 +1271,7 @@ removeOperationNode(id:number) : Array<Node>{
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, 0,  id, 0,  cxn);
-      fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
+      fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, null)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
     }
 
     return Promise.all(fns)
@@ -1450,6 +1490,14 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(dn === null || dn === undefined) return null;
     return dn.loom;
   }
+
+  getLoomSettings(id: number):LoomSettings{
+    if(id === -1) return null;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined) return null;
+    return dn.loom_settings;
+  }
+
 
   getLooms():Array<Loom>{
     const dns = this.getDraftNodes();
@@ -1969,12 +2017,12 @@ isValidIOTuple(io: IOTuple) : boolean {
   }
 
 /**
- * sets a new draft and loom at node specified by id. 
+ * sets a new draft and loom at node specified by id. This occures when an operation that generated a draft has been recomputed
  * @param id the node to update
  * @param temp the draft to add
- * @param loom  the loom to add (or null if a loom should be generated)
+ * @param loom_settings  the settings that should goven the loom generated
  */
-  setDraft(id: number, temp: Draft, loom: Loom) {
+  setDraft(id: number, temp: Draft, loom_settings: LoomSettings) {
 
     const dn = <DraftNode> this.getNode(id);
 
@@ -1993,12 +2041,19 @@ isValidIOTuple(io: IOTuple) : boolean {
     dn.draft.overloadId(id);
     if(ud_name !== '') dn.draft.overloadName(ud_name);
 
-    if(loom === null){
-      dn.loom = new Loom(temp,this.ws.type, this.ws.min_frames, this.ws.min_treadles);
-      //dn.loom.recomputeLoom(temp); //this is too expensive to do synchronously
+    if(loom_settings === null){
+      dn.loom_settings = {
+        type: this.ws.type,
+        epi: this.ws.epi,
+        units: this.ws.units,
+        frames: this.ws.min_frames,
+        treadles: this.ws.min_treadles
+      }
     } 
-    else dn.loom = loom;
-    dn.loom.draft_id = id;
+    else dn.loom_settings = loom_settings;
+
+    dn.loom_utils = this.loom_utils.getUtils(dn.loom_settings.type);
+    dn.loom_utils.computeLoomFromDrawdown(temp).then(loom => dn.loom = loom); 
 
     dn.dirty = true;
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;

@@ -1,23 +1,10 @@
-import { L } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
 import { Cell } from '../model/cell';
-import { Interlacement, LoomCoords } from '../model/datatypes';
+import { Drawdown, Interlacement, LoomCoords } from '../model/datatypes';
 import { Draft } from '../model/draft';
-import { Loom } from '../model/loom';
 import utilInstance from '../model/util';
 import { WorkspaceService } from './workspace.service';
 
-
-/**
- * Store each loom type as a different unit and compute functions
- */
- export type LoomUtil = {
-  type: 'jacquard' | 'frame' | 'direct',
-  displayname: string,
-  dx: string,
-  updateFromDrawdown: (d:Draft) => Promise<Loom>,
-  updateFromLoom: (l:Loom) => Promise<Draft>
-}
 
 
 @Injectable({
@@ -25,19 +12,28 @@ import { WorkspaceService } from './workspace.service';
 })
 export class LoomutilsService {
 
-
+  utils:Array<any> = [];
 
 
   constructor(public ws: WorkspaceService) { 
-
+    
     const jacquard_utils: LoomUtil = {
       type: 'jacquard', 
       displayname: 'jacquard loom',
       dx: "draft exclusively from drawdown, disregarding any frame and treadle information",
-      updateFromDrawdown: (d: Draft) : Promise<Loom>  => {
-       return Promise.resolve(new Loom(d, 'jacquard', 2, 2));
+      computeLoomFromDrawdown: (d: Draft) : Promise<Loom>  => {
+       return null;
       },
-      updateFromLoom: (l: Loom) : Promise<Draft> => {
+      computerDrawdownFromLoom: (l: Loom) : Promise<Draft> => {
+        return null;
+      },
+      updateThreading: (ndx:Interlacement) => {
+        return null;
+      },
+      updateTieup: (ndx:Interlacement) => {
+        return null;
+      },
+      updateTreadling : (ndx:Interlacement) => {
         return null;
       }
 
@@ -50,7 +46,7 @@ export class LoomutilsService {
       type: 'direct', 
       displayname: 'direct-tie or dobby loom',
       dx: "draft from drawdown or threading/tieup/treadling. Assumes you are using a direct tie and mutiple treadle assignments",
-      updateFromDrawdown: (d: Draft) : Promise<Loom>  => {
+      computeLoomFromDrawdown: (d: Draft) : Promise<Loom>  => {
         
         return this.flipPattern(
             d.pattern, 
@@ -79,9 +75,9 @@ export class LoomutilsService {
 
                //add tieup
                obj.loom.tieup = [];
-               for(let i = 0; i <= obj.frame; i++){
+               for(let i = 0; i <= obj.num; i++){
                 obj.loom.tieup.push([]);
-                 for(let j = 0; j <= obj.frame; j++){
+                 for(let j = 0; j <= obj.num; j++){
                    if(i == j) obj.loom.tieup[i][j] = true;
                    else obj.loom.tieup[i][j] = false;
                  }
@@ -95,12 +91,18 @@ export class LoomutilsService {
           }).then(loom => {
               return this.flipLoom(loom);              
           });
-        
-
-  
       },
-      updateFromLoom: (l: Loom) : Promise<Draft> => {
+      computerDrawdownFromLoom: (l: Loom) : Promise<Draft> => {
         return this.flipAndComputeDrawdown(l);
+      },
+      updateThreading: (ndx:Interlacement, threading: Array<number>) => {
+        return null;
+      },
+      updateTieup: (ndx:Interlacement) => {
+        return null;
+      },
+      updateTreadling : (ndx:Interlacement) => {
+        return null;
       }
     }
 
@@ -111,7 +113,7 @@ export class LoomutilsService {
       type: 'frame', 
       displayname: 'shaft/treadle loom',
       dx: "draft from drawdown or threading/tieup/treadling. Assumes you are assigning treadles to specific frame via tieup",
-      updateFromDrawdown: (d: Draft) : Promise<Loom>  => {
+      computeLoomFromDrawdown: (d: Draft) : Promise<Loom>  => {
         return this.flipPattern(
           d.pattern, 
           (this.ws.selected_origin_option == 0 || this.ws.selected_origin_option == 1), 
@@ -159,10 +161,16 @@ export class LoomutilsService {
           });
       
       },
-      updateFromLoom: (l: Loom) : Promise<Draft> => {
+      computerDrawdownFromLoom: (l: Loom) : Promise<Draft> => {
         return this.flipAndComputeDrawdown(l);
       }
     }
+
+    this.utils.push(
+      {name: 'frame', fns: frame_utils},
+      {name: 'jacquard', fns: jacquard_utils},
+      {name: 'direct', fns: direct_utils}
+    );
   }
 
   /**
@@ -170,7 +178,7 @@ export class LoomutilsService {
    * @param l a loom to use when computing
    * @returns the computed draft
    */
-  flipAndComputeDrawdown(l: Loom) : Promise<Draft> {
+  flipAndComputeDrawdown(l: Loom) : Promise<Drawdown> {
     return this.flipLoom(l).then(loom => {
       return this.computeDrawdown(loom);
     }).then(draft => {
@@ -189,11 +197,11 @@ export class LoomutilsService {
   /**
    * computes the drawdown based on a given loom configuration
    * @param loom 
-   * @returns the resulting draft
+   * @returns the resulting drawdown
    */
-  computeDrawdown(loom: Loom) : Promise<Draft> {
-    const draft: Draft = new Draft({warps: loom.threading.length, wefts: loom.treadling.length});
-    
+  computeDrawdown(loom: Loom) : Promise<Array<Array<Cell>>> {
+
+    let pattern = [];
     for (var i = 0; i < loom.treadling.length;i++) {
       const active_treadles: Array<number> = loom.treadling[i];
       if (active_treadles.length > 0) {
@@ -202,7 +210,7 @@ export class LoomutilsService {
             if (loom.tieup[j][treadle]) {
               for (var k = 0; k < loom.threading.length;k++) {
                 if (loom.threading[k] == j) {
-                  draft.pattern[i][k].setHeddle(true);
+                  pattern[i][k].setHeddle(true);
                 }
               }
             }
@@ -211,63 +219,59 @@ export class LoomutilsService {
       }
     }
 
-    return Promise.resolve(draft);
+    return Promise.resolve(pattern);
   
   }
 
+
   /**
-   * This function sets the threading based on a adjusted pattern (e.g. a pattern that has been flipped based on the users selected origin point)
-   * @param draft the original draft this pattern derived from (used for warp and weft info as well as to maintain draft ids)
-   * @param pattern_adj the adjusted, or flipped, draft pattern
-   * @param type the type of loom we are working with. 
-   * @returns 
+  * generates a threading based on the provided drawdown
+   * @param drawdown the drawdown to use 
+   * @returns an object containing the threading pattern and the number of frames used
    */
-  setThreading(draft: Draft, pattern_adj: Array<Array<Cell>>, type: string) : Promise<{loom: Loom, num: number}>{
+  generateThreading(drawdown: Array<Array<Cell>>) : Promise<{threading: Array<number>, num: number}>{
     let frame = 0;
-    const l = new Loom(draft, type, 2, 2);
-    
+    let threading = [];
     //always assign the origin to one
-    l.threading[0] = 1;
+    threading[0] = 1;
 
     //progressively add new frames in the order they appear
-    for(let j = 1; j < draft.warps; j++){
-      const match = utilInstance.hasMatchingColumn(j, pattern_adj);
+    for(let j = 1; j < drawdown[0].length; j++){
+      const match = utilInstance.hasMatchingColumn(j, drawdown);
       if(match === -1){
         frame++;
-        l.threading[j] = frame;
+        threading[j] = frame;
       }else{
-        l.threading[j] = l.threading[match];
+        threading[j] = threading[match];
       }
     }
-    return Promise.resolve({loom:l, num:frame});
+    return Promise.resolve({threading:threading, num:frame});
 
   }
 
+
   /**
    * This function sets the treadling based on a adjusted pattern (e.g. a pattern that has been flipped based on the users selected origin point)
-   * @param draft the original draft this pattern derived from (used for warp and weft info as well as to maintain draft ids)
-   * @param pattern_adj the adjusted, or flipped, draft pattern
-   * @param type the type of loom we are working with. 
-   * @returns 
+   * @param pattern the drawdown to use to generate the treadling
+   * @returns an object containing the treadling and the total number of treadles used
    */
-   setFrameTreadling(draft: Draft, pattern_adj: Array<Array<Cell>>, type: string) : Promise<{loom:Loom, num:number}>{
+   generateFrameTreadling(pattern: Array<Array<Cell>>) : Promise<{treadling:Array<Array<number>>, num:number}>{
     let treadle = 0;
-    const l = new Loom(draft, type, 2, 2);
-    
+    let treadling = [];
     //always assign the origin to one
-    l.treadling[0] = [0];
+    treadling[0] = [0];
 
     //progressively add new frames in the order they appear
-    for(let i = 0; i < draft.wefts; i++){
-      const match = utilInstance.hasMatchingRow(i, pattern_adj);
+    for(let i = 0; i < pattern.length; i++){
+      const match = utilInstance.hasMatchingRow(i, pattern);
       if(match === -1){
         treadle++;
-        l.treadling[i] = [treadle];
+        treadling[i] = [treadle];
       }else{
-        l.treadling[i] = l.treadling[match];
+        treadling[i] = treadling[match];
       }
     }
-    return Promise.resolve({loom: l, num: treadle});
+    return Promise.resolve({treadling: treadling, num: treadle});
 
   }
 
@@ -387,6 +391,14 @@ export class LoomutilsService {
     return Promise.resolve(t_flip);
 }
 
+getUtils(type: 'frame' | 'direct' | 'jacquard' | string) : LoomUtil{
+
+  const obj = this.utils.find(el => el.name === 'type');
+  if(obj === undefined) return null;
+  return obj.fns;
+  
+}
+
 
 
 
@@ -406,4 +418,4 @@ export class LoomutilsService {
 
 
 
-}
+

@@ -1,4 +1,3 @@
-import { type } from "os";
 import { Cell } from "./cell";
 
 /**
@@ -39,15 +38,15 @@ interface Interlacement {
 }
 
 
-/**
- * returns the assignments of frames and treadles for a given interlacement, as well as the drawdown for context
- */
-interface LoomCoords{
-  ndx: Interlacement
-  frame: number,
-  treadle:Array<number>,
-  drawdown: Array<Array<Cell>>
-}
+// /**
+//  * returns the assignments of frames and treadles for a given interlacement, as well as the drawdown for context
+//  */
+// interface LoomCoords{
+//   ndx: Interlacement
+//   frame: number,
+//   treadle:Array<number>,
+//   drawdown: Array<Array<Cell>>
+// }
 
 
 
@@ -64,14 +63,14 @@ interface Bounds {
   height: number; //corresponding screen row
 }
 
-/**
- * A type to communicate locations on the loom that have been updated in response to a given action
- */
-interface LoomUpdate {
-  threading: Array<InterlacementVal>,
-  treadling: Array<InterlacementVal>,
-  tieup: Array<Array<InterlacementVal>>
-}
+// /**
+//  * A type to communicate locations on the loom that have been updated in response to a given action
+//  */
+// interface LoomUpdate {
+//   threading: Array<InterlacementVal>,
+//   treadling: Array<InterlacementVal>,
+//   tieup: Array<Array<InterlacementVal>>
+// }
 
 interface LoomTypes {
   value: string;
@@ -168,6 +167,8 @@ interface Crossing{
 }
 
 
+type Drawdown = Array<Array<Cell>>;
+
 
 
 // interface ToolModes{
@@ -178,13 +179,49 @@ interface Crossing{
 
 // }
 
+/**
+ * this keeps any user defined preferences associated with a 
+ * given loom
+ */
+ export type LoomSettings = {
+  type: string,
+  epi: number,
+  units: 'cm' | 'in',
+  frames: number,
+  treadles: number,
+}
+
+/**
+ * a loom is just a threading, tieup, and treadling
+ */
+export type Loom = {
+  threading: Array<number>,
+  tieup: Array<Array<boolean>>,
+  treadling: Array<Array<number>>
+}
+
+
+/**
+ * Store each loom type as a different unit that computes functions based on its particular settings
+ * 
+ */
+ export type LoomUtil = {
+  type: 'jacquard' | 'frame' | 'direct',
+  displayname: string,
+  dx: string,
+  computeLoomFromDrawdown: (d:Draft) => Promise<Loom>,
+  computerDrawdownFromLoom: (l:Loom) => Promise<Draft>,
+  updateThreading: (ndx: Interlacement, l: Loom) => Loom,
+  updateTreadling: (ndx: Interlacement, l: Loom) => Loom,
+  updateTieup: (ndx: Interlacement, l:Loom)=> Loom
+}
+
+
 export{
   Point,
   Interlacement,
   InterlacementVal,
   Bounds,
-  LoomCoords,
-  LoomUpdate,
   LoomTypes,
   DensityUnits,
   ViewModes,
@@ -194,7 +231,11 @@ export{
   Vertex,
   YarnPath,
   crossType,
-  Crossing
+  Crossing,
+  Drawdown,
+  Loom,
+  LoomSettings,
+  LoomUtil
 }
 
 

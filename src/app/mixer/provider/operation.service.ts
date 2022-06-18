@@ -4,12 +4,12 @@ import { Draft } from "../../core/model/draft";
 import { VaeService} from "../../core/provider/vae.service"
 import { PatternfinderService} from "../../core/provider/patternfinder.service"
 import utilInstance from '../../core/model/util';
-import { Loom } from '../../core/model/loom';
 import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
 import { number } from 'mathjs';
+import { LoomutilsService } from '../../core/provider/loomutils.service';
 
 
 
@@ -169,7 +169,8 @@ export class OperationService {
     private pfs: PatternfinderService,
     private ms: MaterialsService,
     private ss: SystemsService,
-    private is: ImageService) { 
+    private is: ImageService,
+    private loom_utils: LoomutilsService) { 
 
     const rect: Operation = {
       name: 'rectangle',
@@ -4244,30 +4245,35 @@ export class OperationService {
         if(child_input === undefined) return Promise.resolve([]);
         const inputDraft =child_input.drafts[0]
 
-        const loom:Loom = new Loom(inputDraft, 'frame', 8, 10);
-        loom.recomputeLoom(inputDraft, 'frame');
-        let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
-        const draft_seed =  utilInstance.patternToSize(pattern, 48, 48);
-
+        const utils = this.loom_utils.getUtils('frame');
+        return utils.updateFromDrawdown(inputDraft).then(loom => {
+          let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
+          const draft_seed =  utilInstance.patternToSize(pattern, 48, 48);
   
-        return this.vae.generateFromSeed(draft_seed, 'german')
-          .then(suggestions => suggestions.map(suggestion => {
-                  const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
-                  const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
-                  const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
-                  const draft:Draft = new Draft({warps: pattern[0].length, wefts: pattern.length});
-                    for (var i = 0; i < pattern.length; i++) {
-                      for (var j = 0; j < pattern[i].length; j++) {
-                          draft.pattern[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
+    
+          return this.vae.generateFromSeed(draft_seed, 'german')
+            .then(suggestions => suggestions.map(suggestion => {
+                    const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
+                    const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
+                    const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
+                    const draft:Draft = new Draft({warps: pattern[0].length, wefts: pattern.length});
+                      for (var i = 0; i < pattern.length; i++) {
+                        for (var j = 0; j < pattern[i].length; j++) {
+                            draft.pattern[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
+                        }
                       }
-                    }
+  
+                      this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
+                      draft.gen_name = this.formatName(child_input.drafts, "germanify");
+                    return draft
+                  
+                  })
+                )
 
-                    this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
-                    draft.gen_name = this.formatName(child_input.drafts, "germanify");
-                  return draft
-                
-                })
-              )
+        });
+
+       
+       
         }
       }  
       const crackleify: Operation = {
@@ -4299,31 +4305,33 @@ export class OperationService {
           if(child_input.drafts.length === 0) return Promise.resolve([]);
           const inputDraft =child_input.drafts[0]
 
-          const loom:Loom = new Loom(inputDraft, 'frame', 8, 10);
-          loom.recomputeLoom(inputDraft, 'frame');
-          let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
+          const utils = this.loom_utils.getUtils('frame');
+          return utils.updateFromDrawdown(inputDraft).then(loom => {
+            let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.pattern);
         
-          const draft_seed =  utilInstance.patternToSize(pattern, 52, 52);
-    
-          return this.vae.generateFromSeed(draft_seed, 'crackle_weave')
-            .then(suggestions => suggestions.map(suggestion => {
-                    const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
-                    const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
-                    const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
-                    const draft:Draft = new Draft({warps: pattern[0].length, wefts: pattern.length});
-                      for (var i = 0; i < pattern.length; i++) {
-                        for (var j = 0; j < pattern[i].length; j++) {
-                            draft.pattern[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
-                        }
-                      }
-                      this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
-                      draft.gen_name = this.formatName(child_input.drafts, "crackleify");
-                    return draft
-                  
-                  })
-                )
-          }
-        }  
+            const draft_seed =  utilInstance.patternToSize(pattern, 52, 52);
+      
+            return this.vae.generateFromSeed(draft_seed, 'crackle_weave')
+              .then(suggestions => suggestions.map(suggestion => {
+               
+                const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
+                const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
+                const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
+                const draft:Draft = new Draft({warps: pattern[0].length, wefts: pattern.length});
+                  for (var i = 0; i < pattern.length; i++) {
+                    for (var j = 0; j < pattern[i].length; j++) {
+                        draft.pattern[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
+                    }
+                  }
+                  // this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
+                  // draft.gen_name = this.formatName(child_input.drafts, "crackleify");
+                return draft
+              }));
+                    
+               
+            });  
+        }
+      }  
         
         
         const makeloom: Operation = {
@@ -4366,8 +4374,8 @@ export class OperationService {
             if(child_input === undefined || child_input.drafts === undefined) return Promise.resolve([]);
   
           
-            const l:Loom = new Loom(child_input.drafts[0],'frame', frames, treadles);
-            l.recomputeLoom(child_input.drafts[0], 'frame');
+            const utils = this.loom_utils.getUtils('frame');
+            return utils.updateFromDrawdown(child_input.drafts[0]).then(l => {
 
             const threading: Draft = new Draft({warps:child_input.drafts[0].warps, wefts: l.num_frames});
 
@@ -4395,6 +4403,14 @@ export class OperationService {
 
 
             return Promise.resolve([threading, tieup, treadling]);
+
+
+
+
+
+            });
+
+
 
             }
 
