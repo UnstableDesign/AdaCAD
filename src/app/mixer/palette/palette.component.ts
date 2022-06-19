@@ -4,11 +4,9 @@ import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResol
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
-import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
-import { Pattern } from '../../core/model/pattern'; 
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
@@ -21,8 +19,6 @@ import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
-import { DynamicOperation, OperationService } from '../provider/operation.service';
-import { fn } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-palette',

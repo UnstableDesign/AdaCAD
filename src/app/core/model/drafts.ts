@@ -1,12 +1,6 @@
 import { Cell } from "./cell";
-import { Drawdown } from "./datatypes";
+import { Draft, Drawdown } from "./datatypes";
 import utilInstance from "./util";
-
-
-
-
-
-
 
 /**
  * generates an empty draft with a unique id
@@ -27,8 +21,19 @@ import utilInstance from "./util";
   return d;
 }
 
+/**
+ * generates a new draft from the paramters specified.
+ * @param pattern 
+ * @param gen_name 
+ * @param ud_name 
+ * @param rowShuttlePattern 
+ * @param rowSystemPattern 
+ * @param colShuttlePattern 
+ * @param colSystemPattern 
+ * @returns 
+ */
 export const createDraft = (
-  pattern: Array<Array<boolean>>,
+  pattern: Drawdown,
   gen_name: string,
   ud_name: string,
   rowShuttlePattern: Array<any>,
@@ -39,17 +44,46 @@ export const createDraft = (
 
     const d: Draft = {
       id: utilInstance.generateId(8),
-      drawdown = parseSavedPattern(pattern),
-      gen_name = gen_name,
-      ud_name = ud_name, 
-      rowShuttlePattern = rowShuttlePattern.slice(),
-      rowSystemPattern = rowSystemPattern.slice(),
-      colShuttlePattern = colShuttlePattern.slice(),
-      colSystemPattern = colSystemPattern.slice(),
+      drawdown: pattern.slice(),
+      gen_name: gen_name,
+      ud_name: ud_name, 
+      rowShuttlePattern: rowShuttlePattern.slice(),
+      rowSystemPattern: rowSystemPattern.slice(),
+      colShuttlePattern: colShuttlePattern.slice(),
+      colSystemPattern: colSystemPattern.slice(),
     }
 
     return d;
 
+  }
+
+  /**
+   * sets up the draft from the information saved in a .ada file
+   * @param data 
+   */
+  export const loadDraftFromFile = (data: any, version: string) : Draft => {
+
+    const draft: Draft = initDraft();
+    draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
+    draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
+    
+    if(version === undefined || version === null || utilInstance.compareVersions(version, '3.4.2')){
+      draft.drawdown = parseSavedPattern(data.pattern);
+      draft.rowShuttlePattern = (data.data.rowShuttleMapping === undefined) ? [] : data.rowShuttleMapping;
+      draft.rowSystemPattern = (data.data.rowSystemMapping === undefined) ? [] : data.rowSystemMapping;
+      draft.colShuttlePattern = (data.data.colShuttlePattern === undefined) ? [] : data.colShuttlePattern;;
+      draft.colSystemPattern = (data.data.colSystemPattern === undefined) ? [] : data.colSystemPattern;;
+    }else{
+      draft.drawdown = parseSavedPattern(data.drawdown);
+      draft.rowShuttlePattern = (data.data.rowShuttlePattern === undefined) ? [] : data.rowShuttlePattern;
+      draft.rowSystemPattern = (data.data.rowSystemPattern === undefined) ? [] : data.rowSystemPattern;
+      draft.colShuttlePattern = (data.data.colShuttlePattern === undefined) ? [] : data.colShuttlePattern;
+      draft.colSystemPattern = (data.data.colSystemPattern === undefined) ? [] : data.colSystemPattern;
+    }
+
+
+    return draft;
+    
   }
 
 
@@ -354,7 +388,7 @@ export const createDraft = (
  * @param j the warp location
  * @returns the modified drawdown
  */
-  export const deleteCol = (d: Drawdown, j: number) : Drawdown => {
+  export const deleteDrawdownCol = (d: Drawdown, j: number) : Drawdown => {
 
     for(var ndx = 0; ndx < wefts(d); ndx++){
       d[ndx].splice(j, 1);
@@ -382,18 +416,32 @@ export const createDraft = (
  export const getDraftName = (draft: Draft) : string => {
     return (draft.ud_name === "") ?  draft.gen_name : draft.ud_name; 
   }
+
+
+
+/**
+* takes a draft as input, and flips the order of the rows
+* used to ensure mixer calculations are oriented from bottom left
+* @TODO flipping the row/shuttle patterns is not the same flipping the pattern as they occur in the draft (as the draft will be expanded)
+* @param draft 
+*/ 
+export const flipDraft = (d: Draft) : Promise<Draft> => {
+
+  const reversed_pattern:Drawdown = [];
+  const reversed_row_shut:Array<number> = [];
+  const reversed_row_sys:Array<number> = [];
+  for(let i = d.drawdown.length -1; i >= 0; i--){
+    reversed_pattern.push(d.drawdown[i]);
+    reversed_row_shut.push(d.rowShuttlePattern[i]);
+    reversed_row_sys.push(d.rowSystemPattern[i]);
+  }
+  d.drawdown = reversed_pattern.slice();
+  d.rowShuttlePattern = reversed_row_shut.slice();
+  d.rowSystemPattern = reversed_row_sys.slice();
+  return Promise.resolve(d);
+}
+
   
   
   
 
-
-
-
-
-
-
-
-
-// export default {
-//   initDraft
-// }

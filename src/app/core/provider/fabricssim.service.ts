@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Draft } from '../model/draft';
-import { Loom } from '../model/loom';
 import { MaterialsService } from './materials.service';
-import { YarnPath, Vertex } from '../model/datatypes';
+import { YarnPath, Vertex, Draft, Loom } from '../model/datatypes';
 
 @Injectable({
   providedIn: 'root'
@@ -51,9 +49,9 @@ export class FabricssimService {
    * creates a new warp map of size equal to the number of warps in the input draft
    * sets all starting values to zero
    */
-  resetWarpMap(){
-    this.warp_map = this.draft.colShuttleMapping.map(el => 0);
-  }
+  // resetWarpMap(){
+  //   this.warp_map = this.draft.colShuttleMapping.map(el => 0);
+  // }
 
 
 

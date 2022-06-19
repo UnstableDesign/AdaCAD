@@ -1,5 +1,9 @@
 import { Cell } from "./cell";
 
+/**
+ * This file contains all definitions of custom types and objects
+ */
+
 
 /*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/
 
@@ -208,7 +212,7 @@ interface Crossing{
  * @param frames the number of frames the user has specified as the max for their loom
  * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
  */
- export type LoomSettings = {
+type LoomSettings = {
   type: string,
   epi: number,
   units: 'cm' | 'in',
@@ -219,7 +223,7 @@ interface Crossing{
 /**
  * a loom is just a threading, tieup, and treadling
  */
-export type Loom = {
+type Loom = {
   threading: Array<number>,
   tieup: Array<Array<boolean>>,
   treadling: Array<Array<number>>
@@ -230,16 +234,19 @@ export type Loom = {
  * Store each loom type as a different unit that computes functions based on its particular settings
  * 
  */
- export type LoomUtil = {
+type LoomUtil = {
   type: 'jacquard' | 'frame' | 'direct',
   displayname: string,
   dx: string,
-  computeLoomFromDrawdown: (d:Draft) => Promise<Loom>,
-  computerDrawdownFromLoom: (l:Loom) => Promise<Draft>,
-  updateThreading: (ndx: Interlacement, l: Loom) => Loom,
-  updateTreadling: (ndx: Interlacement, l: Loom) => Loom,
-  updateTieup: (ndx: Interlacement, l:Loom)=> Loom
+  computeLoomFromDrawdown: (d:Drawdown, origin: number) => Promise<Loom>,
+  computeDrawdownFromLoom: (l:Loom, origin: number) => Promise<Drawdown>,
+  updateThreading: (l: Loom, ndx: InterlacementVal) => Loom,
+  updateTreadling: (l: Loom, ndx: InterlacementVal) => Loom,
+  updateTieup: (l: Loom, ndx: InterlacementVal)=> Loom
 }
+
+
+type YarnMap = Array<Array<Cell>>;
 
 
 export{
@@ -260,7 +267,8 @@ export{
   Drawdown,
   Loom,
   LoomSettings,
-  LoomUtil
+  LoomUtil,
+  YarnMap
 }
 
 
