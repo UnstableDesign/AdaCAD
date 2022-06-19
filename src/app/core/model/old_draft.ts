@@ -1,5 +1,8 @@
+import { Shuttle } from './shuttle';
 import { Cell } from './cell';
+import { crossType, Interlacement, Crossing, Drawdown } from './datatypes';
 import * as _ from 'lodash';
+import { SelectionComponent } from '../draftviewer/selection/selection.component';
 import utilInstance from './util';
 
 

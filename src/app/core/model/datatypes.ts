@@ -1,12 +1,35 @@
 import { Cell } from "./cell";
 
+
+/*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/
+
+
 /**
- * describes a point using x,y coordinates
- * often used for referencing mouse and/or screen drawing positions
+ * Drawdown can be used as shorthand for drafts, which are just 2D arrays of Cells
  */
-interface Point {
-  x: number;
-  y: number;
+type Drawdown = Array<Array<Cell>>;
+
+
+/**
+ * stores a drawdown along with broader information a draft such
+ * @param id a unique id to refer to this draft, used for linking the draft to screen components
+ * @param gen_name a automatically generated name for this draft (from parent operation)
+ * @param ud_name a user defined name for this draft, which, if it exists, will be used instead of the generated name
+ * @param drawdown the drawdown/interlacement pattern used in this draft
+ * @param rowShuttlePattern the repeating pattern to use to assign draft rows to shuttles (materials)
+ * @param rowSystemPattern the repeating pattern to use to assign draft rows to systems (structual units like layers for instance)
+ * @param colShuttlePattern the repeating pattern to use to assign draft columns to shuttles (materials)
+ * @param colSystemPattern the repeating pattern to use to assign draft columns to systems (structual units like layers for instance)
+ */
+export interface Draft{
+  id: number,
+  gen_name: string,
+  ud_name: string,
+  drawdown: Drawdown,
+  rowShuttlePattern: Array<number>,
+  rowSystemPattern: Array<number>,
+  colShuttlePattern: Array<number>,
+  colSystemPattern: Array<number>,
 }
 
 /**
@@ -17,7 +40,7 @@ interface Point {
  *        this value can be de-indexed to absolute position in the rows using draft.visibleRows array
  * @example const i: number = draft.visibleRows[si];
  */
-interface Interlacement {
+ interface Interlacement {
   i: number;  
   j: number;  
   si: number; 
@@ -38,18 +61,29 @@ interface Interlacement {
 }
 
 
-// /**
-//  * returns the assignments of frames and treadles for a given interlacement, as well as the drawdown for context
-//  */
-// interface LoomCoords{
-//   ndx: Interlacement
-//   frame: number,
-//   treadle:Array<number>,
-//   drawdown: Array<Array<Cell>>
-// }
+/***** OBJECTS/TYPES RELATED TO MIXER COMPONENTS ****/
+
+/**
+ * this stores a list of drafts created with associated component ids for those drafts, 
+ * or -1 if the component for this draft has not been generated yet. 
+ */
+ interface DraftMap{
+  component_id: number;
+  draft: any;
+}
 
 
+/***** OBJECTS/TYPES RELATED TO SCREEN LAYOUT ****/
 
+
+/**
+ * describes a point using x,y coordinates
+ * often used for referencing mouse and/or screen drawing positions
+ */
+interface Point {
+  x: number;
+  y: number;
+}
 
 /**
  * Describes a rectangle on the screen.
@@ -72,6 +106,9 @@ interface Bounds {
 //   tieup: Array<Array<InterlacementVal>>
 // }
 
+
+/****** OBJECTS/TYPES to CONTROL SELECT LISTS******/
+
 interface LoomTypes {
   value: string;
   viewValue: string;
@@ -87,20 +124,11 @@ interface DensityUnits {
   viewValue: string;
 }
 
-
 interface ViewModes {
   value: string;
   viewValue: string;
 }
 
-/**
- * this stores a list of drafts created with associated component ids for those drafts, 
- * or -1 if the component for this draft has not been generated yet. 
- */
-interface DraftMap{
-  component_id: number;
-  draft: any;
-}
 
 /**
  * Stores the icons and language for determining different 
@@ -118,6 +146,9 @@ interface DesignMode{
   children: Array<DesignMode>;
   selected: boolean;
 }
+
+/****** OBJECTS/TYPES to CONTROL YARN SIMULATION ******/
+
 
 /**
  * Used to draw on screen paths, refers to x, y coordiantes relative to the draft simulation
@@ -167,21 +198,15 @@ interface Crossing{
 }
 
 
-type Drawdown = Array<Array<Cell>>;
 
-
-
-// interface ToolModes{
-//   value: string; 
-//   viewValue: string;
-//   icon: string;
-//   menu: string;
-
-// }
 
 /**
- * this keeps any user defined preferences associated with a 
- * given loom
+ * this keeps any user defined preferences associated with a given loom
+ * @param type the type of loom to use for computations (currently only supporting jacquard, direct tieup/dobby looms, floor looms with shafts and treadles)
+ * @param epi the ends for unit length to use for calcuations
+ * @param units the units to use for length, currently supports inches (1 inch), or centimeters (10cm)
+ * @param frames the number of frames the user has specified as the max for their loom
+ * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
  */
  export type LoomSettings = {
   type: string,

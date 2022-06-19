@@ -3,16 +3,8 @@ import { Drawdown } from "./datatypes";
 import utilInstance from "./util";
 
 
-export interface Draft{
-  id: number,
-  gen_name: string,
-  ud_name: string,
-  drawdown: Drawdown,
-  rowShuttlePattern: Array<number>,
-  rowSystemPattern: Array<number>,
-  colShuttlePattern: Array<number>,
-  colSystemPattern: Array<number>,
-}
+
+
 
 
 
@@ -210,6 +202,37 @@ export const createDraft = (
     return drawdown;
 
    
+  }
+
+
+  /**
+   * creates a drawdown of a given size filled with the specified pattern
+   * @param pattern the pattern to fill this drawdown with
+   * @param width the width / number of warps in the result
+   * @param height the height / number of weft in the result
+  //  * @returns the filled drawdown
+   */
+  export const createDrawdownWithPattern = (
+      pattern: Drawdown, 
+      width: number,
+      height: number
+    ) : Drawdown =>  {
+        
+      const drawdown: Drawdown = [];
+      const rows = wefts(pattern);
+      const cols = warps(pattern);
+  
+      //cycle through each visible row/column of the draft
+      for (var i = 0; i < height; i++ ) {
+        drawdown.push([]);
+        for (var j = 0; j < width; j++ ) {
+          drawdown[i][j] = new Cell(pattern[i % rows][j % cols].getHeddle());
+        }
+      }
+
+      return drawdown;
+    
+  
   }
 
 
