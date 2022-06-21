@@ -33,7 +33,6 @@ export class PaletteComponent implements OnInit{
    * a reference to the default patterns (used for fill operations)
    * @property {Array<Pattern>}
    */ 
-  @Input() patterns: Array<Pattern>;
   @Output() onDesignModeChange: any = new EventEmitter();  
 
   /**

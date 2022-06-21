@@ -26,20 +26,20 @@ import utilInstance from "./util";
  * @param pattern 
  * @param gen_name 
  * @param ud_name 
- * @param rowShuttlePattern 
- * @param rowSystemPattern 
- * @param colShuttlePattern 
- * @param colSystemPattern 
+ * @param rowShuttleMapping
+ * @param rowSystemMapping
+ * @param colShuttleMapping
+ * @param colSystemMapping
  * @returns 
  */
 export const createDraft = (
   pattern: Drawdown,
   gen_name: string,
   ud_name: string,
-  rowShuttlePattern: Array<any>,
-  rowSystemPattern: Array<any>,
-  colShuttlePattern: Array<any>,
-  colSystemPattern: Array<any>
+  rowShuttleMapping: Array<any>,
+  rowSystemMapping: Array<any>,
+  colShuttleMapping: Array<any>,
+  colSystemMapping: Array<any>
   ) : Draft => {
 
     const d: Draft = {
@@ -47,10 +47,10 @@ export const createDraft = (
       drawdown: pattern.slice(),
       gen_name: gen_name,
       ud_name: ud_name, 
-      rowShuttlePattern: rowShuttlePattern.slice(),
-      rowSystemPattern: rowSystemPattern.slice(),
-      colShuttlePattern: colShuttlePattern.slice(),
-      colSystemPattern: colSystemPattern.slice(),
+      rowShuttleMapping: rowShuttleMapping.slice(),
+      rowSystemMapping: rowSystemMapping.slice(),
+      colShuttleMapping: colShuttleMapping.slice(),
+      colSystemMapping: colSystemMapping.slice(),
     }
 
     return d;
@@ -64,22 +64,20 @@ export const createDraft = (
   export const loadDraftFromFile = (data: any, version: string) : Draft => {
 
     const draft: Draft = initDraft();
+    if(data.id !== undefined) draft.id = data.id;
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
     draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
     
     if(version === undefined || version === null || utilInstance.compareVersions(version, '3.4.2')){
       draft.drawdown = parseSavedPattern(data.pattern);
-      draft.rowShuttlePattern = (data.data.rowShuttleMapping === undefined) ? [] : data.rowShuttleMapping;
-      draft.rowSystemPattern = (data.data.rowSystemMapping === undefined) ? [] : data.rowSystemMapping;
-      draft.colShuttlePattern = (data.data.colShuttlePattern === undefined) ? [] : data.colShuttlePattern;;
-      draft.colSystemPattern = (data.data.colSystemPattern === undefined) ? [] : data.colSystemPattern;;
     }else{
       draft.drawdown = parseSavedPattern(data.drawdown);
-      draft.rowShuttlePattern = (data.data.rowShuttlePattern === undefined) ? [] : data.rowShuttlePattern;
-      draft.rowSystemPattern = (data.data.rowSystemPattern === undefined) ? [] : data.rowSystemPattern;
-      draft.colShuttlePattern = (data.data.colShuttlePattern === undefined) ? [] : data.colShuttlePattern;
-      draft.colSystemPattern = (data.data.colSystemPattern === undefined) ? [] : data.colSystemPattern;
     }
+
+    draft.rowShuttleMapping = (data.rowShuttleMapping === undefined) ? [] : data.rowShuttleMapping;
+    draft.rowSystemMapping = (data.rowSystemMapping === undefined) ? [] : data.rowSystemMapping;
+    draft.colShuttleMapping = (data.colShuttleMapping === undefined) ? [] : data.colShuttleMapping;;
+    draft.colSystemMapping= (data.colSystemMapping === undefined) ? [] : data.colSystemMapping;;
 
 
     return draft;
@@ -246,7 +244,7 @@ export const createDraft = (
    * @param height the height / number of weft in the result
   //  * @returns the filled drawdown
    */
-  export const createDrawdownWithPattern = (
+  export const generateDrawdownWithPattern = (
       pattern: Drawdown, 
       width: number,
       height: number
@@ -267,6 +265,29 @@ export const createDraft = (
       return drawdown;
     
   
+  }
+
+
+  /**
+   * generates a system or shuttle mapping from an input pattern based on the input draft
+   * @param drawdown the drawdown for which we are creating this mapping
+   * @param pattern the repeating pattern to use when creating the mapping
+   * @param type specify if this is a 'row'/weft or 'col'/warp mapping
+   * @returns the mapping to use
+   */
+  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<any>, type: string) : Array<any> => {
+
+    const mapping: Array<any> = [];
+    if(type == 'row'){
+      for(let i = 0; i < wefts(drawdown); i++){
+        mapping[i] = pattern[i%pattern.length].slice();
+      }
+    }else{
+      for(let j = 0; j < warps(drawdown); j++){
+        mapping[j] = pattern[j%pattern.length].slice();
+      }
+    }
+    return mapping;
   }
 
 
@@ -344,6 +365,25 @@ export const createDraft = (
   }
 
   
+  /**
+   * inserts a new value into the row system/shuttle map
+   * @param m the map to modify
+   * @param i the place at which to add the row
+   * @param row the value to insert
+   * @returns 
+   */
+  export const insertMappingRow = (m: Array<number>, i: number, row: number) : Array<number> => {
+    i = i+1;
+    try{
+      m.splice(i,0,row);
+    }catch(e){
+      console.error(e);
+    }
+    return m;
+  }
+
+
+
 
   /**
    * deletes a row from the drawdown at the specified weft location
@@ -351,13 +391,29 @@ export const createDraft = (
    * @param i weft location
    * @returns the modified drawdown
    */
-  export const deleteDrawdownRow = (d:Drawdown, i: number) => {
+  export const deleteDrawdownRow = (d:Drawdown, i: number) : Drawdown => {
       try{
         d.splice(i, 1);
       }catch(e){
         console.error(e);
       }
       return d;
+  }
+
+
+  /**
+   * deletes a row from a row system/shuttle mapping at the specified weft location
+   * @param m the mapping
+   * @param i the weft location
+   * @returns the modified 
+   */
+  export const deleteMappingRow = (m:Array<number>, i: number) : Array<number> => {
+    try{
+      m.splice(i, 1);
+    }catch(e){
+      console.error(e);
+    }
+    return m;
   }
 
 
@@ -382,6 +438,23 @@ export const createDraft = (
   }
 
 
+
+
+  /**
+   * inserts a value into the col system/shuttle mapping at a particular location
+   * @param m the map to modify
+   * @param j the location at which to add
+   * @param col the value to add
+   * @returns 
+   */
+  export const insertMappingCol = (m: Array<number>, j: number, col: number) : Array<number> => {
+    m.splice(j,0, col);
+    return m;
+  }
+  
+  
+
+
 /**
  * delete a column from the drawdown at a given location
  * @param d the drawdown
@@ -398,15 +471,16 @@ export const createDraft = (
   }
 
   /**
-   * takes a pattern (like rowShuttle, or colSystem, and returns the value that should appear at a given id)
-   * if the index is outside of the range, it returns what the value would be if the pattern was repeated
-   * @param p 
-   * @param ndx 
-   * @returns the assigned vale at that location
-   */
-  export const getIdFromSystemorShuttlePattern = (p: Array<number>, ndx: number): number => {
-    return p[ndx%p.length];
+ * deletes a value into the col system/shuttle mapping at a particular location
+ * @param m the mapping to modify
+ * @param j the warp location
+ * @returns the modified mapping
+ */
+  export const deleteMappingCol = (m: Array<number>, j: number) : Array<number> => {
+    m.splice(j, 1);
+    return m;
   }
+
 
   /**
    * gets the name of the draft. If it has a user defined name, it returns that, otherwise, it returns the generated name
@@ -432,12 +506,12 @@ export const flipDraft = (d: Draft) : Promise<Draft> => {
   const reversed_row_sys:Array<number> = [];
   for(let i = d.drawdown.length -1; i >= 0; i--){
     reversed_pattern.push(d.drawdown[i]);
-    reversed_row_shut.push(d.rowShuttlePattern[i]);
-    reversed_row_sys.push(d.rowSystemPattern[i]);
+    reversed_row_shut.push(d.rowShuttleMapping[i]);
+    reversed_row_sys.push(d.rowSystemMapping[i]);
   }
   d.drawdown = reversed_pattern.slice();
-  d.rowShuttlePattern = reversed_row_shut.slice();
-  d.rowSystemPattern = reversed_row_sys.slice();
+  d.rowShuttleMapping = reversed_row_shut.slice();
+  d.rowSystemMapping = reversed_row_sys.slice();
   return Promise.resolve(d);
 }
 

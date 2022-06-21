@@ -1,8 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { util } from '@tensorflow/tfjs';
-import { Draft } from '../../../core/model/draft';
 import { Render } from '../../../core/model/render';
+import { Draft } from '../../model/datatypes';
 import { System } from '../../model/system';
 import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';

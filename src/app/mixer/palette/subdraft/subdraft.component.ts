@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, ViewChild, ElementRef, EventEmitter, HostListener, OnChanges, ChangeDetectionStrategy, SimpleChanges} from '@angular/core';
-import { Point, Interlacement, Bounds, DraftMap } from '../../../core/model/datatypes';
+import { Point, Interlacement, Bounds, DraftMap, Draft } from '../../../core/model/datatypes';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import utilInstance from '../../../core/model/util';
@@ -11,9 +11,9 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
 import { Cell } from '../../../core/model/cell';
 import { OperationComponent } from '../operation/operation.component';
-import { Draft } from '../../../core/model/draft';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
+import { createDraft, getDraftName, warps, wefts } from '../../../core/model/drafts';
 
 
 
@@ -159,11 +159,11 @@ export class SubdraftComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
 
     if(draft !== undefined){
-      this.bounds.width = draft.warps * this.scale;
-      this.bounds.height = draft.wefts * this.scale;
+      this.bounds.width = warps(draft.drawdown) * this.scale;
+      this.bounds.height = wefts(draft.drawdown) * this.scale;
     }else{
-      this.bounds.width = draft.warps * this.scale;
-      this.bounds.height = draft.wefts * this.scale;
+      this.bounds.width = warps(draft.drawdown) * this.scale;
+      this.bounds.height = wefts(draft.drawdown) * this.scale;
     }
 
   }
@@ -217,8 +217,8 @@ export class SubdraftComponent implements OnInit {
       y: this.interlacement.i * this.scale
     };
 
-    this.bounds.width = this.draft.warps * this.scale;
-    this.bounds.height = this.draft.wefts * this.scale;
+    this.bounds.width = warps(this.draft.drawdown) * this.scale;
+    this.bounds.height = wefts(this.draft.drawdown) * this.scale;
 
   }
 
@@ -246,24 +246,24 @@ export class SubdraftComponent implements OnInit {
   }
 
 
-    updateSize(parent: OperationComponent){
 
-      const draft = this.tree.getDraft(this.id);
+  updateSize(parent: OperationComponent){
 
-      this.bounds.width = draft.warps * this.scale;
-      this.bounds.height = draft.wefts * this.scale;
+    const draft = this.tree.getDraft(this.id);
 
-      if(this.parent_id !== parent.id){
-        console.error("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
-        console.log("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
-        return;
-      }
+    this.bounds.width = warps(draft.drawdown) * this.scale;
+    this.bounds.height = wefts(draft.drawdown) * this.scale;
 
-      this.bounds.width = Math.max(parent.bounds.width, this.bounds.width);
-      this.bounds.height = Math.max(parent.bounds.height, this.bounds.height);
-  
-  
+    if(this.parent_id !== parent.id){
+      console.error("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
+      console.log("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
+      return;
     }
+
+    this.bounds.width = Math.max(parent.bounds.width, this.bounds.width);
+    this.bounds.height = Math.max(parent.bounds.height, this.bounds.height);
+
+  }
   
 
 
@@ -280,11 +280,11 @@ export class SubdraftComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
 
 
-    this.canvas.width = draft.warps * this.default_cell;
-    this.canvas.height = draft.wefts * this.default_cell;
+    this.canvas.width = warps(draft.drawdown) * this.default_cell;
+    this.canvas.height = wefts(draft.drawdown) * this.default_cell;
 
-    for (let i = 0; i < draft.wefts; i++) {
-      for (let j = 0; j < draft.warps; j++) {
+    for (let i = 0; i < wefts(draft.drawdown); i++) {
+      for (let j = 0; j < warps(draft.drawdown); j++) {
         this.drawCell(draft, 1, i, j, false);
       }
     }
@@ -382,8 +382,8 @@ export class SubdraftComponent implements OnInit {
     let i = Math.floor((p.y -this.bounds.topleft.y) / this.scale);
     let j = Math.floor((p.x - this.bounds.topleft.x) / this.scale);
 
-    if(i < 0 || i >= draft.wefts) i = -1;
-    if(j < 0 || j >= draft.warps) j = -1;
+    if(i < 0 || i >= wefts(draft.drawdown)) i = -1;
+    if(j < 0 || j >= warps(draft.drawdown)) j = -1;
 
     return {i: i, j:j, si: i};
 
@@ -404,9 +404,9 @@ export class SubdraftComponent implements OnInit {
     
     const draft = this.tree.getDraft(this.id);
 
-    if(!draft.pattern[coords.i][coords.j].isSet()) return null;
+    if(!draft.drawdown[coords.i][coords.j].isSet()) return null;
     
-    return draft.pattern[coords.i][coords.j].isUp();
+    return draft.drawdown[coords.i][coords.j].isUp();
   
   }
 
@@ -485,11 +485,11 @@ export class SubdraftComponent implements OnInit {
       this.canvas.height = 0;
 
     }else{
-      this.canvas.width = draft.warps * this.default_cell;
-      this.canvas.height = draft.wefts * this.default_cell;
+      this.canvas.width = warps(draft.drawdown) * this.default_cell;
+      this.canvas.height = wefts(draft.drawdown) * this.default_cell;
 
-      for (let i = 0; i < draft.wefts; i++) {
-        for (let j = 0; j < draft.warps; j++) {
+      for (let i = 0; i <  wefts(draft.drawdown); i++) {
+        for (let j = 0; j < warps(draft.drawdown); j++) {
           this.drawCell(draft, this.default_cell, i, j, true);
         }
       }
@@ -665,8 +665,8 @@ export class SubdraftComponent implements OnInit {
     let context = b.getContext('2d');
     const draft = this.tree.getDraft(this.id);
 
-    b.width = (draft.warps);
-    b.height = (draft.wefts);
+    b.width = (warps(draft.drawdown));
+    b.height = (wefts(draft.drawdown));
     
     context.fillStyle = "white";
     context.fillRect(0,0,b.width,b.height);
@@ -676,7 +676,7 @@ export class SubdraftComponent implements OnInit {
     return this.fs.saver.bmp(b)
     .then(href => {
       a.href =  href;
-      a.download = draft.getName() + "_bitmap.jpg";
+      a.download = getDraftName(draft) + "_bitmap.jpg";
       a.click();
       this.drawDraft(draft);
 
@@ -693,7 +693,7 @@ export class SubdraftComponent implements OnInit {
       const a = document.createElement('a');
       return this.fs.saver.ada('draft', [draft], [], false, this.scale).then(out => {
         a.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-        a.download = draft.getName() + ".ada";
+        a.download = getDraftName(draft) + ".ada";
         a.click();
       }); 
     }
@@ -710,7 +710,7 @@ export class SubdraftComponent implements OnInit {
       return this.fs.saver.wif(draft, loom)
       .then(href => {
         a.href = href;
-        a.download  = draft.getName() +".wif";
+        a.download  = getDraftName(draft) +".wif";
         a.click();
       });
     
@@ -725,8 +725,8 @@ export class SubdraftComponent implements OnInit {
       const draft = this.tree.getDraft(this.id);
 
 
-      b.width = (draft.warps ) * dims;
-      b.height = (draft.wefts) * dims;
+      b.width = warps(draft.drawdown) * dims;
+      b.height = wefts(draft.drawdown) * dims;
       
       context.fillStyle = "white";
       context.fillRect(0,0,b.width,b.height);
@@ -738,7 +738,7 @@ export class SubdraftComponent implements OnInit {
       return this.fs.saver.jpg(b)
         .then(href => {
           a.href =  href;
-          a.download = draft.getName() + ".jpg";
+          a.download = getDraftName(draft) + ".jpg";
           a.click();
       
         });
@@ -768,8 +768,15 @@ export class SubdraftComponent implements OnInit {
         this.modal.afterClosed().subscribe(result => {
           if(result != null){
             if(this.parent_id == -1){
-              draft.reload(result);
-              this.draft = draft;
+
+              this.draft.drawdown = result.drawdown.slice();
+              this.draft.gen_name = result.gen_name;
+              this.draft.ud_name = result.ud_name;
+              this.draft.rowSystemMapping = result.rowSystemMapping.slice();
+              this.draft.rowShuttleMapping = result.rowShuttleMapping.slice();
+              this.draft.colSystemMapping = result.colSystemMapping.slice();
+              this.draft.colShuttleMapping = result.colShuttleMapping.slice();
+              
               this.onDesignAction.emit({id: this.id});
             }
           }

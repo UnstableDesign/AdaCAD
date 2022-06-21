@@ -2,85 +2,16 @@ import { Injectable } from '@angular/core';
 import { isBuffer } from 'lodash';
 import {TreeService } from '../../mixer/provider/tree.service';
 import { Cell } from '../model/cell';
-import { Bounds, Interlacement } from '../model/datatypes';
-import { Draft } from '../model/draft';
-import { Loom } from '../model/loom';
-import { Pattern } from '../model/pattern';
+import { Bounds, Draft, DraftNodeProxy, FileObj, Interlacement, LoadResponse, Loom, OpComponentProxy, StatusMessage } from '../model/datatypes';
 import { Shuttle } from '../model/shuttle';
 import utilInstance from '../model/util';
 import { MaterialMap, MaterialsService } from './materials.service';
 import { SystemsService } from './systems.service';
 import { Note, NotesService } from './notes.service';
-import { PatternService } from './pattern.service';
 import { System } from '../model/system';
 import { version } from 'process';
 import { VersionService } from './version.service';
-
-
- export interface NodeComponentProxy{
-  node_id: number,
-  type: string,
-  bounds: Bounds; 
-  draft_id: number;
-  draft_name: string;
-  draft_visible: boolean;
- }
-
- export interface TreeNodeProxy{
-  node: number,
-  parent: number; 
-  inputs: Array<{tn: number, ndx: number}>;
-  outputs: Array<{tn: number, ndx: number}>; 
- }
-
- export interface OpComponentProxy{
-  node_id: number,
-  name: string,
-  params: Array<any>; 
-  inlets: Array<any>;
- }
-
- export interface CxnComponentProxy{
-  from: number,
-  to: number
- }
-
-
- export interface SaveObj{
-  version: string,
-  type: string,
-  nodes: Array<NodeComponentProxy>,
-  tree: Array<TreeNodeProxy>,
-  drafts: Array<Draft>,
-  looms: Array<Loom>,
-  patterns: Array<Pattern>, 
-  ops: Array<any>,
-  notes: Array<Note>,
-  materials: Array<Shuttle>,
-  scale: number
- }
-
-export interface FileObj{
- version: string,
- filename: string,
- nodes: Array<NodeComponentProxy>,
- treenodes: Array<TreeNodeProxy>,
- drafts: Array<Draft>,
- looms: Array<Loom>,
- ops: Array<OpComponentProxy>
- scale: number
-}
-
-interface StatusMessage{
-  id: number,
-  message: string,
-  success: boolean
-}
-
-export interface LoadResponse{
-  data: FileObj,
-  status: number;
-}
+import { createDraft, generateDrawdownWithPattern, loadDraftFromFile } from '../model/drafts';
 
 
 
@@ -119,7 +50,6 @@ export class FileService {
   constructor(
     private tree: TreeService, 
     private ns: NotesService,
-    private ps: PatternService,
     private ms: MaterialsService,
     private ss: SystemsService,
     private vs: VersionService) { 
@@ -130,13 +60,17 @@ export class FileService {
   ];
 
 
+  /**
+   * file loader loads files of different types, 
+   * for .adaFiles, it gets the data listed in SaveObj and begins to process it
+   */
   const dloader: Fileloader = {
 
      ada: async (filename: string, data: any) : Promise<LoadResponse> => {
       console.log("DATA IN", data)
 
-      let drafts: Array<Draft> = [];
-      let looms: Array<Loom> = [];
+      let draft_nodes: Array<DraftNodeProxy> = [];
+      //let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
       let version = "0.0.0";
       
@@ -144,83 +78,59 @@ export class FileService {
 
       //handle old file types that didn't separate out drafts
       if(data.drafts === undefined) data.drafts = [data];
+      
       if(data.version !== undefined) version = data.version;
 
 
-      drafts = data.drafts.map(draftdata => {
-        const draft: Draft =  new Draft({wefts: draftdata.wefts, warps: draftdata.warps, pattern: draftdata.pattern});
-       
-        if(draftdata.id !== undefined) draft.overloadId(draftdata.id);
-        if(draftdata.name !== undefined) draft.overloadName(draftdata.name);
-        if(draftdata.ud_name !== undefined || draftdata.ud_name !== '') draft.overloadName(draftdata.ud_name);
-
-        if(draftdata.shuttles !== undefined){
-          this.ms.overloadShuttles(data.shuttles);
-
-        }else{
-          if(data.materials !== undefined){
-              this.ms.overloadShuttles(data.materials); 
-          }
-        }
-
-        //scan the systems and add any that need to be added
-        if(draftdata.rowSystemMapping !== undefined){
-          
-          draftdata.rowSystemMapping.forEach(el => {
-            if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
-          });
-
-          draft.overloadRowSystemMapping(draftdata.rowSystemMapping);
-        }  
-
-          //scan the systems and add any that need to be added
-          if(draftdata.colSystemMapping !== undefined){
-          
-            draftdata.colSystemMapping.forEach(el => {
-              if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
-            });
-  
-            draft.overloadColSystemMapping(draftdata.colSystemMapping);
-          }  
-  
-        if(draftdata.rowShuttleMapping !== undefined) draft.overloadRowShuttleMapping(draftdata.rowShuttleMapping); 
-        if(draftdata.colShuttleMapping !== undefined) draft.overloadColShuttleMapping(draftdata.colShuttleMapping); 
-        // if(draftdata.rowSystemMapping !== undefined) draft.overloadRowSystemMapping(draftdata.rowSystemMapping); 
-        // if(draftdata.colSystemMapping !== undefined) draft.overloadColSystemMapping(draftdata.colSystemMapping);
-
-        return draft; 
-
-      });
-
-
-      if(data.looms === undefined || data.looms.length === 0) data.looms = [];
-
-      looms = data.looms.map((data, ndx) => {
-
-        let draft: Draft = null;
-        if(data.draft_id !== undefined) draft = drafts.find(draft => draft.id === data.draft_id);
-
-        const frames: number = (data.min_frames === undefined) ? 8 : data.min_frames;
-        const treadles: number = (data.min_treadles === undefined) ? 8 : data.min_treadles;
-        const type: string = (data.type === undefined) ? 'jacquard' : data.type;
-
-        const loom = new Loom(draft, type, frames, treadles);
-        if(data.threading !== undefined) loom.overloadThreading(data.threading);
-        if(data.treadling !== undefined) loom.overloadTreadling(data.treadling, version, draft.wefts);
-        if(data.tieup !== undefined) loom.overloadTieup(data.tieup);
-        return loom;
-      });
-
-      if(data.patterns !== undefined){
-        const patterns: Array<Pattern> = data.patterns.map(pattern => {
-          const p:Pattern = new Pattern(pattern);
-          return p;
-        });
-        this.ps.overridePatterns(patterns)
+      if(utilInstance.compareVersions(version, '3.4.2')){
+        draft_nodes = data.draft_nodes;
+        draft_nodes.forEach(el => {
+          el.draft = loadDraftFromFile(el.draft, data.version);
+        })
+        
       }else{
-        this.ps.resetPatterns();
+
+        data.drafts.forEach(el => {
+          const node = data.nodes.find(node => node.draft_id == el.id);
+          const loom = data.looms.find(node => node.draft_id == el.id);
+          const dn: DraftNodeProxy = {
+            node_id: (node === undefined) ? -1 : node.id,
+            draft_id: el.id,
+            draft: loadDraftFromFile(el, data.version),
+            draft_visible: (node === undefined) ? true : node.draft_visible,
+            loom: (loom === undefined) ? null : {threading: loom.threading, tieup: loom.tieup, treadling: loom.treadling},
+            loom_settings: (loom === undefined) ? null : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles}
+          }
+          draft_nodes.push(dn);
+        });
+
+        //in previous versions drafts and looms were loaded separately
       }
 
+      if(data.shuttles !== undefined){
+        this.ms.overloadShuttles(data.shuttles);
+
+      }else{
+        if(data.materials !== undefined){
+            this.ms.overloadShuttles(data.materials); 
+        }
+      }
+
+      draft_nodes.forEach(el => {
+        //scan the systems and add any that need to be added
+        if(el.draft.rowSystemMapping !== undefined){
+          el.draft.rowSystemMapping.forEach(el => {
+            if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
+          });
+        }  
+
+        //scan the systems and add any that need to be added
+        if(el.draft.colSystemMapping !== undefined){
+          el.draft.colSystemMapping.forEach(el => {
+            if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
+          });
+        }  
+      })
 
       if(data.ops !== undefined){
         ops = data.ops.map(data => {
@@ -240,10 +150,9 @@ export class FileService {
       const envt: FileObj = {
         version: data.version,
         filename: filename,
-        drafts: drafts,
-        looms: (looms === undefined) ? [] : looms,
         nodes: (data.nodes === undefined) ? [] : data.nodes,
         treenodes: (data.tree === undefined) ? [] : data.tree,
+        draft_nodes: draft_nodes,
         ops: ops,
         scale: (data.scale === undefined) ? 5 : data.scale,
       }
@@ -267,7 +176,6 @@ export class FileService {
       const pattern: Array<Array<Cell>> = [];
       
       this.ns.resetNotes(); 
-      this.ps.resetPatterns();
 
       for (var i = 0; i < wefts; i++) {
         pattern.push([]);

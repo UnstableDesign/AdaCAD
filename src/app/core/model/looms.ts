@@ -421,6 +421,11 @@ const jacquard_utils: LoomUtil = {
     return Promise.resolve(t_flip);
 }
 
+/**
+ * returns the correct loom util object by string
+ * @param type the type of loom you are using
+ * @returns 
+ */
 export const getLoomUtilByType = (type: 'frame' | 'direct' | 'jacquard' | string) : LoomUtil =>{
 
     switch(type){
@@ -429,4 +434,85 @@ export const getLoomUtilByType = (type: 'frame' | 'direct' | 'jacquard' | string
         case 'jacquard': return jacquard_utils;
     }
 
+}
+
+/**
+ * calculates the total number of frames used in this loom
+ * since its called frequently, keep an eye on this to make sure it isn't hanging page loading 
+ * and/or call it once per needed function (instead of multiple times in one function)
+ * @param loom 
+ * @returns the highest number found in the array
+ */
+export const numFrames = (loom: Loom) : number => {
+  return loom.threading.reduce((acc, el) => {
+    if(el > acc){
+      acc = el;
+    }
+    return acc;
+  }, 0);
+}
+
+/**
+ * calculates the total number of frames used in this loom
+ * since its called frequently, keep an eye on this to make sure it isn't hanging page loading 
+ * @param loom 
+ * @returns the highest number found in the array
+ */
+ export const numTreadles = (loom: Loom) : number => {
+  return loom.treadling.reduce((acc, el) => {
+    
+    const max_in_list = el.reduce((sub_acc, sub_el) => {
+      if(sub_el > acc) sub_acc = sub_el;
+      return sub_acc;
+    }, 0) ;
+    
+    if(max_in_list > acc){
+      acc = max_in_list;
+    }
+    return acc;
+  }, 0);
+}
+
+/**
+ * checks if a given interlacement is within the range of the threading
+ * @param loom the loom to check with
+ * @param ndx the interlacement to check
+ * @returns true or false to determine if in or out of range
+ */
+export const isInThreadingRange = (loom: Loom, ndx: Interlacement) : boolean => {
+  if(ndx.i < 0) return false;
+  if(ndx.i > numFrames(loom)) return false;
+  if(ndx.j < 0) return false;
+  if(ndx.j >= loom.threading.length) return false;
+  return true;
+}
+
+
+/**
+ * checks if a given interlacement is within the range of the threading
+ * @param loom the loom to check with
+ * @param ndx the interlacement to check
+ * @returns true or false to determine if in or out of range
+ */
+ export const isInTreadlingRange = (loom: Loom, ndx: Interlacement) : boolean => {
+  if(ndx.j < 0) return false;
+  if(ndx.j > numTreadles(loom)) return false;
+  if(ndx.i < 0) return false;
+  if(ndx.i >= loom.treadling.length) return false;
+  return true;
+}
+
+
+/**
+ * checks if a given interlacement is within the range of the threading
+ * @param loom the loom to check with
+ * @param ndx the interlacement to check
+ * @returns true or false to determine if in or out of range
+ */
+ export const isInTieupRange = (loom: Loom, ndx: Interlacement) : boolean => {
+  if(ndx.i < 0) return false;
+  if(ndx.i > loom.tieup.length) return false;
+  if(ndx.i < 0) return false;
+  if(ndx.i >= loom.tieup[0].length) return false;
+  return true;
 }

@@ -1,7 +1,6 @@
 import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, Input } from '@angular/core';
 import {enableProdMode} from '@angular/core';
 
-import { PatternService } from '../core/provider/pattern.service';
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { Render } from '../core/model/render';
 import { MatDialog } from "@angular/material/dialog";
@@ -16,7 +15,7 @@ import { SystemsService } from '../core/provider/systems.service';
 import { Cell } from '../core/model/cell';
 import { getLoomUtilByType } from '../core/model/looms';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { createDrawdownWithPattern, deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, loadDraftFromFile, warps, wefts } from '../core/model/drafts';
+import { generateDrawdownWithPattern, deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, loadDraftFromFile, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol } from '../core/model/drafts';
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { computeYarnPaths } from '../core/model/yarnsimulation';
 
@@ -120,7 +119,7 @@ export class WeaverComponent implements OnInit {
     });
 
 
-    this.copy = createDrawdownWithPattern([[new Cell(false)]], 2, 2);
+    this.copy = generateDrawdownWithPattern([[new Cell(false)]], 2, 2);
     this.dm.selectDesignMode('draw', 'design_modes');
     this.dm.selectDesignMode('toggle', 'draw_modes');
 
@@ -432,7 +431,7 @@ export class WeaverComponent implements OnInit {
     
     const d: Drawdown = [[new Cell(b)]];
 
-    this.draft.drawdown = createDrawdownWithPattern(d, warps(this.draft.drawdown), wefts(this.draft.drawdown));
+    this.draft.drawdown = generateDrawdownWithPattern(d, warps(this.draft.drawdown), wefts(this.draft.drawdown));
 
     const utils = getLoomUtilByType(this.loom_settings.type);
     utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option).then(loom => {
@@ -503,44 +502,27 @@ export class WeaverComponent implements OnInit {
    // this.timeline.addHistoryState(this.draft);
   }
 
-
-
   public updateWarpSystems(pattern: Array<number>) {
-    console.log("update warp sys", pattern);
-    this.draft.colSystemPattern = pattern.slice();
+    this.draft.colSystemMapping = generateMappingFromPattern(this.draft.drawdown, pattern, 'col');
     this.weaveRef.redraw({drawdown: true, warp_systems: true});
-
   }
 
   public updateWeftSystems(pattern: Array<number>) {
-    console.log("update weft sys", pattern);
-
-    this.draft.rowSystemPattern = pattern.slice();
+    this.draft.rowSystemMapping =  generateMappingFromPattern(this.draft.drawdown, pattern, 'row');
     this.weaveRef.redraw({drawdown: true, weft_systems: true});
-
   }
 
   public updateWarpShuttles(pattern: Array<number>) {
-    console.log("update warp shut", pattern);
-
-    this.draft.colShuttlePattern = pattern.slice();
+    this.draft.colShuttleMapping = generateMappingFromPattern(this.draft.drawdown, pattern, 'col');
     this.weaveRef.redraw({drawdown: true, warp_materials: true});
-
   }
 
   public updateWeftShuttles(pattern: Array<number>) {
-    console.log("update weft shutf", pattern);
-
-    this.draft.rowShuttlePattern = pattern.slice();
+    this.draft.rowShuttleMapping = generateMappingFromPattern(this.draft.drawdown, pattern, 'row');
     computeYarnPaths(this.draft, this.ms.getShuttles());
     this.weaveRef.redraw({drawdown: true, weft_materials: true});
-
   }
 
-  // public createMaterial(e: any) {
-  //   this.draft.addMaterial(e.material); 
-  //   this.weaveRef.redraw();
-  // }
 
   public createShuttle(e: any) {
     this.ms.addShuttle(e.shuttle); 
@@ -635,14 +617,15 @@ export class WeaverComponent implements OnInit {
       
       for(var i = 0; i < diff; i++){  
         this.draft.drawdown = insertDrawdownCol(this.draft.drawdown, i, null);
-
-  
+        this.draft.colShuttleMapping = insertMappingCol(this.draft.colShuttleMapping, i, 0);
+        this.draft.colSystemMapping = insertMappingCol(this.draft.colSystemMapping, i, 0);  
       }
     }else{
       var diff = warps(this.draft.drawdown) - e.warps;
       for(var i = 0; i < diff; i++){  
         this.draft.drawdown = deleteDrawdownCol(this.draft.drawdown, warps(this.draft.drawdown)-1);
-
+        this.draft.rowSystemMapping = deleteMappingCol(this.draft.rowSystemMapping, warps(this.draft.drawdown)-1);
+        this.draft.rowShuttleMapping = deleteMappingCol(this.draft.rowShuttleMapping, warps(this.draft.drawdown)-1);
       }
 
     }
@@ -669,11 +652,15 @@ export class WeaverComponent implements OnInit {
       
       for(var i = 0; i < diff; i++){  
         this.draft.drawdown = insertDrawdownRow(this.draft.drawdown, wefts(this.draft.drawdown)+1, null)
+        this.draft.rowShuttleMapping = insertMappingRow(this.draft.rowShuttleMapping, wefts(this.draft.drawdown)+1, 0);
+        this.draft.rowSystemMapping = insertMappingRow(this.draft.rowSystemMapping, wefts(this.draft.drawdown)+1, 0);
       }
     }else{
       var diff = wefts(this.draft.drawdown) - e.wefts;
       for(var i = 0; i < diff; i++){  
         this.draft.drawdown = deleteDrawdownRow(this.draft.drawdown, wefts(this.draft.drawdown)-1);
+        this.draft.rowShuttleMapping = deleteMappingRow(this.draft.rowShuttleMapping, wefts(this.draft.drawdown)-1);
+        this.draft.rowSystemMapping = deleteMappingRow(this.draft.rowSystemMapping, wefts(this.draft.drawdown)-1);
       }
 
     }

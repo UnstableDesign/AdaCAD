@@ -1,4 +1,6 @@
+import { Note } from "../provider/notes.service";
 import { Cell } from "./cell";
+import { Shuttle } from "./shuttle";
 
 /**
  * This file contains all definitions of custom types and objects
@@ -11,7 +13,7 @@ import { Cell } from "./cell";
 /**
  * Drawdown can be used as shorthand for drafts, which are just 2D arrays of Cells
  */
-type Drawdown = Array<Array<Cell>>;
+export type Drawdown = Array<Array<Cell>>;
 
 
 /**
@@ -20,20 +22,20 @@ type Drawdown = Array<Array<Cell>>;
  * @param gen_name a automatically generated name for this draft (from parent operation)
  * @param ud_name a user defined name for this draft, which, if it exists, will be used instead of the generated name
  * @param drawdown the drawdown/interlacement pattern used in this draft
- * @param rowShuttlePattern the repeating pattern to use to assign draft rows to shuttles (materials)
- * @param rowSystemPattern the repeating pattern to use to assign draft rows to systems (structual units like layers for instance)
- * @param colShuttlePattern the repeating pattern to use to assign draft columns to shuttles (materials)
- * @param colSystemPattern the repeating pattern to use to assign draft columns to systems (structual units like layers for instance)
+ * @param rowShuttleMapping the repeating pattern to use to assign draft rows to shuttles (materials)
+ * @param rowSystemMapping the repeating pattern to use to assign draft rows to systems (structual units like layers for instance)
+ * @param colShuttleMapping the repeating pattern to use to assign draft columns to shuttles (materials)
+ * @param colSystemMapping the repeating pattern to use to assign draft columns to systems (structual units like layers for instance)
  */
 export interface Draft{
   id: number,
   gen_name: string,
   ud_name: string,
   drawdown: Drawdown,
-  rowShuttlePattern: Array<number>,
-  rowSystemPattern: Array<number>,
-  colShuttlePattern: Array<number>,
-  colSystemPattern: Array<number>,
+  rowShuttleMapping: Array<number>,
+  rowSystemMapping: Array<number>,
+  colShuttleMapping: Array<number>,
+  colSystemMapping: Array<number>,
 }
 
 /**
@@ -44,7 +46,7 @@ export interface Draft{
  *        this value can be de-indexed to absolute position in the rows using draft.visibleRows array
  * @example const i: number = draft.visibleRows[si];
  */
- interface Interlacement {
+ export interface Interlacement {
   i: number;  
   j: number;  
   si: number; 
@@ -58,7 +60,7 @@ export interface Draft{
  * @param val the value to be assigned at the given location
  */
 
- interface InterlacementVal {
+ export interface InterlacementVal {
   i: number;  
   j: number 
   val: boolean; 
@@ -71,7 +73,7 @@ export interface Draft{
  * this stores a list of drafts created with associated component ids for those drafts, 
  * or -1 if the component for this draft has not been generated yet. 
  */
- interface DraftMap{
+ export interface DraftMap{
   component_id: number;
   draft: any;
 }
@@ -84,7 +86,7 @@ export interface Draft{
  * describes a point using x,y coordinates
  * often used for referencing mouse and/or screen drawing positions
  */
-interface Point {
+ export interface Point {
   x: number;
   y: number;
 }
@@ -95,7 +97,7 @@ interface Point {
  * @param width - the width of the rectangle
  * @param height - the height of this rectanble.
  */
-interface Bounds {
+ export interface Bounds {
   topleft: Point;  //row on draft
   width: number;  //column on draft 
   height: number; //corresponding screen row
@@ -113,22 +115,22 @@ interface Bounds {
 
 /****** OBJECTS/TYPES to CONTROL SELECT LISTS******/
 
-interface LoomTypes {
+export interface LoomTypes {
   value: string;
   viewValue: string;
 }
 
-interface MaterialTypes {
+export interface MaterialTypes {
   value: number;
   viewValue: string;
 }
 
-interface DensityUnits {
+export interface DensityUnits {
   value: string;
   viewValue: string;
 }
 
-interface ViewModes {
+export interface ViewModes {
   value: string;
   viewValue: string;
 }
@@ -143,7 +145,7 @@ interface ViewModes {
  * @param children, menu to nest within this
  * @param selected boolean to show if it is selected
  */
-interface DesignMode{
+ export interface DesignMode{
   value: string;
   viewValue: string;
   icon: string;
@@ -160,7 +162,7 @@ interface DesignMode{
  * @param x - x position rendered as a % of the total width
  * @param y - y position
  */
- interface Vertex{
+ export interface Vertex{
   x_pcent: number;
   y: number;
 }
@@ -172,7 +174,7 @@ interface DesignMode{
  * @param material_id the material id at this row
  * @param verticies - list of points that form this path
  */
- interface YarnPath{
+ export interface YarnPath{
   draft_ndx: number;
   material_id: number;
   verticies: Array<Vertex>;
@@ -181,7 +183,7 @@ interface DesignMode{
 /**
  * describes the relationship between weft rows along the same warp
  */
-type crossType = {t:boolean, b:boolean} |
+ export type crossType = {t:boolean, b:boolean} |
    {t:null, b:null} | //"FLOAT",
    {t:null, b:true} | //"UNSET_UNDER"
   {t:null, b:false} | //"UNSET_OVER"
@@ -196,7 +198,7 @@ type crossType = {t:boolean, b:boolean} |
  * read from top to bottom. This is used within the sparce 
  * draft representation, stores only "warp" crossings
  */
-interface Crossing{
+ export interface Crossing{
   j: number, 
   type: crossType;
 }
@@ -212,7 +214,7 @@ interface Crossing{
  * @param frames the number of frames the user has specified as the max for their loom
  * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
  */
-type LoomSettings = {
+ export type LoomSettings = {
   type: string,
   epi: number,
   units: 'cm' | 'in',
@@ -223,7 +225,7 @@ type LoomSettings = {
 /**
  * a loom is just a threading, tieup, and treadling
  */
-type Loom = {
+export type Loom = {
   threading: Array<number>,
   tieup: Array<Array<boolean>>,
   treadling: Array<Array<number>>
@@ -234,7 +236,7 @@ type Loom = {
  * Store each loom type as a different unit that computes functions based on its particular settings
  * 
  */
-type LoomUtil = {
+export type LoomUtil = {
   type: 'jacquard' | 'frame' | 'direct',
   displayname: string,
   dx: string,
@@ -246,29 +248,110 @@ type LoomUtil = {
 }
 
 
-type YarnMap = Array<Array<Cell>>;
+export type YarnMap = Array<Array<Cell>>;
 
 
-export{
-  Point,
-  Interlacement,
-  InterlacementVal,
-  Bounds,
-  LoomTypes,
-  DensityUnits,
-  ViewModes,
-  MaterialTypes,
-  DraftMap,
-  DesignMode,
-  Vertex,
-  YarnPath,
-  crossType,
-  Crossing,
-  Drawdown,
-  Loom,
-  LoomSettings,
-  LoomUtil,
-  YarnMap
+/****** OBJECTS/TYPES FOR LOADING AND SAVING FILES *****/
+
+
+/**
+ * holds data about each node/component in a form to easily load.
+ * @param node_id the id of this node within the tree
+ * @param type the type of node
+ * @param bounds the screen position and size data for this node
+ */
+export interface NodeComponentProxy{
+  node_id: number,
+  type: string,
+  bounds: Bounds; 
+ }
+
+/**
+ * stores a sparce version of a tree node for easy reloading
+ * @param node the node id this treenode refers too
+ * @param parent the node id of the parent node for this treenode
+ * @param inputs an array of treenode ids for all values coming into this node
+ * @param outputs an array of treenode ids for all downstream functions 
+ */
+ export interface TreeNodeProxy{
+  node: number,
+  parent: number; 
+  inputs: Array<{tn: number, ndx: number}>;
+  outputs: Array<{tn: number, ndx: number}>; 
+ }
+
+  /**
+  * holds data about each draft component in a form to easily load.
+  * @param draft_id the draft id associated with this node (if available)
+ * @param draft_visible a boolean to state if this node is visible or not. 
+ * @param loom the loom on this node, if present
+ * @param loom_settings the associated loom settings on this node, if present
+  */
+
+   export interface DraftNodeProxy{
+    node_id: number;
+    draft_id: number;
+    draft: Draft;
+    draft_visible: boolean;
+    loom: Loom,
+    loom_settings: LoomSettings;
+   }
+
+ /**
+  * a sparce form of an operaction component to use for saving
+  * @param node_id the node id this object refers too
+  * @param name the name of the operation at this node
+  * @param params the list of input parameters to this operation
+  * @param inlets the let of inlets and associated values 
+  */
+ export interface OpComponentProxy{
+  node_id: number,
+  name: string,
+  params: Array<any>, 
+  inlets: Array<any>;
+ }
+
+
+ /**
+  * describes the data from the workspace that is saved.
+  */
+ export interface SaveObj{
+  version: string,
+  workspace: any,
+  type: string,
+  nodes: Array<NodeComponentProxy>,
+  tree: Array<TreeNodeProxy>,
+  drafts: Array<Draft>,
+  looms: Array<Loom>,
+  loom_settings: Array<LoomSettings>
+  ops: Array<any>,
+  notes: Array<Note>,
+  materials: Array<Shuttle>,
+  scale: number
+ }
+
+export interface FileObj{
+ version: string,
+ filename: string,
+ nodes: Array<NodeComponentProxy>,
+ treenodes: Array<TreeNodeProxy>,
+ draft_nodes: Array<DraftNodeProxy>,
+ ops: Array<OpComponentProxy>
+ scale: number
 }
+
+export interface StatusMessage{
+  id: number,
+  message: string,
+  success: boolean
+}
+
+export interface LoadResponse{
+  data: FileObj,
+  status: number;
+}
+
+
+
 
 

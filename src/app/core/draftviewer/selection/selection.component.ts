@@ -1,10 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Interlacement } from '../../model/datatypes';
+import { Interlacement, LoomSettings } from '../../model/datatypes';
 import { Render } from '../../model/render';
-import { Loom } from '../../model/loom';
-import { isBuffer } from 'lodash';
-import { Pattern } from '../../model/pattern';
-import { PatternService } from '../../provider/pattern.service';
 import { DesignmodesService } from '../../provider/designmodes.service';
 
 @Component({
@@ -15,14 +11,12 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 export class SelectionComponent implements OnInit {
 
   @Input('render') render:Render;
-  @Input('loom') loom:Loom;
+  @Input('loom_settings') loom_settings:LoomSettings;
   @Output() onFill: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
   @Output() onPaste: any = new EventEmitter();
   @Output() onSelectionEnd: any = new EventEmitter();
-
-  patterns: Array<Pattern>;
 
   private start: Interlacement;
   private end: Interlacement;
@@ -58,7 +52,6 @@ export class SelectionComponent implements OnInit {
 
 
   constructor(
-    private ps:PatternService,
     private dm: DesignmodesService
     ) { 
 
@@ -78,7 +71,6 @@ export class SelectionComponent implements OnInit {
     this.screen_width = 0;
    
 
-    this.patterns = ps.getPatterns();
   }
 
   ngOnInit() {
@@ -169,14 +161,14 @@ export class SelectionComponent implements OnInit {
       
       case 'treadling':    
         this.start.j = 0;
-        this.width = this.loom.num_treadles;
+        this.width = this.loom_settings.treadles;
         this.force_width = true;
       break;
 
       case 'threading':
         this.start.i = 0;
         this.start.si = 0;
-        this.height = this.loom.num_frames;
+        this.height = this.loom_settings.frames;
         this.force_height = true;
       break;
 
@@ -274,17 +266,25 @@ export class SelectionComponent implements OnInit {
     this.unsetParameters();
   }
 
-  getStartingScreenIndex(): number{
+  getStartingRowScreenIndex(): number{
     return  Math.min(this.start.si, this.end.si);    
   }
 
-  getStartingIndex(): number{
+  getStartingRowIndex(): number{
     return  Math.min(this.start.i, this.end.i);    
   }
 
-  getEndingIndex(): number{
-    return Math.min(this.start.j, this.end.j);
+  getStartingColIndex(): number{
+    return  Math.min(this.start.j, this.end.j);    
   }
+
+  getEndingRowScreenIndex(): number{
+    return  Math.min(this.start.si, this.end.si);    
+  }
+
+  // getEndingIndex(): number{
+  //   return Math.min(this.start.j, this.end.j);
+  // }
 
   getWidth():number{
     return this.width;
