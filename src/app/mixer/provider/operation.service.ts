@@ -14,6 +14,7 @@ import { reauthenticateWithCredential } from 'firebase/auth';
 import { child } from 'firebase/database';
 import { D } from '@angular/cdk/keycodes';
 import { string } from 'mathjs';
+import { writeHeapSnapshot } from 'v8';
 
 
 
@@ -617,7 +618,14 @@ export class OperationService {
         truestate: 'repeat inputs to match size',
         value: 1,
         dx: "controls if the inputs are repeated to make drafts of the same size or not"
-      }],
+      },
+      {name: 'splice style',
+      type: 'boolean',
+      falsestate: 'line by line',
+      truestate: 'whole draft',
+      value: 0,
+      dx: "controls if the whole draft is spliced in every nth weft or just the next pic in the draft"
+    }],
         inlets: [{
           name: 'receiving draft', 
           type: 'static',
@@ -649,13 +657,18 @@ export class OperationService {
         const static_input = static_inlet.drafts[0];
         const splicing_input = splicing_inlet.drafts[0];
         const factor_in_repeats = parent_input.params[1];
+        const whole_draft = parent_input.params[2];
 
         const all_drafts = [static_input, splicing_input];
 
         let total_wefts: number = 0;
         if(factor_in_repeats === 1){
-
-          const factors = [static_input.wefts, splicing_input.wefts*(parent_input.params[0]+1)];
+          let factors = [];
+          if(whole_draft){
+            factors = [static_input.wefts, splicing_input.wefts*(parent_input.params[0]+splicing_input.wefts)];
+          }else{
+            factors = [static_input.wefts, splicing_input.wefts*(parent_input.params[0]+1)];
+          }
           total_wefts = utilInstance.lcm(factors);
         }  
         else  {
@@ -684,7 +697,15 @@ export class OperationService {
         const d:Draft = new Draft({warps: total_warps, wefts:total_wefts, colShuttleMapping:static_input.colShuttleMapping, colSystemMapping:static_input.colSystemMapping});
 
         for(let i = 0; i < d.wefts; i++){
-          let select_array: number = (i % (parent_input.params[0]+1) ===parent_input.params[0]) ? 1 : 0; 
+          let select_array:number = 0;
+
+          if(whole_draft){
+            const cycle = parent_input.params[0] + splicing_input.wefts;
+            select_array = (i % (cycle) >= parent_input.params[0]) ? 1 : 0; 
+          }else{
+            select_array = (i % (parent_input.params[0]+1) ===parent_input.params[0]) ? 1 : 0; 
+          } 
+
 
           if(!factor_in_repeats){
             if(array_b_ndx >=splicing_input.wefts) select_array = 0;
@@ -718,6 +739,148 @@ export class OperationService {
         return Promise.resolve(outputs);
       }     
     }
+
+    const spliceinwarps:Operation = {
+      name: 'splice in warps',
+      displayname: 'splice in warps',  
+      old_names:[],
+      dx: 'splices the second draft into the first every nth warp',
+      params: <Array<NumParam>>[  
+        {name: 'pics between insertions',
+        type: 'number',
+        min: 1,
+        max: 100,
+        value: 1,
+        dx: "the number of ends to keep between each splice "
+        },
+        {name: 'repeat',
+        type: 'boolean',
+        falsestate: 'do not repeat inputs to match size',
+        truestate: 'repeat inputs to match size',
+        value: 1,
+        dx: "controls if the inputs are repeated to make drafts of the same size or not"
+      },
+      {name: 'splice style',
+      type: 'boolean',
+      falsestate: 'line by line',
+      truestate: 'whole draft',
+      value: 0,
+      dx: "controls if the whole draft is spliced in every nth warp or just the next end in the draft"
+    }],
+        inlets: [{
+          name: 'receiving draft', 
+          type: 'static',
+          value: null,
+          dx: 'all the drafts you would like to interlace',
+          num_drafts: 1
+        },
+        {
+          name: 'splicing draft', 
+          type: 'static',
+          value: null,
+          dx: 'the draft you would like to splice into the recieving draft',
+          num_drafts: 1
+        }
+      ],
+      perform: (op_inputs: Array<OpInput>) => {
+        const parent_input = op_inputs.find(el => el.op_name == 'splice in warps');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        const static_inlet = op_inputs.find(el => el.inlet == 0);
+        const splicing_inlet = op_inputs.find(el => el.inlet == 1);
+        
+        if(child_input === undefined) return Promise.resolve([]);
+        if(static_inlet === undefined) return Promise.resolve([splicing_inlet.drafts[0]]);
+        if(splicing_inlet === undefined) return Promise.resolve([static_inlet.drafts[0]]);
+        const outputs: Array<Draft> = [];
+
+        const static_input = static_inlet.drafts[0];
+        const splicing_input = splicing_inlet.drafts[0];
+        const factor_in_repeats = parent_input.params[1];
+        const whole_draft = parent_input.params[2];
+
+        const all_drafts = [static_input, splicing_input];
+
+        let total_warps: number = 0;
+        let factors: Array<number> = [];
+        if(factor_in_repeats === 1){
+          if(whole_draft){
+            factors = [static_input.warps, (splicing_input.warps*(parent_input.params[0]+splicing_input.warps))];
+          }else{
+            factors = [static_input.warps, splicing_input.warps*(parent_input.params[0]+1)];
+          }
+          total_warps = utilInstance.lcm(factors);
+        }  
+        else  {
+          //sums the warps from all the drafts
+          total_warps =all_drafts.reduce((acc, el) => {
+            return acc + el.warps;
+          }, 0);
+        }
+      
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => el.wefts).filter(el => el > 0);
+      
+        if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+        else  total_wefts = utilInstance.getMaxWefts(all_drafts);
+      
+
+        const uniqueSystemCols = this.ss.makeWarpSystemsUnique(all_drafts.map(el => el.colSystemMapping));
+
+        let array_a_ndx = 0;
+        let array_b_ndx = 0;
+      
+        //create a draft to hold the merged values
+        const d:Draft = new Draft({warps: total_warps, wefts:total_wefts, rowShuttleMapping:static_input.rowShuttleMapping, rowSystemMapping:static_input.rowSystemMapping});
+
+        for(let j = 0; j < d.warps; j++){
+          let select_array: number;
+          if(whole_draft){
+            const cycle = parent_input.params[0] + splicing_input.warps;
+            select_array = (j % (cycle) >= parent_input.params[0]) ? 1 : 0; 
+          }else{
+            select_array = (j % (parent_input.params[0]+1) ===parent_input.params[0]) ? 1 : 0; 
+          } 
+
+
+          if(!factor_in_repeats){
+            if(array_b_ndx >=splicing_input.warps) select_array = 0;
+            if(array_a_ndx >=static_input.warps) select_array = 1;
+          }
+          
+          let cur_warp_num = all_drafts[select_array].warps
+          let ndx = (select_array === 0) ? array_a_ndx%cur_warp_num : array_b_ndx%cur_warp_num;
+
+          const col:Array<Cell> = d.pattern.reduce((acc, el) => {
+            acc.push(el[j]);
+            return acc;
+          }, [])
+
+
+          col.forEach((cell, i) => {
+            let cur_weft_num = all_drafts[select_array].wefts;
+            cell.setHeddle(all_drafts[select_array].pattern[i%cur_weft_num][ndx].getHeddle());
+            if(i >= cur_weft_num && !factor_in_repeats) cell.setHeddle(null);
+          });
+
+          d.colSystemMapping[j] = uniqueSystemCols[select_array][ndx];
+          d.colShuttleMapping[j] =all_drafts[select_array].colShuttleMapping[ndx];
+
+
+          if(select_array === 0){
+            array_a_ndx++;
+          } 
+          else{
+            array_b_ndx++;
+          } 
+
+        }
+        // this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'interlace');
+        d.gen_name = this.formatName(all_drafts, "splice")
+        outputs.push(d);
+        return Promise.resolve(outputs);
+      }     
+    }
+
 
     const assignwefts:Operation = {
       name: 'assign weft systems',
@@ -4309,6 +4472,7 @@ export class OperationService {
     this.ops.push(random);
     this.ops.push(interlace);
     this.ops.push(splicein);
+    this.ops.push(spliceinwarps);
     this.ops.push(assignwefts);
     this.ops.push(assignwarps);
     this.ops.push(invert);
@@ -4372,7 +4536,7 @@ export class OperationService {
     this.classification.push(
         {category: 'combine',
         dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [imagemap, interlace, splicein, assignlayers, layer, layernotation,  fill, joinleft, dynamic_join_left, jointop]}
+        ops: [imagemap, interlace, splicein, spliceinwarps, assignlayers, layer, layernotation,  fill, joinleft, dynamic_join_left, jointop]}
         );
     
      this.classification.push(
