@@ -351,6 +351,163 @@ export interface LoadResponse{
   status: number;
 }
 
+export interface Fileloader{
+  ada: (filename: string, data: any) => Promise<LoadResponse>,
+  //wif: (filename: string, data: any) => Promise<LoadResponse>,
+  //bmp: (filename: string, data: any) => Promise<LoadResponse>,
+  //jpg: (filename: string, data: any) => Promise<LoadResponse>,
+  form: (data: any) => Promise<LoadResponse>}
+
+export interface FileSaver{
+  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
+  //wif: (draft: Draft, loom: Loom) => Promise<string>,
+  bmp: (canvas: HTMLCanvasElement) => Promise<string>,
+  jpg: (canvas: HTMLCanvasElement) => Promise<string>
+}
+
+
+/****************** OBJECTS/TYPES RELATED to OPERATIONS *****************/
+
+
+/**
+ * each operation has 0 or more inlets. These are areas where drafts can be entered as inputs to the operation
+ * @param name the display name to show with this inlet
+ * @param type the type of parameter that becomes mapped to inputs at this inlet, static means that the user cannot change this value
+ * @param value the assigned value of the parameter. 
+ * @param dx the description of this inlet
+ * @param num_drafts the total number of drafts accepted into this inlet (or -1 if unlimited)
+ */
+ export type OperationInlet = {
+  name: string,
+  type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft',
+  dx: string,
+  value: number | string,
+  num_drafts: number
+}
+
+
+/**
+ * numbers must have a min and max value
+ */
+ export type NumInlet = OperationInlet & {
+  value: number,
+  min: number,
+  max: number
+}
+
+
+
+
+/**
+ * an operation param describes what data be provided to this operation
+ * all operations have a name, type, value (default value), and description. 
+ * some type of operations inherent from this to offer more specific validation data 
+ */
+export type OperationParam = {
+  name: string,
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft',
+  value: any,
+  dx: string
+}
+
+/**
+ * numbers must have a min and max value
+ */
+export type NumParam = OperationParam & {
+  min: number,
+  max: number
+}
+
+export type SelectParam = OperationParam & {
+  selectlist: Array<{name: string, value: number}>
+}
+
+export type BoolParam = OperationParam & {
+  falsestate: string,
+  truestate: string
+}
+
+export type FileParam = OperationParam & {
+}
+
+export type DraftParam = OperationParam & {
+  id: number;
+}
+
+/**
+ * strings must come with a regex used to validate their structure
+ * test and make regex using RegEx101 website
+ * do not use global (g) flag, as it creates unpredictable results in test functions used to validate inputs
+ */
+export type StringParam = OperationParam & {
+  regex: RegExp,
+  error: string
+}
+
+
+/**
+ * A container operation that takes drafts with some parameter assigned to them 
+ * @param name the internal name of this operation used for index (DO NOT CHANGE THESE NAMES!)
+ * @param displayname the name to show the viewer 
+ * @param params the parameters that one can directly input to the parent
+ * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
+ * @param dynamic_param_type the type of parameter that we look to generate
+ * @param inlets the inlets available for input by default on this operation
+ * @param dx the description of this operation
+ */
+export interface DynamicOperation {
+  name: string,
+  displayname: string,
+  params: Array<OperationParam>, 
+  dynamic_param_id: number,
+  dynamic_param_type: string,
+  inlets: Array<OperationInlet>,
+  dx: string,
+  old_names: Array<string>,
+  perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
+}
+
+
+ /**
+  * this is a type that contains a series of smaller operations held under the banner of one larger operation (such as layer)
+  * @param op_name the name of the operation or "child" if this is an assignment to an input parameter
+  * @param drafts the drafts associated with this input
+  * @param params the parameters associated with this operation OR child input
+  * @param inlets the index of the inlet for which the draft is entering upon
+  */
+  export interface OpInput{
+    op_name: string,
+    drafts: Array<Draft>,
+    params: Array<any>,
+    inlet: number
+   }
+  
+/**
+ * a standard opeartion
+ * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
+ * @param displayname the name to show upon this operation
+ * @param dx the description of this operation
+ * @param max_inputs the maximum number of inputs (drafts) allowed directly into this operation
+r * @param params the parameters associated with this operation
+ */
+export interface Operation {
+    name: string,
+    displayname: string,
+    dx: string,
+    params: Array<OperationParam>,
+    inlets: Array<OperationInlet>,
+    old_names: Array<string>,
+    perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>
+ }
+
+
+
+ export interface OperationClassification{
+  category: string,
+  dx: string,
+  ops: Array<Operation> 
+ }
+
 
 
 

@@ -5,7 +5,7 @@ import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { Render } from '../core/model/render';
 import { MatDialog } from "@angular/material/dialog";
 import {Subject} from 'rxjs';
-import { FileService, LoadResponse } from '../core/provider/file.service';
+import { FileService } from '../core/provider/file.service';
 import * as _ from 'lodash';
 import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
 import {DesignmodesService} from '../core/provider/designmodes.service'
@@ -15,7 +15,7 @@ import { SystemsService } from '../core/provider/systems.service';
 import { Cell } from '../core/model/cell';
 import { getLoomUtilByType } from '../core/model/looms';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { generateDrawdownWithPattern, deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, loadDraftFromFile, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol } from '../core/model/drafts';
+import { generateDrawdownWithPattern, deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol } from '../core/model/drafts';
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { computeYarnPaths } from '../core/model/yarnsimulation';
 

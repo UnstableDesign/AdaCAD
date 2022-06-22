@@ -1,33 +1,16 @@
 import { Injectable } from '@angular/core';
-import { isBuffer } from 'lodash';
 import {TreeService } from '../../mixer/provider/tree.service';
 import { Cell } from '../model/cell';
-import { Bounds, Draft, DraftNodeProxy, FileObj, Interlacement, LoadResponse, Loom, OpComponentProxy, StatusMessage } from '../model/datatypes';
+import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, OpComponentProxy, StatusMessage, TreeNodeProxy, NodeComponentProxy } from '../model/datatypes';
 import { Shuttle } from '../model/shuttle';
 import utilInstance from '../model/util';
 import { MaterialMap, MaterialsService } from './materials.service';
 import { SystemsService } from './systems.service';
 import { Note, NotesService } from './notes.service';
-import { System } from '../model/system';
-import { version } from 'process';
 import { VersionService } from './version.service';
-import { createDraft, generateDrawdownWithPattern, loadDraftFromFile } from '../model/drafts';
+import { createDraft, generateDrawdownWithPattern, initDraft, loadDraftFromFile } from '../model/drafts';
 
 
-
-interface Fileloader{
-  ada: (filename: string, data: any) => Promise<LoadResponse>,
-  wif: (filename: string, data: any) => Promise<LoadResponse>,
-  bmp: (filename: string, data: any) => Promise<LoadResponse>,
-  jpg: (filename: string, data: any) => Promise<LoadResponse>,
-  form: (data: any) => Promise<LoadResponse>}
-
-interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
-  wif: (draft: Draft, loom: Loom) => Promise<string>,
-  bmp: (canvas: HTMLCanvasElement) => Promise<string>,
-  jpg: (canvas: HTMLCanvasElement) => Promise<string>
-}
 
 
 /**
@@ -162,243 +145,242 @@ export class FileService {
 
     }, 
 
-    wif: async (filename: string, data: any) : Promise<LoadResponse> => {
-      this.clearAll();
+    // wif: async (filename: string, data: any) : Promise<LoadResponse> => {
+    //   this.clearAll();
 
 
-      let drafts: Array<Draft> = [];
-      let looms: Array<Loom> = [];
-      let version = '0.0.0';
+    //   let drafts: Array<Draft> = [];
+    //   let looms: Array<Loom> = [];
+    //   let version = '0.0.0';
      
-      var stringWithoutMetadata = utilInstance.getSubstringAfter("CONTENTS", data);
-      const warps:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WARP]",stringWithoutMetadata));
-      const wefts:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WEFT]",stringWithoutMetadata));
-      const pattern: Array<Array<Cell>> = [];
+    //   var stringWithoutMetadata = utilInstance.getSubstringAfter("CONTENTS", data);
+    //   const warps:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WARP]",stringWithoutMetadata));
+    //   const wefts:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WEFT]",stringWithoutMetadata));
+    //   const pattern: Array<Array<Cell>> = [];
       
-      this.ns.resetNotes(); 
+    //   this.ns.resetNotes(); 
 
-      for (var i = 0; i < wefts; i++) {
-        pattern.push([]);
-        for (var j = 0; j < warps; j++) {
-          pattern[i].push(new Cell(null));
-          pattern[i][j].setHeddle(false);
-        }
-      }
-      const draft = new Draft({wefts: wefts, warps: warps, pattern: pattern});
-      drafts.push(draft);
-      draft.overloadName(data.name);
+    //   for (var i = 0; i < wefts; i++) {
+    //     pattern.push([]);
+    //     for (var j = 0; j < warps; j++) {
+    //       pattern[i].push(new Cell(null));
+    //       pattern[i][j].setHeddle(false);
+    //     }
+    //   }
 
-    let frames = utilInstance.getInt("Shafts", data);
-    let treadles = utilInstance.getInt("Treadles", data);
+    //   const draft = initDraft();
+    //   draft.drawdown = generateDrawdownWithPattern(pattern, warps, wefts);
+    //   drafts.push(draft);
+    //   draft.gen_name = data.name;
+
+    // let frames = utilInstance.getInt("Shafts", data);
+    // let treadles = utilInstance.getInt("Treadles", data);
     
-    const loom:Loom = new Loom(draft, 'frame', frames, treadles);
-    looms.push(loom);
+    // const loom:Loom = new Loom(draft, 'frame', frames, treadles);
+    // looms.push(loom);
 
-    // draft.loom.tieup = []
+    // // draft.loom.tieup = []
 
-    // for (var i = 0; i < frames; i++) {
-    //   draft.loom.tieup.push([]);
-    //   for (var j = 0; j < treadles; j++) {
-    //     draft.loom.tieup[i].push(false);
+    // // for (var i = 0; i < frames; i++) {
+    // //   draft.loom.tieup.push([]);
+    // //   for (var j = 0; j < treadles; j++) {
+    // //     draft.loom.tieup[i].push(false);
+    // //   }
+    // // }
+
+    // if (utilInstance.getBool("TREADLING", stringWithoutMetadata)) {
+    //   var treadling = utilInstance.getTreadling(stringWithoutMetadata, draft);
+    //   loom.overloadTreadling(treadling, version, pattern.length);
+    // }
+    // if (utilInstance.getBool("THREADING", stringWithoutMetadata)) {
+    //   var threading = utilInstance.getThreading(stringWithoutMetadata, draft);
+    //   loom.overloadThreading(threading);
+    // }
+    // if (utilInstance.getBool("TIEUP", data)) {
+    //   var tieups = utilInstance.getTieups(stringWithoutMetadata, draft);
+    //   loom.overloadTieup(tieups);
+
+    // }
+    // if (utilInstance.getBool("COLOR TABLE",data)) {
+    //   if (utilInstance.getString("Form", data) === "RGB") {
+    //     let color_table: Array<Shuttle>  = utilInstance.getColorTable(data);
+    //     var shuttles = color_table;
+
+    //     /** TODO: Update this to add, not overwrite, shuttles */
+    //     this.ms.overloadShuttles(shuttles);
+    //     draft.overloadRowShuttleMapping(utilInstance.getRowToShuttleMapping(data, draft));
+    //     draft.overloadColShuttleMapping(utilInstance.getColToShuttleMapping(data, draft));
     //   }
     // }
 
-    if (utilInstance.getBool("TREADLING", stringWithoutMetadata)) {
-      var treadling = utilInstance.getTreadling(stringWithoutMetadata, draft);
-      loom.overloadTreadling(treadling, version, pattern.length);
-    }
-    if (utilInstance.getBool("THREADING", stringWithoutMetadata)) {
-      var threading = utilInstance.getThreading(stringWithoutMetadata, draft);
-      loom.overloadThreading(threading);
-    }
-    if (utilInstance.getBool("TIEUP", data)) {
-      var tieups = utilInstance.getTieups(stringWithoutMetadata, draft);
-      loom.overloadTieup(tieups);
-
-    }
-    if (utilInstance.getBool("COLOR TABLE",data)) {
-      if (utilInstance.getString("Form", data) === "RGB") {
-        let color_table: Array<Shuttle>  = utilInstance.getColorTable(data);
-        var shuttles = color_table;
-
-        /** TODO: Update this to add, not overwrite, shuttles */
-        this.ms.overloadShuttles(shuttles);
-        draft.overloadRowShuttleMapping(utilInstance.getRowToShuttleMapping(data, draft));
-        draft.overloadColShuttleMapping(utilInstance.getColToShuttleMapping(data, draft));
-      }
-    }
-
-    draft.recalculateDraft(tieups, treadling, threading);
+    // draft.recalculateDraft(tieups, treadling, threading);
 
 
-    const proxies = this.tree.getNewDraftProxies(draft, []);
+    // const proxies = this.tree.getNewDraftProxies(draft, []);
 
     
-    const f: FileObj = {
-      version: 'na',
-      filename: filename,
-      drafts: drafts,
-      looms: looms,
-      nodes: [proxies.node], 
-      treenodes: [proxies.treenode],
-      ops: [],
-      scale: 5
-    }
+    // const f: FileObj = {
+    //   version: 'na',
+    //   filename: filename,
+    //   drafts: drafts,
+    //   looms: looms,
+    //   nodes: [proxies.node], 
+    //   treenodes: [proxies.treenode],
+    //   ops: [],
+    //   scale: 5
+    // }
 
 
-    return Promise.resolve({data: f ,status: 0});
-    },
+    // return Promise.resolve({data: f ,status: 0});
+    // },
     /**
      * takes in a jpg, creates as many drafts as there are unique colors in the image. 
      * @param data 
      * @returns 
      */
-    jpg: async (filename: string, data: any) : Promise<LoadResponse> => {
-      this.clearAll();
+    // jpg: async (filename: string, data: any) : Promise<LoadResponse> => {
+    //   this.clearAll();
 
-      let drafts: Array<Draft> = [];
-      let looms: Array<Loom> = [];
-      let nodes: Array<NodeComponentProxy> = [];
-      let treenodes: Array<TreeNodeProxy> = [];
+    //   let drafts: Array<Draft> = [];
+    //   let looms: Array<Loom> = [];
+    //   this.ns.resetNotes(); 
 
-      this.ns.resetNotes(); 
-      this.ps.resetPatterns();
-
-      let e = data;
-      const warps = e.width;
-      const wefts = e.height;
+    //   let e = data;
+    //   const warps = e.width;
+    //   const wefts = e.height;
   
-      var img = e.data;
+    //   var img = e.data;
 
-      let hex_string: string = "";
-      const img_as_hex: Array<string> = [];
-      img.forEach((el, ndx) => {
-        hex_string = hex_string + el.toString(16);
-        if(ndx % 4 === 3){
-          img_as_hex.push(hex_string);
-          hex_string = "";
-        }
+    //   let hex_string: string = "";
+    //   const img_as_hex: Array<string> = [];
+    //   img.forEach((el, ndx) => {
+    //     hex_string = hex_string + el.toString(16);
+    //     if(ndx % 4 === 3){
+    //       img_as_hex.push(hex_string);
+    //       hex_string = "";
+    //     }
 
-      });
-
-
-      //the color table is a unique list of all the colors in this image
-      const seen: Array<string> = [];
-      const color_table: Array<string> = img_as_hex.filter((el, ndx) => {
-        if(seen.find(seen => seen === el) === undefined){
-          seen.push(el);
-          return true;
-        }
-      });
-      console.log("color table", color_table);
+    //   });
 
 
-      //create a draft for each color table
-      color_table.forEach(color => {
-        const draft: Draft = new Draft({warps: warps, wefts: wefts});
-        console.log(draft);
-        img_as_hex.forEach((el, ndx)=>{
-          const r: number = Math.floor(ndx/warps);
-          const c: number = ndx % warps;
-          if(el === color) draft.pattern[r][c].setHeddleUp();
-          else draft.pattern[r][c].unsetHeddle();
-        });
-        drafts.push(draft);
-        const loom:Loom = new Loom(draft, 'jacquard', 8, 10);
-        looms.push(loom);
-      })
+    //   //the color table is a unique list of all the colors in this image
+    //   const seen: Array<string> = [];
+    //   const color_table: Array<string> = img_as_hex.filter((el, ndx) => {
+    //     if(seen.find(seen => seen === el) === undefined){
+    //       seen.push(el);
+    //       return true;
+    //     }
+    //   });
+    //   console.log("color table", color_table);
+
+
+    //   //create a draft for each color table
+    //   color_table.forEach(color => {
+    //     const draft = initDraft();
+    //     draft.drawdown = generateDrawdownWithPattern([[new Cell(false)]], warps, wefts);
+    //     console.log(draft);
+    //     img_as_hex.forEach((el, ndx)=>{
+    //       const r: number = Math.floor(ndx/warps);
+    //       const c: number = ndx % warps;
+    //       if(el === color) draft.drawdown[r][c].setHeddleUp();
+    //       else draft.drawdown[r][c].unsetHeddle();
+    //     });
+    //     drafts.push(draft);
+    //     const loom:Loom = new Loom(draft, 'jacquard', 8, 10);
+    //     looms.push(loom);
+    //   })
 
 
 
   
-      // for (var i=0; i< e.height; i++) {
-      //   pattern.push([]);
-      //   for (var j=0; j< e.width; j++) {
-      //     var idx = (i * 4 * warps) + (j * 4);
-      //     var threshold = (img[idx] + img[idx+1] + img[idx+2]);
-      //     var alpha = img[idx + 3];
+    //   // for (var i=0; i< e.height; i++) {
+    //   //   pattern.push([]);
+    //   //   for (var j=0; j< e.width; j++) {
+    //   //     var idx = (i * 4 * warps) + (j * 4);
+    //   //     var threshold = (img[idx] + img[idx+1] + img[idx+2]);
+    //   //     var alpha = img[idx + 3];
   
-      //     if (threshold < 750 && alpha != 0) {
-      //       pattern[i].push(new Cell(true));
-      //     } else {
-      //       pattern[i].push(new Cell(false));
-      //     }
-      //   }
-      // }
+    //   //     if (threshold < 750 && alpha != 0) {
+    //   //       pattern[i].push(new Cell(true));
+    //   //     } else {
+    //   //       pattern[i].push(new Cell(false));
+    //   //     }
+    //   //   }
+    //   // }
   
-      // const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
-      // drafts.push(draft);
+    //   // const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
+    //   // drafts.push(draft);
       
-      // //create a blank loom to accompany this
-      // const loom:Loom = new Loom(draft, 8, 10);
-      // loom.overloadType('jacquard');
-      // looms.push(loom);
+    //   // //create a blank loom to accompany this
+    //   // const loom:Loom = new Loom(draft, 8, 10);
+    //   // loom.overloadType('jacquard');
+    //   // looms.push(loom);
 
 
-      const f: FileObj = {
-        filename: filename,
-        version: 'na',
-        drafts: drafts,
-        looms: looms,
-        nodes: [], 
-        treenodes: [],
-        ops: [],
-        scale: 5
-      }
+    //   const f: FileObj = {
+    //     filename: filename,
+    //     version: 'na',
+    //     drafts: drafts,
+    //     looms: looms,
+    //     nodes: [], 
+    //     treenodes: [],
+    //     ops: [],
+    //     scale: 5
+    //   }
   
-      return Promise.resolve({data: f ,status: 0});  
-    },
-    bmp: async (filename: string, data: any) : Promise<LoadResponse> => {
-      this.clearAll();
+    //   return Promise.resolve({data: f ,status: 0});  
+    // },
+    // bmp: async (filename: string, data: any) : Promise<LoadResponse> => {
+    //   this.clearAll();
 
-      let drafts: Array<Draft> = [];
-      let looms: Array<Loom> = [];
+    //   let drafts: Array<Draft> = [];
+    //   let looms: Array<Loom> = [];
 
-      let e = data;
-      const warps = e.width;
-      const wefts = e.height;
+    //   let e = data;
+    //   const warps = e.width;
+    //   const wefts = e.height;
   
-      var img = e.data;
-      var pattern = [];
+    //   var img = e.data;
+    //   var pattern = [];
   
-      for (var i=0; i< e.height; i++) {
-        pattern.push([]);
-        for (var j=0; j< e.width; j++) {
-          var idx = (i * 4 * warps) + (j * 4);
-          var threshold = (img[idx] + img[idx+1] + img[idx+2]);
-          var alpha = img[idx + 3];
+    //   for (var i=0; i< e.height; i++) {
+    //     pattern.push([]);
+    //     for (var j=0; j< e.width; j++) {
+    //       var idx = (i * 4 * warps) + (j * 4);
+    //       var threshold = (img[idx] + img[idx+1] + img[idx+2]);
+    //       var alpha = img[idx + 3];
   
-          if (threshold < 750 && alpha != 0) {
-            pattern[i].push(new Cell(true));
-          } else {
-            pattern[i].push(new Cell(false));
-          }
-        }
-      }
+    //       if (threshold < 750 && alpha != 0) {
+    //         pattern[i].push(new Cell(true));
+    //       } else {
+    //         pattern[i].push(new Cell(false));
+    //       }
+    //     }
+    //   }
   
-      const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
-      drafts= [ draft];
+    //   const draft: Draft = new Draft({warps: warps, wefts: wefts, pattern: pattern});
+    //   drafts= [ draft];
       
-      //create a blank loom to accompany this
-      const loom:Loom = new Loom(draft, 'jacquard', 8, 10);
-      looms.push(loom);
+    //   //create a blank loom to accompany this
+    //   const loom:Loom = new Loom(draft, 'jacquard', 8, 10);
+    //   looms.push(loom);
 
-      const proxies = this.tree.getNewDraftProxies(draft, []);
+    //   const proxies = this.tree.getNewDraftProxies(draft, []);
 
     
-      const f: FileObj = {
-        filename: filename,
-        version: 'na',
-        drafts: drafts,
-        looms: looms,
-        nodes: [proxies.node], 
-        treenodes: [proxies.treenode],
-        ops: [],
-        scale: 5
-      }
+    //   const f: FileObj = {
+    //     filename: filename,
+    //     version: 'na',
+    //     drafts: drafts,
+    //     looms: looms,
+    //     nodes: [proxies.node], 
+    //     treenodes: [proxies.treenode],
+    //     ops: [],
+    //     scale: 5
+    //   }
   
-      return Promise.resolve({data: f ,status: 0});  
-    },
+    //   return Promise.resolve({data: f ,status: 0});  
+    // },
     form: async (f:any):Promise<LoadResponse> =>{
       this.clearAll();
 
