@@ -2404,6 +2404,137 @@ export class OperationService {
       }        
     }
 
+    // const layernotation: DynamicOperation = {
+    //   name: 'notation',
+    //   displayname: 'layer notation',
+    //   old_names:[],
+    //   dynamic_param_id: 0,
+    //   dynamic_param_type: 'notation',
+    //   dx: 'uses a notation system to assign drafts to different warp and weft patterns on different layers. Layers are represented by () so (1a)(2b) puts warp1 and weft a on layer 1, warp 2 and weft b on layer 2',
+    //   params: <Array<StringParam>>[
+    //     {name: 'pattern',
+    //     type: 'string',
+    //     value: '(a1)(b2)',
+    //     regex: /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+    //     error: 'invalid entry',
+    //     dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
+    //     }
+    //   ],
+    //   inlets: [{
+    //     name: 'systems draft', 
+    //     type: 'static',
+    //     value: null,
+    //     dx: 'the draft that describes the system ordering we will add input structures within',
+    //     num_drafts: 1
+    //   }],
+    //   perform: (op_inputs: Array<OpInput>) => {
+
+
+    //     // //split the inputs into the input associated with 
+    //     const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
+    //     const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+
+  
+    //     if(child_inputs.length == 0) return Promise.resolve([]);
+
+    //     //now just get all the drafts
+    //     const all_drafts: Array<Draft> = child_inputs.reduce((acc, el) => {
+    //       el.drafts.forEach(draft => {acc.push(draft)});
+    //       return acc;
+    //     }, []);
+
+
+
+    //     const system_map = child_inputs.find(el => el.inlet === 0);
+
+    //     if(system_map === undefined) return Promise.resolve([]); ;
+       
+        
+    //     const draft_inlets = child_inputs.filter(el => el.inlet > 0).map(el => el.drafts[0]);
+
+    //     let total_wefts: number = 0;
+    //     const all_wefts = draft_inlets.map(el => el.wefts).filter(el => el > 0);
+    //     total_wefts = utilInstance.lcm(all_wefts);
+
+    //     let total_warps: number = 0;
+    //     const all_warps = draft_inlets.map(el => el.warps).filter(el => el > 0);
+    //     total_warps = utilInstance.lcm(all_warps);
+
+
+
+    //     //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
+    //     //get the total number of layers
+    //     const system_draft_map = child_inputs
+    //     .filter(el => el.inlet > 0)
+    //     .map(el => {
+    //       return  {
+    //         wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
+    //         wasy: el.params[0].match(/\d/g).map(el => parseInt(el)), //pull out all the nubmers into warp systems
+    //         i: 0,
+    //         j: 0,
+    //         layer: el.inlet-1, //map layer order to the inlet id, all inlets must be ordered the same as the input
+    //         draft: el.drafts[0]
+    //       }
+    //     });
+        
+
+    //     const d: Draft = new Draft({
+    //       warps: total_warps*system_map.drafts[0].warps, 
+    //       wefts: total_wefts*system_map.drafts[0].wefts,
+    //       rowShuttleMapping: system_map.drafts[0].rowShuttleMapping.slice(),
+    //       rowSystemMapping: system_map.drafts[0].rowSystemMapping.slice(),
+    //       colShuttleMapping: system_map.drafts[0].colShuttleMapping.slice(),
+    //       colSystemMapping: system_map.drafts[0].colSystemMapping.slice(),
+    //     });
+
+    //     d.pattern = [];
+    //     for(let i = 0; i < d.wefts; i++){
+    //       let active_wesy = this.ss.getWeftSystem(d.rowSystemMapping[i]).name;
+    //       const active_weft_entry = system_draft_map.find(el => el.wesy.findIndex(wesyel => wesyel === active_wesy) !== -1);
+    //       let increment_flag = false;
+
+    //       d.pattern.push([]);
+    //       for(let j = 0; j < d.warps; j++){
+    //         let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
+    //         const active_warp_entry = system_draft_map.find(el => el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1);
+    //         const entry = system_draft_map.find(el => (el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1 && el.wesy.findIndex(wesyel => wesyel === active_wesy)!== -1));
+
+    //         if(active_weft_entry === undefined || active_warp_entry === undefined){
+    //           //no input draft is assigned to this system, set all as undefined
+    //           d.pattern[i][j] = new Cell(null);
+
+    //         }else if(entry === undefined){
+    //           //this is unassigned or its an an alternating layer. 
+    //           //find the term in the list assigned to this. 
+    //           //if this weft systems layer is > than the layer associted with this warp system, lower, if it is less, raise. 
+    //           const wesy_layer = active_weft_entry.layer;
+    //           const wasy_layer = active_warp_entry.layer;
+    //           if(wasy_layer < wesy_layer) d.pattern[i][j] = new Cell(true);
+    //           else if(wasy_layer > wesy_layer) d.pattern[i][j] = new Cell(false);
+    //           else d.pattern[i][j] = new Cell(null);
+    //         }  
+    //         else{
+    //           d.pattern[i][j] = new Cell(entry.draft.pattern[entry.i][entry.j].getHeddle());
+    //           entry.j = (entry.j+1)%entry.draft.warps;
+    //           increment_flag = true;
+    //         }
+
+    //       }
+
+    //       if(increment_flag){
+    //         active_weft_entry.i = (active_weft_entry.i+1) % active_weft_entry.draft.wefts;
+    //       } 
+
+
+    //     }
+        
+    //     d.gen_name = this.formatName([], "notation");
+    //     return  Promise.resolve([d]);
+
+       
+    //   }        
+    // }
+
     const layernotation: DynamicOperation = {
       name: 'notation',
       displayname: 'layer notation',
@@ -2415,7 +2546,7 @@ export class OperationService {
         {name: 'pattern',
         type: 'string',
         value: '(a1)(b2)',
-        regex: /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
         error: 'invalid entry',
         dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
         }
@@ -2431,7 +2562,7 @@ export class OperationService {
 
 
         // //split the inputs into the input associated with 
-        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "notation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
 
   
@@ -2467,9 +2598,10 @@ export class OperationService {
         const system_draft_map = child_inputs
         .filter(el => el.inlet > 0)
         .map(el => {
+          console.log(el.params[0].match(/\d+/g));
           return  {
             wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
-            wasy: el.params[0].match(/\d/g).map(el => parseInt(el)), //pull out all the nubmers into warp systems
+            wasy: el.params[0].match(/\d+/g), //pull out all the nubmers into warp systems
             i: 0,
             j: 0,
             layer: el.inlet-1, //map layer order to the inlet id, all inlets must be ordered the same as the input
@@ -2477,6 +2609,13 @@ export class OperationService {
           }
         });
         
+        system_draft_map.forEach(sdm => {
+          if(sdm.wasy!== null) sdm.wasy = sdm.wasy.map(el => parseInt(el));
+          else sdm.wasy = [-1];
+          if(sdm.wesy === null) sdm.wesy = [''];
+        })
+
+        console.log("system draft map", system_draft_map);
 
         const d: Draft = new Draft({
           warps: total_warps*system_map.drafts[0].warps, 
@@ -2496,6 +2635,8 @@ export class OperationService {
           d.pattern.push([]);
           for(let j = 0; j < d.warps; j++){
             let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
+
+            
             const active_warp_entry = system_draft_map.find(el => el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1);
             const entry = system_draft_map.find(el => (el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1 && el.wesy.findIndex(wesyel => wesyel === active_wesy)!== -1));
 
