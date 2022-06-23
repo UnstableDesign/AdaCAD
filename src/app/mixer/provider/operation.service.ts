@@ -2537,7 +2537,7 @@ export class OperationService {
 
     const layernotation: DynamicOperation = {
       name: 'notation',
-      displayname: 'layer notation for kathryn',
+      displayname: 'layer notation',
       old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: 'notation',
@@ -2598,9 +2598,10 @@ export class OperationService {
         const system_draft_map = child_inputs
         .filter(el => el.inlet > 0)
         .map(el => {
+          console.log(el.params[0].match(/\d+/g));
           return  {
             wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
-            wasy: el.params[0].match(/\d/g), //pull out all the nubmers into warp systems
+            wasy: el.params[0].match(/\d+/g), //pull out all the nubmers into warp systems
             i: 0,
             j: 0,
             layer: el.inlet-1, //map layer order to the inlet id, all inlets must be ordered the same as the input
@@ -2609,7 +2610,7 @@ export class OperationService {
         });
         
         system_draft_map.forEach(sdm => {
-          if(sdm.wasy!== null) sdm.wasy = [parseInt(sdm.wasy)];
+          if(sdm.wasy!== null) sdm.wasy = sdm.wasy.map(el => parseInt(el));
           else sdm.wasy = [-1];
           if(sdm.wesy === null) sdm.wesy = [''];
         })
