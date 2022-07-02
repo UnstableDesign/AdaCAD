@@ -26,6 +26,7 @@ import {getAnalytics, logEvent} from '@angular/fire/analytics'
 import { InputSpec } from '@tensorflow/tfjs';
 import { ImageService } from '../core/provider/image.service';
 import { OperationService } from './provider/operation.service';
+import { CombinatoricsService } from '../core/provider/combinatorics.service';
 
 
 //disables some angular checking mechanisms
@@ -91,6 +92,7 @@ export class MixerComponent implements OnInit {
     private image: ImageService,
     private ops: OperationService,
     private http: HttpClient,
+    private combos: CombinatoricsService
     ) {
 
 
@@ -116,8 +118,7 @@ export class MixerComponent implements OnInit {
       items: [{ uid: this.auth.uid }]
     });
 
-
-    
+    //this.combos.initSetBinary(2,2);
   }
 
   ngAfterViewInit() {

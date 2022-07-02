@@ -1386,6 +1386,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
     })
     .then(res => {
+          console.log("returning", res);
           return Promise.all(res.map(el => this.flipDraft(el)));
       })
     .then(flipped => {

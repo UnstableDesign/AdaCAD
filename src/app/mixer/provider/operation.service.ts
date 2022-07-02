@@ -9,12 +9,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
-import { DeclareFunctionStmt } from '@angular/compiler';
-import { reauthenticateWithCredential } from 'firebase/auth';
-import { child } from 'firebase/database';
-import { D } from '@angular/cdk/keycodes';
-import { string } from 'mathjs';
-import { writeHeapSnapshot } from 'v8';
+import { CombinatoricsService } from '../../core/provider/combinatorics.service';
 
 
 
@@ -169,7 +164,8 @@ export class OperationService {
     private pfs: PatternfinderService,
     private ms: MaterialsService,
     private ss: SystemsService,
-    private is: ImageService) { 
+    private is: ImageService,
+    private combos: CombinatoricsService) { 
 
     const rect: Operation = {
       name: 'rectangle',
@@ -2404,6 +2400,137 @@ export class OperationService {
       }        
     }
 
+    // const layernotation: DynamicOperation = {
+    //   name: 'notation',
+    //   displayname: 'layer notation',
+    //   old_names:[],
+    //   dynamic_param_id: 0,
+    //   dynamic_param_type: 'notation',
+    //   dx: 'uses a notation system to assign drafts to different warp and weft patterns on different layers. Layers are represented by () so (1a)(2b) puts warp1 and weft a on layer 1, warp 2 and weft b on layer 2',
+    //   params: <Array<StringParam>>[
+    //     {name: 'pattern',
+    //     type: 'string',
+    //     value: '(a1)(b2)',
+    //     regex: /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+    //     error: 'invalid entry',
+    //     dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
+    //     }
+    //   ],
+    //   inlets: [{
+    //     name: 'systems draft', 
+    //     type: 'static',
+    //     value: null,
+    //     dx: 'the draft that describes the system ordering we will add input structures within',
+    //     num_drafts: 1
+    //   }],
+    //   perform: (op_inputs: Array<OpInput>) => {
+
+
+    //     // //split the inputs into the input associated with 
+    //     const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
+    //     const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+
+  
+    //     if(child_inputs.length == 0) return Promise.resolve([]);
+
+    //     //now just get all the drafts
+    //     const all_drafts: Array<Draft> = child_inputs.reduce((acc, el) => {
+    //       el.drafts.forEach(draft => {acc.push(draft)});
+    //       return acc;
+    //     }, []);
+
+
+
+    //     const system_map = child_inputs.find(el => el.inlet === 0);
+
+    //     if(system_map === undefined) return Promise.resolve([]); ;
+       
+        
+    //     const draft_inlets = child_inputs.filter(el => el.inlet > 0).map(el => el.drafts[0]);
+
+    //     let total_wefts: number = 0;
+    //     const all_wefts = draft_inlets.map(el => el.wefts).filter(el => el > 0);
+    //     total_wefts = utilInstance.lcm(all_wefts);
+
+    //     let total_warps: number = 0;
+    //     const all_warps = draft_inlets.map(el => el.warps).filter(el => el > 0);
+    //     total_warps = utilInstance.lcm(all_warps);
+
+
+
+    //     //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
+    //     //get the total number of layers
+    //     const system_draft_map = child_inputs
+    //     .filter(el => el.inlet > 0)
+    //     .map(el => {
+    //       return  {
+    //         wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
+    //         wasy: el.params[0].match(/\d/g).map(el => parseInt(el)), //pull out all the nubmers into warp systems
+    //         i: 0,
+    //         j: 0,
+    //         layer: el.inlet-1, //map layer order to the inlet id, all inlets must be ordered the same as the input
+    //         draft: el.drafts[0]
+    //       }
+    //     });
+        
+
+    //     const d: Draft = new Draft({
+    //       warps: total_warps*system_map.drafts[0].warps, 
+    //       wefts: total_wefts*system_map.drafts[0].wefts,
+    //       rowShuttleMapping: system_map.drafts[0].rowShuttleMapping.slice(),
+    //       rowSystemMapping: system_map.drafts[0].rowSystemMapping.slice(),
+    //       colShuttleMapping: system_map.drafts[0].colShuttleMapping.slice(),
+    //       colSystemMapping: system_map.drafts[0].colSystemMapping.slice(),
+    //     });
+
+    //     d.pattern = [];
+    //     for(let i = 0; i < d.wefts; i++){
+    //       let active_wesy = this.ss.getWeftSystem(d.rowSystemMapping[i]).name;
+    //       const active_weft_entry = system_draft_map.find(el => el.wesy.findIndex(wesyel => wesyel === active_wesy) !== -1);
+    //       let increment_flag = false;
+
+    //       d.pattern.push([]);
+    //       for(let j = 0; j < d.warps; j++){
+    //         let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
+    //         const active_warp_entry = system_draft_map.find(el => el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1);
+    //         const entry = system_draft_map.find(el => (el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1 && el.wesy.findIndex(wesyel => wesyel === active_wesy)!== -1));
+
+    //         if(active_weft_entry === undefined || active_warp_entry === undefined){
+    //           //no input draft is assigned to this system, set all as undefined
+    //           d.pattern[i][j] = new Cell(null);
+
+    //         }else if(entry === undefined){
+    //           //this is unassigned or its an an alternating layer. 
+    //           //find the term in the list assigned to this. 
+    //           //if this weft systems layer is > than the layer associted with this warp system, lower, if it is less, raise. 
+    //           const wesy_layer = active_weft_entry.layer;
+    //           const wasy_layer = active_warp_entry.layer;
+    //           if(wasy_layer < wesy_layer) d.pattern[i][j] = new Cell(true);
+    //           else if(wasy_layer > wesy_layer) d.pattern[i][j] = new Cell(false);
+    //           else d.pattern[i][j] = new Cell(null);
+    //         }  
+    //         else{
+    //           d.pattern[i][j] = new Cell(entry.draft.pattern[entry.i][entry.j].getHeddle());
+    //           entry.j = (entry.j+1)%entry.draft.warps;
+    //           increment_flag = true;
+    //         }
+
+    //       }
+
+    //       if(increment_flag){
+    //         active_weft_entry.i = (active_weft_entry.i+1) % active_weft_entry.draft.wefts;
+    //       } 
+
+
+    //     }
+        
+    //     d.gen_name = this.formatName([], "notation");
+    //     return  Promise.resolve([d]);
+
+       
+    //   }        
+    // }
+
     const layernotation: DynamicOperation = {
       name: 'notation',
       displayname: 'layer notation',
@@ -2415,7 +2542,7 @@ export class OperationService {
         {name: 'pattern',
         type: 'string',
         value: '(a1)(b2)',
-        regex: /.*?\((.*?[a-xA-Z]+[\d]+.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
         error: 'invalid entry',
         dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
         }
@@ -2431,7 +2558,7 @@ export class OperationService {
 
 
         // //split the inputs into the input associated with 
-        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "layernotation");
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "notation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
 
   
@@ -2469,7 +2596,7 @@ export class OperationService {
         .map(el => {
           return  {
             wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
-            wasy: el.params[0].match(/\d/g).map(el => parseInt(el)), //pull out all the nubmers into warp systems
+            wasy: el.params[0].match(/\d+/g), //pull out all the nubmers into warp systems
             i: 0,
             j: 0,
             layer: el.inlet-1, //map layer order to the inlet id, all inlets must be ordered the same as the input
@@ -2477,6 +2604,11 @@ export class OperationService {
           }
         });
         
+        system_draft_map.forEach(sdm => {
+          if(sdm.wasy!== null) sdm.wasy = sdm.wasy.map(el => parseInt(el));
+          else sdm.wasy = [-1];
+          if(sdm.wesy === null) sdm.wesy = [''];
+        })
 
         const d: Draft = new Draft({
           warps: total_warps*system_map.drafts[0].warps, 
@@ -2496,6 +2628,8 @@ export class OperationService {
           d.pattern.push([]);
           for(let j = 0; j < d.warps; j++){
             let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
+
+            
             const active_warp_entry = system_draft_map.find(el => el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1);
             const entry = system_draft_map.find(el => (el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1 && el.wesy.findIndex(wesyel => wesyel === active_wesy)!== -1));
 
@@ -4300,157 +4434,225 @@ export class OperationService {
         }  
         
         
-        const makeloom: Operation = {
-          name: 'floor loom',
-          displayname: 'floor loom',
-          old_names:[],
-          dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
-          params: [
-            <NumParam>{name: 'frames',
-            type: 'number',
-             min: 1,
-             max: 100,
-            value: 8,
-            dx: 'how many frames to use in this pattern'
-            },
-            <NumParam>{name: 'treadles',
-            type: 'number',
-             min: 1,
-             max: 100,
-            value: 10,
-            dx: 'how many treadles to use in this pattern'
-            },
+    const makeloom: Operation = {
+      name: 'floor loom',
+      displayname: 'floor loom',
+      old_names:[],
+      dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
+      params: [
+        <NumParam>{name: 'frames',
+        type: 'number',
+          min: 1,
+          max: 100,
+        value: 8,
+        dx: 'how many frames to use in this pattern'
+        },
+        <NumParam>{name: 'treadles',
+        type: 'number',
+          min: 1,
+          max: 100,
+        value: 10,
+        dx: 'how many treadles to use in this pattern'
+        },
 
-          ],
-          inlets: [{
-            name: 'drawdown', 
-            type: 'static',
-            value: null,
-            dx: 'the drawdown from which to create threading, tieup and treadling data from',
-            num_drafts: 1
-          }],
-          perform: (op_inputs: Array<OpInput>) => {
-            const parent_input = op_inputs.find(el => el.op_name === "floor loom");
-            const child_input= op_inputs.find(el => el.op_name === "child");
-            const frames = parent_input.params[0];
-            const treadles = parent_input.params[1];
-
-
-
-            if(child_input === undefined || child_input.drafts === undefined) return Promise.resolve([]);
-  
-            
-            const l:Loom = new Loom(child_input.drafts[0],'frame', frames, treadles);
-            l.recomputeLoom(child_input.drafts[0]);
-
-            const threading: Draft = new Draft({warps:child_input.drafts[0].warps, wefts: l.num_frames});
-
-            l.threading.forEach((frame, j) =>{
-              if(frame !== -1) threading.pattern[frame][j].setHeddle(true);
-            });
-            threading.gen_name = "threading"+child_input.drafts[0].getName();
+      ],
+      inlets: [{
+        name: 'drawdown', 
+        type: 'static',
+        value: null,
+        dx: 'the drawdown from which to create threading, tieup and treadling data from',
+        num_drafts: 1
+      }],
+      perform: (op_inputs: Array<OpInput>) => {
+        const parent_input = op_inputs.find(el => el.op_name === "floor loom");
+        const child_input= op_inputs.find(el => el.op_name === "child");
+        const frames = parent_input.params[0];
+        const treadles = parent_input.params[1];
 
 
-            const treadling: Draft = new Draft({warps:l.num_treadles, wefts:child_input.drafts[0].wefts});
-            l.treadling.forEach((treadle_num, i) =>{
-              if(treadle_num !== -1) treadling.pattern[i][treadle_num].setHeddle(true);
-            });
-            treadling.gen_name = "treadling_"+child_input.drafts[0].getName();
 
-            const tieup: Draft = new Draft({warps: l.num_treadles, wefts: l.num_frames});
-            l.tieup.forEach((row, i) => {
-              row.forEach((val, j) => {
-                tieup.pattern[i][j].setHeddle(val);
-              })
-            });
-            tieup.gen_name = "tieup_"+child_input.drafts[0].getName();
+        if(child_input === undefined || child_input.drafts === undefined) return Promise.resolve([]);
 
+        
+        const l:Loom = new Loom(child_input.drafts[0],'frame', frames, treadles);
+        l.recomputeLoom(child_input.drafts[0]);
 
-            return Promise.resolve([threading, tieup, treadling]);
+        const threading: Draft = new Draft({warps:child_input.drafts[0].warps, wefts: l.num_frames});
 
-            }
+        l.threading.forEach((frame, j) =>{
+          if(frame !== -1) threading.pattern[frame][j].setHeddle(true);
+        });
+        threading.gen_name = "threading"+child_input.drafts[0].getName();
 
 
-            
+        const treadling: Draft = new Draft({warps:l.num_treadles, wefts:child_input.drafts[0].wefts});
+        l.treadling.forEach((treadle_num, i) =>{
+          if(treadle_num !== -1) treadling.pattern[i][treadle_num].setHeddle(true);
+        });
+        treadling.gen_name = "treadling_"+child_input.drafts[0].getName();
 
-          } 
+        const tieup: Draft = new Draft({warps: l.num_treadles, wefts: l.num_frames});
+        l.tieup.forEach((row, i) => {
+          row.forEach((val, j) => {
+            tieup.pattern[i][j].setHeddle(val);
+          })
+        });
+        tieup.gen_name = "tieup_"+child_input.drafts[0].getName();
+
+
+        return Promise.resolve([threading, tieup, treadling]);
+
+        }
+
+
+        
+
+      } 
           
-          const drawdown: Operation = {
-            name: 'drawdown',
-            displayname: 'drawdown',
-            old_names:[],
-            dx: 'create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)',
-            params: [
-  
-            ],
-            inlets: [{
-              name: 'threading', 
-              type: 'static',
-              value: null,
-              dx: 'the draft to use as threading',
-              num_drafts: 1
-            }, {
-              name: 'tieup', 
-              type: 'static',
-              value: null,
-              dx: 'the draft to use as tieup',
-              num_drafts: 1
-            },
-            {
-              name: 'treadling', 
-              type: 'static',
-              value: null,
-              dx: 'the draft to use as treadling',
-              num_drafts: 1
-            }
-           ],
-            perform: (op_inputs: Array<OpInput>) => {
+  const drawdown: Operation = {
+    name: 'drawdown',
+    displayname: 'drawdown',
+    old_names:[],
+    dx: 'create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)',
+    params: [
 
-              const parent_input = op_inputs.find(el => el.op_name === "floor loom");
-              const child_input= op_inputs.find(el => el.op_name === "child");
-              const threading_inlet = op_inputs.find(el => el.inlet === 0);
-              const tieup_inlet = op_inputs.find(el => el.inlet === 1);
-              const treadling_inlet = op_inputs.find(el => el.inlet === 2);
-  
-  
-  
-              if(child_input === undefined 
-                || threading_inlet === undefined
-                || tieup_inlet === undefined
-                || treadling_inlet == undefined) return Promise.resolve([]);
+    ],
+    inlets: [{
+      name: 'threading', 
+      type: 'static',
+      value: null,
+      dx: 'the draft to use as threading',
+      num_drafts: 1
+    }, {
+      name: 'tieup', 
+      type: 'static',
+      value: null,
+      dx: 'the draft to use as tieup',
+      num_drafts: 1
+    },
+    {
+      name: 'treadling', 
+      type: 'static',
+      value: null,
+      dx: 'the draft to use as treadling',
+      num_drafts: 1
+    }
+    ],
+    perform: (op_inputs: Array<OpInput>) => {
+
+      const parent_input = op_inputs.find(el => el.op_name === "floor loom");
+      const child_input= op_inputs.find(el => el.op_name === "child");
+      const threading_inlet = op_inputs.find(el => el.inlet === 0);
+      const tieup_inlet = op_inputs.find(el => el.inlet === 1);
+      const treadling_inlet = op_inputs.find(el => el.inlet === 2);
+
+
+
+      if(child_input === undefined 
+        || threading_inlet === undefined
+        || tieup_inlet === undefined
+        || treadling_inlet == undefined) return Promise.resolve([]);
+
+      const threading_draft = treadling_inlet.drafts[0];
+      const tieup_draft = tieup_inlet.drafts[0];
+      const treadling_draft = treadling_inlet.drafts[0];
+
+      
+      const threading: Array<number> = [];
+      for(let j = 0; j <threading_draft.warps; j++){
+        const col: Array<Cell> = threading_draft.pattern.reduce((acc, row, ndx) => {
+          acc[ndx] = row[j];
+          return acc;
+        }, []);
+
+        threading[j] = col.findIndex(cell => cell.getHeddle());
+
+      }
     
-              const threading_draft = treadling_inlet.drafts[0];
-              const tieup_draft = tieup_inlet.drafts[0];
-              const treadling_draft = treadling_inlet.drafts[0];
+      const treadling: Array<number> =treadling_draft.pattern
+      .map(row => row.findIndex(cell => cell.getHeddle()));
 
-              
-              const threading: Array<number> = [];
-              for(let j = 0; j <threading_draft.warps; j++){
-                const col: Array<Cell> = threading_draft.pattern.reduce((acc, row, ndx) => {
-                  acc[ndx] = row[j];
-                  return acc;
-                }, []);
+      const tieup =tieup_draft.pattern.map(row => {
+        return row.map(cell => cell.getHeddle());
+      });
 
-                threading[j] = col.findIndex(cell => cell.getHeddle());
+      const drawdown: Draft = new Draft({warps:threading_draft.warps, wefts:treadling_draft.wefts});
+      drawdown.recalculateDraft(tieup, treadling, threading);
+      return Promise.resolve([drawdown]);
 
+      }
+
+
+
+    }
+
+    const combinatorics: Operation = {
+      name: 'combos',
+      displayname: 'combinations',
+      old_names:[],
+      dx: 'generates a list of all possible drafts of a given size for the user to explore',
+      params: [
+        <NumParam>{name: 'size',
+        type: 'number',
+          min: 2,
+          max: 6,
+        value: 3,
+        dx: 'the size of the structure'
+        },
+        <NumParam>{name: 'selection',
+        type: 'number',
+          min: 0,
+          max: 10000,
+        value: 0,
+        dx: 'the id of the generated structure you would like to view'
+        },
+        <BoolParam>{name: 'show groups',
+        type: 'boolean',
+        falsestate: 'just show one',
+        truestate: 'show a portion of the results',
+        value: 0,
+        dx: "toggles view"
+        }
+      ],
+      inlets: [],
+      perform: (op_inputs: Array<OpInput>) => {
+  
+        const parent_input = op_inputs.find(el => el.op_name === "combos");
+        const child_input= op_inputs.find(el => el.op_name === "child");
+        const size = parent_input.params[0];
+        const show = parent_input.params[1];
+        const showall = parent_input.params[2];
+
+        const divisor = (size - 3 > 0) ? Math.pow(2,(size-3)): 1;
+
+        if(combos.hasSet(size, size)){
+          if(showall){
+            return Promise.resolve(this.combos.getDrafts(show, divisor));
+          }else{
+            return Promise.resolve([this.combos.getDraft(show)]);
+          }
+        }else{
+          return this.combos.initSet(size, size).then(
+            set => {
+              if(showall){
+                return Promise.resolve(this.combos.getDrafts(show, divisor));
+              }else{
+                return Promise.resolve([this.combos.getDraft(show)]);
               }
-            
-              const treadling: Array<number> =treadling_draft.pattern
-              .map(row => row.findIndex(cell => cell.getHeddle()));
-
-              const tieup =tieup_draft.pattern.map(row => {
-                return row.map(cell => cell.getHeddle());
-              });
-
-              const drawdown: Draft = new Draft({warps:threading_draft.warps, wefts:treadling_draft.wefts});
-              drawdown.recalculateDraft(tieup, treadling, threading);
-              return Promise.resolve([drawdown]);
-  
-              }
-  
-  
-  
             }
+          );
+  
+        }
+
+      
+  
+    
+        }
+  
+  
+  
+      }
+    
     
 
 
@@ -4512,13 +4714,14 @@ export class OperationService {
     this.ops.push(drawdown);
     this.ops.push(erase_blank);
     this.ops.push(apply_mats);
+    this.ops.push(combinatorics);
 
 
     //** Give it a classification here */
     this.classification.push(
       {category: 'structure',
       dx: "0-1 input, 1 output, algorithmically generates weave structures based on parameters",
-      ops: [tabby, twill, satin, basket, rib, waffle, complextwill, random]}
+      ops: [tabby, twill, satin, basket, rib, waffle, complextwill, random, combinatorics]}
     );
 
     this.classification.push(
