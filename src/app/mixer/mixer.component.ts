@@ -118,7 +118,7 @@ export class MixerComponent implements OnInit {
       items: [{ uid: this.auth.uid }]
     });
 
-    //this.combos.initSetBinary(2,2);
+    this.combos.initSet(3,3);
   }
 
   ngAfterViewInit() {

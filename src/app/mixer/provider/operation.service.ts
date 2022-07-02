@@ -4586,6 +4586,8 @@ export class OperationService {
 
     }
 
+    
+
     const combinatorics: Operation = {
       name: 'combos',
       displayname: 'combinations',
@@ -4595,7 +4597,7 @@ export class OperationService {
         <NumParam>{name: 'size',
         type: 'number',
           min: 2,
-          max: 6,
+          max: 4,
         value: 3,
         dx: 'the size of the structure'
         },
@@ -4627,7 +4629,51 @@ export class OperationService {
 
         if(combos.hasSet(size, size)){
           if(showall){
-            return Promise.resolve(this.combos.getDrafts(show, divisor));
+
+            const cc = 10;
+            const drafts = this.combos.getDrafts(0, 4);
+
+            let b:HTMLCanvasElement = <HTMLCanvasElement>document.createElement('canvas'); 
+            let context = b.getContext('2d');
+            b.width = (cc*(size+5))*20;
+            b.height = Math.ceil(drafts.length  / 20)*((5+size)*cc);
+            context.fillStyle = "white";
+            context.fillRect(0,0,b.width,b.height);
+
+            let num = 0;
+            drafts.forEach(draft => {
+              
+              const top = Math.floor(num / 20) * (draft.wefts+5)*cc + 10;
+              const left = num % 20 * (draft.warps+5)*cc + 10; 
+              
+              context.font = "8px Arial";
+              console.log("num", num, num.toString(), num+"")
+              context.fillText('a',num*5, 10,5)
+              //context.fillText(num.toString(),left, top-2,5)
+              context.strokeRect(left,top,size*cc,size*cc);
+
+              for (let i = 0; i < draft.wefts; i++) {
+                for (let j = 0; j < draft.warps; j++) {
+                  this.drawCell(context, draft, cc, i, j, top, left);
+                }
+              }
+              num++;
+  
+              //context.drawImage(b, 0, 0);
+          
+            })
+
+            // console.log("b", b);
+            const a = document.createElement('a')
+            a.href = b.toDataURL("image/jpg")
+            a.download = "allpossible_bitmap.jpg";
+            a.click();
+        
+         
+
+
+            
+            return Promise.resolve([]);
           }else{
             return Promise.resolve([this.combos.getDraft(show)]);
           }
@@ -4647,7 +4693,7 @@ export class OperationService {
       
   
     
-        }
+      }
   
   
   
@@ -4939,6 +4985,21 @@ export class OperationService {
     const parent_ndx: number = this.dynamic_ops.findIndex(el => el.name === name);
     if(parent_ndx == -1) return false;
     return true;
+  }
+
+   drawCell(cx, draft, cell_size, i, j, top,  left){
+    let is_up = draft.isUp(i,j);
+    let color = "#ffffff"
+   
+    if(is_up){
+      color = '#000000';
+    }else{
+      color = '#ffffff';
+    }
+    cx.fillStyle = color;
+    cx.strokeStyle = '#000000';
+    cx.strokeRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
+    cx.fillRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
   }
 
 

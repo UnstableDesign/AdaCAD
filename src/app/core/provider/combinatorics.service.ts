@@ -1,12 +1,23 @@
-import { D, L } from '@angular/cdk/keycodes';
-import { DeclareFunctionStmt } from '@angular/compiler';
+
 import { Injectable } from '@angular/core';
-import { WriteFileOptions } from 'fs';
-import { pow } from 'mathjs';
+import { forIn } from 'lodash';
 import { Cell } from '../model/cell';
 import { Draft } from '../model/draft';
 import utilInstance from '../model/util';
 
+
+
+interface ComboTree {
+  set: Array<Array<number>>,
+  top: ComboNode
+}
+
+interface ComboNode {
+  parent: ComboNode;
+  value: number,
+  set: Array<Array<number>>,
+  children: Array<ComboNode>;
+}
 
 
 @Injectable({
@@ -17,74 +28,102 @@ export class CombinatoricsService {
   cur_set: any = {warps: 0, wefts: 0};
   all_possible_drafts: Array<Draft> = [];
   min_interlacements: number = 1;
-  all_possible_bytes: Array<number> = [];
 
   constructor() { 
 
   }
 
+  /**
+   * returns all the values from the valid set that match the sequence
+   * @param seq 
+   * @param valid 
+   */
+  filterForSeq(seq: Array<number>, valid: Array<Array<number>>) : Array<Array<number>>{
+    let filtered = valid.slice();
+    seq.forEach((val, ndx) => {
+      filtered = filtered.filter(set => set[ndx] == val);
+    });
+    return filtered;
+  }
+
 
   /**
-   * initializes a set of all possible valid drafts of a given dimension
-   * Right now must be square and have a minimum of 1 interlacement
-   * @param wefts the number of wefts of the structure
-   * @param warps the number of warps in the structure
-   * @returns a promise containing the array of all drafts generated
+   * prints the tree for verification
+   * @param tree 
    */
-   initSetBinary(wefts: number, warps: number) : Promise<Array<Draft>>{
+  printTree(tree: ComboTree){
 
-    this.cur_set = {warps:0, wefts:0};
-    this.all_possible_drafts = [];
-    this.all_possible_bytes = [];
+    console.log("***PRINT TREE***");
+    this.printNodes([tree.top]);
+  }
 
-    return this.getAllPossibleBitStrings(warps-1)
-    .then(possible => {
-      console.log(possible);
-      this.makeValidBitString(possible, warps-1);
-    })
-    .then(valid => {
-      console.log("VALID", valid);
-      return null;
+  printNodes(nodes: Array<ComboNode>){
+    
+    nodes.forEach(node => {
+      console.log("Node: ", this.traceSequenceViaParents(node), node.set);
+      this.printNodes(node.children);
     });
-
-    //   let drafts = [];
-    //    let opts = this.getOptions([], valid);
-    //    opts.forEach(opt => {
-
-    //     let pattern = []; 
-    //     for(let i = 0; i < wefts; i++){
-    //       pattern.push([]);
-    //       for(let j = 0; j < warps; j++){
-    //         if(i == 0) pattern.push((opt[j] == 0) ? new Cell(false) : new Cell(true));
-    //         else pattern.push(new Cell(false));
-    //       }
-    //     }
-
-    //    drafts.push(new Draft({warps: warps, wefts: wefts, pattern: pattern.slice()}));
-    //   });
-
-    //   console.log("calling on set 0, length", drafts.length)
-    //   //vsd.forEach(el => utilInstance.printDraft(el.draft));
-
-      
-    //   const its = (wefts * 2) -1;
-    //   for(let i = 1; i <= its; i++){
-    //    drafts = this.expandDrafts(drafts, valid, i, wefts);
-    //    console.log("calling on set ", i, drafts.length)
-    //    //vsd.forEach(el => utilInstance.printDraft(el.draft));
-
-    //   }
-
-    //   //console.log("FINAL /// LEN", vsd.length);
-    //   //vsd.forEach(el => utilInstance.printDraft(el.draft));
-
-    //   this.all_possible_drafts = drafts.map(el => el.draft);
-    //   this.cur_set.wefts = wefts;
-    //   this.cur_set.warps = warps;
-    //   return Promise.resolve(this.all_possible_drafts);
+  }
 
 
-    // });
+  /**
+   * given a node, it creates the sequence (e.g. 0110) that it represnts by calling each parent
+   * @param node a tree node from which to start
+   * @returns the sequence reprsented by this node. 
+   */
+  traceSequenceViaParents(node: ComboNode) : Array<number>{
+    let seq = [];
+    while(node.parent !== null){
+      seq = [node.value].concat(seq);
+      node = node.parent;
+    }
+    return seq;
+  }
+
+
+  /**
+   * converts the valid set into a tree, where the root/top node branches between 0, 1 at each child. 
+   * therefore, every valid set traverses the tree. Each treenode stores the valid sets at its location
+   * allowing for each row add to be a lookup operation
+   * @param valid the valid set of combinations
+   * @returns a Combination Tree accounting for every valid set
+   */
+  createTreeFromValidSet(valid: Array<Array<number>>) : Promise<ComboTree> {
+
+    let tree:ComboTree = {
+      set: valid.slice(),
+      top: {
+        parent: null,
+        value: -1,
+        set: valid.slice(),
+        children: []},
+    }
+
+
+    valid.forEach(valid_set => {
+
+      let node = tree.top;
+
+      valid_set.forEach(val => {
+            
+         const found = node.children.filter(el => el.value === val);
+         if(found.length == 0){
+           const combo_node: ComboNode = {
+            parent: node,
+            value: val,
+            set: [valid_set],
+            children: []
+            }
+            node.children.push(combo_node);
+            node = combo_node;
+          }else{
+            node = found[0];
+            node.set.push(valid_set);
+          }
+      });
+    })
+
+    return Promise.resolve(tree);
 
   }
 
@@ -107,38 +146,47 @@ export class CombinatoricsService {
     })
     .then(valid => {
 
-      let drafts = [];
-       let opts = this.getOptions([], valid);
+      console.log("valid is: ", valid);
+      return this.createTreeFromValidSet(valid);
+
+
+    }).then(tree => {
+
+      this.printTree(tree);
+
+      let drafts: Array<Draft> = [];
+       let opts = this.getOptions([], tree);
+       
        opts.forEach(opt => {
 
-        let pattern = []; 
+        const draft: Draft = new Draft({warps: warps, wefts: wefts});
+    
         for(let i = 0; i < wefts; i++){
-          pattern.push([]);
           for(let j = 0; j < warps; j++){
-            if(i == 0) pattern.push((opt[j] == 0) ? new Cell(false) : new Cell(true));
-            else pattern.push(new Cell(false));
+            if(i == 0) draft.pattern[i][j].setHeddle((opt[j] == 0) ? false: true);
           }
         }
+        
+        drafts = drafts.concat([draft]);
 
-       drafts.push(new Draft({warps: warps, wefts: wefts, pattern: pattern.slice()}));
       });
 
       console.log("calling on set 0, length", drafts.length)
-      //vsd.forEach(el => utilInstance.printDraft(el.draft));
+      //drafts.forEach(el => utilInstance.printDraft(el));
 
       
       const its = (wefts * 2) -1;
       for(let i = 1; i <= its; i++){
-       drafts = this.expandDrafts(drafts, valid, i, wefts);
+       drafts = this.expandDrafts(drafts, tree, i, wefts);
        console.log("calling on set ", i, drafts.length)
-       //vsd.forEach(el => utilInstance.printDraft(el.draft));
+       //drafts.forEach(el => utilInstance.printDraft(el));
 
       }
 
-      //console.log("FINAL /// LEN", vsd.length);
-      //vsd.forEach(el => utilInstance.printDraft(el.draft));
+      console.log("FINAL /// LEN", drafts.length);
+      //drafts.forEach(el => utilInstance.printDraft(el));
 
-      this.all_possible_drafts = drafts.map(el => el.draft);
+      this.all_possible_drafts = drafts.slice();
       this.cur_set.wefts = wefts;
       this.cur_set.warps = warps;
       return Promise.resolve(this.all_possible_drafts);
@@ -190,12 +238,12 @@ export class CombinatoricsService {
    * @param wefts the size of the structure
    * @returns an (expanded)array of drafts and associated valid sets
    */
-  expandDrafts(drafts: Array<Draft>, valid: Array<Array<number>>, ndx: number, wefts: number) : Array<Draft> {
+  expandDrafts(drafts: Array<Draft>, tree: ComboTree, ndx: number, wefts: number) : Array<Draft> {
 
     let all_drafts: Array< Draft> = [];
     drafts.forEach(draft => {
-      if(ndx % 2 == 0) all_drafts = all_drafts.concat(this.addRow(draft, valid, Math.floor(ndx/2), wefts));
-      if(ndx % 2 == 1) all_drafts = all_drafts.concat(this.addCol(draft, valid, Math.floor(ndx/2), wefts));
+      if(ndx % 2 == 0) all_drafts = all_drafts.concat(this.addRow(draft, tree, Math.floor(ndx/2), wefts));
+      if(ndx % 2 == 1) all_drafts = all_drafts.concat(this.addCol(draft, tree, Math.floor(ndx/2), wefts));
     })
 
     //console.log("returning from all drafts", all_drafts.length);
@@ -212,7 +260,7 @@ export class CombinatoricsService {
    * @param n 
    * @returns 
    */
-  addRow(draft: Draft, valid: Array<Array<number>>, i:number, n: number){
+  addRow(draft: Draft, tree: ComboTree, i:number, n: number){
     let expanded_drafts = [];  
     //console.log("adding rows to ", vsd);
 
@@ -223,7 +271,7 @@ export class CombinatoricsService {
     //console.log("Generated set ", set, );
 
 
-    let opts = this.getOptions(set, valid);
+    let opts = this.getOptions(set, tree);
     //console.log("generated options", opts);
     opts.forEach(opt => {
 
@@ -242,7 +290,7 @@ export class CombinatoricsService {
     return expanded_drafts;
   }
 
-  addCol(draft: Draft, valid: Array<Array<number>>, j:number, n: number){
+  addCol(draft: Draft, tree: ComboTree, j:number, n: number){
     //console.log("adding cols to ", vsd);
 
     let expanded_drafts = [];
@@ -252,7 +300,7 @@ export class CombinatoricsService {
       set.push(draft.pattern[i][j].getHeddle() ? 1 : 0);
     }
 
-    let opts = this.getOptions(set, valid);
+    let opts = this.getOptions(set, tree);
     //console.log("generated options for set", set, opts);
 
     opts.forEach(opt => {
@@ -273,13 +321,30 @@ export class CombinatoricsService {
   }
 
 
-  /**returns the valid options from the list of possible that match set.*/
-  getOptions(set: Array<Number>, possible: Array<Array<Number>>){
-    let opts = possible.slice();
-    for(let i = 0; i < set.length; i++){
-      opts = opts.filter(el => el[i] == set[i]);
-    }
-    return opts;
+
+  /**
+   * uses the input sequence to identify the node of possible children
+   * @param seq the input sequence to locate 
+   * @param tree the tree to search
+   * @returns 
+   */
+  getOptions(seq: Array<Number>, tree: ComboTree) : Array<Array<number>>{
+
+    let children = tree.top.children.slice();
+    
+    if(seq.length == 0) return tree.set.slice();
+    //get to the node we need
+    let node = null;
+
+
+    seq.forEach(val => {
+      node = children.find(el => el.value == val);
+      if(node === undefined) children = [];
+      else children = node.children.slice();
+    });
+
+    if(node === undefined) return [];
+    else return node.set.slice();
   }
 
   /**
