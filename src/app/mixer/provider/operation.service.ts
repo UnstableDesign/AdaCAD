@@ -4603,17 +4603,17 @@ export class OperationService {
         },
         <NumParam>{name: 'selection',
         type: 'number',
-          min: 0,
-          max: 10000,
-        value: 0,
+          min: 1,
+          max: 22874,
+        value: 1,
         dx: 'the id of the generated structure you would like to view'
         },
-        <BoolParam>{name: 'show groups',
+        <BoolParam>{name: 'download all',
         type: 'boolean',
-        falsestate: 'just show one',
-        truestate: 'show a portion of the results',
+        falsestate: '',
+        truestate: 'downloading',
         value: 0,
-        dx: "toggles view"
+        dx: "when this is set to true, it will trigger download of an image of the whole set everytime it recomputes, this may result in multiple downloads"
         }
       ],
       inlets: [],
@@ -4622,74 +4622,62 @@ export class OperationService {
         const parent_input = op_inputs.find(el => el.op_name === "combos");
         const child_input= op_inputs.find(el => el.op_name === "child");
         const size = parent_input.params[0];
-        const show = parent_input.params[1];
-        const showall = parent_input.params[2];
+        const show = parent_input.params[1]-1;
+        const download = parent_input.params[2];
 
+        //for larger set sizes, you must split up the download into multiple files
         const divisor = (size - 3 > 0) ? Math.pow(2,(size-3)): 1;
 
-        if(combos.hasSet(size, size)){
-          if(showall){
+        return combos.getSet(size, size)
+        .then(alldrafts => { 
 
-            const cc = 10;
-            const drafts = this.combos.getDrafts(0, 4);
+          if(download){
 
-            let b:HTMLCanvasElement = <HTMLCanvasElement>document.createElement('canvas'); 
-            let context = b.getContext('2d');
-            b.width = (cc*(size+5))*20;
-            b.height = Math.ceil(drafts.length  / 20)*((5+size)*cc);
-            context.fillStyle = "white";
-            context.fillRect(0,0,b.width,b.height);
-
-            let num = 0;
-            drafts.forEach(draft => {
+            for(let set_id = 0; set_id < divisor; set_id++){
               
-              const top = Math.floor(num / 20) * (draft.wefts+5)*cc + 10;
-              const left = num % 20 * (draft.warps+5)*cc + 10; 
-              
-              context.font = "8px Arial";
-              console.log("num", num, num.toString(), num+"")
-              context.fillText('a',num*5, 10,5)
-              //context.fillText(num.toString(),left, top-2,5)
-              context.strokeRect(left,top,size*cc,size*cc);
-
-              for (let i = 0; i < draft.wefts; i++) {
-                for (let j = 0; j < draft.warps; j++) {
-                  this.drawCell(context, draft, cc, i, j, top, left);
-                }
-              }
-              num++;
+              const cc = 10;
+              const set_data = this.combos.getDrafts(set_id, divisor);
   
-              //context.drawImage(b, 0, 0);
-          
-            })
-
-            // console.log("b", b);
-            const a = document.createElement('a')
-            a.href = b.toDataURL("image/jpg")
-            a.download = "allpossible_bitmap.jpg";
-            a.click();
-        
-         
-
-
-            
-            return Promise.resolve([]);
-          }else{
-            return Promise.resolve([this.combos.getDraft(show)]);
-          }
-        }else{
-          return this.combos.initSet(size, size).then(
-            set => {
-              if(showall){
-                return Promise.resolve(this.combos.getDrafts(show, divisor));
-              }else{
-                return Promise.resolve([this.combos.getDraft(show)]);
-              }
+              let b:HTMLCanvasElement = <HTMLCanvasElement>document.createElement('canvas'); 
+              let context = b.getContext('2d');
+              b.width = (cc*(size+5))*20;
+              b.height = Math.ceil(set_data.length  / 20)*((5+size)*cc);
+              context.fillStyle = "white";
+              context.fillRect(0,0,b.width,b.height);
+  
+              set_data.forEach((set, ndx) => {
+                
+                const top = Math.floor(ndx / 20) * (set.draft.wefts+5)*cc + 10;
+                const left = ndx % 20 * (set.draft.warps+5)*cc + 10; 
+                
+                context.font = "8px Arial";
+                context.fillStyle = "#000000"
+                context.fillText((set.id+1).toString(),left, top-2,size*cc)
+                context.strokeRect(left,top,size*cc,size*cc);
+  
+                for (let i = 0; i < set.draft.wefts; i++) {
+                  for (let j = 0; j < set.draft.warps; j++) {
+                    this.drawCell(context, set.draft, cc, i, j, top, left);
+                  }
+                }            
+              })
+  
+              // console.log("b", b);
+              const a = document.createElement('a')
+              a.href = b.toDataURL("image/jpg")
+              a.download = "allvalid_"+size+"x"+size+"_drafts_"+set_id+".jpg";
+              a.click();
             }
-          );
-  
-        }
 
+          }
+
+          
+          return Promise.resolve([this.combos.getDraft(show).draft]);
+
+        })
+        
+
+       
       
   
     
@@ -4998,6 +4986,12 @@ export class OperationService {
     }
     cx.fillStyle = color;
     cx.strokeStyle = '#000000';
+
+ 
+
+    //hack, draw upside down to account for later flip
+    i = (draft.wefts-1) - i;
+
     cx.strokeRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
     cx.fillRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
   }

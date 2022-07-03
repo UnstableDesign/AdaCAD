@@ -117,8 +117,6 @@ export class MixerComponent implements OnInit {
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
     });
-
-    this.combos.initSet(3,3);
   }
 
   ngAfterViewInit() {

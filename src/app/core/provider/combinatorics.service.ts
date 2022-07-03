@@ -26,12 +26,15 @@ interface ComboNode {
 export class CombinatoricsService {
 
   cur_set: any = {warps: 0, wefts: 0};
-  all_possible_drafts: Array<Draft> = [];
+  all_possible_drafts: Array<{draft:Draft, id:number}> = [];
   min_interlacements: number = 1;
 
   constructor() { 
 
   }
+
+
+ 
 
   /**
    * returns all the values from the valid set that match the sequence
@@ -135,7 +138,7 @@ export class CombinatoricsService {
    * @param warps the number of warps in the structure
    * @returns a promise containing the array of all drafts generated
    */
-  initSet(wefts: number, warps: number) : Promise<Array<Draft>>{
+  initSet(wefts: number, warps: number) : Promise<Array<{draft:Draft, id:number}>>{
 
     this.cur_set = {warps:0, wefts:0};
     this.all_possible_drafts = [];
@@ -186,7 +189,7 @@ export class CombinatoricsService {
       console.log("FINAL /// LEN", drafts.length);
       //drafts.forEach(el => utilInstance.printDraft(el));
 
-      this.all_possible_drafts = drafts.slice();
+      this.all_possible_drafts = drafts.map((el, ndx) => {return {draft: el, id: ndx}});
       this.cur_set.wefts = wefts;
       this.cur_set.warps = warps;
       return Promise.resolve(this.all_possible_drafts);
@@ -198,14 +201,14 @@ export class CombinatoricsService {
 
 
   /**
-   * checks to see if the current dimensions match the input
+   * gets the set of a defined size. If that set is already in memory, it returns it. If not, it generates it.
    * @param warps the warps to check
    * @param wefts the wefts to check
    * @returns a boolean 
    */
-  hasSet(warps: number, wefts: number) : boolean {
-    if(warps === this.cur_set.warps && wefts === this.cur_set.wefts) return true;
-    else return false;
+  getSet(warps: number, wefts: number) : Promise<Array<{draft:Draft, id:number}>> {
+    if(warps === this.cur_set.warps && wefts === this.cur_set.wefts) return Promise.resolve(this.all_possible_drafts);
+    else return this.initSet(warps, wefts);
   }
 
   /**
@@ -213,9 +216,10 @@ export class CombinatoricsService {
    * @param ndx the index to return
    * @returns returns the draft at the index, or an empty draft if so
    */
-  getDraft(ndx: number) : Draft{
-    if(ndx >= this.all_possible_drafts.length) return new Draft({wefts: 1, warps: 1});
-    else return this.all_possible_drafts[ndx];
+  getDraft(ndx: number) : {draft: Draft, id: number}{
+    const found = this.all_possible_drafts.find(el => el.id == ndx)
+    if(found == undefined) return {draft: new Draft({wefts: 1, warps: 1}), id: -1};
+    else return found;
   }
 
   /**
@@ -223,11 +227,11 @@ export class CombinatoricsService {
    * @param ndx the index to return
    * @returns returns the draft at the index, or an empty draft if so
    */
-  getDrafts(ndx: number, divisor: number) : Array<Draft>{
+  getDrafts(ndx: number, divisor: number) : Array<{draft: Draft, id: number}>{
     const set_size = Math.floor(this.all_possible_drafts.length/divisor);
     const begin = ndx * set_size;
     const stop = begin + set_size;
-    const drafts = this.all_possible_drafts.filter((el, ndx) => ndx > begin && ndx <= stop);
+    const drafts = this.all_possible_drafts.filter(el => (el.id >= begin && el.id <= stop));
     return drafts;
   }
 
@@ -369,30 +373,6 @@ export class CombinatoricsService {
     return Promise.resolve(all_valid);
   }
 
-  /**
-   * if there is all zeros or all ones, it adds a contrasting bit at the end, or both bits 
-   * @param all_possible 
-   * @returns 
-   */
-   makeValidBitString(all_possible: Array<number>, length: number) : Promise<Array<number>>{
-    const all_valid = [];
-    console.log("all poss", all_possible)
-
-    for(let i = 0; i < all_possible.length; i++){
-
-      if(all_possible[i] == Math.pow(2,length)-1){
-        all_valid.push(all_possible[i] >> 0)
-      }else if(all_possible[i] ===  0){
-        all_valid.push(all_possible[i] >> 1)
-      }else{
-        all_valid.push(all_possible[i] >> 0)
-        all_valid.push(all_possible[i] >> 1)
-      }
-    }
-
-    return Promise.resolve(all_valid);
-  }
-
 
 
   /**
@@ -412,21 +392,6 @@ export class CombinatoricsService {
   }
 
 
-    /**
-   * generates a list of all valid sums with n factors that total t. 
-   * all elements > 0
-   * @param n 
-   */
-    getAllPossibleBitStrings(n: number): Promise<Array<number>>{
-
-      let all_combos = [];
-  
-      for(let i = 0; i < n; i++){
-        all_combos = this.addBit(all_combos);
-      }
-      return Promise.resolve(all_combos);
-      
-    }
   
 
   addBit(set: Array<Array<number>>) : Array<Array<number>> {
@@ -445,21 +410,6 @@ export class CombinatoricsService {
     return expanded_set;
   }
 
-  addBitToBitstring(set: Array<number>) : Array<number> {
-    
-    const expanded_set = [];
-
-    if(set.length == 0){
-      expanded_set.push(0b0);
-      expanded_set.push(0b1);
-    }else{
-      for(let i = 0; i < set.length; i++){
-        expanded_set.push(set[i] >> 0b1);
-        expanded_set.push(set[i] >> 0b1);
-      }
-    }
-    return expanded_set;
-  }
 
 
 
