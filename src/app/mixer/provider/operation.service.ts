@@ -2594,6 +2594,7 @@ export class OperationService {
         const system_draft_map = child_inputs
         .filter(el => el.inlet > 0)
         .map(el => {
+          console.log(el.params[0].match(/\d+/g));
           return  {
             wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
             wasy: el.params[0].match(/\d+/g), //pull out all the nubmers into warp systems

@@ -186,10 +186,12 @@ export class TreeService {
 
           case 'notation':
 
+            //const charanddigit:RegExp = new RegExp(/.*?(.*?[a-xA-Z]+[\d]+.*?).*?/i);
 
             const matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
             inlets = inlets.slice(0,static_inputs.length);
             matches.forEach(el => {
+              //if(charanddigit.test(el)) 
               inlets.push(el);
             })
 
