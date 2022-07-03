@@ -1539,7 +1539,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
     const new_drafts = this.tree.getDraftNodes()
       .filter(el => el.component === null)
       .map(el => {
-        console.log("loading new subdraft", (<DraftNode>el).draft);
+        //console.log("loading new subdraft", (<DraftNode>el).draft);
         return this.loadSubDraft(
           el.id, 
           (<DraftNode>el).draft, 

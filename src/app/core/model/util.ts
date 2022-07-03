@@ -3,6 +3,7 @@
  * @class
  */
 
+import { D } from "@angular/cdk/keycodes";
 import { digest } from "@angular/compiler/src/i18n/digest";
 import { accessSync } from "fs";
 import { or } from "mathjs";
@@ -933,7 +934,21 @@ generateId = (len:number) : number => {
   const arr = new Uint8Array((len || 40) / 2)                                                                  
   window.crypto.getRandomValues(arr)            
   return parseInt(arr.join(''))                                                                                  
-}                                                                                                                
+}  
+
+
+//print the draft to console
+printDraft(d: Draft){
+  console.log('draft ', d.id);
+  for(let i = 0; i < d.wefts;i++){
+    const row: string = d.pattern[i].reduce((acc, el) => {
+      if(el.getHeddle() === true) acc = acc.concat('x')
+      else acc = acc.concat('o')
+      return acc;
+    }, '');
+    console.log(row)
+  }
+}
 
 
 

@@ -90,7 +90,7 @@ export class MixerComponent implements OnInit {
     private dialog: MatDialog,
     private image: ImageService,
     private ops: OperationService,
-    private http: HttpClient,
+    private http: HttpClient
     ) {
 
 
@@ -115,9 +115,6 @@ export class MixerComponent implements OnInit {
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
     });
-
-
-    
   }
 
   ngAfterViewInit() {
