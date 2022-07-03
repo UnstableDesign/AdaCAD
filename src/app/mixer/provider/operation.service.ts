@@ -4590,7 +4590,7 @@ export class OperationService {
 
     const combinatorics: Operation = {
       name: 'combos',
-      displayname: 'combinations',
+      displayname: 'all possible structures',
       old_names:[],
       dx: 'generates a list of all possible drafts of a given size for the user to explore',
       params: [
