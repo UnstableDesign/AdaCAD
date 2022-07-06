@@ -6,7 +6,7 @@ import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
+import { Point, Interlacement, Bounds, DraftMap, Draft } from '../../core/model/datatypes';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
@@ -19,6 +19,7 @@ import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
+import { getDraftName, initDraftWithParams, warps, wefts } from 'src/app/core/model/drafts';
 
 @Component({
   selector: 'app-palette',
@@ -2552,21 +2553,21 @@ drawStarted(){
   
         const primary_draft = this.tree.getDraft(primary.id);
 
-        const temp: Draft = new Draft({
+        const temp: Draft = initDraftWithParams({
           id: primary_draft.id, 
-          gen_name: primary_draft.getName(), 
+          gen_name: getDraftName(primary_draft), 
           warps: Math.floor(bounds.width / this.scale), 
           wefts: Math.floor(bounds.height / this.scale)});
     
-        for(var i = 0; i < temp.wefts; i++){
+        for(var i = 0; i < wefts(temp.drawdown); i++){
           const top: number = bounds.topleft.y + (i * this.scale);
-          for(var j = 0; j < temp.warps; j++){
+          for(var j = 0; j < warps(temp.drawdown); j++){
             const left: number = bounds.topleft.x + (j * this.scale);
     
             const p = {x: left, y: top};
             const val = this.computeHeddleValue(p, primary, isect);
-            if(val != null) temp.pattern[i][j].setHeddle(val);
-            else temp.pattern[i][j].unsetHeddle();
+            if(val != null) temp.drawdown[i][j].setHeddle(val);
+            else temp.drawdown[i][j].unsetHeddle();
           }
         }
         return temp;

@@ -39,6 +39,9 @@ import utilInstance from "./util";
 
   };
 
+  if(params.id !== undefined ) d.id = params.id;
+  if(params.gen_name !== undefined ) d.gen_name = params.gen_name;
+  if(params.ud_name !== undefined ) d.ud_name = params.ud_name;
   if(params.wefts === undefined ) params.wefts = 1;
   if(params.warps === undefined) params.warps = 1;
 
@@ -310,32 +313,6 @@ export const createDraft = (
 
    
   }
-
-
-  /**
-   * creates a new draft of the size specified using the data from the input draft. 
-   * since the input draft can be of a different size, this will resize data as neccessary.
-   * @param to_copy 
-   * @param warps 
-   * @param wefts 
-   * @returns a new draft object
-   */
-  // export const generateDraftUsingAnotherDraft = (
-  //   to_copy: Draft,
-  //   warps: number,
-  //   wefts: number 
-  // ) : Draft =>{
-
-  //   const draft = initDraft();
-  //   draft.drawdown = generateDrawdownWithPattern(to_copy.drawdown, warps, wefts);
-  //   draft.rowSystemMapping = generateMappingFromPattern(draft.drawdown, to_copy.rowSystemMapping, 'row');
-  //   draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, to_copy.rowShuttleMapping, 'row');
-  //   draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, to_copy.colSystemMapping, 'col');
-  //   draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, to_copy.colShuttleMapping, 'col');
-
-  //   return draft;
-
-  // }
 
 
   /**

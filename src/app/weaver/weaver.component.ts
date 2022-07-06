@@ -15,7 +15,7 @@ import { SystemsService } from '../core/provider/systems.service';
 import { Cell } from '../core/model/cell';
 import { getLoomUtilByType } from '../core/model/looms';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { generateDrawdownWithPattern, deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol } from '../core/model/drafts';
+import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol, initDraftWithParams } from '../core/model/drafts';
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { computeYarnPaths } from '../core/model/yarnsimulation';
 
@@ -429,9 +429,9 @@ export class WeaverComponent implements OnInit {
    */
   public onClear(b:boolean) {
     
-    const d: Drawdown = [[new Cell(b)]];
+    const pattern: Drawdown = [[new Cell(b)]];
 
-    this.draft.drawdown = generateDrawdownWithPattern(d, warps(this.draft.drawdown), wefts(this.draft.drawdown));
+    this.draft = initDraftWithParams({warps: warps(this.draft.drawdown), wefts: wefts(this.draft.drawdown), pattern: pattern});
 
     const utils = getLoomUtilByType(this.loom_settings.type);
     utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option).then(loom => {

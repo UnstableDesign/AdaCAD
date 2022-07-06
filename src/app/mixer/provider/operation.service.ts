@@ -7,11 +7,10 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
-import { number } from 'mathjs';
 import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from 'src/app/core/model/datatypes';
-import { applyMask, flipDraft, flipDrawdown, generateDraftUsingAnotherDraft, generateDrawdownWithPattern, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from 'src/app/core/model/drafts';
+import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
 import { getLoomUtilByType, numFrames, numTreadles } from 'src/app/core/model/looms';
-import { WorkspaceService } from 'src/app/core/provider/workspace.service';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 
 
  
@@ -66,7 +65,15 @@ export class OperationService {
         const child_input = op_inputs.find(el => el.op_name == 'child');
 
         const outputs: Array<Draft> = [];
-        const d: Draft = generateDraftUsingAnotherDraft(child_input.drafts[0], parent_input.params[0], parent_input.params[1]);
+        const d: Draft = initDraftWithParams(
+          {warps: parent_input.params[0], 
+            wefts: parent_input.params[1], 
+            pattern: child_input.drafts[0].drawdown,
+            rowShuttleMapping: child_input.drafts[0].rowShuttleMapping,
+            colShuttleMapping: child_input.drafts[0].colShuttleMapping,
+            rowSystemMapping: child_input.drafts[0].rowSystemMapping,
+            colSystemMapping: child_input.drafts[0].colSystemMapping
+            });
 
         d.gen_name = this.formatName(op_inputs[0].drafts, "rect");
         outputs.push(d);
