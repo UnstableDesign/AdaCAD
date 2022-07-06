@@ -1,5 +1,5 @@
 import { SystemsService } from "../provider/systems.service";
-import { Draft } from "./draft";
+import { Draft } from "./datatypes";
 
 /**
  * Definition of render object.

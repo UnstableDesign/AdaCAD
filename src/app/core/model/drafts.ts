@@ -12,12 +12,87 @@ import utilInstance from "./util";
     gen_name: 'draft',
     ud_name: "",
     drawdown: [],
-    rowShuttlePattern: [],
-    rowSystemPattern: [],
-    colShuttlePattern: [],
-    colSystemPattern: []
+    rowShuttleMapping: [],
+    rowSystemMapping: [],
+    colShuttleMapping: [],
+    colSystemMapping: []
 
   };
+  return d;
+}
+
+/**
+ * generates a blank draft of the size inputted. This sets all cell values to false 
+ * and all shuttle and row mappings to default sizes. 
+ * @returns 
+ */
+ export const initDraftWithParams = (params:any) : Draft => {
+  const d: Draft = {
+    id: utilInstance.generateId(8),
+    gen_name: 'draft',
+    ud_name: "",
+    drawdown: [],
+    rowShuttleMapping: [],
+    rowSystemMapping: [],
+    colShuttleMapping: [],
+    colSystemMapping: []
+
+  };
+
+  if(params.wefts === undefined ) params.wefts = 1;
+  if(params.warps === undefined) params.warps = 1;
+
+  //start with empty draft 
+  for(let i = 0; i < params.wefts; i++){
+    d.drawdown.push([]);
+    d.rowSystemMapping.push(0);
+    d.rowShuttleMapping.push(1);
+    for(let j = 0; j < params.warps; j++){
+      d.drawdown[i][j] = new Cell(false);
+    }
+  }
+
+  for(let j = 0; j < params.warps; j++){
+    d.colSystemMapping.push(0);
+    d.colShuttleMapping.push(1);
+  }
+
+  if(params.drawdown !== undefined){
+    params.drawdown.forEach((row, i) => {
+      row.forEach((cell, j) => {
+        d.drawdown[i][j].setHeddle(cell.getHeddle());
+      })
+    })
+  }
+
+  if(params.rowShuttleMapping !== undefined){
+    for(let i = 0; i < d.rowShuttleMapping.length; i++){
+      d.rowShuttleMapping = params.rowShuttleMapping[i%params.rowShuttleMapping.length];
+    }
+  }
+
+  if(params.rowSystemMapping !== undefined){
+    for(let i = 0; i < d.rowSystemMapping.length; i++){
+      d.rowSystemMapping = params.rowSystemMapping[i%params.rowSystemMapping.length];
+    }
+  }
+
+  if(params.colShuttleMapping !== undefined){
+    for(let i = 0; i < d.colShuttleMapping.length; i++){
+      d.colShuttleMapping = params.colShuttleMapping[i%params.colShuttleMapping.length];
+    }
+  }
+
+  if(params.colSystemMapping !== undefined){
+    for(let i = 0; i < d.colSystemMapping.length; i++){
+      d.colSystemMapping = params.colSystemMapping[i%params.colSystemMapping.length];
+    }
+  }
+
+
+
+
+
   return d;
 }
 
@@ -245,53 +320,112 @@ export const createDraft = (
    * @param wefts 
    * @returns a new draft object
    */
-  export const generateDraftUsingAnotherDraft = (
-    to_copy: Draft,
-    warps: number,
-    wefts: number 
-  ) : Draft =>{
+  // export const generateDraftUsingAnotherDraft = (
+  //   to_copy: Draft,
+  //   warps: number,
+  //   wefts: number 
+  // ) : Draft =>{
 
-    const draft = initDraft();
-    draft.drawdown = generateDrawdownWithPattern(to_copy.drawdown, warps, wefts);
-    draft.rowSystemMapping = generateMappingFromPattern(draft.drawdown, to_copy.rowSystemMapping, 'row');
-    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, to_copy.rowShuttleMapping, 'row');
-    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, to_copy.colSystemMapping, 'col');
-    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, to_copy.colShuttleMapping, 'col');
+  //   const draft = initDraft();
+  //   draft.drawdown = generateDrawdownWithPattern(to_copy.drawdown, warps, wefts);
+  //   draft.rowSystemMapping = generateMappingFromPattern(draft.drawdown, to_copy.rowSystemMapping, 'row');
+  //   draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, to_copy.rowShuttleMapping, 'row');
+  //   draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, to_copy.colSystemMapping, 'col');
+  //   draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, to_copy.colShuttleMapping, 'col');
 
-    return draft;
+  //   return draft;
 
-  }
+  // }
 
 
   /**
-   * creates a drawdown of a given size filled with the specified pattern
-   * @param pattern the pattern to fill this drawdown with
-   * @param width the width / number of warps in the result
-   * @param height the height / number of weft in the result
-  //  * @returns the filled drawdown
+   * applys a pattern only to regions where the input draft has true heddles
+   * @param mask the pattern to use as a mask
+   * @param pattern the pattern to fill with
+   * @returns the result
    */
-  export const generateDrawdownWithPattern = (
-      pattern: Drawdown, 
-      width: number,
-      height: number
-    ) : Drawdown =>  {
-        
-      const drawdown: Drawdown = [];
-      const rows = wefts(pattern);
-      const cols = warps(pattern);
-  
-      //cycle through each visible row/column of the draft
-      for (var i = 0; i < height; i++ ) {
-        drawdown.push([]);
-        for (var j = 0; j < width; j++ ) {
-          drawdown[i][j] = new Cell(pattern[i % rows][j % cols].getHeddle());
+  export const applyMask = (mask: Drawdown, pattern: Drawdown) : Drawdown =>  {
+    
+    const masked = mask.slice();
+    for(let i = 0; i < wefts(mask); i++){
+      for(let j = 0; j < warps(mask); j++){
+        if(mask[i][j].getHeddle()){
+          const set_to = pattern[i%wefts(pattern)][j%warps(pattern)].getHeddle();
+          masked[i][j].setHeddle(set_to);
         }
+        
       }
+    } 
+    return masked;
+  }
 
-      return drawdown;
+  /**
+   * inverts the drawdown (e.g. sets true cells to false and vice versa)
+   * @param drawdown the drawdown to invert
+   * @returns the inverted drawdown 
+   */
+  export const invertDrawdown = (drawdown: Drawdown) : Drawdown =>  {
+    
+    const inverted = drawdown.slice();
+    for(let i = 0; i < wefts(drawdown); i++){
+      for(let j = 0; j < warps(drawdown); j++){
+        if(drawdown[i][j].isSet()){
+          const set_to = !drawdown[i][j].getHeddle();
+          inverted[i][j].setHeddle(set_to);
+        }
+        
+      }
+    } 
+    return inverted;
+  }
+
+  /**
+   * shifts the drawdown up or left by the amount specified.
+   * @param drawdown the drawdown to shift
+   * @param up shift up = true, left = false
+   * @param inc the amount to shift by
+   * @returns the shfited drawdown
+   */
+     export const shiftDrawdown = (drawdown: Drawdown, up: boolean, inc: number) : Drawdown =>  {
+    
+      const shifted = drawdown.slice();
+      for(let i = 0; i < wefts(drawdown); i++){
+        for(let j = 0; j < warps(drawdown); j++){
+            let set_to = false;
+            if(up)  set_to = drawdown[(i+inc)%wefts(drawdown)][j].getHeddle();
+            else set_to = drawdown[i][(j+inc)%wefts(drawdown)].getHeddle();
+            shifted[i][j].setHeddle(set_to);
+        }
+      } 
+      return shifted;
+    }
+
+   /**
+   * flips the drawdown horizontally or vertically. This is different than flip draft because it only 
+   * flippes teh drawdown, not any other associated information
+   * @param drawdown the drawdown to shift
+   * @param horiz true for horizontal flip, false for vertical
+   * @returns the flipped drawdown
+   */
+    export const flipDrawdown = (drawdown: Drawdown, horiz: boolean) : Drawdown =>  {
+
+    const flip = drawdown.slice();
+    for(let i = 0; i < wefts(drawdown); i++){
+      for(let j = 0; j < warps(drawdown); j++){
+          let set_to = false;
+          if(horiz)  set_to = drawdown[i][warps(drawdown)-j].getHeddle();
+          else set_to = drawdown[wefts(drawdown) - i][j].getHeddle();
+          flip[i][j].setHeddle(set_to);
+      }
+    } 
+    return flip;
+  }
     
   
-  }
+  
+
+
+
 
 
 
@@ -542,7 +676,5 @@ export const flipDraft = (d: Draft) : Promise<Draft> => {
   return Promise.resolve(d);
 }
 
-  
-  
   
 

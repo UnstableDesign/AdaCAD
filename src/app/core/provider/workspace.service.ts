@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Loom } from '../model/loom';
+import { Loom, LoomSettings } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 @Injectable({
@@ -64,28 +64,28 @@ export class WorkspaceService {
    * this assumes that most exports will have common loom data
    * @param looms 
    */
-  async inferData(looms: Array<Loom>) : Promise<any> {
-    if(looms.length === 0) return Promise.resolve("no looms");
+  async inferData(loom_settings: Array<LoomSettings>) : Promise<any> {
+    if(loom_settings.length === 0) return Promise.resolve("no looms");
 
     //filter out null or undefined looms
-    looms = looms.filter(el => !(el === undefined || el === null)); 
+    loom_settings = loom_settings.filter(el => !(el === undefined || el === null)); 
 
 
     this.min_frames = utilInstance.getMostCommon(
-      looms.map(el => el.min_frames)
+      loom_settings.map(el => el.frames)
     );
     this.min_treadles = utilInstance.getMostCommon(
-      looms.map(el => el.min_treadles)
+      loom_settings.map(el => el.treadles)
     );
     this.type = utilInstance.getMostCommon(
-      looms.map(el => el.type)
+      loom_settings.map(el => el.type)
     );
     this.units = utilInstance.getMostCommon(
-      looms.map(el => el.units)
+      loom_settings.map(el => el.units)
     );
 
     this.epi = utilInstance.getMostCommon(
-      looms.map(el => el.epi)
+      loom_settings.map(el => el.epi)
     );
 
     return "done";
