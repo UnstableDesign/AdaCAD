@@ -13,7 +13,7 @@ import { Cell } from '../../../core/model/cell';
 import { OperationComponent } from '../operation/operation.component';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
-import { createDraft, getDraftName, warps, wefts } from '../../../core/model/drafts';
+import { createDraft, getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 
 
 
@@ -407,7 +407,7 @@ export class SubdraftComponent implements OnInit {
 
     if(!draft.drawdown[coords.i][coords.j].isSet()) return null;
     
-    return draft.drawdown[coords.i][coords.j].isUp();
+    return isUp(draft.drawdown, coords.i, coords.j);
   
   }
 
@@ -446,17 +446,17 @@ export class SubdraftComponent implements OnInit {
   }
 
   async drawCell(draft, cell_size, i, j, usecolor){
-    let is_up = draft.isUp(i,j);
-    let is_set = draft.isSet(i, j);
+    let is_up = isUp(draft.drawdown, i,j);
+    let is_set = isSet(draft.drawdown, i, j);
     let color = "#ffffff"
     if(is_set){
       if(this.ink === 'unset' && is_up){
         this.cx.fillStyle = "#999999"; 
       }else{
         if(is_up){
-          color = usecolor ? this.ms.getColor(draft.getWarpShuttleId(j)) : '#000000';
+          color = usecolor ? this.ms.getColor(draft.colShuttleMapping[j]) : '#000000';
         }else{
-          color = usecolor ? this.ms.getColor(draft.getWeftShuttleId(i)) : '#ffffff';
+          color = usecolor ? this.ms.getColor(draft.rowShuttleMapping[i]) : '#ffffff';
         }
         this.cx.fillStyle = color;
       }
@@ -745,7 +745,13 @@ export class SubdraftComponent implements OnInit {
         });
     }
 
+    warps(){
+      return warps(this.draft.drawdown);
+    }
 
+    wefts(){
+      return wefts(this.draft.drawdown);
+    }
 
     finetune(){
 

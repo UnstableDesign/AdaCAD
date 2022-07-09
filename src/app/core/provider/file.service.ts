@@ -79,8 +79,9 @@ export class FileService {
         data.drafts.forEach(el => {
           const node = data.nodes.find(node => node.draft_id == el.id);
           const loom = data.looms.find(node => node.draft_id == el.id);
+
           const dn: DraftNodeProxy = {
-            node_id: (node === undefined) ? -1 : node.id,
+            node_id: (node === undefined) ? -1 : node.node_id,
             draft_id: el.id,
             draft: loadDraftFromFile(el, data.version),
             draft_visible: (node === undefined) ? true : node.draft_visible,
@@ -132,6 +133,7 @@ export class FileService {
 
       if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
 
+      console.log("DRAFT NODES RETURNED FROM LOAD ", (draft_nodes.slice()))
 
       const envt: FileObj = {
         version: data.version,
@@ -464,9 +466,7 @@ export class FileService {
         type: type,
         nodes: this.tree.exportNodesForSaving(current_scale),
         tree: this.tree.exportTreeForSaving(),
-        drafts: draft_nodes.map(el => el.draft),
-        looms: draft_nodes.map(el => el.loom),
-        loom_settings: draft_nodes.map(el => el.loom_settings),
+        draft_nodes: this.tree.exportDraftNodeProxiesForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
         notes: this.ns.exportForSaving(),
         materials: this.ms.exportForSaving(),
@@ -474,6 +474,7 @@ export class FileService {
       }
 
 
+      console.log("SAVING", out);
       //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
       return Promise.resolve({json: theJSON, file: out});

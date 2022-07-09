@@ -39,13 +39,17 @@ import utilInstance from "./util";
 
   };
 
+
   if(params.id !== undefined ) d.id = params.id;
   if(params.gen_name !== undefined ) d.gen_name = params.gen_name;
   if(params.ud_name !== undefined ) d.ud_name = params.ud_name;
   if(params.wefts === undefined ) params.wefts = 1;
   if(params.warps === undefined) params.warps = 1;
-
+  //handle common error
+  if(params.pattern !== undefined) params.drawdown = params.pattern;
   //start with empty draft 
+ 
+ 
   for(let i = 0; i < params.wefts; i++){
     d.drawdown.push([]);
     d.rowSystemMapping.push(0);
@@ -57,43 +61,40 @@ import utilInstance from "./util";
 
   for(let j = 0; j < params.warps; j++){
     d.colSystemMapping.push(0);
-    d.colShuttleMapping.push(1);
+    d.colShuttleMapping.push(0);
   }
 
   if(params.drawdown !== undefined){
-    params.drawdown.forEach((row, i) => {
+    d.drawdown.forEach((row, i) => {
       row.forEach((cell, j) => {
-        d.drawdown[i][j].setHeddle(cell.getHeddle());
+       cell.setHeddle(params.drawdown[i%wefts(params.drawdown)][j%warps(params.drawdown)].getHeddle());
       })
     })
   }
 
   if(params.rowShuttleMapping !== undefined){
-    for(let i = 0; i < d.rowShuttleMapping.length; i++){
-      d.rowShuttleMapping = params.rowShuttleMapping[i%params.rowShuttleMapping.length];
+    for(let i = 0; i < wefts(d.drawdown); i++){
+      d.rowShuttleMapping[i] = params.rowShuttleMapping[i%params.rowShuttleMapping.length];
     }
   }
 
   if(params.rowSystemMapping !== undefined){
-    for(let i = 0; i < d.rowSystemMapping.length; i++){
-      d.rowSystemMapping = params.rowSystemMapping[i%params.rowSystemMapping.length];
+    for(let i = 0; i < wefts(d.drawdown); i++){
+      d.rowSystemMapping[i] = params.rowSystemMapping[i%params.rowSystemMapping.length];
     }
   }
 
   if(params.colShuttleMapping !== undefined){
-    for(let i = 0; i < d.colShuttleMapping.length; i++){
-      d.colShuttleMapping = params.colShuttleMapping[i%params.colShuttleMapping.length];
+    for(let i = 0; i < warps(d.drawdown); i++){
+      d.colShuttleMapping[i] = params.colShuttleMapping[i%params.colShuttleMapping.length];
     }
   }
 
   if(params.colSystemMapping !== undefined){
-    for(let i = 0; i < d.colSystemMapping.length; i++){
-      d.colSystemMapping = params.colSystemMapping[i%params.colSystemMapping.length];
+    for(let i = 0; i < warps(d.drawdown); i++){
+      d.colSystemMapping[i] = params.colSystemMapping[i%params.colSystemMapping.length];
     }
   }
-
-
-
 
 
   return d;
@@ -418,11 +419,11 @@ export const createDraft = (
     const mapping: Array<any> = [];
     if(type == 'row'){
       for(let i = 0; i < wefts(drawdown); i++){
-        mapping[i] = pattern[i%pattern.length].slice();
+        mapping[i] = pattern[i%pattern.length];
       }
     }else{
       for(let j = 0; j < warps(drawdown); j++){
-        mapping[j] = pattern[j%pattern.length].slice();
+        mapping[j] = pattern[j%pattern.length];
       }
     }
     return mapping;
@@ -626,7 +627,8 @@ export const createDraft = (
    * @returns 
    */
  export const getDraftName = (draft: Draft) : string => {
-    return (draft.ud_name === "") ?  draft.gen_name : draft.ud_name; 
+  if(draft === null || draft === undefined) return "";  
+  return (draft.ud_name === "") ?  draft.gen_name : draft.ud_name; 
   }
 
 
@@ -640,6 +642,8 @@ export const createDraft = (
 */ 
 export const flipDraft = (d: Draft) : Promise<Draft> => {
 
+  console.log("FLIPPING DRAFT", d.id);
+
   const reversed_pattern:Drawdown = [];
   const reversed_row_shut:Array<number> = [];
   const reversed_row_sys:Array<number> = [];
@@ -651,6 +655,8 @@ export const flipDraft = (d: Draft) : Promise<Draft> => {
   d.drawdown = reversed_pattern.slice();
   d.rowShuttleMapping = reversed_row_shut.slice();
   d.rowSystemMapping = reversed_row_sys.slice();
+
+  console.log("AFTER FLIP DRAFT", d.id);
   return Promise.resolve(d);
 }
 

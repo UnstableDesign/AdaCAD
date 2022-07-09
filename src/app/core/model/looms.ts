@@ -14,10 +14,10 @@ const jacquard_utils: LoomUtil = {
     displayname: 'jacquard loom',
     dx: "draft exclusively from drawdown, disregarding any frame and treadle information",
     computeLoomFromDrawdown: (d: Drawdown, origin: number) : Promise<Loom>  => {
-     return null;
+     return Promise.resolve(null);
     },
     computeDrawdownFromLoom: (l: Loom) : Promise<Drawdown> => {
-      return null;
+      return Promise.resolve(null);
     },
     updateThreading: (loom: Loom, ndx:InterlacementVal) => {
       return loom;

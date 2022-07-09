@@ -65,21 +65,27 @@ export class OperationService {
       perform: (op_inputs: Array<OpInput>) => {
         const parent_input = op_inputs.find(el => el.op_name == 'rectangle');
         const child_input = op_inputs.find(el => el.op_name == 'child');
+        console.log("child input", child_input, op_inputs);
 
+        const draft = (child_input !== undefined && child_input.drafts.length > 0) ? child_input.drafts[0] : initDraftWithParams({drawdown: [[new Cell(true)]]});
+
+
+        console.log("fill with", draft.drawdown);
         const outputs: Array<Draft> = [];
         const d: Draft = initDraftWithParams(
           {warps: parent_input.params[0], 
             wefts: parent_input.params[1], 
-            pattern: child_input.drafts[0].drawdown,
-            rowShuttleMapping: child_input.drafts[0].rowShuttleMapping,
-            colShuttleMapping: child_input.drafts[0].colShuttleMapping,
-            rowSystemMapping: child_input.drafts[0].rowSystemMapping,
-            colSystemMapping: child_input.drafts[0].colSystemMapping
+            drawdown: draft.drawdown,
+            rowShuttleMapping: draft.rowShuttleMapping,
+            colShuttleMapping: draft.colShuttleMapping,
+            rowSystemMapping: draft.rowSystemMapping,
+            colSystemMapping: draft.colSystemMapping
             });
 
         d.gen_name = this.formatName(op_inputs[0].drafts, "rect");
         outputs.push(d);
 
+        console.log("Created Draft", d.id);
         return Promise.resolve(outputs);
       }        
     }
@@ -1157,7 +1163,7 @@ export class OperationService {
         }
        
 
-        const d =initDraftWithParams({wefts: height, warps: width, pattern: pattern});
+        const d =initDraftWithParams({wefts: height, warps: width, drawdown: pattern});
         
        
   
@@ -1345,6 +1351,7 @@ export class OperationService {
             });
           });
 
+          console.log("ALL DRAFTS", alldrafts)
         //now merge in all of the additionalop_input.drafts offset by theop_input.drafts
         const d: Draft =alldrafts.reduce((acc, input) => {
           input.drawdown.forEach((row, i) => {

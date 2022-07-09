@@ -325,9 +325,7 @@ export interface NodeComponentProxy{
   type: string,
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
-  drafts: Array<Draft>,
-  looms: Array<Loom>,
-  loom_settings: Array<LoomSettings>
+  draft_nodes: Array<DraftNodeProxy>,
   ops: Array<any>,
   notes: Array<Note>,
   materials: Array<Shuttle>,

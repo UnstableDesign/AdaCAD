@@ -10,7 +10,7 @@ import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { getLoomUtilByType } from '../../core/model/looms';
-import { createDraft, flipDraft, getDraftName, initDraft, warps, wefts } from '../../core/model/drafts';
+import { createDraft, flipDraft, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 
 
 /**
@@ -363,6 +363,8 @@ export class TreeService {
   */
   loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
+    console.log("Loading Draft data on ", draft.id, entry);
+
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
     if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
@@ -402,7 +404,7 @@ export class TreeService {
 
 
 
-
+   console.log("RETURNING DRAFT", nodes[0].id, (<DraftNode> nodes[0]).draft.id)
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
@@ -1177,10 +1179,10 @@ removeOperationNode(id:number) : Array<Node>{
     return Promise.resolve(touched);
 
   }else if(out.length > res.length){
-    //create a new draft node for each outcome
+    //create a new draft node for each outcome;
     for(let i = res.length; i < out.length; i++){
       const dn = <DraftNode> this.getNode(out[i]);
-      dn.draft = initDraft();
+      dn.draft = initDraftWithParams({wefts: 1, warps: 1});
       dn.loom_settings = {
         type: this.ws.type,
         units: this.ws.units,
@@ -1204,6 +1206,7 @@ removeOperationNode(id:number) : Array<Node>{
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, 0,  id, 0,  cxn);
+      console.log("Created Draft Node", id)
       fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
     }
 
@@ -1304,8 +1307,6 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   const opnode = <OpNode> this.getNode(id);
   const op = this.ops.getOp(opnode.name);
-
-  const drafts_in = this.getNonCxnInputs(id);
   const all_inputs = this.getInputsWithNdx(id);
   
 
@@ -1319,12 +1320,19 @@ isValidIOTuple(io: IOTuple) : boolean {
 
     const flip_fns = [];
     const draft_id_to_ndx = [];
+   
+    console.log("ALL INPUTS to ",op.name, " = ", all_inputs);
+
     all_inputs.filter(el => this.isValidIOTuple(el))
     .forEach((el) => {
       
       const draft_tn = el.tn.inputs[0].tn;
       const cxn_tn = el.tn;
       const type = draft_tn.node.type;
+
+      console.log("TYPE of input ", type, draft_tn);
+
+
       if(type === 'draft'){
         draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id, cxn: cxn_tn.node.id})
         flip_fns.push(flipDraft((<DraftNode>draft_tn.node).draft));
@@ -1338,6 +1346,7 @@ isValidIOTuple(io: IOTuple) : boolean {
        
       const paraminputs = draft_id_to_ndx.map(el => {
           const draft = flipped_drafts.find(draft => draft.id === el.draft_id);
+          console.log("Draft not found in flipped", flipped_drafts,draft_id_to_ndx, el);
           if(draft === undefined) return undefined;
           else return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
         })
@@ -1345,10 +1354,12 @@ isValidIOTuple(io: IOTuple) : boolean {
       const cleaned_inputs = paraminputs.filter(el => el != undefined);
 
       inputs = inputs.concat(cleaned_inputs);
+      console.log("INPUTS TO OP", inputs);
       return op.perform(inputs);
 
     })
     .then(res => {
+         console.log("RESULT", res);
           return Promise.all(res.map(el => flipDraft(el)));
       })
     .then(flipped => {
@@ -1966,9 +1977,10 @@ isValidIOTuple(io: IOTuple) : boolean {
  */
   setDraft(id: number, temp: Draft, loom_settings: LoomSettings) {
 
-    const dn = <DraftNode> this.getNode(id);
+    console.log("set draft called on", id, temp.id);
 
-    let ud_name = getDraftName(dn.draft);
+    const dn = <DraftNode> this.getNode(id);
+    let ud_name = getDraftName(temp);
 
     if(dn.draft === null){
       dn.draft = temp;
@@ -1978,9 +1990,9 @@ isValidIOTuple(io: IOTuple) : boolean {
       dn.draft = createDraft(temp.drawdown, temp.gen_name, ud_name, temp.rowShuttleMapping, temp.rowSystemMapping, temp.colShuttleMapping, temp.colSystemMapping);
     } 
 
-    dn.id = id;
+    dn.draft.id = id;
 
-    if(loom_settings === null){
+    if(loom_settings === null || loom_settings === undefined){
       dn.loom_settings = {
         type: this.ws.type,
         epi: this.ws.epi,
@@ -1991,8 +2003,10 @@ isValidIOTuple(io: IOTuple) : boolean {
     } 
     else dn.loom_settings = loom_settings;
 
+
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    loom_utils.computeLoomFromDrawdown(temp.drawdown, this.ws.selected_origin_option).then(loom => dn.loom = loom); 
+    loom_utils.computeLoomFromDrawdown(temp.drawdown, this.ws.selected_origin_option)
+    .then(loom => dn.loom = loom); 
 
     dn.dirty = true;
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;

@@ -365,14 +365,14 @@ export class MixerComponent implements OnInit {
       .map(sn =>  {
 
 
-        // let d = initDraft();
+         let d:Draft =null;
         // let ls:LoomSettings = {
         //   this.ws.type
         // }
         // let l = new Loom(d, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
 
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
-        let d: Draft = initDraft();
+        //let d: Draft = initDraft();
         let l: Loom = {
           treadling: [],
           tieup: [],
@@ -442,6 +442,7 @@ export class MixerComponent implements OnInit {
       .forEach(el => {
         if(this.tree.hasParent(el.id)){
           el.draft = initDraftWithParams({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
+          el.draft.id = el.id;
         } else{
           console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
           this.tree.removeNode(el.id);
