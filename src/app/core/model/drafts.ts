@@ -146,7 +146,7 @@ export const createDraft = (
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
     draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
     
-    if(version === undefined || version === null || utilInstance.compareVersions(version, '3.4.2')){
+    if(version === undefined || version === null || utilInstance.sameOrNewerVersion(version, '3.4.2')){
       draft.drawdown = parseSavedPattern(data.pattern);
     }else{
       draft.drawdown = parseSavedPattern(data.drawdown);

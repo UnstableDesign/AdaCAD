@@ -986,7 +986,7 @@ getInletsToUpdate(newInlets: Array<any>, currentInlets: Array<any>) : {toadd: Ar
    * returns true if versions are same or version a is greater than b, returns false if a older than b
    * @param compare 
    */
-   compareVersions(a: string, b: string ) : boolean {
+   sameOrNewerVersion(a: string, b: string ) : boolean {
     const a_spl = a.split('.');
     const b_spl = b.split('.');
 

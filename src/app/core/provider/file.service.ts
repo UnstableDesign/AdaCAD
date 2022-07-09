@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {DraftNode, TreeService } from '../../mixer/provider/tree.service';
+import {TreeService } from '../../mixer/provider/tree.service';
 import { Cell } from '../model/cell';
-import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, OpComponentProxy, StatusMessage, TreeNodeProxy, NodeComponentProxy, LoomSettings, SaveObj } from '../model/datatypes';
+import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, OpComponentProxy, StatusMessage, TreeNodeProxy, NodeComponentProxy, LoomSettings, SaveObj, DraftNode } from '../model/datatypes';
 import utilInstance from '../model/util';
 import { MaterialMap, MaterialsService } from './materials.service';
 import { SystemsService } from './systems.service';
@@ -67,7 +67,8 @@ export class FileService {
       if(data.version !== undefined) version = data.version;
 
 
-      if(utilInstance.compareVersions(version, '3.4.2')){
+      console.log("versions", version, '3.4.2');
+      if(utilInstance.sameOrNewerVersion(version, '3.4.2')){
         draft_nodes = data.draft_nodes;
         draft_nodes.forEach(el => {
           el.draft = loadDraftFromFile(el.draft, data.version);
