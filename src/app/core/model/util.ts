@@ -989,16 +989,22 @@ getInletsToUpdate(newInlets: Array<any>, currentInlets: Array<any>) : {toadd: Ar
    sameOrNewerVersion(a: string, b: string ) : boolean {
     const a_spl = a.split('.');
     const b_spl = b.split('.');
+    let flag_end = false;
+    let return_val = true;
 
-
-    a_spl.forEach((value, ndx) => {
-      
-      if(ndx < b_spl.length){
-        if(parseInt(value) < parseInt(b_spl[ndx])) return false;
-        if(parseInt(value) > parseInt(b_spl[ndx])) return true;
+    for(let i = 0; i < a_spl.length && !flag_end; i++){
+      if(i < b_spl.length){
+        if(parseInt(a_spl[i]) < parseInt(b_spl[i])){
+          return_val = false;
+          flag_end = true;
+        }else  if(parseInt(a_spl[i]) > parseInt(b_spl[i])){
+          return_val = true;
+          flag_end = true;
+        } 
       }
-    })
-    //if it reaches this point, values are same
+    }
+
+    if(flag_end) return return_val;
     return true;
 
   }

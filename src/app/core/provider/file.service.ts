@@ -67,8 +67,8 @@ export class FileService {
       if(data.version !== undefined) version = data.version;
 
 
-      console.log("versions", version, '3.4.2');
-      if(utilInstance.sameOrNewerVersion(version, '3.4.2')){
+      console.log("versions", version, '3.4.5', utilInstance.sameOrNewerVersion(version, '3.4.5'));
+      if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
         draft_nodes = data.draft_nodes;
         draft_nodes.forEach(el => {
           el.draft = loadDraftFromFile(el.draft, data.version);
