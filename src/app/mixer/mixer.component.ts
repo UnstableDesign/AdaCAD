@@ -388,7 +388,8 @@ export class MixerComponent implements OnInit {
         }
         if(draft_node !== undefined){
 
-          const located_draft = data.draft_nodes.find(draft => draft.node_id === draft_node.node_id);
+          const located_draft = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
+         
           if(located_draft === undefined){
             console.error("could not find draft with id in draft list");
           }
