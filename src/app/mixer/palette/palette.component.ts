@@ -6,14 +6,14 @@ import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds, DraftMap, Draft, NodeComponentProxy } from '../../core/model/datatypes';
+import { Point, Interlacement, Bounds, DraftMap, Draft, NodeComponentProxy,DraftNode, OpNode } from '../../core/model/datatypes';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
-import { DraftNode, OpNode, TreeService } from '../provider/tree.service';
+import { TreeService } from '../provider/tree.service';
 import { FileService } from './../../core/provider/file.service';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
@@ -1545,7 +1545,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
     const new_drafts = this.tree.getDraftNodes()
       .filter(el => el.component === null)
       .map(el => {
-        console.log("loading new subdraft", (<DraftNode>el).draft);
+        //console.log("loading new subdraft", (<DraftNode>el).draft);
         return this.loadSubDraft(
           el.id, 
           (<DraftNode>el).draft, 

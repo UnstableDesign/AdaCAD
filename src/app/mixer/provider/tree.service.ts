@@ -4,11 +4,11 @@ import { ConnectionComponent } from '../palette/connection/connection.component'
 import { OperationComponent } from '../palette/operation/operation.component';
 import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
 import { OperationService} from './operation.service';
-import { OpInput, DynamicOperation, Operation, StringParam } from '../../core/model/datatypes';
+import { OpInput, Node, DynamicOperation, Operation, StringParam, TreeNode, DraftNode, OpNode, IOTuple } from '../../core/model/datatypes';
+import { Draft, DraftNodeProxy, Drawdown, Loom, LoomSettings, LoomUtil, NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/model/datatypes';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
-import { Draft, DraftNodeProxy, Drawdown, Loom, LoomSettings, LoomUtil, NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/model/datatypes';
 import { getLoomUtilByType } from '../../core/model/looms';
 import { createDraft, flipDraft, getDraftName, initDraft, warps, wefts } from '../../core/model/drafts';
 
@@ -17,69 +17,6 @@ import { createDraft, flipDraft, getDraftName, initDraft, warps, wefts } from '.
  * this class registers the relationships between subdrafts, operations, and connections
  */
 
-/**
- * this stores a reference to a component on the palette with its id and some
- * @param type is the type of component'
- * @param view_id is ndx to reference to this object in the ViewComponentRef (for deleting)
- * @param id is a unique id linked forever to this component 
- * @param component is a reference to the component object
- * @param dirty describes if this needs to be recalcuated or redrawn 
- */
-type BaseNode = {
-  type: 'draft' | 'op' | 'cxn',
-  ref: ViewRef,
-  id: number, //this will be unique for every instance
-  component: SubdraftComponent | OperationComponent | ConnectionComponent,
-  dirty: boolean
-}
-
-export type OpNode = BaseNode & {
-  name: string,
-  params: Array<any>
-  inlets: Array<any>;
- }
-
- export type DraftNode = BaseNode & {
-  draft: Draft,
-  loom: Loom,
-  loom_utils: LoomUtil,
-  loom_settings: LoomSettings
- }
-
- type Node = BaseNode | OpNode | DraftNode;
-
-
- /**
-  * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
-  * each node stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
-  * connections will have inlet/outlet indexes of 0, 0 (they cannot connect ot multiple things)
-  * drafts will have inset/outout indexes of 0, 0 (they can only have one parent)
-  * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
-  * @param treenode - the treenode that this input or output goes towards
-  * @param ndx - which ndx on the said treenodes does this connect to specifically
-  */
- export interface IOTuple{
-   tn: TreeNode,
-   ndx: number
- }
-
-/**
- * A tree node stores relationships between the components created by operations
-  * @param node: is a reference to the node object stored in the tree. 
-  * @param parent links to the treenode that "created" this node or null if it was created by the user 
-  * @param inputs a list of TreeNodes that are used as input to this TreeNode with an idex to which input they belong to
-  * @param outputs a list of TreeNodes created by this node or specified by the user
-  * Rules: 
-  *   Operations can have many inputs and many outputs 
-  *   Subdrafts can only have one input and one output (for now)
-  *   
-*/
-export interface TreeNode{
-  node: Node,
-  parent: TreeNode,
-  inputs: Array<IOTuple>,
-  outputs: Array<IOTuple>
-}
 
 @Injectable({
   providedIn: 'root'
@@ -342,7 +279,8 @@ export class TreeService {
 
     this.getDraftNodes().forEach(dn => {
     
-      dn.loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, this.ws.selected_origin_option).then(loom => {
+      const loom_utils = getLoomUtilByType(dn.loom_settings.type);
+      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, this.ws.selected_origin_option).then(loom => {
         dn.loom = loom;
       });
     });
@@ -366,7 +304,6 @@ export class TreeService {
       dirty: true, 
       draft: cloneDeep(draft),
       loom: null,
-      loom_utils: null,
       loom_settings: null
     }
 
@@ -450,11 +387,12 @@ export class TreeService {
     (<DraftNode> nodes[0]).loom_settings = loom_settings;
    }
 
-   (<DraftNode> nodes[0]).loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
 
 
    if(loom === null){
-    (<DraftNode> nodes[0]).loom_utils.computeLoomFromDrawdown(draft.drawdown, this.ws.selected_origin_option).then(loom => {
+    const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
+
+   loom_utils.computeLoomFromDrawdown(draft.drawdown, this.ws.selected_origin_option).then(loom => {
       (<DraftNode> nodes[0]).loom = loom;
     });
    }else{
@@ -1251,8 +1189,8 @@ removeOperationNode(id:number) : Array<Node>{
         treadles: this.ws.min_treadles
       }
 
-      dn.loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      dn.loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, this.ws.selected_origin_option)
+      const loom_utils = getLoomUtilByType(dn.loom_settings.type);
+      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, this.ws.selected_origin_option)
       .then(loom => {
         dn.loom = loom;
       })
@@ -2053,8 +1991,8 @@ isValidIOTuple(io: IOTuple) : boolean {
     } 
     else dn.loom_settings = loom_settings;
 
-    dn.loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    dn.loom_utils.computeLoomFromDrawdown(temp.drawdown, this.ws.selected_origin_option).then(loom => dn.loom = loom); 
+    const loom_utils = getLoomUtilByType(dn.loom_settings.type);
+    loom_utils.computeLoomFromDrawdown(temp.drawdown, this.ws.selected_origin_option).then(loom => dn.loom = loom); 
 
     dn.dirty = true;
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;

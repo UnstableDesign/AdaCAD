@@ -1009,7 +1009,21 @@ generateId = (len:number) : number => {
   const arr = new Uint8Array((len || 40) / 2)                                                                  
   window.crypto.getRandomValues(arr)            
   return parseInt(arr.join(''))                                                                                  
-}                                                                                                                
+}  
+
+
+//print the draft to console
+printDraft(d: Draft){
+  console.log('draft ', d.id);
+  for(let i = 0; i < wefts(d.drawdown);i++){
+    const row: string = d.drawdown[i].reduce((acc, el) => {
+      if(el.getHeddle() === true) acc = acc.concat('x')
+      else acc = acc.concat('o')
+      return acc;
+    }, '');
+    console.log(row)
+  }
+}
 
 
 

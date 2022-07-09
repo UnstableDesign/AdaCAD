@@ -3,8 +3,8 @@ import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
-import { TreeService, TreeNode, DraftNode, IOTuple } from './provider/tree.service';
-import { Draft, Loom, FileObj, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy, LoomSettings } from '../core/model/datatypes';
+import { TreeService} from './provider/tree.service';
+import { Draft, Loom, FileObj, Node, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy, LoomSettings, TreeNode, DraftNode, IOTuple  } from '../core/model/datatypes';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
 import { NotesService } from '../core/provider/notes.service';
@@ -85,7 +85,7 @@ export class MixerComponent implements OnInit {
     private dialog: MatDialog,
     private image: ImageService,
     private ops: OperationService,
-    private http: HttpClient,
+    private http: HttpClient
     ) {
 
 
@@ -108,9 +108,6 @@ export class MixerComponent implements OnInit {
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
     });
-
-
-    
   }
 
   ngAfterViewInit() {
