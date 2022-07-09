@@ -91,4 +91,19 @@ export class WorkspaceService {
     return "done";
   }
 
+  exportWorkspace() : any{
+    return {
+      frames: this.min_frames, 
+      treadles: this.min_treadles,
+      type: this.type,
+      show_errors: this.show_errors,
+      epi: this.epi,
+      units: this.units,
+      show_materials: this.show_materials,
+      black_cell_up: this.black_cell_up,
+      number_threading: this.number_threading,
+      selected_origin_option: this.selected_origin_option
+    }
+  }
+
 }

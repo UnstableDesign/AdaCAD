@@ -1,3 +1,7 @@
+import { ViewRef } from "@angular/core";
+import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
+import { OperationComponent } from "../../mixer/palette/operation/operation.component";
+import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { Note } from "../provider/notes.service";
 import { Cell } from "./cell";
 import { Shuttle } from "./shuttle";
@@ -359,7 +363,7 @@ export interface Fileloader{
   form: (data: any) => Promise<LoadResponse>}
 
 export interface FileSaver{
-  ada: (type: string, drafts: Array<Draft>, looms: Array<Loom>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
+  ada: (type: string, draft_nodes: Array<DraftNode>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
   //wif: (draft: Draft, loom: Loom) => Promise<string>,
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
@@ -373,8 +377,8 @@ export interface FileSaver{
  * each operation has 0 or more inlets. These are areas where drafts can be entered as inputs to the operation
  * @param name the display name to show with this inlet
  * @param type the type of parameter that becomes mapped to inputs at this inlet, static means that the user cannot change this value
- * @param value the assigned value of the parameter. 
  * @param dx the description of this inlet
+ * @param value the assigned value of the parameter. 
  * @param num_drafts the total number of drafts accepted into this inlet (or -1 if unlimited)
  */
  export type OperationInlet = {
@@ -387,7 +391,10 @@ export interface FileSaver{
 
 
 /**
- * numbers must have a min and max value
+ * An extension of Inlet that handles extra requirements for numeric data inputs
+ * @param value the current (or default?) value of this number input
+ * @param min the minimum allowable value
+ * @param max the maximum allowable value
  */
  export type NumInlet = OperationInlet & {
   value: number,
@@ -400,7 +407,6 @@ export interface FileSaver{
 
 /**
  * an operation param describes what data be provided to this operation
- * all operations have a name, type, value (default value), and description. 
  * some type of operations inherent from this to offer more specific validation data 
  */
 export type OperationParam = {
@@ -411,34 +417,56 @@ export type OperationParam = {
 }
 
 /**
- * numbers must have a min and max value
+ * An extension of Param that handles extra requirements for numeric data inputs
+ * @param min the minimum allowable value
+ * @param max the maximum allowable value
  */
 export type NumParam = OperationParam & {
   min: number,
   max: number
 }
 
+
+/**
+ * An extension of Param that handles extra requirements for select list  inputs
+ * @param seleclist an array of names and values from which the user can select
+ */
 export type SelectParam = OperationParam & {
   selectlist: Array<{name: string, value: number}>
 }
 
+/**
+ * An extension of Param that handles extra requirements for select boolean inputs
+ * @param falsestate a description for the user explaining what "false" means in this param
+ * @param truestate a description for the user explaining what "false" means in this param
+ */
 export type BoolParam = OperationParam & {
   falsestate: string,
   truestate: string
 }
 
+/**
+* An extension of Param that handles extra requirements for select file inputs
+* Currently a placeholder should extra data be required. 
+*/
 export type FileParam = OperationParam & {
 }
 
+/**
+* An extension of Param that handles extra requirements for select drafts as inputs
+* @param id draft id at this parameter --- unusued currently 
+*/
 export type DraftParam = OperationParam & {
   id: number;
 }
 
 /**
- * strings must come with a regex used to validate their structure
+* An extension of Param that handles extra requirements for strings as inputs
+* @param regex strings must come with a regex used to validate their structure
  * test and make regex using RegEx101 website
  * do not use global (g) flag, as it creates unpredictable results in test functions used to validate inputs
- */
+@param error the error message to show the user if the string is invalid 
+*/
 export type StringParam = OperationParam & {
   regex: RegExp,
   error: string
@@ -454,6 +482,8 @@ export type StringParam = OperationParam & {
  * @param dynamic_param_type the type of parameter that we look to generate
  * @param inlets the inlets available for input by default on this operation
  * @param dx the description of this operation
+ * @param old_names referes to any prior name of this operation to aid when loading old files
+ * @param perform a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
  */
 export interface DynamicOperation {
   name: string,
@@ -485,10 +515,12 @@ export interface DynamicOperation {
 /**
  * a standard opeartion
  * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
- * @param displayname the name to show upon this operation
+ * @param displayname the name to show upon this operation in the interface
  * @param dx the description of this operation
- * @param max_inputs the maximum number of inputs (drafts) allowed directly into this operation
-r * @param params the parameters associated with this operation
+ * @param params the parameters associated with this operation
+ * @param inets the inlets associated with this operation
+ * @param old_names referes to any prior name of this operation to aid when loading old files
+ * @param perform a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
  */
 export interface Operation {
     name: string,
@@ -502,11 +534,102 @@ export interface Operation {
 
 
 
+ /**
+  * this type is used to classify operations in the dropdown menu
+  * @param category the name of the category for all associated operations (e.g. block, structure)
+  * @param dx a description of that category to show on screen
+  * @param ops an array of all the operations associated with this category
+  */
  export interface OperationClassification{
   category: string,
   dx: string,
   ops: Array<Operation> 
  }
+
+
+/****************** OBJECTS/TYPES RELATED to OPERATION TREE *****************/
+
+
+/**
+ * this stores a reference to a component on the palette with its id and some
+ * @param type is the type of component'
+ * @param view_id is ndx to reference to this object in the ViewComponentRef (for deleting)
+ * @param id is a unique id linked forever to this component 
+ * @param component is a reference to the component object
+ * @param dirty describes if this needs to be recalcuated or redrawn 
+ */
+type BaseNode = {
+  type: 'draft' | 'op' | 'cxn',
+  ref: ViewRef,
+  id: number, //this will be unique for every instance
+  component: SubdraftComponent | OperationComponent | ConnectionComponent,
+  dirty: boolean
+}
+
+
+/**
+ * an OpNode is an extension of BaseNode that includes additional params
+ * @param name the name of the operation at this node
+ * @param params an array of the current param values at this node
+ * @param inlets an array of the inlet values at this node
+ */
+export type OpNode = BaseNode & {
+  name: string,
+  params: Array<any>
+  inlets: Array<any>;
+ }
+
+
+ /**
+ * a DraftNode is an extension of BaseNode that includes additional params
+ * @param draft the active draft at this node
+ * @param loom the loom associated with the draft at this node
+ * @param loom_settings the settings associted with the loom at this node
+ */
+ export type DraftNode = BaseNode & {
+  draft: Draft,
+  loom: Loom,
+  loom_settings: LoomSettings
+ }
+
+
+/**
+ * Allows one to use Node as shorthand for any of these types of nodes
+ */
+ export type Node = BaseNode | OpNode | DraftNode;
+
+
+ /**
+  * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
+  * each node stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
+  * connections will have inlet/outlet indexes of 0, 0 (they cannot connect ot multiple things)
+  * drafts will have inset/outout indexes of 0, 0 (they can only have one parent)
+  * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
+  * @param treenode - the treenode that this input or output goes towards
+  * @param ndx - which ndx on the said treenodes does this connect to specifically
+  */
+ export interface IOTuple{
+   tn: TreeNode,
+   ndx: number
+ }
+
+/**
+ * A tree node stores relationships between the components created by operations
+  * @param node: is a reference to the node object stored in the tree. 
+  * @param parent links to the treenode that "created" this node or null if it was created by the user 
+  * @param inputs a list of TreeNodes that are used as input to this TreeNode with an idex to which input they belong to
+  * @param outputs a list of TreeNodes created by this node or specified by the user
+  * Rules: 
+  *   Operations can have many inputs and many outputs 
+  *   Subdrafts can only have one input and one output (for now)
+  *   
+*/
+export interface TreeNode{
+  node: Node,
+  parent: TreeNode,
+  inputs: Array<IOTuple>,
+  outputs: Array<IOTuple>
+}
 
 
 

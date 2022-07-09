@@ -1,12 +1,12 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import * as _ from 'lodash';
-import { Loom } from '../../model/loom';
 import { DesignmodesService } from '../../provider/designmodes.service';
-import { DesignMode } from '../../model/datatypes';
+import { DesignMode,Loom, Draft, LoomSettings } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
-import { Draft } from '../../model/draft';
 import { WorkspaceService } from '../../provider/workspace.service';
+import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts } from '../../model/drafts';
+import { getLoomUtilByType } from '../../model/looms';
 
 @Component({
   selector: 'app-loom-modal',
@@ -21,7 +21,8 @@ export class LoomModal implements OnInit {
 
 
   draft: Draft;
-  loom:Loom
+  loom:Loom;
+  loom_settings:LoomSettings;
   epi: number = 10;
   warps:number  = 100;
   wefts:number = 100;
@@ -99,7 +100,7 @@ export class LoomModal implements OnInit {
     f.value.treadles = Math.ceil(f.value.treadles);
    
     if(this.type == "global") this.ws.min_treadles= f.value.treadles;
-    else this.loom.setMinTreadles(f.value.treadles);
+    else this.loom_settings.treadles = f.value.treadles;
 
     this.onChange.emit();
   }
@@ -117,7 +118,7 @@ export class LoomModal implements OnInit {
     console.log("min frames", f.value.frames);  
     
     if(this.type == "global")   this.ws.min_frames = f.value.frames;
-    else  this.loom.setMinFrames(f.value.frames);
+    else  this.loom_settings.frames = f.value.frames;
     
     
     this.onChange.emit();
@@ -127,7 +128,8 @@ export class LoomModal implements OnInit {
 
   loomChange(e:any){
     if(this.type == 'global') this.ws.type = e.value.loomtype;
-    else this.loom.changeType(e.value.loomtype);
+    else this.loom_settings.type = e.value.loomtype;
+
 
     this.dm.selectDesignMode(e.value.loomtype, 'loom_types');
     this.onChange.emit();
@@ -137,7 +139,7 @@ export class LoomModal implements OnInit {
 
   unitChange(e:any){
     if(this.type == 'global') this.ws.units = e.value.units;
-    else this.loom.overloadUnits(e.value.units);
+    else this.loom_settings.units = e.value.units;
     this.onChange.emit();
 
   }
@@ -152,7 +154,7 @@ export class LoomModal implements OnInit {
 
     if(this.warp_locked){
       var new_epi = (this.units == "in") ? f.value.warps / f.value.width : (10 * f.value.warps / f.value.width);   
-      this.loom.overloadEpi(new_epi);
+      this.loom_settings.epi = new_epi;
       f.value.epi = new_epi;
       this.epi = new_epi;
     }else{
@@ -170,22 +172,25 @@ export class LoomModal implements OnInit {
 
     if(e.warps == "") return;
 
-    if(e.warps > this.draft.warps){
-      var diff = e.warps -  this.draft.warps;
+    if(e.warps > warps( this.draft.drawdown)){
+      var diff = e.warps -  warps(this.draft.drawdown);
       
       for(var i = 0; i < diff; i++){  
-         this.draft.insertCol(i, 0,0);
-         this.loom.insertCol(i);
+        this.draft.drawdown = insertDrawdownCol(this.draft.drawdown,i, null);
       }
     }else{
-      var diff = this.draft.warps - e.warps;
+      var diff = warps(this.draft.drawdown) - e.warps;
       for(var i = 0; i < diff; i++){  
-        this.draft.deleteCol(this.draft.warps-1);
-        this.loom.deleteCol(this.draft.warps-1);
-
+        this.draft.drawdown = deleteDrawdownCol(this.draft.drawdown, warps(this.draft.drawdown)-1);
       }
 
     }
+
+    const utils = getLoomUtilByType(this.loom_settings.type);
+    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)
+    .then(loom => {
+      this.loom = loom;
+    })
 
 
   }
@@ -217,21 +222,25 @@ export class LoomModal implements OnInit {
   
     if(e.wefts === "" || e.wefts =="null") return;
 
-    if(e.wefts > this.draft.wefts){
-      var diff = e.wefts - this.draft.wefts;
+    if(e.wefts > wefts(this.draft.drawdown)){
+      var diff = e.wefts - wefts(this.draft.drawdown);
       
       for(var i = 0; i < diff; i++){  
-        this.draft.insertRow(e.wefts+i, 0, 0);
-        this.loom.insertRow(e.wefts+i);
+        this.draft.drawdown = insertDrawdownRow(this.draft.drawdown, e.wefts+i, null);
       }
     }else{
-      var diff = this.draft.wefts - e.wefts;
+      var diff = wefts(this.draft.drawdown) - e.wefts;
       for(var i = 0; i < diff; i++){  
-        this.draft.deleteRow(this.draft.wefts-1);
-        this.loom.deleteRow(this.draft.wefts-1);
+        this.draft.drawdown = deleteDrawdownRow(this.draft.drawdown, wefts(this.draft.drawdown)-1);
       }
 
     }
+
+    const utils = getLoomUtilByType(this.loom_settings.type);
+    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)
+    .then(loom => {
+      this.loom = loom;
+    })
 
    
   }

@@ -25,13 +25,13 @@
   <div class="draft-detail-footer">
 
     <div class="weave_stats">
-      <span> size: {{draft.warps}} ends, {{draft.wefts}} pics</span>
-      <span> width: {{loom.width}} {{ws.units}}</span>
+      <span> size: {{warps()}} ends, {{wefts()}} pics</span>
+      <span> width: {{width()}} {{ws.units}}</span>
       <span *ngIf="ws.units == 'in'"> epi: {{ws.epi}}</span>
       <span *ngIf="ws.units == 'cm'"> ep10cm: {{ws.epi}}</span>
-      <span *ngIf="ws.type === 'frame'">requires {{loom.num_frames}} frames, {{loom.num_treadles}} treadles</span>
-      <span class="error" *ngIf="ws.type === 'frame' && (loom.min_frames < loom.num_frames || loom.min_treadles < loom.num_treadles) ">
-        <i class="fas fa-exclamation-circle"></i> This draft requires more than the {{ws.min_frames}} frames or {{ws.min_treadles}} treadles than you have specified for your loom</span>
+      <span *ngIf="ws.type !== 'jacquard'">requires {{numFrames(loom)}} frames, {{numTreadles(loom)}} treadles</span>
+      <!-- <span class="error" *ngIf="ws.type !== 'jacquard' && (numFrames(loom) < loom_settings.frames || numTreadles(loom) < loom_settings.treadles) ">
+        <i class="fas fa-exclamation-circle"></i> This draft requires more than the {{ws.min_frames}} frames or {{ws.min_treadles}} treadles than you have specified for your loom</span> -->
     </div> 
 
 

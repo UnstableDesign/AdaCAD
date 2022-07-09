@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { BoolParam, DraftParam, FileParam, NumParam, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OpNode, TreeService } from '../../../provider/tree.service';
-import { BoolParam, DraftParam, FileParam, NumParam, OperationParam, SelectParam, StringParam } from '../../../provider/operation.service';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {

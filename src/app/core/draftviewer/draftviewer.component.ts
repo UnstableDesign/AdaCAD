@@ -13,8 +13,8 @@ import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { StateService } from '../provider/state.service';
 import { WorkspaceService } from '../provider/workspace.service';
-import { generateDrawdownWithPattern, hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown } from '../model/drafts';
-import { getLoomUtilByType, isInThreadingRange, isInTreadlingRange, numFrames, numTreadles } from '../model/looms';
+import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams } from '../model/drafts';
+import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, numFrames, numTreadles } from '../model/looms';
 import { computeYarnPaths } from '../model/yarnsimulation';
 
 @Component({
@@ -666,14 +666,15 @@ export class DraftviewerComponent implements OnInit {
   private copyArea() {
 
 
-    const screen_i = this.selection.getStartingScreenIndex();    
-    const draft_j = this.selection.getEndingIndex();
+    const screen_i = this.selection.getStartingRowScreenIndex();    
+   const draft_j = this.selection.getEndingColIndex();
     
 
     var w = this.selection.getWidth();
     var h = this.selection.getHeight();
 
-    this.copy = generateDrawdownWithPattern([[new Cell(false)]], w, h);
+
+    this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[new Cell(false)]]}).drawdown;
     const temp_copy: Array<Array<boolean>> = [];
 
     if(this.selection.getTargetId() === 'weft-systems'){
@@ -764,7 +765,7 @@ export class DraftviewerComponent implements OnInit {
     const temp_dd: Drawdown = temp_copy.map(row => {
       return row.map(el => new Cell(el));
     })
-    this.copy = generateDrawdownWithPattern(temp_dd, w, h);
+    this.copy = initDraftWithParams({warps: w, wefts: h, drawdown: temp_dd}).drawdown;
     this.onNewSelection.emit(this.copy);
 
 
@@ -1420,7 +1421,7 @@ export class DraftviewerComponent implements OnInit {
       cx.font = "10px Arial";
       cx.fillStyle = "white";
       let thread_val = this.loom.threading[j]+1;
-      if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = this.loom.num_frames - this.loom.threading[j];
+      if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(this.loom) - this.loom.threading[j];
       cx.fillText(thread_val, 2+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
       
     }
@@ -2474,23 +2475,43 @@ public redraw(flags:any){
    * @param {Event} Delte - clear event from design component.
    * @returns {void}
    */
-  // public onClear(b:boolean) {
+  public onClear(b:boolean) {
+
+
+    let width = this.selection.getWidth();
+    let height = this.selection.getHeight();
+    this.weave.drawdown = pasteIntoDrawdown(this.weave.drawdown,[[new Cell(false)]],this.selection.getStartingRowScreenIndex(),this.selection.getStartingColIndex(), width, height);
     
-  //   const p: Pattern = new Pattern({width: 1, height: 1, pattern: [[b]]});
+    let utils = getLoomUtilByType(this.loom_settings.type);
 
-  //   this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom)
+    switch(this.selection.getTargetId()){    
+      case 'drawdown':
+        //if you do this when updates come from loom, it will erase those updates
+        utils.computeLoomFromDrawdown(this.weave.drawdown, this.ws.selected_origin_option)
+        .then(loom => {
+          this.loom = loom;
+          this.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
 
-  //   this.loom.recomputeLoom(this.weave, this.loom.type);
+        });
+       break;
 
-  //   if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
+      case 'treading':
+      case 'tieup':
+      case 'treadling':
+        utils.computeDrawdownFromLoom(this.loom, this.ws.selected_origin_option)
+        .then(drawdown => {
+          this.weave.drawdown = drawdown;
+          this.redraw({drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
 
-  //   this.copyArea();
+        });
 
-  //   this.redraw({drawdown:true, loom:true});
+      break;
+    }
 
-  //   this.timeline.addHistoryState(this.weave);
+  
+    this.copyArea();
 
-  // }
+  }
 
   /**
    * Tells weave reference to paste copied pattern.
@@ -2558,6 +2579,10 @@ public redraw(flags:any){
   onCopy(){
     this.copyArea();
     this.hold_copy_for_paste = true;
+  }
+
+  isFrame(){
+    return isFrame(this.loom_settings);
   }
 
 

@@ -8,7 +8,6 @@
       #selection
       [render]="render"
       [loom_settings]="loom_settings"
-      (onFill)="onFill($event)"
       (onCopy)="onCopy()"
       (onClear)="onClear($event)"
       (onPaste)="onPaste($event)"
@@ -51,14 +50,14 @@
         <canvas id="warp-materials" #warp_materials>  </canvas>
       </div>
 
-      <div [class.hidden]="!loom.isFrame()" class="threading-tieup-container origin{{ws.selected_origin_option}}">
+      <div [class.hidden]="!isFrame()" class="threading-tieup-container origin{{ws.selected_origin_option}}">
         <canvas id="threading"></canvas>
         <canvas id="tieups" #tieups ></canvas>
       </div>
 
       <div class="drawdown-container origin{{ws.selected_origin_option}}" >
         <canvas id="drawdown" #drawDown  >  </canvas>
-        <canvas [class.hidden]="!loom.isFrame()" id="treadling" #treadling></canvas>
+        <canvas [class.hidden]="!isFrame()" id="treadling" #treadling></canvas>
         
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
           <canvas id="weft-materials" #weft_materials>  </canvas>

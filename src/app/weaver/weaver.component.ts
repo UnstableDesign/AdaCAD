@@ -119,7 +119,7 @@ export class WeaverComponent implements OnInit {
     });
 
 
-    this.copy = generateDrawdownWithPattern([[new Cell(false)]], 2, 2);
+    this.copy = [[new Cell(false)]];
     this.dm.selectDesignMode('draw', 'design_modes');
     this.dm.selectDesignMode('toggle', 'draw_modes');
 

@@ -25,7 +25,7 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWasy aria-label="Warp System Repeat">
     <mat-chip
-      *ngFor="let sys of draft.colSystemPattern; let j = index;"
+      *ngFor="let sys of draft.colSystemMapping; let j = index;"
       [removable]="removable"
       (removed)="remove('wasy', j)">
       {{ss.warp_systems[sys].id+1}}
@@ -63,7 +63,7 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWash aria-label="Warp Material Repeat">
     <mat-chip
-      *ngFor="let sys of draft.colShuttlePattern; let j = index;"
+      *ngFor="let sys of draft.colShuttleMapping; let j = index;"
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wash', j)">
@@ -108,7 +108,7 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWesy aria-label="Weft System Repeat">
     <mat-chip
-      *ngFor="let sys of draft.rowSystemPattern; let j = index;"
+      *ngFor="let sys of draft.rowSystemMapping; let j = index;"
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wesy', j)">
@@ -151,7 +151,7 @@
 </mat-label>
   <mat-chip-list  class="mat-chip-list-stacked" #chipListWesh aria-label="Weft Material Repeat">
     <mat-chip
-      *ngFor="let sys of draft.rowShuttlePattern; let j = index; "
+      *ngFor="let sys of draft.rowShuttleMapping; let j = index; "
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wesh', j)">

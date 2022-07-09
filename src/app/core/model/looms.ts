@@ -1,7 +1,7 @@
 import { L, NUMPAD_SIX } from "@angular/cdk/keycodes";
 import { LoomModal } from "../modal/loom/loom.modal";
 import { Cell } from "./cell";
-import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomUtil } from "./datatypes";
+import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
 import utilInstance from "./util";
 
 
@@ -515,4 +515,14 @@ export const isInThreadingRange = (loom: Loom, ndx: Interlacement) : boolean => 
   if(ndx.i < 0) return false;
   if(ndx.i >= loom.tieup[0].length) return false;
   return true;
+}
+
+
+/** 
+ * returns true if this loom typically requires a view of threading and tieup
+ */
+
+export const isFrame = (loom_settings: LoomSettings) : boolean => {
+  if(loom_settings.type !== 'jacquard') return true;
+  return false;
 }

@@ -6,7 +6,6 @@ import { OpsComponent } from '../../mixer/modal/ops/ops.component';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LoomModal } from '../modal/loom/loom.modal';
 import { MaterialModal } from '../modal/material/material.modal';
-import { PatternModal } from '../modal/pattern/pattern.modal';
 import { System } from '../model/system';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { ActionsComponent } from '../modal/actions/actions.component';
@@ -68,7 +67,6 @@ export class SidebarComponent implements OnInit {
   weaver_view_modal: MatDialogRef<WeaverViewComponent, any>;
   actions_modal: MatDialogRef<ActionsComponent, any>;
   materials_modal: MatDialogRef<MaterialModal, any>;
-  patterns_modal: MatDialogRef<PatternModal, any>;
   equipment_modal: MatDialogRef<LoomModal, any>;
   global_loom_modal: MatDialogRef<LoomModal, any>;
   upload_modal: MatDialogRef<InitModal, any>;
@@ -124,7 +122,6 @@ export class SidebarComponent implements OnInit {
   closeWeaverModals(){
     if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) this.materials_modal.close();
     if(this.equipment_modal != undefined && this.equipment_modal.componentInstance != null) this.equipment_modal.close();
-    if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) this.patterns_modal.close();
     if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
     if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
   }
@@ -244,17 +241,6 @@ openMaterialsModal(){
 
   }
 
-openPatternsModal(){
-
-  if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) return;
-
-  this.patterns_modal =  this.dialog.open(PatternModal,
-    {disableClose: true,
-      maxWidth:350, 
-      hasBackdrop: false,
-      data: {}});
-
-}
 
 openLoomModal(){
 

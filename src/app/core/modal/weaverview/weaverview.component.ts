@@ -127,12 +127,12 @@ export class WeaverViewComponent implements OnInit {
         const  system_id = cs.id;
 
         const sys_draft:Array<Array<boolean>> = [];
-        this.draft.pattern.forEach((row, i) => {
+        this.draft.drawdown.forEach((row, i) => {
           if(this.draft.rowSystemMapping[i] !== system_id) return;
           sys_draft.push([]);
           row.forEach((col, j) => {
             if(this.draft.colSystemMapping[j] !== id) return;
-              sys_draft[sys_draft.length-1].push(this.draft.pattern[i][j].getHeddle());
+              sys_draft[sys_draft.length-1].push(this.draft.drawdown[i][j].getHeddle());
           });
         });
 

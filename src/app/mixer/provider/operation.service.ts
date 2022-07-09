@@ -7,9 +7,9 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
-import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from 'src/app/core/model/datatypes';
+import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
 import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
-import { getLoomUtilByType, numFrames, numTreadles } from 'src/app/core/model/looms';
+import { getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 
 
@@ -804,7 +804,7 @@ export class OperationService {
 
         for(let i = 0; i <parent_input.params[0]; i++){
 
-          const d: Draft =initDraftWithParams({wefts: outwefts, warps:child_input.drafts[0].warps, colShuttleMapping:child_input.drafts[0].colShuttleMapping, colSystemMapping:child_input.drafts[0].colSystemMapping});
+          const d: Draft =initDraftWithParams({wefts: outwefts, warps:warps(child_input.drafts[0].drawdown), colShuttleMapping:child_input.drafts[0].colShuttleMapping, colSystemMapping:child_input.drafts[0].colSystemMapping});
           d.drawdown.forEach((row, row_ndx) => {
             row.forEach((cell, j) => {
 
@@ -1739,8 +1739,8 @@ export class OperationService {
 
 
         const outputs: Array<Draft> =child_input.drafts.map(input => {
-            const new_warps =parent_input.params[1] +parent_input.params[3] + child_input.drafts[0].warps;
-            const new_wefts =parent_input.params[0] +parent_input.params[2] + child_input.drafts[0].wefts;
+            const new_warps =parent_input.params[1] +parent_input.params[3] + warps(child_input.drafts[0].drawdown);
+            const new_wefts =parent_input.params[0] +parent_input.params[2] + wefts(child_input.drafts[0].drawdown);
 
             const d: Draft =initDraftWithParams({warps: new_warps, wefts: new_wefts});
 

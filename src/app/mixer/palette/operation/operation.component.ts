@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Bounds, Interlacement, Point } from '../../../core/model/datatypes';
+import { Bounds, Interlacement, Point,Operation, DynamicOperation } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { OperationService, Operation, DynamicOperation, StringParam } from '../../provider/operation.service';
+import { OperationService } from '../../provider/operation.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl} from '@angular/forms';

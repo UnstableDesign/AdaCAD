@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Draft } from '../model/draft';
+import { Draft, SaveObj } from '../model/datatypes';
 import {cloneDeep} from 'lodash';
 import {Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import {getDatabase, ref as fbref, set as fbset, onValue} from '@angular/fire/database'
 import { AuthService } from './auth.service';
-import { SaveObj } from './file.service';
 /**
  * stores a state within the undo/redo timeline
  * weaver uses draft, mixer uses ada

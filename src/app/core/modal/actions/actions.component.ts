@@ -6,7 +6,7 @@ import {ElementRef, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
 import {MatChipInputEvent} from '@angular/material/chips';
-import { Draft } from '../../model/draft';
+import { Draft } from '../../model/datatypes';
 import { MaterialsService } from '../../provider/materials.service';
 import { SystemsService } from '../../provider/systems.service';
 
@@ -116,7 +116,7 @@ export class ActionsComponent implements OnInit {
         let warp_sys_id = this.idFromString((value || '').trim());
         console.log("value is ", warp_sys_id);
         if (warp_sys_id >= 0 && warp_sys_id < this.ss.warp_systems.length) {
-          this.draft.colSystemPattern.push(this.idFromString(value.trim()));
+          this.draft.colSystemMapping.push(this.idFromString(value.trim()));
         }
         this.warpSystemCtrl.setValue(null);
       
@@ -141,7 +141,7 @@ export class ActionsComponent implements OnInit {
 
         let weft_sys_id = this.idFromString((value || '').trim());
         if (weft_sys_id >= 0 && weft_sys_id < this.ss.warp_systems.length) {
-          this.draft.rowSystemPattern.push(weft_sys_id);
+          this.draft.rowSystemMapping.push(weft_sys_id);
         }
         this.weftSystemCtrl.setValue(null);
       break;
@@ -180,8 +180,8 @@ export class ActionsComponent implements OnInit {
     switch(caller){
       case 'wasy':
 
-        if (index >= 0 && this.draft.colSystemPattern.length > 1) {
-          this.draft.colSystemPattern.splice(index, 1);
+        if (index >= 0 && this.draft.colSystemMapping.length > 1) {
+          this.draft.colSystemMapping.splice(index, 1);
         }
           
       
@@ -189,8 +189,8 @@ export class ActionsComponent implements OnInit {
 
       case 'wash':
 
-        if (index >= 0 && this.draft.colShuttlePattern.length > 1) {
-          this.draft.colShuttlePattern.splice(index, 1);
+        if (index >= 0 && this.draft.colShuttleMapping.length > 1) {
+          this.draft.colShuttleMapping.splice(index, 1);
         }
       
 
@@ -199,16 +199,16 @@ export class ActionsComponent implements OnInit {
       case 'wesy':
         
 
-        if (index >= 0 && this.draft.rowSystemPattern.length > 1) {
-          this.draft.rowSystemPattern.splice(index, 1);
+        if (index >= 0 && this.draft.rowSystemMapping.length > 1) {
+          this.draft.rowSystemMapping.splice(index, 1);
         }
      
       break;
 
       case 'wesh':
 
-        if (index >= 0 && this.draft.rowShuttlePattern.length > 1) {
-          this.draft.rowShuttlePattern.splice(index, 1);
+        if (index >= 0 && this.draft.rowShuttleMapping.length > 1) {
+          this.draft.rowShuttleMapping.splice(index, 1);
         }
       break;
     }
@@ -219,19 +219,19 @@ export class ActionsComponent implements OnInit {
     console.log("send updates", source);
   switch(source){
       case 'wasy':
-      this.onUpdateWarpSystems.emit(this.draft.colSystemPattern);
+      this.onUpdateWarpSystems.emit(this.draft.colSystemMapping);
       break;
 
       case 'wash':
-      this.onUpdateWarpShuttles.emit(this.draft.colShuttlePattern);
+      this.onUpdateWarpShuttles.emit(this.draft.colShuttleMapping);
       break;
 
       case 'wesy':
-      this.onUpdateWeftSystems.emit(this.draft.rowSystemPattern);
+      this.onUpdateWeftSystems.emit(this.draft.rowSystemMapping);
       break;
 
       case 'wesh':
-        this.onUpdateWeftShuttles.emit(this.draft.rowShuttlePattern);
+        this.onUpdateWeftShuttles.emit(this.draft.rowShuttleMapping);
       break;
     }
 
@@ -244,7 +244,7 @@ export class ActionsComponent implements OnInit {
       let warp_sys_id = this.idFromString(event.option.viewValue);
       console.log("selected", warp_sys_id);
 
-      this.draft.colSystemPattern.push(warp_sys_id);
+      this.draft.colSystemMapping.push(warp_sys_id);
       this.warpSystemCtrl.setValue(null);
       break;
 
@@ -258,14 +258,14 @@ export class ActionsComponent implements OnInit {
       //   color: this.shuttles[warp_id].getColor()
       // };
 
-      this.draft.colShuttlePattern.push(warp_id);
+      this.draft.colShuttleMapping.push(warp_id);
       this.warpShuttleCtrl.setValue(null);
       
       break;
 
       case 'wesy':
       let weft_sys_id = this.idFromString(event.option.viewValue);
-      this.draft.rowSystemPattern.push(weft_sys_id);
+      this.draft.rowSystemMapping.push(weft_sys_id);
       this.weftSystemCtrl.setValue(null);
       break;
 
@@ -280,7 +280,7 @@ export class ActionsComponent implements OnInit {
       //   color: this.shuttles[weft_id].getColor()
       // };
 
-      this.draft.rowShuttlePattern.push(weft_id);
+      this.draft.rowShuttleMapping.push(weft_id);
       this.weftShuttleCtrl.setValue(null);
       break;
     }

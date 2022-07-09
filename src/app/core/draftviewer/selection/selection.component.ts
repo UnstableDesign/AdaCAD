@@ -278,8 +278,12 @@ export class SelectionComponent implements OnInit {
     return  Math.min(this.start.j, this.end.j);    
   }
 
+  getEndingColIndex(): number{
+    return  Math.max(this.start.j, this.end.j);    
+  }
+
   getEndingRowScreenIndex(): number{
-    return  Math.min(this.start.si, this.end.si);    
+    return  Math.max(this.start.si, this.end.si);    
   }
 
   // getEndingIndex(): number{

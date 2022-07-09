@@ -424,7 +424,7 @@ export class TreeService {
   * @param loom the loom to associate with this node
   * @returns the created draft node and the entry associated with this
   */
-  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, loomtype: string) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -1266,7 +1266,7 @@ removeOperationNode(id:number) : Array<Node>{
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, 0,  id, 0,  cxn);
-      fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, null)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
+      fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
     }
 
     return Promise.all(fns)
@@ -1970,14 +1970,23 @@ isValidIOTuple(io: IOTuple) : boolean {
    * @param preloaded : a list of preloaded node ids to factor in when creating this new id.  
    */
   getNewDraftProxies(draft: Draft, preloaded: Array<number>){
-    const node: DraftNodeProxy = {
-      node_id: this.getUniqueId(),
+
+    const id =  this.getUniqueId();
+    const node: NodeComponentProxy = {
+      node_id: id, 
+      type: 'draft',
+      bounds: null
+    }
+    
+    const draft_node: DraftNodeProxy = {
+      node_id: id,
       draft_id: draft.id,
       draft: null,
+      draft_visible: true,
       loom: null, 
       loom_settings:null,
-      draft_visible: true
     };
+
     const treenode: TreeNodeProxy = {
       node: node.node_id,
       parent: -1, 
@@ -1985,7 +1994,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       outputs:[]
     };
 
-    return {node, treenode}
+    return {node, treenode, draft_node}
   }
 
   setNodesClear(){
@@ -2151,7 +2160,7 @@ isValidIOTuple(io: IOTuple) : boolean {
    * exports TopLevel drafts associated with this tree
    * @returns an array of Drafts
    */
-    exportDraftsForSaving() : Array<Draft> {
+    exportDraftNodesForSaving() : Array<DraftNode> {
   
       //make sure the name values are not undefined
       this.getDraftNodes().forEach(node => {
@@ -2160,7 +2169,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
       return this.getDraftNodes()
       .filter(el => this.getSubdraftParent(el.id) === -1)
-      .map(el => el.draft);
+
   
     }
 

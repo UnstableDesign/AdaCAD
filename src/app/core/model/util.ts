@@ -6,8 +6,8 @@
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
 import { Cell } from "./cell";
-import { Point, Interlacement, Bounds } from "./datatypes";
-import { Draft } from "./draft";
+import { Point, Interlacement, Bounds, Draft } from "./datatypes";
+import { hasCell, initDraftWithParams, warps, wefts } from "./drafts";
 import { Shuttle } from "./shuttle";
 
 
@@ -447,7 +447,7 @@ class Util {
     const max_wefts:number = inputs
     .filter(el => el !== null)
     .reduce((acc, draft)=>{
-      if(draft.wefts > acc) return draft.wefts;
+      if(wefts(draft.drawdown) > acc) return wefts(draft.drawdown);
       return acc;
       }, 0);
       return max_wefts;
@@ -462,7 +462,7 @@ class Util {
     const max_warps:number = inputs
     .filter(el => el !== null)
     .reduce((acc, draft)=>{
-      if(draft.warps > acc) return draft.warps;
+      if(warps(draft.drawdown) > acc) return warps(draft.drawdown);
       return acc;
       }, 0);
       return max_warps;
@@ -844,12 +844,12 @@ interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft)
 
 
   let total_wefts: number = 0;
-  const all_wefts = drafts.map(el => el.wefts).filter(el => el > 0);
+  const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
   if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
   else  total_wefts = utilInstance.getMaxWefts(drafts);
 
   let total_warps: number = 0;
-  const all_warps = drafts.map(el => el.warps).filter(el => el > 0);
+  const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
 
   if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
   else  total_warps = utilInstance.getMaxWarps(drafts);
@@ -857,20 +857,20 @@ interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft)
 
 
   //create a draft to hold the merged values
-  const d:Draft = new Draft(
+  const d:Draft = initDraftWithParams(
     {warps: total_warps, 
       wefts:(total_wefts *drafts.length),
       colShuttleMapping: warp_patterns.colShuttleMapping,
       colSystemMapping: warp_patterns.colSystemMapping});
 
-    d.pattern.forEach((row, ndx) => {
+    d.drawdown.forEach((row, ndx) => {
 
       const select_array: number = ndx %drafts.length; 
-      const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % drafts[select_array].wefts : Math.floor(ndx /drafts.length);
+      const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % wefts(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
       row.forEach((cell, j) =>{
-          const select_col = (factor_in_repeats === 1) ? j % drafts[select_array].warps : j;
-          if(drafts[select_array].hasCell(select_row, select_col)){
-              const pattern = drafts[select_array].pattern;
+          const select_col = (factor_in_repeats === 1) ? j % warps(drafts[select_array].drawdown) : j;
+          if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
+              const pattern = drafts[select_array].drawdown;
               cell.setHeddle(pattern[select_row][select_col].getHeddle());
 
           }else{

@@ -6,7 +6,7 @@ import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds, DraftMap, Draft } from '../../core/model/datatypes';
+import { Point, Interlacement, Bounds, DraftMap, Draft, NodeComponentProxy } from '../../core/model/datatypes';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
@@ -14,12 +14,12 @@ import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { DraftNode, OpNode, TreeService } from '../provider/tree.service';
-import { FileService, NodeComponentProxy, SaveObj } from './../../core/provider/file.service';
+import { FileService } from './../../core/provider/file.service';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
-import { getDraftName, initDraftWithParams, warps, wefts } from 'src/app/core/model/drafts';
+import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 
 @Component({
   selector: 'app-palette',
@@ -308,11 +308,23 @@ export class PaletteComponent implements OnInit{
    */
   addTimelineState(){
 
+    // version: string,
+    // workspace: any,
+    // type: string,
+    // nodes: Array<NodeComponentProxy>,
+    // tree: Array<TreeNodeProxy>,
+    // drafts: Array<Draft>,
+    // looms: Array<Loom>,
+    // loom_settings: Array<LoomSettings>
+    // ops: Array<any>,
+    // notes: Array<Note>,
+    // materials: Array<Shuttle>,
+    // scale: number
+
 
    this.fs.saver.ada(
       'mixer', 
-      this.tree.exportDraftsForSaving(),
-      this.tree.exportLoomsForSaving(),
+      this.tree.exportDraftNodesForSaving(),
       true,
       this.scale)
       .then(so => {
@@ -566,11 +578,10 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.draft = d;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
-    subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }
@@ -597,8 +608,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.id = id;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
-    subdraft.instance.patterns = this.patterns;
-    subdraft.instance.draft_visible = (nodep.draft_visible === undefined)? true : nodep.draft_visible;
+    subdraft.instance.draft_visible =true;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
 
@@ -865,7 +875,6 @@ export class PaletteComponent implements OnInit{
           sd.default_cell = this.default_cell_size;
           sd.scale = this.scale;
           sd.draft = d;
-          sd.patterns = this.patterns;
           sd.ink = this.inks.getSelected(); //default to the currently selected ink
           sd.setAsPreview();
           // sd.disableDrag();
@@ -1188,15 +1197,15 @@ export class PaletteComponent implements OnInit{
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
         const sd_draft = <Draft> this.tree.getDraft(obj.id);
         
-      this.createSubDraft(new Draft(
-        {wefts: sd_draft.wefts, 
-          warps: sd_draft.warps, 
-          pattern: sd_draft.pattern, 
+      this.createSubDraft(initDraftWithParams(
+        {wefts: wefts(sd_draft.drawdown), 
+          warps: warps(sd_draft.drawdown), 
+          pattern: sd_draft.drawdown, 
           rowShuttleMapping: sd_draft.rowShuttleMapping,
           colShuttleMapping: sd_draft.colShuttleMapping,
           rowSystemMapping: sd_draft.rowSystemMapping,
           colSystemMapping: sd_draft.colSystemMapping,
-          gen_name: sd_draft.getName()+" copy"
+          gen_name: getDraftName(sd_draft)+" copy"
         }), -1)
         .then(new_sd => {
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
@@ -1466,8 +1475,8 @@ calculateInitialLocaiton(id: number) : Bounds {
   
   const new_bounds = {
     topleft: this.viewport.getTopLeft(), 
-    width: draft.warps * this.default_cell_size,
-    height: draft.wefts * this.default_cell_size
+    width: warps(draft.drawdown) * this.default_cell_size,
+    height: wefts(draft.drawdown) * this.default_cell_size
   }  
 
   //if it has a parent, align it to the bottom edge
@@ -1497,7 +1506,7 @@ calculateInitialLocaiton(id: number) : Bounds {
       .filter((el, ndx) => (ndx < this_child))
       .reduce((acc, el, ndx) => {
         const el_draft = this.tree.getDraft(el);
-         acc.x = acc.x + (el_draft.warps + 2)*this.default_cell_size;
+         acc.x = acc.x + (warps(el_draft.drawdown) + 2)*this.default_cell_size;
          return acc;
       }, new_bounds.topleft);
       
@@ -1543,9 +1552,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
           {
             node_id: el.id,
             type: el.type,
-            draft_id: (<DraftNode>el).draft.id,
-            draft_name: (<DraftNode>el).draft.ud_name,
-            draft_visible: true,
             bounds: this.calculateInitialLocaiton(el.id)
           }, this.scale);
         });
@@ -1811,7 +1817,7 @@ processShapeEnd() : Promise<any> {
   this.shape_bounds.topleft.y += this.viewport.getTopLeft().y;
   
 
-  return this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}), -1)
+  return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
   .then(sd => {
     sd.setPosition(this.shape_bounds.topleft);
     sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
@@ -1907,7 +1913,7 @@ drawStarted(){
     }
 
     //if this drawing does not intersect with any existing subdrafts, 
-    return this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}), -1)
+    return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
     .then(sd => {
       const pos = {
         topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.scale), y: this.viewport.getTopLeft().y + (corners[0].i * this.scale)},
@@ -2148,7 +2154,7 @@ drawStarted(){
     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     
     
-    this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}), -1)
+    this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}), -1)
     .then(sc => {
       sc.setComponentBounds(bounds);
        //get any subdrafts that intersect the one we just made
@@ -2376,9 +2382,9 @@ drawStarted(){
         const preview_draft = preview_node.draft;
         let to_right = (<SubdraftComponent> preview_node.component).getTopleft();
 
-        this.createSubDraft(new Draft({wefts: preview_draft.wefts, warps: preview_draft.warps}), -1)
+        this.createSubDraft(initDraftWithParams({wefts: wefts(preview_draft.drawdown), warps: warps(preview_draft.drawdown)}), -1)
         .then(component => {
-          this.tree.setDraftPattern(component.id, preview_draft.pattern);
+          this.tree.setDraftPattern(component.id, preview_draft.drawdown);
           //this.redrawDirtyDrafts();
           to_right.x += preview_node.component.bounds.width + this.scale *4;
           component.setPosition(to_right);

@@ -1,7 +1,8 @@
 import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Draft } from '../../../core/model/draft';
-import { Loom } from '../../../core/model/loom';
+import { Draft, Loom, LoomSettings } from '../../../core/model/datatypes';
+import { numFrames, numTreadles } from '../../../core/model/looms';
+import {wefts, warps} from '../../../core/model/drafts'
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
 import { InkService } from '../../provider/ink.service';
 import { OperationService } from '../../provider/operation.service';
@@ -9,6 +10,7 @@ import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { WeaverComponent } from '../../../weaver/weaver.component';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
+import { from } from 'rxjs';
 
 
 /**
@@ -41,6 +43,8 @@ export class DraftdetailComponent implements OnInit {
    */
    loom: Loom;
 
+   loom_settings: LoomSettings;
+
 
   scrollingSubscription: any;
 
@@ -65,6 +69,7 @@ export class DraftdetailComponent implements OnInit {
                this.draft = data.draft;
                this.ink = data.ink;
                this.loom = data.loom;
+               this.loom_settings = data.loom_settings;
                this.viewonly = data.viewonly;
 
 
@@ -152,6 +157,20 @@ export class DraftdetailComponent implements OnInit {
     this.scrollingSubscription.unsubscribe();
     this.weaver.closeAllModals();
     this.dialogRef.close(this.draft);
+  }
+
+  //HELPER FUNCTIONS TO AID VARIABLES CALLED FROM HTML
+ warps(){
+    return warps(this.draft.drawdown);
+  }
+
+ wefts(){
+    return wefts(this.draft.drawdown);
+  }
+
+ width(){
+    if(this.loom_settings.units == 'cm') return warps(this.draft.drawdown) / this.loom_settings.epi * 10;
+    else return warps(this.draft.drawdown) / this.loom_settings.epi;
   }
   
 }
