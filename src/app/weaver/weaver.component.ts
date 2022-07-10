@@ -38,8 +38,8 @@ export class WeaverComponent implements OnInit {
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
   @ViewChild(SidebarComponent, {static: true}) sidebar;
   
-  @Input()  draft: Draft; 
-  @Input()  viewonly: boolean; 
+  @Input() draft: Draft; 
+  @Input() viewonly: boolean; 
   @Input() loom: Loom;
   @Input() loom_settings: LoomSettings;
 

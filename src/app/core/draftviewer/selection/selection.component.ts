@@ -252,9 +252,12 @@ export class SelectionComponent implements OnInit {
   }
 
   /**
-   * triggers view changes when the selection event ends
+   * triggers view changes when the selection event ends OR mouse leaves valid view
    */
   onSelectStop(){
+
+    if(this.target === undefined) return;
+
     this.hide_options = false;
     this.onSelectionEnd.emit();
 

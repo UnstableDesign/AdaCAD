@@ -10,6 +10,7 @@ import { VersionService } from './version.service';
 import { createDraft, initDraft, initDraftWithParams, loadDraftFromFile } from '../model/drafts';
 import { getLoomUtilByType } from '../model/looms';
 import { WorkspaceService } from './workspace.service';
+import * as _ from 'lodash';
 
 
 
@@ -52,7 +53,7 @@ export class FileService {
   const dloader: Fileloader = {
 
      ada: async (filename: string, data: any) : Promise<LoadResponse> => {
-      console.log("DATA IN", data)
+      console.log("DATA IN", _.cloneDeep(data))
 
       let draft_nodes: Array<DraftNodeProxy> = [];
       //let looms: Array<Loom> = [];
@@ -61,9 +62,7 @@ export class FileService {
       
       this.clearAll();
 
-      //handle old file types that didn't separate out drafts
-      if(data.drafts === undefined) data.drafts = [data];
-      
+     
       if(data.version !== undefined) version = data.version;
 
 
@@ -75,6 +74,10 @@ export class FileService {
         });
         
       }else{
+
+        //handle old file types that didn't separate out drafts
+        if(data.drafts === undefined) data.drafts = [data];
+      
 
         data.drafts.forEach(el => {
           const node = data.nodes.find(node => node.draft_id == el.id);

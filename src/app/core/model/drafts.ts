@@ -45,11 +45,20 @@ import utilInstance from "./util";
   if(params.id !== undefined ) d.id = params.id;
   if(params.gen_name !== undefined ) d.gen_name = params.gen_name;
   if(params.ud_name !== undefined ) d.ud_name = params.ud_name;
-  if(params.wefts === undefined ) params.wefts = 1;
-  if(params.warps === undefined) params.warps = 1;
+ 
   //handle common error
   if(params.pattern !== undefined) params.drawdown = params.pattern;
   //start with empty draft 
+
+  if(params.wefts === undefined ){
+    if(params.drawdown == undefined) params.wefts = 1;
+    else params.wefts = wefts(params.drawdown);
+  }
+
+  if(params.warps === undefined){
+    if(params.drawdown == undefined)  params.warps = 1;
+    else params.warps = warps(params.drawdown);
+  } 
  
  
   for(let i = 0; i < params.wefts; i++){
@@ -152,7 +161,7 @@ export const createDraft = (
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
     draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
     
-    if(version === undefined || version === null || utilInstance.sameOrNewerVersion(version, '3.4.2')){
+    if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){
       draft.drawdown = parseSavedPattern(data.pattern);
     }else{
       draft.drawdown = parseSavedPattern(data.drawdown);
@@ -231,6 +240,7 @@ export const createDraft = (
    * @returns true if set and up, false if set and down or unset
    */
   export const isUp = (d: Drawdown, i:number, j:number) : boolean =>{
+    //console.log("is up", i, j, wefts(d), warps(d), d[i][j]);
     if ( i > -1 && i < wefts(d) && j > -1 && j < warps(d)) {
       return d[i][j].isUp();
     } else {

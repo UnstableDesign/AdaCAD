@@ -65,12 +65,9 @@ export class OperationService {
       perform: (op_inputs: Array<OpInput>) => {
         const parent_input = op_inputs.find(el => el.op_name == 'rectangle');
         const child_input = op_inputs.find(el => el.op_name == 'child');
-        console.log("child input", child_input, op_inputs);
 
         const draft = (child_input !== undefined && child_input.drafts.length > 0) ? child_input.drafts[0] : initDraftWithParams({drawdown: [[new Cell(true)]]});
 
-
-        console.log("fill with", draft.drawdown);
         const outputs: Array<Draft> = [];
         const d: Draft = initDraftWithParams(
           {warps: parent_input.params[0], 
@@ -85,7 +82,6 @@ export class OperationService {
         d.gen_name = this.formatName(op_inputs[0].drafts, "rect");
         outputs.push(d);
 
-        console.log("Created Draft", d.id);
         return Promise.resolve(outputs);
       }        
     }
@@ -1142,7 +1138,6 @@ export class OperationService {
 
         const bit_size = width * height;
         let decode_string = decode.toString(2);
-        console.log(decode_string);
 
         while(decode_string.length < bit_size){
           decode_string = '0'+decode_string;
@@ -1351,7 +1346,6 @@ export class OperationService {
             });
           });
 
-          console.log("ALL DRAFTS", alldrafts)
         //now merge in all of the additionalop_input.drafts offset by theop_input.drafts
         const d: Draft =alldrafts.reduce((acc, input) => {
           input.drawdown.forEach((row, i) => {

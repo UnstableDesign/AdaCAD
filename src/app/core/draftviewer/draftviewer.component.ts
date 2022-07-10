@@ -13,7 +13,7 @@ import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { StateService } from '../provider/state.service';
 import { WorkspaceService } from '../provider/workspace.service';
-import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams } from '../model/drafts';
+import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown } from '../model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, numFrames, numTreadles } from '../model/looms';
 import { computeYarnPaths } from '../model/yarnsimulation';
 
@@ -221,6 +221,9 @@ export class DraftviewerComponent implements OnInit {
  
    private tempPattern: Array<Array<Cell>>;
    private unsubscribe$ = new Subject();
+
+
+   isFrame:boolean = false;
  
    private lastPos: Interlacement;
  
@@ -247,6 +250,11 @@ export class DraftviewerComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.isFrame = isFrame(this.loom_settings);
+
+    
+
 
   }
 
@@ -288,6 +296,8 @@ export class DraftviewerComponent implements OnInit {
 
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded() {  
+
+    console.log("Loading Draft", this.weave, this.loom);
 
     const frames = numFrames(this.loom);
     const treadles = numTreadles(this.loom);
@@ -666,13 +676,11 @@ export class DraftviewerComponent implements OnInit {
   private copyArea() {
 
 
-    const screen_i = this.selection.getStartingRowScreenIndex();    
-   const draft_j = this.selection.getEndingColIndex();
-    
-
+   const screen_i = this.selection.getStartingRowScreenIndex();    
+   const draft_j = this.selection.getStartingColIndex();
+  
     var w = this.selection.getWidth();
     var h = this.selection.getHeight();
-
 
     this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[new Cell(false)]]}).drawdown;
     const temp_copy: Array<Array<boolean>> = [];
@@ -762,8 +770,13 @@ export class DraftviewerComponent implements OnInit {
       }
     }
 
-    const temp_dd: Drawdown = temp_copy.map(row => {
-      return row.map(el => new Cell(el));
+    if(temp_copy.length == 0) return;
+
+    const temp_dd: Drawdown = createBlankDrawdown(temp_copy.length, temp_copy[0].length);
+     temp_copy.forEach((row,i) => {
+      row.forEach((cell, j) => {
+        temp_dd[i][j].setHeddle(cell);
+      })
     })
     this.copy = initDraftWithParams({warps: w, wefts: h, drawdown: temp_dd}).drawdown;
     this.onNewSelection.emit(this.copy);
@@ -1955,6 +1968,8 @@ public drawWeftEnd(top, left, shuttle){
 
   public redrawLoom() {
 
+    if(this.loom === null) return;
+
     const frames = numFrames(this.loom);
     const treadles = numTreadles(this.loom);
 
@@ -2581,9 +2596,7 @@ public redraw(flags:any){
     this.hold_copy_for_paste = true;
   }
 
-  isFrame(){
-    return isFrame(this.loom_settings);
-  }
+ 
 
 
  

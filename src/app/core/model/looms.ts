@@ -444,6 +444,9 @@ export const getLoomUtilByType = (type: 'frame' | 'direct' | 'jacquard' | string
  * @returns the highest number found in the array
  */
 export const numFrames = (loom: Loom) : number => {
+
+  if(loom == null) return 0;
+
   return loom.threading.reduce((acc, el) => {
     if(el > acc){
       acc = el;
@@ -459,6 +462,9 @@ export const numFrames = (loom: Loom) : number => {
  * @returns the highest number found in the array
  */
  export const numTreadles = (loom: Loom) : number => {
+
+  if(loom == null) return 0;
+
   return loom.treadling.reduce((acc, el) => {
     
     const max_in_list = el.reduce((sub_acc, sub_el) => {

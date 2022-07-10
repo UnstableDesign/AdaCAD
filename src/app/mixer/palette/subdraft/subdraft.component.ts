@@ -13,7 +13,7 @@ import { Cell } from '../../../core/model/cell';
 import { OperationComponent } from '../operation/operation.component';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
-import { createDraft, getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
+import { createDraft, getDraftName, initDraftWithParams, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 
 
 
@@ -183,7 +183,6 @@ export class SubdraftComponent implements OnInit {
   }
 
   nameFocusOut(){
-    console.log("FOCUS OUT")
     this.onNameChange.emit(this.id);
   }
 
@@ -478,6 +477,8 @@ export class SubdraftComponent implements OnInit {
    */
   async drawDraft(draft: Draft) : Promise<any> {
 
+    console.log("Draw draft", draft);
+
     if(this.canvas === undefined) return;
     this.cx = this.canvas.getContext("2d");
    
@@ -759,6 +760,7 @@ export class SubdraftComponent implements OnInit {
       if(this.modal != undefined && this.modal.componentInstance != null) return;
       const draft = this.tree.getDraft(this.id);
       const loom = this.tree.getLoom(this.id);
+      const loom_settings = this.tree.getLoomSettings(this.id);
 
       this.modal = this.dialog.open(DraftdetailComponent,
         {disableClose: true,
@@ -766,7 +768,7 @@ export class SubdraftComponent implements OnInit {
           data: {
             draft: draft,
             loom: loom,
-            loom_settings: this.loom_settings,
+            loom_settings: loom_settings,
             ink: this.inks.getInk(this.ink).viewValue,
             viewonly: (this.parent_id !== -1)}
         });
@@ -777,14 +779,23 @@ export class SubdraftComponent implements OnInit {
           if(result != null){
             if(this.parent_id == -1){
 
-              this.draft.drawdown = result.drawdown.slice();
-              this.draft.gen_name = result.gen_name;
-              this.draft.ud_name = result.ud_name;
-              this.draft.rowSystemMapping = result.rowSystemMapping.slice();
-              this.draft.rowShuttleMapping = result.rowShuttleMapping.slice();
-              this.draft.colSystemMapping = result.colSystemMapping.slice();
-              this.draft.colShuttleMapping = result.colShuttleMapping.slice();
+              console.log("RESULT", result);
+              //create a new draft here and make sure its assigned
+              this.draft = initDraftWithParams({
+                id: result.id,
+                gen_name: result.gen_name,
+                ud_name: result.ud_name,
+                drawdown: result.drawdown,
+                rowShuttleMapping: result.rowShuttleMapping,
+                rowSystemMapping: result.rowSystemMapping,
+                colSystemMapping: result.colSystemMapping,
+                colShuttleMapping: result.colShuttleMapping
+              });
+
               
+              this.tree.setDraft(this.id, this.draft, this.loom_settings);
+
+
               this.onDesignAction.emit({id: this.id});
             }
           }
