@@ -1321,8 +1321,6 @@ isValidIOTuple(io: IOTuple) : boolean {
     const flip_fns = [];
     const draft_id_to_ndx = [];
    
-    console.log("ALL INPUTS to ",op.name, " = ", all_inputs);
-
     all_inputs.filter(el => this.isValidIOTuple(el))
     .forEach((el) => {
       
@@ -1330,11 +1328,8 @@ isValidIOTuple(io: IOTuple) : boolean {
       const cxn_tn = el.tn;
       const type = draft_tn.node.type;
 
-      console.log("TYPE of input ", type, draft_tn);
-
-
       if(type === 'draft'){
-        draft_id_to_ndx.push({ndx: el.ndx, draft_id: draft_tn.node.id, cxn: cxn_tn.node.id})
+        draft_id_to_ndx.push({ndx: el.ndx, node_id: draft_tn.node.id, cxn: cxn_tn.node.id})
         flip_fns.push(flipDraft((<DraftNode>draft_tn.node).draft));
       }
     });
@@ -1345,49 +1340,28 @@ isValidIOTuple(io: IOTuple) : boolean {
     .then(flipped_drafts => {
        
       const paraminputs = draft_id_to_ndx.map(el => {
-          const draft = flipped_drafts.find(draft => draft.id === el.draft_id);
-          console.log("Draft not found in flipped", flipped_drafts,draft_id_to_ndx, el);
-          if(draft === undefined) return undefined;
+          const draft = flipped_drafts.find(draft => draft.id === el.node_id);
+          if(draft === undefined){
+            console.error("Draft not found in flipped", flipped_drafts,draft_id_to_ndx, el);
+            return undefined;
+          } 
           else return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
         })
       
       const cleaned_inputs = paraminputs.filter(el => el != undefined);
 
       inputs = inputs.concat(cleaned_inputs);
-      console.log("INPUTS TO OP", inputs);
       return op.perform(inputs);
 
     })
     .then(res => {
-         console.log("RESULT", res);
           return Promise.all(res.map(el => flipDraft(el)));
       })
     .then(flipped => {
         opnode.dirty = false;
         return this.updateDraftsFromResults(id, flipped);
       });
-          
-
-    // }else{
-    //   const drafts_coming_in: Array<any> =  drafts_in
-    //   .map(input => (<DraftNode> this.getNode(input)))
-    //   .filter(el => el !== null && el !== undefined)
-    //   .map(input_node => input_node.draft)
-    //   .filter(el => el !== null && el !== undefined)
-    //   .map(el => this.flipDraft(el));
-
-    //   return Promise.all(drafts_coming_in).then(drafts =>{
-    //       inputs.push({op_name: '', drafts: drafts, inlet: 0, params: opnode.params});
-    //       return op.perform(inputs)
-    //       .then(res => {
-    //         return Promise.all(res.map(el => this.flipDraft(el)))
-    //       }).then(flipped => {
-    //         opnode.dirty = false;
-    //         return this.updateDraftsFromResults(id, flipped)
-    //       })
-            
-    //     });
-    // }
+        
 
   
 
@@ -1976,8 +1950,6 @@ isValidIOTuple(io: IOTuple) : boolean {
  * @param loom_settings  the settings that should goven the loom generated
  */
   setDraft(id: number, temp: Draft, loom_settings: LoomSettings) {
-
-    console.log("set draft called on", id, temp.id);
 
     const dn = <DraftNode> this.getNode(id);
     let ud_name = getDraftName(temp);

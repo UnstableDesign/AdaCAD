@@ -1,3 +1,5 @@
+import { D } from "@angular/cdk/keycodes";
+import { number } from "mathjs";
 import { Cell } from "./cell";
 import { Draft, Drawdown } from "./datatypes";
 import utilInstance from "./util";
@@ -135,6 +137,9 @@ export const createDraft = (
     return d;
 
   }
+
+  
+
 
   /**
    * sets up the draft from the information saved in a .ada file
@@ -315,6 +320,23 @@ export const createDraft = (
    
   }
 
+  /**
+   * creates an empty drawdown of a given size
+   * @param wefts 
+   * @param warps 
+   * @returns 
+   */
+  export const createBlankDrawdown = (wefts: number, warps: number) : Drawdown => {
+    const drawdown: Drawdown = [];
+    for(let i = 0; i < wefts; i++){
+      drawdown.push([]);
+      for(let j = 0; j < warps; j++){
+        drawdown[i].push(new Cell(false));
+      }
+    } 
+    return drawdown;
+  }
+
 
   /**
    * applys a pattern only to regions where the input draft has true heddles
@@ -324,17 +346,17 @@ export const createDraft = (
    */
   export const applyMask = (mask: Drawdown, pattern: Drawdown) : Drawdown =>  {
     
-    const masked = mask.slice();
+    const res = createBlankDrawdown(wefts(mask), warps(mask));
     for(let i = 0; i < wefts(mask); i++){
       for(let j = 0; j < warps(mask); j++){
         if(mask[i][j].getHeddle()){
           const set_to = pattern[i%wefts(pattern)][j%warps(pattern)].getHeddle();
-          masked[i][j].setHeddle(set_to);
+          res[i][j].setHeddle(set_to);
         }
         
       }
     } 
-    return masked;
+    return res;
   }
 
   /**
@@ -365,13 +387,13 @@ export const createDraft = (
    * @returns the shfited drawdown
    */
      export const shiftDrawdown = (drawdown: Drawdown, up: boolean, inc: number) : Drawdown =>  {
-    
-      const shifted = drawdown.slice();
+
+      const shifted = createBlankDrawdown(wefts(drawdown), warps(drawdown));
       for(let i = 0; i < wefts(drawdown); i++){
         for(let j = 0; j < warps(drawdown); j++){
             let set_to = false;
             if(up)  set_to = drawdown[(i+inc)%wefts(drawdown)][j].getHeddle();
-            else set_to = drawdown[i][(j+inc)%wefts(drawdown)].getHeddle();
+            else set_to = drawdown[i][(j+inc)%warps(drawdown)].getHeddle();
             shifted[i][j].setHeddle(set_to);
         }
       } 
@@ -387,12 +409,12 @@ export const createDraft = (
    */
     export const flipDrawdown = (drawdown: Drawdown, horiz: boolean) : Drawdown =>  {
 
-    const flip = drawdown.slice();
+    const flip = createBlankDrawdown(wefts(drawdown), warps(drawdown));
     for(let i = 0; i < wefts(drawdown); i++){
       for(let j = 0; j < warps(drawdown); j++){
           let set_to = false;
-          if(horiz)  set_to = drawdown[i][warps(drawdown)-j].getHeddle();
-          else set_to = drawdown[wefts(drawdown) - i][j].getHeddle();
+          if(horiz)  set_to = drawdown[i][warps(drawdown)-1-j].getHeddle();
+          else set_to = drawdown[wefts(drawdown)-1 - i][j].getHeddle();
           flip[i][j].setHeddle(set_to);
       }
     } 
@@ -637,27 +659,28 @@ export const createDraft = (
 /**
 * takes a draft as input, and flips the order of the rows
 * used to ensure mixer calculations are oriented from bottom left
-* @TODO flipping the row/shuttle patterns is not the same flipping the pattern as they occur in the draft (as the draft will be expanded)
 * @param draft 
 */ 
 export const flipDraft = (d: Draft) : Promise<Draft> => {
 
-  console.log("FLIPPING DRAFT", d.id);
+  const draft = initDraftWithParams(
+    {id: d.id, 
+    wefts: wefts(d.drawdown),
+    warps: warps(d.drawdown),
+    colShuttleMapping: d.colShuttleMapping,
+    colSystemMapping: d.colSystemMapping});
+    draft.drawdown = createBlankDrawdown(wefts(d.drawdown), warps(d.drawdown));
 
-  const reversed_pattern:Drawdown = [];
-  const reversed_row_shut:Array<number> = [];
-  const reversed_row_sys:Array<number> = [];
-  for(let i = d.drawdown.length -1; i >= 0; i--){
-    reversed_pattern.push(d.drawdown[i]);
-    reversed_row_shut.push(d.rowShuttleMapping[i]);
-    reversed_row_sys.push(d.rowSystemMapping[i]);
-  }
-  d.drawdown = reversed_pattern.slice();
-  d.rowShuttleMapping = reversed_row_shut.slice();
-  d.rowSystemMapping = reversed_row_sys.slice();
+  for(let i = 0; i < wefts(d.drawdown); i++){
+    let flipped_i = wefts(d.drawdown) -1 -i;
+    for(let j = 0; j < warps(d.drawdown); j++){
+      draft.drawdown[i][j].setHeddle(d.drawdown[flipped_i][j].getHeddle()); 
+    }
+    draft.rowShuttleMapping[i] = d.rowShuttleMapping[flipped_i];
+    draft.rowSystemMapping[i] = d.rowSystemMapping[flipped_i];
+   }
 
-  console.log("AFTER FLIP DRAFT", d.id);
-  return Promise.resolve(d);
+  return Promise.resolve(draft);
 }
 
   
