@@ -2,6 +2,7 @@ import { L, NUMPAD_SIX } from "@angular/cdk/keycodes";
 import { LoomModal } from "../modal/loom/loom.modal";
 import { Cell } from "./cell";
 import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
+import { warps } from "./drafts";
 import utilInstance from "./util";
 
 
@@ -133,31 +134,29 @@ const jacquard_utils: LoomUtil = {
         (origin == 0 || origin == 1), 
         (origin == 1 || origin == 2))
       .then(pattern => {
-
- 
-          const fns = [
-            generateThreading(d),
-            generateTreadlingforFrameLoom(d)
-          ];
-
-          return Promise.all(fns)
-          .then(res => {
-            //computer the tieup here
-            loom.threading = Object.entries(res[0])[0].slice();
-            loom.treadling = Object.entries(res[1])[0].slice();
-
+         
+          return generateThreading(pattern)
+          .then(threading => {
+            loom.threading = threading.threading;
+            return generateTreadlingforFrameLoom(pattern)
+          })
+          .then(treadling => {
+            loom.treadling = treadling.treadling;
+        
             loom.tieup = [];
-            for(let frames = 0; frames < res[0].num; frames++){
+            for(let frames = 0; frames < numFrames(loom); frames++){
               loom.tieup.push([]);
-              for(let treadles = 0; treadles < res[1].num; treadles++){
+              for(let treadles = 0; treadles < numTreadles(loom); treadles++){
                 loom.tieup[frames][treadles] = false;
               }
             }
 
+            console.log(loom, numFrames(loom), numTreadles(loom))
+
             for(let i = 0; i < loom.treadling.length; i++){
               if(loom.treadling[i].length > 0){
                 const active_treadle_id = loom.treadling[i][0];
-                const row = d[i];
+                const row = pattern[i];
                 row.forEach((cell, j) => {
                   if(cell.isUp()){
                     const active_frame_id = loom.threading[j];
@@ -166,10 +165,9 @@ const jacquard_utils: LoomUtil = {
                 });
               }
             }
-
             return loom;
-
           })
+
         }).then(loom => {
           return flipLoom(loom, origin);
         });
@@ -263,18 +261,19 @@ const jacquard_utils: LoomUtil = {
     let frame = 0;
     let threading = [];
     //always assign the origin to one
-    threading[0] = 1;
+    threading[0] = 0;
 
     //progressively add new frames in the order they appear
-    for(let j = 1; j < drawdown[0].length; j++){
+    for(let j = 1; j < warps(drawdown); j++){
       const match = utilInstance.hasMatchingColumn(j, drawdown);
-      if(match === -1){
+      if(match === -1 || match > j){
         frame++;
         threading[j] = frame;
       }else{
         threading[j] = threading[match];
       }
     }
+
     return Promise.resolve({threading:threading, num:frame});
 
   }
@@ -292,9 +291,9 @@ const jacquard_utils: LoomUtil = {
     treadling[0] = [0];
 
     //progressively add new frames in the order they appear
-    for(let i = 0; i < pattern.length; i++){
+    for(let i = 1; i < pattern.length; i++){
       const match = utilInstance.hasMatchingRow(i, pattern);
-      if(match === -1){
+      if(match === -1 || match > i){
         treadle++;
         treadling[i] = [treadle];
       }else{
@@ -447,12 +446,13 @@ export const numFrames = (loom: Loom) : number => {
 
   if(loom == null) return 0;
 
-  return loom.threading.reduce((acc, el) => {
+  let max = loom.threading.reduce((acc, el) => {
     if(el > acc){
       acc = el;
     }
     return acc;
   }, 0);
+  return max+1;
 }
 
 /**
@@ -465,9 +465,9 @@ export const numFrames = (loom: Loom) : number => {
 
   if(loom == null) return 0;
 
-  return loom.treadling.reduce((acc, el) => {
+  let max =  loom.treadling.reduce((acc, el) => {
     
-    const max_in_list = el.reduce((sub_acc, sub_el) => {
+    let max_in_list = el.reduce((sub_acc, sub_el) => {
       if(sub_el > acc) sub_acc = sub_el;
       return sub_acc;
     }, 0) ;
@@ -477,6 +477,8 @@ export const numFrames = (loom: Loom) : number => {
     }
     return acc;
   }, 0);
+
+  return max+1;
 }
 
 /**

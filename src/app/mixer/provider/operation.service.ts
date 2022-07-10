@@ -4510,23 +4510,7 @@ export class OperationService {
       displayname: 'shaft/treadle loom',
       old_names:[],
       dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
-      params: [
-        <NumParam>{name: 'frames',
-        type: 'number',
-          min: 1,
-          max: 100,
-        value: 8,
-        dx: 'how many frames to use in this pattern'
-        },
-        <NumParam>{name: 'treadles',
-        type: 'number',
-          min: 1,
-          max: 100,
-        value: 10,
-        dx: 'how many treadles to use in this pattern'
-        },
-
-      ],
+      params: [],
       inlets: [{
         name: 'drawdown', 
         type: 'static',
@@ -4538,9 +4522,6 @@ export class OperationService {
 
         const parent_input = op_inputs.find(el => el.op_name === "floor loom");
         const child_input= op_inputs.find(el => el.op_name === "child");
-        const frames = parent_input.params[0];
-        const treadles = parent_input.params[1];
-
 
         if(child_input === undefined || child_input.drafts === undefined) return Promise.resolve([]);
 

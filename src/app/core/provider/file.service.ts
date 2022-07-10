@@ -476,8 +476,6 @@ export class FileService {
         scale: current_scale
       }
 
-
-      console.log("SAVING", out);
       //update this to return the object and see how it writes
       var theJSON = JSON.stringify(out);
       return Promise.resolve({json: theJSON, file: out});

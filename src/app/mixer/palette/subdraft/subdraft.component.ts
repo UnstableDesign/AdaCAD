@@ -477,8 +477,6 @@ export class SubdraftComponent implements OnInit {
    */
   async drawDraft(draft: Draft) : Promise<any> {
 
-    console.log("Draw draft", draft);
-
     if(this.canvas === undefined) return;
     this.cx = this.canvas.getContext("2d");
    
