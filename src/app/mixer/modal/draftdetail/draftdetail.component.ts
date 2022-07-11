@@ -11,6 +11,7 @@ import { WeaverComponent } from '../../../weaver/weaver.component';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { from } from 'rxjs';
+import { TreeService } from '../../provider/tree.service';
 
 
 /**
@@ -27,6 +28,9 @@ export class DraftdetailComponent implements OnInit {
  
   //the draft view shared by this and weaver
   @ViewChild('weaver', {read: WeaverComponent, static: true}) weaver: WeaverComponent;
+
+
+  id: number;
 
 
   ink: String; //the name of the selected ink.
@@ -58,7 +62,8 @@ export class DraftdetailComponent implements OnInit {
              private dm: DesignmodesService,
              private ops: OperationService,
              private ms: MaterialsService,
-             public ws: WorkspaceService) { 
+             public ws: WorkspaceService,
+             private tree: TreeService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()
@@ -66,11 +71,11 @@ export class DraftdetailComponent implements OnInit {
                  this.onWindowScroll(data);
                });
 
-               this.draft = data.draft;
+               this.id = data.id;
+               this.draft = this.tree.getDraft(this.id);
+               this.loom_settings = this.tree.getLoomSettings(this.id);
                this.ink = data.ink;
-               this.loom = data.loom;
-               this.loom_settings = data.loom_settings;
-               this.viewonly = data.viewonly;
+               this.viewonly = this.tree.hasParent(this.id);
 
 
 

@@ -1197,17 +1197,22 @@ export class PaletteComponent implements OnInit{
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
         const sd_draft = <Draft> this.tree.getDraft(obj.id);
         
+      console.log("DUPLICATE SUBDRAFT", sd_draft);
+
       this.createSubDraft(initDraftWithParams(
         {wefts: wefts(sd_draft.drawdown), 
           warps: warps(sd_draft.drawdown), 
-          pattern: sd_draft.drawdown, 
-          rowShuttleMapping: sd_draft.rowShuttleMapping,
-          colShuttleMapping: sd_draft.colShuttleMapping,
-          rowSystemMapping: sd_draft.rowSystemMapping,
-          colSystemMapping: sd_draft.colSystemMapping,
+          drawdown: sd_draft.drawdown.slice(), 
+          rowShuttleMapping: sd_draft.rowShuttleMapping.slice(),
+          colShuttleMapping: sd_draft.colShuttleMapping.slice(),
+          rowSystemMapping: sd_draft.rowSystemMapping.slice(),
+          colSystemMapping: sd_draft.colSystemMapping.slice(),
           gen_name: getDraftName(sd_draft)+" copy"
         }), -1)
         .then(new_sd => {
+
+          console.log("JUST MADE NEW SD", new_sd);
+
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
           new_sd.setPosition({
             x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 

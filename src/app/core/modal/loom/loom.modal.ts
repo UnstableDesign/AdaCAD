@@ -7,6 +7,7 @@ import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts } from '../../model/drafts';
 import { getLoomUtilByType } from '../../model/looms';
+import { TreeService } from '../../../mixer/provider/tree.service';
 
 @Component({
   selector: 'app-loom-modal',
@@ -19,7 +20,7 @@ export class LoomModal implements OnInit {
   @Output() onChange: any = new EventEmitter();
   
 
-
+  id: number;
   draft: Draft;
   loom:Loom;
   loom_settings:LoomSettings;
@@ -40,23 +41,25 @@ export class LoomModal implements OnInit {
   constructor(
              private ws: WorkspaceService,
              private dm: DesignmodesService,
+             private tree: TreeService,
              private dialogRef: MatDialogRef<LoomModal>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
 
 
      this.type = data.type;
+      this.id = data.id;
 
      if(this.type === 'local'){
-      const loom:Loom  =  data.loom;
-      this.draft = data.draft;
-      this.loom  = loom;
-      this.warps = data.draft.warps;
-      this.wefts = data.draft.wefts;
-      this.epi = data.loom.epi;
-      this.units = data.loom.units;
-      this.frames = data.loom.min_frames;
-      this.treadles = data.loom.min_treadles;
-      this.loomtype = data.loom.type;
+      this.draft = this.tree.getDraft(this.id);
+      this.loom  = this.tree.getLoom(this.id);;
+      this.loom_settings  = this.tree.getLoomSettings(this.id);;
+      this.warps = warps(this.draft.drawdown);
+      this.wefts = wefts(this.draft.drawdown);
+      this.epi = this.loom_settings.epi;
+      this.units = this.loom_settings.units;
+      this.frames = this.loom_settings.frames;
+      this.treadles = this.loom_settings.treadles;
+      this.loomtype = this.loom_settings.type;
      }else{
       this.origin_options = this.ws.getOriginOptions();
       this.epi = ws.epi;
@@ -236,11 +239,13 @@ export class LoomModal implements OnInit {
 
     }
 
+    if(this.loom !== null){
     const utils = getLoomUtilByType(this.loom_settings.type);
     utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)
     .then(loom => {
       this.loom = loom;
     })
+    }
 
    
   }

@@ -11,6 +11,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { getLoomUtilByType } from '../../core/model/looms';
 import { createDraft, flipDraft, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import * as _ from 'lodash';
 
 
 /**
@@ -133,7 +134,6 @@ export class TreeService {
               const draftNode = <DraftNode> this.getNode(param_val);
               const uniqueVals = utilInstance.filterToUniqueValues(draftNode.loom.threading);
               const inlet_nums = uniqueVals.length;
-              console.log("loom is ", draftNode.loom)
               inlets = inlets.slice(0,static_inputs.length);
               for(let i = 0; i < inlet_nums; i++){
                 inlets.push(i+1);
@@ -363,8 +363,6 @@ export class TreeService {
   */
   loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
-    console.log("Loading Draft data on ", draft.id, entry);
-
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
     if(nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id "+entry.cur_id);
@@ -401,10 +399,6 @@ export class TreeService {
     (<DraftNode> nodes[0]).loom = loom;
    }
 
-
-
-
-   console.log("RETURNING DRAFT", nodes[0].id, (<DraftNode> nodes[0]).draft.id)
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
@@ -1387,11 +1381,21 @@ isValidIOTuple(io: IOTuple) : boolean {
     return dn.loom;
   }
 
+  setLoom(id: number, loom:Loom){
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn !== null && dn !== undefined) dn.loom = _.cloneDeep(loom);
+  }
+
   getLoomSettings(id: number):LoomSettings{
     if(id === -1) return null;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined) return null;
     return dn.loom_settings;
+  }
+
+  setLoomSettings(id: number, loom_settings:LoomSettings){
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn !== null && dn !== undefined) dn.loom_settings = loom_settings;
   }
 
 
@@ -2089,10 +2093,14 @@ isValidIOTuple(io: IOTuple) : boolean {
       //make sure the name values are not undefined
       this.getDraftNodes().forEach(node => {
         if(node.draft.ud_name === undefined) node.draft.ud_name = '';
+        if(node.loom === undefined) node.loom = null;
+        
       });
 
-      return this.getDraftNodes()
-      .filter(el => this.getSubdraftParent(el.id) === -1)
+      const all_nodes = this.getDraftNodes()
+      .filter(el => this.getSubdraftParent(el.id) === -1);
+
+      return all_nodes;
 
   
     }

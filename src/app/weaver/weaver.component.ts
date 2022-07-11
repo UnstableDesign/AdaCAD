@@ -18,6 +18,7 @@ import { WorkspaceService } from '../core/provider/workspace.service';
 import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol, initDraftWithParams } from '../core/model/drafts';
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { computeYarnPaths } from '../core/model/yarnsimulation';
+import { TreeService } from '../mixer/provider/tree.service';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -38,51 +39,19 @@ export class WeaverComponent implements OnInit {
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
   @ViewChild(SidebarComponent, {static: true}) sidebar;
   
-  @Input() draft: Draft; 
-  @Input() viewonly: boolean; 
-  @Input() loom: Loom;
-  @Input() loom_settings: LoomSettings;
-
-
- /**
-   * The weave Render object.
-   * @property {Render}
-   */
+  @Input() id: number;
+  
+  
+  viewonly: boolean; 
   render: Render;
-
+  draft: Draft;
+  loom: Loom;
+  loom_settings: LoomSettings;
 
   /**
   The current selection, as a Pattern 
   **/
   copy: Drawdown;
-
-  /**
-   * a place to store the drafts returned from emma's ml code
-   */
-  generated_drafts: Array<Draft> = [];
-
-
-  /**
-  * Boolean reepresenting if generative ML mode is on or off
-  * @property {boolean}
-  * */
-  generativeMode = false;
-   
-  /**
-  * String holding collection name for generative ML
-  */
-  collection: string = "";
-
-
-  /**
-  * Number of warps for drafts of collection selected 
-  */
-  warpSize: number;
-
-  /**
-  * Number of wefts for drafts of collection selected 
-  */
-  weftSize: number;
 
   selected;
 
@@ -110,7 +79,8 @@ export class WeaverComponent implements OnInit {
     public scroll: ScrollDispatcher,
     private ms: MaterialsService,
     private ss: SystemsService,
-    private ws: WorkspaceService) {
+    private ws: WorkspaceService,
+    private tree: TreeService) {
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -130,63 +100,14 @@ export class WeaverComponent implements OnInit {
     const scrollLeft:number = data.measureScrollOffset("left");
     this.weaveRef.reposition(scrollTop, scrollLeft);
   }
-
-
-
-  // loadNewFile(result: LoadResponse){
-
-  //   console.log("loading new file", result);
-  //   const data = result.data;
-  //   if(data.drafts.length > 0){
-  //     this.draft = loadDraftFromFile(data.drafts[0], data.version);
-  //   }else{
-  //     console.log("ERROR, there were not drafts associated with this file");
-  //   }
-
-  //   if(data.looms.length > 0){
-  //     this.loom.copy(data.looms[0]);
-  //   }else{
-  //     console.log("WARNING, there were no looms associated with this file");
-  //     this.loom.clearAllData(this.draft.warps, this.draft.wefts, this.loom.type);
-     
-  //     const utils = getLoomUtilByType(this.loom.type);
-  //     utils.computeLoomFromDrawdown(this.draft, this.ws.selected_origin_option).then(loom => {
-  //       this.loom = loom;
-  //       const success: boolean = this.loom.overloadDraft(this.draft);
-  //       if(!success) console.log("ERROR, could not attach loom to draft of different size");
-  //     });
-  
-
-     
-  //   }
-
-
-  //   this.draft.computeYarnPaths(this.ms.getShuttles());
-  //   //this.ss.addHistoryState(this.draft);
-    
-  //   this.render.updateVisible(this.draft);
-    
-
-  //   this.weaveRef.onNewDraftLoaded();
-
-
-  //   this.weaveRef.redraw({
-  //     drawdown: true, 
-  //     loom:true, 
-  //     warp_systems: true, 
-  //     weft_systems: true, 
-  //     warp_materials: true,
-  //     weft_materials:true
-  //   });
-
-  //   this.weaveRef.rescale(this.render.getZoom());
-
-  // }
   
   ngOnInit(){
 
+    this.draft = this.tree.getDraft(this.id);
+    this.loom = this.tree.getLoom(this.id);
+    this.loom_settings = this.tree.getLoomSettings(this.id)
     this.render = new Render(true, this.draft, this.ss);
-    //this.timeline.addHistoryState(this.draft);  
+    this.viewonly = this.tree.hasParent(this.id);
     
   }
 
@@ -692,14 +613,15 @@ export class WeaverComponent implements OnInit {
    */
   onLoomChange(){
 
-      this.render.updateVisible(this.draft);
+    this.render.updateVisible(this.draft);
 
-    //  this.timeline.addHistoryState(this.draft);
+    if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
 
-     if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
+    console.log("getting utils of ", this.loom_settings.type);
 
     const utils = getLoomUtilByType(this.loom_settings.type);
     utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option).then(loom => {
+      console.log("RETURNED LOOM OF ", loom);
       this.loom = loom;
       this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
     });

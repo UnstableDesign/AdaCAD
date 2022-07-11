@@ -10,10 +10,8 @@
         ></app-tab>  -->
 
         <app-sidebar #sidebar
-        [draft]="draft"
-        [loom]="loom"  
+        [id]="id"
         [render]="render" 
-        [viewonly]="viewonly" 
         source="weaver"
         (onUndo)="undo();" 
         (onRedo)="redo();"

@@ -1968,6 +1968,8 @@ public drawWeftEnd(top, left, shuttle){
 
   public redrawLoom() {
 
+    console.log("ON REDRAW LOOM LOOM IS ", this.loom);
+
     if(this.loom === null) return;
 
     const frames = numFrames(this.loom);
@@ -2004,6 +2006,7 @@ public drawWeftEnd(top, left, shuttle){
 
     //only cycle through the visible rows
     for (var i = 0; i < this.render.visibleRows.length; i++) {
+      console.log("RENDERING VISIBLE ROW", i, this.loom);
       this.loom.treadling[this.render.visibleRows[i]].forEach(cell => {
         this.drawCell(this.cxTreadling, i, cell, "treadling");
       })

@@ -24,8 +24,8 @@ import utilInstance from "./util";
 }
 
 /**
- * generates a blank draft of the size inputted. This sets all cell values to false 
- * and all shuttle and row mappings to default sizes. 
+ * creates a draft based on the params provided.
+ * @param params allowable params are id, weft, warp, drawdown, pattern, ud_name, gen_name, rowShuttleMapping, rowSystemMapping, colShuttleMapping, colSystemMapping.
  * @returns 
  */
  export const initDraftWithParams = (params:any) : Draft => {

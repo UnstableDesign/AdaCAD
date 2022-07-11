@@ -2,7 +2,7 @@ import { L, NUMPAD_SIX } from "@angular/cdk/keycodes";
 import { LoomModal } from "../modal/loom/loom.modal";
 import { Cell } from "./cell";
 import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
-import { warps } from "./drafts";
+import { warps, wefts } from "./drafts";
 import utilInstance from "./util";
 
 
@@ -61,7 +61,7 @@ const jacquard_utils: LoomUtil = {
             l.threading = obj.threading.slice();
 
             //add treadling
-            for(let i = 0; i < pattern.length; i++){
+            for(let i = 0; i < wefts(pattern); i++){
               let active_ts = [];
               let i_pattern = pattern[i].slice();
               i_pattern.forEach((cell, j) => {
@@ -86,6 +86,7 @@ const jacquard_utils: LoomUtil = {
              }
 
              //now flip things back based on origin. 
+             console.log("RETURNING", l)
              return l;
 
             });
@@ -343,7 +344,8 @@ const jacquard_utils: LoomUtil = {
       Promise.all(fns).then(res => {
         loom.threading = res[0];
         loom.tieup = res[1];
-        return loom;
+        return Promise.resolve(loom);
+
       });
 
       case 1:
@@ -354,7 +356,7 @@ const jacquard_utils: LoomUtil = {
         loom.threading = res[0];
         loom.tieup = res[1];
         loom.treadling = res[2]
-        return loom;
+        return Promise.resolve(loom);
       }); 
       case 2: 
       fns.push(flipTieUp(loom.tieup, false, true));
@@ -362,7 +364,7 @@ const jacquard_utils: LoomUtil = {
       Promise.all(fns).then(res => {
         loom.tieup = res[0];
         loom.treadling = res[1];
-        return loom;
+        return Promise.resolve(loom);
       }); 
       case 3: 
       return Promise.resolve(loom);

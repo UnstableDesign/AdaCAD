@@ -764,11 +764,9 @@ export class SubdraftComponent implements OnInit {
         {disableClose: true,
           hasBackdrop: false,
           data: {
-            draft: draft,
-            loom: loom,
-            loom_settings: loom_settings,
-            ink: this.inks.getInk(this.ink).viewValue,
-            viewonly: (this.parent_id !== -1)}
+            id: this.id,
+            ink: this.inks.getInk(this.ink).viewValue
+          }
         });
 
 
