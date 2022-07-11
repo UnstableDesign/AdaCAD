@@ -43,12 +43,9 @@
   </mat-drawer>
 
     <app-draftviewer 
-    [draft]="draft"
-    [loom]="loom"  
-    [loom_settings]="loom_settings"  
+    [id]="id"
     [render]="render"
     source = "weaver"
-    [viewonly]="viewonly"
     (onNewSelection) = "updateSelection($event)">
     </app-draftviewer>
 

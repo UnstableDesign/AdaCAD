@@ -1386,6 +1386,19 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(dn !== null && dn !== undefined) dn.loom = _.cloneDeep(loom);
   }
 
+  setLoomAndRecomputeDrawdown(id: number, loom:Loom, loom_settings:LoomSettings) : Promise<any>{
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn !== null && dn !== undefined) dn.loom = _.cloneDeep(loom);
+
+    const utils = getLoomUtilByType(loom_settings.type);
+    return utils.computeDrawdownFromLoom(loom, this.ws.selected_origin_option)
+    .then(drawdown => {
+      dn.draft.drawdown = drawdown;
+     Promise.resolve('done');
+
+    })
+  }
+
   getLoomSettings(id: number):LoomSettings{
     if(id === -1) return null;
     const dn: DraftNode = <DraftNode> this.getNode(id);
@@ -1947,13 +1960,19 @@ isValidIOTuple(io: IOTuple) : boolean {
     node.dirty = false;
   }
 
+
+  setDraftOnly(id: number, draft: Draft) {
+    const dn = <DraftNode> this.getNode(id);
+    dn.draft = draft;
+  }
+
 /**
  * sets a new draft and loom at node specified by id. This occures when an operation that generated a draft has been recomputed
  * @param id the node to update
  * @param temp the draft to add
- * @param loom_settings  the settings that should goven the loom generated
+ * @param loom_settings  the settings that should govern the loom generated
  */
-  setDraft(id: number, temp: Draft, loom_settings: LoomSettings) {
+  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings) : Promise<any> {
 
     const dn = <DraftNode> this.getNode(id);
     let ud_name = getDraftName(temp);
@@ -1979,14 +1998,16 @@ isValidIOTuple(io: IOTuple) : boolean {
     } 
     else dn.loom_settings = loom_settings;
 
-
-    const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    loom_utils.computeLoomFromDrawdown(temp.drawdown, this.ws.selected_origin_option)
-    .then(loom => dn.loom = loom); 
-
     dn.dirty = true;
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
+    const loom_utils = getLoomUtilByType(dn.loom_settings.type);
+    return loom_utils.computeLoomFromDrawdown(temp.drawdown, this.ws.selected_origin_option)
+    .then(loom =>{
+
+      dn.loom = loom;
+      return Promise.resolve('Done');
+    });
 
   }
 
