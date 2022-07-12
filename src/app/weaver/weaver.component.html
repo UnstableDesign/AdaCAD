@@ -13,8 +13,6 @@
         [id]="id"
         [render]="render" 
         source="weaver"
-        (onUndo)="undo();" 
-        (onRedo)="redo();"
         (onDesignModeChange)='designModeChange($event)'
         (onZoomChange) ="renderChange($event);"
         (onViewChange) ="viewChange($event);"

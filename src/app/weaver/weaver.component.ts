@@ -13,7 +13,7 @@ import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { MaterialsService } from '../core/provider/materials.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { Cell } from '../core/model/cell';
-import { getLoomUtilByType } from '../core/model/looms';
+import { getLoomUtilByType, isFrame } from '../core/model/looms';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol, initDraftWithParams } from '../core/model/drafts';
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
@@ -44,10 +44,6 @@ export class WeaverComponent implements OnInit {
   
   viewonly: boolean; 
   render: Render;
-  draft: Draft;
-  loom: Loom;
-  loom_settings: LoomSettings;
-
   /**
   The current selection, as a Pattern 
   **/
@@ -103,20 +99,22 @@ export class WeaverComponent implements OnInit {
   
   ngOnInit(){
 
-    this.draft = this.tree.getDraft(this.id);
-    this.loom = this.tree.getLoom(this.id);
-    this.loom_settings = this.tree.getLoomSettings(this.id)
-    this.render = new Render(true, this.draft, this.ss);
+    const draft = this.tree.getDraft(this.id);
+    this.render = new Render(true, draft, this.ss);
     this.viewonly = this.tree.hasParent(this.id);
     
   }
 
   ngAfterViewInit() {
 
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoom(this.id);
 
-    this.weaveRef.onNewDraftLoaded();
 
-    this.weaveRef.redraw({
+    this.weaveRef.onNewDraftLoaded(draft, loom, loom_settings);
+
+    this.weaveRef.redraw(draft, loom, loom_settings, {
       drawdown: true, 
       loom:true, 
       warp_systems: true, 
@@ -133,42 +131,6 @@ export class WeaverComponent implements OnInit {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-  }
-
-  undo() {
-    // let d: Draft = this.timeline.restorePreviousHistoryState();
-    // if(d === undefined || d === null) return;
-
-    // this.draft.reload(d);    
-    // this.weaveRef.onNewDraftLoaded();
-    // this.weaveRef.redraw({
-    //   drawdown: true, 
-    //   loom:true, 
-    //   warp_systems: true, 
-    //   weft_systems: true, 
-    //   warp_materials: true,
-    //   weft_materials:true
-    // });
-
-  }
-
-  redo() {
-    // let d: Draft = this.timeline.restoreNextHistoryState();
-
-    // if(d === undefined || d === null) return;
-
-
-    // this.draft.reload(d);    
-    // this.weaveRef.onNewDraftLoaded();
-    // this.weaveRef.redraw({
-    //   drawdown: true, 
-    //   loom:true, 
-    //   warp_systems: true, 
-    //   weft_systems: true, 
-    //   warp_materials: true,
-    //   weft_materials:true
-    // });
-
   }
 
 
@@ -287,10 +249,12 @@ export class WeaverComponent implements OnInit {
    */
   public viewChange(value: any) {
     
+    const draft = this.tree.getDraft(this.id);
+
     this.dm.selectDesignMode(value, 'view_modes');
     this.render.setCurrentView(value);
 
-    if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
+    if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
 
     this.weaveRef.redraw({
       drawdown: true
@@ -342,34 +306,34 @@ export class WeaverComponent implements OnInit {
     
  //}
 
-  /**
-   * Tell weave reference to clear selection.
-   * @extends WeaveComponent
-   * @param {Event} Delete - clear event from design component.
-   * @returns {void}
-   */
-  public onClear(b:boolean) {
+  // /**
+  //  * Tell weave reference to clear selection.
+  //  * @extends WeaveComponent
+  //  * @param {Event} Delete - clear event from design component.
+  //  * @returns {void}
+  //  */
+  // public onClear(b:boolean) {
     
-    const pattern: Drawdown = [[new Cell(b)]];
+  //   const pattern: Drawdown = [[new Cell(b)]];
 
-    this.draft = initDraftWithParams({warps: warps(this.draft.drawdown), wefts: wefts(this.draft.drawdown), pattern: pattern});
+  //   this.draft = initDraftWithParams({warps: warps(this.draft.drawdown), wefts: wefts(this.draft.drawdown), pattern: pattern});
 
-    const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option).then(loom => {
-      this.loom = loom;
+  //   const utils = getLoomUtilByType(this.loom_settings.type);
+  //   utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option).then(loom => {
+  //     this.loom = loom;
 
-      if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
+  //     if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
 
-      this.weaveRef.copyArea();
+  //     this.weaveRef.copyArea();
   
-      this.weaveRef.redraw({drawdown:true, loom:true});
-    });
+  //     this.weaveRef.redraw({drawdown:true, loom:true});
+  //   });
     
    
 
    // this.timeline.addHistoryState(this.draft);
 
-  }
+  //}
 
   public onScroll(){
   }
@@ -424,24 +388,43 @@ export class WeaverComponent implements OnInit {
   }
 
   public updateWarpSystems(pattern: Array<number>) {
-    this.draft.colSystemMapping = generateMappingFromPattern(this.draft.drawdown, pattern, 'col');
-    this.weaveRef.redraw({drawdown: true, warp_systems: true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
+    this.tree.setDraftOnly(this.id, draft);
+    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, warp_systems: true});
   }
 
   public updateWeftSystems(pattern: Array<number>) {
-    this.draft.rowSystemMapping =  generateMappingFromPattern(this.draft.drawdown, pattern, 'row');
-    this.weaveRef.redraw({drawdown: true, weft_systems: true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row');
+    this.tree.setDraftOnly(this.id, draft);
+    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, weft_systems: true});
   }
 
   public updateWarpShuttles(pattern: Array<number>) {
-    this.draft.colShuttleMapping = generateMappingFromPattern(this.draft.drawdown, pattern, 'col');
-    this.weaveRef.redraw({drawdown: true, warp_materials: true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    
+    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
+    this.tree.setDraftOnly(this.id, draft);
+
+    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, warp_materials: true});
   }
 
   public updateWeftShuttles(pattern: Array<number>) {
-    this.draft.rowShuttleMapping = generateMappingFromPattern(this.draft.drawdown, pattern, 'row');
-    computeYarnPaths(this.draft, this.ms.getShuttles());
-    this.weaveRef.redraw({drawdown: true, weft_materials: true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
+    computeYarnPaths(draft, this.ms.getShuttles());
+    this.tree.setDraftOnly(this.id, draft);
+
+    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, weft_materials: true});
   }
 
 
@@ -459,26 +442,32 @@ export class WeaverComponent implements OnInit {
 
   public hideWarpSystem(e:any) {
     
-    this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+    //this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
   }
 
   public showWarpSystem(e:any) {
 
-    this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+   // this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
   }  
 
   public hideWeftSystem(e:any) {
-   
-    this.render.updateVisible(this.draft);
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
     
-    this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.render.updateVisible(draft);
+    
+    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
   }
 
   public showWeftSystem(e:any) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    
+    this.render.updateVisible(draft);
 
-    this.render.updateVisible(this.draft);
-
-    this.weaveRef.redraw({drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, weft_systems: true, weft_materials:true});
   }
 
 
@@ -501,104 +490,124 @@ export class WeaverComponent implements OnInit {
   // }
 
   public epiChange(e:any){
-    this.loom_settings.epi = e.epi;
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    loom_settings.epi = e.epi;
+    this.tree.setLoomSettings(this.id, loom_settings);
   }
 
   public unitChange(e:any){
-    this.loom_settings.units = e.units;
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    loom_settings.units = e.units;
+    this.tree.setLoomSettings(this.id, loom_settings);
+
   }
 
 
   public loomChange(e:any){
-    
-    this.loom_settings.type = e.type;
-    const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)  
-    .then(loom => {this.loom = loom});
-    this.weaveRef.redraw({loom: true});
+    const draft = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    loom_settings.type = e.type;
+    this.tree.setLoomSettings(this.id, loom_settings);
+
+    const utils = getLoomUtilByType(loom_settings.type);
+    utils.computeLoomFromDrawdown(draft.drawdown, this.ws.selected_origin_option)  
+    .then(loom => {
+      this.tree.setLoom(this.id, loom);
+      this.weaveRef.redraw(draft, loom, loom_settings, {loom: true});
+
+    });
 
   }
 
   public frameChange(e:any){
-    this.loom_settings.frames = e.value;
-    this.weaveRef.redraw({loom: true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    loom_settings.frames = e.value;
+    this.tree.setLoomSettings(this.id, loom_settings);
+    this.weaveRef.redraw(draft, loom, loom_settings, {loom: true});
   }
 
   public treadleChange(e:any){
-    this.loom_settings.treadles = e.value;
-    this.weaveRef.redraw({loom: true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.tree.setLoomSettings(this.id, loom_settings);
+    this.weaveRef.redraw(draft, loom, loom_settings, {loom: true});
   }
 
 
   public warpNumChange(e:any) {
     if(e.warps == "") return;
 
-    if(e.warps > warps(this.draft.drawdown)){
-      var diff = e.warps - warps(this.draft.drawdown);
+    const draft = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+    if(e.warps > warps(draft.drawdown)){
+      var diff = e.warps - warps(draft.drawdown);
       
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = insertDrawdownCol(this.draft.drawdown, i, null);
-        this.draft.colShuttleMapping = insertMappingCol(this.draft.colShuttleMapping, i, 0);
-        this.draft.colSystemMapping = insertMappingCol(this.draft.colSystemMapping, i, 0);  
+        draft.drawdown = insertDrawdownCol(draft.drawdown, i, null);
+        draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, i, 0);
+        draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, i, 0);  
       }
     }else{
-      var diff = warps(this.draft.drawdown) - e.warps;
+      var diff = warps(draft.drawdown) - e.warps;
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = deleteDrawdownCol(this.draft.drawdown, warps(this.draft.drawdown)-1);
-        this.draft.rowSystemMapping = deleteMappingCol(this.draft.rowSystemMapping, warps(this.draft.drawdown)-1);
-        this.draft.rowShuttleMapping = deleteMappingCol(this.draft.rowShuttleMapping, warps(this.draft.drawdown)-1);
+        draft.drawdown = deleteDrawdownCol(draft.drawdown, warps(draft.drawdown)-1);
+        draft.rowSystemMapping = deleteMappingCol(draft.rowSystemMapping, warps(draft.drawdown)-1);
+        draft.rowShuttleMapping = deleteMappingCol(draft.rowShuttleMapping, warps(draft.drawdown)-1);
       }
 
     }
 
-    const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)
-    .then(loom => {this.loom = loom});
+    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+    .then(loom => {
+      if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
+      this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, loom: true, warp_systems: true, warp_materials:true});
+  
+    });
 
-   // this.timeline.addHistoryState(this.draft);
-
-    if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
-
-    this.weaveRef.redraw({drawdown: true, loom: true, warp_systems: true, warp_materials:true});
-
+  
   }
 
   public weftNumChange(e:any) {
   
     if(e.wefts === "" || e.wefts =="null") return;
+    const draft = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
 
 
-    if(e.wefts > wefts(this.draft.drawdown)){
-      var diff = e.wefts - wefts(this.draft.drawdown);
+    if(e.wefts > wefts(draft.drawdown)){
+      var diff = e.wefts - wefts(draft.drawdown);
       
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = insertDrawdownRow(this.draft.drawdown, wefts(this.draft.drawdown)+1, null)
-        this.draft.rowShuttleMapping = insertMappingRow(this.draft.rowShuttleMapping, wefts(this.draft.drawdown)+1, 0);
-        this.draft.rowSystemMapping = insertMappingRow(this.draft.rowSystemMapping, wefts(this.draft.drawdown)+1, 0);
+        draft.drawdown = insertDrawdownRow(draft.drawdown, wefts(draft.drawdown)+1, null)
+        draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, wefts(draft.drawdown)+1, 0);
+        draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, wefts(draft.drawdown)+1, 0);
       }
     }else{
-      var diff = wefts(this.draft.drawdown) - e.wefts;
+      var diff = wefts(draft.drawdown) - e.wefts;
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = deleteDrawdownRow(this.draft.drawdown, wefts(this.draft.drawdown)-1);
-        this.draft.rowShuttleMapping = deleteMappingRow(this.draft.rowShuttleMapping, wefts(this.draft.drawdown)-1);
-        this.draft.rowSystemMapping = deleteMappingRow(this.draft.rowSystemMapping, wefts(this.draft.drawdown)-1);
+        draft.drawdown = deleteDrawdownRow(draft.drawdown, wefts(draft.drawdown)-1);
+        draft.rowShuttleMapping = deleteMappingRow(draft.rowShuttleMapping, wefts(draft.drawdown)-1);
+        draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping, wefts(draft.drawdown)-1);
       }
 
     }
 
-    const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)
-    .then(loom => {this.loom = loom});
+    this.tree.setDraftAndRecomputeLoom(this.id, draft,loom_settings)
+    .then(loom => {
+      this.render.updateVisible(draft);
+  
+      if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
+  
+      this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom: true, weft_systems: true, weft_materials:true});
+  
+    });
 
 
-    this.render.updateVisible(this.draft);
-
-    //this.timeline.addHistoryState(this.draft);
-
-    if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
-
-    this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true});
-
+   
 
   }
 
@@ -609,25 +618,29 @@ export class WeaverComponent implements OnInit {
 
 
   /**
-   * called when a change that affects the view has taken place in the loom modal
+   * This is called when an action occures that chagnes the loom within the loom modal
    */
   onLoomChange(){
 
-    this.render.updateVisible(this.draft);
+    
 
-    if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
+    const draft = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
 
-    console.log("getting utils of ", this.loom_settings.type);
+    this.render.updateVisible(draft);
 
-    const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option).then(loom => {
-      console.log("RETURNED LOOM OF ", loom);
-      this.loom = loom;
-      this.weaveRef.redraw({drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
+    if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
+
+    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+    .then(loom => {
+      this.tree.setLoom(this.id, loom);
+      this.weaveRef.loom_settings = loom_settings;
+      this.weaveRef.isFrame = isFrame(loom_settings);
+      this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
     });
     
 
-  }
+ }
 
 
   public renderChange(e: any){

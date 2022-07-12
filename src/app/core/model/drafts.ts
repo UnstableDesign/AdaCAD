@@ -519,7 +519,9 @@ export const createDraft = (
   export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell>) : Drawdown => {
     i = i+1;
   
+
     if(row === null){
+      row = [];
       for (var j = 0; j < warps(d); j++) {
         row.push(new Cell(false));
       }

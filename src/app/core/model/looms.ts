@@ -86,12 +86,14 @@ const jacquard_utils: LoomUtil = {
              }
 
              //now flip things back based on origin. 
-             console.log("RETURNING", l)
+             console.log("RETURNING", l.tieup)
              return l;
 
             });
 
         }).then(loom => {
+          console.log("tieup before flip loom", loom.tieup);
+
             return flipLoom(loom, origin);              
         });
     },
@@ -152,8 +154,6 @@ const jacquard_utils: LoomUtil = {
               }
             }
 
-            console.log(loom, numFrames(loom), numTreadles(loom))
-
             for(let i = 0; i < loom.treadling.length; i++){
               if(loom.treadling[i].length > 0){
                 const active_treadle_id = loom.treadling[i][0];
@@ -166,6 +166,7 @@ const jacquard_utils: LoomUtil = {
                 });
               }
             }
+
             return loom;
           })
 
@@ -341,7 +342,7 @@ const jacquard_utils: LoomUtil = {
       case 0: 
       fns.push(flipThreading(loom.threading));
       fns.push(flipTieUp(loom.tieup, true, false));
-      Promise.all(fns).then(res => {
+      return Promise.all(fns).then(res => {
         loom.threading = res[0];
         loom.tieup = res[1];
         return Promise.resolve(loom);
@@ -352,7 +353,7 @@ const jacquard_utils: LoomUtil = {
       fns.push(flipThreading(loom.threading));
       fns.push(flipTieUp(loom.tieup, true, true));
       fns.push(flipTreadling(loom.treadling));
-      Promise.all(fns).then(res => {
+      return Promise.all(fns).then(res => {
         loom.threading = res[0];
         loom.tieup = res[1];
         loom.treadling = res[2]
@@ -361,7 +362,7 @@ const jacquard_utils: LoomUtil = {
       case 2: 
       fns.push(flipTieUp(loom.tieup, false, true));
       fns.push(flipTreadling(loom.treadling));
-      Promise.all(fns).then(res => {
+      return Promise.all(fns).then(res => {
         loom.tieup = res[0];
         loom.treadling = res[1];
         return Promise.resolve(loom);
@@ -408,14 +409,14 @@ const jacquard_utils: LoomUtil = {
    */
   export const flipTieUp = (tieup: Array<Array<boolean>>, horiz: boolean, vert: boolean) : Promise<Array<Array<boolean>>> => {
 
-    const t_flip = [];
+    const t_flip:Array<Array<boolean>> = [];
     for(let i = 0; i < tieup.length; i++){
       t_flip.push([]);
       for(let j = 0; j < tieup[i].length; j++){
-        if(horiz && vert) t_flip[i][j] = new Cell(tieup[tieup.length -1 - i][tieup[i].length - 1 - j]);
-        if(horiz && !vert) t_flip[i][j] = new Cell(tieup[i][(tieup[i].length - 1 - j)]);
-        if(!horiz && vert) t_flip[i][j] = new Cell(tieup[tieup.length -1 - i][j]);
-        if(!horiz && !vert) t_flip[i][j] = new Cell(tieup[i][j]);
+        if(horiz && vert) t_flip[i][j] = tieup[tieup.length -1 - i][tieup[i].length - 1 - j];
+        if(horiz && !vert) t_flip[i][j] = tieup[i][(tieup[i].length - 1 - j)];
+        if(!horiz && vert) t_flip[i][j] = tieup[tieup.length -1 - i][j];
+        if(!horiz && !vert) t_flip[i][j] = tieup[i][j];
       }
     }
 

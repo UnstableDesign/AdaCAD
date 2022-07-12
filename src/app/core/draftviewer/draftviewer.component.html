@@ -6,8 +6,8 @@
 
       <app-selection 
       #selection
+      [id]="id"
       [render]="render"
-      [loom_settings]="loom_settings"
       (onCopy)="onCopy()"
       (onClear)="onClear($event)"
       (onPaste)="onPaste($event)"
@@ -18,23 +18,23 @@
       <div class="warp-systems-container origin{{ws.selected_origin_option}}">
         <div class="warp-systems-text origin{{ws.selected_origin_option}}" id="warp-systems-text">
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
-          *ngFor="let i of (weave?.colShuttleMapping); let j = index;" >
+          *ngFor="let i of colShuttleMapping; let j = index;" >
       
-            <span *ngIf="(j % render?.getTextInterval() == 0 && (j+1 !== weave?.warps))" class="warp_number origin{{ws.selected_origin_option}}">{{j}}</span>      
-            <span *ngIf="(j+1 === weave?.warps)" class="warp_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>      
+            <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol())" class="warp_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+            <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>      
 
             <div  class="warp_selectors">
             <span *ngIf="!viewonly"class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
               </span>
       
             <span *ngIf="!viewonly" class="warp_clone"
-            (click)="cloneCol(j,weave?.colToShuttle(j), weave?.colToSystem(j));">
+            (click)="cloneCol(j);">
               <i class="fa fa-clone"></i>
             </span>
       
       
             <span *ngIf="!viewonly" class="warp_insert" 
-            (click)="insertCol(j + 1, weave?.colToShuttle(j),weave?.colToSystem(j));">
+            (click)="insertCol(j + 1);">
             <i class="fa fa-plus-circle"></i></span>
             </div>
          
@@ -63,12 +63,13 @@
           <canvas id="weft-materials" #weft_materials>  </canvas>
           <canvas id="weft-systems" #weft_systems>  </canvas>
           <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text">
-            <div class="weft-system-row origin{{ws.selected_origin_option}}" *ngFor="let i of (render?.visibleRows); let j = index;" >
+            <div class="weft-system-row origin{{ws.selected_origin_option}}" 
+            *ngFor="let i of (render?.visibleRows); let j = index;" >
         
   
                   <div class="weft_indicies">
-                  <span  *ngIf="(i % render?.getTextInterval() == 0 && (j+1 !== weave?.wefts))" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
-                  <span *ngIf="(i+1 === weave?.wefts)" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>      
+                  <span *ngIf="(i % render?.getTextInterval() == 0 && !isLastRow(j))" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+                  <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>      
                 </div>
                   <span *ngIf="!viewonly" class = "weft_insert" 
                   (click)="insertRow(j, i)">

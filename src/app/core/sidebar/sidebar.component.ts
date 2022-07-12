@@ -237,7 +237,10 @@ openLoomModal(){
       data: {id: this.id, type: "local"}});
 
 
-      this.equipment_modal.componentInstance.onChange.subscribe(event => { this.onLoomChange.emit();});
+      this.equipment_modal.componentInstance.onChange.subscribe(event => { 
+        console.log("EMITTING ON LOOM CHANGE")
+        this.onLoomChange.emit();
+      });
 
   
       this.equipment_modal.afterClosed().subscribe(result => {

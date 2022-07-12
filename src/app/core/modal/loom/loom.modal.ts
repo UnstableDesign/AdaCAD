@@ -130,14 +130,10 @@ export class LoomModal implements OnInit {
 
 
   loomChange(e:any){
+    console.log("Changing loom type to ", e.value.loomtype)
     if(this.type == 'global') this.ws.type = e.value.loomtype;
     else this.loom_settings.type = e.value.loomtype;
-
-
-    this.dm.selectDesignMode(e.value.loomtype, 'loom_types');
     this.onChange.emit();
-
-
   }
 
   unitChange(e:any){

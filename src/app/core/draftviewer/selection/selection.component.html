@@ -37,41 +37,6 @@
         </ng-container>
         </mat-menu>
 
-
-        <!-- <button 
-        mat-icon-button 
-         matTooltip="fill with pattern"
-         [matMenuTriggerFor]="fills"
-         ><i class="fas fa-fill-drip"></i></button>
-         -->
-
-         <!-- <mat-menu #fills="matMenu">
-            <ng-container *ngFor="let pattern of patterns">
-            <button class="menu-button" 
-            mat-menu-item 
-            (click)="fillEvent(pattern.id)">
-                <div class="pattern-swatch">
-                    <svg [attr.width]="pattern.width * 10" [attr.height]="auto"  [attr.viewBox]="'0 0 ' + pattern.width * 10 + ' ' + pattern.height * 10" style="background:#fefefe;max-width:75px;">
-                    <g *ngFor="let row of pattern.pattern; let i = index" style="background:#fefefe;">
-                        <ng-container *ngFor="let cell of row; let j = index">
-                        {{cell}}
-                        <rect *ngIf="cell.is_up" [attr.x]="j * 10" [attr.y]="i * 10" width="10" height="10" fill="#000"/>
-                        </ng-container>
-                    </g>
-                    </svg>
-                </div>
-            <span>{{ pattern.name }}</span>
-            </button>
-    
-            </ng-container>
-        </mat-menu> -->
-
-    
-        
-        
-        
-        
-        
         
         <button mat-icon-button  matTooltip="copy this region" (click)="copyEvent()"><i class="fas fa-clipboard"></i></button>
         <button mat-icon-button  matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i></button>

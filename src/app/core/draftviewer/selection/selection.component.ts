@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TreeService } from '../../../mixer/provider/tree.service';
 import { Interlacement, LoomSettings } from '../../model/datatypes';
+import { numFrames, numTreadles } from '../../model/looms';
 import { Render } from '../../model/render';
 import { DesignmodesService } from '../../provider/designmodes.service';
 
@@ -10,8 +12,8 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 })
 export class SelectionComponent implements OnInit {
 
+  @Input('id') id: number;
   @Input('render') render:Render;
-  @Input('loom_settings') loom_settings:LoomSettings;
   @Output() onFill: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
@@ -52,7 +54,8 @@ export class SelectionComponent implements OnInit {
 
 
   constructor(
-    private dm: DesignmodesService
+    private dm: DesignmodesService,
+    private tree: TreeService
     ) { 
 
       this.design_actions = dm.getOptionSet('design_actions');
@@ -148,6 +151,8 @@ export class SelectionComponent implements OnInit {
    */
   onSelectStart(target: HTMLElement, start: Interlacement){
 
+    const loom = this.tree.getLoom(this.id);
+
     //clear existing params
     this.unsetParameters();
 
@@ -161,14 +166,14 @@ export class SelectionComponent implements OnInit {
       
       case 'treadling':    
         this.start.j = 0;
-        this.width = this.loom_settings.treadles;
+        this.width = numTreadles(loom);
         this.force_width = true;
       break;
 
       case 'threading':
         this.start.i = 0;
         this.start.si = 0;
-        this.height = this.loom_settings.frames;
+        this.height = numFrames(loom);
         this.force_height = true;
       break;
 

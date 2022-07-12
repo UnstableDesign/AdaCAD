@@ -1167,7 +1167,7 @@ removeOperationNode(id:number) : Array<Node>{
 
   if(out.length === res.length){
     out.forEach((output, ndx) => {
-      this.setDraft(output, res[ndx],this.getLoomSettings(output));
+      this.setDraftOnly(output, res[ndx]);
       touched.push(output);
     });
     return Promise.resolve(touched);
@@ -1386,7 +1386,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(dn !== null && dn !== undefined) dn.loom = _.cloneDeep(loom);
   }
 
-  setLoomAndRecomputeDrawdown(id: number, loom:Loom, loom_settings:LoomSettings) : Promise<any>{
+  setLoomAndRecomputeDrawdown(id: number, loom:Loom, loom_settings:LoomSettings) : Promise<Draft>{
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn !== null && dn !== undefined) dn.loom = _.cloneDeep(loom);
 
@@ -1394,8 +1394,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     return utils.computeDrawdownFromLoom(loom, this.ws.selected_origin_option)
     .then(drawdown => {
       dn.draft.drawdown = drawdown;
-     Promise.resolve('done');
-
+      return Promise.resolve(dn.draft);
     })
   }
 
@@ -1972,7 +1971,7 @@ isValidIOTuple(io: IOTuple) : boolean {
  * @param temp the draft to add
  * @param loom_settings  the settings that should govern the loom generated
  */
-  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings) : Promise<any> {
+  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings) : Promise<Loom> {
 
     const dn = <DraftNode> this.getNode(id);
     let ud_name = getDraftName(temp);
@@ -2006,7 +2005,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     .then(loom =>{
 
       dn.loom = loom;
-      return Promise.resolve('Done');
+      return Promise.resolve(loom);
     });
 
   }

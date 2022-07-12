@@ -777,20 +777,21 @@ export class SubdraftComponent implements OnInit {
 
               console.log("RESULT", result);
               //create a new draft here and make sure its assigned
-              this.draft = initDraftWithParams({
-                id: result.id,
-                gen_name: result.gen_name,
-                ud_name: result.ud_name,
-                drawdown: result.drawdown,
-                rowShuttleMapping: result.rowShuttleMapping,
-                rowSystemMapping: result.rowSystemMapping,
-                colSystemMapping: result.colSystemMapping,
-                colShuttleMapping: result.colShuttleMapping
-              });
+              //this should be happening directly in the tree, and not here
+              // this.draft = initDraftWithParams({
+              //   id: result.id,
+              //   gen_name: result.gen_name,
+              //   ud_name: result.ud_name,
+              //   drawdown: result.drawdown,
+              //   rowShuttleMapping: result.rowShuttleMapping,
+              //   rowSystemMapping: result.rowSystemMapping,
+              //   colSystemMapping: result.colSystemMapping,
+              //   colShuttleMapping: result.colShuttleMapping
+              // });
 
               
-              this.tree.setDraft(this.id, this.draft, this.loom_settings);
-
+              // this.tree.setDraft(this.id, this.draft, this.loom_settings);
+              this.draft = this.tree.getDraft(this.id);
 
               this.onDesignAction.emit({id: this.id});
             }

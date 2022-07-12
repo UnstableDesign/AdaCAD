@@ -26,7 +26,6 @@ export class MarqueeComponent implements OnInit{
 
   ngOnInit(){
     console.log(this.draft.id);
-    console.log("created directive selection");
   }
 
   public getDraftId(){
@@ -36,9 +35,6 @@ export class MarqueeComponent implements OnInit{
 
   public setPositionAndSize(bounds: Bounds){
     this.bounds  = bounds;
-    console.log("set bounds to", this.bounds);
-
-
   }
 
 

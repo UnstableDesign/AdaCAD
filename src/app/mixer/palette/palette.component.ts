@@ -2172,7 +2172,7 @@ drawStarted(){
 
        //get a draft that reflects only the poitns in the selection view
       const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
-      this.tree.setDraft(sc.id, new_draft,null)
+      this.tree.setDraftOnly(sc.id, new_draft)
     
 
     isect.forEach(el => {
@@ -2432,7 +2432,7 @@ drawStarted(){
       const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
-      this.tree.setDraft(primary.id, temp, null);
+      this.tree.setDraftOnly(primary.id, temp);
       primary.setPosition(bounds.topleft);
       //primary.drawDraft();
       const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.scale);
