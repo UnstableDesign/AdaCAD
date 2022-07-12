@@ -1209,6 +1209,7 @@ export class DraftviewerComponent implements OnInit {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, this.tree.getLoomSettings(this.id))
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
+        console.log("LOOM IS", loom)
 
       })
       .catch(console.error);
@@ -1273,7 +1274,7 @@ export class DraftviewerComponent implements OnInit {
       var val = false;
 
       //modify based on the current view 
-        currentPos.i = this.translateThreadingRowForView(loom, loom_settings,currentPos.i)
+       // currentPos.i = this.translateThreadingRowForView(loom, loom_settings,currentPos.i)
 
 
       switch (this.dm.getSelectedDesignMode('draw_modes').value) {
@@ -1383,7 +1384,7 @@ export class DraftviewerComponent implements OnInit {
         var frame = loom.threading[j];
         is_up = (frame == i);
         beyond = frame > loom_settings.frames; 
-        i = this.translateThreadingRowForView(loom, loom_settings, i);
+        //i = this.translateThreadingRowForView(loom, loom_settings, i);
         
         if(is_up)  color = "#333333";
         //i = this.loom.frame_mapping[frame];

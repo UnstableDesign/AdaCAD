@@ -1,4 +1,5 @@
 import { L, NUMPAD_SIX } from "@angular/cdk/keycodes";
+import { values } from "lodash";
 import { LoomModal } from "../modal/loom/loom.modal";
 import { Cell } from "./cell";
 import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
@@ -48,22 +49,17 @@ const jacquard_utils: LoomUtil = {
         }
 
 
-      return flipPattern(
-          d, 
-          (origin == 0 || origin == 1), 
-          (origin == 1 || origin == 2))
-        .then(pattern => {
-
+  
             //now calculate threading 
-            return generateThreading(pattern)
+            return generateThreading(d)
             .then(obj => {
 
             l.threading = obj.threading.slice();
 
             //add treadling
-            for(let i = 0; i < wefts(pattern); i++){
+            for(let i = 0; i < wefts(d); i++){
               let active_ts = [];
-              let i_pattern = pattern[i].slice();
+              let i_pattern = d[i].slice();
               i_pattern.forEach((cell, j) => {
                 if(cell.isUp()){
                   const frame_assignment = obj.threading[j];
@@ -94,14 +90,9 @@ const jacquard_utils: LoomUtil = {
 
             });
 
-        }).then(loom => {
-          console.log("tieup before flip loom", loom.tieup);
-
-            return flipLoom(loom, origin);              
-        });
     },
     computeDrawdownFromLoom: (l: Loom, origin: number) : Promise<Drawdown> => {
-      return flipAndComputeDrawdown(l, origin);
+      return computeDrawdown(l);
     },
     updateThreading: (loom: Loom, ndx:InterlacementVal) => {
         if(ndx.val) loom.threading[ndx.j] = ndx.i;
@@ -135,16 +126,12 @@ const jacquard_utils: LoomUtil = {
             treadling: []
         }
 
-      return flipPattern(
-        d, 
-        (origin == 0 || origin == 1), 
-        (origin == 1 || origin == 2))
-      .then(pattern => {
+   
          
-          return generateThreading(pattern)
+        return generateThreading(d)
           .then(threading => {
             loom.threading = threading.threading;
-            return generateTreadlingforFrameLoom(pattern)
+            return generateTreadlingforFrameLoom(d)
           })
           .then(treadling => {
             loom.treadling = treadling.treadling;
@@ -163,7 +150,7 @@ const jacquard_utils: LoomUtil = {
             for(let i = 0; i < loom.treadling.length; i++){
               if(loom.treadling[i].length > 0){
                 const active_treadle_id = loom.treadling[i][0];
-                const row = pattern[i];
+                const row = d[i];
                 row.forEach((cell, j) => {
                   if(cell.isUp()){
                     const active_frame_id = loom.threading[j];
@@ -176,13 +163,11 @@ const jacquard_utils: LoomUtil = {
             return loom;
           })
 
-        }).then(loom => {
-          return flipLoom(loom, origin);
-        });
+      
     
     },
     computeDrawdownFromLoom: (l: Loom, origin: number) : Promise<Drawdown> => {
-      return flipAndComputeDrawdown(l, origin);
+      return computeDrawdown(l);
     },
     updateThreading: (loom:Loom, ndx: InterlacementVal) : Loom => {
         if(ndx.val) loom.threading[ndx.j] = ndx.i;
@@ -214,18 +199,12 @@ const jacquard_utils: LoomUtil = {
    * @param l a loom to use when computing
    * @returns the computed draft
    */
- export const flipAndComputeDrawdown = (l: Loom, origin: number) : Promise<Drawdown> => {
-    return flipLoom(l, origin).then(loom => {
+ export const flipAndComputeDrawdown = (l: Loom, horiz: boolean, vert:boolean) : Promise<Drawdown> => {
+    
+  return flipLoom(l, horiz, vert).then(loom => {
       return computeDrawdown(loom);
-    }).then(draft => {
-       return flipPattern(
-        draft, 
-        (origin == 0 || origin == 1), 
-        (origin == 1 || origin == 2))
-        .then(pattern => {
-          draft = pattern.slice();
-          return draft;
-        })
+    }).then(drawdown => {
+       return drawdown
     });
   }
 
@@ -338,16 +317,16 @@ const jacquard_utils: LoomUtil = {
   export const flipPattern = (d: Drawdown, horiz: boolean, vert: boolean) : Promise<Drawdown> => {
 
 
-    const d_flip = [];
-    for(let i = 0; i < d.length; i++){
-      d_flip.push([]);
-      for(let j = 0; j < d[i].length; j++){
-        if(horiz && vert) d_flip[i][j] = new Cell(d[d.length -1 - i][d[i].length - 1 - j].getHeddle());
-        if(horiz && !vert) d_flip[i][j] = new Cell(d[i][(d[i].length - 1 - j)].getHeddle());
-        if(!horiz && vert) d_flip[i][j] = new Cell(d[d.length -1 - i][j].getHeddle());
-        if(!horiz && !vert) d_flip[i][j] = new Cell(d[i][j].getHeddle());
-      }
-    }
+    const d_flip = d.slice();
+    // for(let i = 0; i < d.length; i++){
+    //   d_flip.push([]);
+    //   for(let j = 0; j < d[i].length; j++){
+    //     if(horiz && vert) d_flip[i][j] = new Cell(d[d.length -1 - i][d[i].length - 1 - j].getHeddle());
+    //     if(horiz && !vert) d_flip[i][j] = new Cell(d[i][(d[i].length - 1 - j)].getHeddle());
+    //     if(!horiz && vert) d_flip[i][j] = new Cell(d[d.length -1 - i][j].getHeddle());
+    //     if(!horiz && !vert) d_flip[i][j] = new Cell(d[i][j].getHeddle());
+    //   }
+    // }
 
     return Promise.resolve(d_flip);
 
@@ -358,46 +337,36 @@ const jacquard_utils: LoomUtil = {
    * @param loom the original loom
    * @returns the flipped loom
    */
-  export const flipLoom = (loom:Loom, origin:number) : Promise<Loom> => {
+  export const flipLoom = (loom:Loom, horiz: boolean, vert: boolean) : Promise<Loom> => {
    
+    if(loom === null || loom == undefined) return Promise.resolve(null);
+
+    const refs = [];
     let new_loom = {
       threading: loom.threading.slice(), 
       tieup: loom.tieup.slice(),
       treadling: loom.treadling.slice()
     }
+
+
     let fns = [];
-    switch(origin){
-      case 0: 
-      fns.push(flipThreading(loom.threading));
-      fns.push(flipTieUp(loom.tieup, true, false));
+      if (vert){
+        refs.push('treadling')
+        fns.push(flipTreadling(loom.treadling));
+      }
+      if(horiz){
+        refs.push('threading')
+        fns.push(flipThreading(loom.threading))
+      }
+
       return Promise.all(fns).then(res => {
-        new_loom.threading = res[0];
-        new_loom.tieup = res[1];
+        for(let i = 0; i < refs.length; i++){
+          if(refs[i] === 'treadling') new_loom.treadling = res[i];
+          if(refs[i] === 'threading') new_loom.threading = res[i];
+        }
         return Promise.resolve(new_loom);
 
       });
-
-      case 1:
-      fns.push(flipThreading(loom.threading));
-      fns.push(flipTieUp(loom.tieup, true, true));
-      fns.push(flipTreadling(loom.treadling));
-      return Promise.all(fns).then(res => {
-        new_loom.threading = res[0];
-        new_loom.tieup = res[1];
-        new_loom.treadling = res[2]
-        return Promise.resolve(new_loom);
-      }); 
-      case 2: 
-      fns.push(flipTieUp(loom.tieup, false, true));
-      fns.push(flipTreadling(loom.treadling));
-      return Promise.all(fns).then(res => {
-        new_loom.tieup = res[0];
-        new_loom.treadling = res[1];
-        return Promise.resolve(new_loom);
-      }); 
-      case 3: 
-      return Promise.resolve(new_loom);
-    }
 }
 
 
@@ -413,6 +382,7 @@ const jacquard_utils: LoomUtil = {
     for(let i = 0; i < threading.length; i++){
       t_flip[i] = threading[threading.length -1 - i];
     }
+    console.log("FLIP THREADING", t_flip)
     return Promise.resolve(t_flip);
   }
 
@@ -475,7 +445,7 @@ export const getLoomUtilByType = (type: 'frame' | 'direct' | 'jacquard' | string
  */
 export const numFrames = (loom: Loom) : number => {
 
-  if(loom == null) return 0;
+  if(loom === null || loom === undefined) return 0;
 
   let max = loom.threading.reduce((acc, el) => {
     if(el > acc){

@@ -676,7 +676,7 @@ export const createDraft = (
 * used to ensure mixer calculations are oriented from bottom left
 * @param draft 
 */ 
-export const flipDraft = (d: Draft) : Promise<Draft> => {
+export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Draft> => {
 
   const draft = initDraftWithParams(
     {id: d.id, 
@@ -687,13 +687,28 @@ export const flipDraft = (d: Draft) : Promise<Draft> => {
     draft.drawdown = createBlankDrawdown(wefts(d.drawdown), warps(d.drawdown));
 
   for(let i = 0; i < wefts(d.drawdown); i++){
-    let flipped_i = wefts(d.drawdown) -1 -i;
+    let flipped_i = i;
+    if(vert) flipped_i = wefts(d.drawdown) -1 -i;
     for(let j = 0; j < warps(d.drawdown); j++){
+      let flipped_j = j;
+      if(horiz) flipped_j = warps(d.drawdown) -1 -j;
       draft.drawdown[i][j].setHeddle(d.drawdown[flipped_i][j].getHeddle()); 
     }
+
     draft.rowShuttleMapping[i] = d.rowShuttleMapping[flipped_i];
     draft.rowSystemMapping[i] = d.rowSystemMapping[flipped_i];
    }
+
+   if(horiz){
+    
+    for(let j = 0; j < warps(d.drawdown); j++){
+      let flipped_j = warps(d.drawdown) -1 -j;
+      draft.colShuttleMapping[j] = d.rowShuttleMapping[flipped_j];
+      draft.colShuttleMapping[j] = d.rowSystemMapping[flipped_j];
+    }
+  }
+
+
 
   return Promise.resolve(draft);
 }

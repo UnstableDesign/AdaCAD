@@ -2,12 +2,14 @@ import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import * as _ from 'lodash';
 import { DesignmodesService } from '../../provider/designmodes.service';
-import { DesignMode,Loom, Draft, LoomSettings } from '../../model/datatypes';
+import { DesignMode,Loom, Draft, LoomSettings, DraftNode } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
-import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts } from '../../model/drafts';
-import { getLoomUtilByType } from '../../model/looms';
+import { deleteDrawdownCol, deleteDrawdownRow, flipDraft, flipDrawdown, insertDrawdownCol, insertDrawdownRow, warps, wefts } from '../../model/drafts';
+import { flipLoom, flipPattern, getLoomUtilByType } from '../../model/looms';
 import { TreeService } from '../../../mixer/provider/tree.service';
+import utilInstance from '../../model/util';
+import { C } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-loom-modal',
@@ -37,6 +39,7 @@ export class LoomModal implements OnInit {
   width:number = 0; 
   type: string = 'local';
   origin_options: any = null;
+  selected_origin: number = 0;
 
   constructor(
              private ws: WorkspaceService,
@@ -48,6 +51,7 @@ export class LoomModal implements OnInit {
 
      this.type = data.type;
       this.id = data.id;
+      this.selected_origin = this.ws.selected_origin_option;
 
      if(this.type === 'local'){
       this.draft = this.tree.getDraft(this.id);
@@ -118,13 +122,63 @@ export class LoomModal implements OnInit {
      
 
     f.value.frames = Math.ceil(f.value.frames);
-    console.log("min frames", f.value.frames);  
     
     if(this.type == "global")   this.ws.min_frames = f.value.frames;
     else  this.loom_settings.frames = f.value.frames;
     
     
     this.onChange.emit();
+
+  }
+
+
+  /**
+   * when the origin changes, all drafts on the canavs should be modified to the new position
+   * @param e 
+   */
+  originChange(e:any){
+
+
+    const flips = utilInstance.getFlips(this.ws.selected_origin_option, this.selected_origin);
+    this.ws.selected_origin_option = this.selected_origin;
+    
+    const dn: Array<DraftNode> = this.tree.getDraftNodes();
+    const data = dn.map(node => {
+      return {
+      draft: node.draft, 
+      loom: node.loom, 
+      horiz: flips.horiz,
+      vert: flips.vert}
+    });
+
+    const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
+
+    return Promise.all(draft_fns)
+    .then(res => {
+      for(let i = 0; i < dn.length; i++){
+        dn[i].draft = _.cloneDeep(res[i]);
+      }
+      const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
+      return Promise.all(loom_fns)
+    .then(res => {
+      for(let i = 0; i < dn.length; i++){
+        if(res[i] !== null){
+
+          dn[i].loom = {
+            threading: res[i].threading.slice(),
+            tieup: res[i].tieup.slice(),
+            treadling: res[i].treadling.slice()
+          }
+        }
+      }
+      this.onChange.emit();
+    })
+
+
+    })
+
+    
+
 
   }
 

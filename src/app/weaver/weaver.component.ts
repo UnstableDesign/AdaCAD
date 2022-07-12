@@ -505,17 +505,21 @@ export class WeaverComponent implements OnInit {
 
   public loomChange(e:any){
     const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    loom_settings.type = e.type;
-    this.tree.setLoomSettings(this.id, loom_settings);
+    //loom_settings.type = e.type;
+    //this.tree.setLoomSettings(this.id, loom_settings);
 
-    const utils = getLoomUtilByType(loom_settings.type);
-    utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)  
-    .then(loom => {
-      this.tree.setLoom(this.id, loom);
-      this.weaveRef.redraw(draft, loom, loom_settings, {loom: true});
+    // const utils = getLoomUtilByType(loom_settings.type);
+    // utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)  
+    // .then(loom => {
+    //   this.tree.setLoom(this.id, loom);
+    //   this.weaveRef.redraw(draft, loom, loom_settings, {loom: true});
 
-    });
+
+    // });
+
+    this.weaveRef.redraw(draft, loom, loom_settings, {loom: true});
 
   }
 

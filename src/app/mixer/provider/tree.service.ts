@@ -1314,6 +1314,8 @@ isValidIOTuple(io: IOTuple) : boolean {
 
     const flip_fns = [];
     const draft_id_to_ndx = [];
+    const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+
    
     all_inputs.filter(el => this.isValidIOTuple(el))
     .forEach((el) => {
@@ -1324,7 +1326,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
       if(type === 'draft'){
         draft_id_to_ndx.push({ndx: el.ndx, node_id: draft_tn.node.id, cxn: cxn_tn.node.id})
-        flip_fns.push(flipDraft((<DraftNode>draft_tn.node).draft));
+        flip_fns.push(flipDraft((<DraftNode>draft_tn.node).draft, flips.horiz, flips.vert));
       }
     });
 
@@ -1349,7 +1351,9 @@ isValidIOTuple(io: IOTuple) : boolean {
 
     })
     .then(res => {
-          return Promise.all(res.map(el => flipDraft(el)));
+              const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+
+          return Promise.all(res.map(el => flipDraft(el,  flips.horiz, flips.vert)));
       })
     .then(flipped => {
         opnode.dirty = false;

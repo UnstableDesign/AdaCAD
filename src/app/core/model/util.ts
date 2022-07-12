@@ -6,8 +6,9 @@
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
 import { Cell } from "./cell";
-import { Point, Interlacement, Bounds, Draft } from "./datatypes";
-import { hasCell, initDraftWithParams, warps, wefts } from "./drafts";
+import { Point, Interlacement, Bounds, Draft, Loom } from "./datatypes";
+import { flipDraft, hasCell, initDraftWithParams, warps, wefts } from "./drafts";
+import { flipPattern } from "./looms";
 import { Shuttle } from "./shuttle";
 
 
@@ -1048,6 +1049,48 @@ printDraft(d: Draft){
     }, '');
     console.log(row)
   }
+}
+
+
+/**
+ * this function determines how one can flip the draft between two origin states
+ * @param draft 
+ * @param loom 
+ * @param from 
+ * @param to 
+ */
+getFlips(from:number, to: number) : {horiz: boolean, vert: boolean} {
+
+  console.log("flipping from/to", from, to);
+
+
+  let horiz = false;
+  let vert = false;
+
+  if(from === to) return {horiz, vert};
+
+  if((from === 0 && to === 1) || (from === 1 && to === 0)){
+    vert = true;
+  }else if((from === 0 && to === 2) || (from === 2 && to === 0)){
+    vert = true;
+    horiz = true;
+  }else if((from === 0 && to === 3) || (from === 3 && to === 0)){
+    horiz = true;
+  }else if((from === 1 && to == 2) || (from === 2 && to === 1)){
+    horiz = true;
+  }else if((from === 1 && to == 3) || (from === 3 && to === 1)){
+    vert = true;
+    horiz = true;
+  }else if((from === 2 && to == 3) || (from === 3 && to === 2)){
+    vert = true;
+  }else{
+    console.error("to/from origin flip options not found", to, from)
+  }
+
+  console.log("horiz/vert", horiz, vert);
+
+  return {horiz, vert};
+
 }
 
 
