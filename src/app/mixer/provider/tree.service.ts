@@ -280,7 +280,7 @@ export class TreeService {
     this.getDraftNodes().forEach(dn => {
     
       const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, this.ws.selected_origin_option).then(loom => {
+      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings, this.ws.selected_origin_option).then(loom => {
         dn.loom = loom;
       });
     });
@@ -392,7 +392,7 @@ export class TreeService {
    if(loom === null){
     const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
 
-   loom_utils.computeLoomFromDrawdown(draft.drawdown, this.ws.selected_origin_option).then(loom => {
+   loom_utils.computeLoomFromDrawdown(draft.drawdown,(<DraftNode> nodes[0]).loom_settings,  this.ws.selected_origin_option).then(loom => {
       (<DraftNode> nodes[0]).loom = loom;
     });
    }else{
@@ -1186,7 +1186,7 @@ removeOperationNode(id:number) : Array<Node>{
       }
 
       const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, this.ws.selected_origin_option)
+      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings, this.ws.selected_origin_option)
       .then(loom => {
         dn.loom = loom;
       })
@@ -2001,7 +2001,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    return loom_utils.computeLoomFromDrawdown(temp.drawdown, this.ws.selected_origin_option)
+    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings, this.ws.selected_origin_option)
     .then(loom =>{
 
       dn.loom = loom;

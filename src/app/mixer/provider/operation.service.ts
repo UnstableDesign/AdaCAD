@@ -7,7 +7,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
-import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
+import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, LoomSettings, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
 import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
 import { getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import { WorkspaceService } from '../../core/provider/workspace.service';
@@ -4416,8 +4416,15 @@ export class OperationService {
         if(child_input === undefined) return Promise.resolve([]);
         const inputDraft =child_input.drafts[0]
 
+        const loom_settings:LoomSettings = {
+          type: 'frame',
+          epi: 10, 
+          units: 'in',
+          frames: 8,
+          treadles: 10
+        }
         const utils = getLoomUtilByType('frame');
-        return utils.computeLoomFromDrawdown(inputDraft.drawdown, 0).then(loom => {
+        return utils.computeLoomFromDrawdown(inputDraft.drawdown, loom_settings, 0).then(loom => {
           let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.drawdown);
           const draft_seed =  utilInstance.patternToSize(pattern, 48, 48);
   
@@ -4476,8 +4483,15 @@ export class OperationService {
           if(child_input.drafts.length === 0) return Promise.resolve([]);
           const inputDraft =child_input.drafts[0]
 
+          const loom_settings:LoomSettings = {
+            type: 'frame',
+            epi: 10, 
+            units: 'in',
+            frames: 8,
+            treadles: 10
+          }
           const utils = getLoomUtilByType('frame');
-          return utils.computeLoomFromDrawdown(inputDraft.drawdown, 0).then(loom => {
+          return utils.computeLoomFromDrawdown(inputDraft.drawdown, loom_settings,  0).then(loom => {
             let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.drawdown);
         
             const draft_seed =  utilInstance.patternToSize(pattern, 52, 52);
@@ -4526,8 +4540,15 @@ export class OperationService {
         if(child_input === undefined || child_input.drafts === undefined) return Promise.resolve([]);
 
       
-        const utils = getLoomUtilByType('frame');
-        return utils.computeLoomFromDrawdown(child_input.drafts[0].drawdown, this.ws.selected_origin_option).then(l => {
+        const loom_settings:LoomSettings = {
+          type: 'frame',
+          epi: 10, 
+          units: 'in',
+          frames: 8,
+          treadles: 10
+        }
+        const utils = getLoomUtilByType(loom_settings.type);
+        return utils.computeLoomFromDrawdown(child_input.drafts[0].drawdown, loom_settings, this.ws.selected_origin_option).then(l => {
 
         const threading: Draft =initDraftWithParams({warps:warps(child_input.drafts[0].drawdown), wefts: numFrames(l)});
         l.threading.forEach((frame, j) =>{

@@ -424,7 +424,7 @@ export class FileService {
       }
 
       const loomutils = getLoomUtilByType(loomtype);
-      return loomutils.computeLoomFromDrawdown(draft.drawdown, 0).then(loom => {
+      return loomutils.computeLoomFromDrawdown(draft.drawdown, loom_settings, 0).then(loom => {
         looms.push(loom);
         const proxies = this.tree.getNewDraftProxies(draft, []);
 

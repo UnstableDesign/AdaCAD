@@ -20,7 +20,7 @@
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
           *ngFor="let i of colShuttleMapping; let j = index;" >
       
-            <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol())" class="warp_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+            <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol(j))" class="warp_number origin{{ws.selected_origin_option}}">{{j}}</span>      
             <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>      
 
             <div  class="warp_selectors">

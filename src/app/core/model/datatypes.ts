@@ -244,7 +244,7 @@ export type LoomUtil = {
   type: 'jacquard' | 'frame' | 'direct',
   displayname: string,
   dx: string,
-  computeLoomFromDrawdown: (d:Drawdown, origin: number) => Promise<Loom>,
+  computeLoomFromDrawdown: (d:Drawdown, loom_settings: LoomSettings, origin: number) => Promise<Loom>,
   computeDrawdownFromLoom: (l:Loom, origin: number) => Promise<Drawdown>,
   updateThreading: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTreadling: (l: Loom, ndx: InterlacementVal) => Loom,

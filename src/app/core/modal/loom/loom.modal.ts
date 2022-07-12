@@ -130,9 +130,13 @@ export class LoomModal implements OnInit {
 
 
   loomChange(e:any){
-    console.log("Changing loom type to ", e.value.loomtype)
     if(this.type == 'global') this.ws.type = e.value.loomtype;
-    else this.loom_settings.type = e.value.loomtype;
+    else{
+      this.loom_settings.type = e.value.loomtype;
+      if(this.loom_settings.type == 'direct'){
+        this.loom_settings.frames = this.loom_settings.treadles;
+      }
+    } 
     this.onChange.emit();
   }
 
@@ -186,7 +190,7 @@ export class LoomModal implements OnInit {
     }
 
     const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)
+    utils.computeLoomFromDrawdown(this.draft.drawdown, this.loom_settings,  this.ws.selected_origin_option)
     .then(loom => {
       this.loom = loom;
     })
@@ -237,7 +241,7 @@ export class LoomModal implements OnInit {
 
     if(this.loom !== null){
     const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option)
+    utils.computeLoomFromDrawdown(this.draft.drawdown, this.loom_settings, this.ws.selected_origin_option)
     .then(loom => {
       this.loom = loom;
     })

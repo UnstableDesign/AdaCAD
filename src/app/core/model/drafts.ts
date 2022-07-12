@@ -518,7 +518,6 @@ export const createDraft = (
    */
   export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell>) : Drawdown => {
     i = i+1;
-  
 
     if(row === null){
       row = [];
@@ -526,7 +525,6 @@ export const createDraft = (
         row.push(new Cell(false));
       }
     }
-
     if(row.length !== warps(d)) console.error("inserting row of incorrect length into drawdown");
    
     try{
@@ -542,13 +540,13 @@ export const createDraft = (
    * inserts a new value into the row system/shuttle map
    * @param m the map to modify
    * @param i the place at which to add the row
-   * @param row the value to insert
+   * @param val the value to insert
    * @returns 
    */
-  export const insertMappingRow = (m: Array<number>, i: number, row: number) : Array<number> => {
+  export const insertMappingRow = (m: Array<number>, i: number, val: number) : Array<number> => {
     i = i+1;
     try{
-      m.splice(i,0,row);
+      m.splice(i,0,val);
     }catch(e){
       console.error(e);
     }
@@ -599,13 +597,18 @@ export const createDraft = (
    */
   export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell>) : Drawdown => {
     
+    const w = warps(d);
+
+    if(j === null) j =0;
+
     if(col == null){
+      col = [];
       for(let i = 0; i < wefts(d); i++){
         col.push(new Cell(false));
       }
     }
     for (var ndx = 0; ndx < wefts(d); ndx++) {
-      d[ndx].splice(j,0, col[ndx]);
+      d[ndx].splice(j, 0, new Cell(col[ndx].getHeddle()));
     }
     return d;
   }

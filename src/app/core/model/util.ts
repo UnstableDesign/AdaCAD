@@ -58,6 +58,25 @@ class Util {
 
     }
 
+     /**
+    * given a drawdown and a column index, return if the column is blank
+    * @param j 
+    * @param drawdown 
+    * @returns true or false;
+    */
+      colIsBlank(j: number, drawdown: Array<Array<Cell>>) : boolean {
+        
+       
+        let blank = true;
+        drawdown.forEach((row, i) => {
+          if(row[j].isUp()) blank = false;
+        });
+  
+        return blank;
+  
+      }
+  
+
     /**
     * given a drawdown and a row index, return the row number of the first matching row
     * @param j 
