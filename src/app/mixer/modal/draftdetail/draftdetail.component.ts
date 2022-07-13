@@ -73,10 +73,10 @@ export class DraftdetailComponent implements OnInit {
 
                this.id = data.id;
                this.draft = this.tree.getDraft(this.id);
+               this.loom = this.tree.getLoom(this.id);
                this.loom_settings = this.tree.getLoomSettings(this.id);
                this.ink = data.ink;
                this.viewonly = this.tree.hasParent(this.id);
-
 
 
         
@@ -176,6 +176,14 @@ export class DraftdetailComponent implements OnInit {
  width(){
     if(this.loom_settings.units == 'cm') return warps(this.draft.drawdown) / this.loom_settings.epi * 10;
     else return warps(this.draft.drawdown) / this.loom_settings.epi;
+  }
+
+  numFrames(){
+    return numFrames(this.loom);
+  }
+  
+  numTreadles(){
+    return numTreadles(this.loom);
   }
   
 }

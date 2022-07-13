@@ -109,7 +109,7 @@ export class WeaverComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
 
 
     this.weaveRef.onNewDraftLoaded(draft, loom, loom_settings);

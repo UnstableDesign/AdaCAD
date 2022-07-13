@@ -19,6 +19,7 @@ import { computeYarnPaths } from '../model/yarnsimulation';
 import { TreeService } from '../../mixer/provider/tree.service';
 import { setDeprecationWarningFn } from '@tensorflow/tfjs-core/dist/tensor';
 import { LoomModal } from '../modal/loom/loom.modal';
+import utilInstance from '../model/util';
 
 @Component({
   selector: 'app-draftviewer',
@@ -235,9 +236,12 @@ export class DraftviewerComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    console.log("DRAFT VIEWER INIT");
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     this.isFrame = isFrame(loom_settings);
+
     this.colShuttleMapping = draft.colShuttleMapping;
     this.rowShuttleMapping = draft.rowShuttleMapping;
 
@@ -282,8 +286,10 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
-    const frames = numFrames(loom);
-    const treadles = numTreadles(loom);
+    console.log("On new draft loaded", draft, loom);
+
+    const frames = Math.max(numFrames(loom), loom_settings.frames);
+    const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 
     const warp_num:number = warps(draft.drawdown);
     const weft_num:number = wefts(draft.drawdown);
@@ -1947,9 +1953,11 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
    * @returns 
    */
   public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
+    console.log("redraw loom");
 
     if(loom === null) return;
 
+    console.log("Num frames on Loom ", loom, "is ", numFrames(loom), loom_settings);
     const frames = Math.max(numFrames(loom), loom_settings.frames);
     const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 
@@ -1960,9 +1968,9 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
     this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
     this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
 
-
     this.cxThreading.canvas.width = base_dims.w * loom.threading.length;
     this.cxThreading.canvas.height = base_dims.h * frames;
+    console.log("setting threading canvas to", frames, base_dims.h, this.cxThreading.canvas.width, this.cxThreading.canvas.height)
     this.drawGrid(loom, loom_settings, this.cxThreading,this.threadingCanvas);
    // else this.drawBlank(this.cxThreading,this.threadingCanvas);
 
