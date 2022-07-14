@@ -30,7 +30,7 @@ export class WorkspaceService {
    * when looking at the draft viewer, where should the (0, 0) point of the drawdown sit. 
    * 0 top right, 1 bottom right, 2 bottom left, 3 top left
    */
-  selected_origin_option: number = 0;
+  selected_origin_option: number = 3;
 
   private origin_option_list: Array<{value: number, view: string}> = 
   [

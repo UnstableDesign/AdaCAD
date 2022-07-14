@@ -6,7 +6,7 @@ import { DesignMode,Loom, Draft, LoomSettings, DraftNode } from '../../model/dat
 import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { deleteDrawdownCol, deleteDrawdownRow, flipDraft, flipDrawdown, insertDrawdownCol, insertDrawdownRow, warps, wefts } from '../../model/drafts';
-import { flipLoom, flipPattern, getLoomUtilByType } from '../../model/looms';
+import { flipLoom, flipPattern, getLoomUtilByType, isFrame } from '../../model/looms';
 import { TreeService } from '../../../mixer/provider/tree.service';
 import utilInstance from '../../model/util';
 import { C } from '@angular/cdk/keycodes';
@@ -19,13 +19,14 @@ import { C } from '@angular/cdk/keycodes';
 export class LoomModal implements OnInit {
 
 
-  @Output() onChange: any = new EventEmitter();
+  @Output() localLoomNeedsRedraw: any = new EventEmitter();
+  @Output() onGlobalLoomChange: any = new EventEmitter();
   
 
   id: number;
-  draft: Draft;
-  loom:Loom;
-  loom_settings:LoomSettings;
+  // draft: Draft;
+  // loom:Loom;
+  // loom_settings:LoomSettings;
   epi: number = 10;
   warps:number  = 100;
   wefts:number = 100;
@@ -54,16 +55,15 @@ export class LoomModal implements OnInit {
       this.selected_origin = this.ws.selected_origin_option;
 
      if(this.type === 'local'){
-      this.draft = this.tree.getDraft(this.id);
-      this.loom  = this.tree.getLoom(this.id);;
-      this.loom_settings  = this.tree.getLoomSettings(this.id);;
-      this.warps = warps(this.draft.drawdown);
-      this.wefts = wefts(this.draft.drawdown);
-      this.epi = this.loom_settings.epi;
-      this.units = this.loom_settings.units;
-      this.frames = this.loom_settings.frames;
-      this.treadles = this.loom_settings.treadles;
-      this.loomtype = this.loom_settings.type;
+      const draft = this.tree.getDraft(this.id);
+      const loom_settings  = this.tree.getLoomSettings(this.id);
+      this.warps = warps(draft.drawdown);
+      this.wefts = wefts(draft.drawdown);
+      this.epi = loom_settings.epi;
+      this.units = loom_settings.units;
+      this.frames = loom_settings.frames;
+      this.treadles = loom_settings.treadles;
+      this.loomtype = loom_settings.type;
      }else{
       this.origin_options = this.ws.getOriginOptions();
       this.epi = ws.epi;
@@ -99,6 +99,8 @@ export class LoomModal implements OnInit {
 
   updateMinTreadles(f: NgForm){
     //validate the input
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
     if(!f.value.treadles){
       f.value.treadles = 2; 
       this.treadles = f.value.treadles;
@@ -106,14 +108,19 @@ export class LoomModal implements OnInit {
 
     f.value.treadles = Math.ceil(f.value.treadles);
    
-    if(this.type == "global") this.ws.min_treadles= f.value.treadles;
-    else this.loom_settings.treadles = f.value.treadles;
+    if(this.type == "global"){
+      this.ws.min_treadles= f.value.treadles;
+    } else{
+      loom_settings.treadles = f.value.treadles;
+      this.tree.setLoomSettings(this.id, loom_settings);
+      this.localLoomNeedsRedraw.emit();
+    }
 
-    this.onChange.emit();
   }
 
   updateMinFrames(f: NgForm){
-    
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
     if(!f.value.frames){
       f.value.frames = 2; 
       this.frames = f.value.frames;
@@ -123,17 +130,20 @@ export class LoomModal implements OnInit {
 
     f.value.frames = Math.ceil(f.value.frames);
     
-    if(this.type == "global")   this.ws.min_frames = f.value.frames;
-    else  this.loom_settings.frames = f.value.frames;
-    
-    
-    this.onChange.emit();
+    if(this.type == "global"){
+      this.ws.min_frames = f.value.frames;
+    }else{
+      loom_settings.frames = f.value.frames;
+      this.tree.setLoomSettings(this.id, loom_settings);      
+      this.localLoomNeedsRedraw.emit();
 
+    }   
   }
 
 
   /**
    * when the origin changes, all drafts on the canavs should be modified to the new position
+   * origin changes can ONLY happen on globals
    * @param e 
    */
   originChange(e:any){
@@ -156,7 +166,16 @@ export class LoomModal implements OnInit {
     return Promise.all(draft_fns)
     .then(res => {
       for(let i = 0; i < dn.length; i++){
-        dn[i].draft = _.cloneDeep(res[i]);
+        dn[i].draft = {
+          id: res[i].id,
+          gen_name: res[i].gen_name,
+          ud_name: res[i].ud_name,
+          drawdown: res[i].drawdown,
+          rowShuttleMapping: res[i].rowShuttleMapping,
+          rowSystemMapping: res[i].rowSystemMapping,
+          colShuttleMapping: res[i].colShuttleMapping,
+          colSystemMapping: res[i].colSystemMapping
+        };
       }
       const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
       return Promise.all(loom_fns)
@@ -171,8 +190,11 @@ export class LoomModal implements OnInit {
           }
         }
       }
-      this.onChange.emit();
     })
+  .then(res => {
+    console.log("EMITTING FROM LOOM MODAL")
+    this.onGlobalLoomChange.emit();
+  })
 
 
     })
@@ -184,25 +206,59 @@ export class LoomModal implements OnInit {
 
 
   loomChange(e:any){
-    if(this.type == 'global') this.ws.type = e.value.loomtype;
-    else{
-      this.loom_settings.type = e.value.loomtype;
-      if(this.loom_settings.type == 'direct'){
-        this.loom_settings.frames = this.loom_settings.treadles;
-      }
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+    if(this.type == 'global'){
+      this.ws.type = e.value.loomtype;
     } 
-    this.onChange.emit();
+    else{
+      loom_settings.type = e.value.loomtype;
+      if(loom_settings.type == 'direct'){
+        loom_settings.frames = Math.max(loom_settings.treadles, loom_settings.frames);
+        loom_settings.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
+        this.tree.setLoomSettings(this.id, loom_settings);
+        
+      }
+
+      if(loom === null && isFrame(loom_settings)){
+        const utils = getLoomUtilByType(loom_settings.type);
+        utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+        .then(loom => {
+          this.tree.setLoom(this.id, loom);
+          this.localLoomNeedsRedraw.emit();
+        })
+      }else{
+        this.localLoomNeedsRedraw.emit();
+      }
+
+
+
+    } 
   }
 
   unitChange(e:any){
-    if(this.type == 'global') this.ws.units = e.value.units;
-    else this.loom_settings.units = e.value.units;
-    this.onChange.emit();
+    
+    if(this.type == 'global'){
+      this.ws.units = e.value.units;
+    }else{
+      const loom_settings = this.tree.getLoomSettings(this.id);
+      loom_settings.units = e.value.units;
+      this.tree.setLoomSettings(this.id, loom_settings);
+      this.localLoomNeedsRedraw.emit();
+    } 
 
   }
 
 
+  /**
+   * recomputes warps and epi if the width of the loom is changed
+   * @param f 
+   */
   widthChange(f: NgForm) {
+    const loom_settings = this.tree.getLoomSettings(this.id);
 
     if(!f.value.width){
       f.value.width = 1;
@@ -211,9 +267,11 @@ export class LoomModal implements OnInit {
 
     if(this.warp_locked){
       var new_epi = (this.units == "in") ? f.value.warps / f.value.width : (10 * f.value.warps / f.value.width);   
-      this.loom_settings.epi = new_epi;
+      loom_settings.epi = new_epi;
       f.value.epi = new_epi;
       this.epi = new_epi;
+      this.tree.setLoomSettings(this.id, loom_settings);
+      this.localLoomNeedsRedraw.emit();
     }else{
       var new_warps = (this.units === "in") 
       ? Math.ceil(f.value.width * f.value.epi) : 
@@ -221,47 +279,49 @@ export class LoomModal implements OnInit {
 
       this.warpNumChange({warps: new_warps});
     }
-    this.onChange.emit();
-
   }
 
   public warpNumChange(e:any) {
 
     if(e.warps == "") return;
 
-    if(e.warps > warps( this.draft.drawdown)){
-      var diff = e.warps -  warps(this.draft.drawdown);
+    const draft = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+    if(e.warps > warps(draft.drawdown)){
+      var diff = e.warps -  warps(draft.drawdown);
       
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = insertDrawdownCol(this.draft.drawdown,i, null);
+        draft.drawdown = insertDrawdownCol(draft.drawdown,i, null);
       }
     }else{
-      var diff = warps(this.draft.drawdown) - e.warps;
+      var diff = warps(draft.drawdown) - e.warps;
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = deleteDrawdownCol(this.draft.drawdown, warps(this.draft.drawdown)-1);
+        draft.drawdown = deleteDrawdownCol(draft.drawdown, warps(draft.drawdown)-1);
       }
 
     }
 
-    const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.loom_settings,  this.ws.selected_origin_option)
+    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
     .then(loom => {
-      this.loom = loom;
+      this.localLoomNeedsRedraw.emit();
     })
-
 
   }
 
   
   warpChange(f: NgForm) {
+
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
     if(!f.value.warps){
      f.value.warps = 2;
      this.warps = f.value.warps;
     }
     this.warpNumChange({warps: f.value.warps})
-    this.width = (this.units =='cm') ? f.value.warps / f.value.epi * 10 : f.value.warps / f.value.epi;
+    this.width = (this.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
     f.value.width = this.width;
-    this.onChange.emit();
 
   }
 
@@ -271,7 +331,6 @@ export class LoomModal implements OnInit {
       this.wefts = 2;
     } 
     this.weftNumChange({wefts: f.value.wefts})
-    this.onChange.emit();
 
   }
 
@@ -279,33 +338,36 @@ export class LoomModal implements OnInit {
   
     if(e.wefts === "" || e.wefts =="null") return;
 
-    if(e.wefts > wefts(this.draft.drawdown)){
-      var diff = e.wefts - wefts(this.draft.drawdown);
+
+    const draft = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+    if(e.wefts > wefts(draft.drawdown)){
+      var diff = e.wefts - wefts(draft.drawdown);
       
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = insertDrawdownRow(this.draft.drawdown, e.wefts+i, null);
+        draft.drawdown = insertDrawdownRow(draft.drawdown, e.wefts+i, null);
       }
     }else{
-      var diff = wefts(this.draft.drawdown) - e.wefts;
+      var diff = wefts(draft.drawdown) - e.wefts;
       for(var i = 0; i < diff; i++){  
-        this.draft.drawdown = deleteDrawdownRow(this.draft.drawdown, wefts(this.draft.drawdown)-1);
+        draft.drawdown = deleteDrawdownRow(draft.drawdown, wefts(draft.drawdown)-1);
       }
-
     }
 
-    if(this.loom !== null){
-    const utils = getLoomUtilByType(this.loom_settings.type);
-    utils.computeLoomFromDrawdown(this.draft.drawdown, this.loom_settings, this.ws.selected_origin_option)
+    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
     .then(loom => {
-      this.loom = loom;
+      this.localLoomNeedsRedraw.emit();
     })
-    }
-
    
   }
 
 
   epiChange(f: NgForm) {
+
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
     if(!f.value.epi){
       f.value.epi = 1;
       this.epi = f.value.epi;
@@ -317,7 +379,7 @@ export class LoomModal implements OnInit {
     if(this.type === "local"){
       if(this.warp_locked){
         //change the width
-        this.width = (this.units =='cm') ? f.value.warps / f.value.epi * 10 : f.value.warps / f.value.epi;
+        this.width = (this.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
         f.value.width = this.width;
         
       }else{
@@ -329,9 +391,6 @@ export class LoomModal implements OnInit {
         this.warpNumChange({warps: new_warps});
       }
     }
-
-
-    this.onChange.emit();
 
   }
 

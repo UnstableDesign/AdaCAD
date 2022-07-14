@@ -179,11 +179,13 @@ export class DraftdetailComponent implements OnInit {
   }
 
   numFrames(){
-    return numFrames(this.loom);
+    const loom = this.tree.getLoom(this.id);
+    return numFrames(loom);
   }
   
   numTreadles(){
-    return numTreadles(this.loom);
+    const loom = this.tree.getLoom(this.id);
+    return numTreadles(loom);
   }
   
 }

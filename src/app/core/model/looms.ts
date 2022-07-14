@@ -216,24 +216,18 @@ const jacquard_utils: LoomUtil = {
    */
   export const computeDrawdown = (loom: Loom) : Promise<Drawdown> => {
 
-    console.log("Computing drawdown from", loom);
-
     let pattern = createBlankDrawdown(loom.treadling.length, loom.threading.length);
     for (var i = 0; i < loom.treadling.length;i++) {
       const active_treadles: Array<number> = loom.treadling[i].slice();
       if (active_treadles.length > 0) {
-        console.log("Active treadles", active_treadles);
         active_treadles.forEach((treadle) => {
 
 
           for (var j = 0; j < loom.tieup.length; j++) {
             if (loom.tieup[j][treadle]) {
-              console.log("treadle", treadle, "found in tieup at ", j);
               for (var k = 0; k < loom.threading.length;k++) {
-                console.log("searching", loom, "for K")
                 if (loom.threading[k] == j) {
                   pattern[i][k].setHeddle(true);
-                  console.log("set heddle")
                 }
               }
             }
@@ -292,7 +286,7 @@ const jacquard_utils: LoomUtil = {
     for(let i = 0; i < pattern.length; i++){
 
       const has_up = pattern[i].find(el => el.isUp());
-      if(has_up === undefined) treadle[i] = [];
+      if(has_up === undefined) treadling[i] = [];
       else{
       const match = utilInstance.hasMatchingRow(i, pattern);
         if(match === -1 || match > i){
@@ -382,7 +376,6 @@ const jacquard_utils: LoomUtil = {
     for(let i = 0; i < threading.length; i++){
       t_flip[i] = threading[threading.length -1 - i];
     }
-    console.log("FLIP THREADING", t_flip)
     return Promise.resolve(t_flip);
   }
 
@@ -573,9 +566,10 @@ export const isInThreadingRange = (loom: Loom, ndx: Interlacement) : boolean => 
   const frames = Math.max(loom_settings.frames, numFrames(loom));
   const treadling = Math.max(loom_settings.treadles, numTreadles(loom));
 
- 
+  console.log("num frames", ndx.i, loom_settings.frames, numFrames(loom))
+
   if(ndx.i < 0) return false;
-  if(ndx.i > frames) return false;
+  if(ndx.i >= frames) return false;
   if(ndx.i < 0) return false;
   if(ndx.i >= treadling) return false;
   return true;

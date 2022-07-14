@@ -38,7 +38,7 @@ export class SidebarComponent implements OnInit {
   @Output() onHideWarpSystem: any = new EventEmitter();
   @Output() onShowWeftSystem: any = new EventEmitter();
   @Output() onHideWeftSystem: any = new EventEmitter();
-  @Output() onLoomChange: any = new EventEmitter();
+  @Output() onLocalLoomNeedsRedraw: any = new EventEmitter();
   @Output() onGlobalLoomChange: any = new EventEmitter();
   @Output() onOperationAdded: any = new EventEmitter();
   @Output() onImport: any = new EventEmitter();
@@ -237,18 +237,22 @@ openLoomModal(){
       data: {id: this.id, type: "local"}});
 
 
-      this.equipment_modal.componentInstance.onChange.subscribe(event => { 
-        console.log("EMITTING ON LOOM CHANGE")
-        this.onLoomChange.emit();
+      this.equipment_modal.componentInstance.localLoomNeedsRedraw.subscribe(event => { 
+        this.onLocalLoomNeedsRedraw.emit();
       });
 
   
-      this.equipment_modal.afterClosed().subscribe(result => {
-        this.onLoomChange.emit();
-       // dialogRef.componentInstance.onChange.removeSubscription();
-    });
+    //   this.equipment_modal.afterClosed().subscribe(result => {
+    //     this.onLoomChange.emit();
+    //    // dialogRef.componentInstance.onChange.removeSubscription();
+    // });
 }
 
+
+/***
+ * In this instance, the sidebar is opened from the mixer and reports events back to the mixer exclusively
+ * needs a way to trigger re-draw of any open detail views
+ */
 openGlobalLoomModal(){
 
   if(this.global_loom_modal != undefined && this.global_loom_modal.componentInstance != null) return;
@@ -260,10 +264,15 @@ openGlobalLoomModal(){
       hasBackdrop: false,
       data: {id: this.id, type: "global"}});
 
-  
-      this.global_loom_modal.afterClosed().subscribe(result => {
+      this.global_loom_modal.componentInstance.onGlobalLoomChange.subscribe(event => { 
         this.onGlobalLoomChange.emit();
-    });
+      });
+
+      
+
+    //   this.global_loom_modal.afterClosed().subscribe(result => {
+    //     this.onGlobalLoomChange.emit();
+    // });
 }
 
 

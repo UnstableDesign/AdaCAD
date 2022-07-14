@@ -24,6 +24,8 @@ import { OperationService } from './provider/operation.service';
 import { FileService} from '../core/provider/file.service'
 import { initDraft, initDraftWithParams, loadDraftFromFile } from '../core/model/drafts';
 import * as _ from 'lodash';
+import { any } from '@tensorflow/tfjs';
+import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 
 
 //disables some angular checking mechanisms
@@ -848,8 +850,15 @@ export class MixerComponent implements OnInit {
    * @param e 
    */
   public globalLoomChange(e: any){
-    //this.tree.updateLooms();
-    //we may need to redraw 
+    
+    console.log("GLOBAL LOOM CHANGE IN MIXER")
+    const dn = this.tree.getDraftNodes();
+    dn.forEach(node => {
+      const draft = this.tree.getDraft(node.id)
+      const loom = this.tree.getLoom(node.id)
+      const loom_settings = this.tree.getLoomSettings(node.id);
+      (<SubdraftComponent> node.component).drawDraft(draft)});
+    
   }
 
 

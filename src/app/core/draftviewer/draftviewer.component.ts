@@ -237,7 +237,6 @@ export class DraftviewerComponent implements OnInit {
 
   ngOnInit() {
 
-    console.log("DRAFT VIEWER INIT");
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     this.isFrame = isFrame(loom_settings);
@@ -286,7 +285,6 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
-    console.log("On new draft loaded", draft, loom);
 
     const frames = Math.max(numFrames(loom), loom_settings.frames);
     const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
@@ -347,7 +345,6 @@ export class DraftviewerComponent implements OnInit {
         this.drawOnTreadling(loom, loom_settings, currentPos);
       } else if (target && target.id === 'tieups') {
         if(this.viewonly || loom_settings.type === "direct") return;
-        //currentPos.i = this.loom.frame_mapping[currentPos.i];
         this.drawOnTieups(loom, loom_settings, currentPos);
       } else if (target && target.id === ('threading')) {
         if(this.viewonly) return;
@@ -362,7 +359,6 @@ export class DraftviewerComponent implements OnInit {
         this.drawOnWarpSelectors(draft, currentPos);
       }else if(target && target.id === ('weft-materials')){
         if(this.viewonly) return;
-        console.log("Drawing on", this.render.visibleRows[currentPos.i])
         currentPos.i = this.render.visibleRows[currentPos.i];
         this.drawOnWeftMaterials(draft, currentPos);
       }else if(target && target.id === ('warp-materials')){
@@ -1088,7 +1084,6 @@ export class DraftviewerComponent implements OnInit {
       var shuttle_id = draft.rowShuttleMapping[draft_row];
       var newShuttle = (shuttle_id + 1) % len;
       draft.rowShuttleMapping[draft_row] = newShuttle;
-      console.log("set shuttle to ",  draft.rowShuttleMapping[draft_row]);
     }
 
     this.tree.setDraftOnly(this.id, draft);
@@ -1215,8 +1210,8 @@ export class DraftviewerComponent implements OnInit {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, this.tree.getLoomSettings(this.id))
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
-        console.log("LOOM IS", loom)
 
+        
       })
       .catch(console.error);
     
@@ -1237,6 +1232,8 @@ export class DraftviewerComponent implements OnInit {
     const treadles = numFrames(loom);
 
     if (!this.cxTieups || !currentPos) { return; }
+
+    console.log("TIEUP", currentPos, isInUserTieupRange(loom, loom_settings,  currentPos))
 
     if (isInUserTieupRange(loom, loom_settings,  currentPos)){
       switch (this.dm.getSelectedDesignMode('draw_modes').value) {
@@ -1793,7 +1790,6 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
 
   //flips the view from front to back
   public flip(){
-    console.log('flip');
     const container: HTMLElement = document.getElementById('draft-scale-container');
     container.style.transformOrigin = '50% 50%';
     if(this.render.view_front) container.style.transform = "matrix(1, 0, 0, 1, 0, 0) scale(" + this.render.getZoom() + ')';
@@ -1953,11 +1949,13 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
    * @returns 
    */
   public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
-    console.log("redraw loom");
 
-    if(loom === null) return;
 
-    console.log("Num frames on Loom ", loom, "is ", numFrames(loom), loom_settings);
+    if(loom === null){
+      console.log("IN REDRAW LOOM Loom is null")
+      return;
+    }
+
     const frames = Math.max(numFrames(loom), loom_settings.frames);
     const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 

@@ -692,7 +692,7 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
     for(let j = 0; j < warps(d.drawdown); j++){
       let flipped_j = j;
       if(horiz) flipped_j = warps(d.drawdown) -1 -j;
-      draft.drawdown[i][j].setHeddle(d.drawdown[flipped_i][j].getHeddle()); 
+      draft.drawdown[i][j].setHeddle(d.drawdown[flipped_i][flipped_j].getHeddle()); 
     }
 
     draft.rowShuttleMapping[i] = d.rowShuttleMapping[flipped_i];
@@ -703,8 +703,8 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
     
     for(let j = 0; j < warps(d.drawdown); j++){
       let flipped_j = warps(d.drawdown) -1 -j;
-      draft.colShuttleMapping[j] = d.rowShuttleMapping[flipped_j];
-      draft.colShuttleMapping[j] = d.rowSystemMapping[flipped_j];
+      draft.colShuttleMapping[j] = d.colShuttleMapping[flipped_j];
+      draft.colSystemMapping[j] = d.colSystemMapping[flipped_j];
     }
   }
 

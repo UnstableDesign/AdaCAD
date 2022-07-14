@@ -1351,8 +1351,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
     })
     .then(res => {
-              const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-
+          const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
           return Promise.all(res.map(el => flipDraft(el,  flips.horiz, flips.vert)));
       })
     .then(flipped => {
@@ -1966,7 +1965,10 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   setDraftOnly(id: number, draft: Draft) {
     const dn = <DraftNode> this.getNode(id);
+    draft.id = id;
     dn.draft = draft;
+    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = draft;
+
   }
 
 /**

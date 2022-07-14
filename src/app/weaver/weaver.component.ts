@@ -19,6 +19,8 @@ import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdown
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { computeYarnPaths } from '../core/model/yarnsimulation';
 import { TreeService } from '../mixer/provider/tree.service';
+import { docSnapshots } from '@angular/fire/firestore';
+import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 
 //disables some angular checking mechanisms
 // enableProdMode();
@@ -471,6 +473,53 @@ export class WeaverComponent implements OnInit {
   }
 
 
+  public redrawLoom(){
+    console.log("REDRAWING LOOM IN WEAVER")
+
+    const draft = this.tree.getDraft(this.id)
+    const loom = this.tree.getLoom(this.id)
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.render.updateVisible(draft);
+
+    const is_frame = isFrame(loom_settings);
+    if(is_frame){
+      this.weaveRef.isFrame = true;
+    }else{
+      this.weaveRef.isFrame = false;
+    }
+    this.weaveRef.redrawLoom(draft, loom, loom_settings);
+  }
+
+  /**
+   * when a change happens to the defaults for looms, we must update all looms on screen
+   */
+
+  public globalLoomChange(e: any){
+    console.log("ON GLOBAL LOOM CHANGE IN WEAVER")
+
+    const dn = this.tree.getDraftNodes();
+    dn.forEach(node => {
+      const draft = this.tree.getDraft(node.id)
+      const loom = this.tree.getLoom(node.id)
+      const loom_settings = this.tree.getLoomSettings(node.id);
+      (<SubdraftComponent> node.component).drawDraft(draft);
+      if(node.id == this.id){
+        console.log("Redrawing ALL");
+        this.weaveRef.redraw(draft, loom, loom_settings, {
+          drawdown: true, 
+          loom:true, 
+          warp_systems: true, 
+          weft_systems: true, 
+          warp_materials: true,
+          weft_materials:true
+        });
+      } 
+
+    });
+
+
+  }
+
   public notesChanged(e:any) {
 
   //   console.log(e);
@@ -621,30 +670,6 @@ export class WeaverComponent implements OnInit {
   }
 
 
-  /**
-   * This is called when an action occures that chagnes the loom within the loom modal
-   */
-  onLoomChange(){
-
-    
-
-    const draft = this.tree.getDraft(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-
-    this.render.updateVisible(draft);
-
-    if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
-
-    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-    .then(loom => {
-      this.tree.setLoom(this.id, loom);
-      this.weaveRef.loom_settings = loom_settings;
-      this.weaveRef.isFrame = isFrame(loom_settings);
-      this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom: true, weft_systems: true, weft_materials:true,warp_systems: true, warp_materials:true});
-    });
-    
-
- }
 
 
   public renderChange(e: any){

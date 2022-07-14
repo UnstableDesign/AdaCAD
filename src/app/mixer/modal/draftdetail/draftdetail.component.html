@@ -23,6 +23,7 @@
   <div class="draft-detail-footer">
 
     <div class="weave_stats">
+      <span> loom type: {{loom_settings.type}}</span>
       <span> size: {{warps()}} ends, {{wefts()}} pics</span>
       <span> width: {{width()}} {{loom_settings.units}}</span>
       <span *ngIf="loom_settings.units == 'in'"> epi: {{loom_settings.epi}}</span>
