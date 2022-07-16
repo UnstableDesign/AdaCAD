@@ -61,7 +61,6 @@ import utilInstance from "./util";
     else params.warps = warps(params.drawdown);
   } 
  
- 
   for(let i = 0; i < params.wefts; i++){
     d.drawdown.push([]);
     d.rowSystemMapping.push(0);
@@ -449,19 +448,22 @@ export const createDraft = (
    * @param type specify if this is a 'row'/weft or 'col'/warp mapping
    * @returns the mapping to use
    */
-  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<any>, type: string) : Array<any> => {
+  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string) : Array<any> => {
+    console.log("to map", drawdown);
 
-    const mapping: Array<any> = [];
+    const mapping: Array<number> = [];
     if(type == 'row'){
       for(let i = 0; i < wefts(drawdown); i++){
-        mapping[i] = pattern[i%pattern.length];
+        mapping.push(pattern[i%pattern.length]);
       }
     }else{
       for(let j = 0; j < warps(drawdown); j++){
-        mapping[j] = pattern[j%pattern.length];
+        mapping.push(pattern[j%pattern.length]);
       }
     }
-    return mapping;
+
+    console.log("mapping", mapping)
+    return mapping.slice();
   }
 
 

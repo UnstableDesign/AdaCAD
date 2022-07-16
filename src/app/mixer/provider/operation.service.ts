@@ -4033,11 +4033,13 @@ export class OperationService {
           const height: number =parent_input.params[1]*wefts(input.drawdown);
 
           const d: Draft =initDraftWithParams({warps: width, wefts: height, pattern: input.drawdown});
+
           this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
           d.gen_name = this.formatName(child_input.drafts, "tile");
           return d;
         });
 
+      
         return Promise.resolve(outputs);
       }
           
@@ -4925,11 +4927,10 @@ export class OperationService {
       case 'first':
 
         //if there are multipleop_input.drafts, 
-
-        d.colShuttleMapping =  generateMappingFromPattern(drafts[0].drawdown, drafts[0].colShuttleMapping,'col');
-        d.rowShuttleMapping =  generateMappingFromPattern(drafts[0].drawdown, drafts[0].rowShuttleMapping,'row');
-        d.colSystemMapping =  generateMappingFromPattern(drafts[0].drawdown, drafts[0].colSystemMapping,'col');
-        d.rowSystemMapping =  generateMappingFromPattern(drafts[0].drawdown, drafts[0].rowSystemMapping,'row');
+        d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, drafts[0].colShuttleMapping,'col');
+        d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, drafts[0].rowShuttleMapping,'row');
+        d.colSystemMapping =  generateMappingFromPattern(d.drawdown, drafts[0].colSystemMapping,'col');
+        d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, drafts[0].rowSystemMapping,'row');
         
         break;
       case 'jointop':
