@@ -73,6 +73,7 @@ export class InletComponent implements OnInit {
     }
   }
 
+
   inputSelected(){
     this.onInputSelected.emit(this.inletid);
   }

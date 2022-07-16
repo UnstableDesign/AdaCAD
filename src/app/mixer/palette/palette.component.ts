@@ -371,7 +371,6 @@ export class PaletteComponent implements OnInit{
   addOperation(name:string){
       
       const opcomp:OperationComponent = this.createOperation(name);
-      console.log("Performing op", opcomp.id);
       this.performAndUpdateDownstream(opcomp.id).then(el => {
         this.addTimelineState();
       });

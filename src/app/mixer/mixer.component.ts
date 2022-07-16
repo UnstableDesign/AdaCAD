@@ -169,7 +169,7 @@ export class MixerComponent implements OnInit {
   loadNewFile(result: LoadResponse){
 
     this.clearView();
-
+    this.tree.clear();
     console.log("loaded new file", result, result.data)
     this.processFileData(result.data).then(
       this.palette.changeDesignmode('move')
@@ -185,9 +185,15 @@ export class MixerComponent implements OnInit {
    */
    importNewFile(result: LoadResponse){
     
-    this.processFileData(result.data).then(
+    this.processFileData(result.data)
+    .then( data => {
       this.palette.changeDesignmode('move')
-    );
+      this.clearView();
+      this.tree.clear();
+      console.log("imported new file", result, result.data)
+      })
+      .catch(console.error);
+    
   }
 
 
@@ -342,9 +348,6 @@ export class MixerComponent implements OnInit {
 
 
     this.image.loadFiles(images_to_load).then(el => {
-        this.ws.inferData(data.draft_nodes.map(el => el.loom_settings))
-    })
-    .then(el => {
       return this.tree.replaceOutdatedOps(data.ops);
     })
     .then(correctedOps => {    
@@ -390,7 +393,6 @@ export class MixerComponent implements OnInit {
         if(draft_node !== undefined){
 
           const located_draft = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
-          console.log("located loom", located_draft.loom)
           if(located_draft === undefined){
             console.log("Looking for ", draft_node.node_id,"in", data.draft_nodes.map(el => el.draft_id))
             console.error("could not find draft with id in draft list");
@@ -555,8 +557,12 @@ export class MixerComponent implements OnInit {
         dialogRef.afterClosed().subscribe(loadResponse => {
           this.palette.changeDesignmode('move');
           if(loadResponse !== undefined){
-            if(loadResponse.status == -1) this.clearAll();
-            else this.loadNewFile(loadResponse);
+            if(loadResponse.status == -1){
+              this.clearAll();
+            }
+            else{
+              this.loadNewFile(loadResponse);
+            }
           } 
         
     
@@ -617,6 +623,7 @@ export class MixerComponent implements OnInit {
   }
 
   clearAll() : void{
+    console.log("CLEAR ALL from MIXER")
     this.palette.addTimelineState();
     this.fs.clearAll();
     this.clearView();

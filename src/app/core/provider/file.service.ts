@@ -11,6 +11,7 @@ import { createDraft, initDraft, initDraftWithParams, loadDraftFromFile } from '
 import { getLoomUtilByType, loadLoomFromFile } from '../model/looms';
 import { WorkspaceService } from './workspace.service';
 import * as _ from 'lodash';
+import { I } from '@angular/cdk/keycodes';
 
 
 
@@ -76,7 +77,7 @@ export class FileService {
 
       }else{
         if(data.materials !== undefined){
-            this.ms.overloadShuttles(data.materials); 
+          this.ms.overloadShuttles(data.materials); 
         }
       }
 
@@ -84,8 +85,6 @@ export class FileService {
 
 
       const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-
-      console.log("versions", version, '3.4.5', utilInstance.sameOrNewerVersion(version, '3.4.5'));
     
       const loom_elements = []
       const loom_fns = []
@@ -94,21 +93,22 @@ export class FileService {
 
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
         draft_nodes = data.draft_nodes;
-        console.log("Draft nodes", draft_nodes)
-        draft_nodes.forEach(async el => {
-          if(el.draft !== null && el.draft !== undefined){
-            draft_fns.push(loadDraftFromFile(el.draft, flips_required, data.version));
-            draft_elements.push(el);
-          }
+        if(draft_nodes == undefined) draft_nodes = [];
 
-          if(el.loom !== null && el.loom !== undefined){
-            loom_fns.push(loadLoomFromFile(el.loom, flips_required, data.version));
-            loom_elements.push(el);
-          }
+        if(draft_nodes !== undefined){
+          draft_nodes.forEach(el => {
+            if(el.draft !== null && el.draft !== undefined){
+              draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
+              draft_elements.push(el);
+            }
+
+            if(el.loom !== null && el.loom !== undefined){
+              loom_fns.push(loadLoomFromFile(el.loom, flips_required, version));
+              loom_elements.push(el);
+            }
         
-          el.draft = (el.draft !== null && el.draft !== undefined) ? await loadDraftFromFile(el.draft, flips_required, data.version) : null;
-          el.loom = (el.loom !== null && el.loom !== undefined) ? await loadLoomFromFile(el.loom, flips_required, data.version) : null;
-        });
+          });
+       }
         
       }else{
 
@@ -137,12 +137,12 @@ export class FileService {
           draft_nodes.push(dn);
 
           if(draft !== null && draft !== undefined){
-            draft_fns.push(loadDraftFromFile(draft, flips_required, data.version));
+            draft_fns.push(loadDraftFromFile(draft, flips_required, version));
             draft_elements.push(dn);
           }
 
           if(loom !== null && loom !== undefined){
-            loom_fns.push(loadLoomFromFile(loom, flips_required, data.version));
+            loom_fns.push(loadLoomFromFile(loom, flips_required, version));
             loom_elements.push(dn);
           }
 
@@ -166,7 +166,6 @@ export class FileService {
           draft_elements[i].loom = res[i];
         }
         
-
         draft_nodes
         .filter(el => el.draft !== null)
         .forEach(el => {
@@ -184,6 +183,7 @@ export class FileService {
             });
           }  
         })
+      
     
         if(data.ops !== undefined){
           ops = data.ops.map(data => {
@@ -676,6 +676,7 @@ export class FileService {
   }
 
   clearAll(){
+    console.log("Clearing all in FS")
     this.tree.clear();
     this.ms.reset();
     this.ss.reset(),

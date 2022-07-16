@@ -510,7 +510,6 @@ class Util {
       else return acc;
     }, {i:null, count: 0});
 
-    console.log("common ", common)
     return common.i;
   }
 
@@ -1007,6 +1006,12 @@ getInletsToUpdate(newInlets: Array<any>, currentInlets: Array<any>) : {toadd: Ar
    * @param compare 
    */
    sameOrNewerVersion(a: string, b: string ) : boolean {
+
+    if(a === undefined || b===undefined){
+      console.error("checking undefined version", a, b);
+      return false;
+    }
+
     const a_spl = a.split('.');
     const b_spl = b.split('.');
     let flag_end = false;
