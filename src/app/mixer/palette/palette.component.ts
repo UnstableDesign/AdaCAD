@@ -324,7 +324,6 @@ export class PaletteComponent implements OnInit{
 
    this.fs.saver.ada(
       'mixer', 
-      this.tree.exportDraftNodesForSaving(),
       true,
       this.scale)
       .then(so => {
@@ -1557,7 +1556,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
           {
             node_id: el.id,
             type: el.type,
-            bounds: this.calculateInitialLocaiton(el.id)
+            bounds: this.calculateInitialLocaiton(el.id),
           }, this.scale);
         });
       

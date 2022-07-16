@@ -267,7 +267,7 @@ export type YarnMap = Array<Array<Cell>>;
 export interface NodeComponentProxy{
   node_id: number,
   type: string,
-  bounds: Bounds; 
+  bounds: Bounds
  }
 
 /**
@@ -285,16 +285,19 @@ export interface NodeComponentProxy{
  }
 
   /**
-  * holds data about each draft component in a form to easily load.
+  * holds data about each draft component in a compressed form 
   * @param draft_id the draft id associated with this node (if available)
  * @param draft_visible a boolean to state if this node is visible or not. 
- * @param loom the loom on this node, if present
+ * @param draft_name a string representing a user defined name
+ * @param draft this will only export if the draft is a seed draft
+ * @param loom this will only export if the draft is a seed draft 
  * @param loom_settings the associated loom settings on this node, if present
   */
 
    export interface DraftNodeProxy{
     node_id: number;
     draft_id: number;
+    draft_name: string;
     draft: Draft;
     draft_visible: boolean;
     loom: Loom,
@@ -334,6 +337,7 @@ export interface NodeComponentProxy{
 
 export interface FileObj{
  version: string,
+ workspace: any,
  filename: string,
  nodes: Array<NodeComponentProxy>,
  treenodes: Array<TreeNodeProxy>,
@@ -361,7 +365,7 @@ export interface Fileloader{
   form: (data: any) => Promise<LoadResponse>}
 
 export interface FileSaver{
-  ada: (type: string, draft_nodes: Array<DraftNode>, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
+  ada: (type: string, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
   //wif: (draft: Draft, loom: Loom) => Promise<string>,
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>

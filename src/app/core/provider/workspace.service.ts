@@ -49,6 +49,34 @@ export class WorkspaceService {
 
   constructor() { }
 
+  initDefaultWorkspace(){
+    this.min_frames = 8; 
+    this.min_treadles = 10;
+    this.type = 'jacquard'; //'rigid', 'direct', 'frame', 'jacquard'
+    this.show_errors = true;
+    this.epi = 10;
+    this.units = 'in';
+    this.show_materials = true;
+    this.black_cell_up = true;
+    this.number_threading = false;
+    this.use_colors_on_mixer = true;
+    this.selected_origin_option = 3;
+  }
+
+  loadWorkspace(data){
+    this.min_frames = data.min_frames; 
+    this.min_treadles = data.min_treadles;
+    this.type = data.type;
+    this.show_errors = data.show_errors;
+    this.epi = data.epi;
+    this.units = data.units;
+    this.show_materials = data.show_materials;
+    this.black_cell_up = data.black_cell_up;
+    this.number_threading = data.number_threading;
+    this.use_colors_on_mixer = data.use_colors_on_mixer;
+    this.selected_origin_option = data.selected_origin_option;
+  }
+
   getOriginOptions(){
     return this.origin_option_list;
   }
@@ -93,8 +121,8 @@ export class WorkspaceService {
 
   exportWorkspace() : any{
     return {
-      frames: this.min_frames, 
-      treadles: this.min_treadles,
+      min_frames: this.min_frames, 
+      min_treadles: this.min_treadles,
       type: this.type,
       show_errors: this.show_errors,
       epi: this.epi,

@@ -8,7 +8,7 @@ import { SystemsService } from './systems.service';
 import { Note, NotesService } from './notes.service';
 import { VersionService } from './version.service';
 import { createDraft, initDraft, initDraftWithParams, loadDraftFromFile } from '../model/drafts';
-import { getLoomUtilByType } from '../model/looms';
+import { getLoomUtilByType, loadLoomFromFile } from '../model/looms';
 import { WorkspaceService } from './workspace.service';
 import * as _ from 'lodash';
 
@@ -65,12 +65,21 @@ export class FileService {
      
       if(data.version !== undefined) version = data.version;
 
+      if(data.workspace !== undefined){
+        this.ws.loadWorkspace(data.workspace);
+      }else{
+        this.ws.initDefaultWorkspace()
+      }
+
+      const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+
 
       console.log("versions", version, '3.4.5', utilInstance.sameOrNewerVersion(version, '3.4.5'));
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
         draft_nodes = data.draft_nodes;
-        draft_nodes.forEach(el => {
-          el.draft = loadDraftFromFile(el.draft, data.version);
+        draft_nodes.forEach(async el => {
+          el.draft = await loadDraftFromFile(el.draft, flips_required, data.version);
+          el.loom = await loadLoomFromFile(el.loom, flips_required, data.version);
         });
         
       }else{
@@ -79,17 +88,20 @@ export class FileService {
         if(data.drafts === undefined) data.drafts = [data];
       
 
-        data.drafts.forEach(el => {
-          const node = data.nodes.find(node => node.draft_id == el.id);
-          const loom = data.looms.find(node => node.draft_id == el.id);
+        data.nodes
+        .filter(el => el.type === 'draft')
+        .forEach(async node => {
+          const loom = data.looms.find(loom => loom.draft_id === node.node_id);
+          const draft = data.drafts.find(draft => draft.id === node.node_id);
 
           const dn: DraftNodeProxy = {
             node_id: (node === undefined) ? -1 : node.node_id,
-            draft_id: el.id,
-            draft: loadDraftFromFile(el, data.version),
+            draft_id: node.node_id,
+            draft_name: node.draft_name,
+            draft: (draft !== undefined && draft !== null) ? await loadDraftFromFile(draft, flips_required, data.version) : null,
             draft_visible: (node === undefined) ? true : node.draft_visible,
-            loom: (loom === undefined) ? null : {threading: loom.threading, tieup: loom.tieup, treadling: loom.treadling},
-            loom_settings: (loom === undefined) ? null : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles}
+            loom: (loom === undefined) ? null : await loadLoomFromFile({threading: loom.threading.slice(), tieup: loom.tieup.slice(), treadling: loom.treadling.slice()}, flips_required, version),
+            loom_settings: (loom === undefined) ? {type: this.ws.type, epi: this.ws.epi, units: this.ws.units, frames: this.ws.min_frames, treadles: this.ws.min_treadles } : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles}
           }
           draft_nodes.push(dn);
         });
@@ -106,7 +118,9 @@ export class FileService {
         }
       }
 
-      draft_nodes.forEach(el => {
+      draft_nodes
+      .filter(el => el.draft !== null)
+      .forEach(el => {
         //scan the systems and add any that need to be added
         if(el.draft.rowSystemMapping !== undefined){
           el.draft.rowSystemMapping.forEach(el => {
@@ -136,10 +150,9 @@ export class FileService {
 
       if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
 
-      console.log("DRAFT NODES RETURNED FROM LOAD ", (draft_nodes.slice()))
-
       const envt: FileObj = {
         version: data.version,
+        workspace: data.workspace,
         filename: filename,
         nodes: (data.nodes === undefined) ? [] : data.nodes,
         treenodes: (data.tree === undefined) ? [] : data.tree,
@@ -431,6 +444,7 @@ export class FileService {
 
         const envt: FileObj = {
           version: this.vs.currentVersion(),
+          workspace: this.ws.exportWorkspace(),
           filename: "adacad mixer",
           nodes: [proxies.node], 
           treenodes: [proxies.treenode],
@@ -461,7 +475,7 @@ export class FileService {
 
   const dsaver: FileSaver = {
     
-    ada:  async (type: string, draft_nodes: Array<DraftNode> , for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
+    ada:  async (type: string, for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
            
       const out: SaveObj = {
         version: this.vs.currentVersion(),
@@ -469,7 +483,7 @@ export class FileService {
         type: type,
         nodes: this.tree.exportNodesForSaving(current_scale),
         tree: this.tree.exportTreeForSaving(),
-        draft_nodes: this.tree.exportDraftNodeProxiesForSaving(),
+        draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
         notes: this.ns.exportForSaving(),
         materials: this.ms.exportForSaving(),

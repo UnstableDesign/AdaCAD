@@ -9,7 +9,7 @@ import { Draft, DraftNodeProxy, Drawdown, Loom, LoomSettings, LoomUtil, NodeComp
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
-import { getLoomUtilByType } from '../../core/model/looms';
+import { flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import { createDraft, flipDraft, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import * as _ from 'lodash';
 
@@ -374,7 +374,7 @@ export class TreeService {
 
 
 
-   if(loom_settings === null){
+   if(loom_settings === null || loom_settings == undefined){
     (<DraftNode> nodes[0]).loom_settings = {
       type: this.ws.type,
       epi: this.ws.epi,
@@ -399,6 +399,7 @@ export class TreeService {
     (<DraftNode> nodes[0]).loom = loom;
    }
 
+   console.log("DRAFT NODE LOADED:",<DraftNode> nodes[0])
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
@@ -428,8 +429,11 @@ export class TreeService {
           component: null,
           dirty: false,
           draft: null,
-          loom:null
+          loom:null,
+          loom_settings: null
         }
+
+
         break;
       case 'op': 
 
@@ -1207,6 +1211,8 @@ removeOperationNode(id:number) : Array<Node>{
     return Promise.all(fns)
     .then(drafts_loaded => {
      const ids = drafts_loaded.map(el => el.entry.cur_id);
+
+
      return Promise.resolve(ids);
     });
     
@@ -1881,27 +1887,67 @@ isValidIOTuple(io: IOTuple) : boolean {
   }
 
    /**
-   * converts all of the nodes in this tree for saving. 
+   * converts draft nodes into a form suited for export. 
+   * drafts with parents are not saved, as their data is generated from operations on load. 
    * @returns an array of objects that describe nodes
    */
-    exportDraftNodeProxiesForSaving() : Array<DraftNodeProxy> {
+    exportDraftNodeProxiesForSaving() : Promise<Array<DraftNodeProxy>> {
 
       const objs: Array<any> = []; 
   
       this.getDraftNodes().forEach(node => {
         const savable: DraftNodeProxy = {
           node_id: node.id,
-          draft_id: (node.type === 'draft') ? (<DraftNode>node).draft.id : -1,
-          draft: (node.type === 'draft') ? (<DraftNode>node).draft : null,
-          draft_visible: ((node.type === 'draft' && node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true),
-          loom: node.loom,
+          draft_id: (<DraftNode>node).draft.id,
+          draft_name: getDraftName((<DraftNode>node).draft),
+          draft: (this.hasParent(node.id)) ? null : (<DraftNode>node).draft,
+          draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
+          loom:  (this.hasParent(node.id)) ? null : (<DraftNode>node).loom,
           loom_settings: node.loom_settings
         }
         objs.push(savable);
   
       })
-  
-      return objs;
+
+
+      //MAKE SURE ALL DRAFTS ARE ORIENTED TO TOP LEFT ON SAVE
+      let flip_fs = [];
+      let ids = [];
+      const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+      objs.forEach((obj, i) => {
+        if(obj.draft !== null){
+          flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
+          ids.push(i);
+        }
+      });
+
+     return  Promise.all(flip_fs)
+      .then(drafts => {
+        drafts.forEach((draft, i) => {
+          objs[i].draft = draft;
+        })
+        let ids = [];
+        let flip_fs = [];
+        objs.forEach((obj, i) => {
+          if(obj.loom !== null){
+            flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
+            ids.push(i);
+          }
+        });
+
+        return Promise.all(flip_fs);
+
+      })
+      .then(looms => {
+        looms.forEach((loom, i) => {
+          objs[i].loom = loom;
+        })
+
+        return objs;
+
+      })
+     
+
   
     }
 
@@ -1923,6 +1969,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     const draft_node: DraftNodeProxy = {
       node_id: id,
       draft_id: draft.id,
+      draft_name: '',
       draft: null,
       draft_visible: true,
       loom: null, 
@@ -2030,18 +2077,6 @@ isValidIOTuple(io: IOTuple) : boolean {
   }
 
 
-       /**
- * exports ALL drafts associated with this tree
- * @returns an array of Drafts
- */
-        // exportDraftsForSaving() : Array<Draft> {
-
-        //   const drafts: Array<SubdraftComponent> = this.getDrafts();
-        //   const out: Array<Draft> = drafts.map(c => c.draft);
-        //   return out;
-        // }
-
-
 
   getOpNode(id: number) : OpNode{
     return <OpNode> this.getNode(id);
@@ -2114,22 +2149,22 @@ isValidIOTuple(io: IOTuple) : boolean {
    * exports TopLevel drafts associated with this tree
    * @returns an array of Drafts
    */
-    exportDraftNodesForSaving() : Array<DraftNode> {
+    // exportDraftNodesForSaving() : Array<DraftNode> {
   
-      //make sure the name values are not undefined
-      this.getDraftNodes().forEach(node => {
-        if(node.draft.ud_name === undefined) node.draft.ud_name = '';
-        if(node.loom === undefined) node.loom = null;
+    //   //make sure the name values are not undefined
+    //   this.getDraftNodes().forEach(node => {
+    //     if(node.draft.ud_name === undefined) node.draft.ud_name = '';
+    //     if(node.loom === undefined) node.loom = null;
         
-      });
+    //   });
 
-      const all_nodes = this.getDraftNodes()
-      .filter(el => this.getSubdraftParent(el.id) === -1);
+    //   const all_nodes = this.getDraftNodes()
+    //   .filter(el => this.getSubdraftParent(el.id) === -1);
 
-      return all_nodes;
+    //   return all_nodes;
 
   
-    }
+    // }
 
 
 

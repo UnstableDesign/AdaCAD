@@ -1061,7 +1061,7 @@ printDraft(d: Draft){
  */
 getFlips(from:number, to: number) : {horiz: boolean, vert: boolean} {
 
-  console.log("flipping from/to", from, to);
+  // console.log("flipping from/to", from, to);
 
 
   let horiz = false;
@@ -1087,7 +1087,7 @@ getFlips(from:number, to: number) : {horiz: boolean, vert: boolean} {
     console.error("to/from origin flip options not found", to, from)
   }
 
-  console.log("horiz/vert", horiz, vert);
+  // console.log("horiz/vert", horiz, vert);
 
   return {horiz, vert};
 

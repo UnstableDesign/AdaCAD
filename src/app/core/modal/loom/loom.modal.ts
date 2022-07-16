@@ -10,6 +10,7 @@ import { flipLoom, flipPattern, getLoomUtilByType, isFrame } from '../../model/l
 import { TreeService } from '../../../mixer/provider/tree.service';
 import utilInstance from '../../model/util';
 import { C } from '@angular/cdk/keycodes';
+import { notDeepStrictEqual } from 'assert';
 
 @Component({
   selector: 'app-loom-modal',
@@ -161,12 +162,16 @@ export class LoomModal implements OnInit {
       vert: flips.vert}
     });
 
+    // dn.forEach(node => {
+    //  if(node.loom !== null) console.log(node.loom.treadling)
+    // })
+
     const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
 
     return Promise.all(draft_fns)
     .then(res => {
       for(let i = 0; i < dn.length; i++){
-        dn[i].draft = {
+        dn[i].draft = <Draft>{
           id: res[i].id,
           gen_name: res[i].gen_name,
           ud_name: res[i].ud_name,
@@ -182,7 +187,6 @@ export class LoomModal implements OnInit {
     .then(res => {
       for(let i = 0; i < dn.length; i++){
         if(res[i] !== null){
-
           dn[i].loom = {
             threading: res[i].threading.slice(),
             tieup: res[i].tieup.slice(),

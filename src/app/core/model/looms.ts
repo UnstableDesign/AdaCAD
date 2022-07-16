@@ -386,6 +386,7 @@ const jacquard_utils: LoomUtil = {
    */
   export const flipTreadling = (treadling: Array<Array<number>>) : Promise<Array<Array<number>>> =>{
 
+    console.log("TREADLING", treadling)
       const t_flip = [];
       for(let i = 0; i < treadling.length; i++){
         t_flip[i] = treadling[treadling.length -1 - i].slice();
@@ -584,3 +585,28 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
   if(loom_settings.type !== 'jacquard') return true;
   return false;
 }
+
+
+   /**
+   * sets up the draft from the information saved in a .ada file
+   * @param data 
+   */
+  export const loadLoomFromFile = (loom: any, flips: any, version: string) : Promise<Loom> => {
+
+    if(loom == null) return Promise.resolve(null);
+
+    if(!utilInstance.sameOrNewerVersion(version, '3.4.5')){
+      //tranfer the old treadling style on looms to the new style updated in 3.4.5
+       loom.treadling = loom.treadling.map(treadle_id => {
+        if(treadle_id == -1) return [];
+        else return [treadle_id];
+      });
+    
+    }
+    
+      return flipLoom(loom, flips.horiz, flips.vert)
+      .then(flipped => {
+        return flipped;
+      })
+      
+    }

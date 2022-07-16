@@ -26,6 +26,7 @@ import { initDraft, initDraftWithParams, loadDraftFromFile } from '../core/model
 import * as _ from 'lodash';
 import { any } from '@tensorflow/tfjs';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
+import utilInstance from '../core/model/util';
 
 
 //disables some angular checking mechanisms
@@ -356,8 +357,6 @@ export class MixerComponent implements OnInit {
       }
     ).then(treenodes => {
 
-      //this.printTreeStatus("after load", this.tree.tree);
-
       const seednodes: Array<{prev_id: number, cur_id: number}> = treenodes
         .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
         .map(tn => tn.entry);
@@ -393,6 +392,7 @@ export class MixerComponent implements OnInit {
           const located_draft = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
          
           if(located_draft === undefined){
+            console.log("Looking for ", draft_node.node_id,"in", data.draft_nodes.map(el => el.draft_id))
             console.error("could not find draft with id in draft list");
           }
           else{
@@ -418,9 +418,14 @@ export class MixerComponent implements OnInit {
         }
       });
 
+      
 
+      // console.log("ALL TREADLING in Mixer");
+      // seeds.forEach(node => {
+      //   console.log(node.loom.treadling)
+      // })
       const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings));
-     
+  
       const op_fns = data.ops.map(op => {
         const entry = entry_mapping.find(el => el.prev_id == op.node_id);
         return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
@@ -434,7 +439,6 @@ export class MixerComponent implements OnInit {
     })
     .then(el => {
       //console.log("performing top level ops");
-
        return  this.tree.performTopLevelOps();
     })
     .then(el => {
@@ -486,19 +490,29 @@ export class MixerComponent implements OnInit {
     })
     .then(el => {
 
-      //LOAD IN ALL OF THE DRAFT NAMES
-      data.nodes.forEach(np => {
+      //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
+      data.draft_nodes
+      .forEach(np => {
         const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
         const node = this.tree.getNode(new_id.cur_id);
         if(node === undefined) return;
-        if(node.type === "draft"){
-          //not sure hwat this was doing
-          //(<DraftNode> node).draft.ud_name = np.draft_name;
-        }
+
+       (<DraftNode> node).draft.ud_name = np.draft_name;
+       (<DraftNode> node).loom_settings = np.loom_settings; 
+       (<DraftNode> node).loom = null;
       })
+
+      const dn = this.tree.getDraftNodes();
+      dn.forEach(node => {
+        console.log(node.draft, node.loom, node.loom_settings)
+      })
+  
 
     })
     .catch(console.error);
+
+
+    //print out all trees:
 
 
     return Promise.resolve("all done");
@@ -812,7 +826,6 @@ export class MixerComponent implements OnInit {
       case 'ada': 
       this.fs.saver.ada(
         'mixer', 
-        this.tree.exportDraftNodesForSaving(),
         false,
         this.scale).then(out => {
           link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);

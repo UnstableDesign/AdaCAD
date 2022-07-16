@@ -1,7 +1,8 @@
 import { D } from "@angular/cdk/keycodes";
 import { number } from "mathjs";
 import { Cell } from "./cell";
-import { Draft, Drawdown } from "./datatypes";
+import { Draft, Drawdown, Loom } from "./datatypes";
+import { flipLoom } from "./looms";
 import utilInstance from "./util";
 
 /**
@@ -154,7 +155,7 @@ export const createDraft = (
    * sets up the draft from the information saved in a .ada file
    * @param data 
    */
-  export const loadDraftFromFile = (data: any, version: string) : Draft => {
+  export const loadDraftFromFile = (data: any, flips: any, version: string) : Promise<Draft> => {
 
     const draft: Draft = initDraft();
     if(data.id !== undefined) draft.id = data.id;
@@ -173,10 +174,12 @@ export const createDraft = (
     draft.colSystemMapping= (data.colSystemMapping === undefined) ? [] : data.colSystemMapping;;
 
 
-    return draft;
+    return flipDraft(draft, flips.horiz, flips.vert)
+    .then(flipped => {
+      return flipped;
+    })
     
   }
-
 
 
   /**
