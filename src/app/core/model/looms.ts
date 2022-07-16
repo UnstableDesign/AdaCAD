@@ -126,7 +126,7 @@ const jacquard_utils: LoomUtil = {
             treadling: []
         }
 
-   
+        console.log("loom settings", loom_settings)
          
         return generateThreading(d)
           .then(threading => {
@@ -140,10 +140,11 @@ const jacquard_utils: LoomUtil = {
             const num_frames = Math.max(numFrames(loom), loom_settings.frames);
             const num_treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 
-            for(let frames = 0; frames <num_frames; frames++){
+            console.log("making tieup size", num_frames, num_treadles, numFrames(loom),  loom_settings.frames);
+            for(let frames = 0; frames < num_frames; frames++){
               loom.tieup.push([]);
               for(let treadles = 0; treadles < num_treadles; treadles++){
-                loom.tieup[frames][treadles] = false;
+                loom.tieup[frames].push(false);
               }
             }
 
@@ -333,7 +334,10 @@ const jacquard_utils: LoomUtil = {
    */
   export const flipLoom = (loom:Loom, horiz: boolean, vert: boolean) : Promise<Loom> => {
    
+
     if(loom === null || loom == undefined) return Promise.resolve(null);
+
+    console.log("loom", loom)
 
     const refs = [];
     let new_loom = {

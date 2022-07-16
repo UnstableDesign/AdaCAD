@@ -502,10 +502,10 @@ export class MixerComponent implements OnInit {
        (<DraftNode> node).loom = null;
       })
 
-      const dn = this.tree.getDraftNodes();
-      dn.forEach(node => {
-        console.log(node.draft, node.loom, node.loom_settings)
-      })
+      // const dn = this.tree.getDraftNodes();
+      // dn.forEach(node => {
+      //   console.log(node.draft, node.loom, node.loom_settings)
+      // })
   
 
     })

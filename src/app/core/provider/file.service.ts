@@ -77,9 +77,10 @@ export class FileService {
       console.log("versions", version, '3.4.5', utilInstance.sameOrNewerVersion(version, '3.4.5'));
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
         draft_nodes = data.draft_nodes;
+        console.log("Draft nodes", draft_nodes)
         draft_nodes.forEach(async el => {
-          el.draft = await loadDraftFromFile(el.draft, flips_required, data.version);
-          el.loom = await loadLoomFromFile(el.loom, flips_required, data.version);
+          el.draft = (el.draft !== null && el.draft !== undefined) ? await loadDraftFromFile(el.draft, flips_required, data.version) : null;
+          el.loom = (el.loom !== null && el.loom !== undefined) ? await loadLoomFromFile(el.loom, flips_required, data.version) : null;
         });
         
       }else{

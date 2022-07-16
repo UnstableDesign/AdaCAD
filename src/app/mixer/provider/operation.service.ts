@@ -4550,15 +4550,19 @@ export class OperationService {
           treadles: 10
         }
         const utils = getLoomUtilByType(loom_settings.type);
-        return utils.computeLoomFromDrawdown(child_input.drafts[0].drawdown, loom_settings, this.ws.selected_origin_option).then(l => {
+        return utils.computeLoomFromDrawdown(child_input.drafts[0].drawdown, loom_settings, this.ws.selected_origin_option)
+        .then(l => {
 
-        const threading: Draft =initDraftWithParams({warps:warps(child_input.drafts[0].drawdown), wefts: numFrames(l)});
+          const frames = Math.max(numFrames(l), loom_settings.frames);
+          const treadles = Math.max(numTreadles(l), loom_settings.treadles);
+       
+          const threading: Draft =initDraftWithParams({warps:warps(child_input.drafts[0].drawdown), wefts: frames});
         l.threading.forEach((frame, j) =>{
           if(frame !== -1) threading.drawdown[frame][j].setHeddle(true);
         });
         threading.gen_name = "threading"+getDraftName(child_input.drafts[0]);
 
-        const treadling: Draft =initDraftWithParams({warps:numTreadles(l), wefts:wefts(child_input.drafts[0].drawdown)});   
+        const treadling: Draft =initDraftWithParams({warps:treadles, wefts:wefts(child_input.drafts[0].drawdown)});   
         l.treadling.forEach((treadle_row, i) =>{
           treadle_row.forEach(treadle_num => {
             treadling.drawdown[i][treadle_num].setHeddle(true);
@@ -4566,7 +4570,8 @@ export class OperationService {
         });
         treadling.gen_name = "treadling_"+getDraftName(child_input.drafts[0]);
 
-        const tieup: Draft =initDraftWithParams({warps: numTreadles(l), wefts: numFrames(l)});
+
+        const tieup: Draft =initDraftWithParams({warps: treadles, wefts: frames});
         l.tieup.forEach((row, i) => {
           row.forEach((val, j) => {
             tieup.drawdown[i][j].setHeddle(val);

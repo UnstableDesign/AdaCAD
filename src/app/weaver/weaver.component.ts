@@ -474,7 +474,6 @@ export class WeaverComponent implements OnInit {
 
 
   public redrawLoom(){
-    console.log("REDRAWING LOOM IN WEAVER")
 
     const draft = this.tree.getDraft(this.id)
     const loom = this.tree.getLoom(this.id)

@@ -156,6 +156,8 @@ export const createDraft = (
    */
   export const loadDraftFromFile = (data: any, flips: any, version: string) : Promise<Draft> => {
 
+    console.log("DATA IN ", data);
+
     const draft: Draft = initDraft();
     if(data.id !== undefined) draft.id = data.id;
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
@@ -449,7 +451,6 @@ export const createDraft = (
    * @returns the mapping to use
    */
   export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string) : Array<any> => {
-    console.log("to map", drawdown);
 
     const mapping: Array<number> = [];
     if(type == 'row'){
@@ -462,7 +463,6 @@ export const createDraft = (
       }
     }
 
-    console.log("mapping", mapping)
     return mapping.slice();
   }
 
