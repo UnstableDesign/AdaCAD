@@ -339,7 +339,6 @@ export class DraftviewerComponent implements OnInit {
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
       
-    console.log("IS VIEW ONLY", this.viewonly)
 
       if (target && target.id =='treadling') {
         if(this.viewonly) return;
@@ -416,7 +415,6 @@ export class DraftviewerComponent implements OnInit {
         j: Math.floor((event.offsetX) / dims.w), //col
       };
 
-      console.log("EVENT TARGET", event.target.id);
 
       if(!event.target) return;
 
@@ -1235,7 +1233,6 @@ export class DraftviewerComponent implements OnInit {
 
     if (!this.cxTieups || !currentPos) { return; }
 
-    console.log("TIEUP", currentPos, isInUserTieupRange(loom, loom_settings,  currentPos))
 
     if (isInUserTieupRange(loom, loom_settings,  currentPos)){
       switch (this.dm.getSelectedDesignMode('draw_modes').value) {
@@ -1805,7 +1802,6 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
    */
   //this does not draw on canvas but just rescales the canvas
   public rescale(zoom: number){
-    console.log("rescale");
 
   //   //var dims = this.render.getCellDims("base");
     const container: HTMLElement = document.getElementById('draft-scale-container');
@@ -1954,7 +1950,6 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
 
 
     if(loom === null){
-      console.log("IN REDRAW LOOM Loom is null")
       return;
     }
 
@@ -1970,7 +1965,6 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
 
     this.cxThreading.canvas.width = base_dims.w * loom.threading.length;
     this.cxThreading.canvas.height = base_dims.h * frames;
-    console.log("setting threading canvas to", frames, base_dims.h, this.cxThreading.canvas.width, this.cxThreading.canvas.height)
     this.drawGrid(loom, loom_settings, this.cxThreading,this.threadingCanvas);
    // else this.drawBlank(this.cxThreading,this.threadingCanvas);
 
@@ -1992,9 +1986,12 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
 
     //only cycle through the visible rows
     for (var i = 0; i < this.render.visibleRows.length; i++) {
-      loom.treadling[this.render.visibleRows[i]].forEach(cell => {
-        this.drawCell(draft, loom, loom_settings, this.cxTreadling, i, cell, "treadling");
-      })
+      if(this.render.visibleRows[i] < loom.treadling.length){
+        loom.treadling[this.render.visibleRows[i]].forEach(cell => {
+          this.drawCell(draft, loom, loom_settings, this.cxTreadling, i, cell, "treadling");
+        })
+      }
+      
     }
 
     for (var i = 0; i < loom.tieup.length; i++) {

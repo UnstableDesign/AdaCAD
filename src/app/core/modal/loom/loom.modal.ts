@@ -133,6 +133,7 @@ export class LoomModal implements OnInit {
     
     if(this.type == "global"){
       this.ws.min_frames = f.value.frames;
+      this.dm.selectDesignMode(this.type, 'loom_settings');
     }else{
       loom_settings.frames = f.value.frames;
       this.tree.setLoomSettings(this.id, loom_settings);      

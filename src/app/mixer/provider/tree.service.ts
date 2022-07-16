@@ -387,19 +387,16 @@ export class TreeService {
     (<DraftNode> nodes[0]).loom_settings = loom_settings;
    }
 
-
-
    if(loom === null){
     const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
-
    loom_utils.computeLoomFromDrawdown(draft.drawdown,(<DraftNode> nodes[0]).loom_settings,  this.ws.selected_origin_option).then(loom => {
       (<DraftNode> nodes[0]).loom = loom;
     });
    }else{
-    (<DraftNode> nodes[0]).loom = loom;
-   }
+    (<DraftNode> nodes[0]).loom = _.cloneDeep(loom);
 
-   console.log("DRAFT NODE LOADED:",<DraftNode> nodes[0])
+   }
+   //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode> nodes[0]))
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
@@ -1204,7 +1201,6 @@ removeOperationNode(id:number) : Array<Node>{
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, 0,  id, 0,  cxn);
-      console.log("Created Draft Node", id)
       fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
     }
 
@@ -1886,6 +1882,23 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   }
 
+  adjustTreadlingForSaving(tread: Array<Array<number>>) : Array<Array<number>> {
+
+    if(tread == null || tread == undefined ) return [];
+    
+    const adjusted: Array<Array<number>> = [];
+    tread.forEach((row, i) => {
+      if(row.length === 0){
+        adjusted.push([-1])
+      }else{
+         adjusted.push(row.slice())
+      }  
+     
+    })
+
+    return adjusted;
+  }
+
    /**
    * converts draft nodes into a form suited for export. 
    * drafts with parents are not saved, as their data is generated from operations on load. 
@@ -1896,13 +1909,23 @@ isValidIOTuple(io: IOTuple) : boolean {
       const objs: Array<any> = []; 
   
       this.getDraftNodes().forEach(node => {
+
+        let loom_export = null;
+        if((<DraftNode>node).loom !== null && (<DraftNode>node).loom !== undefined){
+          loom_export = {
+            threading:  (<DraftNode>node).loom.threading.slice(),
+            tieup:  (<DraftNode>node).loom.tieup.slice(),
+            treadling: this.adjustTreadlingForSaving(  (<DraftNode>node).loom.treadling)
+          }
+        }
+
         const savable: DraftNodeProxy = {
           node_id: node.id,
           draft_id: (<DraftNode>node).draft.id,
           draft_name: getDraftName((<DraftNode>node).draft),
           draft: (this.hasParent(node.id)) ? null : (<DraftNode>node).draft,
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
-          loom:  (this.hasParent(node.id)) ? null : (<DraftNode>node).loom,
+          loom:  (this.hasParent(node.id)) ? null :loom_export,
           loom_settings: node.loom_settings
         }
         objs.push(savable);
@@ -1930,7 +1953,7 @@ isValidIOTuple(io: IOTuple) : boolean {
         let flip_fs = [];
         objs.forEach((obj, i) => {
           if(obj.loom !== null){
-            flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
+            flip_fs.push(flipLoom(obj.loom, flips.horiz, flips.vert));
             ids.push(i);
           }
         });

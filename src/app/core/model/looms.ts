@@ -1,4 +1,5 @@
 import { L, NUMPAD_SIX } from "@angular/cdk/keycodes";
+import * as _ from "lodash";
 import { values } from "lodash";
 import { LoomModal } from "../modal/loom/loom.modal";
 import { Cell } from "./cell";
@@ -125,8 +126,6 @@ const jacquard_utils: LoomUtil = {
             tieup: [],
             treadling: []
         }
-
-        console.log("loom settings", loom_settings)
          
         return generateThreading(d)
           .then(threading => {
@@ -140,7 +139,6 @@ const jacquard_utils: LoomUtil = {
             const num_frames = Math.max(numFrames(loom), loom_settings.frames);
             const num_treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 
-            console.log("making tieup size", num_frames, num_treadles, numFrames(loom),  loom_settings.frames);
             for(let frames = 0; frames < num_frames; frames++){
               loom.tieup.push([]);
               for(let treadles = 0; treadles < num_treadles; treadles++){
@@ -337,8 +335,6 @@ const jacquard_utils: LoomUtil = {
 
     if(loom === null || loom == undefined) return Promise.resolve(null);
 
-    console.log("loom", loom)
-
     const refs = [];
     let new_loom = {
       threading: loom.threading.slice(), 
@@ -362,6 +358,7 @@ const jacquard_utils: LoomUtil = {
           if(refs[i] === 'treadling') new_loom.treadling = res[i];
           if(refs[i] === 'threading') new_loom.threading = res[i];
         }
+
         return Promise.resolve(new_loom);
 
       });
@@ -390,7 +387,6 @@ const jacquard_utils: LoomUtil = {
    */
   export const flipTreadling = (treadling: Array<Array<number>>) : Promise<Array<Array<number>>> =>{
 
-    console.log("TREADLING", treadling)
       const t_flip = [];
       for(let i = 0; i < treadling.length; i++){
         t_flip[i] = treadling[treadling.length -1 - i].slice();
@@ -571,8 +567,6 @@ export const isInThreadingRange = (loom: Loom, ndx: Interlacement) : boolean => 
   const frames = Math.max(loom_settings.frames, numFrames(loom));
   const treadling = Math.max(loom_settings.treadles, numTreadles(loom));
 
-  console.log("num frames", ndx.i, loom_settings.frames, numFrames(loom))
-
   if(ndx.i < 0) return false;
   if(ndx.i >= frames) return false;
   if(ndx.i < 0) return false;
@@ -606,6 +600,12 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
         else return [treadle_id];
       });
     
+    }else{
+      //handle case where firebase does not save empty treadles
+      //console.log("IN LOAD LOOM", loom.treadling);
+      for(let i = 0; i < loom.treadling.length; i++){
+        if(loom.treadling[i].length == 1 && loom.treadling[i][0] == -1) loom.treadling[i] = [];
+      }
     }
     
       return flipLoom(loom, flips.horiz, flips.vert)

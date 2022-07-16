@@ -68,17 +68,44 @@ export class FileService {
       if(data.workspace !== undefined){
         this.ws.loadWorkspace(data.workspace);
       }else{
-        this.ws.initDefaultWorkspace()
+        this.ws.initDefaultWorkspace();
       }
+
+      if(data.shuttles !== undefined){
+        this.ms.overloadShuttles(data.shuttles);
+
+      }else{
+        if(data.materials !== undefined){
+            this.ms.overloadShuttles(data.materials); 
+        }
+      }
+
+      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
+
 
       const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
 
-
       console.log("versions", version, '3.4.5', utilInstance.sameOrNewerVersion(version, '3.4.5'));
+    
+      const loom_elements = []
+      const loom_fns = []
+      const draft_elements = [];
+      const draft_fns = [];
+
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
         draft_nodes = data.draft_nodes;
         console.log("Draft nodes", draft_nodes)
         draft_nodes.forEach(async el => {
+          if(el.draft !== null && el.draft !== undefined){
+            draft_fns.push(loadDraftFromFile(el.draft, flips_required, data.version));
+            draft_elements.push(el);
+          }
+
+          if(el.loom !== null && el.loom !== undefined){
+            loom_fns.push(loadLoomFromFile(el.loom, flips_required, data.version));
+            loom_elements.push(el);
+          }
+        
           el.draft = (el.draft !== null && el.draft !== undefined) ? await loadDraftFromFile(el.draft, flips_required, data.version) : null;
           el.loom = (el.loom !== null && el.loom !== undefined) ? await loadLoomFromFile(el.loom, flips_required, data.version) : null;
         });
@@ -95,75 +122,100 @@ export class FileService {
           const loom = data.looms.find(loom => loom.draft_id === node.node_id);
           const draft = data.drafts.find(draft => draft.id === node.node_id);
 
+
           const dn: DraftNodeProxy = {
             node_id: (node === undefined) ? -1 : node.node_id,
             draft_id: node.node_id,
             draft_name: node.draft_name,
-            draft: (draft !== undefined && draft !== null) ? await loadDraftFromFile(draft, flips_required, data.version) : null,
+            draft:null,
             draft_visible: (node === undefined) ? true : node.draft_visible,
-            loom: (loom === undefined) ? null : await loadLoomFromFile({threading: loom.threading.slice(), tieup: loom.tieup.slice(), treadling: loom.treadling.slice()}, flips_required, version),
-            loom_settings: (loom === undefined) ? {type: this.ws.type, epi: this.ws.epi, units: this.ws.units, frames: this.ws.min_frames, treadles: this.ws.min_treadles } : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles}
+            loom:null,
+            loom_settings: (loom === undefined) 
+              ? {type: this.ws.type, epi: this.ws.epi, units: this.ws.units, frames: this.ws.min_frames, treadles: this.ws.min_treadles } 
+              : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles}
           }
           draft_nodes.push(dn);
+
+          if(draft !== null && draft !== undefined){
+            draft_fns.push(loadDraftFromFile(draft, flips_required, data.version));
+            draft_elements.push(dn);
+          }
+
+          if(loom !== null && loom !== undefined){
+            loom_fns.push(loadLoomFromFile(loom, flips_required, data.version));
+            loom_elements.push(dn);
+          }
+
         });
 
         //in previous versions drafts and looms were loaded separately
       }
 
-      if(data.shuttles !== undefined){
-        this.ms.overloadShuttles(data.shuttles);
+      return Promise.all(draft_fns)
+      .then( res => {
 
-      }else{
-        if(data.materials !== undefined){
-            this.ms.overloadShuttles(data.materials); 
-        }
-      }
-
-      draft_nodes
-      .filter(el => el.draft !== null)
-      .forEach(el => {
-        //scan the systems and add any that need to be added
-        if(el.draft.rowSystemMapping !== undefined){
-          el.draft.rowSystemMapping.forEach(el => {
-            if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
-          });
-        }  
-
-        //scan the systems and add any that need to be added
-        if(el.draft.colSystemMapping !== undefined){
-          el.draft.colSystemMapping.forEach(el => {
-            if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
-          });
-        }  
-      })
-
-      if(data.ops !== undefined){
-        ops = data.ops.map(data => {
-          const op: OpComponentProxy = {
-            node_id: data.node_id,
-            name: data.name,
-            params: data.params,
-            inlets: (data.inlets === undefined) ? [0] : data.inlets 
+          for(let i = 0; i < draft_elements.length; i++){
+            draft_elements[i].draft = res[i];
           }
-          return op;
-        });
-      }
 
-      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
+      return Promise.all(loom_fns)
+      })
+      .then(res => {
 
-      const envt: FileObj = {
-        version: data.version,
-        workspace: data.workspace,
-        filename: filename,
-        nodes: (data.nodes === undefined) ? [] : data.nodes,
-        treenodes: (data.tree === undefined) ? [] : data.tree,
-        draft_nodes: draft_nodes,
-        ops: ops,
-        scale: (data.scale === undefined) ? 5 : data.scale,
-      }
+        for(let i = 0; i < loom_elements.length; i++){
+          draft_elements[i].loom = res[i];
+        }
+        
 
-      return Promise.resolve({data: envt, status: 0}); 
+        draft_nodes
+        .filter(el => el.draft !== null)
+        .forEach(el => {
+          //scan the systems and add any that need to be added
+          if(el.draft.rowSystemMapping !== undefined){
+            el.draft.rowSystemMapping.forEach(el => {
+              if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
+            });
+          }  
+  
+          //scan the systems and add any that need to be added
+          if(el.draft.colSystemMapping !== undefined){
+            el.draft.colSystemMapping.forEach(el => {
+              if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
+            });
+          }  
+        })
+    
+        if(data.ops !== undefined){
+          ops = data.ops.map(data => {
+            const op: OpComponentProxy = {
+              node_id: data.node_id,
+              name: data.name,
+              params: data.params,
+              inlets: (data.inlets === undefined) ? [0] : data.inlets 
+            }
+            return op;
+          });
+        }
+        
+          const envt: FileObj = {
+            version: data.version,
+            workspace: data.workspace,
+            filename: filename,
+            nodes: (data.nodes === undefined) ? [] : data.nodes,
+            treenodes: (data.tree === undefined) ? [] : data.tree,
+            draft_nodes: draft_nodes,
+            ops: ops,
+            scale: (data.scale === undefined) ? 5 : data.scale,
+          }
+    
+          return Promise.resolve({data: envt, status: 0}); 
+  
+        }
+      )
 
+
+
+    
 
     }, 
 

@@ -390,7 +390,7 @@ export class MixerComponent implements OnInit {
         if(draft_node !== undefined){
 
           const located_draft = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
-         
+          console.log("located loom", located_draft.loom)
           if(located_draft === undefined){
             console.log("Looking for ", draft_node.node_id,"in", data.draft_nodes.map(el => el.draft_id))
             console.error("could not find draft with id in draft list");
@@ -499,12 +499,11 @@ export class MixerComponent implements OnInit {
 
        (<DraftNode> node).draft.ud_name = np.draft_name;
        (<DraftNode> node).loom_settings = np.loom_settings; 
-       (<DraftNode> node).loom = null;
       })
 
       // const dn = this.tree.getDraftNodes();
       // dn.forEach(node => {
-      //   console.log(node.draft, node.loom, node.loom_settings)
+      //   console.log("RES", node.draft, node.loom, node.loom_settings)
       // })
   
 
