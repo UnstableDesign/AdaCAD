@@ -1413,14 +1413,14 @@ export class DraftviewerComponent implements OnInit {
      cx.fillStyle = color;
      cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 
-    if(type =='threading'){
-      cx.font = "10px Arial";
-      cx.fillStyle = "white";
-      let thread_val = loom.threading[j]+1;
-      if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(loom) - loom.threading[j];
-      cx.fillText(thread_val, 2+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
+    // if(type =='threading'){
+    //   cx.font = "10px Arial";
+    //   cx.fillStyle = "white";
+    //   let thread_val = loom.threading[j]+1;
+    //   //if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(loom) - loom.threading[j];
+    //   //cx.fillText(thread_val, 2+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
       
-    }
+    // }
 
   }
 

@@ -160,7 +160,7 @@
          </mat-form-field>
   
   
-        <mat-form-field *ngIf="loomtype=='frame'">
+        <mat-form-field  *ngIf="(loomtype == 'frame' || loomtype == 'direct')">
           <mat-label *ngIf="type=='global'">Default Number of Treadles</mat-label>
           <mat-label *ngIf="type=='local'">Number of Treadles</mat-label>      
           <input matInput 

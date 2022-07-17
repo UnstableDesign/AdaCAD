@@ -473,7 +473,7 @@ export class WeaverComponent implements OnInit {
   }
 
 
-  public redrawLoom(){
+  public redrawLoomAndDraft(){
 
     const draft = this.tree.getDraft(this.id)
     const loom = this.tree.getLoom(this.id)
@@ -486,7 +486,9 @@ export class WeaverComponent implements OnInit {
     }else{
       this.weaveRef.isFrame = false;
     }
-    this.weaveRef.redrawLoom(draft, loom, loom_settings);
+    this.weaveRef.colShuttleMapping = draft.colShuttleMapping.slice();
+    this.weaveRef.rowShuttleMapping = draft.rowShuttleMapping.slice();
+    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, warp_systems: true, warp_materials: true, weft_systems: true, weft_materials:true});
   }
 
   /**

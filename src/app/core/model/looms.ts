@@ -1,6 +1,7 @@
 import { L, NUMPAD_SIX } from "@angular/cdk/keycodes";
 import * as _ from "lodash";
 import { values } from "lodash";
+import { generate } from "rxjs";
 import { LoomModal } from "../modal/loom/loom.modal";
 import { Cell } from "./cell";
 import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
@@ -77,15 +78,7 @@ const jacquard_utils: LoomUtil = {
             const dim = Math.max(num_frames, num_treadles)
 
 
-             //add tieup
-             l.tieup = [];
-             for(let i = 0; i < dim; i++){
-              l.tieup.push([]);
-               for(let j = 0; j < dim; j++){
-                 if(i == j) l.tieup[i][j] = true;
-                 else l.tieup[i][j] = false;
-               }
-             }
+            l.tieup = generateDirectTieup(dim);
 
              return l;
 
@@ -298,6 +291,25 @@ const jacquard_utils: LoomUtil = {
     }
     return Promise.resolve({treadling: treadling, num: treadle});
 
+  }
+
+
+  /**
+   * generates a direct tieup for the give size
+   * @param size the number of frames and treadles
+   * @returns a tieup pattern of the specified size
+   */
+  export const generateDirectTieup = (size:number) : Array<Array<boolean>> => {
+ //add tieup
+    const tieup = [];
+    for(let i = 0; i < size; i++){
+      tieup.push([]);
+      for(let j = 0; j < size; j++){
+        if(i == j) tieup[i][j] = true;
+        else tieup[i][j] = false;
+      }
+    }
+    return tieup.slice();
   }
 
   /**

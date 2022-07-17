@@ -85,11 +85,66 @@ canvas{
 .threading-tieup-container{
   display: flex;
   
-  canvas{
-    padding-right: 10px;
-  }
+  // canvas{
+  //   padding-right: 10px;
+  // }
 
 }
+
+.threading-tieup-spacer.origin3,
+.threading-tieup-spacer.origin2{
+  width: 10px;
+  display: block;
+}
+
+.threading-tieup-spacer.origin0,
+.threading-tieup-spacer.origin0{
+  width: 0px;
+  display: block;
+}
+
+
+.threading-tieup-container.origin0
+{
+  #threading,
+  #tieups{
+    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+.threading-tieup-container.origin2
+{
+  #tieups{
+    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+.drawdown-container.origin2
+{
+  #treadling{
+    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+.threading-tieup-container.origin3
+{
+  #tieups{
+    transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+
+  #threading{
+    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+.drawdown-container.origin3
+{
+  #treadling{
+    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+
 
 
 .threading-tieup-container.origin0,

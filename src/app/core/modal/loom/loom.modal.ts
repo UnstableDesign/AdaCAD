@@ -5,8 +5,8 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 import { DesignMode,Loom, Draft, LoomSettings, DraftNode } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
-import { deleteDrawdownCol, deleteDrawdownRow, flipDraft, flipDrawdown, insertDrawdownCol, insertDrawdownRow, warps, wefts } from '../../model/drafts';
-import { flipLoom, flipPattern, getLoomUtilByType, isFrame } from '../../model/looms';
+import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, flipDraft, flipDrawdown, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../model/drafts';
+import { flipLoom, flipPattern, generateDirectTieup, getLoomUtilByType, isFrame } from '../../model/looms';
 import { TreeService } from '../../../mixer/provider/tree.service';
 import utilInstance from '../../model/util';
 import { C } from '@angular/cdk/keycodes';
@@ -101,6 +101,7 @@ export class LoomModal implements OnInit {
   updateMinTreadles(f: NgForm){
     //validate the input
     const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom = this.tree.getLoom(this.id);
 
     if(!f.value.treadles){
       f.value.treadles = 2; 
@@ -113,7 +114,19 @@ export class LoomModal implements OnInit {
       this.ws.min_treadles= f.value.treadles;
     } else{
       loom_settings.treadles = f.value.treadles;
+
+      if(loom_settings.type == 'direct'){
+        this.frames = f.value.treadles;
+        this.treadles = f.value.treadles;
+        loom_settings.frames = this.frames;
+        loom_settings.treadles = this.treadles;
+        loom.tieup = generateDirectTieup(f.value.treadles);
+        this.tree.setLoom(this.id, loom);
+
+      }
+
       this.tree.setLoomSettings(this.id, loom_settings);
+
       this.localLoomNeedsRedraw.emit();
     }
 
@@ -121,6 +134,7 @@ export class LoomModal implements OnInit {
 
   updateMinFrames(f: NgForm){
     const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom = this.tree.getLoom(this.id);
 
     if(!f.value.frames){
       f.value.frames = 2; 
@@ -136,6 +150,16 @@ export class LoomModal implements OnInit {
       this.dm.selectDesignMode(this.type, 'loom_settings');
     }else{
       loom_settings.frames = f.value.frames;
+
+      if(loom_settings.type == 'direct'){
+        this.frames = f.value.frames;
+        this.treadles = f.value.frames;
+        loom_settings.frames = this.frames;
+        loom_settings.treadles = this.treadles;
+        loom.tieup = generateDirectTieup(f.value.frames);
+        this.tree.setLoom(this.id, loom);
+      }
+
       this.tree.setLoomSettings(this.id, loom_settings);      
       this.localLoomNeedsRedraw.emit();
 
@@ -299,11 +323,15 @@ export class LoomModal implements OnInit {
       
       for(var i = 0; i < diff; i++){  
         draft.drawdown = insertDrawdownCol(draft.drawdown,i, null);
+        draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping,i, 0);
+        draft.colSystemMapping = insertMappingCol(draft.colSystemMapping,i, 0);
       }
     }else{
       var diff = warps(draft.drawdown) - e.warps;
       for(var i = 0; i < diff; i++){  
         draft.drawdown = deleteDrawdownCol(draft.drawdown, warps(draft.drawdown)-1);
+        draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping,warps(draft.drawdown)-1);
+        draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping,warps(draft.drawdown)-1);
       }
 
     }
@@ -353,11 +381,15 @@ export class LoomModal implements OnInit {
       
       for(var i = 0; i < diff; i++){  
         draft.drawdown = insertDrawdownRow(draft.drawdown, e.wefts+i, null);
+        draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping,  e.wefts+i, 1)
+        draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping,  e.wefts+i, 0)
       }
     }else{
       var diff = wefts(draft.drawdown) - e.wefts;
       for(var i = 0; i < diff; i++){  
         draft.drawdown = deleteDrawdownRow(draft.drawdown, wefts(draft.drawdown)-1);
+        draft.rowShuttleMapping = deleteMappingRow(draft.rowShuttleMapping,  e.wefts+i)
+        draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping,  e.wefts+i)
       }
     }
 
