@@ -15,7 +15,7 @@ import { StateService } from '../provider/state.service';
 import { WorkspaceService } from '../provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow } from '../model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../model/looms';
-import { computeYarnPaths } from '../model/yarnsimulation';
+import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../model/yarnsimulation';
 import { TreeService } from '../../mixer/provider/tree.service';
 import { setDeprecationWarningFn } from '@tensorflow/tfjs-core/dist/tensor';
 import { LoomModal } from '../modal/loom/loom.modal';
@@ -1910,15 +1910,14 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
 
   public redrawYarnView(draft: Draft){
 
-
+    const yarnsim = computeYarnPaths(draft, this.ms.getShuttles());
     
-
 
     for(let i = 0; i < this.render.visibleRows.length; i++){
 
       let index_row = this.render.visibleRows[i];
 
-      let row_values = draft.drawdown[index_row];
+      let row_values = yarnsim[index_row];
 
       let shuttle_id = draft.rowShuttleMapping[index_row];
 
@@ -1929,12 +1928,12 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
         
         let p = row_values[j];
 
-        if(p.isEastWest())  this.drawWeftOver(draft, i,j,s);
-        if(p.isSouthWest()) this.drawWeftBottomLeft(draft, i,j,s);
+        if(isEastWest(p))  this.drawWeftOver(draft, i,j,s);
+        if(isSouthWest(p)) this.drawWeftBottomLeft(draft, i,j,s);
        // if(p.isNorthSouth())this.drawWeftUp(i, j, s);
-        if(p.isSouthEast()) this.drawWeftBottomRight(draft, i,j,s);
-        if(p.isNorthWest()) this.drawWeftLeftUp(draft, i,j,s);
-        if(p.isNorthEast()) this.drawWeftRightUp(draft, i, j, s);
+        if(isSouthEast(p)) this.drawWeftBottomRight(draft, i,j,s);
+        if(isNorthWest(p)) this.drawWeftLeftUp(draft, i,j,s);
+        if(isNorthEast(p)) this.drawWeftRightUp(draft, i, j, s);
 
       }
     }
@@ -1949,7 +1948,7 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
   public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
 
 
-    if(loom === null){
+    if(loom === null || loom === undefined){
       return;
     }
 

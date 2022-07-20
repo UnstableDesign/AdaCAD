@@ -252,13 +252,15 @@ export class WeaverComponent implements OnInit {
   public viewChange(value: any) {
     
     const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getDraft(this.id);
 
     this.dm.selectDesignMode(value, 'view_modes');
     this.render.setCurrentView(value);
 
     if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
 
-    this.weaveRef.redraw({
+    this.weaveRef.redraw(draft, loom, loom_settings,  {
       drawdown: true
     });
   }
@@ -373,7 +375,10 @@ export class WeaverComponent implements OnInit {
   /**
    */
    public materialChange() {
-    this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, warp_materials:true,  weft_materials:true});
     //this.timeline.addHistoryState(this.draft);
   }
 
@@ -385,7 +390,10 @@ export class WeaverComponent implements OnInit {
    * Inserts an empty row on system, system
    */
   public shuttleColorChange() {
-    this.weaveRef.redraw({drawdown: true, warp_materials:true,  weft_materials:true});
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, warp_materials:true,  weft_materials:true});
    // this.timeline.addHistoryState(this.draft);
   }
 
@@ -393,7 +401,7 @@ export class WeaverComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
+    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
     this.tree.setDraftOnly(this.id, draft);
     this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, warp_systems: true});
   }
@@ -402,7 +410,7 @@ export class WeaverComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row');
+    draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
     this.tree.setDraftOnly(this.id, draft);
     this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, weft_systems: true});
   }
@@ -412,7 +420,7 @@ export class WeaverComponent implements OnInit {
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     
-    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
+    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
     this.tree.setDraftOnly(this.id, draft);
 
     this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, warp_materials: true});
@@ -422,7 +430,7 @@ export class WeaverComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
+    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
     computeYarnPaths(draft, this.ms.getShuttles());
     this.tree.setDraftOnly(this.id, draft);
 
@@ -674,6 +682,10 @@ export class WeaverComponent implements OnInit {
 
 
   public renderChange(e: any){
+
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
      
      if(e.source === "slider"){
         this.render.setZoom(e.value);
@@ -693,7 +705,7 @@ export class WeaverComponent implements OnInit {
      if(e.source === "front"){
         this.render.setFront(!e.checked);
         this.weaveRef.flip();
-        this.weaveRef.redraw({drawdown:true});
+        this.weaveRef.redraw(draft, loom, loom_settings, {drawdown:true});
      }      
   }
 

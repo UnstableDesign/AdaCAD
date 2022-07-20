@@ -352,7 +352,7 @@ openActions(){
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
-      data: {draft: this.draft}});
+      data: {id: this.id}});
 
 
        this.actions_modal.componentInstance.onUpdateWarpShuttles.subscribe(event => { this.onUpdateWarpShuttles.emit(event)});

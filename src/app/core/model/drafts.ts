@@ -448,17 +448,25 @@ export const createDraft = (
    * @param type specify if this is a 'row'/weft or 'col'/warp mapping
    * @returns the mapping to use
    */
-  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string) : Array<any> => {
+  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string, origin: number) : Array<any> => {
 
     const mapping: Array<number> = [];
     if(type == 'row'){
-      for(let i = 0; i < wefts(drawdown); i++){
-        mapping.push(pattern[i%pattern.length]);
-      }
+
+        if(origin == 1 || origin == 2) pattern = pattern.slice().reverse();
+
+        for(let i = 0; i < wefts(drawdown); i++){
+          mapping.push(pattern[i%pattern.length]);
+        }
+
     }else{
-      for(let j = 0; j < warps(drawdown); j++){
-        mapping.push(pattern[j%pattern.length]);
-      }
+
+        if(origin == 0 || origin == 1) pattern = pattern.slice().reverse();
+
+        for(let j = 0; j < warps(drawdown); j++){
+          mapping.push(pattern[j%pattern.length]);
+        }
+      
     }
 
     return mapping.slice();

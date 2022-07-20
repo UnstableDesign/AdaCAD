@@ -170,14 +170,14 @@ export class FileService {
         .filter(el => el.draft !== null)
         .forEach(el => {
           //scan the systems and add any that need to be added
-          if(el.draft.rowSystemMapping !== undefined){
+          if(el.draft !== null && el.draft !== undefined && el.draft.rowSystemMapping !== undefined){
             el.draft.rowSystemMapping.forEach(el => {
               if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
             });
           }  
   
           //scan the systems and add any that need to be added
-          if(el.draft.colSystemMapping !== undefined){
+          if(el.draft !== null && el.draft !== undefined && el.draft.colSystemMapping !== undefined){
             el.draft.colSystemMapping.forEach(el => {
               if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
             });
