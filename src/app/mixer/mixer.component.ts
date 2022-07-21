@@ -469,7 +469,7 @@ export class MixerComponent implements OnInit {
         switch (node.type){
           case 'draft':
             
-            this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.scale);
+            this.palette.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id), data.scale);
             break;
           case 'op':
             const op = this.tree.getOpNode(node.id);

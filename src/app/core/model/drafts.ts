@@ -1,8 +1,5 @@
-import { D } from "@angular/cdk/keycodes";
-import { number } from "mathjs";
 import { Cell } from "./cell";
 import { Draft, Drawdown, Loom } from "./datatypes";
-import { flipLoom } from "./looms";
 import utilInstance from "./util";
 
 /**
@@ -412,6 +409,7 @@ export const createDraft = (
       return shifted;
     }
 
+
    /**
    * flips the drawdown horizontally or vertically. This is different than flip draft because it only 
    * flippes teh drawdown, not any other associated information
@@ -432,13 +430,6 @@ export const createDraft = (
     } 
     return flip;
   }
-    
-  
-  
-
-
-
-
 
 
   /**
@@ -565,8 +556,6 @@ export const createDraft = (
   }
 
 
-
-
   /**
    * deletes a row from the drawdown at the specified weft location
    * @param d drawdown
@@ -675,7 +664,17 @@ export const createDraft = (
    * @returns 
    */
  export const getDraftName = (draft: Draft) : string => {
-  if(draft === null || draft === undefined) return "";  
+  if(draft === null || draft === undefined) return ""; 
+  if(draft.ud_name == undefined){
+    if(draft.gen_name == undefined) return '';
+    else return draft.gen_name;
+  }  
+
+  if(draft.gen_name == undefined){
+    if(draft.ud_name == undefined) return '';
+    else return draft.ud_name;
+  }
+
   return (draft.ud_name === "") ?  draft.gen_name : draft.ud_name; 
   }
 

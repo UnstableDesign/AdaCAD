@@ -2394,11 +2394,11 @@ export class OperationService {
     //     const draft_inlets = child_inputs.filter(el => el.inlet > 0).map(el => el.drafts[0]);
 
     //     let total_wefts: number = 0;
-    //     const all_wefts = draft_inlets.map(el => el.wefts).filter(el => el > 0);
+    //     const all_wefts = draft_inlets.map(el => wefts(el.drawdown)).filter(el => el > 0);
     //     total_wefts = utilInstance.lcm(all_wefts);
 
     //     let total_warps: number = 0;
-    //     const all_warps = draft_inlets.map(el => el.warps).filter(el => el > 0);
+    //     const all_warps = draft_inlets.map(el => warps(el.drawdown)).filter(el => el > 0);
     //     total_warps = utilInstance.lcm(all_warps);
 
 
@@ -2419,30 +2419,30 @@ export class OperationService {
     //     });
         
 
-    //     const d: Draft = new Draft({
-    //       warps: total_warps*system_map.drafts[0].warps, 
-    //       wefts: total_wefts*system_map.drafts[0].wefts,
+    //     const d: Draft = initDraftWithParams({
+    //       warps: total_warps*warps(system_map.drafts[0].drawdown), 
+    //       wefts: total_wefts* wefts(system_map.drafts[0].drawdown),
     //       rowShuttleMapping: system_map.drafts[0].rowShuttleMapping.slice(),
     //       rowSystemMapping: system_map.drafts[0].rowSystemMapping.slice(),
     //       colShuttleMapping: system_map.drafts[0].colShuttleMapping.slice(),
     //       colSystemMapping: system_map.drafts[0].colSystemMapping.slice(),
     //     });
 
-    //     d.pattern = [];
-    //     for(let i = 0; i < d.wefts; i++){
+    //     d.drawdown = [];
+    //     for(let i = 0; i < wefts(d.drawdown); i++){
     //       let active_wesy = this.ss.getWeftSystem(d.rowSystemMapping[i]).name;
     //       const active_weft_entry = system_draft_map.find(el => el.wesy.findIndex(wesyel => wesyel === active_wesy) !== -1);
     //       let increment_flag = false;
 
-    //       d.pattern.push([]);
-    //       for(let j = 0; j < d.warps; j++){
+    //       d.drawdown.push([]);
+    //       for(let j = 0; j < warps(d.drawdown); j++){
     //         let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
     //         const active_warp_entry = system_draft_map.find(el => el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1);
     //         const entry = system_draft_map.find(el => (el.wasy.findIndex(wasyel => wasyel === active_wasy) !== -1 && el.wesy.findIndex(wesyel => wesyel === active_wesy)!== -1));
 
     //         if(active_weft_entry === undefined || active_warp_entry === undefined){
     //           //no input draft is assigned to this system, set all as undefined
-    //           d.pattern[i][j] = new Cell(null);
+    //           d.drawdown[i][j] = new Cell(null);
 
     //         }else if(entry === undefined){
     //           //this is unassigned or its an an alternating layer. 
@@ -2450,20 +2450,20 @@ export class OperationService {
     //           //if this weft systems layer is > than the layer associted with this warp system, lower, if it is less, raise. 
     //           const wesy_layer = active_weft_entry.layer;
     //           const wasy_layer = active_warp_entry.layer;
-    //           if(wasy_layer < wesy_layer) d.pattern[i][j] = new Cell(true);
-    //           else if(wasy_layer > wesy_layer) d.pattern[i][j] = new Cell(false);
-    //           else d.pattern[i][j] = new Cell(null);
+    //           if(wasy_layer < wesy_layer) d.drawdown[i][j] = new Cell(true);
+    //           else if(wasy_layer > wesy_layer) d.drawdown[i][j] = new Cell(false);
+    //           else d.drawdown[i][j] = new Cell(null);
     //         }  
     //         else{
-    //           d.pattern[i][j] = new Cell(entry.draft.pattern[entry.i][entry.j].getHeddle());
-    //           entry.j = (entry.j+1)%entry.draft.warps;
+    //           d.drawdown[i][j] = new Cell(entry.draft.drawdown[entry.i][entry.j].getHeddle());
+    //           entry.j = (entry.j+1)%warps(entry.draft.drawdown);
     //           increment_flag = true;
     //         }
 
     //       }
 
     //       if(increment_flag){
-    //         active_weft_entry.i = (active_weft_entry.i+1) % active_weft_entry.draft.wefts;
+    //         active_weft_entry.i = (active_weft_entry.i+1) % wefts(active_weft_entry.draft.drawdown);
     //       } 
 
 
@@ -2506,7 +2506,6 @@ export class OperationService {
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "notation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
 
-  
         if(child_inputs.length == 0) return Promise.resolve([]);
 
         //now just get all the drafts
@@ -2539,7 +2538,6 @@ export class OperationService {
         const system_draft_map = child_inputs
         .filter(el => el.inlet > 0)
         .map(el => {
-          console.log(el.params[0].match(/\d+/g));
           return  {
             wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
             wasy: el.params[0].match(/\d+/g), //pull out all the nubmers into warp systems
@@ -2549,12 +2547,15 @@ export class OperationService {
             draft: el.drafts[0]
           }
         });
+
+
         
         system_draft_map.forEach(sdm => {
           if(sdm.wasy!== null) sdm.wasy = sdm.wasy.map(el => parseInt(el));
           else sdm.wasy = [-1];
           if(sdm.wesy === null) sdm.wesy = [''];
         })
+
 
         const d: Draft =initDraftWithParams({
           warps: total_warps*warps(system_map.drafts[0].drawdown), 
@@ -2565,13 +2566,11 @@ export class OperationService {
           colSystemMapping: system_map.drafts[0].colSystemMapping.slice(),
         });
 
-        d.drawdown = [];
         for(let i = 0; i < wefts(d.drawdown); i++){
           let active_wesy = this.ss.getWeftSystem(d.rowSystemMapping[i]).name;
           const active_weft_entry = system_draft_map.find(el => el.wesy.findIndex(wesyel => wesyel === active_wesy) !== -1);
           let increment_flag = false;
 
-          d.drawdown.push([]);
           for(let j = 0; j < warps(d.drawdown); j++){
             let active_wasy = parseInt(this.ss.getWarpSystem(d.colSystemMapping[j]).name);
 

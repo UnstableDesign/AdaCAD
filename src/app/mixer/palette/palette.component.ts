@@ -6,7 +6,7 @@ import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds, DraftMap, Draft, NodeComponentProxy,DraftNode, OpNode } from '../../core/model/datatypes';
+import { Point, Interlacement, Bounds, DraftMap, Draft, NodeComponentProxy,DraftNode, OpNode, DraftNodeProxy } from '../../core/model/datatypes';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
@@ -595,7 +595,9 @@ export class PaletteComponent implements OnInit{
    * @param d the draft object to load into this subdraft
    * @param nodep the component proxy used to define
    */
-   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, saved_scale: number){
+   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
+
+    
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -622,7 +624,10 @@ export class PaletteComponent implements OnInit{
       }
 
       subdraft.instance.bounds = new_bounds;
-      
+
+      if(draftp !== null && draftp !== undefined){
+        subdraft.instance.draft_visible = draftp.draft_visible;
+      }
     } 
 
   }
@@ -1556,7 +1561,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
             node_id: el.id,
             type: el.type,
             bounds: this.calculateInitialLocaiton(el.id),
-          }, this.scale);
+          }, null, this.scale);
         });
       
 

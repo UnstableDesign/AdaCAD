@@ -64,7 +64,7 @@ export class CombinatoricsService {
   printNodes(nodes: Array<ComboNode>){
     
     nodes.forEach(node => {
-      console.log("Node: ", this.traceSequenceViaParents(node), node.set);
+     // console.log("Node: ", this.traceSequenceViaParents(node), node.set);
       this.printNodes(node.children);
     });
   }
@@ -150,7 +150,6 @@ export class CombinatoricsService {
     })
     .then(valid => {
 
-      console.log("valid is: ", valid);
       return this.createTreeFromValidSet(valid);
 
 
@@ -175,19 +174,16 @@ export class CombinatoricsService {
 
       });
 
-      console.log("calling on set 0, length", drafts.length)
       //drafts.forEach(el => utilInstance.printDraft(el));
 
       
       const its = (wefts * 2) -1;
       for(let i = 1; i <= its; i++){
        drafts = this.expandDrafts(drafts, tree, i, wefts);
-       console.log("calling on set ", i, drafts.length)
        //drafts.forEach(el => utilInstance.printDraft(el));
 
       }
 
-      console.log("FINAL /// LEN", drafts.length);
       //drafts.forEach(el => utilInstance.printDraft(el));
 
       this.all_possible_drafts = drafts.map((el, ndx) => {return {draft: el, id: ndx}});
