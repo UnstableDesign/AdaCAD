@@ -2978,12 +2978,12 @@ export class OperationService {
         value: 0,
         dx: 'corner to which this draft is rotated around 0 is top left, 1 top right, 2 bottom right, 3 bottom left'
         },
-        <BoolParam>{name: 'even/odd',
+        <BoolParam>{name: 'remove center repeat',
         type: 'boolean',
-        falsestate: "make output an odd number",
-        truestate: "make output an even number",
+        falsestate: "center repeat kept",
+        truestate: "center repeat removed",
         value: 0,
-        dx: 'select if you would like the output to be an even or odd number, an odd number shares a single central point'
+        dx: 'rotating drafts creates a repeated set of columns or rows extending from the center. Use this toggle to alternative the structure by either keeping or erasing those repeated cells'
         }
 
       ],
