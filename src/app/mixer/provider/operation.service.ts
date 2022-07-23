@@ -4279,18 +4279,18 @@ export class OperationService {
 
     const dynamic_join_left: DynamicOperation = {
       name: 'dynamicjoinleft',
-      displayname: 'join left (with positions)',
+      displayname: 'subdivide width',
       old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: "number",
-      dx: 'takes each input draft and assign it a position from left to right',
+      dx: 'subdivides the width of the weave into equal sized sections, then, takes each input draft and assign it a division from left to right',
       params: <Array<NumParam>>[   
-        {name: 'sections',
+        {name: 'divisions',
         type: 'number',
         min: 1,
         max: 100,
         value: 3,
-        dx: 'the number of equally sized sections to include in the draft'
+        dx: 'the number of equally sized divisions to include in the draft'
     },
     {name: 'width',
       type: 'number',
@@ -4315,7 +4315,8 @@ export class OperationService {
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
         const warp_system = op_inputs.find(el => el.inlet == 0);
 
-        
+          console.log("child inputs", child_inputs);
+
         let weft_mapping;
         if(warp_system === undefined) weft_mapping =initDraftWithParams({warps: 1, wefts:1});
         else weft_mapping = warp_system.drafts[0];
@@ -4350,14 +4351,13 @@ export class OperationService {
         total_warps = utilInstance.lcm(all_warps);
 
 
-        const section_draft_map: Array<any> = child_inputs.map(el => { return {section: el.inlet-1, draft: el.drafts.shift()}}); 
+        const section_draft_map: Array<any> = child_inputs.map(el => { return {section: el.params[0]-1, draft: el.drafts.shift()}}); 
         const d:Draft =initDraftWithParams({
           warps:total_width, 
           wefts:total_warps,
           rowShuttleMapping: weft_mapping.rowShuttleMapping,
           rowSystemMapping: weft_mapping.rowSystemMapping
          });
-
 
          d.drawdown.forEach((row, i) => {
           row.forEach((cell, j) => {

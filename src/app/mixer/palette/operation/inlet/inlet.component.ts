@@ -5,6 +5,7 @@ import { SystemsService } from '../../../../core/provider/systems.service';
 import { TreeService } from '../../../provider/tree.service';
 import { getDraftName } from '../../../../core/model/drafts';
 import { DynamicOperation, OperationInlet,OpNode } from '../../../../core/model/datatypes';
+import { I } from '@angular/cdk/keycodes';
 
 
 
@@ -25,6 +26,7 @@ export class InletComponent implements OnInit {
   fc: FormControl;
   textValidate: any;
   all_system_codes: Array<any>;
+  number_opts: Array<number>;
   opnode: OpNode;
   inlet: OperationInlet;
   selectedValue: number; 
@@ -35,8 +37,13 @@ export class InletComponent implements OnInit {
 
   ngOnInit(): void {    
     this.opnode = this.tree.getOpNode(this.opid);
-    this.all_system_codes = this.systems.weft_systems.map(el => el.name);
+    this.all_system_codes = this.systems.weft_systems.map(el => {return {code: el.name, id: el.id}} );
     const op = this.ops.getOp(this.opnode.name);  
+    this.number_opts = [];
+    for(let i = 1; i < 50; i++){
+      this.number_opts.push(i);
+    }
+
     
     // initalize any dyanmic inlets
     if(this.inletid >= op.inlets.length && this.dynamic){
@@ -88,25 +95,28 @@ export class InletComponent implements OnInit {
     return getDraftName(sd);
   }
 
-  inletChange(value: any){
-    const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
-    this.fc.setValue(value);
-    
-    switch(this.inlet.type){
-      case 'number':
-        opnode.inlets[this.inletid] = value;
-        break;
-      case 'system':
-        opnode.inlets[this.inletid] = value;
-        break;
-      case 'color':
-        opnode.inlets[this.inletid] = value;
-        break;
-      case 'notation':
-        opnode.inlets[this.inletid] = value;
-        break;
+  inletChange(){
 
-    }
+    const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
+
+    // switch(this.inlet.type){
+    //   case 'number':
+    //     this.fc.setValue(value);
+    //     opnode.inlets[this.inletid] = value;
+    //     break;
+    //   case 'system':
+    //    // opnode.inlets[this.inletid] = value;
+    //     break;
+    //   case 'color':
+    //     this.fc.setValue(value);
+    //     opnode.inlets[this.inletid] = value;
+    //     break;
+    //   case 'notation':
+    //     this.fc.setValue(value);
+    //     opnode.inlets[this.inletid] = value;
+    //     break;
+
+    // }
 
     this.onInletChange.emit({id: this.inletid});
 
