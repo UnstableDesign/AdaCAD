@@ -1,5 +1,6 @@
 import { Directive, OnInit } from '@angular/core';
-import { Draft } from '../../../core/model/draft';
+import { initDraftWithParams } from '../../../core/model/drafts';
+import { Draft } from '../../../core/model/datatypes';
 import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 
 @Directive({
@@ -10,7 +11,7 @@ import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 export class MarqueeComponent implements OnInit{
 
   id: number;
-  draft: Draft = new Draft({name: "selection"});
+  draft: Draft = initDraftWithParams({ud_name: "selection"});
 
   bounds:Bounds = {
     topleft: {x: 0, y:0},
@@ -25,7 +26,6 @@ export class MarqueeComponent implements OnInit{
 
   ngOnInit(){
     console.log(this.draft.id);
-    console.log("created directive selection");
   }
 
   public getDraftId(){
@@ -35,9 +35,6 @@ export class MarqueeComponent implements OnInit{
 
   public setPositionAndSize(bounds: Bounds){
     this.bounds  = bounds;
-    console.log("set bounds to", this.bounds);
-
-
   }
 
 

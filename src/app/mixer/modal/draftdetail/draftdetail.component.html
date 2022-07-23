@@ -16,22 +16,21 @@
   
 
   <app-weaver #weaver
-  [draft]="draft"
-  [loom]="loom"
-  [viewonly]="viewonly"
+  [id]="id"
   ></app-weaver>
 
 
   <div class="draft-detail-footer">
 
     <div class="weave_stats">
-      <span> size: {{draft.warps}} ends, {{draft.wefts}} pics</span>
-      <span> width: {{loom.width}} {{gl.units}}</span>
-      <span *ngIf="gl.units == 'in'"> epi: {{gl.epi}}</span>
-      <span *ngIf="gl.units == 'cm'"> ep10cm: {{gl.epi}}</span>
-      <span *ngIf="gl.type === 'frame'">requires {{loom.num_frames}} frames, {{loom.num_treadles}} treadles</span>
-      <span class="error" *ngIf="gl.type === 'frame' && (loom.min_frames < loom.num_frames || loom.min_treadles < loom.num_treadles) ">
-        <i class="fas fa-exclamation-circle"></i> This draft requires more than the {{gl.min_frames}} frames or {{gl.min_treadles}} treadles than you have specified for your loom</span>
+      <span> loom type: {{loom_settings.type}}</span>
+      <span> size: {{warps()}} ends, {{wefts()}} pics</span>
+      <span> width: {{width()}} {{loom_settings.units}}</span>
+      <span *ngIf="loom_settings.units == 'in'"> epi: {{loom_settings.epi}}</span>
+      <span *ngIf="loom_settings.units == 'cm'"> ep10cm: {{loom_settings.epi}}</span>
+      <span *ngIf="loom_settings.type !== 'jacquard'">requires {{numFrames()}} frames, {{numTreadles()}} treadles</span>
+      <!-- <span class="error" *ngIf="ws.type !== 'jacquard' && (numFrames(loom) < loom_settings.frames || numTreadles(loom) < loom_settings.treadles) ">
+        <i class="fas fa-exclamation-circle"></i> This draft requires more than the {{ws.min_frames}} frames or {{ws.min_treadles}} treadles than you have specified for your loom</span> -->
     </div> 
 
 

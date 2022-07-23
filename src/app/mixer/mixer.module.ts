@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CoreModule } from '../core/core.module';
-
-
 import { MixerComponent} from './mixer.component';
 import { MixerViewComponent } from './modal/mixerview/mixerview.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';

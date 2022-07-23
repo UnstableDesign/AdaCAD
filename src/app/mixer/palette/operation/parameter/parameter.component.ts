@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { OpNode, TreeService } from '../../../provider/tree.service';
-import { BoolParam, FileParam, NumParam, OperationParam, SelectParam, StringParam } from '../../../provider/operation.service';
+import { BoolParam, DraftParam, FileParam, NumParam, SelectParam, StringParam, OpNode } from '../../../../core/model/datatypes';
+import {TreeService } from '../../../provider/tree.service';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -37,6 +37,7 @@ export class ParameterComponent implements OnInit {
   stringparam: StringParam;
   selectparam: SelectParam;
   fileparam: FileParam;
+  draftparam: DraftParam;
 
 
   constructor(public tree: TreeService) { 
@@ -74,6 +75,12 @@ export class ParameterComponent implements OnInit {
           this.stringparam = <StringParam> this.param;
           this.fc = new FormControl(this.stringparam.value, [Validators.required, regexValidator((<StringParam>this.param).regex)]);
           break;
+
+        case 'draft':
+          this.draftparam = <DraftParam> this.param;
+          this.fc = new FormControl(this.draftparam.value);
+          break;
+         
        
       }
   
@@ -110,6 +117,12 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'select':
+        opnode.params[this.paramid] = value;
+        this.fc.setValue(value);
+        this.onOperationParamChange.emit({id: this.paramid, value: value});
+        break;
+
+      case 'draft':
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
         this.onOperationParamChange.emit({id: this.paramid, value: value});

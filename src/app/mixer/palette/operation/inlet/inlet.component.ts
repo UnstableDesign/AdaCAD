@@ -1,8 +1,10 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
-import { OperationInlet, OperationService, DynamicOperation } from '../../../provider/operation.service';
+import { OperationService } from '../../../provider/operation.service';
 import { SystemsService } from '../../../../core/provider/systems.service';
-import { OpNode, TreeService } from '../../../provider/tree.service';
+import { TreeService } from '../../../provider/tree.service';
+import { getDraftName } from '../../../../core/model/drafts';
+import { DynamicOperation, OperationInlet,OpNode } from '../../../../core/model/datatypes';
 
 
 
@@ -60,6 +62,7 @@ export class InletComponent implements OnInit {
     switch (type){
       case 'number':
       case 'system':
+      case 'draft':
         return parseInt(value);
         break;
       case 'notation':
@@ -69,6 +72,7 @@ export class InletComponent implements OnInit {
       
     }
   }
+
 
   inputSelected(){
     this.onInputSelected.emit(this.inletid);
@@ -81,7 +85,7 @@ export class InletComponent implements OnInit {
   getInputName(id: number) : string {
     const sd = this.tree.getDraft(id);
     if(sd === null || sd === undefined) return "null draft"
-    return sd.getName();
+    return getDraftName(sd);
   }
 
   inletChange(value: any){

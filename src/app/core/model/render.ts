@@ -1,5 +1,6 @@
 import { SystemsService } from "../provider/systems.service";
-import { Draft } from "./draft";
+import { Draft } from "./datatypes";
+import { wefts } from "./drafts";
 
 /**
  * Definition of render object.
@@ -40,7 +41,7 @@ export class Render {
     this.view_front = true;
 
     this.visibleRows = [];
-    for(let i = 0; i < draft.wefts; i++){
+    for(let i = 0; i < wefts(draft.drawdown); i++){
       this.visibleRows[i] =i;
     }
 

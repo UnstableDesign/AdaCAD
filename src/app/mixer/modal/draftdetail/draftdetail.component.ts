@@ -1,14 +1,17 @@
 import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Draft } from '../../../core/model/draft';
-import { Loom } from '../../../core/model/loom';
+import { Draft, Loom, LoomSettings } from '../../../core/model/datatypes';
+import { numFrames, numTreadles } from '../../../core/model/looms';
+import {wefts, warps} from '../../../core/model/drafts'
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
 import { InkService } from '../../provider/ink.service';
 import { OperationService } from '../../provider/operation.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { WeaverComponent } from '../../../weaver/weaver.component';
 import { MaterialsService } from '../../../core/provider/materials.service';
-import { GloballoomService } from '../../../core/provider/globalloom.service';
+import { WorkspaceService } from '../../../core/provider/workspace.service';
+import { from } from 'rxjs';
+import { TreeService } from '../../provider/tree.service';
 
 
 /**
@@ -27,6 +30,9 @@ export class DraftdetailComponent implements OnInit {
   @ViewChild('weaver', {read: WeaverComponent, static: true}) weaver: WeaverComponent;
 
 
+  id: number;
+
+
   ink: String; //the name of the selected ink.
 
   /**
@@ -41,6 +47,8 @@ export class DraftdetailComponent implements OnInit {
    */
    loom: Loom;
 
+   loom_settings: LoomSettings;
+
 
   scrollingSubscription: any;
 
@@ -54,7 +62,8 @@ export class DraftdetailComponent implements OnInit {
              private dm: DesignmodesService,
              private ops: OperationService,
              private ms: MaterialsService,
-             public gl: GloballoomService) { 
+             public ws: WorkspaceService,
+             private tree: TreeService) { 
 
               this.scrollingSubscription = this.scroll
               .scrolled()
@@ -62,11 +71,12 @@ export class DraftdetailComponent implements OnInit {
                  this.onWindowScroll(data);
                });
 
-               this.draft = data.draft;
+               this.id = data.id;
+               this.draft = this.tree.getDraft(this.id);
+               this.loom = this.tree.getLoom(this.id);
+               this.loom_settings = this.tree.getLoomSettings(this.id);
                this.ink = data.ink;
-               this.loom = data.loom;
-               this.viewonly = data.viewonly;
-
+               this.viewonly = this.tree.hasParent(this.id);
 
 
         
@@ -152,6 +162,30 @@ export class DraftdetailComponent implements OnInit {
     this.scrollingSubscription.unsubscribe();
     this.weaver.closeAllModals();
     this.dialogRef.close(this.draft);
+  }
+
+  //HELPER FUNCTIONS TO AID VARIABLES CALLED FROM HTML
+ warps(){
+    return warps(this.draft.drawdown);
+  }
+
+ wefts(){
+    return wefts(this.draft.drawdown);
+  }
+
+ width(){
+    if(this.loom_settings.units == 'cm') return warps(this.draft.drawdown) / this.loom_settings.epi * 10;
+    else return warps(this.draft.drawdown) / this.loom_settings.epi;
+  }
+
+  numFrames(){
+    const loom = this.tree.getLoom(this.id);
+    return numFrames(loom);
+  }
+  
+  numTreadles(){
+    const loom = this.tree.getLoom(this.id);
+    return numTreadles(loom);
   }
   
 }

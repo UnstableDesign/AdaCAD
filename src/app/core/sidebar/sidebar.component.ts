@@ -6,13 +6,14 @@ import { OpsComponent } from '../../mixer/modal/ops/ops.component';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LoomModal } from '../modal/loom/loom.modal';
 import { MaterialModal } from '../modal/material/material.modal';
-import { PatternModal } from '../modal/pattern/pattern.modal';
 import { System } from '../model/system';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { ActionsComponent } from '../modal/actions/actions.component';
 import { InitModal } from '../../core/modal/init/init.modal';
 import { MaterialsService } from '../provider/materials.service';
 import { StateService } from '../provider/state.service';
+import { Draft, Loom, LoomSettings } from '../model/datatypes';
+import { TreeService } from '../../mixer/provider/tree.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,12 +22,11 @@ import { StateService } from '../provider/state.service';
 })
 export class SidebarComponent implements OnInit {
 
-  @Input() draft;
-  @Input() loom;
+
   @Input() timeline;
   @Input() render;
   @Input() source;
-  @Input() viewonly;
+  @Input() id;
 
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
@@ -38,7 +38,7 @@ export class SidebarComponent implements OnInit {
   @Output() onHideWarpSystem: any = new EventEmitter();
   @Output() onShowWeftSystem: any = new EventEmitter();
   @Output() onHideWeftSystem: any = new EventEmitter();
-  @Output() onLoomChange: any = new EventEmitter();
+  @Output() onLocalLoomNeedsRedraw: any = new EventEmitter();
   @Output() onGlobalLoomChange: any = new EventEmitter();
   @Output() onOperationAdded: any = new EventEmitter();
   @Output() onImport: any = new EventEmitter();
@@ -53,12 +53,11 @@ export class SidebarComponent implements OnInit {
 
 
   
+  draft:Draft;
+  loom_settings:LoomSettings;
+
   //design mode options
   mode_draw: any;
-
-
-  weft_systems: Array<System>;
-  warp_systems: Array<System>;
 
   view: string = 'pattern';
   front: boolean = true;
@@ -68,7 +67,6 @@ export class SidebarComponent implements OnInit {
   weaver_view_modal: MatDialogRef<WeaverViewComponent, any>;
   actions_modal: MatDialogRef<ActionsComponent, any>;
   materials_modal: MatDialogRef<MaterialModal, any>;
-  patterns_modal: MatDialogRef<PatternModal, any>;
   equipment_modal: MatDialogRef<LoomModal, any>;
   global_loom_modal: MatDialogRef<LoomModal, any>;
   upload_modal: MatDialogRef<InitModal, any>;
@@ -77,6 +75,7 @@ export class SidebarComponent implements OnInit {
   constructor(
     private dm: DesignmodesService, 
     private is:InkService,
+    private tree: TreeService,
     private ss: StateService,
     private ms: MaterialsService, 
     private dialog: MatDialog) { 
@@ -85,11 +84,12 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.draft = this.tree.getDraft(this.id);
+    this.loom_settings = this.tree.getLoomSettings(this.id);
     
     if(this.source == 'weaver'){
     this.front = this.render.view_front;
-    this.weft_systems = this.draft.weft_systems;
-    this.warp_systems = this.draft.warp_systems;
     }
   }
 
@@ -101,30 +101,10 @@ export class SidebarComponent implements OnInit {
      this.onDesignModeChange.emit(obj);
   }
 
-  // engageMLMode() {
-  //   if(this.ml_modal != undefined && this.ml_modal.componentInstance != null) return;
-  //   console.log('engaged ML mode');
-
-  //   this.ml_modal =  this.dialog.open(MlModal,
-  //     {
-  //       maxWidth:350, 
-  //       hasBackdrop: false,
-  //       data: {draft:this.draft}});
-  
-  
-  //       this.ml_modal.componentInstance.onChange.subscribe(event => { this.onMLChange.emit();});
-  
-    
-  //     //   this.materials_modal.afterClosed().subscribe(result => {
-  //     //     this.onMLChange.emit();
-  //     // });
-
-  // }
 
   closeWeaverModals(){
     if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) this.materials_modal.close();
     if(this.equipment_modal != undefined && this.equipment_modal.componentInstance != null) this.equipment_modal.close();
-    if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) this.patterns_modal.close();
     if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
     if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
   }
@@ -244,17 +224,6 @@ openMaterialsModal(){
 
   }
 
-openPatternsModal(){
-
-  if(this.patterns_modal != undefined && this.patterns_modal.componentInstance != null) return;
-
-  this.patterns_modal =  this.dialog.open(PatternModal,
-    {disableClose: true,
-      maxWidth:350, 
-      hasBackdrop: false,
-      data: {}});
-
-}
 
 openLoomModal(){
 
@@ -265,18 +234,25 @@ openLoomModal(){
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
-      data: {loom: this.loom, draft:this.draft, type: "local"}});
+      data: {id: this.id, type: "local"}});
 
 
-      this.equipment_modal.componentInstance.onChange.subscribe(event => { this.onLoomChange.emit();});
+      this.equipment_modal.componentInstance.localLoomNeedsRedraw.subscribe(event => { 
+        this.onLocalLoomNeedsRedraw.emit();
+      });
 
   
-      this.equipment_modal.afterClosed().subscribe(result => {
-        this.onLoomChange.emit();
-       // dialogRef.componentInstance.onChange.removeSubscription();
-    });
+    //   this.equipment_modal.afterClosed().subscribe(result => {
+    //     this.onLoomChange.emit();
+    //    // dialogRef.componentInstance.onChange.removeSubscription();
+    // });
 }
 
+
+/***
+ * In this instance, the sidebar is opened from the mixer and reports events back to the mixer exclusively
+ * needs a way to trigger re-draw of any open detail views
+ */
 openGlobalLoomModal(){
 
   if(this.global_loom_modal != undefined && this.global_loom_modal.componentInstance != null) return;
@@ -286,12 +262,17 @@ openGlobalLoomModal(){
     {disableClose: true,
       maxWidth:600, 
       hasBackdrop: false,
-      data: {loom: this.loom, draft:this.draft, type: "global"}});
+      data: {id: this.id, type: "global"}});
 
-  
-      this.global_loom_modal.afterClosed().subscribe(result => {
+      this.global_loom_modal.componentInstance.onGlobalLoomChange.subscribe(event => { 
         this.onGlobalLoomChange.emit();
-    });
+      });
+
+      
+
+    //   this.global_loom_modal.afterClosed().subscribe(result => {
+    //     this.onGlobalLoomChange.emit();
+    // });
 }
 
 
@@ -303,7 +284,7 @@ openOps(){
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
-      data: {loom: this.loom, draft:this.draft}});
+      data: {id: this.id}});
 
 
       this.op_modal.componentInstance.onOperationAdded.subscribe(event => { this.onOperationAdded.emit(event)});
@@ -371,7 +352,7 @@ openActions(){
     {disableClose: true,
       maxWidth:350, 
       hasBackdrop: false,
-      data: {draft: this.draft}});
+      data: {id: this.id}});
 
 
        this.actions_modal.componentInstance.onUpdateWarpShuttles.subscribe(event => { this.onUpdateWarpShuttles.emit(event)});

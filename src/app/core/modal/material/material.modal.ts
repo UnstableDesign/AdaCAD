@@ -1,13 +1,11 @@
 import { Component, OnInit, Inject, EventEmitter, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { FormGroup, FormControl, Validators, FormBuilder }  from '@angular/forms';
 import { Shuttle } from '../../../core/model/shuttle';
-import { Draft } from '../../model/draft';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
-import { DraftNode, TreeService } from '../../../mixer/provider/tree.service';
+import { TreeService } from '../../../mixer/provider/tree.service';
 import utilInstance from '../../model/util';
-import { OperationService } from '../../../mixer/provider/operation.service';
+import { Draft,DraftNode } from '../../model/datatypes';
 
 
 @Component({

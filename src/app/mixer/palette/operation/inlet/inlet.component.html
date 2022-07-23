@@ -8,7 +8,7 @@
 
     <span class="inlet-name">{{inlet.name}}</span>
 
-    <ng-container *ngIf="inlet.type === 'number'">
+    <ng-container *ngIf="inlet.type === 'number' || inlet.type === 'draft'">
 
         <button
         class="button is-small input"

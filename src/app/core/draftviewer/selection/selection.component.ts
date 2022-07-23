@@ -1,10 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Interlacement } from '../../model/datatypes';
+import { TreeService } from '../../../mixer/provider/tree.service';
+import { Interlacement, LoomSettings } from '../../model/datatypes';
+import { numFrames, numTreadles } from '../../model/looms';
 import { Render } from '../../model/render';
-import { Loom } from '../../model/loom';
-import { isBuffer } from 'lodash';
-import { Pattern } from '../../model/pattern';
-import { PatternService } from '../../provider/pattern.service';
 import { DesignmodesService } from '../../provider/designmodes.service';
 
 @Component({
@@ -14,15 +12,13 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 })
 export class SelectionComponent implements OnInit {
 
+  @Input('id') id: number;
   @Input('render') render:Render;
-  @Input('loom') loom:Loom;
   @Output() onFill: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
   @Output() onPaste: any = new EventEmitter();
   @Output() onSelectionEnd: any = new EventEmitter();
-
-  patterns: Array<Pattern>;
 
   private start: Interlacement;
   private end: Interlacement;
@@ -58,8 +54,8 @@ export class SelectionComponent implements OnInit {
 
 
   constructor(
-    private ps:PatternService,
-    private dm: DesignmodesService
+    private dm: DesignmodesService,
+    private tree: TreeService
     ) { 
 
       this.design_actions = dm.getOptionSet('design_actions');
@@ -78,7 +74,6 @@ export class SelectionComponent implements OnInit {
     this.screen_width = 0;
    
 
-    this.patterns = ps.getPatterns();
   }
 
   ngOnInit() {
@@ -156,6 +151,8 @@ export class SelectionComponent implements OnInit {
    */
   onSelectStart(target: HTMLElement, start: Interlacement){
 
+    const loom = this.tree.getLoom(this.id);
+
     //clear existing params
     this.unsetParameters();
 
@@ -169,14 +166,14 @@ export class SelectionComponent implements OnInit {
       
       case 'treadling':    
         this.start.j = 0;
-        this.width = this.loom.num_treadles;
+        this.width = numTreadles(loom);
         this.force_width = true;
       break;
 
       case 'threading':
         this.start.i = 0;
         this.start.si = 0;
-        this.height = this.loom.num_frames;
+        this.height = numFrames(loom);
         this.force_height = true;
       break;
 
@@ -260,9 +257,12 @@ export class SelectionComponent implements OnInit {
   }
 
   /**
-   * triggers view changes when the selection event ends
+   * triggers view changes when the selection event ends OR mouse leaves valid view
    */
   onSelectStop(){
+
+    if(this.target === undefined) return;
+
     this.hide_options = false;
     this.onSelectionEnd.emit();
 
@@ -274,17 +274,29 @@ export class SelectionComponent implements OnInit {
     this.unsetParameters();
   }
 
-  getStartingScreenIndex(): number{
+  getStartingRowScreenIndex(): number{
     return  Math.min(this.start.si, this.end.si);    
   }
 
-  getStartingIndex(): number{
+  getStartingRowIndex(): number{
     return  Math.min(this.start.i, this.end.i);    
   }
 
-  getEndingIndex(): number{
-    return Math.min(this.start.j, this.end.j);
+  getStartingColIndex(): number{
+    return  Math.min(this.start.j, this.end.j);    
   }
+
+  getEndingColIndex(): number{
+    return  Math.max(this.start.j, this.end.j);    
+  }
+
+  getEndingRowScreenIndex(): number{
+    return  Math.max(this.start.si, this.end.si);    
+  }
+
+  // getEndingIndex(): number{
+  //   return Math.min(this.start.j, this.end.j);
+  // }
 
   getWidth():number{
     return this.width;

@@ -2,7 +2,8 @@
 import { Injectable } from '@angular/core';
 import { forIn } from 'lodash';
 import { Cell } from '../model/cell';
-import { Draft } from '../model/draft';
+import { Draft } from '../model/datatypes';
+import { initDraftWithParams } from '../model/drafts';
 import utilInstance from '../model/util';
 
 
@@ -63,7 +64,7 @@ export class CombinatoricsService {
   printNodes(nodes: Array<ComboNode>){
     
     nodes.forEach(node => {
-      console.log("Node: ", this.traceSequenceViaParents(node), node.set);
+     // console.log("Node: ", this.traceSequenceViaParents(node), node.set);
       this.printNodes(node.children);
     });
   }
@@ -149,7 +150,6 @@ export class CombinatoricsService {
     })
     .then(valid => {
 
-      console.log("valid is: ", valid);
       return this.createTreeFromValidSet(valid);
 
 
@@ -162,11 +162,11 @@ export class CombinatoricsService {
        
        opts.forEach(opt => {
 
-        const draft: Draft = new Draft({warps: warps, wefts: wefts});
+        const draft: Draft = initDraftWithParams({warps: warps, wefts: wefts});
     
         for(let i = 0; i < wefts; i++){
           for(let j = 0; j < warps; j++){
-            if(i == 0) draft.pattern[i][j].setHeddle((opt[j] == 0) ? false: true);
+            if(i == 0) draft.drawdown[i][j].setHeddle((opt[j] == 0) ? false: true);
           }
         }
         
@@ -174,19 +174,16 @@ export class CombinatoricsService {
 
       });
 
-      console.log("calling on set 0, length", drafts.length)
       //drafts.forEach(el => utilInstance.printDraft(el));
 
       
       const its = (wefts * 2) -1;
       for(let i = 1; i <= its; i++){
        drafts = this.expandDrafts(drafts, tree, i, wefts);
-       console.log("calling on set ", i, drafts.length)
        //drafts.forEach(el => utilInstance.printDraft(el));
 
       }
 
-      console.log("FINAL /// LEN", drafts.length);
       //drafts.forEach(el => utilInstance.printDraft(el));
 
       this.all_possible_drafts = drafts.map((el, ndx) => {return {draft: el, id: ndx}});
@@ -218,7 +215,7 @@ export class CombinatoricsService {
    */
   getDraft(ndx: number) : {draft: Draft, id: number}{
     const found = this.all_possible_drafts.find(el => el.id == ndx)
-    if(found == undefined) return {draft: new Draft({wefts: 1, warps: 1}), id: -1};
+    if(found == undefined) return {draft: initDraftWithParams({wefts: 1, warps: 1}), id: -1};
     else return found;
   }
 
@@ -270,7 +267,7 @@ export class CombinatoricsService {
 
     let set = [];
     for(let j = 0; j < i; j++){
-      set.push(draft.pattern[i][j].getHeddle() ? 1 : 0);
+      set.push(draft.drawdown[i][j].getHeddle() ? 1 : 0);
     }
     //console.log("Generated set ", set, );
 
@@ -280,13 +277,13 @@ export class CombinatoricsService {
     opts.forEach(opt => {
 
       let pattern = [];
-      pattern = draft.pattern.slice();
+      pattern = draft.drawdown.slice();
       //add to the draft and push
       for(let j = 0; j < n; j++){
         pattern[i][j] = (opt[j] == 0) ? new Cell(false) : new Cell(true);
       }
 
-      expanded_drafts.push(new Draft({warps: n, wefts: n, pattern: pattern.slice()}));
+      expanded_drafts.push(initDraftWithParams({warps: n, wefts: n, pattern: pattern.slice()}));
       
     });
 
@@ -301,7 +298,7 @@ export class CombinatoricsService {
 
     let set = [];
     for(let i = 0; i < (j+1); i++){
-      set.push(draft.pattern[i][j].getHeddle() ? 1 : 0);
+      set.push(draft.drawdown[i][j].getHeddle() ? 1 : 0);
     }
 
     let opts = this.getOptions(set, tree);
@@ -310,13 +307,13 @@ export class CombinatoricsService {
     opts.forEach(opt => {
 
       let pattern = [];
-      pattern = draft.pattern.slice();
+      pattern = draft.drawdown.slice();
       //add to the draft and push
       for(let i = 0; i < n; i++){
         pattern[i][j] = (opt[i] == 0) ? new Cell(false) : new Cell(true);
       }
 
-      expanded_drafts.push(new Draft({warps: n, wefts: n, pattern: pattern.slice()}));
+      expanded_drafts.push(initDraftWithParams({warps: n, wefts: n, pattern: pattern.slice()}));
       
     });
     //console.log("****returning ****");

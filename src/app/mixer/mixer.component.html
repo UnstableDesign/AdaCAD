@@ -17,7 +17,6 @@ source="mixer"
 
         <app-sidebar #view_tool
         [render]=""
-        [viewonly]="viewonly"
         source='mixer'
         (onUndo)="undo();" 
         (onRedo)="redo();"
@@ -33,61 +32,7 @@ source="mixer"
         ></app-sidebar>
 
 
-<!--        
-        <mat-accordion multi> -->
-
-
-          
-
-       <!-- <app-mixerview #view_tool  
-          zoom = "5"
-          (onZoomChange) ="renderChange($event);"
-          (onViewPortMove) ="setScroll($event);"
-        > -->
-
-
-
-        <!-- <app-mixerdesign #design_tool
-        [view_mode] = "render?.current_view"
-        (onDesignModeChange)="designModeChanged($event);"
-        (onInkChange)="inkChanged($event)">
-        </app-mixerdesign>  -->
-
-        <!-- <app-mixerpatterns 
-        [patterns]="default_patterns"
-        [selection] = "selection"
-        (onPatternChange)="updatePatterns($event);"
-        (onCreatePattern)="createPattern($event);"
-        (onRemovePattern)="removePattern($event);"
-        (onFill) = "fillEvent($event)">
-        >
-       </app-mixerpatterns> -->
- 
-       <!-- <app-flow
-       (onOperationAdded) = "operationAdded($event)"
-       (onImport) = "importNewFile($event)">
-      </app-flow>
-    
-
-       -->
-
-        <!-- <app-notes
-         [notes] = "notes"
-         (onChange) = "notesChanged($event)"
-         >
-        </app-notes> -->
-
-<!-- 
-    </mat-accordion> -->
-
-
   </mat-drawer>
-
-  <!-- <app-palette  [style.width.px]='vp.getAbsoluteWidth()' [style.height.px]='vp.getAbsoluteHeight()' #palette  id="scrollable-container"
-  [patterns] = "default_patterns"
-  [timeline] = "timeline" >
-  </app-palette> -->
-
 
   <app-palette  
   [style.width.px]='vp.getAbsoluteWidth()' 

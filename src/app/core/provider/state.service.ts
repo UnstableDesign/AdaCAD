@@ -1,14 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Draft } from '../model/draft';
-import {cloneDeep, now} from 'lodash';
-import { traceUntilFirst } from '@angular/fire/performance';
-import { doc, docData, Firestore } from '@angular/fire/firestore';
+import { Draft, SaveObj } from '../model/datatypes';
+import {cloneDeep} from 'lodash';
+import {Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { map } from 'mathjs';
 import {getDatabase, ref as fbref, set as fbset, onValue} from '@angular/fire/database'
-import { authInstanceFactory } from '@angular/fire/auth/auth.module';
 import { AuthService } from './auth.service';
-import { SaveObj } from './file.service';
+import * as _ from 'lodash';
 /**
  * stores a state within the undo/redo timeline
  * weaver uses draft, mixer uses ada
@@ -47,6 +44,12 @@ export class StateService {
     console.log("printing", value);
   }
 
+
+  validateWriteData(cur_state: any) : any {
+    console.log(_.cloneDeep(cur_state));
+    return cur_state;
+  }
+
   /**
    * this writes the most current state of the program to the user's entry to the realtime database
    * @param cur_state returned from file saver, constains the JSON string of the file as well as the obj
@@ -56,13 +59,14 @@ export class StateService {
 
     if(this.auth.uid === undefined) return;
 
-    //console.log("Writing", cur_state);
+    cur_state = this.validateWriteData(cur_state)
+
 
     const db = getDatabase();
     fbset(fbref(db, 'users/' + this.auth.uid), {
       timestamp: Date.now(),
       ada: cur_state
-    });
+    }).catch(console.error);
   }
 
 

@@ -4,24 +4,22 @@ import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResol
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { MarqueeComponent } from './marquee/marquee.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
-import { Draft } from './../../core/model/draft';
 import { Cell } from './../../core/model/cell';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds, DraftMap } from '../../core/model/datatypes';
-import { Pattern } from '../../core/model/pattern'; 
+import { Point, Interlacement, Bounds, DraftMap, Draft, NodeComponentProxy,DraftNode, OpNode, DraftNodeProxy } from '../../core/model/datatypes';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
 import utilInstance from '../../core/model/util';
 import { OperationComponent } from './operation/operation.component';
 import { ConnectionComponent } from './connection/connection.component';
-import { DraftNode, OpNode, TreeService } from '../provider/tree.service';
-import { FileService, NodeComponentProxy, SaveObj } from './../../core/provider/file.service';
+import { TreeService } from '../provider/tree.service';
+import { FileService } from './../../core/provider/file.service';
 import { ViewportService } from '../provider/viewport.service';
 import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
-import { DynamicOperation, OperationService } from '../provider/operation.service';
+import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 
 @Component({
   selector: 'app-palette',
@@ -36,7 +34,6 @@ export class PaletteComponent implements OnInit{
    * a reference to the default patterns (used for fill operations)
    * @property {Array<Pattern>}
    */ 
-  @Input() patterns: Array<Pattern>;
   @Output() onDesignModeChange: any = new EventEmitter();  
 
   /**
@@ -311,11 +308,22 @@ export class PaletteComponent implements OnInit{
    */
   addTimelineState(){
 
+    // version: string,
+    // workspace: any,
+    // type: string,
+    // nodes: Array<NodeComponentProxy>,
+    // tree: Array<TreeNodeProxy>,
+    // drafts: Array<Draft>,
+    // looms: Array<Loom>,
+    // loom_settings: Array<LoomSettings>
+    // ops: Array<any>,
+    // notes: Array<Note>,
+    // materials: Array<Shuttle>,
+    // scale: number
+
 
    this.fs.saver.ada(
       'mixer', 
-      this.tree.exportDraftsForSaving(),
-      [],
       true,
       this.scale)
       .then(so => {
@@ -363,7 +371,6 @@ export class PaletteComponent implements OnInit{
   addOperation(name:string){
       
       const opcomp:OperationComponent = this.createOperation(name);
-      console.log("Performing op", opcomp.id);
       this.performAndUpdateDownstream(opcomp.id).then(el => {
         this.addTimelineState();
       });
@@ -569,11 +576,10 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.draft = d;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
-    subdraft.instance.patterns = this.patterns;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }
@@ -589,7 +595,9 @@ export class PaletteComponent implements OnInit{
    * @param d the draft object to load into this subdraft
    * @param nodep the component proxy used to define
    */
-   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, saved_scale: number){
+   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
+
+    
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -600,8 +608,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.id = id;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.scale;
-    subdraft.instance.patterns = this.patterns;
-    subdraft.instance.draft_visible = (nodep.draft_visible === undefined)? true : nodep.draft_visible;
+    subdraft.instance.draft_visible =true;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
 
@@ -617,7 +624,10 @@ export class PaletteComponent implements OnInit{
       }
 
       subdraft.instance.bounds = new_bounds;
-      
+
+      if(draftp !== null && draftp !== undefined){
+        subdraft.instance.draft_visible = draftp.draft_visible;
+      }
     } 
 
   }
@@ -868,7 +878,6 @@ export class PaletteComponent implements OnInit{
           sd.default_cell = this.default_cell_size;
           sd.scale = this.scale;
           sd.draft = d;
-          sd.patterns = this.patterns;
           sd.ink = this.inks.getSelected(); //default to the currently selected ink
           sd.setAsPreview();
           // sd.disableDrag();
@@ -1191,17 +1200,22 @@ export class PaletteComponent implements OnInit{
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
         const sd_draft = <Draft> this.tree.getDraft(obj.id);
         
-      this.createSubDraft(new Draft(
-        {wefts: sd_draft.wefts, 
-          warps: sd_draft.warps, 
-          pattern: sd_draft.pattern, 
-          rowShuttleMapping: sd_draft.rowShuttleMapping,
-          colShuttleMapping: sd_draft.colShuttleMapping,
-          rowSystemMapping: sd_draft.rowSystemMapping,
-          colSystemMapping: sd_draft.colSystemMapping,
-          gen_name: sd_draft.getName()+" copy"
+      console.log("DUPLICATE SUBDRAFT", sd_draft);
+
+      this.createSubDraft(initDraftWithParams(
+        {wefts: wefts(sd_draft.drawdown), 
+          warps: warps(sd_draft.drawdown), 
+          drawdown: sd_draft.drawdown.slice(), 
+          rowShuttleMapping: sd_draft.rowShuttleMapping.slice(),
+          colShuttleMapping: sd_draft.colShuttleMapping.slice(),
+          rowSystemMapping: sd_draft.rowSystemMapping.slice(),
+          colSystemMapping: sd_draft.colSystemMapping.slice(),
+          gen_name: getDraftName(sd_draft)+" copy"
         }), -1)
         .then(new_sd => {
+
+          console.log("JUST MADE NEW SD", new_sd);
+
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
           new_sd.setPosition({
             x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
@@ -1469,8 +1483,8 @@ calculateInitialLocaiton(id: number) : Bounds {
   
   const new_bounds = {
     topleft: this.viewport.getTopLeft(), 
-    width: draft.warps * this.default_cell_size,
-    height: draft.wefts * this.default_cell_size
+    width: warps(draft.drawdown) * this.default_cell_size,
+    height: wefts(draft.drawdown) * this.default_cell_size
   }  
 
   //if it has a parent, align it to the bottom edge
@@ -1500,7 +1514,7 @@ calculateInitialLocaiton(id: number) : Bounds {
       .filter((el, ndx) => (ndx < this_child))
       .reduce((acc, el, ndx) => {
         const el_draft = this.tree.getDraft(el);
-         acc.x = acc.x + (el_draft.warps + 2)*this.default_cell_size;
+         acc.x = acc.x + (warps(el_draft.drawdown) + 2)*this.default_cell_size;
          return acc;
       }, new_bounds.topleft);
       
@@ -1546,11 +1560,8 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
           {
             node_id: el.id,
             type: el.type,
-            draft_id: (<DraftNode>el).draft.id,
-            draft_name: (<DraftNode>el).draft.ud_name,
-            draft_visible: true,
-            bounds: this.calculateInitialLocaiton(el.id)
-          }, this.scale);
+            bounds: this.calculateInitialLocaiton(el.id),
+          }, null, this.scale);
         });
       
 
@@ -1814,7 +1825,7 @@ processShapeEnd() : Promise<any> {
   this.shape_bounds.topleft.y += this.viewport.getTopLeft().y;
   
 
-  return this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}), -1)
+  return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
   .then(sd => {
     sd.setPosition(this.shape_bounds.topleft);
     sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
@@ -1910,7 +1921,7 @@ drawStarted(){
     }
 
     //if this drawing does not intersect with any existing subdrafts, 
-    return this.createSubDraft(new Draft({wefts: wefts,  warps: warps, pattern: pattern}), -1)
+    return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
     .then(sd => {
       const pos = {
         topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.scale), y: this.viewport.getTopLeft().y + (corners[0].i * this.scale)},
@@ -2151,7 +2162,7 @@ drawStarted(){
     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     
     
-    this.createSubDraft(new Draft({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}), -1)
+    this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}), -1)
     .then(sc => {
       sc.setComponentBounds(bounds);
        //get any subdrafts that intersect the one we just made
@@ -2164,7 +2175,7 @@ drawStarted(){
 
        //get a draft that reflects only the poitns in the selection view
       const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
-      this.tree.setDraft(sc.id, new_draft,null)
+      this.tree.setDraftOnly(sc.id, new_draft)
     
 
     isect.forEach(el => {
@@ -2240,14 +2251,17 @@ drawStarted(){
    * @returns 
    */
   onSubdraftAction(obj: any){
+
     if(obj === null) return;
 
     const outputs = this.tree.getNonCxnOutputs(obj.id);
-    outputs.forEach(out => {
-      this.performAndUpdateDownstream(out);
-    });
-    this.addTimelineState();
-    this.changeDesignmode('move');
+    const fns = outputs.map(out => this.performAndUpdateDownstream(out));
+    Promise.all(fns).then(el => {
+      this.addTimelineState();
+      this.changeDesignmode('move');
+    })
+
+
 
   }
 
@@ -2376,9 +2390,9 @@ drawStarted(){
         const preview_draft = preview_node.draft;
         let to_right = (<SubdraftComponent> preview_node.component).getTopleft();
 
-        this.createSubDraft(new Draft({wefts: preview_draft.wefts, warps: preview_draft.warps}), -1)
+        this.createSubDraft(initDraftWithParams({wefts: wefts(preview_draft.drawdown), warps: warps(preview_draft.drawdown)}), -1)
         .then(component => {
-          this.tree.setDraftPattern(component.id, preview_draft.pattern);
+          this.tree.setDraftPattern(component.id, preview_draft.drawdown);
           //this.redrawDirtyDrafts();
           to_right.x += preview_node.component.bounds.width + this.scale *4;
           component.setPosition(to_right);
@@ -2421,7 +2435,7 @@ drawStarted(){
       const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
       const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
-      this.tree.setDraft(primary.id, temp, null);
+      this.tree.setDraftOnly(primary.id, temp);
       primary.setPosition(bounds.topleft);
       //primary.drawDraft();
       const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.scale);
@@ -2553,21 +2567,21 @@ drawStarted(){
   
         const primary_draft = this.tree.getDraft(primary.id);
 
-        const temp: Draft = new Draft({
+        const temp: Draft = initDraftWithParams({
           id: primary_draft.id, 
-          gen_name: primary_draft.getName(), 
+          gen_name: getDraftName(primary_draft), 
           warps: Math.floor(bounds.width / this.scale), 
           wefts: Math.floor(bounds.height / this.scale)});
     
-        for(var i = 0; i < temp.wefts; i++){
+        for(var i = 0; i < wefts(temp.drawdown); i++){
           const top: number = bounds.topleft.y + (i * this.scale);
-          for(var j = 0; j < temp.warps; j++){
+          for(var j = 0; j < warps(temp.drawdown); j++){
             const left: number = bounds.topleft.x + (j * this.scale);
     
             const p = {x: left, y: top};
             const val = this.computeHeddleValue(p, primary, isect);
-            if(val != null) temp.pattern[i][j].setHeddle(val);
-            else temp.pattern[i][j].unsetHeddle();
+            if(val != null) temp.drawdown[i][j].setHeddle(val);
+            else temp.drawdown[i][j].unsetHeddle();
           }
         }
         return temp;

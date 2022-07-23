@@ -14,10 +14,26 @@
 
 
 <mat-dialog-content>
+
+
+
+
+
   <p *ngIf="type === 'global'" class="description">The workspace can show you information about your drafts based on the defaults you provide here. You can change these at any time</p>
 
 
    <form #envt="ngForm" novalidate>
+
+    <mat-form-field *ngIf="type==='global'">
+      <mat-label>When viewing Draft Details, Place the (0,0) point at: </mat-label>
+      <mat-select (selectionChange) ="originChange(envt)" [(value)]="selected_origin">
+        <mat-option *ngFor="let option of origin_options" [value]="option.value">
+          {{option.view}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    
+
       <!-- <div class="toggle" *ngIf="type === 'global'">      
         <mat-slide-toggle 
          matTooltip="select this if you want the drafts on the workspace to reflect the visual texture of the drafts. Don't select if you'd rather just focus on black and what structures"
@@ -144,7 +160,7 @@
          </mat-form-field>
   
   
-        <mat-form-field *ngIf="loomtype=='frame'">
+        <mat-form-field  *ngIf="(loomtype == 'frame' || loomtype == 'direct')">
           <mat-label *ngIf="type=='global'">Default Number of Treadles</mat-label>
           <mat-label *ngIf="type=='local'">Number of Treadles</mat-label>      
           <input matInput 

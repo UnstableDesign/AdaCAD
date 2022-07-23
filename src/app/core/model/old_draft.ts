@@ -1,11 +1,25 @@
 import { Shuttle } from './shuttle';
-import { Loom } from './loom';
 import { Cell } from './cell';
-import { Pattern } from './pattern';
-import { crossType, Interlacement, Crossing } from './datatypes';
+import { crossType, Interlacement, Crossing, Drawdown } from './datatypes';
 import * as _ from 'lodash';
 import { SelectionComponent } from '../draftviewer/selection/selection.component';
 import utilInstance from './util';
+
+
+/***
+ * a new vision for the object
+ * @param id - a unique id linking this draft ot view components
+ * @param gen_name - the automatic generated name of this draft
+ * @param ud_name - a user defined name for this draft (replaces gen-name)
+ * @param drawdown - the specific drawdown stored 
+ * @param rowShuttlePattern - the repeating pattern used to organize shuttles on the wefts
+ * @param rowSystemPattern - the repeating pattern used to organize systems on the wefts
+ * @param colShuttlePattern - the repeating pattern used to organize shuttles on the warps
+ * @param colSystemPattern - the repeating pattern used to organize systems on the warps
+ */
+
+
+
 
 
 /**
@@ -845,29 +859,30 @@ export class Draft{
 
 /***
    * updates the draft based on changes that happened within the threading.
-   * @param update{i: threading frame, j: threading warp, val: true or false for setting}
+   * @param update {i: threading frame, j: threading warp, val: true or false for setting}
    * more than one update object may be sent in the case where a thread is switching from one frame to another
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
-  updateDraftFromThreading(updates, loom){
+  // updateDraftFromThreading(updates, loom){
 
-    for(var u in updates){
+  //   console.log("updates", updates)
 
-      if(updates[u].i !== undefined){
+  //   for(var u in updates){
 
-        var idxs = loom.getAffectedDrawdownPoints({warp: updates[u].j, frame: updates[u].i});
-        var conflicts = [];
+  //     if(updates[u].i !== undefined){
 
-        for(var i = 0; i < idxs.wefts.length; i++){
-          for (var j = 0; j < idxs.warps.length; j++){
-             this.pattern[idxs.wefts[i]][idxs.warps[j]].setHeddle(updates[u].val);
-          }
-        }
+  //       var idxs = loom.getAffectedDrawdownPoints({warp: updates[u].j, frame: updates[u].i});
 
-      }
-    }
-      //return idxs;
-  }
+  //       for(var i = 0; i < idxs.wefts.length; i++){
+  //         for (var j = 0; j < idxs.warps.length; j++){
+  //            this.pattern[idxs.wefts[i]][idxs.warps[j]].setHeddle(updates[u].val);
+  //         }
+  //       }
+
+  //     }
+  //   }
+  //     //return idxs;
+  // }
 
 
 /***
@@ -876,49 +891,49 @@ export class Draft{
    * more than one update object may be sent in the case where a thread is switching from one treadle to another
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
-  updateDraftFromTreadling(updates, loom){
+  // updateDraftFromTreadling(updates, loom){
 
-    for(var u in updates){
+  //   for(var u in updates){
       
-      if(updates[u].i !== undefined){
+  //     if(updates[u].i !== undefined){
 
-        var idxs = loom.getAffectedDrawdownPoints({weft: updates[u].i, treadle: updates[u].j});
+  //       var idxs = loom.getAffectedDrawdownPoints({weft: updates[u].i, treadle: updates[u].j});
         
-        for(var i = 0; i < idxs.wefts.length; i++){
-          for (var j = 0; j < idxs.warps.length; j++){
-             this.pattern[idxs.wefts[i]][idxs.warps[j]].setHeddle(updates[u].val);
-          }
-        }
-      }
-    }
+  //       for(var i = 0; i < idxs.wefts.length; i++){
+  //         for (var j = 0; j < idxs.warps.length; j++){
+  //            this.pattern[idxs.wefts[i]][idxs.warps[j]].setHeddle(updates[u].val);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    //return idxs;
+  //   //return idxs;
       
-  }
+  // }
 
 /***
    * updates the draft based on changes that happened within the tie up.
    * @param i: the tieup frame, j: the tieup treadle, value: true or false
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
-  updateDraftFromTieup(updates, loom){
+  // updateDraftFromTieup(updates, loom){
 
-      for(var u in updates){
+  //     for(var u in updates){
       
-        if(updates[u].i !== undefined){
+  //       if(updates[u].i !== undefined){
 
-          var idxs = loom.getAffectedDrawdownPoints({frame: updates[u].i, treadle: updates[u].j});
+  //         var idxs = loom.getAffectedDrawdownPoints({frame: updates[u].i, treadle: updates[u].j});
        
-          for(var wi = 0; wi < idxs.wefts.length; wi++){
-            for (var wj = 0; wj < idxs.warps.length; wj++){
-             this.pattern[idxs.wefts[wi]][idxs.warps[wj]].setHeddle(updates[u].val);
-            }
-          }
-        }
-      }
+  //         for(var wi = 0; wi < idxs.wefts.length; wi++){
+  //           for (var wj = 0; wj < idxs.warps.length; wj++){
+  //            this.pattern[idxs.wefts[wi]][idxs.warps[wj]].setHeddle(updates[u].val);
+  //           }
+  //         }
+  //       }
+  //     }
 
-      return idxs;
-  }
+  //     return idxs;
+  // }
 
   
 /***
@@ -926,40 +941,40 @@ export class Draft{
    * @param i: the tieups array, j: the treadling array, the threading array
    * @returns (nothing) in the future - this can return the specific points to update on the draft
    */  
-  recalculateDraft(tieup: Array<Array<boolean>>, treadling: Array<number>, threading: Array<number>) {
-    for (var i = 0; i < treadling.length;i++) {
-      var active_treadle = treadling[i];
-      if (active_treadle != -1) {
-        for (var j = 0; j < tieup.length; j++) {
-          if (tieup[j][active_treadle]) {
-            for (var k = 0; k < threading.length;k++) {
-              if (threading[k] == j) {
-                this.pattern[i][k].setHeddle(true);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  // recalculateDraft(tieup: Array<Array<boolean>>, treadling: Array<number>, threading: Array<number>) {
+  //   for (var i = 0; i < treadling.length;i++) {
+  //     var active_treadle = treadling[i];
+  //     if (active_treadle != -1) {
+  //       for (var j = 0; j < tieup.length; j++) {
+  //         if (tieup[j][active_treadle]) {
+  //           for (var k = 0; k < threading.length;k++) {
+  //             if (threading[k] == j) {
+  //               this.pattern[i][k].setHeddle(true);
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
 
 
-  getDirection(neighbors:number, is_up:boolean) : string{
+  // getDirection(neighbors:number, is_up:boolean) : string{
 
-    var is_up_dirs =     ["ew","ew", "ns", "sw", "ew", "ew", "se", "ew", "ns", "nw", "ns", "ew", "ne", "ew", "ew", "ew"];
-    var not_is_up_dirs = ["x", "x", "x",  "sw", "x",  "ew", "se", "ew", "x",  "nw", "ns", "sw", "ne", "ew", "sw", "ew"];
+  //   var is_up_dirs =     ["ew","ew", "ns", "sw", "ew", "ew", "se", "ew", "ns", "nw", "ns", "ew", "ne", "ew", "ew", "ew"];
+  //   var not_is_up_dirs = ["x", "x", "x",  "sw", "x",  "ew", "se", "ew", "x",  "nw", "ns", "sw", "ne", "ew", "sw", "ew"];
     
-    if(is_up) return is_up_dirs[neighbors];
-    else return not_is_up_dirs[neighbors];
+  //   if(is_up) return is_up_dirs[neighbors];
+  //   else return not_is_up_dirs[neighbors];
 
-  }
-
-
-  updatePoles(i: number, j: number){
+  // }
 
 
-  }
+  // updatePoles(i: number, j: number){
+
+
+  // }
 
 /***
    * determines the directionality of the yarn at this particular point in the cell
@@ -968,137 +983,137 @@ export class Draft{
    * @returns a bit string value created by adding a 1 on the string n,e,s,w where the direction is true
    */ 
 
-  pingNeighbors(i:number, j:number): number{
+  // pingNeighbors(i:number, j:number): number{
 
-    let cell:Cell = new Cell(null);
-    let shuttle_id: number = this.rowShuttleMapping[i];
+  //   let cell:Cell = new Cell(null);
+  //   let shuttle_id: number = this.rowShuttleMapping[i];
 
 
-    if(this.hasNorthNeighbor(i,j,shuttle_id)) cell.setNorth(); 
-    if(this.hasEastNeighbor(i,j)) cell.setEast();             
-    if(this.hasSouthNeighbor(i,j,shuttle_id)) cell.setSouth(); 
-    if(this.hasWestNeighbor(i,j)) cell.setWest();            
+  //   if(this.hasNorthNeighbor(i,j,shuttle_id)) cell.setNorth(); 
+  //   if(this.hasEastNeighbor(i,j)) cell.setEast();             
+  //   if(this.hasSouthNeighbor(i,j,shuttle_id)) cell.setSouth(); 
+  //   if(this.hasWestNeighbor(i,j)) cell.setWest();            
 
-    return cell.getPoles();
-  }
+  //   return cell.getPoles();
+  // }
 
   //searches to the west (on this row only) for an interlacement
-  hasWestNeighbor(i:number, j:number): boolean{
+  // hasWestNeighbor(i:number, j:number): boolean{
 
-      for(var ndx = j-1; ndx >= 0; ndx--){
-        if(this.pattern[i][ndx].isUp()) return true;
-      }
-      return false;
-  }
+  //     for(var ndx = j-1; ndx >= 0; ndx--){
+  //       if(this.pattern[i][ndx].isUp()) return true;
+  //     }
+  //     return false;
+  // }
 
 
   /***
   If this doesn't have east set, then there is nothing to the west
   */
-  setWestNeighbors(i:number, j:number){
+  // setWestNeighbors(i:number, j:number){
 
-      for(var ndx = j-1; ndx >= 0; ndx--){
-        this.pattern[i][ndx].setEast();
-        if(this.pattern[i][ndx].isUp()) return;
-      }
+  //     for(var ndx = j-1; ndx >= 0; ndx--){
+  //       this.pattern[i][ndx].setEast();
+  //       if(this.pattern[i][ndx].isUp()) return;
+  //     }
 
-      return;
-  }
+  //     return;
+  // }
 
-  unsetWestNeighbors(i:number, j:number){
+  // unsetWestNeighbors(i:number, j:number){
 
-      //there is something else for the western cells to reference
-      if(this.hasEastNeighbor(i,j)) return; 
+  //     //there is something else for the western cells to reference
+  //     if(this.hasEastNeighbor(i,j)) return; 
 
-      //unset until you find the next set cell
-      for(var ndx = j-1; ndx >= 0; ndx--){
-        this.pattern[i][ndx].unsetEast(); 
-        if(this.pattern[i][ndx].isUp()) return;
-      }
+  //     //unset until you find the next set cell
+  //     for(var ndx = j-1; ndx >= 0; ndx--){
+  //       this.pattern[i][ndx].unsetEast(); 
+  //       if(this.pattern[i][ndx].isUp()) return;
+  //     }
 
-      return;
-  }
+  //     return;
+  // }
 
 
   //searches to the east (on this row only) for an interlacement
-  hasEastNeighbor(i:number, j:number): boolean{
+  // hasEastNeighbor(i:number, j:number): boolean{
       
-      for(var ndx = j+1; ndx < this.warps; ndx++){
-        if(this.pattern[i][ndx].isUp()) return true;
-      }
-      return false;
-  }
+  //     for(var ndx = j+1; ndx < this.warps; ndx++){
+  //       if(this.pattern[i][ndx].isUp()) return true;
+  //     }
+  //     return false;
+  // }
 
 
   //walks to the east until it hits another set cell, adds "west" to each 
-  setEastNeighbors(i:number, j:number){
+  // setEastNeighbors(i:number, j:number){
 
-      for(var ndx = j+1; ndx < this.warps; ndx++){
-        this.pattern[i][ndx].setWest();
-        if(this.pattern[i][ndx].isUp()) return;
-      }
+  //     for(var ndx = j+1; ndx < this.warps; ndx++){
+  //       this.pattern[i][ndx].setWest();
+  //       if(this.pattern[i][ndx].isUp()) return;
+  //     }
 
-      return;
-  }
+  //     return;
+  // }
 
-  unsetEastNeighbors(i:number, j:number){
+  // unsetEastNeighbors(i:number, j:number){
 
-      //there is something else for the western cells to reference
-      if(this.hasWestNeighbor(i,j)) return; 
+  //     //there is something else for the western cells to reference
+  //     if(this.hasWestNeighbor(i,j)) return; 
 
-      //unset until you find the next set cell
-       for(var ndx = j+1; ndx < this.warps; ndx++){
-        this.pattern[i][ndx].unsetWest(); 
-        if(this.pattern[i][ndx].isUp()) return;
-      }
+  //     //unset until you find the next set cell
+  //      for(var ndx = j+1; ndx < this.warps; ndx++){
+  //       this.pattern[i][ndx].unsetWest(); 
+  //       if(this.pattern[i][ndx].isUp()) return;
+  //     }
 
-      return;
-  }
-
-  //searches rows to the north for any interlacement on the same shuttle
-  hasNorthNeighbor(i:number, j:number, shuttle_id: number): boolean{
-      for(var ndx = i-1; ndx >= 0; ndx--){
-        if(this.rowShuttleMapping[ndx] === shuttle_id){
-          if(this.pattern[ndx][j].isUp()) return true;
-          if(this.hasWestNeighbor(ndx,j)) return true;
-          if(this.hasEastNeighbor(ndx,j)) return true;
-        }
-      }
-      return false;
-  }
+  //     return;
+  // }
 
   //searches rows to the north for any interlacement on the same shuttle
-  setNorthNeighbors(i:number, j:number, shuttle_id: number): boolean{
-      var c: Cell;
+  // hasNorthNeighbor(i:number, j:number, shuttle_id: number): boolean{
+  //     for(var ndx = i-1; ndx >= 0; ndx--){
+  //       if(this.rowShuttleMapping[ndx] === shuttle_id){
+  //         if(this.pattern[ndx][j].isUp()) return true;
+  //         if(this.hasWestNeighbor(ndx,j)) return true;
+  //         if(this.hasEastNeighbor(ndx,j)) return true;
+  //       }
+  //     }
+  //     return false;
+  // }
 
-      for(var ndx = i-1; ndx >= 0; ndx--){
-        if(this.rowShuttleMapping[ndx] === shuttle_id){
+  //searches rows to the north for any interlacement on the same shuttle
+  // setNorthNeighbors(i:number, j:number, shuttle_id: number): boolean{
+  //     var c: Cell;
+
+  //     for(var ndx = i-1; ndx >= 0; ndx--){
+  //       if(this.rowShuttleMapping[ndx] === shuttle_id){
           
              
 
-          for(var col = 0; col < this.warps; col++){
+  //         for(var col = 0; col < this.warps; col++){
             
-          }
+  //         }
 
-          if(this.pattern[ndx][j].isUp()) return true;
-          if(this.hasWestNeighbor(ndx,j)) return true;
-          if(this.hasEastNeighbor(ndx,j)) return true;
-        }
-      }
-      return false;
-  }
+  //         if(this.pattern[ndx][j].isUp()) return true;
+  //         if(this.hasWestNeighbor(ndx,j)) return true;
+  //         if(this.hasEastNeighbor(ndx,j)) return true;
+  //       }
+  //     }
+  //     return false;
+  // }
 
   //searches rows to the south for any interlacement on the same shuttle
-  hasSouthNeighbor(i:number, j:number, shuttle_id:number): boolean{
-      for(var ndx = i+1; ndx < this.wefts; ndx++){
-        if(this.rowShuttleMapping[ndx] === shuttle_id){
-          if(this.pattern[ndx][j].isUp()) return true;
-          if(this.hasWestNeighbor(ndx,j)) return true;
-          if(this.hasEastNeighbor(ndx,j)) return true;
-        }
-      }
-      return false;
-  }
+  // hasSouthNeighbor(i:number, j:number, shuttle_id:number): boolean{
+  //     for(var ndx = i+1; ndx < this.wefts; ndx++){
+  //       if(this.rowShuttleMapping[ndx] === shuttle_id){
+  //         if(this.pattern[ndx][j].isUp()) return true;
+  //         if(this.hasWestNeighbor(ndx,j)) return true;
+  //         if(this.hasEastNeighbor(ndx,j)) return true;
+  //       }
+  //     }
+  //     return false;
+  // }
 
 
  
@@ -1127,54 +1142,54 @@ export class Draft{
 
 
 
-setNorthSouth(row:number, i:number){
+// setNorthSouth(row:number, i:number){
 
-  if(i > 0 && i < this.warps){
-    this.pattern[row][i].setNorthSouth();
-  }
-}
+//   if(i > 0 && i < this.warps){
+//     this.pattern[row][i].setNorthSouth();
+//   }
+// }
 
-setEastWest(row:number, i:number){
-  if(i > 0 && i < this.warps){
-    this.pattern[row][i].setEastWest();
-  }
-}
+// setEastWest(row:number, i:number){
+//   if(i > 0 && i < this.warps){
+//     this.pattern[row][i].setEastWest();
+//   }
+// }
 
-setSouth(row:number, i:number){
-  if(i > 0 && i < this.warps){
-    this.pattern[row][i].setSouth();
-  }
-}
+// setSouth(row:number, i:number){
+//   if(i > 0 && i < this.warps){
+//     this.pattern[row][i].setSouth();
+//   }
+// }
 
-setNorth(row:number, i:number){
-  if(i > 0 && i < this.warps){
-    this.pattern[row][i].setNorth();
-  }
-}
+// setNorth(row:number, i:number){
+//   if(i > 0 && i < this.warps){
+//     this.pattern[row][i].setNorth();
+//   }
+// }
 
-setEast(row:number, i:number){
-  if(i > 0 && i < this.warps){
-    this.pattern[row][i].setEast();
-  }
-}
+// setEast(row:number, i:number){
+//   if(i > 0 && i < this.warps){
+//     this.pattern[row][i].setEast();
+//   }
+// }
 
-setWest(row:number, i:number){
-  if(i > 0 && i < this.warps){
-    this.pattern[row][i].setWest();
-  }
-}
+// setWest(row:number, i:number){
+//   if(i > 0 && i < this.warps){
+//     this.pattern[row][i].setWest();
+//   }
+// }
 
-getNextPath(paths, i){
-  if(i+1 < paths.length){
-    return paths[i+1];
-  }
+// getNextPath(paths, i){
+//   if(i+1 < paths.length){
+//     return paths[i+1];
+//   }
 
-  return {
-    row: -1,
-    overs: []
-  }
+//   return {
+//     row: -1,
+//     overs: []
+//   }
 
-}
+// }
 
 /** return the value of the heddle at i, j or null if no heddle */
 getHeddle(i: number, j: number) : boolean {
@@ -1189,174 +1204,174 @@ getHeddle(i: number, j: number) : boolean {
  * @param j 
  * @returns 
  */
-getCrossingType(i: number, j: number) : crossType{
+// getCrossingType(i: number, j: number) : crossType{
 
-  const h: boolean = this.getHeddle(i, j);
-  const next: boolean = this.getHeddle(i+1, j);
+//   const h: boolean = this.getHeddle(i, j);
+//   const next: boolean = this.getHeddle(i+1, j);
 
-  if(h === next) return {t:null, b:null};
+//   if(h === next) return {t:null, b:null};
   
-  return <crossType>{t: h, b: next};
-}
+//   return <crossType>{t: h, b: next};
+// }
 
 /**
  * returns information about the relationship between two neighboring draft cells (in weft direction)
  * stores information only when the yarn from unset and/or bottom to top between cell i and cell i+1
  * @returns and array represnting crossings in the weft direction. 
  */
-getRelationalDraft() : Array<Array<Crossing>> {
+// getRelationalDraft() : Array<Array<Crossing>> {
 
- //Classify all cells
-  const all_warp_crosses: Array<Array<Crossing>> = this.pattern.map((row, i) =>{
-    return row.map((cell, j) => {
-      return {j:j, type: this.getCrossingType(i, j)} 
-    }); 
-  });
+//  //Classify all cells
+//   const all_warp_crosses: Array<Array<Crossing>> = this.pattern.map((row, i) =>{
+//     return row.map((cell, j) => {
+//       return {j:j, type: this.getCrossingType(i, j)} 
+//     }); 
+//   });
 
-  //filter out any "FLOATS"
-  const sparce: Array<Array<Crossing>> = all_warp_crosses.map(row => {
-    return row.filter(crossing => crossing.type !== {t:null, b:null})
-  })
+//   //filter out any "FLOATS"
+//   const sparce: Array<Array<Crossing>> = all_warp_crosses.map(row => {
+//     return row.filter(crossing => crossing.type !== {t:null, b:null})
+//   })
 
-  return sparce;
+//   return sparce;
 
-}
-
-
-computeYarnPaths(shuttles: Array<Shuttle>){
-
-    // //unset_all
-    for(let i = 0; i < this.pattern.length; i++){
-      for(let j = 0; j < this.pattern[i].length; j++){
-        this.pattern[i][j].unsetPoles();
-      }
-    }
+// }
 
 
-    for (var l = 0; l < shuttles.length; l++) {
+// computeYarnPaths(shuttles: Array<Shuttle>){
 
-      // Draw each shuttle on by one.
-      var shuttle = shuttles[l];
+//     // //unset_all
+//     for(let i = 0; i < this.pattern.length; i++){
+//       for(let j = 0; j < this.pattern[i].length; j++){
+//         this.pattern[i][j].unsetPoles();
+//       }
+//     }
 
-      //acc is an array of row_ids that are assigned to this shuttle
-      const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
 
-      //screen rows are reversed to go from bottom to top
-      //[row index] -> (indexes where there is interlacement)
-      let path = [];
-      for (var i = 0; i < acc.length ; i++) {
+//     for (var l = 0; l < shuttles.length; l++) {
+
+//       // Draw each shuttle on by one.
+//       var shuttle = shuttles[l];
+
+//       //acc is an array of row_ids that are assigned to this shuttle
+//       const acc = this.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
+
+//       //screen rows are reversed to go from bottom to top
+//       //[row index] -> (indexes where there is interlacement)
+//       let path = [];
+//       for (var i = 0; i < acc.length ; i++) {
        
-        //this gets the row
-        const row_values = this.pattern[acc[i]];
+//         //this gets the row
+//         const row_values = this.pattern[acc[i]];
 
 
-        const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
+//         const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
 
-        //only push the rows with at least one interlacement     
-        if(overs.length > 0 && overs.length < row_values.length){
-          path.push({row: acc[i], overs:overs});
-        }
+//         //only push the rows with at least one interlacement     
+//         if(overs.length > 0 && overs.length < row_values.length){
+//           path.push({row: acc[i], overs:overs});
+//         }
       
-      }
+//       }
 
-      var started = false;
-      var last = {
-        row: 0,
-        ndx: 0
-      };
+//       var started = false;
+//       var last = {
+//         row: 0,
+//         ndx: 0
+//       };
 
-      path = path.reverse();
+//       path = path.reverse();
 
 
-      for(let k = 0; k < path.length; k++){
+//       for(let k = 0; k < path.length; k++){
 
-        let row:number = parseInt(path[k].row); 
-        let overs:Array<number> = path[k].overs; 
+//         let row:number = parseInt(path[k].row); 
+//         let overs:Array<number> = path[k].overs; 
 
-        let next_path = this.getNextPath(path, k);
+//         let next_path = this.getNextPath(path, k);
 
-        let min_ndx:number = overs.shift();
-        let max_ndx:number = overs.pop();
+//         let min_ndx:number = overs.shift();
+//         let max_ndx:number = overs.pop();
         
-        let next_min_ndx:number;
-        let next_max_ndx:number;
+//         let next_min_ndx:number;
+//         let next_max_ndx:number;
         
-        if(next_path.row !== -1 ){
+//         if(next_path.row !== -1 ){
          
-          next_max_ndx = next_path.overs[next_path.overs.length-1];
-          next_min_ndx = next_path.overs[0];
+//           next_max_ndx = next_path.overs[next_path.overs.length-1];
+//           next_min_ndx = next_path.overs[0];
 
-        }else{
-          next_min_ndx = min_ndx;
-          next_max_ndx = max_ndx;
-        }  
+//         }else{
+//           next_min_ndx = min_ndx;
+//           next_max_ndx = max_ndx;
+//         }  
 
 
 
-        let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
+//         let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
 
-        if(moving_left){
-          if(started) max_ndx = Math.max(max_ndx, last.ndx);
-          min_ndx = Math.min(min_ndx, next_min_ndx);
-        } else {
-          max_ndx = Math.max(max_ndx, next_max_ndx);
-          if(started) min_ndx = Math.min(min_ndx, last.ndx);
+//         if(moving_left){
+//           if(started) max_ndx = Math.max(max_ndx, last.ndx);
+//           min_ndx = Math.min(min_ndx, next_min_ndx);
+//         } else {
+//           max_ndx = Math.max(max_ndx, next_max_ndx);
+//           if(started) min_ndx = Math.min(min_ndx, last.ndx);
 
-        }
+//         }
        
-        //draw upwards if required
-        if(started){
+//         //draw upwards if required
+//         if(started){
 
           
-         // console.log("row/last.row", row, last.row);
-          // for(let j = last.row-1; j > row; j--){
-          //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
-          //  else this.setNorthSouth(j, last.ndx-1);
-          // }
-        }
+//          // console.log("row/last.row", row, last.row);
+//           // for(let j = last.row-1; j > row; j--){
+//           //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
+//           //  else this.setNorthSouth(j, last.ndx-1);
+//           // }
+//         }
 
-        //set by lookiing at the ends ends
-        if(moving_left){
+//         //set by lookiing at the ends ends
+//         if(moving_left){
 
-          if(started){
-             this.setSouth(row,max_ndx+1); //set where it came from
-          } 
+//           if(started){
+//              this.setSouth(row,max_ndx+1); //set where it came from
+//           } 
           
-          this.setWest(row, max_ndx+1);
+//           this.setWest(row, max_ndx+1);
 
-          this.setNorth(row, min_ndx-1);
-          this.setEast(row, min_ndx-1);
+//           this.setNorth(row, min_ndx-1);
+//           this.setEast(row, min_ndx-1);
 
-          last.ndx = min_ndx;
+//           last.ndx = min_ndx;
 
-        }else{
+//         }else{
 
-          if(started){
-            this.setSouth(row, min_ndx-1);
-          }
+//           if(started){
+//             this.setSouth(row, min_ndx-1);
+//           }
 
-          this.setEast(row, min_ndx-1);
+//           this.setEast(row, min_ndx-1);
           
-          this.setNorth(row, max_ndx+1);
-          this.setWest(row, max_ndx+1);
+//           this.setNorth(row, max_ndx+1);
+//           this.setWest(row, max_ndx+1);
           
-          last.ndx = max_ndx;
+//           last.ndx = max_ndx;
 
-        } 
+//         } 
 
-        //set in between
-        for(i = min_ndx; i <= max_ndx; i++){
-           this.setEastWest(row, i); 
-        }
+//         //set in between
+//         for(i = min_ndx; i <= max_ndx; i++){
+//            this.setEastWest(row, i); 
+//         }
 
-        started = true;
-        last.row = row;
+//         started = true;
+//         last.row = row;
        
-      } 
-    }
+//       } 
+//     }
         
 
-  }
+//   }
 
   // /**
   //  * iterates through the draft calculates the directinaliity and position of each yarn
@@ -1509,200 +1524,200 @@ computeYarnPaths(shuttles: Array<Shuttle>){
    * @param {string} - the type of logic used to fill selected area.
    * @returns {void}
    */
-  public fillArea(
-    selection: SelectionComponent, 
-    pattern: Pattern, 
-    type: string,
-    visibleRows: Array<number>,
-    loom: Loom
-  ) {
+  // public fillArea(
+  //   selection: SelectionComponent, 
+  //   pattern: Pattern, 
+  //   type: string,
+  //   visibleRows: Array<number>,
+  //   loom: Loom
+  // ) {
 
-    console.log("fill area called");
-    console.log(selection, pattern, type);
+  //   console.log("fill area called");
+  //   console.log(selection, pattern, type);
 
-    var updates = [];
+  //   var updates = [];
     
-    let screen_i: number = selection.getStartingScreenIndex();
-    let draft_j: number = selection.getEndingIndex();
+  //   let screen_i: number = selection.getStartingScreenIndex();
+  //   let draft_j: number = selection.getEndingIndex();
   
-    const rows = pattern.height;
-    const cols = pattern.width;
+  //   const rows = pattern.height;
+  //   const cols = pattern.width;
 
-    var w,h;
+  //   var w,h;
 
-    w = Math.ceil(selection.getWidth());
-    h = Math.ceil(selection.getHeight());
-
-
-    if(selection.getTargetId() === "warp-systems"){
-      h = pattern.height;
-      screen_i = 0;
-    } 
-    if(selection.getTargetId() === "weft-systems"){
-      w = pattern.width;
-    } 
-
-    if(selection.getTargetId() === "warp-materials"){
-       h = pattern.height;
-       screen_i = 0;
-    }
-    if(selection.getTargetId() === "weft-materials"){
-      w = pattern.width;
-    } 
-
-    //cycle through each visible row/column of the selection
-    for (var i = 0; i < h; i++ ) {
-      for (var j = 0; j < w; j++ ) {
-
-        var row = i + screen_i;
-        var col = j + draft_j;
+  //   w = Math.ceil(selection.getWidth());
+  //   h = Math.ceil(selection.getHeight());
 
 
-        let temp:Cell = pattern.pattern[i % rows][j % cols];
+  //   if(selection.getTargetId() === "warp-systems"){
+  //     h = pattern.height;
+  //     screen_i = 0;
+  //   } 
+  //   if(selection.getTargetId() === "weft-systems"){
+  //     w = pattern.width;
+  //   } 
+
+  //   if(selection.getTargetId() === "warp-materials"){
+  //      h = pattern.height;
+  //      screen_i = 0;
+  //   }
+  //   if(selection.getTargetId() === "weft-materials"){
+  //     w = pattern.width;
+  //   } 
+
+  //   //cycle through each visible row/column of the selection
+  //   for (var i = 0; i < h; i++ ) {
+  //     for (var j = 0; j < w; j++ ) {
+
+  //       var row = i + screen_i;
+  //       var col = j + draft_j;
+
+
+  //       let temp:Cell = pattern.pattern[i % rows][j % cols];
        
-        var prev:boolean = false; 
-        switch(selection.getTargetId()){
+  //       var prev:boolean = false; 
+  //       switch(selection.getTargetId()){
 
-          case 'drawdown':
-              var draft_row = visibleRows[row];
-              prev = this.pattern[draft_row][col].isUp();
+  //         case 'drawdown':
+  //             var draft_row = visibleRows[row];
+  //             prev = this.pattern[draft_row][col].isUp();
 
-          break;
-          case 'threading':
+  //         break;
+  //         case 'threading':
 
-              var frame = loom.frame_mapping[row];
-              prev = loom.isInFrame(col, frame);
+  //             var frame = loom.frame_mapping[row];
+  //             prev = loom.isInFrame(col, frame);
           
-          break;
-          case 'treadling':
-              var draft_row = visibleRows[row];
-              prev = (loom.isInTreadle(draft_row, col)); 
-          break;
-          case 'tieups':
-              var frame = loom.frame_mapping[row];
-              prev = loom.hasTieup({i:frame,j:col, si:-1}); 
+  //         break;
+  //         case 'treadling':
+  //             var draft_row = visibleRows[row];
+  //             prev = (loom.isInTreadle(draft_row, col)); 
+  //         break;
+  //         case 'tieups':
+  //             var frame = loom.frame_mapping[row];
+  //             prev = loom.hasTieup({i:frame,j:col, si:-1}); 
           
-          break;
-          default:
-          break;
-        }
+  //         break;
+  //         default:
+  //         break;
+  //       }
 
-        if (prev !== null){
+  //       if (prev !== null){
 
-          var val = false;
-          switch (type) {
-            case 'invert':
-             val = !temp.isUp();
-              break;
-            case 'mask':
-             val = temp && prev;
-              break;
-            case 'mirrorX':
-              val = pattern.pattern[(h - i - 1) % rows][j % cols].isUp();
-              break;
-            case 'mirrorY':
-              val = pattern.pattern[i % rows][(w - j - 1) % cols].isUp();
-              break;
-            case 'shiftUp':
-              val = pattern.pattern[(i+1) % rows][j].isUp();
-              break;
-            case 'shiftLeft':
-              val = pattern.pattern[i][(j+1) % cols].isUp();
-              break;
-            default:
-              val = temp.isUp();
-              break;
-          }
+  //         var val = false;
+  //         switch (type) {
+  //           case 'invert':
+  //            val = !temp.isUp();
+  //             break;
+  //           case 'mask':
+  //            val = temp && prev;
+  //             break;
+  //           case 'mirrorX':
+  //             val = pattern.pattern[(h - i - 1) % rows][j % cols].isUp();
+  //             break;
+  //           case 'mirrorY':
+  //             val = pattern.pattern[i % rows][(w - j - 1) % cols].isUp();
+  //             break;
+  //           case 'shiftUp':
+  //             val = pattern.pattern[(i+1) % rows][j].isUp();
+  //             break;
+  //           case 'shiftLeft':
+  //             val = pattern.pattern[i][(j+1) % cols].isUp();
+  //             break;
+  //           default:
+  //             val = temp.isUp();
+  //             break;
+  //         }
 
 
-          var updates = [];
+  //         var updates = [];
 
-          switch(selection.getTargetId()){
+  //         switch(selection.getTargetId()){
            
-           case 'drawdown':
-           var draft_row = visibleRows[row];
+  //          case 'drawdown':
+  //          var draft_row = visibleRows[row];
 
-            if(this.hasCell(draft_row,col)){
+  //           if(this.hasCell(draft_row,col)){
 
-                let p:Interlacement = {i: visibleRows[row], j: col, si: row};     
-                this.setHeddle(p.i,p.j,val);
-              }
+  //               let p:Interlacement = {i: visibleRows[row], j: col, si: row};     
+  //               this.setHeddle(p.i,p.j,val);
+  //             }
 
-            break;
+  //           break;
             
-            case 'threading':
-            var frame = loom.frame_mapping[row];
+  //           case 'threading':
+  //           var frame = loom.frame_mapping[row];
 
 
-              if(loom.inThreadingRange({i:frame,j:col,si:-1})){ 
-                updates = loom.updateThreading({i:frame, j:col, val:val});
-                this.updateDraftFromThreading(updates, loom); 
-              }
-            break;
+  //             if(loom.inThreadingRange({i:frame,j:col,si:-1})){ 
+  //               updates = loom.updateThreading({i:frame, j:col, val:val});
+  //               this.updateDraftFromThreading(updates, loom); 
+  //             }
+  //           break;
 
-            case 'treadling':
+  //           case 'treadling':
               
-             var draft_row = visibleRows[row];
-             if(loom.inTreadlingRange({i:draft_row,j:col, si: -1})){ 
-                updates = loom.updateTreadling({i: draft_row, j:col, val:val});
-                this.updateDraftFromTreadling(updates, loom);
-              }
-            break;
-            case 'tieups':
-              var frame = loom.frame_mapping[row];
+  //            var draft_row = visibleRows[row];
+  //            if(loom.inTreadlingRange({i:draft_row,j:col, si: -1})){ 
+  //               updates = loom.updateTreadling({i: draft_row, j:col, val:val});
+  //               this.updateDraftFromTreadling(updates, loom);
+  //             }
+  //           break;
+  //           case 'tieups':
+  //             var frame = loom.frame_mapping[row];
 
-              if(loom.inTieupRange({i:frame, j:col, si: -1})){
-                updates = loom.updateTieup({i:frame, j:col, val:val});
-                this.updateDraftFromTieup(updates, loom);
-              }
-            break; 
-            case 'weft-systems':
-              var draft_row = visibleRows[row];
-              val = pattern.pattern[i % rows][j % cols].isUp();
-              if(val) this.rowSystemMapping[draft_row] = col;
-              //if(val && col < this.draft.weft_systems.length) this.rowSystemMapping[draft_row] = col;
+  //             if(loom.inTieupRange({i:frame, j:col, si: -1})){
+  //               updates = loom.updateTieup({i:frame, j:col, val:val});
+  //               this.updateDraftFromTieup(updates, loom);
+  //             }
+  //           break; 
+  //           case 'weft-systems':
+  //             var draft_row = visibleRows[row];
+  //             val = pattern.pattern[i % rows][j % cols].isUp();
+  //             if(val) this.rowSystemMapping[draft_row] = col;
+  //             //if(val && col < this.draft.weft_systems.length) this.rowSystemMapping[draft_row] = col;
             
-            break;
-            case 'warp-systems':
-              val = pattern.pattern[i % rows][j % cols].isUp();
-              // if(val && row < this.draft.warp_systems.length){
-              //     this.colSystemMapping[col] = row;
-              // }
-              if(val) this.colSystemMapping[col] = row;
-            break;
-            case 'weft-materials':
-              var draft_row = visibleRows[row];
-              val = pattern.pattern[i % rows][j % cols].isUp();
-             // if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
-              if(val ) this.rowShuttleMapping[draft_row] = col;
+  //           break;
+  //           case 'warp-systems':
+  //             val = pattern.pattern[i % rows][j % cols].isUp();
+  //             // if(val && row < this.draft.warp_systems.length){
+  //             //     this.colSystemMapping[col] = row;
+  //             // }
+  //             if(val) this.colSystemMapping[col] = row;
+  //           break;
+  //           case 'weft-materials':
+  //             var draft_row = visibleRows[row];
+  //             val = pattern.pattern[i % rows][j % cols].isUp();
+  //            // if(val && col < this.shuttles.length) this.rowShuttleMapping[draft_row] = col;
+  //             if(val ) this.rowShuttleMapping[draft_row] = col;
             
-            break;
-            case 'warp-materials':
-              val = pattern.pattern[i % rows][j % cols].isUp();
-              // if(val && row < this.shuttles.length){
-              //     this.colShuttleMapping[col] = row;
-              // }
-              if(val){
-                this.colShuttleMapping[col] = row;
-            }
-            break;
-            default:
-            break;
-          }
-        }
+  //           break;
+  //           case 'warp-materials':
+  //             val = pattern.pattern[i % rows][j % cols].isUp();
+  //             // if(val && row < this.shuttles.length){
+  //             //     this.colShuttleMapping[col] = row;
+  //             // }
+  //             if(val){
+  //               this.colShuttleMapping[col] = row;
+  //           }
+  //           break;
+  //           default:
+  //           break;
+  //         }
+  //       }
 
 
-      }
-    }
+  //     }
+  //   }
 
-    console.log("this loom", loom);
+  //   console.log("this loom", loom);
 
-    var u_threading = loom.updateUnused(loom.threading, loom.min_frames, loom.num_frames, "threading");
-    var u_treadling = loom.updateUnused(loom.treadling, loom.min_treadles, loom.num_treadles, "treadling");
+  //   var u_threading = loom.updateUnused(loom.threading, loom.min_frames, loom.num_frames, "threading", loom.type);
+  //   var u_treadling = loom.updateUnused(loom.treadling, loom.min_treadles, loom.num_treadles, "treadling", loom.type);
 
 
 
-  }
+  // }
 
 
    /**
@@ -1711,92 +1726,92 @@ computeYarnPaths(shuttles: Array<Shuttle>){
    * @param {string} - the type of logic used to fill selected area.
    * @returns {void}
    */
-    public fill(
-      pattern: Array<Array<Cell>>, 
-      type: string
-    ) {
+  //   public fill(
+  //     pattern: Array<Array<Cell>>, 
+  //     type: string
+  //   ) {
         
-      const rows = pattern.length;
-      const cols = pattern[0].length;
-      const store: Array<Array<Cell>> = [];
+  //     const rows = pattern.length;
+  //     const cols = pattern[0].length;
+  //     const store: Array<Array<Cell>> = [];
   
-      var w,h;
+  //     var w,h;
   
-      w = this.warps;
-      h = this.wefts;
+  //     w = this.warps;
+  //     h = this.wefts;
   
   
-      //cycle through each visible row/column of the draft
-      for (var i = 0; i < h; i++ ) {
-        store.push([]);
-        for (var j = 0; j < w; j++ ) {
-          store[i].push(new Cell(null));
-          var row = i;
-          var col = j;
+  //     //cycle through each visible row/column of the draft
+  //     for (var i = 0; i < h; i++ ) {
+  //       store.push([]);
+  //       for (var j = 0; j < w; j++ ) {
+  //         store[i].push(new Cell(null));
+  //         var row = i;
+  //         var col = j;
   
-          let temp:Cell = pattern[i % rows][j % cols];
-          var draft_row = row;
+  //         let temp:Cell = pattern[i % rows][j % cols];
+  //         var draft_row = row;
           
-          let prev_set: boolean = this.pattern[draft_row][col].isSet();
-          let prev_heddle: boolean = this.pattern[draft_row][col].isUp();
+  //         let prev_set: boolean = this.pattern[draft_row][col].isSet();
+  //         let prev_heddle: boolean = this.pattern[draft_row][col].isUp();
   
-          let new_set = false;
-          let new_heddle = true;
+  //         let new_set = false;
+  //         let new_heddle = true;
            
-          switch (type) {
-              case 'clear':
-               new_set = true; 
-               new_heddle = true;
-                break;
-              case 'invert':
-               new_set = prev_set; 
-               new_heddle = !prev_heddle;
-                break;
-              case 'reset':
-                new_set = prev_set; 
-                new_heddle = true;
-                  break;
-              case 'mask':
-               new_set = prev_set; 
-               new_heddle = temp.isUp() && prev_heddle;
-                break;
-              case 'mirrorX':
-                new_set = pattern[(h - i - 1) % rows][j % cols].isSet();
-                new_heddle = pattern[(h - i - 1) % rows][j % cols].isUp();
-                break;
-              case 'mirrorY':
-                new_set = pattern[i % rows][(w - j - 1) % cols].isSet();
-                new_heddle = pattern[i % rows][(w - j - 1) % cols].isUp();
-                break;
-              case 'shiftUp':
-                new_set = pattern[(i+1) % rows][j].isSet();
-                new_heddle = pattern[(i+1) % rows][j].isUp();
-                break;
-              case 'shiftLeft':
-                new_set = pattern[i][(j+1) % cols].isSet();
-                new_heddle = pattern[i][(j+1) % cols].isUp();
-                break;
-              default:
-                new_set = temp.isSet();
-                new_heddle = temp.isUp();
-                break;
-            }
+  //         switch (type) {
+  //             case 'clear':
+  //              new_set = true; 
+  //              new_heddle = true;
+  //               break;
+  //             case 'invert':
+  //              new_set = prev_set; 
+  //              new_heddle = !prev_heddle;
+  //               break;
+  //             case 'reset':
+  //               new_set = prev_set; 
+  //               new_heddle = true;
+  //                 break;
+  //             case 'mask':
+  //              new_set = prev_set; 
+  //              new_heddle = temp.isUp() && prev_heddle;
+  //               break;
+  //             case 'mirrorX':
+  //               new_set = pattern[(h - i - 1) % rows][j % cols].isSet();
+  //               new_heddle = pattern[(h - i - 1) % rows][j % cols].isUp();
+  //               break;
+  //             case 'mirrorY':
+  //               new_set = pattern[i % rows][(w - j - 1) % cols].isSet();
+  //               new_heddle = pattern[i % rows][(w - j - 1) % cols].isUp();
+  //               break;
+  //             case 'shiftUp':
+  //               new_set = pattern[(i+1) % rows][j].isSet();
+  //               new_heddle = pattern[(i+1) % rows][j].isUp();
+  //               break;
+  //             case 'shiftLeft':
+  //               new_set = pattern[i][(j+1) % cols].isSet();
+  //               new_heddle = pattern[i][(j+1) % cols].isUp();
+  //               break;
+  //             default:
+  //               new_set = temp.isSet();
+  //               new_heddle = temp.isUp();
+  //               break;
+  //           }
 
-            if(new_set){
-              store[i][j].setHeddle(new_heddle);
-            }
-        }
-      }
+  //           if(new_set){
+  //             store[i][j].setHeddle(new_heddle);
+  //           }
+  //       }
+  //     }
 
-      store.forEach((row, i) =>{
-        row.forEach((cell,j) =>{
-          if(this.hasCell(i,j)){
-            if(cell.isSet) this.pattern[i][j].setHeddle(cell.getHeddle());
-          }
-        });
-      });     
+  //     store.forEach((row, i) =>{
+  //       row.forEach((cell,j) =>{
+  //         if(this.hasCell(i,j)){
+  //           if(cell.isSet) this.pattern[i][j].setHeddle(cell.getHeddle());
+  //         }
+  //       });
+  //     });     
     
   
-  }
+  // }
 
 }

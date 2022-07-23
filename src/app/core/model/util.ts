@@ -3,15 +3,12 @@
  * @class
  */
 
-import { D } from "@angular/cdk/keycodes";
-import { digest } from "@angular/compiler/src/i18n/digest";
-import { accessSync } from "fs";
-import { or } from "mathjs";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
 import { Cell } from "./cell";
-import { Point, Interlacement, Bounds } from "./datatypes";
-import { Draft } from "./draft";
+import { Point, Interlacement, Bounds, Draft, Loom } from "./datatypes";
+import { flipDraft, hasCell, initDraftWithParams, warps, wefts } from "./drafts";
+import { flipPattern } from "./looms";
 import { Shuttle } from "./shuttle";
 
 
@@ -34,14 +31,90 @@ class Util {
       }
     }
 
+   /**
+    * given a drawdown and a column index, return the column number of the first matching column
+    * @param j 
+    * @param drawdown 
+    * @returns the col id of the match or -1;
+    */
+    hasMatchingColumn(j: number, drawdown: Array<Array<Cell>>) : number {
+        
+      let unmatch = false;
+      for(let j_comp = 0; j_comp < drawdown[0].length; j_comp++){
+        unmatch = false;
+        if(j_comp != j){
+          for(let i = 0; i < drawdown.length && !unmatch; i++){
+            if(drawdown[i][j].getHeddle() !== drawdown[i][j_comp].getHeddle()){
+              unmatch = true;
+            }
+          }
+          if(!unmatch){
+            return j_comp;
+          }
+        }
+      }
+
+      return -1;
+
+
+    }
+
+     /**
+    * given a drawdown and a column index, return if the column is blank
+    * @param j 
+    * @param drawdown 
+    * @returns true or false;
+    */
+      colIsBlank(j: number, drawdown: Array<Array<Cell>>) : boolean {
+        
+       
+        let blank = true;
+        drawdown.forEach((row, i) => {
+          if(row[j].isUp()) blank = false;
+        });
+  
+        return blank;
+  
+      }
+  
+
+    /**
+    * given a drawdown and a row index, return the row number of the first matching row
+    * @param j 
+    * @param drawdown 
+    * @returns the row id of the match or -1;
+    */
+    hasMatchingRow(i: number, drawdown: Array<Array<Cell>>) : number {
+    
+    let unmatch = false;
+    for(let i_comp = 0; i_comp < drawdown.length; i_comp++){
+      unmatch = false;
+      if(i_comp != i){
+        for(let j = 0; j < drawdown[i_comp].length && !unmatch; j++){
+          if(drawdown[i][j].getHeddle() !== drawdown[i_comp][j].getHeddle()){
+            unmatch = true;
+          }
+        }
+        if(!unmatch){
+          return i_comp;
+        }
+      }
+    }
+
+    return -1;
+
+
+  }
+
     /**
      * A function to count the number of occurances of a give value within an array
-     * @param arr the arary to search
+     * @param arr the 1D array to search
      * @param val the value we are seeking
      * @returns number of occurances
      */
-    public countOccurrences = (arr, val) => arr.reduce((a, v) => (v === val ? a + 1 : a), 0);
-
+    countOccurrences(arr, val){
+      return arr.reduce((a, v) => (v === val ? a + 1 : a), 0)
+    }
       
     /*Input: an array of booleans
     Result: the number of "ones" in the "bitstring" (in this context, returns the number of true valued booleans in the array of booleans)
@@ -394,7 +467,7 @@ class Util {
     const max_wefts:number = inputs
     .filter(el => el !== null)
     .reduce((acc, draft)=>{
-      if(draft.wefts > acc) return draft.wefts;
+      if(wefts(draft.drawdown) > acc) return wefts(draft.drawdown);
       return acc;
       }, 0);
       return max_wefts;
@@ -409,7 +482,7 @@ class Util {
     const max_warps:number = inputs
     .filter(el => el !== null)
     .reduce((acc, draft)=>{
-      if(draft.warps > acc) return draft.warps;
+      if(warps(draft.drawdown) > acc) return warps(draft.drawdown);
       return acc;
       }, 0);
       return max_warps;
@@ -437,7 +510,6 @@ class Util {
       else return acc;
     }, {i:null, count: 0});
 
-    console.log("common ", common)
     return common.i;
   }
 
@@ -791,12 +863,12 @@ interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft)
 
 
   let total_wefts: number = 0;
-  const all_wefts = drafts.map(el => el.wefts).filter(el => el > 0);
+  const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
   if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
   else  total_wefts = utilInstance.getMaxWefts(drafts);
 
   let total_warps: number = 0;
-  const all_warps = drafts.map(el => el.warps).filter(el => el > 0);
+  const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
 
   if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
   else  total_warps = utilInstance.getMaxWarps(drafts);
@@ -804,20 +876,20 @@ interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft)
 
 
   //create a draft to hold the merged values
-  const d:Draft = new Draft(
+  const d:Draft = initDraftWithParams(
     {warps: total_warps, 
       wefts:(total_wefts *drafts.length),
       colShuttleMapping: warp_patterns.colShuttleMapping,
       colSystemMapping: warp_patterns.colSystemMapping});
 
-    d.pattern.forEach((row, ndx) => {
+    d.drawdown.forEach((row, ndx) => {
 
       const select_array: number = ndx %drafts.length; 
-      const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % drafts[select_array].wefts : Math.floor(ndx /drafts.length);
+      const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % wefts(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
       row.forEach((cell, j) =>{
-          const select_col = (factor_in_repeats === 1) ? j % drafts[select_array].warps : j;
-          if(drafts[select_array].hasCell(select_row, select_col)){
-              const pattern = drafts[select_array].pattern;
+          const select_col = (factor_in_repeats === 1) ? j % warps(drafts[select_array].drawdown) : j;
+          if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
+              const pattern = drafts[select_array].drawdown;
               cell.setHeddle(pattern[select_row][select_col].getHeddle());
 
           }else{
@@ -927,6 +999,40 @@ getInletsToUpdate(newInlets: Array<any>, currentInlets: Array<any>) : {toadd: Ar
 
   return {toadd, toremove};
 }
+
+  /**
+   * takes two versions and compares them
+   * returns true if versions are same or version a is greater than b, returns false if a older than b
+   * @param compare 
+   */
+   sameOrNewerVersion(a: string, b: string ) : boolean {
+
+    if(a === undefined || b===undefined){
+      console.error("checking undefined version", a, b);
+      return false;
+    }
+
+    const a_spl = a.split('.');
+    const b_spl = b.split('.');
+    let flag_end = false;
+    let return_val = true;
+
+    for(let i = 0; i < a_spl.length && !flag_end; i++){
+      if(i < b_spl.length){
+        if(parseInt(a_spl[i]) < parseInt(b_spl[i])){
+          return_val = false;
+          flag_end = true;
+        }else  if(parseInt(a_spl[i]) > parseInt(b_spl[i])){
+          return_val = true;
+          flag_end = true;
+        } 
+      }
+    }
+
+    if(flag_end) return return_val;
+    return true;
+
+  }
                                                                           
                                                                                                                    
 // generateId :: Integer -> String                                                                                                  
@@ -940,14 +1046,56 @@ generateId = (len:number) : number => {
 //print the draft to console
 printDraft(d: Draft){
   console.log('draft ', d.id);
-  for(let i = 0; i < d.wefts;i++){
-    const row: string = d.pattern[i].reduce((acc, el) => {
+  for(let i = 0; i < wefts(d.drawdown);i++){
+    const row: string = d.drawdown[i].reduce((acc, el) => {
       if(el.getHeddle() === true) acc = acc.concat('x')
       else acc = acc.concat('o')
       return acc;
     }, '');
     console.log(row)
   }
+}
+
+
+/**
+ * this function determines how one can flip the draft between two origin states
+ * @param draft 
+ * @param loom 
+ * @param from 
+ * @param to 
+ */
+getFlips(from:number, to: number) : {horiz: boolean, vert: boolean} {
+
+  // console.log("flipping from/to", from, to);
+
+
+  let horiz = false;
+  let vert = false;
+
+  if(from === to) return {horiz, vert};
+
+  if((from === 0 && to === 1) || (from === 1 && to === 0)){
+    vert = true;
+  }else if((from === 0 && to === 2) || (from === 2 && to === 0)){
+    vert = true;
+    horiz = true;
+  }else if((from === 0 && to === 3) || (from === 3 && to === 0)){
+    horiz = true;
+  }else if((from === 1 && to == 2) || (from === 2 && to === 1)){
+    horiz = true;
+  }else if((from === 1 && to == 3) || (from === 3 && to === 1)){
+    vert = true;
+    horiz = true;
+  }else if((from === 2 && to == 3) || (from === 3 && to === 2)){
+    vert = true;
+  }else{
+    console.error("to/from origin flip options not found", to, from)
+  }
+
+  // console.log("horiz/vert", horiz, vert);
+
+  return {horiz, vert};
+
 }
 
 
