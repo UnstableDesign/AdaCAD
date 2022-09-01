@@ -44,8 +44,6 @@ The information here references Angular documentation, such as this page on [Ang
 AdaCAD is a large (and growing) application and chances are that you will only need to touch a few files when implementing or augmenting it to your own needs. We are slowly migrating the code from impertive/object-oriented styles to functional/reactive styles, so there is a mixture of styles in this base.  Here, we will list the files in which you can find core information or action points for the program: 
 
 
-Try this markdown:
-
 ![a labeled diagram of the components of AdaCAD as they are experienced by the viewer](https://github.com/UnstableDesign/AdaCAD/blob/master/src/assets/AdaCAD_Terminology.png)
 
 
