@@ -46,7 +46,7 @@ AdaCAD is a large (and growing) application and chances are that you will only n
 
 Try this markdown:
 
-![a labeled diagram of the components of AdaCAD as they are experienced by the viewer](https://github.com/UnstableDesign/AdaCAD/blob/master/assets/AdaCAD_Terminology.png)
+![a labeled diagram of the components of AdaCAD as they are experienced by the viewer](https://github.com/UnstableDesign/AdaCAD/blob/master/src/assets/AdaCAD_Terminology.png)
 
 
 #### Core Data Types:
