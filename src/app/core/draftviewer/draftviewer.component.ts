@@ -13,7 +13,7 @@ import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { StateService } from '../provider/state.service';
 import { WorkspaceService } from '../provider/workspace.service';
-import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow } from '../model/drafts';
+import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern } from '../model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../model/looms';
 import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../model/yarnsimulation';
 import { TreeService } from '../../mixer/provider/tree.service';
@@ -678,8 +678,6 @@ export class DraftviewerComponent implements OnInit {
     this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[new Cell(false)]]}).drawdown;
     const temp_copy: Array<Array<boolean>> = [];
 
-    console.log("Copying within ", this.selection.getTargetId())
-
     if(this.selection.getTargetId() === 'weft-systems'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
@@ -766,9 +764,6 @@ export class DraftviewerComponent implements OnInit {
       }
     }
 
-    console.log("Temp copy is ", temp_copy);
-
-
     if(temp_copy.length == 0) return;
 
     const temp_dd: Drawdown = createBlankDrawdown(temp_copy.length, temp_copy[0].length);
@@ -777,7 +772,10 @@ export class DraftviewerComponent implements OnInit {
         temp_dd[i][j].setHeddle(cell);
       })
     })
-    this.copy = initDraftWithParams({warps: w, wefts: h, drawdown: temp_dd}).drawdown;
+
+    this.copy = initDraftWithParams({warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd}).drawdown;
+
+
 
     this.onNewSelection.emit(this.copy);
 
@@ -2595,10 +2593,13 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    public onPaste(e) {
 
 
+
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     const loom_util = getLoomUtilByType(loom_settings.type);
+    let pattern:Array<number> = [];
+    let mapping:Array<number> = [];
 
     this.hold_copy_for_paste = false;
 
@@ -2612,7 +2613,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
     const height = adj_end_i - adj_start_i;
 
-    console.log("ON PASTE", this.selection.getTargetId())
 
     switch(this.selection.getTargetId()){    
       case 'drawdown':
@@ -2655,6 +2655,90 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
         });
         break;
+
+      case 'warp-systems':
+
+         pattern = []; 
+          for(let j = 0; j < this.copy[0].length; j++){
+              const assigned_to = this.copy.findIndex(sys => sys[j].getHeddle() == true);
+              pattern.push(assigned_to);
+           }
+            mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
+
+           draft.colSystemMapping = mapping.map((el, ndx) => {
+              if(ndx >= this.selection.getStartingColIndex() && ndx < this.selection.getStartingColIndex() + this.selection.getWidth()){
+                return el;
+              }else{
+                return draft.colSystemMapping[ndx];
+              }
+            });
+
+            this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+
+          break;
+      case 'warp-materials':
+
+        pattern = []; 
+        for(let j = 0; j < this.copy[0].length; j++){
+            const assigned_to = this.copy.findIndex(sys => sys[j].getHeddle() == true);
+            pattern.push(assigned_to);
+         }
+          mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
+
+         draft.colShuttleMapping = mapping.map((el, ndx) => {
+            if(ndx >= this.selection.getStartingColIndex() && ndx < this.selection.getStartingColIndex() + this.selection.getWidth()){
+              return el;
+            }else{
+              return draft.colShuttleMapping[ndx];
+            }
+          });
+
+          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+
+
+        break;
+
+        case 'weft-systems':
+
+          pattern = []; 
+          for(let i = 0; i < this.copy.length; i++){
+              const assigned_to = this.copy[i].findIndex(sys => sys.getHeddle() == true);
+              pattern.push(assigned_to);
+           }
+            mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
+
+           draft.rowSystemMapping = mapping.map((el, ndx) => {
+              if(ndx >= adj_start_i && ndx < adj_start_i + height){
+                return el;
+              }else{
+                return draft.rowSystemMapping[ndx];
+              }
+            });
+
+            this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+
+          break;
+
+          case 'weft-materials':
+          
+            pattern = []; 
+            for(let i = 0; i < this.copy.length; i++){
+                const assigned_to = this.copy[i].findIndex(sys => sys.getHeddle() == true);
+                pattern.push(assigned_to);
+             }
+              mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
+  
+             draft.rowShuttleMapping = mapping.map((el, ndx) => {
+                if(ndx >= adj_start_i && ndx < adj_start_i + height){
+                  return el;
+                }else{
+                  return draft.rowShuttleMapping[ndx];
+                }
+              });
+  
+              this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+  
+            break;
     }
 
   
