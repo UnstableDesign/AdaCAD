@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, HostListener, Output, ViewChild
 import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Render } from '../model/render';
 import { Cell } from '../model/cell';
-import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings } from '../model/datatypes';
+import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, Operation, OpInput } from '../model/datatypes';
 import {cloneDeep, forEach, now} from 'lodash';
 import { FileService } from '../provider/file.service';
 import { SelectionComponent } from './selection/selection.component';
@@ -13,13 +13,14 @@ import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { StateService } from '../provider/state.service';
 import { WorkspaceService } from '../provider/workspace.service';
-import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern } from '../model/drafts';
+import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft } from '../model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../model/looms';
 import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../model/yarnsimulation';
 import { TreeService } from '../../mixer/provider/tree.service';
 import { setDeprecationWarningFn } from '@tensorflow/tfjs-core/dist/tensor';
 import { LoomModal } from '../modal/loom/loom.modal';
 import utilInstance from '../model/util';
+import { OperationService } from '../../mixer/provider/operation.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -227,7 +228,8 @@ export class DraftviewerComponent implements OnInit {
     private ss: SystemsService,
     public ws: WorkspaceService,
     public timeline: StateService,
-    private tree:TreeService
+    private tree:TreeService,
+    private ops: OperationService
     ) { 
 
     this.flag_recompute = false;
@@ -2584,6 +2586,84 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
   }
 
+
+
+  public pasteViaOperation(type){
+
+    const draft =  this.tree.getDraft(this.id);
+    const copy_draft = initDraftWithParams({warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy});
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+    const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
+    const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
+    const height = adj_end_i - adj_start_i;
+    let op: Operation;
+
+    let inputs: Array<OpInput> = [];
+  
+  
+      const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+      
+
+
+      return flipDraft(copy_draft, flips.horiz, flips.vert)
+      .then(flipped_draft => {
+
+        switch(type){
+          case 'invert':
+            op = this.ops.getOp('invert');
+            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+          break;
+          case 'mirrorX':
+            op = this.ops.getOp('flip horiz');
+            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+            break;
+          case 'mirrorY':
+            op = this.ops.getOp('flip vert');
+            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+            break;
+          case 'shiftLeft':
+            op = this.ops.getOp('shift left');
+            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
+            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+            break;
+          case 'shiftUp':
+            op = this.ops.getOp('shift up');
+            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
+            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+            break;
+        }
+        return op.perform(inputs);
+      })
+      .then(res => {
+        return flipDraft(res[0], flips.horiz, flips.vert);
+      })
+      .then(finalres => {
+        draft.drawdown = pasteIntoDrawdown(
+          draft.drawdown, 
+          finalres.drawdown, 
+          adj_start_i, 
+          this.selection.getStartingColIndex(),
+          this.selection.getWidth(),
+          height);
+    
+        this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings).then(loom => {
+          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+
+        })
+
+      })
+     
+
+  
+  
+     
+    
+  }
+
   /**
    * Tells weave reference to paste copied pattern.
    * @extends WeaveComponent
@@ -2607,6 +2687,10 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     if(e.type === undefined) type = "original";
     else type =  e.type;
+
+    if(type !== 'original'){
+      this.pasteViaOperation(type);
+    }
 
 
     const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];

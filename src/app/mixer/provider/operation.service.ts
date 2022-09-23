@@ -3339,6 +3339,7 @@ export class OperationService {
 
         
           const outputs:Array<Draft> =child_input.drafts.map(input => {
+            console.log("input", input)
           const d: Draft =initDraftWithParams({warps: warps(input.drawdown), wefts: wefts(input.drawdown), pattern: input.drawdown});
           d.drawdown = shiftDrawdown(d.drawdown, false, parent_input.params[0]);
           this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'first');
