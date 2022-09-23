@@ -327,6 +327,7 @@ export class MixerComponent implements OnInit {
    */
    async processFileData(data: FileObj) : Promise<string>{
 
+
     let entry_mapping = [];
     this.filename = data.filename;
 

@@ -236,9 +236,19 @@ export type Loom = {
 }
 
 
-/**
- * Store each loom type as a different unit that computes functions based on its particular settings
- * 
+
+
+/***
+ *  Store each loom type as a different unit that computes functions based on its particular settings
+ * @param type an identifer relating to the currently supported types
+ * @param displayname the name to show with this loom type
+ * @param dx the description for this type of loom
+ * @param updateThreading a function to execute when a single cell is modified within the Threading
+ * @param updateTreadling a function to execute when a single cell is modified within the Treadling
+ * @param updateTieup a function to execute when a single cell is modified within the Tieup
+ * @param pasteThreading a function to execute when a single cell is modified within the Threading
+ * @param pasteTreadling a function to execute when a single cell is modified within the Treadling
+ * @param pasteTieup a function to execute when a single cell is modified within the Tieup
  */
 export type LoomUtil = {
   type: 'jacquard' | 'frame' | 'direct',
@@ -249,6 +259,9 @@ export type LoomUtil = {
   updateThreading: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTreadling: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTieup: (l: Loom, ndx: InterlacementVal)=> Loom
+  pasteThreading: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
+  pasteTreadling: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
+  pasteTieup: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number)=> Loom
 }
 
 

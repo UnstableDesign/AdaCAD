@@ -63,11 +63,13 @@
 
 
 
-      <ng-container *ngIf="(loomtype == 'frame')">
+      <ng-container *ngIf="(loomtype == 'frame') || (loomtype == 'direct')">
         <mat-form-field appearance="fill">
          <input matInput  type="number" placeholder="Number of Shafts" name="frame_num" min="2" step="1" value="8" [(ngModel)]="frame_num">
         </mat-form-field>
+      </ng-container>
 
+      <ng-container *ngIf="(loomtype == 'frame') ">
      <mat-form-field appearance="fill">
       <input matInput  type ="number" placeholder="Number of Treadles" name="treadle_num" [(ngModel)]="treadle_num" min="2" step="1" value="10">
      </mat-form-field> 

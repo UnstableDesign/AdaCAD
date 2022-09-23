@@ -31,6 +31,15 @@ const jacquard_utils: LoomUtil = {
     },
     updateTreadling : (loom: Loom,ndx:InterlacementVal) => {
       return loom;
+    },
+    pasteThreading: (loom:Loom, drawdown: Drawdown,ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return loom;
+    },
+    pasteTreadling: (loom:Loom, drawdown: Drawdown,ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return loom;
+    },
+    pasteTieup: (loom:Loom, drawdown: Drawdown,ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return loom;
     }
 
   }
@@ -50,8 +59,6 @@ const jacquard_utils: LoomUtil = {
             treadling: []
         }
 
-
-  
             //now calculate threading 
             return generateThreading(d)
             .then(obj => {
@@ -103,6 +110,15 @@ const jacquard_utils: LoomUtil = {
           loom.treadling[ndx.i] = loom.treadling[ndx.i].filter(el => el !== ndx.j);
       }
     return loom;
+    },
+    pasteThreading: (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+     return pasteDirectAndFrameThreading(loom, drawdown, ndx, width, height);
+    },
+    pasteTreadling: (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return pasteDirectAndFrameTreadling(loom, drawdown, ndx, width, height);
+    },
+    pasteTieup: (loom:Loom, drawdown: Drawdown,  ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return loom;
     }
   }
 
@@ -179,11 +195,50 @@ const jacquard_utils: LoomUtil = {
             loom.treadling[ndx.i] = loom.treadling[ndx.i].filter(el => el !== ndx.j);
         }
       return loom;
+    },
+    pasteThreading: (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return pasteDirectAndFrameThreading(loom, drawdown, ndx, width, height);
+    },
+    pasteTreadling: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return pasteDirectAndFrameTreadling(loom, drawdown, ndx, width, height);
+    },
+    pasteTieup: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return loom;
     }
+  
   }
 
 
 /*** SHARED FUNCTIONS USED WHEN COMPUTING LOOM STATESs ********/
+
+
+export const pasteDirectAndFrameThreading = (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+    
+  for(let j = 0; j < width; j++){
+    const pattern_ndx = j % drawdown[0].length;
+    const column_vals = drawdown.map(row => row[pattern_ndx]);
+    const frame = column_vals.findIndex(cell => cell.getHeddle() == true);
+    if(frame < numFrames(loom)) loom.threading[ndx.j + j] = frame;
+  }
+
+  return loom;
+
+}
+
+export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+    
+  for(let i = 0; i < height; i++){
+    const pattern_ndx = i % drawdown.length;
+    const treadle_list = [];
+    for(let j = 0; j < numTreadles(loom); j++){
+      if(drawdown[pattern_ndx][j].getHeddle() == true) treadle_list.push(j);
+    }
+    loom.treadling[ndx.i + i] = treadle_list.slice();
+  }
+
+  return loom;
+
+}
 
 
 /**
