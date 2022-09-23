@@ -470,7 +470,8 @@ export class FileService {
       //set default values
 
       const draft: Draft = initDraftWithParams({warps: warps, wefts: wefts});
-      drafts.push(draft);
+
+      console.log("Form values ", f.value)
 
 
       var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
@@ -478,9 +479,12 @@ export class FileService {
       var loomtype = (f.value.loomtype === undefined) ? 'frame' : f.value.loomtype;
       var frame_num = (f.value.frame_num === undefined) ? 2 : f.value.frame_num;
       var treadle_num = (f.value.treadle_num === undefined) ? 2 : f.value.treadle_num;
+      if(f.value.loomtype == 'direct') treadle_num = frame_num;
       var epi = (f.value.epi === undefined) ? 10 : f.value.epi;
       var units = (f.value.units === undefined || ! f.value.units) ? "in" : f.value.units;
       
+
+
       const loom_settings: LoomSettings = {
         type: loomtype,
         epi: epi, 
@@ -489,12 +493,22 @@ export class FileService {
         treadles: treadle_num
       }
 
+      this.ws.inferData([loom_settings]);
+      
+
       const loomutils = getLoomUtilByType(loomtype);
       return loomutils.computeLoomFromDrawdown(draft.drawdown, loom_settings, 0).then(loom => {
         looms.push(loom);
         const proxies = this.tree.getNewDraftProxies(draft, []);
+        draft.id  = proxies.node.node_id;
+        proxies.draft_node.draft = draft;
+        proxies.draft_node.draft_id = draft.id;
+        proxies.draft_node.loom = loom;
+        proxies.draft_node.loom_settings = loom_settings;
 
 
+
+        
         const envt: FileObj = {
           version: this.vs.currentVersion(),
           workspace: this.ws.exportWorkspace(),
