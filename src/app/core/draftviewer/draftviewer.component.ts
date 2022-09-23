@@ -678,6 +678,8 @@ export class DraftviewerComponent implements OnInit {
     this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[new Cell(false)]]}).drawdown;
     const temp_copy: Array<Array<boolean>> = [];
 
+    console.log("Copying within ", this.selection.getTargetId())
+
     if(this.selection.getTargetId() === 'weft-systems'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
@@ -714,6 +716,7 @@ export class DraftviewerComponent implements OnInit {
         }
        }
     }
+
 
 
     //iterate through the selection
@@ -763,6 +766,9 @@ export class DraftviewerComponent implements OnInit {
       }
     }
 
+    console.log("Temp copy is ", temp_copy);
+
+
     if(temp_copy.length == 0) return;
 
     const temp_dd: Drawdown = createBlankDrawdown(temp_copy.length, temp_copy[0].length);
@@ -772,6 +778,7 @@ export class DraftviewerComponent implements OnInit {
       })
     })
     this.copy = initDraftWithParams({warps: w, wefts: h, drawdown: temp_dd}).drawdown;
+
     this.onNewSelection.emit(this.copy);
 
 
@@ -2587,13 +2594,13 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    */
    public onPaste(e) {
 
+
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom_util = getLoomUtilByType(loom_settings.type);
 
     this.hold_copy_for_paste = false;
-
-    var p = this.copy;
 
     var type;
 
@@ -2603,19 +2610,22 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
     const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
-
     const height = adj_end_i - adj_start_i;
-    draft.drawdown = pasteIntoDrawdown(
-      draft.drawdown, 
-      this.copy, 
-      adj_start_i, 
-      this.selection.getStartingColIndex(),
-      this.selection.getWidth(),
-      height);
 
+    console.log("ON PASTE", this.selection.getTargetId())
 
     switch(this.selection.getTargetId()){    
       case 'drawdown':
+
+        draft.drawdown = pasteIntoDrawdown(
+          draft.drawdown, 
+          this.copy, 
+          adj_start_i, 
+          this.selection.getStartingColIndex(),
+          this.selection.getWidth(),
+          height);
+    
+
         //if you do this when updates come from loom, it will erase those updates
         this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
@@ -2624,16 +2634,27 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         });
        break;
 
-      case 'treading':
-      case 'tieup':
-      case 'treadling':
+      case 'threading':
+        loom_util.pasteThreading(loom, this.copy, {i: adj_start_i, j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
         });
-
-      break;
+        break;
+      case 'tieup':
+        loom_util.pasteTieup(loom,this.copy, {i: adj_start_i, j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+        .then(draft => {
+          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+        });
+        break;
+      case 'treadling':
+        loom_util.pasteTreadling(loom, this.copy, {i: adj_start_i, j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+        .then(draft => {
+          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+        });
+        break;
     }
 
   

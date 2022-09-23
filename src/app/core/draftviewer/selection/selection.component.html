@@ -19,11 +19,14 @@
 
 
     <div id="selection-actions" class="selection-actions" [style.display]="(hide_options)? 'none' : 'flex'">
+        
+        
+        <ng-container *ngIf="!hide_actions">
         <button mat-icon-button
         matTooltip="edit design in this region"
         [matMenuTriggerFor]="actions"
         ><i class="fas fa-magic"></i></button>
-
+        </ng-container>
 
         <mat-menu #actions="matMenu">
         <ng-container *ngFor="let action of design_actions">
@@ -35,7 +38,9 @@
         </button>
 
         </ng-container>
-        </mat-menu>
+         </mat-menu>
+
+
 
         
         <button mat-icon-button  matTooltip="copy this region" (click)="copyEvent()"><i class="fas fa-clipboard"></i></button>
