@@ -23,7 +23,7 @@
        <!-- // <span class="inlet-label">{{opnode.inlets[inletid]}}</span> -->
 
        <mat-select matNativeControl
-       matTooltip="this will assign this draft to the division number you select" 
+       matTooltip="this will assign this draft to the number you select" 
        [(ngModel)]="opnode.inlets[inletid]"
        (selectionChange)="inletChange()">
        <mat-option *ngFor="let num of number_opts" [value]="num">
@@ -33,6 +33,8 @@
 
 
     </ng-container>
+
+
 
     
     <ng-container *ngIf="inlet.type === 'notation'">

@@ -7,6 +7,8 @@ export interface Note{
   id: number,
   interlacement: Interlacement; 
   text: string;
+  ref: ViewRef;
+  component: NoteComponent   
  }
 
 @Injectable({
@@ -21,8 +23,6 @@ export class NotesService {
 
 
   constructor() { 
-
-
     this.notes = [];
   }
 
@@ -34,7 +34,9 @@ export class NotesService {
     const note: Note = {
       id: this.notes.length,
       interlacement: i,
-      text: ""
+      text: "",
+      ref: null,
+      component: null
     }
 
     this.notes.push(note);
@@ -42,8 +44,22 @@ export class NotesService {
   
   }
 
-  exportForSaving(): Array<Note>{
-    return this.notes;
+  getComponents() : Array<NoteComponent> {
+    return this.notes.map(el => el.component);
+  }
+
+  getRefs() : Array<ViewRef> {
+    return this.notes.map(el => el.ref);
+  }
+
+  exportForSaving(): Array<any>{
+    return this.notes.map(note => {
+      return {
+      id: note.id, 
+      text: note.text,
+      interlacement: note.interlacement
+    }
+    });
   }
 
   resetNotes(){
@@ -51,9 +67,20 @@ export class NotesService {
   }
 
   /** called on load file  */
-  reloadNotes(ns: Array<Note>){
+  reloadNotes(ns: Array<any>){
 
     this.notes = [];
+    ns.forEach(note => {
+      this.notes.push({
+        id: note.id,
+        text: note.text,
+        interlacement: note.interlacement,
+        ref: (note.ref === undefined) ? null : note.ref,
+        component: (note.component === undefined) ? null : note.component
+      })
+    })
+
+
 
     if(typeof(ns) == "string") return;
     this.notes = ns;

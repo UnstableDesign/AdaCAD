@@ -64,9 +64,7 @@ export class NoteComponent implements OnInit {
   }
 
   delete(id: number){
-    this.notes.delete(id);
     this.deleteNote.emit(id);
-
   }
     
 

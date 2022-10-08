@@ -133,8 +133,6 @@ export class OperationComponent implements OnInit {
     this.base_height =  60 + 40 * this.opnode.params.length
     this.bounds.height = this.base_height;
 
-    console.log("inlets for ", this.name, this.opnode.inlets)
-
   }
 
   ngAfterViewInit(){
@@ -309,9 +307,10 @@ export class OperationComponent implements OnInit {
         }
         
       }
-      console.log("object values are ", obj);
       const new_inlets = this.tree.onDynanmicOperationParamChange(this.name, opnode.inlets, obj.id, obj.value)
       this.opnode.inlets = new_inlets.slice();
+
+      if(op.dynamic_param_type == "number") this.opnode.inlets = this.opnode.inlets.map(el => parseInt(el));
     }
     
     this.onOperationParamChange.emit({id: this.id});

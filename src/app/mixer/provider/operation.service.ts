@@ -1074,7 +1074,7 @@ export class OperationService {
           for(let j = 0; j < warps(d.drawdown); j++){
             if(j < parent_input.params[0]){
               //left selvedge
-              d.drawdown[i][j].setHeddle(pattern[(i+1)%pattern.length][j%pattern[0].length].getHeddle());
+              d.drawdown[i][j].setHeddle(pattern[i%pattern.length][j%pattern[0].length].getHeddle());
 
             }else if(j < parent_input.params[0]+warps(input.drawdown)){
               //pattern
@@ -2626,7 +2626,7 @@ export class OperationService {
       params: <Array<StringParam>>[
         {name: 'pattern',
         type: 'string',
-        value: '1 1 2 1 3 1 1',
+        value: '1 2 3 1 2 3',
         regex: /(\d)*\D/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
         error: 'invalid entry',
         dx: 'all entries must be numbers separated by a space'
@@ -2647,6 +2647,7 @@ export class OperationService {
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
         const weft_system: OpInput = op_inputs.find(el => el.inlet == 0);
   
+        console.log("CHILD INPUTS", child_inputs)
 
         if(child_inputs.length == 0) return Promise.resolve([]);
 
@@ -2693,7 +2694,7 @@ export class OperationService {
         })
 
 
-        
+    
         const d: Draft =initDraftWithParams({
           warps: total_warps, 
           wefts: total_wefts,
@@ -2703,17 +2704,18 @@ export class OperationService {
 
         for(let i = 0; i < wefts(d.drawdown); i++){
           for(let j = 0; j < warps(d.drawdown); j++){
-            //const pattern_ndx = Math.floor(j / total_warps);
 
             const pattern_ndx = warp_map.find(el => j >= el.start && j < el.end).id;
 
-            const ndx = pattern[pattern_ndx];
-            const select_draft = profile_draft_map.find(el => el.id === parseInt(ndx));
+
+            const select_draft = profile_draft_map.find(el => el.id === parseInt(pattern_ndx));
+
             if(select_draft === undefined){
               d.drawdown[i][j] = new Cell(null);
             }else{
               const sd: Draft = select_draft.draft;
-              let val = sd.drawdown[i%wefts(sd.drawdown)][j%warps(sd.drawdown)].getHeddle();
+              const sd_adj_j: number = j - warp_map.find(el => j >= el.start && j < el.end).start;
+              let val = sd.drawdown[i%wefts(sd.drawdown)][sd_adj_j%warps(sd.drawdown)].getHeddle();
               d.drawdown[i][j] = new Cell(val);
             }
           }
@@ -2726,120 +2728,120 @@ export class OperationService {
       }        
     }
 
-    const profile: DynamicOperation = {
-      name: 'profile',
-      displayname: 'profile draft',
-      old_names:[],
-      dynamic_param_id: 0,
-      dynamic_param_type: 'draft',
-      dx: 'if you describe a numeric pattern, it will repeat the inputs in the same pattern',
-      params: <Array<DraftParam>>[
-        {name: 'profile draft',
-        type: 'draft',
-        value: null,
-        dx: '',
-        id: -1
-        }
-      ],
-      inlets: [{
-        name: 'profile pattern', 
-        type: 'static',
-        value: null,
-        dx: 'uses the threading and treadling on the input to generate inputs for the profile',
-        num_drafts: 1
-      }],
-      perform: (op_inputs: Array<OpInput>) => {
+    // const profile: DynamicOperation = {
+    //   name: 'profile',
+    //   displayname: 'profile draft',
+    //   old_names:[],
+    //   dynamic_param_id: 0,
+    //   dynamic_param_type: 'draft',
+    //   dx: 'if you describe a numeric pattern, it will repeat the inputs in the same pattern',
+    //   params: <Array<DraftParam>>[
+    //     {name: 'profile draft',
+    //     type: 'draft',
+    //     value: null,
+    //     dx: '',
+    //     id: -1
+    //     }
+    //   ],
+    //   inlets: [{
+    //     name: 'profile pattern', 
+    //     type: 'static',
+    //     value: null,
+    //     dx: 'uses the threading and treadling on the input to generate inputs for the profile',
+    //     num_drafts: 1
+    //   }],
+    //   perform: (op_inputs: Array<OpInput>) => {
 
                 
-        // // //split the inputs into the input associated with 
-        const parent_input: OpInput = op_inputs.find(el => el.op_name === "profile");
-        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
-        const profile_input: OpInput = op_inputs.find(el => el.inlet === 0);
+    //     // // //split the inputs into the input associated with 
+    //     const parent_input: OpInput = op_inputs.find(el => el.op_name === "profile");
+    //     const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+    //     const profile_input: OpInput = op_inputs.find(el => el.inlet === 0);
 
 
-         //now just get all the drafts
-         const all_drafts: Array<Draft> = child_inputs
-         .filter(el => el.inlet > 0)
-         .reduce((acc, el) => {
-           el.drafts.forEach(draft => {acc.push(draft)});
-           return acc;
-         }, []);
+    //      //now just get all the drafts
+    //      const all_drafts: Array<Draft> = child_inputs
+    //      .filter(el => el.inlet > 0)
+    //      .reduce((acc, el) => {
+    //        el.drafts.forEach(draft => {acc.push(draft)});
+    //        return acc;
+    //      }, []);
 
 
         
-        if(child_inputs.length == 0) return Promise.resolve([]);
-        if(profile_input === undefined || profile_input.drafts.length === 0) return Promise.resolve([]);
+    //     if(child_inputs.length == 0) return Promise.resolve([]);
+    //     if(profile_input === undefined || profile_input.drafts.length === 0) return Promise.resolve([]);
 
-        //create an index of each row where there is a "true" for each warp
-        const pd: Draft = profile_input.drafts[0];
-        const warp_acrx_pattern:Array<number> = [];
-        for(let j = 0; j < warps(pd.drawdown); j++){
-          const col: Array<Cell> = pd.drawdown.map(el => el[j]);
-          const found_ndx = col.findIndex(el => el.getHeddle()===true);
-          if(found_ndx != -1) warp_acrx_pattern.push(found_ndx);
-          else warp_acrx_pattern.push(0);
-        }
+    //     //create an index of each row where there is a "true" for each warp
+    //     const pd: Draft = profile_input.drafts[0];
+    //     const warp_acrx_pattern:Array<number> = [];
+    //     for(let j = 0; j < warps(pd.drawdown); j++){
+    //       const col: Array<Cell> = pd.drawdown.map(el => el[j]);
+    //       const found_ndx = col.findIndex(el => el.getHeddle()===true);
+    //       if(found_ndx != -1) warp_acrx_pattern.push(found_ndx);
+    //       else warp_acrx_pattern.push(0);
+    //     }
 
 
         
   
-        // //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
-        const profile_draft_map = child_inputs
-        .filter(el => el.inlet > 0)
-        .map(el => {
-          return  {
-            id: el.inlet, 
-            draft: el.drafts[0]
-          }
-        });
+    //     // //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
+    //     const profile_draft_map = child_inputs
+    //     .filter(el => el.inlet > 0)
+    //     .map(el => {
+    //       return  {
+    //         id: el.inlet, 
+    //         draft: el.drafts[0]
+    //       }
+    //     });
 
-        let total_warps = 0;
-        const warp_map = [];
-        warp_acrx_pattern.forEach(el => {
-          const d = profile_draft_map.find(dm => (dm.id) === el+1);
-          if(d !== undefined){
-            warp_map.push({id: el, start: total_warps, end: total_warps+warps(d.draft.drawdown)});
-            total_warps += warps(d.draft.drawdown);
-          } 
-        })
+    //     let total_warps = 0;
+    //     const warp_map = [];
+    //     warp_acrx_pattern.forEach(el => {
+    //       const d = profile_draft_map.find(dm => (dm.id) === el+1);
+    //       if(d !== undefined){
+    //         warp_map.push({id: el, start: total_warps, end: total_warps+warps(d.draft.drawdown)});
+    //         total_warps += warps(d.draft.drawdown);
+    //       } 
+    //     })
 
-        let total_wefts = utilInstance.getMaxWefts(all_drafts);
-        const weft_map = [];
-        // weft_acrx_pattern.forEach(el => {
-        //   const d = profile_draft_map.find(dm => (dm.id) === el+1);
-        //   if(d !== undefined){
-        //     weft_map.push({id: el, start: total_wefts, end: total_wefts+wefts(d.drawdown)(draft.drawdown)});
-        //     total_wefts += warps(d.drawdown)(draft.drawdown);
-        //   } 
-        // })
+    //     let total_wefts = utilInstance.getMaxWefts(all_drafts);
+    //     const weft_map = [];
+    //     // weft_acrx_pattern.forEach(el => {
+    //     //   const d = profile_draft_map.find(dm => (dm.id) === el+1);
+    //     //   if(d !== undefined){
+    //     //     weft_map.push({id: el, start: total_wefts, end: total_wefts+wefts(d.drawdown)(draft.drawdown)});
+    //     //     total_wefts += warps(d.drawdown)(draft.drawdown);
+    //     //   } 
+    //     // })
 
         
-        const d: Draft =initDraftWithParams({
-          warps: total_warps, 
-          wefts: total_wefts,
-        });
+    //     const d: Draft =initDraftWithParams({
+    //       warps: total_warps, 
+    //       wefts: total_wefts,
+    //     });
 
-        for(let i = 0; i < wefts(d.drawdown); i++){
-          for(let j = 0; j < warps(d.drawdown); j++){
+    //     for(let i = 0; i < wefts(d.drawdown); i++){
+    //       for(let j = 0; j < warps(d.drawdown); j++){
 
-            const warp_pattern_ndx = warp_map.find(el => j >= el.start && j < el.end).id;
-            const select_draft = profile_draft_map.find(el => el.id === warp_pattern_ndx+1);
-            if(select_draft === undefined){
-              d.drawdown[i][j] = new Cell(null);
-            }else{
-              const sd: Draft = select_draft.draft;
-              let val = sd.drawdown[i%wefts(sd.drawdown)][j%warps(sd.drawdown)].getHeddle();
-              d.drawdown[i][j] = new Cell(val);
-            }
-          }
-        }
+    //         const warp_pattern_ndx = warp_map.find(el => j >= el.start && j < el.end).id;
+    //         const select_draft = profile_draft_map.find(el => el.id === warp_pattern_ndx+1);
+    //         if(select_draft === undefined){
+    //           d.drawdown[i][j] = new Cell(null);
+    //         }else{
+    //           const sd: Draft = select_draft.draft;
+    //           let val = sd.drawdown[i%wefts(sd.drawdown)][j%warps(sd.drawdown)].getHeddle();
+    //           d.drawdown[i][j] = new Cell(val);
+    //         }
+    //       }
+    //     }
 
-        d.gen_name = this.formatName([], "profile");
-        return  Promise.resolve([d]);
+    //     d.gen_name = this.formatName([], "profile");
+    //     return  Promise.resolve([d]);
 
        
-      }        
-    }
+    //   }        
+    // }
 
 
 
@@ -4785,7 +4787,6 @@ export class OperationService {
     this.dynamic_ops.push(imagemap);
     this.dynamic_ops.push(layernotation);
     this.dynamic_ops.push(warp_profile);
-    this.dynamic_ops.push(profile);
 
 
     //**push operations that you want the UI to show as options here */

@@ -1304,7 +1304,9 @@ isValidIOTuple(io: IOTuple) : boolean {
   const opnode = <OpNode> this.getNode(id);
   const op = this.ops.getOp(opnode.name);
   const all_inputs = this.getInputsWithNdx(id);
+
   
+  if(op === null || op === undefined) return Promise.reject("Operation is null")
 
   let inputs: Array<OpInput> = [];
 
