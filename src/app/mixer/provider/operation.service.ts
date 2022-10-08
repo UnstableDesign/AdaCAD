@@ -8,7 +8,7 @@ import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
 import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, LoomSettings, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
-import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
+import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, isUp, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
 import { getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { CombinatoricsService } from '../../core/provider/combinatorics.service';
@@ -5071,7 +5071,7 @@ export class OperationService {
   }
 
    drawCell(cx, draft, cell_size, i, j, top,  left){
-    let is_up = draft.isUp(i,j);
+    let is_up = isUp(draft.drawdown, i, j);
     let color = "#ffffff"
    
     if(is_up){
@@ -5085,7 +5085,7 @@ export class OperationService {
  
 
     //hack, draw upside down to account for later flip
-    i = (draft.wefts-1) - i;
+    i = (wefts(draft.drawdown)-1) - i;
 
     cx.strokeRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
     cx.fillRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);

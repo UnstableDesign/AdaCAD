@@ -398,7 +398,7 @@ export interface FileSaver{
  */
  export type OperationInlet = {
   name: string,
-  type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft',
+  type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'null',
   dx: string,
   value: number | string,
   num_drafts: number
