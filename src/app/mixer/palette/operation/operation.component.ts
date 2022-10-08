@@ -133,6 +133,8 @@ export class OperationComponent implements OnInit {
     this.base_height =  60 + 40 * this.opnode.params.length
     this.bounds.height = this.base_height;
 
+    console.log("inlets for ", this.name, this.opnode.inlets)
+
   }
 
   ngAfterViewInit(){

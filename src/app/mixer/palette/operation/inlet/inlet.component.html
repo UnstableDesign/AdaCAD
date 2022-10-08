@@ -1,4 +1,7 @@
 
+    
+<ng-container *ngIf="inlet.type !== 'null'">
+
     <button *ngIf="inlet.type === 'static'"
     class="button is-small input"
     [matTooltip]='inlet.dx'
@@ -92,3 +95,4 @@
 
 
 
+</ng-container>

@@ -58,7 +58,16 @@ export class InletComponent implements OnInit {
     }else{
       this.inlet = op.inlets[this.inletid];
     }
-    
+
+    if(this.inlet === undefined){
+      this.inlet = <OperationInlet>{
+        type: 'null',
+        name: '',
+        value: -1,
+        num_drafts: 1,
+        dx: ''
+      }
+    }
 
 
     this.fc = new FormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));

@@ -467,12 +467,8 @@ export class FileService {
 
       var wefts = 20;
       if(f.value.wefts !== undefined) wefts = f.value.wefts;
-      //set default values
 
       const draft: Draft = initDraftWithParams({warps: warps, wefts: wefts});
-
-      console.log("Form values ", f.value)
-
 
       var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
       var treadle_num = (f.value.treadle_num === undefined) ? 10 : f.value.treadle_num;
