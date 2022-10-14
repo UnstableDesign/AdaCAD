@@ -15,6 +15,7 @@ export class DesignmodesService {
   shapes:Array<DesignMode>;
 
   design_actions: Array<DesignMode>;
+  drawdown_editing_style: Array<DesignMode>;
 
   
   view_modes:Array<DesignMode>;
@@ -75,6 +76,11 @@ export class DesignmodesService {
       {value: 'material', viewValue: 'Draw Material', icon: "fas fa-pen", children: [], selected: false},
 
     ]
+
+    this.drawdown_editing_style = [
+      {value: 'drawdown', viewValue: 'Edit Drawdown (and Auto-Generate Loom Configuration)', icon: "fas fa-pen", children: [], selected: true},
+      {value: 'loom', viewValue: 'Edit Loom Configuration (and Auto-Generate Drawdown)', icon: "fas fa-shapes", children:[],selected: false},
+    ];
     
     this.design_modes = [
       {value: 'draw', viewValue: 'Draw Heddle', icon: "fas fa-pen", children: this.draw_modes, selected: false},
@@ -137,6 +143,10 @@ export class DesignmodesService {
       case 'design_actions' : 
       modes = this.design_actions;
       break;  
+
+      case 'drawdown_editing_style' : 
+      modes = this.drawdown_editing_style;
+      break;  
     }
 
     return modes;
@@ -174,6 +184,7 @@ export class DesignmodesService {
           mode.selected = false;
        }
     });
+
    }
 
 
@@ -196,9 +207,19 @@ export class DesignmodesService {
 
   /**
    * A function to retreive a mode by name.
+   * Possible modes to select from are: 
+   * design_modes
+   * draw_modes
+   * shapes
+   * design_actions
+   * drawdown_editing_style
+   * view_modes
+   * density_units
+   * material_types
+   * loom_types
    * @returns the DeisgnMode associated with that name, or null if nothing was found
+   * 
    */
-
    getSelectedDesignMode(from: string): DesignMode {
    
     const modes:Array<DesignMode> = this.getOptionSet(from);

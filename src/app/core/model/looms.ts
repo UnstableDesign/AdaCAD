@@ -32,6 +32,12 @@ const jacquard_utils: LoomUtil = {
     updateTreadling : (loom: Loom,ndx:InterlacementVal) => {
       return loom;
     },
+    insertIntoThreading: (loom: Loom, j: number, val: number) : Loom => {
+      return loom;
+    },
+    insertIntoTreadling: (loom: Loom, i: number, val: Array<number>) : Loom => {
+      return loom;
+    },
     pasteThreading: (loom:Loom, drawdown: Drawdown,ndx: InterlacementVal, width: number, height: number) : Loom => {
       return loom;
     },
@@ -39,6 +45,12 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
     pasteTieup: (loom:Loom, drawdown: Drawdown,ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return loom;
+    },
+    deleteFromThreading: (loom: Loom, j: number) : Loom => {
+      return loom;
+    },
+    deleteFromTreadling: (loom: Loom, i: number) : Loom => {
       return loom;
     }
 
@@ -111,6 +123,14 @@ const jacquard_utils: LoomUtil = {
       }
     return loom;
     },
+    insertIntoThreading: (loom: Loom, j: number, val: number) : Loom => {
+      loom.threading.splice(j,0, val);
+      return loom;
+    },
+    insertIntoTreadling: (loom: Loom, i: number, val: Array<number>) : Loom => {
+      loom.treadling.splice(i,0, val);
+      return loom;
+    },
     pasteThreading: (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
      return pasteDirectAndFrameThreading(loom, drawdown, ndx, width, height);
     },
@@ -118,6 +138,14 @@ const jacquard_utils: LoomUtil = {
       return pasteDirectAndFrameTreadling(loom, drawdown, ndx, width, height);
     },
     pasteTieup: (loom:Loom, drawdown: Drawdown,  ndx: InterlacementVal, width: number, height: number) : Loom => {
+      return loom;
+    },
+    deleteFromThreading: (loom: Loom, j: number) : Loom => {
+      loom.threading.splice(j, 1);
+      return loom;
+    },
+    deleteFromTreadling: (loom: Loom, i: number) : Loom => {
+      loom.treadling.splice(i, 1);
       return loom;
     }
   }
@@ -196,6 +224,14 @@ const jacquard_utils: LoomUtil = {
         }
       return loom;
     },
+    insertIntoThreading: (loom: Loom, j: number, val: number) : Loom => {
+      loom.threading.splice(j,0, val);
+      return loom;
+    },
+    insertIntoTreadling: (loom: Loom, i: number, val: Array<number>) : Loom => {
+      loom.treadling.splice(i,0, val);
+      return loom;
+    },
     pasteThreading: (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
       return pasteDirectAndFrameThreading(loom, drawdown, ndx, width, height);
     },
@@ -204,7 +240,16 @@ const jacquard_utils: LoomUtil = {
     },
     pasteTieup: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
       return loom;
+    },
+    deleteFromThreading: (loom: Loom, j: number) : Loom => {
+      loom.threading.splice(j, 1);
+      return loom;
+    },
+    deleteFromTreadling: (loom: Loom, i: number) : Loom => {
+      loom.treadling.splice(i, 1);
+      return loom;
     }
+
   
   }
 

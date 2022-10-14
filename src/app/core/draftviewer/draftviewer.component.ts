@@ -223,7 +223,7 @@ export class DraftviewerComponent implements OnInit {
 
   constructor(
     private fs: FileService,
-    private dm: DesignmodesService,
+    public dm: DesignmodesService,
     private ms: MaterialsService,
     private ss: SystemsService,
     public ws: WorkspaceService,
@@ -341,18 +341,20 @@ export class DraftviewerComponent implements OnInit {
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
       
+      const editing_style = this.dm.getSelectedDesignMode('drawdown_editing_style').value;
+
 
       if (target && target.id =='treadling') {
         if(this.viewonly) return;
         currentPos.i = this.render.visibleRows[currentPos.i];
-        this.drawOnTreadling(loom, loom_settings, currentPos);
+        if(editing_style == "loom") this.drawOnTreadling(loom, loom_settings, currentPos);
       } else if (target && target.id === 'tieups') {
         if(this.viewonly || loom_settings.type === "direct") return;
-        this.drawOnTieups(loom, loom_settings, currentPos);
+        if(editing_style == "loom") this.drawOnTieups(loom, loom_settings, currentPos);
       } else if (target && target.id === ('threading')) {
         if(this.viewonly) return;
         //currentPos.i = this.loom.frame_mapping[currentPos.i];
-        this.drawOnThreading(loom, loom_settings, currentPos);
+        if(editing_style == "loom")  this.drawOnThreading(loom, loom_settings, currentPos);
       } else if(target && target.id === ('weft-systems')){
         if(this.viewonly) return;
         currentPos.i = this.render.visibleRows[currentPos.i];
@@ -370,7 +372,7 @@ export class DraftviewerComponent implements OnInit {
       } else{
         if(this.viewonly) return;
         currentPos.i = this.render.visibleRows[currentPos.i];
-        this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
+        if(editing_style == "drawdown")  this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
       }
 
       this.flag_history = true;
@@ -2370,6 +2372,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   public insertRow(si:number) {
 
     const draft = this.tree.getDraft(this.id);
+    let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
 
     si = this.translateDrawdownRowForView(draft, si);
@@ -2379,14 +2382,28 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     draft.drawdown = insertDrawdownRow(draft.drawdown, index, null);
     draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, index, 1);
     draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, index, 0);
+    const utils = getLoomUtilByType(loom_settings.type);
+    loom = utils.insertIntoTreadling(loom, index, []);
 
-    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-    .then(loom => {
-      this.render.updateVisible(draft);
-      this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-      this.timeline.addHistoryState(draft);
-      this.rowShuttleMapping = draft.rowShuttleMapping;
-    })
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      .then(loom => {
+        this.render.updateVisible(draft);
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.rowShuttleMapping = draft.rowShuttleMapping;
+      })
+    }else{
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      .then(draft => {
+        this.render.updateVisible(draft);
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.rowShuttleMapping = draft.rowShuttleMapping;
+      })
+    }
+
+   
 
   }
     /**
@@ -2397,6 +2414,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   public cloneRow(si: number) {
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+    let loom = this.tree.getLoom(this.id);
 
     si = this.translateDrawdownRowForView(draft, si);
     let index = this.render.visibleRows[si];
@@ -2404,15 +2422,27 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     draft.drawdown = insertDrawdownRow(draft.drawdown, index, draft.drawdown[index].slice());
     draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, index,draft.rowShuttleMapping[index]);
     draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, index,draft.rowSystemMapping[index]);
+    const utils = getLoomUtilByType(loom_settings.type);
+    loom = utils.insertIntoTreadling(loom, index, loom.treadling[index].slice());
 
 
-    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-    .then(loom => {
-      this.render.updateVisible(draft);
-      this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-      this.timeline.addHistoryState(draft);
-      this.rowShuttleMapping = draft.rowShuttleMapping;
-    })
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      .then(loom => {
+        this.render.updateVisible(draft);
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.rowShuttleMapping = draft.rowShuttleMapping;
+      })
+    }else{
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      .then(draft => {
+        this.render.updateVisible(draft);
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.rowShuttleMapping = draft.rowShuttleMapping;
+      })
+    }
 
   }
 
@@ -2420,6 +2450,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+    let loom = this.tree.getLoom(this.id);
 
     si = this.translateDrawdownRowForView(draft, si);
     let index = this.render.visibleRows[si];
@@ -2428,15 +2459,26 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     draft.drawdown = deleteDrawdownRow(draft.drawdown, index);
     draft.rowShuttleMapping = deleteMappingRow(draft.rowShuttleMapping, index)
     draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping, index)
+    const utils = getLoomUtilByType(loom_settings.type);
+    loom = utils.deleteFromTreadling(loom, index);
 
-    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-    .then(loom => {
-      this.render.updateVisible(draft);
-      this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-      this.timeline.addHistoryState(draft);
-      this.rowShuttleMapping = draft.rowShuttleMapping;
-
-    })
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      .then(loom => {
+        this.render.updateVisible(draft);
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.rowShuttleMapping = draft.rowShuttleMapping;
+      })
+    }else{
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      .then(draft => {
+        this.render.updateVisible(draft);
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.rowShuttleMapping = draft.rowShuttleMapping;
+      })
+    }
   }
 
     /**
@@ -2446,6 +2488,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    */
   public insertCol(j: number) {
     const draft = this.tree.getDraft(this.id);
+    let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
 
     j = this.translateDrawdownColForView(draft, j);
@@ -2453,19 +2496,35 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     draft.drawdown = insertDrawdownCol(draft.drawdown, j, null);
     draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, j, 0);
     draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, j, 0);
-    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-    .then(loom => {
-      computeYarnPaths(draft, this.ms.getShuttles());
-      this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-      this.timeline.addHistoryState(draft);
-      this.colShuttleMapping = draft.colShuttleMapping;
-    })
+    const utils = getLoomUtilByType(loom_settings.type);
+    loom = utils.insertIntoThreading(loom, j, -1);
+
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      .then(loom => {
+        computeYarnPaths(draft, this.ms.getShuttles());
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.colShuttleMapping = draft.colShuttleMapping;
+      })
+
+    }else{
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      .then(draft => {
+        computeYarnPaths(draft, this.ms.getShuttles());
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.colShuttleMapping = draft.colShuttleMapping;
+      })
+
+    }
 
   }
 
   public cloneCol(j: number) {
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+    let loom = this.tree.getLoom(this.id);
 
     //flip the index based on the flipped view
     j = this.translateDrawdownColForView(draft, j);
@@ -2478,27 +2537,11 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     draft.drawdown = insertDrawdownCol(draft.drawdown, j, col);
     draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, j, draft.colShuttleMapping[j]);
     draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, j, draft.colSystemMapping[j]);
-    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-    .then(loom => {
-      computeYarnPaths(draft, this.ms.getShuttles());
-      this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-      this.timeline.addHistoryState(draft);
-      this.colShuttleMapping = draft.colShuttleMapping;
-    })
-
-  }
+    const utils = getLoomUtilByType(loom_settings.type);
+    loom = utils.insertIntoThreading(loom, j, loom.threading[j]);
 
 
-  public deleteCol(j: number) {
-    const draft = this.tree.getDraft(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    
-    j = this.translateDrawdownColForView(draft, j);
-
-    
-      draft.drawdown = deleteDrawdownCol(draft.drawdown, j);
-      draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping, j);
-      draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping, j);
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         computeYarnPaths(draft, this.ms.getShuttles());
@@ -2506,6 +2549,55 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
       })
+
+    }else{
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      .then(draft => {
+        computeYarnPaths(draft, this.ms.getShuttles());
+        this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+        this.timeline.addHistoryState(draft);
+        this.colShuttleMapping = draft.colShuttleMapping;
+      })
+
+    }
+
+  }
+
+
+  public deleteCol(j: number) {
+    const draft = this.tree.getDraft(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    let loom = this.tree.getLoom(this.id);
+
+    j = this.translateDrawdownColForView(draft, j);
+
+    
+      draft.drawdown = deleteDrawdownCol(draft.drawdown, j);
+      draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping, j);
+      draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping, j);
+      const utils = getLoomUtilByType(loom_settings.type);
+      loom = utils.deleteFromThreading(loom, j);
+  
+    
+      if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+        this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+        .then(loom => {
+          computeYarnPaths(draft, this.ms.getShuttles());
+          this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+          this.timeline.addHistoryState(draft);
+          this.colShuttleMapping = draft.colShuttleMapping;
+        })
+  
+      }else{
+        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+        .then(draft => {
+          computeYarnPaths(draft, this.ms.getShuttles());
+          this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+          this.timeline.addHistoryState(draft);
+          this.colShuttleMapping = draft.colShuttleMapping;
+        })
+  
+      }
   }
 
   isLastCol(j: number) : boolean {

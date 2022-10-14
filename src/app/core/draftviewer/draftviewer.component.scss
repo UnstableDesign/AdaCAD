@@ -9,6 +9,15 @@ canvas{
 //   width: fit-content;
 // }
 
+.top-half-draft{
+  display: flex;
+  flex-direction: row;
+}
+
+.origin-selector{
+  color: white;
+}
+
 #threading{
   padding-right: 10px;
   //width: fit-content;
@@ -88,6 +97,17 @@ canvas{
   // canvas{
   //   padding-right: 10px;
   // }
+}
+
+.threading-tieup-container.editable-loom{
+  opacity: 1;
+  cursor: pointer;
+
+}
+
+.threading-tieup-container.editable-drawdown{
+  opacity:  .75;
+  cursor: not-allowed;
 
 }
 
@@ -102,6 +122,7 @@ canvas{
   width: 0px;
   display: block;
 }
+
 
 
 .threading-tieup-container.origin0
@@ -143,6 +164,35 @@ canvas{
     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
+
+.drawdown-container.editable-loom{
+  #treadling{
+    opacity: 1;
+    cursor: pointer;
+
+  }
+
+  #drawdown{
+    opacity: 0.75;
+    cursor: not-allowed;
+
+  }
+
+}
+
+.drawdown-container.editable-drawdown{
+  #treadling{
+    opacity: .75;
+    cursor: not-allowed;
+  }
+
+  #drawdown{
+    opacity: 1;
+    cursor: pointer;
+  }
+
+}
+
 
 
 

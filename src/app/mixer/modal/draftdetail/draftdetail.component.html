@@ -35,17 +35,31 @@
 
 
     <div class="ink-block">
-    <mat-label>Using Ink</mat-label>
-    <mat-select [(value)]="ink">
-      <mat-option 
-      *ngFor="let i of inks.getInks()" 
-      [value]="i.viewValue"
-    >
-        {{i.viewValue}}
-      </mat-option>
-    </mat-select> 
+      <mat-label>Using Ink</mat-label>
+      <mat-select [(value)]="ink">
+        <mat-option 
+        *ngFor="let i of inks.getInks()" 
+        [value]="i.viewValue"
+      >
+          {{i.viewValue}}
+        </mat-option>
+      </mat-select> 
     </div>
 
+    <div>
+      <mat-label>Editing Mode: </mat-label>
+      <mat-slide-toggle
+      [disabled]="loom_settings.type === 'jacquard'"
+      (click)="swapEditingStyle()">
+      </mat-slide-toggle>
+      <div><mat-label>{{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}</mat-label></div>
 
+      </div>
+<!-- 
+      <mat-slide-toggle
+           [checked]="!render.view_front"
+          (change)="front = !front; viewFront($event, front, 'front')" 
+          
+      </mat-slide-toggle> -->
 
 </div>
