@@ -26,12 +26,13 @@ AdaCAD is built with Angular, a web development framework for progressive web ap
 - [Node.JS](https://nodejs.dev/learn/how-to-install-nodejs) and [Node Package Manager (npm)](https://nodejs.dev/learn/an-introduction-to-the-npm-package-manager)
 - Intermediate JavasScript/TypeScript – if you know JavaScript but not TypeScript, it should be fairly easy to pick up [TypeScript basics](https://www.typescriptlang.org/docs/handbook/2/basic-types.html).
 - Basic HTML/CSS – enough to understand how these file types are structured and interact with scripts
+- The Angular CLI requires a minimum Node.js version of either v12.20, v14.15, or v16.10.  
 
 ### Installation for developers
 1. Clone this repository onto your local hard drive.
 2. Open your terminal on the local root directory and run `npm install` to download the requirements. This can take a while.
-3. Once installed, run `ng serve` in the terminal and wait for Angular to compile the app. It should tell you once it's ready. 
-4. Navigate to `http://localhost:4200/` and you should see AdaCAD!
+3. Once installed, run `ng serve` in the terminal and wait for Angular to compile the app. It should tell you once it's ready. If your system doesn't recognize `ng serve`, make sure that you're in the app and run `node_modules/.bin/ng serve`
+5. Navigate to `http://localhost:4200/` and you should see AdaCAD!
 
 ### Code organization
 The information here references Angular documentation, such as this page on [Angular concepts and architectural patterns](https://angular.io/guide/architecture).
