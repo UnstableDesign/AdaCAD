@@ -15,7 +15,9 @@
       ></app-selection>
      
       
-      <div class="warp-systems-container origin{{ws.selected_origin_option}}">
+      
+
+      <div class="warp-systems-container origin{{ws.selected_origin_option}} ">
         <div class="warp-systems-text origin{{ws.selected_origin_option}}" id="warp-systems-text">
          
            <div class="warp-system-col origin{{ws.selected_origin_option}}" 
@@ -50,14 +52,14 @@
         <canvas id="warp-systems" #warp_systems>  </canvas>
         <canvas id="warp-materials" #warp_materials>  </canvas>
       </div>
-      <div [class.hidden]="!isFrame" class="threading-tieup-container origin{{ws.selected_origin_option}}">
+      <div [class.hidden]="!isFrame" class="threading-tieup-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}">
         <canvas id="threading" class=""></canvas>
         <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div>
         <canvas id="tieups" #tieups ></canvas>
       </div>
 
-      <div class="drawdown-container origin{{ws.selected_origin_option}}" >
-        <canvas id="drawdown" #drawDown  >  </canvas>
+      <div class="drawdown-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}" >
+        <canvas id="drawdown" #drawdown  >  </canvas>
         <canvas [class.hidden]="!isFrame" id="treadling" #treadling></canvas>
         
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
