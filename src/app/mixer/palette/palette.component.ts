@@ -1197,7 +1197,6 @@ export class PaletteComponent implements OnInit{
         const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
         const sd_draft = <Draft> this.tree.getDraft(obj.id);
         
-      console.log("DUPLICATE SUBDRAFT", sd_draft);
 
       this.createSubDraft(initDraftWithParams(
         {wefts: wefts(sd_draft.drawdown), 
@@ -1211,7 +1210,6 @@ export class PaletteComponent implements OnInit{
         }), -1)
         .then(new_sd => {
 
-          console.log("JUST MADE NEW SD", new_sd);
 
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
           new_sd.setPosition({
@@ -1476,6 +1474,7 @@ connectionDragged(mouse: Point, shift: boolean){
  */
 calculateInitialLocaiton(id: number) : Bounds {
 
+
   const draft = this.tree.getDraft(id);
   
   const new_bounds = {
@@ -1495,7 +1494,7 @@ calculateInitialLocaiton(id: number) : Bounds {
     if(parent_bounds.topleft.x == 0 && parent_bounds.topleft.y == 0){
 
       //component is not yet initalized on this calculation so we do it manually
-      const default_height =  (60 + 40 * (<OpNode> opnode).params.length) * this.scale/this.default_cell_size;
+      const default_height =  (60 + 50 * (<OpNode> opnode).params.length) * this.scale/this.default_cell_size;
       new_bounds.topleft = {x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + default_height};
 
     }else{
