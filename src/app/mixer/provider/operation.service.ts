@@ -12,8 +12,6 @@ import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraf
 import { getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { CombinatoricsService } from '../../core/provider/combinatorics.service';
-import { child } from 'firebase/database';
-import { util } from '@tensorflow/tfjs';
 
 
  
@@ -2928,31 +2926,31 @@ export class OperationService {
 
     const waffle: Operation = {
       name: 'waffle',
-      displayname: 'waffle',
+      displayname: 'waffle-ish',
       old_names:[],
-      dx: 'generates or fills with a waffle structure',
+      dx: 'generates or fills with a waffle structure, sometimes, and some other funky structures at others',
       params: <Array<NumParam>>[
-        {name: 'width',
+        {name: 'ends',
         type: 'number',
         min: 1,
         max: 100,
         value: 8,
-        dx: 'width'
+        dx: 'the number of ends to be used in the waffle'
         
         },
-        {name: 'height',
+        {name: 'pics',
         type: 'number',
         min: 1,
         max: 100,
         value: 8,
-        dx: 'height'
+        dx: 'the number of pics to use in the waffle'
         },
-        {name: 'tabby variation',
+        {name: 'interlacement rows',
         type: 'number',
         min: 0,
         max: 100,
         value: 1,
-        dx: 'builds tabby around the edges of the central diamond, crating some strange patterns'
+        dx: 'builds tabby around the edges of the central diamond, creating some strange patterns'
         }
       ],
       inlets: [{
@@ -3299,7 +3297,6 @@ export class OperationService {
 
 
          let outputs: Array<Draft> = [];
-        //   const d: Draft =initDraftWithParams({warps:parent_input.params[0], wefts:parent_input.params[0], pattern: pattern});
           d.gen_name = this.formatName([], "satin");
           outputs.push(d);
 

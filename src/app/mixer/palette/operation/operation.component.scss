@@ -158,14 +158,16 @@ button.is-primary.is-active{
 .params{
     display:flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
     background: rgba(255,255,255,0.8);
 }
 
 .param-list{
+    padding: 1.0em 1.0em 1.0em .5em;
     display: flex;
     flex-direction: column;
     flex-grow: 2;
+    font-size: .8em;
 }
 
 .operation-details{

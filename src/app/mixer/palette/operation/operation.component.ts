@@ -47,6 +47,8 @@ export class OperationComponent implements OnInit {
    @Output() duplicateOp = new EventEmitter <any>(); 
    @Output() onInputAdded = new EventEmitter <any> ();
 
+
+   params_visible: boolean = true;
     /**
     * reference to top, left positioin as absolute interlacement
     */

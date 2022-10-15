@@ -1,24 +1,13 @@
 <div class="param-row">
+    
 
-    <div class="param-name">{{param.name}}:</div>
+    <ng-container  *ngIf="param.type === 'number'">
+        
+      <mat-form-field>
+          <mat-label class="param-name">{{param.name}}</mat-label>
 
-    <ng-container  *ngIf="param.type == 'number'">
-        <div class="param-slider">
-            <mat-slider 
-            [ngModel] = "opnode.params[paramid]"
-            tickInterval="1"
-            [formControl]="fc"
-            [matTooltip]=param.dx
-            [min]=numparam.min
-            [max]=numparam.max
-            step="1" 
-            (change)= "onParamChange(fc.value)">
-        </mat-slider>
-        </div>
-
-
-        <div class='param-label'>
             <input 
+            matInput
             [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
             [matTooltip]=param.dx
@@ -29,12 +18,28 @@
             step = 1
             (change)= "onParamChange(fc.value)"
         >
+        </mat-form-field>
 
-    </div>
+
+      <!-- <div class="param-slider">
+        <mat-slider 
+        matInput
+        [ngModel] = "opnode.params[paramid]"
+        tickInterval="1"
+        [formControl]="fc"
+        [matTooltip]=param.dx
+        [min]=numparam.min
+        [max]=numparam.max
+        step="1" 
+        (change)= "onParamChange(fc.value)">
+    </mat-slider> 
+   </div> -->
   </ng-container>
 
   <ng-container  *ngIf="param.type == 'select'">
-    <div class="param-select">
+    <mat-form-field>
+
+        <mat-label class="param-name">{{param.name}}</mat-label>
 
         <mat-select 
             [ngModel] = "opnode.params[paramid]"
@@ -45,23 +50,21 @@
             {{opt.name}}
           </mat-option>
         </mat-select>
-      
-    </div>
-
+     </mat-form-field>
  </ng-container>
 
-  <ng-container  *ngIf="param.type == 'boolean'">
+    <ng-container  *ngIf="param.type == 'boolean'">
+      <div class="mat-form-field">
 
-        <div class="param-toggle">
-            <mat-slide-toggle
+        <mat-slide-toggle
             [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
             [matTooltip]=param.dx
             (change)= "onParamChange(fc.value)"
-            >
+            > 
             <span *ngIf="fc.value==1">{{boolparam.truestate}}</span>
-            <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span>
-        </mat-slide-toggle>
+            <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span> 
+          </mat-slide-toggle>
         </div>
     </ng-container>
 
@@ -69,7 +72,7 @@
        
 
          <div class='param-text'>
-            <input 
+            <input matInput
             [(ngModel)] = "opnode.params[paramid]"
             [formControl]="fc"
             [errorStateMatcher]="regexValidator"
@@ -79,7 +82,7 @@
           >
         </div>
 
-        <div class='param-label'>
+         <div class='param-label'>
             <button class="refresh" 
             mat-icon-button
             color = "accent"
@@ -87,14 +90,14 @@
             [disabled]="!fc.dirty || fc.hasError('required') || fc.hasError('forbiddenInput')"
             matTooltip="update draft with input values">
             <i class="fas fa-redo"></i></button>
-        </div>
+        </div> 
 
       
   
 
     </ng-container>
 
-    <ng-container  *ngIf="param.type == 'draft'">
+    <!-- <ng-container  *ngIf="param.type == 'draft'">
        
 
      <div class='param-label'>
@@ -109,28 +112,28 @@
    
 
 
- </ng-container>
+ </ng-container> -->
 
 
 
-    <ng-container  *ngIf="param.type == 'file'">
+    <!-- <ng-container  *ngIf="param.type == 'file'">
        
       <div class='param-file'>
         <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
      </div>
 
    
- </ng-container>
-
+  </ng-container> -->
 
 
 </div>
 
 
-  <div class="text-err" *ngIf="fc.hasError('required')">
+
+  <!-- <div class="text-err" *ngIf="fc.hasError('required')">
      an input is required 
     </div>
 
   <div class="text-err" *ngIf="fc.hasError('forbiddenInput')">
     the current input is not correctly formatted
-    </div>
+    </div> -->

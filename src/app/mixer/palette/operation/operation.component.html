@@ -74,7 +74,7 @@ cdkDrag
     <div class="error"><p>{{filewarning}}</p></div> 
    </div>
 
-   <div class="param-list">
+   <div *ngIf="params_visible" class="param-list">
    
     <ng-container *ngFor="let param of op.params; let i = index">
       
@@ -86,12 +86,26 @@ cdkDrag
       (onFileUpload) = handleFile($event)>
      </app-parameter>
 
-
-
-    
     </ng-container>
 
   </div>
-    </div>
+
+  <div *ngIf="!params_visible" class="param-list">
+   
+    <ng-container *ngFor="let param of op.params; let i = index">
+      {{param.name}}: {{param.value}};
+    </ng-container>
+
+  </div>
+
+  <!-- <button class="refresh" 
+  mat-icon-button
+    (click)="params_visible = !params_visible"
+    matTooltip="update draft with input values">
+    <i *ngIf="!params_visible" class="fas fa-edit"></i>
+    <i *ngIf="params_visible" class="fas fa-eye-slash"></i>
+</button>   -->
+
 </div>
 </div>
+</div>  
