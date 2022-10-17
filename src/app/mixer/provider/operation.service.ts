@@ -1932,35 +1932,35 @@ export class OperationService {
       name: 'margin',
       displayname: 'add margins',
       old_names:[],
-      dx: 'adds padding of unset cells to the top, right, bottom, left of the block',
+      dx: 'adds margins of unset cells, or a user defined draft, to the top, right, bottom, left of the draft',
       params: <Array<NumParam>>[
-        {name: 'bottom',
-        min: 1,
+        {name: 'starting pics',
+        min: 0,
         max: 10000,
-        value: 1,
+        value: 12,
         type: 'number',
-        dx: 'number of pics of padding to add to the bottom'
+        dx: 'number of pics to add to the bottom of the draft'
         },
-        {name: 'right',
-        min: 1,
+        {name: 'ending pics',
+        min: 0,
         max: 10000,
-        value: 1,
+        value: 12,
         type: 'number',
-        dx: 'number of pics of padding to add to the right'
+        dx: 'number of pics to add to the end of the draft'
         },
-        {name: 'top',
-        min: 1,
+        {name: 'starting ends',
+        min: 0,
         max: 10000,
-        value: 1,
+        value: 12,
         type: 'number',
-        dx: 'number of pics of padding to add to the top'
+        dx: 'number of ends of padding to the start of the draft'
         },
-        {name: 'left',
-        min: 1,
+        {name: 'ending ends',
+        min: 0,
         max: 10000,
-        value: 1,
+        value: 12,
         type: 'number',
-        dx: 'number of pics of padding to add to the left'
+        dx: 'number of ends to add to the end of the draft'
         }
       ],
       inlets: [{
@@ -1969,41 +1969,59 @@ export class OperationService {
         value: null,
         dx: 'the draft to add margins to',
         num_drafts: 1
+      },
+      {
+        name: 'margin', 
+        type: 'static',
+        value: null,
+        dx: 'the draft to repeat within the margins',
+        num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
         const parent_input = op_inputs.find(el => el.op_name == 'margin');
-        const child_input = op_inputs.find(el => el.op_name == 'child');
+        const child_inputs = op_inputs.filter(el => el.op_name == 'child');
        
-        if(child_input == undefined) return Promise.resolve([]);
+        if(child_inputs.length == 0) return Promise.resolve([]);
 
 
-        const outputs: Array<Draft> =child_input.drafts.map(input => {
-            const new_warps =parent_input.params[1] +parent_input.params[3] + warps(child_input.drafts[0].drawdown);
-            const new_wefts =parent_input.params[0] +parent_input.params[2] + wefts(child_input.drafts[0].drawdown);
+        const main_input = child_inputs.find(el => el.inlet == 0);
+        let main_draft: Draft = null;
 
-            const d: Draft =initDraftWithParams({warps: new_warps, wefts: new_wefts});
+        if(main_input === undefined || main_input.drafts.length == 0) main_draft = initDraftWithParams({wefts: 0, warps: 0, pattern: [[new Cell(null)]]});
+        else main_draft = main_input.drafts[0];
 
-            //unset all cells to default
-            d.drawdown.forEach((row, i) => {
+
+       
+       
+        const margin_input = child_inputs.find(el => el.inlet == 1);
+        let margin_draft: Draft = null;
+
+        if(margin_input === undefined || margin_input.drafts.length == 0) margin_draft = initDraftWithParams({wefts: 1, warps: 1, pattern: [[new Cell(null)]]});
+        else margin_draft = margin_input.drafts[0];
+
+
+        
+
+          const new_warps =parent_input.params[2] +parent_input.params[3] + warps(main_draft.drawdown);
+          const new_wefts =parent_input.params[0] +parent_input.params[1] + wefts(main_draft.drawdown);
+
+          const d: Draft =initDraftWithParams({warps: new_warps, wefts: new_wefts, pattern: margin_draft.drawdown});
+
+
+          main_draft.drawdown.forEach((row, i) => {
+              d.rowShuttleMapping[i+parent_input.params[0]] = d.rowShuttleMapping[i];
+              d.rowSystemMapping[i+parent_input.params[0]] = d.rowSystemMapping[i];
               row.forEach((cell, j) => {
-                d.drawdown[i][j].unsetHeddle();
+                d.drawdown[i+parent_input.params[0]][j+parent_input.params[3]].setHeddle(cell.getHeddle());
+                d.colShuttleMapping[j+parent_input.params[3]] = d.colShuttleMapping[j];
+                d.colSystemMapping[j+parent_input.params[3]] = d.colSystemMapping[j];
               });
-            });
-            input.drawdown.forEach((row, i) => {
-                d.rowShuttleMapping[i+parent_input.params[0]] = input.rowShuttleMapping[i];
-                d.rowSystemMapping[i+parent_input.params[0]] = input.rowSystemMapping[i];
-                row.forEach((cell, j) => {
-                  d.drawdown[i+parent_input.params[0]][j+parent_input.params[3]].setHeddle(cell.getHeddle());
-                  d.colShuttleMapping[j+parent_input.params[3]] = input.colShuttleMapping[j];
-                  d.colSystemMapping[j+parent_input.params[3]] = input.colSystemMapping[j];
-                });
-                
-            });
-            d.gen_name = this.formatName(child_input.drafts, "margin");
-            return d;
-        });
+              
+          });
+          d.gen_name = this.formatName([main_draft], "margin");
+     
 
-        return Promise.resolve(outputs);
+        return Promise.resolve([d]);
       }
           
     }
