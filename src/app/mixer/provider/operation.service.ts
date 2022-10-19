@@ -2824,6 +2824,113 @@ export class OperationService {
       }        
     }
 
+
+    const sample_width: DynamicOperation = {
+      name: 'sample_width',
+      displayname: 'variable width sampler',
+      old_names:[],
+      dynamic_param_id: 0,
+      dynamic_param_type: 'profile',
+      dx: 'use a letter for each input pattern. Follow the letter by a number to describe how many ends upon which the designated structure should repeat. Separate by spaces. For example, a21 will place struture a across 21 ends. Height is determined by the inputs',
+      params: <Array<StringParam>>[
+        {name: 'pattern',
+        type: 'string',
+        value: 'a20 b20 a40 b40',
+        regex:/.*?(.*?[a-xA-Z]*[\d]*\s*).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        error: 'invalid entry',
+        dx: 'all entries must be a single letter followed by a number, which each letter-number unit separated by a space'
+        }
+      ],
+      inlets: [],
+      perform: (op_inputs: Array<OpInput>) => {
+
+                
+        // //split the inputs into the input associated with 
+        const parent_input: OpInput = op_inputs.find(el => el.op_name === "warp_profile");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        const weft_system: OpInput = op_inputs.find(el => el.inlet == 0);
+  
+        console.log("CHILD INPUTS", child_inputs)
+
+        if(child_inputs.length == 0) return Promise.resolve([]);
+
+        let weft_mapping;
+        if(weft_system === undefined) weft_mapping =initDraftWithParams({warps: 1, wefts:1});
+        else weft_mapping = weft_system.drafts[0];
+    
+
+        //now just get all the drafts
+        const all_drafts: Array<Draft> = child_inputs
+        .filter(el => el.inlet > 0)
+        .reduce((acc, el) => {
+          el.drafts.forEach(draft => {acc.push(draft)});
+          return acc;
+        }, []);
+       
+      
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+        total_wefts = utilInstance.lcm(all_wefts);
+
+
+        let pattern = parent_input.params[0].split(' ');
+
+  
+        //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
+        //get the total number of layers
+        const profile_draft_map = child_inputs
+        .map(el => {
+          return  {
+            id: el.inlet, 
+            draft: el.drafts[0]
+          }
+        });
+
+        let total_warps = 0;
+        const warp_map = [];
+        pattern.forEach(el => {
+          const d = profile_draft_map.find(dm => dm.id === parseInt(el));
+          if(d !== undefined){
+            warp_map.push({id: parseInt(el), start: total_warps, end: total_warps+warps(d.draft.drawdown)});
+            total_warps += warps(d.draft.drawdown);
+          } 
+        })
+
+
+    
+        const d: Draft =initDraftWithParams({
+          warps: total_warps, 
+          wefts: total_wefts,
+          rowShuttleMapping: weft_mapping.rowShuttleMapping,
+          rowSystemMapping: weft_mapping.rowSystemMapping,
+        });
+
+        for(let i = 0; i < wefts(d.drawdown); i++){
+          for(let j = 0; j < warps(d.drawdown); j++){
+
+            const pattern_ndx = warp_map.find(el => j >= el.start && j < el.end).id;
+
+
+            const select_draft = profile_draft_map.find(el => el.id === parseInt(pattern_ndx));
+
+            if(select_draft === undefined){
+              d.drawdown[i][j] = new Cell(null);
+            }else{
+              const sd: Draft = select_draft.draft;
+              const sd_adj_j: number = j - warp_map.find(el => j >= el.start && j < el.end).start;
+              let val = sd.drawdown[i%wefts(sd.drawdown)][sd_adj_j%warps(sd.drawdown)].getHeddle();
+              d.drawdown[i][j] = new Cell(val);
+            }
+          }
+        }
+
+        d.gen_name = this.formatName([], "warp profile");
+        return  Promise.resolve([d]);
+
+       
+      }        
+    }
+
     // const profile: DynamicOperation = {
     //   name: 'profile',
     //   displayname: 'profile draft',
@@ -5093,6 +5200,7 @@ export class OperationService {
     this.dynamic_ops.push(imagemap);
     this.dynamic_ops.push(layernotation);
     this.dynamic_ops.push(warp_profile);
+    this.dynamic_ops.push(sample_width);
 
 
     //**push operations that you want the UI to show as options here */

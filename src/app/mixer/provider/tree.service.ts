@@ -118,14 +118,25 @@ export class TreeService {
 
         let static_inputs = op.inlets.filter(el => el.type === 'static');
         let num_dynamic_inlets = inlets.length - static_inputs.length;
+        let matches = [];
 
         switch(type){
 
           case 'notation':
-            const matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
+            matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
             inlets = inlets.slice(0,static_inputs.length);
             matches.forEach(el => {
               inlets.push(el);
+            })
+          break;
+
+          case 'profile':
+            matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
+            inlets = inlets.slice(0,static_inputs.length);
+            matches.forEach(el => {
+              const s: string = el;
+              console.log("el", el, s.charAt(0));
+              if(s !== null && s.length > 0) inlets.push( s.charAt(0));
             })
           break;
 
