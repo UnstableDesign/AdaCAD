@@ -2717,13 +2717,13 @@ export class OperationService {
       displayname: 'pattern across width',
       old_names:[],
       dynamic_param_id: 0,
-      dynamic_param_type: 'number',
+      dynamic_param_type: 'profile',
       dx: 'if you describe a numeric pattern, it will repeat the inputs in the same pattern',
       params: <Array<StringParam>>[
         {name: 'pattern',
         type: 'string',
-        value: '1 2 3 1 2 3',
-        regex: /(\d)*\D/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        value: 'a b c a b c',
+        regex: /(?:[a-xA-Z][\ ]*).*?/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
         error: 'invalid entry',
         dx: 'all entries must be numbers separated by a space'
         }
@@ -2743,8 +2743,6 @@ export class OperationService {
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
         const weft_system: OpInput = op_inputs.find(el => el.inlet == 0);
   
-        console.log("CHILD INPUTS", child_inputs)
-
         if(child_inputs.length == 0) return Promise.resolve([]);
 
         let weft_mapping;
@@ -2775,16 +2773,19 @@ export class OperationService {
         .map(el => {
           return  {
             id: el.inlet, 
+            val: (el.params[0]).toString(),
             draft: el.drafts[0]
           }
         });
 
+
+        console.log(profile_draft_map);
         let total_warps = 0;
         const warp_map = [];
         pattern.forEach(el => {
-          const d = profile_draft_map.find(dm => dm.id === parseInt(el));
+          const d = profile_draft_map.find(dm => dm.val === el.toString());
           if(d !== undefined){
-            warp_map.push({id: parseInt(el), start: total_warps, end: total_warps+warps(d.draft.drawdown)});
+            warp_map.push({id: d.id, start: total_warps, end: total_warps+warps(d.draft.drawdown)});
             total_warps += warps(d.draft.drawdown);
           } 
         })
@@ -2801,10 +2802,10 @@ export class OperationService {
         for(let i = 0; i < wefts(d.drawdown); i++){
           for(let j = 0; j < warps(d.drawdown); j++){
 
+
             const pattern_ndx = warp_map.find(el => j >= el.start && j < el.end).id;
-
-
             const select_draft = profile_draft_map.find(el => el.id === parseInt(pattern_ndx));
+            //console.log("Looking for ", pattern_ndx, "in", profile_draft_map);
 
             if(select_draft === undefined){
               d.drawdown[i][j] = new Cell(null);
@@ -2836,7 +2837,7 @@ export class OperationService {
         {name: 'pattern',
         type: 'string',
         value: 'a20 b20 a40 b40',
-        regex:/.*?(.*?[a-xA-Z]*[\d]*\s*).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        regex:/(?:[a-xA-Z][\d]*[\ ]*).*?/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
         error: 'invalid entry',
         dx: 'all entries must be a single letter followed by a number, which each letter-number unit separated by a space'
         }
@@ -2846,11 +2847,10 @@ export class OperationService {
 
                 
         // //split the inputs into the input associated with 
-        const parent_input: OpInput = op_inputs.find(el => el.op_name === "warp_profile");
+        const parent_input: OpInput = op_inputs.find(el => el.op_name === "sample_width");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
         const weft_system: OpInput = op_inputs.find(el => el.inlet == 0);
   
-        console.log("CHILD INPUTS", child_inputs)
 
         if(child_inputs.length == 0) return Promise.resolve([]);
 
@@ -2861,7 +2861,6 @@ export class OperationService {
 
         //now just get all the drafts
         const all_drafts: Array<Draft> = child_inputs
-        .filter(el => el.inlet > 0)
         .reduce((acc, el) => {
           el.drafts.forEach(draft => {acc.push(draft)});
           return acc;
@@ -2882,6 +2881,7 @@ export class OperationService {
         .map(el => {
           return  {
             id: el.inlet, 
+            val: el.params[0].toString(),
             draft: el.drafts[0]
           }
         });
@@ -2889,10 +2889,12 @@ export class OperationService {
         let total_warps = 0;
         const warp_map = [];
         pattern.forEach(el => {
-          const d = profile_draft_map.find(dm => dm.id === parseInt(el));
+          const label = el.charAt(0);
+          const qty =parseInt((<string>el).substring(1))
+          const d = profile_draft_map.find(dm => dm.val === label.toString());
           if(d !== undefined){
-            warp_map.push({id: parseInt(el), start: total_warps, end: total_warps+warps(d.draft.drawdown)});
-            total_warps += warps(d.draft.drawdown);
+            warp_map.push({id: d.id, start: total_warps, end: total_warps+qty});
+            total_warps += qty;
           } 
         })
 
@@ -2909,8 +2911,6 @@ export class OperationService {
           for(let j = 0; j < warps(d.drawdown); j++){
 
             const pattern_ndx = warp_map.find(el => j >= el.start && j < el.end).id;
-
-
             const select_draft = profile_draft_map.find(el => el.id === parseInt(pattern_ndx));
 
             if(select_draft === undefined){

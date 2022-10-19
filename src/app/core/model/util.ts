@@ -976,8 +976,7 @@ filterToUniqueValues(arr: Array<any>) : Array<any>{
 parseRegex(input:string, regex: RegExp) : Array<any> {
   const global_regex = new RegExp(regex, 'g');
   const matches = input.match(global_regex);
-  return matches.map(el => el.slice(1, -1));
-
+  return matches;
 }
 
 /**

@@ -12,6 +12,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import { createDraft, flipDraft, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import * as _ from 'lodash';
+import { ignoreElements } from 'rxjs/operators';
 
 
 /**
@@ -124,6 +125,7 @@ export class TreeService {
 
           case 'notation':
             matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
+            matches = matches.map(el => el.slice(1, -1))
             inlets = inlets.slice(0,static_inputs.length);
             matches.forEach(el => {
               inlets.push(el);
@@ -134,9 +136,7 @@ export class TreeService {
             matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
             inlets = inlets.slice(0,static_inputs.length);
             matches.forEach(el => {
-              const s: string = el;
-              console.log("el", el, s.charAt(0));
-              if(s !== null && s.length > 0) inlets.push( s.charAt(0));
+              if(inlets.find(inletval => inletval == el.charAt(0)) === undefined) inlets.push(el.charAt(0));
             })
           break;
 
