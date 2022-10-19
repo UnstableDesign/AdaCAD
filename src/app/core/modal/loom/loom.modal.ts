@@ -358,7 +358,7 @@ export class LoomModal implements OnInit {
 
     }
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.localLoomNeedsRedraw.emit();
@@ -433,7 +433,7 @@ export class LoomModal implements OnInit {
       }
     }
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
 
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
