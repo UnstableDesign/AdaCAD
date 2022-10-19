@@ -2385,7 +2385,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const utils = getLoomUtilByType(loom_settings.type);
     loom = utils.insertIntoTreadling(loom, index, []);
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.render.updateVisible(draft);
@@ -2423,10 +2423,9 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, index,draft.rowShuttleMapping[index]);
     draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, index,draft.rowSystemMapping[index]);
     const utils = getLoomUtilByType(loom_settings.type);
-    loom = utils.insertIntoTreadling(loom, index, loom.treadling[index].slice());
 
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.render.updateVisible(draft);
@@ -2435,6 +2434,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.rowShuttleMapping = draft.rowShuttleMapping;
       })
     }else{
+      loom = utils.insertIntoTreadling(loom, index, loom.treadling[index].slice());
+
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.render.updateVisible(draft);
@@ -2462,7 +2463,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const utils = getLoomUtilByType(loom_settings.type);
     loom = utils.deleteFromTreadling(loom, index);
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.render.updateVisible(draft);
@@ -2499,7 +2501,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const utils = getLoomUtilByType(loom_settings.type);
     loom = utils.insertIntoThreading(loom, j, -1);
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         computeYarnPaths(draft, this.ms.getShuttles());
@@ -2509,6 +2511,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       })
 
     }else{
+
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         computeYarnPaths(draft, this.ms.getShuttles());
@@ -2538,10 +2541,9 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, j, draft.colShuttleMapping[j]);
     draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, j, draft.colSystemMapping[j]);
     const utils = getLoomUtilByType(loom_settings.type);
-    loom = utils.insertIntoThreading(loom, j, loom.threading[j]);
 
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         computeYarnPaths(draft, this.ms.getShuttles());
@@ -2551,6 +2553,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       })
 
     }else{
+      loom = utils.insertIntoThreading(loom, j, loom.threading[j]);
+
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         computeYarnPaths(draft, this.ms.getShuttles());
@@ -2579,7 +2583,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       loom = utils.deleteFromThreading(loom, j);
   
     
-      if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'jacquard'){
+      if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
         this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           computeYarnPaths(draft, this.ms.getShuttles());
