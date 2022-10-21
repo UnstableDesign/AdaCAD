@@ -104,9 +104,11 @@
 			
 					
 				<div class='dims_and_name'>
-					<div><input matInput [(ngModel)]="tree.getDraft(id).ud_name" 
+					<div>
+						<input matInput  [(ngModel)]="ud_name" 
 						[placeholder]="tree.getDraft(id).gen_name"  
-						(focusout)="nameFocusOut($event)">
+						(focusout)="nameFocusOut($event)"
+						(change)="updateName()">
 					 </div>
 					<div class="dims">{{warps()}} x {{wefts()}} </div>
 					<!-- <div *ngIf="ws.type === 'frame' && (tree.getLoom(id).min_frames < tree.getLoom(id).num_frames || tree.getLoom(id).min_treadles < tree.getLoom(id).num_treadles) "class="frame">

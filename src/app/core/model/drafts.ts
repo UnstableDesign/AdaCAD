@@ -692,6 +692,8 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
     {id: d.id, 
     wefts: wefts(d.drawdown),
     warps: warps(d.drawdown),
+    gen_name: d.gen_name,
+    ud_name: d.ud_name,
     colShuttleMapping: d.colShuttleMapping,
     colSystemMapping: d.colSystemMapping});
     draft.drawdown = createBlankDrawdown(wefts(d.drawdown), warps(d.drawdown));

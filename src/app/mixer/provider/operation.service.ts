@@ -4069,6 +4069,7 @@ export class OperationService {
 
           this.transferSystemsAndShuttles(d,[to_bind],parent_input.params, 'first');
           d.gen_name = this.formatName([to_bind], "bindwarp");
+          console.log("gen name", d);
           return Promise.resolve([d]);
       }
     }
