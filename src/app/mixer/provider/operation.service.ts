@@ -9,9 +9,10 @@ import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
 import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, LoomSettings, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
 import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, isUp, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
-import { getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
+import { computeDrawdown, getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { CombinatoricsService } from '../../core/provider/combinatorics.service';
+import { promise } from 'protractor';
 
 
  
@@ -1279,6 +1280,112 @@ export class OperationService {
         return Promise.resolve(outputs);
       }        
     }
+
+
+    const sinewave: Operation = {
+      name: 'sine',
+      displayname: 'sine wave sample', 
+      old_names:[], 
+      dx: 'samples a sin wave at a rate accordinging to the interval, and stretches it to the size of amplitude',
+      params: <Array<NumParam>>[
+        {name: 'ends',
+        type: 'number',
+        min: 1,
+        max: 10000,
+        value: 100,
+        dx: "the total ends of the draft"
+        },
+        {name: 'amplitude',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 20,
+        dx: "the total number of pics for the sin wave to move through"
+        },
+        {name: 'frequency',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 1,
+        dx: "controls number of waves to include "
+        }
+      ],
+      inlets: [],
+      perform: (op_inputs: Array<OpInput>) => {
+        const parent_input = op_inputs.find(el => el.op_name == 'sine');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        const warpnum =  parent_input.params[0];
+        const amps =  parent_input.params[1];
+        const inc =  parent_input.params[2];
+        console.log(parent_input);
+       
+
+        //initialize the base container with the first draft at 0,0, unset for anythign wider
+        const draft: Draft =initDraftWithParams({warps: warpnum, wefts:amps});
+          
+        for(let j = 0; j < warps(draft.drawdown); j++){
+          let i = Math.floor((amps/2)*Math.sin(j * inc) + (amps/2));
+          draft.drawdown[i][j].setHeddle(true);
+        }
+      
+        return Promise.resolve([draft]);
+      }        
+    }
+
+    const sawtooth: Operation = {
+      name: 'sawtooth',
+      displayname: 'sawtooth', 
+      old_names:[], 
+      dx: 'samples a sin wave at a rate accordinging to the interval, and stretches it to the size of amplitude',
+      params: <Array<NumParam>>[
+        {name: 'ends',
+        type: 'number',
+        min: 1,
+        max: 10000,
+        value: 100,
+        dx: "the total ends of the draft"
+        },
+        {name: 'pics',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 20,
+        dx: "the total number of pics for the saw path to move through"
+        },
+        {name: 'segments',
+        type: 'number',
+        min: 0,
+        max: 10000,
+        value: 1,
+        dx: "the total number of segments, each segment represents one half of the saw tooth's path "
+        }
+      ],
+      inlets: [],
+      perform: (op_inputs: Array<OpInput>) => {
+        const parent_input = op_inputs.find(el => el.op_name == 'sawtooth');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        const warpnum =  parent_input.params[0];
+        const pics =  parent_input.params[1];
+        const peaks =  parent_input.params[2];
+       
+
+        //initialize the base container with the first draft at 0,0, unset for anythign wider
+        const draft: Draft =initDraftWithParams({warps: warpnum, wefts:pics});
+        const run = (warpnum/peaks);
+        const slope = pics /run;
+
+          
+        for(let j = 0; j < warps(draft.drawdown); j++){
+          let x = j % Math.floor(run*2);
+          let i = Math.floor(slope * x);
+          if(i < pics)  draft.drawdown[i][j].setHeddle(true);
+          else draft.drawdown[(pics-1)-(i-pics)][j].setHeddle(true);
+        }
+      
+        return Promise.resolve([draft]);
+      }        
+    }
+
 
     const atop: Operation = {
       name: 'set atop, (a, b) => a',
@@ -3832,10 +3939,10 @@ export class OperationService {
       old_names:[],
       dx: 'adds interlacements to weft floats over the user specified length',
       params: <Array<NumParam>>[
-        {name: 'length',
+        {name: 'max float length',
         type: 'number',
         min: 1,
-        max: 100,
+        max: 1000000,
         value: 10,
         dx: 'the maximum length of a weft float'
         }
@@ -3846,41 +3953,53 @@ export class OperationService {
         value: null,
         dx: 'the draft to bind',
         num_drafts: 1
-      },
-      {
-        name: 'binding pattern', 
-        type: 'static',
-        value: null,
-        dx: 'the draft to bind',
-        num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'bind weft floats');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        if(child_input === undefined) return Promise.resolve([]);
+        const to_bind = child_input.drafts[0];
 
-          const outputs:Array<Draft> =op_input.drafts.map(input => {
-          const d: Draft =initDraftWithParams({warps: warps(input.drawdown), wefts: wefts(input.drawdown), pattern: input.drawdown});
-          let float: number = 0;
+          const d: Draft =initDraftWithParams({warps: warps(to_bind.drawdown), wefts: wefts(to_bind.drawdown), pattern: to_bind.drawdown.slice()});
+          let float_len: number = 0;
           let last:boolean = false;
-          d.drawdown.forEach(row => {
-            float = 0;
+
+          for(let i = 0; i < wefts(d.drawdown); i++){
+            float_len = 1;
             last = null;
-            row.forEach(c => {
+            for(let j = 0; j < warps(d.drawdown); j++){
 
-              if(c.getHeddle == null) float = 0;
-              if(last != null && c.getHeddle() == last) float++;
-
-              if(float >=op_input.params[0]){
-                c.toggleHeddle();
-                float = 0;
+              if(d.drawdown[i][j].getHeddle() === null){
+                float_len = 1;
+                last = null
+              }else if(last === null){
+                float_len = 1;
+                last = d.drawdown[i][j].getHeddle();
               }
-              last = c.getHeddle();
-            });
-          });
-          this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'first');
-          d.gen_name = this.formatName(op_input.drafts, "bindweft");
-          return d;
-        });
-        return  Promise.resolve(outputs);
+              else if( d.drawdown[i][j].getHeddle() === last){
+                float_len++;
+                
+                if(float_len > parent_input.params[0]){
+                  d.drawdown[i][j].toggleHeddle();
+                  last = d.drawdown[i][j].getHeddle();
+                  float_len = 1
+                }
+
+
+              } else if(d.drawdown[i][j].getHeddle() !== last){
+                float_len = 1;
+                last = d.drawdown[i][j].getHeddle();
+              }
+
+             
+
+            }
+          }
+
+
+          this.transferSystemsAndShuttles(d,[to_bind],parent_input.params, 'first');
+          d.gen_name = this.formatName([to_bind], "bindweft");
+        return  Promise.resolve([d]);
       }
     }
 
@@ -3906,33 +4025,51 @@ export class OperationService {
         num_drafts: 1
       }], 
       perform: (op_inputs: Array<OpInput>) => {
-        const op_input = op_inputs[0];
+        const parent_input = op_inputs.find(el => el.op_name == 'bind warp floats');
+        const child_input = op_inputs.find(el => el.op_name == 'child');
+        if(child_input === undefined) return Promise.resolve([]);
+        const to_bind = child_input.drafts[0];
 
-          const outputs:Array<Draft> =op_input.drafts.map(input => {
-          const d: Draft =initDraftWithParams({warps: warps(input.drawdown), wefts: wefts(input.drawdown), pattern: input.drawdown});
-          let float: number = 0;
+          const d: Draft =initDraftWithParams({warps: warps(to_bind.drawdown), wefts: wefts(to_bind.drawdown), pattern: to_bind.drawdown.slice()});
+          let float_len: number = 0;
           let last:boolean = false;
 
           for(let j = 0; j < warps(d.drawdown); j++){
-            const col: Array<Cell> = d.drawdown.map(row => row[j]);
-            float = 0;
+            float_len = 1;
             last = null;
-            col.forEach(c => {
+            for(let i = 0; i < wefts(d.drawdown); i++){
 
-              if(c.getHeddle == null) float = 0;
-              if(last != null && c.getHeddle() == last) float++;
-
-              if(float >=op_input.params[0]){
-                c.toggleHeddle();
-                float = 0;
+              if(d.drawdown[i][j].getHeddle() === null){
+                float_len = 1;
+                last = null
+              }else if(last === null){
+                float_len = 1;
+                last = d.drawdown[i][j].getHeddle();
               }
-              last = c.getHeddle();
-            });
+              else if( d.drawdown[i][j].getHeddle() === last){
+                float_len++;
+                
+                if(float_len > parent_input.params[0]){
+                  d.drawdown[i][j].toggleHeddle();
+                  last = d.drawdown[i][j].getHeddle();
+                  float_len = 1
+                }
+
+
+              } else if(d.drawdown[i][j].getHeddle() !== last){
+                float_len = 1;
+                last = d.drawdown[i][j].getHeddle();
+              }
+
+             
+
+            }
           }
 
-          return d;
-        });
-        return  Promise.resolve(outputs);
+
+          this.transferSystemsAndShuttles(d,[to_bind],parent_input.params, 'first');
+          d.gen_name = this.formatName([to_bind], "bindwarp");
+          return Promise.resolve([d]);
       }
     }
 
@@ -4935,10 +5072,76 @@ export class OperationService {
         }
       }  
         
+      const makedirectloom: Operation = {
+        name: 'direct loom',
+        displayname: 'generate direct tie loom threading and lift plan',
+        old_names:[],
+        dx: 'uses the input draft as drawdown and generates a threading and lift plan pattern',
+        params: [],
+        inlets: [{
+          name: 'drawdown', 
+          type: 'static',
+          value: null,
+          dx: 'the drawdown from which to create threading, tieup and treadling data from',
+          num_drafts: 1
+        }],
+        perform: (op_inputs: Array<OpInput>) => {
+  
+          const parent_input = op_inputs.find(el => el.op_name === "direct loom");
+          const child_input= op_inputs.find(el => el.op_name === "child");
+  
+          if(child_input === undefined || child_input.drafts === undefined) return Promise.resolve([]);
+  
         
+          const loom_settings:LoomSettings = {
+            type: 'direct',
+            epi: 10, 
+            units: 'in',
+            frames: 8,
+            treadles: 8
+          }
+          const utils = getLoomUtilByType(loom_settings.type);
+          return utils.computeLoomFromDrawdown(child_input.drafts[0].drawdown, loom_settings, this.ws.selected_origin_option)
+          .then(l => {
+  
+            const frames = Math.max(numFrames(l), loom_settings.frames);
+            const treadles = Math.max(numTreadles(l), loom_settings.treadles);
+         
+            const threading: Draft =initDraftWithParams({warps:warps(child_input.drafts[0].drawdown), wefts: frames});
+          l.threading.forEach((frame, j) =>{
+            if(frame !== -1) threading.drawdown[frame][j].setHeddle(true);
+          });
+          threading.gen_name = "threading"+getDraftName(child_input.drafts[0]);
+  
+          const treadling: Draft =initDraftWithParams({warps:treadles, wefts:wefts(child_input.drafts[0].drawdown)});   
+          l.treadling.forEach((treadle_row, i) =>{
+            treadle_row.forEach(treadle_num => {
+              treadling.drawdown[i][treadle_num].setHeddle(true);
+            })
+          });
+          treadling.gen_name = "treadling_"+getDraftName(child_input.drafts[0]);
+  
+  
+          const tieup: Draft =initDraftWithParams({warps: treadles, wefts: frames});
+          l.tieup.forEach((row, i) => {
+            row.forEach((val, j) => {
+              tieup.drawdown[i][j].setHeddle(val);
+            })
+          });
+          tieup.gen_name = "tieup_"+getDraftName(child_input.drafts[0]);
+          return Promise.resolve([threading, tieup, treadling]);
+  
+  
+  
+          });
+  
+        }
+  
+  
+      }   
     const makeloom: Operation = {
       name: 'floor loom',
-      displayname: 'shaft/treadle loom',
+      displayname: 'generate floor loom threading and treadling',
       old_names:[],
       dx: 'uses the input draft as drawdown and generates a threading, tieup and treadling pattern',
       params: [],
@@ -5006,7 +5209,7 @@ export class OperationService {
 
     const drawdown: Operation = {
       name: 'drawdown',
-      displayname: 'drawdown',
+      displayname: 'make drawdown from threading, tieup, and treadling',
       old_names:[],
       dx: 'create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)',
       params: [
@@ -5048,7 +5251,7 @@ export class OperationService {
           || tieup_inlet === undefined
           || treadling_inlet == undefined) return Promise.resolve([]);
   
-        const threading_draft = treadling_inlet.drafts[0];
+        const threading_draft = threading_inlet.drafts[0];
         const tieup_draft = tieup_inlet.drafts[0];
         const treadling_draft = treadling_inlet.drafts[0];
   
@@ -5071,6 +5274,8 @@ export class OperationService {
           return row.map(cell => cell.getHeddle());
         });
   
+        
+        console.log(threading_draft, treadling_draft)
         const draft: Draft = initDraftWithParams({warps:warps(threading_draft.drawdown), wefts:wefts(treadling_draft.drawdown)});
         const utils = getLoomUtilByType('frame');
         const loom = {
@@ -5090,7 +5295,92 @@ export class OperationService {
   
   
       }
-
+    const directdrawdown: Operation = {
+        name: 'directdrawdown',
+        displayname: 'make drawdown from threading and lift plan',
+        old_names:[],
+        dx: 'create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.lift plan)',
+        params: [
+    
+        ],
+        inlets: [{
+          name: 'threading', 
+          type: 'static',
+          value: null,
+          dx: 'the draft to use as threading',
+          num_drafts: 1
+        }, {
+          name: 'tieup', 
+          type: 'static',
+          value: null,
+          dx: 'the draft to use as tieup',
+          num_drafts: 1
+        },
+        {
+          name: 'lift plan', 
+          type: 'static',
+          value: null,
+          dx: 'the draft to use as the lift plan',
+          num_drafts: 1
+        }
+        ],
+        perform: (op_inputs: Array<OpInput>) => {
+    
+          const parent_input = op_inputs.find(el => el.op_name === "directdrawdown");
+          const child_input= op_inputs.find(el => el.op_name === "child");
+          const threading_inlet = op_inputs.find(el => el.inlet === 0);
+          const tieup_inlet = op_inputs.find(el => el.inlet === 1);
+          const treadling_inlet = op_inputs.find(el => el.inlet === 2);
+    
+    
+    
+          if(child_input === undefined 
+            || threading_inlet === undefined
+            || tieup_inlet === undefined
+            || treadling_inlet == undefined) return Promise.resolve([]);
+    
+          const threading_draft = threading_inlet.drafts[0];
+          const tieup_draft = tieup_inlet.drafts[0];
+          const treadling_draft = treadling_inlet.drafts[0];
+    
+          
+          const threading: Array<number> = [];
+          for(let j = 0; j < warps(threading_draft.drawdown); j++){
+            const col: Array<Cell> = threading_draft.drawdown.reduce((acc, row, ndx) => {
+              acc[ndx] = row[j];
+              return acc;
+            }, []);
+    
+            threading[j] = col.findIndex(cell => cell.getHeddle());
+    
+          }
+        
+          const treadling: Array<Array<number>> =treadling_draft.drawdown
+          .map(row => [row.findIndex(cell => cell.getHeddle())]);
+    
+          const tieup =tieup_draft.drawdown.map(row => {
+            return row.map(cell => cell.getHeddle());
+          });
+    
+          const draft: Draft = initDraftWithParams({warps:warps(threading_draft.drawdown), wefts:wefts(treadling_draft.drawdown)});
+          const utils = getLoomUtilByType('frame');
+          const loom = {
+            threading: threading,
+            tieup: tieup,
+            treadling:treadling
+          }
+          return utils.computeDrawdownFromLoom(loom, 0).then(drawdown => {
+            draft.drawdown = drawdown;
+            return Promise.resolve([draft]);
+  
+          })
+         
+    
+          }
+    
+    
+    
+        }
 
     const combinatorics: Operation = {
       name: 'combos',
@@ -5228,8 +5518,8 @@ export class OperationService {
     this.ops.push(shifty);
     this.ops.push(layer);
     this.ops.push(selvedge);
-    // this.ops.push(bindweftfloats);
-    // this.ops.push(bindwarpfloats);
+    this.ops.push(bindweftfloats);
+    this.ops.push(bindwarpfloats);
     this.ops.push(joinleft);
     this.ops.push(jointop);
     this.ops.push(slope);
@@ -5254,10 +5544,14 @@ export class OperationService {
     this.ops.push(crop);
     this.ops.push(trim);
     this.ops.push(makeloom);
+    this.ops.push(makedirectloom);
     this.ops.push(drawdown);
+    this.ops.push(directdrawdown);
     this.ops.push(erase_blank);
     this.ops.push(apply_mats);
     this.ops.push(combinatorics);
+    this.ops.push(sinewave);
+    this.ops.push(sawtooth);
 
 
     //** Give it a classification here */
@@ -5270,7 +5564,7 @@ export class OperationService {
     this.classification.push(
       {category: 'block design',
       dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
-      ops: [rect, crop, trim, margin, tile, chaos, warp_profile]
+      ops: [rect, crop, trim, margin, tile, chaos, warp_profile, sample_width]
     }
     );
     this.classification.push(
@@ -5287,14 +5581,21 @@ export class OperationService {
     
      this.classification.push(
           {category: 'binary',
-          dx: "2 inputs, 1 output, operations take twoop_input.drafts and perform binary operations on the interlacements",
+          dx: "2 inputs, 1 output, operations take two inputs and perform binary operations on the interlacements",
           ops: [atop, overlay, mask, knockout]}
           );
     
       this.classification.push(
+        {category: 'math',
+        dx: "0 or more inputs, 1 output, generates drafts from mathmatical functions",
+        ops: [sinewave, sawtooth]}
+        );
+      
+
+      this.classification.push(
             {category: 'helper',
             dx: "variable inputs, variable outputs, supports common drafting requirements to ensure good woven structure",
-            ops: [selvedge]}
+            ops: [selvedge, bindweftfloats, bindwarpfloats]}
             );
 
 
@@ -5313,11 +5614,11 @@ export class OperationService {
     this.classification.push(
       {category: 'frame loom support',
       dx: "variable input drafts, variable outputs, offer specific supports for working with frame looms",
-      ops: [makeloom, drawdown]}
+      ops: [makeloom, makedirectloom, drawdown, directdrawdown]}
     );
 
     this.classification.push(
-      {category: 'aesthetics',
+      {category: 'color effects',
       dx: "2 inputs, 1 output: applys pattern information from second draft onto the first. To be used for specifiying color repeats",
       ops: [apply_mats]}
     );
