@@ -14,6 +14,7 @@ import { OperationComponent } from '../operation/operation.component';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { createDraft, getDraftName, initDraftWithParams, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
+import { D } from '@angular/cdk/keycodes';
 
 
 
@@ -131,6 +132,8 @@ export class SubdraftComponent implements OnInit {
 
   loom_settings: LoomSettings;
 
+  ud_name: string;
+
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ms: MaterialsService, 
@@ -158,6 +161,7 @@ export class SubdraftComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
     this.loom_settings = this.tree.getLoomSettings(this.id);
+    this.ud_name = draft.ud_name;
 
     if(draft !== undefined){
       this.bounds.width = warps(draft.drawdown) * this.scale;
@@ -245,6 +249,12 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+
+  updateName(){
+    const draft = this.tree.getDraft(this.id);
+    draft.ud_name = this.ud_name;
+
+  }
 
 
   updateSize(parent: OperationComponent){
