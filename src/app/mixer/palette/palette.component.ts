@@ -608,6 +608,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.draft_visible =true;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
+    subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
 
     if(nodep.bounds !== null){
       

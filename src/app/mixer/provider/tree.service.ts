@@ -1201,11 +1201,13 @@ removeOperationNode(id:number) : Array<Node>{
       loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings, this.ws.selected_origin_option)
       .then(loom => {
         dn.loom = loom;
+        dn.dirty = true;
+        touched.push(out[i]);
+        return Promise.resolve(touched);
       })
-      dn.dirty = true;
-      touched.push(out[i]);
+
     }
-    return Promise.resolve(touched);
+   
   }else{
     const fns:Array<any> = [];
     for(let i = out.length; i < res.length; i++){

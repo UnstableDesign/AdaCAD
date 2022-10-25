@@ -239,13 +239,13 @@ export class SubdraftComponent implements OnInit {
   updatePositionFromParent(parent: OperationComponent){
 
     if(this.parent_id !== parent.id){
-      console.error("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
+      console.error("attempitng to update subdraft position from non-parent operation",  this.parent_id, parent.id);
       return;
     }
 
-    const container = <HTMLElement> document.getElementById("scale-"+this.parent_id);
-    this.setPosition({x: parent.bounds.topleft.x, y: parent.bounds.topleft.y + (container.offsetHeight * this.scale/this.default_cell) });
-
+    let container = <HTMLElement> document.getElementById("scale-"+this.parent_id);
+    if(container !== null) this.setPosition({x: parent.bounds.topleft.x, y: parent.bounds.topleft.y + (container.offsetHeight * this.scale/this.default_cell) });
+    else {console.error("no element named scale-"+this.parent_id+"found")}
 
   }
 
