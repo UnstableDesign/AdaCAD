@@ -256,6 +256,7 @@ export type LoomUtil = {
   dx: string,
   computeLoomFromDrawdown: (d:Drawdown, loom_settings: LoomSettings, origin: number) => Promise<Loom>,
   computeDrawdownFromLoom: (l:Loom, origin: number) => Promise<Drawdown>,
+  recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number) => Promise<Loom>,
   updateThreading: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTreadling: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTieup: (l: Loom, ndx: InterlacementVal)=> Loom,

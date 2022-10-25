@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import * as _ from 'lodash';
 import { DesignmodesService } from '../../provider/designmodes.service';
-import { DesignMode,Loom, Draft, LoomSettings, DraftNode } from '../../model/datatypes';
+import { DesignMode,Loom, Draft, LoomSettings, DraftNode, LoomUtil } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, flipDraft, flipDrawdown, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../model/drafts';
@@ -12,6 +12,7 @@ import utilInstance from '../../model/util';
 import { C } from '@angular/cdk/keycodes';
 import { notDeepStrictEqual } from 'assert';
 import { setSymDifferenceDependencies } from 'mathjs';
+import { util } from '@tensorflow/tfjs';
 
 @Component({
   selector: 'app-loom-modal',
@@ -238,7 +239,14 @@ export class LoomModal implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-
+    let utils:LoomUtil = null;
+    const new_settings:LoomSettings = {
+      type: e.value.loomtype,
+      epi: loom_settings.epi,
+      units: loom_settings.units,
+      frames: loom_settings.frames,
+      treadles: loom_settings.treadles
+    }
 
     if(this.type == 'global'){
       this.ws.type = e.value.loomtype;
@@ -247,31 +255,68 @@ export class LoomModal implements OnInit {
 
     } 
     else{
-      loom_settings.type = e.value.loomtype;
 
-      if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
-      else this.dm.selectDesignMode('loom', 'drawdown_editing_style')
-
+      console.log("OLD", loom_settings, "new", new_settings);
       
       if(loom_settings.type == 'direct'){
         loom_settings.frames = Math.max(loom_settings.treadles, loom_settings.frames);
         loom_settings.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
-        this.tree.setLoomSettings(this.id, loom_settings);
-
+       // this.tree.setLoomSettings(this.id, loom_settings);
       }
 
-      if(loom === null && isFrame(loom_settings)){
-        const utils = getLoomUtilByType(loom_settings.type);
+      //if we are changing from null or jacquard to a frame type loom 
+      if((loom_settings.type === null || loom_settings.type === 'jacquard')){
+       //from jacquard to frame
+
+        utils = getLoomUtilByType(new_settings.type);
         utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
         .then(loom => {
           this.tree.setLoom(this.id, loom);
           this.localLoomNeedsRedraw.emit();
 
-        })
-      }else{    
+        });
+      }else if(isFrame(loom_settings) && new_settings.type == 'jacquard'){
+      //from a frame loom to jacquard
 
+       utils = getLoomUtilByType(new_settings.type);
+       utils.computeDrawdownFromLoom(loom,this.ws.selected_origin_option)
+        .then(drawdown => {
+          draft.drawdown = drawdown;
+          this.tree.setDraftOnly(this.id, draft);
+          this.localLoomNeedsRedraw.emit();
+
+        });
+      
+      }else if(isFrame(loom_settings) && isFrame(new_settings)){
+        console.log("swtching kinds of frame looms")
+        //from one frame loom to another
+        const utils = getLoomUtilByType(new_settings.type);
+        if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+          utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+          .then(loom => {
+            this.tree.setLoom(this.id, loom);
+            this.localLoomNeedsRedraw.emit();
+
+          })
+        }else{
+          utils.recomputeLoomFromThreadingAndDrawdown(loom,new_settings, draft.drawdown, this.ws.selected_origin_option)
+          .then(loom => {
+            this.tree.setLoom(this.id, loom);
+            this.localLoomNeedsRedraw.emit();
+          });
+
+        }
+
+
+      }else{
         this.localLoomNeedsRedraw.emit();
       }
+
+      
+      if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+      else this.dm.selectDesignMode('loom', 'drawdown_editing_style');
+
+      this.tree.setLoomSettings(this.id, new_settings);
 
 
 
