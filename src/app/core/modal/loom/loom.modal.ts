@@ -239,14 +239,8 @@ export class LoomModal implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+
     let utils:LoomUtil = null;
-    const new_settings:LoomSettings = {
-      type: e.value.loomtype,
-      epi: loom_settings.epi,
-      units: loom_settings.units,
-      frames: loom_settings.frames,
-      treadles: loom_settings.treadles
-    }
 
     if(this.type == 'global'){
       this.ws.type = e.value.loomtype;
@@ -256,12 +250,20 @@ export class LoomModal implements OnInit {
     } 
     else{
 
-      console.log("OLD", loom_settings, "new", new_settings);
-      
+      const new_settings:LoomSettings = {
+        type: e.value.loomtype,
+        epi: loom_settings.epi,
+        units: loom_settings.units,
+        frames: loom_settings.frames,
+        treadles: loom_settings.treadles
+      }
+
       if(loom_settings.type == 'direct'){
-        loom_settings.frames = Math.max(loom_settings.treadles, loom_settings.frames);
-        loom_settings.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
-       // this.tree.setLoomSettings(this.id, loom_settings);
+        new_settings.frames = Math.max(loom_settings.treadles, loom_settings.frames);
+        new_settings.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
+        this.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
+        this.frames = Math.max(loom_settings.treadles, loom_settings.frames);
+
       }
 
       //if we are changing from null or jacquard to a frame type loom 

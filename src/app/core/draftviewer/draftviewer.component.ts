@@ -240,12 +240,15 @@ export class DraftviewerComponent implements OnInit {
   ngOnInit() {
 
     const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     this.isFrame = isFrame(loom_settings);
     this.viewonly = !this.tree.isSeedDraft(this.id);
 
     this.colShuttleMapping = draft.colShuttleMapping;
     this.rowShuttleMapping = draft.rowShuttleMapping;
+
+
 
   }
 

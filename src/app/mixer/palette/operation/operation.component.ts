@@ -147,7 +147,13 @@ export class OperationComponent implements OnInit {
     const container: HTMLElement = document.getElementById('scale-'+this.id);
     this.bounds.height = container.offsetHeight;
 
+    const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
+    if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
+
+
   }
+
+  
 
   drawImagePreview(){
 
@@ -239,7 +245,7 @@ export class OperationComponent implements OnInit {
 
 
        const container = <HTMLElement> document.getElementById("scale-"+this.id);
-       this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
+       if(container !== null) this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
   
     }
 
