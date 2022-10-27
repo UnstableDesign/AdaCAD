@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Shuttle } from '../../../core/model/shuttle';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
-import { TreeService } from '../../../mixer/provider/tree.service';
+import { TreeService } from '../../../core/provider/tree.service';
 import utilInstance from '../../model/util';
 import { Draft,DraftNode } from '../../model/datatypes';
 

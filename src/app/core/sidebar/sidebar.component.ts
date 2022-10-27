@@ -13,7 +13,7 @@ import { InitModal } from '../../core/modal/init/init.modal';
 import { MaterialsService } from '../provider/materials.service';
 import { StateService } from '../provider/state.service';
 import { Draft, Loom, LoomSettings } from '../model/datatypes';
-import { TreeService } from '../../mixer/provider/tree.service';
+import { TreeService } from '../../core/provider/tree.service';
 
 @Component({
   selector: 'app-sidebar',

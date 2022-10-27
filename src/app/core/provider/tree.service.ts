@@ -1,8 +1,8 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { cloneDeep, flip, map, toNumber } from 'lodash';
-import { ConnectionComponent } from '../palette/connection/connection.component';
-import { OperationComponent } from '../palette/operation/operation.component';
-import { SubdraftComponent } from '../palette/subdraft/subdraft.component';
+import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
+import { OperationComponent } from '../../mixer/palette/operation/operation.component';
+import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
 import { OperationService} from './operation.service';
 import { OpInput, Node, DynamicOperation, Operation, StringParam, TreeNode, DraftNode, OpNode, IOTuple } from '../../core/model/datatypes';
 import { Draft, DraftNodeProxy, Drawdown, Loom, LoomSettings, LoomUtil, NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/model/datatypes';

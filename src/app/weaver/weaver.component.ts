@@ -18,7 +18,7 @@ import { WorkspaceService } from '../core/provider/workspace.service';
 import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol, initDraftWithParams } from '../core/model/drafts';
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { computeYarnPaths } from '../core/model/yarnsimulation';
-import { TreeService } from '../mixer/provider/tree.service';
+import { TreeService } from '../core/provider/tree.service';
 import { docSnapshots } from '@angular/fire/firestore';
 import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 

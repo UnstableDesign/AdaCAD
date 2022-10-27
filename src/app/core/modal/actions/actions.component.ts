@@ -10,7 +10,7 @@ import { Draft } from '../../model/datatypes';
 import { MaterialsService } from '../../provider/materials.service';
 import { SystemsService } from '../../provider/systems.service';
 import { System } from '../../model/system';
-import { TreeService } from '../../../mixer/provider/tree.service';
+import { TreeService } from '../../provider/tree.service';
 
 @Component({
   selector: 'app-actions',

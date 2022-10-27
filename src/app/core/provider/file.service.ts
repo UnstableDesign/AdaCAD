@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {TreeService } from '../../mixer/provider/tree.service';
+import {TreeService } from './tree.service';
 import { Cell } from '../model/cell';
 import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, OpComponentProxy, StatusMessage, TreeNodeProxy, NodeComponentProxy, LoomSettings, SaveObj, DraftNode } from '../model/datatypes';
 import utilInstance from '../model/util';

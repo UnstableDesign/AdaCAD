@@ -16,11 +16,11 @@ import { WorkspaceService } from '../provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft } from '../model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../model/looms';
 import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../model/yarnsimulation';
-import { TreeService } from '../../mixer/provider/tree.service';
+import { TreeService } from '../provider/tree.service';
 import { setDeprecationWarningFn } from '@tensorflow/tfjs-core/dist/tensor';
 import { LoomModal } from '../modal/loom/loom.modal';
 import utilInstance from '../model/util';
-import { OperationService } from '../../mixer/provider/operation.service';
+import { OperationService } from '../provider/operation.service';
 
 @Component({
   selector: 'app-draftviewer',

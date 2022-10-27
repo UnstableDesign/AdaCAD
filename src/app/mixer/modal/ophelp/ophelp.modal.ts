@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DynamicOperation } from '../../../core/model/datatypes';
-import { OperationService } from '../../provider/operation.service';
+import { OperationService } from '../../../core/provider/operation.service';
 
 @Component({
   selector: 'app-ophelp',

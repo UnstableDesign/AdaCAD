@@ -3,8 +3,7 @@ import { Point, Interlacement, Bounds, DraftMap, Draft, LoomSettings } from '../
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import utilInstance from '../../../core/model/util';
-import { OperationService } from '../../provider/operation.service';
-import { TreeService } from '../../provider/tree.service';
+import { TreeService } from '../../../core/provider/tree.service';
 import { FileService } from '../../../core/provider/file.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
