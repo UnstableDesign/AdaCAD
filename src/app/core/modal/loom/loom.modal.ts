@@ -7,7 +7,7 @@ import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, flipDraft, flipDrawdown, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../model/drafts';
 import { flipLoom, flipPattern, generateDirectTieup, getLoomUtilByType, isFrame } from '../../model/looms';
-import { TreeService } from '../../../mixer/provider/tree.service';
+import { TreeService } from '../../provider/tree.service';
 import utilInstance from '../../model/util';
 import { C } from '@angular/cdk/keycodes';
 import { notDeepStrictEqual } from 'assert';

@@ -3,7 +3,7 @@ import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import {Subject} from 'rxjs';
 import { PaletteComponent } from './palette/palette.component';
-import { TreeService} from './provider/tree.service';
+import { TreeService} from '../core/provider/tree.service';
 import { Draft, Loom, FileObj, Node, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy, LoomSettings, TreeNode, DraftNode, IOTuple  } from '../core/model/datatypes';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { ViewportService } from './provider/viewport.service';
@@ -20,7 +20,7 @@ import { AuthService } from '../core/provider/auth.service';
 import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 import {getAnalytics, logEvent} from '@angular/fire/analytics'
 import { ImageService } from '../core/provider/image.service';
-import { OperationService } from './provider/operation.service';
+import { OperationService } from '../core/provider/operation.service';
 import { FileService} from '../core/provider/file.service'
 import { initDraft, initDraftWithParams, loadDraftFromFile } from '../core/model/drafts';
 import * as _ from 'lodash';

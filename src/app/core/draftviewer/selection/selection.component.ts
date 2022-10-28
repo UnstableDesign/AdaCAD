@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { linkWithCredential } from 'firebase/auth';
-import { TreeService } from '../../../mixer/provider/tree.service';
+import { TreeService } from '../../provider/tree.service';
 import { Interlacement, LoomSettings } from '../../model/datatypes';
 import { numFrames, numTreadles } from '../../model/looms';
 import { Render } from '../../model/render';

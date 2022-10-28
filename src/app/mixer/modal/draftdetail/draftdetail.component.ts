@@ -5,13 +5,13 @@ import { numFrames, numTreadles } from '../../../core/model/looms';
 import {wefts, warps} from '../../../core/model/drafts'
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
 import { InkService } from '../../provider/ink.service';
-import { OperationService } from '../../provider/operation.service';
+import { OperationService } from '../../../core/provider/operation.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { WeaverComponent } from '../../../weaver/weaver.component';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { from } from 'rxjs';
-import { TreeService } from '../../provider/tree.service';
+import { TreeService } from '../../../core/provider/tree.service';
 
 
 /**

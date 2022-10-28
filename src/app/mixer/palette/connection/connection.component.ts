@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { i } from 'mathjs';
 import { Bounds, Point } from '../../../core/model/datatypes';
-import { TreeService } from '../../provider/tree.service';
+import { TreeService } from '../../../core/provider/tree.service';
 import { OperationComponent } from '../operation/operation.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 
