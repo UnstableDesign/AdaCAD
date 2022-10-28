@@ -15,7 +15,7 @@
     <form  autocomplete="off">
     <mat-form-field  class="full-width" width='100%' appearance="fill">
     <mat-label><i class="fas fa-search"></i>search for action by name</mat-label>
-    <input cdkFocusInitial type="text"
+    <input type="text"
            placeholder=""
            matInput
            [formControl]="myControl"
@@ -33,9 +33,9 @@
   </form>
    
 
-
+  <ng-container *ngIf="!searchOnly">
     <ng-container *ngFor="let class of ops.classification">
-      <div class="op-group">
+      <div cdkFocusInitial class="op-group">
       <h3>{{class.category}}</h3>
       <p> {{class.dx}}</p>
       <ng-container *ngFor="let op of class.ops">
@@ -49,7 +49,7 @@
       </ng-container>
     </div>  
     </ng-container>
-
+    </ng-container>
   </mat-dialog-content>
 
 

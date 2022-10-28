@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { i } from 'mathjs';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
+import { ZoomService } from '../../provider/zoom.service';
 import { OperationComponent } from '../operation/operation.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 
@@ -40,7 +41,7 @@ export class ConnectionComponent implements OnInit {
 
   no_draw: boolean;
 
-  constructor(public tree: TreeService) { 
+  constructor(public tree: TreeService, public zs: ZoomService) { 
 
   }
 
@@ -168,14 +169,16 @@ export class ConnectionComponent implements OnInit {
     
     if(this.no_draw) return;
 
+    const stroke_width = 2 * this.zs.zoom / this.zs.zoom_max;
+
     if(this.orientation_x && this.orientation_y){
-      this.svg.innerHTML = ' <path d="M 0 0 C 0 50, '+this.bounds.width+' '+(this.bounds.height-50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+      this.svg.innerHTML = ' <path d="M 0 0 C 0 50, '+this.bounds.width+' '+(this.bounds.height-50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/> ' ;
     }else if(!this.orientation_x && !this.orientation_y){
-      this.svg.innerHTML = ' <path d="M 0 0 c 0 -50, '+this.bounds.width+' '+(this.bounds.height+50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+      this.svg.innerHTML = ' <path d="M 0 0 c 0 -50, '+this.bounds.width+' '+(this.bounds.height+50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
     }else if(!this.orientation_x && this.orientation_y){
-      this.svg.innerHTML = ' <path d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-50)+', 0 '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+      this.svg.innerHTML = ' <path d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-50)+', 0 '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
     }else{
-      this.svg.innerHTML = ' <path d="M 0 '+this.bounds.height+' C 0 '+(this.bounds.height+50)+', '+this.bounds.width+' -50, '+this.bounds.width+' 0" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+      this.svg.innerHTML = ' <path d="M 0 '+this.bounds.height+' C 0 '+(this.bounds.height+50)+', '+this.bounds.width+' -50, '+this.bounds.width+' 0" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/> ' ;
 
     }
   

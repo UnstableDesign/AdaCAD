@@ -20,6 +20,7 @@ export class OpsComponent implements OnInit {
   displaynames:Array<string> = [];
   myControl = new FormControl();
   filteredOptions: Observable<string[]>;
+  searchOnly: boolean = false;
   
   constructor(public ops: OperationService, private dialog: MatDialog,
     private dialogRef: MatDialogRef<OpsComponent>,
@@ -35,6 +36,10 @@ export class OpsComponent implements OnInit {
       startWith(''),
       map(value => this._filter(value))
     );
+
+    if(this.data.searchOnly !== undefined){
+      this.searchOnly = true;
+    }
   }
 
   private _filter(value: string): string[] {
@@ -57,6 +62,9 @@ export class OpsComponent implements OnInit {
     const ndx = this.displaynames.findIndex(el => el === event.option.value);
     if(ndx !== -1){
       this.onOperationAdded.emit(this.opnames[ndx]);
+    }
+    if(this.searchOnly){
+      this.close();
     }
 
 

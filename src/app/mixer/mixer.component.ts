@@ -27,6 +27,8 @@ import * as _ from 'lodash';
 import { any } from '@tensorflow/tfjs';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import utilInstance from '../core/model/util';
+import { ZoomService } from './provider/zoom.service';
+import { OpsComponent } from './modal/ops/ops.component';
 
 
 //disables some angular checking mechanisms
@@ -57,32 +59,46 @@ export class MixerComponent implements OnInit {
    */
  @HostListener('window:keydown', ['$event'])
  private keyEventDetected(e) {
-   console.log("event", e);
 
    if(e.key =="=" && e.metaKey){
-    console.log("ZOOM IN");
+    this.zs.zoomIn();
+    this.renderChange();
     e.preventDefault();
    }
 
    if(e.key =="-" && e.metaKey){
-    console.log("ZOOM OUT")
+    this.zs.zoomOut();
+    this.renderChange();
+    e.preventDefault();
    }
 
    if(e.key =="/" && e.metaKey){
-    console.log("Search Ops")
+    const op_modal = this.dialog.open(OpsComponent,
+      {disableClose: true,
+        maxWidth:350, 
+        hasBackdrop: false,
+      data: {searchOnly: true}});
+  
+  
+        op_modal.componentInstance.onOperationAdded.subscribe(event => { this.operationAdded(event)});
+  
+  
+        op_modal.afterClosed().subscribe(result => {
+          //this.onLoomChange.emit();
+         // dialogRef.componentInstance.onChange.removeSubscription();
+      });
    }
 
-   if(e.key =="o" && e.metaKey){
-    console.log("Save")
-   }
+  //  if(e.key =="o" && e.metaKey){
+  //   console.log("Save")
+  //  }
 
 
    if(e.key =="s" && e.metaKey){
-    console.log("Save");
     this.fs.saver.ada(
       'mixer', 
       true,
-      this.scale)
+      this.zs.zoom)
       .then(so => {
         this.ss.addMixerHistoryState(so);
       });
@@ -138,8 +154,6 @@ export class MixerComponent implements OnInit {
 
   scrollingSubscription: any;
 
-  scale: number = 5;
-
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
@@ -161,7 +175,8 @@ export class MixerComponent implements OnInit {
     private dialog: MatDialog,
     private image: ImageService,
     private ops: OperationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private zs: ZoomService,
     ) {
 
 
@@ -202,7 +217,7 @@ export class MixerComponent implements OnInit {
   private onWindowScroll(data: any) {
     if(!this.manual_scroll){
      this.palette.handleWindowScroll(data);
-     this.view_tool.updateViewPort(data);
+    // this.view_tool.updateViewPort(data);
     }else{
       this.manual_scroll = false;
     }
@@ -892,7 +907,7 @@ export class MixerComponent implements OnInit {
       this.fs.saver.ada(
         'mixer', 
         false,
-        this.scale).then(out => {
+        this.zs.zoom).then(out => {
           link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
           link.download = e.name + ".ada";
           link.click();
@@ -909,11 +924,8 @@ export class MixerComponent implements OnInit {
   /**
    * Updates the canvas based on the weave view.
    */
-  public renderChange(value: number) {
-
-    this.scale = value;
-    this.palette.rescale(this.scale);
-
+  public renderChange() {
+    this.palette.rescale();
   }
 
 

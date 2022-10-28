@@ -96,10 +96,10 @@ export class MixerViewComponent implements OnInit {
     this.updateLocalDims();
   }
 
-  updateViewPortFromZoom(){
-    this.updateLocalDims();
+  // updateViewPortFromZoom(){
+  //   this.updateLocalDims();
     
-  }
+  // }
 
   zoomIn(){
     this.zs.zoomIn();
