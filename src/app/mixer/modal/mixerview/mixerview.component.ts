@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, Inje
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { ViewportService } from '../../provider/viewport.service';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ZoomService } from '../../provider/zoom.service';
 
 @Component({
   selector: 'app-mixerview',
@@ -29,12 +30,11 @@ export class MixerViewComponent implements OnInit {
   width: number;
   height: number;
 
-  //current zoom scale
-  zoom: number;
+
 
   div: Element;
 
- constructor(public viewport: ViewportService,
+ constructor(public viewport: ViewportService, public zs:ZoomService,
   private dialog: MatDialog,
     private dialogRef: MatDialogRef<MixerViewComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) { 
@@ -45,7 +45,7 @@ export class MixerViewComponent implements OnInit {
     height:100
   };
 
-  this.zoom = data.zoom;
+  // this.zoom = data.zoom;
 
   this.bounds = {
     topleft:{x: 0, y:0},
@@ -67,7 +67,6 @@ export class MixerViewComponent implements OnInit {
  
   ngOnInit() {
    // console.log('viewport', this.local_view);
-
   }
 
 
@@ -88,8 +87,8 @@ export class MixerViewComponent implements OnInit {
   updateLocalDims(){
 
     this.local_view.topleft = {
-      x: this.div.scrollLeft / this.zoom * this.cell_factor, 
-      y: this.div.scrollTop  / this.zoom * this.cell_factor};
+      x: this.div.scrollLeft / this.zs.zoom * this.cell_factor, 
+      y: this.div.scrollTop  / this.zs.zoom * this.cell_factor};
   }
 
 
@@ -102,17 +101,42 @@ export class MixerViewComponent implements OnInit {
     
   }
 
+  zoomIn(){
+    this.zs.zoomIn();
+    this.onZoomChange.emit();
+    const adjusted: Point = {
+      x: this.local_view.topleft.x / this.cell_factor * this.zs.zoom,
+      y: this.local_view.topleft.y / this.cell_factor * this.zs.zoom
+    }
+      this.onViewPortMove.emit(adjusted);
+  }
+  
+
+
+  zoomOut(){
+    this.zs.zoomOut();
+    this.onZoomChange.emit();
+      const adjusted: Point = {
+       x: this.local_view.topleft.x / this.cell_factor * this.zs.zoom,
+       y: this.local_view.topleft.y / this.cell_factor * this.zs.zoom
+     }
+   
+     this.onViewPortMove.emit(adjusted);
+    
+  
+}
+ 
 
 zoomChange(e:any, source: string){
   e.source = source;
-  this.zoom = e.value;
+  this.zs.setZoom(e.value);
  // this.updateLocalDims();
  //update the window so that the current point remains at top left
-  this.onZoomChange.emit(e);
+  this.onZoomChange.emit();
 
   const adjusted: Point = {
-    x: this.local_view.topleft.x / this.cell_factor * this.zoom,
-    y: this.local_view.topleft.y / this.cell_factor * this.zoom
+    x: this.local_view.topleft.x / this.cell_factor * this.zs.zoom,
+    y: this.local_view.topleft.y / this.cell_factor * this.zs.zoom
   }
 
   this.onViewPortMove.emit(adjusted);
@@ -164,8 +188,8 @@ dragMove($event: any) {
   }
 
   const adjusted: Point = {
-    x: pointerOffsetInGlobal.x / this.cell_factor * this.zoom,
-    y: pointerOffsetInGlobal.y / this.cell_factor * this.zoom
+    x: pointerOffsetInGlobal.x / this.cell_factor * this.zs.zoom,
+    y: pointerOffsetInGlobal.y / this.cell_factor * this.zs.zoom
   }
 
 

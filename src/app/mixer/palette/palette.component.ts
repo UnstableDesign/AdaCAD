@@ -20,6 +20,7 @@ import { NoteComponent } from './note/note.component';
 import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
 import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { ZoomService } from '../provider/zoom.service';
 
 @Component({
   selector: 'app-palette',
@@ -89,13 +90,6 @@ export class PaletteComponent implements OnInit{
    */
    pointer_events: boolean;
 
-  /**
-   * a value to represent the current user defined scale for this component. 
-   * @property {number}
-   */
-
-   scale: number;
-
 
     /**
    * a string to represent the current user defined scale for this component to be used in background grid css. 
@@ -156,7 +150,8 @@ export class PaletteComponent implements OnInit{
     private _snackBar: MatSnackBar,
     public viewport: ViewportService,
     private notes: NotesService,
-    private ss: StateService) { 
+    private ss: StateService,
+    private zs: ZoomService) { 
     this.shape_vtxs = [];
     this.pointer_events = true;
   }
@@ -165,7 +160,6 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale = 5; //default set from zoom
     this.scale_string = this.default_cell_size+"px "+this.default_cell_size+"px";
     this.vc.clear();
 
@@ -195,13 +189,13 @@ export class PaletteComponent implements OnInit{
     // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
     // this.cx.stroke();
 
-    this.selection.scale = this.scale;
+    this.selection.scale = this.zs.zoom;
 
     this.selection.active = false;
     
     this.designModeChanged();
 
-    this.rescale(this.scale);
+    this.rescale();
   }
 
   /**
@@ -320,7 +314,7 @@ export class PaletteComponent implements OnInit{
    this.fs.saver.ada(
       'mixer', 
       true,
-      this.scale)
+      this.zs.zoom)
       .then(so => {
         this.ss.addMixerHistoryState(so);
       });
@@ -379,12 +373,13 @@ export class PaletteComponent implements OnInit{
    * redraws each operation and subdraft at the new scale, then redraws each of their connections
    * @param scale 
    */
-  rescale(scale:number){
+  rescale(){
 
 
-    this.scale = scale;
 
-    const zoom_factor: number = this.scale / this.default_cell_size;
+    //this.scale = scale;
+
+    const zoom_factor: number = this.zs.zoom / this.default_cell_size;
    
       const container: HTMLElement = document.getElementById('palette');
       container.style.transformOrigin = 'top left';
@@ -396,22 +391,22 @@ export class PaletteComponent implements OnInit{
     //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
     this.tree.nodes.forEach(node => {
         if(node.type !== "cxn"){
-          node.component.scale = scale;
+          node.component.scale = this.zs.zoom;
         } 
       });
 
 
     this.tree.getConnections().forEach(sd => {
-      sd.rescale(scale);
+      sd.rescale(this.zs.zoom);
     });
 
     this.notes.getComponents().forEach(el => {
-      el.scale = scale;
+      el.scale = this.zs.zoom;
     });
 
   
 
-     if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.scale;
+     if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.zs.zoom;
 
   }
 
@@ -427,8 +422,14 @@ export class PaletteComponent implements OnInit{
       data: {
         message: this.snack_message,
         bounds: this.snack_bounds,
-        scale: this.scale
+        scale: this.zs.zoom
       }
+    });
+  }
+
+  snackBarAlert(message: string){
+    this._snackBar.open(message, 'Undo', {
+      duration: 3000
     });
   }
 
@@ -495,13 +496,13 @@ export class PaletteComponent implements OnInit{
     const tl: Point = this.viewport.getTopLeft();
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
-    const note = this.notes.createBlankNode(utilInstance.resolvePointToAbsoluteNdx(tl, this.scale));
+    const note = this.notes.createBlankNode(utilInstance.resolvePointToAbsoluteNdx(tl, this.zs.zoom));
     this.setNoteSubscriptions(notecomp.instance);
 
     note.component = notecomp.instance;
     note.ref = notecomp.hostView;
     notecomp.instance.id = note.id;
-    notecomp.instance.scale = this.scale;
+    notecomp.instance.scale = this.zs.zoom;
     notecomp.instance.default_cell = this.default_cell_size;
 
     this.changeDesignmode('move');
@@ -526,7 +527,7 @@ export class PaletteComponent implements OnInit{
       note.ref = notecomp.hostView;
 
       notecomp.instance.id = note.id;
-      notecomp.instance.scale = this.scale;
+      notecomp.instance.scale = this.zs.zoom;
       notecomp.instance.default_cell = this.default_cell_size;
   
       return notecomp.instance;
@@ -572,7 +573,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
     subdraft.instance.default_cell = this.default_cell_size;
-    subdraft.instance.scale = this.scale;
+    subdraft.instance.scale = this.zs.zoom;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
@@ -604,7 +605,7 @@ export class PaletteComponent implements OnInit{
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
     subdraft.instance.default_cell = this.default_cell_size;
-    subdraft.instance.scale = this.scale;
+    subdraft.instance.scale = this.zs.zoom;
     subdraft.instance.draft_visible =true;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
@@ -613,12 +614,12 @@ export class PaletteComponent implements OnInit{
     if(nodep.bounds !== null){
       
       const topleft_ilace = {j: nodep.bounds.topleft.x/saved_scale, i: nodep.bounds.topleft.y/saved_scale};
-      const adj_topleft: Point = {x: topleft_ilace.j*this.scale, y: topleft_ilace.i*this.scale};
+      const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
       
       const new_bounds: Bounds = {
         topleft: adj_topleft,
-        width: nodep.bounds.width / saved_scale * this.scale,
-        height: nodep.bounds.height / saved_scale * this.scale,
+        width: nodep.bounds.width / saved_scale * this.zs.zoom,
+        height: nodep.bounds.height / saved_scale * this.zs.zoom,
       }
 
       subdraft.instance.bounds = new_bounds;
@@ -664,7 +665,7 @@ export class PaletteComponent implements OnInit{
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
-      op.instance.scale = this.scale;
+      op.instance.scale =this.zs.zoom ;
       op.instance.default_cell = this.default_cell_size;
 
      
@@ -693,7 +694,7 @@ export class PaletteComponent implements OnInit{
         op.instance.name = name;
         op.instance.id = id;
         op.instance.zndx = this.layers.createLayer();
-        op.instance.scale = this.scale;
+        op.instance.scale = this.zs.zoom;
         op.instance.default_cell = this.default_cell_size;
         op.instance.loaded_inputs = params;
         op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
@@ -704,12 +705,12 @@ export class PaletteComponent implements OnInit{
         if(bounds !== null){
         
           const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
-          const adj_topleft: Point = {x: topleft_ilace.j*this.scale, y: topleft_ilace.i*this.scale};
+          const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
           
           const new_bounds: Bounds = {
             topleft: adj_topleft,
-            width: bounds.width / saved_scale * this.scale,
-            height: bounds.height / saved_scale * this.scale,
+            width: bounds.width / saved_scale * this.zs.zoom,
+            height: bounds.height / saved_scale * this.zs.zoom,
           }
     
           op.instance.bounds = new_bounds;
@@ -757,7 +758,7 @@ export class PaletteComponent implements OnInit{
       node.ref = cxn.hostView;
         
       cxn.instance.id = id;
-      cxn.instance.scale = this.scale;
+      cxn.instance.scale = this.zs.zoom;
       cxn.instance.default_cell_size = this.default_cell_size;
 
     }
@@ -776,7 +777,7 @@ export class PaletteComponent implements OnInit{
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, 0, id_to, to_ndx, id);
       
       cxn.instance.id = id;
-      cxn.instance.scale = this.scale;
+      cxn.instance.scale = this.zs.zoom;
       cxn.instance.from = id_from;
       cxn.instance.to = id_to;
       cxn.instance.default_cell_size = this.default_cell_size;
@@ -874,7 +875,7 @@ export class PaletteComponent implements OnInit{
          
           sd.id = -1;
           sd.default_cell = this.default_cell_size;
-          sd.scale = this.scale;
+          sd.scale = this.zs.zoom;
           sd.draft = d;
           sd.ink = this.inks.getSelected(); //default to the currently selected ink
           sd.setAsPreview();
@@ -916,7 +917,8 @@ export class PaletteComponent implements OnInit{
     }
 
     if(this.dm.getDesignMode('draw', 'design_modes').selected || this.dm.getDesignMode('shape',  'design_modes').selected){
-      this.rescale(Math.ceil(this.scale));
+      this.zs.setZoom(Math.ceil(this.zs.zoom))
+      this.rescale();
     }
 
   }
@@ -941,22 +943,22 @@ export class PaletteComponent implements OnInit{
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const bounds ={
-      left: this.selection.start.j*this.scale,
-      top: this.selection.start.i*this.scale,
-      right: ndx.j *this.scale,
-      bottom: ndx.i*this.scale
+      left: this.selection.start.j*this.zs.zoom,
+      top: this.selection.start.i*this.zs.zoom,
+      right: ndx.j *this.zs.zoom,
+      bottom: ndx.i*this.zs.zoom
     };
 
     //will draw on outside of selection
     this.cx.beginPath();
     this.cx.strokeStyle = "#ff4081";
     this.cx.lineWidth = 1;
-    this.cx.setLineDash([this.scale, 2]);
+    this.cx.setLineDash([this.zs.zoom, 2]);
     this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
     this.cx.fillStyle = "#ff4081";
     this.cx.font = "12px Arial";
-    const w = Math.round(this.selection.bounds.width / this.scale);
-    const h = Math.round(this.selection.bounds.height / this.scale);
+    const w = Math.round(this.selection.bounds.width /this.zs.zoom);
+    const h = Math.round(this.selection.bounds.height / this.zs.zoom);
     this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
 
   }
@@ -967,8 +969,8 @@ export class PaletteComponent implements OnInit{
    * @returns 
    */
   private getRelativeInterlacement(abs: Interlacement) : Interlacement {
-    const i_offset: number = Math.floor(this.viewport.getTopLeft().y / this.scale);
-    const j_offset: number = Math.floor(this.viewport.getTopLeft().x / this.scale);
+    const i_offset: number = Math.floor(this.viewport.getTopLeft().y / this.zs.zoom);
+    const j_offset: number = Math.floor(this.viewport.getTopLeft().x / this.zs.zoom);
     const rel: Interlacement = {
       i: abs.i - i_offset,
       j: abs.j - j_offset,
@@ -1065,7 +1067,7 @@ export class PaletteComponent implements OnInit{
       case 'and':
       case 'or':
 
-        const p = {x: ndx.j * this.scale, y: ndx.i * this.scale};
+        const p = {x: ndx.j *this.zs.zoom, y: ndx.i * this.zs.zoom};
         const isect = this.getIntersectingSubdraftsForPoint(p);
   
         if(isect.length > 0){
@@ -1101,7 +1103,7 @@ export class PaletteComponent implements OnInit{
       case 'and':
       case 'or':
 
-        const p = {x: ndx.j * this.scale, y: ndx.i * this.scale};
+        const p = {x: ndx.j * this.zs.zoom, y: ndx.i * this.zs.zoom};
         const isect = this.getIntersectingSubdraftsForPoint(p);
 
         if(isect.length > 0){
@@ -1118,7 +1120,7 @@ export class PaletteComponent implements OnInit{
 
     }
 
-      this.cx.fillRect(rel.j*this.scale, rel.i*this.scale, this.scale, this.scale);      
+      this.cx.fillRect(rel.j*this.zs.zoom, rel.i*this.zs.zoom, this.zs.zoom, this.zs.zoom);      
   }
 
   /**
@@ -1157,7 +1159,7 @@ export class PaletteComponent implements OnInit{
       if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
 
         new_bounds = {
-          topleft: {x: op_comp.bounds.topleft.x + 200 + this.scale * 2, y: op_comp.bounds.topleft.y},
+          topleft: {x: op_comp.bounds.topleft.x + 200 + this.zs.zoom * 2, y: op_comp.bounds.topleft.y},
           width: 200,
           height: op_comp.bounds.height
         }
@@ -1165,7 +1167,7 @@ export class PaletteComponent implements OnInit{
       }else{
 
         new_bounds = {
-          topleft: {x: op_comp.bounds.topleft.x + op_comp.bounds.width + this.scale * 2, y: op_comp.bounds.topleft.y},
+          topleft: {x: op_comp.bounds.topleft.x + op_comp.bounds.width + this.zs.zoom * 2, y: op_comp.bounds.topleft.y},
           width: op_comp.bounds.width,
           height: op_comp.bounds.height
         }
@@ -1214,7 +1216,7 @@ export class PaletteComponent implements OnInit{
 
           new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
           new_sd.setPosition({
-            x: sd.bounds.topleft.x + sd.bounds.width + this.scale *2, 
+            x: sd.bounds.topleft.x + sd.bounds.width + this.zs.zoom *2, 
             y: sd.bounds.topleft.y});  
           //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
           //this.viewport.addObj(new_sd.id, interlacement);
@@ -1290,8 +1292,8 @@ export class PaletteComponent implements OnInit{
 
   this.shape_bounds = {
     topleft: adj,
-    width: this.scale,
-    height: this.scale
+    width: this.zs.zoom,
+    height: this.zs.zoom
   };
 
   this.startSnackBar("select an input or click an empty space to stop selecting", null);
@@ -1495,7 +1497,7 @@ calculateInitialLocaiton(id: number) : Bounds {
     if(parent_bounds.topleft.x == 0 && parent_bounds.topleft.y == 0){
 
       //component is not yet initalized on this calculation so we do it manually
-      const default_height =  (60 + 50 * (<OpNode> opnode).params.length) * this.scale/this.default_cell_size;
+      const default_height =  (60 + 50 * (<OpNode> opnode).params.length) * this.zs.zoom/this.default_cell_size;
       new_bounds.topleft = {x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + default_height};
 
     }else{
@@ -1558,7 +1560,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
             node_id: el.id,
             type: el.type,
             bounds: this.calculateInitialLocaiton(el.id),
-          }, null, this.scale);
+          }, null,this.zs.zoom);
         });
       
 
@@ -1652,8 +1654,8 @@ shapeStarted(mouse: Point){
   
   this.shape_bounds = {
     topleft: rel,
-    width: this.scale,
-    height: this.scale
+    width: this.zs.zoom,
+    height: this.zs.zoom
   };
 
 
@@ -1692,10 +1694,10 @@ shapeDragged(mouse: Point, shift: boolean){
     if(this.dm.isSelected('line', 'shapes')){
         if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
           this.shape_bounds.height = max;
-          this.shape_bounds.width = this.scale;
+          this.shape_bounds.width = this.zs.zoom;
         }else if(Math.abs(this.shape_bounds.height) < Math.abs(this.shape_bounds.width/2)){
           this.shape_bounds.width = max;
-          this.shape_bounds.height = this.scale;
+          this.shape_bounds.height = this.zs.zoom;
         }else{
           this.shape_bounds.width = max;
           this.shape_bounds.height = max;  
@@ -1713,10 +1715,10 @@ shapeDragged(mouse: Point, shift: boolean){
   this.cx.fillStyle = "#ff4081";
   this.cx.strokeStyle = "#ff4081";
   this.cx.setLineDash([]);
-  this.cx.lineWidth = this.scale;
+  this.cx.lineWidth = this.zs.zoom;
 
   if(this.dm.isSelected('line', 'shapes')){
-    this.cx.moveTo(this.shape_bounds.topleft.x+this.scale, this.shape_bounds.topleft.y+this.scale);
+    this.cx.moveTo(this.shape_bounds.topleft.x+this.zs.zoom, this.shape_bounds.topleft.y+this.zs.zoom);
     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
     this.cx.stroke();
   }else if(this.dm.isSelected('fill_circle','shapes')){
@@ -1731,7 +1733,7 @@ shapeDragged(mouse: Point, shift: boolean){
     this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
   
   }else if(this.dm.isSelected('stroke_rect','shapes')){
-    this.cx.strokeRect(this.shape_bounds.topleft.x + this.scale, this.shape_bounds.topleft.y+ this.scale,this.shape_bounds.width- this.scale,this.shape_bounds.height-this.scale);
+    this.cx.strokeRect(this.shape_bounds.topleft.x + this.zs.zoom, this.shape_bounds.topleft.y+ this.zs.zoom,this.shape_bounds.width-this.zs.zoom,this.shape_bounds.height-this.zs.zoom);
 
   }else{
 
@@ -1808,7 +1810,7 @@ processShapeEnd() : Promise<any> {
     }  
   }
 
-  const shape: Shape = new Shape(this.canvas, this.shape_bounds, this.scale); 
+  const shape: Shape = new Shape(this.canvas, this.shape_bounds, this.zs.zoom); 
   //const img_data = shape.getImageData();
   // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   // this.cx.putImageData(img_data, 0, 0);
@@ -1826,7 +1828,7 @@ processShapeEnd() : Promise<any> {
   .then(sd => {
     sd.setPosition(this.shape_bounds.topleft);
     sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
-    const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
+    const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.zs.zoom); 
     this.viewport.addObj(sd.id, interlacement);
     this.addTimelineState();
   }).catch(console.error);
@@ -1844,9 +1846,9 @@ drawStarted(){
   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
   
   this.scratch_pad = [];
-  for(let i = 0; i < this.canvas.height; i+=this.scale ){
+  for(let i = 0; i < this.canvas.height; i+=this.zs.zoom ){
       const row = [];
-      for(let j = 0; j< this.canvas.width; j+=this.scale ){
+      for(let j = 0; j< this.canvas.width; j+=this.zs.zoom ){
           row.push(new Cell(null));
       }
     this.scratch_pad.push(row);
@@ -1921,9 +1923,9 @@ drawStarted(){
     return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
     .then(sd => {
       const pos = {
-        topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.scale), y: this.viewport.getTopLeft().y + (corners[0].i * this.scale)},
-        width: warps * this.scale,
-        height: wefts * this.scale
+        topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.zs.zoom), y: this.viewport.getTopLeft().y + (corners[0].i * this.zs.zoom)},
+        width: warps * this.zs.zoom,
+        height: wefts * this.zs.zoom
       }
   
       sd.setPosition(pos.topleft);
@@ -1962,11 +1964,11 @@ drawStarted(){
 
       const ctrl: boolean = event.ctrlKey;
       const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-      const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+      const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
 
       //use this to snap the mouse to the nearest coord
-      mouse.x = ndx.j * this.scale;
-      mouse.y = ndx.i * this.scale;
+      mouse.x = ndx.j * this.zs.zoom;
+      mouse.y = ndx.i * this.zs.zoom;
 
       
       this.last = ndx;
@@ -2018,9 +2020,9 @@ drawStarted(){
   private onMove(event) {
     const shift: boolean = event.shiftKey;
     const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.scale);
-    mouse.x = ndx.j * this.scale;
-    mouse.y = ndx.i * this.scale;
+    const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
+    mouse.x = ndx.j * this.zs.zoom;
+    mouse.y = ndx.i *this.zs.zoom;
 
     if(this.dm.isSelected('free','shapes') && this.shape_vtxs.length > 0){
      this.shapeDragged(mouse, shift);
@@ -2037,10 +2039,10 @@ drawStarted(){
 
     const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
     //use this to snap the mouse to the nearest coord
-    mouse.x = ndx.j * this.scale;
-    mouse.y = ndx.i * this.scale;
+    mouse.x = ndx.j * this.zs.zoom;
+    mouse.y = ndx.i * this.zs.zoom;
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
@@ -2062,11 +2064,11 @@ drawStarted(){
 
     const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
 
     //use this to snap the mouse to the nearest coord
-    mouse.x = ndx.j * this.scale;
-    mouse.y = ndx.i * this.scale;
+    mouse.x = ndx.j *this.zs.zoom;
+    mouse.y = ndx.i * this.zs.zoom;
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
@@ -2102,10 +2104,10 @@ drawStarted(){
       if(this.last === undefined) return;
     
       const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-      const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.scale);
+      const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
       //use this to snap the mouse to the nearest coord
-      mouse.x = ndx.j * this.scale;
-      mouse.y = ndx.i * this.scale;
+      mouse.x = ndx.j * this.zs.zoom;
+      mouse.y = ndx.i * this.zs.zoom;
 
       this.removeSubscription();   
 
@@ -2159,7 +2161,7 @@ drawStarted(){
     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     
     
-    this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.scale, warps: bounds.width/this.scale}), -1)
+    this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.zs.zoom, warps: bounds.width/this.zs.zoom}), -1)
     .then(sc => {
       sc.setComponentBounds(bounds);
        //get any subdrafts that intersect the one we just made
@@ -2391,12 +2393,12 @@ drawStarted(){
         .then(component => {
           this.tree.setDraftPattern(component.id, preview_draft.drawdown);
           //this.redrawDirtyDrafts();
-          to_right.x += preview_node.component.bounds.width + this.scale *4;
+          to_right.x += preview_node.component.bounds.width + this.zs.zoom *4;
           component.setPosition(to_right);
           component.setComponentSize(preview_node.component.bounds.width, preview_node.component.bounds.height);
           component.zndx = this.layers.createLayer();
           this.removePreview();
-          const interlacement = utilInstance.resolvePointToAbsoluteNdx(component.bounds.topleft, this.scale);
+          const interlacement = utilInstance.resolvePointToAbsoluteNdx(component.bounds.topleft, this.zs.zoom);
           this.viewport.addObj(component.id, interlacement);
           this.addTimelineState();
           this.tree.unsetPreview();
@@ -2409,7 +2411,7 @@ drawStarted(){
       
         //get the reference to the draft that's moving
         const moving = this.tree.getComponent(obj.id);
-        const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.bounds.topleft, this.scale);
+        const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.bounds.topleft, this.zs.zoom);
         this.viewport.updatePoint(moving.id, interlacement);
       }
 
@@ -2435,7 +2437,7 @@ drawStarted(){
       this.tree.setDraftOnly(primary.id, temp);
       primary.setPosition(bounds.topleft);
       //primary.drawDraft();
-      const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.scale);
+      const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.zs.zoom);
 
       this.viewport.updatePoint(primary.id, interlacement);
 
@@ -2486,7 +2488,7 @@ drawStarted(){
   getIntersectingSubdraftsForPoint(p: any){
 
     const primary_topleft = {x:  p.x, y: p.y };
-    const primary_bottomright = {x:  p.x + this.scale, y: p.y + this.scale};
+    const primary_bottomright = {x:  p.x + this.zs.zoom, y: p.y + this.zs.zoom};
 
     const isect:Array<SubdraftComponent> = [];
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
@@ -2532,19 +2534,19 @@ drawStarted(){
         height: 0
       }
       if(c1.i < c2.i){
-        bounds.topleft.y = c1.i * this.scale;
-        bottomright.y = c2.i * this.scale;
+        bounds.topleft.y = c1.i * this.zs.zoom;
+        bottomright.y = c2.i * this.zs.zoom;
       }else{
-        bounds.topleft.y = c2.i * this.scale;
-        bottomright.y = c1.i * this.scale;
+        bounds.topleft.y = c2.i * this.zs.zoom;
+        bottomright.y = c1.i * this.zs.zoom;
       }
 
       if(c1.j < c2.j){
-        bounds.topleft.x = c1.j * this.scale;
-        bottomright.x = c2.j * this.scale;
+        bounds.topleft.x = c1.j * this.zs.zoom;
+        bottomright.x = c2.j * this.zs.zoom;
       }else{
-        bounds.topleft.x = c1.j * this.scale;
-        bottomright.x = c2.j * this.scale;
+        bounds.topleft.x = c1.j * this.zs.zoom;
+        bottomright.x = c2.j * this.zs.zoom;
       }
 
       bounds.width = bottomright.x - bounds.topleft.x;
@@ -2567,13 +2569,13 @@ drawStarted(){
         const temp: Draft = initDraftWithParams({
           id: primary_draft.id, 
           gen_name: getDraftName(primary_draft), 
-          warps: Math.floor(bounds.width / this.scale), 
-          wefts: Math.floor(bounds.height / this.scale)});
+          warps: Math.floor(bounds.width / this.zs.zoom), 
+          wefts: Math.floor(bounds.height / this.zs.zoom)});
     
         for(var i = 0; i < wefts(temp.drawdown); i++){
-          const top: number = bounds.topleft.y + (i * this.scale);
+          const top: number = bounds.topleft.y + (i * this.zs.zoom);
           for(var j = 0; j < warps(temp.drawdown); j++){
-            const left: number = bounds.topleft.x + (j * this.scale);
+            const left: number = bounds.topleft.x + (j * this.zs.zoom);
     
             const p = {x: left, y: top};
             const val = this.computeHeddleValue(p, primary, isect);
@@ -2596,17 +2598,17 @@ drawStarted(){
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
     drafts.forEach(sd => {
-      sd.drawForPrint(this.canvas, this.cx, this.scale);
+      sd.drawForPrint(this.canvas, this.cx, this.zs.zoom);
     });
 
     const ops: Array<OperationComponent> = this.tree.getOperations();
     ops.forEach(op => {
-      op.drawForPrint(this.canvas, this.cx, this.scale);
+      op.drawForPrint(this.canvas, this.cx, this.zs.zoom);
     });
 
     const cxns: Array<ConnectionComponent> = this.tree.getConnections();
     cxns.forEach(cxn => {
-      cxn.drawForPrint(this.canvas, this.cx, this.scale);
+      cxn.drawForPrint(this.canvas, this.cx, this.zs.zoom);
     });
 
     // this.note_components.forEach(note =>{

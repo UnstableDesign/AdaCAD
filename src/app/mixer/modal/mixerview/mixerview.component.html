@@ -13,19 +13,19 @@
 
 
       <div class="slider-row">
-        <i class="fas fa-search-plus"></i>
+        <button  mat-icon-button (click)="zoomIn()" class="fas fa-search-plus"></button>
       
     
           <mat-slider 
           invert
           tickInterval="1" 
-          step=".1" 
-          min="1" 
-          max="15" 
-          value="{{zoom}}" 
+          [step]="zs.zoom_step" 
+          [min]= "zs.zoom_min"
+          [max]= "zs.zoom_max"
+          value="{{zs.zoom}}" 
           (change)="zoomChange($event, 'slider')"></mat-slider>
           
-          <i class="fas fa-search-minus"></i> 
+          <button  mat-icon-button (click)="zoomOut()" class="fas fa-search-minus"></button> 
       </div>
     
     
@@ -37,8 +37,8 @@
       <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.i.j * cell_factor' [attr.cy]='obj.i.i * cell_factor' [attr.r]="5" fill="black" />
     </svg>
     <div class="local"
-    [style.width.px] = " viewport.getWidth() / zoom * cell_factor"
-    [style.height.px] = " viewport.getHeight() / zoom * cell_factor"
+    [style.width.px] = " viewport.getWidth() / zs.zoom * cell_factor"
+    [style.height.px] = " viewport.getHeight() / zs.zoom * cell_factor"
     [cdkDragFreeDragPosition]="local_view.topleft"
     cdkDragBoundary=".global_view"
     (cdkDragMoved)="dragMove($event)"

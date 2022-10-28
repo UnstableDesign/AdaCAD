@@ -44,9 +44,82 @@ enableProdMode();
 })
 export class MixerComponent implements OnInit {
 
+
   @ViewChild(PaletteComponent) palette;
   @ViewChild(SidebarComponent) view_tool;
 
+
+
+
+/**
+   * Change to draw mode on keypress d
+   * @returns {void}
+   */
+ @HostListener('window:keydown', ['$event'])
+ private keyEventDetected(e) {
+   console.log("event", e);
+
+   if(e.key =="=" && e.metaKey){
+    console.log("ZOOM IN");
+    e.preventDefault();
+   }
+
+   if(e.key =="-" && e.metaKey){
+    console.log("ZOOM OUT")
+   }
+
+   if(e.key =="/" && e.metaKey){
+    console.log("Search Ops")
+   }
+
+   if(e.key =="o" && e.metaKey){
+    console.log("Save")
+   }
+
+
+   if(e.key =="s" && e.metaKey){
+    console.log("Save");
+    this.fs.saver.ada(
+      'mixer', 
+      true,
+      this.scale)
+      .then(so => {
+        this.ss.addMixerHistoryState(so);
+      });
+      e.preventDefault();
+   }
+
+   if(e.key =="z" && e.metaKey){
+    console.log("");
+    this.undo();
+   }
+
+   if(e.key =="y" && e.metaKey){
+    console.log("Redo");
+    this.redo();
+    e.preventDefault();
+   }
+
+
+
+
+
+
+
+
+
+
+  //  //make sure the path doesn't change if we're typing
+  //  const from_ta = e.path.find(el => el.localName === 'textarea');
+
+  //  if(from_ta !== undefined){
+  //    return;
+  //  } 
+   
+
+  //  this.dm.selectDesignMode('draw', 'design_modes');
+  //  this.designModeChange('draw');
+ }
 
   filename = "adacad_mixer";
 
@@ -663,25 +736,8 @@ export class MixerComponent implements OnInit {
    
   }
 
-/**
-   * Change to draw mode on keypress d
-   * @returns {void}
-   */
-  @HostListener('window:keydown.d', ['$event'])
-  private keyChangetoDrawMode(e) {
-    // console.log("event", e);
 
-    // //make sure the path doesn't change if we're typing
-    // const from_ta = e.path.find(el => el.localName === 'textarea');
 
-    // if(from_ta !== undefined){
-    //   return;
-    // } 
-    
-
-    // this.dm.selectDesignMode('draw', 'design_modes');
-    // this.designModeChange('draw');
-  }
 
   /**
    * Change to draw mode on keypress s
@@ -852,15 +908,11 @@ export class MixerComponent implements OnInit {
 
   /**
    * Updates the canvas based on the weave view.
-   * @extends WeaveComponent
-   * @param {Event} e - view change event from design component.
-   * @returns {void}
    */
-  public renderChange(event: any) {
+  public renderChange(value: number) {
 
-    this.scale = event.value;
-     this.palette.rescale(this.scale);
-
+    this.scale = value;
+    this.palette.rescale(this.scale);
 
   }
 
