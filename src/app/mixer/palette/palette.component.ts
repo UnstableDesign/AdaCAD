@@ -21,6 +21,7 @@ import { Note, NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
 import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { ZoomService } from '../provider/zoom.service';
+import { MultiselectService } from '../provider/multiselect.service';
 
 @Component({
   selector: 'app-palette',
@@ -151,7 +152,8 @@ export class PaletteComponent implements OnInit{
     public viewport: ViewportService,
     private notes: NotesService,
     private ss: StateService,
-    private zs: ZoomService) { 
+    private zs: ZoomService,
+    private multiselect: MultiselectService) { 
     this.shape_vtxs = [];
     this.pointer_events = true;
   }
@@ -2012,6 +2014,17 @@ drawStarted(){
       }else if(this.dm.isSelected("operation",'design_modes')){
         this.processConnectionEnd();
         this.changeDesignmode('move');
+      }else if(this.dm.isSelected("move", "design_modes")){
+
+       if(event.shiftKey) return;
+        console.log("HIT BAKCGROUND")
+        const selections = this.multiselect.getSelections();
+        selections.forEach(sel => {
+          const container = <HTMLElement> document.getElementById("scale-"+sel);
+          if(container !== null) container.style.border = "thin solid transparent"
+        });
+        this.multiselect.clearSelections();
+
       }
   }
 
@@ -2291,6 +2304,9 @@ drawStarted(){
 
   }
 
+  paletteClicked(){
+    console.log("HI")
+  }
 
 /**
  * called from an operatiino cmoponent when it is dragged
@@ -2298,12 +2314,21 @@ drawStarted(){
  */
   operationMoved(obj: any){
     if(obj === null) return;
-
-    //get the reference to the draft that's moving
-    const moving = <OperationComponent> this.tree.getComponent(obj.id);
-    if(moving === null) return; 
-    this.updateSnackBar("moving opereation "+moving.name,moving.bounds);
+  
     this.updateAttachedComponents(obj.id, true);
+
+    const selections = this.multiselect.getSelections();
+    const rel_pos = this.multiselect.getRelativePosition();
+    const cur_pos = this.tree.getComponent(obj.id).bounds.topleft;
+    const diff:Point = {x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y};
+
+    selections.forEach(sel => {
+      if(this.tree.getType(sel) == 'op' && sel !== obj.id){
+        const comp = this.tree.getComponent(sel);
+        comp.bounds.topleft = this.multiselect.getNewPosition(sel, diff);
+        this.updateAttachedComponents(sel, true);
+      }
+    })
 
   }
 
@@ -2314,6 +2339,15 @@ drawStarted(){
  */
    operationMoveEnded(obj: any){
     if(obj === null) return;
+
+
+    const selections = this.multiselect.getSelections();
+    selections.forEach(sel => {
+      if(this.tree.getType(sel) == 'op' && sel !== obj.id){
+        const comp = this.tree.getComponent(sel);
+        this.multiselect.setPosition(sel, comp.bounds.topleft)
+      }
+    })
 
     this.addTimelineState();
 

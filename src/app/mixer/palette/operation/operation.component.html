@@ -1,5 +1,7 @@
 <div class="operation-container"
 cdkDrag
+(mousedown)="mousedown($event)"
+(click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
 [cdkDragDisabled] = "disable_drag"
 [cdkDragFreeDragPosition]="bounds.topleft"

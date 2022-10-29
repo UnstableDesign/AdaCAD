@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Bounds, Interlacement, Point,Operation, DynamicOperation,IOTuple, OpNode } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -12,6 +12,7 @@ import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { ImageService } from '../../../core/provider/image.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { stat } from 'fs';
+import { MultiselectService } from '../../provider/multiselect.service';
 
 
 
@@ -34,7 +35,10 @@ export class OperationComponent implements OnInit {
    }
    private _scale:number = 5;
  
-
+ /**
+  * handles actions to take when the mouse is down inside of the palette
+  * @param event the mousedown event
+  */
 
    @Input() default_cell: number;
    @Input() zndx: number;
@@ -111,7 +115,8 @@ export class OperationComponent implements OnInit {
     public tree: TreeService,
     public dm: DesignmodesService,
     private imageService: ImageService,
-    public systems: SystemsService) { 
+    public systems: SystemsService,
+    public multiselect: MultiselectService) { 
      
 
 
@@ -268,6 +273,60 @@ export class OperationComponent implements OnInit {
     this.disable_drag = false;
   }
 
+  toggleSelection(e: any){
+
+    let container;
+
+      if(e.shiftKey == true){
+       const added =  this.multiselect.toggleSelection(this.id, this.bounds.topleft);
+       if(added){
+         container = <HTMLElement> document.getElementById("scale-"+this.id);
+        container.style.border = "thin solid black";
+
+        const cxn_outs = this.tree.getOutputs(this.id);
+        cxn_outs.forEach(o => {
+          this.multiselect.toggleSelection(o, null)
+          const child = this.tree.getConnectionOutput(o);
+          const child_comp = this.tree.getComponent(child);
+          this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
+          container = <HTMLElement> document.getElementById("scale-"+child);
+          container.style.border = "thin solid black";
+
+        });
+
+       }else{
+        container = <HTMLElement> document.getElementById("scale-"+this.id);
+        container.style.border = "thin solid transparent"
+
+
+        const cxn_outs = this.tree.getOutputs(this.id);
+        cxn_outs.forEach(o => {
+          this.multiselect.toggleSelection(o, null)
+          const child = this.tree.getConnectionOutput(o);
+          const child_comp = this.tree.getComponent(child);
+          this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
+          container = <HTMLElement> document.getElementById("scale-"+child);
+          container.style.border = "thin solid transparent";
+
+        });
+
+       }
+      }
+
+  }
+
+  
+
+  /**
+   * prevents hits on the operation to register as a palette click, thereby voiding the selection
+   * @param e 
+   */
+  mousedown(e: any){
+    e.stopPropagation();
+
+
+  }
+
   drop(){
     console.log("dropped");
   }
@@ -405,11 +464,14 @@ export class OperationComponent implements OnInit {
 
 
   dragStart($event: any) {
-   
+      this.multiselect.setRelativePosition(this.bounds.topleft);
   }
 
   dragMove($event: any) {
        //position of pointer of the page
+
+
+
        const pointer:Point = $event.pointerPosition;
        const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
        const adj:Point = utilInstance.snapToGrid(relative, this.scale);
@@ -421,7 +483,8 @@ export class OperationComponent implements OnInit {
 
 
   dragEnd($event: any) {
-    this.onOperationMoveEnded.emit();
+    this.multiselect.setRelativePosition(this.bounds.topleft);
+    this.onOperationMoveEnded.emit({id: this.id});
 
   }
  
