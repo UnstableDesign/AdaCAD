@@ -469,10 +469,14 @@ export class SubdraftComponent implements OnInit {
         this.cx.fillStyle = color;
       }
     } else{
-      this.cx.fillStyle =  '#0000000d';
+      this.cx.fillStyle =  '#888888';
     // this.cx.fillStyle =  '#ff0000';
 
     }
+
+    this.cx.lineWidth = 1;
+
+    this.cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
     this.cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
   }
 
@@ -487,6 +491,15 @@ export class SubdraftComponent implements OnInit {
   async drawDraft(draft: Draft) : Promise<any> {
 
     draft = this.tree.getDraft(this.id);
+
+
+    if(this.parent_id !== -1){
+      const container = document.getElementById('scale-'+this.parent_id);
+      const w = container.offsetWidth;
+      const thiscontainer = document.getElementById('scale-'+this.id);
+      thiscontainer.style.minWidth = w+"px";
+      
+    }
 
     if(this.canvas === undefined) return;
     this.cx = this.canvas.getContext("2d");

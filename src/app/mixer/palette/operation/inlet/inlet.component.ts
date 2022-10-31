@@ -30,6 +30,7 @@ export class InletComponent implements OnInit {
   opnode: OpNode;
   inlet: OperationInlet;
   selectedValue: number; 
+  inlet_desc: string;
 
   constructor(public tree: TreeService, private systems: SystemsService, private ops: OperationService) { 
 
@@ -65,13 +66,13 @@ export class InletComponent implements OnInit {
         name: '',
         value: -1,
         num_drafts: 1,
-        dx: ''
+        dx: 'input'
       }
     }
 
 
     this.fc = new FormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));
-
+    this.inlet_desc = "input "+this.inlet.dx;
   }
 
   parseDefaultInletValue(type: string, value: any) : any {

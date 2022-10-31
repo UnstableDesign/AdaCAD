@@ -2471,8 +2471,8 @@ export class OperationService {
         },
         <BoolParam>{name: 'Z/S',
         type: 'boolean',
-        falsestate: 'Z',
-        truestate: 'S',
+        falsestate: 'S',
+        truestate: 'Z',
         value: 0,
         dx: 'toggle to change twill direction'
         }
@@ -4499,7 +4499,7 @@ export class OperationService {
         
 
         this.transferSystemsAndShuttles(output,all_drafts,parent_input.params, 'first');
-        output.gen_name = this.formatName(all_drafts, "chaos");
+        output.gen_name = this.formatName(all_drafts, "tile");
       
         return Promise.resolve([output]);
       

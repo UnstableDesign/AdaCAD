@@ -37,9 +37,10 @@
   </ng-container>
 
   <ng-container  *ngIf="param.type == 'select'">
-    <mat-form-field>
+    <div class="select-input">
+    <!-- <mat-form-field> -->
 
-        <mat-label class="param-name">{{param.name}}</mat-label>
+      <mat-label class="slider-label">{{param.name}}</mat-label>
 
         <mat-select 
             [ngModel] = "opnode.params[paramid]"
@@ -50,12 +51,24 @@
             {{opt.name}}
           </mat-option>
         </mat-select>
-     </mat-form-field>
+     <!-- </mat-form-field> -->
+    </div>
  </ng-container>
 
     <ng-container  *ngIf="param.type == 'boolean'">
-      <div class="mat-form-field">
+      <!-- <mat-form-field> -->
 
+        <div class="boolean-group">
+        <mat-label class="slider-label">{{param.name}}</mat-label>
+
+        <!-- <input 
+        matInput
+        [ngModel] = "opnode.params[paramid]"
+        [formControl]="fc"
+        [matTooltip]=param.dx
+        type = "number"
+        (change)= "onParamChange(fc.value)"
+    > -->
         <mat-slide-toggle
             [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
@@ -66,10 +79,16 @@
             <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span> 
           </mat-slide-toggle>
         </div>
+        <!-- </mat-form-field> -->
     </ng-container>
 
     <ng-container  *ngIf="param.type == 'string'">
-       
+
+      <div class="stringandrefresh">
+
+           <mat-form-field> 
+
+            <mat-label class="param-name">{{param.name}}</mat-label>
 
          <div class='param-text'>
             <input matInput
@@ -82,16 +101,18 @@
           >
         </div>
 
-         <div class='param-label'>
-            <button class="refresh" 
-            mat-icon-button
-            color = "accent"
-            (click)= "onParamChange(fc.value)"
-            [disabled]="!fc.dirty || fc.hasError('required') || fc.hasError('forbiddenInput')"
-            matTooltip="update draft with input values">
-            <i class="fas fa-redo"></i></button>
-        </div> 
+        <div class='param-label'>
+          <button class="refresh" 
+          mat-icon-button
+          color = "accent"
+          (click)= "onParamChange(fc.value)"
+          [disabled]="!fc.dirty || fc.hasError('required') || fc.hasError('forbiddenInput')"
+          matTooltip="update draft with input values">
+          <i class="fas fa-redo"></i></button>
+         </div> 
+        </mat-form-field>
 
+    </div>
       
   
 

@@ -4,12 +4,12 @@
 
     <button *ngIf="inlet.type === 'static'"
     class="button is-small input"
-    [matTooltip]='inlet.dx'
+    [matTooltip]='inlet_desc'
     (click)="inputSelected()">
          <i class="fas fa-chevron-down"></i>
-    </button>
+         <!-- <span class="inlet-name">{{inlet.name}}</span> -->
+        </button>
 
-    <span class="inlet-name">{{inlet.name}}</span>
 
     <ng-container *ngIf="inlet.type === 'number' || inlet.type === 'draft'">
 
@@ -76,16 +76,17 @@
     </ng-container>
 
     <ng-container *ngIf="inlet.type === 'color'">
-       
+       <div class="colorgroup">
         <button 
         class="button is-small input"
         (click)="inputSelected()">
             <i class="fas fa-chevron-down"></i>
         </button>
-        <div *ngIf="inlet.type === 'color'"
+        <div
         [matTooltip]="fc.value"
         [style.background-color] = fc.value
         class="input-color"></div>
+    </div>
 
     </ng-container>
 

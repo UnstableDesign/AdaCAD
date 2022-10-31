@@ -5,7 +5,8 @@
     flex-direction: row;
     text-align: left;
     width: 100%;
-    margin: 0px 8px;
+    padding:.75em 0em 0em 0.5em;
+
 
 }
 
@@ -102,4 +103,53 @@ button.is-primary.is-active{
     display: flex;
     justify-content: flex-start;
     text-align: center;
+}
+
+.boolean-group{
+    display: flex;
+    flex-direction: column;
+}
+
+::ng-deep .mat-slide-toggle-bar{
+    position: relative;
+    width: 30px !important;
+    height: 8px !important;
+    flex-shrink: 0;
+    border-radius: 6px;
+}
+
+::ng-deep .mat-slide-toggle-content {
+    font-size: .8em;
+}
+
+::ng-deep .mat-slide-toggle-thumb {
+    height: 15px !important;
+    width: 15px !important;
+}
+
+
+
+
+.select-input{
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.slider-label{
+    font-size: 0.65em;
+    font-weight: bold;
+    color: grey;
+    text-overflow: ellipsis;
+}
+
+.stringandrefresh{
+    display: flex;
+    flex-direction: row;
+}
+
+.param-label{
+    font-size: .8em;
+    height: 20px;
 }

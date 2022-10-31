@@ -273,6 +273,10 @@ export class OperationComponent implements OnInit {
     this.disable_drag = false;
   }
 
+  toggleParamsVisible(){
+    this.params_visible = !this.params_visible;
+  }
+
   toggleSelection(e: any){
 
     let container;
@@ -281,7 +285,8 @@ export class OperationComponent implements OnInit {
        const added =  this.multiselect.toggleSelection(this.id, this.bounds.topleft);
        if(added){
          container = <HTMLElement> document.getElementById("scale-"+this.id);
-        container.style.border = "thin solid black";
+         container.classList.add('multiselected');
+       // container.style.border = "thin solid black";
 
         const cxn_outs = this.tree.getOutputs(this.id);
         cxn_outs.forEach(o => {
@@ -290,13 +295,17 @@ export class OperationComponent implements OnInit {
           const child_comp = this.tree.getComponent(child);
           this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
           container = <HTMLElement> document.getElementById("scale-"+child);
-          container.style.border = "thin solid black";
+          container.classList.add('multiselected');
+
+        //  container.style.border = "thin solid black";
 
         });
 
        }else{
         container = <HTMLElement> document.getElementById("scale-"+this.id);
-        container.style.border = "thin solid transparent"
+        container.classList.remove('multiselected');
+
+        //container.style.border = "thin solid transparent"
 
 
         const cxn_outs = this.tree.getOutputs(this.id);
@@ -306,7 +315,9 @@ export class OperationComponent implements OnInit {
           const child_comp = this.tree.getComponent(child);
           this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
           container = <HTMLElement> document.getElementById("scale-"+child);
-          container.style.border = "thin solid transparent";
+          container.classList.remove('multiselected');
+
+         // container.style.border = "thin solid transparent";
 
         });
 
