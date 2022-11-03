@@ -287,20 +287,18 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  /**
-   * Called when main palette is rescaled and triggers call to rescale this element, and update its position 
-   * so it remains at the same coords. 
-   * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
-   */
    rescaleForBitmap(){
+
 
     
     if(this.canvas === undefined) return;
+    
+    
     const draft = this.tree.getDraft(this.id);
 
 
-    this.canvas.width = warps(draft.drawdown) * this.default_cell;
-    this.canvas.height = wefts(draft.drawdown) * this.default_cell;
+    this.canvas.width = warps(draft.drawdown) ;
+    this.canvas.height = wefts(draft.drawdown) ;
 
     for (let i = 0; i < wefts(draft.drawdown); i++) {
       for (let j = 0; j < warps(draft.drawdown); j++) {
@@ -486,7 +484,7 @@ export class SubdraftComponent implements OnInit {
 
     this.cx.lineWidth = 1;
 
-    this.cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
+    if(cell_size > 1) this.cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
     this.cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
   }
 
