@@ -2018,11 +2018,6 @@ drawStarted(){
 
        if(event.shiftKey) return;
         console.log("HIT BAKCGROUND")
-        const selections = this.multiselect.getSelections();
-        selections.forEach(sel => {
-          const container = <HTMLElement> document.getElementById("scale-"+sel);
-          if(container !== null) container.style.border = "thin solid transparent"
-        });
         this.multiselect.clearSelections();
 
       }
@@ -2316,19 +2311,8 @@ drawStarted(){
     if(obj === null) return;
   
     this.updateAttachedComponents(obj.id, true);
+    this.moveAllSelections(obj.id);
 
-    const selections = this.multiselect.getSelections();
-    const rel_pos = this.multiselect.getRelativePosition();
-    const cur_pos = this.tree.getComponent(obj.id).bounds.topleft;
-    const diff:Point = {x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y};
-
-    selections.forEach(sel => {
-      if(this.tree.getType(sel) == 'op' && sel !== obj.id){
-        const comp = this.tree.getComponent(sel);
-        comp.bounds.topleft = this.multiselect.getNewPosition(sel, diff);
-        this.updateAttachedComponents(sel, true);
-      }
-    })
 
   }
 
@@ -2340,17 +2324,42 @@ drawStarted(){
    operationMoveEnded(obj: any){
     if(obj === null) return;
 
-
-    const selections = this.multiselect.getSelections();
-    selections.forEach(sel => {
-      if(this.tree.getType(sel) == 'op' && sel !== obj.id){
-        const comp = this.tree.getComponent(sel);
-        this.multiselect.setPosition(sel, comp.bounds.topleft)
-      }
-    })
+    this.updateSelectionPositions(obj.id);
 
     this.addTimelineState();
 
+  }
+
+  updateSelectionPositions(moving_id: number){
+    const selections = this.multiselect.getSelections();
+    selections.forEach(sel => {
+      if(this.tree.getType(sel) != 'cxn' && sel !== moving_id){
+        const comp = this.tree.getComponent(sel);
+        this.multiselect.setPosition(sel, comp.bounds.topleft)
+      }
+
+     
+    })
+
+  }
+
+  moveAllSelections(moving_id: number){
+    const selections = this.multiselect.getSelections();
+    const rel_pos = this.multiselect.getRelativePosition();
+    const cur_pos = this.tree.getComponent(moving_id).bounds.topleft;
+    const diff:Point = {x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y};
+
+    selections.forEach(sel => {
+      if(this.tree.getType(sel) == 'op' && sel !== moving_id){
+        const comp = this.tree.getComponent(sel);
+        comp.bounds.topleft = this.multiselect.getNewPosition(sel, diff);
+        this.updateAttachedComponents(sel, true);
+      }
+      if(this.tree.getType(sel)=='draft' && sel !== moving_id){
+        const comp = <SubdraftComponent> this.tree.getComponent(sel);
+        if(comp.parent_id == -1) comp.setPosition( this.multiselect.getNewPosition(sel, diff));
+      }
+    });
   }
 
 
@@ -2370,6 +2379,10 @@ drawStarted(){
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
       
       if(moving === null) return; 
+
+      this.moveAllSelections(obj.id);
+  
+    
 
 
       this.updateSnackBar("Using Ink: "+moving.ink,null);
@@ -2415,6 +2428,8 @@ drawStarted(){
     this.closeSnackBar();
 
      if(obj === null) return;
+     this.updateSelectionPositions(obj.id);
+
   
       //creaet a subdraft of this intersection
       if(this.tree.hasPreview()){

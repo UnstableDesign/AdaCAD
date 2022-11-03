@@ -279,49 +279,11 @@ export class OperationComponent implements OnInit {
 
   toggleSelection(e: any){
 
-    let container;
 
       if(e.shiftKey == true){
-       const added =  this.multiselect.toggleSelection(this.id, this.bounds.topleft);
-       if(added){
-         container = <HTMLElement> document.getElementById("scale-"+this.id);
-         container.classList.add('multiselected');
-       // container.style.border = "thin solid black";
-
-        const cxn_outs = this.tree.getOutputs(this.id);
-        cxn_outs.forEach(o => {
-          this.multiselect.toggleSelection(o, null)
-          const child = this.tree.getConnectionOutput(o);
-          const child_comp = this.tree.getComponent(child);
-          this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
-          container = <HTMLElement> document.getElementById("scale-"+child);
-          container.classList.add('multiselected');
-
-        //  container.style.border = "thin solid black";
-
-        });
-
-       }else{
-        container = <HTMLElement> document.getElementById("scale-"+this.id);
-        container.classList.remove('multiselected');
-
-        //container.style.border = "thin solid transparent"
-
-
-        const cxn_outs = this.tree.getOutputs(this.id);
-        cxn_outs.forEach(o => {
-          this.multiselect.toggleSelection(o, null)
-          const child = this.tree.getConnectionOutput(o);
-          const child_comp = this.tree.getComponent(child);
-          this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
-          container = <HTMLElement> document.getElementById("scale-"+child);
-          container.classList.remove('multiselected');
-
-         // container.style.border = "thin solid transparent";
-
-        });
-
-       }
+        this.multiselect.toggleSelection(this.id, this.bounds.topleft);
+      }else{
+        this.multiselect.clearSelections();
       }
 
   }
@@ -474,8 +436,13 @@ export class OperationComponent implements OnInit {
 
 
 
-  dragStart($event: any) {
+  dragStart(e: any) {
+      //set the relative position of this operation if its the one that's dragging
+     if(this.multiselect.isSelected(this.id)){
       this.multiselect.setRelativePosition(this.bounds.topleft);
+     }else{
+      this.multiselect.clearSelections();
+     }
   }
 
   dragMove($event: any) {

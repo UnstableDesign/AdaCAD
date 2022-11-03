@@ -7,7 +7,7 @@ import { ViewportService } from './viewport.service';
 export class ZoomService {
   //current zoom scale
   zoom: number = 5; //this is the default
-  zoom_max: number = 6;
+  zoom_max: number = 9;
   zoom_min: number = .1;
   zoom_step: number;
 

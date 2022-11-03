@@ -13,7 +13,8 @@ import { OperationComponent } from '../operation/operation.component';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { createDraft, getDraftName, initDraftWithParams, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
-import { D } from '@angular/cdk/keycodes';
+import { D, E } from '@angular/cdk/keycodes';
+import { MultiselectService } from '../../provider/multiselect.service';
 
 
 
@@ -140,7 +141,8 @@ export class SubdraftComponent implements OnInit {
     private fs: FileService,
     private viewport: ViewportService,
     private dialog: MatDialog,
-    private ws: WorkspaceService) { 
+    private ws: WorkspaceService,
+    private multiselect: MultiselectService) { 
 
       this.zndx = layer.createLayer();
 
@@ -272,6 +274,14 @@ export class SubdraftComponent implements OnInit {
     this.bounds.width = Math.max(parent.bounds.width, this.bounds.width);
     this.bounds.height = Math.max(parent.bounds.height, this.bounds.height);
 
+  }
+
+  toggleMultiSelection(e: any){
+    if(e.shiftKey){
+      this.multiselect.toggleSelection(this.id, this.bounds.topleft);
+    }else{
+      this.multiselect.clearSelections();
+    }
   }
   
 
@@ -571,6 +581,15 @@ export class SubdraftComponent implements OnInit {
     return this.bounds.topleft;
   }
 
+    /**
+   * prevents hits on the operation to register as a palette click, thereby voiding the selection
+   * @param e 
+   */
+     mousedown(e: any){
+      e.stopPropagation();
+  
+  
+    }
 
 
   
@@ -587,12 +606,19 @@ export class SubdraftComponent implements OnInit {
     this.moving = false;
     this.counter = 0;  
     this.last_ndx = {i: -1, j:-1, si: -1};
+    this.multiselect.setRelativePosition(this.bounds.topleft);
     this.onSubdraftDrop.emit({id: this.id});
   }
 
   dragStart($event: any) {
     this.moving = true;
     this.counter = 0;  
+      //set the relative position of this operation if its the one that's dragging
+     if(this.multiselect.isSelected(this.id)){
+      this.multiselect.setRelativePosition(this.bounds.topleft);
+     }else{
+      this.multiselect.clearSelections();
+     }
     this.onSubdraftStart.emit({id: this.id});
  
 
