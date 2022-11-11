@@ -5,6 +5,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 
 @Component({
   selector: 'app-ops',
@@ -22,7 +23,7 @@ export class OpsComponent implements OnInit {
   filteredOptions: Observable<string[]>;
   searchOnly: boolean = false;
   
-  constructor(public ops: OperationService, private dialog: MatDialog,
+  constructor(public ops: OperationService, public op_desc: OperationDescriptionsService, private dialog: MatDialog,
     private dialogRef: MatDialogRef<OpsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) { }
 

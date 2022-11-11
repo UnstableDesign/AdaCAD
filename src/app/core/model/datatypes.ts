@@ -508,12 +508,10 @@ export type StringParam = OperationParam & {
  */
 export interface DynamicOperation {
   name: string,
-  displayname: string,
   params: Array<OperationParam>, 
   dynamic_param_id: number,
   dynamic_param_type: string,
   inlets: Array<OperationInlet>,
-  dx: string,
   old_names: Array<string>,
   perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
@@ -545,8 +543,6 @@ export interface DynamicOperation {
  */
 export interface Operation {
     name: string,
-    displayname: string,
-    dx: string,
     params: Array<OperationParam>,
     inlets: Array<OperationInlet>,
     old_names: Array<string>,

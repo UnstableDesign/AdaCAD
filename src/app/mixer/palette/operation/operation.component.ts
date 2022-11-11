@@ -13,6 +13,7 @@ import { ImageService } from '../../../core/provider/image.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { stat } from 'fs';
 import { MultiselectService } from '../../provider/multiselect.service';
+import opData from '../../../../assets/json/op_descriptions.json';  
 
 
 
