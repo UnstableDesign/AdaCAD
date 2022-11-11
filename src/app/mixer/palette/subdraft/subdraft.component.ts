@@ -82,6 +82,7 @@ export class SubdraftComponent implements OnInit {
   @Output() onDesignAction = new  EventEmitter <any>();
   @Output() onConnectionStarted:any = new EventEmitter<any>();
   @Output() onSubdraftViewChange:any = new EventEmitter<any>();
+  @Output() createNewSubdraftFromEdits:any = new EventEmitter<any>();
   @Output() onNameChange:any = new EventEmitter<any>();
 
   @ViewChild('bitmapImage') bitmap: any;
@@ -800,6 +801,11 @@ export class SubdraftComponent implements OnInit {
       return wefts(this.draft.drawdown);
     }
 
+
+    /**
+     * Open this when 
+     * @returns 
+     */
     finetune(){
 
       //if this is already open, don't reopen it
@@ -820,30 +826,22 @@ export class SubdraftComponent implements OnInit {
 
 
         this.modal.afterClosed().subscribe(result => {
-          if(result != null){
+          console.log("AFTER CLOSED", result)
+          if(result === null) return;
             if(this.parent_id == -1){
 
+            
               console.log("RESULT", result);
-              //create a new draft here and make sure its assigned
-              //this should be happening directly in the tree, and not here
-              // this.draft = initDraftWithParams({
-              //   id: result.id,
-              //   gen_name: result.gen_name,
-              //   ud_name: result.ud_name,
-              //   drawdown: result.drawdown,
-              //   rowShuttleMapping: result.rowShuttleMapping,
-              //   rowSystemMapping: result.rowSystemMapping,
-              //   colSystemMapping: result.colSystemMapping,
-              //   colShuttleMapping: result.colShuttleMapping
-              // });
-
+            
               
               // this.tree.setDraft(this.id, this.draft, this.loom_settings);
               this.draft = this.tree.getDraft(this.id);
 
               this.onDesignAction.emit({id: this.id});
+            }else{
+            console.log("Create new", result);
+            this.createNewSubdraftFromEdits.emit({parent_id: this.id, draft: result});
             }
-          }
         })   
        }
 

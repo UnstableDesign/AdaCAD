@@ -76,7 +76,8 @@ export class DraftdetailComponent implements OnInit {
                this.loom = this.tree.getLoom(this.id);
                this.loom_settings = this.tree.getLoomSettings(this.id);
                this.ink = data.ink;
-               this.viewonly = this.tree.hasParent(this.id);
+              //  this.viewonly = this.tree.hasParent(this.id);
+               this.viewonly = false;
 
                if(this.loom_settings.type == 'jacquard'){
                 this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
@@ -159,7 +160,7 @@ export class DraftdetailComponent implements OnInit {
   public onCancel(){
     this.scrollingSubscription.unsubscribe();
     this.weaver.closeAllModals();
-    this.dialogRef.close(null);
+    this.dialogRef.close(this.draft);
   }
 
   public onSave(){

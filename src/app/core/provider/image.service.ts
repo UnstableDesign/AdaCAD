@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import utilInstance from '../model/util';
 import { UploadService } from '../uploads/upload.service';
 import { Observable, of } from 'rxjs';
+import { all } from 'mathjs';
 
 @Injectable({
   providedIn: 'root'
@@ -60,21 +61,34 @@ export class ImageService {
         for(let i = 0; i < pixels.length; i+= 4){
 
           let r: string= pixels[i].toString(16);
+          let r_val: number = pixels[i] * .58;
+      
           if(r.length == 1) r = '0'+r;
 
           let g:string = pixels[i+1].toString(16);
+          let g_val: number = pixels[i+1] * .17;
           if(g.length == 1) g = '0'+g;
 
           let b:string = pixels[i+2].toString(16);
+          let b_val: number = pixels[i+2] * .8;
+
           if(b.length == 1) b = '0'+b;
 
+          const is_black:boolean = (r_val + g_val + b_val > (255/2))
           const o = pixels[i+3].toString(16);
-          all_colors.push('#'+r+''+g+''+b);
+
+
+          all_colors.push({hex: '#'+r+''+g+''+b, black: is_black});
         }
 
+        const unique = utilInstance.filterToUniqueValues(all_colors.map(el => el.hex));
 
-        const unique = utilInstance.filterToUniqueValues(all_colors);
-        
+        const color_to_bw = unique.map(el => {
+          const item = all_colors.find(ell => ell.hex == el);
+          if(item !== undefined) return {item}
+        })
+
+ 
         let filewarning = "";
         let image_map: Array<Array<number>> = [];
         if(unique.length > 100){
@@ -100,6 +114,7 @@ export class ImageService {
           name: id,
           data: imgdata,
           colors: unique,
+          colors_to_bw: color_to_bw,
           image: image,
           image_map: image_map,
           width: imgdata.width,

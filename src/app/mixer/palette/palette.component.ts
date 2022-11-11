@@ -486,6 +486,7 @@ export class PaletteComponent implements OnInit{
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
+    this.subdraftSubscriptions.push(sd.createNewSubdraftFromEdits.subscribe(this.createNewSubdraftFromEdits.bind(this)));
   }
 
   /**
@@ -1194,6 +1195,39 @@ export class PaletteComponent implements OnInit{
       this.operationParamChanged({id: id});
       this.addTimelineState();
  }
+
+   createNewSubdraftFromEdits(obj: any){
+    this.changeDesignmode('move')
+
+    if(obj === null) return;
+
+    const sd = <SubdraftComponent> this.tree.getComponent(obj.parent_id);
+    const sd_draft = obj.draft;
+    
+
+    this.createSubDraft(initDraftWithParams(
+      {wefts: wefts(sd_draft.drawdown), 
+        warps: warps(sd_draft.drawdown), 
+        drawdown: sd_draft.drawdown.slice(), 
+        rowShuttleMapping: sd_draft.rowShuttleMapping.slice(),
+        colShuttleMapping: sd_draft.colShuttleMapping.slice(),
+        rowSystemMapping: sd_draft.rowSystemMapping.slice(),
+        colSystemMapping: sd_draft.colSystemMapping.slice(),
+        gen_name: getDraftName(sd_draft)+" edited"
+      }), -1)
+      .then(new_sd => {
+
+
+        new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
+        new_sd.setPosition({
+          x: sd.bounds.topleft.x + sd.bounds.width + this.zs.zoom *2, 
+          y: sd.bounds.topleft.y});  
+        //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
+        //this.viewport.addObj(new_sd.id, interlacement);
+        this.addTimelineState();
+      }).catch(console.error);
+   
+   }
 
 
     onDuplicateSubdraftCalled(obj: any){
@@ -2265,7 +2299,7 @@ drawStarted(){
     const fns = outputs.map(out => this.performAndUpdateDownstream(out));
     Promise.all(fns).then(el => {
       this.addTimelineState();
-      this.changeDesignmode('move');
+      this.changeDesignmode('move')
     })
 
 

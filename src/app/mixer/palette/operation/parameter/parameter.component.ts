@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { OperationService } from '../../../../core/provider/operation.service';
 import { BoolParam, DraftParam, FileParam, NumParam, SelectParam, StringParam, OpNode } from '../../../../core/model/datatypes';
 import {TreeService } from '../../../../core/provider/tree.service';
+import { parseI18nMeta } from '@angular/compiler/src/render3/view/i18n/meta';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -40,7 +42,7 @@ export class ParameterComponent implements OnInit {
   draftparam: DraftParam;
 
 
-  constructor(public tree: TreeService) { 
+  constructor(public tree: TreeService, public ops: OperationService) { 
   }
 
   ngOnInit(): void {
@@ -76,10 +78,10 @@ export class ParameterComponent implements OnInit {
           this.fc = new FormControl(this.stringparam.value, [Validators.required, regexValidator((<StringParam>this.param).regex)]);
           break;
 
-        case 'draft':
-          this.draftparam = <DraftParam> this.param;
-          this.fc = new FormControl(this.draftparam.value);
-          break;
+        // case 'draft':
+        //   this.draftparam = <DraftParam> this.param;
+        //   this.fc = new FormControl(this.draftparam.value);
+        //   break;
          
        
       }
@@ -135,7 +137,11 @@ export class ParameterComponent implements OnInit {
   handleFile(obj: any){
     this.fc.setValue(obj.data.name);
     this.opnode.params[this.paramid] = obj.id;
-    this.onFileUpload.emit({id: obj.id, data: obj.data});
+    const param = <FileParam> this.ops.getOp(this.opnode.name).params[this.paramid];
+    param.process(obj).then(inlets => {
+      this.onFileUpload.emit({id: obj.id, data: obj.data, inlets: inlets});
+
+    })
   }
 
 

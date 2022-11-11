@@ -367,23 +367,20 @@ export class OperationComponent implements OnInit {
     const image_div =  document.getElementById('param-image-'+this.id);
     image_div.style.display = 'none';
 
-
-    obj = obj.data;
-
-
-    switch(obj.type){
+    switch(obj.data.type){
       case 'image':
 
         if(this.operations.isDynamic(this.name) && (<DynamicOperation> this.op).dynamic_param_type !== 'color') return;
 
-        if(obj.warning !== ''){
+        if(obj.data.warning !== ''){
           image_div.style.display = 'flex';
           this.filewarning = obj.warning;
         }else{
 
           const opnode = this.tree.getOpNode(this.id);
-
-          obj.colors.forEach(hex => {
+          
+          console.log("OBJ", obj)
+          obj.inlets.forEach(hex => {
 
             //add any new colors
             const ndx = opnode.inlets.findIndex(el => el.value === hex);
@@ -396,7 +393,7 @@ export class OperationComponent implements OnInit {
           //now remove any inlets that no longer have values
           opnode.inlets.forEach((inlet, ndx) => {
             if(inlet === 0) return;
-            const found = obj.colors.find(el => el === inlet);
+            const found = obj.inlets.find(el => el === inlet);
             if(found === undefined){
               remove.push(ndx);
             }

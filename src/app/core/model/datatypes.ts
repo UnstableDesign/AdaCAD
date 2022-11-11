@@ -470,6 +470,7 @@ export type BoolParam = OperationParam & {
 * Currently a placeholder should extra data be required. 
 */
 export type FileParam = OperationParam & {
+  process: (data: any) => Promise<Array<any>>;
 }
 
 /**

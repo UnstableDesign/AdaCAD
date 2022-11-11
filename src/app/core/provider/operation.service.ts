@@ -7,7 +7,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import * as _ from 'lodash';
 import { ImageService } from '../../core/provider/image.service';
-import { BoolParam, Draft, DraftParam, DynamicOperation, Loom, LoomSettings, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
+import { BoolParam, Draft, DraftParam, DynamicOperation, FileParam, Loom, LoomSettings, NumParam, Operation, OperationClassification, OperationInlet, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
 import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, isUp, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
 import { computeDrawdown, getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import { WorkspaceService } from '../../core/provider/workspace.service';
@@ -4305,6 +4305,127 @@ export class OperationService {
       
     }
 
+    const bwimagemap: DynamicOperation = {
+      name: 'bwimagemap',
+      displayname: 'uplaod draft',
+      old_names:[],
+      dx: 'uploads an image that is black and white or can be converted to black and white',
+      dynamic_param_type: 'color',
+      dynamic_param_id: 0,
+      inlets: [],
+      params: [
+          <FileParam>{name: 'image file (.jpg or .png)',
+          type: 'file',
+          min: 1,
+          max: 100,
+          value: 'noinput',
+          dx: 'the image file',
+          process: (data: any ) => {
+              const inlets: Array<any> = ['#000000', '#ffffff']
+            return Promise.resolve(inlets);
+          } 
+        },
+        <NumParam>{name: 'draft width',
+        type: 'number',
+        min: 1,
+        max: 10000,
+        value: 300,
+        dx: 'resize the input image to the width specified'
+      },
+      <NumParam>{name: 'draft height',
+        type: 'number',
+        min: 1,
+        max: 10000,
+        value: 200,
+        dx: 'resize the input image to the height specified'
+    }
+      ],
+      perform: (op_inputs: Array<OpInput>)=> {
+          
+        //split the inputs into the input associated with 
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "bwimagemap");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+
+        const image_data = this.is.getImageData(parent_inputs[0].params[0]);
+        const res_w = parent_inputs[0].params[1];
+        const res_h = parent_inputs[0].params[2];
+
+
+        if(image_data === undefined) return Promise.resolve([]);
+        const data = image_data.data;
+
+        //we need to flip the image map here because it will be flipped back on return. 
+
+        // const fliped_image = [];
+        // data.image_map.forEach(row => {
+        //   fliped_image.unshift(row);
+        // })
+
+        const color_to_drafts = data.colors.map((color, ndx) => {
+          const child_of_color = child_inputs.find(input => (input.params.findIndex(param => param === color) !== -1));
+          if(child_of_color === undefined) return {color: color, draft: null};
+          else return {color: color, draft: child_of_color.drafts[0]};
+        });
+
+
+        const pattern: Array<Array<Cell>> = [];
+        for(let i = 0; i < res_h; i++){
+          pattern.push([]);
+          for(let j = 0; j < res_w; j++){
+
+            const i_ratio = data.height / res_h;
+            const j_ratio = data.width / res_w;
+
+            const map_i = Math.floor(i * i_ratio);
+            const map_j = Math.floor(j * j_ratio);
+
+            const color_ndx = data.image_map[map_i][map_j];
+            const is_black = data.colors_to_bw[color_ndx];
+            console.log(is_black);
+            
+            let color_draft;
+            if(is_black){
+              color_draft = color_to_drafts[0].draft;
+            }else{
+              color_draft = color_to_drafts[1].draft;
+
+            }
+            if(color_draft === null) pattern[i].push(new Cell(false));
+            else {
+              const draft_i = i % wefts(color_draft.drawdown);
+              const draft_j = j % warps(color_draft.drawdown);
+              pattern[i].push(new Cell(color_draft.drawdown[draft_i][draft_j].getHeddle()));
+            }
+
+          }
+        }
+
+        
+
+        let first_draft: Draft = null;
+        child_inputs.forEach(el =>{
+          if(el.drafts.length > 0 && first_draft == null) first_draft = el.drafts[0];
+        });
+
+        if(first_draft == null) first_draft =initDraftWithParams({warps: 1, wefts: 1, pattern: [[new Cell(null)]]})
+
+        
+
+        const draft: Draft =initDraftWithParams({
+          wefts: res_h, 
+          warps: res_w,
+           pattern: pattern,
+          rowSystemMapping: first_draft.rowSystemMapping,
+          rowShuttleMapping: first_draft.rowShuttleMapping,
+          colSystemMapping: first_draft.colSystemMapping,
+          colShuttleMapping: first_draft.colShuttleMapping});
+
+      return Promise.resolve([draft]);
+
+      }
+      
+    }
+
 
     const imagemap: DynamicOperation = {
       name: 'imagemap',
@@ -4314,22 +4435,29 @@ export class OperationService {
       dynamic_param_type: 'color',
       dynamic_param_id: 0,
       inlets: [],
-      params: <Array<NumParam>>[
-          {name: 'image file (.jpg or .png)',
+      params: [
+         <FileParam> {name: 'image file (.jpg or .png)',
           type: 'file',
           min: 1,
           max: 100,
           value: 'noinput',
-          dx: 'the total number of layers in this cloth'
+          dx: 'the file to upload',
+          process: (data: any ) => {
+              const inlets: Array<any> = []
+              data.colors.forEach(hex => { 
+                  inlets.push(hex);
+              });
+            return Promise.resolve(inlets);
+          }
         },
-        {name: 'draft width',
+        <NumParam>{name: 'draft width',
         type: 'number',
         min: 1,
         max: 10000,
         value: 300,
         dx: 'resize the input image to the width specified'
       },
-        {name: 'draft height',
+      <NumParam> {name: 'draft height',
         type: 'number',
         min: 1,
         max: 10000,
@@ -5489,6 +5617,7 @@ export class OperationService {
     this.dynamic_ops.push(assignlayers);
     this.dynamic_ops.push(dynamic_join_left);
     this.dynamic_ops.push(imagemap);
+    this.dynamic_ops.push(bwimagemap);
     this.dynamic_ops.push(layernotation);
     this.dynamic_ops.push(warp_profile);
     this.dynamic_ops.push(sample_width);
@@ -5501,7 +5630,7 @@ export class OperationService {
     this.ops.push(waffle);
     this.ops.push(satin);
     this.ops.push(shaded_satin);
-    this.ops.push(tabby);
+    // this.ops.push(tabby);
     this.ops.push(tabby_der);
     this.ops.push(rib);
     this.ops.push(random);
@@ -5577,7 +5706,7 @@ export class OperationService {
     this.classification.push(
         {category: 'combine',
         dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [imagemap, interlace, splicein, spliceinwarps, assignlayers, layer, layernotation,  fill, joinleft, dynamic_join_left, jointop]}
+        ops: [imagemap, bwimagemap, interlace, splicein, spliceinwarps, assignlayers, layer, layernotation,  fill, joinleft, dynamic_join_left, jointop]}
         );
     
      this.classification.push(
