@@ -13,6 +13,7 @@ import { computeDrawdown, getLoomUtilByType, numFrames, numTreadles } from '../.
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { CombinatoricsService } from '../../core/provider/combinatorics.service';
 import { promise } from 'protractor';
+import { input } from '@tensorflow/tfjs';
 
 
  
@@ -4307,7 +4308,7 @@ export class OperationService {
 
     const bwimagemap: DynamicOperation = {
       name: 'bwimagemap',
-      displayname: 'uplaod draft',
+      displayname: 'upload draft',
       old_names:[],
       dx: 'uploads an image that is black and white or can be converted to black and white',
       dynamic_param_type: 'color',
@@ -4325,23 +4326,25 @@ export class OperationService {
             return Promise.resolve(inlets);
           } 
         },
-        <NumParam>{name: 'draft width',
+        <NumParam>{name: 'ends',
         type: 'number',
         min: 1,
         max: 10000,
         value: 300,
-        dx: 'resize the input image to the width specified'
+        dx: 'resize the input draft to the number of ends specified'
       },
-      <NumParam>{name: 'draft height',
+      <NumParam>{name: 'pics',
         type: 'number',
         min: 1,
         max: 10000,
         value: 200,
-        dx: 'resize the input image to the height specified'
+        dx: 'resize the input draft to the number of pics specified'
     }
       ],
       perform: (op_inputs: Array<OpInput>)=> {
           
+
+        console.log("PERFORM")
         //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "bwimagemap");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
@@ -4354,17 +4357,19 @@ export class OperationService {
         if(image_data === undefined) return Promise.resolve([]);
         const data = image_data.data;
 
-        //we need to flip the image map here because it will be flipped back on return. 
+      
 
-        // const fliped_image = [];
-        // data.image_map.forEach(row => {
-        //   fliped_image.unshift(row);
-        // })
 
-        const color_to_drafts = data.colors.map((color, ndx) => {
-          const child_of_color = child_inputs.find(input => (input.params.findIndex(param => param === color) !== -1));
-          if(child_of_color === undefined) return {color: color, draft: null};
-          else return {color: color, draft: child_of_color.drafts[0]};
+
+        const color_to_drafts = data.colors_to_bw.map((item, ndx) => {
+
+          if(item.black){
+            if(child_inputs.findIndex(input => input.inlet == 0) !== -1) return {color: item.hex, draft: child_inputs[0].drafts[0]}
+            else return {color: item.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[new Cell(true)]]})}
+          } else{
+            if(child_inputs.findIndex(input => input.inlet == 1) !== -1) return {color: item.hex, draft: child_inputs[1].drafts[0]}
+            else return {color: item.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[new Cell(false)]]})}
+          } 
         });
 
 
@@ -4380,16 +4385,8 @@ export class OperationService {
             const map_j = Math.floor(j * j_ratio);
 
             const color_ndx = data.image_map[map_i][map_j];
-            const is_black = data.colors_to_bw[color_ndx];
-            console.log(is_black);
-            
-            let color_draft;
-            if(is_black){
-              color_draft = color_to_drafts[0].draft;
-            }else{
-              color_draft = color_to_drafts[1].draft;
+            const color_draft = color_to_drafts[color_ndx].draft;
 
-            }
             if(color_draft === null) pattern[i].push(new Cell(false));
             else {
               const draft_i = i % wefts(color_draft.drawdown);
@@ -4402,23 +4399,20 @@ export class OperationService {
 
         
 
-        let first_draft: Draft = null;
-        child_inputs.forEach(el =>{
-          if(el.drafts.length > 0 && first_draft == null) first_draft = el.drafts[0];
-        });
+        // let first_draft: Draft = null;
+        // child_inputs.forEach(el =>{
+        //   if(el.drafts.length > 0 && first_draft == null) first_draft = el.drafts[0];
+        // });
 
-        if(first_draft == null) first_draft =initDraftWithParams({warps: 1, wefts: 1, pattern: [[new Cell(null)]]})
+        // if(first_draft == null) first_draft =initDraftWithParams({warps: 1, wefts: 1, pattern: [[new Cell(null)]]})
 
         
 
         const draft: Draft =initDraftWithParams({
           wefts: res_h, 
           warps: res_w,
-           pattern: pattern,
-          rowSystemMapping: first_draft.rowSystemMapping,
-          rowShuttleMapping: first_draft.rowShuttleMapping,
-          colSystemMapping: first_draft.colSystemMapping,
-          colShuttleMapping: first_draft.colShuttleMapping});
+          pattern: pattern
+        });
 
       return Promise.resolve([draft]);
 
@@ -4444,7 +4438,7 @@ export class OperationService {
           dx: 'the file to upload',
           process: (data: any ) => {
               const inlets: Array<any> = []
-              data.colors.forEach(hex => { 
+              data.data.colors.forEach(hex => { 
                   inlets.push(hex);
               });
             return Promise.resolve(inlets);
@@ -4479,12 +4473,12 @@ export class OperationService {
         if(image_data === undefined) return Promise.resolve([]);
         const data = image_data.data;
 
-        //we need to flip the image map here because it will be flipped back on return. 
+        // //we need to flip the image map here because it will be flipped back on return. 
 
-        const fliped_image = [];
-        data.image_map.forEach(row => {
-          fliped_image.unshift(row);
-        })
+        // const fliped_image = [];
+        // data.image_map.forEach(row => {
+        //   fliped_image.unshift(row);
+        // })
 
 
         const color_to_drafts = data.colors.map((color, ndx) => {
@@ -4505,7 +4499,7 @@ export class OperationService {
             const map_i = Math.floor(i * i_ratio);
             const map_j = Math.floor(j * j_ratio);
 
-            const color_ndx = fliped_image[map_i][map_j]; //
+            const color_ndx = data.image_map[map_i][map_j]; //
             const color_draft = color_to_drafts[color_ndx].draft;
 
             if(color_draft === null) pattern[i].push(new Cell(false));

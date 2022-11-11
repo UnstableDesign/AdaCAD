@@ -61,31 +61,32 @@ export class ImageService {
         for(let i = 0; i < pixels.length; i+= 4){
 
           let r: string= pixels[i].toString(16);
-          let r_val: number = pixels[i] * .58;
+          let r_val: number = pixels[i];
       
           if(r.length == 1) r = '0'+r;
 
           let g:string = pixels[i+1].toString(16);
-          let g_val: number = pixels[i+1] * .17;
+          let g_val: number = pixels[i+1];
           if(g.length == 1) g = '0'+g;
 
           let b:string = pixels[i+2].toString(16);
-          let b_val: number = pixels[i+2] * .8;
+          let b_val: number = pixels[i+2];
 
           if(b.length == 1) b = '0'+b;
 
-          const is_black:boolean = (r_val + g_val + b_val > (255/2))
+          const is_black:boolean = ((r_val + g_val + b_val/3) < (255/2))
           const o = pixels[i+3].toString(16);
 
 
           all_colors.push({hex: '#'+r+''+g+''+b, black: is_black});
         }
 
-        const unique = utilInstance.filterToUniqueValues(all_colors.map(el => el.hex));
+        const just_hex = all_colors.map(el => el.hex);
+        const unique = utilInstance.filterToUniqueValues(just_hex);
 
         const color_to_bw = unique.map(el => {
           const item = all_colors.find(ell => ell.hex == el);
-          if(item !== undefined) return {item}
+          if(item !== undefined) return item
         })
 
  
@@ -96,7 +97,7 @@ export class ImageService {
           Promise.reject('color');
         } 
         else{
-          const image_map_flat: Array<number> = all_colors.map(color => unique.findIndex(el => el === color));
+          const image_map_flat: Array<number> = all_colors.map(item => unique.findIndex(el => el === item.hex));
 
           let cur_i = 0;
           let cur_j = 0;

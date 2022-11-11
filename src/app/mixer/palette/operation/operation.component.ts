@@ -379,7 +379,6 @@ export class OperationComponent implements OnInit {
 
           const opnode = this.tree.getOpNode(this.id);
           
-          console.log("OBJ", obj)
           obj.inlets.forEach(hex => {
 
             //add any new colors
@@ -404,14 +403,17 @@ export class OperationComponent implements OnInit {
 
         
           //now update the default parameters to the original size 
-          opnode.params[1] = obj.data.width/10;
-          opnode.params[2] = obj.data.height/10;
+          opnode.params[1] = obj.data.width;
+          opnode.params[2] = obj.data.height;
           this.drawImagePreview();
 
 
         }
         break;
     }
+
+    this.onOperationParamChange.emit({id: this.id});  
+
   }
 
   /**
