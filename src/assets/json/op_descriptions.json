@@ -38,10 +38,52 @@
             "application": "Complex weavers often generate structures that consider each warp and weft as a logical system that will behave differently in different regions of the cloth. Thus, some operations, like layer notation, require systems to be specified in order to compute complex structures that obey the systems of warps and wefts over the cloth. Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface" 
         },
         {
+            "name":"invert",
+            "displayname": "invert",
+            "description": "Inverts the draft so that raised warp ends become weft picks and weft pics become raised warp ends.",
+            "application": "Swaps the faces of the cloth, moving the front to back and back to front." 
+        },
+        {
+            "name":"flip horiz",
+            "displayname": "flip horiz",
+            "description": "Generates an output draft that mirrors the input draft from left to right.",
+            "application": "Can be used to create structures that include rotations of a basic motif" 
+        },
+        {
+            "name":"shift left",
+            "displayname": "shift left",
+            "description": "Generates an output that is shifted to the left by the number of warp ends specified in the parameters.",
+            "application": "Creates a version of a draft that is structurally identical, but has the placement of interlacements fine tuned in relation to other structures" 
+        },
+        {
+            "name":"shift up",
+            "displayname": "shift up",
+            "description": "Generates an output that is shifted upward by the number of pics specified in the parameters.",
+            "application": "Creates a version of a draft that is structurally identical, but has the placement of interlacements fine tuned in relation to other structures" 
+        },
+        {
+            "name":"flip vert",
+            "displayname": "flip vert",
+            "description": "Generates an output draft that mirrors the input draft from top to bottom.",
+            "application": "Can be used to create structures that include rotations of a basic motif" 
+        },
+        {
+            "name":"slope",
+            "displayname": "slope",
+            "description": "Shifts every nth pic by the vaule given in ends",
+            "application": "We do not know of an existing reason, but essentially slants the input draft, which can be fun" 
+        },
+        {
             "name":"rotate",
             "displayname": "rotate",
             "description": "Generates an output draft that is the same as the input draft, but rotated by the amount specified",
             "application": "To create patterns and motifs that involve a rotated element" 
+        },
+        {
+            "name":"makesymmetric",
+            "displayname": "make symmetric",
+            "description": "Rotates and 'stamps' the input draft around a corner, creating rotational symmetry around the selected point according to the parameters described below.",
+            "application": "to create structures with rotational symmetry" 
         },
         {
             "name":"interlace",
@@ -67,6 +109,19 @@
             "description": "Developed in collaboration with Kathryn Walters, this operation uses a notation system to assign drafts to different warp and weft patterns on different layers of cloth. Layers are represented by () so (1a)(2b) puts warp 1 and weft a on layer 1, warp 2 and weft b on layer 2.",
             "application": "This is used to create differetn structures, with different layer relationships, across an entire cloth. It becomes especially powerful with one changes layer numbers. For example (a1b2)(c2) will place the first layer across two systems, and the second layer across one system. This means that one can arbitrary change both layer order, as well as the association of different warp and weft systems to different layers across different regions of the cloth.", 
             "dynamic":"true"
+        },
+        {
+            "name":"layer",
+            "displayname": "layer",
+            "description": "Creates a draft in which each input is assigned to a layer in a multilayered structure. Assigns the first input to the top layer and so on.",
+            "application": "To arrange different structures on different layers" 
+        },
+        {
+            "name":"assignlayers",
+            "displayname": "assign drafts to layers",
+            "description": "Assigns one or more drafts to layers of cloth, defined by the parameters described below, using inputs that can also be assigned to weft systems.",
+            "application": "To arrange different structures on different layers, while determining the ordering of systems across layers",
+            "dynamic": "true"
         },
         {
             "name":"veritcal cut",
@@ -147,6 +202,24 @@
             "application": "Generates a complex twill structure that can be modified as needed as ones design evolves." 
         },
         {
+            "name":"satin",
+            "displayname": "satin",
+            "description": "Satin is a family of weave structures that create cloth with weft floats on one face of the fabric and warp floats on the other. The succeeding interlacements of warp and weft threads in each row occur on non-adjacent warp threads, creating a smooth surface of floating threads on each face. The number of ends between succeeding warp interlacements is consistent in each row (i.e. a 1/8 satin will have one raised warp end followed by a weft float over 8 warp ends in each row).",
+            "application": "Generates a satin structure that can be modified as needed as ones design evolves." 
+        },
+        {
+            "name":"shaded_satin",
+            "displayname": "shaded satin",
+            "description": "Satin is a family of weave structures that create cloth with weft floats on one face of the fabric and warp floats on the other. The succeeding interlacements of warp and weft threads in each row occur on non-adjacent warp threads, creating a smooth surface of floating threads on each face. The number of ends between succeeding warp interlacements is consistent in each row (i.e. a 1/8 satin will have one raised warp end followed by a weft float over 8 warp ends in each row). Shaded satins typically use more than just one raised warp on each pic to control the visiblity of the warp or weft colors proportionally",
+            "application": "Generates a satin or shaded satin structure that can be modified as needed as ones design evolves." 
+        },
+        {
+            "name":"random",
+            "displayname": "random",
+            "description": "Generates a draft of the size specified where the value of each interlacement is generated randomly.",
+            "application": "We don't know of current random draft generators, so this one is just for the fun of applying code-based random number generators to weaving structures" 
+        },
+        {
             "name":"stretch",
             "displayname": "stretch",
             "description": "Repeats each warp and/or weft by the values given in the parameters.",
@@ -192,21 +265,35 @@
             "dynamic":"true"
 
         },
-        
+        {
+            "name":"bind weft floats",
+            "displayname": "bind weft floats",
+            "description": "Adds interlacements to weft floats over the user specified length",
+            "application": "To automatically find and bind long floats in a design"
+        },
+        {
+            "name":"bind warp floats",
+            "displayname": "bind warp floats",
+            "description": "Adds interlacements to warp floats over the user specified length",
+            "application": "To automatically find and bind long floats in a design"
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        },
+        {
+            "name":"bwimagemap",
+            "displayname": "upload draft",
+            "description": "Uploads a draft from an image into AdaCAD",
+            "application": "To upload drafts from other sources into the workspace"
 
-        
+        },
+        {
+            "name":"imagemap",
+            "displayname": "image map",
+            "description": "Uploads an image and creates an input for each color found in the image. Assigning a draft to the color fills the color region with the selected draft.",
+            "application": "Can be used to create complex woven motifs or images with regions filled with different structures",
+            "dynamic":"true"
 
-        
+        }
+   
        
     ],
 
