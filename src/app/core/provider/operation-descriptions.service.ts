@@ -35,6 +35,27 @@ export class OperationDescriptionsService {
     }
   }
 
+  getYoutube(opname: string){
+    const item = descriptions.operation.find(el => el.name == opname);
+    if(item !== undefined){
+      return item.youtube;
+    }
+  }
+
+  getParamDescription(paramname: string){
+    const item = descriptions.param.find(el => el.name == paramname);
+    if(item !== undefined){
+      return item.description;
+    }
+  }
+
+
+
+  getDyanmicText(): string{
+    return descriptions.dynamic_description;
+  }
+
+
 
 
 }

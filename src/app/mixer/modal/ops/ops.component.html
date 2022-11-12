@@ -40,11 +40,11 @@
       <p> {{class.dx}}</p>
       <ng-container *ngFor="let op of class.ops">
           <button mat-stroked-button 
-            [matTooltip] = op_desc.getWeaverDx(op.name)
+            [matTooltip] = op_desc.getOpDescription(op.name)
             matTooltipClass="visibleTooltip"
             [name]=op.name 
             (click)="addOp(op.name)">
-            {{op.displayname}} this
+            {{op_desc.getDisplayName(op.name)}}
           </button> 
       </ng-container>
     </div>  

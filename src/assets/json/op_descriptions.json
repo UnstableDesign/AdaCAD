@@ -163,7 +163,7 @@
             "name":"sinewave",
             "displayname": "sine wave sample",
             "description": "Samples a sine wave at a rate specified by the the interval parameter, and stretches the wave to the size of amplitude. Converts this wave to a draft by marking a warp raised in any location where the wave is present",
-            "application": "No esablished application, but an interesting way to create threadings and threadlings for interesting looking drawdowns",
+            "application": "No esablished application, but an interesting way to create threadings and threadlings for interesting looking drawdowns"
         },
         {
             "name":"sawtooth",
@@ -220,6 +220,12 @@
             "application": "We don't know of current random draft generators, so this one is just for the fun of applying code-based random number generators to weaving structures" 
         },
         {
+            "name":"combos",
+            "displayname": "all possible structures",
+            "description": "This structure operation was prompted by a question from weaver and AdaCAD collaborator Marianne Fairbanks who wanted to implement an algorithm to find every possible structure for an N x N draft. The motivation was largely based on the observance that three structures are said to be the core of all weaving: satin, twill and tabby. M wanted to know why these three? What other options were there? And what might be possible in these other options. This algorithm revealed that there are 102 possible 3x3 structures and 22874 possible 4x4 structures (though some structures are rotations, reflections, and shifts of others, leading us to questions of definition of equivalency in structures).",
+            "application": "Allows one to systematically explore all possible drafts, just for the sake of it" 
+        },
+        {
             "name":"stretch",
             "displayname": "stretch",
             "description": "Repeats each warp and/or weft by the values given in the parameters.",
@@ -266,6 +272,19 @@
 
         },
         {
+            "name":"tile",
+            "displayname": "tile",
+            "description": "Repeats the input block along the warp and weft according to the parameters described below.",
+            "application": "Can be used to repeat a pattern across the cloth a specified number of times"
+        },
+        {
+            "name":"chaos",
+            "displayname": "chaos sequence",
+            "description": "Made in collaboration Jacqueline Wernimont, Molly Morin and Nikki Stevens. Tiles the input drafts, randomly selecting which draft to place at which position",
+            "application": "No specific application, just creates some nice tilings",
+            "youtube":"kQWCOMvLNqk"
+        },
+        {
             "name":"bind weft floats",
             "displayname": "bind weft floats",
             "description": "Adds interlacements to weft floats over the user specified length",
@@ -276,6 +295,35 @@
             "displayname": "bind warp floats",
             "description": "Adds interlacements to warp floats over the user specified length",
             "application": "To automatically find and bind long floats in a design"
+
+        },
+        {
+            "name":"erase blank rows",
+            "displayname": "erase blank rows",
+            "description": "Erases any rows that are entirely unset.",
+            "application": "Blank rows can emerge when working across multiple systems. Erasing blank rows, then, can speed up weaving by avoiding picing blank rows"
+
+        },
+        {
+            "name":"join top",
+            "displayname": "join top",
+            "description": "Joins drafts assigned to the drafts input together from bottom to top.",
+            "application": "To arrange different structures across rows"
+
+        },        
+        {
+            "name":"join left",
+            "displayname": "join left",
+            "description": "Joins drafts assigned to the drafts input together from left to right.",
+            "application": "To arrange different structures across columns"
+
+        },
+        {
+            "name":"dynamicjoinleft",
+            "displayname": "subdivide width",
+            "description": "Subdivides the width (number of ends) of the draft into equal-sized sections, then, takes each input draft and assigns it a division from left to right.",
+            "application": "Simplifies the ability to evenly split structures, side by side, across a particular number of ends",
+            "dynamic":"true"
 
         },
         {
@@ -292,7 +340,45 @@
             "application": "Can be used to create complex woven motifs or images with regions filled with different structures",
             "dynamic":"true"
 
+        },
+        {
+            "name":"germanify",
+            "displayname": "germanify",
+            "description": "Uses machine learning to edit the input draft based on common patterns found in a set of German Weave drafts.",
+            "application": "No particular application, just curious"
+        },
+        {
+            "name":"crackle-ify",
+            "displayname": "crackle-ify",
+            "description": "Uses machine learning to edit the input draft based on common patterns found in a set of Crackle Weave drafts.",
+            "application": "No particular application, just curious"
+        },
+        {
+            "name":"direct loom",
+            "displayname": "generate direct tie loom threading and lift plan",
+            "description": "Uses the input draft as drawdown and generates a threading and lift plan pattern",
+            "application": "To create threading and treadlings plans from drawdowns"
+        },
+        {
+            "name":"floor loom",
+            "displayname": "generate floor loom threading and treadling",
+            "description": "Uses the input draft as drawdown and generates a threading and lift plan pattern",
+            "application": "To create threading and treadlings plans from drawdowns"
+        },
+        {
+            "name":"drawdown",
+            "displayname": "make drawdown from threading, tieup, and treadling",
+            "description": "Create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)",
+            "application": "To create drawdown from from a floor loom plan"
+        },
+        {
+            "name":"directdrawdown",
+            "displayname": "make drawdown from threading and lift plan",
+            "description": "Create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.lift plan)",
+            "application": "To create drawdown from from a direct loom plan"
         }
+
+
    
        
     ],

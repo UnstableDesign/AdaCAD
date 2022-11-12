@@ -2319,11 +2319,9 @@ export class OperationService {
 
     const layernotation: DynamicOperation = {
       name: 'notation',
-      displayname: 'layer notation',
       old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: 'notation',
-      dx: 'uses a notation system to assign drafts to different warp and weft patterns on different layers. Layers are represented by () so (1a)(2b) puts warp1 and weft a on layer 1, warp 2 and weft b on layer 2',
       params: <Array<StringParam>>[
         {name: 'pattern',
         type: 'string',
@@ -5091,11 +5089,9 @@ export class OperationService {
 
     const warp_profile: DynamicOperation = {
       name: 'warp_profile',
-      displayname: 'pattern across width',
       old_names:[],
       dynamic_param_id: 0,
       dynamic_param_type: 'profile',
-      dx: 'if you describe a numeric pattern, it will repeat the inputs in the same pattern',
       params: <Array<StringParam>>[
         {name: 'pattern',
         type: 'string',

@@ -4,6 +4,8 @@ import { OperationService } from '../../../../core/provider/operation.service';
 import { BoolParam, DraftParam, FileParam, NumParam, SelectParam, StringParam, OpNode } from '../../../../core/model/datatypes';
 import {TreeService } from '../../../../core/provider/tree.service';
 import { parseI18nMeta } from '@angular/compiler/src/render3/view/i18n/meta';
+import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
+import { K } from '@angular/cdk/keycodes';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -40,15 +42,20 @@ export class ParameterComponent implements OnInit {
   selectparam: SelectParam;
   fileparam: FileParam;
   draftparam: DraftParam;
+  description: string;
 
 
-  constructor(public tree: TreeService, public ops: OperationService) { 
+  constructor(
+    public tree: TreeService, 
+    public ops: OperationService,
+    public op_desc: OperationDescriptionsService) { 
   }
 
   ngOnInit(): void {
 
     this.opnode = this.tree.getOpNode(this.opid);
-
+    this.description = this.op_desc.getParamDescription(this.param.name);
+    if(this.description == undefined || this.description == null) this.description = this.param.dx;
      //initalize the form controls for the parameters: 
 
       switch(this.param.type){

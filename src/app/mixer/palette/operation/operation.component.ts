@@ -14,6 +14,7 @@ import { SystemsService } from '../../../core/provider/systems.service';
 import { stat } from 'fs';
 import { MultiselectService } from '../../provider/multiselect.service';
 import opData from '../../../../assets/json/op_descriptions.json';  
+import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 
 
 
@@ -74,6 +75,9 @@ export class OperationComponent implements OnInit {
       */
     duplicated: boolean = false;
 
+    description: string; 
+    application: string; 
+    displayname: string; 
 
    tooltip: string = "select drafts to input to this operation"
 
@@ -94,10 +98,6 @@ export class OperationComponent implements OnInit {
 
    has_image_preview: boolean = false;
 
-   //these are the drafts with any input parameters
-  //  inlets: Array<FormControl> = [];
-
-
   // has_connections_in: boolean = false;
    subdraft_visible: boolean = true;
 
@@ -117,7 +117,8 @@ export class OperationComponent implements OnInit {
     public dm: DesignmodesService,
     private imageService: ImageService,
     public systems: SystemsService,
-    public multiselect: MultiselectService) { 
+    public multiselect: MultiselectService,
+    public opdescriptions: OperationDescriptionsService) { 
      
 
 
@@ -127,7 +128,9 @@ export class OperationComponent implements OnInit {
 
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
-    
+    this.description = this.opdescriptions.getOpDescription(this.name);
+    this.displayname = this.opdescriptions.getDisplayName(this.name);
+    this.application = this.opdescriptions.getOpApplication(this.name);
 
     const tl: Point = this.viewport.getTopLeft();
     const tl_offset = {x: tl.x + 60, y: tl.y};

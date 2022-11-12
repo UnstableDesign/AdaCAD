@@ -31,7 +31,7 @@ export class OpsComponent implements OnInit {
 
     const allops = this.ops.ops.concat(this.ops.dynamic_ops);
     this.opnames = allops.map(el => el.name);
-    this.displaynames = allops.map(el => el.displayname);
+    this.displaynames = allops.map(el => this.op_desc.getDisplayName(el.name));
 
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
