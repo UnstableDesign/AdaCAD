@@ -1,5 +1,4 @@
 import { Injectable, ViewRef } from '@angular/core';
-import { cloneDeep, flip, map, toNumber } from 'lodash';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
@@ -9,10 +8,8 @@ import { Draft, DraftNodeProxy, Drawdown, Loom, LoomSettings, LoomUtil, NodeComp
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
-import { flipLoom, getLoomUtilByType } from '../../core/model/looms';
-import { createDraft, flipDraft, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
-import * as _ from 'lodash';
-import { ignoreElements } from 'rxjs/operators';
+import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
+import { copyDraft, createDraft, flipDraft, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 
 
 /**
@@ -313,7 +310,7 @@ export class TreeService {
       ref: sd.hostView,
       component: <SubdraftComponent> sd.instance,
       dirty: true, 
-      draft: cloneDeep(draft),
+      draft: copyDraft(draft),
       loom: null,
       loom_settings: null
     }
@@ -326,7 +323,7 @@ export class TreeService {
 
   setPreviewDraft(draft: Draft) : Promise<DraftNode>{
     if(this.preview === undefined) return Promise.reject("preview undefined");
-      this.preview.draft = cloneDeep(draft);
+      this.preview.draft = copyDraft(draft);
       this.preview.dirty = true;
       (<SubdraftComponent> this.preview.component).draft = draft;
       return Promise.resolve(this.preview);
@@ -381,7 +378,7 @@ export class TreeService {
     nodes[0].dirty = true;
 
     draft.id = entry.cur_id;
-   (<DraftNode> nodes[0]).draft = cloneDeep(draft);
+   (<DraftNode> nodes[0]).draft = copyDraft(draft);
 
 
 
@@ -404,7 +401,7 @@ export class TreeService {
       (<DraftNode> nodes[0]).loom = loom;
     });
    }else{
-    (<DraftNode> nodes[0]).loom = _.cloneDeep(loom);
+    (<DraftNode> nodes[0]).loom = copyLoom(loom);
 
    }
    //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode> nodes[0]))
@@ -1403,12 +1400,12 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   setLoom(id: number, loom:Loom){
     const dn: DraftNode = <DraftNode> this.getNode(id);
-    if(dn !== null && dn !== undefined) dn.loom = _.cloneDeep(loom);
+    if(dn !== null && dn !== undefined) dn.loom = copyLoom(loom);
   }
 
   setLoomAndRecomputeDrawdown(id: number, loom:Loom, loom_settings:LoomSettings) : Promise<Draft>{
     const dn: DraftNode = <DraftNode> this.getNode(id);
-    if(dn !== null && dn !== undefined) dn.loom = _.cloneDeep(loom);
+    if(dn !== null && dn !== undefined) dn.loom = copyLoom(loom);
 
     const utils = getLoomUtilByType(loom_settings.type);
     return utils.computeDrawdownFromLoom(loom, this.ws.selected_origin_option)
@@ -2109,7 +2106,7 @@ isValidIOTuple(io: IOTuple) : boolean {
   setDraftPattern(id: number, pattern: Drawdown) {
 
     const dn = <DraftNode> this.getNode(id);
-    dn.draft.drawdown = cloneDeep(pattern);
+    dn.draft.drawdown = pattern.slice();
     (<SubdraftComponent> dn.component).draft = dn.draft;
     dn.dirty = true;    
   }

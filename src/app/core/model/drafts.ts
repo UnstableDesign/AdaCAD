@@ -21,6 +21,27 @@ import utilInstance from "./util";
   return d;
 }
 
+
+/**
+ * generates a deep copy of the input draft
+ * @returns 
+ */
+ export const copyDraft = (d: Draft) : Draft => {
+  const copy_draft = initDraftWithParams({
+    id: d.id,
+    ud_name: d.ud_name,
+    gen_name: d.gen_name,
+    warps: warps(d.drawdown),
+    wefts: wefts(d.drawdown),
+    drawdown: d.drawdown,
+    rowShuttleMapping: d.rowShuttleMapping,
+    rowSystemMapping: d.rowSystemMapping,
+    colShuttleMapping: d.colShuttleMapping,
+    colSystemMapping: d.colSystemMapping
+  });
+  return copy_draft;
+}
+
 /**
  * creates a draft based on the params provided.
  * @param params allowable params are id, weft, warp, drawdown, pattern, ud_name, gen_name, rowShuttleMapping, rowSystemMapping, colShuttleMapping, colSystemMapping.

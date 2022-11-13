@@ -9,6 +9,28 @@ import { createBlankDrawdown, warps, wefts } from "./drafts";
 import utilInstance from "./util";
 
 
+/*********** GENERIC FUNCTIONS RELATING TO LOOMS AND LOOM UTILS ************/
+
+export const copyLoom = (l:Loom) : Loom => {
+  const copy_loom  = {
+    threading: l.threading.slice(),
+    treadling: l.treadling.slice(),
+    tieup: l.tieup.slice(),
+  } 
+  return copy_loom;
+}
+
+export const copyLoomSettings = (ls:LoomSettings) : LoomSettings => {
+  const copy_loomsettings  = {
+      type: ls.type,
+      epi: ls.epi,
+      units: ls.units,
+      frames: ls.frames,
+      treadles: ls.treadles
+  };
+  return copy_loomsettings;
+}
+
 
 
 /*********** ESTABLISH SPECIFIC TYPES OF LOOMS and A CORE SET OF FUNCTIONS FOR EACH ************/

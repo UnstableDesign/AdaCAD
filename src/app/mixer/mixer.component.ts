@@ -22,13 +22,13 @@ import {getAnalytics, logEvent} from '@angular/fire/analytics'
 import { ImageService } from '../core/provider/image.service';
 import { OperationService } from '../core/provider/operation.service';
 import { FileService} from '../core/provider/file.service'
-import { initDraft, initDraftWithParams, loadDraftFromFile } from '../core/model/drafts';
-import * as _ from 'lodash';
+import { copyDraft, initDraft, initDraftWithParams, loadDraftFromFile, warps, wefts } from '../core/model/drafts';
 import { any } from '@tensorflow/tfjs';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import utilInstance from '../core/model/util';
 import { ZoomService } from './provider/zoom.service';
 import { OpsComponent } from './modal/ops/ops.component';
+import { copyLoom, copyLoomSettings } from '../core/model/looms';
 
 
 //disables some angular checking mechanisms
@@ -489,9 +489,9 @@ export class MixerComponent implements OnInit {
             console.error("could not find draft with id in draft list");
           }
           else{
-            d = _.cloneDeep(located_draft.draft);
-            ls = _.cloneDeep(located_draft.loom_settings);
-            l = _.cloneDeep(located_draft.loom);
+            d = copyDraft(located_draft.draft);
+            ls = copyLoomSettings(located_draft.loom_settings);
+            l = copyLoom(located_draft.loom);
           } 
 
         }else{

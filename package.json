@@ -1,7 +1,6 @@
 {
   "name": "adacad",
   "version": "2.2.0",
-  "type": "module",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "ng": "ng",
@@ -30,13 +29,11 @@
     "@ngrx/entity": "^13.0.2",
     "@ngrx/store": "^13.0.2",
     "@ngrx/store-devtools": "^13.0.2",
-    "@types/lodash": "^4.14.149",
     "@types/webgl2": "^0.0.6",
     "bulma": "^0.8.0",
     "canvas2image": "^1.0.5",
     "core-js": "^3.6.4",
     "firebase": "^9.4.0",
-    "lodash": "^4.17.15",
     "mathjs": ">=7.5.1",
     "ngx-color-picker": "^11.0.0",
     "rxfire": "^6.0.0",
