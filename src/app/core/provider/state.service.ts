@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Draft, SaveObj } from '../model/datatypes';
-import {cloneDeep} from 'lodash';
-import {Firestore } from '@angular/fire/firestore';
+import { getDatabase, ref as fbref, set as fbset } from '@angular/fire/database';
+import { Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import {getDatabase, ref as fbref, set as fbset, onValue} from '@angular/fire/database'
+import { Draft, SaveObj } from '../model/datatypes';
+import { copyDraft } from '../model/drafts';
 import { AuthService } from './auth.service';
-import * as _ from 'lodash';
 /**
  * stores a state within the undo/redo timeline
  * weaver uses draft, mixer uses ada
@@ -46,7 +45,6 @@ export class StateService {
 
 
   validateWriteData(cur_state: any) : any {
-    console.log(_.cloneDeep(cur_state));
     return cur_state;
   }
 
@@ -93,7 +91,7 @@ export class StateService {
 
 
     var state = {
-      draft: cloneDeep(draft),
+      draft: copyDraft(draft),
       ada: null
     }
 
@@ -125,7 +123,18 @@ export class StateService {
 
     var state = {
       draft: null,
-      ada: cloneDeep(ada.file),
+      ada: {
+        version: ada.file.version,
+        workspace: ada.file.workspace,
+        type: ada.file.type,
+        nodes: ada.file.nodes.slice(),
+        tree: ada.file.tree.slice(),
+        draft_nodes: ada.file.draft_nodes.slice(),
+        ops: ada.file.ops.slice(),
+        notes: ada.file.notes.slice(),
+        materials: ada.file.materials.slice(),
+        scale: ada.file.scale
+      }
     }
 
     //write this to database, overwritting what was previously there

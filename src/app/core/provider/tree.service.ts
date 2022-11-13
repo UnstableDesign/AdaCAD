@@ -1,15 +1,14 @@
 import { Injectable, ViewRef } from '@angular/core';
-import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
-import { OperationComponent } from '../../mixer/palette/operation/operation.component';
-import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { OperationService} from './operation.service';
-import { OpInput, Node, DynamicOperation, Operation, StringParam, TreeNode, DraftNode, OpNode, IOTuple } from '../../core/model/datatypes';
-import { Draft, DraftNodeProxy, Drawdown, Loom, LoomSettings, LoomUtil, NodeComponentProxy, OpComponentProxy, TreeNodeProxy } from '../../core/model/datatypes';
+import { Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, OpComponentProxy, Operation, OpInput, OpNode, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { copyDraft, createDraft, flipDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
-import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
-import { copyDraft, createDraft, flipDraft, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
+import { OperationComponent } from '../../mixer/palette/operation/operation.component';
+import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
+import { OperationService } from './operation.service';
 
 
 /**

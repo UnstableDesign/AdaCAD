@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
-import { Bounds, Interlacement } from '../model/datatypes';
+import { Interlacement } from '../model/datatypes';
 
 
 export interface Note{

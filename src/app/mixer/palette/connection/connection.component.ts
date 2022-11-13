@@ -1,5 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { i } from 'mathjs';
+import { Component, Input, OnInit } from '@angular/core';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ZoomService } from '../../provider/zoom.service';

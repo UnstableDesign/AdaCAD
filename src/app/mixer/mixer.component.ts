@@ -1,34 +1,32 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR, enableProdMode } from '@angular/core';
-import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import {Subject} from 'rxjs';
-import { PaletteComponent } from './palette/palette.component';
-import { TreeService} from '../core/provider/tree.service';
-import { Draft, Loom, FileObj, Node, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, TreeNodeProxy, LoomSettings, TreeNode, DraftNode, IOTuple  } from '../core/model/datatypes';
-import { SidebarComponent } from '../core/sidebar/sidebar.component';
-import { ViewportService } from './provider/viewport.service';
-import { NotesService } from '../core/provider/notes.service';
-import { Cell } from '../core/model/cell';
-import { WorkspaceService } from '../core/provider/workspace.service';
-import { StateService } from '../core/provider/state.service';
-import { MaterialsService } from '../core/provider/materials.service';
-import { SystemsService } from '../core/provider/systems.service';
 import { HttpClient } from '@angular/common/http';
-import { InitModal } from '../core/modal/init/init.modal';
+import { Component, enableProdMode, HostListener, OnInit, ViewChild } from '@angular/core';
+import { getAnalytics, logEvent } from '@angular/fire/analytics';
+import { child, get as fbget, getDatabase, ref as fbref } from '@angular/fire/database';
 import { MatDialog } from '@angular/material/dialog';
-import { AuthService } from '../core/provider/auth.service';
-import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
-import {getAnalytics, logEvent} from '@angular/fire/analytics'
-import { ImageService } from '../core/provider/image.service';
-import { OperationService } from '../core/provider/operation.service';
-import { FileService} from '../core/provider/file.service'
-import { copyDraft, initDraft, initDraftWithParams, loadDraftFromFile, warps, wefts } from '../core/model/drafts';
-import { any } from '@tensorflow/tfjs';
-import { SubdraftComponent } from './palette/subdraft/subdraft.component';
-import utilInstance from '../core/model/util';
-import { ZoomService } from './provider/zoom.service';
-import { OpsComponent } from './modal/ops/ops.component';
+import { Subject } from 'rxjs';
+import { InitModal } from '../core/modal/init/init.modal';
+import { Cell } from '../core/model/cell';
+import { Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { copyDraft, initDraftWithParams } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings } from '../core/model/looms';
+import { AuthService } from '../core/provider/auth.service';
+import { DesignmodesService } from '../core/provider/designmodes.service';
+import { FileService } from '../core/provider/file.service';
+import { ImageService } from '../core/provider/image.service';
+import { MaterialsService } from '../core/provider/materials.service';
+import { NotesService } from '../core/provider/notes.service';
+import { OperationService } from '../core/provider/operation.service';
+import { StateService } from '../core/provider/state.service';
+import { SystemsService } from '../core/provider/systems.service';
+import { TreeService } from '../core/provider/tree.service';
+import { WorkspaceService } from '../core/provider/workspace.service';
+import { SidebarComponent } from '../core/sidebar/sidebar.component';
+import { OpsComponent } from './modal/ops/ops.component';
+import { PaletteComponent } from './palette/palette.component';
+import { SubdraftComponent } from './palette/subdraft/subdraft.component';
+import { ViewportService } from './provider/viewport.service';
+import { ZoomService } from './provider/zoom.service';
 
 
 //disables some angular checking mechanisms

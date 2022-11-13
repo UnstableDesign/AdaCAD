@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Draft, Loom } from '../model/datatypes';
 import { MaterialsService } from './materials.service';
-import { YarnPath, Vertex, Draft, Loom } from '../model/datatypes';
 
 @Injectable({
   providedIn: 'root'

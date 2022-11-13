@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import {MAT_SNACK_BAR_DATA} from '@angular/material/snack-bar';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { Bounds } from '../../../core/model/datatypes';
 
 

@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, Inject, ɵpublishGlobalUtil } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { ViewportService } from '../../provider/viewport.service';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ZoomService } from '../../provider/zoom.service';
 
 @Component({

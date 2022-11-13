@@ -1,10 +1,8 @@
 
 import { Injectable } from '@angular/core';
-import { forIn } from 'lodash';
 import { Cell } from '../model/cell';
 import { Draft } from '../model/datatypes';
 import { initDraftWithParams } from '../model/drafts';
-import utilInstance from '../model/util';
 
 
 

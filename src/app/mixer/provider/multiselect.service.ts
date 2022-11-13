@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { TreeService } from '../../core/provider/tree.service';
 import { Point } from '../../core/model/datatypes';
+import { TreeService } from '../../core/provider/tree.service';
 
 @Injectable({
   providedIn: 'root'

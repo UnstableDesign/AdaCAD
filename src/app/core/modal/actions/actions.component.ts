@@ -1,12 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit, Inject } from '@angular/core';
-import { MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { Component, Output, EventEmitter, OnInit, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {ElementRef, ViewChild} from '@angular/core';
 import {UntypedFormControl} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
 import {MatChipInputEvent} from '@angular/material/chips';
-import { Draft } from '../../model/datatypes';
 import { MaterialsService } from '../../provider/materials.service';
 import { SystemsService } from '../../provider/systems.service';
 import { System } from '../../model/system';

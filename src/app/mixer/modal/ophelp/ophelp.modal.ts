@@ -1,7 +1,7 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Component, Inject, OnInit } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { DynamicOperation } from '../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
-import { DynamicOperation, Operation } from '../../../core/model/datatypes';
 import { OperationService } from '../../../core/provider/operation.service';
 
 @Component({

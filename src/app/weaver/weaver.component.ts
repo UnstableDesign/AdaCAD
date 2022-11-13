@@ -1,25 +1,22 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, Input } from '@angular/core';
-import {enableProdMode} from '@angular/core';
+import { Component, HostListener, Input, OnInit, ViewChild } from '@angular/core';
 
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
-import { Render } from '../core/model/render';
 import { MatDialog } from "@angular/material/dialog";
-import {Subject} from 'rxjs';
-import { FileService } from '../core/provider/file.service';
-import * as _ from 'lodash';
+import { Subject } from 'rxjs';
 import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
-import {DesignmodesService} from '../core/provider/designmodes.service'
-import { SidebarComponent } from '../core/sidebar/sidebar.component';
+import { Cell } from '../core/model/cell';
+import { Drawdown } from '../core/model/datatypes';
+import { generateMappingFromPattern } from '../core/model/drafts';
+import { isFrame } from '../core/model/looms';
+import { Render } from '../core/model/render';
+import { computeYarnPaths } from '../core/model/yarnsimulation';
+import { DesignmodesService } from '../core/provider/designmodes.service';
+import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
 import { SystemsService } from '../core/provider/systems.service';
-import { Cell } from '../core/model/cell';
-import { getLoomUtilByType, isFrame } from '../core/model/looms';
-import { WorkspaceService } from '../core/provider/workspace.service';
-import { deleteDrawdownCol, deleteDrawdownRow, insertDrawdownCol, insertDrawdownRow, warps, wefts, generateMappingFromPattern, insertMappingRow, deleteMappingRow, insertMappingCol, deleteMappingCol, initDraftWithParams } from '../core/model/drafts';
-import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
-import { computeYarnPaths } from '../core/model/yarnsimulation';
 import { TreeService } from '../core/provider/tree.service';
-import { docSnapshots } from '@angular/fire/firestore';
+import { WorkspaceService } from '../core/provider/workspace.service';
+import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 
 //disables some angular checking mechanisms

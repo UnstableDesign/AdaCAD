@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Cell } from '../../core/model/cell';
-import { VaeService} from "../../core/provider/vae.service"
-import { PatternfinderService} from "../../core/provider/patternfinder.service"
+// import { VaeService} from "../../core/provider/vae.service"
+import { BoolParam, Draft, DynamicOperation, FileParam, LoomSettings, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
+import { applyMask, copyDraft, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, isUp, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
+import { getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
-import { SystemsService } from '../../core/provider/systems.service';
-import { MaterialsService } from '../../core/provider/materials.service';
-import * as _ from 'lodash';
-import { ImageService } from '../../core/provider/image.service';
-import { BoolParam, Draft, DraftParam, DynamicOperation, FileParam, Loom, LoomSettings, NumParam, Operation, OperationClassification, OperationInlet, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
-import { applyMask, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, isUp, pasteIntoDrawdown, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
-import { computeDrawdown, getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
-import { WorkspaceService } from '../../core/provider/workspace.service';
 import { CombinatoricsService } from '../../core/provider/combinatorics.service';
-import { promise } from 'protractor';
-import { input } from '@tensorflow/tfjs';
+import { ImageService } from '../../core/provider/image.service';
+import { MaterialsService } from '../../core/provider/materials.service';
+import { PatternfinderService } from "../../core/provider/patternfinder.service";
+import { SystemsService } from '../../core/provider/systems.service';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 
 
  
@@ -28,7 +25,7 @@ export class OperationService {
   classification: Array<OperationClassification> = [];
 
   constructor(
-    private vae: VaeService, 
+    // private vae: VaeService, 
     private pfs: PatternfinderService,
     private ms: MaterialsService,
     private ss: SystemsService,
@@ -1147,6 +1144,9 @@ export class OperationService {
       }        
     }
 
+    /**
+     * temporarily disabled due to tensor flow breaking changes
+     */
     const crackleify: Operation = {
       name: 'crackle-ify',
       old_names:[],
@@ -1182,30 +1182,32 @@ export class OperationService {
           treadles: 10
         }
         const utils = getLoomUtilByType('frame');
-        return utils.computeLoomFromDrawdown(inputDraft.drawdown, loom_settings,  0).then(loom => {
-          let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.drawdown);
+        const d = initDraft();
+        return Promise.resolve([d]);
+        // return utils.computeLoomFromDrawdown(inputDraft.drawdown, loom_settings,  0).then(loom => {
+        //   let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.drawdown);
       
-          const draft_seed =  utilInstance.patternToSize(pattern, 52, 52);
+        //   const draft_seed =  utilInstance.patternToSize(pattern, 52, 52);
     
-          return this.vae.generateFromSeed(draft_seed, 'crackle_weave')
-            .then(suggestions => suggestions.map(suggestion => {
+        //   return this.vae.generateFromSeed(draft_seed, 'crackle_weave')
+        //     .then(suggestions => suggestions.map(suggestion => {
              
-              const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
-              const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
-              const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
-              const draft:Draft =initDraftWithParams({warps: pattern[0].length, wefts: pattern.length});
-                for (var i = 0; i < pattern.length; i++) {
-                  for (var j = 0; j < pattern[i].length; j++) {
-                      draft.drawdown[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
-                  }
-                }
-                // this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
-                // draft.gen_name = this.formatName(child_input.drafts, "crackleify");
-              return draft
-            }));
+        //       const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
+        //       const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
+        //       const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
+        //       const draft:Draft =initDraftWithParams({warps: pattern[0].length, wefts: pattern.length});
+        //         for (var i = 0; i < pattern.length; i++) {
+        //           for (var j = 0; j < pattern[i].length; j++) {
+        //               draft.drawdown[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
+        //           }
+        //         }
+        //         // this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
+        //         // draft.gen_name = this.formatName(child_input.drafts, "crackleify");
+        //       return draft
+        //     }));
                   
              
-          });  
+        //   });  
       }
     }  
 
@@ -1772,26 +1774,27 @@ export class OperationService {
         return utils.computeLoomFromDrawdown(inputDraft.drawdown, loom_settings, 0).then(loom => {
           let pattern = this.pfs.computePatterns(loom.threading, loom.treadling, inputDraft.drawdown);
           const draft_seed =  utilInstance.patternToSize(pattern, 48, 48);
-  
+          const d = initDraft();
+          return Promise.resolve([d]);
     
-          return this.vae.generateFromSeed(draft_seed, 'german')
-            .then(suggestions => suggestions.map(suggestion => {
-                    const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
-                    const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
-                    const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
-                    const draft:Draft =initDraftWithParams({warps: pattern[0].length, wefts: pattern.length});
-                      for (var i = 0; i < pattern.length; i++) {
-                        for (var j = 0; j < pattern[i].length; j++) {
-                            draft.drawdown[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
-                        }
-                      }
+          // return this.vae.generateFromSeed(draft_seed, 'german')
+          //   .then(suggestions => suggestions.map(suggestion => {
+          //           const treadlingSuggest = this.pfs.getTreadlingFromArr(suggestion);
+          //           const threadingSuggest = this.pfs.getThreadingFromArr(suggestion);
+          //           const pattern = this.pfs.computePatterns(threadingSuggest, treadlingSuggest, suggestion)
+          //           const draft:Draft =initDraftWithParams({warps: pattern[0].length, wefts: pattern.length});
+          //             for (var i = 0; i < pattern.length; i++) {
+          //               for (var j = 0; j < pattern[i].length; j++) {
+          //                   draft.drawdown[i][j].setHeddle((pattern[i][j] == 1 ? true : false));
+          //               }
+          //             }
   
-                      this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
-                      draft.gen_name = this.formatName(child_input.drafts, "germanify");
-                    return draft
+          //             this.transferSystemsAndShuttles(draft,child_input.drafts,parent_input.params, 'first');
+          //             draft.gen_name = this.formatName(child_input.drafts, "germanify");
+          //           return draft
                   
-                  })
-                )
+          //         })
+          //       )
 
         });
 
@@ -4938,7 +4941,7 @@ export class OperationService {
         const rep_inputs = [];
 
         for(let i = 0; i <parent_input.params[0]; i++){
-          rep_inputs.push(_.cloneDeep(child_input.drafts[0]));
+          rep_inputs.push(copyDraft(child_input.drafts[0]));
         }
 
         const uniqueSystemRows = this.ss.makeWeftSystemsUnique(rep_inputs.map(el => el.rowSystemMapping));
@@ -5256,8 +5259,8 @@ export class OperationService {
     this.ops.push(overlay);
     this.ops.push(atop);
     this.ops.push(mask);
-    this.ops.push(germanify);
-    this.ops.push(crackleify);
+    //this.ops.push(germanify);
+    //this.ops.push(crackleify);
     //this.ops.push(variants);
     this.ops.push(knockout);
     this.ops.push(crop);
@@ -5318,11 +5321,11 @@ export class OperationService {
             );
 
 
-      this.classification.push(
-        {category: 'machine learning',
-        dx: "1 input, 1 output, experimental functions that attempt to apply a style from one genre of weaving to your draft. Currently, we have trained models on German Weave Drafts and Crackle Weave Drafts ",
-        ops: [germanify, crackleify]}
-      );
+      // this.classification.push(
+      //   {category: 'machine learning',
+      //   dx: "1 input, 1 output, experimental functions that attempt to apply a style from one genre of weaving to your draft. Currently, we have trained models on German Weave Drafts and Crackle Weave Drafts ",
+      //   ops: [germanify, crackleify]}
+      // );
 
       this.classification.push(
         {category: 'jacquard',

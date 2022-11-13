@@ -1,11 +1,10 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { UntypedFormControl } from '@angular/forms';
+import { DynamicOperation, OperationInlet, OpNode } from '../../../../core/model/datatypes';
+import { getDraftName } from '../../../../core/model/drafts';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { SystemsService } from '../../../../core/provider/systems.service';
 import { TreeService } from '../../../../core/provider/tree.service';
-import { getDraftName } from '../../../../core/model/drafts';
-import { DynamicOperation, OperationInlet,OpNode } from '../../../../core/model/datatypes';
-import { I } from '@angular/cdk/keycodes';
 
 
 

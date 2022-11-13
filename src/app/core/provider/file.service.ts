@@ -1,17 +1,14 @@
 import { Injectable } from '@angular/core';
-import {TreeService } from './tree.service';
-import { Cell } from '../model/cell';
-import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, OpComponentProxy, StatusMessage, TreeNodeProxy, NodeComponentProxy, LoomSettings, SaveObj, DraftNode } from '../model/datatypes';
-import utilInstance from '../model/util';
-import { MaterialMap, MaterialsService } from './materials.service';
-import { SystemsService } from './systems.service';
-import { Note, NotesService } from './notes.service';
-import { VersionService } from './version.service';
-import { createDraft, initDraft, initDraftWithParams, loadDraftFromFile } from '../model/drafts';
+import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, LoomSettings, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
+import { initDraftWithParams, loadDraftFromFile } from '../model/drafts';
 import { getLoomUtilByType, loadLoomFromFile } from '../model/looms';
+import utilInstance from '../model/util';
+import { MaterialsService } from './materials.service';
+import { NotesService } from './notes.service';
+import { SystemsService } from './systems.service';
+import { TreeService } from './tree.service';
+import { VersionService } from './version.service';
 import { WorkspaceService } from './workspace.service';
-import * as _ from 'lodash';
-import { I } from '@angular/cdk/keycodes';
 
 
 
@@ -54,7 +51,6 @@ export class FileService {
   const dloader: Fileloader = {
 
      ada: async (filename: string, data: any) : Promise<LoadResponse> => {
-      console.log("DATA IN", _.cloneDeep(data))
 
       let draft_nodes: Array<DraftNodeProxy> = [];
       //let looms: Array<Loom> = [];

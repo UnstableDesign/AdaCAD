@@ -1,18 +1,14 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import * as _ from 'lodash';
 import { DesignmodesService } from '../../provider/designmodes.service';
-import { DesignMode,Loom, Draft, LoomSettings, DraftNode, LoomUtil } from '../../model/datatypes';
+import { DesignMode, Draft, LoomSettings, DraftNode, LoomUtil } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
-import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, flipDraft, flipDrawdown, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../model/drafts';
-import { flipLoom, flipPattern, generateDirectTieup, getLoomUtilByType, isFrame } from '../../model/looms';
+import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, flipDraft, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../model/drafts';
+import { flipLoom, generateDirectTieup, getLoomUtilByType, isFrame } from '../../model/looms';
 import { TreeService } from '../../provider/tree.service';
 import utilInstance from '../../model/util';
-import { C } from '@angular/cdk/keycodes';
-import { notDeepStrictEqual } from 'assert';
-import { setSymDifferenceDependencies } from 'mathjs';
-import { util } from '@tensorflow/tfjs';
+
 
 @Component({
   selector: 'app-loom-modal',

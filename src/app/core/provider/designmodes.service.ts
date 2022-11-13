@@ -1,6 +1,4 @@
-import { FixedSizeVirtualScrollStrategy } from '@angular/cdk/scrolling';
 import { Injectable } from '@angular/core';
-import { elementAt } from 'rxjs/operators';
 import { DesignMode } from '../model/datatypes';
 
 

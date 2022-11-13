@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import utilInstance from '../model/util';
 import { UploadService } from '../uploads/upload.service';
-import { Observable, of } from 'rxjs';
-import { all } from 'mathjs';
 
 @Injectable({
   providedIn: 'root'

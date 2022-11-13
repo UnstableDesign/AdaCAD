@@ -1,6 +1,6 @@
 import { Directive, OnInit } from '@angular/core';
-import { Draft } from '../../../core/model/draft';
-import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
+import { initDraftWithParams } from 'src/app/core/model/drafts';
+import { Bounds, Draft, Interlacement } from '../../../core/model/datatypes';
 
 @Directive({
   selector: 'app-selection'
@@ -10,7 +10,7 @@ import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 export class SelectionComponent implements OnInit{
 
   id: number;
-  draft: Draft = new Draft({name: "selection"});
+  draft: Draft = initDraftWithParams({ud_name: "selection"});
 
   bounds:Bounds = {
     topleft: {x: 0, y:0},

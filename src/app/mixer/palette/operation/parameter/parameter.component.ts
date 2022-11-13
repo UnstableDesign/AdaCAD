@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AbstractControl, UntypedFormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { OperationService } from '../../../../core/provider/operation.service';
-import { BoolParam, DraftParam, FileParam, NumParam, SelectParam, StringParam, OpNode } from '../../../../core/model/datatypes';
-import {TreeService } from '../../../../core/provider/tree.service';
+import { AbstractControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { BoolParam, DraftParam, FileParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
-import { K } from '@angular/cdk/keycodes';
+import { OperationService } from '../../../../core/provider/operation.service';
+import { TreeService } from '../../../../core/provider/tree.service';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {

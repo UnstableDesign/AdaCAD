@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { collection as mlCollections, Firestore, collectionData } from '@angular/fire/firestore';
-import { Console } from 'console';
+import { collection as mlCollections, collectionData, Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 

@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Bounds, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { Bounds, Interlacement, Point } from '../../../core/model/datatypes';
 import { Note, NotesService } from '../../../core/provider/notes.service';
 import { ViewportService } from '../../provider/viewport.service';
 

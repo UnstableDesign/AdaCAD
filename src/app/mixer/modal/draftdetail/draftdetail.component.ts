@@ -1,17 +1,16 @@
-import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
+import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Draft, Loom, LoomSettings } from '../../../core/model/datatypes';
+import { warps, wefts } from '../../../core/model/drafts';
 import { numFrames, numTreadles } from '../../../core/model/looms';
-import {wefts, warps} from '../../../core/model/drafts'
-import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
-import { InkService } from '../../provider/ink.service';
-import { OperationService } from '../../../core/provider/operation.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
-import { WeaverComponent } from '../../../weaver/weaver.component';
 import { MaterialsService } from '../../../core/provider/materials.service';
-import { WorkspaceService } from '../../../core/provider/workspace.service';
-import { from } from 'rxjs';
+import { OperationService } from '../../../core/provider/operation.service';
 import { TreeService } from '../../../core/provider/tree.service';
+import { WorkspaceService } from '../../../core/provider/workspace.service';
+import { WeaverComponent } from '../../../weaver/weaver.component';
+import { InkService } from '../../provider/ink.service';
 
 
 /**

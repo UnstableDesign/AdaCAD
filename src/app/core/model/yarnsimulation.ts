@@ -1,4 +1,4 @@
-import { Draft, Drawdown, YarnCell, YarnMap, YarnSim } from "./datatypes";
+import { Draft, Drawdown, YarnCell, YarnSim } from "./datatypes";
 import { warps, wefts } from "./drafts";
 import { Shuttle } from "./shuttle";
 

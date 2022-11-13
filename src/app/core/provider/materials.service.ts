@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import * as _ from 'lodash';
 import { Shuttle } from '../model/shuttle';
 
 
@@ -153,7 +152,7 @@ export class MaterialsService {
    
     if(shuttles.length === 0) return [];
 
-    const standard = _.cloneDeep(shuttles);
+    const standard = shuttles.map(el => el.slice());
 
      //standardize teh lengths of all the returned arrays 
      const max_length:number = standard.reduce((acc, el) => {

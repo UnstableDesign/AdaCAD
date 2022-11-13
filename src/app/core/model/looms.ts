@@ -1,9 +1,4 @@
-import { L, NUMPAD_SIX } from "@angular/cdk/keycodes";
-import * as _ from "lodash";
-import { values } from "lodash";
-import { generate } from "rxjs";
-import { LoomModal } from "../modal/loom/loom.modal";
-import { Cell } from "./cell";
+
 import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
 import { createBlankDrawdown, warps, wefts } from "./drafts";
 import utilInstance from "./util";
@@ -12,6 +7,7 @@ import utilInstance from "./util";
 /*********** GENERIC FUNCTIONS RELATING TO LOOMS AND LOOM UTILS ************/
 
 export const copyLoom = (l:Loom) : Loom => {
+  if(l === undefined) return null;
   const copy_loom  = {
     threading: l.threading.slice(),
     treadling: l.treadling.slice(),

@@ -1,11 +1,10 @@
-import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { OperationService } from '../../../core/provider/operation.service';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { UntypedFormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {UntypedFormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
+import { OperationService } from '../../../core/provider/operation.service';
 
 @Component({
   selector: 'app-ops',

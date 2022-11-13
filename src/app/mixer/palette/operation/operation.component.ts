@@ -1,20 +1,17 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { Bounds, Interlacement, Point,Operation, DynamicOperation,IOTuple, OpNode } from '../../../core/model/datatypes';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Bounds, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { OperationService } from '../../../core/provider/operation.service';
-import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormControl} from '@angular/forms';
-import { ViewportService } from '../../provider/viewport.service';
-import { TreeService } from '../../../core/provider/tree.service';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
-import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { ImageService } from '../../../core/provider/image.service';
-import { SystemsService } from '../../../core/provider/systems.service';
-import { stat } from 'fs';
-import { MultiselectService } from '../../provider/multiselect.service';
-import opData from '../../../../assets/json/op_descriptions.json';  
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
+import { OperationService } from '../../../core/provider/operation.service';
+import { SystemsService } from '../../../core/provider/systems.service';
+import { TreeService } from '../../../core/provider/tree.service';
+import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
+import { MultiselectService } from '../../provider/multiselect.service';
+import { ViewportService } from '../../provider/viewport.service';
+import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 
 

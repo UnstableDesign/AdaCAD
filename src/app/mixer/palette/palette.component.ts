@@ -1,27 +1,27 @@
-import { Observable,  Subscription, fromEvent, from, iif } from 'rxjs';
+import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { fromEvent, Subscription } from 'rxjs';
+import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, OpNode, Point } from '../../core/model/datatypes';
+import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
-import { Component, HostListener, ViewContainerRef, Input, ComponentFactoryResolver, ViewChild, OnInit, ViewRef, Output, EventEmitter } from '@angular/core';
-import { SubdraftComponent } from './subdraft/subdraft.component';
-import { MarqueeComponent } from './marquee/marquee.component';
-import { SnackbarComponent } from './snackbar/snackbar.component';
-import { Cell } from './../../core/model/cell';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import { Point, Interlacement, Bounds, DraftMap, Draft, NodeComponentProxy,DraftNode, OpNode, DraftNodeProxy } from '../../core/model/datatypes';
+import { Note, NotesService } from '../../core/provider/notes.service';
+import { StateService } from '../../core/provider/state.service';
+import { TreeService } from '../../core/provider/tree.service';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { Shape } from '../model/shape';
-import utilInstance from '../../core/model/util';
-import { OperationComponent } from './operation/operation.component';
-import { ConnectionComponent } from './connection/connection.component';
-import { TreeService } from '../../core/provider/tree.service';
-import { FileService } from './../../core/provider/file.service';
-import { ViewportService } from '../provider/viewport.service';
-import { NoteComponent } from './note/note.component';
-import { Note, NotesService } from '../../core/provider/notes.service';
-import { StateService } from '../../core/provider/state.service';
-import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
-import { ZoomService } from '../provider/zoom.service';
 import { MultiselectService } from '../provider/multiselect.service';
+import { ViewportService } from '../provider/viewport.service';
+import { ZoomService } from '../provider/zoom.service';
+import { Cell } from './../../core/model/cell';
+import { FileService } from './../../core/provider/file.service';
+import { ConnectionComponent } from './connection/connection.component';
+import { MarqueeComponent } from './marquee/marquee.component';
+import { NoteComponent } from './note/note.component';
+import { OperationComponent } from './operation/operation.component';
+import { SnackbarComponent } from './snackbar/snackbar.component';
+import { SubdraftComponent } from './subdraft/subdraft.component';
 
 @Component({
   selector: 'app-palette',

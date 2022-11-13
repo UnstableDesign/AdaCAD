@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Loom, LoomSettings } from '../model/datatypes';
+import { LoomSettings } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 @Injectable({

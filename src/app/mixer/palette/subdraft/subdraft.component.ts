@@ -1,20 +1,18 @@
-import { Component, OnInit, Input, Output, ViewChild, ElementRef, EventEmitter, HostListener, OnChanges, ChangeDetectionStrategy, SimpleChanges} from '@angular/core';
-import { Point, Interlacement, Bounds, DraftMap, Draft, LoomSettings } from '../../../core/model/datatypes';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Bounds, Draft, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
+import { getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
+import utilInstance from '../../../core/model/util';
+import { FileService } from '../../../core/provider/file.service';
+import { MaterialsService } from '../../../core/provider/materials.service';
+import { TreeService } from '../../../core/provider/tree.service';
+import { WorkspaceService } from '../../../core/provider/workspace.service';
+import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
-import utilInstance from '../../../core/model/util';
-import { TreeService } from '../../../core/provider/tree.service';
-import { FileService } from '../../../core/provider/file.service';
-import { ViewportService } from '../../provider/viewport.service';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
-import { Cell } from '../../../core/model/cell';
-import { OperationComponent } from '../operation/operation.component';
-import { WorkspaceService } from '../../../core/provider/workspace.service';
-import { MaterialsService } from '../../../core/provider/materials.service';
-import { createDraft, getDraftName, initDraftWithParams, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
-import { D, E } from '@angular/cdk/keycodes';
 import { MultiselectService } from '../../provider/multiselect.service';
+import { ViewportService } from '../../provider/viewport.service';
+import { OperationComponent } from '../operation/operation.component';
 
 
 

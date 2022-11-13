@@ -1,19 +1,18 @@
-import { Component, Input, Output, OnInit,EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { WeaverViewComponent } from '../modal/weaverview/weaverview.component';
+import { InitModal } from '../../core/modal/init/init.modal';
+import { TreeService } from '../../core/provider/tree.service';
 import { MixerViewComponent } from '../../mixer/modal/mixerview/mixerview.component';
 import { OpsComponent } from '../../mixer/modal/ops/ops.component';
 import { InkService } from '../../mixer/provider/ink.service';
+import { ActionsComponent } from '../modal/actions/actions.component';
 import { LoomModal } from '../modal/loom/loom.modal';
 import { MaterialModal } from '../modal/material/material.modal';
-import { System } from '../model/system';
+import { WeaverViewComponent } from '../modal/weaverview/weaverview.component';
+import { Draft, LoomSettings } from '../model/datatypes';
 import { DesignmodesService } from '../provider/designmodes.service';
-import { ActionsComponent } from '../modal/actions/actions.component';
-import { InitModal } from '../../core/modal/init/init.modal';
 import { MaterialsService } from '../provider/materials.service';
 import { StateService } from '../provider/state.service';
-import { Draft, Loom, LoomSettings } from '../model/datatypes';
-import { TreeService } from '../../core/provider/tree.service';
 
 @Component({
   selector: 'app-sidebar',

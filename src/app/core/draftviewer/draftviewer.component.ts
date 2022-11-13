@@ -3,13 +3,11 @@ import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Render } from '../model/render';
 import { Cell } from '../model/cell';
 import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, Operation, OpInput } from '../model/datatypes';
-import {cloneDeep, forEach, now} from 'lodash';
 import { FileService } from '../provider/file.service';
 import { SelectionComponent } from './selection/selection.component';
 import { DesignmodesService } from '../provider/designmodes.service';
 import { MaterialsService } from '../provider/materials.service';
 import { SystemsService } from '../provider/systems.service';
-import { FabricssimService } from '../provider/fabricssim.service';
 import { Shuttle } from '../model/shuttle';
 import { StateService } from '../provider/state.service';
 import { WorkspaceService } from '../provider/workspace.service';
@@ -17,8 +15,6 @@ import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, delet
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../model/looms';
 import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../model/yarnsimulation';
 import { TreeService } from '../provider/tree.service';
-import { setDeprecationWarningFn } from '@tensorflow/tfjs-core/dist/tensor';
-import { LoomModal } from '../modal/loom/loom.modal';
 import utilInstance from '../model/util';
 import { OperationService } from '../provider/operation.service';
 
@@ -466,7 +462,7 @@ export class DraftviewerComponent implements OnInit {
 
 
       // Save temp pattern
-      this.tempPattern = cloneDeep(draft.drawdown);
+      this.tempPattern = draft.drawdown.slice();
       const selected: DesignMode = this.dm.getSelectedDesignMode('design_modes');
       
 

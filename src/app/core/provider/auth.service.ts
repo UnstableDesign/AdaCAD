@@ -1,10 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { Component, OnInit, OnDestroy, Optional } from '@angular/core';
-import { Auth, authState, signInAnonymously, signOut, User, GoogleAuthProvider, signInWithPopup,signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Injectable, Optional } from '@angular/core';
+import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
+import { traceUntilFirst } from '@angular/fire/performance';
 import { EMPTY, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { traceUntilFirst } from '@angular/fire/performance';
 
 
 @Injectable({

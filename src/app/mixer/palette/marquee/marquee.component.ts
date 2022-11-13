@@ -1,7 +1,6 @@
 import { Directive, OnInit } from '@angular/core';
+import { Bounds, Draft, Interlacement } from '../../../core/model/datatypes';
 import { initDraftWithParams } from '../../../core/model/drafts';
-import { Draft } from '../../../core/model/datatypes';
-import { Point, Bounds, Interlacement } from '../../../core/model/datatypes';
 
 @Directive({
   selector: 'app-marquee'

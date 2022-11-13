@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import { getDatabase } from '@angular/fire/database';
 import { Firestore } from 'firebase/firestore';
 import { AuthService } from './auth.service';
-import {getDatabase, ref as fbref, set as fbset, onValue} from '@angular/fire/database'
 
 
 

@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
-import { Upload } from './upload';
-import { Observable, of } from 'rxjs';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, uploadBytesResumable, UploadMetadata, listAll } from "firebase/storage";
+import { Injectable } from '@angular/core';
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from "firebase/storage";
+import { Observable } from 'rxjs';
 import { AuthService } from '../provider/auth.service';
+import { Upload } from './upload';
 const httpOptions = {
   headers: new HttpHeaders({
   })

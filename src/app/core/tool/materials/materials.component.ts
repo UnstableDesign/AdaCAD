@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { MaterialModal } from '../../modal/material/material.modal';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MatDialog } from "@angular/material/dialog";
 import { Shuttle } from '../../../core/model/shuttle';
-import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
+import { MaterialModal } from '../../modal/material/material.modal';
 
 @Component({
   selector: 'app-materials',

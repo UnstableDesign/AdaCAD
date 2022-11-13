@@ -2,7 +2,6 @@ import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { HttpClient } from '@angular/common/http';
-import {getDatabase, ref as fbref, get as fbget, child} from '@angular/fire/database'
 import {AuthService} from '../../provider/auth.service'
 import {FileService} from '../../provider/file.service'
 import { getAnalytics, logEvent } from "@angular/fire/analytics";
