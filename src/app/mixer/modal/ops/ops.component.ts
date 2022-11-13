@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { OperationService } from '../../../core/provider/operation.service';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
@@ -19,7 +19,7 @@ export class OpsComponent implements OnInit {
   
   opnames:Array<string> = [];
   displaynames:Array<string> = [];
-  myControl = new FormControl();
+  myControl = new UntypedFormControl();
   filteredOptions: Observable<string[]>;
   searchOnly: boolean = false;
   

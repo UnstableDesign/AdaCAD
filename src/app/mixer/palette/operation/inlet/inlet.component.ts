@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { FormControl, FormGroupDirective, NgForm } from '@angular/forms';
+import { UntypedFormControl, FormGroupDirective, NgForm } from '@angular/forms';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { SystemsService } from '../../../../core/provider/systems.service';
 import { TreeService } from '../../../../core/provider/tree.service';
@@ -23,7 +23,7 @@ export class InletComponent implements OnInit {
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onInletChange = new EventEmitter <any>(); 
 
-  fc: FormControl;
+  fc: UntypedFormControl;
   textValidate: any;
   all_system_codes: Array<any>;
   number_opts: Array<number>;
@@ -71,7 +71,7 @@ export class InletComponent implements OnInit {
     }
 
 
-    this.fc = new FormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));
+    this.fc = new UntypedFormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));
     this.inlet_desc = "input "+this.inlet.dx;
   }
 

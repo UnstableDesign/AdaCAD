@@ -3,7 +3,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from "@angu
 
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {ElementRef, ViewChild} from '@angular/core';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
 import {MatChipInputEvent} from '@angular/material/chips';
 import { Draft } from '../../model/datatypes';
@@ -36,20 +36,20 @@ export class ActionsComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA];
 
 
-  warpSystemCtrl = new FormControl();
+  warpSystemCtrl = new UntypedFormControl();
   // warp_systems_pattern_strings: string[] = [];
   // allWarpSystems: string[] = [];
 
 
-  weftSystemCtrl = new FormControl();
+  weftSystemCtrl = new UntypedFormControl();
   // weft_systems_pattern_strings: string[] = [];
   // allWeftSystems: string[] = [];
 
-  warpShuttleCtrl = new FormControl();
+  warpShuttleCtrl = new UntypedFormControl();
   // warp_shuttles_pattern_strings: any[] = [];
   // allWarpShuttles: any[] = [];
 
-  weftShuttleCtrl = new FormControl();
+  weftShuttleCtrl = new UntypedFormControl();
   // weft_shuttles_pattern_strings: any[] = [];
   // allWeftShuttles: any[] = [];
 
