@@ -1,7 +1,17 @@
 {
   "name": "adacad",
-  "version": "2.2.0",
+  "version": "3.4.8",
   "license": "GPL-3.0-or-later",
+  "author": "The Unstable Design Lab <unstabledesignlab@gmail.com> (http://unstable.design/)",
+  "homepage": "https://adacad.unstable.design/",
+  "funding": {
+    "type" : "National Science Foundation Grants #1943109 and #1755587",
+    "url" : "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1943109"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UnstableDesign/AdaCAD.git"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -50,8 +60,8 @@
     "@angular/language-service": "^14.2.10",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
-    "codelyzer": "^6.0.0",
-    "firebase-tools": "^10.6.0",
+    "codelyzer": "^0.0.28",
+    "firebase-tools": "^1.2.0",
     "fuzzy": "^0.1.3",
     "g.js": "^0.3.0",
     "inquirer": "^6.2.2",
