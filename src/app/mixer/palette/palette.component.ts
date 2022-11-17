@@ -2379,6 +2379,7 @@ drawStarted(){
 
   moveAllSelections(moving_id: number){
     const selections = this.multiselect.getSelections();
+    if(selections.length == 0) return;
     const rel_pos = this.multiselect.getRelativePosition();
     const cur_pos = this.tree.getComponent(moving_id).bounds.topleft;
     const diff:Point = {x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y};

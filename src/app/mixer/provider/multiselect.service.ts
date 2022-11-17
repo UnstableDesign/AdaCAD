@@ -16,46 +16,7 @@ export class MultiselectService {
   }
 
   updateSelectedStyles(comp_id: number){
-    // const type = this.tree.getType(comp_id);
-
-    // if(type == 'op'){
-    //   const container = <HTMLElement> document.getElementById("scale-"+comp_id);
-    //   container.classList.add('multiselected');
-    // }
   
-
-    //  const cxn_outs = this.tree.getOutputs(this.id);
-    //  cxn_outs.forEach(o => {
-    //    this.multiselect.toggleSelection(o, null)
-    //    const child = this.tree.getConnectionOutput(o);
-    //    const child_comp = this.tree.getComponent(child);
-    //    this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
-    //    container = <HTMLElement> document.getElementById("scale-"+child);
-    //    container.classList.add('multiselected');
-
-    //  //  container.style.border = "thin solid black";
-
-    //  });
-
-    // }else{
-    //  container = <HTMLElement> document.getElementById("scale-"+this.id);
-    //  container.classList.remove('multiselected');
-
-    //  //container.style.border = "thin solid transparent"
-
-
-    //  const cxn_outs = this.tree.getOutputs(this.id);
-    //  cxn_outs.forEach(o => {
-    //    this.multiselect.toggleSelection(o, null)
-    //    const child = this.tree.getConnectionOutput(o);
-    //    const child_comp = this.tree.getComponent(child);
-    //    this.multiselect.toggleSelection(child, child_comp.bounds.topleft);
-    //    container = <HTMLElement> document.getElementById("scale-"+child);
-    //    container.classList.remove('multiselected');
-
-    //   // container.style.border = "thin solid transparent";
-
-    //  });
   }
 
   setRelativePosition(point: Point){
@@ -73,18 +34,6 @@ export class MultiselectService {
     }
   }
 
-  // removeSelection(id: number){
-  //   if(this.selected.find(el => el.id == id) !== undefined){
-  //     this.selected = this.selected.filter(el => el.id != id);
-  //   }
-  // }
-
-  // addSelection(id: number, topleft: Point){
-  //   if(this.selected.find(el => el.id == id) === undefined){
-  //     this.selected.push({id, topleft});
-  //   }
-  // }
-
   /**
    * toggle selection will add a selected element, and if its an op, all the child subdrafts, to the selected list
    * @param id the id of the element you are toggling
@@ -97,8 +46,6 @@ export class MultiselectService {
 
     if(this.selected.find(el => el.id == id) !== undefined){
        
-      console.log("removing selection", id);
-
       this.selected = this.selected.filter(el => el.id != id);
        
        container = <HTMLElement> document.getElementById("scale-"+id);
