@@ -26,13 +26,11 @@ export class AuthService {
     if (auth) {
       this.user = authState(this.auth);
 
-      this.userDisposable = authState(this.auth).pipe(
-        traceUntilFirst('auth'),
-        map(u => !!u)
-      ).subscribe(isLoggedIn => {
-        this.showLoginButton = !isLoggedIn;
-        this.showLogoutButton = isLoggedIn;
-        this.isLoggedIn = isLoggedIn;
+       this.userDisposable = authState(this.auth).subscribe(user => {
+        console.log("AUTH STATE", user)
+        this.showLoginButton = (user === null);
+        this.showLogoutButton = (user !== null);
+        this.isLoggedIn = (user !== null);
         
       });
 
