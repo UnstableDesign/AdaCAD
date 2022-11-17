@@ -1,0 +1,108 @@
+{
+    "classifications": [
+        {
+            "category_name": "structure",
+            "description": "A weave structure is the order or pattern of interlacement between the warp and weft threads. There are different families of woven structure that share core properties, such as plain weave, twill, and satin. Each of the operations is capable of generating structures that obey the rules of a given family",
+            "op_names":[
+                "tabbyder", 
+                "twill", 
+                "satin", 
+                "shaded_satin", 
+                "waffle", 
+                "complextwill", 
+                "random", 
+                "combinatorics"
+            ]
+        },
+        {
+            "category_name": "transformations",
+            "description": "Takes an input structure or draft and transforms it in some way.",
+            "op_names":[
+                "invert", 
+                "flipx", 
+                "flipy", 
+                "shiftx", 
+                "shifty", 
+                "rotate", 
+                "makesymmetric", 
+                "slope",
+                "stretch",
+                "clear",
+                "set",
+                "unset",
+                "crop",
+                "trim"
+            ]
+        },
+        {
+            "category_name": "cloth",
+            "description": "Describes the arrangements of pattern regions in an overall draft or cloth. Regions defined by the cloth design parameters can be filled with input drafts. ",
+            "op_names":[
+                "rect", 
+                "tile", 
+                "chaos", 
+                "warp_profile", 
+                "sample_width", 
+                "fill",
+                "imagemap",
+                "bwimage",
+                "joinleft",
+                "dynamicjoinleft",
+                "jointop"
+            ]
+        },
+        {
+            "category_name": "compound",
+            "description": "Descriptions operations that support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.",
+            "op_names":[
+                "interlace",
+                "splicein",
+                "spliceinwarps",
+                "layer",
+                "assignlayers"
+            ]
+        },
+        {
+            "category_name": "compute",
+            "description": "Applies different forms of computational, binary, and/or mathematical functions to the production and modification of drafts.",
+            "op_names":[
+                "atop",
+                "overlay",
+                "mask",
+                "knockout",
+                "sinewave",
+                "sawtooth"
+            ]
+        },
+        {
+            "category_name": "helper",
+            "description": "Describes common drafting techniuques to ensure good woven and cloth structure.",
+            "op_names":[
+                "selvedge",
+                "bindweftfloats",
+                "bindwarpfloats"
+            ]
+        },
+        {
+            "category_name": "color_effects",
+            "description": "Supports the specification of materials in order to describe different color effects on the woven cloth",
+            "op_names":[
+                "apply_materials"
+            ]  
+        },
+        {
+            "category_name": "drafting_styles",
+            "description": "Supports the conversion of one style of drafting to another, based on the requirements of specific equipment",
+            "op_names":[
+                "makeloom",
+                "makedirectloom",
+                "drawdown",
+                "directdrawdown"
+            ]  
+        }
+
+
+
+    ]
+
+}

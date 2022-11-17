@@ -1,8 +1,6 @@
 import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
-import { traceUntilFirst } from '@angular/fire/performance';
 import { EMPTY, Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 
 @Injectable({

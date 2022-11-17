@@ -558,9 +558,9 @@ export interface Operation {
   * @param ops an array of all the operations associated with this category
   */
  export interface OperationClassification{
-  category: string,
-  dx: string,
-  ops: Array<Operation> 
+  category_name: string,
+  description: string,
+  op_names: Array<string>;
  }
 
 

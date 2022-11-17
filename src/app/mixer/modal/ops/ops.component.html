@@ -34,17 +34,17 @@
    
 
   <ng-container *ngIf="!searchOnly">
-    <ng-container *ngFor="let class of ops.classification">
+    <ng-container *ngFor="let class of classifications">
       <div cdkFocusInitial class="op-group">
-      <h3>{{class.category}}</h3>
-      <p> {{class.dx}}</p>
-      <ng-container *ngFor="let op of class.ops">
+      <h3>{{class.category_name}}</h3>
+      <p> {{class.description}}</p>
+      <ng-container *ngFor="let op_name of class.op_names">
           <button mat-stroked-button 
-            [matTooltip] = op_desc.getOpDescription(op.name)
+            [matTooltip] = op_desc.getOpDescription(op_name)
             matTooltipClass="visibleTooltip"
-            [name]=op.name 
-            (click)="addOp(op.name)">
-            {{op_desc.getDisplayName(op.name)}}
+            [name]=op_name 
+            (click)="addOp(op_name)">
+            {{op_desc.getDisplayName(op_name)}}
           </button> 
       </ng-container>
     </div>  

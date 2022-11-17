@@ -5277,75 +5277,75 @@ export class OperationService {
 
 
     //** Give it a classification here */
-    this.classification.push(
-      {category: 'structure',
-      dx: "0-1 input, 1 output, algorithmically generates weave structures based on parameters",
-      ops: [tabby_der, twill, satin, shaded_satin, waffle, complextwill, random, combinatorics]}
-    );
+    // this.classification.push(
+    //   {category: 'structure',
+    //   dx: "0-1 input, 1 output, algorithmically generates weave structures based on parameters",
+    //   ops: [tabby_der, twill, satin, shaded_satin, waffle, complextwill, random, combinatorics]}
+    // );
 
-    this.classification.push(
-      {category: 'block design',
-      dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
-      ops: [rect, crop, trim, margin, tile, chaos, warp_profile, sample_width]
-    }
-    );
-    this.classification.push(
-      {category: 'transformations',
-      dx: "1 input, 1 output, applies an operation to the input that transforms it in some way",
-      ops: [invert, flipx, flipy, shiftx, shifty, rotate, makesymmetric, slope, stretch, resize, clear, set, unset]}
-      );
+  //   this.classification.push(
+  //     {category: 'block design',
+  //     dx: "1 input, 1 output, describes the arragements of regions in a weave. Fills region with input draft",
+  //     ops: [rect, crop, trim, margin, tile, chaos, warp_profile, sample_width]
+  //   }
+  //   );
+  //   this.classification.push(
+  //     {category: 'transformations',
+  //     dx: "1 input, 1 output, applies an operation to the input that transforms it in some way",
+  //     ops: [invert, flipx, flipy, shiftx, shifty, rotate, makesymmetric, slope, stretch, resize, clear, set, unset]}
+  //     );
 
-    this.classification.push(
-        {category: 'combine',
-        dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
-        ops: [imagemap, bwimagemap, interlace, splicein, spliceinwarps, assignlayers, layer, layernotation,  fill, joinleft, dynamic_join_left, jointop]}
-        );
+  //   this.classification.push(
+  //       {category: 'combine',
+  //       dx: "2 inputs, 1 output, operations take more than one input and integrate them into a single draft in some way",
+  //       ops: [imagemap, bwimagemap, interlace, splicein, spliceinwarps, assignlayers, layer, layernotation,  fill, joinleft, dynamic_join_left, jointop]}
+  //       );
     
-     this.classification.push(
-          {category: 'binary',
-          dx: "2 inputs, 1 output, operations take two inputs and perform binary operations on the interlacements",
-          ops: [atop, overlay, mask, knockout]}
-          );
+  //    this.classification.push(
+  //         {category: 'binary',
+  //         dx: "2 inputs, 1 output, operations take two inputs and perform binary operations on the interlacements",
+  //         ops: [atop, overlay, mask, knockout]}
+  //         );
     
-      this.classification.push(
-        {category: 'math',
-        dx: "0 or more inputs, 1 output, generates drafts from mathmatical functions",
-        ops: [sinewave, sawtooth]}
-        );
+  //     this.classification.push(
+  //       {category: 'math',
+  //       dx: "0 or more inputs, 1 output, generates drafts from mathmatical functions",
+  //       ops: [sinewave, sawtooth]}
+  //       );
       
 
-      this.classification.push(
-            {category: 'helper',
-            dx: "variable inputs, variable outputs, supports common drafting requirements to ensure good woven structure",
-            ops: [selvedge, bindweftfloats, bindwarpfloats]}
-            );
+  //     this.classification.push(
+  //           {category: 'helper',
+  //           dx: "variable inputs, variable outputs, supports common drafting requirements to ensure good woven structure",
+  //           ops: [selvedge, bindweftfloats, bindwarpfloats]}
+  //           );
 
 
-      // this.classification.push(
-      //   {category: 'machine learning',
-      //   dx: "1 input, 1 output, experimental functions that attempt to apply a style from one genre of weaving to your draft. Currently, we have trained models on German Weave Drafts and Crackle Weave Drafts ",
-      //   ops: [germanify, crackleify]}
-      // );
+  //     // this.classification.push(
+  //     //   {category: 'machine learning',
+  //     //   dx: "1 input, 1 output, experimental functions that attempt to apply a style from one genre of weaving to your draft. Currently, we have trained models on German Weave Drafts and Crackle Weave Drafts ",
+  //     //   ops: [germanify, crackleify]}
+  //     // );
 
-      this.classification.push(
-        {category: 'jacquard',
-        dx: "1 input, 1 output, functions designed specifically for working with jacquard-style drafting",
-        ops: [erase_blank]}
-      );
+  //     this.classification.push(
+  //       {category: 'jacquard',
+  //       dx: "1 input, 1 output, functions designed specifically for working with jacquard-style drafting",
+  //       ops: [erase_blank]}
+  //     );
 
-    this.classification.push(
-      {category: 'frame loom support',
-      dx: "variable input drafts, variable outputs, offer specific supports for working with frame looms",
-      ops: [makeloom, makedirectloom, drawdown, directdrawdown]}
-    );
+  //   this.classification.push(
+  //     {category: 'frame loom support',
+  //     dx: "variable input drafts, variable outputs, offer specific supports for working with frame looms",
+  //     ops: [makeloom, makedirectloom, drawdown, directdrawdown]}
+  //   );
 
-    this.classification.push(
-      {category: 'color effects',
-      dx: "2 inputs, 1 output: applys pattern information from second draft onto the first. To be used for specifiying color repeats",
-      ops: [apply_mats]}
-    );
+  //   this.classification.push(
+  //     {category: 'color effects',
+  //     dx: "2 inputs, 1 output: applys pattern information from second draft onto the first. To be used for specifiying color repeats",
+  //     ops: [apply_mats]}
+  //   );
 
-  }
+   }
 
   /**
    * transfers data about systems and shuttles from input drafts to output drafts. 

@@ -3,6 +3,7 @@ import { UntypedFormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { OperationClassification } from '../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
 
@@ -21,6 +22,7 @@ export class OpsComponent implements OnInit {
   myControl = new UntypedFormControl();
   filteredOptions: Observable<string[]>;
   searchOnly: boolean = false;
+  classifications: Array<OperationClassification>;
   
   constructor(public ops: OperationService, public op_desc: OperationDescriptionsService, private dialog: MatDialog,
     private dialogRef: MatDialogRef<OpsComponent>,
@@ -29,6 +31,7 @@ export class OpsComponent implements OnInit {
   ngOnInit() {
 
     const allops = this.ops.ops.concat(this.ops.dynamic_ops);
+    this.classifications = this.op_desc.getOpClassifications();
     this.opnames = allops.map(el => el.name);
     this.displaynames = allops.map(el => this.op_desc.getDisplayName(el.name));
 
