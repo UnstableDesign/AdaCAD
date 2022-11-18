@@ -197,7 +197,7 @@ export class PaletteComponent implements OnInit{
     
     this.designModeChanged();
 
-    this.rescale();
+    this.rescale(-1);
   }
 
   /**
@@ -264,13 +264,33 @@ export class PaletteComponent implements OnInit{
  * @param data 
  */
   handleScroll(position: any){
-
     this.viewport.setTopLeft(position);
     const div:HTMLElement = document.getElementById('scrollable-container');  
      div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
      div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
   }
 
+  /**
+ * when someone zooms in or out, we'd like to keep the center point the same. We do this by scaling the entire palette and 
+ * elements and then manually scrolling to the new center point. 
+ * @param data 
+ */
+   handleScrollFromZoom(old_zoom: number){
+    // this.viewport.setTopLeft(position);
+    // console.log(old_center, this.viewport.getCenterPoint());
+    const div:HTMLElement = document.getElementById('scrollable-container');  
+    const past_scroll_x = div.offsetParent.scrollLeft / old_zoom;
+    const new_scroll_x = past_scroll_x * this.zs.zoom;
+
+    const past_scroll_y = div.offsetParent.scrollTop / old_zoom;
+    const new_scroll_y = past_scroll_y * this.zs.zoom;
+
+     div.offsetParent.scrollLeft = new_scroll_x;
+     div.offsetParent.scrollTop = new_scroll_y;
+  }
+
+
+  
   /**
  * called when user scrolls the winidow
  * @param data 
@@ -375,18 +395,14 @@ export class PaletteComponent implements OnInit{
    * redraws each operation and subdraft at the new scale, then redraws each of their connections
    * @param scale 
    */
-  rescale(){
-    console.log("RESCALE", this.zs.zoom);
-
-
+  rescale(prev_zoom: number){
 
     //this.scale = scale;
-
     const zoom_factor: number = this.zs.zoom / this.default_cell_size;
    
-      const container: HTMLElement = document.getElementById('palette');
-      container.style.transformOrigin = 'top left';
-      container.style.transform = 'scale(' + zoom_factor + ')';
+     const container: HTMLElement = document.getElementById('palette');
+     container.style.transformOrigin = 'top left';
+     container.style.transform = 'scale(' + zoom_factor + ')';
   
      
 
@@ -410,6 +426,8 @@ export class PaletteComponent implements OnInit{
   
 
      if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.zs.zoom;
+
+    this.handleScrollFromZoom(prev_zoom);
 
   }
 
@@ -921,8 +939,9 @@ export class PaletteComponent implements OnInit{
     }
 
     if(this.dm.getDesignMode('draw', 'design_modes').selected || this.dm.getDesignMode('shape',  'design_modes').selected){
+      const old_zoom = this.zs.zoom;
       this.zs.setZoom(Math.ceil(this.zs.zoom))
-      this.rescale();
+      this.rescale(old_zoom);
     }
 
   }

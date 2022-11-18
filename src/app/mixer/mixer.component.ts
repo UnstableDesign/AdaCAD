@@ -59,14 +59,16 @@ export class MixerComponent implements OnInit {
  private keyEventDetected(e) {
 
    if(e.key =="=" && e.metaKey){
+    const old_zoom = this.zs.zoom;
     this.zs.zoomIn();
-    this.renderChange();
+    this.renderChange(old_zoom);
     e.preventDefault();
    }
 
    if(e.key =="-" && e.metaKey){
+    const old_zoom = this.zs.zoom;
     this.zs.zoomOut();
-    this.renderChange();
+    this.renderChange(old_zoom);
     e.preventDefault();
    }
 
@@ -922,9 +924,18 @@ export class MixerComponent implements OnInit {
   /**
    * Updates the canvas based on the weave view.
    */
-  public renderChange() {
-    this.palette.rescale();
+  public renderChange(old_zoom: number) {
+    this.palette.rescale(old_zoom);
   }
+
+
+  /**
+   * Updates the canvas based on the weave view.
+   */
+   public zoomChangeExternal(event: any) {
+    this.palette.rescale(event.old_zoom);
+  }
+
 
 
 

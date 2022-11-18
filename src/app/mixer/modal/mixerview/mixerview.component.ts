@@ -102,8 +102,9 @@ export class MixerViewComponent implements OnInit {
   }
 
   zoomIn(){
+    const old_zoom = this.zs.zoom;
     this.zs.zoomIn();
-    this.onZoomChange.emit();
+    this.onZoomChange.emit({old_zoom: old_zoom});
     const adjusted: Point = {
       x: this.local_view.topleft.x / this.cell_factor * this.zs.zoom,
       y: this.local_view.topleft.y / this.cell_factor * this.zs.zoom
@@ -114,8 +115,9 @@ export class MixerViewComponent implements OnInit {
 
 
   zoomOut(){
+    const old_zoom = this.zs.zoom;
     this.zs.zoomOut();
-    this.onZoomChange.emit();
+    this.onZoomChange.emit({old_zoom: old_zoom});
       const adjusted: Point = {
        x: this.local_view.topleft.x / this.cell_factor * this.zs.zoom,
        y: this.local_view.topleft.y / this.cell_factor * this.zs.zoom
@@ -129,10 +131,12 @@ export class MixerViewComponent implements OnInit {
 
 zoomChange(e:any, source: string){
   e.source = source;
+  const old_zoom = this.zs.zoom;
+
   this.zs.setZoom(e.value);
  // this.updateLocalDims();
  //update the window so that the current point remains at top left
-  this.onZoomChange.emit();
+  this.onZoomChange.emit({old_zoom: old_zoom});
 
   const adjusted: Point = {
     x: this.local_view.topleft.x / this.cell_factor * this.zs.zoom,

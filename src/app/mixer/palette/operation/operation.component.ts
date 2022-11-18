@@ -146,7 +146,7 @@ export class OperationComponent implements OnInit {
   ngAfterViewInit(){
     this.rescale();
    // this.onOperationParamChange.emit({id: this.id});
-    if(this.name == 'imagemap'){
+    if(this.name == 'imagemap' || this.name == 'bwimagemap'){
       this.drawImagePreview();
     }
 
