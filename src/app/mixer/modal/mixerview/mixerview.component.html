@@ -22,7 +22,7 @@
           [step]="1" 
           [min]= "0"
           [max]= "zs.num_steps"
-          value="{{zs.zoom}}" 
+          value="{{zs.zoom_table_ndx}}" 
           (change)="zoomChange($event, 'slider')"></mat-slider>
           
           <button  mat-icon-button (click)="zoomOut()" class="fas fa-search-minus"></button> 
