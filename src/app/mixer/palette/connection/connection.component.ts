@@ -168,7 +168,7 @@ export class ConnectionComponent implements OnInit {
     
     if(this.no_draw) return;
 
-    const stroke_width = 2 * this.zs.zoom / this.zs.zoom_max;
+    const stroke_width = 2 * this.zs.zoom / this.zs.getZoomMax();
 
     if(this.orientation_x && this.orientation_y){
       this.svg.innerHTML = ' <path d="M 0 0 C 0 50, '+this.bounds.width+' '+(this.bounds.height-50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/> ' ;

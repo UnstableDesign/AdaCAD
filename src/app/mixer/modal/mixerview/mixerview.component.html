@@ -19,9 +19,9 @@
           <mat-slider 
           invert
           tickInterval="1" 
-          [step]="zs.zoom_step" 
-          [min]= "zs.zoom_min"
-          [max]= "zs.zoom_max"
+          [step]="1" 
+          [min]= "0"
+          [max]= "zs.num_steps"
           value="{{zs.zoom}}" 
           (change)="zoomChange($event, 'slider')"></mat-slider>
           

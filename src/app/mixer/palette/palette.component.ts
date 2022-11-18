@@ -376,6 +376,7 @@ export class PaletteComponent implements OnInit{
    * @param scale 
    */
   rescale(){
+    console.log("RESCALE", this.zs.zoom);
 
 
 
