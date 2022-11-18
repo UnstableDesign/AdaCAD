@@ -10,7 +10,17 @@ button.input{
 	background-color: #00d1b2;
 	color: white;
 	border: none;
-    width:30px;
+    display: flex;
+    flex-direction: row;
+
+    .inlet_arrow{
+       margin-right: 4px;
+    }
+}
+
+.inlet_block{
+    display: flex;
+    flex-direction: row;
 }
 
 
@@ -64,6 +74,5 @@ input{
 .inlet-label,
 .inlet-name{
     color: #fff;
-    line-height: 30px;
     padding-right: 6px;
 }
