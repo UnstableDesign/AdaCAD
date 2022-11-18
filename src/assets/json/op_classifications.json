@@ -11,7 +11,8 @@
                 "waffle", 
                 "complextwill", 
                 "random", 
-                "combinatorics"
+                "combos",
+                "bwimagemap"
             ]
         },
         {
@@ -19,17 +20,17 @@
             "description": "Takes an input structure or draft and transforms it in some way.",
             "op_names":[
                 "invert", 
-                "flipx", 
-                "flipy", 
-                "shiftx", 
-                "shifty", 
+                "flip horiz", 
+                "flip vert", 
+                "shift left", 
+                "shift up", 
                 "rotate", 
                 "makesymmetric", 
                 "slope",
                 "stretch",
                 "clear",
-                "set",
-                "unset",
+                "set unset",
+                "set down to unset",
                 "crop",
                 "trim"
             ]
@@ -38,17 +39,16 @@
             "category_name": "cloth",
             "description": "Describes the arrangements of pattern regions in an overall draft or cloth. Regions defined by the cloth design parameters can be filled with input drafts. ",
             "op_names":[
-                "rect", 
+                "rectangle", 
                 "tile", 
                 "chaos", 
                 "warp_profile", 
                 "sample_width", 
+                "dynamicjoinleft",
                 "fill",
                 "imagemap",
-                "bwimage",
-                "joinleft",
-                "dynamicjoinleft",
-                "jointop"
+                "join left",
+                "join top"
             ]
         },
         {
@@ -56,10 +56,11 @@
             "description": "Descriptions operations that support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.",
             "op_names":[
                 "interlace",
-                "splicein",
-                "spliceinwarps",
+                "splice in wefts",
+                "splice in warps",
                 "layer",
-                "assignlayers"
+                "assignlayers",
+                "notation"
             ]
         },
         {
@@ -70,7 +71,7 @@
                 "overlay",
                 "mask",
                 "knockout",
-                "sinewave",
+                "sine",
                 "sawtooth"
             ]
         },
@@ -79,23 +80,23 @@
             "description": "Describes common drafting techniuques to ensure good woven and cloth structure.",
             "op_names":[
                 "selvedge",
-                "bindweftfloats",
-                "bindwarpfloats"
+                "bind weft floats",
+                "bind warp floats"
             ]
         },
         {
             "category_name": "color_effects",
             "description": "Supports the specification of materials in order to describe different color effects on the woven cloth",
             "op_names":[
-                "apply_materials"
+                "apply materials"
             ]  
         },
         {
             "category_name": "drafting_styles",
             "description": "Supports the conversion of one style of drafting to another, based on the requirements of specific equipment",
             "op_names":[
-                "makeloom",
-                "makedirectloom",
+                "floor loom",
+                "direct loom",
                 "drawdown",
                 "directdrawdown"
             ]  

@@ -7,7 +7,7 @@ import utilInstance from "./util";
 /*********** GENERIC FUNCTIONS RELATING TO LOOMS AND LOOM UTILS ************/
 
 export const copyLoom = (l:Loom) : Loom => {
-  if(l === undefined) return null;
+  if(l === undefined || l == null) return null;
   const copy_loom  = {
     threading: l.threading.slice(),
     treadling: l.treadling.slice(),

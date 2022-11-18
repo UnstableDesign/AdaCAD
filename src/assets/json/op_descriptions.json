@@ -136,25 +136,25 @@
             "application": "Adding selvedges to the sides of the cloth maintains clean edges" 
         },
         {
-            "name":"overlay, (a,b) => (a OR b)",
+            "name":"overlay",
             "displayname": "overlay, (a,b) => (a OR b)",
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If either interlacement a or b are marked as warp lifted, the resulting draft will have a warp raised in that location. ",
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Retains the pattern of raised warp ends (black cells) from each input draft when they are overlaid. (Keeps any region that is marked black/true in either draft)" 
         },
         {
-            "name":"set atop, (a, b) => a",
+            "name":"atop",
             "displayname": "set atop, (a, b) => b",
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a is marked warp raised and b marked warp lowered, or vice versa, it sets the corresponding interlacement in the output draft to warp raised.",
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts." 
         },
         {
-            "name":"knockout, (a, b) => (a XOR b)",
+            "name":"knockout",
             "displayname": "knockout, (a, b) => (a XOR b)",
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b and copies the interlacement in a where a is present",
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts." 
         },
         {
-            "name":"mask, (a,b) => (a AND b)",
+            "name":"mask",
             "displayname": "mask, (a,b) => (a AND b)",
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b  If a is marked warp raised and b marked warp raised, it sets the corresponding interlacement in the output draft to warp raised. Otherwise, the interlacement is marked warp lowered. This effectively masks draft a with draft b",
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Retains input draft b in regions where input draft a has raised warp ends (black cells); draft b is only retained within the area of draft a." 

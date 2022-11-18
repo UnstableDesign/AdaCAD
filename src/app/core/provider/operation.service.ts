@@ -34,8 +34,8 @@ export class OperationService {
     private combos: CombinatoricsService) { 
 
     const atop: Operation = {
-      name: 'set atop, (a, b) => a',
-      old_names:['set atop'], 
+      name: 'atop',
+      old_names:['set atop', 'set atop, (a, b) => a'], 
       params: <Array<NumParam>>[
         {name: 'shift ends',
         type: 'number',
@@ -66,7 +66,7 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>) => {
-        const parent_input = op_inputs.find(el => el.op_name == 'set atop, (a, b) => a');
+        const parent_input = op_inputs.find(el => el.op_name == 'atop');
         const child_inputs = op_inputs.filter(el => el.op_name == 'child');
         const base = op_inputs.find(el => el.inlet == 0);
         const top = op_inputs.find(el => el.inlet == 1);
@@ -2187,8 +2187,8 @@ export class OperationService {
     }
 
     const knockout: Operation = {
-      name: 'knockout, (a, b) => (a XOR b)',
-      old_names:['knockout'], 
+      name: 'knockout',
+      old_names:['knockout', 'knockout, (a, b) => (a XOR b)'], 
       params: <Array<NumParam>>[
         {name: 'shift ends',
         type: 'number',
@@ -2219,7 +2219,7 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>)=> {
-        const parent_input = op_inputs.find(el => el.op_name == 'knockout, (a, b) => (a XOR b)');
+        const parent_input = op_inputs.find(el => el.op_name == 'knockout');
         const child_inputs = op_inputs.filter(el => el.op_name == 'child');
         const base = op_inputs.find(el => el.inlet == 0);
         const top = op_inputs.find(el => el.inlet == 1);
@@ -2728,22 +2728,22 @@ export class OperationService {
     }  
 
     const mask: Operation = {
-      name: 'mask, (a,b) => (a AND b)',
-      old_names:['mask'],
+      name: 'mask',
+      old_names:['mask','mask, (a,b) => (a AND b)'],
       params: <Array<NumParam>>[
         {name: 'shift ends',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the addedop_input.drafts from the left"
+        dx: "the amount to offset the added drafts from the left"
         },
         {name: 'shift pics',
         type: 'number',
         min: 0,
         max: 10000,
         value: 0,
-        dx: "the amount to offset the overlayingop_input.drafts from the bottom"
+        dx: "the amount to offset the drafts from the bottom"
         }
       ],
       inlets: [{
@@ -2762,7 +2762,7 @@ export class OperationService {
       }
     ],
       perform: (op_inputs: Array<OpInput>) => {
-        const parent_input = op_inputs.find(el => el.op_name == 'mask, (a,b) => (a AND b)');
+        const parent_input = op_inputs.find(el => el.op_name == 'mask');
         const child_inputs = op_inputs.filter(el => el.op_name == 'child');
         const base = op_inputs.find(el => el.inlet == 0);
         const top = op_inputs.find(el => el.inlet == 1);
@@ -2951,8 +2951,8 @@ export class OperationService {
     }
 
     const overlay: Operation = {
-      name: 'overlay, (a,b) => (a OR b)',
-      old_names:['overlay'], 
+      name: 'overlay',
+      old_names:['overlay','overlay, (a,b) => (a OR b)'], 
       params: <Array<NumParam>>[
         {name: 'shift ends',
         type: 'number',
@@ -2984,7 +2984,7 @@ export class OperationService {
     ],
       perform: (op_inputs: Array<OpInput>)=> {
 
-        const parent_input = op_inputs.find(el => el.op_name == 'overlay, (a,b) => (a OR b)');
+        const parent_input = op_inputs.find(el => el.op_name == 'overlay');
         const child_inputs = op_inputs.filter(el => el.op_name == 'child');
         const base = op_inputs.find(el => el.inlet == 0);
         const top = op_inputs.find(el => el.inlet == 1);
