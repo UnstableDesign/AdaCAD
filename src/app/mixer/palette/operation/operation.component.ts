@@ -179,10 +179,16 @@ export class OperationComponent implements OnInit {
       const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.id);
       const ctx = canvas.getContext('2d');
 
+      console.log("IMAGE DATA", obj.data)
       const max_dim = (obj.data.width > obj.data.height) ? obj.data.width : obj.data.height;
-      canvas.width = obj.data.width / max_dim * 100;
-      canvas.height = obj.data.height / max_dim * 100;
-      ctx.drawImage(obj.data.image, 0, 0, obj.data.width / max_dim * 100, obj.data.height / max_dim * 100);
+      const use_width = (obj.data.width > 100) ? obj.data.width / max_dim * 100 : obj.data.width;
+      const use_height = (obj.data.height > 100) ? obj.data.height / max_dim * 100 : obj.data.height;
+
+      canvas.width = use_width;
+      canvas.height = use_height;
+
+
+      ctx.drawImage(obj.data.image, 0, 0, use_width, use_height);
      
     }
 
