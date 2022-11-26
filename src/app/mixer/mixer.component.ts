@@ -456,11 +456,12 @@ export class MixerComponent implements OnInit {
         .map(tn => tn.entry);
      
 
-      const seeds: Array<{entry, id, draft, loom, loom_settings}> = seednodes
+      const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors}> = seednodes
       .map(sn =>  {
 
 
          let d:Draft =null;
+         let render_colors = true;
         // let ls:LoomSettings = {
         //   this.ws.type
         // }
@@ -492,6 +493,7 @@ export class MixerComponent implements OnInit {
             d = copyDraft(located_draft.draft);
             ls = copyLoomSettings(located_draft.loom_settings);
             l = copyLoom(located_draft.loom);
+            if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
           } 
 
         }else{
@@ -507,7 +509,8 @@ export class MixerComponent implements OnInit {
         id: sn.cur_id,
         draft: d,
         loom: l,
-        loom_settings: ls
+        loom_settings: ls,
+        render_colors: false
         }
       });
 
@@ -517,7 +520,7 @@ export class MixerComponent implements OnInit {
       // seeds.forEach(node => {
       //   console.log(node.loom.treadling)
       // })
-      const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings));
+      const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors));
   
       const op_fns = data.ops.map(op => {
         const entry = entry_mapping.find(el => el.prev_id == op.node_id);

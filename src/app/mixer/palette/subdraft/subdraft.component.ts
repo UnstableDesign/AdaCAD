@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Bounds, Draft, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
+import { Bounds, Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
 import { getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 import utilInstance from '../../../core/model/util';
 import { FileService } from '../../../core/provider/file.service';
@@ -133,6 +133,8 @@ export class SubdraftComponent implements OnInit {
 
   ud_name: string;
 
+  use_colors: boolean = true;
+
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ms: MaterialsService, 
@@ -170,6 +172,10 @@ export class SubdraftComponent implements OnInit {
       this.bounds.width = warps(draft.drawdown) * this.scale;
       this.bounds.height = wefts(draft.drawdown) * this.scale;
     }
+
+    const dn:DraftNode = <DraftNode> this.tree.getNode(this.id);
+    this.use_colors = dn.render_colors;
+
 
   }
 
@@ -481,9 +487,10 @@ export class SubdraftComponent implements OnInit {
 
     }
 
+    this.cx.strokeStyle = "#666666"
     this.cx.lineWidth = 1;
 
-    if(cell_size > 1) this.cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
+    if(cell_size > 1 && usecolor === false) this.cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
     this.cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
   }
 
@@ -497,8 +504,8 @@ export class SubdraftComponent implements OnInit {
    */
   async drawDraft(draft: Draft) : Promise<any> {
 
-    draft = this.tree.getDraft(this.id);
-
+    draft =  this.tree.getDraft(this.id);
+    const use_colors =(<DraftNode>this.tree.getNode(this.id)).render_colors;
 
     if(this.parent_id !== -1){
       const container = document.getElementById('scale-'+this.parent_id);
@@ -521,7 +528,7 @@ export class SubdraftComponent implements OnInit {
 
       for (let i = 0; i <  wefts(draft.drawdown); i++) {
         for (let j = 0; j < warps(draft.drawdown); j++) {
-          this.drawCell(draft, this.default_cell, i, j, true);
+          this.drawCell(draft, this.default_cell, i, j, use_colors);
         }
       }
     }
@@ -676,6 +683,13 @@ export class SubdraftComponent implements OnInit {
 
   resetConnections(){
     this.has_active_connection = false;
+  }
+
+  toggleDraftRendering(){
+    const dn = <DraftNode> this.tree.getNode(this.id);
+    dn.render_colors = !dn.render_colors;
+    this.use_colors = dn.render_colors;
+    this.redrawExistingDraft();
   }
 
 

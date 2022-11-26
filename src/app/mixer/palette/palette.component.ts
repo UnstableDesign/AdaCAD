@@ -599,7 +599,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, false)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }

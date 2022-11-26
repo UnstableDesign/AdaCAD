@@ -50,7 +50,15 @@ class="subdraft-container"
 					</button>
 
 					<mat-menu #subdraftOptions>
-						
+					
+					<button mat-icon-button
+					class="is-small fa-solid"
+					[class.fa-chess-board] = 'use_colors'
+					[class.fa-rug] = '!use_colors'
+					matTooltip ="Toggle Material View"
+					(click)="toggleDraftRendering()">
+					</button>
+
 					<button mat-icon-button
 					class="is-small fas fa-expand-alt"
 					matTooltip ="View Draft Details"
@@ -85,8 +93,7 @@ class="subdraft-container"
 					class="fa-solid fa-file-image"
 					matTooltip ="Download as Printable Image">
 					</button>
-			
-			
+
 			
 				
 					<button mat-icon-button *ngIf='parent_id === -1'

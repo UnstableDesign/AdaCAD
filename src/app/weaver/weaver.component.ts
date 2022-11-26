@@ -509,7 +509,6 @@ export class WeaverComponent implements OnInit {
       const loom_settings = this.tree.getLoomSettings(node.id);
       (<SubdraftComponent> node.component).drawDraft(draft);
       if(node.id == this.id){
-        console.log("Redrawing ALL");
         this.weaveRef.redraw(draft, loom, loom_settings, {
           drawdown: true, 
           loom:true, 

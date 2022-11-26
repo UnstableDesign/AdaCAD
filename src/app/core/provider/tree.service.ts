@@ -311,7 +311,8 @@ export class TreeService {
       dirty: true, 
       draft: copyDraft(draft),
       loom: null,
-      loom_settings: null
+      loom_settings: null,
+      render_colors: false
     }
 
     sd.dirty = true;
@@ -368,7 +369,7 @@ export class TreeService {
   * @param loom the loom to associate with this node
   * @returns the created draft node and the entry associated with this
   */
-  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -403,6 +404,9 @@ export class TreeService {
     (<DraftNode> nodes[0]).loom = copyLoom(loom);
 
    }
+
+   if(render_colors === undefined || render_colors === null)  (<DraftNode> nodes[0]).render_colors = true;
+   else (<DraftNode> nodes[0]).render_colors = render_colors;
    //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode> nodes[0]))
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
@@ -1165,7 +1169,6 @@ removeOperationNode(id:number) : Array<Node>{
    * @returns a list of the draft nodes touched. 
    */
  async updateDraftsFromResults(parent: number, res: Array<Draft>) : Promise<Array<number>>{
-
   const out = this.getNonCxnOutputs(parent);
   const touched: Array<number> = [];
 
@@ -1174,8 +1177,10 @@ removeOperationNode(id:number) : Array<Node>{
   //console.log("updating drafts, there are currently: ", out.length, "existing ouputs and ", res.length, "new outputs");
 
   if(out.length === res.length){
+
     out.forEach((output, ndx) => {
       this.setDraftOnly(output, res[ndx]);
+
       touched.push(output);
     });
     return Promise.resolve(touched);
@@ -1184,6 +1189,7 @@ removeOperationNode(id:number) : Array<Node>{
     //create a new draft node for each outcome;
     for(let i = res.length; i < out.length; i++){
       const dn = <DraftNode> this.getNode(out[i]);
+      if(dn.render_colors === undefined) dn.render_colors = false;
       dn.draft = initDraftWithParams({wefts: 1, warps: 1});
       dn.loom_settings = {
         type: this.ws.type,
@@ -1210,7 +1216,7 @@ removeOperationNode(id:number) : Array<Node>{
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, 0,  id, 0,  cxn);
-      fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
+      fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
     }
 
     return Promise.all(fns)
@@ -1937,7 +1943,8 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft: (this.hasParent(node.id)) ? null : (<DraftNode>node).draft,
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
           loom:  (this.hasParent(node.id)) ? null :loom_export,
-          loom_settings: node.loom_settings
+          loom_settings: node.loom_settings,
+          render_colors: (<DraftNode>node).render_colors
         }
         objs.push(savable);
   
@@ -2008,6 +2015,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       draft_visible: true,
       loom: null, 
       loom_settings:null,
+      render_colors: true
     };
 
     const treenode: TreeNodeProxy = {
@@ -2048,6 +2056,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     const dn = <DraftNode> this.getNode(id);
     draft.id = id;
     dn.draft = draft;
+    dn.render_colors = (dn.render_colors === undefined) ? false : dn.render_colors; 
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = draft;
 
   }

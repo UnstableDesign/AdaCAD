@@ -320,6 +320,7 @@ export interface NodeComponentProxy{
     draft_visible: boolean;
     loom: Loom,
     loom_settings: LoomSettings;
+    render_colors: boolean
    }
 
  /**
@@ -606,7 +607,8 @@ export type OpNode = BaseNode & {
  export type DraftNode = BaseNode & {
   draft: Draft,
   loom: Loom,
-  loom_settings: LoomSettings
+  loom_settings: LoomSettings,
+  render_colors: boolean
  }
 
 

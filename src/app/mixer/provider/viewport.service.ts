@@ -144,7 +144,7 @@ export class ViewportService {
   }
 
   /**
-   * this gets the center point of the current viewport
+   * this gets the center point of the current viewport in screen terms. 
    * @returns 
    */
   getCenterPoint(): Point{

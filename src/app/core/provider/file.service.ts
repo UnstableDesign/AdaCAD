@@ -118,7 +118,6 @@ export class FileService {
           const loom = data.looms.find(loom => loom.draft_id === node.node_id);
           const draft = data.drafts.find(draft => draft.id === node.node_id);
 
-
           const dn: DraftNodeProxy = {
             node_id: (node === undefined) ? -1 : node.node_id,
             draft_id: node.node_id,
@@ -128,7 +127,8 @@ export class FileService {
             loom:null,
             loom_settings: (loom === undefined) 
               ? {type: this.ws.type, epi: this.ws.epi, units: this.ws.units, frames: this.ws.min_frames, treadles: this.ws.min_treadles } 
-              : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles}
+              : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles},
+            render_colors: (node === undefined || node.render_colors === undefined) ? true : node.render_colors,
           }
           draft_nodes.push(dn);
 

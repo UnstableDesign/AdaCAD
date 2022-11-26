@@ -40,7 +40,6 @@ export class MultiselectService {
    * @param topleft the topleft point of this element, used to update position if one selected element moves
    */
   toggleSelection(id: number, topleft: Point) : boolean{
-    console.log("toggle selection", id)
     const type = this.tree.getType(id);
     let container: HTMLElement;
 
@@ -98,7 +97,6 @@ export class MultiselectService {
 
   clearSelections(){
     //clear all styles
-    console.log("CLEAR SELECTION")
     this.clearAllStyles();
     this.selected = [];
   }
