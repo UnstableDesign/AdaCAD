@@ -617,8 +617,6 @@ export class PaletteComponent implements OnInit{
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
 
-    
-
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const node = this.tree.getNode(id)
@@ -629,6 +627,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.zs.zoom;
     subdraft.instance.draft_visible =true;
+    subdraft.instance.use_colors = true;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
@@ -648,6 +647,10 @@ export class PaletteComponent implements OnInit{
 
       if(draftp !== null && draftp !== undefined){
         subdraft.instance.draft_visible = draftp.draft_visible;
+      }
+
+      if(draftp !== null && draftp !== undefined && draftp.render_colors !== undefined){
+        subdraft.instance.use_colors = draftp.render_colors;
       }
     } 
 
@@ -1256,7 +1259,7 @@ export class PaletteComponent implements OnInit{
         draft_visible: true,
         loom: new_loom,
         loom_settings:new_ls,
-        render_colors: false
+        render_colors: true
       },
       this.zs.zoom);
       this.addTimelineState();

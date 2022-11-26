@@ -1189,7 +1189,7 @@ removeOperationNode(id:number) : Array<Node>{
     //create a new draft node for each outcome;
     for(let i = res.length; i < out.length; i++){
       const dn = <DraftNode> this.getNode(out[i]);
-      if(dn.render_colors === undefined) dn.render_colors = false;
+      if(dn.render_colors === undefined) dn.render_colors = true;
       dn.draft = initDraftWithParams({wefts: 1, warps: 1});
       dn.loom_settings = {
         type: this.ws.type,
@@ -2056,7 +2056,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     const dn = <DraftNode> this.getNode(id);
     draft.id = id;
     dn.draft = draft;
-    dn.render_colors = (dn.render_colors === undefined) ? false : dn.render_colors; 
+    dn.render_colors = (dn.render_colors === undefined) ? true : dn.render_colors; 
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = draft;
 
   }

@@ -522,7 +522,7 @@ export class MixerComponent implements OnInit {
         draft: d,
         loom: l,
         loom_settings: ls,
-        render_colors: false
+        render_colors: render_colors
         }
       });
 
