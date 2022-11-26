@@ -599,7 +599,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, false)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }
@@ -632,7 +632,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.draft = d;
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
 
-    if(nodep.bounds !== null){
+    if(nodep !== null && nodep.bounds !== null){
       
       const topleft_ilace = {j: nodep.bounds.topleft.x/saved_scale, i: nodep.bounds.topleft.y/saved_scale};
       const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
@@ -1315,7 +1315,7 @@ export class PaletteComponent implements OnInit{
       if(moving === null) return; 
 
 
-      this.startSnackBar("Using Ink: "+moving.ink, null);
+      // this.startSnackBar("Using Ink: "+moving.ink, null);
       
       const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
       const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
@@ -2089,7 +2089,6 @@ drawStarted(){
       }else if(this.dm.isSelected("move", "design_modes")){
 
        if(event.shiftKey) return;
-        console.log("HIT BAKCGROUND")
         this.multiselect.clearSelections();
 
       }
@@ -2458,7 +2457,7 @@ drawStarted(){
     
 
 
-      this.updateSnackBar("Using Ink: "+moving.ink,null);
+      // this.updateSnackBar("Using Ink: "+moving.ink,null);
       this.updateAttachedComponents(moving.id, true);
 
 

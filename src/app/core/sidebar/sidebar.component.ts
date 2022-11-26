@@ -6,6 +6,7 @@ import { MixerViewComponent } from '../../mixer/modal/mixerview/mixerview.compon
 import { OpsComponent } from '../../mixer/modal/ops/ops.component';
 import { InkService } from '../../mixer/provider/ink.service';
 import { ActionsComponent } from '../modal/actions/actions.component';
+import { BlankdraftModal } from '../modal/blankdraft/blankdraft.modal';
 import { LoomModal } from '../modal/loom/loom.modal';
 import { MaterialModal } from '../modal/material/material.modal';
 import { WeaverViewComponent } from '../modal/weaverview/weaverview.component';
@@ -49,7 +50,7 @@ export class SidebarComponent implements OnInit {
   @Output() onMaterialChange: any = new EventEmitter();
   @Output() onNoteCreate: any = new EventEmitter();
   @Output() onMLChange: any = new EventEmitter();
-
+  @Output() onNewDraftCreated: any = new EventEmitter();
 
   
   draft:Draft;
@@ -98,6 +99,18 @@ export class SidebarComponent implements OnInit {
      obj.target = "design_modes";
      this.dm.selectDesignMode(obj.name, obj.target);
      this.onDesignModeChange.emit(obj);
+  }
+
+  createNewDraft(){
+
+    const dialogRef = this.dialog.open(BlankdraftModal, {
+    });
+
+    dialogRef.afterClosed().subscribe(obj => {
+      // if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
+      console.log("OBJ", obj)
+      if(obj !== undefined && obj !== null) this.onNewDraftCreated.emit(obj);
+   });
   }
 
 

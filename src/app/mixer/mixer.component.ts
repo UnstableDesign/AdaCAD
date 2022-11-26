@@ -986,6 +986,18 @@ export class MixerComponent implements OnInit {
     this.palette.createNote();
   }
 
+  /**
+   * called when the user adds a new draft from the sidebar
+   * @param obj 
+   */
+  public newDraftCreated(obj: any){
+    console.log("NEW DRAFT ", obj)
+    const id = this.tree.createNode("draft", null, null);
+    this.tree.loadDraftData({prev_id: null, cur_id: id,}, obj.draft, obj.loom, obj.loom_settings, true);
+    this.palette.loadSubDraft(id, obj.draft, null, null, this.zs.zoom);
+    //id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number
+  }
+
 
   /**
    * something in the materials library changed, check to see if

@@ -53,6 +53,9 @@ import { SignupComponent } from './signup/signup.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
 import { UploadService } from './uploads/upload.service';
+import { BlankdraftModal } from './modal/blankdraft/blankdraft.modal';
+import { ExamplesComponent } from './modal/examples/examples.component';
+import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 
 @NgModule({
     imports: [
@@ -107,7 +110,10 @@ import { UploadService } from './uploads/upload.service';
         LoginComponent,
         SignupComponent,
         ProfileComponent,
-        EmailComponent
+        EmailComponent,
+        BlankdraftModal,
+        ExamplesComponent,
+        LoadfileComponent
         ],
     providers: [
         UploadService,

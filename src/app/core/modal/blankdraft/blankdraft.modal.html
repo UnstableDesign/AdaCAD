@@ -1,0 +1,62 @@
+
+  <form #initForm="ngForm">
+
+
+    <mat-form-field appearance="fill">
+        <mat-label>Which type of loom are you designing for?</mat-label>
+        <mat-select [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
+        <mat-option *ngFor="let type of loom_types" [value]="type.value">
+          {{type.viewValue}}
+        </mat-option>
+      </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Warps</mat-label>
+      <input matInput  type="number" placeholder="Number of Warp Ends" value="20" name="warps" min="2" step="1" [(ngModel)]="warps">
+      </mat-form-field>
+     <mat-form-field appearance="fill">
+      <mat-label>Wefts</mat-label>
+
+      <input matInput  type="number" placeholder="Number of Weft Picks" value ="20" name="wefts" min="2" step="1" [(ngModel)]="wefts" >
+      </mat-form-field>
+
+
+    <mat-form-field appearance="fill">
+        <mat-label>Density Units</mat-label>
+        <mat-select [(value)]="units" [(ngModel)]="selected_unit" name="units">
+        <mat-option *ngFor="let unit of units" [value]="unit.value">
+          {{unit.viewValue}}
+        </mat-option>
+      </mat-select>
+      </mat-form-field>
+
+     <mat-form-field appearance="fill">
+      <mat-label>Weave Density</mat-label>
+      <input matInput  type ="number" placeholder="Weave Density" name="epi" value="10" [(ngModel)]="epi">
+     </mat-form-field> 
+
+
+
+
+    <ng-container *ngIf="(loomtype == 'frame') || (loomtype == 'direct')">
+      <mat-form-field appearance="fill">
+        <mat-label>Frames</mat-label>
+       <input matInput  type="number" placeholder="Number of Shafts" name="frame_num" min="2" step="1" value="8" [(ngModel)]="frame_num">
+      </mat-form-field>
+    </ng-container>
+
+    <ng-container *ngIf="(loomtype == 'frame') ">
+   <mat-form-field appearance="fill">
+    <mat-label>Treadles</mat-label>
+    <input matInput  type ="number" placeholder="Number of Treadles" name="treadle_num" [(ngModel)]="treadle_num" min="2" step="1" value="10">
+   </mat-form-field> 
+  </ng-container>
+
+ 
+    <mat-dialog-actions>
+        <button class="mat-raised-button mat-primary" (click)="save(initForm)">Load</button>
+    </mat-dialog-actions>
+
+
+</form>

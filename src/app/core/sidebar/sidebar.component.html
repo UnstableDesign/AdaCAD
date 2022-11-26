@@ -49,15 +49,15 @@
 
     <div class="tool-chunk" *ngIf="source==='mixer'">
 
-    <button 
+    <!-- <button 
     mat-icon-button
     matTooltip= "Draw"
     [matMenuTriggerFor]="inks"
     [class.is-active]="dm.isSelected('draw','design_modes')">
     <i class="fas fa-edit"></i>
-    </button>
+    </button> -->
 
-    <mat-menu #inks="matMenu">
+    <!-- <mat-menu #inks="matMenu">
         <ng-container *ngFor="let mode of dm.draw_modes">
             <button *ngIf="mode.value != 'material'"
             class="menu-button" 
@@ -70,18 +70,18 @@
              <span>{{mode.viewValue}}</span>
              </button> 
              </ng-container>
-    </mat-menu>
+    </mat-menu> -->
 
-    <button 
+    <!-- <button 
     mat-icon-button
     matTooltip= "Draw Shape"
     [matMenuTriggerFor]="shape"
     [class.is-active]="dm.isSelected('shape','design_modes')">
     <i class="fas fa-shapes"></i>
     </button>
+     -->
     
-    
-    <mat-menu #shape="matMenu">
+    <!-- <mat-menu #shape="matMenu">
 
         <ng-container *ngFor="let mode of dm.shapes">
         <button 
@@ -96,27 +96,36 @@
          </button> 
         
         </ng-container>   
-    </mat-menu>
+    </mat-menu> -->
 
     <button 
     mat-icon-button
-    matTooltip= "Marquee"
+    matTooltip= "Blank Draft"
     [class.is-active]="dm.isSelected('marquee','design_modes')"
-    (click)="designModeChange('marquee')">
-    <i class="fas fa-expand"></i>
+    (click)="createNewDraft()">
+    <i class="fas fa-chess-board"></i>
     </button>
 
-    <button 
+    <!-- <button 
+    mat-icon-button
+    matTooltip= "Blank Draft"
+    [class.is-active]="dm.isSelected('marquee','design_modes')"
+    (click)="designModeChange('marquee')">
+    <i class="fas  fa-chess-board"></i>
+    </button> -->
+
+
+    <!-- <button 
     mat-icon-button
     matTooltip= "Move"
     [class.is-active]="dm.isSelected('move','design_modes')"
     (click)="designModeChange('move')">
     <i class="fas fa-arrows-alt"></i>
-    </button>
+    </button> -->
 
     <button 
     mat-icon-button
-    matTooltip= "Create Note"
+    matTooltip= "Note"
     (click)="addNote()">
     <i class="fas fa-comment"></i>
     </button>
@@ -284,6 +293,7 @@
     <div class="tool-chunk" *ngIf="source==='mixer'">
 
     <button mat-icon-button 
+    matTooltip= "View Options"
     [class.is-active] = "view_modal && view_modal.componentInstance != null"
     (click)="openMixerView()">
         <i class="fas fa-eye"></i>    
@@ -295,7 +305,7 @@
 
         <button 
         mat-icon-button
-        matTooltip= "Open Materials Library"
+        matTooltip= "Materials Library"
         [class.is-active] = "materials_modal && materials_modal.componentInstance != null"
         (click)="openMaterialsModal()">
         <i class="fas fa-book"></i>
