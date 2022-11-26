@@ -27,6 +27,7 @@ import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
+import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
 
 
 //disables some angular checking mechanisms
@@ -35,12 +36,23 @@ enableProdMode();
 
 
 
+/** Custom options the configure the tooltip's default show/hide delays. */
+export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
+  showDelay: 1000,
+  hideDelay: 1000,
+  touchendHideDelay: 1000,
+  position: 'right',
+  disableTooltipInteractivity: true,
+
+};
 
 
 @Component({
   selector: 'app-mixer',
   templateUrl: './mixer.component.html',
-  styleUrls: ['./mixer.component.scss']
+  styleUrls: ['./mixer.component.scss'],
+  providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults}]
+
 })
 export class MixerComponent implements OnInit {
 

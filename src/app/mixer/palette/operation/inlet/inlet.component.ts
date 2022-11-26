@@ -7,7 +7,6 @@ import { SystemsService } from '../../../../core/provider/systems.service';
 import { TreeService } from '../../../../core/provider/tree.service';
 
 
-
 @Component({
   selector: 'app-inlet',
   templateUrl: './inlet.component.html',
@@ -31,7 +30,11 @@ export class InletComponent implements OnInit {
   selectedValue: number; 
   inlet_desc: string;
 
-  constructor(public tree: TreeService, private systems: SystemsService, private ops: OperationService) { 
+  constructor(
+    public tree: TreeService, 
+    private systems: SystemsService, 
+    private ops: OperationService,
+    ) { 
 
   }
 
