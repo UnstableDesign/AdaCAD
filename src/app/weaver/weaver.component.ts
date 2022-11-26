@@ -19,10 +19,6 @@ import { WorkspaceService } from '../core/provider/workspace.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 
-//disables some angular checking mechanisms
-// enableProdMode();
-
-
 
 @Component({
   selector: 'app-weaver',

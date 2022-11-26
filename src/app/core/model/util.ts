@@ -6,9 +6,8 @@
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
 import { Cell } from "./cell";
-import { Point, Interlacement, Bounds, Draft, Loom } from "./datatypes";
-import { flipDraft, hasCell, initDraftWithParams, warps, wefts } from "./drafts";
-import { flipPattern } from "./looms";
+import { Point, Interlacement, Bounds, Draft, Loom, LoomSettings } from "./datatypes";
+import { hasCell, initDraftWithParams, warps, wefts } from "./drafts";
 import { Shuttle } from "./shuttle";
 
 
@@ -850,6 +849,88 @@ class Util {
         }
     }
     return pattern;
+}
+
+/**
+ * checks two looms settings objects 
+ * @param ls1 
+ * @param ls2 
+ * @returns  true if they have the same value
+ */
+areLoomSettingsTheSame(ls1: LoomSettings, ls2: LoomSettings) : boolean {
+  if(ls1.epi !== ls2.epi) return false;
+  if(ls1.frames !== ls2.frames) return false;
+  if(ls1.treadles !== ls2.treadles) return false;
+  if(ls1.type !== ls2.type) return false;
+  if(ls1.units !== ls2.units) return false;
+  return true;
+}
+
+/**
+ * checks two loom objects 
+ * @param loom1 
+ * @param loom2 
+ * @returns  true if they have the same value
+ */
+areLoomsTheSame(loom1: Loom, loom2: Loom) : boolean {
+  if(loom1 === null && loom2 === null) return true;
+
+  for(let ndx = 0; ndx < loom1.threading.length; ndx++){
+    if(loom1.threading[ndx] !== loom2.threading[ndx]) return false;
+  }
+
+
+  for(let p = 0; p < loom1.treadling.length; p++){
+    for(let q = 0; q < loom1.treadling[p].length; q++){
+      if(loom1.treadling[p][q] !== loom2.treadling[p][q]) return false;
+    }
+  }
+
+  for(let p = 0; p < loom1.tieup.length; p++){
+    for(let q = 0; q < loom1.tieup[p].length; q++){
+      if(loom1.tieup[p][q] !== loom2.tieup[p][q]) return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * compares the states of two drafts
+ * @param d1 
+ * @param d2 
+ * @returns true if they are the exact same in terms of the draft data (ignores names and ids)
+ */
+areDraftsTheSame(d1: Draft, d2: Draft) : boolean {
+
+  if(d1 === null && d2 === null) return true;
+
+  for(let ndx = 0; ndx <  d1.colShuttleMapping.length; ndx++){
+    if( d1.colShuttleMapping[ndx] !==  d2.colShuttleMapping[ndx]) return false;
+  }
+
+  for(let ndx = 0; ndx <  d1.colSystemMapping.length; ndx++){
+    if( d1.colSystemMapping[ndx] !==  d2.colSystemMapping[ndx]) return false;
+  }
+
+  for(let ndx = 0; ndx <  d1.rowShuttleMapping.length; ndx++){
+    if( d1.rowShuttleMapping[ndx] !==  d2.rowShuttleMapping[ndx]) return false;
+  }
+
+  for(let ndx = 0; ndx <  d1.rowSystemMapping.length; ndx++){
+    if( d1.rowSystemMapping[ndx] !==  d2.rowSystemMapping[ndx]) return false;
+  }
+
+  for(let p = 0; p < d1.drawdown.length; p++){
+    for(let q = 0; q < d1.drawdown[p].length; q++){
+      if(d1.drawdown[p][q].getHeddle() !== d2.drawdown[p][q].getHeddle()) return false;
+    }
+  }
+
+  return true;
+
+
+
 }
 
 /**

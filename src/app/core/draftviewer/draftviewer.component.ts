@@ -11,7 +11,7 @@ import { SystemsService } from '../provider/systems.service';
 import { Shuttle } from '../model/shuttle';
 import { StateService } from '../provider/state.service';
 import { WorkspaceService } from '../provider/workspace.service';
-import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft } from '../model/drafts';
+import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../model/looms';
 import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../model/yarnsimulation';
 import { TreeService } from '../provider/tree.service';
@@ -235,9 +235,10 @@ export class DraftviewerComponent implements OnInit {
 
   ngOnInit() {
 
-    const draft = this.tree.getDraft(this.id);
+    let draft: Draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+
     this.isFrame = isFrame(loom_settings);
    //this.viewonly = !this.tree.isSeedDraft(this.id);
     this.viewonly = false;

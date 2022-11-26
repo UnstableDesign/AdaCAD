@@ -318,9 +318,9 @@ export interface NodeComponentProxy{
     draft_name: string;
     draft: Draft;
     draft_visible: boolean;
-    loom: Loom,
+    loom: Loom;
     loom_settings: LoomSettings;
-    render_colors: boolean
+    render_colors: boolean;
    }
 
  /**

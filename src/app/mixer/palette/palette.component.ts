@@ -1216,36 +1216,51 @@ export class PaletteComponent implements OnInit{
       this.addTimelineState();
  }
 
+ /**
+  This is called when the finetune mode is closed and we need to create a new subdraft to hold the changes. 
+  * @param obj {parent_id, new_id}
+  * @returns 
+  */
    createNewSubdraftFromEdits(obj: any){
     this.changeDesignmode('move')
 
     if(obj === null) return;
 
     const sd = <SubdraftComponent> this.tree.getComponent(obj.parent_id);
-    const sd_draft = obj.draft;
-    
+    const new_draft = this.tree.getDraft(obj.new_id);
+    const new_loom = this.tree.getLoom(obj.new_id);
+    const new_ls = this.tree.getLoomSettings(obj.new_id);
+    const new_bounds = {
+      width: sd.bounds.width,
+      height: sd.bounds.height,
+      topleft: {
+        x: sd.bounds.topleft.x + sd.bounds.width + this.zs.zoom *2, 
+        y: sd.bounds.topleft.y}
 
-    this.createSubDraft(initDraftWithParams(
-      {wefts: wefts(sd_draft.drawdown), 
-        warps: warps(sd_draft.drawdown), 
-        drawdown: sd_draft.drawdown.slice(), 
-        rowShuttleMapping: sd_draft.rowShuttleMapping.slice(),
-        colShuttleMapping: sd_draft.colShuttleMapping.slice(),
-        rowSystemMapping: sd_draft.rowSystemMapping.slice(),
-        colSystemMapping: sd_draft.colSystemMapping.slice(),
-        gen_name: getDraftName(sd_draft)+" edited"
-      }), -1)
-      .then(new_sd => {
+    }
 
 
-        new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
-        new_sd.setPosition({
-          x: sd.bounds.topleft.x + sd.bounds.width + this.zs.zoom *2, 
-          y: sd.bounds.topleft.y});  
-        //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
-        //this.viewport.addObj(new_sd.id, interlacement);
-        this.addTimelineState();
-      }).catch(console.error);
+    this.loadSubDraft(
+      obj.new_id, 
+      new_draft, 
+      {
+        node_id: obj.new_id,
+        type: 'draft',
+        bounds: sd.bounds
+      },
+      {
+        node_id: obj.new_id,
+        draft_id: new_draft.id,
+        draft_name: new_draft.ud_name,
+        draft: new_draft,
+        draft_visible: true,
+        loom: new_loom,
+        loom_settings:new_ls,
+        render_colors: false
+      },
+      this.zs.zoom);
+      this.addTimelineState();
+
    
    }
 

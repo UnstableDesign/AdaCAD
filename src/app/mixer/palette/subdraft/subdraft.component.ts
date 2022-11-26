@@ -822,15 +822,26 @@ export class SubdraftComponent implements OnInit {
 
       //if this is already open, don't reopen it
       if(this.modal != undefined && this.modal.componentInstance != null) return;
+     
       const draft = this.tree.getDraft(this.id);
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
+      let use_id = this.id;
+
+      /** if this was a generated draft, create a temp node to hold a copy of this draft*/
+      if(this.tree.hasParent(this.id)){
+        const new_id = this.tree.createNode('draft', null, null);
+        draft.id = new_id;
+        this.tree.loadDraftData( {prev_id: null, cur_id: new_id}, draft, loom, loom_settings,false);
+        use_id = new_id;
+      }
+
 
       this.modal = this.dialog.open(DraftdetailComponent,
         {disableClose: true,
           hasBackdrop: false,
           data: {
-            id: this.id,
+            id: use_id,
             ink: this.inks.getInk(this.ink).viewValue
           }
         });
@@ -838,21 +849,33 @@ export class SubdraftComponent implements OnInit {
 
 
         this.modal.afterClosed().subscribe(result => {
-          console.log("AFTER CLOSED", result)
+          console.log("FINE TUNE CLOSED", this.id, result)
+
           if(result === null) return;
+
             if(this.parent_id == -1){
-
-            
-              console.log("RESULT", result);
-            
-              
-              // this.tree.setDraft(this.id, this.draft, this.loom_settings);
               this.draft = this.tree.getDraft(this.id);
-
               this.onDesignAction.emit({id: this.id});
             }else{
-            console.log("Create new", result);
-            this.createNewSubdraftFromEdits.emit({parent_id: this.id, draft: result});
+              const cur_draft = this.tree.getDraft(this.id);
+              const new_draft = this.tree.getDraft(result);
+
+              const cur_loom = this.tree.getLoom(this.id);
+              const new_loom = this.tree.getLoom(result);
+
+              if(!utilInstance.areDraftsTheSame(cur_draft, new_draft)){
+                this.createNewSubdraftFromEdits.emit({parent_id: this.parent_id, new_id: result});
+                return;
+              }
+
+              if(!utilInstance.areLoomsTheSame(cur_loom, new_loom)){
+                this.createNewSubdraftFromEdits.emit({parent_id: this.parent_id, new_id: result});
+                return;
+              }
+
+              //if you get here, then we can remove the temp node
+              console.log("NODE REMOVED", result)
+              this.tree.removeNode(result);
             }
         })   
        }

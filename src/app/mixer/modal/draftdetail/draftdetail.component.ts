@@ -157,15 +157,19 @@ export class DraftdetailComponent implements OnInit {
   }
 
   public onCancel(){
-    this.scrollingSubscription.unsubscribe();
-    this.weaver.closeAllModals();
-    this.dialogRef.close(this.draft);
+    this.close();
+
   }
 
   public onSave(){
+    this.close();
+  }
+
+  private close(){
+
     this.scrollingSubscription.unsubscribe();
     this.weaver.closeAllModals();
-    this.dialogRef.close(this.draft);
+    this.dialogRef.close(this.id);
   }
 
   //HELPER FUNCTIONS TO AID VARIABLES CALLED FROM HTML
