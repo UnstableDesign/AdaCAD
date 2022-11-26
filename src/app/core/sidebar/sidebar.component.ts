@@ -108,7 +108,6 @@ export class SidebarComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(obj => {
       // if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
-      console.log("OBJ", obj)
       if(obj !== undefined && obj !== null) this.onNewDraftCreated.emit(obj);
    });
   }
@@ -294,7 +293,6 @@ openOps(){
   
   this.op_modal =  this.dialog.open(OpsComponent,
     {disableClose: true,
-      maxWidth:350, 
       hasBackdrop: false,
       data: {id: this.id}});
 

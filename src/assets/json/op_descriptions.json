@@ -160,7 +160,7 @@
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Retains input draft b in regions where input draft a has raised warp ends (black cells); draft b is only retained within the area of draft a." 
         },
         {
-            "name":"sinewave",
+            "name":"sine",
             "displayname": "sine wave sample",
             "description": "Samples a sine wave at a rate specified by the the interval parameter, and stretches the wave to the size of amplitude. Converts this wave to a draft by marking a warp raised in any location where the wave is present",
             "application": "No esablished application, but an interesting way to create threadings and threadlings for interesting looking drawdowns"

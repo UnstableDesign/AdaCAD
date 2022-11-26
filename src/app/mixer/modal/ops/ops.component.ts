@@ -24,6 +24,10 @@ export class OpsComponent implements OnInit {
   searchOnly: boolean = false;
   classifications: Array<OperationClassification>;
   
+  desc: string = "";
+  app: string = "";
+  name: string = "";
+  
   constructor(public ops: OperationService, public op_desc: OperationDescriptionsService, private dialog: MatDialog,
     private dialogRef: MatDialogRef<OpsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) { }
@@ -53,6 +57,19 @@ export class OpsComponent implements OnInit {
   close() {
     this.dialogRef.close(null);
   }
+
+  showDesc(obj){
+    this.name = this.op_desc.getDisplayName(obj);
+    this.desc = this.op_desc.getOpDescription(obj);
+    this.app = this.op_desc.getOpApplication(obj);
+  }
+
+  showCatDesc(obj){
+    this.name = "category: "+obj;
+    this.desc = this.op_desc.getCatDescription(obj);
+    this.app = "";
+  }
+
 
 
 

@@ -1,15 +1,63 @@
+.mat-dialog-content{
+    overflow-y: hidden;
+}
+
+
+.example-sidenav{
+    width: 350px;
+    overflow-x: hidden;
+}
+
+.mat-drawer-inner-container{
+    overflow: hidden !important;
+}
+
+.example-container {
+    width: 700px;
+    height: 400px;
+    margin: 10px;
+  }
+.example-sidenav-content{
+    background: white;
+    padding: 0px 15px;
+}
+
 .mat-stroked-button{
     margin: 0px 4px 4px 0px;
     /* background-color: #00d1b2; */
-    background: #333333;
-    color: white;
     text-align: left;
-    font-weight: bold;
 }
 
 .mat-form-field{
     width: 100%;
 }
+
+.op_container{
+    display: flex;
+    flex-direction: row;
+    width: 700px;
+}
+
+
+
+
+.example-container h2{
+    padding-top: 10px;
+    font-weight: bold;
+    font-size: .8em;
+}
+
+.example-container p{
+    font-size: .8em;
+    padding-bottom: 30px;
+}
+
+.example-container h1{
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+
 
 
 
@@ -19,6 +67,8 @@
     font-weight: bold;
     padding: 20px 0px 10px 14px;
 }
+
+
 
 .op-group  p{
     width: 95%;

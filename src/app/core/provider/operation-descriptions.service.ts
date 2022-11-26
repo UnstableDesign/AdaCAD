@@ -18,10 +18,19 @@ export class OperationDescriptionsService {
    return classifications.classifications;
   }
 
+
+  getCatDescription(name: string) : string{
+    const cat =  classifications.classifications.find(el => el.category_name == name);
+    if(cat !== undefined) return cat.description;
+    else return "";
+   }
+
   getOpDescription(opname: string){
     const item = descriptions.operation.find(el => el.name == opname);
     if(item !== undefined){
       return item.description;
+    }else{
+      return "";
     }
   }
 
@@ -38,6 +47,8 @@ export class OperationDescriptionsService {
     const item = descriptions.operation.find(el => el.name == opname);
     if(item !== undefined){
       return item.application;
+    }else{
+      return "";
     }
   }
 
@@ -45,6 +56,8 @@ export class OperationDescriptionsService {
     const item = descriptions.operation.find(el => el.name == opname);
     if(item !== undefined){
       return item.youtube;
+    }else{
+      return "";
     }
   }
 
