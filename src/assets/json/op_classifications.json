@@ -85,14 +85,14 @@
             ]
         },
         {
-            "category_name": "color_effects",
+            "category_name": "color effects",
             "description": "Supports the specification of materials in order to describe different color effects on the woven cloth",
             "op_names":[
                 "apply materials"
             ]  
         },
         {
-            "category_name": "drafting_styles",
+            "category_name": "drafting styles",
             "description": "Supports the conversion of one style of drafting to another, based on the requirements of specific equipment",
             "op_names":[
                 "floor loom",

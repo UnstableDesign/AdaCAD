@@ -25,6 +25,13 @@ export class OperationDescriptionsService {
     else return "";
    }
 
+   getCatName(name: string) : string{
+    const cat =  classifications.classifications.find(el => el.category_name == name);
+    if(cat !== undefined) return cat.category_name;
+    else return "";
+   }
+
+
   getOpDescription(opname: string){
     const item = descriptions.operation.find(el => el.name == opname);
     if(item !== undefined){

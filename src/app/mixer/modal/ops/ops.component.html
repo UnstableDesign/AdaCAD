@@ -63,11 +63,30 @@
         <ng-container *ngIf="name !== ''">
           <h1>{{name}}</h1>
         </ng-container>
+
+       
     
     
            <ng-container *ngIf="desc !== ''">
            <p>{{desc}}</p>
           </ng-container>
+
+ -->
+
+          <ng-container *ngIf="params.length !== 0">
+            <h2>Parameters</h2>
+            <ul>
+              
+            <ng-container *ngFor="let param of params">
+              <li>
+                <h3 class="param_name">{{param.name}}</h3>
+                <!-- <h4 class="param_type">{{param.type}}</h4> -->
+                <p class="param_desc">{{param.dx}}</p>
+              </li>
+            </ng-container>
+          </ul>
+
+        </ng-container>
     
           <ng-container *ngIf="app !== ''">
             <h2>Application: </h2>

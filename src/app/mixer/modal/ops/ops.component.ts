@@ -3,7 +3,7 @@ import { UntypedFormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { OperationClassification } from '../../../core/model/datatypes';
+import { OperationClassification, OperationInlet, OperationParam } from '../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -30,6 +30,8 @@ export class OpsComponent implements OnInit {
   name: string = "";
   youtube: string = "";
   url: any;
+  params: Array<OperationParam> = [];
+  inlets: Array<OperationInlet> = [];
   
   constructor(
     public ops: OperationService, 
@@ -71,11 +73,17 @@ export class OpsComponent implements OnInit {
     this.app = this.op_desc.getOpApplication(obj);
     this.youtube = this.op_desc.getOpYoutube(obj);
     this.url = this.createYoutubeEmbedLink(this.youtube)
-    
+    this.params = this.ops.getOp(obj).params;
+    this.params = this.params.map(param => {
+      if(param.dx === undefined) param.dx = this.op_desc.getParamDescription(param.name);
+      return param;
+    })
+    this.inlets = this.ops.getOp(obj).inlets;
+
   }
 
   showCatDesc(obj){
-    this.name = "category: "+obj;
+    this.name = "category: "+this.op_desc.getCatName(obj);
     this.desc = this.op_desc.getCatDescription(obj);
     this.app = "";
   }
@@ -89,7 +97,9 @@ export class OpsComponent implements OnInit {
 
   }
 
-
+  // getParams(){
+  //   const op = this.op
+  // }
 
 
   addOp(name: string){
