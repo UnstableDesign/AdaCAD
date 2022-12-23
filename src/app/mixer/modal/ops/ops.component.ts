@@ -6,6 +6,7 @@ import { map, startWith } from 'rxjs/operators';
 import { OperationClassification } from '../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-ops',
@@ -27,8 +28,14 @@ export class OpsComponent implements OnInit {
   desc: string = "";
   app: string = "";
   name: string = "";
+  youtube: string = "";
+  url: any;
   
-  constructor(public ops: OperationService, public op_desc: OperationDescriptionsService, private dialog: MatDialog,
+  constructor(
+    public ops: OperationService, 
+    public op_desc: OperationDescriptionsService, 
+    private sanatizer: DomSanitizer,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<OpsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) { }
 
@@ -62,12 +69,24 @@ export class OpsComponent implements OnInit {
     this.name = this.op_desc.getDisplayName(obj);
     this.desc = this.op_desc.getOpDescription(obj);
     this.app = this.op_desc.getOpApplication(obj);
+    this.youtube = this.op_desc.getOpYoutube(obj);
+    this.url = this.createYoutubeEmbedLink(this.youtube)
+    
   }
 
   showCatDesc(obj){
     this.name = "category: "+obj;
     this.desc = this.op_desc.getCatDescription(obj);
     this.app = "";
+  }
+
+  createYoutubeEmbedLink(embedcode: string){
+   const prefix = "https://www.youtube.com/embed/";
+   if(embedcode === "") return "";
+   const url = this.sanatizer.bypassSecurityTrustResourceUrl(prefix+embedcode);
+    console.log(this.url);
+    return url
+
   }
 
 

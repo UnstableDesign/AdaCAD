@@ -35,7 +35,9 @@
 
         <ng-container *ngIf="!searchOnly">
           <ng-container *ngFor="let class of classifications">
-            <div cdkFocusInitial class="op-group">
+            <div class="op-group">
+
+
       
               <h3 (mouseover)="showCatDesc(class.category_name)"  >
                 {{class.category_name}}
@@ -57,6 +59,7 @@
       </mat-drawer>
     
       <div class="example-sidenav-content">
+
         <ng-container *ngIf="name !== ''">
           <h1>{{name}}</h1>
         </ng-container>
@@ -69,6 +72,11 @@
           <ng-container *ngIf="app !== ''">
             <h2>Application: </h2>
            <p>{{app}}</p>
+          </ng-container>
+
+          <ng-container *ngIf="youtube !== ''">
+            <h2>Youtube: </h2>
+           <p><iframe width="300" height="169" [src]="url" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
           </ng-container>
       </div>
 

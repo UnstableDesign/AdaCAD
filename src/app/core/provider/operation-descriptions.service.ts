@@ -43,6 +43,15 @@ export class OperationDescriptionsService {
     }
   }
 
+  getOpYoutube(opname: string){
+    const item = descriptions.operation.find(el => el.name == opname);
+    if(item !== undefined && item.youtube !== undefined){
+      return item.youtube;
+    }else{
+      return "";
+    }
+  }
+
   getOpApplication(opname: string){
     const item = descriptions.operation.find(el => el.name == opname);
     if(item !== undefined){

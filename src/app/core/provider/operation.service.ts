@@ -5222,7 +5222,7 @@ export class OperationService {
     this.ops.push(waffle);
     this.ops.push(satin);
     this.ops.push(shaded_satin);
-    // this.ops.push(tabby);
+    this.ops.push(tabby);
     this.ops.push(tabby_der);
     this.ops.push(rib);
     this.ops.push(random);
