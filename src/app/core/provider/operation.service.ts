@@ -1566,6 +1566,115 @@ export class OperationService {
       }
     }
 
+    const dynamic_join_top: DynamicOperation = {
+      name: 'dynamicjointop',
+      old_names:[],
+      dynamic_param_id: 0,
+      dynamic_param_type: "number",
+      params: <Array<NumParam>>[   
+        {name: 'divisions',
+        type: 'number',
+        min: 1,
+        max: 100,
+        value: 3,
+        dx: 'the number of equally sized divisions to include in the draft'
+    },
+    {name: 'height',
+      type: 'number',
+      min: 1,
+      max: 10000,
+      value: 100,
+      dx: 'the total height of the draft'
+    }],
+    inlets: [
+      {
+        name: 'warp pattern', 
+        type: 'static',
+        value: null,
+        dx: 'optional, define a custom weft material or system pattern here',
+        num_drafts: 1
+      }
+    ],
+      perform: (op_inputs: Array<OpInput>) => {
+      
+        //split the inputs into the input associated with 
+        const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "dynamicjointop");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        const warp_system = op_inputs.find(el => el.inlet == 0);
+
+        let warp_mapping;
+        if(warp_system === undefined) warp_mapping =initDraftWithParams({warps: 1, wefts:1});
+        else warp_mapping = warp_system.drafts[0];
+       
+        //parent param
+        const sections = parent_inputs[0].params[0];
+        const total_height = parent_inputs[0].params[1];
+      
+        const wefts_in_section = Math.ceil(total_height / sections);
+      
+        //now just get all the drafts, in the order of their assigned inlet
+        const max_inlet = child_inputs.reduce((acc, el) => {
+          if(el.inlet > acc){
+            acc = el.inlet
+          } 
+          return acc;
+        }, 0);
+
+        const all_drafts: Array<Draft> = [];
+        for(let l = 0; l <= max_inlet; l++){
+          const inlet_inputs = child_inputs.filter(el => el.inlet == l);
+          inlet_inputs.forEach(el => {
+            all_drafts.push(el.drafts[0]);
+          })
+        };
+
+
+       if(all_drafts.length === 0) return Promise.resolve([]);
+       
+       let total_warps: number = 0;
+       const all_warps = all_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+       total_warps = utilInstance.lcm(all_warps);
+
+
+        const section_draft_map: Array<any> = child_inputs.map(el => { return {section: el.params[0]-1, draft: el.drafts.shift()}}); 
+        const d:Draft =initDraftWithParams({
+          warps:total_warps, 
+          wefts:total_height,
+          rowShuttleMapping: warp_mapping.rowShuttleMapping,
+          rowSystemMapping: warp_mapping.rowSystemMapping
+         });
+
+         //populate output draft
+         d.drawdown.forEach((row, i) => {
+          row.forEach((cell, j) => {
+              const use_section = Math.floor(i / wefts_in_section);
+              const weft_in_section = i % wefts_in_section;
+              const use_draft_map = section_draft_map.find(el => el.section === use_section);
+              if(use_draft_map !== undefined){
+                const use_draft = use_draft_map.draft;
+                cell.setHeddle(use_draft.drawdown[weft_in_section%wefts(use_draft.drawdown)][j%warps(use_draft.drawdown)].getHeddle());
+              }
+          });
+         });
+
+         d.colShuttleMapping.forEach((val, i) => {
+              const use_section = Math.floor(i / wefts_in_section);
+              const weft_in_section = i % wefts_in_section;
+              const use_draft_map = section_draft_map.find(el => el.section === use_section);
+              if(use_draft_map !== undefined){
+                const use_draft = use_draft_map.draft;
+                val = use_draft.colShuttleMapping[weft_in_section%wefts(use_draft.drawdown)];
+                d.colSystemMapping = use_draft.colSystemMapping[weft_in_section%wefts(use_draft.drawdown)];
+              }
+         });
+
+
+
+        return Promise.resolve([d]);
+        
+      }
+    }
+
     const erase_blank: Operation = {
       name: 'erase blank rows',
       old_names:[],
@@ -5194,10 +5303,117 @@ export class OperationService {
           }
         }
 
-        d.gen_name = this.formatName([], "warp profile");
+        d.gen_name = this.formatName([], "weft profile");
         return  Promise.resolve([d]);
 
        
+      }        
+    }
+
+    const weft_profile: DynamicOperation = {
+      name: 'weft_profile',
+      old_names:[],
+      dynamic_param_id: 0,
+      dynamic_param_type: 'profile',
+      params: <Array<StringParam>>[
+        {name: 'pattern',
+        type: 'string',
+        value: 'a b c a b c',
+        regex: /(?:[a-xA-Z][\ ]*).*?/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        error: 'invalid entry',
+        dx: 'all entries must be letters separated by a space'
+        }
+      ],
+      inlets: [{
+        name: 'weft pattern', 
+        type: 'static',
+        value: null,
+        dx: 'optional, define a custom weft material or system pattern here',
+        num_drafts: 1
+      }],
+      perform: (op_inputs: Array<OpInput>) => {
+
+                
+        // //split the inputs into the input associated with 
+        const parent_input: OpInput = op_inputs.find(el => el.op_name === "weft_profile");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        const warp_system: OpInput = op_inputs.find(el => el.inlet == 0);
+  
+        if(child_inputs.length == 0) return Promise.resolve([]);
+
+        let warp_mapping;
+        if(warp_system === undefined) warp_mapping =initDraftWithParams({warps: 1, wefts:1});
+        else warp_mapping = warp_system.drafts[0];
+    
+
+        //now just get all the drafts
+        const all_drafts: Array<Draft> = child_inputs
+        .filter(el => el.inlet > 0)
+        .reduce((acc, el) => {
+          el.drafts.forEach(draft => {acc.push(draft)});
+          return acc;
+        }, []);
+       
+      
+        let total_warps: number = 0;
+        const all_warps = all_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+        total_warps = utilInstance.lcm(all_warps);
+
+
+        let pattern = parent_input.params[0].split(' ');
+
+  
+        //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
+        //get the total number of layers
+        const profile_draft_map = child_inputs
+        .map(el => {
+          return  {
+            id: el.inlet, 
+            val: (el.params[0]).toString(),
+            draft: el.drafts[0]
+          }
+        });
+
+        let total_wefts = 0;
+        const weft_map = [];
+        pattern.forEach(el => {
+          const d = profile_draft_map.find(dm => dm.val === el.toString());
+          if(d !== undefined){
+            weft_map.push({id: d.id, start: total_wefts, end: total_wefts+wefts(d.draft.drawdown)});
+            total_wefts += wefts(d.draft.drawdown);
+          } 
+        })
+
+
+    
+        const d: Draft =initDraftWithParams({
+          warps: total_warps, 
+          wefts: total_wefts,
+          colShuttleMapping: warp_mapping.colShuttleMapping,
+          colSystemMapping: warp_mapping.colSystemMapping,
+        });
+
+        for(let i = 0; i < wefts(d.drawdown); i++){
+          for(let j = 0; j < warps(d.drawdown); j++){
+
+
+            const pattern_ndx = weft_map.find(el => i >= el.start && i < el.end).id;
+            const select_draft = profile_draft_map.find(el => el.id === parseInt(pattern_ndx));
+            //console.log("Looking for ", pattern_ndx, "in", profile_draft_map);
+
+            if(select_draft === undefined){
+              d.drawdown[i][j] = new Cell(null);
+            }else{
+              const sd: Draft = select_draft.draft;
+              const sd_adj_i: number = i - weft_map.find(el => i >= el.start && i < el.end).start;
+              let val = sd.drawdown[sd_adj_i%wefts(sd.drawdown)][j%warps(sd.drawdown)].getHeddle();
+              d.drawdown[i][j] = new Cell(val);
+            }
+          }
+        }
+        d.gen_name = this.formatName([], "weft profile");
+        return  Promise.resolve([d]);
+
       }        
     }
 
@@ -5208,9 +5424,11 @@ export class OperationService {
 
     this.dynamic_ops.push(assignlayers);
     this.dynamic_ops.push(dynamic_join_left);
+    this.dynamic_ops.push(dynamic_join_top);
     this.dynamic_ops.push(imagemap);
     this.dynamic_ops.push(bwimagemap);
     this.dynamic_ops.push(layernotation);
+    this.dynamic_ops.push(weft_profile);
     this.dynamic_ops.push(warp_profile);
     this.dynamic_ops.push(sample_width);
 

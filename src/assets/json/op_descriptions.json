@@ -264,6 +264,14 @@
 
         },
         {
+            "name":"weft_profile",
+            "displayname": "pattern across height",
+            "description": "Given a series of letters (a b c), this operation will associate a draft with each letter, and then arrange following the pattern order ",
+            "application": "Can be used for profile drafting and describing repeating patterns along the length the cloth.",
+            "dynamic":"true"
+
+        },
+        {
             "name":"sample_width",
             "displayname": "variable width sampler",
             "description": "Given a series of letters and numbers (a100 b200 c300), this operation will associate a draft with each letter, and then arrange those drafts from left to right following the pattern order. The numbers next to each letter describe the number of ends upon which the specified pattern should be repeated",
@@ -323,6 +331,14 @@
             "displayname": "subdivide width",
             "description": "Subdivides the width (number of ends) of the draft into equal-sized sections, then, takes each input draft and assigns it a division from left to right.",
             "application": "Simplifies the ability to evenly split structures, side by side, across a particular number of ends",
+            "dynamic":"true"
+
+        },
+        {
+            "name":"dynamicjointop",
+            "displayname": "subdivide length",
+            "description": "Subdivides the length (number of pics) of the draft into equal-sized sections, then, takes each input draft and assigns it a division",
+            "application": "Simplifies the ability to evenly split structures, one ontop of another, across a particular number of pics",
             "dynamic":"true"
 
         },
