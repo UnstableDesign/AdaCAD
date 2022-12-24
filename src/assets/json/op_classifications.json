@@ -45,6 +45,7 @@
                 "warp_profile", 
                 "weft_profile", 
                 "sample_width", 
+                "sample_length", 
                 "dynamicjoinleft",
                 "dynamicjointop",
                 "fill",

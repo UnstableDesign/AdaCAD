@@ -265,7 +265,7 @@
         },
         {
             "name":"weft_profile",
-            "displayname": "pattern across height",
+            "displayname": "pattern across length",
             "description": "Given a series of letters (a b c), this operation will associate a draft with each letter, and then arrange following the pattern order ",
             "application": "Can be used for profile drafting and describing repeating patterns along the length the cloth.",
             "dynamic":"true"
@@ -276,6 +276,14 @@
             "displayname": "variable width sampler",
             "description": "Given a series of letters and numbers (a100 b200 c300), this operation will associate a draft with each letter, and then arrange those drafts from left to right following the pattern order. The numbers next to each letter describe the number of ends upon which the specified pattern should be repeated",
             "application": "Can be used for creating several sample swatches across the width of the cloth",
+            "dynamic":"true"
+
+        },
+        {
+            "name":"sample_length",
+            "displayname": "variable length sampler",
+            "description": "Given a series of letters and numbers (a100 b200 c300), this operation will associate a draft with each letter, and then arrange those drafts following the pattern order. The numbers next to each letter describe the number of pics upon which the specified pattern should be repeated",
+            "application": "Can be used for creating several sample swatches across the length of the cloth",
             "dynamic":"true"
 
         },

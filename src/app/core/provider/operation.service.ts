@@ -3610,7 +3610,13 @@ export class OperationService {
         dx: 'all entries must be a single letter followed by a number, which each letter-number unit separated by a space'
         }
       ],
-      inlets: [],
+      inlets: [{
+        name: 'weft pattern', 
+        type: 'static',
+        value: null,
+        dx: 'optional, define a custom weft material or system pattern here',
+        num_drafts: 1
+      }],
       perform: (op_inputs: Array<OpInput>) => {
 
                 
@@ -3699,6 +3705,114 @@ export class OperationService {
       }        
     }
 
+    const sample_length: DynamicOperation = {
+      name: 'sample_length',
+      old_names:[],
+      dynamic_param_id: 0,
+      dynamic_param_type: 'profile',
+      params: <Array<StringParam>>[
+        {name: 'pattern',
+        type: 'string',
+        value: 'a20 b20 a40 b40',
+        regex:/(?:[a-xA-Z][\d]*[\ ]*).*?/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+        error: 'invalid entry',
+        dx: 'all entries must be a single letter followed by a number, which each letter-number unit separated by a space'
+        }
+      ],
+      inlets: [{
+        name: 'warp pattern', 
+        type: 'static',
+        value: null,
+        dx: 'optional, define a custom warp material or system pattern here',
+        num_drafts: 1
+      }],
+      perform: (op_inputs: Array<OpInput>) => {
+
+                
+        // //split the inputs into the input associated with 
+        const parent_input: OpInput = op_inputs.find(el => el.op_name === "sample_length");
+        const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        const warp_system: OpInput = op_inputs.find(el => el.inlet == 0);
+  
+
+        if(child_inputs.length == 0) return Promise.resolve([]);
+
+        let warp_mapping;
+        if(warp_system === undefined) warp_mapping =initDraftWithParams({warps: 1, wefts:1});
+        else warp_mapping = warp_system.drafts[0];
+    
+
+        //now just get all the drafts
+        const all_drafts: Array<Draft> = child_inputs
+        .reduce((acc, el) => {
+          el.drafts.forEach(draft => {acc.push(draft)});
+          return acc;
+        }, []);
+       
+      
+        let total_warps: number = 0;
+        const all_warps = all_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+        total_warps = utilInstance.lcm(all_warps);
+
+
+        let pattern = parent_input.params[0].split(' ');
+
+  
+        //create a map that associates each warp and weft system with a draft, keeps and index, and stores a layer. 
+        //get the total number of layers
+        const profile_draft_map = child_inputs
+        .map(el => {
+          return  {
+            id: el.inlet, 
+            val: el.params[0].toString(),
+            draft: el.drafts[0]
+          }
+        });
+
+        let total_wefts = 0;
+        const weft_map = [];
+        pattern.forEach(el => {
+          const label = el.charAt(0);
+          const qty =parseInt((<string>el).substring(1))
+          const d = profile_draft_map.find(dm => dm.val === label.toString());
+          if(d !== undefined){
+            weft_map.push({id: d.id, start: total_wefts, end: total_wefts+qty});
+            total_wefts += qty;
+          } 
+        })
+
+
+    
+        const d: Draft =initDraftWithParams({
+          warps: total_warps, 
+          wefts: total_wefts,
+          colShuttleMapping: warp_mapping.colShuttleMapping,
+          colSystemMapping: warp_mapping.colSystemMapping,
+        });
+
+        for(let i = 0; i < wefts(d.drawdown); i++){
+          for(let j = 0; j < warps(d.drawdown); j++){
+
+            const pattern_ndx = weft_map.find(el => i >= el.start && i < el.end).id;
+            const select_draft = profile_draft_map.find(el => el.id === parseInt(pattern_ndx));
+
+            if(select_draft === undefined){
+              d.drawdown[i][j] = new Cell(null);
+            }else{
+              const sd: Draft = select_draft.draft;
+              const sd_adj_i: number = i - weft_map.find(el => i >= el.start && i < el.end).start;
+              let val = sd.drawdown[sd_adj_i%wefts(sd.drawdown)][j%warps(sd.drawdown)].getHeddle();
+              d.drawdown[i][j] = new Cell(val);
+            }
+          }
+        }
+
+        d.gen_name = this.formatName([], "variable length sampler");
+        return  Promise.resolve([d]);
+
+       
+      }        
+    }
         
     const satin: Operation = {
       name: 'satin',
@@ -5431,6 +5545,7 @@ export class OperationService {
     this.dynamic_ops.push(weft_profile);
     this.dynamic_ops.push(warp_profile);
     this.dynamic_ops.push(sample_width);
+    this.dynamic_ops.push(sample_length);
 
 
     //**push operations that you want the UI to show as options here */
