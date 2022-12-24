@@ -2084,6 +2084,63 @@ export class OperationService {
       }     
     }
 
+    const interlace_warps:Operation = {
+      name: 'interlace_warps',
+      old_names:[],
+      params: <Array<BoolParam>>[
+        {name: 'calculate repeats',
+        type: 'boolean',
+        falsestate: 'do not repeat inputs to match size',
+        truestate: 'repeat inputs to match size',
+        value: 1,
+        dx: "controls if the inputs are intelaced in the exact format sumitted or repeated to fill evenly"
+      }],
+      inlets: [
+        {
+          name: 'drafts', 
+          type: 'static',
+          value: null,
+          dx: 'all the drafts you would like to interlace',
+          num_drafts: -1
+        },
+        {
+          name: 'weft system map', 
+          type: 'static',
+          value: null,
+          dx: 'if you would like to specify the weft system or materials, you can do so by adding a draft here',
+          num_drafts: 1
+        }
+      ],
+      perform: (op_inputs: Array<OpInput>) => {
+       
+
+        const parent_input = op_inputs.find(el => el.op_name == 'interlace_warps');
+        const child_inputs = op_inputs.filter(el => el.inlet == 0);
+        let weft_systems = op_inputs.find(el => el.inlet == 1);
+
+
+        if(child_inputs === undefined) return Promise.resolve([]);
+
+        const all_drafts = child_inputs.map(el => el.drafts[0]);
+
+        let weft_system_draft = null;
+        if(weft_systems === undefined)  weft_system_draft =initDraftWithParams({warps: 1, wefts: 1});
+        else  weft_system_draft = weft_systems.drafts[0];
+
+        const factor_in_repeats = parent_input.params[0];
+        const outputs: Array<Draft> = [];
+
+        const d: Draft = utilInstance.interlace_warps(all_drafts, factor_in_repeats, weft_system_draft);
+     
+    
+        this.transferSystemsAndShuttles(d,all_drafts,parent_input.params, 'interlace_warps');
+        d.gen_name = this.formatName(all_drafts, "ilace warps")
+
+        outputs.push(d);
+        return Promise.resolve(outputs);
+      }     
+    }
+
     const invert: Operation = {
       name: 'invert',
       old_names:[],
@@ -5560,6 +5617,7 @@ export class OperationService {
     this.ops.push(rib);
     this.ops.push(random);
     this.ops.push(interlace);
+    this.ops.push(interlace_warps);
     this.ops.push(splicein);
     this.ops.push(spliceinwarps);
     // this.ops.push(assignwefts);
@@ -5762,6 +5820,27 @@ export class OperationService {
   
      
       break;
+
+      case 'interlace_warps':
+        colSystems =drafts.map(el => el.colSystemMapping);
+        uniqueSystemCols = this.ss.makeWeftSystemsUnique(colSystems);
+   
+        colShuttles =drafts.map(el => el.colShuttleMapping);
+        standardShuttleCols = this.ms.standardizeLists(colShuttles);
+
+       d.drawdown.forEach((row, ndx) => {
+        
+
+         const select_array: number = ndx %drafts.length; 
+         const select_col: number = Math.floor(ndx /drafts.length)%warps(drafts[select_array].drawdown);
+         d.colSystemMapping[ndx] = uniqueSystemCols[select_array][select_col];
+         d.colShuttleMapping[ndx] = standardShuttleCols[select_array][select_col];
+
+       });
+
+ 
+    
+     break;
 
 
         case 'layer':

@@ -59,6 +59,7 @@
             "description": "Descriptions operations that support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.",
             "op_names":[
                 "interlace",
+                "interlace_warps",
                 "splice in wefts",
                 "splice in warps",
                 "layer",

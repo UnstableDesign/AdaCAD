@@ -92,6 +92,12 @@
             "application": "Combines two structures into a compound structure. For instance, for overshot, you might interlace a tabby into a floating structure, the alteranting tabby pics would add structure, the floats would add surface color and texture" 
         },
         {
+            "name":"interlace_warps",
+            "displayname": "interlace warps",
+            "description": "Creates a new draft by taking one end from each input and assigning them to sucessive ends in the output draft.",
+            "application": "Combines two structures into a compound structure." 
+        },
+        {
             "name":"splice in wefts",
             "displayname": "splice in pics",
             "description": "Splices the pics of the second input draft into the first. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in pic by pic and the amount of pics between each insertion.",
