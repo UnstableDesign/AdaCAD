@@ -1,6 +1,7 @@
 import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
 import { EMPTY, Observable, Subscription } from 'rxjs';
+import { FilesystemService } from './filesystem.service';
 
 
 @Injectable({
@@ -19,7 +20,7 @@ export class AuthService {
   public uid:string;
   public username: string = "";
 
-  constructor(@Optional() private auth: Auth) {
+  constructor(@Optional() private auth: Auth, private filesystem: FilesystemService) {
 
     if (auth) {
       this.user = authState(this.auth);
@@ -38,9 +39,12 @@ export class AuthService {
           this.username = ""
           this.uid = undefined;
           return;
-        } 
+        } else{
+          this.filesystem.updateUserFiles(user.uid);
+        }
         this.username = (user.displayName === null) ? user.email : user.displayName;
         this.uid = user.uid;
+        
       }
 
       )

@@ -56,6 +56,7 @@ import { UploadService } from './uploads/upload.service';
 import { BlankdraftModal } from './modal/blankdraft/blankdraft.modal';
 import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
+import { FilebrowserComponent } from './filebrowser/filebrowser.component';
 
 @NgModule({
     imports: [
@@ -113,7 +114,8 @@ import { LoadfileComponent } from './modal/loadfile/loadfile.component';
         EmailComponent,
         BlankdraftModal,
         ExamplesComponent,
-        LoadfileComponent
+        LoadfileComponent,
+        FilebrowserComponent
         ],
     providers: [
         UploadService,
@@ -167,6 +169,7 @@ import { LoadfileComponent } from './modal/loadfile/loadfile.component';
         DraftviewerComponent,
         SelectionComponent,
         SidebarComponent,
+        FilebrowserComponent,
         WeaverViewComponent
     ]
 })

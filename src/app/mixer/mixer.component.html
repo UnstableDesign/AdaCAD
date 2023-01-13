@@ -31,8 +31,19 @@ source="mixer"
         (onNewDraftCreated)="newDraftCreated($event)"
         ></app-sidebar>
 
+        <mat-divider></mat-divider>
+        <app-filebrowser></app-filebrowser>
+        <mat-divider></mat-divider>
+
+        <app-mixerview></app-mixerview>
 
   </mat-drawer>
+
+  <!-- <mat-drawer #files class="example-sidenav" mode="side" position="start" opened>  
+
+
+
+</mat-drawer> -->
 
   <app-palette  
   [style.width.px]='vp.getAbsoluteWidth()' 

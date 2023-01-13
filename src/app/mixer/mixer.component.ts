@@ -22,6 +22,7 @@ import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
+import { FilebrowserComponent } from '../core/filebrowser/filebrowser.component';
 import { OpsComponent } from './modal/ops/ops.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';

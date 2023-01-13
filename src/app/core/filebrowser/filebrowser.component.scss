@@ -1,0 +1,29 @@
+.folder{
+    display: flex;
+    flex-direction: column;
+}
+
+.filebrowser{
+    padding-right: 16px;
+}
+
+.file_name{
+    display: flex;
+    flex-direction: row;
+}
+
+.file-item-block{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.fav,.more{
+    width: 10%;
+}
+
+.timestamp{
+    color: grey;
+    font-size: .6em;
+    text-align: center;
+}

@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { getDatabase, ref as fbref, set as fbset } from '@angular/fire/database';
-import { Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Draft, SaveObj } from '../model/datatypes';
 import { copyDraft } from '../model/drafts';
-import { AuthService } from './auth.service';
+import { FilesystemService } from './filesystem.service';
 /**
  * stores a state within the undo/redo timeline
  * weaver uses draft, mixer uses ada
@@ -28,9 +26,8 @@ export class StateService {
   timeline: Array<HistoryState>; //new states are always pushed to front of draft
   // private itemDoc: AngularFirestoreDocument<Item>;
   
-  constructor(firestore: Firestore, public auth: AuthService) {
+  constructor(private files: FilesystemService) {
 
-    const db = getDatabase();
 
     this.active_id = 0;
     this.timeline = [];
@@ -48,24 +45,8 @@ export class StateService {
     return cur_state;
   }
 
-  /**
-   * this writes the most current state of the program to the user's entry to the realtime database
-   * @param cur_state returned from file saver, constains the JSON string of the file as well as the obj
-   * @returns 
-   */
-  public writeUserData(cur_state: any) {
+ 
 
-    if(this.auth.uid === undefined) return;
-
-    cur_state = this.validateWriteData(cur_state)
-
-
-    const db = getDatabase();
-    fbset(fbref(db, 'users/' + this.auth.uid), {
-      timestamp: Date.now(),
-      ada: cur_state
-    }).catch(console.error);
-  }
 
 
   // update(item: Item) {
@@ -138,8 +119,8 @@ export class StateService {
     }
 
     //write this to database, overwritting what was previously there
-    this.writeUserData(ada.file);
-
+    this.files.writeUserData(ada.file);
+    this.files.writeFileData(22, 'filename', 'my description', ada.file);
 
     //we are looking at the most recent state
     if(this.active_id > 0){

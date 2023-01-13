@@ -1,9 +1,12 @@
 <div class="filebrowser">
 
 <mat-list>
-    <div mat-subheader>Folders</div>
 
-    <mat-list-item>
+
+
+    <div mat-subheader>Files</div>
+
+    <!-- <mat-list-item>
       <mat-icon mat-list-icon><i class="fa-solid fa-folder"></i></mat-icon>
        <div mat-line class="folder_name">folder name    
         <button mat-button [matMenuTriggerFor]="folderopts">  <i class="fa-solid fa-ellipsis"></i></button>
@@ -19,24 +22,56 @@
         </button>
 
       </mat-menu>
+    </mat-list-item> -->
+
+
+      <!-- files-->
+        <ng-container *ngIf="files.file_tree !== undefined">
+        <mat-list-item  *ngFor="let file of files.file_tree">
+          <ng-container *ngIf="file !== null && file.meta !== null">
+
+
+            <div class="file-item-block">
+              <!-- <div class="fav"> 
+                <button mat-icon-button matListItemIcon><i class="fa-regular fa-star"></i></button></div> -->
+              <div class="details">
+                <button mat-button matListItemTitle class="file_name">{{file.meta.name}}  </button>
+                <div matListItemTitle class="timestamp">{{file.meta.timestamp}}  </div>
+              </div>
+              <div class="more">  <button mat-icon-button [matMenuTriggerFor]="fileopts">  <i class="fa-solid fa-ellipsis"></i></button></div>
+       
+
+
+ 
+        <mat-menu #fileopts="matMenu">
+         <button mat-menu-item>
+           <span>Rename</span>
+         </button>
+         <button mat-menu-item>
+          <span>Download</span>
+        </button>
+         <button mat-menu-item>
+           <span>Delete</span>
+         </button>
+ 
+       </mat-menu>
+      </div>
+       </ng-container>
+      </mat-list-item>
+    </ng-container>
+     
      
 
       <!-- <div mat-line>filder name | <i class="fa-solid fa-folder"></i><i class="fa-solid fa-folder"></i></div> -->
-    </mat-list-item> 
+  
 
     <!-- <mat-list-item *ngFor="let folder of folders">
       <mat-icon mat-list-icon>folder</mat-icon>
       <div mat-line>{{folder.name}}</div>
       <div mat-line> {{folder.updated | date}} </div>
     </mat-list-item> -->
-    <mat-divider></mat-divider>
-    <div mat-subheader>Notes</div>
-    <!-- <mat-list-item *ngFor="let note of notes">
-      <mat-icon mat-list-icon>note</mat-icon>
-      <div mat-line>{{note.name}}</div>
-      <div mat-line> {{note.updated | date}} </div>
-    </mat-list-item> -->
-  </mat-list>
+
+</mat-list>
 
 
 </div>

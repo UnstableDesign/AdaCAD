@@ -31,13 +31,10 @@ export class MixerViewComponent implements OnInit {
   height: number;
 
 
-
+  data = {zoom: 5, default_cell_size: 5};
   div: Element;
 
- constructor(public viewport: ViewportService, public zs:ZoomService,
-  private dialog: MatDialog,
-    private dialogRef: MatDialogRef<MixerViewComponent>,
-             @Inject(MAT_DIALOG_DATA) public data: any) { 
+ constructor(public viewport: ViewportService, public zs:ZoomService) { 
  
   this.local_view = {
     topleft: {x:0, y:0}, 
@@ -61,7 +58,7 @@ export class MixerViewComponent implements OnInit {
 
   //each cell is rendered cell factor number pixels in the global view
   //this does not change when zoomed
-  this.cell_factor = this.width / ((viewport.getAbsoluteWidth() / data.default_cell_size));
+  this.cell_factor = this.width / ((viewport.getAbsoluteWidth() / this.data.default_cell_size));
  
 }
  
@@ -200,9 +197,9 @@ dragMove($event: any) {
   this.onViewPortMove.emit(adjusted);
 }
 
-close() {
-  this.dialogRef.close(null);
-}
+// close() {
+//   this.dialogRef.close(null);
+// }
 
 
 }
