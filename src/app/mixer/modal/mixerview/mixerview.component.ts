@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Bounds, Point } from '../../../core/model/datatypes';
+import { Bounds, DesignMode, Point } from '../../../core/model/datatypes';
 import { ViewportService } from '../../provider/viewport.service';
 import { ZoomService } from '../../provider/zoom.service';
 
@@ -34,7 +34,13 @@ export class MixerViewComponent implements OnInit {
   data = {zoom: 5, default_cell_size: 5};
   div: Element;
 
- constructor(public viewport: ViewportService, public zs:ZoomService) { 
+
+ constructor(
+  public viewport: ViewportService, 
+  public zs:ZoomService) { 
+
+
+
  
   this.local_view = {
     topleft: {x:0, y:0}, 

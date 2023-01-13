@@ -7,9 +7,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { InitModal } from '../core/modal/init/init.modal';
 import { Cell } from '../core/model/cell';
-import { Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
-import { copyDraft, initDraftWithParams } from '../core/model/drafts';
-import { copyLoom, copyLoomSettings } from '../core/model/looms';
+import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { copyDraft, flipDraft, initDraftWithParams } from '../core/model/drafts';
+import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
 import { AuthService } from '../core/provider/auth.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -29,6 +29,8 @@ import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
+import { NgForm } from '@angular/forms';
+import utilInstance from '../core/model/util';
 
 
 //disables some angular checking mechanisms
@@ -61,6 +63,16 @@ export class MixerComponent implements OnInit {
   @ViewChild(PaletteComponent) palette;
   @ViewChild(SidebarComponent) view_tool;
 
+  epi: number = 10;
+  units:string = 'cm';
+  frames:number =  8;
+  treadles:number = 10;
+  loomtype:string = "jacquard";
+  loomtypes:Array<DesignMode>  = [];
+  density_units:Array<DesignMode> = [];
+  warp_locked:boolean = false;
+  origin_options: any = null;
+  selected_origin: number = 0;
 
 
 
@@ -193,7 +205,16 @@ export class MixerComponent implements OnInit {
     ) {
 
 
+      this.selected_origin = this.ws.selected_origin_option;
 
+      this.origin_options = this.ws.getOriginOptions();
+      this.epi = ws.epi;
+      this.units = ws.units;
+      this.frames = ws.min_frames;
+      this.treadles = ws.min_treadles;
+      this.loomtype = ws.type;
+      this.loomtypes = dm.getOptionSet('loom_types');
+     this.density_units = dm.getOptionSet('density_units');
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
@@ -1008,4 +1029,104 @@ export class MixerComponent implements OnInit {
     this.palette.redrawOpenModals();
     this.palette.redrawAllSubdrafts();
  }
+
+
+
+
+
+/**
+ * when the origin changes, all drafts on the canavs should be modified to the new position
+ * origin changes can ONLY happen on globals
+ * @param e 
+ */
+originChange(e:any){
+
+
+  const flips = utilInstance.getFlips(this.ws.selected_origin_option, this.selected_origin);
+  this.ws.selected_origin_option = this.selected_origin;
+  
+  const dn: Array<DraftNode> = this.tree.getDraftNodes();
+  const data = dn.map(node => {
+    return {
+    draft: node.draft, 
+    loom: node.loom, 
+    horiz: flips.horiz,
+    vert: flips.vert}
+  });
+
+  // dn.forEach(node => {
+  //  if(node.loom !== null) console.log(node.loom.treadling)
+  // })
+
+  const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
+
+  return Promise.all(draft_fns)
+  .then(res => {
+    for(let i = 0; i < dn.length; i++){
+      dn[i].draft = <Draft>{
+        id: res[i].id,
+        gen_name: res[i].gen_name,
+        ud_name: res[i].ud_name,
+        drawdown: res[i].drawdown,
+        rowShuttleMapping: res[i].rowShuttleMapping,
+        rowSystemMapping: res[i].rowSystemMapping,
+        colShuttleMapping: res[i].colShuttleMapping,
+        colSystemMapping: res[i].colSystemMapping
+      };
+    }
+    const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
+    return Promise.all(loom_fns)
+  .then(res => {
+    for(let i = 0; i < dn.length; i++){
+      if(res[i] !== null){
+        dn[i].loom = {
+          threading: res[i].threading.slice(),
+          tieup: res[i].tieup.slice(),
+          treadling: res[i].treadling.slice()
+        }
+      }
+    }
+  })
+.then(res => {
+  this.globalLoomChange({});
+})
+
+
+  })
+
+  
+
+
+}
+
+epiChange(f: NgForm) {
+
+
+  if(!f.value.epi){
+    f.value.epi = 1;
+    this.epi = f.value.epi;
+  } 
+  
+  //this.loom.overloadEpi(f.value.epi);
+  this.ws.epi = f.value.epi;
+
+
+
+}
+
+
+
+loomChange(e:any){
+
+    this.ws.type = e.value.loomtype;
+    if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+    else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
+}
+
+  unitChange(e:any){
+    
+      this.ws.units = e.value.units;
+
+
+  }
 }

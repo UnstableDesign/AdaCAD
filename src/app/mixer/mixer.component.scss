@@ -6,6 +6,26 @@ canvas{
   z-index: -1;
 }
 
+.description{
+  font-style: italic;
+  width: 80%;
+  padding: 0px 0px 8px 8px;
+}
+
+.toggle{
+  padding: 8px;
+}
+
+.mat-form-field {
+  width: 80%;
+}
+
+.workspace_settings{
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
   .mat-drawer-content{
     background:hsl(0, 100%, 100%);
   }

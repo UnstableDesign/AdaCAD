@@ -13,7 +13,16 @@ source="mixer"
 <mat-drawer-container #container class="mat-drawer-container" cdkScrollable>
   
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
-
+   
+   
+    <mat-accordion class="example-headers-align" multi>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Tools
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+  
 
         <app-sidebar #view_tool
         [render]=""
@@ -21,21 +30,98 @@ source="mixer"
         (onUndo)="undo();" 
         (onRedo)="redo();"
         (onDesignModeChange)='designModeChange($event)'
-        (onZoomChange) ="zoomChangeExternal($event);"
         (onOperationAdded) = "operationAdded($event)"
         (onImport) = "importNewFile($event)"
-        (onViewPortMove) ="setScroll($event);"
         (onNoteCreate) ="createNote();"
         (onMaterialChange) = "materialChange()"
         (onGlobalLoomChange) = "globalLoomChange($event)"
         (onNewDraftCreated)="newDraftCreated($event)"
         ></app-sidebar>
+      </mat-expansion-panel>
 
-        <mat-divider></mat-divider>
+      <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            View
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+  
+        <app-mixerview
+        (onZoomChange) ="zoomChangeExternal($event);"
+        (onViewPortMove) ="setScroll($event);"
+        ></app-mixerview>
+  
+      </mat-expansion-panel>  
+
+      <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Files
+          </mat-panel-title>
+        </mat-expansion-panel-header>
         <app-filebrowser></app-filebrowser>
-        <mat-divider></mat-divider>
+     </mat-expansion-panel>  
 
-        <app-mixerview></app-mixerview>
+  
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Settings
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <!-- <p class="description">The workspace can show you information about your drafts based on the defaults you provide here. You can change these at any time</p> -->
+
+
+      <form class="workspace_settings" #envt="ngForm" novalidate>
+
+        <mat-form-field>
+          <mat-label>When viewing Draft Details, Place the (0,0) point at: </mat-label>
+          <mat-select (selectionChange) ="originChange(envt)" [(value)]="selected_origin">
+            <mat-option *ngFor="let option of origin_options" [value]="option.value">
+              {{option.view}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Default Loom Type</mat-label>
+          <mat-select (selectionChange) ="loomChange(envt)" [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
+            <mat-option *ngFor="let loomtype of loomtypes" [value]="loomtype.value">
+              {{loomtype.viewValue}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Default Density Units</mat-label>
+          <mat-select [(value)]="units" [(ngModel)]="units" name="units" (selectionChange) ="unitChange(envt)">
+            <mat-option *ngFor="let unit of density_units" [value]="unit.value">
+              {{unit.viewValue}}
+            </mat-option>
+          </mat-select>
+          </mat-form-field>
+  
+        <mat-form-field>
+          <mat-label>Default Density</mat-label>
+          <input matInput  
+          name="epi" 
+          [(ngModel)]="epi" 
+          type="number" 
+          min= "0" 
+          (change)="epiChange(envt)"
+          (blur)="epiChange(envt)">  
+  
+        </mat-form-field>
+
+  
+
+        </form>
+      
+    </mat-expansion-panel>  
+  </mat-accordion>
+
+
+
 
   </mat-drawer>
 

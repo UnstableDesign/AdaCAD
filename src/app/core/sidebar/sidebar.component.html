@@ -1,6 +1,6 @@
 
 <!-- UNDO / REDO -->
-<div class="sidebar">
+<div class="sidebar" [class.mixer]="source === 'mixer'" >
     <!--on both weaver and mixer-->
     <div class="tool-chunk" *ngIf="source !== 'weaver'">
         <button #undoEvent 
@@ -290,7 +290,7 @@
 </div>
 
     <!-- VIEW TOOLS - MIXER -->
-    <div class="tool-chunk" *ngIf="source==='mixer'">
+    <!-- <div class="tool-chunk" *ngIf="source==='mixer'">
 
     <button mat-icon-button 
     matTooltip= "View Options"
@@ -299,7 +299,7 @@
         <i class="fas fa-eye"></i>    
     </button>
     
-    </div>
+    </div> -->
 <!-- LIBRARIES -->
     <div class="tool-chunk" *ngIf="source==='mixer'">
 
@@ -321,12 +321,12 @@
         </button> -->
 
 
-        <button 
+        <!-- <button 
         mat-icon-button
         matTooltip= "Workspace Settings"
         [class.is-active] = "global_loom_modal && global_loom_modal.componentInstance != null"
         (click)="openGlobalLoomModal()">
-        <i class="fas fa-cog"></i></button>
+        <i class="fas fa-cog"></i></button> -->
 
 
     </div>

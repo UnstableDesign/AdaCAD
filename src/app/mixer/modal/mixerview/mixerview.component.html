@@ -10,26 +10,6 @@
   </div>
 
 <mat-dialog-content> -->
-
-
-      <div class="slider-row">
-        <button  mat-icon-button (click)="zoomIn()" class="fas fa-search-plus"></button>
-      
-
-
-    
-          <mat-slider 
-          invert
-          tickInterval="1" 
-          [step]="1" 
-          [min]= "0"
-          [max]= "zs.num_steps"
-          value="{{zs.zoom_table_ndx}}" 
-          (change)="zoomChange($event, 'slider')"></mat-slider>
-          
-          <button  mat-icon-button (click)="zoomOut()" class="fas fa-search-minus"></button> 
-      </div>
-    
     
  
 
@@ -50,6 +30,26 @@
     cdkDrag>
     </div>
   </div>
+
+
+  <div class="slider-row">
+    <button  mat-icon-button (click)="zoomIn()" class="fas fa-search-plus"></button>
+  
+
+
+
+      <mat-slider 
+      invert
+      tickInterval="1" 
+      [step]="1" 
+      [min]= "0"
+      [max]= "zs.num_steps"
+      value="{{zs.zoom_table_ndx}}" 
+      (change)="zoomChange($event, 'slider')"></mat-slider>
+      
+      <button  mat-icon-button (click)="zoomOut()" class="fas fa-search-minus"></button> 
+  </div>
+
 
 
   <!-- <div class="toggle_materials">
