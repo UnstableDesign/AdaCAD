@@ -1,10 +1,14 @@
 <div class="filebrowser">
 
-<mat-list>
+<div *ngIf="!isLoggedIn">
+  <button mat-raised-button matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+</div>
+
+
+<mat-list *ngIf="isLoggedIn">
 
 
 
-    <div mat-subheader>Files</div>
 
     <!-- <mat-list-item>
       <mat-icon mat-list-icon><i class="fa-solid fa-folder"></i></mat-icon>

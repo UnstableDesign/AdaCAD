@@ -50,7 +50,7 @@ export class FileService {
    */
   const dloader: Fileloader = {
 
-     ada: async (filename: string, data: any) : Promise<LoadResponse> => {
+     ada: async (filename: string, id: number, data: any) : Promise<LoadResponse> => {
       console.log("LOADING DATA", data);
 
       let draft_nodes: Array<DraftNodeProxy> = [];
@@ -205,7 +205,7 @@ export class FileService {
             scale: (data.scale === undefined) ? 5 : data.scale,
           }
     
-          return Promise.resolve({data: envt, status: 0}); 
+          return Promise.resolve({data: envt, status: 0, id:id }); 
   
         }
       )
@@ -513,7 +513,7 @@ export class FileService {
           scale: 5
         }
     
-        return Promise.resolve({data: envt, status: 0});
+        return Promise.resolve({data: envt, status: 0, id: -1});
 
       });
 

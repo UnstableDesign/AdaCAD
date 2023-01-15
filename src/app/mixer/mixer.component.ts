@@ -31,6 +31,7 @@ import { ZoomService } from './provider/zoom.service';
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
 import { NgForm } from '@angular/forms';
 import utilInstance from '../core/model/util';
+import { FilesystemService } from '../core/provider/filesystem.service';
 
 
 //disables some angular checking mechanisms
@@ -164,6 +165,8 @@ export class MixerComponent implements OnInit {
 
   filename = "adacad_mixer";
 
+  session_id = -1;
+
  /**
    * The weave Timeline object.
    * @property {Timeline}
@@ -202,6 +205,7 @@ export class MixerComponent implements OnInit {
     private ops: OperationService,
     private http: HttpClient,
     private zs: ZoomService,
+    private files: FilesystemService
     ) {
 
 
@@ -229,6 +233,8 @@ export class MixerComponent implements OnInit {
 
 
   ngOnInit(){
+
+
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
@@ -292,7 +298,25 @@ export class MixerComponent implements OnInit {
 
     this.clearView();
     this.tree.clear();
-    console.log("loaded new file", result, result.data)
+    console.log("loaded new file", result, result.data, result.id)
+    if(result.id !== -1){
+      this.files.setCurrentFileId(result.id)
+    } else{
+      //if the id isn't yet set, generate one and write it to the database
+      this.files.generateFileId();
+      this.fs.saver.ada(
+        'mixer', 
+        true,
+        this.zs.zoom)
+        .then(so => {
+          this.ss.addMixerHistoryState(so);
+        });
+
+      
+    }
+
+    console.log("FILE ID SET TO ", this.files.current_file_id)
+
     this.processFileData(result.data).then(data => {
       this.palette.changeDesignmode('move');
     }
@@ -663,7 +687,7 @@ export class MixerComponent implements OnInit {
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
-      return this.fs.loader.ada(name, res.body)
+      return this.fs.loader.ada(name, -1, res.body)
      .then(loadresponse => {
        this.loadNewFile(loadresponse)
      });
@@ -698,24 +722,21 @@ export class MixerComponent implements OnInit {
       }else{
 
         //in the case someone logs in mid way through, don't replace their work. 
-        if(this.tree.nodes.length > 0) return;
-       
+        if(this.tree.nodes.length > 0){
+          this.files.generateFileId();
+          return;
+        } 
 
-        const db = fbref(getDatabase());
-
-
-                fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
-                  if (snapshot.exists()) {
-                    this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
-                      this.loadNewFile(lr);
-                    });
-                  }
-                }).catch((error) => {
-                  console.error(error);
-                });
-
+        this.files.getOnLoadDefaultFile().then(ada => {
+          this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, ada).then(lr => {
+            this.loadNewFile(lr);
+          });
+        }).catch((error) => {
+         console.error(error);
+        });
       }
     });
+      
 
   }
 
@@ -770,7 +791,7 @@ export class MixerComponent implements OnInit {
 
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
-    this.fs.loader.ada(this.filename, so).then(
+    this.fs.loader.ada(this.filename, this.files.current_file_id, so).then(
       lr => this.loadNewFile(lr)
     );
 
@@ -782,7 +803,7 @@ export class MixerComponent implements OnInit {
     let so: SaveObj = this.ss.restoreNextMixerHistoryState();
     if(so === null || so === undefined) return;
 
-    this.fs.loader.ada(this.filename, so)
+    this.fs.loader.ada(this.filename, this.files.current_file_id, so)
     .then(lr =>  this.loadNewFile(lr));
 
    

@@ -34,6 +34,7 @@ export class StateService {
     this.undo_disabled = true;
     this.redo_disabled = true;
 
+
   }
 
   printValue(value: any){
@@ -119,8 +120,8 @@ export class StateService {
     }
 
     //write this to database, overwritting what was previously there
-    this.files.writeUserData(ada.file);
-    this.files.writeFileData(22, 'filename', 'my description', ada.file);
+    //this.files.writeUserData(ada.file);
+    this.files.writeCurrentFileData(ada.file);
 
     //we are looking at the most recent state
     if(this.active_id > 0){
