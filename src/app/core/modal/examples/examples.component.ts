@@ -22,6 +22,7 @@ export class ExamplesComponent {
       
 
   }
+
   loadExample(filename: string){
     
     const analytics = getAnalytics();
@@ -32,7 +33,7 @@ export class ExamplesComponent {
     console.log("loading example: ", filename);
     this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
 
-      return this.fls.loader.ada(filename, -1, res.body)
+      return this.fls.loader.ada(filename, -1, '', res.body)
         .then(
           res => this.dialogRef.close(res)
         );

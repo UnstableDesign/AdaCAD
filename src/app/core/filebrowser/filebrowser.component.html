@@ -1,11 +1,33 @@
 <div class="filebrowser">
 
-<div *ngIf="!isLoggedIn">
+  <div><button mat-button color="primary">+ New Workspace</button></div>
+  <div> <button mat-button color="primary">+ Open Workspace From Your Computer</button></div>
+
+  <mat-divider></mat-divider>
+
+  <h2> Current Workspace</h2>
+  <mat-form-field class="filename">
+    <mat-label>Filename</mat-label>
+    <div><input matInput [(ngModel)]="files.current_file_name" placeholder="Filename"> </div>
+  </mat-form-field>
+
+  <mat-divider></mat-divider>
+
+
+
+<div *ngIf="!auth.isLoggedIn">
   <button mat-raised-button matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
 </div>
 
 
-<mat-list *ngIf="isLoggedIn">
+<mat-list *ngIf="auth.isLoggedIn">
+  <h2> Saved on AdaCAD</h2>
+
+  <!-- <div class="auth" *ngIf="(auth.showLogoutButton)">
+    Hi {{auth.username}} <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+  </div> -->
+
+
 
 
 

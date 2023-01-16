@@ -3,6 +3,7 @@ import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Lo
 import { initDraftWithParams, loadDraftFromFile } from '../model/drafts';
 import { getLoomUtilByType, loadLoomFromFile } from '../model/looms';
 import utilInstance from '../model/util';
+import { FilesystemService } from './filesystem.service';
 import { MaterialsService } from './materials.service';
 import { NotesService } from './notes.service';
 import { SystemsService } from './systems.service';
@@ -36,7 +37,8 @@ export class FileService {
     private ms: MaterialsService,
     private ss: SystemsService,
     private vs: VersionService,
-    private ws: WorkspaceService) { 
+    private ws: WorkspaceService,
+    private files: FilesystemService) { 
   
   this.status = [
     {id: 0, message: 'success', success: true},
@@ -50,9 +52,8 @@ export class FileService {
    */
   const dloader: Fileloader = {
 
-     ada: async (filename: string, id: number, data: any) : Promise<LoadResponse> => {
-      console.log("LOADING DATA", data);
-
+     ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
+      console.log("LOADER", filename, id, desc, data);
       let draft_nodes: Array<DraftNodeProxy> = [];
       //let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
@@ -205,7 +206,7 @@ export class FileService {
             scale: (data.scale === undefined) ? 5 : data.scale,
           }
     
-          return Promise.resolve({data: envt, status: 0, id:id }); 
+          return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
   
         }
       )
@@ -513,7 +514,7 @@ export class FileService {
           scale: 5
         }
     
-        return Promise.resolve({data: envt, status: 0, id: -1});
+        return Promise.resolve({data: envt, name: "new draft", desc: "created via form", status: 0, id: this.files.generateFileId()});
 
       });
 

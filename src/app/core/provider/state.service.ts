@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { getAuth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Draft, SaveObj } from '../model/datatypes';
 import { copyDraft } from '../model/drafts';
@@ -121,7 +122,11 @@ export class StateService {
 
     //write this to database, overwritting what was previously there
     //this.files.writeUserData(ada.file);
-    this.files.writeCurrentFileData(ada.file);
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if(user !== null) this.files.writeFileData(user.uid, this.files.current_file_id, this.files.current_file_name, this.files.current_file_desc, ada.file)
 
     //we are looking at the most recent state
     if(this.active_id > 0){

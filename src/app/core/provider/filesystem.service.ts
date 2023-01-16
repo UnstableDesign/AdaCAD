@@ -13,7 +13,7 @@ import { THREE } from '@angular/cdk/keycodes';
  *    ada:
  *    timestamp: 
  *    tree: 
- *    
+ *    last_opened: 
  *  }
  * 
  * 
@@ -46,16 +46,79 @@ export class FilesystemService {
   constructor(public auth: AuthService) {
 
     //needs to know if its booting an existing file or needs a new file ID
-
-
   }
 
   setCurrentFileId(id: number){
     this.current_file_id = id;
   }
 
-  generateFileId(){
-    this.current_file_id = utilInstance.generateId(8);
+  generateFileId() : number{
+    return utilInstance.generateId(8);
+  }
+
+  /**
+   * if a user only has an ada file on their user id, this converts it to a file that is stored in teh filesystem
+   * @param ada 
+   * @returns the id of the file
+   */
+  convertAdaToFile(uid: string, ada: any) : Promise<number>{
+    
+   const fileid = this.generateFileId();
+   this.writeFileData(uid, fileid, "recovered draft", "", ada);
+   return Promise.resolve(this.current_file_id);
+    
+  }
+
+  /**
+   * creates a blank file
+   * @param ada 
+   * @returns the id of the file
+   */
+  createFile(uid: string) : Promise<number>{
+  
+    const fileid = this.generateFileId();
+    this.writeFileData(uid, fileid, "new draft", "", null);
+    return Promise.resolve(this.current_file_id);
+      
+  }
+
+  /**
+   * gets the file at a given id
+   * @returns the file data
+   */
+  getFile(fileid: number) : Promise<any> {
+    const db = getDatabase();
+
+    return fbget(fbref(db, `filedata/${fileid}`)).then((filedata) => {
+
+        if(filedata.exists()){
+         return Promise.resolve(filedata.val().ada);
+        }else{
+          Promise.reject("User found but file id not found")
+        }
+
+      });
+
+  }
+
+  /**
+   * gets the file meta for a given id. 
+   * @param fileid 
+   * @returns the meta data
+   */
+  getFileMeta(fileid: number) : Promise<any> {
+    const db = getDatabase();
+
+    return fbget(fbref(db, `filemeta/${fileid}`)).then((meta) => {
+
+        if(meta.exists()){
+          return Promise.resolve(meta.val());
+        }else{
+          Promise.reject("No meta data found for file id"+fileid)
+        }
+
+      });
+
   }
 
   /**
@@ -119,61 +182,34 @@ export class FilesystemService {
     
   }
 
-  validateWriteData(cur_state: any) : any {
-    return cur_state;
-  }
-
- 
-
-   /**
-   * this writes the most current state of the program to the user's entry to the realtime database
-   * @param cur_state returned from file saver, constains the JSON string of the file as well as the obj
-   * @returns 
-   */
-   public writeUserData(cur_state: any) {
-
-    if(this.auth.uid === undefined) return;
-
-    cur_state = this.validateWriteData(cur_state)
-  
-  }
-
-
 
   /**
    * writes the data for the currently open file to the database
    * @param cur_state 
    * @returns 
    */
-  public writeCurrentFileData(cur_state: any) {
-
-
-    const auth = getAuth();
-    const user = auth.currentUser;
-    
-    if(user === null) return; 
+  writeFileData(uid: string, fileid: number, name: string, desc: string,  cur_state: any) {
 
     const db = getDatabase();
 
-    this.getUserFilesList(user.uid).then( updatedfiles => {
-      console.log("updated files", updatedfiles)
-      fbset(fbref(db, 'users/' + user.uid), {
+    this.getUserFilesList(uid).then( updatedfiles => {
+      fbset(fbref(db, 'users/' + uid), {
         timestamp: Date.now(),
-        ada: cur_state,
         tree: updatedfiles,
-        last_opened: this.current_file_id
+        last_opened:fileid
       }).catch(console.error);
   
-  
-      fbset(fbref(db, 'filedata/' + this.current_file_id), {
+      if(cur_state != null){
+      fbset(fbref(db, 'filedata/' + fileid), {
         ada: cur_state
       }).catch(console.error);
+      }
   
-      fbset(fbref(db, 'filemeta/' + this.current_file_id), {
-        name: this.current_file_name,
+      fbset(fbref(db, 'filemeta/' + fileid), {
+        name: name,
         timestamp: Date.now(),
-        owner: user.uid, 
-        desc: this.current_file_desc
+        owner: uid, 
+        desc: desc
       }).catch(console.error);
     })
     
@@ -212,6 +248,8 @@ export class FilesystemService {
    * @param uid 
    */
   getOnLoadDefaultFile() : Promise<any>{
+
+
     const db = getDatabase();
     const auth = getAuth();
     const user = auth.currentUser;
@@ -225,10 +263,11 @@ export class FilesystemService {
           const file_id = snapshot.val().last_opened;
           this.current_file_id = file_id;
 
-          return fbget(fbref(db, `filedmeta/${this.current_file_id}`)).then((meta) => {
+          return fbget(fbref(db, `filemeta/${this.current_file_id}`)).then((meta) => {
 
             if(meta.exists()){
 
+              console.log("meta", meta.val().name);
               this.current_file_name = meta.val().name;
               this.current_file_desc = meta.val().desc;
 
@@ -251,11 +290,6 @@ export class FilesystemService {
 
 
           });
-
-
-
-      
-       
 
         }else if(snapshot.val().ada !== undefined){
           return Promise.resolve(snapshot.val().ada);
@@ -295,22 +329,7 @@ export class FilesystemService {
     return Promise.resolve(true);
   }
 
-  createFile(path: string, name: string){
-    //make unique id 
-    //write it to file data
 
-    //write it to the users file list
-  }
-
-  moveFile(path_from: string, path_to:string){
-
-  }
-
-  getFile(path: string){
-    //get the file id
-    //retreive it from filedata
-    //validate by UID
-  }
 
   deleteFile(path:string){
 

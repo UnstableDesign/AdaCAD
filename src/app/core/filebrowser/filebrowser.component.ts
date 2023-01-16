@@ -19,6 +19,7 @@ export class FilebrowserComponent implements OnInit {
 
   constructor(
     public files: FilesystemService, 
+    public auth: AuthService,
     private dialog: MatDialog) { 
 
    
@@ -27,11 +28,7 @@ export class FilebrowserComponent implements OnInit {
 
   ngOnInit(): void {
     
-      const auth = getAuth();
-      const user = auth.currentUser;
-      this.isLoggedIn == (user !== null)
-
-   
+    
     
   }
 

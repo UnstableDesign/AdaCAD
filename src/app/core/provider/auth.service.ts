@@ -1,7 +1,9 @@
 import { Injectable, Optional } from '@angular/core';
-import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
 import { EMPTY, Observable, Subscription } from 'rxjs';
 import { FilesystemService } from './filesystem.service';
+import { getDatabase, ref as fbref, set as fbset, onValue, query, orderByChild, ref, get as fbget } from '@angular/fire/database';
+import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
+
 
 
 @Injectable({
@@ -16,6 +18,7 @@ export class AuthService {
   showLoginButton = false;
   showLogoutButton = false;
   isLoggedIn = false;
+  firstLoad = true;
 
   public uid:string;
   public username: string = "";
@@ -23,31 +26,17 @@ export class AuthService {
   constructor(@Optional() private auth: Auth, private filesystem: FilesystemService) {
 
     if (auth) {
-      this.user = authState(this.auth);
 
        this.userDisposable = authState(this.auth).subscribe(user => {
         console.log("AUTH STATE", user)
         this.showLoginButton = (user === null);
         this.showLogoutButton = (user !== null);
         this.isLoggedIn = (user !== null);
-        
-      });
+        this.uid =(user === null) ? "" : user.uid;
+        if(user !== null) this.username = (user.displayName === null) ? user.email : user.displayName;        
 
-      this.userData = authState(this.auth).subscribe(user => {
-        console.log("user state change", user)
-        if(user === undefined || user === null){
-          this.username = ""
-          this.uid = undefined;
-          return;
-        } else{
-          this.filesystem.updateUserFiles(user.uid);
-        }
-        this.username = (user.displayName === null) ? user.email : user.displayName;
-        this.uid = user.uid;
-        
-      }
+       });
 
-      )
     }
   }
 
@@ -92,6 +81,63 @@ export class AuthService {
   async logout() {
     return await signOut(this.auth);
   }
+
+  /**
+   * Used to determine when login is taking place, at very first load or mid use?
+   * @returns true if this is the first time the page is being loaded, false if it has already been active
+   */
+  isFirstSession() : boolean {
+    return this.firstLoad;
+  }
+
+  /**
+   * pings the users database to see if this user has an account already
+   * if it does, returns the account info
+   * if not, it returns null
+   */
+  getAccount(uid: string) : Promise<any> {
+    const db = getDatabase();
+    return fbget(fbref(db, `users/${uid}`)).then((userdata) => {
+      if(userdata.exists()){
+        return Promise.resolve(userdata.val());
+      }else{
+        return Promise.resolve(null);
+      }
+    });
+  }
+
+  /**
+   * checks to see if this user has an id already saved for their last used file
+   * @param user 
+   */
+  getMostRecentFileIdFromUser(user: any): Promise<number>{
+    
+    return this.getAccount(user.uid).then(data => {
+      if(data.last_opened === undefined) return Promise.resolve(null);
+      else return Promise.resolve(data.last_opened)
+  
+    }).catch(console.error);
+  }
+
+  /**
+   * checks to see if this user has an ada file already saved for their last used file
+   * @param user 
+   */
+    getMostRecentAdaFromUser(user: any): Promise<any>{
+      
+      return this.getAccount(user.uid).then(data => {
+        if(data.ada === undefined) return Promise.resolve(null);
+        else return Promise.resolve(data.ada)
+     })
+  
+    }
+  
+
+
+
+
+
+
 
     ngOnDestroy(): void {
       if (this.userDisposable) {
