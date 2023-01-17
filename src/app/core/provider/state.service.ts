@@ -32,9 +32,15 @@ export class StateService {
 
     this.active_id = 0;
     this.timeline = [];
+
+
+  }
+
+  clearTimeline(){
+    this.active_id = 0;
     this.undo_disabled = true;
     this.redo_disabled = true;
-
+    this.timeline = [];
 
   }
 
@@ -126,7 +132,7 @@ export class StateService {
     const auth = getAuth();
     const user = auth.currentUser;
 
-    if(user !== null) this.files.writeFileData(user.uid, this.files.current_file_id, this.files.current_file_name, this.files.current_file_desc, ada.file)
+    if(user !== null) this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
 
     //we are looking at the most recent state
     if(this.active_id > 0){

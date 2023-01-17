@@ -27,7 +27,7 @@
       <i class="fas fa-print"></i>
     </button> -->
         
-  <button mat-icon-button 
+  <!-- <button mat-icon-button 
   [matMenuTriggerFor]="clearScreen"
   matTooltip ="clear screen"
   >
@@ -35,13 +35,13 @@
 </button> 
     <mat-menu #clearScreen mat-raised-button>
       <a  (click)="clear()" mat-menu-item> Really? Clear the workspace?</a>
-    </mat-menu>
+    </mat-menu> -->
 
     <!---->
     
 
     
-  <button mat-icon-button 
+  <!-- <button mat-icon-button 
   [matMenuTriggerFor]="downloadDropdown"
   matTooltip ="export adacad workspace"
   >
@@ -51,21 +51,21 @@
       <a  (click)="saveAsAda()" mat-menu-item> as AdaCAD workspace file</a>
       <a  (click)="saveAsBmp()" mat-menu-item> export all visible drafts as bitmaps</a>
       <!-- <a  (click)="saveAsWif()" mat-menu-item> export all visible drafts as .WIF files</a> -->
-    </mat-menu>
+    <!-- </mat-menu> --> 
 
 
-     <button mat-icon-button="Open" 
+     <!-- <button mat-icon-button="Open" 
      matTooltip ="open a new workspace"
      (click)="openNewFileDialog()">
      <i class="fas fa-folder-open"></i>
-    </button>
+    </button> -->
 
 
- <mat-form-field class="filename">
+ <!-- <mat-form-field class="filename">
         <mat-label>Filename</mat-label>
         <div><input matInput [(ngModel)]="filename" placeholder="Filename"> </div>
       </mat-form-field>
-
+ -->
 
 
 

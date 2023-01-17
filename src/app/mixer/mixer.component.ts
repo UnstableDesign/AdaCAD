@@ -261,8 +261,6 @@ export class MixerComponent implements OnInit {
 
     if(searchParams.has('ex')){
       this.loadExampleAtURL(searchParams.get('ex'));  
-    }else{
-      this.loadLoggedInUser();
     }
 
   }
@@ -309,44 +307,62 @@ export class MixerComponent implements OnInit {
 
 
   initLoginLogoutSequence(user:User) {
-    console.log("IN LOGINLOGOUT ", user)
+    console.log("IN LOGIN/LOGOUT ", user)
     if(user === null){
       //this is a logout event
       console.log("MIXER // USER LOGGED OUT")
+      this.files.setCurrentFileInfo(this.files.generateFileId(), 'blank draft','');
+
+
 
     }else{
       console.log("MIXER // USER LOGGED IN")
 
-      console.log("FIRST SESSION", this.auth.isFirstSession(), (!this.auth.isFirstSession() && this.isBlankWorkspace()) );
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
 
         this.auth.getMostRecentFileIdFromUser(user).then(fileid => {
-          console.log("FILE ID", fileid)
+          console.log("LOADING FILE ID", fileid)
           if(fileid !== null){
             const details = [this.files.getFile(fileid), this.files.getFileMeta(fileid)]
             Promise.all(details).then(data => {
-              let ada = data[0];
-              let meta = data[1];
-              return this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
-            });
+              if(data[0] === undefined || data[1] === undefined){
+                this.files.setCurrentFileInfo(fileid, 'file not found', '');                
+                return Promise.reject("file not found");
+              }else{
+                let ada = data[0];
+                let meta = data[1];
+                this.files.updateFileMetaOnOpen(user.uid,fileid);
+                this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
+                return this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+              }
+            }).catch(console.error);
 
           }else{
             
              this.auth.getMostRecentAdaFromUser(user).then(async ada => {
-              console.log("ada", ada)
 
               if(ada !== null){
                   let fileid = await this.files.convertAdaToFile(user.uid, ada); 
                   const details = [this.files.getFile(fileid), this.files.getFileMeta(fileid)]
-                  Promise.all(details).then(data => {
-                    let ada = data[0];
-                    let meta = data[1];
-                    return this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
-                  });
+                  Promise.all(details).then(async data => {
+
+                    if(data[0] === undefined || data[1] === undefined){
+                      const fileid =  await this.files.createFile(user.uid);
+                      this.files.setCurrentFileInfo(fileid, 'recovered file', '')
+                      return  this.prepAndLoadFile('recovered file', fileid,'', ada);
+                    }else{
+                      let meta = data[1];
+                      this.files.updateFileMetaOnOpen(user.uid,fileid);
+                      this.files.setCurrentFileInfo(fileid, meta.name, meta.desc)
+                      return this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+                    }
+                  }).catch(console.error);
               }else{
 
-                let newid = this.files.generateFileId();
-                this.files.setCurrentFileId(newid);
+                let newid = await this.files.createFile(user.uid);
+                this.files.setCurrentFileInfo(newid, 'blank', '');
+                this.files.updateFileMetaOnOpen(user.uid,fileid);
+
                 console.log("set current space to ", newid)
                 return;
               }
@@ -362,12 +378,10 @@ export class MixerComponent implements OnInit {
           false,
           this.zs.zoom)
           .then(so => {
-            this.files.writeFileData(user.uid, fileid, "new draft", "created on login", so)
+            this.files.writeFileData(user.uid, fileid, so)
 
           });
        }
-       this.files.updateUserFiles(user.uid);
-
       
     }
   }
@@ -381,16 +395,41 @@ export class MixerComponent implements OnInit {
     console.log("LOADING NEW FILE", result)
     this.clearView();
     this.tree.clear();
+    this.ss.clearTimeline();
+
 
     this.files.setCurrentFileId(result.id);
     this.files.current_file_name = result.name;
     this.files.current_file_desc = result.desc;
+    
 
     this.processFileData(result.data).then(data => {
       this.palette.changeDesignmode('move');
     }
 
     ).catch(console.error);
+    
+  }
+
+  loadBlankFile(){
+    console.log("LOADING Empty FILE")
+    this.clearView();
+    this.tree.clear();
+    this.ss.clearTimeline();
+
+    this.files.setCurrentFileId(this.files.generateFileId());
+    this.files.current_file_name = "new workspace";
+    this.files.current_file_desc = "";
+
+
+     //if this user is logged in, write it to the
+     this.fs.saver.ada(
+      'mixer', 
+      true,
+      this.zs.zoom)
+      .then(so => {
+        this.ss.addMixerHistoryState(so);
+      });
     
   }
 
@@ -761,50 +800,50 @@ export class MixerComponent implements OnInit {
   }
 
 
-  loadLoggedInUser(){
+  // loadLoggedInUser(){
 
-    this.auth.user.subscribe(user => {
+  //   this.auth.user.subscribe(user => {
 
-      if(user === null){
+  //     if(user === null){
 
-        const dialogRef = this.dialog.open(InitModal, {
-          data: {source: 'mixer'}
-        });
+  //       const dialogRef = this.dialog.open(InitModal, {
+  //         data: {source: 'mixer'}
+  //       });
 
 
-        dialogRef.afterClosed().subscribe(loadResponse => {
-          this.palette.changeDesignmode('move');
-          if(loadResponse !== undefined){
-            if(loadResponse.status == -1){
-              this.clearAll();
-            }
-            else{
-              this.loadNewFile(loadResponse);
-            }
-          } 
+  //       dialogRef.afterClosed().subscribe(loadResponse => {
+  //         this.palette.changeDesignmode('move');
+  //         if(loadResponse !== undefined){
+  //           if(loadResponse.status == -1){
+  //             this.clearAll();
+  //           }
+  //           else{
+  //             this.loadNewFile(loadResponse);
+  //           }
+  //         } 
         
     
-       });
-      }else{
+  //      });
+  //     }else{
 
-        //in the case someone logs in mid way through, don't replace their work. 
-        if(this.tree.nodes.length > 0){
-          this.files.generateFileId();
-          return;
-        } 
+  //       //in the case someone logs in mid way through, don't replace their work. 
+  //       if(this.tree.nodes.length > 0){
+  //         this.files.generateFileId();
+  //         return;
+  //       } 
 
-        this.files.getOnLoadDefaultFile().then(ada => {
-          this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, ada).then(lr => {
-            this.loadNewFile(lr);
-          });
-        }).catch((error) => {
-         console.error(error);
-        });
-      }
-    });
+  //       this.files.getOnLoadDefaultFile().then(ada => {
+  //         this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, ada).then(lr => {
+  //           this.loadNewFile(lr);
+  //         });
+  //       }).catch((error) => {
+  //        console.error(error);
+  //       });
+  //     }
+  //   });
       
 
-  }
+  // }
 
 
   prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
@@ -845,6 +884,8 @@ export class MixerComponent implements OnInit {
   }
 
   clearAll() : void{
+
+
     console.log("CLEAR ALL from MIXER")
     this.palette.addTimelineState();
     this.fs.clearAll();
@@ -1022,7 +1063,7 @@ export class MixerComponent implements OnInit {
       return this.fs.saver.jpg(this.palette.getPrintableCanvas(e))
       .then(href => {
         link.href= href;
-        link.download = e.name + ".jpg";
+        link.download = this.files.current_file_name + ".jpg";
         this.palette.clearCanvas();
         link.click();
       });
@@ -1040,7 +1081,7 @@ export class MixerComponent implements OnInit {
         false,
         this.zs.zoom).then(out => {
           link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-          link.download = e.name + ".ada";
+          link.download =  this.files.current_file_name + ".ada";
           link.click();
         })
       break;

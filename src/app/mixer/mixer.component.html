@@ -1,11 +1,7 @@
 <app-topbar 
 [drawer] = "drawer"
 source="mixer"
-  (onUndo)="undo();" 
-  (onRedo)="redo();"
-  (onLoadNewFile)="loadNewFile($event);"
-  (onClearScreen)="clearAll();"
-  (onSave)="onSave($event);">
+>
 
 </app-topbar>
 
@@ -58,7 +54,11 @@ source="mixer"
             Files
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <app-filebrowser></app-filebrowser>
+        <app-filebrowser 
+        (onLoadNewFile)="loadNewFile($event);"
+        (onClearScreen)="loadBlankFile();"
+        (onSave)="onSave($event);">
+      </app-filebrowser>
      </mat-expansion-panel>  
 
   

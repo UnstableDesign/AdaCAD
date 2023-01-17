@@ -1,15 +1,48 @@
 <div class="filebrowser">
 
-  <div><button mat-button color="primary">+ New Workspace</button></div>
-  <div> <button mat-button color="primary">+ Open Workspace From Your Computer</button></div>
-
-  <mat-divider></mat-divider>
-
-  <h2> Current Workspace</h2>
   <mat-form-field class="filename">
-    <mat-label>Filename</mat-label>
-    <div><input matInput [(ngModel)]="files.current_file_name" placeholder="Filename"> </div>
+    <mat-label>Current Workspace</mat-label>
+    <div><input matInput [(ngModel)]="files.current_file_name" placeholder="Filename" (change)="rename()"> </div>
   </mat-form-field>
+
+
+  <div>
+    <button 
+    mat-button   
+    [matMenuTriggerFor]="clearScreen" color="primary">
+      <i class="fa-regular fa-plus"></i> New Workspace</button>
+  </div>
+
+  <mat-menu #clearScreen mat-raised-button>
+    <a  (click)="onNewWorkspace()" mat-menu-item> Opening a new workspace will clear the current workspace. Are you sure you want to do this?</a>
+  </mat-menu>
+
+  <div> 
+    <button 
+    (click)="openNewFileDialog()"
+    mat-button 
+    color="primary"><i class="fa-regular fa-folder-open"></i> Open Workspace From Your Computer</button>
+  </div>
+
+
+  <div> 
+    <button 
+    mat-button 
+    [matMenuTriggerFor]="downloadDropdown"
+    color="primary"><i class="fa-solid fa-download"></i> Download to Your Computer
+  </button>
+
+  <mat-menu #downloadDropdown mat-raised-button>
+    <a  (click)="saveAsAda()" mat-menu-item> as AdaCAD workspace file</a>
+    <a  (click)="saveAsBmp()" mat-menu-item> export all visible drafts as bitmaps</a>
+    <!-- <a  (click)="saveAsWif()" mat-menu-item> export all visible drafts as .WIF files</a> -->
+  </mat-menu>
+
+
+  </div>
+
+
+
 
   <mat-divider></mat-divider>
 
@@ -61,27 +94,30 @@
               <!-- <div class="fav"> 
                 <button mat-icon-button matListItemIcon><i class="fa-regular fa-star"></i></button></div> -->
               <div class="details">
-                <button mat-button matListItemTitle class="file_name">{{file.meta.name}}  </button>
-                <div matListItemTitle class="timestamp">{{file.meta.timestamp}}  </div>
+                <button mat-button matListItemTitle class="file_name">{{file.id}} || {{file.meta.name}} </button>
+                <div matListItemTitle class="timestamp">{{file.meta.date}} || {{file.meta.owner}}  </div>
               </div>
               <div class="more">  <button mat-icon-button [matMenuTriggerFor]="fileopts">  <i class="fa-solid fa-ellipsis"></i></button></div>
        
 
 
  
-        <mat-menu #fileopts="matMenu">
-         <button mat-menu-item>
-           <span>Rename</span>
-         </button>
-         <button mat-menu-item>
-          <span>Download</span>
-        </button>
-         <button mat-menu-item>
-           <span>Delete</span>
-         </button>
- 
-       </mat-menu>
-      </div>
+                <mat-menu #fileopts="matMenu">
+                <!-- <button mat-menu-item>
+                  <span>Rename</span>
+                </button>
+                <button mat-menu-item>
+                  <span>Download</span>
+                </button> -->
+                <button 
+                mat-menu-item
+                (click) = "remove(file.id)"
+                >
+                  <span>Delete</span>
+                </button>
+        
+              </mat-menu>
+              </div>
        </ng-container>
       </mat-list-item>
     </ng-container>

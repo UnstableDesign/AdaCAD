@@ -53,6 +53,9 @@ export class FileService {
   const dloader: Fileloader = {
 
      ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
+      if(desc === undefined) desc = ""
+      if(filename == undefined) filename = 'draft' 
+      
       console.log("LOADER", filename, id, desc, data);
       let draft_nodes: Array<DraftNodeProxy> = [];
       //let looms: Array<Loom> = [];
