@@ -132,6 +132,7 @@ export class StateService {
     const auth = getAuth();
     const user = auth.currentUser;
 
+    console.log("ON SAVE", user, this.files.current_file_id)
     if(user !== null) this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
 
     //we are looking at the most recent state

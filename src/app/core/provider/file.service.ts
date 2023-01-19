@@ -55,6 +55,7 @@ export class FileService {
      ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
+      if(id === -1) id = this.files.generateFileId();
       
       console.log("LOADER", filename, id, desc, data);
       let draft_nodes: Array<DraftNodeProxy> = [];
@@ -209,6 +210,7 @@ export class FileService {
             scale: (data.scale === undefined) ? 5 : data.scale,
           }
     
+          console.log("returning",filename, desc, id )
           return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
   
         }

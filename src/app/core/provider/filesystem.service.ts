@@ -66,8 +66,8 @@ export class FilesystemService {
     
         //called when anything in meta changes
         onChildChanged(userFiles, (data) => {
-          console.log("Child Changed")
-            const ndx = this.file_tree.findIndex(el => el.id === data.key);
+          console.log("Child Changed", data.key, data.val(), this.file_tree)
+            const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
             if(ndx !== -1) this.file_tree[ndx].name = data.val().name
         });
         
@@ -75,7 +75,7 @@ export class FilesystemService {
         onChildRemoved(userFiles, (removedItem) => {
           console.log("child removed")
           const removedId = removedItem.key;
-          this.file_tree = this.file_tree.filter(el => el.id !== removedId);
+          this.file_tree = this.file_tree.filter(el => parseInt(el.id) !== parseInt(removedId));
         });
     
     
@@ -118,23 +118,55 @@ export class FilesystemService {
     })
   }
 
-  setCurrentFileId(id: number){
-    this.current_file_id = id;
+
+  /**
+   * sets the current data and updates the metadeta
+   * @param fileid 
+   * @param name 
+   * @param desc 
+   */
+  setCurrentFileInfo(fileid: number, name: string, desc: string){
+   
+    if(fileid === null || fileid == undefined) return; 
+    if(desc === null || desc === undefined) desc = '';
+    if(name === null || name === undefined) name = 'no name'; 
+   
+    this.current_file_id = fileid;
+    this.current_file_name = name;
+    this.current_file_desc = desc;
+    const stamp = Date.now();
+
     const auth = getAuth();
     const user = auth.currentUser;
     if(user){
       const db = getDatabase();
-      update(fbref(db, `users/${user.uid}`),{last_opened: id});
+      console.log(name, desc, stamp)
+      update(fbref(db, `users/${user.uid}`),{last_opened: fileid});
+      update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
+        name: name, 
+        desc: desc,
+        timestamp: stamp});
     }
 
 
 
   }
 
-  setCurrentFileInfo(fileid: number, name: string, desc: string){
-    this.current_file_id = fileid;
-    this.current_file_name = name;
-    this.current_file_desc = desc;
+  renameFile(fileid: number, newname: string){
+  
+    if(fileid === null || fileid == undefined) return; 
+    if(newname === null || newname === undefined) newname = 'no name'; 
+    
+    this.current_file_name = newname;
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if(user){
+      const db = getDatabase();
+      console.log("renaming to "+newname);
+      update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
+        name: newname});
+    }
   }
 
   generateFileId() : number{
@@ -154,25 +186,7 @@ export class FilesystemService {
     
   }
 
-  /**
-   * creates a blank file
-   * @param ada 
-   * @returns the id of the file
-   */
-  createFile(uid: string) : Promise<number>{
-    const fileid = this.generateFileId();
-    this.updateFileMetaOnOpen(uid, fileid);
-    this.renameCurrentFile('blank draft');
-    this.fs.saver.ada(
-      'mixer', 
-      false,
-      this.zs.zoom)
-      .then(so => {
-        this.writeFileData(uid, fileid, so)
-      });
-    return Promise.resolve(this.current_file_id);
-      
-  }
+
 
   /**
    * gets the file at a given id
@@ -235,18 +249,6 @@ export class FilesystemService {
 
   }
 
-  renameCurrentFile(newname: string){
-    const db = getDatabase();
-    const fbauth = getAuth();
-    const user = fbauth.currentUser;
-
-    if(user === null) return;
-    fbset(fbref(db, 'users/'+user.uid+'/files/' + this.current_file_id), {
-      name: newname
-    })
-    .catch(console.error);
-  }
-
   /**
    * writes the data for the currently open file to the database
    * @param cur_state 
@@ -258,32 +260,21 @@ export class FilesystemService {
   }
 
 
-  //write data on load (n)
-  updateFileMetaOnOpen(uid: string, fileid: number) {
-    const stamp = Date.now();
-    const db = getDatabase();
-    update(fbref(db, 'users/'+uid+'/files/'+fileid),{timestamp: stamp, last_opened:fileid});
-  }
+
+
+  writeNewFileMetaData(uid: string, fileid: number, name: string, desc: string) {
+      const stamp = Date.now();
+      const db = getDatabase();
+      update(fbref(db, 'users/'+uid+'/files/'+fileid),{
+        name: name,
+        desc: desc,
+        timestamp: stamp, 
+        last_opened:fileid});
+    }
+    
+    
   
-  
 
-
-  getFileSystem(uid: string){
-    //get uid; 
-    //organize into nested array
-  }
-
-  createFolder(path: string){
-
-    //write to u_id: filesys
-    //make a unique id
-    //write it
-
-  }
-
-  deleteFolder(loc: string){
-
-  }
 
   renameFolder(old_loc: string, new_name: string) : Promise<boolean>{
     //all folders
@@ -296,9 +287,6 @@ export class FilesystemService {
 
   }
 
-  renameFile(path:string){
-    
-  }
 
   
 }

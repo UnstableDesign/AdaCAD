@@ -23,7 +23,7 @@ export class AuthService {
   public uid:string;
   public username: string = "";
 
-  constructor(@Optional() private auth: Auth, private filesystem: FilesystemService) {
+  constructor(@Optional() private auth: Auth) {
 
     if (auth) {
 

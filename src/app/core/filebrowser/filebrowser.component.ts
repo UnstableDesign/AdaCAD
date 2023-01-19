@@ -39,12 +39,17 @@ export class FilebrowserComponent implements OnInit {
   }
 
   rename(){
-    this.files.renameCurrentFile(this.files.current_file_name);
+    this.files.renameFile(this.files.current_file_id, this.files.current_file_name);
+
   }
 
   remove(fileid: number){
     console.log("removing ", fileid)
     this.files.removeFile(fileid);
+    if(fileid == this.files.current_file_id)  this.onClearScreen.emit();
+
+
+
   }
 
 

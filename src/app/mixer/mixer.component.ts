@@ -33,6 +33,8 @@ import utilInstance from '../core/model/util';
 import { FilesystemService } from '../core/provider/filesystem.service';
 import { getDatabase, ref as fbref, set as fbset, onValue, query, orderByChild, ref, get as fbget } from '@angular/fire/database';
 import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
+import { promise } from 'protractor';
+import { timeStamp } from 'console';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -235,9 +237,10 @@ export class MixerComponent implements OnInit {
       // console.log("in constrcutor AUTH IS ", this.fbauth.currentUser)
       // this.initLoginLogoutSequence(this.fbauth.currentUser);
 
-      authState(this.fbauth).subscribe(async user => {
-        this.initLoginLogoutSequence(user);
-      });
+      const success = authState(this.fbauth).subscribe(async user => {
+         this.initLoginLogoutSequence(user) 
+          
+      })
 
    }
 
@@ -319,69 +322,66 @@ export class MixerComponent implements OnInit {
       console.log("MIXER // USER LOGGED IN")
 
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
-
-        this.auth.getMostRecentFileIdFromUser(user).then(fileid => {
+        console.log("Is First session or session with blank staritng point")
+    
+        this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
           console.log("LOADING FILE ID", fileid)
+
           if(fileid !== null){
-            const details = [this.files.getFile(fileid), this.files.getFileMeta(fileid)]
-            Promise.all(details).then(data => {
-              if(data[0] === undefined || data[1] === undefined){
-                this.files.setCurrentFileInfo(fileid, 'file not found', '');                
-                return Promise.reject("file not found");
+
+            const ada = await this.files.getFile(fileid);
+            const meta = await this.files.getFileMeta(fileid);           
+             
+
+              if(ada === undefined){
+                this.loadBlankFile();
+
+              }else if(meta === undefined){
+                this.files.setCurrentFileInfo(fileid, 'file name not found', '');
+                this.prepAndLoadFile('file name not found', fileid, '', ada);
+              
               }else{
-                let ada = data[0];
-                let meta = data[1];
-                this.files.updateFileMetaOnOpen(user.uid,fileid);
+
                 this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
-                return this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+                this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
               }
-            }).catch(console.error);
 
           }else{
             
-             this.auth.getMostRecentAdaFromUser(user).then(async ada => {
+             this.auth.getMostRecentAdaFromUser(user).then(async adafile => {
 
-              if(ada !== null){
-                  let fileid = await this.files.convertAdaToFile(user.uid, ada); 
-                  const details = [this.files.getFile(fileid), this.files.getFileMeta(fileid)]
-                  Promise.all(details).then(async data => {
-
-                    if(data[0] === undefined || data[1] === undefined){
-                      const fileid =  await this.files.createFile(user.uid);
-                      this.files.setCurrentFileInfo(fileid, 'recovered file', '')
-                      return  this.prepAndLoadFile('recovered file', fileid,'', ada);
+                if(adafile !== null){
+                    let fileid = await this.files.convertAdaToFile(user.uid, adafile); 
+            
+                    let ada = await this.files.getFile(fileid);
+                    let meta = await this.files.getFileMeta(fileid);           
+                    
+                    if(ada === undefined){
+                      this.loadBlankFile();
+                    }else if(meta === undefined){
+                      this.files.setCurrentFileInfo(fileid, 'file name not found', '');
+                      this.prepAndLoadFile('file name not found', fileid, '', ada);
+      
                     }else{
-                      let meta = data[1];
-                      this.files.updateFileMetaOnOpen(user.uid,fileid);
-                      this.files.setCurrentFileInfo(fileid, meta.name, meta.desc)
-                      return this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+                      this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
+                      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
                     }
-                  }).catch(console.error);
-              }else{
 
-                let newid = await this.files.createFile(user.uid);
-                this.files.setCurrentFileInfo(newid, 'blank', '');
-                this.files.updateFileMetaOnOpen(user.uid,fileid);
+                }else{
 
-                console.log("set current space to ", newid)
-                return;
-              }
+                  this.loadBlankFile();
+                  return;
+                }
              });
           }
         }) 
 
       }else{
-        //login is taking place mid session with data already created. 
-        const fileid = this.files.generateFileId();
-        this.fs.saver.ada(
-          'mixer', 
-          false,
-          this.zs.zoom)
-          .then(so => {
-            this.files.writeFileData(user.uid, fileid, so)
+        console.log("Login is mid-way")
+        this.loadBlankFile();
 
-          });
-       }
+    
+      }
       
     }
   }
@@ -398,13 +398,12 @@ export class MixerComponent implements OnInit {
     this.ss.clearTimeline();
 
 
-    this.files.setCurrentFileId(result.id);
-    this.files.current_file_name = result.name;
-    this.files.current_file_desc = result.desc;
+    this.files.setCurrentFileInfo(result.id, result.name, result.desc);
     
 
     this.processFileData(result.data).then(data => {
       this.palette.changeDesignmode('move');
+      this.saveFile();
     }
 
     ).catch(console.error);
@@ -412,25 +411,25 @@ export class MixerComponent implements OnInit {
   }
 
   loadBlankFile(){
-    console.log("LOADING Empty FILE")
+    console.log("LOADING BLANK FILE")
     this.clearView();
     this.tree.clear();
     this.ss.clearTimeline();
 
-    this.files.setCurrentFileId(this.files.generateFileId());
-    this.files.current_file_name = "new workspace";
-    this.files.current_file_desc = "";
-
-
-     //if this user is logged in, write it to the
-     this.fs.saver.ada(
-      'mixer', 
-      true,
-      this.zs.zoom)
-      .then(so => {
-        this.ss.addMixerHistoryState(so);
-      });
+    this.files.setCurrentFileInfo(this.files.generateFileId(), 'load blank', '');
+    this.saveFile();
     
+  }
+
+  saveFile(){
+        //if this user is logged in, write it to the
+        this.fs.saver.ada(
+          'mixer', 
+          true,
+          this.zs.zoom)
+          .then(so => {
+            this.ss.addMixerHistoryState(so);
+          });
   }
 
 
@@ -883,15 +882,16 @@ export class MixerComponent implements OnInit {
 
   }
 
-  clearAll() : void{
+  // clearAll() : void{
 
+  //   this.ss.clearTimeline();
+  //   this.loadBlankFile();
+  //   console.log("CLEAR ALL from MIXER")
+  //   this.palette.addTimelineState();
+  //   this.fs.clearAll();
+  //   this.clearView();
 
-    console.log("CLEAR ALL from MIXER")
-    this.palette.addTimelineState();
-    this.fs.clearAll();
-    this.clearView();
-
-  }
+  // }
 
 
 
