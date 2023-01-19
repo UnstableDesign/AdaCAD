@@ -22,117 +22,6 @@
 
 
 
-<!-- MIXER EDITING TOOLS -->
-
-<div class="tool-chunk" *ngIf="source==='mixer'">
-  <!-- <button
-  matTooltip="Upload and Image or File"
-   mat-icon-button
-   [class.is-active] = "upload_modal && upload_modal.componentInstance != null"
-  [name]='upload'
-  (click)="upload()">
-  <i class="fas fa-image"></i>
- </button>  -->
-    
-    
-    <button 
-    mat-icon-button
-    [class.is-active] = "op_modal && op_modal.componentInstance != null"
-    matTooltip= "Operation"
-    (click)="openOps()">
-    <i class="fas fa-project-diagram"></i>
-    </button>
-
-
-</div>
-
-
-    <div class="tool-chunk" *ngIf="source==='mixer'">
-
-    <!-- <button 
-    mat-icon-button
-    matTooltip= "Draw"
-    [matMenuTriggerFor]="inks"
-    [class.is-active]="dm.isSelected('draw','design_modes')">
-    <i class="fas fa-edit"></i>
-    </button> -->
-
-    <!-- <mat-menu #inks="matMenu">
-        <ng-container *ngFor="let mode of dm.draw_modes">
-            <button *ngIf="mode.value != 'material'"
-            class="menu-button" 
-            mat-menu-item 
-            [matTooltip]=mode.viewValue
-            [name]=mode.value 
-            [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
-            (click)="drawModeChange(mode.value)">
-            <span class="{{mode.icon}}"></span>
-             <span>{{mode.viewValue}}</span>
-             </button> 
-             </ng-container>
-    </mat-menu> -->
-
-    <!-- <button 
-    mat-icon-button
-    matTooltip= "Draw Shape"
-    [matMenuTriggerFor]="shape"
-    [class.is-active]="dm.isSelected('shape','design_modes')">
-    <i class="fas fa-shapes"></i>
-    </button>
-     -->
-    
-    <!-- <mat-menu #shape="matMenu">
-
-        <ng-container *ngFor="let mode of dm.shapes">
-        <button 
-        class="menu-button" 
-        mat-menu-item 
-        [matTooltip]=mode.viewValue
-        [name]=mode.value 
-        [class.is-active]="dm.isSelected(mode.value,'shapes')"
-        (click)="shapeChange(mode.value)">
-        <span class="{{mode.icon}}"></span>
-         <span>{{mode.viewValue}}</span>
-         </button> 
-        
-        </ng-container>   
-    </mat-menu> -->
-
-    <button 
-    mat-icon-button
-    matTooltip= "Blank Draft"
-    [class.is-active]="dm.isSelected('marquee','design_modes')"
-    (click)="createNewDraft()">
-    <i class="fas fa-chess-board"></i>
-    </button>
-
-    <!-- <button 
-    mat-icon-button
-    matTooltip= "Blank Draft"
-    [class.is-active]="dm.isSelected('marquee','design_modes')"
-    (click)="designModeChange('marquee')">
-    <i class="fas  fa-chess-board"></i>
-    </button> -->
-
-
-    <!-- <button 
-    mat-icon-button
-    matTooltip= "Move"
-    [class.is-active]="dm.isSelected('move','design_modes')"
-    (click)="designModeChange('move')">
-    <i class="fas fa-arrows-alt"></i>
-    </button> -->
-
-    <button 
-    mat-icon-button
-    matTooltip= "Note"
-    (click)="addNote()">
-    <i class="fas fa-comment"></i>
-    </button>
-
-
-
-</div>
 
 
 
@@ -301,36 +190,7 @@
     
     </div> -->
 <!-- LIBRARIES -->
-    <div class="tool-chunk" *ngIf="source==='mixer'">
-
-        <button 
-        mat-icon-button
-        matTooltip= "Materials Library"
-        [class.is-active] = "materials_modal && materials_modal.componentInstance != null"
-        (click)="openMaterialsModal()">
-        <i class="fas fa-book"></i>
-        </button>
-
-
-        <!-- <button 
-        mat-icon-button
-        matTooltip= "Open Pattern Library"
-        [class.is-active] = "patterns_modal && patterns_modal.componentInstance != null"
-        (click)="openPatternsModal()">
-        <i class="fas fa-chess-board"></i>
-        </button> -->
-
-
-        <!-- <button 
-        mat-icon-button
-        matTooltip= "Workspace Settings"
-        [class.is-active] = "global_loom_modal && global_loom_modal.componentInstance != null"
-        (click)="openGlobalLoomModal()">
-        <i class="fas fa-cog"></i></button> -->
-
-
-    </div>
-
+   
 <!-- EQUIPMENT SETTINGS -->
     <div class="tool-chunk" *ngIf="source==='weaver'">
 
@@ -345,9 +205,61 @@
 
     </div>
 
-<!-- RELATED SETTINGS -->
 
-    <!-- <div class="tool-chunk">
-        <a mat-icon-button matTooltip="switch to adacad mixer" href="https://adacad-weaver.firebaseapp.com/mixer" target='_blank'><i class="fas fa-sliders-h"></i>
-    </div> -->
-</div>
+ 
+ 
+</div>    
+<div *ngIf="source==='mixer'">
+
+    <mat-form-field class="quickadd">
+        <mat-label>Quick Add Operation</mat-label>
+        <div><input matInput placeholder="Operation Name"> </div>
+        <button 
+        mat-raised-button
+        color="primary">
+         Add
+        </button>
+      </mat-form-field>
+    
+
+    <div>
+    <button 
+    mat-icon-button
+    color="primary"
+    [class.is-active] = "op_modal && op_modal.componentInstance != null"
+    matTooltip= "Operation"
+    (click)="openOps()">
+    <i class="fas fa-project-diagram"></i> View All Operations
+    </button>
+    </div>
+
+    <div>
+    <button 
+    mat-icon-button
+    color="primary"
+    matTooltip= "Blank Draft"
+    (click)="createNewDraft()">
+    <i class="fas fa-chess-board"></i> Add Blank Draft to Workspace
+    </button>
+    </div>
+
+    <div>
+        <button 
+        mat-icon-button
+        matTooltip= "Note"
+        color="primary"
+        (click)="addNote()">
+        <i class="fas fa-comment"></i> Add Comment to Workspace
+        </button>
+        </div>
+    <div>
+    <button 
+    mat-icon-button
+    color="primary"
+    matTooltip= "Materials Library"
+    [class.is-active] = "materials_modal && materials_modal.componentInstance != null"
+    (click)="openMaterialsModal()">
+    <i class="fas fa-book"></i> Define Materials
+    </button>
+    </div>
+   </div>
