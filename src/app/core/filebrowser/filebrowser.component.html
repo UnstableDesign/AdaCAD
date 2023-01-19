@@ -85,17 +85,36 @@
 
 
       <!-- files-->
-        <ng-container *ngIf="files.file_tree !== undefined">
-        <mat-list-item  *ngFor="let file of files.file_tree">
+        <ng-container *ngIf="filelist !== undefined">
+        <mat-list-item  *ngFor="let file of filelist">
           <ng-container *ngIf="file !== null && file.meta !== null">
 
 
             <div class="file-item-block">
-              <!-- <div class="fav"> 
-                <button mat-icon-button matListItemIcon><i class="fa-regular fa-star"></i></button></div> -->
+              <div class="fav"> 
+                <button 
+                mat-icon-button 
+                matListItemIcon
+                (click)="toggleFavorite(file.id)"
+                *ngIf="file.id !== this.files.current_file_id">
+                  <i *ngIf="ws.isFavorite(file.id)" class="fa-solid fa-star"></i>
+                  <i *ngIf="!ws.isFavorite(file.id)" class="fa-regular fa-star"></i>
+               </button>
+                <button 
+                *ngIf="file.id === this.files.current_file_id" 
+                mat-icon-button 
+                matListItemIcon>
+                  <i class="fa-solid fa-eye"></i>
+                </button></div>
               <div class="details">
-                <button mat-button matListItemTitle class="file_name">{{file.id}} || {{file.meta.name}} </button>
-                <div matListItemTitle class="timestamp">{{file.meta.date}} || {{file.meta.owner}}  </div>
+                <button 
+                mat-button 
+                matListItemTitle 
+                [class.accent]="file.id == this.files.current_file_id" 
+                class="file_name">
+                {{file.id}} || {{file.meta.name}} 
+              </button>
+                <div matListItemTitle class="timestamp">{{file.meta.date}} </div>
               </div>
               <div class="more">  <button mat-icon-button [matMenuTriggerFor]="fileopts">  <i class="fa-solid fa-ellipsis"></i></button></div>
        

@@ -9,7 +9,19 @@ source="mixer"
   
   <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
    
-   
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Files
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-filebrowser 
+      (onLoadNewFile)="loadNewFile($event);"
+      (onClearScreen)="loadBlankFile();"
+      (onSave)="onSave($event);">
+    </app-filebrowser>
+   </mat-expansion-panel>  
+
     <mat-accordion class="example-headers-align" multi>
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
@@ -48,18 +60,6 @@ source="mixer"
   
       </mat-expansion-panel>  
 
-      <mat-expansion-panel [expanded]="true">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Files
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <app-filebrowser 
-        (onLoadNewFile)="loadNewFile($event);"
-        (onClearScreen)="loadBlankFile();"
-        (onSave)="onSave($event);">
-      </app-filebrowser>
-     </mat-expansion-panel>  
 
   
     <mat-expansion-panel>

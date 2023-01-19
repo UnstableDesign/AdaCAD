@@ -7,6 +7,8 @@ import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginComponent } from '../login/login.component';
 import { InitModal } from '../modal/init/init.modal';
+import { traceUntil } from '@angular/fire/performance';
+import { WorkspaceService } from '../provider/workspace.service';
 
 
 @Component({
@@ -22,12 +24,26 @@ export class FilebrowserComponent implements OnInit {
 
   
   isLoggedIn = false;
+  filelist = [];
 
   constructor(
     public files: FilesystemService, 
     public auth: AuthService,
+    public ws: WorkspaceService,
     private dialog: MatDialog) { 
+    
+  
 
+    this.files.file_tree_change$.subscribe(data => {
+      
+
+      this.updateFileData(data);
+
+    }
+    );
+
+
+  
    
 
   }
@@ -37,6 +53,35 @@ export class FilebrowserComponent implements OnInit {
     
     
   }
+
+  updateFileData(data: Array<any>){
+ 
+    function compareFn(a, b) {
+      if (a.meta.timestamp > b.meta.timestamp) {
+        return -1;
+      }
+      if (a.meta.timestamp < b.meta.timestamp) {
+        return 1;
+      }
+      // a must be equal to b
+      return 0;
+    }
+
+    const timesorted = data.sort(compareFn);
+    const favs = timesorted.filter(el => this.ws.isFavorite(el.id) || this.files.current_file_id == el.id);
+    const other = timesorted.filter(el => !this.ws.isFavorite(el.id) && this.files.current_file_id !== el.id);
+
+    this.filelist = favs.concat(other);
+
+
+  }
+
+  toggleFavorite(id: number){
+      this.ws.toggleFavorite(id);
+      this.updateFileData(this.filelist)
+  }
+
+
 
   rename(){
     this.files.renameFile(this.files.current_file_id, this.files.current_file_name);

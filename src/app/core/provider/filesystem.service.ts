@@ -1,11 +1,12 @@
 import { Injectable, Optional } from '@angular/core';
-import { AuthService } from './auth.service';
-import { getDatabase, child, ref as fbref, set as fbset, query, ref, get as fbget, remove } from '@angular/fire/database';
+import { getDatabase, ref as fbref, set as fbset, query, ref, get as fbget, remove } from '@angular/fire/database';
 import utilInstance from '../model/util';
-import { DataSnapshot, equalTo, onChildAdded, onChildChanged, onChildRemoved, update } from 'firebase/database';
+import { DataSnapshot, onChildAdded, onChildChanged, onChildRemoved, update } from 'firebase/database';
 import { FileService } from './file.service';
 import { ZoomService } from '../../mixer/provider/zoom.service';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
+import { Observable, Observer, Subject } from 'rxjs';
+import { FilebrowserComponent } from '../filebrowser/filebrowser.component';
 
 
 /**
@@ -38,15 +39,23 @@ import { Auth, authState, getAuth } from '@angular/fire/auth';
 })
 export class FilesystemService {
 
+  file_tree_change$ = new Subject<any>();
   file_tree: Array<any> = [];
   current_file_id: number = -1;
   current_file_name: string = "draft"
   current_file_desc: string = "";
-  constructor(@Optional() private auth: Auth,
+  updateUItree: Observable<Array<any>>;
+
+
+ constructor(@Optional() private auth: Auth,
     private fs: FileService, private zs: ZoomService) {
 
-      this.file_tree = [];
+
       
+
+
+      this.file_tree = [];
+
       authState(this.auth).subscribe(user => {
         console.log('user', user)
         if(user == null) return;
@@ -61,14 +70,22 @@ export class FilesystemService {
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
           console.log("child added")
-           this.addToTree(parseInt(childsnapshot.key), childsnapshot.val())
+           this.addToTree(parseInt(childsnapshot.key), childsnapshot.val());
+           this.file_tree_change$.next(this.file_tree.slice());
         });
+
+       
     
         //called when anything in meta changes
         onChildChanged(userFiles, (data) => {
           console.log("Child Changed", data.key, data.val(), this.file_tree)
             const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
-            if(ndx !== -1) this.file_tree[ndx].name = data.val().name
+            if(ndx !== -1){
+              this.file_tree[ndx].meta.name = data.val().name;
+              this.file_tree_change$.next(this.file_tree.slice());
+            }
+
+
         });
         
         //needs to redraw the files list 
@@ -76,12 +93,23 @@ export class FilesystemService {
           console.log("child removed")
           const removedId = removedItem.key;
           this.file_tree = this.file_tree.filter(el => parseInt(el.id) !== parseInt(removedId));
+          this.file_tree_change$.next(this.file_tree.slice());
         });
     
     
       });
 
   }
+
+  
+  
+  public changeObserver(target: FilebrowserComponent) : Observable<Array<any>>{
+    return new Observable<Array<any>>((observer) => {
+
+      const handler = observer.next(this.file_tree);
+    }) 
+  }
+  
 
   /**
    * converts the data snapshot from the database to a UI readable tree

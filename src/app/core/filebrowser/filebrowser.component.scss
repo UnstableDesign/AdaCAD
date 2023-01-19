@@ -10,20 +10,34 @@
 .file_name{
     display: flex;
     flex-direction: row;
+    width:80%;
 }
 
 .file-item-block{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    width: 100%;
 }
 
 .fav,.more{
     width: 10%;
 }
 
+.mat-list-item-content{
+    width: 100%;
+}
+
 .timestamp{
     color: grey;
     font-size: .6em;
     text-align: center;
+}
+
+.details{
+    width: 80%
+}
+
+.accent{
+    color:#ff4081;
 }

@@ -13,7 +13,7 @@ import utilInstance from '../model/util';
 export class WorkspaceService {
 
 
-
+  file_favorites: Array<number> = [];
   min_frames: number = 8; 
   min_treadles: number = 10;
   type: string = 'jacquard'; //'rigid', 'direct', 'frame', 'jacquard'
@@ -61,6 +61,7 @@ export class WorkspaceService {
     this.number_threading = false;
     this.use_colors_on_mixer = true;
     this.selected_origin_option = 3;
+
   }
 
   loadWorkspace(data){
@@ -75,6 +76,7 @@ export class WorkspaceService {
     this.number_threading = data.number_threading;
     this.use_colors_on_mixer = data.use_colors_on_mixer;
     this.selected_origin_option = data.selected_origin_option;
+    this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
   }
 
   getOriginOptions(){
@@ -130,8 +132,24 @@ export class WorkspaceService {
       show_materials: this.show_materials,
       black_cell_up: this.black_cell_up,
       number_threading: this.number_threading,
-      selected_origin_option: this.selected_origin_option
+      selected_origin_option: this.selected_origin_option,
+      file_favorites: this.file_favorites.slice()
     }
+  }
+
+  toggleFavorite(id: number){
+    const found = this.file_favorites.find(el => el === id);
+    if(found){
+      this.file_favorites = this.file_favorites.filter(el => el !== id)
+    }else{
+      this.file_favorites.push(id);
+    }
+  }
+
+  isFavorite(id: number):boolean{
+    const found = this.file_favorites.find(el => el === id);
+    if(found === undefined) return false;
+    else return true;
   }
 
 }
