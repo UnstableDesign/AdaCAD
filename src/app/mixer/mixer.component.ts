@@ -21,7 +21,6 @@ import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { SidebarComponent } from '../core/sidebar/sidebar.component';
-import { FilebrowserComponent } from '../core/filebrowser/filebrowser.component';
 import { OpsComponent } from './modal/ops/ops.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
@@ -31,8 +30,7 @@ import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/ma
 import { NgForm } from '@angular/forms';
 import utilInstance from '../core/model/util';
 import { FilesystemService } from '../core/provider/filesystem.service';
-import { getDatabase, ref as fbref, set as fbset, onValue, query, orderByChild, ref, get as fbget } from '@angular/fire/database';
-import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
+import { Auth, authState, User } from '@angular/fire/auth';
 import { promise } from 'protractor';
 import { timeStamp } from 'console';
 
@@ -407,6 +405,20 @@ export class MixerComponent implements OnInit {
     }
 
     ).catch(console.error);
+    
+  }
+
+  async loadFromDB(fileid: number){
+    console.log("LOADING", fileid)
+    this.clearView();
+    this.tree.clear();
+    this.ss.clearTimeline();
+
+    const ada = await this.files.getFile(fileid);
+    const meta = await this.files.getFileMeta(fileid);           
+    this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
+    this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+    this.saveFile();
     
   }
 

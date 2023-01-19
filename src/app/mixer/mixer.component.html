@@ -14,9 +14,12 @@ source="mixer"
         <mat-panel-title>
           Files
         </mat-panel-title>
+
+
       </mat-expansion-panel-header>
       <app-filebrowser 
       (onLoadNewFile)="loadNewFile($event);"
+      (onLoadFromDB)="loadFromDB($event);"
       (onClearScreen)="loadBlankFile();"
       (onSave)="onSave($event);">
     </app-filebrowser>

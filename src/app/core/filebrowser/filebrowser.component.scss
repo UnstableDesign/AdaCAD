@@ -1,3 +1,18 @@
+h2{
+    color: rgba(0,0,0,.54);
+    font-size: .8em;
+    padding-bottom: 12px;
+}
+
+button i {
+    width: 24px;
+}
+
+.mat-divider{
+    margin-top: 24px;
+}
+
+
 .folder{
     display: flex;
     flex-direction: column;
@@ -24,14 +39,21 @@
     width: 10%;
 }
 
+.mat-form-field{
+    width: 100%;
+}
+
 .mat-list-item-content{
     width: 100%;
 }
 
 .timestamp{
     color: grey;
-    font-size: .6em;
-    text-align: center;
+    font-size: 0.6em;
+    text-align: left;
+    position: relative;
+    top: -12px;
+    left: 16px;
 }
 
 .details{

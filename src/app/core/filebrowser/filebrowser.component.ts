@@ -1,13 +1,9 @@
 import { Component, EventEmitter, OnInit, Optional, Output } from '@angular/core';
 import { AuthService } from '../provider/auth.service';
-import { Auth, authState, createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
-import { K } from '@angular/cdk/keycodes';
 import { FilesystemService } from '../provider/filesystem.service';
-import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginComponent } from '../login/login.component';
 import { InitModal } from '../modal/init/init.modal';
-import { traceUntil } from '@angular/fire/performance';
 import { WorkspaceService } from '../provider/workspace.service';
 
 
@@ -21,6 +17,7 @@ export class FilebrowserComponent implements OnInit {
   @Output() onLoadNewFile: any = new EventEmitter();
   @Output() onClearScreen: any = new EventEmitter();
   @Output() onSave: any = new EventEmitter();
+  @Output() onLoadFromDB: any = new EventEmitter();
 
   
   isLoggedIn = false;
@@ -74,6 +71,11 @@ export class FilebrowserComponent implements OnInit {
     this.filelist = favs.concat(other);
 
 
+  }
+
+
+  openFile(id: number){
+    this.onLoadFromDB.emit(id);
   }
 
   toggleFavorite(id: number){
