@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { Bounds, Interlacement, Point } from '../../core/model/datatypes';
 
 
@@ -8,6 +9,7 @@ import { Bounds, Interlacement, Point } from '../../core/model/datatypes';
 })
 export class ViewportService {
 
+  vpchanged$ = new Subject<any>();
 
 
 
@@ -99,12 +101,16 @@ export class ViewportService {
 
     this.set(bleh.x, bleh.y, this.vp.width, this.vp.height);
 
+
+
   }
 
   set(x: number, y: number, width: number, height: number){
     this.vp.topleft = {x: x, y:y};
     this.vp.width = width;
     this.vp.height = height;
+    this.vpchanged$.next(this.vp.topleft);
+
   }
 
   setWidth(w: number){
@@ -133,6 +139,7 @@ export class ViewportService {
 
   setTopLeft(p: Point){
     this.vp.topleft = {x: p.x, y:p.y};
+
   }
 
   getTopLeft(): Point{

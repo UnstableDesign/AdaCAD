@@ -39,6 +39,11 @@ export class MixerViewComponent implements OnInit {
   public viewport: ViewportService, 
   public zs:ZoomService) { 
 
+    this.viewport.vpchanged$.subscribe(data => {
+      console.log("updating local dims")
+      this.updateLocalDims();
+    })
+
 
 
  
@@ -172,26 +177,13 @@ getMatrix(el: HTMLElement) : Array<number> {
 
 dragMove($event: any) {
 
-  //this holds the onscreen position of the div
-  const global: HTMLElement = document.getElementById('global');
-  const globalOffset: Point = {
-    x: global.offsetLeft,
-    y: global.offsetTop
-  }
-
-  //this holds any changes from dragging the view
-  const overlay: HTMLElement = <HTMLElement> global.offsetParent;
-  const modalTopleft = {
-    x: overlay.offsetLeft,
-    y: overlay.offsetTop
-  }
-  const transform: Array<number> = this.getMatrix(overlay);
-
-  const pointer :Point = $event.pointerPosition;
+    //this holds the onscreen position of the div
+    const local: HTMLElement = document.getElementById('local_view');
+    const transform: Array<number> = this.getMatrix(local);
 
   const pointerOffsetInGlobal = {
-    x:  pointer.x - (modalTopleft.x + globalOffset.x + transform[0]),
-    y:  pointer.y - (modalTopleft.y + globalOffset.y + transform[1])
+    x:  transform[0],
+    y:  transform[1]
   }
 
   const adjusted: Point = {
@@ -199,13 +191,10 @@ dragMove($event: any) {
     y: pointerOffsetInGlobal.y / this.cell_factor * this.zs.zoom
   }
 
-
   this.onViewPortMove.emit(adjusted);
 }
 
-// close() {
-//   this.dialogRef.close(null);
-// }
+
 
 
 }

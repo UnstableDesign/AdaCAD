@@ -18,7 +18,7 @@
     <svg width="250" height="250">
       <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.i.j * cell_factor' [attr.cy]='obj.i.i * cell_factor' [attr.r]="5" fill="black" />
     </svg>
-    <div class="local"
+    <div class="local" id="local_view"
     [style.width.px] = " viewport.getWidth() / zs.zoom * cell_factor"
     [style.height.px] = " viewport.getHeight() / zs.zoom * cell_factor"
     [cdkDragFreeDragPosition]="local_view.topleft"
