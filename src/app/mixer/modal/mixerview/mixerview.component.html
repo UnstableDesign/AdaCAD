@@ -1,22 +1,9 @@
-
-<!-- <div class="toprow">
-  <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
-  
-  <p mat-dialog-title
-    cdkDrag
-     cdkDragRootElement=".cdk-overlay-pane" 
-     [cdkDragFreeDragPosition]="bounds.topleft"
-     cdkDragHandle>View</p>
-  </div>
-
-<mat-dialog-content> -->
-    
- 
+<div class="mixer_view">
 
   <div id = "global" class="global_view">
     
     <svg width="250" height="250">
-      <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.i.j * cell_factor' [attr.cy]='obj.i.i * cell_factor' [attr.r]="5" fill="black" />
+      <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.i.j * cell_factor' [attr.cy]='obj.i.i * cell_factor' [attr.r]="2" fill="grey" />
     </svg>
     <div class="local" id="local_view"
     [style.width.px] = " viewport.getWidth() / zs.zoom * cell_factor"
@@ -62,3 +49,4 @@
  -->
 
 
+</div>

@@ -1573,7 +1573,7 @@ calculateInitialLocaiton(id: number) : Bounds {
 
       //component is not yet initalized on this calculation so we do it manually
       const default_height =  (60 + 50 * (<OpNode> opnode).params.length) * this.zs.zoom/this.default_cell_size;
-      new_bounds.topleft = {x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + default_height};
+      new_bounds.topleft = {x: this.viewport.getCenterPoint().x + 60, y: this.viewport.getCenterPoint().y + default_height};
 
     }else{
       new_bounds.topleft = {x: parent_bounds.topleft.x, y: parent_bounds.topleft.y + parent_bounds.height};

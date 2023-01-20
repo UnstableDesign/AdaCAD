@@ -25,6 +25,12 @@
     }
 }
 
+/* The animation code */
+@keyframes added_to_workspace {
+    from {background-color: #ff4081;}
+    to {background-color: transparent;}
+  }
+
 
 
 .top-row{
@@ -195,6 +201,9 @@ button.is-primary.is-active{
 }
 
 .operation-details{
+    animation-name: added_to_workspace;
+    animation-duration: 4s;
+
     color: white;
     display: flex;
     flex-direction: row;
