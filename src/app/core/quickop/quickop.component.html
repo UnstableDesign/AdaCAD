@@ -1,0 +1,19 @@
+<form  autocomplete="off">
+    <mat-form-field  class="full-width" width='100%' appearance="fill">
+    <mat-label><i class="fas fa-search"></i> quick add operation</mat-label>
+    <input type="text"
+           placeholder=""
+           matInput
+           [formControl]="myControl"
+           [matAutocomplete]="auto"
+           >
+           <mat-autocomplete 
+           autoActiveFirstOption 
+           #auto="matAutocomplete"
+           (optionSelected) = addOpFromSearch($event)>
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+              {{option}}
+            </mat-option>
+    </mat-autocomplete>
+    </mat-form-field>
+  </form>

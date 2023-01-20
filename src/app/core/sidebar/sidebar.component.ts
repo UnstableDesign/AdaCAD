@@ -307,6 +307,10 @@ openOps(){
     });
 }
 
+addOperation(name: string){
+  this.onOperationAdded.emit(name)
+}
+
 openWeaverView(){
   if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) return;
 

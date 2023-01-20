@@ -211,15 +211,12 @@
 </div>    
 <div *ngIf="source==='mixer'">
 
-    <mat-form-field class="quickadd">
-        <mat-label>Quick Add Operation</mat-label>
-        <div><input matInput placeholder="Operation Name"> </div>
-        <button 
-        mat-raised-button
-        color="primary">
-         Add
-        </button>
-      </mat-form-field>
+
+    <app-quickop
+        (onOperationAdded)="addOperation($event)"
+    >
+    </app-quickop>
+
     
 
     <div>
