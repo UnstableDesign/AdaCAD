@@ -338,6 +338,26 @@ openWeaverView(){
     });
 }
 
+openMixerView(){
+  if(this.view_modal != undefined && this.view_modal.componentInstance != null) return;
+
+  this.view_modal  =  this.dialog.open(MixerViewComponent,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {zoom: 5, default_cell_size: 5}});
+
+
+       this.view_modal.componentInstance.onViewPortMove.subscribe(event => { this.onViewPortMove.emit(event)});
+       this.view_modal.componentInstance.onZoomChange.subscribe(event => { this.onZoomChange.emit(event)});
+
+  
+      this.view_modal.afterClosed().subscribe(result => {
+        //this.onLoomChange.emit();
+       // dialogRef.componentInstance.onChange.removeSubscription();
+    });
+}
+
 
 openActions(){
  if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;

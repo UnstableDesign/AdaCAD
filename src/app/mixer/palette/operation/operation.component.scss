@@ -23,6 +23,8 @@
         }
         
     }
+
+  
 }
 
 /* The animation code */
@@ -147,7 +149,6 @@ button.cxn{
 .input-group{
     display: flex;
     flex-direction: row;
-    background-color: #00d1b2;
     margin-right: 8px;
 }
 
@@ -185,6 +186,7 @@ button.is-primary.is-active{
     display:flex;
     flex-direction: row;
     background: rgba(255,255,255,0.8);
+
 }
 
 ::ng-deep  .mat-form-field-infix{
@@ -198,6 +200,7 @@ button.is-primary.is-active{
     flex-grow: 2;
     font-size: .8em;
     padding-right: 8px;
+
 }
 
 .operation-details{
