@@ -572,9 +572,8 @@ export class TreeService {
    * @returns  true if it indeed changed the value
    */
   unsetOpenConnection() : boolean{
-    // console.log("unsetting open cxn")
-    // const b = this.open_connection !== -1;
-    // this.open_connection = -1;
+    console.log("unsetting open cxn")
+    this.open_connection = -1;
       return true;
   }
 

@@ -49,6 +49,7 @@ export class OperationComponent implements OnInit {
    @Output() deleteOp = new EventEmitter <any>(); 
    @Output() duplicateOp = new EventEmitter <any>(); 
    @Output() onInputAdded = new EventEmitter <any> ();
+   @Output() onInputVisibilityChange = new EventEmitter <any> ();
 
 
    params_visible: boolean = true;
@@ -312,9 +313,14 @@ export class OperationComponent implements OnInit {
   }
 
 
-  inputSelected(input_id: number){
+  inputSelected(obj: any){
+    let input_id = obj.inletid;
     this.disableDrag();
     this.onInputAdded.emit({id: this.id, ndx: input_id});
+  }
+
+  visibilityChange(obj: any){
+    this.onInputVisibilityChange.emit({id: this.id, ndx:  obj.inletid, show: obj.show});
   }
 
 

@@ -97,12 +97,14 @@
 
 
     <!-- list everything attached here-->
+    <ng-container *ngIf="show_connection_name">
     <button *ngFor="let input of tree.getOpComponentInputs(opid, inletid);"
     matTooltip = "click to remove this connection"
     class="button is-small cxn"
     (click)="removeConnectionTo(input)">
     <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
     </button>   
+    </ng-container>
 
 
 </div>

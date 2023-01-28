@@ -667,8 +667,9 @@ export class PaletteComponent implements OnInit{
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
-    this.subdraftSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
-    this.subdraftSubscriptions.push(op.onInputAdded.subscribe(this.connectionMade.bind(this)));
+    this.operationSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
+    this.operationSubscriptions.push(op.onInputAdded.subscribe(this.connectionMade.bind(this)));
+    this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
   }
 
 
@@ -1659,6 +1660,101 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
 
 }
 
+ 
+/**
+ * when an inlet is pressed on an operation, highlight all things contributed to this inlet
+ * @param op_id 
+ * @param inlet_id 
+ */
+highlightPathToInlet(op_id: number, inlet_id: number){
+
+const cxns = this.tree.getInputsAtNdx(op_id, inlet_id);
+console.log("CXN", cxns);
+
+const upstream_ops = cxns.reduce((acc, val)=>{
+   const ids = this.tree.getUpstreamOperations(val.tn.node.id);
+   return acc.concat(ids);
+ }, []); 
+
+const upstream_drafts = cxns.reduce((acc, val)=>{
+  const ids = this.tree.getUpstreamDrafts(val.tn.node.id);
+  return acc.concat(ids);
+}, []); 
+
+const upstream_cxn = upstream_drafts.reduce((acc, draft)=>{
+  return acc.concat(this.tree.getOutputs(draft));
+}, []); 
+
+
+
+//  const upstream_drafts = this.tree.getUpstreamDrafts(op_id);
+const op_children = this.tree.getNonCxnOutputs(op_id);
+
+ const all_ops = this.tree.getOpNodes();
+ all_ops.forEach(op => {
+  if(upstream_ops.find(el => el === op.id) === undefined){
+    if(op.id !== op_id){
+      const div = document.getElementById("scale-"+op.id);
+      if(div !== null) div.style.opacity = ".2";
+    } 
+  }
+ })
+
+ const all_drafts = this.tree.getDraftNodes();
+ all_drafts.forEach(draft => {
+  if(upstream_drafts.find(el => el === draft.id) === undefined){
+    if(op_children.find(del => del === draft.id) === undefined){
+      const div = document.getElementById("scale-"+draft.id);
+      if(div !== null) div.style.opacity = ".2";
+    } 
+  }
+ })
+
+ const all_cxns = this.tree.getConnections();
+ all_cxns.forEach(cxn => {
+  if(upstream_cxn.find(el => el === cxn.id) === undefined){
+    const div = document.getElementById("scale-"+cxn.id);
+    if(div !== null) div.style.opacity = ".2";
+  }
+ })
+
+}
+
+resetOpacity(){
+  const ops = this.tree.getOpNodes();
+  ops.forEach(op => {
+    const div = document.getElementById("scale-"+op.id);
+    if(div !== null) div.style.opacity = "1"
+  });
+
+  const drafts = this.tree.getDraftNodes();
+  drafts.forEach(draft => {
+    const div = document.getElementById("scale-"+draft.id);
+    if(div !== null) div.style.opacity = "1"
+  });
+
+  const cxns = this.tree.getConnections();
+  cxns.forEach(cxn => {
+    const div = document.getElementById("scale-"+cxn.id);
+    if(div !== null)  div.style.opacity = "1"
+  });
+
+  
+}
+
+
+
+/**
+ * called from an operation or inlet to allow for the inlighting of all upstream operations and drafts
+ * @param obj 
+ */
+updateVisibility(obj: any){
+  {
+    this.resetOpacity();
+    if(obj.show) this.highlightPathToInlet(obj.id, obj.ndx);
+  } 
+}
+
 
 
 /**
@@ -1670,6 +1766,7 @@ connectionMade(obj: any){
   console.log("this.tree has open", this.tree.hasOpenConnection());
 
   if(!this.tree.hasOpenConnection()) return;
+
 
   //this is defined in the order that the line was drawn
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(obj.id);

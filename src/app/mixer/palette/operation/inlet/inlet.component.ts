@@ -18,6 +18,7 @@ export class InletComponent implements OnInit {
   @Input() inletid:  number;
   @Input() dynamic: boolean;
   @Output() onInputSelected = new EventEmitter <any>(); 
+  @Output() onInputVisibilityChange = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onInletChange = new EventEmitter <any>(); 
 
@@ -29,6 +30,7 @@ export class InletComponent implements OnInit {
   inlet: OperationInlet;
   selectedValue: number; 
   inlet_desc: string;
+  show_connection_name: boolean = false;
 
   constructor(
     public tree: TreeService, 
@@ -94,7 +96,15 @@ export class InletComponent implements OnInit {
 
 
   inputSelected(){
-    this.onInputSelected.emit(this.inletid);
+
+    const inputs = this.tree.getOpComponentInputs(this.opid, this.inletid);
+    if(inputs.length == 0){
+      this.onInputSelected.emit({inletid: this.inletid});
+      this.show_connection_name = false;
+    }else{
+      this.show_connection_name = !this.show_connection_name;
+      this.onInputVisibilityChange.emit({inletid: this.inletid, show: this.show_connection_name});
+    }    
   }
 
   removeConnectionTo(sd_id: number){

@@ -22,6 +22,7 @@ cdkDrag
           [inletid]='i'
           [dynamic]='is_dynamic_op'
           (onInputSelected)="inputSelected($event)"
+          (onInputVisibilityChange)="visibilityChange($event)"
           (onConnectionRemoved)="removeConnectionTo($event)"
           (onInletChange)="onInletChange($event)"
           ></app-inlet>
