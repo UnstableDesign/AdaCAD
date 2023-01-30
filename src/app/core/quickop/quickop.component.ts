@@ -30,11 +30,10 @@ export class QuickopComponent {
 
 
   ngOnInit(){
-    const allops = this.ops.ops.concat(this.ops.dynamic_ops);
+    const allops = this.ops.ops.concat(this.ops.dynamic_ops).filter(el => this.op_desc.hasDisplayName(el.name));
     this.classifications = this.op_desc.getOpClassifications();
-    this.opnames = allops.map(el => el.name);
+    this.opnames = allops.map(el => el.name)  
     this.displaynames = allops.map(el => this.op_desc.getDisplayName(el.name));
-
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))

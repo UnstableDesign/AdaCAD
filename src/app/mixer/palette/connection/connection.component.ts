@@ -173,7 +173,6 @@ export class ConnectionComponent implements OnInit {
 
   
   drawConnection(){
-    console.log("draw")
 
     const stublength = 15;
     const connector_opening = 10;

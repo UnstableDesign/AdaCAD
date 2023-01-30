@@ -41,6 +41,16 @@ export class OperationDescriptionsService {
     }
   }
 
+  hasDisplayName(opname: string) : boolean{
+    const item = descriptions.operation.find(el => el.name == opname);
+    console.log("Searchign for ", opname, item)
+    if(item !== undefined){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
   getDisplayName(opname: string){
     const item = descriptions.operation.find(el => el.name == opname);
     if(item !== undefined){

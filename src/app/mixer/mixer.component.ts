@@ -269,7 +269,6 @@ export class MixerComponent implements OnInit {
   }
 
  setScroll(delta: any) {
-    console.log("SET SCROLL")
     this.palette.handleScroll(delta);
     this.manual_scroll = true;
    //this.view_tool.updateViewPort(data);
