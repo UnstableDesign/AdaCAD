@@ -67,7 +67,7 @@ export class NotesService {
   }
 
   /** called on load file  */
-  reloadNotes(ns: Array<any>){
+  reloadNotes(ns: Array<any>) : Array<Note>{
 
     this.notes = [];
     ns.forEach(note => {
@@ -84,6 +84,7 @@ export class NotesService {
 
     if(typeof(ns) == "string") return;
     this.notes = ns;
+    return ns;
   }
 
   /**

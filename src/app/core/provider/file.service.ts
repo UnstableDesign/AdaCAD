@@ -83,9 +83,6 @@ export class FileService {
         }
       }
 
-      if(data.notes !== undefined) this.ns.reloadNotes(data.notes);
-
-
       const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
     
       const loom_elements = []
@@ -206,11 +203,11 @@ export class FileService {
             nodes: (data.nodes === undefined) ? [] : data.nodes,
             treenodes: (data.tree === undefined) ? [] : data.tree,
             draft_nodes: draft_nodes,
+            notes: (data.notes === undefined) ? [] : data.notes,
             ops: ops,
             scale: (data.scale === undefined) ? 5 : data.scale,
           }
     
-          console.log("returning",filename, desc, id )
           return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
   
         }
@@ -515,6 +512,7 @@ export class FileService {
           nodes: [proxies.node], 
           treenodes: [proxies.treenode],
           draft_nodes: [proxies.draft_node],
+          notes: [],
           ops: [],
           scale: 5
         }

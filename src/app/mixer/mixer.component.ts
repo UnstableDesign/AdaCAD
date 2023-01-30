@@ -389,9 +389,8 @@ export class MixerComponent implements OnInit {
    */
   loadNewFile(result: LoadResponse){
     console.log("LOADING NEW FILE", result)
-    this.clearView();
-    this.tree.clear();
-    this.ss.clearTimeline();
+    this.clearAll();
+
 
 
     this.files.setCurrentFileInfo(result.id, result.name, result.desc);
@@ -408,9 +407,8 @@ export class MixerComponent implements OnInit {
 
   async loadFromDB(fileid: number){
     console.log("LOADING", fileid)
-    this.clearView();
-    this.tree.clear();
-    this.ss.clearTimeline();
+    this.clearAll();
+
 
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid);           
@@ -422,9 +420,8 @@ export class MixerComponent implements OnInit {
 
   loadBlankFile(){
     console.log("LOADING BLANK FILE")
-    this.clearView();
-    this.tree.clear();
-    this.ss.clearTimeline();
+    this.clearAll();
+
 
     this.files.setCurrentFileInfo(this.files.generateFileId(), 'load blank', '');
     this.saveFile();
@@ -453,8 +450,8 @@ export class MixerComponent implements OnInit {
     this.processFileData(result.data)
     .then( data => {
       this.palette.changeDesignmode('move')
-      this.clearView();
-      this.tree.clear();
+      this.clearAll();
+
       console.log("imported new file", result, result.data)
       })
       .catch(console.error);
@@ -594,7 +591,10 @@ export class MixerComponent implements OnInit {
 
 
     let entry_mapping = [];
-    this.notes.notes.forEach(note => {
+
+    const loaded_notes = this.notes.reloadNotes(data.notes);
+
+    loaded_notes.forEach(note => {
         this.palette.loadNote(note);
     });
 
@@ -802,63 +802,13 @@ export class MixerComponent implements OnInit {
       console.log(res);
       if(res.status == 404) return;
 
-      this.clearView();
-      this.tree.clear();
-      this.ss.clearTimeline();
-      console.log("LOAD EXAMPLE", res)
-
+      this.clearAll();
       return this.fs.loader.ada(name, -1, '', res.body)
      .then(loadresponse => {
        this.loadNewFile(loadresponse)
      });
     }); 
   }
-
-
-  // loadLoggedInUser(){
-
-  //   this.auth.user.subscribe(user => {
-
-  //     if(user === null){
-
-  //       const dialogRef = this.dialog.open(InitModal, {
-  //         data: {source: 'mixer'}
-  //       });
-
-
-  //       dialogRef.afterClosed().subscribe(loadResponse => {
-  //         this.palette.changeDesignmode('move');
-  //         if(loadResponse !== undefined){
-  //           if(loadResponse.status == -1){
-  //             this.clearAll();
-  //           }
-  //           else{
-  //             this.loadNewFile(loadResponse);
-  //           }
-  //         } 
-        
-    
-  //      });
-  //     }else{
-
-  //       //in the case someone logs in mid way through, don't replace their work. 
-  //       if(this.tree.nodes.length > 0){
-  //         this.files.generateFileId();
-  //         return;
-  //       } 
-
-  //       this.files.getOnLoadDefaultFile().then(ada => {
-  //         this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, ada).then(lr => {
-  //           this.loadNewFile(lr);
-  //         });
-  //       }).catch((error) => {
-  //        console.error(error);
-  //       });
-  //     }
-  //   });
-      
-
-  // }
 
 
   prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
@@ -868,29 +818,6 @@ export class MixerComponent implements OnInit {
   }
 
 
-  loadSavedFile(){
-  //   this.auth.user.subscribe(user => {
-  //       if(user !== null){
-
-  //         const db = fbref(getDatabase());
-
-
-  //         fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
-  //           if (snapshot.exists()) {
-  //             this.fls.loader.ada("recovered draft", snapshot.val()).then(lr => {
-  //               this.dialogRef.close(lr)
-  //             });
-  //           }
-  //         }).catch((error) => {
-  //           console.error(error);
-  //         });
-    
-  //     }
-    
-  // });
-
-  }
-
 
   clearView() : void {
     this.palette.clearComponents();
@@ -898,16 +825,15 @@ export class MixerComponent implements OnInit {
 
   }
 
-  // clearAll() : void{
+  clearAll() : void{
 
-  //   this.ss.clearTimeline();
-  //   this.loadBlankFile();
-  //   console.log("CLEAR ALL from MIXER")
-  //   this.palette.addTimelineState();
-  //   this.fs.clearAll();
-  //   this.clearView();
+    console.log("CLEAR ALL")
+    this.clearView();
+    this.tree.clear();
+    this.ss.clearTimeline();
+    this.notes.clear();
 
-  // }
+  }
 
 
 

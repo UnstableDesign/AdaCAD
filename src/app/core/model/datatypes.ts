@@ -361,6 +361,7 @@ export interface FileObj{
  nodes: Array<NodeComponentProxy>,
  treenodes: Array<TreeNodeProxy>,
  draft_nodes: Array<DraftNodeProxy>,
+ notes: Array<any>,
  ops: Array<OpComponentProxy>
  scale: number
 }

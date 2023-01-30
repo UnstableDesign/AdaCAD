@@ -30,7 +30,7 @@ cdkDrag
     <form class="example-form">
  
         <mat-form-field class="textfield" appearance="fill">
-          <mat-label>Comment #{{note.id}}</mat-label>
+          <mat-label>Comment</mat-label>
           <textarea cdkTextareaAutosize matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
         </mat-form-field>
     </form>
