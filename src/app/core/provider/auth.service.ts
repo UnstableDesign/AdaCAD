@@ -32,6 +32,7 @@ export class AuthService {
         this.showLogoutButton = (user !== null);
         this.isLoggedIn = (user !== null);
         this.uid =(user === null) ? "" : user.uid;
+        this.firstLoad = false;
         if(user !== null) this.username = (user.displayName === null) ? user.email : user.displayName;        
 
 
@@ -106,6 +107,7 @@ export class AuthService {
    * @returns true if this is the first time the page is being loaded, false if it has already been active
    */
   isFirstSession() : boolean {
+    console.log("this.firstload", this.firstLoad)
     return this.firstLoad;
   }
 

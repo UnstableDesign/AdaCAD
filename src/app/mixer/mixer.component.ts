@@ -343,11 +343,12 @@ export class MixerComponent implements OnInit {
               }
 
           }else{
-            
+              console.log("LOOKING FOR ADA FILE")
              this.auth.getMostRecentAdaFromUser(user).then(async adafile => {
-
+                console.log("ADA FILE IS ", adafile)
                 if(adafile !== null){
                     let fileid = await this.files.convertAdaToFile(user.uid, adafile); 
+                    console.log("convert ada to file id ", fileid)
             
                     let ada = await this.files.getFile(fileid);
                     let meta = await this.files.getFileMeta(fileid);           
@@ -364,7 +365,7 @@ export class MixerComponent implements OnInit {
                     }
 
                 }else{
-
+                  console.log("load blank")
                   this.loadBlankFile();
                   return;
                 }
@@ -374,7 +375,8 @@ export class MixerComponent implements OnInit {
 
       }else{
         console.log("Login is mid-way")
-        this.loadBlankFile();
+        //this.loadBlankFile();
+        this.saveFile();
 
     
       }

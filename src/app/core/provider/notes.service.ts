@@ -52,8 +52,6 @@ export class NotesService {
     }
 
     this.notes.push(gennote);
-
-
     return gennote.id;
   
   }

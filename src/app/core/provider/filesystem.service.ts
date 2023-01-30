@@ -111,26 +111,10 @@ export class FilesystemService {
   }
   
 
-  /**
-   * converts the data snapshot from the database to a UI readable tree
-   * @param snapshot 
-   * @returns 
-   */
-  private updateFileList(snapshot: DataSnapshot){
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if(user === undefined) return;
-
-    //this.file_tree = [];
-   
-    snapshot.forEach((childSnapshot) => {
-      const childKey = childSnapshot.key;
-      const childData = childSnapshot.val();
-      if(childData.owner === user.uid) this.addToTree(parseInt(childKey), childData)
-      
-    });
+  public clearTree(){
+    this.file_tree = [];
   }
+
 
   /**
    * adds to the local tree for the UI
@@ -210,7 +194,8 @@ export class FilesystemService {
     
    const fileid = this.generateFileId();
    this.writeFileData(uid, fileid, ada);
-   return Promise.resolve(this.current_file_id);
+   this.writeNewFileMetaData(uid, fileid, 'recovered draft', '')
+   return Promise.resolve(fileid);
     
   }
 
@@ -222,7 +207,6 @@ export class FilesystemService {
    */
   getFile(fileid: number) : Promise<any> {
     const db = getDatabase();
-
     return fbget(fbref(db, `filedata/${fileid}`)).then((filedata) => {
 
         if(filedata.exists()){
