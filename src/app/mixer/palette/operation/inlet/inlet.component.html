@@ -1,69 +1,47 @@
 
 
+
+
+
+
 <ng-container *ngIf="inlet.type !== 'null'">
+
+
+
 <div class="inlet_block">
-    <button *ngIf="inlet.type === 'static'"
-    class="button is-small input"
-    [matTooltip]='inlet_desc'
-    (click)="inputSelected()">
-         <div class="fas fa-chevron-down inlet_arrow"></div>
-         <span class="inlet-name">{{inlet.name}}</span> 
-    </button>
+
 
 
     <ng-container *ngIf="inlet.type === 'number' || inlet.type === 'draft'">
+        <span class="inlet-label">{{opnode.inlets[inletid]}}</span> 
 
-        <button
-        class="button is-small input"
-        [matTooltip]='inlet.dx'
-        (click)="inputSelected()">
-             <div class="fas fa-chevron-down inlet_arrow"></div>
-             <span class="inlet-label">{{opnode.inlets[inletid]}}</span> 
-        </button>
-
-
-       <mat-select matNativeControl
-       matTooltip="this will assign this draft to the number you select" 
-       [(ngModel)]="opnode.inlets[inletid]"
-       (selectionChange)="inletChange()">
-       <mat-option *ngFor="let num of number_opts" [value]="num">
-           {{num}}
-       </mat-option>
-   </mat-select>
-
+            <mat-select matNativeControl
+            matTooltip="this will assign this draft to the number you select" 
+            [(ngModel)]="opnode.inlets[inletid]"
+            (selectionChange)="inletChange()">
+            <mat-option *ngFor="let num of number_opts" [value]="num">
+                {{num}}
+            </mat-option>
+         </mat-select>
 
     </ng-container>
 
 
 
-    
+
     <ng-container *ngIf="inlet.type === 'notation' || inlet.type === 'profile' ">
 
-        <button
-        class="button is-small input"
-        [matTooltip]='inlet.dx'
-        (click)="inputSelected()">
+
         <div class="fas fa-chevron-down inlet_arrow"></div>
         <span class="dynamic_" *ngIf="inlet.type === 'notation'" class="inlet-label"> ({{opnode.inlets[inletid]}})</span>
-             <span  *ngIf="inlet.type === 'profile'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
-     
-            </button>
+        <span  *ngIf="inlet.type === 'profile'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
 
-        
-
-      
     </ng-container>
 
 
 
     <ng-container *ngIf="inlet.type === 'system'">
-        <button
-        class="button is-small input"
-        [matTooltip]='inlet.dx'
-        (click)="inputSelected()">
-        <div class="fas fa-chevron-down inlet_arrow"></div>
-
-        </button>
+     
         <span class="inlet-label">layer {{inletid+1}}, system: </span>
             <mat-select matNativeControl
             matTooltip="select the system to associate with this layer" 
@@ -75,38 +53,63 @@
         </mat-select>
 
 
- 
-
     </ng-container>
 
     <ng-container *ngIf="inlet.type === 'color'">
-       <div class="colorgroup">
+        <div class="colorgroup">
+         
+            <div
+            [matTooltip]="fc.value"
+            [style.background-color] = fc.value
+            class="input-color"></div>
+
+            </div>
+
+    </ng-container>
+ 
+
+
+
+
+    <!-- draw the first set of inlets that have inputs first. -->
+    <div *ngFor="let input of tree.getOpComponentInputs(opid, inletid);">
+    
+    
         <button 
-        class="button is-small input"
+        class="toggle_visibility"
+        [matTooltip]='inlet.dx'
         (click)="inputSelected()">
-        <div class="fas fa-chevron-down inlet_arrow"></div>
-        <div
-        [matTooltip]="fc.value"
-        [style.background-color] = fc.value
-        class="input-color"></div>
+        <i *ngIf="!show_connection_name" class="fa-solid fa-eye"></i>
+        <i *ngIf="show_connection_name" class="fa-solid fa-eye-slash"></i>
         </button>
-     
+        
+    
+        <!-- list everything attached here-->
+       
+       
+        <div class="show_connection" *ngIf="show_connection_name">
+            <div>connected to: <b>{{getInputName(input)}}</b></div>
+            <div><button
+                mat-raised-button
+                color="primary"
+            matTooltip = "click to remove this connection"
+            class="button is-small"
+            (click)="removeConnectionTo(input)">
+           <i class="fas fa-times"></i>Remove Connection</button> </div>
+             
+        </div>   
+
+
+
     </div>
 
-    </ng-container>
-
-
-    <!-- list everything attached here-->
-    <ng-container *ngIf="show_connection_name">
-    <button *ngFor="let input of tree.getOpComponentInputs(opid, inletid);"
-    matTooltip = "click to remove this connection"
-    class="button is-small cxn"
-    (click)="removeConnectionTo(input)">
-    <i class="fas fa-times"></i><span class="input-name">{{getInputName(input)}} </span>
-    </button>   
-    </ng-container>
-
-
+    <button *ngIf="inlet_open"
+    class="open_inlet"
+    [matTooltip]='inlet.dx'
+    (click)="inputSelected()">
+    <i class="fa-sharp fa-solid fa-circle-down"></i>
+</button>
+    
 </div>
 
 </ng-container>

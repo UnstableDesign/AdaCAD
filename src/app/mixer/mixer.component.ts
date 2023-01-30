@@ -232,9 +232,6 @@ export class MixerComponent implements OnInit {
     //subscribe to the login event and handle what happens in that case 
 
     if (auth) {
-      // console.log("in constrcutor AUTH IS ", this.fbauth.currentUser)
-      // this.initLoginLogoutSequence(this.fbauth.currentUser);
-
       const success = authState(this.fbauth).subscribe(async user => {
          this.initLoginLogoutSequence(user) 
           
@@ -258,11 +255,6 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    let searchParams = new URLSearchParams(window.location.search);
-
-    if(searchParams.has('ex')){
-      this.loadExampleAtURL(searchParams.get('ex'));  
-    }
 
   }
 
@@ -291,25 +283,31 @@ export class MixerComponent implements OnInit {
   designModeChange(name: string){
     this.palette.designModeChanged();
   }
-
-  /**
-   * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
-   * @param name the name of the current design mode
-   */
-  private inkChanged(name: string){
-    // this.palette.inkChanged();
-  }
   
 
 
   isBlankWorkspace() : boolean {
+    console.log("IS BLANK HAS ", this.tree.nodes.length)
     return this.tree.nodes.length == 0;
   }
 
 
 
+  /**
+   * this is called anytime a user event is fired
+   * @param user 
+   */
   initLoginLogoutSequence(user:User) {
     console.log("IN LOGIN/LOGOUT ", user)
+
+
+    let searchParams = new URLSearchParams(window.location.search);
+    if(searchParams.has('ex')){
+      this.loadExampleAtURL(searchParams.get('ex'));  
+      return;
+    }
+
+
     if(user === null){
       //this is a logout event
       console.log("MIXER // USER LOGGED OUT")
@@ -804,6 +802,12 @@ export class MixerComponent implements OnInit {
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
+
+      this.clearView();
+      this.tree.clear();
+      this.ss.clearTimeline();
+      console.log("LOAD EXAMPLE", res)
+
       return this.fs.loader.ada(name, -1, '', res.body)
      .then(loadresponse => {
        this.loadNewFile(loadresponse)

@@ -7,14 +7,59 @@
 
 button.input{
     position: relative;
-	background-color: #666666;
+	background-color: #333333;
 	color: white;
-	border: none;
+	border: 1px solid white;
     display: flex;
     flex-direction: row;
+    border-bottom: none;
 
     .inlet_arrow{
        margin-right: 4px;
+    }
+}
+
+.show_connection{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: white;
+    z-index: 100;
+    position: relative;
+    font-size: 1.5em;
+    text-align: center;
+    border: thin solid black;
+}
+
+button.open_inlet,
+button.toggle_visibility{
+    background-color: transparent;
+    border: none;
+     
+    i{
+        position: relative;
+        top: -9px;
+        font-size: 24px;
+    }
+}
+
+button.open_inlet i{
+    color: white;
+}
+button.toggle_visibility i{
+    color: #ff3860;
+}
+
+
+
+
+
+button.open_inlet:active,
+button.open_inlet:hover,
+button.toggle_visibility:active,
+button.toggle_visibility:hover{
+    i{
+        color:#ff3860;
     }
 }
 
@@ -30,12 +75,6 @@ button.input:hover{
 }
 
 
-
-button.cxn{
-    background-color: lightgrey;
-    border: thin solid black;
-    color: black;
-}
 
 .input-name{
     margin-left: 8px;

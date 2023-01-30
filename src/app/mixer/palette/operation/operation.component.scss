@@ -6,6 +6,9 @@
     flex-direction: column;
     justify-content: flex-start;
     width: max-content;
+    min-width: 300px;
+    background-color: #434345;
+    color: white;
 
     .multiselected{
         border: thin solid  #ff3860;
@@ -36,40 +39,43 @@
 
 
 .top-row{
-    background: #333333;
     display: flex;
     flex-direction: row;
+    vertical-align: bottom;
     justify-content: flex-start;
-    height: 30px;
+    padding: 6px 0 0 0 ;   
+    border-top: white thin solid;
+    height: 42px;
 }
 
 
 
-.top-row .child{
-    background: #999999;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    height: 30px;
-}
+// .top-row .child{
+//     background: #999999;
+//     display: flex;
+//     flex-direction: row;
+//     justify-content: flex-start;
+//     height: 30px;
+// }
 
 
 
 
 
 button.is-primary{
-    background-color: #333333;
+    background-color: transparent;
     border-color: transparent;
     color: #fff;
 }
 
 .cxn-row{
-    font-size: .8em;
+    font-size: 0.8em;
     display: flex;
     flex-direction: row;
     text-align: left;
-    background-color: transparent;
     overflow: visible;
+    height: 25px;
+    padding: 2px 0;
 
 }
 
@@ -174,10 +180,10 @@ button.is-primary.is-active{
 }
 
 .name{
-    margin: 0px 8px; 
+    margin: 0px 8px;
     color: white;
-    line-height: 30px;
-    font-weight: 400;
+    font-weight: bold;
+    font-size: 1.2em;
 }
 
 
@@ -185,7 +191,6 @@ button.is-primary.is-active{
 .params{
     display:flex;
     flex-direction: row;
-    background: rgba(255,255,255,0.8);
 
 }
 

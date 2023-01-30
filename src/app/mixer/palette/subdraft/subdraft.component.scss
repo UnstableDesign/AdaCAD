@@ -1,6 +1,7 @@
 
 
 .subdraft-container{
+	background: rgba(255, 255, 255, 0.6);
 
 	position: absolute;
 	top: 0px;
@@ -8,7 +9,7 @@
 	display: flex;
 	flex-direction: column;
 	justify-content:flex-end;
-	min-width: 100px;
+	min-width: 300px;
 
 	.multiselected{
 		border: thin solid #ff3860;
@@ -22,7 +23,6 @@
 	flex-direction: row;
 	justify-content: space-between;
 	color: white;
-	background: rgba(155,155,155,.8);
     font-size: 0.7em;
 	padding: 0px 4px;
 	height: 20px;
@@ -30,26 +30,18 @@
 }
 
 .bottom-opts{
-    display: flex;
+	display: flex;
     flex-direction: row;
     justify-content: flex-end;
-	overflow: hidden;
+    padding: 8px 0px;
+    color: #555;
+    height: 40px;
 	
 }
 
-.dims{
-	display: flex;
-	justify-content: center;
-    line-height: 17px;
-    font-size: .9em;
-    font-weight: 600;
-	width: 50%;
-
-}
 
 .bottom-opts.has_draft_hidden{
 	height: auto;
-	background-color: white;
 	width: 224px;
 }
 
@@ -79,56 +71,53 @@ h3{
 	z-index: 10;
 }
 
-.defined_name{
-	width: 50%;
-	overflow: hidden;
-}
-
-.dims_and_name{
-	width: 66%;
-	display: inline-flex;
-}
 
 
 button.output{
     position: relative;
-	background-color: #00d1b2;
-	color: white;
-	border: none; 
-	width: 20px;
+    top: 9px;
+    font-size: 24px;
+    color: #333;
+	background-color: transparent;
+	border: none;
 }
 
 button.output:active,
 button.output:hover{
-	background-color: #ff3860;
+	color: #ff3860;
 }
 
-
-
-.drawing{
-	z-index: -1;
-
-	.cloak{
-		pointer-events: all;
-	}
-
-	.maindraft{
-		pointer-events: none;
-	}
+.single_line{
+	display: flex;
+	flex-direction: row;
 }
 
-.mat-icon-button{
-	width: 30px;
-	height: 30px;
+.outlet_row{
+    height: 34px;
+    display: flex;
+    flex-direction: row;
+    padding-top: 9px;
+    color: black;
+}
+
+.outlet{
+	background-color: transparent;
+	color: white;
+	border: none; 
+	width: 20px;
+	
+	i{
+		font-size: 20px;
+		position: relative;
+
+	}
+	
 }
 
 
 .error{
 	color: #ff3860;
   }
-.mat-icon{
-	height: auto;
-}
 
 .dropdown{
 	display: flex;
@@ -138,6 +127,7 @@ button.output:hover{
 .subdraft-details{
 	position: relative;
 	top: -10px;
+
 }
 
 .cloak{
@@ -157,7 +147,6 @@ button.output:hover{
 	align-items: center;
 	justify-content: center;
 	padding: 4px;
-	background: rgba(155,155,155,.8);
 	
 
 

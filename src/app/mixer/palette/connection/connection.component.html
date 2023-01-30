@@ -6,7 +6,16 @@ cdkDrag
 
 >
 
-<svg id="svg-{{id}}"  width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+<button 
+mat-icon-button
+color="accent" 
+id="connector-{{id}}" 
+(click)="disconnect()"
+aria-label="Example icon button with a menu icon">
+<i class="fas fa-times"></i></button>
+
+
+<svg id="svg-{{id}}"  xmlns="http://www.w3.org/2000/svg">
 
   </svg>
 

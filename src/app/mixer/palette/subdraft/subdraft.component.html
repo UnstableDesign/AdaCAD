@@ -19,121 +19,124 @@ class="subdraft-container"
 
 	<div id="scale-{{id}}" class="subdraft-container">
 
+		<div class="bottom-opts">
+
+
+			<div class="subdraft-details"> 
+
+	
+				<button mat-icon-button
+				class="is-small fa-solid"
+				[class.fa-chess-board] = 'use_colors'
+				[class.fa-rug] = '!use_colors'
+				matTooltip ="Toggle Material View"
+				(click)="toggleDraftRendering()">
+				</button>
+
+				<button mat-icon-button
+				class="is-small fas fa-expand-alt"
+				matTooltip ="View Draft Details"
+				(click)="finetune()">
+				</button>
+
+							<button mat-icon-button
+				[matMenuTriggerFor]="subdraftOptions"
+				class="is-small fa-solid fa-ellipsis"
+				matTooltip ="View Options">
+				</button>
+
+				<mat-menu #subdraftOptions>
+				
+		
+				<button mat-icon-button *ngIf='parent_id !== -1'
+				matTooltip= "Show/Hide Draft"
+				class="fas"
+				[class.fa-eye-slash] = '!draft_visible'
+				[class.fa-eye] = 'draft_visible'
+				(click)="showhide()">
+				</button>
+		
+		
+				<button mat-icon-button
+				matTooltip= "Duplilcate"
+				class="fa fa-clone"
+				[style.color]="button_color" 
+				[name]="duplicate"
+				(click)="designActionChange('duplicate')">
+				</button>
+				
+				<button mat-icon-button
+				class="fas fa-download"
+				(click)="saveAsBmp()"
+				matTooltip ="Download as Bitmap">
+
+				</button>
+				<button mat-icon-button
+				(click)="saveAsPrint()"
+				class="fa-solid fa-file-image"
+				matTooltip ="Download as Printable Image">
+				</button>
+
+		
+			
+				<button mat-icon-button *ngIf='parent_id === -1'
+				matTooltip= "Delete"
+				class="fas fa-times"
+				[name]="delete"
+				(click)="designActionChange('delete')">
+				</button>
+
+				
+			</mat-menu>
+
+	
+
+				</div>
+				
+		
+
+	
+
+		
+				
+
+	
+	</div>
+
+
+
 		<div  class="subdraft-contents">
 			<canvas id="{{id}}" class="maindraft" [class.hidden] = '!draft_visible'>  
 			</canvas>
 		</div>
 
-		<div class="datarow">
-		
-			<div class='dims_and_name'>
-				<div class="defined_name">
+
+		<div class="outlet_row">
+
+
+			<button 
+			id = "{{id}}-out" 
+			class="output"
+			matTooltip = "connect this draft to an operation"
+			(click)="connectionStarted(id)">
+			<i class="fa-sharp fa-solid fa-circle-down"></i>
+			</button>
+
+			<div class="single_line">
+				<div class="dims">{{warps()}} x {{wefts()}},&nbsp;</div>
+				<div >
 					<input matInput  [(ngModel)]="ud_name" 
 					[placeholder]="tree.getDraft(id).gen_name"  
 					(focusout)="nameFocusOut($event)"
 					(change)="updateName()">
 				 </div>
-				<div class="dims">{{warps()}} x {{wefts()}} </div>
 
 			</div>
-			
-
-			<div class="bottom-opts">
 
 
-				<div class="subdraft-details"> 
+	
 
-					<button mat-icon-button
-					[matMenuTriggerFor]="subdraftOptions"
-					class="is-small fa-solid fa-ellipsis"
-					matTooltip ="View Options">
-					</button>
-
-					<mat-menu #subdraftOptions>
-					
-					<button mat-icon-button
-					class="is-small fa-solid"
-					[class.fa-chess-board] = 'use_colors'
-					[class.fa-rug] = '!use_colors'
-					matTooltip ="Toggle Material View"
-					(click)="toggleDraftRendering()">
-					</button>
-
-					<button mat-icon-button
-					class="is-small fas fa-expand-alt"
-					matTooltip ="View Draft Details"
-					(click)="finetune()">
-					</button>
-			
-					<button mat-icon-button *ngIf='parent_id !== -1'
-					matTooltip= "Show/Hide Draft"
-					class="fas"
-					[class.fa-eye-slash] = '!draft_visible'
-					[class.fa-eye] = 'draft_visible'
-					(click)="showhide()">
-					</button>
-			
-			
-					<button mat-icon-button
-					matTooltip= "Duplilcate"
-					class="fa fa-clone"
-					[style.color]="button_color" 
-					[name]="duplicate"
-					(click)="designActionChange('duplicate')">
-					</button>
-					
-					<button mat-icon-button
-					class="fas fa-download"
-					(click)="saveAsBmp()"
-					matTooltip ="Download as Bitmap">
-
-					</button>
-					<button mat-icon-button
-					(click)="saveAsPrint()"
-					class="fa-solid fa-file-image"
-					matTooltip ="Download as Printable Image">
-					</button>
-
-			
-				
-					<button mat-icon-button *ngIf='parent_id === -1'
-					matTooltip= "Delete"
-					class="fas fa-times"
-					[name]="delete"
-					(click)="designActionChange('delete')">
-					</button>
-
-					
-				</mat-menu>
-
-		
-
-					</div>
-					
-			
-
-		
-
-			
-					
-
-		
-		</div>
-
-
-
-
-		</div>
-
-		<div class="outletrow">
-			<button
-			id = "{{id}}-out" 
-			matTooltip = "click here to use this draft as input"
-			class="button is-small output outlet"
-			(click) = "connectionStarted(id)"
-			>
-			<i class="fas fa-chevron-down"></i>
-			</button>
+	
 
 		</div>
 

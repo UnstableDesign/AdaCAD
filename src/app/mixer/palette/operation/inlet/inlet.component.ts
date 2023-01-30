@@ -31,6 +31,7 @@ export class InletComponent implements OnInit {
   selectedValue: number; 
   inlet_desc: string;
   show_connection_name: boolean = false;
+  inlet_open = true;
 
   constructor(
     public tree: TreeService, 
@@ -43,7 +44,8 @@ export class InletComponent implements OnInit {
   ngOnInit(): void {    
     this.opnode = this.tree.getOpNode(this.opid);
     this.all_system_codes = this.systems.weft_systems.map(el => {return {code: el.name, id: el.id}} );
-    const op = this.ops.getOp(this.opnode.name);  
+    const op = this.ops.getOp(this.opnode.name);
+    
     this.number_opts = [];
     for(let i = 1; i < 50; i++){
       this.number_opts.push(i);
@@ -77,6 +79,14 @@ export class InletComponent implements OnInit {
 
     this.fc = new UntypedFormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));
     this.inlet_desc = "input "+this.inlet.dx;
+
+
+      this.checkIfInletIsOpen()
+  }
+
+  checkIfInletIsOpen(){
+    this.inlet_open = this.inlet.num_drafts == -1 || (this.tree.getInputsAtNdx(this.opid, this.inletid).length < this.inlet.num_drafts);
+
   }
 
   parseDefaultInletValue(type: string, value: any) : any {
@@ -105,10 +115,16 @@ export class InletComponent implements OnInit {
       this.show_connection_name = !this.show_connection_name;
       this.onInputVisibilityChange.emit({inletid: this.inletid, show: this.show_connection_name});
     }    
+
+    this.checkIfInletIsOpen();
+
   }
 
   removeConnectionTo(sd_id: number){
+    
     this.onConnectionRemoved.emit({from: sd_id, to: this.opid, inletid: this.inletid});
+    this.checkIfInletIsOpen();
+
   }
 
   getInputName(id: number) : string {

@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Bounds, DesignMode, Point } from '../../../core/model/datatypes';
 import { ViewportService } from '../../provider/viewport.service';
 import { ZoomService } from '../../provider/zoom.service';
@@ -40,7 +39,6 @@ export class MixerViewComponent implements OnInit {
   public zs:ZoomService) { 
 
     this.viewport.vpchanged$.subscribe(data => {
-      console.log("updating local dims")
       this.updateLocalDims();
     })
 

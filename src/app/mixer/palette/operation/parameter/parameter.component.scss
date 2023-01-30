@@ -5,7 +5,7 @@
     flex-direction: row;
     text-align: left;
     width: 100%;
-    padding:.75em 0em 0em 0.5em;
+    padding:.25em 0em 0em 0.5em;
     font-size: 1.5em;
 }
 
@@ -13,12 +13,7 @@
 
 
 
-.param-name{
-    width: 25%;
-    // overflow: hidden;
-    // font-size: .8em;
-    // line-height: 1.1em;
-}
+
 
 .param-slider{
     width: 50%;
@@ -142,10 +137,11 @@ button.is-primary.is-active{
 }
 
 
-.slider-label{
-    font-size: 0.65em;
+.slider-label,
+.param-name{
+    font-size: 11pt;
     font-weight: bold;
-    color: grey;
+    color: #ddd;
     text-overflow: ellipsis;
 }
 

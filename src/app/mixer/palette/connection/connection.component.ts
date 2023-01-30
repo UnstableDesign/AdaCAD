@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ZoomService } from '../../provider/zoom.service';
@@ -16,6 +16,8 @@ export class ConnectionComponent implements OnInit {
   @Input() id: number;
   @Input() scale: number;
   @Input() default_cell_size: number;
+  @Output() onConnectionRemoved = new EventEmitter <any>();
+
 
 
   from: number; 
@@ -37,6 +39,7 @@ export class ConnectionComponent implements OnInit {
   };
 
   svg: HTMLElement;
+  connector: HTMLElement;
 
   no_draw: boolean;
 
@@ -59,6 +62,7 @@ export class ConnectionComponent implements OnInit {
   ngAfterViewInit(){
 
     this.svg = document.getElementById('svg-'+this.id.toString());
+    this.connector = document.getElementById('connector-'+this.id.toString());
     const to_comp = this.tree.getComponent(this.to);
     
      if(to_comp !== null){
@@ -68,6 +72,10 @@ export class ConnectionComponent implements OnInit {
       };      this.updateFromPosition(this.tree.getComponent(this.from));
       this.updateToPosition(<SubdraftComponent | OperationComponent> to_comp);
      }
+  }
+
+  disconnect(){
+    this.onConnectionRemoved.emit({id: this.id});
   }
 
 
@@ -165,19 +173,61 @@ export class ConnectionComponent implements OnInit {
 
   
   drawConnection(){
+    console.log("draw")
+
+    const stublength = 15;
+    const connector_opening = 10;
+    const button_margin_left = -20;
+    const button_margin_top = -16;
     
     if(this.no_draw) return;
 
-    const stroke_width = 2 * this.zs.zoom / this.zs.getZoomMax();
+    const stroke_width = 4 * this.zs.zoom / this.zs.getZoomMax();
+
 
     if(this.orientation_x && this.orientation_y){
-      this.svg.innerHTML = ' <path d="M 0 0 C 0 50, '+this.bounds.width+' '+(this.bounds.height-50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/> ' ;
+      
+      this.svg.innerHTML = ' <path d="M 0 0 C 0 50, '+this.bounds.width+' '+(this.bounds.height-70)+', '+this.bounds.width+' '+(this.bounds.height-(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/> ' ;
+
+      this.svg.innerHTML += '  <line x1="'+this.bounds.width+'" y1="'+(this.bounds.height-(stublength))+'" x2='+this.bounds.width+' y2="'+this.bounds.height+'"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+      this.connector.style.top = (this.bounds.height-(stublength+connector_opening)+button_margin_top)+'px';
+      this.connector.style.left = (this.bounds.width+button_margin_left)+'px';
+  
+  
+
     }else if(!this.orientation_x && !this.orientation_y){
-      this.svg.innerHTML = ' <path d="M 0 0 c 0 -50, '+this.bounds.width+' '+(this.bounds.height+50)+', '+this.bounds.width+' '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
+      this.svg.innerHTML = ' <path d="M 0 '+-(stublength+connector_opening)+' c 0 -50, '+this.bounds.width+' '+(this.bounds.height+100)+', '+this.bounds.width+' '+(this.bounds.height+(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
+
+      this.svg.innerHTML += '  <line x1="0" y1="'+-(stublength )+'" x2="0" y2="0"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+      this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';
+      this.connector.style.left = (button_margin_left)+'px';
+  
+
+
     }else if(!this.orientation_x && this.orientation_y){
-      this.svg.innerHTML = ' <path d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-50)+', 0 '+this.bounds.height+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
+
+      this.svg.innerHTML = ' <path d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-70)+', 0 '+(this.bounds.height-(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
+
+      this.svg.innerHTML += '  <line x1="0" y1="'+(this.bounds.height-(stublength))+'" x2="0" y2="'+this.bounds.height+'"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+
+      this.connector.style.top = (this.bounds.height-(stublength+connector_opening)+button_margin_top)+'px';
+      this.connector.style.left =  (button_margin_left)+'px';
+  
+
+
     }else{
-      this.svg.innerHTML = ' <path d="M 0 '+this.bounds.height+' C 0 '+(this.bounds.height+50)+', '+this.bounds.width+' -50, '+this.bounds.width+' 0" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/> ' ;
+
+      this.svg.innerHTML = ' <path d="M 0 '+this.bounds.height+' C 0 '+(this.bounds.height+50)+', '+this.bounds.width+' -50, '+this.bounds.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/> ' ;
+
+      this.svg.innerHTML += '  <line x1="'+this.bounds.width+'" y1="'+(-(stublength))+'" x2="'+this.bounds.width+'" y2="0"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+
+      this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';
+      this.connector.style.left = (this.bounds.width+button_margin_left)+'px';
+  
 
     }
   

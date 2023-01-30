@@ -657,6 +657,11 @@ export class PaletteComponent implements OnInit{
 
   }
 
+  setConnectionSubscriptions(cxn: ConnectionComponent){
+    this.connectionSubscriptions.push(cxn.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
+
+  }
+
   /**
    * called when a new operation is added
    * @param op 
@@ -781,7 +786,9 @@ export class PaletteComponent implements OnInit{
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const node = this.tree.getNode(id);
       const tn = this.tree.getTreeNode(id);
+
       node.component = cxn.instance;
+      this.setConnectionSubscriptions(cxn.instance);
       node.ref = cxn.hostView;
         
       cxn.instance.id = id;
@@ -1785,10 +1792,11 @@ connectionMade(obj: any){
 /**
  * Called when a connection is explicitly deleted
 */
- removeConnection(obj: {from: number, to: number, inletid: number}){
+ removeConnection(obj: {id: number}){
 
-  const to_delete = this.tree.removeConnectionNode(obj.from, obj.to, obj.inletid);  
+  let to = this.tree.getConnectionOutput(obj.id)
 
+  const to_delete = this.tree.removeConnectionNodeById(obj.id);  
   to_delete.forEach(node => this.removeFromViewContainer(node.ref));
 
  
@@ -1796,8 +1804,8 @@ connectionMade(obj: any){
 
    this.processConnectionEnd();
   
-   if(this.tree.getType(obj.to)==="op"){
-     this.performAndUpdateDownstream(obj.to);
+   if(this.tree.getType(to)==="op"){
+     this.performAndUpdateDownstream(to);
    }
   
   this.addTimelineState();

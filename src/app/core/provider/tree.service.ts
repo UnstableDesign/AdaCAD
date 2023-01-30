@@ -572,7 +572,6 @@ export class TreeService {
    * @returns  true if it indeed changed the value
    */
   unsetOpenConnection() : boolean{
-    console.log("unsetting open cxn")
     this.open_connection = -1;
       return true;
   }
@@ -1088,7 +1087,8 @@ removeOperationNode(id:number) : Array<Node>{
  * @param id - the connection to remove
  * @returns a list of all nodes removed as a result of this action
  */
- removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
+ //removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
+  removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
 
 
   const cxn_id:number = this.getConnectionAtInlet(from, to, inletid);
@@ -1103,6 +1103,22 @@ removeOperationNode(id:number) : Array<Node>{
   return deleted;
     
 }
+
+removeConnectionNodeById(cxn_id: number) : Array<Node>{
+
+
+  console.log("got connection ", cxn_id);
+
+  const deleted:Array<Node> = []; 
+  if(cxn_id === undefined) return;
+
+  console.log("removeing node in connection")
+  deleted.push(this.removeNode(cxn_id));
+
+  return deleted;
+    
+}
+
 
 
 /**
