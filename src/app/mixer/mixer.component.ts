@@ -592,11 +592,7 @@ export class MixerComponent implements OnInit {
 
     let entry_mapping = [];
 
-    const loaded_notes = this.notes.reloadNotes(data.notes);
 
-    loaded_notes.forEach(note => {
-        this.palette.loadNote(note);
-    });
 
     //start processing images first thing 
     const images_to_load = [];
@@ -773,6 +769,10 @@ export class MixerComponent implements OnInit {
       // dn.forEach(node => {
       //   console.log("RES", node.draft, node.loom, node.loom_settings)
       // })
+
+      data.notes.forEach(note => {
+        this.palette.createNote(note);
+    });
   
 
     })

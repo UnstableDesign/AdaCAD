@@ -513,20 +513,26 @@ export class PaletteComponent implements OnInit{
    * dynamically creates a a note component
    * @returns the created note instance
    */
-   createNote():NoteComponent{
+   createNote(note: Note):NoteComponent{
 
-    
-    const tl: Point = this.viewport.getTopLeft();
+    let tl: Interlacement = null;
+
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
-    const note = this.notes.createBlankNode(utilInstance.resolvePointToAbsoluteNdx(tl, this.zs.zoom));
     this.setNoteSubscriptions(notecomp.instance);
 
-    note.component = notecomp.instance;
-    note.ref = notecomp.hostView;
-    notecomp.instance.id = note.id;
+    if(note === null){
+      tl = utilInstance.resolvePointToAbsoluteNdx(this.viewport.getTopLeft(), this.zs.zoom);
+    }else{
+      tl = note.interlacement
+    }
+    let id = this.notes.createNote(tl,  notecomp.instance, notecomp.hostView, note);
+    this.setNoteSubscriptions(notecomp.instance);
+
+    notecomp.instance.id = id;
     notecomp.instance.scale = this.zs.zoom;
     notecomp.instance.default_cell = this.default_cell_size;
+
 
     this.changeDesignmode('move');
 
@@ -536,25 +542,33 @@ export class PaletteComponent implements OnInit{
   }
 
 
-    /**
-   * dynamically creates a a note component
-   * @returns the created note instance
-   */
-    loadNote(note: Note):NoteComponent{
+  //   /**
+  //  * dynamically creates a a note component
+  //  * @returns the created note instance
+  //  */
+  //   loadNote(note: Note):NoteComponent{
 
-      
-      const notecomp = this.vc.createComponent(NoteComponent);
-      this.setNoteSubscriptions(notecomp.instance);
-
-      note.component = notecomp.instance;
-      note.ref = notecomp.hostView;
-
-      notecomp.instance.id = note.id;
-      notecomp.instance.scale = this.zs.zoom;
-      notecomp.instance.default_cell = this.default_cell_size;
+  //     console.log("LOADING NOTE", note);
+  //     if(note.component === null || note.component === undefined){
+  //       const noteinstance  = this.createNote();
+       
   
-      return notecomp.instance;
-    }
+  //     }else{
+
+  //     }
+      
+  //     const notecomp = this.vc.createComponent(NoteComponent);
+  //     this.setNoteSubscriptions(notecomp.instance);
+
+  //     note.component = notecomp.instance;
+  //     note.ref = notecomp.hostView;
+
+  //     notecomp.instance.id = note.id;
+  //     notecomp.instance.scale = this.zs.zoom;
+  //     notecomp.instance.default_cell = this.default_cell_size;
+  
+  //     return notecomp.instance;
+  //   }
 
     
     
@@ -568,8 +582,8 @@ export class PaletteComponent implements OnInit{
   }
 
   deleteNote(id: number){
-    console.log("get note", id)
     const note = this.notes.get(id);
+    if(note === undefined) return;
     this.removeFromViewContainer(note.ref);
     this.notes.delete(id);
   }

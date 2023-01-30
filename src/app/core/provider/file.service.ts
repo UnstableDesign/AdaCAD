@@ -691,7 +691,7 @@ export class FileService {
     this.tree.clear();
     this.ms.reset();
     this.ss.reset(),
-    this.ns.resetNotes();
+    this.ns.clear();
 
   }
 

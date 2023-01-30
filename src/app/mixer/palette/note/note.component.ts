@@ -19,6 +19,7 @@ export class NoteComponent implements OnInit {
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
+    console.log("AUTOSETTING SCALE")
     this.rescale();
   }
   private _scale:number = 5;
@@ -63,8 +64,9 @@ export class NoteComponent implements OnInit {
     
   }
 
-  delete(id: number){
-    this.deleteNote.emit(id);
+  delete(){
+    console.log("DELETE NOTE EMITTED!")
+    this.deleteNote.emit(this.note.id);
   }
     
 
@@ -85,12 +87,11 @@ export class NoteComponent implements OnInit {
    rescale(){
 
     if(this.note === undefined){
-      console.error("note is undefined on rescale");
-      return;
+      // console.error("note is undefined on rescale");
+       return;
     }
 
     const zoom_factor:number = this.scale/this.default_cell;
-
 
     //redraw at scale
     const container: HTMLElement = document.getElementById('scalenote-'+this.note.id);
