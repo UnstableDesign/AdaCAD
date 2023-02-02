@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { retryWhen } from 'rxjs/operators';
 import { Bounds, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ZoomService } from '../../provider/zoom.service';
@@ -64,14 +65,17 @@ export class ConnectionComponent implements OnInit {
     this.svg = document.getElementById('svg-'+this.id.toString());
     this.connector = document.getElementById('connector-'+this.id.toString());
     const to_comp = this.tree.getComponent(this.to);
+    const from_comp = this.tree.getComponent(this.from);
     
      if(to_comp !== null){
       this.b_to = {
         x:  to_comp.bounds.topleft.x + 15*this.scale/this.default_cell_size,
         y: to_comp.bounds.topleft.y
-      };      this.updateFromPosition(this.tree.getComponent(this.from));
-      this.updateToPosition(<SubdraftComponent | OperationComponent> to_comp);
+      };     
+      this.updateFromPosition(<SubdraftComponent> from_comp);
+      this.updateToPosition(<OperationComponent> to_comp);
      }
+
   }
 
   disconnect(){
@@ -132,19 +136,22 @@ export class ConnectionComponent implements OnInit {
    * if every connection goes from one node to another, the from node depends on the kind of object
    * @param from the id of the component this connection goes to
    */
-  updateFromPosition(from: any){
+  updateFromPosition(from: SubdraftComponent){
 
-    if(from.id != this.from) console.error("attempting to move wrong FROM connection", from.id, this.from);
+    if(from.id != this.from){
+      console.error("attempting to move wrong FROM connection", from.id, this.from);
+    } 
+
+    
 
     if((<SubdraftComponent>from).draft_visible){
-      const top_offset = document.getElementById(from.id+"-out").offsetTop;
-
+      const scale = document.getElementById("scale-"+from.id)
       this.b_from = 
-      {x: from.bounds.topleft.x+ 3*this.scale, 
-       y: from.bounds.topleft.y + (top_offset+30)*this.scale/this.default_cell_size};
+      {x: from.bounds.topleft.x+5, 
+       y: from.bounds.topleft.y + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
     }else{
       this.b_from = 
-      {x: from.bounds.topleft.x + 3*this.scale, 
+      {x: from.bounds.topleft.x + 3*this.zs.zoom, 
        y: from.bounds.topleft.y + 30};
     }
 
@@ -188,6 +195,7 @@ export class ConnectionComponent implements OnInit {
     const button_margin_top = -16;
     
     if(this.no_draw) return;
+    if(this.svg === null || this.svg == undefined) return;
 
     const stroke_width = 4 * this.zs.zoom / this.zs.getZoomMax();
 

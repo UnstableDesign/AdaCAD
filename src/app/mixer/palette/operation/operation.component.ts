@@ -11,6 +11,7 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
+import { ConnectionComponent } from '../connection/connection.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 
@@ -330,6 +331,14 @@ export class OperationComponent implements OnInit {
 
   removeConnectionTo(obj:any){
     this.onConnectionRemoved.emit(obj);
+
+    const inlets = this.tree.getInputs(this.id);
+    inlets.forEach(id => {
+      const comp = <ConnectionComponent> this.tree.getComponent(id);
+      comp.updateToPosition(this);
+
+    })
+
   }
 
   openHelpDialog() {

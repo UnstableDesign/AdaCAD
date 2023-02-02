@@ -1382,9 +1382,13 @@ export class PaletteComponent implements OnInit{
   let adj: Point;
 
   if(sd.draft_visible)
-   adj = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 15, y: (sd.bounds.topleft.y+sd.bounds.height) - this.viewport.getTopLeft().y+30}
+   adj = {
+    x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 8, 
+    y: (sd.bounds.topleft.y+sd.bounds.height) - this.viewport.getTopLeft().y+64}
   else 
-   adj = {x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 10, y: (sd.bounds.topleft.y) - this.viewport.getTopLeft().y+30}
+   adj = {
+    x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 10, 
+    y: (sd.bounds.topleft.y) - this.viewport.getTopLeft().y+64}
 
 
   this.unfreezePaletteObjects();

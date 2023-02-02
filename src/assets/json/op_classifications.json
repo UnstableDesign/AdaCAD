@@ -12,7 +12,9 @@
                 "complextwill", 
                 "random", 
                 "combos",
-                "bwimagemap"
+                "bwimagemap",
+                "sine",
+                "sawtooth"
             ]
         },
         {
@@ -32,7 +34,8 @@
                 "set unset",
                 "set down to unset",
                 "crop",
-                "trim"
+                "trim",
+                "margin"
             ]
         },
         {
@@ -74,9 +77,7 @@
                 "atop",
                 "overlay",
                 "mask",
-                "knockout",
-                "sine",
-                "sawtooth"
+                "knockout"
             ]
         },
         {

@@ -14,6 +14,7 @@ import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { OperationComponent } from '../operation/operation.component';
+import { ConnectionComponent } from '../connection/connection.component';
 
 
 
@@ -200,7 +201,15 @@ export class SubdraftComponent implements OnInit {
     this.drawDraft(this.draft); //force call here because it likely didn't render previously. 
 
     this.rescale();
+
     this.updateViewport(this.bounds);
+
+    //added this to handle errors from position being calculated fore this draft is loaded
+    const cxns = this.tree.getOutputs(this.id);
+    cxns.forEach(id => {
+      const comp = <ConnectionComponent> this.tree.getComponent(id);
+      comp.updateFromPosition(this);
+    })
 
   }
 

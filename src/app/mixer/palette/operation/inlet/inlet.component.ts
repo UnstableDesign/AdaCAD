@@ -125,8 +125,10 @@ export class InletComponent implements OnInit {
 
   inputSelected(){
 
+
       this.onInputSelected.emit({inletid: this.inletid});
       this.show_connection_name = -1;
+      
   }
 
   removeConnectionTo(sd_id: number){

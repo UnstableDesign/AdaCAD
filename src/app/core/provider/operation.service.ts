@@ -3286,14 +3286,7 @@ export class OperationService {
         dx: 'percentage of warps raised to be used'
         }
       ],
-      inlets: [{
-        name: 'shape', 
-        type: 'static',
-        value: null,
-        uses: "draft",
-        dx: 'the shape you would like to fill with random',
-        num_drafts: 1
-      }],
+      inlets: [],
       perform: (op_inputs: Array<OpInput>) => {
         const parent_input = op_inputs.find(el => el.op_name == 'random');
         const child_input = op_inputs.find(el => el.op_name == 'child');
@@ -5336,14 +5329,7 @@ export class OperationService {
         dx: 'builds tabby around the edges of the central diamond, creating some strange patterns'
         }
       ],
-      inlets: [{
-        name: 'shape', 
-        type: 'static',
-        value: null,
-        uses: "draft",
-        dx: 'the shape you would like to fill with waffle',
-        num_drafts: 1
-      }],
+      inlets: [],
       perform: (op_inputs: Array<OpInput>) => {
 
         const parent_input = op_inputs.find(el => el.op_name == 'waffle');
