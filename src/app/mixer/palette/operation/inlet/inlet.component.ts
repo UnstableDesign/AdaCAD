@@ -30,8 +30,9 @@ export class InletComponent implements OnInit {
   inlet: OperationInlet;
   selectedValue: number; 
   inlet_desc: string;
-  show_connection_name: boolean = false;
+  show_connection_name: number = -1;
   inlet_open = true;
+  show_inlet_desc = false;
 
   constructor(
     public tree: TreeService, 
@@ -105,19 +106,25 @@ export class InletComponent implements OnInit {
   }
 
 
+
+  toggleVisibility(input_ndx: number){
+      console.log("TOGGLE VISIBLE", input_ndx)
+      if(input_ndx == this.show_connection_name){
+        this.onInputVisibilityChange.emit({inletid: this.inletid, ndx_in_inlets: input_ndx, show: false});
+        this.show_connection_name = -1;
+      }  else{
+        this.show_connection_name = input_ndx;
+        this.onInputVisibilityChange.emit({inletid: this.inletid, ndx_in_inlets: input_ndx, show: true});
+
+      }
+      
+  }
+
+
   inputSelected(){
 
-    const inputs = this.tree.getOpComponentInputs(this.opid, this.inletid);
-    if(inputs.length == 0){
       this.onInputSelected.emit({inletid: this.inletid});
-      this.show_connection_name = false;
-    }else{
-      this.show_connection_name = !this.show_connection_name;
-      this.onInputVisibilityChange.emit({inletid: this.inletid, show: this.show_connection_name});
-    }    
-
-    this.checkIfInletIsOpen();
-
+      this.show_connection_name = -1;
   }
 
   removeConnectionTo(sd_id: number){

@@ -75,6 +75,7 @@ export class ConnectionComponent implements OnInit {
   }
 
   disconnect(){
+    console.log("DISCONNECT PRESSED")
     this.onConnectionRemoved.emit({id: this.id});
   }
 
@@ -98,6 +99,8 @@ export class ConnectionComponent implements OnInit {
 
     if(to.id != this.to) console.error("attempting to move wrong TO connection", to.id, this.to);
    
+    const cxn = this.tree.getConnectionOutput(this.id)
+
     this.b_to = {
       x:  to.bounds.topleft.x + 3*this.scale/this.default_cell_size +  15* this.scale/this.default_cell_size,
       y: to.bounds.topleft.y
@@ -106,8 +109,13 @@ export class ConnectionComponent implements OnInit {
     if(this.tree.getType(to.id) === 'op'){
       // get the inlet value 
       const ndx = this.tree.getInletOfCxn(to.id, this.id);
+
       if(ndx !== -1){
-        const element = document.getElementById('inlet'+to.id+"-"+ndx);
+        
+        const ndx_in_list = this.tree.getInputsAtNdx(to.id, ndx).findIndex(el => el.tn.node.id === this.id);
+
+      
+        const element = document.getElementById('inlet'+to.id+"-"+ndx+"-"+ndx_in_list);
         if(element !== undefined && element !== null){
           const left_offset = element.offsetLeft;
           this.b_to = {x: to.bounds.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to.bounds.topleft.y}

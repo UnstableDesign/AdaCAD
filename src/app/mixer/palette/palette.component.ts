@@ -830,8 +830,10 @@ export class PaletteComponent implements OnInit{
       cxn.instance.to = id_to;
       cxn.instance.default_cell_size = this.default_cell_size;
 
+      this.setConnectionSubscriptions(cxn.instance);
 
 
+      this.connectionSubscriptions.push()
       return {input_ids: to_input_ids, id: id};
     }
 
@@ -1686,21 +1688,26 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
  * when an inlet is pressed on an operation, highlight all things contributed to this inlet
  * @param op_id 
  * @param inlet_id 
+ * @param ndx_in_inlets - if there aremultiple inputs at a single inlet, give the number in that list
  */
-highlightPathToInlet(op_id: number, inlet_id: number){
+highlightPathToInlet(op_id: number, inlet_id: number, ndx_in_inlets: number){
 
 const cxns = this.tree.getInputsAtNdx(op_id, inlet_id);
-console.log("CXN", cxns);
+console.log("CXN", cxns, );
 
-const upstream_ops = cxns.reduce((acc, val)=>{
-   const ids = this.tree.getUpstreamOperations(val.tn.node.id);
-   return acc.concat(ids);
- }, []); 
 
-const upstream_drafts = cxns.reduce((acc, val)=>{
-  const ids = this.tree.getUpstreamDrafts(val.tn.node.id);
-  return acc.concat(ids);
-}, []); 
+const upstream_ops = this.tree.getUpstreamOperations(cxns[ndx_in_inlets].tn.node.id); 
+const upstream_drafts = this.tree.getUpstreamDrafts(cxns[ndx_in_inlets].tn.node.id); 
+
+// const upstream_ops = cxns.reduce((acc, val)=>{
+//    const ids = this.tree.getUpstreamOperations(val.tn.node.id);
+//    return acc.concat(ids);
+//  }, []); 
+
+// const upstream_drafts = cxns.reduce((acc, val)=>{
+//   const ids = this.tree.getUpstreamDrafts(val.tn.node.id);
+//   return acc.concat(ids);
+// }, []); 
 
 const upstream_cxn = upstream_drafts.reduce((acc, draft)=>{
   return acc.concat(this.tree.getOutputs(draft));
@@ -1772,7 +1779,7 @@ resetOpacity(){
 updateVisibility(obj: any){
   {
     this.resetOpacity();
-    if(obj.show) this.highlightPathToInlet(obj.id, obj.ndx);
+    if(obj.show) this.highlightPathToInlet(obj.id, obj.ndx, obj.ndx_in_inlets);
   } 
 }
 
@@ -1783,8 +1790,6 @@ updateVisibility(obj: any){
  */
 connectionMade(obj: any){
 
-  console.log("connection made", obj.id);
-  console.log("this.tree has open", this.tree.hasOpenConnection());
 
   if(!this.tree.hasOpenConnection()) return;
 
@@ -2491,7 +2496,6 @@ drawStarted(){
   }
 
   paletteClicked(){
-    console.log("HI")
   }
 
 /**

@@ -206,6 +206,10 @@ export class OperationComponent implements OnInit {
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
+  refreshInlets(){
+    this.opnode.inlets
+  }
+
 
 
   rescale(){
@@ -320,7 +324,7 @@ export class OperationComponent implements OnInit {
   }
 
   visibilityChange(obj: any){
-    this.onInputVisibilityChange.emit({id: this.id, ndx:  obj.inletid, show: obj.show});
+    this.onInputVisibilityChange.emit({id: this.id, ndx:  obj.inletid, ndx_in_inlets: obj.ndx_in_inlets, show: obj.show});
   }
 
 

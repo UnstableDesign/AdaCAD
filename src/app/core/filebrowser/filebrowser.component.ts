@@ -16,6 +16,7 @@ export class FilebrowserComponent implements OnInit {
 
   @Output() onLoadNewFile: any = new EventEmitter();
   @Output() onClearScreen: any = new EventEmitter();
+  @Output() onCurrentFileDeleted: any = new EventEmitter();
   @Output() onSave: any = new EventEmitter();
   @Output() onLoadFromDB: any = new EventEmitter();
 
@@ -33,9 +34,7 @@ export class FilebrowserComponent implements OnInit {
 
     this.files.file_tree_change$.subscribe(data => {
       
-
       this.updateFileData(data);
-
     }
     );
 
@@ -93,7 +92,9 @@ export class FilebrowserComponent implements OnInit {
   remove(fileid: number){
     console.log("removing ", fileid)
     this.files.removeFile(fileid);
-    if(fileid == this.files.current_file_id)  this.onClearScreen.emit();
+    if(fileid === this.files.current_file_id){
+      this.onCurrentFileDeleted.emit();
+    }  
 
 
 

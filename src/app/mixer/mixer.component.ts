@@ -286,7 +286,6 @@ export class MixerComponent implements OnInit {
 
 
   isBlankWorkspace() : boolean {
-    console.log("IS BLANK HAS ", this.tree.nodes.length)
     return this.tree.nodes.length == 0;
   }
 
@@ -309,16 +308,14 @@ export class MixerComponent implements OnInit {
 
     if(user === null){
       //this is a logout event
-      console.log("MIXER // USER LOGGED OUT")
       this.files.setCurrentFileInfo(this.files.generateFileId(), 'blank draft','');
+      this.files.clearTree();
 
 
 
     }else{
-      console.log("MIXER // USER LOGGED IN")
 
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
-        console.log("Is First session or session with blank staritng point")
     
         this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
           console.log("LOADING FILE ID", fileid)
@@ -374,9 +371,10 @@ export class MixerComponent implements OnInit {
         }) 
 
       }else{
-        console.log("Login is mid-way")
+        
         //this.loadBlankFile();
         this.saveFile();
+        this.files.writeNewFileMetaData(user.uid, this.files.current_file_id, this.files.current_file_name, this.files.current_file_desc)
 
     
       }
@@ -408,7 +406,6 @@ export class MixerComponent implements OnInit {
   }
 
   async loadFromDB(fileid: number){
-    console.log("LOADING", fileid)
     this.clearAll();
 
 
@@ -421,13 +418,16 @@ export class MixerComponent implements OnInit {
   }
 
   loadBlankFile(){
-    console.log("LOADING BLANK FILE")
     this.clearAll();
-
-
     this.files.setCurrentFileInfo(this.files.generateFileId(), 'load blank', '');
     this.saveFile();
     
+  }
+
+  deleteCurrentFile(){
+    this.clearAll();
+    this.files.setCurrentFileInfo(this.files.generateFileId(), 'new blank file', '');
+    this.saveFile();
   }
 
   saveFile(){

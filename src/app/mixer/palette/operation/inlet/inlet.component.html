@@ -32,7 +32,6 @@
     <ng-container *ngIf="inlet.type === 'notation' || inlet.type === 'profile' ">
 
 
-        <div class="fas fa-chevron-down inlet_arrow"></div>
         <span class="dynamic_" *ngIf="inlet.type === 'notation'" class="inlet-label"> ({{opnode.inlets[inletid]}})</span>
         <span  *ngIf="inlet.type === 'profile'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
 
@@ -72,44 +71,43 @@
 
 
     <!-- draw the first set of inlets that have inputs first. -->
-    <div *ngFor="let input of tree.getOpComponentInputs(opid, inletid);">
+    <div *ngFor="let input of tree.getOpComponentInputs(opid, inletid); let i = index">
     
     
         <button 
+        id = "inlet{{opid}}-{{inletid}}-{{i}}"
         class="toggle_visibility"
         [matTooltip]='inlet.dx'
-        (click)="inputSelected()">
-        <i *ngIf="!show_connection_name" class="fa-solid fa-eye"></i>
-        <i *ngIf="show_connection_name" class="fa-solid fa-eye-slash"></i>
+        (click)="toggleVisibility(i)">
+        <i *ngIf="show_connection_name !== i" class="fa-solid fa-eye"></i>
+        <i *ngIf="show_connection_name === i" class="fa-solid fa-eye-slash"></i>
         </button>
         
     
         <!-- list everything attached here-->
        
        
-        <div class="show_connection" *ngIf="show_connection_name">
+        <div class="show_connection" *ngIf="show_connection_name == i">
             <div>connected to: <b>{{getInputName(input)}}</b></div>
-            <div><button
-                mat-raised-button
-                color="primary"
-            matTooltip = "click to remove this connection"
-            class="button is-small"
-            (click)="removeConnectionTo(input)">
-           <i class="fas fa-times"></i>Remove Connection</button> </div>
-             
         </div>   
+  
 
 
 
     </div>
 
-    <button *ngIf="inlet_open"
+    <button *ngIf="inlet.num_drafts == -1 || (tree.getInputsAtNdx(opid, inletid).length < inlet.num_drafts)"
     class="open_inlet"
     [matTooltip]='inlet.dx'
     (click)="inputSelected()">
-    <i class="fa-sharp fa-solid fa-circle-down"></i>
-</button>
-    
+    <i class="material-inlet-icon"></i>
+    <!-- <i class="fa-sharp fa-solid fa-circle-down"></i> -->
+    </button>
+
+    <div class="show_connection" *ngIf="show_inlet_desc">
+        <div>inlet description to: <b>{{inlet.dx}}</b></div>
+    </div> 
+        
 </div>
 
 </ng-container>

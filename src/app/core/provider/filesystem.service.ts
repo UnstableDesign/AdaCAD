@@ -58,7 +58,10 @@ export class FilesystemService {
 
       authState(this.auth).subscribe(user => {
         console.log('user', user)
-        if(user == null) return;
+        if(user == null){
+          this.file_tree = [];
+          return;
+        } 
         //update the tree based on the state of the DB
        
     
@@ -69,28 +72,26 @@ export class FilesystemService {
         
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
-          console.log("child added")
-           this.addToTree(parseInt(childsnapshot.key), childsnapshot.val());
+          //only add values that haven't already been added
+          if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
+            this.addToTree(parseInt(childsnapshot.key), childsnapshot.val());
            this.file_tree_change$.next(this.file_tree.slice());
-        });
+          }
+        }); 
 
        
     
         //called when anything in meta changes
         onChildChanged(userFiles, (data) => {
-          console.log("Child Changed", data.key, data.val(), this.file_tree)
             const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
             if(ndx !== -1){
               this.file_tree[ndx].meta.name = data.val().name;
               this.file_tree_change$.next(this.file_tree.slice());
             }
-
-
         });
         
         //needs to redraw the files list 
         onChildRemoved(userFiles, (removedItem) => {
-          console.log("child removed")
           const removedId = removedItem.key;
           this.file_tree = this.file_tree.filter(el => parseInt(el.id) !== parseInt(removedId));
           this.file_tree_change$.next(this.file_tree.slice());

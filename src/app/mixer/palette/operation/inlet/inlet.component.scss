@@ -20,13 +20,14 @@ button.input{
 }
 
 .show_connection{
-    display: flex;
+    /* display: flex; */
     flex-direction: column;
-    width: 100%;
     background: white;
+    color: black;
     z-index: 100;
-    position: relative;
-    font-size: 1.5em;
+    padding: 4px;
+    position: absolute;
+    top: 23px;
     text-align: center;
     border: thin solid black;
 }
@@ -66,6 +67,7 @@ button.toggle_visibility:hover{
 .inlet_block{
     display: flex;
     flex-direction: row;
+    padding-right: 12px;
 }
 
 
@@ -113,5 +115,21 @@ input{
 .inlet-label,
 .inlet-name{
     color: #fff;
-    padding-right: 6px;
+    font-size: 1.2em;
 }
+
+.draft-inlet-icon {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background: url(../../../../../assets/svg/draft_inlet.svg);
+    background-size: 24px 24px;
+  }
+
+  .material-inlet-icon {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background: url(../../../../../assets/svg/material_inlet.svg);
+    background-size: 24px 24px;
+  }

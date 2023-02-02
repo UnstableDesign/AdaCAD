@@ -21,6 +21,7 @@ source="mixer"
       (onLoadNewFile)="loadNewFile($event);"
       (onLoadFromDB)="loadFromDB($event);"
       (onClearScreen)="loadBlankFile();"
+      (onCurrentFileDeleted)="deleteCurrentFile();"
       (onSave)="onSave($event);">
     </app-filebrowser>
    </mat-expansion-panel>  

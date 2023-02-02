@@ -132,7 +132,9 @@ export class StateService {
     const auth = getAuth();
     const user = auth.currentUser;
 
-    if(user !== null) this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
+    if(user !== null){
+      this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
+    } 
 
     //we are looking at the most recent state
     if(this.active_id > 0){
