@@ -403,6 +403,7 @@ export interface FileSaver{
  * @param name the display name to show with this inlet
  * @param type the type of parameter that becomes mapped to inputs at this inlet, static means that the user cannot change this value
  * @param dx the description of this inlet
+ * @param uses this is used to alert the user the inforamation from the input this inlet will use, draft or materials. 
  * @param value the assigned value of the parameter. 
  * @param num_drafts the total number of drafts accepted into this inlet (or -1 if unlimited)
  */
@@ -410,6 +411,7 @@ export interface FileSaver{
   name: string,
   type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
   dx: string,
+  uses: 'draft' | 'weft-data' | 'warp-data' | 'warp-and-weft-data' ,
   value: number | string,
   num_drafts: number
 }

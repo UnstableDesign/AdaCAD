@@ -54,6 +54,7 @@ export class OperationService {
         name: 'a', 
         type: 'static',
         value: null,
+        uses: 'draft',
         dx: 'all the drafts you would like to set another on top of',
         num_drafts: 1
       },
@@ -61,6 +62,7 @@ export class OperationService {
         name: 'b', 
         type: 'static',
         value: null,
+        uses: 'draft',
         dx: 'the draft you would like to set atop the base',
         num_drafts: 1
       }
@@ -125,6 +127,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: 'draft',
         dx: 'the draft to which you would like to apply materials',
         num_drafts: 1
       },
@@ -132,6 +135,7 @@ export class OperationService {
         name: 'systems & materials', 
         type: 'static',
         value: null,
+        uses: 'warp-and-weft-data',
         dx: 'a draft which has the materials and systems you would like to repeat across the pics and ends of the resulting draft',
         num_drafts: 1
       }
@@ -364,6 +368,7 @@ export class OperationService {
           name: 'draft',
           type: 'static',
           value: null,
+          uses: 'draft',
           dx: "the draft that will be assigned to a given system",
           num_drafts: 1
         }
@@ -456,6 +461,7 @@ export class OperationService {
           name: 'draft',
           type: 'static',
           value: null,
+          uses: 'draft',
           dx: "the draft that will be assigned to a given system",
           num_drafts: 1
         }
@@ -547,6 +553,7 @@ export class OperationService {
         name: 'shape', 
         type: 'static',
         value: null,
+        uses: 'draft',
         dx: 'the shape you would like to fill with this twill',
         num_drafts: 1
       }],
@@ -591,7 +598,7 @@ export class OperationService {
           
     }
 
-    const bindwarpfloats: Operation = {
+    const bindwarpfloats: Operation = { 
       name: 'bind warp floats',
       old_names:[],
       params: <Array<NumParam>>[
@@ -608,6 +615,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft to bind',
+        uses: 'draft',
         num_drafts: 1
       }], 
       perform: (op_inputs: Array<OpInput>) => {
@@ -677,6 +685,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft to bind',
+        uses: "draft",
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
@@ -863,6 +872,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft to tile in the chaos sequence',
+        uses: 'draft',
         num_drafts: -1
       }],
       perform: async (op_inputs: Array<OpInput>) => {
@@ -936,6 +946,7 @@ export class OperationService {
         name: 'input draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft you would like to clear',
         num_drafts: 1
       }],
@@ -1073,13 +1084,7 @@ export class OperationService {
         value: 0,
         }
       ],
-      inlets: [{
-        name: 'shape', 
-        type: 'static',
-        value: null,
-        dx: 'the shape you would like to fill with this twill',
-        num_drafts: 1
-      }],
+      inlets: [],
       perform: (op_inputs: Array<OpInput>) => {
 
 
@@ -1163,6 +1168,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to craclify',
         num_drafts: 1
       }],
@@ -1249,6 +1255,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft to crop',
+        uses: "draft",
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
@@ -1294,12 +1301,14 @@ export class OperationService {
         name: 'threading', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to use as threading',
         num_drafts: 1
       }, {
         name: 'tieup', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to use as tieup',
         num_drafts: 1
       },
@@ -1307,6 +1316,7 @@ export class OperationService {
         name: 'lift plan', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to use as the lift plan',
         num_drafts: 1
       }
@@ -1379,12 +1389,14 @@ export class OperationService {
         name: 'threading', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to use as threading',
         num_drafts: 1
       }, {
         name: 'tieup', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to use as tieup',
         num_drafts: 1
       },
@@ -1392,6 +1404,7 @@ export class OperationService {
         name: 'treadling', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to use as treadling',
         num_drafts: 1
       }
@@ -1481,6 +1494,7 @@ export class OperationService {
         name: 'weft pattern', 
         type: 'static',
         value: null,
+        uses: "weft-data",
         dx: 'optional, define a custom weft material or system pattern here',
         num_drafts: 1
       }
@@ -1491,8 +1505,6 @@ export class OperationService {
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "dynamicjoinleft");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
         const warp_system = op_inputs.find(el => el.inlet == 0);
-
-          console.log("child inputs", child_inputs);
 
         let weft_mapping;
         if(warp_system === undefined) weft_mapping =initDraftWithParams({warps: 1, wefts:1});
@@ -1591,7 +1603,8 @@ export class OperationService {
         name: 'warp pattern', 
         type: 'static',
         value: null,
-        dx: 'optional, define a custom weft material or system pattern here',
+        uses: "warp-data",
+        dx: 'optional, define a custom warp material or system pattern here',
         num_drafts: 1
       }
     ],
@@ -1683,6 +1696,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to erase blank rows from',
         num_drafts: 1
       }],
@@ -1723,6 +1737,7 @@ export class OperationService {
         name: 'pattern', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft you would like to fill',
         num_drafts: 1
       },
@@ -1730,12 +1745,14 @@ export class OperationService {
         name: 'black cell structure', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the structure you would like to repeat in in the black regions of the base draft',
         num_drafts: 1
       },
       {
         name: 'white cell structure', 
         type: 'static',
+        uses: "draft",
         value: null,
         dx: 'the structure you would like to repeat in in the white regions of the base draft',
         num_drafts: 1
@@ -1792,6 +1809,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to flip horizontally',
         num_drafts: 1
       }],
@@ -1824,6 +1842,7 @@ export class OperationService {
       inlets: [{
         name: 'draft', 
         type: 'static',
+        uses: "draft",
         value: null,
         dx: 'the draft to flip vertically',
         num_drafts: 1
@@ -1862,6 +1881,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to germanify',
         num_drafts: 1
       }],
@@ -2043,6 +2063,7 @@ export class OperationService {
           name: 'drafts', 
           type: 'static',
           value: null,
+          uses: "draft",
           dx: 'all the drafts you would like to interlace',
           num_drafts: -1
         },
@@ -2050,6 +2071,7 @@ export class OperationService {
           name: 'warp system map', 
           type: 'static',
           value: null,
+          uses: "warp-data",
           dx: 'if you would like to specify the warp system or materials, you can do so by adding a draft here',
           num_drafts: 1
         }
@@ -2100,6 +2122,7 @@ export class OperationService {
           name: 'drafts', 
           type: 'static',
           value: null,
+          uses: "draft",
           dx: 'all the drafts you would like to interlace',
           num_drafts: -1
         },
@@ -2107,6 +2130,7 @@ export class OperationService {
           name: 'weft system map', 
           type: 'static',
           value: null,
+          uses: "weft-data",
           dx: 'if you would like to specify the weft system or materials, you can do so by adding a draft here',
           num_drafts: 1
         }
@@ -2149,6 +2173,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to invert',
         num_drafts: 1
       }],
@@ -2183,6 +2208,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to join horizontally',
         num_drafts: -1
       },{
@@ -2190,6 +2216,7 @@ export class OperationService {
         name: 'weft pattern', 
         type: 'static',
         value: null,
+        uses: "weft-data",
         dx: 'optional, define a custom weft material or system pattern here',
         num_drafts: 1
       }],
@@ -2280,6 +2307,7 @@ export class OperationService {
         name: 'drafts', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the drafts you would like to join vertically',
         num_drafts: -1
       },
@@ -2287,6 +2315,7 @@ export class OperationService {
         name: 'warp pattern', 
         type: 'static',
         value: null,
+        uses: "warp-data",
         dx: 'optional, define a custom warp material or system pattern here',
         num_drafts: -1
       }],
@@ -2372,6 +2401,7 @@ export class OperationService {
       inlets: [{
         name: 'a', 
         type: 'static',
+        uses: "draft",
         value: null,
         dx: 'all the drafts you would like to xor another onto',
         num_drafts: 1
@@ -2379,6 +2409,7 @@ export class OperationService {
       {
         name: 'b', 
         type: 'static',
+        uses: "draft",
         value: null,
         dx: 'the draft you would like to xor over the base',
         num_drafts: 1
@@ -2442,6 +2473,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the drafts to layer (from top to bottom)',
         num_drafts: -1
       }],
@@ -2504,6 +2536,7 @@ export class OperationService {
         name: 'systems draft', 
         type: 'static',
         value: null,
+        uses: "warp-and-weft-data",
         dx: 'the draft that describes the system ordering we will add input structures within',
         num_drafts: 1
       }],
@@ -2650,6 +2683,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to make symmetric',
         num_drafts: 1
       }],
@@ -2768,6 +2802,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to add margins to',
         num_drafts: 1
       },
@@ -2775,6 +2810,7 @@ export class OperationService {
         name: 'margin', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to repeat within the margins',
         num_drafts: 1
       }],
@@ -2835,6 +2871,7 @@ export class OperationService {
         name: 'drawdown', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the drawdown from which to create threading, tieup and treadling data from',
         num_drafts: 1
       }],
@@ -2915,6 +2952,7 @@ export class OperationService {
       inlets: [{
         name: 'a', 
         type: 'static',
+        uses: "draft",
         value: null,
         dx: 'all the draft you would like to mask',
         num_drafts: 1
@@ -2923,6 +2961,7 @@ export class OperationService {
         name: 'b', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to use as the mask',
         num_drafts: 1
       }
@@ -2985,6 +3024,7 @@ export class OperationService {
         name: 'drawdown', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the drawdown from which to create threading, tieup and treadling data from',
         num_drafts: 1
       }],
@@ -3137,6 +3177,7 @@ export class OperationService {
         name: 'a', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'all the drafts you would like to overlay another onto',
         num_drafts: 1
       },
@@ -3144,6 +3185,7 @@ export class OperationService {
         name: 'b', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft you would like to overlay onto the base',
         num_drafts: 1
       }
@@ -3248,6 +3290,7 @@ export class OperationService {
         name: 'shape', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the shape you would like to fill with random',
         num_drafts: 1
       }],
@@ -3304,6 +3347,7 @@ export class OperationService {
         name: 'input draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft with which you would like to fill this rectangle',
         num_drafts: 1
       }],
@@ -3355,6 +3399,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft to resize',
+        uses: "draft",
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
@@ -3404,6 +3449,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft to mirror',
+        uses: "draft",
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
@@ -3469,6 +3515,7 @@ export class OperationService {
         name: 'shape', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the shape you would like to fill with this rib structure',
         num_drafts: 1
       }],
@@ -3545,6 +3592,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft you would like to modify',
+        uses: "draft",
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>) => {
@@ -3671,6 +3719,7 @@ export class OperationService {
         name: 'weft pattern', 
         type: 'static',
         value: null,
+        uses: "weft-data",
         dx: 'optional, define a custom weft material or system pattern here',
         num_drafts: 1
       }],
@@ -3780,6 +3829,7 @@ export class OperationService {
         name: 'warp pattern', 
         type: 'static',
         value: null,
+        uses: "warp-data",
         dx: 'optional, define a custom warp material or system pattern here',
         num_drafts: 1
       }],
@@ -3896,13 +3946,7 @@ export class OperationService {
         value: 0,
         }
       ],
-      inlets: [{
-        name: 'shape', 
-        type: 'static',
-        value: null,
-        dx: 'the shape you would like to fill with tabby',
-        num_drafts: 1
-      }],
+      inlets: [],
       perform: (op_inputs: Array<OpInput>) => {
 
         const parent_input = op_inputs.find(el => el.op_name == 'satin');
@@ -4010,6 +4054,7 @@ export class OperationService {
           name: 'draft',
           type: 'static',
           value: null,
+          uses: "draft",
           dx: "the draft that will have a selvedge added",
           num_drafts: 1
         },
@@ -4018,6 +4063,7 @@ export class OperationService {
           type: 'static',
           value: null,
           dx: "the pattern to use for the selvedge",
+          uses: "draft",
           num_drafts: 1
         }
       ],
@@ -4102,6 +4148,7 @@ export class OperationService {
           type: 'static',
           value: null,
           dx: 'the draft you would like to modify',
+          uses: "draft",
           num_drafts: 1
         }],
       perform: (op_inputs: Array<OpInput>)=> {
@@ -4229,6 +4276,7 @@ export class OperationService {
         type: 'static',
         value: null,
         dx: 'the draft to shift',
+        uses: "draft",
         num_drafts: 1
       }],
       perform: (op_inputs: Array<OpInput>)=> {
@@ -4268,6 +4316,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to shift',
         num_drafts: 1
       }],
@@ -4315,6 +4364,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to slope',
         num_drafts: 1
       }],
@@ -4423,6 +4473,7 @@ export class OperationService {
           name: 'receiving draft', 
           type: 'static',
           value: null,
+          uses: "draft",
           dx: 'all the drafts you would like to interlace',
           num_drafts: 1
         },
@@ -4430,6 +4481,7 @@ export class OperationService {
           name: 'splicing draft', 
           type: 'static',
           value: null,
+          uses: "draft",
           dx: 'the draft you would like to splice into the recieving draft',
           num_drafts: 1
         }
@@ -4561,6 +4613,7 @@ export class OperationService {
           name: 'receiving draft', 
           type: 'static',
           value: null,
+          uses: "draft",
           dx: 'all the drafts you would like to interlace',
           num_drafts: 1
         },
@@ -4568,6 +4621,7 @@ export class OperationService {
           name: 'splicing draft', 
           type: 'static',
           value: null,
+          uses: "draft",
           dx: 'the draft you would like to splice into the recieving draft',
           num_drafts: 1
         }
@@ -4695,6 +4749,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to stretch',
         num_drafts: 1
       }],
@@ -4747,6 +4802,7 @@ export class OperationService {
         name: 'shape', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the shape you would like to fill with tabby',
         num_drafts: 1
       }],
@@ -4879,6 +4935,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the drafts to tile',
         num_drafts: -1
       }],
@@ -4981,6 +5038,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to trim',
         num_drafts: 1
       }],
@@ -5053,13 +5111,7 @@ export class OperationService {
         value: 0,
         }
       ],
-      inlets: [{
-        name: 'shape', 
-        type: 'static',
-        value: null,
-        dx: 'the shape you would like to fill with twill',
-        num_drafts: 1
-      }],
+      inlets: [],
       perform: (op_inputs: Array<OpInput>) => {
 
         const parent_input = op_inputs.find(el => el.op_name == 'twill');
@@ -5118,6 +5170,7 @@ export class OperationService {
         name: 'input draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft you would like to modify',
         num_drafts: 1
       }],
@@ -5158,6 +5211,7 @@ export class OperationService {
         name: 'draft', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the draft to create varients of',
         num_drafts: 1
       }], 
@@ -5204,6 +5258,7 @@ export class OperationService {
             name: 'draft',
             type: 'static',
             value: null,
+            uses: "draft",
             dx: "the draft that will be assigned to a given system",
             num_drafts: 1
           }
@@ -5285,6 +5340,7 @@ export class OperationService {
         name: 'shape', 
         type: 'static',
         value: null,
+        uses: "draft",
         dx: 'the shape you would like to fill with waffle',
         num_drafts: 1
       }],
@@ -5388,6 +5444,7 @@ export class OperationService {
         name: 'weft pattern', 
         type: 'static',
         value: null,
+        uses: "weft-data",
         dx: 'optional, define a custom weft material or system pattern here',
         num_drafts: 1
       }],
@@ -5496,9 +5553,10 @@ export class OperationService {
         }
       ],
       inlets: [{
-        name: 'weft pattern', 
+        name: 'warp pattern', 
         type: 'static',
         value: null,
+        uses: "warp-data",
         dx: 'optional, define a custom weft material or system pattern here',
         num_drafts: 1
       }],
