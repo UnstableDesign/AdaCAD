@@ -21,8 +21,7 @@ class="subdraft-container"
 
 		<div class="bottom-opts">
 
-
-			<div class="subdraft-details"> 
+			<div id="subdraft-details"> 
 
 	
 				<button mat-icon-button
@@ -92,22 +91,50 @@ class="subdraft-container"
 	
 
 				</div>
-				
+			
+		</div>
+
+
+
+		<div class="subdraft-contents origin{{ws.selected_origin_option}}"  (click)="finetune()">
+
+
+
+			<div class="warp-systems-container origin{{ws.selected_origin_option}} ">
+
+				<div class="warp-systems-text origin{{ws.selected_origin_option}}" id="warp-systems-text">
+				 
+				   <div class="warp-system-col origin{{ws.selected_origin_option}}" 
+				  *ngFor="let i of colShuttleMapping; let j = index;" >
+				  </div>
 		
-
-	
-
+				</div>  
 		
+				<canvas id="warp-systems-{{id}}">  </canvas>
+				<canvas id ="warp-materials-{{id}}" class="warp-materials">  </canvas>
+
+			</div>
+
+			<div class="drawdown-container origin{{ws.selected_origin_option}}" >
+				<canvas class="maindraft" id="{{id}}" >  </canvas>
+			
 				
+				<div class="weft-systems-container origin{{ws.selected_origin_option}}">
+				  <canvas id="weft-materials-{{id}}">  </canvas>
+				  <canvas id="weft-systems-{{id}}" >  </canvas>
+				</div>
+			  </div>
 
-	
-	</div>
 
 
 
-		<div  class="subdraft-contents">
-			<canvas id="{{id}}" class="maindraft" [class.hidden] = '!draft_visible'>  
-			</canvas>
+
+
+			<!-- <canvas id="warp-data-{{id}}" class="warp-materials" [class.hidden] = '!draft_visible'>  
+			</canvas> -->
+
+			<!-- <canvas id="{{id}}" class="maindraft" [class.hidden] = '!draft_visible'>  
+			</canvas> -->
 		</div>
 
 

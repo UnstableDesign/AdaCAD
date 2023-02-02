@@ -33,6 +33,7 @@ export class InletComponent implements OnInit {
   show_connection_name: number = -1;
   inlet_open = true;
   show_inlet_desc = false;
+  inlet_for_drafts = true;
 
   constructor(
     public tree: TreeService, 
@@ -60,6 +61,7 @@ export class InletComponent implements OnInit {
         type: type,
         name: '',
         value: this.parseDefaultInletValue(type, this.opnode.inlets[this.inletid]),
+        uses: 'draft',
         num_drafts: 1,
         dx: ''
       }
@@ -72,6 +74,7 @@ export class InletComponent implements OnInit {
         type: 'null',
         name: '',
         value: -1,
+        uses: 'draft',
         num_drafts: 1,
         dx: 'input'
       }
@@ -80,9 +83,8 @@ export class InletComponent implements OnInit {
 
     this.fc = new UntypedFormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));
     this.inlet_desc = "input "+this.inlet.dx;
+    this.inlet_for_drafts = this.inlet.uses === 'draft';
 
-
-      this.checkIfInletIsOpen()
   }
 
   checkIfInletIsOpen(){

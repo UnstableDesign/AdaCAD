@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { SystemsService } from '../../../core/provider/systems.service';
 import { Bounds, Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
 import { getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 import utilInstance from '../../../core/model/util';
@@ -87,8 +88,11 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  canvas: HTMLCanvasElement;
-  cx: any;
+  draft_canvas: HTMLCanvasElement;
+  draft_cx: any;
+
+  warp_data_canvas: HTMLCanvasElement;
+  warp_data_cx: any;
 
   parent_id: number = -1;
 
@@ -138,11 +142,12 @@ export class SubdraftComponent implements OnInit {
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ms: MaterialsService, 
+    private ss: SystemsService, 
     public tree: TreeService,
     private fs: FileService,
     private viewport: ViewportService,
     private dialog: MatDialog,
-    private ws: WorkspaceService,
+    public ws: WorkspaceService,
     private multiselect: MultiselectService) { 
 
       this.zndx = layer.createLayer();
@@ -176,6 +181,9 @@ export class SubdraftComponent implements OnInit {
     const dn:DraftNode = <DraftNode> this.tree.getNode(this.id);
     this.use_colors = dn.render_colors;
 
+    this.default_cell = this.default_cell;
+    console.log("THIS DEFAULT CELL ", this.default_cell)
+
 
   }
 
@@ -183,8 +191,12 @@ export class SubdraftComponent implements OnInit {
   ngAfterViewInit() {
 
 
-    this.canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
-    this.cx = this.canvas.getContext("2d");
+    this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
+    this.draft_cx = this.draft_canvas.getContext("2d");
+
+    this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());
+    this.warp_data_cx = this.draft_canvas.getContext("2d");
+
     this.drawDraft(this.draft); //force call here because it likely didn't render previously. 
 
     this.rescale();
@@ -296,14 +308,14 @@ export class SubdraftComponent implements OnInit {
 
 
     
-    if(this.canvas === undefined) return;
+    if(this.draft_canvas === undefined) return;
     
     
     const draft = this.tree.getDraft(this.id);
 
 
-    this.canvas.width = warps(draft.drawdown) ;
-    this.canvas.height = wefts(draft.drawdown) ;
+    this.draft_canvas.width = warps(draft.drawdown) ;
+    this.draft_canvas.height = wefts(draft.drawdown) ;
 
     for (let i = 0; i < wefts(draft.drawdown); i++) {
       for (let j = 0; j < warps(draft.drawdown); j++) {
@@ -467,35 +479,101 @@ export class SubdraftComponent implements OnInit {
   }
 
   async drawCell(draft, cell_size, i, j, usecolor){
+
+    cell_size = 10;
     let is_up = isUp(draft.drawdown, i,j);
     let is_set = isSet(draft.drawdown, i, j);
     let color = "#ffffff"
     if(is_set){
       if(this.ink === 'unset' && is_up){
-        this.cx.fillStyle = "#999999"; 
+        this.draft_cx.fillStyle = "#999999"; 
       }else{
         if(is_up){
           color = usecolor ? this.ms.getColor(draft.colShuttleMapping[j]) : '#000000';
         }else{
           color = usecolor ? this.ms.getColor(draft.rowShuttleMapping[i]) : '#ffffff';
         }
-        this.cx.fillStyle = color;
+        this.draft_cx.fillStyle = color;
       }
     } else{
-      this.cx.fillStyle =  '#888888';
+      this.draft_cx.fillStyle =  '#888888';
     // this.cx.fillStyle =  '#ff0000';
 
     }
 
-    this.cx.strokeStyle = "#666666"
-    this.cx.lineWidth = 1;
+    this.draft_cx.strokeStyle = "#666666"
+    this.draft_cx.lineWidth = 1;
 
-    if(cell_size > 1 && usecolor === false) this.cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
-    this.cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
+    if(cell_size > 1 && usecolor === false) this.draft_cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
+    this.draft_cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
   }
 
   redrawExistingDraft(){
     this.drawDraft(this.draft);
+  }
+
+
+  drawWeftData(draft: Draft) : Promise<boolean>{
+    let cell_size = 10;
+
+
+    draft =  this.tree.getDraft(this.id);
+    const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-'+this.id.toString());
+    const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-'+this.id.toString());
+    if(weft_systems_canvas === undefined) return;
+    const weft_systems_cx = weft_systems_canvas.getContext("2d");
+    const weft_mats_cx = weft_mats_canvas.getContext("2d");
+
+    weft_systems_canvas.height = wefts(draft.drawdown) * cell_size;
+    weft_systems_canvas.width = cell_size;
+    weft_mats_canvas.height = wefts(draft.drawdown) * cell_size;
+    weft_mats_canvas.width =  cell_size;
+
+    for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+      let color = this.ms.getColor(draft.rowShuttleMapping[j]);
+      let system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+      weft_mats_cx.fillStyle = color;
+      weft_mats_cx.fillRect(1, j* cell_size+1,  cell_size-2,  cell_size-2);
+      
+      weft_systems_cx.fillStyle = "#666666";
+      weft_systems_cx.fillText(system, 0, (j+1)*cell_size - 1)
+
+
+    }
+    
+
+  }
+
+  drawWarpData(draft: Draft) : Promise<boolean>{
+    draft =  this.tree.getDraft(this.id);
+    let cell_size = 10;
+
+    const warp_systems_canvas =  <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString());
+    const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.id.toString());
+
+    if(this.warp_data_canvas === undefined) return;
+    const warp_mats_cx = warp_mats_canvas.getContext("2d");
+    const warp_systems_cx = warp_systems_canvas.getContext("2d");
+
+    warp_mats_canvas.width = warps(draft.drawdown) * cell_size;
+    warp_mats_canvas.height =  cell_size;
+
+    warp_systems_canvas.width = warps(draft.drawdown) * cell_size;
+    warp_systems_canvas.height =  cell_size;
+
+    for (let j = 0; j < draft.colShuttleMapping.length; j++) {
+      let color = this.ms.getColor(draft.colShuttleMapping[j]);
+      let system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
+    
+      warp_mats_cx.fillStyle = color;
+      warp_mats_cx.fillRect(j* cell_size+1, 1,  cell_size-2,  cell_size-2);
+      
+      warp_systems_cx.fillStyle = "#666666";
+      warp_systems_cx.fillText(system, j*cell_size+2, cell_size)
+
+    }
+    
+
   }
 
   /**
@@ -503,6 +581,8 @@ export class SubdraftComponent implements OnInit {
    * @returns 
    */
   async drawDraft(draft: Draft) : Promise<any> {
+
+    let cell_size = 10;
 
     draft =  this.tree.getDraft(this.id);
     const use_colors =(<DraftNode>this.tree.getNode(this.id)).render_colors;
@@ -515,25 +595,35 @@ export class SubdraftComponent implements OnInit {
       
     }
 
-    if(this.canvas === undefined) return;
-    this.cx = this.canvas.getContext("2d");
+    if(this.draft_canvas === undefined) return;
+    this.draft_cx = this.draft_canvas.getContext("2d");
    
     if(draft === null){
-      this.canvas.width = 0;
-      this.canvas.height = 0;
+      this.draft_canvas.width = 0;
+      this.draft_canvas.height = 0;
+      this.tree.setDraftClean(this.id);
+      return Promise.resolve("complete");
 
     }else{
-      this.canvas.width = warps(draft.drawdown) * this.default_cell;
-      this.canvas.height = wefts(draft.drawdown) * this.default_cell;
 
-      for (let i = 0; i <  wefts(draft.drawdown); i++) {
-        for (let j = 0; j < warps(draft.drawdown); j++) {
-          this.drawCell(draft, this.default_cell, i, j, use_colors);
+      const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
+
+      return Promise.all(fns).then(el => {
+        this.draft_canvas.width = warps(draft.drawdown) * cell_size;
+        this.draft_canvas.height = wefts(draft.drawdown) * cell_size;
+  
+        for (let i = 0; i <  wefts(draft.drawdown); i++) {
+          for (let j = 0; j < warps(draft.drawdown); j++) {
+            this.drawCell(draft, cell_size, i, j, use_colors);
+          }
         }
-      }
+        this.tree.setDraftClean(this.id);
+        return Promise.resolve("complete");
+      })
+
+     
     }
-    this.tree.setDraftClean(this.id);
-    return "complete";
+    
   }
 
 
@@ -731,7 +821,7 @@ export class SubdraftComponent implements OnInit {
     
     context.fillStyle = "white";
     context.fillRect(0,0,b.width,b.height);
-    context.drawImage(this.canvas, 0, 0);
+    context.drawImage(this.draft_canvas, 0, 0);
 
     const a = document.createElement('a')
     return this.fs.saver.bmp(b)
@@ -793,7 +883,7 @@ export class SubdraftComponent implements OnInit {
       context.fillRect(0,0,b.width,b.height);
       
 
-      context.drawImage(this.canvas, 0, 0);
+      context.drawImage(this.draft_canvas, 0, 0);
 
       const a = document.createElement('a')
       return this.fs.saver.jpg(b)

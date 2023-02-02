@@ -1,4 +1,107 @@
 
+canvas{
+	width: fit-content;
+	height: fit-content;
+  }
+
+.top-half-draft{
+display: flex;
+flex-direction: row;
+}
+
+
+.subdraft-contents.origin0,
+.subdraft-contents.origin3
+{
+  flex-direction: column;
+}
+
+.subdraft-contents.origin1,
+.subdraft-contents.origin2
+{
+  flex-direction: column-reverse;
+}
+
+.warp-systems-container{
+	display: flex;
+  }
+  
+  .warp-systems-container.origin0
+  {
+	flex-direction: column;
+	align-items: flex-start;
+	padding-right: 20px;
+
+  }
+  
+  
+  .warp-systems-container.origin3
+  {
+	flex-direction: column;
+	align-items: flex-end;
+	padding-left: 20px;
+
+  }
+  
+  .warp-systems-container.origin1{
+  
+	flex-direction: column-reverse;
+	align-items: flex-start;
+	padding-right: 20px;
+
+  
+  }
+  
+  
+  .warp-systems-container.origin2
+  {
+	flex-direction: column-reverse;
+	align-items: flex-end;
+	padding-left: 20px;
+
+  
+  }
+
+
+.drawdown-container{
+	display: flex;
+  }
+  
+  .drawdown-container.origin0,
+  .drawdown-container.origin1
+  {
+	flex-direction: row; 
+  }
+  
+  .drawdown-container.origin2,
+  .drawdown-container.origin3
+  {
+	flex-direction: row-reverse; 
+  }
+
+
+
+.weft-systems-container{
+	display: flex;
+	margin-top: 10px;
+  }
+  
+  .weft-systems-container.origin0,
+  .weft-systems-container.origin1
+  {
+	flex-direction: row; 
+  }
+  
+  .weft-systems-container.origin2,
+  .weft-systems-container.origin3
+  {
+	flex-direction: row-reverse; 
+  }
+  
+  
+  
+
+
 
 .subdraft-container{
 	background: rgba(255, 255, 255, 0.6);
@@ -143,10 +246,13 @@ button.output:hover{
 
 .subdraft-contents{
 	display: flex;
+	flex-direction: column;
 	position: relative;
 	align-items: center;
 	justify-content: center;
 	padding: 4px;
+	border: none;
+	background-color: transparent;
 	
 
 
@@ -171,7 +277,7 @@ svg{
 .maindraft{
 	display: block;
 	overflow:hidden;
-	border: thin solid black;
+	margin: 10px;
 }
 
 .hidden {

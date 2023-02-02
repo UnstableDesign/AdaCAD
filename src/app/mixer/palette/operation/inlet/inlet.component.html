@@ -100,7 +100,8 @@
     class="open_inlet"
     [matTooltip]='inlet.dx'
     (click)="inputSelected()">
-    <i class="material-inlet-icon"></i>
+    <i *ngIf="inlet_for_drafts" class="draft-inlet-icon"></i>
+    <i *ngIf="!inlet_for_drafts" class="material-inlet-icon"></i>
     <!-- <i class="fa-sharp fa-solid fa-circle-down"></i> -->
     </button>
 
