@@ -140,6 +140,9 @@ export class SubdraftComponent implements OnInit {
 
   use_colors: boolean = true;
 
+  viewInit: boolean = false;
+
+
   constructor(private inks: InkService, 
     private layer: LayersService, 
     private ms: MaterialsService, 
@@ -183,7 +186,9 @@ export class SubdraftComponent implements OnInit {
     this.use_colors = dn.render_colors;
 
     this.default_cell = this.default_cell;
-    console.log("THIS DEFAULT CELL ", this.default_cell)
+
+
+    //this.updateVisibility();
 
 
   }
@@ -204,12 +209,16 @@ export class SubdraftComponent implements OnInit {
 
     this.updateViewport(this.bounds);
 
+    this.viewInit = true;
+
     //added this to handle errors from position being calculated fore this draft is loaded
-    const cxns = this.tree.getOutputs(this.id);
-    cxns.forEach(id => {
-      const comp = <ConnectionComponent> this.tree.getComponent(id);
-      comp.updateFromPosition(this);
-    })
+    // const cxns = this.tree.getOutputs(this.id);
+    // cxns.forEach(id => {
+    //   const comp = <ConnectionComponent> this.tree.getComponent(id);
+    //   comp.updateFromPosition(this.id);
+    // })
+
+
 
   }
 
@@ -275,6 +284,33 @@ export class SubdraftComponent implements OnInit {
     else {console.error("no element named scale-"+this.parent_id+"found")}
 
   }
+
+  // updateVisibility(){
+
+
+  //   const cxns = this.tree.getOutputs(this.id);
+
+  //   if(cxns.length == 0){
+  //     this.render_materials = true;
+  //     this.render_drawdown = true;
+  //   }
+
+  //   /**this subdraft might have multiple outputs so you want to show the relevant information for each.  */
+  //   cxns.forEach(cxn => {
+  //     const op_id = this.tree.getOutputs(cxn);
+  //     if(op_id.length > 0 && this.tree.getType(op_id[0]) == 'op'){
+  //       const op_data = this.tree.getOpNode(op_id[0]);
+  //       const inlet = this.tree.getInletOfCxn(op_data.id, cxn);
+  //       const op = this.ops.getOp(op_data.name);
+  //       if(op.inlets[inlet].uses == 'draft'){
+  //         this.render_drawdown = true;
+  //       }else{
+  //         this.render_materials = true;
+  //       }
+  //     }
+  //   })
+
+  // }
 
 
   updateName(){
@@ -489,7 +525,7 @@ export class SubdraftComponent implements OnInit {
 
   async drawCell(draft, cell_size, i, j, usecolor){
 
-    cell_size = 10;
+    // cell_size = 10;
     let is_up = isUp(draft.drawdown, i,j);
     let is_set = isSet(draft.drawdown, i, j);
     let color = "#ffffff"
@@ -538,17 +574,19 @@ export class SubdraftComponent implements OnInit {
     weft_mats_canvas.height = wefts(draft.drawdown) * cell_size;
     weft_mats_canvas.width =  cell_size;
 
-    for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
-      let color = this.ms.getColor(draft.rowShuttleMapping[j]);
-      let system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
-      weft_mats_cx.fillStyle = color;
-      weft_mats_cx.fillRect(1, j* cell_size+1,  cell_size-2,  cell_size-2);
-      
-      weft_systems_cx.fillStyle = "#666666";
-      weft_systems_cx.fillText(system, 0, (j+1)*cell_size - 1)
+
+      for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+        let color = this.ms.getColor(draft.rowShuttleMapping[j]);
+        let system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+        weft_mats_cx.fillStyle = color;
+        weft_mats_cx.fillRect(1, j* cell_size+1,  cell_size-2,  cell_size-2);
+        
+        weft_systems_cx.fillStyle = "#666666";
+        weft_systems_cx.fillText(system, 0, (j+1)*cell_size - 1)
 
 
-    }
+      }
+    
     
 
   }
@@ -570,17 +608,19 @@ export class SubdraftComponent implements OnInit {
     warp_systems_canvas.width = warps(draft.drawdown) * cell_size;
     warp_systems_canvas.height =  cell_size;
 
-    for (let j = 0; j < draft.colShuttleMapping.length; j++) {
-      let color = this.ms.getColor(draft.colShuttleMapping[j]);
-      let system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
-    
-      warp_mats_cx.fillStyle = color;
-      warp_mats_cx.fillRect(j* cell_size+1, 1,  cell_size-2,  cell_size-2);
-      
-      warp_systems_cx.fillStyle = "#666666";
-      warp_systems_cx.fillText(system, j*cell_size+2, cell_size)
 
-    }
+      for (let j = 0; j < draft.colShuttleMapping.length; j++) {
+        let color = this.ms.getColor(draft.colShuttleMapping[j]);
+        let system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
+      
+        warp_mats_cx.fillStyle = color;
+        warp_mats_cx.fillRect(j* cell_size+1, 1,  cell_size-2,  cell_size-2);
+        
+        warp_systems_cx.fillStyle = "#666666";
+        warp_systems_cx.fillText(system, j*cell_size+2, cell_size)
+
+      
+      }
     
 
   }
@@ -621,11 +661,12 @@ export class SubdraftComponent implements OnInit {
         this.draft_canvas.width = warps(draft.drawdown) * cell_size;
         this.draft_canvas.height = wefts(draft.drawdown) * cell_size;
   
-        for (let i = 0; i <  wefts(draft.drawdown); i++) {
-          for (let j = 0; j < warps(draft.drawdown); j++) {
-            this.drawCell(draft, cell_size, i, j, use_colors);
+          for (let i = 0; i <  wefts(draft.drawdown); i++) {
+            for (let j = 0; j < warps(draft.drawdown); j++) {
+              this.drawCell(draft, cell_size, i, j, use_colors);
+            }
           }
-        }
+        
         this.tree.setDraftClean(this.id);
         return Promise.resolve("complete");
       })

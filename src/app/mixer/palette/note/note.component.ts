@@ -19,7 +19,6 @@ export class NoteComponent implements OnInit {
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
-    console.log("AUTOSETTING SCALE")
     this.rescale();
   }
   private _scale:number = 5;

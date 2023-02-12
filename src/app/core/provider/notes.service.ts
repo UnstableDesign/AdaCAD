@@ -121,7 +121,6 @@ export class NotesService {
    * @returns the note object or undefined if not found
    */
   get(id: number) : Note {
-    console.log("GETTING NOTE ", id, " FROM ", this.notes)
     return this.notes.find(el => el.id == id);
   }
 

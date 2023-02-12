@@ -255,7 +255,6 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-
   }
 
 
@@ -739,21 +738,24 @@ export class MixerComponent implements OnInit {
             const op = this.tree.getOpNode(node.id);
             this.palette.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).bounds, data.scale);
             break;
-        }
-      })
-
-
-    }
-    ).then(el => {
-      return this.tree.nodes.forEach(node => {
-        if(!(node.component === null || node.component === undefined)) return;
-        switch (node.type){
           case 'cxn':
             this.palette.loadConnection(node.id)
             break;
         }
       })
+
+
     })
+    // ).then(el => {
+    //   return this.tree.nodes.forEach(node => {
+    //     if(!(node.component === null || node.component === undefined)) return;
+    //     switch (node.type){
+    //       case 'cxn':
+    //         this.palette.loadConnection(node.id)
+    //         break;
+    //     }
+    //   })
+    // })
     .then(el => {
 
       //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
@@ -778,7 +780,11 @@ export class MixerComponent implements OnInit {
   
 
     })
-    .then(data => {return Promise.resolve('alldone')})
+    .then(res => {
+
+      // this.palette.rescale(data.scale);
+      return Promise.resolve('alldone')
+    })
     .catch(console.error);
 
 

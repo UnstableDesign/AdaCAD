@@ -4,9 +4,16 @@
     position: absolute;
     top: 0px;
     left: 0px;
+    pointer-events:none;
 }
 
 button{
     position: absolute;
     font-size: .5em;
+    pointer-events:all;
 }
+
+svg{
+    font-size: .8em;
+}
+

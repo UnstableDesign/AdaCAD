@@ -108,6 +108,8 @@ export class OperationComponent implements OnInit {
 
    all_system_codes: Array<string> = [];
 
+   viewInit: boolean = false;
+
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
@@ -157,6 +159,11 @@ export class OperationComponent implements OnInit {
 
     const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
+
+
+    console.log("OP LOADED")
+    this.viewInit = true;
+
 
 
   }
@@ -332,12 +339,12 @@ export class OperationComponent implements OnInit {
   removeConnectionTo(obj:any){
     this.onConnectionRemoved.emit(obj);
 
-    const inlets = this.tree.getInputs(this.id);
-    inlets.forEach(id => {
-      const comp = <ConnectionComponent> this.tree.getComponent(id);
-      comp.updateToPosition(this);
+    // const inlets = this.tree.getInputs(this.id);
+    // inlets.forEach(id => {
+    //   const comp = <ConnectionComponent> this.tree.getComponent(id);
+    //   comp.updateToPosition(this);
 
-    })
+    // })
 
   }
 

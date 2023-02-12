@@ -111,7 +111,7 @@ flex-direction: row;
 	left: 0px;
 	display: flex;
 	flex-direction: column;
-	justify-content:flex-end;
+	justify-content:flex-start;
 	min-width: 300px;
 
 	.multiselected{
@@ -135,7 +135,7 @@ flex-direction: row;
 .bottom-opts{
 	display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: flex-start;
     padding: 8px 0px;
     color: #555;
     height: 40px;

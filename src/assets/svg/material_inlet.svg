@@ -13,22 +13,22 @@
 <path class="st1" d="M127.35,67.66"/>
 <path class="st1" d="M70.63,21.99"/>
 <g>
-	<path d="M130.56,80.69"/>
+	<path d="M136.32,69.55"/>
 	
-		<rect x="100.29" y="110.97" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 261.1837 233.0337)" class="st2" width="60.59" height="11.09"/>
+		<rect x="95.73" y="110.16" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 272.7327 235.1963)" class="st2" width="81.27" height="14.88"/>
 	
-		<rect x="51.41" y="121.9" transform="matrix(3.272933e-07 -1 1 3.272933e-07 -43.6802 212.4099)" class="st2" width="65.91" height="12.28"/>
+		<rect x="30.17" y="124.82" transform="matrix(3.272933e-07 -1 1 3.272933e-07 -58.6909 207.4277)" class="st2" width="88.4" height="16.47"/>
 	
-		<rect x="43.95" y="78.2" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 149.5621 167.4999)" class="st2" width="61.66" height="11.09"/>
+		<rect x="20.17" y="66.21" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 123.0299 147.3047)" class="st2" width="82.69" height="14.88"/>
 	
-		<rect x="78.88" y="43" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 169.3905 114.1712)" class="st2" width="11.62" height="28.17"/>
+		<rect x="67.02" y="19" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 149.6231 75.7822)" class="st2" width="15.59" height="37.78"/>
 	
-		<rect x="43.95" y="110.97" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 111.2483 233.0337)" class="st2" width="23.34" height="11.09"/>
+		<rect x="20.17" y="110.16" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 71.6448 235.1963)" class="st2" width="31.31" height="14.88"/>
 	
-		<rect x="88.91" y="67.58" transform="matrix(3.511295e-07 -1 1 3.511295e-07 45.9053 193.341)" class="st2" width="61.44" height="12.28"/>
+		<rect x="80.46" y="51.96" transform="matrix(3.511295e-07 -1 1 3.511295e-07 61.4578 181.8532)" class="st2" width="82.4" height="16.47"/>
 	
-		<rect x="134.38" y="77.67" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 295.2693 166.4368)" class="st2" width="26.51" height="11.09"/>
+		<rect x="141.45" y="65.5" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 318.4471 145.8789)" class="st2" width="35.55" height="14.88"/>
 	
-		<rect x="113.48" y="130.17" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 238.5855 291.1712)" class="st2" width="11.62" height="30.83"/>
+		<rect x="113.42" y="135.91" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 242.4249 313.1681)" class="st2" width="15.59" height="41.35"/>
 </g>
 </svg>

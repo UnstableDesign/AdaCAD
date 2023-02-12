@@ -198,6 +198,7 @@ export class PaletteComponent implements OnInit{
     this.designModeChanged();
 
     this.rescale(-1);
+
   }
 
   /**
@@ -398,6 +399,8 @@ export class PaletteComponent implements OnInit{
    */
   rescale(prev_zoom: number){
 
+    console.log("REDRAWING PALEETE ", prev_zoom, this.zs.zoom);
+
     //this.scale = scale;
     const zoom_factor: number = this.zs.zoom / this.default_cell_size;
    
@@ -535,9 +538,6 @@ export class PaletteComponent implements OnInit{
 
 
     this.changeDesignmode('move');
-
-    console.log("Note created", note)
-
     return notecomp.instance;
   }
 
@@ -641,7 +641,7 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.id = id;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.zs.zoom;
-    subdraft.instance.draft_visible =true;
+    subdraft.instance.draft_visible = true;
     subdraft.instance.use_colors = true;
     subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
@@ -799,7 +799,6 @@ export class PaletteComponent implements OnInit{
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const node = this.tree.getNode(id);
-      const tn = this.tree.getTreeNode(id);
 
       node.component = cxn.instance;
       this.setConnectionSubscriptions(cxn.instance);
@@ -826,8 +825,6 @@ export class PaletteComponent implements OnInit{
       
       cxn.instance.id = id;
       cxn.instance.scale = this.zs.zoom;
-      cxn.instance.from = id_from;
-      cxn.instance.to = id_to;
       cxn.instance.default_cell_size = this.default_cell_size;
 
       this.setConnectionSubscriptions(cxn.instance);
@@ -1697,9 +1694,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
 highlightPathToInlet(op_id: number, inlet_id: number, ndx_in_inlets: number){
 
 const cxns = this.tree.getInputsAtNdx(op_id, inlet_id);
-console.log("CXN", cxns, );
-
-
 const upstream_ops = this.tree.getUpstreamOperations(cxns[ndx_in_inlets].tn.node.id); 
 const upstream_drafts = this.tree.getUpstreamDrafts(cxns[ndx_in_inlets].tn.node.id); 
 
@@ -1747,6 +1741,9 @@ const op_children = this.tree.getNonCxnOutputs(op_id);
   if(upstream_cxn.find(el => el === cxn.id) === undefined){
     const div = document.getElementById("scale-"+cxn.id);
     if(div !== null) div.style.opacity = ".2";
+  }else{
+    cxn.show_path_text = true;
+    cxn.drawConnection(this.zs.zoom);
   }
  })
 
@@ -1769,6 +1766,9 @@ resetOpacity(){
   cxns.forEach(cxn => {
     const div = document.getElementById("scale-"+cxn.id);
     if(div !== null)  div.style.opacity = "1"
+    cxn.show_path_text = false;
+    cxn.drawConnection(this.zs.zoom);
+
   });
 
   
@@ -1803,7 +1803,7 @@ connectionMade(obj: any){
   const sd: SubdraftComponent = <SubdraftComponent> this.tree.getOpenConnection();
   
   this.createConnection(sd.id, obj.id, obj.ndx);
-
+  
   this.performAndUpdateDownstream(obj.id).then(el => {
     this.addTimelineState();
   });
@@ -2418,12 +2418,12 @@ drawStarted(){
 
     this.tree.getInputs(id).forEach(cxn => {
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-       comp.updateToPosition(moving);
+       comp.updateToPosition(id, this.zs.zoom);
     });
 
     this.tree.getOutputs(id).forEach(cxn => {
       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      comp.updateFromPosition(moving);
+      comp.updateFromPosition(id, this.zs.zoom);
    });
 
    if(!follow) return;
