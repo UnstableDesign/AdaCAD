@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Cell } from '../../core/model/cell';
 // import { VaeService} from "../../core/provider/vae.service"
-import { BoolParam, Draft, DynamicOperation, FileParam, LoomSettings, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
+import { BoolParam, Draft, DynamicOperation, FileParam, LoomSettings, NotationTypeParam, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam } from '../../core/model/datatypes';
 import { applyMask, copyDraft, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, isUp, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
 import { getLoomUtilByType, numFrames, numTreadles } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -2530,6 +2530,13 @@ export class OperationService {
         regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
         error: 'invalid entry',
         dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
+        },
+        <NotationTypeParam>{name: 'assign layers',
+        type: 'notation_toggle',
+        falsestate: "drafts to systems",
+        truestate: "drafts to layers",
+        value: 1,
+        dx: 'determine if the inlets should represent the different layers or different systems'
         }
       ],
       inlets: [{
@@ -2546,6 +2553,11 @@ export class OperationService {
         // //split the inputs into the input associated with 
         const parent_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "notation");
         const child_inputs: Array<OpInput> = op_inputs.filter(el => el.op_name === "child");
+        
+        const by_layer = parent_inputs[0].params[1];
+        const original_string = parent_inputs[0].params[0];
+        const original_string_split = utilInstance.parseRegex(original_string, /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i);
+
 
         if(child_inputs.length == 0) return Promise.resolve([]);
 
@@ -2555,10 +2567,7 @@ export class OperationService {
           return acc;
         }, []);
 
-
-
         const system_map = child_inputs.find(el => el.inlet === 0);
-
         if(system_map === undefined) return Promise.resolve([]); ;
        
         
@@ -2579,17 +2588,25 @@ export class OperationService {
         const system_draft_map = child_inputs
         .filter(el => el.inlet > 0)
         .map(el => {
+
+          //find the correct layer by identifying this unit in the stack
+          let layer_id = original_string_split.findIndex(sel => sel.includes(el.params[0]));
+          if(layer_id == -1){
+            console.error(el.params[0]+"not found in layer string")
+            layer_id = el.inlet-1;
+          } 
+
           return  {
             wesy: el.params[0].match(/[a-zA-Z]+/g), //pull all the letters out into weft system ids
             wasy: el.params[0].match(/\d+/g), //pull out all the nubmers into warp systems
             i: 0,
             j: 0,
-            layer: el.inlet-1, //map layer order to the inlet id, all inlets must be ordered the same as the input
+            layer: layer_id, //map layer order to the inlet id, all inlets must be ordered the same as the input
             draft: el.drafts[0]
           }
         });
 
-
+        console.log("System Draft Map", system_draft_map, by_layer)
         
         system_draft_map.forEach(sdm => {
           if(sdm.wasy!== null) sdm.wasy = sdm.wasy.map(el => parseInt(el));

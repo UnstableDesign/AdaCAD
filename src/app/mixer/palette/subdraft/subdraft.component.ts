@@ -364,7 +364,7 @@ export class SubdraftComponent implements OnInit {
 
     for (let i = 0; i < wefts(draft.drawdown); i++) {
       for (let j = 0; j < warps(draft.drawdown); j++) {
-        this.drawCell(draft, 1, i, j, false);
+        this.drawCell(draft, 1, i, j, false, true);
       }
     }
   }
@@ -523,7 +523,7 @@ export class SubdraftComponent implements OnInit {
     this.bounds.height = height;
   }
 
-  async drawCell(draft, cell_size, i, j, usecolor){
+  async drawCell(draft:Draft, cell_size:number, i:number, j:number, usecolor:boolean, forprint:boolean){
 
     // cell_size = 10;
     let is_up = isUp(draft.drawdown, i,j);
@@ -541,7 +541,8 @@ export class SubdraftComponent implements OnInit {
         this.draft_cx.fillStyle = color;
       }
     } else{
-      this.draft_cx.fillStyle =  '#888888';
+      if(forprint) this.draft_cx.fillStyle =  '#ffffff'
+      else this.draft_cx.fillStyle =  '#eeeeee';
     // this.cx.fillStyle =  '#ff0000';
 
     }
@@ -549,7 +550,7 @@ export class SubdraftComponent implements OnInit {
     this.draft_cx.strokeStyle = "#666666"
     this.draft_cx.lineWidth = 1;
 
-    if(cell_size > 1 && usecolor === false) this.draft_cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
+    if(!forprint && cell_size > 1 && usecolor === false) this.draft_cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
     this.draft_cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
   }
 
@@ -559,7 +560,7 @@ export class SubdraftComponent implements OnInit {
 
 
   drawWeftData(draft: Draft) : Promise<boolean>{
-    let cell_size = 10;
+    let cell_size = 5;
 
 
     draft =  this.tree.getDraft(this.id);
@@ -593,7 +594,7 @@ export class SubdraftComponent implements OnInit {
 
   drawWarpData(draft: Draft) : Promise<boolean>{
     draft =  this.tree.getDraft(this.id);
-    let cell_size = 10;
+    let cell_size = 5;
 
     const warp_systems_canvas =  <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString());
     const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.id.toString());
@@ -631,7 +632,7 @@ export class SubdraftComponent implements OnInit {
    */
   async drawDraft(draft: Draft) : Promise<any> {
 
-    let cell_size = 10;
+    let cell_size = 5;
 
     draft =  this.tree.getDraft(this.id);
     const use_colors =(<DraftNode>this.tree.getNode(this.id)).render_colors;
@@ -663,7 +664,7 @@ export class SubdraftComponent implements OnInit {
   
           for (let i = 0; i <  wefts(draft.drawdown); i++) {
             for (let j = 0; j < warps(draft.drawdown); j++) {
-              this.drawCell(draft, cell_size, i, j, use_colors);
+              this.drawCell(draft, cell_size, i, j, use_colors, false);
             }
           }
         

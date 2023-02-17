@@ -32,6 +32,7 @@
     text-align: left;
     padding: 0px 10px;
     overflow: hidden;
+    caret-color: red;
 
 
 }
@@ -85,6 +86,9 @@ button.is-primary.is-active{
     background-color: rgb(255, 64, 129);
 }
 
+.refresh{
+    color: white;
+}
 
 .refresh .dirty{
     color: rgb(255, 64, 129); 

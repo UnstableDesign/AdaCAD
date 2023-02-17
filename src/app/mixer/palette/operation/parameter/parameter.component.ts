@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { BoolParam, DraftParam, FileParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
+import { BoolParam, DraftParam, FileParam, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
@@ -83,6 +83,11 @@ export class ParameterComponent implements OnInit {
           this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, regexValidator((<StringParam>this.param).regex)]);
           break;
 
+        case 'notation_toggle':
+          this.boolparam = <NotationTypeParam> this.param;
+          this.fc = new UntypedFormControl(this.param.value);
+          break;
+
         // case 'draft':
         //   this.draftparam = <DraftParam> this.param;
         //   this.fc = new FormControl(this.draftparam.value);
@@ -112,6 +117,12 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'boolean':
+        opnode.params[this.paramid] = (value) ? 1 : 0;
+        this.fc.setValue(value);
+        this.onOperationParamChange.emit({id: this.paramid, value: value});
+        break;
+
+      case 'notation_toggle':
         opnode.params[this.paramid] = (value) ? 1 : 0;
         this.fc.setValue(value);
         this.onOperationParamChange.emit({id: this.paramid, value: value});

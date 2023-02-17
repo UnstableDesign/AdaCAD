@@ -438,7 +438,7 @@ export interface FileSaver{
  */
 export type OperationParam = {
   name: string,
-  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft',
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle';
   value: any,
   dx: string
 }
@@ -487,6 +487,16 @@ export type FileParam = OperationParam & {
 export type DraftParam = OperationParam & {
   id: number;
 }
+
+/**
+* An extension of Param that in intended to shape how inlets parse layer notation to generate inlets
+* @param id draft id at this parameter --- unusued currently 
+*/
+export type NotationTypeParam = OperationParam & {
+  falsestate: string,
+  truestate: string
+}
+
 
 /**
 * An extension of Param that handles extra requirements for strings as inputs

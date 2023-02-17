@@ -1,5 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
-import { Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, OpComponentProxy, Operation, OpInput, OpNode, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { boolean } from 'mathjs';
+import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
 import { copyDraft, createDraft, flipDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -102,30 +103,71 @@ export class TreeService {
    * @param value the value at that parameter
    * @returns a list of inlet values to add.
    */
-   onDynanmicOperationParamChange(name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
+   onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
 
-    const op = this.ops.getOp(name);
+
+      const op = this.ops.getOp(name);
+      const opnode = this.getOpNode(opid);
 
       let param_type = op.params[param_id].type;
 
-      //check to see if we should add or remove draft inputs
-      if(param_id === (<DynamicOperation>op).dynamic_param_id){
-        const type = (<DynamicOperation>op).dynamic_param_type;
 
+      if(param_id === (<DynamicOperation>op).dynamic_param_id || param_type == 'notation_toggle'){
+        const type = (<DynamicOperation>op).dynamic_param_type;
+        
         let static_inputs = op.inlets.filter(el => el.type === 'static');
         let num_dynamic_inlets = inlets.length - static_inputs.length;
         let matches = [];
 
+        console.log("DYNAMIC PARAM _TYPE ", type)
+
         switch(type){
 
+
+
           case 'notation':
-            matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
-            matches = matches.map(el => el.slice(1, -1))
-            inlets = inlets.slice(0,static_inputs.length);
-            matches.forEach(el => {
-              inlets.push(el);
-            })
+
+            const system_parsing_regex = /.*?(.*?[a-xA-Z]+[\d]+).*?/i;
+
+            if(param_id == 1 && param_val == 0){
+              const string_to_parse = op.params[0].value;
+              matches = utilInstance.parseRegex(opnode.params[0], (<StringParam> op.params[0]).regex);
+              matches = matches.map(el => el.slice(1, -1))
+              matches = matches.reduce((acc, val) => {
+                const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
+                return acc.concat(sub_match);
+              }, []);
+
+              inlets = inlets.slice(0,static_inputs.length);
+              matches.forEach(el => {
+                inlets.push(el);
+              })
+            }else if(param_id == 1 && param_val == 1){
+              matches = utilInstance.parseRegex(opnode.params[0],(<StringParam> op.params[0]).regex);
+              matches = matches.map(el => el.slice(1, -1))
+              inlets = inlets.slice(0,static_inputs.length);
+              matches.forEach(el => {
+                inlets.push(el);
+              })
+            }else{
+    
+
+              matches = utilInstance.parseRegex(param_val, (<StringParam> op.params[0]).regex);
+              matches = matches.map(el => el.slice(1, -1))
+              if(opnode.params[1] == 0){
+                matches = matches.reduce((acc, val) => {
+                  const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
+                  return acc.concat(sub_match);
+                }, []);
+              }  
+
+              inlets = inlets.slice(0,static_inputs.length);
+              matches.forEach(el => {
+                inlets.push(el);
+              })
+            }
+            
           break;
 
           case 'profile':
@@ -259,7 +301,7 @@ export class TreeService {
         inlets = default_inlet_values.slice();
         if(this.ops.isDynamic(name)){
           const op = <DynamicOperation> this.ops.getOp(name);
-          let dynamic_inlets = this.onDynanmicOperationParamChange(name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
+          let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
           inlets = dynamic_inlets.slice();
         }
       }

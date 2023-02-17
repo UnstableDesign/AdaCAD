@@ -367,6 +367,9 @@ export class OperationComponent implements OnInit {
    */
   onParamChange(obj: any){
 
+    console.log("on param change", this.is_dynamic_op)
+
+
     if(this.is_dynamic_op){
       const opnode = <OpNode> this.tree.getNode(this.id);
       const op = <DynamicOperation> this.operations.getOp(opnode.name);
@@ -380,7 +383,7 @@ export class OperationComponent implements OnInit {
         }
         
       }
-      const new_inlets = this.tree.onDynanmicOperationParamChange(this.name, opnode.inlets, obj.id, obj.value)
+      const new_inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value)
       this.opnode.inlets = new_inlets.slice();
 
       if(op.dynamic_param_type == "number") this.opnode.inlets = this.opnode.inlets.map(el => parseInt(el));
