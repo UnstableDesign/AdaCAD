@@ -82,11 +82,14 @@ export class OperationComponent implements OnInit {
 
    disable_drag: boolean = false;
  
-   bounds: Bounds = {
-     topleft: {x: 0, y:0},
-     width: 200,
-     height: 100
-   };
+   topleft: Point = {x: 0, y:0};
+
+
+  //  bounds: Bounds = {
+  //    topleft: {x: 0, y:0},
+  //    width: 200,
+  //    height: 100
+  //  };
    
    op:Operation | DynamicOperation;
 
@@ -136,14 +139,14 @@ export class OperationComponent implements OnInit {
     const tl: Point = this.viewport.getTopLeft();
     const tl_offset = {x: tl.x + 60, y: tl.y};
 
-    if(this.bounds.topleft.x == 0 && this.bounds.topleft.y == 0) this.setPosition(tl_offset);
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+     if(this.topleft.x == 0 && this.topleft.y == 0) this.setPosition(tl_offset);
+     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
 
     this.opnode = <OpNode> this.tree.getNode(this.id);
     if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
-    this.base_height =  60 + 40 * this.opnode.params.length
-    this.bounds.height = this.base_height;
+    // this.base_height =  60 + 40 * this.opnode.params.length
+    // this.bounds.height = this.base_height;
 
   }
 
@@ -154,14 +157,13 @@ export class OperationComponent implements OnInit {
       this.drawImagePreview();
     }
 
-    const container: HTMLElement = document.getElementById('scale-'+this.id);
-    this.bounds.height = container.offsetHeight;
+    // const container: HTMLElement = document.getElementById('scale-'+this.id);
+    // this.bounds.height = container.offsetHeight;
 
     const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
 
 
-    console.log("OP LOADED")
     this.viewInit = true;
 
 
@@ -202,15 +204,15 @@ export class OperationComponent implements OnInit {
     }
 
 
-  setBounds(bounds:Bounds){
-    this.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y},
-    this.bounds.width = bounds.width;
-    this.bounds.height = bounds.height;
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
-  }
+  // setBounds(bounds:Bounds){
+  //   this.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y},
+  //   this.bounds.width = bounds.width;
+  //   this.bounds.height = bounds.height;
+  //   this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
+  // }
 
   setPosition(pos: Point){
-    this.bounds.topleft =  {x: pos.x, y:pos.y};
+    this.topleft =  {x: pos.x, y:pos.y};
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
@@ -229,12 +231,12 @@ export class OperationComponent implements OnInit {
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
-    this.bounds.topleft = {
+    this.topleft = {
       x: this.interlacement.j * this.scale,
       y: this.interlacement.i * this.scale
     };
 
-    this.bounds.height = this.base_height * zoom_factor;
+    // this.bounds.height = this.base_height * zoom_factor;
 
  
   
@@ -244,9 +246,10 @@ export class OperationComponent implements OnInit {
 
   drawForPrint(canvas, cx, scale){
     if(canvas === undefined) return;
+    const bounds = document.getElementById('scale-'+this.id);
 
     cx.fillStyle = "#ffffff";
-    cx.fillRect(this.bounds.topleft.x, this.bounds.topleft.y, this.bounds.width, this.bounds.height); 
+    cx.fillRect(this.topleft.x, this.topleft.y, bounds.offsetWidth, bounds.offsetHeight); 
 
     cx.fillStyle = "#666666";
     cx.font = this.scale*2+"px Verdana";
@@ -258,7 +261,7 @@ export class OperationComponent implements OnInit {
       datastring = datastring + p.name +": "+ opnode.params[ndx] + ", ";
     });
 
-    cx.fillText(datastring,this.bounds.topleft.x + 5, this.bounds.topleft.y+25 );
+    cx.fillText(datastring,this.topleft.x + 5, this.topleft.y+25 );
 
 
   }
@@ -270,16 +273,16 @@ export class OperationComponent implements OnInit {
 
 
        const container = <HTMLElement> document.getElementById("scale-"+this.id);
-       if(container !== null) this.setPosition({x: child.bounds.topleft.x, y: child.bounds.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
+       if(container !== null) this.setPosition({x: child.topleft.x, y: child.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
   
     }
 
   /**
    * set's the width to at least 200, but w if its large
    */
-  setWidth(w:number){
-    this.bounds.width = (w > 200) ? w : 200;
-  }
+  // setWidth(w:number){
+  //   this.bounds.width = (w > 200) ? w : 200;
+  // }
 
   // addOutput(dm: DraftMap){
   //   this.outputs.push(dm);
@@ -301,7 +304,7 @@ export class OperationComponent implements OnInit {
 
 
       if(e.shiftKey == true){
-        this.multiselect.toggleSelection(this.id, this.bounds.topleft);
+        this.multiselect.toggleSelection(this.id, this.topleft);
       }else{
         this.multiselect.clearSelections();
       }
@@ -473,8 +476,11 @@ export class OperationComponent implements OnInit {
 
   dragStart(e: any) {
       //set the relative position of this operation if its the one that's dragging
+
+      const container: HTMLElement = document.getElementById('scale-'+this.id);
+      const parent_height = container.offsetHeight;
      if(this.multiselect.isSelected(this.id)){
-      this.multiselect.setRelativePosition(this.bounds.topleft);
+      this.multiselect.setRelativePosition(this.topleft);
      }else{
       this.multiselect.clearSelections();
      }
@@ -488,7 +494,7 @@ export class OperationComponent implements OnInit {
        const pointer:Point = $event.pointerPosition;
        const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
        const adj:Point = utilInstance.snapToGrid(relative, this.scale);
-       this.bounds.topleft = adj;  
+       this.topleft = adj;  
        this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
        this.onOperationMove.emit({id: this.id, point: adj});
 
@@ -496,7 +502,7 @@ export class OperationComponent implements OnInit {
 
 
   dragEnd($event: any) {
-    this.multiselect.setRelativePosition(this.bounds.topleft);
+    this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({id: this.id});
 
   }

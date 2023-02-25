@@ -11,7 +11,7 @@ class="subdraft-container"
 	[class.drawing] = "disable_drag && !is_preview"
 	[class.no-pointer] = "disable_drag"
 	[cdkDragDisabled] = "disable_drag"
-	[cdkDragFreeDragPosition]="bounds.topleft"
+	[cdkDragFreeDragPosition]="topleft"
 	(cdkDragMoved)="dragMove($event)"
 	(cdkDragEnded)="dragEnd($event)"
 	(cdkDragStarted)="dragStart($event)">
@@ -90,15 +90,26 @@ class="subdraft-container"
 
 	
 
-				</div>
-			
+			</div>
+			<div id="slider">
+				<mat-slider 
+				[ngModel]="draft_zoom"
+				min=".1" 
+				max="3" 
+				step="0.05" 
+				value="1"
+				(valueChange)="zoomChange($event)"
+				>
+					<input matSliderThumb>
+				  </mat-slider>
+			</div>
 		</div>
 
 
 
-		<div [class.hidden]="!draft_visible" class="subdraft-contents origin{{ws.selected_origin_option}}"  (click)="finetune()">
+		<div [class.hidden]="!draft_visible" class="subdraft-contents origin{{ws.selected_origin_option}}" >
 
-
+			<div id="local-zoom-{{id}}" class="local_zoom origin{{ws.selected_origin_option}}">
 
 			<div class="warp-systems-container origin{{ws.selected_origin_option}} ">
 
@@ -124,6 +135,8 @@ class="subdraft-container"
 				  <canvas id="weft-systems-{{id}}" >  </canvas>
 				</div>
 			  </div>
+
+			</div>
 
 
 

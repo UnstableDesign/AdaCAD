@@ -90,6 +90,14 @@ export class FileService {
       const draft_elements = [];
       const draft_fns = [];
 
+
+
+      if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
+        data.nodes.forEach(node => {
+          if(node.bounds !== undefined) node.topleft = node.bounds.topleft;
+        })
+      }
+
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
         draft_nodes = data.draft_nodes;
         if(draft_nodes == undefined) draft_nodes = [];

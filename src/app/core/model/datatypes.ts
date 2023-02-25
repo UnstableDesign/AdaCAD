@@ -285,7 +285,7 @@ export type YarnMap = Array<Array<Cell>>;
 export interface NodeComponentProxy{
   node_id: number,
   type: string,
-  bounds: Bounds
+  topleft: Point
  }
 
 /**

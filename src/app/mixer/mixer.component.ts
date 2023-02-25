@@ -736,7 +736,7 @@ export class MixerComponent implements OnInit {
             break;
           case 'op':
             const op = this.tree.getOpNode(node.id);
-            this.palette.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).bounds, data.scale);
+            this.palette.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft, data.scale);
             break;
           case 'cxn':
             this.palette.loadConnection(node.id)

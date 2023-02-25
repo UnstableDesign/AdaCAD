@@ -226,15 +226,15 @@ class Util {
    * @param isects all intersecting components
    * @returns the rightmost component
    */
-  getRightMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
+  // getRightMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
-    return isects.reduce((acc, isect) => {
-      if((isect.getTopleft().x + isect.bounds.width) > (acc.getTopleft().x + acc.bounds.width)) {
-        acc = isect;
-      }
-      return acc;
-    }, main);    
-  }
+  //   return isects.reduce((acc, isect) => {
+  //     if((isect.getTopleft().x + isect.bounds.width) > (acc.getTopleft().x + acc.bounds.width)) {
+  //       acc = isect;
+  //     }
+  //     return acc;
+  //   }, main);    
+  // }
 
   /**
    * finds the bottom-most component, used to create bounding box 
@@ -242,15 +242,15 @@ class Util {
    * @param isects all intersecting components
    * @returns the bottom-most component
    */
-  getBottomMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
+  // getBottomMost(main:SubdraftComponent,  isects:Array<SubdraftComponent>):SubdraftComponent{
 
-    return isects.reduce((acc, isect) => {
-      if((isect.getTopleft().y + isect.bounds.height)> (acc.getTopleft().y + acc.bounds.height)) {
-        acc = isect;
-      }
-      return acc;
-    }, main);    
-  }
+  //   return isects.reduce((acc, isect) => {
+  //     if((isect.getTopleft().y + isect.bounds.height)> (acc.getTopleft().y + acc.bounds.height)) {
+  //       acc = isect;
+  //     }
+  //     return acc;
+  //   }, main);    
+  // }
 
   /**
    * takes absolute screen coordinates and returns the i, j position if a cell were to exist at that point
@@ -359,47 +359,47 @@ class Util {
    * @param isect an array of all the components that intersect
    * @returns the array of bounds of all intersections
    */
-    getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
+    // getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
 
-      const left: number = Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
-      const top: number = Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
-      const right: number = Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
-      const bottom: number = Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
+    //   const left: number = Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
+    //   const top: number = Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
+    //   const right: number = Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
+    //   const bottom: number = Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
   
-      return {
-        topleft: {x: left, y: top},
-        width: right - left,
-        height: bottom - top
-      };
+    //   return {
+    //     topleft: {x: left, y: top},
+    //     width: right - left,
+    //     height: bottom - top
+    //   };
   
-    }
+    // }
   
     /**
      * gets the combined boundary of a Subdraft and any of its intersections
      * @param moving A SubdraftComponent that is our primary subdraft
      * @param isect  Any subdrafts that intersect with this component 
      * @returns the bounds of a rectangle that holds both components
-     */
-    getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):Bounds{
+    //  */
+    // getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):Bounds{
       
-      const bounds: Bounds = {
-        topleft: {x: 0, y:0},
-        width: 0,
-        height: 0
-      }
+    //   const bounds: Bounds = {
+    //     topleft: {x: 0, y:0},
+    //     width: 0,
+    //     height: 0
+    //   }
   
-      bounds.topleft.x = utilInstance.getLeftMost(moving, isect).getTopleft().x;
-      bounds.topleft.y = utilInstance.getTopMost(moving, isect).getTopleft().y;
+    //   bounds.topleft.x = utilInstance.getLeftMost(moving, isect).getTopleft().x;
+    //   bounds.topleft.y = utilInstance.getTopMost(moving, isect).getTopleft().y;
   
-      const rm =  utilInstance.getRightMost(moving, isect);
-      const bm =  utilInstance.getBottomMost(moving, isect);
+    //   const rm =  utilInstance.getRightMost(moving, isect);
+    //   const bm =  utilInstance.getBottomMost(moving, isect);
   
-      bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
-      bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
+    //   bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
+    //   bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
   
-      return bounds;
+    //   return bounds;
   
-    }
+    // }
 
     /**
      * computes the value of a heddle given overlapping drafts

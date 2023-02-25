@@ -73,10 +73,10 @@ export class MultiselectService {
         if(type == 'op'){
           const cxn_outs = this.tree.getOutputs(id);
           cxn_outs.forEach(o => {
-          let tl = this.tree.getComponent(o).bounds.topleft;
+          let tl = this.tree.getComponent(o).topleft;
           this.selected.push({id: o, topleft: tl });
           const child = this.tree.getConnectionOutput(o);
-          tl = this.tree.getComponent(child).bounds.topleft;
+          tl = this.tree.getComponent(child).topleft;
           this.selected.push({id: child, topleft: tl });
           container = <HTMLElement> document.getElementById("scale-"+child);
           if(container !== null)  container.classList.add('multiselected');

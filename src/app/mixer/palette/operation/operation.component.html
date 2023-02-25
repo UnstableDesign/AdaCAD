@@ -4,7 +4,7 @@ cdkDrag
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
 [cdkDragDisabled] = "disable_drag"
-[cdkDragFreeDragPosition]="bounds.topleft"
+[cdkDragFreeDragPosition]="topleft"
 (cdkDragMoved)="dragMove($event)"
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"

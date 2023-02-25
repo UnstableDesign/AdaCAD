@@ -647,18 +647,13 @@ export class PaletteComponent implements OnInit{
     subdraft.instance.draft = d;
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
 
-    if(nodep !== null && nodep.bounds !== null){
+    if(nodep !== null && nodep.topleft !== null){
       
-      const topleft_ilace = {j: nodep.bounds.topleft.x/saved_scale, i: nodep.bounds.topleft.y/saved_scale};
+      const topleft_ilace = {j: nodep.topleft.x/saved_scale, i: nodep.topleft.y/saved_scale};
       const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
       
-      const new_bounds: Bounds = {
-        topleft: adj_topleft,
-        width: nodep.bounds.width / saved_scale * this.zs.zoom,
-        height: nodep.bounds.height / saved_scale * this.zs.zoom,
-      }
-
-      subdraft.instance.bounds = new_bounds;
+    
+      subdraft.instance.topleft = adj_topleft;
 
       if(draftp !== null && draftp !== undefined){
         subdraft.instance.draft_visible = draftp.draft_visible;
@@ -727,7 +722,7 @@ export class PaletteComponent implements OnInit{
    * @params params the input data to be used in this operation
    * @returns the id of the node this has been assigned to
    */
-    loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, bounds:Bounds, saved_scale: number){
+    loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point, saved_scale: number){
 
         const factory = this.resolver.resolveComponentFactory(OperationComponent);
         const op = this.vc.createComponent<OperationComponent>(factory);
@@ -743,25 +738,23 @@ export class PaletteComponent implements OnInit{
         op.instance.scale = this.zs.zoom;
         op.instance.default_cell = this.default_cell_size;
         op.instance.loaded_inputs = params;
-        op.instance.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
-        op.instance.bounds.width = bounds.width;
-        op.instance.bounds.height = bounds.height;
+        op.instance.topleft = {x: topleft.x, y: topleft.y};
         op.instance.loaded = true;
   
-        if(bounds !== null){
+        // if(bounds !== null){
         
-          const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
-          const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
+        //   const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
+        //   const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
           
-          const new_bounds: Bounds = {
-            topleft: adj_topleft,
-            width: bounds.width / saved_scale * this.zs.zoom,
-            height: bounds.height / saved_scale * this.zs.zoom,
-          }
+        //   const new_bounds: Bounds = {
+        //     topleft: adj_topleft,
+        //     width: bounds.width / saved_scale * this.zs.zoom,
+        //     height: bounds.height / saved_scale * this.zs.zoom,
+        //   }
     
-          op.instance.bounds = new_bounds;
+        //   op.instance.bounds = new_bounds;
           
-        } 
+        // } 
   
        
       }
@@ -774,15 +767,13 @@ export class PaletteComponent implements OnInit{
      * @params params the input data to be used in this operation
      * @returns the id of the node this has been assigned to
      */
-     duplicateOperation(name: string, params: Array<number>, bounds:Bounds, inlets: Array<any>):number{
+     duplicateOperation(name: string, params: Array<number>, topleft:Point, inlets: Array<any>):number{
 
       const op:OperationComponent = this.createOperation(name);
           
           this.tree.setOpParams(op.id, params.slice(), inlets.slice());
           op.loaded_inputs = params.slice();
-          op.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y};
-          op.bounds.width = bounds.width;
-          op.bounds.height = bounds.height;
+          op.topleft = {x: topleft.x, y: topleft.y};
           op.duplicated = true;
     
           return op.id;
@@ -1116,14 +1107,14 @@ export class PaletteComponent implements OnInit{
       case 'or':
 
         const p = {x: ndx.j *this.zs.zoom, y: ndx.i * this.zs.zoom};
-        const isect = this.getIntersectingSubdraftsForPoint(p);
+        // const isect = this.getIntersectingSubdraftsForPoint(p);
   
-        if(isect.length > 0){
-          const prev: boolean = isect[0].resolveToValue(p);
-          return this.computeCellValue(ink, over, prev);
-        }else{
-          return this.computeCellValue(ink, over, null);
-        }
+        // if(isect.length > 0){
+        //   const prev: boolean = isect[0].resolveToValue(p);
+        //   return this.computeCellValue(ink, over, prev);
+        // }else{
+        //   return this.computeCellValue(ink, over, null);
+        // }
       break;
 
       default: 
@@ -1152,14 +1143,14 @@ export class PaletteComponent implements OnInit{
       case 'or':
 
         const p = {x: ndx.j * this.zs.zoom, y: ndx.i * this.zs.zoom};
-        const isect = this.getIntersectingSubdraftsForPoint(p);
+        // const isect = this.getIntersectingSubdraftsForPoint(p);
 
-        if(isect.length > 0){
-          const prev: boolean = isect[0].resolveToValue(p);
-          this.cx.fillStyle = this.computeCellColor(selected_ink, c, prev);
-        }else{
-          this.cx.fillStyle =  this.computeCellColor(selected_ink, c, null);;
-        }
+        // if(isect.length > 0){
+        //   const prev: boolean = isect[0].resolveToValue(p);
+        //   this.cx.fillStyle = this.computeCellColor(selected_ink, c, prev);
+        // }else{
+        //   this.cx.fillStyle =  this.computeCellColor(selected_ink, c, null);;
+        // }
       break;
 
       default: 
@@ -1201,29 +1192,23 @@ export class PaletteComponent implements OnInit{
       const op_comp = <OperationComponent> this.tree.getComponent(obj.id);
 
 
-      let new_bounds: Bounds = null;
+      let new_tl: Point = null;
 
 
       if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
 
-        new_bounds = {
-          topleft: {x: op_comp.bounds.topleft.x + 200 + this.zs.zoom * 2, y: op_comp.bounds.topleft.y},
-          width: 200,
-          height: op_comp.bounds.height
-        }
+          new_tl = {x: op_comp.topleft.x + 200 + this.zs.zoom * 2, y: op_comp.topleft.y}
+    
 
       }else{
 
-        new_bounds = {
-          topleft: {x: op_comp.bounds.topleft.x + op_comp.bounds.width + this.zs.zoom * 2, y: op_comp.bounds.topleft.y},
-          width: op_comp.bounds.width,
-          height: op_comp.bounds.height
-        }
+        new_tl =  {x: op_comp.topleft.x + 40 + this.zs.zoom * 2, y: op_comp.topleft.y}
+        
 
       }
 
 
-      const id: number = this.duplicateOperation(op.name, op.params, new_bounds, op.inlets);
+      const id: number = this.duplicateOperation(op.name, op.params, new_tl, op.inlets);
       const new_op = <OperationComponent> this.tree.getComponent(id);
 
       //duplicate the connections as well
@@ -1255,14 +1240,11 @@ export class PaletteComponent implements OnInit{
     const new_draft = this.tree.getDraft(obj.new_id);
     const new_loom = this.tree.getLoom(obj.new_id);
     const new_ls = this.tree.getLoomSettings(obj.new_id);
-    const new_bounds = {
-      width: sd.bounds.width,
-      height: sd.bounds.height,
-      topleft: {
-        x: sd.bounds.topleft.x + sd.bounds.width + this.zs.zoom *2, 
-        y: sd.bounds.topleft.y}
+    const new_topleft = {
+        x: sd.topleft.x + 40 + this.zs.zoom *2, 
+        y: sd.topleft.y}
 
-    }
+    
 
 
     this.loadSubDraft(
@@ -1271,7 +1253,7 @@ export class PaletteComponent implements OnInit{
       {
         node_id: obj.new_id,
         type: 'draft',
-        bounds: sd.bounds
+        topleft: sd.topleft
       },
       {
         node_id: obj.new_id,
@@ -1309,11 +1291,11 @@ export class PaletteComponent implements OnInit{
         }), -1)
         .then(new_sd => {
 
+          const orig_size = document.getElementById('scale-'+obj.id);
 
-          new_sd.setComponentSize(sd.bounds.width, sd.bounds.height);
           new_sd.setPosition({
-            x: sd.bounds.topleft.x + sd.bounds.width + this.zs.zoom *2, 
-            y: sd.bounds.topleft.y});  
+            x: sd.topleft.x + orig_size.offsetWidth*(this.zs.zoom/this.default_cell_size) + this.zs.zoom *2, 
+            y: sd.topleft.y});  
           //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
           //this.viewport.addObj(new_sd.id, interlacement);
           this.addTimelineState();
@@ -1337,21 +1319,21 @@ export class PaletteComponent implements OnInit{
       if(moving === null) return; 
 
 
-      // this.startSnackBar("Using Ink: "+moving.ink, null);
+      // // this.startSnackBar("Using Ink: "+moving.ink, null);
       
-      const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-      const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
+      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
+      // const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
 
-      if(seed_drafts.length === 0) return;
+      // if(seed_drafts.length === 0) return;
       
-      const bounds: any = utilInstance.getCombinedBounds(moving, seed_drafts);
-      const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
+      // const bounds: any = utilInstance.getCombinedBounds(moving, seed_drafts);
+      // const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
 
 
 
-      this.createAndSetPreview(temp).then(dn => {
-        this.tree.getPreviewComponent().setPosition(bounds.topleft);
-      }).catch(console.error);
+      // this.createAndSetPreview(temp).then(dn => {
+      //   this.tree.getPreviewComponent().setPosition(bounds.topleft);
+      // }).catch(console.error);
       
     }else if(this.dm.isSelected("marquee",  'design_modes')){
       this.selectionStarted();
@@ -1378,15 +1360,16 @@ export class PaletteComponent implements OnInit{
 
   let adj: Point;
 
-  if(sd.draft_visible)
+  if(sd.draft_visible){
+    const from = document.getElementById('scale-'+obj.id)
    adj = {
-    x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 8, 
-    y: (sd.bounds.topleft.y+sd.bounds.height) - this.viewport.getTopLeft().y+64}
-  else 
+    x: sd.topleft.x - this.viewport.getTopLeft().x + 8, 
+    y: (sd.topleft.y+from.offsetHeight*(this.zs.zoom/this.default_cell_size)) - this.viewport.getTopLeft().y+64}
+   }else{
    adj = {
-    x: sd.bounds.topleft.x - this.viewport.getTopLeft().x + 10, 
-    y: (sd.bounds.topleft.y) - this.viewport.getTopLeft().y+64}
-
+    x: sd.topleft.x - this.viewport.getTopLeft().x + 10, 
+    y: (sd.topleft.y) - this.viewport.getTopLeft().y+64}
+   }
 
   this.unfreezePaletteObjects();
 
@@ -1573,35 +1556,34 @@ connectionDragged(mouse: Point, shift: boolean){
 /**
  * calculates the default topleft position for this node based on the width and size of its parent and/or neighbors
  * @param id the id of the component to position
- * @returns a promise for the updated bounds
+ * @returns a promise for the updated point
  */
-calculateInitialLocaiton(id: number) : Bounds {
+calculateInitialLocaiton(id: number) : Point {
 
 
   const draft = this.tree.getDraft(id);
   
-  const new_bounds = {
-    topleft: this.viewport.getTopLeft(), 
-    width: warps(draft.drawdown) * this.default_cell_size,
-    height: wefts(draft.drawdown) * this.default_cell_size
-  }  
+  let new_tl =  this.viewport.getTopLeft(); 
+  
 
   //if it has a parent, align it to the bottom edge
   if(this.tree.hasParent(id)){
 
     const parent_id = this.tree.getSubdraftParent(id);
     const opnode = this.tree.getNode(parent_id);
-    const parent_bounds = opnode.component.bounds;
+    const topleft = opnode.component.topleft;
 
     //this component was just generated and needs a postion
-    if(parent_bounds.topleft.x == 0 && parent_bounds.topleft.y == 0){
+    if(topleft.x == 0 && topleft.y == 0){
 
-      //component is not yet initalized on this calculation so we do it manually
-      const default_height =  (60 + 50 * (<OpNode> opnode).params.length) * this.zs.zoom/this.default_cell_size;
-      new_bounds.topleft = {x: this.viewport.getCenterPoint().x + 60, y: this.viewport.getCenterPoint().y + default_height};
+      // //component is not yet initalized on this calculation so we do it manually
+      // const default_height =  (60 + 50 * (<OpNode> opnode).params.length) * this.zs.zoom/this.default_cell_size;
+      // new_bounds.topleft = {x: this.viewport.getCenterPoint().x + 60, y: this.viewport.getCenterPoint().y + default_height};
 
     }else{
-      new_bounds.topleft = {x: parent_bounds.topleft.x, y: parent_bounds.topleft.y + parent_bounds.height};
+      const container: HTMLElement = document.getElementById('scale-'+parent_id);
+     const parent_height = container.offsetHeight * (this.zs.zoom/this.default_cell_size);  
+     new_tl = {x: topleft.x, y: topleft.y + parent_height};
     }
 
     const outs = this.tree.getNonCxnOutputs(parent_id);
@@ -1615,14 +1597,14 @@ calculateInitialLocaiton(id: number) : Bounds {
         const el_draft = this.tree.getDraft(el);
          acc.x = acc.x + (warps(el_draft.drawdown) + 2)*this.default_cell_size;
          return acc;
-      }, new_bounds.topleft);
+      }, topleft);
       
-      new_bounds.topleft = updated_point;
+      new_tl = updated_point;
 
     }
 
   }
-  return new_bounds;
+  return new_tl;
 }
 
 
@@ -1659,7 +1641,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
           {
             node_id: el.id,
             type: el.type,
-            bounds: this.calculateInitialLocaiton(el.id),
+            topleft: this.calculateInitialLocaiton(el.id),
           }, null,this.zs.zoom);
         });
       
@@ -2030,8 +2012,8 @@ processShapeEnd() : Promise<any> {
   return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
   .then(sd => {
     sd.setPosition(this.shape_bounds.topleft);
-    sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
-    const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.zs.zoom); 
+    // sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
+    const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.topleft, this.zs.zoom); 
     this.viewport.addObj(sd.id, interlacement);
     this.addTimelineState();
   }).catch(console.error);
@@ -2132,11 +2114,11 @@ drawStarted(){
       }
   
       sd.setPosition(pos.topleft);
-      sd.setComponentSize(pos.width, pos.height);
+      //sd.setComponentSize(pos.width, pos.height);
       sd.disableDrag();
 
   
-      const had_merge = this.mergeSubdrafts(sd);
+    //  const had_merge = this.mergeSubdrafts(sd);
       this.addTimelineState();
     });
    
@@ -2371,29 +2353,29 @@ drawStarted(){
     
     this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.zs.zoom, warps: bounds.width/this.zs.zoom}), -1)
     .then(sc => {
-      sc.setComponentBounds(bounds);
+      //sc.setComponentBounds(bounds);
        //get any subdrafts that intersect the one we just made
-      const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
+      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
 
-      if(isect.length === 0){
-        this.addTimelineState();
-        return;
-      } 
+      // if(isect.length === 0){
+      //   this.addTimelineState();
+      //   return;
+      // } 
 
        //get a draft that reflects only the poitns in the selection view
-      const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
-      this.tree.setDraftOnly(sc.id, new_draft)
+      // const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
+      // this.tree.setDraftOnly(sc.id, new_draft)
     
 
-    isect.forEach(el => {
-      const ibound = utilInstance.getIntersectionBounds(sc, el);
+    // isect.forEach(el => {
+    //   const ibound = utilInstance.getIntersectionBounds(sc, el);
 
-      if(el.isSameBoundsAs(ibound)){
-         console.log("Component had same Bounds as Intersection, Consumed");
-         this.removeSubdraft(el.id);
-      }
+    //   if(el.isSameBoundsAs(ibound)){
+    //      console.log("Component had same Bounds as Intersection, Consumed");
+    //      this.removeSubdraft(el.id);
+    //   }
 
-    });
+    // });
     this.addTimelineState();
     })
     .catch(console.error);
@@ -2534,7 +2516,7 @@ drawStarted(){
     selections.forEach(sel => {
       if(this.tree.getType(sel) != 'cxn' && sel !== moving_id){
         const comp = this.tree.getComponent(sel);
-        this.multiselect.setPosition(sel, comp.bounds.topleft)
+        this.multiselect.setPosition(sel, comp.topleft)
       }
 
      
@@ -2546,13 +2528,13 @@ drawStarted(){
     const selections = this.multiselect.getSelections();
     if(selections.length == 0) return;
     const rel_pos = this.multiselect.getRelativePosition();
-    const cur_pos = this.tree.getComponent(moving_id).bounds.topleft;
+    const cur_pos = this.tree.getComponent(moving_id).topleft;
     const diff:Point = {x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y};
 
     selections.forEach(sel => {
       if(this.tree.getType(sel) == 'op' && sel !== moving_id){
         const comp = this.tree.getComponent(sel);
-        comp.bounds.topleft = this.multiselect.getNewPosition(sel, diff);
+        comp.topleft = this.multiselect.getNewPosition(sel, diff);
         this.updateAttachedComponents(sel, true);
       }
       if(this.tree.getType(sel)=='draft' && sel !== moving_id){
@@ -2580,40 +2562,40 @@ drawStarted(){
       
       if(moving === null) return; 
 
-      this.moveAllSelections(obj.id);
+      // this.moveAllSelections(obj.id);
   
     
 
 
-      // this.updateSnackBar("Using Ink: "+moving.ink,null);
-      this.updateAttachedComponents(moving.id, true);
+      // // this.updateSnackBar("Using Ink: "+moving.ink,null);
+      // this.updateAttachedComponents(moving.id, true);
 
 
-      const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-      const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
+      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
+      // const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
 
-      if(seed_drafts.length === 0){
-        if(this.tree.hasPreview()) this.removePreview();
-        return;
-      } 
+      // if(seed_drafts.length === 0){
+      //   if(this.tree.hasPreview()) this.removePreview();
+      //   return;
+      // } 
 
-      const bounds: Bounds = utilInstance.getCombinedBounds(moving, seed_drafts);
-      const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
+      // const bounds: Bounds = utilInstance.getCombinedBounds(moving, seed_drafts);
+      // const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
       
 
 
-      if(this.tree.hasPreview()) {
+      // if(this.tree.hasPreview()) {
        
-        this.tree.setPreviewDraft(temp).then(dn => {
-          dn.component.bounds = bounds;
-         (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
-        });
-      }else{
-        this.createAndSetPreview(temp).then(dn => {
-          dn.component.bounds = bounds;
-          (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
-        }).catch(console.error);
-      } 
+      //   this.tree.setPreviewDraft(temp).then(dn => {
+      //     dn.component.bounds = bounds;
+      //    (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
+      //   });
+      // }else{
+      //   this.createAndSetPreview(temp).then(dn => {
+      //     dn.component.bounds = bounds;
+      //     (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
+      //   }).catch(console.error);
+      // } 
     
     }
 
@@ -2642,12 +2624,11 @@ drawStarted(){
         .then(component => {
           this.tree.setDraftPattern(component.id, preview_draft.drawdown);
           //this.redrawDirtyDrafts();
-          to_right.x += preview_node.component.bounds.width + this.zs.zoom *4;
-          component.setPosition(to_right);
-          component.setComponentSize(preview_node.component.bounds.width, preview_node.component.bounds.height);
+          // to_right.x += preview_node.component.bounds.width + this.zs.zoom *4;
+          // component.setPosition(to_right);
           component.zndx = this.layers.createLayer();
           this.removePreview();
-          const interlacement = utilInstance.resolvePointToAbsoluteNdx(component.bounds.topleft, this.zs.zoom);
+          const interlacement = utilInstance.resolvePointToAbsoluteNdx(component.topleft, this.zs.zoom);
           this.viewport.addObj(component.id, interlacement);
           this.addTimelineState();
           this.tree.unsetPreview();
@@ -2660,7 +2641,7 @@ drawStarted(){
       
         //get the reference to the draft that's moving
         const moving = this.tree.getComponent(obj.id);
-        const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.bounds.topleft, this.zs.zoom);
+        const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
         this.viewport.updatePoint(moving.id, interlacement);
       }
 
@@ -2672,31 +2653,31 @@ drawStarted(){
    * @param primary the draft to merge into
    * @returns true or false to describe if a merge took place. 
    */
-  mergeSubdrafts(primary: SubdraftComponent): boolean{
+  // mergeSubdrafts(primary: SubdraftComponent): boolean{
 
-    const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
+  //   const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
 
-      if(isect.length == 0){
-        return false;
-      }   
+  //     if(isect.length == 0){
+  //       return false;
+  //     }   
 
-      const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
-      const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
+  //     const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
+  //     const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
 
-      this.tree.setDraftOnly(primary.id, temp);
-      primary.setPosition(bounds.topleft);
-      //primary.drawDraft();
-      const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.zs.zoom);
+  //     this.tree.setDraftOnly(primary.id, temp);
+  //     primary.setPosition(bounds.topleft);
+  //     //primary.drawDraft();
+  //     const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.zs.zoom);
 
-      this.viewport.updatePoint(primary.id, interlacement);
+  //     this.viewport.updatePoint(primary.id, interlacement);
 
 
-    //remove the intersecting drafts from the view containier and from subrefts
-    isect.forEach(element => {
-      this.removeSubdraft(element.id);
-    });
-    return true;
-  }
+  //   //remove the intersecting drafts from the view containier and from subrefts
+  //   isect.forEach(element => {
+  //     this.removeSubdraft(element.id);
+  //   });
+  //   return true;
+  // }
 
   computeHeddleValue(p:Point, main: SubdraftComponent, isect: Array<SubdraftComponent>):boolean{
     const a:boolean = main.resolveToValue(p);
@@ -2713,20 +2694,20 @@ drawStarted(){
 
 
 
-  getSubdraftsIntersectingSelection(selection: MarqueeComponent){
+  // getSubdraftsIntersectingSelection(selection: MarqueeComponent){
 
-    //find intersections between main and the others
-    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-    const isect:Array<SubdraftComponent> = drafts.filter(sr => (utilInstance.doOverlap(
-      selection.bounds.topleft, 
-      {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
-      sr.getTopleft(), 
-      {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height}
-      ) ? sr : null));
+  //   //find intersections between main and the others
+  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+  //   const isect:Array<SubdraftComponent> = drafts.filter(sr => (utilInstance.doOverlap(
+  //     selection.bounds.topleft, 
+  //     {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
+  //     sr.getTopleft(), 
+  //     {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height}
+  //     ) ? sr : null));
 
-    return isect;
+  //   return isect;
   
-  }
+  // }
 
 
  /**
@@ -2734,46 +2715,46 @@ drawStarted(){
    * @param p the x, y position of this cell 
    * @returns 
    */
-  getIntersectingSubdraftsForPoint(p: any){
+  // getIntersectingSubdraftsForPoint(p: any){
 
-    const primary_topleft = {x:  p.x, y: p.y };
-    const primary_bottomright = {x:  p.x + this.zs.zoom, y: p.y + this.zs.zoom};
+  //   const primary_topleft = {x:  p.x, y: p.y };
+  //   const primary_bottomright = {x:  p.x + this.zs.zoom, y: p.y + this.zs.zoom};
 
-    const isect:Array<SubdraftComponent> = [];
-    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-    drafts.forEach(sr => {
-      let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-      const b: boolean = utilInstance.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
-      if(b) isect.push(sr);
-     });
+  //   const isect:Array<SubdraftComponent> = [];
+  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+  //   drafts.forEach(sr => {
+  //     let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
+  //     const b: boolean = utilInstance.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
+  //     if(b) isect.push(sr);
+  //    });
 
-    return isect;
-  }
+  //   return isect;
+  // }
 
   /**
    * get any subdrafts that intersect primary based on checks on their boundaries
    * @param primary 
    * @returns 
    */
-  getIntersectingSubdrafts(primary: SubdraftComponent){
+  // getIntersectingSubdrafts(primary: SubdraftComponent){
 
-    const primary_draft = this.tree.getDraft(primary.id);
-    const drafts:Array<DraftNode> =  this.tree.getDraftNodes(); 
-    const to_check:Array<DraftNode> =  drafts.filter(sr => (sr.draft.id.toString() !== primary_draft.id.toString()));
-    const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
+  //   const primary_draft = this.tree.getDraft(primary.id);
+  //   const drafts:Array<DraftNode> =  this.tree.getDraftNodes(); 
+  //   const to_check:Array<DraftNode> =  drafts.filter(sr => (sr.draft.id.toString() !== primary_draft.id.toString()));
+  //   const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
 
 
-     const isect:Array<SubdraftComponent> = [];
-     to_check
-     .map(el => <SubdraftComponent> this.tree.getComponent(el.id))
-     .forEach(sr => {
-      let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-      const b: boolean = utilInstance.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
-      if(b) isect.push(sr);
-     });
+  //    const isect:Array<SubdraftComponent> = [];
+  //    to_check
+  //    .map(el => <SubdraftComponent> this.tree.getComponent(el.id))
+  //    .forEach(sr => {
+  //     let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
+  //     const b: boolean = utilInstance.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
+  //     if(b) isect.push(sr);
+  //    });
 
-    return isect;
-  }
+  //   return isect;
+  // }
 
   getSelectionBounds(c1: any, c2: any): Bounds{
       let bottomright = {x: 0, y:0};

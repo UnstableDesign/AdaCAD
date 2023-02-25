@@ -2606,7 +2606,6 @@ export class OperationService {
           }
         });
 
-        console.log("System Draft Map", system_draft_map, by_layer)
         
         system_draft_map.forEach(sdm => {
           if(sdm.wasy!== null) sdm.wasy = sdm.wasy.map(el => parseInt(el));

@@ -57,18 +57,14 @@ export class SubdraftComponent implements OnInit {
   private _draft:Draft = null;
 
   @Input()
-  get bounds(): Bounds { return this._bounds; }
-  set bounds(value: Bounds) {
+  get topleft(): Point { return this._topleft; }
+  set topleft(value: Point) {
     this.updateViewport(value);
-    this._bounds = value;
+    this._topleft = value;
     ;
   }
 
-  private _bounds:Bounds = {
-    topleft: {x: 0, y: 0},
-    width: 0, 
-    height: 0
-  };
+  private _topleft:Point =  {x: 0, y: 0};
 
   
 
@@ -142,6 +138,8 @@ export class SubdraftComponent implements OnInit {
 
   viewInit: boolean = false;
 
+  draft_zoom: number = 1;
+
 
   constructor(private inks: InkService, 
     private layer: LayersService, 
@@ -165,22 +163,14 @@ export class SubdraftComponent implements OnInit {
     const tl_offset = {x: tl.x + 60, y: tl.y};
 
 
-    if(this.bounds.topleft.x === 0 && this.bounds.topleft.y === 0) this.setPosition(tl_offset);
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
+    if(this.topleft.x === 0 && this.topleft.y === 0) this.setPosition(tl_offset);
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
     if(!this.is_preview) this.viewport.addObj(this.id, this.interlacement);
 
     const draft = this.tree.getDraft(this.id);
     this.loom_settings = this.tree.getLoomSettings(this.id);
     this.ud_name = draft.ud_name;
-
-    if(draft !== undefined){
-      this.bounds.width = warps(draft.drawdown) * this.scale;
-      this.bounds.height = wefts(draft.drawdown) * this.scale;
-    }else{
-      this.bounds.width = warps(draft.drawdown) * this.scale;
-      this.bounds.height = wefts(draft.drawdown) * this.scale;
-    }
 
     const dn:DraftNode = <DraftNode> this.tree.getNode(this.id);
     this.use_colors = dn.render_colors;
@@ -207,7 +197,7 @@ export class SubdraftComponent implements OnInit {
 
     this.rescale();
 
-    this.updateViewport(this.bounds);
+    this.updateViewport(this.topleft);
 
     this.viewInit = true;
 
@@ -252,20 +242,32 @@ export class SubdraftComponent implements OnInit {
     container.style.transform = 'scale(' + zoom_factor + ')';
 
    
-    this.bounds.topleft = {
+    this.topleft = {
       x: this.interlacement.j * this.scale,
       y: this.interlacement.i * this.scale
     };
 
-    this.bounds.width = warps(this.draft.drawdown) * this.scale;
-    this.bounds.height = wefts(this.draft.drawdown) * this.scale;
 
   }
 
   /**called when bounds change, updates the global view port */
-  updateViewport(bounds: Bounds){
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
+  updateViewport(topleft: Point){
+    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(topleft, this.scale);
     this.viewport.updatePoint(this.id, this.interlacement);
+
+  }
+
+  zoomChange(event: any){
+    this.draft_zoom = event;
+    const cell_size = this.calculateCellSize(this.draft);
+    this.drawDraft(this.draft);
+    // console.log(this.draft_zoom, event);
+    // const zoom_container = document.getElementById('local-zoom-'+this.id);
+    // zoom_container.style.transform = 'scale('+this.draft_zoom+')';
+    // zoom_container.style.width = (warps(this.draft.drawdown) * cell_size * event)+"px";
+    // zoom_container.style.height = (wefts(this.draft.drawdown) * cell_size * event)+"px";
+    // console.log(wefts(this.draft.drawdown), cell_size, event, this.scale);
+    
 
   }
 
@@ -280,7 +282,7 @@ export class SubdraftComponent implements OnInit {
     }
 
     let container = <HTMLElement> document.getElementById("scale-"+this.parent_id);
-    if(container !== null) this.setPosition({x: parent.bounds.topleft.x, y: parent.bounds.topleft.y + (container.offsetHeight * this.scale/this.default_cell) });
+    if(container !== null) this.setPosition({x: parent.topleft.x, y: parent.topleft.y + (container.offsetHeight * this.scale/this.default_cell) });
     else {console.error("no element named scale-"+this.parent_id+"found")}
 
   }
@@ -324,23 +326,17 @@ export class SubdraftComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
 
-    this.bounds.width = warps(draft.drawdown) * this.scale;
-    this.bounds.height = wefts(draft.drawdown) * this.scale;
-
     if(this.parent_id !== parent.id){
       console.error("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
       console.log("attempitng to update subdraft position from non-parent operation", this.parent_id, parent.id);
       return;
     }
 
-    this.bounds.width = Math.max(parent.bounds.width, this.bounds.width);
-    this.bounds.height = Math.max(parent.bounds.height, this.bounds.height);
-
   }
 
   toggleMultiSelection(e: any){
     if(e.shiftKey){
-      this.multiselect.toggleSelection(this.id, this.bounds.topleft);
+      this.multiselect.toggleSelection(this.id, this.topleft);
     }else{
       this.multiselect.clearSelections();
     }
@@ -394,8 +390,8 @@ export class SubdraftComponent implements OnInit {
    */
   setPosition(pos: Point){
     this.enableDrag();
-    this.bounds.topleft = pos;
-    this.updateViewport(this.bounds);
+    this.topleft = pos;
+    this.updateViewport(this.topleft);
   }
 
 
@@ -422,14 +418,16 @@ export class SubdraftComponent implements OnInit {
    * @returns true/false for yes or no
    */
   public hasPoint(p:Point) : boolean{
+    const size = document.getElementById('scale'+this.id)
+
 
       const endPosition = {
-        x: this.bounds.topleft.x + this.bounds.width,
-        y: this.bounds.topleft.y + this.bounds.height,
+        x: this.topleft.x + size.offsetWidth,
+        y: this.topleft.y + size.offsetHeight,
       };
 
-      if(p.x < this.bounds.topleft.x || p.x > endPosition.x) return false;
-      if(p.y < this.bounds.topleft.y || p.y > endPosition.y) return false;
+      if(p.x < this.topleft.x || p.x > endPosition.x) return false;
+      if(p.y < this.topleft.y || p.y > endPosition.y) return false;
 
     
     return true;
@@ -444,8 +442,8 @@ export class SubdraftComponent implements OnInit {
  */
  public resolveNdxToPoint(ndx:Interlacement) : Point{
   
-  let y = this.bounds.topleft.y + ndx.i * this.scale;
-  let x = this.bounds.topleft.x + ndx.j * this.scale;
+  let y = this.topleft.y + ndx.i * this.scale;
+  let x = this.topleft.x + ndx.j * this.scale;
   return {x: x, y:y};
 
 }
@@ -458,8 +456,8 @@ export class SubdraftComponent implements OnInit {
   public resolvePointToNdx(p:Point) : Interlacement{
     const draft = this.tree.getDraft(this.id);
 
-    let i = Math.floor((p.y -this.bounds.topleft.y) / this.scale);
-    let j = Math.floor((p.x - this.bounds.topleft.x) / this.scale);
+    let i = Math.floor((p.y -this.topleft.y) / this.scale);
+    let j = Math.floor((p.x - this.topleft.x) / this.scale);
 
     if(i < 0 || i >= wefts(draft.drawdown)) i = -1;
     if(j < 0 || j >= warps(draft.drawdown)) j = -1;
@@ -508,24 +506,23 @@ export class SubdraftComponent implements OnInit {
   // }
 
 
-  setComponentBounds(bounds: Bounds){
-    this.setPosition(bounds.topleft);
-    this.bounds = bounds;
-  }
+  // setComponentBounds(bounds: Bounds){
+  //   this.setPosition(bounds.topleft);
+  //   this.bounds = bounds;
+  // }
   /**
    * manually sets the component size. While such an operation should be handled on init but there is a bug where this value is checked before the 
    * component runds its init sequence. Manually adding the data makes it possible for check for intersections on selection and drawing end.
    * @param width 
    * @param height 
    */
-  setComponentSize(width: number, height: number){
-    this.bounds.width = width;
-    this.bounds.height = height;
-  }
+  // setComponentSize(width: number, height: number){
+  //   this.bounds.width = width;
+  //   this.bounds.height = height;
+  // }
 
   async drawCell(draft:Draft, cell_size:number, i:number, j:number, usecolor:boolean, forprint:boolean){
 
-    // cell_size = 10;
     let is_up = isUp(draft.drawdown, i,j);
     let is_set = isSet(draft.drawdown, i, j);
     let color = "#ffffff"
@@ -560,7 +557,7 @@ export class SubdraftComponent implements OnInit {
 
 
   drawWeftData(draft: Draft) : Promise<boolean>{
-    let cell_size = 5;
+    let cell_size = this.calculateCellSize(draft);
 
 
     draft =  this.tree.getDraft(this.id);
@@ -594,7 +591,7 @@ export class SubdraftComponent implements OnInit {
 
   drawWarpData(draft: Draft) : Promise<boolean>{
     draft =  this.tree.getDraft(this.id);
-    let cell_size = 5;
+    let cell_size = this.calculateCellSize(draft);
 
     const warp_systems_canvas =  <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString());
     const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.id.toString());
@@ -626,13 +623,29 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+
+  /**
+   * the canvas object is limited in how many pixels it can render. Adjust the draft cell size based on the number of cells in the draft
+   * @param draft 
+   */
+  calculateCellSize(draft: Draft): number{
+    const num_cells = wefts(draft.drawdown) * warps(draft.drawdown);
+    if(num_cells < 1000) return 10;
+    if(num_cells < 10000) return 8;
+    if(num_cells < 100000) return 5;
+    if(num_cells < 1000000) return 2;
+    return 1;
+
+  }
+
   /**
    * draw whetever is stored in the draft object to the screen
    * @returns 
    */
   async drawDraft(draft: Draft) : Promise<any> {
 
-    let cell_size = 5;
+
+    let cell_size = this.calculateCellSize(draft);
 
     draft =  this.tree.getDraft(this.id);
     const use_colors =(<DraftNode>this.tree.getNode(this.id)).render_colors;
@@ -723,7 +736,7 @@ export class SubdraftComponent implements OnInit {
    * @returns 
    */
   getTopleft(): Point{
-    return this.bounds.topleft;
+    return this.topleft;
   }
 
     /**
@@ -738,20 +751,20 @@ export class SubdraftComponent implements OnInit {
 
 
   
-  isSameBoundsAs(bounds: Bounds) : boolean {   
-    if(bounds.topleft.x != this.bounds.topleft.x) return false;
-    if(bounds.topleft.y != this.bounds.topleft.y) return false;
-    if(bounds.width != this.bounds.width) return false;
-    if(bounds.height != this.bounds.height) return false;
-    return true;
-  }
+  // isSameBoundsAs(bounds: Bounds) : boolean {   
+  //   if(bounds.topleft.x != this.bounds.topleft.x) return false;
+  //   if(bounds.topleft.y != this.bounds.topleft.y) return false;
+  //   if(bounds.width != this.bounds.width) return false;
+  //   if(bounds.height != this.bounds.height) return false;
+  //   return true;
+  // }
   
 
   dragEnd($event: any) {
     this.moving = false;
     this.counter = 0;  
     this.last_ndx = {i: -1, j:-1, si: -1};
-    this.multiselect.setRelativePosition(this.bounds.topleft);
+    this.multiselect.setRelativePosition(this.topleft);
     this.onSubdraftDrop.emit({id: this.id});
   }
 
@@ -760,7 +773,7 @@ export class SubdraftComponent implements OnInit {
     this.counter = 0;  
       //set the relative position of this operation if its the one that's dragging
      if(this.multiselect.isSelected(this.id)){
-      this.multiselect.setRelativePosition(this.bounds.topleft);
+      this.multiselect.setRelativePosition(this.topleft);
      }else{
       this.multiselect.clearSelections();
      }
@@ -777,11 +790,7 @@ export class SubdraftComponent implements OnInit {
     const adj:Point = utilInstance.snapToGrid(relative, this.scale);
 
 
-    this.bounds = ({
-      topleft: adj, 
-      width: this.bounds.width,
-      height: this.bounds.height
-    });
+    this.topleft = adj;
 
     // this.bounds.topleft = adj;
 

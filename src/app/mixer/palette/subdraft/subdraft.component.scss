@@ -10,14 +10,14 @@ flex-direction: row;
 }
 
 
-.subdraft-contents.origin0,
-.subdraft-contents.origin3
+.local_zoom.origin0,
+.local_zoom.origin3
 {
   flex-direction: column;
 }
 
-.subdraft-contents.origin1,
-.subdraft-contents.origin2
+.local_zoom.origin1,
+.local_zoom.origin2
 {
   flex-direction: column-reverse;
 }
@@ -29,8 +29,8 @@ flex-direction: row;
   .warp-systems-container.origin0
   {
 	flex-direction: column;
-	align-items: flex-start;
-	padding-right: 20px;
+	align-items: flex-end;
+	padding-right: 30px;
 
   }
   
@@ -38,16 +38,16 @@ flex-direction: row;
   .warp-systems-container.origin3
   {
 	flex-direction: column;
-	align-items: flex-end;
-	padding-left: 20px;
+	align-items: flex-start;
+	padding-left: 30px;
 
   }
   
   .warp-systems-container.origin1{
   
-	flex-direction: column-reverse;
-	align-items: flex-start;
-	padding-right: 20px;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 10px;
 
   
   }
@@ -55,10 +55,9 @@ flex-direction: row;
   
   .warp-systems-container.origin2
   {
-	flex-direction: column-reverse;
-	align-items: flex-end;
-	padding-left: 20px;
-
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 10px;
   
   }
 
@@ -233,6 +232,10 @@ button.output:hover{
 
 }
 
+.local_zoom{
+	transform-origin: top center;
+}
+
 .cloak{
 	display: none;
 	flex-direction: column;
@@ -253,10 +256,9 @@ button.output:hover{
 	padding: 4px;
 	border: none;
 	background-color: transparent;
+}
 	
 
-
-}
 
 .is-active{
 	background: #00d1b2;

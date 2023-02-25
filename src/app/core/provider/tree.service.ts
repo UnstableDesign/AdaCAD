@@ -1946,7 +1946,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       const savable: NodeComponentProxy = {
         node_id: node.id,
         type: node.type,
-        bounds: (node.component !== null) ? node.component.bounds : {topleft: {x: 0, y: 0}, width: 0 ,height: 0},
+        topleft: (node.component !== null) ? node.component.topleft : {x: 0, y: 0},
       }
       objs.push(savable);
 
@@ -2061,7 +2061,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     const node: NodeComponentProxy = {
       node_id: id, 
       type: 'draft',
-      bounds: null
+      topleft: null
     }
     
     const draft_node: DraftNodeProxy = {

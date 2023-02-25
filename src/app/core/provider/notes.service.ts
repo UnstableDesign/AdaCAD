@@ -1,4 +1,3 @@
-import { E } from '@angular/cdk/keycodes';
 import { Injectable, ViewRef } from '@angular/core';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
 import { Interlacement } from '../model/datatypes';
