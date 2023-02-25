@@ -1361,14 +1361,14 @@ export class PaletteComponent implements OnInit{
   let adj: Point;
 
   if(sd.draft_visible){
-    const from = document.getElementById('scale-'+obj.id)
+    const from = document.getElementById('scale-'+obj.id);
    adj = {
     x: sd.topleft.x - this.viewport.getTopLeft().x + 8, 
-    y: (sd.topleft.y+from.offsetHeight*(this.zs.zoom/this.default_cell_size)) - this.viewport.getTopLeft().y+64}
+    y: (sd.topleft.y+from.offsetHeight*(this.zs.zoom/this.default_cell_size)) - this.viewport.getTopLeft().y}
    }else{
    adj = {
     x: sd.topleft.x - this.viewport.getTopLeft().x + 10, 
-    y: (sd.topleft.y) - this.viewport.getTopLeft().y+64}
+    y: (sd.topleft.y) - this.viewport.getTopLeft().y}
    }
 
   this.unfreezePaletteObjects();
@@ -2562,13 +2562,13 @@ drawStarted(){
       
       if(moving === null) return; 
 
-      // this.moveAllSelections(obj.id);
+      this.moveAllSelections(obj.id);
   
     
 
 
       // // this.updateSnackBar("Using Ink: "+moving.ink,null);
-      // this.updateAttachedComponents(moving.id, true);
+       this.updateAttachedComponents(moving.id, true);
 
 
       // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);

@@ -271,7 +271,6 @@ export class OperationComponent implements OnInit {
    * */
     updatePositionFromChild(child: SubdraftComponent){
 
-
        const container = <HTMLElement> document.getElementById("scale-"+this.id);
        if(container !== null) this.setPosition({x: child.topleft.x, y: child.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
   
