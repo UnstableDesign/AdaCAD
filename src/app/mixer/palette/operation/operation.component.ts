@@ -476,8 +476,6 @@ export class OperationComponent implements OnInit {
   dragStart(e: any) {
       //set the relative position of this operation if its the one that's dragging
 
-      const container: HTMLElement = document.getElementById('scale-'+this.id);
-      const parent_height = container.offsetHeight;
      if(this.multiselect.isSelected(this.id)){
       this.multiselect.setRelativePosition(this.topleft);
      }else{

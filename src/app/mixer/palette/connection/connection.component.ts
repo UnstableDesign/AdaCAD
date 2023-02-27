@@ -41,8 +41,6 @@ export class ConnectionComponent implements OnInit {
 
   path_text: string = '';
 
-  viewInit: boolean = false;
-
   show_path_text: boolean = false;
 
   constructor(
@@ -78,17 +76,6 @@ export class ConnectionComponent implements OnInit {
 
 
 
-    
-  //   //  if(to_comp !== null){
-  //   //   this.b_to = {
-  //   //     x:  to_comp.bounds.topleft.x + 15*this.scale/this.default_cell_size,
-  //   //     y: to_comp.bounds.topleft.y
-  //   //   };     
-
-  //  //  }
-
-      // console.log("CONNECTION LOADED", this.tree.getComponent(to).viewInit, this.tree.getComponent(from).viewInit, this.tree.getComponent(to).scale,this.tree.getComponent(from).scale, this.scale);
-     this.viewInit = true;
 
      this.updateFromPosition(from, this.zs.zoom);
      this.updateToPosition(to, this.zs.zoom);
@@ -174,8 +161,6 @@ export class ConnectionComponent implements OnInit {
    * @param from the id of the component this connection goes to
    */
   updateFromPosition(from: number, scale: number){
-
-
     const from_comp =  <SubdraftComponent | OperationComponent> this.tree.getComponent(from);
   
     if(from_comp === null){
@@ -196,18 +181,18 @@ export class ConnectionComponent implements OnInit {
   }
 
   fromDraftUpdate(draft_comp: SubdraftComponent){
+
     if(draft_comp.draft_visible){
       const scale = document.getElementById("scale-"+draft_comp.id);
-
       if(scale === null){
-        console.log("draft not found on update")
+        // console.log("draft not found on update")
         // this.b_from = 
         // {x: draft_comp.topleft.x+5, 
         //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
       }else{
         this.b_from = 
         {x: draft_comp.topleft.x+5, 
-         y: draft_comp.topleft.y + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
+         y: (draft_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
       }
       
      

@@ -43,7 +43,7 @@ export class SubdraftComponent implements OnInit {
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
-    this.rescale();
+   // this.rescale();
   }
   private _scale:number = 5;
 
@@ -136,8 +136,6 @@ export class SubdraftComponent implements OnInit {
 
   use_colors: boolean = true;
 
-  viewInit: boolean = false;
-
   draft_zoom: number = 1;
 
 
@@ -184,6 +182,7 @@ export class SubdraftComponent implements OnInit {
   }
 
 
+
   ngAfterViewInit() {
 
 
@@ -193,27 +192,44 @@ export class SubdraftComponent implements OnInit {
     this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());
     this.warp_data_cx = this.draft_canvas.getContext("2d");
 
-    this.drawDraft(this.draft); //force call here because it likely didn't render previously. 
+    /**
+     * when loading a draft from a file, the connections won't match if the connection is drawn before this
+     * function executes. For this reason, I made these sequential function and then they manually call updates
+     */
+    this.drawDraft(this.draft).then(out => {
+      return this.rescale();
 
-    this.rescale();
+    }).then(after => {
+      this.updateViewport(this.topleft);
+  
+      //this must be called to trigger redrawing on any outgoing connections
+      this.onSubdraftMove.emit({id: this.id, point: this.topleft});
 
-    this.updateViewport(this.topleft);
+  
+      
+    });
+    
 
-    this.viewInit = true;
+      //added this to handle errors from position being calculated fore this draft is loaded
+      // const cxns = this.tree.getOutputs(this.id);
+      // cxns.forEach(id => {
+      //   const comp = <ConnectionComponent> this.tree.getComponent(id);
+      //   comp.updateFromPosition(this.id);
+      // })
+  
+ 
+    // }); //force call here because it likely didn't render previously. 
 
-    //added this to handle errors from position being calculated fore this draft is loaded
-    // const cxns = this.tree.getOutputs(this.id);
-    // cxns.forEach(id => {
-    //   const comp = <ConnectionComponent> this.tree.getComponent(id);
-    //   comp.updateFromPosition(this.id);
-    // })
-
+   
 
 
   }
 
   nameFocusOut(){
     this.onNameChange.emit(this.id);
+    const scale = document.getElementById('scale-'+this.id);
+    console.log('after view', this.id, scale.offsetHeight);
+
   }
 
 
@@ -222,7 +238,7 @@ export class SubdraftComponent implements OnInit {
    * so it remains at the same coords. 
    * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
    */
-  rescale(){
+  rescale() : Promise<boolean>{
 
     
 
@@ -235,7 +251,7 @@ export class SubdraftComponent implements OnInit {
     //redraw at scale
     const container: HTMLElement = document.getElementById('scale-'+this.id.toString());
    
-    if(container === null) return;
+    if(container === null) return Promise.reject("no container initialized");
 
 
     container.style.transformOrigin = 'top left';
@@ -246,6 +262,9 @@ export class SubdraftComponent implements OnInit {
       x: this.interlacement.j * this.scale,
       y: this.interlacement.i * this.scale
     };
+
+    return Promise.resolve(true)
+
 
 
   }
@@ -674,7 +693,6 @@ export class SubdraftComponent implements OnInit {
       return Promise.all(fns).then(el => {
         this.draft_canvas.width = warps(draft.drawdown) * cell_size;
         this.draft_canvas.height = wefts(draft.drawdown) * cell_size;
-  
           for (let i = 0; i <  wefts(draft.drawdown); i++) {
             for (let j = 0; j < warps(draft.drawdown); j++) {
               this.drawCell(draft, cell_size, i, j, use_colors, false);

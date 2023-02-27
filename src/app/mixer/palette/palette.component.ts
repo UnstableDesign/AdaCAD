@@ -786,7 +786,6 @@ export class PaletteComponent implements OnInit{
      * @param id - the id of this node
      */
      loadConnection(id: number){
-
       const factory = this.resolver.resolveComponentFactory(ConnectionComponent);
       const cxn = this.vc.createComponent<ConnectionComponent>(factory);
       const node = this.tree.getNode(id);

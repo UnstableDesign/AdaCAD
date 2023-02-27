@@ -2,7 +2,7 @@
 <div 
 *ngIf="tree.getDraft(id) !== null" 
 id="con-{{id}}" 
-class="subdraft-container" 
+class="subdraft-parent-container" 
 [class.is_preview] = "is_preview"
 	cdkDrag
 	(mousedown)="mousedown($event)"
@@ -17,7 +17,7 @@ class="subdraft-container"
 	(cdkDragStarted)="dragStart($event)">
 
 
-	<div id="scale-{{id}}" class="subdraft-container">
+	<div id="scale-{{id}}" class="subdraft-container" >
 
 		<div class="bottom-opts">
 
