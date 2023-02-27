@@ -1,4 +1,6 @@
 
+
+
 canvas{
 	width: fit-content;
 	height: fit-content;
@@ -24,6 +26,7 @@ flex-direction: row;
 
 .warp-systems-container{
 	display: flex;
+	margin: 10px 0px;
   }
   
   .warp-systems-container.origin0
@@ -38,8 +41,7 @@ flex-direction: row;
   .warp-systems-container.origin3
   {
 	flex-direction: column;
-	align-items: flex-start;
-	padding-left: 30px;
+	align-items: flex-end;
 
   }
   
@@ -82,7 +84,7 @@ flex-direction: row;
 
 .weft-systems-container{
 	display: flex;
-	margin-top: 10px;
+	margin: 0px 10px;
   }
   
   .weft-systems-container.origin0,
@@ -113,6 +115,7 @@ flex-direction: row;
 	justify-content:flex-start;
 	min-width: 300px;
 	height: fit-content;
+	padding: 0px 10px 0px 0px;
 
 	.multiselected{
 		border: thin solid #ff3860;
@@ -280,7 +283,6 @@ svg{
 .maindraft{
 	display: block;
 	overflow:hidden;
-	margin: 10px;
 }
 
 .hidden {

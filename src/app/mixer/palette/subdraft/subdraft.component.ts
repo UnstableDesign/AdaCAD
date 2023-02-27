@@ -14,7 +14,6 @@ import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { OperationComponent } from '../operation/operation.component';
-import { ConnectionComponent } from '../connection/connection.component';
 
 
 
@@ -134,9 +133,11 @@ export class SubdraftComponent implements OnInit {
 
   ud_name: string;
 
-  use_colors: boolean = true;
+  use_colors: boolean = false;
 
   draft_zoom: number = 1;
+
+  draft_cell_size: number = 8;
 
 
   constructor(private inks: InkService, 
@@ -173,11 +174,8 @@ export class SubdraftComponent implements OnInit {
     const dn:DraftNode = <DraftNode> this.tree.getNode(this.id);
     this.use_colors = dn.render_colors;
 
-    this.default_cell = this.default_cell;
 
-
-    //this.updateVisibility();
-
+    this.draft_cell_size = this.calculateDefaultCellSize(this.draft);
 
   }
 
@@ -191,6 +189,7 @@ export class SubdraftComponent implements OnInit {
 
     this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());
     this.warp_data_cx = this.draft_canvas.getContext("2d");
+
 
     /**
      * when loading a draft from a file, the connections won't match if the connection is drawn before this
@@ -208,39 +207,22 @@ export class SubdraftComponent implements OnInit {
   
       
     });
-    
-
-      //added this to handle errors from position being calculated fore this draft is loaded
-      // const cxns = this.tree.getOutputs(this.id);
-      // cxns.forEach(id => {
-      //   const comp = <ConnectionComponent> this.tree.getComponent(id);
-      //   comp.updateFromPosition(this.id);
-      // })
-  
- 
-    // }); //force call here because it likely didn't render previously. 
-
-   
-
 
   }
+
 
   nameFocusOut(){
     this.onNameChange.emit(this.id);
     const scale = document.getElementById('scale-'+this.id);
-    console.log('after view', this.id, scale.offsetHeight);
-
   }
 
 
-  /**
-   * Called when main palette is rescaled and triggers call to rescale this element, and update its position 
-   * so it remains at the same coords. 
-   * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
-   */
+/**
+ * this is called when the global workspace is rescaled. 
+ * @returns 
+ */
   rescale() : Promise<boolean>{
 
-    
 
     if(this.draft === null){
       return;
@@ -277,9 +259,9 @@ export class SubdraftComponent implements OnInit {
   }
 
   zoomChange(event: any){
-    this.draft_zoom = event;
-    const cell_size = this.calculateCellSize(this.draft);
+    this.draft_cell_size = event;
     this.drawDraft(this.draft);
+    this.onSubdraftMove.emit({id: this.id, point: this.topleft});
     // console.log(this.draft_zoom, event);
     // const zoom_container = document.getElementById('local-zoom-'+this.id);
     // zoom_container.style.transform = 'scale('+this.draft_zoom+')';
@@ -642,19 +624,22 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+  calculateDefaultCellSize(draft: Draft): number {
+    const num_cells = wefts(draft.drawdown) * warps(draft.drawdown);
+    if(num_cells < 1000) return 10;
+    if(num_cells < 10000) return 8;
+    if(num_cells < 100000)return  5;
+    if(num_cells < 1000000) return  2;
+    return 1;
+  }
+
 
   /**
    * the canvas object is limited in how many pixels it can render. Adjust the draft cell size based on the number of cells in the draft
    * @param draft 
    */
   calculateCellSize(draft: Draft): number{
-    const num_cells = wefts(draft.drawdown) * warps(draft.drawdown);
-    if(num_cells < 1000) return 10;
-    if(num_cells < 10000) return 8;
-    if(num_cells < 100000) return 5;
-    if(num_cells < 1000000) return 2;
-    return 1;
-
+    return this.draft_cell_size;
   }
 
   /**

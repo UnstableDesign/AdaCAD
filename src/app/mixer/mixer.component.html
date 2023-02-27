@@ -1,14 +1,14 @@
-<app-topbar 
-[drawer] = "drawer"
-source="mixer"
->
-
-</app-topbar>
 
 <mat-drawer-container #container class="mat-drawer-container" cdkScrollable>
-  
-  <mat-drawer #drawer class="example-sidenav" mode="side" position="end" opened>  
+
+  <mat-drawer #drawer class="example-sidenav" mode="side" position="start" opened>  
    
+    <app-topbar 
+    [drawer] = "drawer"
+    source="mixer"
+    >
+    
+    </app-topbar>
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
