@@ -42,7 +42,7 @@ export class SubdraftComponent implements OnInit {
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
-   // this.rescale();
+    this.rescale();
   }
   private _scale:number = 5;
 
@@ -158,8 +158,8 @@ export class SubdraftComponent implements OnInit {
   ngOnInit(){
 
     if(!this.is_preview) this.parent_id = this.tree.getSubdraftParent(this.id);
-    const tl: Point = this.viewport.getTopLeft();
-    const tl_offset = {x: tl.x + 60, y: tl.y};
+    const tl: Point = this.viewport.getTopRight();
+    const tl_offset = {x: tl.x - 250, y: tl.y + 200};
 
 
     if(this.topleft.x === 0 && this.topleft.y === 0) this.setPosition(tl_offset);

@@ -2,14 +2,16 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { OperationClassification } from '../model/datatypes';
-import { OperationDescriptionsService } from '../provider/operation-descriptions.service';
-import { OperationService } from '../provider/operation.service';
+import { OperationClassification } from '../../core/model/datatypes';
+import { OperationDescriptionsService } from '../../core/provider/operation-descriptions.service';
+import { OperationService } from '../../core/provider/operation.service';
+import { ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'app-quickop',
   templateUrl: './quickop.component.html',
-  styleUrls: ['./quickop.component.scss']
+  styleUrls: ['./quickop.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class QuickopComponent {
 

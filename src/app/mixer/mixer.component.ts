@@ -27,7 +27,7 @@ import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
 import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
-import { NgForm } from '@angular/forms';
+import { FormControl, NgForm } from '@angular/forms';
 import utilInstance from '../core/model/util';
 import { FilesystemService } from '../core/provider/filesystem.service';
 import { Auth, authState, User } from '@angular/fire/auth';
@@ -174,9 +174,11 @@ export class MixerComponent implements OnInit {
 
   private unsubscribe$ = new Subject();
 
-  collapsed:boolean = false;
+  collapsed:boolean = true;
 
   scrollingSubscription: any;
+
+
 
   /// ANGULAR FUNCTIONS
   /**
@@ -274,6 +276,11 @@ export class MixerComponent implements OnInit {
   }
 
 
+  addOp(event: any){
+    this.palette.addOperation(event)
+  }
+
+
   /**
    * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
    * @param name the name of the current design mode
@@ -287,6 +294,31 @@ export class MixerComponent implements OnInit {
   isBlankWorkspace() : boolean {
     return this.tree.nodes.length == 0;
   }
+
+
+  zoomIn(){
+    const old_zoom = this.zs.zoom;
+    this.zs.zoomIn();
+    this.renderChange(old_zoom);
+
+  }
+
+
+  zoomOut(){
+    const old_zoom = this.zs.zoom;
+    this.zs.zoomOut();
+    this.renderChange(old_zoom);
+    
+}
+ 
+
+zoomChange(e:any, source: string){
+  
+  const old_zoom = this.zs.zoom;
+  this.zs.setZoom(e.value)
+  this.palette.rescale(old_zoom);
+
+}
 
 
 

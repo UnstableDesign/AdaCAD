@@ -146,6 +146,10 @@ export class ViewportService {
     return this.vp.topleft;
   }
 
+  getTopRight() : Point{
+    return {x: this.vp.topleft.x + this.vp.width, y: this.vp.topleft.y}
+  }
+
   getBounds(): Bounds {
     return this.vp;
   }

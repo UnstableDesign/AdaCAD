@@ -1,12 +1,13 @@
-<form  autocomplete="off">
-    <mat-form-field  class="full-width" width='100%' appearance="fill">
-    <mat-label><i class="fas fa-search"></i> quick add operation</mat-label>
+<form class="quickop" id="quickop" autocomplete="off">
+    <mat-form-field matNativeControl class="quickop_form" appearance="fill" width='100%'  color="primary">
+    <mat-label><i class="fas fa-project-diagram"></i> add operation</mat-label>
     <input type="text"
            placeholder=""
            matInput
            [formControl]="myControl"
            [matAutocomplete]="auto"
            >
+      
            <mat-autocomplete 
            autoActiveFirstOption 
            #auto="matAutocomplete"

@@ -16,7 +16,8 @@ import { WeaverModule } from '../weaver/weaver.module';
 import { NoteComponent } from './palette/note/note.component';
 import { ParameterComponent } from './palette/operation/parameter/parameter.component';
 import { InletComponent } from './palette/operation/inlet/inlet.component';
-
+import { DesignComponent } from './design/design.component';
+import { QuickopComponent } from './quickop/quickop.component';
 
 
 
@@ -40,6 +41,9 @@ import { InletComponent } from './palette/operation/inlet/inlet.component';
         DraftdetailComponent,
         NoteComponent,
         ParameterComponent,
-        InletComponent        ]
+        InletComponent,
+        DesignComponent,
+        QuickopComponent
+        ]
 })
 export class MixerModule { }

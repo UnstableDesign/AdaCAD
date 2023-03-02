@@ -1,85 +1,35 @@
-<mat-toolbar color="primary" class="topbar">
+<mat-toolbar class="topbar" color="primary">
 
-<span class="left">
-  <!-- <button *ngIf="(auth.showLoginButton)" mat-raised-button matTooltip="login or signup" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Sign In</button>
+
+
+     <div>AdaCAD</div>
+<!-- 
+     <button mat-icon-button
+     (click)="openAboutDialog()"
+     matTooltip ="about AdaCAD"
+     >
+     <i class="fas fa-info-circle"></i>
+    </button> -->
+
+
+
+
   <div class="auth" *ngIf="(auth.showLogoutButton)">
     Hi {{auth.username}} <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
-  </div> -->
+  </div>
   
-  <a mat-icon-button matTooltip="help" href="https://adacad.unstable.design" target='_blank'><i class="fas fa-question"></i> </a>
-
-
-</span>
-
-<span class="center">
-   <button mat-icon-button
-      (click)="openAboutDialog()"
-      matTooltip ="about AdaCAD"
-      >
-      <i class="fas fa-info-circle"></i>
-    </button>
-    <span>AdaCAD</span>
-</span>
-  
-<span class="right">
-    <!-- DISABLED UNTIL I CAN FIX THIS -->
-    <!-- <button mat-icon-button matTooltip ="print screen" (click)="saveAsPrint()" >
-      <i class="fas fa-print"></i>
-    </button> -->
-        
-  <!-- <button mat-icon-button 
-  [matMenuTriggerFor]="clearScreen"
-  matTooltip ="clear screen"
-  >
-  <i class="fas fa-eraser"></i>
-</button> 
-    <mat-menu #clearScreen mat-raised-button>
-      <a  (click)="clear()" mat-menu-item> Really? Clear the workspace?</a>
-    </mat-menu> -->
-
-    <!---->
-    
-
-    
-  <!-- <button mat-icon-button 
-  [matMenuTriggerFor]="downloadDropdown"
-  matTooltip ="export adacad workspace"
-  >
-    <i class="fas fa-download"></i>
-  </button> 
-    <mat-menu #downloadDropdown mat-raised-button>
-      <a  (click)="saveAsAda()" mat-menu-item> as AdaCAD workspace file</a>
-      <a  (click)="saveAsBmp()" mat-menu-item> export all visible drafts as bitmaps</a>
-      <!-- <a  (click)="saveAsWif()" mat-menu-item> export all visible drafts as .WIF files</a> -->
-    <!-- </mat-menu> --> 
-
-
-     <!-- <button mat-icon-button="Open" 
-     matTooltip ="open a new workspace"
-     (click)="openNewFileDialog()">
-     <i class="fas fa-folder-open"></i>
-    </button> -->
-
-
- <!-- <mat-form-field class="filename">
-        <mat-label>Filename</mat-label>
-        <div><input matInput [(ngModel)]="filename" placeholder="Filename"> </div>
-      </mat-form-field>
- -->
 
 
 
+  <!-- <button mat-icon-button
+  (click)="drawer.toggle(); collapsed = !collapsed"
+  class="collapse" 
+  value="collapsed">
+  <i class="fa"
+    [class.fa-angle-double-right]="collapsed" 
+    [class.fa-angle-double-left]="!collapsed"
+  aria-hidden="true"></i>
+</button> -->
 
 
-      <button mat-icon-button
-           (click)="drawer.toggle(); collapsed = !collapsed"
-            class="collapse" 
-            value="collapsed">
-         <i class="fa"
-           [class.fa-angle-double-right]="!collapsed" 
-           [class.fa-angle-double-left]="collapsed"
-         aria-hidden="true"></i>
-      </button>
-
-  </span>
 </mat-toolbar>

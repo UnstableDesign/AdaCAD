@@ -4,12 +4,17 @@ h2{
     padding-bottom: 12px;
 }
 
+
+button{
+    margin-bottom: 4px;
+}
+
 button i {
     width: 24px;
 }
 
 .mat-divider{
-    margin-top: 24px;
+     margin: 4px 0px;
 }
 
 
@@ -19,7 +24,10 @@ button i {
 }
 
 .filebrowser{
-    padding-right: 16px;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    font-size: .8em;
 }
 
 .file_name{
@@ -35,17 +43,28 @@ button i {
     width: 100%;
 }
 
-.fav,.more{
+.fav{
     width: 10%;
+}
+
+.more{
+    display: flex;
+    flex-direction: row;
+    color: grey;
 }
 
 .mat-form-field{
     width: 100%;
 }
 
-.mat-list-item-content{
+.mat-list-item{
+    padding: 0px !important;
     width: 100%;
 }
+
+// .mat-list-item-content{
+//     width: 100%;
+// }
 
 .timestamp{
     color: grey;

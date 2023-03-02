@@ -1,0 +1,132 @@
+
+
+   
+    <div  class="designtools" >
+
+        <div class="undoredo">
+            <button #undoEvent 
+            mat-stroked-button 
+            color="primary"
+            (click)="undoClicked($event);"
+            [disabled]="ss.undo_disabled"
+            matTooltip ="undo">
+            <i class="fas fa-undo"></i> Undo
+            </button>
+
+            <button #redoEvent 
+            mat-stroked-button 
+            color="primary"
+            (click)="redoClicked($event);"
+            [disabled]="ss.redo_disabled "
+            matTooltip ="redo">
+            <i class="fas fa-redo"></i>Redo
+            </button>
+        </div>
+
+
+    
+        <button 
+        mat-stroked-button 
+        color="primary"
+        matTooltip= "Blank Draft"
+        (click)="createNewDraft()">
+        <i class="fas fa-chess-board"></i> Add Blank Draft to Workspace
+        </button>
+    
+
+  
+        <button 
+        mat-stroked-button 
+        color="primary"
+        matTooltip= "Note"
+        color="primary"
+        (click)="addNote()">
+        <i class="fas fa-comment"></i> Add Comment to Workspace
+        </button>
+
+
+
+
+
+
+        <mat-divider></mat-divider>
+
+        <app-quickop
+        (onOperationAdded)="addOperation($event)"
+    >
+        </app-quickop>
+
+
+        <ng-container *ngFor="let class of classifications">
+
+            <mat-accordion class="operation_categories" multi>
+
+                <mat-expansion-panel expanded="true">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title class="cat_title">
+                        {{class.category_name}}
+                     </mat-panel-title>
+                      <mat-panel-description>
+
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <p class="cat_desc">{{class.description}}</p>
+
+                <mat-accordion class="example-headers-align" multi>
+
+                <ng-container *ngFor="let op_name of class.op_names">
+
+                
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                              <mat-panel-title>
+                                {{op_desc.getDisplayName(op_name)}}
+                             </mat-panel-title>
+                              <mat-panel-description>
+                                         <!-- {{class.description}} -->
+
+
+        
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <h2> Description </h2>
+                        <p>{{op_desc.getOpDescription(op_name)}}</p>
+
+                        <h2> Application </h2>
+                        <p> {{op_desc.getOpApplication(op_name)}}</p>
+
+                        <h2 *ngIf="ops.getOp(op_name).params.length > 0"> Parameters </h2>
+                        <ng-container *ngFor="let param of ops.getOp(op_name).params">
+                            <h3>{{param.name}}</h3>
+                            <p *ngIf="param.dx === undefined">{{op_desc.getParamDescription(param.name)}}</p>
+                            <p *ngIf="param.dx !== undefined">{{param.dx}}</p>
+
+                        </ng-container>
+
+
+                        <!-- {{op_desc.getOpApplication(op_name)}}
+                        this.youtube = this.op_desc.getOpYoutube(obj);
+                        this.url = this.createYoutubeEmbedLink(this.youtube)
+                        this.params = this.ops.getOp(obj).params;
+                        this.params = this.params.map(param => {
+                          if(param.dx === undefined) param.dx = this.op_desc.getParamDescription(param.name);
+                          return param;
+                        }) -->
+
+
+                        </mat-expansion-panel>
+                </ng-container>
+
+                 </mat-accordion>
+
+                </mat-expansion-panel>    
+                </mat-accordion>            
+    
+            <!-- <p> {{class.description}}</p> -->
+          
+          </ng-container>
+
+
+
+     
+    </div>

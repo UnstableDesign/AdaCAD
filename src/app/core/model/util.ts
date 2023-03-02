@@ -260,7 +260,7 @@ class Util {
    * @returns an Interlacement
    */
   resolveCoordsToNdx(p: Point, scale:number) : Interlacement {  
-    const i = Math.floor((p.y - 62) / scale);
+    const i = Math.floor((p.y) / scale);
     const j = Math.floor((p.x) / scale);
     return {i: i, j: j, si: i};
   }

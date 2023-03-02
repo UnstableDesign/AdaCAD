@@ -136,10 +136,16 @@ export class OperationComponent implements OnInit {
     this.displayname = this.opdescriptions.getDisplayName(this.name);
     this.application = this.opdescriptions.getOpApplication(this.name);
 
-    const tl: Point = this.viewport.getTopLeft();
-    const tl_offset = {x: tl.x + 60, y: tl.y};
+    const op_adder = document.getElementById("quickop");
 
-     if(this.topleft.x == 0 && this.topleft.y == 0) this.setPosition(tl_offset);
+    const tl: Point = this.viewport.getTopRight();
+    const tl_offset = {x: tl.x, y: tl.y};
+
+     if(this.topleft.x == 0 && this.topleft.y == 0){
+      this.setPosition(tl_offset);
+      console.log("set position to ", tl_offset)
+     } 
+     console.log("THis topleft", this.topleft)
      this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
 
@@ -474,7 +480,6 @@ export class OperationComponent implements OnInit {
 
 
   dragStart(e: any) {
-      //set the relative position of this operation if its the one that's dragging
 
      if(this.multiselect.isSelected(this.id)){
       this.multiselect.setRelativePosition(this.topleft);

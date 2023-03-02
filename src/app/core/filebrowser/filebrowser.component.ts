@@ -23,6 +23,7 @@ export class FilebrowserComponent implements OnInit {
   
   isLoggedIn = false;
   filelist = [];
+  rename_mode = false;
 
   constructor(
     public files: FilesystemService, 
@@ -64,11 +65,11 @@ export class FilebrowserComponent implements OnInit {
     }
 
     const timesorted = data.sort(compareFn);
-    const favs = timesorted.filter(el => this.ws.isFavorite(el.id) || this.files.current_file_id == el.id);
-    const other = timesorted.filter(el => !this.ws.isFavorite(el.id) && this.files.current_file_id !== el.id);
+    // const favs = timesorted.filter(el => this.ws.isFavorite(el.id) || this.files.current_file_id == el.id);
+    // const other = timesorted.filter(el => !this.ws.isFavorite(el.id) && this.files.current_file_id !== el.id);
 
-    this.filelist = favs.concat(other);
-
+    //this.filelist = favs.concat(other);
+    this.filelist = timesorted;
 
   }
 
@@ -82,10 +83,19 @@ export class FilebrowserComponent implements OnInit {
       this.updateFileData(this.filelist)
   }
 
+  duplicate(){
+    
+  }
+
 
 
   rename(){
-    this.files.renameFile(this.files.current_file_id, this.files.current_file_name);
+    if(this.rename_mode === true){
+      this.files.renameFile(this.files.current_file_id, this.files.current_file_name);
+      this.rename_mode = false;
+    }else{
+      this.rename_mode = true;
+    } 
 
   }
 

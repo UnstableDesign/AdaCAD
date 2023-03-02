@@ -29,9 +29,7 @@ export class MaterialModal{
   constructor(
       private dm: DesignmodesService,
       public ms: MaterialsService,
-      private tree: TreeService,
-      private dialogRef: MatDialogRef<MaterialModal>,
-      @Inject(MAT_DIALOG_DATA) public data: {draft:Draft}) {
+      private tree: TreeService) {
 
       ms.getShuttles().forEach((el, ndx) => {
         this.replacements.push((ndx+1%this.ms.getShuttles().length));
@@ -92,12 +90,12 @@ export class MaterialModal{
     this.newshuttle = new Shuttle();
   }
 
-  close() {
-    this.dialogRef.close(null);
-  }
+  // close() {
+  //   this.dialogRef.close(null);
+  // }
 
-  save() {
-    this.dialogRef.close(null);
-  }
+  // save() {
+  //   this.dialogRef.close(null);
+  // }
 
 }

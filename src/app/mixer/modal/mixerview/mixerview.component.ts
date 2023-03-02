@@ -40,16 +40,29 @@ export class MixerViewComponent implements OnInit {
 
     this.viewport.vpchanged$.subscribe(data => {
       this.updateLocalDims();
+
     })
 
-
-
- 
   this.local_view = {
     topleft: {x:0, y:0}, 
     width: 100, 
     height:100
   };
+
+
+
+}
+ 
+  ngOnInit() {
+   // console.log('viewport', this.local_view);
+
+  }
+
+
+
+  ngAfterViewInit() {
+
+
 
   // this.zoom = data.zoom;
 
@@ -59,28 +72,20 @@ export class MixerViewComponent implements OnInit {
     height: 100
   }
 
-  this.width = 250;
-  this.height = 250;
+
+  const viewwindow = document.getElementById('mixerview');
+  console.log("MIXER ", viewwindow.offsetWidth)
+  this.width = viewwindow.offsetWidth;
+  this.height = viewwindow.offsetHeight;
 
   //ratio of the global space to the total width of the global div
-  this.factor = this.width / viewport.getAbsoluteWidth();
+  this.factor = this.width / this.viewport.getAbsoluteWidth();
 
   //each cell is rendered cell factor number pixels in the global view
   //this does not change when zoomed
-  this.cell_factor = this.width / ((viewport.getAbsoluteWidth() / this.data.default_cell_size));
+  this.cell_factor = this.width / (this.viewport.getAbsoluteWidth() / this.data.default_cell_size);
  
-}
- 
-  ngOnInit() {
-   // console.log('viewport', this.local_view);
-  }
-
-
-
-  ngAfterViewInit() {
-
-    this.div = document.getElementById('scrollable-container').offsetParent;
-    this.updateLocalDims();
+ this.updateLocalDims();
   }
 
   getCx(obj: any) : number {
@@ -91,7 +96,7 @@ export class MixerViewComponent implements OnInit {
   
 
   updateLocalDims(){
-
+    this.div = document.getElementById('scrollable-container').offsetParent;
     this.local_view.topleft = {
       x: this.div.scrollLeft / this.zs.zoom * this.cell_factor, 
       y: this.div.scrollTop  / this.zs.zoom * this.cell_factor};

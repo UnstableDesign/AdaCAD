@@ -2,28 +2,6 @@
 <!-- UNDO / REDO -->
 <div class="sidebar" [class.mixer]="source === 'mixer'" >
     <!--on both weaver and mixer-->
-    <div class="tool-chunk" *ngIf="source !== 'weaver'">
-        <button #undoEvent 
-        mat-icon-button 
-        (click)="undoClicked($event);"
-        [disabled]="ss.undo_disabled || viewonly"
-        matTooltip ="undo">
-        <i class="fas fa-undo"></i>
-        </button>
-
-        <button #redoEvent 
-        mat-icon-button 
-        (click)="redoClicked($event);"
-        [disabled]="ss.redo_disabled  || viewonly"
-        matTooltip ="redo">
-        <i class="fas fa-redo"></i>
-        </button>
-    </div>
-
-
-
-
-
 
 <!-- WEAVER EDITING TOOLS -->
     <div class="tool-chunk" *ngIf="source==='weaver' || source==='weaverinmixer'">
@@ -114,82 +92,50 @@
         </mat-menu> -->
 
     </div>
-
-<!-- COMMENT TOOL-->
-
-    <!-- <div class="tool-chunk">
-
-
-        <button 
-        mat-icon-button
-        matTooltip= "Add Note"
-        (click)="openPatternModal()">
-        <i class="fas fa-comment"></i></button>
-
-        <div class="view_slider">
-            Show Comments
-
-            <mat-slide-toggle
-                [checked]="view !== 'pattern'"
-                (change)="viewChange($event)">
-            </mat-slide-toggle>
-        </div>
-
-    </div> -->
+    
 
 <!-- VIEW TOOLS -->
 
-<div class="tool-chunk" *ngIf="source==='weaver'">
+    <div class="tool-chunk" *ngIf="source==='weaver'">
 
-    <!-- <button mat-icon-button><i class="fas fa-search-plus"></i></button>
-    
-    <div class="view_slider">
-    <mat-slider 
-    vertical
-    [displayWith]="formatLabel" 
-    tickInterval=".1" 
-    step=".1"
-    min="0" 
-    max="2" 
-    value="{{render.zoom}}" 
-    (change)="zoomChange($event, 'slider')"></mat-slider>
-</div> -->
-
-    <!-- <button mat-icon-button><i class="fas fa-search-minus"></i></button>
-     -->
-    <button mat-icon-button 
-    (click)='openWeaverView()'
-    [class.is-active] = "weaver_view_modal && weaver_view_modal.componentInstance != null"
-    >
-    <i class="fas fa-eye"></i></button>
-
-
-
-    <div class="view_slider">
-         Yarns
-
-        <mat-slide-toggle
-            [checked]="render.current_view !== 'pattern'"
-            (change)="viewChange($event)">
-        </mat-slide-toggle>
-      </div>
-   
-
-
-</div>
-
-    <!-- VIEW TOOLS - MIXER -->
-    <!-- <div class="tool-chunk" *ngIf="source==='mixer'">
-
-    <button mat-icon-button 
-    matTooltip= "View Options"
-    [class.is-active] = "view_modal && view_modal.componentInstance != null"
-    (click)="openMixerView()">
-        <i class="fas fa-eye"></i>    
-    </button>
-    
+        <!-- <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+        
+        <div class="view_slider">
+        <mat-slider 
+        vertical
+        [displayWith]="formatLabel" 
+        tickInterval=".1" 
+        step=".1"
+        min="0" 
+        max="2" 
+        value="{{render.zoom}}" 
+        (change)="zoomChange($event, 'slider')"></mat-slider>
     </div> -->
-<!-- LIBRARIES -->
+
+        <!-- <button mat-icon-button><i class="fas fa-search-minus"></i></button>
+        -->
+        <button mat-icon-button 
+        (click)='openWeaverView()'
+        [class.is-active] = "weaver_view_modal && weaver_view_modal.componentInstance != null"
+        >
+        <i class="fas fa-eye"></i></button>
+
+
+
+        <div class="view_slider">
+            Yarns
+
+            <mat-slide-toggle
+                [checked]="render.current_view !== 'pattern'"
+                (change)="viewChange($event)">
+            </mat-slide-toggle>
+        </div>
+    
+
+
+    </div>
+
+
    
 <!-- EQUIPMENT SETTINGS -->
     <div class="tool-chunk" *ngIf="source==='weaver'">
@@ -208,54 +154,65 @@
 
  
  
-</div>    
-<div *ngIf="source==='mixer'">
+   
+    <div  class="designtools" *ngIf="source==='mixer'">
+
+        <div class="undoredo">
+        <button #undoEvent 
+        mat-stroked-button 
+        color="primary"
+        (click)="undoClicked($event);"
+        [disabled]="ss.undo_disabled || viewonly"
+        matTooltip ="undo">
+        <i class="fas fa-undo"></i> Undo
+        </button>
+
+        <button #redoEvent 
+        mat-stroked-button 
+        color="primary"
+        (click)="redoClicked($event);"
+        [disabled]="ss.redo_disabled  || viewonly"
+        matTooltip ="redo">
+        <i class="fas fa-redo"></i>Redo
+        </button>
+        </div>
 
 
-    <app-quickop
-        (onOperationAdded)="addOperation($event)"
-    >
-    </app-quickop>
-
-
-    <div>
-    <button 
-    mat-icon-button
-    color="primary"
-    [class.is-active] = "op_modal && op_modal.componentInstance != null"
-    matTooltip= "Operation"
-    (click)="openOps()">
-    <i class="fas fa-project-diagram"></i> View All Operations
-    </button>
-    </div>
-
-    <div>
-    <button 
-    mat-icon-button
-    color="primary"
-    matTooltip= "Blank Draft"
-    (click)="createNewDraft()">
-    <i class="fas fa-chess-board"></i> Add Blank Draft to Workspace
-    </button>
-    </div>
-
-    <div>
+    
         <button 
-        mat-icon-button
+        mat-stroked-button 
+        color="primary"
+        matTooltip= "Blank Draft"
+        (click)="createNewDraft()">
+        <i class="fas fa-chess-board"></i> Add Blank Draft to Workspace
+        </button>
+    
+
+  
+        <button 
+        mat-stroked-button 
+        color="primary"
         matTooltip= "Note"
         color="primary"
         (click)="addNote()">
         <i class="fas fa-comment"></i> Add Comment to Workspace
         </button>
-        </div>
-    <div>
-    <button 
-    mat-icon-button
-    color="primary"
-    matTooltip= "Materials Library"
-    [class.is-active] = "materials_modal && materials_modal.componentInstance != null"
-    (click)="openMaterialsModal()">
-    <i class="fas fa-book"></i> Define Materials
-    </button>
+
+
+
+        <app-quickop
+            (onOperationAdded)="addOperation($event)"
+        >
+        </app-quickop>
+
+        <button 
+        mat-button
+        [class.is-active] = "op_modal && op_modal.componentInstance != null"
+        matTooltip= "Operation"
+        (click)="openOps()">
+        <i class="fas fa-project-diagram"></i> View All Operations
+        </button>
     </div>
-   </div>
+
+
+</div>

@@ -4,7 +4,7 @@
   <div id = "global" class="global_view">
     
     <svg width="250" height="250">
-      <circle *ngFor="let obj of viewport.objs" [attr.cx]='obj.i.j * cell_factor' [attr.cy]='obj.i.i * cell_factor' [attr.r]="2" fill="grey" />
+      <rect *ngFor="let obj of viewport.objs" [attr.x]='obj.i.j * cell_factor' [attr.y]='obj.i.i * cell_factor' [attr.width]="2" [attr.height]="2" fill="grey" />
     </svg>
     <div class="local" id="local_view"
     [style.width.px] = " viewport.getWidth() / zs.zoom * cell_factor"
@@ -20,23 +20,6 @@
   </div>
 
 
-  <div class="slider-row">
-    <button  mat-icon-button (click)="zoomIn()" class="fas fa-search-plus"></button>
-  
-
-
-
-      <mat-slider 
-      invert
-      tickInterval="1" 
-      [step]="1" 
-      [min]= "0"
-      [max]= "zs.num_steps"
-      value="{{zs.zoom_table_ndx}}" 
-      (change)="zoomChange($event, 'slider')"></mat-slider>
-      
-      <button  mat-icon-button (click)="zoomOut()" class="fas fa-search-minus"></button> 
-  </div>
 
 
 

@@ -1,0 +1,57 @@
+.mixer {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.designtools{
+    margin: 20px;
+
+}
+
+
+.undoredo{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    button{
+        width: 49%;
+    }
+}
+
+h2,.cat_title{
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.mat-divider{
+    padding: 12px 0px;
+}
+
+.operation_categories{
+    padding-top: 12px;
+}
+
+.cat_desc{
+    font-size: .8em;
+    margin-bottom: 12px;
+
+}
+
+h3{
+    font-size: .8em;
+    font-weight: bold;
+}
+
+p{
+    font-size: .8em;
+    margin-bottom: 12px;
+}
+
+
+button{
+    margin: 4px;
+    width: 100%;
+}
