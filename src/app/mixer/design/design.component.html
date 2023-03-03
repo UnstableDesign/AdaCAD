@@ -49,12 +49,16 @@
 
 
 
-        <mat-divider></mat-divider>
 
         <app-quickop
         (onOperationAdded)="addOperation($event)"
     >
         </app-quickop>
+
+
+        <mat-divider></mat-divider>
+        <h3>Operation Descriptions</h3>
+
 
 
         <ng-container *ngFor="let class of classifications">

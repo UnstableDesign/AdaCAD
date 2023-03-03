@@ -31,9 +31,7 @@ import { FormControl, NgForm } from '@angular/forms';
 import utilInstance from '../core/model/util';
 import { FilesystemService } from '../core/provider/filesystem.service';
 import { Auth, authState, User } from '@angular/fire/auth';
-import { promise } from 'protractor';
-import { timeStamp } from 'console';
-
+import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -74,6 +72,7 @@ export class MixerComponent implements OnInit {
   warp_locked:boolean = false;
   origin_options: any = null;
   selected_origin: number = 0;
+  show_viewer: boolean = false;
 
 
 
@@ -310,6 +309,16 @@ export class MixerComponent implements OnInit {
     this.renderChange(old_zoom);
     
 }
+
+createNewDraft(){
+
+  const dialogRef = this.dialog.open(BlankdraftModal, {
+  });
+
+  dialogRef.afterClosed().subscribe(obj => {
+    if(obj !== undefined && obj !== null) this.newDraftCreated(obj);
+ });
+}
  
 
 zoomChange(e:any, source: string){
@@ -349,7 +358,6 @@ zoomChange(e:any, source: string){
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
     
         this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
-          console.log("LOADING FILE ID", fileid)
 
           if(fileid !== null){
 
@@ -493,7 +501,6 @@ zoomChange(e:any, source: string){
 
 
   printTreeStatus(name: string, treenode: Array<TreeNode>){
-    console.log("PRINTING TREE STATUS FOR ", name);
 
     treenode.forEach(tn => {
       if(tn === undefined){
@@ -905,6 +912,20 @@ zoomChange(e:any, source: string){
    
   }
 
+  enterPanMode(){
+    console.log("Enter Pan");
+    this.dm.selectDesignMode('pan', 'design_modes');
+    //this.show_viewer = true;
+
+  }
+
+  enterSelectMode(){
+    this.dm.selectDesignMode('marquee','design_modes');
+    this.designModeChange('marquee');
+  }
+
+  
+
 
 
 
@@ -914,8 +935,7 @@ zoomChange(e:any, source: string){
    */
    @HostListener('window:keydown.s', ['$event'])
    private keyChangeToSelect(e) {
-    //  this.dm.selectDesignMode('marquee','design_modes');
-    //  this.designModeChange('marquee');
+      this.enterSelectMode();
    }
 
 

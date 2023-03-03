@@ -85,6 +85,13 @@ export class PaletteComponent implements OnInit{
    */
   last: Interlacement;
 
+
+    /**
+   * stores an i and j of the last user selected location within the component
+   * @property {Point}
+   */
+    last_point: Point;
+
   /**
    * triggers a class to handle disabling pointerevents when switching modes
    * @property {boolean}
@@ -142,7 +149,7 @@ export class PaletteComponent implements OnInit{
    * @param notes reference the service that stores all the tagged comments
    */
   constructor(
-    private dm: DesignmodesService, 
+    public dm: DesignmodesService, 
     private tree: TreeService,
     private inks: InkService, 
     private layers: LayersService, 
@@ -264,12 +271,25 @@ export class PaletteComponent implements OnInit{
  * called when user moves position within viewer
  * @param data 
  */
-  handleScroll(position: any){
+  handleScroll(position: Point){
     this.viewport.setTopLeft(position);
     const div:HTMLElement = document.getElementById('scrollable-container');  
      div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
      div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
   }
+
+/**
+ * called when user moves position within viewer
+ * @param data 
+ */
+handlePan(diff: Point){
+  const div:HTMLElement = document.getElementById('scrollable-container');  
+  console.log("Offset ", diff, div.offsetParent.scrollLeft)
+   div.offsetParent.scrollLeft += diff.x;
+   div.offsetParent.scrollTop += diff.y;
+}
+
+
 
   /**
  * when someone zooms in or out, we'd like to keep the center point the same. We do this by scaling the entire palette and 
@@ -953,11 +973,11 @@ export class PaletteComponent implements OnInit{
       this.freezePaletteObjects();
     }
 
-    if(this.dm.getDesignMode('draw', 'design_modes').selected || this.dm.getDesignMode('shape',  'design_modes').selected){
-      const old_zoom = this.zs.zoom;
-      this.zs.setZoom(Math.ceil(this.zs.zoom))
-      this.rescale(old_zoom);
-    }
+    // if(this.dm.getDesignMode('draw', 'design_modes').selected || this.dm.getDesignMode('shape',  'design_modes').selected){
+    //   const old_zoom = this.zs.zoom;
+    //   this.zs.setZoom(Math.ceil(this.zs.zoom))
+    //   this.rescale(old_zoom);
+    // }
 
   }
 
@@ -1580,6 +1600,9 @@ calculateInitialLocaiton(id: number) : Point {
       // new_bounds.topleft = {x: this.viewport.getCenterPoint().x + 60, y: this.viewport.getCenterPoint().y + default_height};
 
     }else{
+
+
+      
       const container: HTMLElement = document.getElementById('scale-'+parent_id);
      const parent_height = container.offsetHeight * (this.zs.zoom/this.default_cell_size);  
      new_tl = {x: topleft.x, y: topleft.y + parent_height};
@@ -1823,6 +1846,13 @@ connectionMade(obj: any){
 
   this.selection.start = this.last;
   this.selection.active = true;
+ }
+
+ panStarted(mouse_pos: Point){
+
+  this.last_point = mouse_pos;
+  this.freezePaletteObjects();
+
  }
 
  /**
@@ -2146,6 +2176,8 @@ drawStarted(){
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
 
+     // console.log("HI", this.dm.getSelectedDesignMode('design_modes'));
+
       const ctrl: boolean = event.ctrlKey;
       const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
       const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
@@ -2166,40 +2198,46 @@ drawStarted(){
           this.moveSubscription = 
           fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
     
-      }else if(this.dm.isSelected("draw",'design_modes')){
-        this.moveSubscription = 
-        fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
+      // }else if(this.dm.isSelected("draw",'design_modes')){
+      //   this.moveSubscription = 
+      //   fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
   
-          this.drawStarted();    
-          this.setCell(ndx);
-          this.drawCell(ndx); 
-      }else if(this.dm.isSelected("shape",'design_modes')){
-        this.moveSubscription = 
-        fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
+      //     this.drawStarted();    
+      //     this.setCell(ndx);
+      //     this.drawCell(ndx); 
+      // }else if(this.dm.isSelected("shape",'design_modes')){
+      //   this.moveSubscription = 
+      //   fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
   
 
-        if(this.dm.isSelected('free','shapes')){
-          if(ctrl){
-            this.processShapeEnd().then(el => {
-              this.changeDesignmode('move');
-              this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            });
-          }else{
-            if(this.shape_vtxs.length == 0) this.shapeStarted(mouse);
-            this.shape_vtxs.push(mouse);
-          }
+      //   if(this.dm.isSelected('free','shapes')){
+      //     if(ctrl){
+      //       this.processShapeEnd().then(el => {
+      //         this.changeDesignmode('move');
+      //         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      //       });
+      //     }else{
+      //       if(this.shape_vtxs.length == 0) this.shapeStarted(mouse);
+      //       this.shape_vtxs.push(mouse);
+      //     }
             
           
-        }else{
-          this.shapeStarted(mouse);
-        }
-      }else if(this.dm.isSelected("operation",'design_modes')){
-        this.processConnectionEnd();
-        this.changeDesignmode('move');
+      //   }else{
+      //     this.shapeStarted(mouse);
+      //   }
+      // }else if(this.dm.isSelected("operation",'design_modes')){
+        // this.processConnectionEnd();
+        // this.changeDesignmode('move');
       }else if(this.dm.isSelected("move", "design_modes")){
 
        if(event.shiftKey) return;
         this.multiselect.clearSelections();
+
+      }else if(this.dm.isSelected("pan", 'design_modes')){
+
+        this.panStarted({x: event.clientX, y: event.clientY});
+        this.moveSubscription = 
+        fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
 
       }
   }
@@ -2266,16 +2304,27 @@ drawStarted(){
      this.drawSelection(ndx);
      const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
      this.selection.setPositionAndSize(bounds);
+    }else if(this.dm.getDesignMode("pan",'design_modes').selected){
+      
+      const diff = {
+        x:  (this.last_point.x-event.clientX), 
+        y: (this.last_point.y-event.clientY)}
 
-    
-    }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
-      this.setCell(ndx);
-      this.drawCell(ndx);
-    }else if(this.dm.getDesignMode("shape",'design_modes').selected){
-      this.shapeDragged(mouse, shift);
+      console.log("diff", diff);
+
+      this.handlePan(diff);
+
     }
     
+    // }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
+    //   this.setCell(ndx);
+    //   this.drawCell(ndx);
+    // }else if(this.dm.getDesignMode("shape",'design_modes').selected){
+    //   this.shapeDragged(mouse, shift);
+    // }
+    
     this.last = ndx;
+    this.last_point = {x: event.clientX, y: event.clientY};
   }
 
   
@@ -2305,34 +2354,41 @@ drawStarted(){
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
+      }else if(this.dm.isSelected('pan', 'design_modes')){
+        const div:HTMLElement = document.getElementById('scrollable-container');
+        this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+        this.unfreezePaletteObjects();
+
+      }
 
 
-      }else if(this.dm.isSelected("draw",'design_modes')){
+      // }else if(this.dm.isSelected("draw",'design_modes')){
        
-        this.processDrawingEnd().then(el => {
-          this.closeSnackBar();
-          this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-          this.changeDesignmode('move');
-          this.scratch_pad = undefined;
-        }).catch(console.error);
+      //   this.processDrawingEnd().then(el => {
+      //     this.closeSnackBar();
+      //     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      //     this.changeDesignmode('move');
+      //     this.scratch_pad = undefined;
+      //   }).catch(console.error);
       
 
 
 
-      }else if(this.dm.isSelected("shape",'design_modes')){
-        if(!this.dm.isSelected('free','shapes')){
+      // }else if(this.dm.isSelected("shape",'design_modes')){
+      //   if(!this.dm.isSelected('free','shapes')){
           
-          this.processShapeEnd().then(el => {
-            this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.changeDesignmode('move');
+      //     this.processShapeEnd().then(el => {
+      //       this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      //       this.changeDesignmode('move');
            
-         });
-        }
+      //    });
+      //   }
           
-      }
+      // }
 
       //unset vars that would have been created on press
       this.last = undefined;
+      this.last_point = undefined;
       this.selection.active = false;
       this.canvas_zndx = -1; 
   }
@@ -2352,14 +2408,13 @@ drawStarted(){
     
     this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.zs.zoom, warps: bounds.width/this.zs.zoom}), -1)
     .then(sc => {
-      //sc.setComponentBounds(bounds);
-       //get any subdrafts that intersect the one we just made
-      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
-
-      // if(isect.length === 0){
-      //   this.addTimelineState();
-      //   return;
-      // } 
+      sc.setPosition(bounds.topleft);
+      //const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
+      const isect = [];
+      if(isect.length === 0){
+        this.addTimelineState();
+        return;
+      } 
 
        //get a draft that reflects only the poitns in the selection view
       // const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
@@ -2375,7 +2430,6 @@ drawStarted(){
     //   }
 
     // });
-    this.addTimelineState();
     })
     .catch(console.error);
    

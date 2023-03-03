@@ -143,9 +143,7 @@ export class OperationComponent implements OnInit {
 
      if(this.topleft.x == 0 && this.topleft.y == 0){
       this.setPosition(tl_offset);
-      console.log("set position to ", tl_offset)
      } 
-     console.log("THis topleft", this.topleft)
      this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
 

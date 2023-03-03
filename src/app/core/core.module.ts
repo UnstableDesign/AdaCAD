@@ -169,7 +169,8 @@ import { FilebrowserComponent } from './filebrowser/filebrowser.component';
         SelectionComponent,
         SidebarComponent,
         FilebrowserComponent,
-        WeaverViewComponent
+        WeaverViewComponent,
+        ExamplesComponent
     ]
 })
 export class CoreModule { }

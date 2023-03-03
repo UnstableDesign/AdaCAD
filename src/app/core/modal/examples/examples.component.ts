@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { getAnalytics, logEvent } from "@angular/fire/analytics";
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AuthService } from '../../provider/auth.service';
 import { FileService } from '../../provider/file.service';
 
@@ -11,14 +10,13 @@ import { FileService } from '../../provider/file.service';
   styleUrls: ['./examples.component.scss']
 })
 export class ExamplesComponent {
+  @Output() onLoadExample = new EventEmitter <any>(); 
 
 
   constructor(
     private fls: FileService,
     private auth: AuthService,
-    private http: HttpClient,
-    private dialogRef: MatDialogRef<ExamplesComponent>, 
-    @Inject(MAT_DIALOG_DATA) private data: any) {
+    private http: HttpClient) {
       
 
   }
@@ -30,12 +28,13 @@ export class ExamplesComponent {
       items: [{ uid: this.auth.uid, name: filename }]
     });
 
-    console.log("loading example: ", filename);
     this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
 
       return this.fls.loader.ada(filename, -1, '', res.body)
-        .then(
-          res => this.dialogRef.close(res)
+        .then(res => {
+          this.onLoadExample.emit(res);
+          return;
+        }
         );
     }); 
   }

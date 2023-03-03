@@ -23,15 +23,30 @@ canvas{
 }
 
 .adacad{
-height: 33%;
-position: relative;
-top: 12vh;}
+position: relative;}
 
 h1{
   transform: rotate(-90deg);
   color: #3f51b5;
   font-weight: bold;
   
+}
+
+.mode-pan{
+  cursor:grab;
+}
+
+.mode-marquee{
+  cursor:crosshair;
+}
+
+.mode-move{
+  cursor:default;
+}
+
+.mat-slider-vertical{
+  height: 33%!important;
+  min-height: 50px !important;
 }
 
 .slider-row{

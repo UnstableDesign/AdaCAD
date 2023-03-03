@@ -49,7 +49,7 @@
     color="primary"
     matTooltip= "Note"
     color="primary"
-    (click)="addNote()">
+    (click)="createNote()">
     <i class="fas fa-comment"></i>
     </button>
 
@@ -61,9 +61,18 @@
     <i class="fas fa-chess-board"></i>
     </button>
 
+    <button 
+    mat-icon-button 
+    color="primary"
+    matTooltip= "Select"
+    (click)="enterSelectMode()">
+    <i class="fas fa-expand"></i>
+    </button>
+
+
     <button
     mat-icon-button color="primary"  
-    (click)="saveAsAda()"
+    (click)="onSave({type: 'ada'})"
     ><i class="fa-solid fa-download"></i>
     </button>
   </div>
@@ -90,6 +99,7 @@
       <button  mat-icon-button (click)="zoomOut()" class="fas fa-search-minus"></button> 
       <button
       mat-icon-button color="primary"  
+      (click)="enterPanMode()"
       ><i class="fa-solid fa-hand"></i>
       </button>
         </div>
@@ -187,8 +197,9 @@
       </mat-tab>
 
       <mat-tab class="mat-tab-label-custom" label="Examples">
-        what is here
-        <app-examples></app-examples>  
+        <app-examples
+        (onLoadExample)="loadNewFile($event)">
+       </app-examples>  
         <app-loadfile></app-loadfile>  
 
       </mat-tab>
@@ -208,7 +219,7 @@
 </mat-drawer> -->
 
   <app-palette  
-  class="palette"
+  class="palette mode-{{dm.getSelectedDesignMode('design_modes').value}}"
   [style.width.px]='vp.getAbsoluteWidth()' 
   [style.height.px]='vp.getAbsoluteHeight()' 
   #palette  id="scrollable-container"
@@ -217,12 +228,12 @@
 
   <canvas id="saver"></canvas>
 
-  <!-- <div id="mixerview" class="mixerview">
+  <div *ngIf="show_viewer" id="mixerview" class="mixerview">
   <app-mixerview
   (onZoomChange) ="zoomChangeExternal($event);"
   (onViewPortMove) ="setScroll($event);"
   ></app-mixerview>
-  </div> -->
+  </div>
 
 
 </mat-drawer-container>

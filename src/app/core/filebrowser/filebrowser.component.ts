@@ -32,6 +32,7 @@ export class FilebrowserComponent implements OnInit {
     private dialog: MatDialog) { 
     
   
+    this.filelist = this.files.file_tree;
 
     this.files.file_tree_change$.subscribe(data => {
       
@@ -52,7 +53,6 @@ export class FilebrowserComponent implements OnInit {
   }
 
   updateFileData(data: Array<any>){
- 
     function compareFn(a, b) {
       if (a.meta.timestamp > b.meta.timestamp) {
         return -1;
