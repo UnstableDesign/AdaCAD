@@ -3,7 +3,6 @@ import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Cell } from '../../core/model/cell';
 import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, Operation, OpInput } from '../../core/model/datatypes';
 import { FileService } from '../../core/provider/file.service';
-import { SelectionComponent } from './selection/selection.component';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -17,6 +16,7 @@ import { TreeService } from '../../core/provider/tree.service';
 import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
 import { RenderService } from '../provider/render.service';
+import { SelectionComponent } from './selection/selection.component';
 
 @Component({
   selector: 'app-draftviewer',
@@ -26,6 +26,7 @@ import { RenderService } from '../provider/render.service';
 export class DraftviewerComponent implements OnInit {
 
   @ViewChild('bitmapImage') bitmap;
+
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
 
 
@@ -224,7 +225,7 @@ export class DraftviewerComponent implements OnInit {
     public timeline: StateService,
     private tree:TreeService,
     private ops: OperationService,
-    private render: RenderService
+    public render: RenderService
     ) { 
 
     this.flag_recompute = false;

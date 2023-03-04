@@ -20,7 +20,6 @@ import { StateService } from '../core/provider/state.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { OpsComponent } from './modal/ops/ops.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
@@ -62,7 +61,6 @@ export class MixerComponent implements OnInit {
 
 
   @ViewChild(PaletteComponent) palette;
-  @ViewChild(SidebarComponent) view_tool;
   @ViewChild(WeaverComponent) details;
 
   epi: number = 10;

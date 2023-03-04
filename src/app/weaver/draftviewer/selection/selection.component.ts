@@ -4,6 +4,7 @@ import { Interlacement, LoomSettings } from '../../../core/model/datatypes';
 import { numFrames, numTreadles } from '../../../core/model/looms';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { RenderService } from '../../provider/render.service';
+import { MatMenu } from '@angular/material/menu';
 
 @Component({
   selector: 'app-selection',

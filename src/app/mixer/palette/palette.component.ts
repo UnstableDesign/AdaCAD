@@ -2919,14 +2919,14 @@ drawStarted(){
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  redrawOpenModals(){
-    const comps = this.tree.getDrafts();
-    comps.forEach(sd => {
-      if(sd.modal !== undefined && sd.modal.componentInstance !== null){
-        sd.modal.componentInstance.redraw();
-      }
-    })
-  }
+  // redrawOpenModals(){
+  //   const comps = this.tree.getDrafts();
+  //   comps.forEach(sd => {
+  //     if(sd.modal !== undefined && sd.modal.componentInstance !== null){
+  //       sd.modal.componentInstance.redraw();
+  //     }
+  //   })
+  // }
     
   redrawAllSubdrafts(){
       const comps = this.tree.getDrafts();

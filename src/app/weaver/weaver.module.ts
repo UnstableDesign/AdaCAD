@@ -33,6 +33,7 @@ import { ActionsComponent } from './actions/actions.component';
 import { WeaverViewComponent } from './weaverview/weaverview.component';
 import { RenderService } from './provider/render.service';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { SelectionComponent } from './draftviewer/selection/selection.component';
 
 @NgModule({
     declarations: [
@@ -41,7 +42,8 @@ import { SidebarComponent } from './sidebar/sidebar.component';
         DraftviewerComponent,
         ActionsComponent,
         WeaverViewComponent,
-        SidebarComponent
+        SidebarComponent,
+        SelectionComponent
     ],
     imports: [
         CommonModule,
@@ -73,6 +75,9 @@ import { SidebarComponent } from './sidebar/sidebar.component';
         MatChipsModule,
         ScrollingModule
         
+    ],
+    exports:[
+        WeaverComponent
     ],
     providers: [
         RenderService
