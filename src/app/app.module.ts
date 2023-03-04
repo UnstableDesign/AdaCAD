@@ -15,17 +15,20 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { CoreModule } from './core/core.module';
 import { MixerModule } from './mixer/mixer.module';
 import { WeaverModule } from './weaver/weaver.module';
+
 
 @NgModule({
   declarations: [
     AppComponent
-  ],
+    ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    CoreModule,
     WeaverModule,
     MixerModule,
     BrowserAnimationsModule,

@@ -8,7 +8,6 @@ import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
-import { DraftdetailComponent } from '../../modal/draftdetail/draftdetail.component';
 import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
@@ -126,7 +125,6 @@ export class SubdraftComponent implements OnInit {
 
   set_connectable:boolean = false;
 
-  modal: MatDialogRef<DraftdetailComponent, any>;
 
   draft_visible: boolean = true;
 

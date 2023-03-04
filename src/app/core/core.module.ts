@@ -32,23 +32,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { ColorPickerModule } from 'ngx-color-picker';
-import { DraftviewerComponent } from './draftviewer/draftviewer.component';
-import { SelectionComponent } from './draftviewer/selection/selection.component';
 import { EmailComponent } from './email/email.component';
 import { LoginComponent } from './login/login.component';
 import { AboutModal } from './modal/about/about.modal';
-import { ActionsComponent } from './modal/actions/actions.component';
 import { InitModal } from './modal/init/init.modal';
 import { LoomModal } from './modal/loom/loom.modal';
 import { MaterialModal } from './modal/material/material.modal';
-import { WeaverViewComponent } from './modal/weaverview/weaverview.component';
 import { FilterPipe } from './pipe/filter.pipe';
 import { ProfileComponent } from './profile/profile.component';
 import { AuthService } from './provider/auth.service';
 import { FileService } from './provider/file.service';
 import { PatternfinderService } from './provider/patternfinder.service';
 import { VaeService } from './provider/vae.service';
-import { SidebarComponent } from './sidebar/sidebar.component';
 import { SignupComponent } from './signup/signup.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
@@ -99,15 +94,10 @@ import { FilebrowserComponent } from './filebrowser/filebrowser.component';
         FilterPipe,
         UploadFormComponent,
         TopbarComponent,
-        ActionsComponent,
         InitModal,
         AboutModal,
         MaterialModal,
         LoomModal,
-        DraftviewerComponent,
-        SelectionComponent,
-        SidebarComponent,
-        WeaverViewComponent,
         LoginComponent,
         SignupComponent,
         ProfileComponent,
@@ -160,16 +150,11 @@ import { FilebrowserComponent } from './filebrowser/filebrowser.component';
         FilterPipe,
         UploadFormComponent,
         TopbarComponent,
-        ActionsComponent,
         InitModal,
         AboutModal,
         MaterialModal,
         LoomModal,
-        DraftviewerComponent,
-        SelectionComponent,
-        SidebarComponent,
         FilebrowserComponent,
-        WeaverViewComponent,
         ExamplesComponent
     ]
 })

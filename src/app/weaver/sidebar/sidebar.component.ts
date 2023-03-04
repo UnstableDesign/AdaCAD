@@ -1,25 +1,22 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { InitModal } from '../../core/modal/init/init.modal';
+import { BlankdraftModal } from '../../core/modal/blankdraft/blankdraft.modal';
+import { Draft, LoomSettings } from '../../core/model/datatypes';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { MaterialsService } from '../../core/provider/materials.service';
 import { TreeService } from '../../core/provider/tree.service';
-import { MixerViewComponent } from '../../mixer/modal/mixerview/mixerview.component';
-import { OpsComponent } from '../../mixer/modal/ops/ops.component';
 import { InkService } from '../../mixer/provider/ink.service';
-import { ActionsComponent } from '../modal/actions/actions.component';
-import { BlankdraftModal } from '../modal/blankdraft/blankdraft.modal';
-import { LoomModal } from '../modal/loom/loom.modal';
-import { MaterialModal } from '../modal/material/material.modal';
-import { WeaverViewComponent } from '../modal/weaverview/weaverview.component';
-import { Draft, LoomSettings } from '../model/datatypes';
-import { DesignmodesService } from '../provider/designmodes.service';
-import { MaterialsService } from '../provider/materials.service';
-import { StateService } from '../provider/state.service';
+import { ActionsComponent } from '../actions/actions.component';
+import { WeaverViewComponent } from '../weaverview/weaverview.component';
+
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
+
+
 export class SidebarComponent implements OnInit {
 
 
@@ -62,21 +59,14 @@ export class SidebarComponent implements OnInit {
   view: string = 'pattern';
   front: boolean = true;
 
-  view_modal: MatDialogRef<MixerViewComponent, any>;
-  op_modal: MatDialogRef<OpsComponent, any>;
   weaver_view_modal: MatDialogRef<WeaverViewComponent, any>;
   actions_modal: MatDialogRef<ActionsComponent, any>;
-  materials_modal: MatDialogRef<MaterialModal, any>;
-  equipment_modal: MatDialogRef<LoomModal, any>;
-  global_loom_modal: MatDialogRef<LoomModal, any>;
-  upload_modal: MatDialogRef<InitModal, any>;
 
 
   constructor(
     public dm: DesignmodesService, 
     private is:InkService,
     private tree: TreeService,
-    private ss: StateService,
     public ms: MaterialsService, 
     private dialog: MatDialog) { 
     this.view = this.dm.getSelectedDesignMode('view_modes').value;
@@ -114,8 +104,6 @@ export class SidebarComponent implements OnInit {
 
 
   closeWeaverModals(){
-    if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) this.materials_modal.close();
-    if(this.equipment_modal != undefined && this.equipment_modal.componentInstance != null) this.equipment_modal.close();
     if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
     if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
   }
@@ -195,121 +183,15 @@ export class SidebarComponent implements OnInit {
 
 }
 
-openMaterialsModal(){
-
-  if(this.materials_modal != undefined && this.materials_modal.componentInstance != null) return;
-
-  this.materials_modal =  this.dialog.open(MaterialModal,
-    {disableClose: true,
-      maxWidth:350, 
-      hasBackdrop: false,
-      data: {draft:this.draft}});
 
 
-      this.materials_modal.componentInstance.onChange.subscribe(event => { this.onMaterialChange.emit();});
-
-  
-      this.materials_modal.afterClosed().subscribe(result => {
-        this.onMaterialChange.emit();
-    });
 
 
-}
 
 
-  upload(){
-    //need to handle this and load the file somehow
-    if(this.upload_modal != undefined && this.upload_modal.componentInstance != null) return;
 
 
-    this.upload_modal = this.dialog.open(InitModal, {
-      data: {source: 'import'}
-    });
 
-    this.upload_modal.afterClosed().subscribe(result => {
-      if(result !== undefined) this.onImport.emit(result);
-      
-
-   });
-
-
-  }
-
-
-openLoomModal(){
-
-  if(this.equipment_modal != undefined && this.equipment_modal.componentInstance != null) return;
-
-
-  this.equipment_modal =   this.dialog.open(LoomModal,
-    {disableClose: true,
-      maxWidth:350, 
-      hasBackdrop: false,
-      data: {id: this.id, type: "local"}});
-
-
-      this.equipment_modal.componentInstance.localLoomNeedsRedraw.subscribe(event => { 
-        this.onLocalLoomNeedsRedraw.emit();
-      });
-
-  
-    //   this.equipment_modal.afterClosed().subscribe(result => {
-    //     this.onLoomChange.emit();
-    //    // dialogRef.componentInstance.onChange.removeSubscription();
-    // });
-}
-
-
-/***
- * In this instance, the sidebar is opened from the mixer and reports events back to the mixer exclusively
- * needs a way to trigger re-draw of any open detail views
- */
-openGlobalLoomModal(){
-
-  if(this.global_loom_modal != undefined && this.global_loom_modal.componentInstance != null) return;
-
-
-  this.global_loom_modal =   this.dialog.open(LoomModal,
-    {disableClose: true,
-      maxWidth:600, 
-      hasBackdrop: false,
-      data: {id: this.id, type: "global"}});
-
-      this.global_loom_modal.componentInstance.onGlobalLoomChange.subscribe(event => { 
-        this.onGlobalLoomChange.emit();
-      });
-
-      
-
-    //   this.global_loom_modal.afterClosed().subscribe(result => {
-    //     this.onGlobalLoomChange.emit();
-    // });
-}
-
-
-openOps(){
-
-  if(this.op_modal != undefined && this.op_modal.componentInstance != null) return;
-  
-  this.op_modal =  this.dialog.open(OpsComponent,
-    {disableClose: true,
-      hasBackdrop: false,
-      data: {id: this.id}});
-
-
-      this.op_modal.componentInstance.onOperationAdded.subscribe(event => { this.onOperationAdded.emit(event)});
-      this.op_modal.componentInstance.onImport.subscribe(event => { this.onImport.emit(event)});
-
-  
-      this.op_modal.afterClosed().subscribe(result => {
-        //this.onLoomChange.emit();
-       // dialogRef.componentInstance.onChange.removeSubscription();
-    });
-}
-
-addOperation(name: string){
-  this.onOperationAdded.emit(name)
-}
 
 openWeaverView(){
   if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) return;
@@ -333,26 +215,6 @@ openWeaverView(){
 
   
       this.weaver_view_modal.afterClosed().subscribe(result => {
-        //this.onLoomChange.emit();
-       // dialogRef.componentInstance.onChange.removeSubscription();
-    });
-}
-
-openMixerView(){
-  if(this.view_modal != undefined && this.view_modal.componentInstance != null) return;
-
-  this.view_modal  =  this.dialog.open(MixerViewComponent,
-    {disableClose: true,
-      maxWidth:350, 
-      hasBackdrop: false,
-      data: {zoom: 5, default_cell_size: 5}});
-
-
-       this.view_modal.componentInstance.onViewPortMove.subscribe(event => { this.onViewPortMove.emit(event)});
-       this.view_modal.componentInstance.onZoomChange.subscribe(event => { this.onZoomChange.emit(event)});
-
-  
-      this.view_modal.afterClosed().subscribe(result => {
         //this.onLoomChange.emit();
        // dialogRef.componentInstance.onChange.removeSubscription();
     });
@@ -405,12 +267,6 @@ openActions(){
     this.onDesignModeChange.emit(name);
   }
 
-  updateViewPort(data: any){
-
-    if(this.view_modal != undefined && this.view_modal.componentInstance != null){
-      this.view_modal.componentInstance.updateViewPort(data);
-    }
-  }
 
   addNote(){
     this.onNoteCreate.emit();

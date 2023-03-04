@@ -1,22 +1,22 @@
 import { Component, EventEmitter, Input, OnInit, HostListener, Output, ViewChild } from '@angular/core';
 import { Subscription, Subject, fromEvent } from 'rxjs';
-import { Render } from '../model/render';
-import { Cell } from '../model/cell';
-import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, Operation, OpInput } from '../model/datatypes';
-import { FileService } from '../provider/file.service';
+import { Cell } from '../../core/model/cell';
+import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, Operation, OpInput } from '../../core/model/datatypes';
+import { FileService } from '../../core/provider/file.service';
 import { SelectionComponent } from './selection/selection.component';
-import { DesignmodesService } from '../provider/designmodes.service';
-import { MaterialsService } from '../provider/materials.service';
-import { SystemsService } from '../provider/systems.service';
-import { Shuttle } from '../model/shuttle';
-import { StateService } from '../provider/state.service';
-import { WorkspaceService } from '../provider/workspace.service';
-import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../model/drafts';
-import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../model/looms';
-import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../model/yarnsimulation';
-import { TreeService } from '../provider/tree.service';
-import utilInstance from '../model/util';
-import { OperationService } from '../provider/operation.service';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { MaterialsService } from '../../core/provider/materials.service';
+import { SystemsService } from '../../core/provider/systems.service';
+import { Shuttle } from '../../core/model/shuttle';
+import { StateService } from '../../core/provider/state.service';
+import { WorkspaceService } from '../../core/provider/workspace.service';
+import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
+import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
+import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../../core/model/yarnsimulation';
+import { TreeService } from '../../core/provider/tree.service';
+import utilInstance from '../../core/model/util';
+import { OperationService } from '../../core/provider/operation.service';
+import { RenderService } from '../provider/render.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -36,8 +36,6 @@ export class DraftviewerComponent implements OnInit {
    * @property {string} will be "weaver" or "mixer"
    */
    @Input('source') source: string;
-
-  @Input('render') render: Render;
 
  
  /**
@@ -225,7 +223,8 @@ export class DraftviewerComponent implements OnInit {
     public ws: WorkspaceService,
     public timeline: StateService,
     private tree:TreeService,
-    private ops: OperationService
+    private ops: OperationService,
+    private render: RenderService
     ) { 
 
     this.flag_recompute = false;

@@ -6,10 +6,10 @@ import {ElementRef, ViewChild} from '@angular/core';
 import {UntypedFormControl} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
 import {MatChipInputEvent} from '@angular/material/chips';
-import { MaterialsService } from '../../provider/materials.service';
-import { SystemsService } from '../../provider/systems.service';
-import { System } from '../../model/system';
-import { TreeService } from '../../provider/tree.service';
+import { MaterialsService } from '../../core/provider/materials.service';
+import { SystemsService } from '../../core/provider/systems.service';
+import { System } from '../../core/model/system';
+import { TreeService } from '../../core/provider/tree.service';
 
 @Component({
   selector: 'app-actions',

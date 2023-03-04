@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TreeService } from '../../provider/tree.service';
-import { Interlacement, LoomSettings } from '../../model/datatypes';
-import { numFrames, numTreadles } from '../../model/looms';
-import { Render } from '../../model/render';
-import { DesignmodesService } from '../../provider/designmodes.service';
+import { TreeService } from '../../../core/provider/tree.service';
+import { Interlacement, LoomSettings } from '../../../core/model/datatypes';
+import { numFrames, numTreadles } from '../../../core/model/looms';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { RenderService } from '../../provider/render.service';
 
 @Component({
   selector: 'app-selection',
@@ -13,7 +13,6 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 export class SelectionComponent implements OnInit {
 
   @Input('id') id: number;
-  @Input('render') render:Render;
   @Output() onFill: any = new EventEmitter();
   @Output() onCopy: any = new EventEmitter();
   @Output() onClear: any = new EventEmitter();
@@ -56,7 +55,8 @@ export class SelectionComponent implements OnInit {
 
   constructor(
     private dm: DesignmodesService,
-    private tree: TreeService
+    private tree: TreeService,
+    public render: RenderService
     ) { 
 
       this.design_actions = dm.getOptionSet('design_actions');

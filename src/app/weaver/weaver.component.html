@@ -10,7 +10,6 @@
         ></app-tab>  -->
 
         <app-sidebar #sidebar
-        [render]="render" 
         source="weaver"
         (onDesignModeChange)='designModeChange($event)'
         (onZoomChange) ="renderChange($event);"
@@ -42,7 +41,6 @@
 
     <app-draftviewer 
     [id]="id"
-    [render]="render"
     source = "weaver"
     (onNewSelection) = "updateSelection($event)">
     </app-draftviewer>

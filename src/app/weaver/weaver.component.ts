@@ -3,12 +3,11 @@ import { Component, HostListener, Input, OnInit, ViewChild } from '@angular/core
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
-import { DraftviewerComponent } from '../core/draftviewer/draftviewer.component';
 import { Cell } from '../core/model/cell';
 import { DesignMode, Draft, Drawdown, Loom, LoomSettings, LoomUtil } from '../core/model/datatypes';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../core/model/drafts';
 import { generateDirectTieup, getLoomUtilByType, isFrame } from '../core/model/looms';
-import { Render } from '../core/model/render';
+import { RenderService } from './provider/render.service';
 import { computeYarnPaths } from '../core/model/yarnsimulation';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -16,9 +15,10 @@ import { MaterialsService } from '../core/provider/materials.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { SidebarComponent } from '../core/sidebar/sidebar.component';
 import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 import { NgForm } from '@angular/forms';
+import { DraftviewerComponent } from './draftviewer/draftviewer.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 
 
@@ -40,7 +40,6 @@ export class WeaverComponent implements OnInit {
   
   viewonly: boolean; 
 
-  render: Render;
   /**
   The current selection, as a Pattern 
   **/
@@ -96,7 +95,8 @@ export class WeaverComponent implements OnInit {
     private ms: MaterialsService,
     private ss: SystemsService,
     private ws: WorkspaceService,
-    private tree: TreeService) {
+    private tree: TreeService,
+    public render: RenderService) {
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -122,7 +122,6 @@ export class WeaverComponent implements OnInit {
   }
   
   ngOnInit(){
-    this.render = new Render(true, this.ss);
 
 
   }

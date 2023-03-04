@@ -25,14 +25,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import { ScrollingModule} from '@angular/cdk/scrolling';
-
-
 import { CoreModule } from '../core/core.module';
 import { WeaverComponent } from './weaver.component';
+import { CrosssectionComponent } from './crosssection/crosssection.component';
+import { DraftviewerComponent } from './draftviewer/draftviewer.component';
+import { ActionsComponent } from './actions/actions.component';
+import { WeaverViewComponent } from './weaverview/weaverview.component';
+import { RenderService } from './provider/render.service';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 @NgModule({
     declarations: [
-        WeaverComponent
+        WeaverComponent,
+        CrosssectionComponent,
+        DraftviewerComponent,
+        ActionsComponent,
+        WeaverViewComponent,
+        SidebarComponent
     ],
     imports: [
         CommonModule,
@@ -63,9 +72,10 @@ import { WeaverComponent } from './weaver.component';
         ColorPickerModule,
         MatChipsModule,
         ScrollingModule
+        
     ],
-    exports: [
-        WeaverComponent
+    providers: [
+        RenderService
     ]
 })
 export class WeaverModule { }
