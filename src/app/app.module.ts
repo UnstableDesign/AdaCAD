@@ -17,7 +17,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { MixerModule } from './mixer/mixer.module';
-import { WeaverModule } from './weaver/weaver.module';
+import { DraftDetailModule } from './draftdetail/draftdetail.module';
 
 
 @NgModule({
@@ -29,7 +29,7 @@ import { WeaverModule } from './weaver/weaver.module';
     AppRoutingModule,
     HttpClientModule,
     CoreModule,
-    WeaverModule,
+    DraftDetailModule,
     MixerModule,
     BrowserAnimationsModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),

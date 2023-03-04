@@ -26,7 +26,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import { ScrollingModule} from '@angular/cdk/scrolling';
 import { CoreModule } from '../core/core.module';
-import { WeaverComponent } from './weaver.component';
+import { DraftDetailComponent } from './draftdetail.component';
 import { CrosssectionComponent } from './crosssection/crosssection.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { ActionsComponent } from './actions/actions.component';
@@ -37,7 +37,7 @@ import { SelectionComponent } from './draftviewer/selection/selection.component'
 
 @NgModule({
     declarations: [
-        WeaverComponent,
+        DraftDetailComponent,
         CrosssectionComponent,
         DraftviewerComponent,
         ActionsComponent,
@@ -77,10 +77,10 @@ import { SelectionComponent } from './draftviewer/selection/selection.component'
         
     ],
     exports:[
-        WeaverComponent
+        DraftDetailComponent
     ],
     providers: [
         RenderService
     ]
 })
-export class WeaverModule { }
+export class DraftDetailModule { }

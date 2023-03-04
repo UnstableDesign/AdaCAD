@@ -23,11 +23,11 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 
 
 @Component({
-  selector: 'app-weaver',
-  templateUrl: './weaver.component.html',
-  styleUrls: ['./weaver.component.scss']
+  selector: 'app-draftdetail',
+  templateUrl: './draftdetail.component.html',
+  styleUrls: ['./draftdetail.component.scss']
 })
-export class WeaverComponent implements OnInit {
+export class DraftDetailComponent implements OnInit {
  
   /**
    * The reference to the weave directive.

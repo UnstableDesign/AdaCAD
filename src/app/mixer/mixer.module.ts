@@ -11,7 +11,7 @@ import { ConnectionComponent } from './palette/connection/connection.component';
 import { OpsComponent } from './modal/ops/ops.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
-import { WeaverModule } from '../weaver/weaver.module';
+import { DraftDetailModule } from '../draftdetail/draftdetail.module';
 import { NoteComponent } from './palette/note/note.component';
 import { ParameterComponent } from './palette/operation/parameter/parameter.component';
 import { InletComponent } from './palette/operation/inlet/inlet.component';
@@ -23,7 +23,7 @@ import { QuickopComponent } from './quickop/quickop.component';
 @NgModule({
     imports: [
         CoreModule,
-        WeaverModule
+        DraftDetailModule
     ],
     declarations: [
         MixerComponent,

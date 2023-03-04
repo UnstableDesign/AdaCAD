@@ -32,7 +32,7 @@ import { FilesystemService } from '../core/provider/filesystem.service';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { MatDrawer } from '@angular/material/sidenav';
-import { WeaverComponent } from '../weaver/weaver.component';
+import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -61,7 +61,7 @@ export class MixerComponent implements OnInit {
 
 
   @ViewChild(PaletteComponent) palette;
-  @ViewChild(WeaverComponent) details;
+  @ViewChild(DraftDetailComponent) details;
 
   epi: number = 10;
   units:string = 'cm';

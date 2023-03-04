@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { WeaverComponent } from './weaver/weaver.component';
 import { MixerComponent } from './mixer/mixer.component';
 
 
@@ -10,11 +9,6 @@ const routes: Routes = [
      component: MixerComponent,
      children: []
    },
-  {
-    path: 'weaver',
-    component: WeaverComponent,
-    children: []
-  },
   {
     path: '**',
     component: MixerComponent,
