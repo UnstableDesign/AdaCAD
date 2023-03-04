@@ -73,11 +73,11 @@ export class SidebarComponent implements OnInit {
 
 
   constructor(
-    private dm: DesignmodesService, 
+    public dm: DesignmodesService, 
     private is:InkService,
     private tree: TreeService,
     private ss: StateService,
-    private ms: MaterialsService, 
+    public ms: MaterialsService, 
     private dialog: MatDialog) { 
     this.view = this.dm.getSelectedDesignMode('view_modes').value;
 

@@ -1,4 +1,4 @@
-<div *ngIf="tree.getNode(id) !== null && !no_draw" class="connection-container" id="scale-{{id}}"
+<div *ngIf="tree.getNode(id) !== null && !no_draw" class="connection-container selectable-{{!disable_drag}}" id="scale-{{id}}"
 cdkDrag
 [cdkDragDisabled] = disable_drag
 [style.z-index] = "zndx"

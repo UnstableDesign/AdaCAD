@@ -9,5 +9,20 @@ a.help{
 }
 
 .design-container{
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    width:100%;
+    max-height: 50vh;
+}
+
+.detail_data{
+    width: 100%;
+    min-height: 33vh;
+    padding: 18px;
+
+    
+}
+
+.mat-form-field{
+    width: 100%;
 }

@@ -235,15 +235,15 @@ export class DraftviewerComponent implements OnInit {
 
   ngOnInit() {
 
-    let draft: Draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
+    // let draft: Draft = this.tree.getDraft(this.id);
+    // const loom = this.tree.getLoom(this.id);
+    // const loom_settings = this.tree.getLoomSettings(this.id);
 
-    this.isFrame = isFrame(loom_settings);
+    // this.isFrame = isFrame(loom_settings);
    //this.viewonly = !this.tree.isSeedDraft(this.id);
-    this.viewonly = false;
-    this.colShuttleMapping = draft.colShuttleMapping;
-    this.rowShuttleMapping = draft.rowShuttleMapping;
+     this.viewonly = false;
+    // this.colShuttleMapping = draft.colShuttleMapping;
+    // this.rowShuttleMapping = draft.rowShuttleMapping;
 
 
 
@@ -793,13 +793,16 @@ export class DraftviewerComponent implements OnInit {
            
 
     var dims = this.render.getCellDims("base");
-    var margin = this.render.zoom;
+    var margin = this.render.zoom*2;
 
     const ndx: number = draft.rowShuttleMapping[i];
     cx.fillStyle = this.ms.getColor(ndx);
+    cx.strokeStyle = '#000000';
+    cx.lineWidth = '1';
 
-    if(i == wefts(draft.drawdown)-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
-    else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
+     cx.fillRect(margin, (dims.h*i)+margin, dims.w-margin, dims.h-(margin));
+     cx.strokeRect(margin, (dims.h*i)+margin, dims.w-margin, dims.h-(margin));
+
 
   }
 
@@ -830,13 +833,16 @@ export class DraftviewerComponent implements OnInit {
 
 
         var dims = this.render.getCellDims("base");
-        var margin = this.render.zoom;
+        var margin = this.render.zoom*2;
        const ndx: number = draft.colShuttleMapping[j];
         cx.fillStyle = this.ms.getColor(ndx);
+        cx.strokeStyle = "#000000";
+        cx.lineWidth = '1';
 
-        if(j == warps(draft.drawdown)-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
-        else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
-  
+      //  if(j == warps(draft.drawdown)-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
+      //  else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+      cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+      cx.strokeRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
   }
 
 
@@ -866,11 +872,11 @@ export class DraftviewerComponent implements OnInit {
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom;
 
-        cx.fillStyle = "#303030";
+        cx.fillStyle = "#ffffff";
         if(i == wefts(draft.drawdown)-1) cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin*2));
         else cx.fillRect(margin, (dims.h*i)+margin, dims.w, dims.h-(margin));
          
-         cx.fillStyle = "#ffffff";  
+         cx.fillStyle = "#000000";  
          cx.font = "10px Arial";
 
          const sys = draft.rowSystemMapping[i];
@@ -904,12 +910,12 @@ export class DraftviewerComponent implements OnInit {
 
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom;
-        cx.fillStyle = "#303030";
+        cx.fillStyle = "#ffffff";
 
         if(j == warps(draft.drawdown)-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
         else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
   
-         cx.fillStyle = "#ffffff";  
+         cx.fillStyle = "#000000";  
          cx.font = "10px Arial";
 
          const sys = draft.colSystemMapping[j];
@@ -1957,6 +1963,8 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
   public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
 
 
+    this.isFrame = isFrame(loom_settings);
+
     if(loom === null || loom === undefined){
       return;
     }
@@ -2048,17 +2056,16 @@ public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
+  console.log("redraw", warps(draft.drawdown))
 
     var base_dims = this.render.getCellDims("base");
 
     if(flags.drawdown !== undefined){
         this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
-        this.cx.canvas.width = base_dims.w * (draft.drawdown[0].length+2);
+        this.cx.canvas.width = base_dims.w * (warps(draft.drawdown)+2);
         this.cx.canvas.height = base_dims.h * (this.render.visibleRows.length+2);
         this.cx.strokeStyle = "#3d3d3d";
-
-        if(this.source == "weaver") this.cx.fillStyle = "#3d3d3d";
-        else this.cx.fillStyle = "#ffffff";
+        this.cx.fillStyle = "#ffffff";
         this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
         this.cx.strokeRect(base_dims.w,base_dims.h,this.canvasEl.width-base_dims.w*2,this.canvasEl.height-base_dims.h*2);
         this.drawDrawdown(draft, loom, loom_settings);

@@ -81,7 +81,7 @@ export class DesignmodesService {
     ];
     
     this.design_modes = [
-      // {value: 'draw', viewValue: 'Draw Heddle', icon: "fas fa-pen", children: this.draw_modes, selected: false},
+      {value: 'draw', viewValue: 'Draw Heddle', icon: "fas fa-pen", children: this.draw_modes, selected: false},
       {value: 'pan', viewValue: 'Pan', icon: "fas fa-hand", children: [], selected: false},
       // {value: 'shape', viewValue: 'Shape', icon: "fas fa-shapes", children: this.shapes,selected: false},
       {value: 'select', viewValue: 'Select', icon: "fas fa-expand", children: [],selected:false},

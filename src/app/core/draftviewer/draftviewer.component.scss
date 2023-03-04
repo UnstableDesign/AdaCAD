@@ -29,8 +29,8 @@ canvas{
 
 #draft-container{
   display: block;
-  max-height: 60vh;
   overflow: scroll;
+  max-height: 66vh;
 }
 
 #draft-scale-container{
@@ -294,7 +294,7 @@ canvas{
     .warp-system-col{
         width: 10px;
         flex-grow: 1;
-        color: #fff;
+        color: #000;
         z-index: 1;
         opacity: 1;
         display: flex;
@@ -343,19 +343,21 @@ canvas{
     .warp_system_code{
     /*  user-select: none;
       pointer-events: none;*/
+      color: black;
       display: block;
       width: 10px;
       height: 10px;
-      border-bottom: thin solid white;
-      border-left: thin solid white;
+      border-bottom: thin solid black;
+      border-left: thin solid black;
     }
     
     .warp_number{
       display: block;
+      color: black;
       position: relative;
       height: 15px;
       padding-left: 2px;
-      border-left: thin solid white;
+      border-left: thin solid black;
     }
 
 
@@ -382,7 +384,7 @@ canvas{
     .warp_number_last.origin0,
     .warp_number_last.origin1
     {
-      border-left: thin solid white;
+      border-left: thin solid black;
       padding-left: 2px;
 
     }
@@ -390,7 +392,7 @@ canvas{
     .warp_number_last.origin2,
     .warp_number_last.origin3
     {
-      border-right: thin solid white;
+      border-right: thin solid black;
       padding-left: 0px;
 
     }

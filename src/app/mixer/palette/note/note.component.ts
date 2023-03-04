@@ -36,6 +36,7 @@ export class NoteComponent implements OnInit {
 
   canvas: HTMLCanvasElement;
   cx: any;
+  disable_drag: boolean = false;
 
   constructor(private notes: NotesService,private viewport:ViewportService) { 
 
@@ -126,6 +127,14 @@ export class NoteComponent implements OnInit {
     cx.font = scale*2+"px Verdana";
     cx.fillText(this.note.text,this.bounds.topleft.x, this.bounds.topleft.y+this.bounds.height + 20 );
 
+  }
+
+  disableDrag(){
+    this.disable_drag = true;
+  }
+
+  enableDrag(){
+    this.disable_drag = false;
   }
 
 

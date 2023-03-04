@@ -2,7 +2,7 @@
 <div 
 *ngIf="tree.getDraft(id) !== null" 
 id="con-{{id}}" 
-class="subdraft-parent-container" 
+class="subdraft-parent-container selectable-{{!disable_drag}}" 
 [class.is_preview] = "is_preview"
 	cdkDrag
 	(mousedown)="mousedown($event)"
@@ -103,6 +103,13 @@ class="subdraft-parent-container"
 				<input matSliderThumb [(ngModel)]="draft_cell_size">
 				  </mat-slider>
 			</div>
+
+			<button mat-icon-button *ngIf='parent_id === -1'
+			matTooltip= "Delete"
+			class="fas fa-times"
+			[name]="delete"
+			(click)="designActionChange('delete')">
+			</button>
 		</div>
 
 

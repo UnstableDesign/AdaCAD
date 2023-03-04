@@ -32,11 +32,9 @@ import { SubdraftComponent } from './subdraft/subdraft.component';
 
 export class PaletteComponent implements OnInit{
 
-  /**
-   * a reference to the default patterns (used for fill operations)
-   * @property {Array<Pattern>}
-   */ 
+
   @Output() onDesignModeChange: any = new EventEmitter();  
+  @Output() onRevealDraftDetails: any = new EventEmitter();  
 
   /**
    * A container that supports the automatic generation and removal of the components inside of it
@@ -419,8 +417,6 @@ handlePan(diff: Point){
    */
   rescale(prev_zoom: number){
 
-    console.log("REDRAWING PALEETE ", prev_zoom, this.zs.zoom);
-
     //this.scale = scale;
     const zoom_factor: number = this.zs.zoom / this.default_cell_size;
    
@@ -530,6 +526,14 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.createNewSubdraftFromEdits.subscribe(this.createNewSubdraftFromEdits.bind(this)));
+    this.subdraftSubscriptions.push(sd.onShowDetails.subscribe(this.revealDraftDetails.bind(this)));
+  }
+
+
+
+  revealDraftDetails(id: number){
+    console.log("palette, details", id)
+    this.onRevealDraftDetails.emit(id);
   }
 
   /**
@@ -544,13 +548,12 @@ handlePan(diff: Point){
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
     this.setNoteSubscriptions(notecomp.instance);
 
-    if(note === null){
-      tl = utilInstance.resolvePointToAbsoluteNdx(this.viewport.getTopLeft(), this.zs.zoom);
+    if(note === null || note.interlacement == null){
+      tl = utilInstance.resolvePointToAbsoluteNdx(this.viewport.getCenterPoint(), this.zs.zoom);
     }else{
       tl = note.interlacement
     }
     let id = this.notes.createNote(tl,  notecomp.instance, notecomp.hostView, note);
-    this.setNoteSubscriptions(notecomp.instance);
 
     notecomp.instance.id = id;
     notecomp.instance.scale = this.zs.zoom;
@@ -1478,6 +1481,11 @@ handlePan(diff: Point){
   nodes.forEach(el => {
     el.disableDrag();
   });
+
+  const notes: Array<any> = this.notes.getComponents();
+  notes.forEach(el => {
+    el.disableDrag();
+  });
  }
 
  /**
@@ -1486,9 +1494,14 @@ handlePan(diff: Point){
   unfreezePaletteObjects(){
     const nodes: Array<any> = this.tree.getComponents();
     nodes.forEach(el => {
-      if(el != null && el.type !== 'cxn'){
+      if(el != null){
         el.enableDrag();
       } 
+    });
+
+    const notes: Array<any> = this.notes.getComponents();
+    notes.forEach(el => {
+      el.enableDrag();
     });
    }
   
@@ -2354,10 +2367,10 @@ drawStarted(){
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
+        this.unfreezePaletteObjects();
       }else if(this.dm.isSelected('pan', 'design_modes')){
         const div:HTMLElement = document.getElementById('scrollable-container');
         this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
-        this.unfreezePaletteObjects();
 
       }
 

@@ -32,7 +32,7 @@ export class Render {
     offset_y: {max: number, min: number};
   }
 
-  constructor(view_frames:boolean, draft: Draft, private ss: SystemsService) {
+  constructor(view_frames:boolean, private ss: SystemsService) {
 
     //max values
     this.zoom = 1;
@@ -40,10 +40,6 @@ export class Render {
     this.current_view = 'pattern';
     this.view_front = true;
 
-    this.visibleRows = [];
-    for(let i = 0; i < wefts(draft.drawdown); i++){
-      this.visibleRows[i] =i;
-    }
 
 
     //renders at min -  expands to max
@@ -60,6 +56,18 @@ export class Render {
     offset_x: {max: 7, min: 0},
     offset_y: {max: 7, min: 0}
    }
+
+  }
+
+  loadNewDraft(draft: Draft){
+
+    this.visibleRows = [];
+    for(let i = 0; i < wefts(draft.drawdown); i++){
+      this.visibleRows[i] =i;
+    }
+
+
+
 
   }
 

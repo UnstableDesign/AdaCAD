@@ -62,6 +62,14 @@ svg {
   color: #fff !important;
 }
 
+.selectable-false{
+	pointer-events: none;
+  }
+
+  .selectable-true{
+	pointer-events: all;
+  }
+
 
 .is-fullwidth {
   width: 100%;

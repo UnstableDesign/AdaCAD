@@ -32,6 +32,8 @@ import utilInstance from '../core/model/util';
 import { FilesystemService } from '../core/provider/filesystem.service';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
+import { MatDrawer } from '@angular/material/sidenav';
+import { WeaverComponent } from '../weaver/weaver.component';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -61,6 +63,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild(PaletteComponent) palette;
   @ViewChild(SidebarComponent) view_tool;
+  @ViewChild(WeaverComponent) details;
 
   epi: number = 10;
   units:string = 'cm';
@@ -73,6 +76,7 @@ export class MixerComponent implements OnInit {
   origin_options: any = null;
   selected_origin: number = 0;
   show_viewer: boolean = false;
+  show_details: boolean = false;
 
 
 
@@ -279,15 +283,6 @@ export class MixerComponent implements OnInit {
     this.palette.addOperation(event)
   }
 
-
-  /**
-   * A function originating in the deisgn tool that signals a design mode change and communicates it to the palette
-   * @param name the name of the current design mode
-   */
-  designModeChange(name: string){
-    this.palette.designModeChanged();
-  }
-  
 
 
   isBlankWorkspace() : boolean {
@@ -912,16 +907,27 @@ zoomChange(e:any, source: string){
    
   }
 
-  enterPanMode(){
-    console.log("Enter Pan");
-    this.dm.selectDesignMode('pan', 'design_modes');
+  togglePanMode(){
+    if(this.dm.isSelected('pan', "design_modes")){
+      this.dm.selectDesignMode('move', 'design_modes');
+    }else{
+      this.dm.selectDesignMode('pan', 'design_modes');
+    }
+    this.palette.designModeChanged();
     //this.show_viewer = true;
 
   }
 
-  enterSelectMode(){
-    this.dm.selectDesignMode('marquee','design_modes');
-    this.designModeChange('marquee');
+  toggleSelectMode(){
+    if(this.dm.isSelected('marquee', "design_modes")){
+      this.dm.selectDesignMode('move','design_modes');
+
+    }else{
+      this.dm.selectDesignMode('marquee','design_modes');
+
+    }
+
+    this.palette.designModeChanged();
   }
 
   
@@ -935,7 +941,7 @@ zoomChange(e:any, source: string){
    */
    @HostListener('window:keydown.s', ['$event'])
    private keyChangeToSelect(e) {
-      this.enterSelectMode();
+      this.toggleSelectMode();
    }
 
 
@@ -1142,15 +1148,13 @@ zoomChange(e:any, source: string){
   }
 
   public createNote(){
-    this.palette.createNote();
+    this.palette.createNote(null);
   }
-
   /**
    * called when the user adds a new draft from the sidebar
    * @param obj 
    */
   public newDraftCreated(obj: any){
-    console.log("NEW DRAFT ", obj)
     const id = this.tree.createNode("draft", null, null);
     this.tree.loadDraftData({prev_id: null, cur_id: id,}, obj.draft, obj.loom, obj.loom_settings, true);
     this.palette.loadSubDraft(id, obj.draft, null, null, this.zs.zoom);
@@ -1265,5 +1269,11 @@ loomChange(e:any){
       this.ws.units = e.value.units;
 
 
+  }
+
+  showDraftDetails(id: number){
+    console.log("mixer draft details", id)
+    this.show_details = true;
+    this.details.loadDraft(id);
   }
 }

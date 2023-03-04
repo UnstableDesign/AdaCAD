@@ -1,56 +1,11 @@
-h4{
-	margin: 6px 0px;
-	padding: 6px 0px;
-}
-
-.slider-row{
-    display: flex;
-    flex-direction: row;
-}
-
-.toggle_materials{
-    padding-top: 8px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-
-.toprow{
-    display: flex;
-    flex-direction: row;
-    line-height: 1em;
-}
-
-
-.slider-row i{
-    display: block;
-    height: 48px;
-    line-height: 32px;
-    padding-top: 8px;
-    width: 100%;
-}
-
-.slider-row button{
-    color: #3f51b5;
-
-}
 
 .global_view{
-    border:thin solid #3f51b5;
-    width: 100%;
-    height: 100%;
-    background: rgba(100, 100, 100, .1);
+    border:thin solid #ff3860;
+    background-color: white;
+    width: 200px;
+    height: 200px;
 }
 
-.mixer_view{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-
-}
 
 svg{
     position: relative;
@@ -61,7 +16,7 @@ svg{
 }
 
 .local{
-    border:2px solid #3f51b5;
+    border:2px solid #ff3860;
     z-index: 3;
     position: relative;
     top: -257px;
@@ -69,10 +24,6 @@ svg{
    
 }
 
-mat-slider{
-	width: 100%;
-    color: #3f51b5;
-}
 
 
 // button{
@@ -85,27 +36,7 @@ mat-slider{
 //     margin: 2px;
 // }
 
-.view_slider{
-  width: 100%;
-  padding: 8px 0 16px 0;
-  font-size: .8em;
 
-}
 
-mat-slide-toggle{
-    padding: 0px 8px;
-    color: #3f51b5;
-}
 
-button.selected{
-
-	background: #3f51b5;
-	color: white;
-}
-
-.mat-button-toggle-appearance-standard .mat-button-toggle-label-content {
-    /* line-height: 48px; */
-    padding: 0 9px;
-    font-size: .9em;
-}
 

@@ -1,13 +1,14 @@
 
-<!-- UNDO / REDO -->
-<div class="sidebar" [class.mixer]="source === 'mixer'" >
+<div class="sidebar">
     <!--on both weaver and mixer-->
 
 <!-- WEAVER EDITING TOOLS -->
-    <div class="tool-chunk" *ngIf="source==='weaver' || source==='weaverinmixer'">
+    <div class="tool-chunk">
+
 
         <button 
         mat-icon-button
+        color="primary"
         matTooltip= "Edit Draft Cells"
         [matMenuTriggerFor]="inks"
         [class.is-active]="dm.isSelected('draw','design_modes')"        >
@@ -42,6 +43,7 @@
 
         <button 
         mat-icon-button
+        color="primary"
         matTooltip= "Select Region"
         [class.is-active]="dm.isSelected('select','design_modes')"
         (click)="select()">
@@ -50,6 +52,7 @@
 
         <button
         matTooltip= "Set Repeats"
+        color="primary"
         mat-icon-button 
         [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
         (click)='openActions()'><i class="fas fa-magic"></i></button>
@@ -96,41 +99,23 @@
 
 <!-- VIEW TOOLS -->
 
-    <div class="tool-chunk" *ngIf="source==='weaver'">
+    <div class="tool-chunk slider" >
 
-        <!-- <button mat-icon-button><i class="fas fa-search-plus"></i></button>
+        <button color="primary" mat-icon-button><i class="fas fa-search-plus"></i></button>
         
         <div class="view_slider">
         <mat-slider 
-        vertical
-        [displayWith]="formatLabel" 
         tickInterval=".1" 
+        color="primary"
         step=".1"
         min="0" 
         max="2" 
         value="{{render.zoom}}" 
         (change)="zoomChange($event, 'slider')"></mat-slider>
-    </div> -->
+    </div> 
 
-        <!-- <button mat-icon-button><i class="fas fa-search-minus"></i></button>
-        -->
-        <button mat-icon-button 
-        (click)='openWeaverView()'
-        [class.is-active] = "weaver_view_modal && weaver_view_modal.componentInstance != null"
-        >
-        <i class="fas fa-eye"></i></button>
-
-
-
-        <div class="view_slider">
-            Yarns
-
-            <mat-slide-toggle
-                [checked]="render.current_view !== 'pattern'"
-                (change)="viewChange($event)">
-            </mat-slide-toggle>
-        </div>
-    
+       <button mat-icon-button color="primary"><i class="fas fa-search-minus"></i></button> 
+       
 
 
     </div>
@@ -138,16 +123,14 @@
 
    
 <!-- EQUIPMENT SETTINGS -->
-    <div class="tool-chunk" *ngIf="source==='weaver'">
+    <div class="tool-chunk" >
 
         <button 
         mat-icon-button
-        matTooltip= "Equipment Settings"
-        [disabled]= "viewonly"
+        color="primary" >
+        <i class="fa fa-angle-double-right"></i> 
+        </button>
 
-        [class.is-active] = "equipment_modal && equipment_modal.componentInstance != null"
-        (click)="openLoomModal()">
-        <i class="fas fa-cog"></i></button>
 
     </div>
 
@@ -155,7 +138,7 @@
  
  
    
-    <div  class="designtools" *ngIf="source==='mixer'">
+    <!-- <div  class="designtools" *ngIf="source==='mixer'">
 
         <div class="undoredo">
         <button #undoEvent 
@@ -212,7 +195,7 @@
         (click)="openOps()">
         <i class="fas fa-project-diagram"></i> View All Operations
         </button>
-    </div>
+    </div> -->
 
 
 </div>

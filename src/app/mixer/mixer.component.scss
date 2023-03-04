@@ -63,7 +63,6 @@ h1{
 }
 
 .slider-row button{
-  color: #3f51b5;
 
 }
 
@@ -106,9 +105,9 @@ h1{
 
 .mixerview{
   position: fixed;
-  width:150px;
-  height: 150px;
-  top: calc(92vh - 150px);
+  width:200px;
+  height: 200px;
+  top: calc(92vh - 200px);
   left: 82vw;
 }
 
@@ -129,6 +128,10 @@ h1{
 
 .mat-form-field {
 width: 95%;
+}
+
+.detail_view{
+  width:50%;
 }
 
 .workspace_settings{
