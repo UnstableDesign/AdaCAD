@@ -19,6 +19,7 @@ import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component'
 import { NgForm } from '@angular/forms';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { CrosssectionComponent } from './crosssection/crosssection.component';
 
 
 
@@ -35,6 +36,7 @@ export class DraftDetailComponent implements OnInit {
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
   @ViewChild(SidebarComponent, {static: true}) sidebar;
+  @ViewChild(CrosssectionComponent, {static: false}) crosssection: CrosssectionComponent;
   
   id: number = -1;  
   
@@ -132,6 +134,12 @@ export class DraftDetailComponent implements OnInit {
 
   
     
+  }
+
+  tabChange(event: any){
+    if(event.index == 2){
+      this.crosssection.initScene();
+    }
   }
 
 
@@ -744,7 +752,8 @@ export class DraftDetailComponent implements OnInit {
 
 
   public updateSelection(e:any){
-    this.copy = e;
+    if(e.copy !== undefined) this.copy = e;
+    if(e.id !== undefined) this.crosssection.updateSelection(this.tree.getDraft(e.id), e.start, e.end);
   }
 
 

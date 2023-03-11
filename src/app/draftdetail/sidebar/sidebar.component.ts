@@ -7,6 +7,7 @@ import { MaterialsService } from '../../core/provider/materials.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { InkService } from '../../mixer/provider/ink.service';
 import { ActionsComponent } from '../actions/actions.component';
+import { RenderService } from '../provider/render.service';
 import { WeaverViewComponent } from '../weaverview/weaverview.component';
 
 
@@ -21,8 +22,6 @@ export class SidebarComponent implements OnInit {
 
 
   @Input() timeline;
-  @Input() render;
-  @Input() source;
   @Input() id;
 
   @Output() onUndo: any = new EventEmitter();
@@ -68,7 +67,8 @@ export class SidebarComponent implements OnInit {
     private is:InkService,
     private tree: TreeService,
     public ms: MaterialsService, 
-    private dialog: MatDialog) { 
+    private dialog: MatDialog,
+    public render : RenderService) { 
     this.view = this.dm.getSelectedDesignMode('view_modes').value;
 
   }
@@ -77,10 +77,8 @@ export class SidebarComponent implements OnInit {
 
     this.draft = this.tree.getDraft(this.id);
     this.loom_settings = this.tree.getLoomSettings(this.id);
-    
-    if(this.source == 'weaver'){
     this.front = this.render.view_front;
-    }
+
   }
 
   select(){

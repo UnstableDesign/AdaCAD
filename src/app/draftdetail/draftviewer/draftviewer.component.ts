@@ -649,6 +649,11 @@ export class DraftviewerComponent implements OnInit {
    */
   onSelectionEnd(){
     if(!this.hold_copy_for_paste) this.copyArea();
+    this.onNewSelection.emit(
+      { 
+        id: this.id, 
+        start: {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex()}, 
+        end: {i: this.selection.getEndingRowScreenIndex(), j: this.selection.getEndingColIndex()}})
   }
 
   /**
@@ -781,7 +786,7 @@ export class DraftviewerComponent implements OnInit {
 
 
 
-    this.onNewSelection.emit(this.copy);
+    this.onNewSelection.emit({copy: this.copy});
 
 
 

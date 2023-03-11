@@ -47,7 +47,9 @@
     <div class="detail_data" *ngIf="id !== -1">
 
 
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+    <mat-tab-group
+    (selectedTabChange)="tabChange($event)"
+    mat-stretch-tabs="false" mat-align-tabs="start">
       <mat-tab label="Draft">
         <form #envt="ngForm" novalidate>
 
@@ -191,9 +193,15 @@
         
         </mat-tab>
 
-      <mat-tab label="View"></mat-tab>
+      <mat-tab label="View">
+
+        <app-weaverview ></app-weaverview>
+
+      </mat-tab>
             
-      <mat-tab label="Cross Section Viewer">Reveal the cross section of the current selection</mat-tab>
+      <mat-tab label="Cross Section Viewer">
+        <app-crosssection #crosssection></app-crosssection>
+      </mat-tab>
 
       <mat-tab label="Data">   
          <div class="weave_stats">

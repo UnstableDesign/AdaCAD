@@ -678,6 +678,18 @@ export const createDraft = (
     return m;
   }
 
+  export const getCol = (d: Drawdown, j: number) : Array<Cell> => {
+
+    const col = d.reduce((acc, val, i) =>{
+      const cell = new Cell(d[i][j].getHeddle());
+      acc.push(cell);
+      return acc;
+    }, []);
+
+    return col;
+
+  }
+
 
   /**
    * gets the name of the draft. If it has a user defined name, it returns that, otherwise, it returns the generated name
@@ -698,7 +710,6 @@ export const createDraft = (
 
   return (draft.ud_name === "") ?  draft.gen_name : draft.ud_name; 
   }
-
 
 
 
