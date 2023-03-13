@@ -68,7 +68,7 @@ export class WeaverViewComponent implements OnInit {
 
   viewChange(e:any){
     console.log(e);
-    if(e.checked)  this.onViewChange.emit('visual');
+    if(e.checked)  this.onViewChange.emit('simulate');
     else     this.onViewChange.emit('pattern');
 
   }

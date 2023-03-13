@@ -2,7 +2,7 @@
 
 
   
-    <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}">
+    <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
 
       <app-selection 
       #selection

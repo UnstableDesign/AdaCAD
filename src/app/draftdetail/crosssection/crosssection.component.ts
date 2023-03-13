@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Draft, Interlacement } from '../../core/model/datatypes';
 import * as THREE from 'three';
-import { getCol } from '../../core/model/drafts';
+import { evaluateVerticies, getDraftTopology } from '../../core/model/yarnsimulation';
+import { MaterialsService } from '../../core/provider/materials.service';
 
 @Component({
   selector: 'app-crosssection',
@@ -15,7 +16,7 @@ export class CrosssectionComponent implements AfterViewInit{
   isInit: boolean = false;
 
 
-  constructor(){
+  constructor(private ms: MaterialsService){
 
 
   }
@@ -24,6 +25,13 @@ export class CrosssectionComponent implements AfterViewInit{
 
   }
 
+  onLeaveTab(){
+
+  }
+
+
+  
+
 
 
 
@@ -31,6 +39,10 @@ export class CrosssectionComponent implements AfterViewInit{
 
     console.log("Update Selection")
     if(!this.isInit) return;
+
+
+    const topo = getDraftTopology(draft.drawdown);
+    const vtxs = evaluateVerticies(topo, [], 2, 1);
 
     console.log("INIT")
     const renderer = new THREE.WebGLRenderer();
@@ -58,56 +70,47 @@ export class CrosssectionComponent implements AfterViewInit{
     // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     // const cube = new THREE.Mesh( geometry, material );
 
-    const lines = [];
 
-    //warps aligned in x 
-    for(let j = 0; j < end.j - start.j; j++){
-      
-
-        const x = j*size;
-  
-        const draft_col = getCol(draft.drawdown, start.j+j);
-        const pts = [];
-        draft_col.forEach((cell, i) => {
-          let z = cell.getHeddle() ? size/2 : -size/2;
-          pts.push(new THREE.Vector3(x, i*-size, z));
-        });
-  
-        const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .5);
-        const geometry = new THREE.TubeGeometry( curve, 20, size/3, 8, false );
-        const material = new THREE.MeshBasicMaterial( {color: 0xff0000, opacity: 0.84} );
-        const curveObject = new THREE.Mesh( geometry, material );
-        scene.add(curveObject);
-  
-      
-  
-  
-    }
-
-    for(let i = 0; i < end.i - start.i; i++){
-
-      const y = i*-size;
-
-      const draft_line = draft.drawdown[i+start.i];
+    vtxs.warps.forEach((warp_vtx_list, j) => {
       const pts = [];
-      draft_line.forEach((cell, j) => {
-        let z = cell.getHeddle() ? -size : size;
-        pts.push(new THREE.Vector3(j*size, y, z));
+      warp_vtx_list.forEach(vtx => {
+        pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
       });
 
+      const material_id = draft.colShuttleMapping[j];
+      const color = this.ms.getColor(material_id)
       const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .5);
       const geometry = new THREE.TubeGeometry( curve, 20, size/3, 8, false );
-     // const geometry = new THREE.BufferGeometry().setFromPoints( points );
-     // const material = new THREE.LineBasicMaterial( { color: 0xff0000, 	linewidth: 4,      } );
-      const material = new THREE.MeshDepthMaterial( {opacity: 0.84} );
+      const material = new THREE.MeshMatcapMaterial( {color: color, opacity: 0.84} );
       const curveObject = new THREE.Mesh( geometry, material );
+      scene.add(curveObject);
+    });
 
-     // const curveObj = new THREE.Line(geometry, material);
-      // const tubeGeometry = new THREE.TubeGeometry( points,100, 2, 3, false );
-       
-       scene.add(curveObject);
 
-    }
+
+
+
+  //wefts aligned to wy
+    // for(let i = 0; i < end.i - start.i; i++){
+
+    //   const y = i*-size;
+
+    //   const draft_line = draft.drawdown[i+start.i];
+    //   const pts = [];
+    //   draft_line.forEach((cell, j) => {
+    //     let z = cell.getHeddle() ? -size : size;
+    //     pts.push(new THREE.Vector3(j*size, y, z));
+    //   });
+
+    //   const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .5);
+    //   const geometry = new THREE.TubeGeometry( curve, 20, size/3, 8, false );
+    //   const material = new THREE.MeshMatcapMaterial( {opacity: 0.84} );
+    //   const curveObject = new THREE.Mesh( geometry, material );
+
+    
+    //    scene.add(curveObject);
+
+    // }
 
 
 

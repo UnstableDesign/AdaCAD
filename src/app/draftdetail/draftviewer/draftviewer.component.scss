@@ -14,6 +14,10 @@ canvas{
   flex-direction: row;
 }
 
+.hide{
+  display: none !important;
+}
+
 .origin-selector{
   color: white;
 }
@@ -36,7 +40,6 @@ canvas{
 #draft-scale-container{
   margin: auto;
   border: #fff;
-  display: flex;
   width: fit-content;
   height: fit-content;
 }

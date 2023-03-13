@@ -35,6 +35,7 @@ import { RenderService } from './provider/render.service';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
 
+
 @NgModule({
     declarations: [
         DraftDetailComponent,

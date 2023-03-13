@@ -1,6 +1,11 @@
-import { Draft, Drawdown, YarnCell, YarnSim } from "./datatypes";
-import { warps, wefts } from "./drafts";
+import { Cell } from "./cell";
+import { Draft, Drawdown, SystemVerticies, YarnCell, YarnSim, YarnVertex, YarnVertexExpression } from "./datatypes";
+import { getCol, warps, wefts } from "./drafts";
 import { Shuttle } from "./shuttle";
+
+
+
+
 
 
   export const getDirection = (neighbors:number, is_up:boolean) : string =>{
@@ -437,7 +442,104 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
       return yarnsim.slice();
 
 
+  }
+
+  /**
+   * generates a list of vertices associated with the positions of this row based onl..
+   * @param yarn_last_point the direction, shuttle, and posiition where the yarn left off on the last row
+   * @param draft the draft to model
+   */
+  // export const getNextRow = (systems: SystemVerticies, yarn_last_point: any, draft: Draft) :  =>{
+
+  //   const pts = [];
+  //   if(yarn_last_point.i == -1){  
+  //     pts.push({x: -1, y: 0, z: 0});
+  //     yarn_last_point.i = 0;
+  //   }
+
+  // }
+
+
+
+
+  export const getDraftTopology = (drawdown: Drawdown) : SystemVerticies => {
+
+    const all_warps: SystemVerticies = [];
+    //position each warp first. 
+    for(let j = 0; j < warps(drawdown); j++){
+      const col = getCol(drawdown, j);
+      
+      const col_vtx: Array<YarnVertexExpression> = [];
+      const acc_vtx: YarnVertexExpression =  {
+        x: {push: j, pack: 0},
+        y: {push: 0, pack: 0},
+        z: {push: 0, pack: 0},
+      }
+      let last: Cell = new Cell(false);
+      col.forEach((cell, i) => {
+        
+        if(cell.isSet() && i > 0){
+
+         
+          acc_vtx.z.push = (cell.getHeddle()) ? 1  : -1;
+
+          if(cell.getHeddle() != last.getHeddle()){
+            acc_vtx.y.push++;
+          }else{
+            acc_vtx.y.pack++;
+          }
+        }
+        //deep copy by manually assigning. 
+        col_vtx.push({
+          x: {push: acc_vtx.x.push, pack: acc_vtx.x.pack},
+          y: {push: acc_vtx.y.push, pack: acc_vtx.y.pack},
+          z: {push: acc_vtx.z.push, pack: acc_vtx.z.pack},
+        });
+
+        last = new Cell(cell.getHeddle());
+
+      });
+
+      console.log(col_vtx.slice())
+      all_warps.push(col_vtx.slice());
+
     }
+    return all_warps;
+  }
+
+  /**
+   * compute based on material thicknesses and inputs of push and pack factors
+   */
+  export const evaluateVerticies = (warps_exps: SystemVerticies, wefts: SystemVerticies, push_factor: number, pack_factor: number) : {warps:Array<Array<YarnVertex>>,  wefts: Array<Array<YarnVertex>>}  =>  {
+
+    const warps: Array<Array<YarnVertex>> = [];
+
+    warps_exps.forEach((warp_exps, j) =>{
+      const warp_vtxs: Array<YarnVertex> = [];
+      let vtx:YarnVertex = {x: 0, y: 0, z: 0};
+      warp_exps.forEach((exp, i) => {
+
+        vtx = {
+          x: exp.x.push * push_factor + exp.x.pack * pack_factor,
+          y: exp.y.push * push_factor + exp.y.pack * pack_factor,
+          z: exp.z.push * push_factor + exp.z.pack * pack_factor,
+        }
+
+        warp_vtxs.push(vtx);
+
+      });
+      warps.push(warp_vtxs.slice())
+    });
+
+    return {warps, wefts: []};
+  }
+
+
+
+  
+
+
+  
 
 
 

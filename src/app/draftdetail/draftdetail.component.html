@@ -195,7 +195,9 @@
 
       <mat-tab label="View">
 
-        <app-weaverview ></app-weaverview>
+        <app-weaverview
+        (onViewChange)="viewChange($event)"
+        ></app-weaverview>
 
       </mat-tab>
             

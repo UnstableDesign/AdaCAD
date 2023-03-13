@@ -11,12 +11,13 @@ import { StateService } from '../../core/provider/state.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
-import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../../core/model/yarnsimulation';
+import { computeYarnPaths, evaluateVerticies, getDraftTopology, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../../core/model/yarnsimulation';
 import { TreeService } from '../../core/provider/tree.service';
 import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
 import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
+import * as THREE from 'three';
 
 @Component({
   selector: 'app-draftviewer',
@@ -1927,8 +1928,75 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
 
   //}
 
+  public drawSimulation(){
+    const draft = this.tree.getDraft(this.id);
+    const topo = getDraftTopology(draft.drawdown);
+    const vtxs = evaluateVerticies(topo, [], 2, 1);
+    const renderer = new THREE.WebGLRenderer();
+    const size = 3;
+    
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0xf0f0f0 );
+  
+    const div = document.getElementById('draft-container');
+    const camera = new THREE.PerspectiveCamera( 75, (div.offsetWidth/div.offsetHeight), 0.1, 1000 );
+
+    // light
+
+    const light = new THREE.DirectionalLight( 0xffffff );
+    light.position.set( 0, 0, 1 );
+    scene.add( light );
+
+
+    renderer.setSize(div.offsetWidth, div.offsetHeight);
+    div.appendChild(renderer.domElement);
+
+  
+    // const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    // const cube = new THREE.Mesh( geometry, material );
+
+
+    vtxs.warps.forEach((warp_vtx_list, j) => {
+      const pts = [];
+      warp_vtx_list.forEach(vtx => {
+        pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+      });
+
+      const material_id = draft.colShuttleMapping[j];
+      const color = this.ms.getColor(material_id)
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .5);
+      const geometry = new THREE.TubeGeometry( curve, 20, size/3, 8, false );
+      const material = new THREE.MeshMatcapMaterial( {color: color, opacity: 0.84} );
+      const curveObject = new THREE.Mesh( geometry, material );
+      scene.add(curveObject);
+    });
+
+
+
+    camera.position.set( 20, 0, 50 );
+    camera.lookAt( 20, 0, 0 );  
+
+    animate();
+
+    function animate() {
+      requestAnimationFrame( animate );
+
+      //  line.rotation.x += 0.01;
+      //  line.rotation.y += 0.01;
+
+      renderer.render( scene, camera );
+    }
+  
+
+
+
+  }
+
 
   public redrawYarnView(draft: Draft){
+
+   
 
     const yarnsim = computeYarnPaths(draft, this.ms.getShuttles());
     
@@ -2060,6 +2128,12 @@ public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
+  console.log("HI", this.render.current_view)
+
+  if(this.render.current_view == 'simulate'){
+    this.drawSimulation();
+    return;
+  }
 
   console.log("redraw", warps(draft.drawdown))
 
@@ -2191,6 +2265,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   }
 
 
+
   /**
    * Simulates the visual look of the weave pattern.
    * @extends WeaveDirective
@@ -2200,21 +2275,26 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
 
 
-    computeYarnPaths(draft, this.ms.getShuttles());
 
-    this.cx.fillStyle = "#3d3d3d";
-    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-
-    this.drawWarps(draft, this.cx);
     
-    this.redrawYarnView(draft);
 
-    if(this.render.getCurrentView() === 'visual'){
-      this.drawWarpsOver(draft);
-    }
 
-    this.cx.strokeStyle = "#000";
-    this.cx.fillStyle = "#000";
+
+    // computeYarnPaths(draft, this.ms.getShuttles());
+
+    // this.cx.fillStyle = "#3d3d3d";
+    // this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
+
+    // this.drawWarps(draft, this.cx);
+    
+    // this.redrawYarnView(draft);
+
+    // if(this.render.getCurrentView() === 'visual'){
+    //   this.drawWarpsOver(draft);
+    // }
+
+    // this.cx.strokeStyle = "#000";
+    // this.cx.fillStyle = "#000";
   }
 
   /**
