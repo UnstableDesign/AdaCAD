@@ -1,7 +1,8 @@
 import { Cell } from "./cell";
 import { Draft, Drawdown, SystemVerticies, YarnCell, YarnSim, YarnVertex, YarnVertexExpression } from "./datatypes";
-import { getCol, warps, wefts } from "./drafts";
+import { analyzeWeftFloats, getCol, warps, wefts } from "./drafts";
 import { Shuttle } from "./shuttle";
+import { System } from "./system";
 
 
 
@@ -459,19 +460,35 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
   // }
 
+  export const getPreviousInterlacementOnWarp = (drawdown: Drawdown, j: number, cur: number) : number => {
+
+    const col = getCol(drawdown, j);
+    const val = col[cur].getHeddle();
+    const found = false;
+    for(let i = cur; i >= 0 && !found; i--){
+      if(col[i].getHeddle() != val){
+        return i;
+      }
+    }
+    return -1;
+
+
+  }
 
 
 
-  export const getDraftTopology = (drawdown: Drawdown) : SystemVerticies => {
+  export const getDraftTopology = (drawdown: Drawdown) : {warps: SystemVerticies, wefts: SystemVerticies} => {
 
     const all_warps: SystemVerticies = [];
+    const all_wefts: SystemVerticies = [];
+
     //position each warp first. 
     for(let j = 0; j < warps(drawdown); j++){
       const col = getCol(drawdown, j);
       
       const col_vtx: Array<YarnVertexExpression> = [];
       const acc_vtx: YarnVertexExpression =  {
-        x: {push: j, pack: 0},
+        x: {push: 1.5*j, pack: 0},
         y: {push: 0, pack: 0},
         z: {push: 0, pack: 0},
       }
@@ -481,7 +498,7 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
         if(cell.isSet() && i > 0){
 
          
-          acc_vtx.z.push = (cell.getHeddle()) ? 1  : -1;
+          acc_vtx.z.push = (cell.getHeddle()) ? .5  : 0;
 
           if(cell.getHeddle() != last.getHeddle()){
             acc_vtx.y.push++;
@@ -500,17 +517,77 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
       });
 
-      console.log(col_vtx.slice())
       all_warps.push(col_vtx.slice());
 
     }
-    return all_warps;
+    
+
+    const weft_floats = analyzeWeftFloats(drawdown);
+    const wefts:Array<Array<YarnVertexExpression>> = [];
+   
+    drawdown.forEach((row, i) => {
+      const single_weft = [];
+      row.forEach((cell, j) => {
+      
+        const warp_vtx:YarnVertexExpression = all_warps[j][i];
+        const assoc_float = weft_floats[i].find(el => (j >= el.start && j < el.start + el.total_length));
+        const middle = assoc_float.total_length/2;
+        const float_position = middle - Math.abs((j - assoc_float.start) - middle);
+        const linear_position = j - assoc_float.start;
+        const adj_float = assoc_float.total_length -1;
+
+        const start_pack_to = getPreviousInterlacementOnWarp(drawdown, j,i);
+        const y_start = (start_pack_to !== -1) 
+        ? {push: all_warps[assoc_float.start][start_pack_to].y.push + 1, pack: all_warps[assoc_float.start][start_pack_to].y.pack}
+        : {push: all_warps[assoc_float.start][i].y.push, pack: all_warps[assoc_float.start][i].y.pack};
+
+        const end_pack_to = getPreviousInterlacementOnWarp(drawdown, assoc_float.start+adj_float,i);
+
+        const y_end =  (end_pack_to !== -1) 
+        ? {push: all_warps[assoc_float.start+adj_float][end_pack_to].y.push+1, pack: all_warps[assoc_float.start+adj_float][end_pack_to].y.pack}
+        : {push: all_warps[assoc_float.start+adj_float][i].y.push, pack: all_warps[assoc_float.start+adj_float][i].y.pack}
+
+        const y_span = {push: y_end.push - y_start.push, pack: y_end.pack - y_start.pack}
+
+        let vtx = {
+          x: {push: warp_vtx.x.push, pack: warp_vtx.x.pack},
+          y: {push: y_start.push, pack: y_start.pack},
+          z: {push: warp_vtx.z.push, pack: warp_vtx.z.pack},
+        }
+
+        if(adj_float > 0){
+          vtx.y.push += linear_position/adj_float*y_span.push;
+          vtx.y.pack += linear_position/adj_float*y_span.pack;
+        }
+
+        //push z based on weft position 
+        const ortho = (float_position+1) * .5;
+        const layer = (i - start_pack_to > 0) ? .5 : 0;
+        if(assoc_float.heddle == true){
+          vtx.z.pack -= ortho;
+          vtx.z.push -= layer;
+          warp_vtx.z.push -= layer;
+        }else{
+          vtx.z.pack += ortho;
+          vtx.z.push += layer;
+          warp_vtx.z.push += layer;
+        }
+
+
+
+        single_weft.push(vtx);
+      });
+      wefts.push(single_weft.slice());
+    });
+
+
+    return {warps: all_warps, wefts: wefts};
   }
 
   /**
    * compute based on material thicknesses and inputs of push and pack factors
    */
-  export const evaluateVerticies = (warps_exps: SystemVerticies, wefts: SystemVerticies, push_factor: number, pack_factor: number) : {warps:Array<Array<YarnVertex>>,  wefts: Array<Array<YarnVertex>>}  =>  {
+  export const evaluateVerticies = (warps_exps: SystemVerticies, wefts_exps: SystemVerticies, push_factor: number, pack_factor: number) : {warps:Array<Array<YarnVertex>>,  wefts: Array<Array<YarnVertex>>}  =>  {
 
     const warps: Array<Array<YarnVertex>> = [];
 
@@ -531,7 +608,26 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
       warps.push(warp_vtxs.slice())
     });
 
-    return {warps, wefts: []};
+    const wefts: Array<Array<YarnVertex>> = [];
+
+    wefts_exps.forEach((weft_exp, i) =>{
+      let vtx:YarnVertex = {x: 0, y: 0, z: 0};
+      const weft_vtxs: Array<YarnVertex> = [];
+
+      console.log(weft_exp);
+      weft_exp.forEach((exp, j) => {
+
+        vtx = {
+          x: exp.x.push * push_factor + exp.x.pack * pack_factor,
+          y: exp.y.push * push_factor + exp.y.pack * pack_factor,
+          z: exp.z.push * push_factor + exp.z.pack * pack_factor,
+        }
+        weft_vtxs.push(vtx);
+      });
+      wefts.push(weft_vtxs.slice())
+    });
+
+    return {warps, wefts};
   }
 
 

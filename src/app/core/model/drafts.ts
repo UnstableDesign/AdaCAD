@@ -1,5 +1,6 @@
+import { floor } from "mathjs";
 import { Cell } from "./cell";
-import { Draft, Drawdown, Loom } from "./datatypes";
+import { Draft, Drawdown, Loom, YarnFloat } from "./datatypes";
 import utilInstance from "./util";
 
 /**
@@ -755,6 +756,47 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
 
 
   return Promise.resolve(draft);
+}
+
+
+export const getFloatLength = (complete: Array<Cell>, start: number, val: boolean) : YarnFloat => {
+
+  const f: YarnFloat = {
+    heddle: val,
+    total_length: 0,
+    start: start
+  }
+
+  let j = start;
+  while( j < complete.length && complete[j].getHeddle() == val){
+    f.total_length++;
+    j++;
+  }
+
+  return f;
+
+}
+
+
+
+export const analyzeWeftFloats = (drawdown: Drawdown) : Array<Array<YarnFloat>> => {
+
+  const weft_floats:Array<Array<YarnFloat>> = [];
+
+  drawdown.forEach((row, i) => {
+    const row_floats = [];
+
+    let j = 0;
+    while(j < warps(drawdown)){
+      let f:YarnFloat = getFloatLength(row, j, row[j].getHeddle());
+      row_floats.push(f)
+      j += f.total_length;
+    }
+
+    weft_floats.push(row_floats.slice());
+  });
+
+  return weft_floats;
 }
 
   

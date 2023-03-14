@@ -705,6 +705,15 @@ export type DraftTopology = {
 }
 
 /**
+ * used to calculate arching of floats
+ */
+export type YarnFloat = {
+  heddle: boolean, 
+  total_length: number,
+  start: number
+}
+
+/**
  * Stores all the simulation information as a 2D array mapped onto the draft
  */
  export type YarnSim = Array<Array<YarnCell>>;

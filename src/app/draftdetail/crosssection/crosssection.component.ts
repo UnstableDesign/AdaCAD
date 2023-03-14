@@ -42,7 +42,7 @@ export class CrosssectionComponent implements AfterViewInit{
 
 
     const topo = getDraftTopology(draft.drawdown);
-    const vtxs = evaluateVerticies(topo, [], 2, 1);
+    const vtxs = evaluateVerticies(topo.warps, [], 2, 1);
 
     console.log("INIT")
     const renderer = new THREE.WebGLRenderer();

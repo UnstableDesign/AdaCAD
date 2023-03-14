@@ -32,9 +32,10 @@ canvas{
 }
 
 #draft-container{
-  display: block;
+  display: flex;
   overflow: scroll;
   max-height: 66vh;
+  min-height: 50vh;
 }
 
 #draft-scale-container{
