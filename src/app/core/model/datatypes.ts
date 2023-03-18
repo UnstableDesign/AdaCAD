@@ -720,4 +720,31 @@ export type YarnFloat = {
 
 
 
+export type InterlacementForceVector = {
+  fweft: ForceVector  
+  fwarp: ForceVector
+}
+
+export type ForceVector = {
+  x: number,
+  y: number, 
+  z: number
+}
+
+
+export type YarnSimSettings = {
+
+  warp_sett: number, //the distance between warp center points on the loom
+  warp_tension: number, //the tension value of the warp (higher tension, tighter packing)
+  fpack: number, //the force exerted by the packing 
+
+}
+
+export type WeftInterlacementTuple = {
+  j: number, 
+  i_top: number,
+  i_bot: number,
+  orientation: boolean; //true = black cell over white, false white over black. 
+}
+
 

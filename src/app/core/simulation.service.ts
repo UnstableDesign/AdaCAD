@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { evaluateVerticies, getDraftTopology } from './model/yarnsimulation';
+import { positionWarpsInZ } from './model/yarnsimulation';
 import { MaterialsService } from './provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { Draft, YarnVertex } from './model/datatypes';
+import { getCol } from './model/drafts';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +40,7 @@ export class SimulationService {
 
 
 
-  public drawSimulation(draft){
+  public drawSimulation(draft: Draft){
     this.hasSimulation = true;
 
     const scene = this.scene;
@@ -56,9 +58,14 @@ export class SimulationService {
 
     };
 
-    const topo = getDraftTopology(draft.drawdown);
-    console.log(topo);
-    const vtxs = evaluateVerticies(topo.warps, topo.wefts, 5, 4);
+    // const topo = getDraftTopology(draft.drawdown);
+    // console.log(topo);
+    // const vtxs = evaluateVerticies(topo.warps, topo.wefts, 5, 4.5);
+
+    let vtxs = {
+      warps: positionWarpsInZ(draft, 3)
+    };
+    
 
     this.scene.background = new THREE.Color( 0xf0f0f0 );
   
@@ -78,16 +85,26 @@ export class SimulationService {
     div.appendChild(this.renderer.domElement);
 
 
+
     vtxs.warps.forEach((warp_vtx_list, j) => {
       const pts = [];
+
+      warp_vtx_list = vtxs.warps.reduce((acc, val)=> {
+        return acc.concat(val[j]);
+      }, [])
+
+      // pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
       warp_vtx_list.forEach(vtx => {
-        pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+        pts.push(new THREE.Vector3(vtx.x*10, vtx.y*10, vtx.z*10));
       });
+      // let last = warp_vtx_list.length -1;
+      // pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
+
 
       const material_id = draft.colShuttleMapping[j];
       const color = this.ms.getColor(material_id)
       const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-      const geometry = new THREE.TubeGeometry( curve, 100, 2, 6, false );
+      const geometry = new THREE.TubeGeometry( curve, 100, 1, 6, false );
       const material = new THREE.MeshPhysicalMaterial( {
         color: color,
         depthTest: true,
@@ -103,29 +120,33 @@ export class SimulationService {
     });
 
 
-    vtxs.wefts.forEach((weft_vtx_list, i) => {
-      const pts = [];
-      weft_vtx_list.forEach(vtx => {
-        pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-      });
+    // vtxs.wefts.forEach((weft_vtx_list, i) => {
+    //   const pts = [];
+    //   pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
+    //   weft_vtx_list.forEach(vtx => {
+    //     pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+    //   });
+    //   let last = weft_vtx_list.length -1;
+    //   pts.push(new THREE.Vector3(weft_vtx_list[last].x+10, weft_vtx_list[last].y, weft_vtx_list[last].z));
 
-      const material_id = draft.rowShuttleMapping[i];
-      const color = this.ms.getColor(material_id)
-      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-      const geometry = new THREE.TubeGeometry( curve, 100, 2, 6, false );
-      const material = new THREE.MeshPhysicalMaterial( {
-        color: color,
-        emissive: 0x000000,
-        depthTest: true,
-        metalness: 0,
-        roughness: 0.5,
-        clearcoat: 1.0,
-        clearcoatRoughness: 1.0,
-        reflectivity: 0.0
-        } );        
-         const curveObject = new THREE.Mesh( geometry, material );
-         this.scene.add(curveObject);
-    });
+
+    //   const material_id = draft.rowShuttleMapping[i];
+    //   const color = this.ms.getColor(material_id)
+    //   const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+    //   const geometry = new THREE.TubeGeometry( curve, 100, 2, 6, false );
+    //   const material = new THREE.MeshPhysicalMaterial( {
+    //     color: color,
+    //     emissive: 0x000000,
+    //     depthTest: true,
+    //     metalness: 0,
+    //     roughness: 0.5,
+    //     clearcoat: 1.0,
+    //     clearcoatRoughness: 1.0,
+    //     reflectivity: 0.0
+    //     } );        
+    //      const curveObject = new THREE.Mesh( geometry, material );
+    //      this.scene.add(curveObject);
+    // });
 
 
     light.position.set( 20, 0, 50 );
@@ -136,9 +157,51 @@ export class SimulationService {
 
   
 
-
+    //this.drawEndCaps(draft, 2, vtxs);
 
     animate();
+
+  }
+
+  drawEndCaps(draft: Draft, radius: number, vtxs: {warps: Array<Array<YarnVertex>>, wefts:Array<Array<YarnVertex>>} ){
+
+
+    vtxs.warps.forEach((warp, j) => {
+
+      const top_geometry = new THREE.CircleGeometry( radius, 32 );
+      top_geometry.rotateX(Math.PI/2);
+      top_geometry.translate(warp[0].x, warp[0].y-10, warp[0].z);
+      const color = this.ms.getColor(draft.colShuttleMapping[j]);
+      const material = new THREE.MeshBasicMaterial( { color: color } );
+      const end_circle = new THREE.Mesh( top_geometry, material );
+      this.scene.add( end_circle );
+      
+      const bot_geometry = new THREE.CircleGeometry( radius, 32 );
+      bot_geometry.rotateX(3*Math.PI/2);
+      bot_geometry.translate(warp[warp.length-1].x, warp[warp.length-1].y+10, warp[warp.length-1].z);
+      const top_circle = new THREE.Mesh( bot_geometry, material );
+      this.scene.add( top_circle );
+
+    })
+
+    vtxs.wefts.forEach((weft, i) => {
+
+      const top_geometry = new THREE.CircleGeometry( radius, 32 );
+      top_geometry.rotateY(3*Math.PI/2);
+      top_geometry.translate(weft[0].x-10, weft[0].y, weft[0].z);
+      const color = this.ms.getColor(draft.rowShuttleMapping[i]);
+      const material = new THREE.MeshBasicMaterial( { color: color } );
+      const end_circle = new THREE.Mesh( top_geometry, material );
+      this.scene.add( end_circle );
+      
+      const bot_geometry = new THREE.CircleGeometry( radius, 32 );
+      bot_geometry.rotateY(Math.PI/2);
+      bot_geometry.translate(weft[weft.length-1].x+10, weft[weft.length-1].y, weft[weft.length-1].z);
+      const top_circle = new THREE.Mesh( bot_geometry, material );
+      this.scene.add( top_circle );
+
+    })
+  
 
   }
 

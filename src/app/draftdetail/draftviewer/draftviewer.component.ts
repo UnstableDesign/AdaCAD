@@ -11,7 +11,7 @@ import { StateService } from '../../core/provider/state.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
 import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
-import { computeYarnPaths, evaluateVerticies, getDraftTopology, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../../core/model/yarnsimulation';
+import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../../core/model/yarnsimulation';
 import { TreeService } from '../../core/provider/tree.service';
 import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
