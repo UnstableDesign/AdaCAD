@@ -213,7 +213,7 @@
 
   </mat-drawer>
 
-  <mat-drawer  #detail_drawer class="detail_view" mode="over" position="end" [opened]="show_details">  
+  <mat-drawer  #detail_drawer class="detail_view" mode="over" position="end" [opened]="show_details" [@.disabled]="true">  
 
     <app-draftdetail #details (closeDrawer)="closeDetailViewer()"></app-draftdetail>
     

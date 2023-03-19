@@ -10,8 +10,6 @@ import { Draft, YarnVertex } from '../model/datatypes';
 })
 export class SimulationService {
 
-  renderer = new THREE.WebGLRenderer();
-  scene = new THREE.Scene();
   hasSimulation: boolean = false;
   
   
@@ -24,29 +22,27 @@ export class SimulationService {
 
   public endSimulation(){
 
-   // document.body.removeChild(this.renderer.domElement);
-   const div = document.getElementById('simulation_container');
-  if(this.hasSimulation) div.removeChild(this.renderer.domElement);
+  //  // document.body.removeChild(this.renderer.domElement);
+  //  const div = document.getElementById('simulation_container');
+  // if(this.hasSimulation) div.removeChild(this.renderer.domElement);
 
-    this.scene.children.forEach(childMesh => {
-      if(childMesh.geometry !== undefined) childMesh.geometry.dispose();
-      if(childMesh.texture !== undefined) childMesh.texture.dispose();
-      if(childMesh.material !== undefined) childMesh.material.dispose();
-    });
+  //   this.scene.children.forEach(childMesh => {
+  //     if(childMesh.geometry !== undefined) childMesh.geometry.dispose();
+  //     if(childMesh.texture !== undefined) childMesh.texture.dispose();
+  //     if(childMesh.material !== undefined) childMesh.material.dispose();
+  //   });
 
-    this.hasSimulation = false;
+  //   this.hasSimulation = false;
   }
 
 
 
-  public drawSimulation(draft: Draft){
+  public drawSimulation(draft: Draft, renderer, scene, camera){
     this.hasSimulation = true;
 
-    const scene = this.scene;
-    const div = document.getElementById('simulation_container');
-    console.log("div", div.offsetHeight)
-    const camera = new THREE.PerspectiveCamera( 75, (div.offsetWidth/div.offsetHeight), 0.1, 1000 );
-   const renderer = this.renderer;
+    camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
+    // renderer.setSize(400, 400, false);
+  
 
    const controls = new OrbitControls( camera, renderer.domElement );
 
@@ -67,7 +63,7 @@ export class SimulationService {
     };
     
 
-    this.scene.background = new THREE.Color( 0xf0f0f0 );
+    scene.background = new THREE.Color( 0xf0f0f0 );
   
 
     // light
@@ -77,13 +73,11 @@ export class SimulationService {
 
     const light = new THREE.DirectionalLight( 0xffffff, 1.0);
     const back_light = new THREE.DirectionalLight( 0xffffff, 1.0);
-    this.scene.add( light );
-    this.scene.add( back_light );
+    scene.add( light );
+    scene.add( back_light );
 
 
-    this.renderer.setSize(div.offsetWidth, div.offsetHeight);
-    div.appendChild(this.renderer.domElement);
-
+    
 
 
     vtxs.warps.forEach((warp_vtx_list, j) => {
@@ -116,7 +110,7 @@ export class SimulationService {
         reflectivity: 0.0
         } );      //const material = new THREE.MeshMatcapMaterial( {color: color, opacity: 0.84} );
       const curveObject = new THREE.Mesh( geometry, material );
-      this.scene.add(curveObject);
+      scene.add(curveObject);
     });
 
 
@@ -163,7 +157,7 @@ export class SimulationService {
 
   }
 
-  drawEndCaps(draft: Draft, radius: number, vtxs: {warps: Array<Array<YarnVertex>>, wefts:Array<Array<YarnVertex>>} ){
+  drawEndCaps(draft: Draft, radius: number, vtxs: {warps: Array<Array<YarnVertex>>, wefts:Array<Array<YarnVertex>>}, scene ){
 
 
     vtxs.warps.forEach((warp, j) => {
@@ -174,13 +168,13 @@ export class SimulationService {
       const color = this.ms.getColor(draft.colShuttleMapping[j]);
       const material = new THREE.MeshBasicMaterial( { color: color } );
       const end_circle = new THREE.Mesh( top_geometry, material );
-      this.scene.add( end_circle );
+      scene.add( end_circle );
       
       const bot_geometry = new THREE.CircleGeometry( radius, 32 );
       bot_geometry.rotateX(3*Math.PI/2);
       bot_geometry.translate(warp[warp.length-1].x, warp[warp.length-1].y+10, warp[warp.length-1].z);
       const top_circle = new THREE.Mesh( bot_geometry, material );
-      this.scene.add( top_circle );
+      scene.add( top_circle );
 
     })
 
@@ -192,13 +186,13 @@ export class SimulationService {
       const color = this.ms.getColor(draft.rowShuttleMapping[i]);
       const material = new THREE.MeshBasicMaterial( { color: color } );
       const end_circle = new THREE.Mesh( top_geometry, material );
-      this.scene.add( end_circle );
+      scene.add( end_circle );
       
       const bot_geometry = new THREE.CircleGeometry( radius, 32 );
       bot_geometry.rotateY(Math.PI/2);
       bot_geometry.translate(weft[weft.length-1].x+10, weft[weft.length-1].y, weft[weft.length-1].z);
       const top_circle = new THREE.Mesh( bot_geometry, material );
-      this.scene.add( top_circle );
+      scene.add( top_circle );
 
     })
   

@@ -628,7 +628,7 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
       let vtx:YarnVertex = {x: 0, y: 0, z: 0};
       const weft_vtxs: Array<YarnVertex> = [];
 
-      console.log(weft_exp);
+      //console.log(weft_exp);
       weft_exp.forEach((exp, j) => {
 
         vtx = {
@@ -951,7 +951,6 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
   export const getInterlacementsBetweenRows = (i_active: number, i_check: number, j_start: number, j_end: number, draft: Draft) => {
     let ilace_list: Array<WeftInterlacementTuple> = [];
-    console.log("iactive, icheck", i_active, i_check);
     for(let j =j_start; j <= j_end; j++){
       const are_interlacements = areInterlacement(draft.drawdown[i_active][j], draft.drawdown[i_check][j]);
       if(are_interlacements) ilace_list.push({

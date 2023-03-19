@@ -40,13 +40,14 @@
   <!-- </mat-drawer> -->
 
     <div class="viewers">
-    <app-draftviewer 
+    <app-draftviewer style= 'width: 50%' 
     [id]="id"
     source = "weaver"
     (onNewSelection) = "updateSelection($event)">
     </app-draftviewer>
 
     <app-simulation 
+    style= 'width: 50%' 
     [id]="id"
     >
     </app-simulation>
