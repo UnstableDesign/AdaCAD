@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog } from "@angular/material/dialog";
@@ -20,6 +20,7 @@ import { NgForm } from '@angular/forms';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { CrosssectionComponent } from './crosssection/crosssection.component';
+import { SimulationComponent } from './simulation/simulation.component';
 
 
 
@@ -35,9 +36,13 @@ export class DraftDetailComponent implements OnInit {
    * @property {WeaveDirective}
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
+  @ViewChild(SimulationComponent, {static: true}) simRef;
   @ViewChild(SidebarComponent, {static: true}) sidebar;
   @ViewChild(CrosssectionComponent, {static: false}) crosssection: CrosssectionComponent;
   
+
+  @Output() closeDrawer: any = new EventEmitter();
+
   id: number = -1;  
   
   viewonly: boolean; 
@@ -165,6 +170,10 @@ export class DraftDetailComponent implements OnInit {
       warp_materials: true,
       weft_materials:true
     });
+
+    this.simRef.drawSimulation(this.draft);
+
+
 
 
   }
@@ -303,6 +312,11 @@ export class DraftDetailComponent implements OnInit {
     this.weaveRef.redraw(draft, loom, loom_settings,  {
       drawdown: true
     });
+  }
+
+  public onCloseDrawer(){
+    console.log("CLOSE")
+    this.closeDrawer.emit();
   }
 
   /**

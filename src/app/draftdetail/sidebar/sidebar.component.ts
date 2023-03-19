@@ -47,6 +47,7 @@ export class SidebarComponent implements OnInit {
   @Output() onNoteCreate: any = new EventEmitter();
   @Output() onMLChange: any = new EventEmitter();
   @Output() onNewDraftCreated: any = new EventEmitter();
+  @Output() closeDrawer: any = new EventEmitter();
 
   
   draft:Draft;
@@ -98,6 +99,10 @@ export class SidebarComponent implements OnInit {
       // if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
       if(obj !== undefined && obj !== null) this.onNewDraftCreated.emit(obj);
    });
+  }
+
+  closeDetailView(){
+    this.closeDrawer.emit();
   }
 
 

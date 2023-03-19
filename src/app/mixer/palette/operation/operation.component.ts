@@ -11,7 +11,6 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
-import { ConnectionComponent } from '../connection/connection.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 
 
@@ -125,7 +124,6 @@ export class OperationComponent implements OnInit {
     public opdescriptions: OperationDescriptionsService) { 
      
 
-
   }
 
   ngOnInit() {
@@ -136,21 +134,19 @@ export class OperationComponent implements OnInit {
     this.displayname = this.opdescriptions.getDisplayName(this.name);
     this.application = this.opdescriptions.getOpApplication(this.name);
 
-    const op_adder = document.getElementById("quickop");
 
-    const tl: Point = this.viewport.getTopRight();
-    const tl_offset = {x: tl.x, y: tl.y};
+    // const tl: Point = this.viewport.getTopLeft();
+    // const tl_offset = {x: tl.x, y: tl.y};
+    // console.log("setting position to ", tl)
 
-     if(this.topleft.x == 0 && this.topleft.y == 0){
-      this.setPosition(tl_offset);
-     } 
+    //  if(this.topleft.x == 0 && this.topleft.y == 0){
+    //   this.setPosition(tl_offset);
+    //  } 
      this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
 
     this.opnode = <OpNode> this.tree.getNode(this.id);
     if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
-    // this.base_height =  60 + 40 * this.opnode.params.length
-    // this.bounds.height = this.base_height;
 
   }
 
@@ -161,11 +157,8 @@ export class OperationComponent implements OnInit {
       this.drawImagePreview();
     }
 
-    // const container: HTMLElement = document.getElementById('scale-'+this.id);
-    // this.bounds.height = container.offsetHeight;
-
-    const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
-    if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
+    // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
+    // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
 
 
     this.viewInit = true;
@@ -194,7 +187,6 @@ export class OperationComponent implements OnInit {
       const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.id);
       const ctx = canvas.getContext('2d');
 
-      console.log("IMAGE DATA", obj.data)
       const max_dim = (obj.data.width > obj.data.height) ? obj.data.width : obj.data.height;
       const use_width = (obj.data.width > 100) ? obj.data.width / max_dim * 100 : obj.data.width;
       const use_height = (obj.data.height > 100) ? obj.data.height / max_dim * 100 : obj.data.height;
@@ -275,6 +267,7 @@ export class OperationComponent implements OnInit {
    * */
     updatePositionFromChild(child: SubdraftComponent){
 
+      if(child == undefined) return;
        const container = <HTMLElement> document.getElementById("scale-"+this.id);
        if(container !== null) this.setPosition({x: child.topleft.x, y: child.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
   
@@ -292,6 +285,7 @@ export class OperationComponent implements OnInit {
   // }
 
   disableDrag(){
+    console.log("DIABLE DRAG CALLED ON ", this.id)
     this.disable_drag = true;
   }
 
@@ -333,7 +327,6 @@ export class OperationComponent implements OnInit {
 
   inputSelected(obj: any){
     let input_id = obj.inletid;
-    this.disableDrag();
     this.onInputAdded.emit({id: this.id, ndx: input_id});
   }
 

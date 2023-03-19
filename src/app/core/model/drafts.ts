@@ -1,6 +1,6 @@
 import { floor } from "mathjs";
 import { Cell } from "./cell";
-import { Draft, Drawdown, Loom, YarnFloat } from "./datatypes";
+import { Draft, Drawdown, Loom, Vertex, YarnFloat, YarnVertexExpression } from "./datatypes";
 import utilInstance from "./util";
 
 /**
@@ -778,26 +778,31 @@ export const getFloatLength = (complete: Array<Cell>, start: number, val: boolea
 }
 
 
+/**
+ * this function generates a list of floats as well as a map of each cell in the draft to its associated float. This is used to compute layers within the draft 
+ * @param drawdown 
+ * @returns 
+ */
+export const createWeftFloatMap = (drawdown: Drawdown) : {float_list: Array<{id: number, float: YarnFloat}>, float_map: Array<Array<number>>} => {
 
-export const analyzeWeftFloats = (drawdown: Drawdown) : Array<Array<YarnFloat>> => {
-
-  const weft_floats:Array<Array<YarnFloat>> = [];
+  const float_list: Array<{id: number, float: YarnFloat}> = [] ;
+  const float_map:Array<Array<number>> = [];
 
   drawdown.forEach((row, i) => {
-    const row_floats = [];
 
     let j = 0;
     while(j < warps(drawdown)){
       let f:YarnFloat = getFloatLength(row, j, row[j].getHeddle());
-      row_floats.push(f)
+      let f_id = float_list.length;
+      float_list.push({id: f_id, float: f })
+      for(let x = j; x < j+f.total_length; x++){
+        float_map[i][x] = f_id;
+      }
       j += f.total_length;
     }
 
-    weft_floats.push(row_floats.slice());
   });
 
-  return weft_floats;
+  return {float_list, float_map};
 }
-
-  
 

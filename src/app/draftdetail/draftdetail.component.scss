@@ -8,6 +8,11 @@ a.help{
 
 }
 
+.viewers{
+    display: flex;
+    flex-direction: row;
+}
+
 .design-container{
     display: flex;
     flex-direction: column;

@@ -17,7 +17,6 @@ import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
 import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
-import { SimulationService } from '../../core/simulation.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -226,8 +225,7 @@ export class DraftviewerComponent implements OnInit {
     public timeline: StateService,
     private tree:TreeService,
     private ops: OperationService,
-    public render: RenderService,
-    public simulation: SimulationService
+    public render: RenderService
     ) { 
 
     this.flag_recompute = false;
@@ -2068,13 +2066,6 @@ public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
-  if(this.render.current_view == 'simulate'){
-    if(this.simulation.hasSimulation) this.simulation.updateSimluation(draft)
-    else this.simulation.drawSimulation(draft);
-    return;
-  }
-
-  this.simulation.endSimulation();
     var base_dims = this.render.getCellDims("base");
 
     if(flags.drawdown !== undefined){

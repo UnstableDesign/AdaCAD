@@ -276,6 +276,10 @@ export class MixerComponent implements OnInit {
    //this.view_tool.updateViewPort(data);
   }
 
+  closeDetailViewer(){
+    this.show_details = false ; 
+  }
+
 
   addOp(event: any){
     this.palette.addOperation(event)

@@ -732,6 +732,9 @@ handlePan(diff: Point){
       op.instance.scale =this.zs.zoom ;
       op.instance.default_cell = this.default_cell_size;
 
+      const tr =  this.viewport.getTopRight()
+      op.instance.topleft ={x: tr.x - 340, y: tr.y+120};
+
      
 
 
@@ -1218,15 +1221,10 @@ handlePan(diff: Point){
 
 
       if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
-
-          new_tl = {x: op_comp.topleft.x + 200 + this.zs.zoom * 2, y: op_comp.topleft.y}
-    
-
+          new_tl = {x: op_comp.topleft.x + 200, y: op_comp.topleft.y}
       }else{
-
-        new_tl =  {x: op_comp.topleft.x + 40 + this.zs.zoom * 2, y: op_comp.topleft.y}
-        
-
+        let container = document.getElementById('scale-'+obj.id);
+          new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.zoom/this.default_cell_size, y: op_comp.topleft.y}
       }
 
 
@@ -1591,9 +1589,6 @@ connectionDragged(mouse: Point, shift: boolean){
  * @returns a promise for the updated point
  */
 calculateInitialLocaiton(id: number) : Point {
-
-
-  const draft = this.tree.getDraft(id);
   
   let new_tl =  this.viewport.getTopLeft(); 
   
@@ -1605,20 +1600,23 @@ calculateInitialLocaiton(id: number) : Point {
     const opnode = this.tree.getNode(parent_id);
     const topleft = opnode.component.topleft;
 
+    const container: HTMLElement = document.getElementById('scale-'+parent_id);
+
     //this component was just generated and needs a postion
-    if(topleft.x == 0 && topleft.y == 0){
+    if(container == null){
+      new_tl = {x: topleft.x, y: topleft.y};
+
 
       // //component is not yet initalized on this calculation so we do it manually
-      // const default_height =  (60 + 50 * (<OpNode> opnode).params.length) * this.zs.zoom/this.default_cell_size;
-      // new_bounds.topleft = {x: this.viewport.getCenterPoint().x + 60, y: this.viewport.getCenterPoint().y + default_height};
+      const default_height =  100 * this.zs.zoom/this.default_cell_size;
+      new_tl = {x: topleft.x, y: topleft.y+default_height};
 
     }else{
 
-
-      
       const container: HTMLElement = document.getElementById('scale-'+parent_id);
-     const parent_height = container.offsetHeight * (this.zs.zoom/this.default_cell_size);  
-     new_tl = {x: topleft.x, y: topleft.y + parent_height};
+      console.log("scale-", parent_id, container)
+      const parent_height = container.offsetHeight * (this.zs.zoom/this.default_cell_size);  
+      new_tl = {x: topleft.x, y: topleft.y + parent_height};
     }
 
     const outs = this.tree.getNonCxnOutputs(parent_id);

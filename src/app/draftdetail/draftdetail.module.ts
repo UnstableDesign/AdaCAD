@@ -34,6 +34,7 @@ import { WeaverViewComponent } from './weaverview/weaverview.component';
 import { RenderService } from './provider/render.service';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
+import { SimulationComponent } from './simulation/simulation.component';
 
 
 @NgModule({
@@ -44,7 +45,8 @@ import { SelectionComponent } from './draftviewer/selection/selection.component'
         ActionsComponent,
         WeaverViewComponent,
         SidebarComponent,
-        SelectionComponent
+        SelectionComponent,
+        SimulationComponent
     ],
     imports: [
         CommonModule,

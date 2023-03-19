@@ -24,6 +24,7 @@
         (onUpdateWeftSystems) = "updateWeftSystems($event)"
         (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
         (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
+        (closeDrawer) = "onCloseDrawer()"
         ></app-sidebar>
 
 
@@ -38,11 +39,18 @@
     </div> -->
   <!-- </mat-drawer> -->
 
+    <div class="viewers">
     <app-draftviewer 
     [id]="id"
     source = "weaver"
     (onNewSelection) = "updateSelection($event)">
     </app-draftviewer>
+
+    <app-simulation 
+    [id]="id"
+    >
+    </app-simulation>
+    </div>
 
     <div class="detail_data" *ngIf="id !== -1">
 

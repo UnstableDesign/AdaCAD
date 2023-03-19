@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { positionWarpsInZ } from './model/yarnsimulation';
-import { MaterialsService } from './provider/materials.service';
+import { positionWarpsInZ } from '../model/yarnsimulation';
+import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Draft, YarnVertex } from './model/datatypes';
-import { getCol } from './model/drafts';
+import { Draft, YarnVertex } from '../model/datatypes';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +25,7 @@ export class SimulationService {
   public endSimulation(){
 
    // document.body.removeChild(this.renderer.domElement);
-   const div = document.getElementById('draft-container');
+   const div = document.getElementById('simulation_container');
   if(this.hasSimulation) div.removeChild(this.renderer.domElement);
 
     this.scene.children.forEach(childMesh => {
@@ -44,7 +43,8 @@ export class SimulationService {
     this.hasSimulation = true;
 
     const scene = this.scene;
-    const div = document.getElementById('draft-container');
+    const div = document.getElementById('simulation_container');
+    console.log("div", div.offsetHeight)
     const camera = new THREE.PerspectiveCamera( 75, (div.offsetWidth/div.offsetHeight), 0.1, 1000 );
    const renderer = this.renderer;
 
