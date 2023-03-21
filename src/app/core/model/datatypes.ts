@@ -740,11 +740,27 @@ export type YarnSimSettings = {
 
 }
 
-export type WeftInterlacementTuple = {
+export type WarpInterlacementTuple = {
   j: number, 
   i_top: number,
   i_bot: number,
   orientation: boolean; //true = black cell over white, false white over black. 
 }
+
+export type WeftInterlacementTuple = {
+  i: number, 
+  j_left: number,
+  j_right: number,
+  orientation: boolean //true = black left white right 
+}
+
+export type InterlacementLayerMap = {
+  i: number, 
+  j: number,
+  layer: number
+
+}
+
+
 
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { positionWarpsInZ } from '../model/yarnsimulation';
+import { positionWarpsInYandZ, positionWeftsInXYZ } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Draft, YarnVertex } from '../model/datatypes';
@@ -20,19 +20,17 @@ export class SimulationService {
   }
 
 
-  public endSimulation(){
+  public endSimulation(scene){
 
-  //  // document.body.removeChild(this.renderer.domElement);
-  //  const div = document.getElementById('simulation_container');
-  // if(this.hasSimulation) div.removeChild(this.renderer.domElement);
+   // document.body.removeChild(this.renderer.domElement);
 
-  //   this.scene.children.forEach(childMesh => {
-  //     if(childMesh.geometry !== undefined) childMesh.geometry.dispose();
-  //     if(childMesh.texture !== undefined) childMesh.texture.dispose();
-  //     if(childMesh.material !== undefined) childMesh.material.dispose();
-  //   });
+    scene.children.forEach(childMesh => {
+      if(childMesh.geometry !== undefined) childMesh.geometry.dispose();
+      if(childMesh.texture !== undefined) childMesh.texture.dispose();
+      if(childMesh.material !== undefined) childMesh.material.dispose();
+    });
 
-  //   this.hasSimulation = false;
+    this.hasSimulation = false;
   }
 
 
@@ -57,9 +55,12 @@ export class SimulationService {
     // const topo = getDraftTopology(draft.drawdown);
     // console.log(topo);
     // const vtxs = evaluateVerticies(topo.warps, topo.wefts, 5, 4.5);
+    const warp_vtxs = positionWarpsInYandZ(draft, 10);
+    const weft_vtxs = positionWeftsInXYZ(draft, 10, warp_vtxs);
 
     let vtxs = {
-      warps: positionWarpsInZ(draft, 3)
+      warps: warp_vtxs,
+      wefts: weft_vtxs
     };
     
 
@@ -87,12 +88,12 @@ export class SimulationService {
         return acc.concat(val[j]);
       }, [])
 
-      // pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
+      //pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
       warp_vtx_list.forEach(vtx => {
         pts.push(new THREE.Vector3(vtx.x*10, vtx.y*10, vtx.z*10));
       });
-      // let last = warp_vtx_list.length -1;
-      // pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
+     // let last = warp_vtx_list.length -1;
+     // pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
 
 
       const material_id = draft.colShuttleMapping[j];
@@ -114,33 +115,34 @@ export class SimulationService {
     });
 
 
-    // vtxs.wefts.forEach((weft_vtx_list, i) => {
-    //   const pts = [];
-    //   pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
-    //   weft_vtx_list.forEach(vtx => {
-    //     pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-    //   });
-    //   let last = weft_vtx_list.length -1;
-    //   pts.push(new THREE.Vector3(weft_vtx_list[last].x+10, weft_vtx_list[last].y, weft_vtx_list[last].z));
+    console.log("VTX wefts", vtxs.wefts)
+    vtxs.wefts.forEach((weft_vtx_list, i) => {
+      const pts = [];
+     // pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
+      weft_vtx_list.forEach(vtx => {
+        pts.push(new THREE.Vector3(vtx.x*10, vtx.y*10, vtx.z*10));
+      });
+      //let last = weft_vtx_list.length -1;
+      //pts.push(new THREE.Vector3(weft_vtx_list[last].x+10, weft_vtx_list[last].y, weft_vtx_list[last].z));
 
 
-    //   const material_id = draft.rowShuttleMapping[i];
-    //   const color = this.ms.getColor(material_id)
-    //   const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-    //   const geometry = new THREE.TubeGeometry( curve, 100, 2, 6, false );
-    //   const material = new THREE.MeshPhysicalMaterial( {
-    //     color: color,
-    //     emissive: 0x000000,
-    //     depthTest: true,
-    //     metalness: 0,
-    //     roughness: 0.5,
-    //     clearcoat: 1.0,
-    //     clearcoatRoughness: 1.0,
-    //     reflectivity: 0.0
-    //     } );        
-    //      const curveObject = new THREE.Mesh( geometry, material );
-    //      this.scene.add(curveObject);
-    // });
+      const material_id = draft.rowShuttleMapping[i];
+      const color = this.ms.getColor(material_id)
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+      const geometry = new THREE.TubeGeometry( curve, 100, 2, 6, false );
+      const material = new THREE.MeshPhysicalMaterial( {
+        color: color,
+        emissive: 0x000000,
+        depthTest: true,
+        metalness: 0,
+        roughness: 0.5,
+        clearcoat: 1.0,
+        clearcoatRoughness: 1.0,
+        reflectivity: 0.0
+        } );        
+         const curveObject = new THREE.Mesh( geometry, material );
+         scene.add(curveObject);
+    });
 
 
     light.position.set( 20, 0, 50 );
@@ -151,7 +153,7 @@ export class SimulationService {
 
   
 
-    //this.drawEndCaps(draft, 2, vtxs);
+   // this.drawEndCaps(draft, 2, {warps: vtxs.warps, wefts: vtxs.wefts}, scene);
 
     animate();
 

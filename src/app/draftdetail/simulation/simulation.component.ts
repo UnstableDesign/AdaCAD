@@ -29,8 +29,6 @@ export class SimulationComponent implements OnInit {
 
   ngAfterViewInit(){
     const div = document.getElementById('simulation_container');
-    console.log("IN ON INIT", div.offsetHeight)
-
     this.renderer = new THREE.WebGLRenderer();
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
@@ -50,5 +48,10 @@ export class SimulationComponent implements OnInit {
     const after = document.getElementById('simulation_container');
     console.log("AFTER DRAW SIM", after.offsetHeight)
   }
+
+  pageClose(){
+    this.simulation.endSimulation(this.scene);
+  }
+
 
 }

@@ -178,10 +178,16 @@ export class DraftDetailComponent implements OnInit {
 
   }
 
+  windowClosed(){
+    this.simRef.endSimulation();
+  }
+
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+    this.simRef.endSimulation();
+
   }
 
 

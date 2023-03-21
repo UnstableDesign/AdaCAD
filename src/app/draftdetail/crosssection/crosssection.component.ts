@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Draft, Interlacement } from '../../core/model/datatypes';
 import * as THREE from 'three';
-import { evaluateVerticies, positionWarpsInZ } from '../../core/model/yarnsimulation';
 import { MaterialsService } from '../../core/provider/materials.service';
 
 @Component({

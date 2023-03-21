@@ -278,6 +278,8 @@ export class MixerComponent implements OnInit {
 
   closeDetailViewer(){
     this.show_details = false ; 
+    this.details.windowClosed();
+  
   }
 
 
