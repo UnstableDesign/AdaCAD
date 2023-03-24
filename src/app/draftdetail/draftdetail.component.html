@@ -43,7 +43,8 @@
     <app-draftviewer style= 'width: 50%' 
     [id]="id"
     source = "weaver"
-    (onNewSelection) = "updateSelection($event)">
+    (onNewSelection) = "updateSelection($event)"
+    (onDrawdownUpdated)="redrawSimulation($event)">
     </app-draftviewer>
 
     <app-simulation 

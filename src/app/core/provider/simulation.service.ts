@@ -23,7 +23,7 @@ export class SimulationService {
   public endSimulation(scene){
 
    // document.body.removeChild(this.renderer.domElement);
-
+    scene.clear();
     scene.children.forEach(childMesh => {
       if(childMesh.geometry !== undefined) childMesh.geometry.dispose();
       if(childMesh.texture !== undefined) childMesh.texture.dispose();
@@ -33,28 +33,49 @@ export class SimulationService {
     this.hasSimulation = false;
   }
 
-
-
-  public drawSimulation(draft: Draft, renderer, scene, camera){
+  public setupAndDrawSimulation(draft: Draft, renderer, scene, camera){
     this.hasSimulation = true;
 
     camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
-    // renderer.setSize(400, 400, false);
-  
-
-   const controls = new OrbitControls( camera, renderer.domElement );
-
-
+    const controls = new OrbitControls( camera, renderer.domElement );
+    
     const animate = function(){
       requestAnimationFrame( animate );
       renderer.render( scene, camera );
       controls.update();
 
     };
+    scene.background = new THREE.Color( 0xf0f0f0 );
 
-    // const topo = getDraftTopology(draft.drawdown);
-    // console.log(topo);
-    // const vtxs = evaluateVerticies(topo.warps, topo.wefts, 5, 4.5);
+    camera.position.set( 20, 0, 50 );
+    camera.lookAt( 0, 0, 0 );  
+    controls.update();
+
+    this.drawDrawdown(draft, scene);
+
+  
+    animate();
+
+
+    // renderer.setSize(400, 400, false);
+  }
+
+
+
+  public drawDrawdown(draft: Draft, scene){
+    this.hasSimulation = true;
+
+    scene.clear();
+
+    const light = new THREE.DirectionalLight( 0xffffff, 1.0);
+    const back_light = new THREE.DirectionalLight( 0xffffff, 1.0);
+    scene.add( light );
+    scene.add( back_light );
+
+    light.position.set( 20, 0, 50 );
+    back_light.position.set( 20, 0, -50 );
+
+ 
     const warp_vtxs = positionWarpsInYandZ(draft, 10);
     const weft_vtxs = positionWeftsInXYZ(draft, 3, warp_vtxs);
 
@@ -62,25 +83,7 @@ export class SimulationService {
       warps: warp_vtxs,
       wefts: weft_vtxs
     };
-    
-
-    scene.background = new THREE.Color( 0xf0f0f0 );
-  
-
-    // light
-
-    //const amlight = new THREE.AmbientLight( 0x333333, 1.0 );
-    //const light = new THREE.PointLight( 0xffffff, 1, 100 );
-
-    const light = new THREE.DirectionalLight( 0xffffff, 1.0);
-    const back_light = new THREE.DirectionalLight( 0xffffff, 1.0);
-    scene.add( light );
-    scene.add( back_light );
-
-
-    
-
-
+      
     vtxs.warps.forEach((warp_vtx_list, j) => {
       const pts = [];
 
@@ -145,17 +148,11 @@ export class SimulationService {
     });
 
 
-    light.position.set( 20, 0, 50 );
-    back_light.position.set( 20, 0, -50 );
-    camera.position.set( 20, 0, 50 );
-    camera.lookAt( 0, 0, 0 );  
-    controls.update();
-
   
 
    // this.drawEndCaps(draft, 2, {warps: vtxs.warps, wefts: vtxs.wefts}, scene);
 
-    animate();
+
 
   }
 

@@ -338,6 +338,10 @@ export class DraftDetailComponent implements OnInit {
 
   }
 
+  public redrawSimulation(e: any){
+    this.simRef.updateSimulation(e);
+  }
+
   
   /**
    * Tell the weave directive to fill selection with pattern.

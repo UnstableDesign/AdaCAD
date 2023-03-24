@@ -41,12 +41,12 @@ export class SimulationComponent implements OnInit {
   }
 
   drawSimulation(draft: Draft){
+    this.simulation.setupAndDrawSimulation(draft, this.renderer, this.scene, this.camera);
+  }
 
-
-    const div = document.getElementById('simulation_container');
-    this.simulation.drawSimulation(draft, this.renderer, this.scene, this.camera);
-    const after = document.getElementById('simulation_container');
-    console.log("AFTER DRAW SIM", after.offsetHeight)
+  updateSimulation(draft: Draft){
+    console.log("UPDATE SIMULATION", draft)
+    this.simulation.drawDrawdown(draft,  this.scene);
   }
 
   pageClose(){

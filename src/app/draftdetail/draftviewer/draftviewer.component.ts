@@ -50,7 +50,7 @@ export class DraftviewerComponent implements OnInit {
  
  
    @Output() onNewSelection = new EventEmitter();
- 
+   @Output() onDrawdownUpdated = new EventEmitter();
  
   hold_copy_for_paste: boolean = false;
 
@@ -1230,7 +1230,7 @@ export class DraftviewerComponent implements OnInit {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, this.tree.getLoomSettings(this.id))
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
-
+        this.onDrawdownUpdated.emit(draft);
         
       })
       .catch(console.error);

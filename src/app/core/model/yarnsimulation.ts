@@ -1125,7 +1125,7 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
     const first_ilace = ilace_list.shift();
     const last_ilace = ilace_list.pop();
 
-    console.log("SPANS ROWS ", first_ilace.i, last_ilace.i)
+    console.log("SPANS ROWS ", first_ilace, last_ilace)
 
     return weft_vtxs;
 
