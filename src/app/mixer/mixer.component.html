@@ -2,16 +2,7 @@
 <mat-drawer-container [hasBackdrop]="false" #container class="mat-drawer-container" cdkScrollable>
 
 
-  <button mat-icon-button
-  (click)=" collapsed = !collapsed"
-  class="collapse" 
-  [class.nav-opened] = "!collapsed"
-  value="collapsed">
-  <i class="fa"
-    [class.fa-angle-double-right]="collapsed" 
-    [class.fa-angle-double-left]="!collapsed"
-  aria-hidden="true"></i>
-  </button>
+
 
   <div class="floating_ops">
     <app-quickop 
@@ -24,8 +15,19 @@
   <mat-drawer *ngIf="collapsed"  [disableClose]="true"  class="sidenav_small" mode="over" position="start"  opened >  
 
     <div class="button_col">
-
       <div class="design_opts">
+
+        <button mat-icon-button
+        (click)=" collapsed = !collapsed"
+        class="collapse" 
+        [class.nav-opened] = "!collapsed"
+        value="collapsed">
+        <i class="fa"
+          [class.fa-angle-double-right]="collapsed" 
+          [class.fa-angle-double-left]="!collapsed"
+        aria-hidden="true"></i>
+        </button>
+
     <button #undoEvent 
     mat-icon-button 
     color="primary"
@@ -116,7 +118,9 @@
   <mat-drawer *ngIf="!collapsed"  [disableClose]="true" class="sidenav_opened" mode="over" position="start" opened>  
 
   <app-topbar #view_tool
+  [collapsed]="collapsed"
   [drawer] = "drawer"
+  (onCollapseSidebar)="collapsed = !collapsed"
   source="mixer"
   >
   </app-topbar>

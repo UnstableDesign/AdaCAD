@@ -1,6 +1,15 @@
 <mat-toolbar class="topbar" color="primary">
 
-
+  <button mat-icon-button
+  (click)=" collapse()"
+  class="collapse" 
+  [class.nav-opened] = "!collapsed"
+  value="collapsed">
+  <i class="fa"
+    [class.fa-angle-double-right]="collapsed" 
+    [class.fa-angle-double-left]="!collapsed"
+  aria-hidden="true"></i>
+  </button>
 
      <div>AdaCAD</div>
 <!-- 

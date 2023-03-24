@@ -112,6 +112,9 @@ export class OperationComponent implements OnInit {
 
    viewInit: boolean = false;
 
+
+   hasInlets: boolean = false;
+
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
@@ -147,6 +150,10 @@ export class OperationComponent implements OnInit {
 
     this.opnode = <OpNode> this.tree.getNode(this.id);
     if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
+
+    this.hasInlets = this.op.inlets.length > 0;
+
+
 
   }
 

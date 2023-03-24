@@ -56,7 +56,7 @@ export class SimulationService {
     // console.log(topo);
     // const vtxs = evaluateVerticies(topo.warps, topo.wefts, 5, 4.5);
     const warp_vtxs = positionWarpsInYandZ(draft, 10);
-    const weft_vtxs = positionWeftsInXYZ(draft, 10, warp_vtxs);
+    const weft_vtxs = positionWeftsInXYZ(draft, 3, warp_vtxs);
 
     let vtxs = {
       warps: warp_vtxs,
@@ -99,7 +99,7 @@ export class SimulationService {
       const material_id = draft.colShuttleMapping[j];
       const color = this.ms.getColor(material_id)
       const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-      const geometry = new THREE.TubeGeometry( curve, 100, 1, 6, false );
+      const geometry = new THREE.TubeGeometry( curve, 100, 2, 6, false );
       const material = new THREE.MeshPhysicalMaterial( {
         color: color,
         depthTest: true,

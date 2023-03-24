@@ -14,24 +14,14 @@ import { AuthService } from '../provider/auth.service';
 
 export class TopbarComponent implements OnInit {
   
-  // @Output() onSave: any = new EventEmitter();
-  // @Output() onUndo: any = new EventEmitter();
-  // @Output() onRedo: any = new EventEmitter();
-  // @Output() onAboutCreate: any = new EventEmitter();
+
+   @Output() onCollapseSidebar: any = new EventEmitter();
   
 
   @Input() drawer;
-  // @Input() version;
-  // @Input() filename;
-  // @Input() timeline;
-  // @Input() undoItem;
-  // @Input() redoItem;
-  // @Input() draftelement;
-  // @Input() loomtypes;
-  // @Input() density_units;
-  // @Input() source; 
+  @Input() collapsed;
 
-  collapsed: boolean = false;
+
 
   constructor(private dialog: MatDialog, public auth: AuthService) { }
 
@@ -71,6 +61,12 @@ export class TopbarComponent implements OnInit {
 
 
   // }
+
+  collapse(){
+    this.collapsed = !this.collapsed;
+    this.onCollapseSidebar.emit();
+
+  }
 
   logout(){
     this.auth.logout();
