@@ -125,32 +125,32 @@ export class SimulationService {
 
     vtxs.wefts.forEach((weft_vtx_list, i) => {
       const pts = [];
-      pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
-      weft_vtx_list.forEach(vtx => {
-        pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-      });
+      if(weft_vtx_list.length != 0){
+        pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
+        weft_vtx_list.forEach(vtx => {
+          pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+        });
       let last = weft_vtx_list.length -1;
       pts.push(new THREE.Vector3(weft_vtx_list[last].x+10, weft_vtx_list[last].y, weft_vtx_list[last].z));
-
-      const material_id = draft.rowShuttleMapping[i];
-      let diameter = ms.getDiameter(material_id);
-      let color = this.ms.getColor(material_id)
-      if(i == 0) color="#ff0000"
-
-      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-      const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
-      const material = new THREE.MeshPhysicalMaterial( {
-        color: color,
-        emissive: 0x000000,
-        depthTest: true,
-        metalness: 0,
-        roughness: 0.5,
-        clearcoat: 1.0,
-        clearcoatRoughness: 1.0,
-        reflectivity: 0.0
-        } );        
-         const curveObject = new THREE.Mesh( geometry, material );
-         scene.add(curveObject);
+        const material_id = draft.rowShuttleMapping[i];
+        let diameter = ms.getDiameter(material_id);
+        let color = this.ms.getColor(material_id)
+        if(i == 0) color="#ff0000"
+        const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+        const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
+        const material = new THREE.MeshPhysicalMaterial( {
+          color: color,
+          emissive: 0x000000,
+          depthTest: true,
+          metalness: 0,
+          roughness: 0.5,
+          clearcoat: 1.0,
+          clearcoatRoughness: 1.0,
+          reflectivity: 0.0
+          } );        
+          const curveObject = new THREE.Mesh( geometry, material );
+          scene.add(curveObject);
+        }
     });
 
 
@@ -187,6 +187,7 @@ export class SimulationService {
     })
 
     vtxs.wefts.forEach((weft, i) => {
+      if(weft.length > 0){
       const material_id = draft.rowShuttleMapping[i];
       let diameter = ms.getDiameter(material_id);
       const color = this.ms.getColor(material_id)
@@ -203,43 +204,14 @@ export class SimulationService {
       bot_geometry.translate(weft[weft.length-1].x+10, weft[weft.length-1].y, weft[weft.length-1].z);
       const top_circle = new THREE.Mesh( bot_geometry, material );
       scene.add( top_circle );
+      }
 
     })
   
 
   }
 
-  updateSimluation(draft){
-  }
 
-  //   const topo = getDraftTopology(draft.drawdown);
-  //   const vtxs = evaluateVerticies(topo.warps, [], 2, 1);
-    
-  //   //get rid of the old data 
-  //   this.scene.children.forEach(childMesh => {
-  //     if(childMesh.geometry !== undefined) childMesh.geometry.dispose();
-  //     if(childMesh.texture !== undefined) childMesh.texture.dispose();
-  //     if(childMesh.material !== undefined) childMesh.material.dispose();
-  //   });
-
-  //   vtxs.warps.forEach((warp_vtx_list, j) => {
-  //     const pts = [];
-  //     warp_vtx_list.forEach(vtx => {
-  //       pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-  //     });
-
-  //     const material_id = draft.colShuttleMapping[j];
-  //     const color = this.ms.getColor(material_id)
-  //     const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .5);
-  //     const geometry = new THREE.TubeGeometry( curve, 20, 1, 8, false );
-  //     const material = new THREE.MeshMatcapMaterial( {color: color, opacity: 0.84} );
-  //     const curveObject = new THREE.Mesh( geometry, material );
-  //     this.scene.add(curveObject);
-  //   });
-
-
-
-  // }
     
 
 }

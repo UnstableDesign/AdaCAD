@@ -1,4 +1,5 @@
 import { F } from "@angular/cdk/keycodes";
+import { arch } from "os";
 import { MaterialsService } from "../provider/materials.service";
 import { Cell } from "./cell";
 import { Draft, Drawdown, ForceVector, InterlacementForceVector, InterlacementLayerMap, SystemVerticies, WarpInterlacementTuple, WeftInterlacementTuple, YarnCell, YarnFloat, YarnSim, YarnSimSettings, YarnVertex, YarnVertexExpression } from "./datatypes";
@@ -847,7 +848,7 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
         if(j_right !== warps(dd)){
 
           const ilace = areInterlacement(dd[i][j_left], dd[i][j_right]); 
-          if(ilace || i == 0){
+          if(ilace ){
 
             ilace_list.push({
               j_left: j_left,
@@ -1048,19 +1049,29 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
   export const pushWeftInterlacementsToVtxList = (ilace_list: Array<WeftInterlacementTuple>, draft: Draft, ms: MaterialsService, warp_vtxs: Array<Array<YarnVertex>>, weft_vtxs: Array<Array<YarnVertex>>) :  Array<Array<YarnVertex>> => {
 
     ilace_list.forEach(ilace => {
-
-
       let float_length = warp_vtxs[ilace.i][ilace.j_right].x - warp_vtxs[ilace.i][ilace.j_left].x; 
       let x_midpoint = warp_vtxs[ilace.i][ilace.j_left].x + float_length/2;
+      let last = weft_vtxs[ilace.i].length -1;
+      let last_vertex:number = (last < 0) ? 0 :  weft_vtxs[ilace.i][last].x;
+      let arch_factor = (ilace.orientation === true) ? -1 : 1;
+      let dist_to_interlacement = 0;
+      let offset = getWeftOffsetFromWarp(draft, ilace.i, ilace.j_left, ms);
 
-  
-      //push the z's that will form the interlacements
-      // let offset = getWeftOffsetFromWarp(draft, ilace.i, ilace.j_left, ms);
-      // weft_vtxs[ilace.i].push({
-      //   x: warp_vtxs[ilace.i][ilace.j_left].x,
-      //   y: warp_vtxs[ilace.i][ilace.j_left].y, 
-      //   z: (ilace.orientation) ? warp_vtxs[ilace.i][ilace.j_left].z-offset : warp_vtxs[ilace.i][ilace.j_left].z + offset
-      // });
+      if(last_vertex == null){
+        dist_to_interlacement = x_midpoint;
+      }else{
+        dist_to_interlacement = x_midpoint - last_vertex;
+      }
+
+      arch_factor *= Math.min(2, dist_to_interlacement/10);
+
+      
+      weft_vtxs[ilace.i].push({
+        x: last_vertex + dist_to_interlacement/2,
+        y: warp_vtxs[ilace.i][ilace.j_left].y, 
+        z: warp_vtxs[ilace.i][ilace.j_left].z + offset * arch_factor
+      });
+
 
       weft_vtxs[ilace.i].push({
         x: x_midpoint,
@@ -1068,17 +1079,9 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
         z: warp_vtxs[ilace.i][ilace.j_left].z
       });
 
-      // offset = getWeftOffsetFromWarp(draft, ilace.i, ilace.j_right, ms);
-      // weft_vtxs[ilace.i].push({
-      //   x: warp_vtxs[ilace.i][ilace.j_right].x,
-      //   y: warp_vtxs[ilace.i][ilace.j_right].y, 
-      //   z: (ilace.orientation) ? warp_vtxs[ilace.i][ilace.j_right].z+ offset : warp_vtxs[ilace.i][ilace.j_right].z - offset
-      // });
 
     });
 
-    const first_ilace = ilace_list.shift();
-    const last_ilace = ilace_list.pop();
 
     return weft_vtxs;
 
@@ -1213,7 +1216,13 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
 
 
-
+/**
+ * when positioning warps in layers, warps close to the ends of the draft will never get a position set. For this reason, we set an unreasinable z value to flag a process after the warps are positioned to update the ends. 
+ * @param i 
+ * @param j 
+ * @param warp_vtx 
+ * @returns 
+ */
 export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<YarnVertex>>) : number => {
 
   for(let x = 1; x < warp_vtx.length; x++){
@@ -1335,16 +1344,18 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     const dd = draft.drawdown;
     const ilaces = getWeftInterlacementTuples(dd);
     let weft_vtxs: Array<Array<YarnVertex>> = [];
+
     
-    //create a blank list for every row
+    //create a blank list for every row and only push the interlacements to start
     draft.drawdown.forEach((row, i) => {
       weft_vtxs.push([]);
     });
 
-    // //look at each warp
+    // //look at each warp and push any interlacements you find to their respective spots in the vertex list
     for(let j = 0; j < warps(dd); j++){
      
       let a = ilaces.filter(el => el.j_right == j);
+      console.log(a)
 
       //if there is at least one interlacement 
       if(a.length > 0){  
@@ -1387,6 +1398,27 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
   
 
     }
+
+    //now pretend like you are weaving each row, packing y's as you go. 
+    const y_positions: Array<number> = [];
+    // for(let j = 0; j < warps(dd); j++){
+    //   y_positions.push(0)
+    // }
+    // for(let i = 0; i < wefts(draft.drawdown); i++){
+    //   if(weft_vtxs[i].length == 0){
+    //     //this pic just replicates the last one. 
+    //     if(i-1 >= 0) weft_vtxs[i] = weft_vtxs[i-1].slice();
+    //     else{
+    //      //we'll have to push the first row to the 
+    //     }
+    //   }else if(weft_vtxs[i].length == 1){
+
+    //   }
+      
+    // }
+
+
+
 
 
   

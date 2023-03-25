@@ -75,7 +75,6 @@ export class SimulationComponent implements OnInit {
   updateSimulation(draft: Draft, loom_settings){
     this.draft = draft;
     this.loom_settings = loom_settings;
-    console.log("UPDATE SIMULATION", draft)
     this.simulation.drawDrawdown(draft,  this.scene, this.weft_threshold, this.warp_threshold, convertEPItoMM(loom_settings), this.layer_spacing,this.ms);
   }
 
