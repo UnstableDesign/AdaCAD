@@ -40,18 +40,21 @@
   <!-- </mat-drawer> -->
 
     <div class="viewers">
-    <app-draftviewer style= 'width: 50%' 
-    [id]="id"
-    source = "weaver"
-    (onNewSelection) = "updateSelection($event)"
-    (onDrawdownUpdated)="redrawSimulation($event)">
-    </app-draftviewer>
+      <app-draftviewer style= 'width: 50%' 
+      [id]="id"
+      source = "weaver"
+      (onNewSelection) = "updateSelection($event)"
+      (onDrawdownUpdated)="redrawSimulation($event)">
+      </app-draftviewer>
 
-    <app-simulation 
-    style= 'width: 50%' 
-    [id]="id"
-    >
-    </app-simulation>
+      <app-simulation 
+      style= 'width: 50%' 
+      [id]="id"
+      [weft_threshold]="weft_threshold"
+      [warp_threshold]="warp_threshold"
+      [layer_spacing]="layer_spacing"
+      >
+      </app-simulation>
     </div>
 
     <div class="detail_data" *ngIf="id !== -1">
@@ -203,23 +206,50 @@
         
         </mat-tab>
 
-      <mat-tab label="View">
-
-        <app-weaverview
-        (onViewChange)="viewChange($event)"
-        ></app-weaverview>
-
-      </mat-tab>
+     
             
-      <mat-tab label="Cross Section Viewer">
-        <app-crosssection #crosssection></app-crosssection>
-      </mat-tab>
 
-      <mat-tab label="Data">   
-         <div class="weave_stats">
-      
-        </div> 
-  </mat-tab>
+      <mat-tab label="Simulation Settings">  
+        <mat-form-field class="example-full-width">
+          <mat-label>Layer Spacing</mat-label>
+          <input 
+          matInput
+          [(ngModel)] = "layer_spacing"
+          type = "number"
+          [min]=0
+          [max]=100
+          step = 1
+          (change)= "layerSpacingChange()">
+        </mat-form-field>
+        
+
+        <mat-form-field class="example-full-width">
+          <mat-label>Weft Layer Threshold</mat-label>
+          <input 
+          matInput
+          [(ngModel)] = "weft_threshold"
+          type = "number"
+          [min]=0
+          [max]="draft.drawdown.length"
+          step = 1
+          (change)= "weftThresholdChange()">
+        </mat-form-field>
+
+        <mat-form-field class="example-full-width">
+        <mat-label>Warp Layer Threshold</mat-label>
+        <input 
+        matInput
+        [(ngModel)] = "warp_threshold"
+        type = "number"
+        [min]=0
+        [max]="draft.drawdown[0].length"
+        step = 1
+        (change)= "warpThresholdChange()">
+      </mat-form-field>
+     
+
+        
+     </mat-tab>
     </mat-tab-group> 
    </div>
 

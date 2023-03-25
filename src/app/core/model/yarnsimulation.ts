@@ -817,7 +817,7 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
        
           const ilace = areInterlacement(dd[i_top][j], dd[i_bot][j]); 
-          if(ilace){
+          if(ilace || j == 0){
 
             ilace_list.push({
               i_bot: i_bot,
@@ -833,69 +833,6 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
   }
 
 
-  /**
-   * this takes a list of Interlacement Layer maps (i and j's with layer info) and return an ordered list of interlacements from left to right
-   * @param i 
-   * @param all 
-   * @returns 
-   */
-  // export const getLayerInterlacements = (i: number, dd: Drawdown, all: Array<InterlacementLayerMap>) : Array<WeftInterlacementTuple> => {
-    
-  //   const ilace_list: Array<WeftInterlacementTuple> = [];
-  //   const row_cells = all.filter(el => el.i == i);
-   
-  //   const first = getFirstWeftInterlacement(row_cells);
-  //     if(first != -1){
-
-
-  //     const first_cell = row_cells.splice(first, 1);
-      
-  //     console.log("FIRST CELL ", first, first_cell)
-  //     let next: number = getNextWeftInterlacement(first_cell[0].j, row_cells);
-  //     let last: InterlacementLayerMap = first_cell[0];
-  //     while(next !== -1){
-        
-  //       let next_cell = row_cells.splice(next, 1);
-  //       let is_ilace = areInterlacement(dd[i][last.j], dd[i][next_cell[0].j]);
-  //       if(is_ilace || last.layer !== next_cell[0].layer){
-
-  //         ilace_list.push({
-  //           i: i, 
-  //           j_left: last.j,
-  //           j_right: next_cell[0].j,
-  //           orientation:  getOrientation(dd[i][last.j], dd[i][next_cell[0].j]),
-  //           layer_left: last.layer,
-  //           layer_right: next_cell[0].layer
-  //         })
-        
-  //         last = next_cell[0];
-
-
-  //       }
-        
-  //       next = getNextWeftInterlacement(last.j, row_cells);      
-  //     }
-  //   }
-   
-   
-  //   return ilace_list;
-  // } 
-
-  // export const getFirstWeftInterlacement = (rowcells: Array<InterlacementLayerMap>) : number =>{
-  //   console.log("ROWCELLS", rowcells);
-  //   const first: number = rowcells.reduce((acc, val) => {
-  //     if(val.j < acc || acc == -1) return val.j;
-  //   }, -1);
-  //   return first;
-  // }
-
-  // export const getNextWeftInterlacement = (j: number, rowcells: Array<InterlacementLayerMap>) : number =>{
-  //   const next = rowcells.reduce((acc, val) => {
-  //     let dist = val.j - j;
-  //     if(dist > 0 && dist < acc.dist) return {ndx: val.j, dist: dist};
-  //   }, {ndx: -1, dist: -1});
-  //   return next.ndx;  
-  // }
 
   export const getWeftInterlacementTuples = (dd: Drawdown) : Array<WeftInterlacementTuple> => {
     const ilace_list: Array<WeftInterlacementTuple> = [];
@@ -910,7 +847,7 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
         if(j_right !== warps(dd)){
 
           const ilace = areInterlacement(dd[i][j_left], dd[i][j_right]); 
-          if(ilace){
+          if(ilace || i == 0){
 
             ilace_list.push({
               j_left: j_left,
@@ -927,36 +864,6 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
 
 
-  // export const smooshWefts = (j_start: number, j_end: number, top_weft_vtx_row: Array<YarnVertex>, top_mat: Shuttle, bot_weft_vtx_row: Array<YarnVertex>, bot_mat: Shuttle ) : Array<YarnVertex> => {
-  //   for(let j = j_start; j <j_end; j++){
-  //    top_weft_vtx_row[j].y = bot_weft_vtx_row[j].y + bot_mat.getThickness() + .5*top_mat.getThickness();
-
-  //   }
-  //   return top_weft_vtx_row;
-  // }
-
-  // export const stackUncoupledInterlacements = (ilace:WeftInterlacementTuple, ilace_next: WeftInterlacementTuple, draft: Draft, ms: MaterialsService, weft_vtxs: Array<Array<YarnVertex>>, warp_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>> => {
-  //     //update the rest of the rest of the existing top row
-  //     let top_mat = ms.getShuttle(draft.rowShuttleMapping[ilace.i_top]);
-  //     let bot_mat = ms.getShuttle(draft.rowShuttleMapping[ilace.i_bot]);  
-  //     weft_vtxs[ilace.i_top] = smooshWefts(ilace.j, warps(draft.drawdown)-1,  weft_vtxs[ilace.i_top], top_mat, weft_vtxs[ilace.i_bot], bot_mat);
-
-
-  //     //stack yarns of floating rows in between
-  //     for(let i = ilace.i_top; i < ilace_next.i_top; i++){
-  //       top_mat = ms.getShuttle(draft.rowShuttleMapping[i]);
-  //       bot_mat = ms.getShuttle(draft.rowShuttleMapping[i-1]);
-  //       weft_vtxs[i] = smooshWefts(0, warps(draft.drawdown)-1,  weft_vtxs[i], top_mat, weft_vtxs[i-1], bot_mat);
-  //     }
-
-  //     //update the start of the next interlacement row
-  //     top_mat = ms.getShuttle(draft.rowShuttleMapping[ilace_next.i_top]);
-  //     bot_mat = ms.getShuttle(draft.rowShuttleMapping[ilace_next.i_bot]);  
-  //     weft_vtxs[ilace_next.i_top] = smooshWefts(0, ilace_next.j,  weft_vtxs[ilace_next.i_top], top_mat, weft_vtxs[ilace_next.i_bot], bot_mat);
-
-  //     return weft_vtxs;
-      
-  // }
 
   /**
    * given a list of interlacments, see if there are interlacements with opposite orientation within the list that would indicate that these two yarns cross eachother at some point.
@@ -968,11 +875,29 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
     let last = null;
     let barrier_found = false;
     ilaces.forEach(ilace => {
+
       if(last == null) last = ilace.orientation;
       if(last !== ilace.orientation) barrier_found = true;
     })
 
     return barrier_found;
+
+  }
+
+  /**
+   * checks to see if either of the wefts we are comparing against is on the edge. 
+   * @param draft 
+   * @param ilaces 
+   * @returns 
+   */
+  export const containsWeftEdge = (draft: Draft, ilaces: Array<WarpInterlacementTuple>) : boolean => {
+
+    ilaces.forEach(ilace => {
+      if(ilace.i_top == wefts(draft.drawdown)-1) return true;
+      if(ilace.i_bot == 0) return true;
+    })
+
+    return false;
 
   }
 
@@ -1010,13 +935,35 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
 
 
-  export const stackAtop = (i_active: number, i_check: number, j_start: number, j_end: number, ms: MaterialsService, draft: Draft, weft_vtxs: Array<Array<YarnVertex>>) :   Array<Array<YarnVertex>> =>{
-    let check_mat = ms.getShuttle(draft.rowShuttleMapping[i_check]);
+  /**
+   * when positioning wefts, if there are interlacing wefts, always using the posiitons of the weft underneithe for positioning. 
+   * @param j_active 
+   * @param j_check 
+   * @param i_start 
+   * @param i_end 
+   * @param ms 
+   * @param draft 
+   * @param weft_vtxs 
+   * @returns 
+   */
+  // export const positionInterlacingWefts = (j_active: number, j_check: number, i_start: number, i_end: number, ms: MaterialsService, draft: Draft, weft_vtxs: Array<Array<YarnVertex>>) :   Array<Array<YarnVertex>> =>{
+  //   let check_mat = ms.getDiameter(draft.colShuttleMapping[j_active]);
+  //   let active_mat = ms.getDiameter(draft.colShuttleMapping[j_check]);
+  //   for(let i =i_start; i <= i_end; i++){     
+  //     weft_vtxs[i_active][j].y = weft_vtxs[i_check][j].y + (check_mat/2 + active_mat/2) + .5;  
+  //   }
+  //   return weft_vtxs;
+  // }
+
+  export const positionFloatingWefts = (i_active: number, i_check: number, j_start: number, j_end: number, ms: MaterialsService, draft: Draft, weft_vtxs: Array<Array<YarnVertex>>) :   Array<Array<YarnVertex>> =>{
+    let check_mat = ms.getDiameter(draft.rowShuttleMapping[i_check]);
+    let active_mat = ms.getDiameter(draft.rowShuttleMapping[i_active]);
     for(let j =j_start; j <= j_end; j++){     
-      weft_vtxs[i_active][j].y = weft_vtxs[i_check][j].y + check_mat.getThickness();  
+      weft_vtxs[i_active][j].y = weft_vtxs[i_check][j].y + (check_mat/2 + active_mat/2);  
     }
     return weft_vtxs;
   }
+
 
 
 
@@ -1032,8 +979,17 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
    * @returns 
    */
   export const getInterlacementsBetweenWefts = (i_active: number, i_check: number, j_start: number, j_end: number, draft: Draft) => {
+    console.log("iactive, icheck", i_active, i_check, j_start, j_end);
+
     let ilace_list: Array<WarpInterlacementTuple> = [];
+    
+    if(i_check < 0){
+      return ilace_list;
+    }
+
     for(let j =j_start; j <= j_end; j++){
+      
+    
       const are_interlacements = areInterlacement(draft.drawdown[i_active][j], draft.drawdown[i_check][j]);
       if(are_interlacements) ilace_list.push({
         i_top: i_active,
@@ -1072,18 +1028,16 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
  
 
+  export const setLayerZ = (ilace_list: Array<WarpInterlacementTuple>, count: number, layer_spacing: number, warp_vtxs: Array<Array<YarnVertex>>) :  Array<Array<YarnVertex>> => {
+      if(count == 0) console.log("------COUNT 0 ", ilace_list);
 
-  export const setLayerYandZ = (ilace_list: Array<WarpInterlacementTuple>, count: number, warp_vtxs: Array<Array<YarnVertex>>) :  Array<Array<YarnVertex>> => {
-    
     ilace_list.forEach(ilace => {
-      console.log("setting layer z for barrier between", ilace.i_top, ilace.i_bot, count)
 
-      
-      warp_vtxs[ilace.i_top][ilace.j].y = warp_vtxs[ilace.i_bot][ilace.j].y + 1;
+      //warp_vtxs[ilace.i_top][ilace.j].y = warp_vtxs[ilace.i_bot][ilace.j].y + 1;
 
-      //sets this warp to this z for all locations in between
       for(let i = ilace.i_bot; i <= ilace.i_top; i++){
-        warp_vtxs[i][ilace.j].z = count;
+        console.log("writing to ", i, ilace.j, count);
+        warp_vtxs[i][ilace.j].z = count*layer_spacing;
       }
     });
 
@@ -1091,22 +1045,22 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
   }
 
-  export const setLayerXandZ = (ilace_list: Array<WeftInterlacementTuple>, count: number, warp_vtxs: Array<Array<YarnVertex>>, weft_vtxs: Array<Array<YarnVertex>>) :  Array<Array<YarnVertex>> => {
+  export const pushWeftInterlacementsToVtxList = (ilace_list: Array<WeftInterlacementTuple>, draft: Draft, ms: MaterialsService, warp_vtxs: Array<Array<YarnVertex>>, weft_vtxs: Array<Array<YarnVertex>>) :  Array<Array<YarnVertex>> => {
 
     ilace_list.forEach(ilace => {
+
 
       let float_length = warp_vtxs[ilace.i][ilace.j_right].x - warp_vtxs[ilace.i][ilace.j_left].x; 
       let x_midpoint = warp_vtxs[ilace.i][ilace.j_left].x + float_length/2;
 
-      
-      console.log("PUSHING ", ilace.i, ilace.j_left, ilace.j_right);
-
+  
       //push the z's that will form the interlacements
-      weft_vtxs[ilace.i].push({
-        x: warp_vtxs[ilace.i][ilace.j_left].x,
-        y: warp_vtxs[ilace.i][ilace.j_left].y, 
-        z: (ilace.orientation) ? warp_vtxs[ilace.i][ilace.j_left].z-.5 : warp_vtxs[ilace.i][ilace.j_left].z + .5
-      });
+      // let offset = getWeftOffsetFromWarp(draft, ilace.i, ilace.j_left, ms);
+      // weft_vtxs[ilace.i].push({
+      //   x: warp_vtxs[ilace.i][ilace.j_left].x,
+      //   y: warp_vtxs[ilace.i][ilace.j_left].y, 
+      //   z: (ilace.orientation) ? warp_vtxs[ilace.i][ilace.j_left].z-offset : warp_vtxs[ilace.i][ilace.j_left].z + offset
+      // });
 
       weft_vtxs[ilace.i].push({
         x: x_midpoint,
@@ -1114,18 +1068,17 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
         z: warp_vtxs[ilace.i][ilace.j_left].z
       });
 
-      weft_vtxs[ilace.i].push({
-        x: warp_vtxs[ilace.i][ilace.j_right].x,
-        y: warp_vtxs[ilace.i][ilace.j_right].y, 
-        z: (ilace.orientation) ? warp_vtxs[ilace.i][ilace.j_right].z+ .5 : warp_vtxs[ilace.i][ilace.j_right].z - .5
-      });
+      // offset = getWeftOffsetFromWarp(draft, ilace.i, ilace.j_right, ms);
+      // weft_vtxs[ilace.i].push({
+      //   x: warp_vtxs[ilace.i][ilace.j_right].x,
+      //   y: warp_vtxs[ilace.i][ilace.j_right].y, 
+      //   z: (ilace.orientation) ? warp_vtxs[ilace.i][ilace.j_right].z+ offset : warp_vtxs[ilace.i][ilace.j_right].z - offset
+      // });
 
     });
 
     const first_ilace = ilace_list.shift();
     const last_ilace = ilace_list.pop();
-
-    console.log("SPANS ROWS ", first_ilace, last_ilace)
 
     return weft_vtxs;
 
@@ -1147,18 +1100,21 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
    * @param warp_vtxs the warp positions
    * @returns 
    */
-  export const layerWarpsInYZBetweenInterlacements = (count: number, i_active:number, i_check: number, j_start: number, j_end: number, draft: Draft, range: number, warp_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>>=> {
-
-
-    //if check is 0 there are no more rows to check and we should just return where we are. 
-    if(i_check <= 0) return warp_vtxs;
+  export const layerWarpsInZBetweenInterlacements = (count: number, i_active:number, i_check: number, j_start: number, j_end: number, draft: Draft, range: number, layer_spacing: number,  warp_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>>=> {
 
     let ilace_list: Array<WarpInterlacementTuple> = getInterlacementsBetweenWefts(i_active, i_check, j_start, j_end, draft);
+    //if check is 0 there are no more rows to check and we should just return where we are. 
+    if(i_check < 0){
+      console.log("we are at the end of the range, sending count ", count, ilace_list)
+      return setLayerZ(ilace_list, count, layer_spacing, warp_vtxs);
+    }
+
+  
     // console.log("i lace list comparing", i_active, i_check, j_start, j_end, ilace_list)
     
     //if there are no interlacements on this row, it was a duplicate of the previous row, and so we couls just move
     if(ilace_list.length == 0)
-      return layerWarpsInYZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, warp_vtxs);
+      return layerWarpsInZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, layer_spacing,  warp_vtxs);
     
 
     const has_barrier = hasWeftBarrierInRange(ilace_list, j_start, j_end, range, draft);
@@ -1166,8 +1122,9 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
     if(has_barrier){
       //set the warp positions here
       //each mark each of the barriers as a place that needs to move 
+      console.log("we are at a barrier, sending count ", count, ilace_list)
 
-      return setLayerYandZ(ilace_list, count, warp_vtxs);
+      return setLayerZ(ilace_list, count, layer_spacing, warp_vtxs);
 
     }else{
     
@@ -1177,32 +1134,30 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
       }else{
         count = count + 1;
       }
-      return layerWarpsInYZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, warp_vtxs);
+      return layerWarpsInZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, layer_spacing, warp_vtxs);
   
     } 
 
   }
 
 
-  export const layerWeftsInXZBetweenInterlacements = (count: number, j_active:number, j_check: number, i_start: number, i_end: number, draft: Draft, range: number, warp_vtxs:  Array<Array<YarnVertex>>, weft_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>>=> {
+  export const layerWeftsInYZBetweenInterlacements = (count: number, j_active:number, j_check: number, i_start: number, i_end: number, draft: Draft, range: number, ms: MaterialsService, warp_vtxs:  Array<Array<YarnVertex>>, weft_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>>=> {
 
-    //if check is 0 there are no more warps to check and we should just return where we are. 
-    if(j_check <= 0){
-      //need to add something here. 
-      let ilace_list: Array<WeftInterlacementTuple> = getInterlacementsBetweenWarps(j_active, 0, i_start, i_end, draft);
-      return setLayerXandZ(ilace_list, count, warp_vtxs, weft_vtxs);
+    //if check is 0 we don't have any interlacements to add
+    if(j_check < 0){
+      return weft_vtxs;
     } 
 
     let ilace_list: Array<WeftInterlacementTuple> = getInterlacementsBetweenWarps(j_active, j_check, i_start, i_end, draft);
     
     //if there are no interlacements on this row, it was a duplicate of the previous row, and so we couls just move
     if(ilace_list.length == 0)
-      return layerWeftsInXZBetweenInterlacements(count, j_active, j_check-1, i_start, i_end, draft, range, warp_vtxs, weft_vtxs);
+      return layerWeftsInYZBetweenInterlacements(count, j_active, j_check-1, i_start, i_end, draft, range, ms, warp_vtxs, weft_vtxs);
     
 
     const has_barrier = hasWarpBarrierInRange(ilace_list, i_start, i_end, range, draft);
     if(has_barrier){
-      return setLayerXandZ(ilace_list, count, warp_vtxs, weft_vtxs);
+      return pushWeftInterlacementsToVtxList(ilace_list, draft, ms, warp_vtxs, weft_vtxs);
 
     }else{
     
@@ -1212,7 +1167,7 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
       }else{
         count = count + 1;
       }
-      return layerWeftsInXZBetweenInterlacements(count, j_active, j_check-1, i_start, i_end, draft, range, warp_vtxs, weft_vtxs);
+      return layerWeftsInYZBetweenInterlacements(count, j_active, j_check-1, i_start, i_end, draft, range, ms, warp_vtxs, weft_vtxs);
   
     } 
 
@@ -1259,110 +1214,61 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
 
 
+export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<YarnVertex>>) : number => {
+
+  for(let x = 1; x < warp_vtx.length; x++){
+    let bot = i-x;
+    let top = i+x;
+
+    if(bot >= 0 && bot <= warp_vtx.length-1 && warp_vtx[bot][j].z !== -10000000) return warp_vtx[bot][j].z;
+    if(top >= 0 && top <= warp_vtx.length -1 && warp_vtx[top][j].z !== -10000000) return warp_vtx[top][j].z;
+  }
+  return 0;
+
+}
+
+
+
+  export const getWeftOffsetFromWarp = (draft: Draft, i: number, j: number, ms: MaterialsService) : number => {
+
+    let warp_diam = ms.getDiameter(draft.colShuttleMapping[j]);
+    let weft_diam = ms.getDiameter(draft.rowShuttleMapping[i]);
+
+    return (warp_diam / 2 + weft_diam/2);
+
+  }
 
   /**
    * use the draft to determine where layers will form and position warps accordingly
    * @param draft the draft we are working with
    * @param warp_vtxs the current warp verticies
    * @param range how close does an interlacement need to be to present a layer from forming. 
+   * @param warp_spacing the distance between the center points of one warp to the next
    */
-  // export const positionWarpsInZ = (draft: Draft, range: number) : Array<Array<YarnVertex>> => {
-  //   const dd = draft.drawdown;
-  //   const ilaces = getWarpInterlacementTuples(dd);
-  //   let layer_cells: Array<WeftActiveLayerCells> = []; //this stores which interlacements at which locations are mapped to layers 
-  //   let warp_vtxs: Array<Array<YarnVertex>> = [];
-
-  //   //push initial locations
-  //   dd.forEach((row, i) => {
-  //     warp_vtxs.push([]);
-  //     row.forEach((cell, j) =>{
-  //       warp_vtxs[i].push({x: j, y: i, z: 0})
-  //     });
-  //   })
-
-
-  //   for(let i = 1; i < wefts(dd); i++){
-     
-  //     //get the interlacements associated with this row
-  //     let a = ilaces.filter(el => el.i_top == i);
-
-  //     //if there is at least one interlacement 
-  //     if(a.length > 0){  
-      
-  //       //go through each interlacement
-  //       for(let x = 0; x < a.length; x++){
-
-  //         const ilace_start: WarpInterlacementTuple = a.shift();
-  //         const res = getNonInterlacingSegment(ilace_start, a);
-
-  //         let ilace_end = null;
-  //         if(res.dist > range || res.ndx == -1){
-            
-  //           if(res.ndx == -1){
-  //             ilace_end = {
-  //               i_top: ilace_start.i_top, 
-  //               i_bot: ilace_start.i_bot,
-  //               j: warps(draft.drawdown)-1,
-  //               orientation: ilace_start.orientation}
-  //           }else{
-  //             ilace_end = a[res.ndx];
-  //           }
-           
-  //           // console.log("found non interlacing from ", res, ilace_start, ilace_end);
-  
-  //           let orientation = ilace_start.orientation;
-  //           let count = 0;
-  //           if(orientation){
-  //             count =  -1;
-  //           }else{
-  //             count = 1;
-  //           }
-
-  //           const layerout = layerWarpsBetweenInterlacements(count, ilace_start.i_top, ilace_start.i_bot-1, ilace_start.j, ilace_end.j,draft, range, warp_vtxs);
-  //           warp_vtxs = layerout.vtxs; 
-  //           layer_cells = mergeLayerCells(layerout.cells, layer_cells);
-
-
-           
-  //         }
-
-  //         x = res.ndx;
-  //       }
-  //     }
-
-  //   }
-
-  //   return warp_vtxs;
-
-  // }
-
-
-
-  /**
-   * use the draft to determine where layers will form and position warps accordingly
-   * @param draft the draft we are working with
-   * @param warp_vtxs the current warp verticies
-   * @param range how close does an interlacement need to be to present a layer from forming. 
-   */
-  export const positionWarpsInYandZ = (draft: Draft, range: number) : Array<Array<YarnVertex>> => {
+  export const positionWarpsInZ = (draft: Draft, range: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService) : Array<Array<YarnVertex>> => {
     const dd = draft.drawdown;
     const ilaces = getWarpInterlacementTuples(dd);
     let warp_vtxs: Array<Array<YarnVertex>> = [];
 
+    let y_total = 0;
     //push initial locations
     dd.forEach((row, i) => {
       warp_vtxs.push([]);
+      let weft_id = draft.rowShuttleMapping[i];
+      let thickness = ms.getDiameter(weft_id);
+      y_total += thickness;
       row.forEach((cell, j) =>{
-        warp_vtxs[i].push({x: j, y: i, z: 0})
+        warp_vtxs[i].push({x: j*warp_spacing, y: y_total, z: -10000000 })
       });
-    })
+    });
 
 
     //look at each weft
-    for(let i = 1; i < wefts(dd); i++){
+    for(let i = 0; i < wefts(dd); i++){
      
       //get the interlacements associated with this row
       let a = ilaces.filter(el => el.i_top == i);
+
       //if there is at least one interlacement 
       if(a.length > 0){  
       
@@ -1382,35 +1288,42 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
                 i_bot: ilace_start.i_bot,
                 j: warps(draft.drawdown)-1,
                 orientation: ilace_start.orientation}
+                x = a.length;
             }else{
               ilace_end = a[res.ndx];
-            }
-           
-            let orientation = ilace_start.orientation;
-            let count = 0;
-            if(orientation){
-              count =  -1;
-            }else{
-              count = 1;
+              x = res.ndx;
             }
 
-            const warp = layerWarpsInYZBetweenInterlacements(count, ilace_start.i_top, ilace_start.i_bot-1, ilace_start.j, ilace_end.j,draft, range, warp_vtxs);
+            const warp = layerWarpsInZBetweenInterlacements(0, ilace_start.i_top, ilace_start.i_bot, ilace_start.j, ilace_end.j,draft, range, layer_spacing,  warp_vtxs);
+
+          
             warp_vtxs = warp; 
 
-            //this returned because it had reached the end of the list, all vtxs to be considered
           
            
           }
-          x = res.ndx;
         }
+      }else{
+        console.log("no interlacements at i", i)
+        
       }
 
     }
 
+    //check the warp vertexes. If any are -10000000, then they ahve never been set, look to the nearest warp that has a value to set it
+
+    warp_vtxs.forEach((row, i) => {
+      row.forEach((vtx, j) => {
+        if(vtx.z == -10000000){
+          vtx.z = getClosestWarpValue(i, j, warp_vtxs);
+        }
+      });
+    })
+
+
     return  warp_vtxs;
 
   }
-
 
   /**
    * while warp vertexes will have a position for every cell in the drawdown (just that i, j in drawdown will always have a cooresponding warp vertex), weft vertexs will only store key points along the path of the weft, and therefore, won't add multiple points for every cell. The process starts by identifying the critical interlacements on each weft. This is becaues, if the cloth is multi-layered, not every interlacement should be interpreted as meaningful (only the interlacements binding the active layer at any lection.)
@@ -1418,26 +1331,20 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
    * @param warp_vtxs 
    * @returns 
    */
-  export const positionWeftsInXYZ = (draft: Draft,  range: number, warp_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>> => {
+  export const positionWeftsInYZ = (draft: Draft,  range: number, warp_vtxs: Array<Array<YarnVertex>>, ms: MaterialsService) : Array<Array<YarnVertex>> => {
     const dd = draft.drawdown;
     const ilaces = getWeftInterlacementTuples(dd);
     let weft_vtxs: Array<Array<YarnVertex>> = [];
     
-   // initialize the starting points for each weft based on the warps
+    //create a blank list for every row
     draft.drawdown.forEach((row, i) => {
       weft_vtxs.push([]);
-      // weft_vtxs[i].push({x: warp_vtxs[i][0].x, y: warp_vtxs[i][0].y, z: warp_vtxs[i][0].z});
-      // weft_vtxs[i][0].z = (row[0].getHeddle()) ? weft_vtxs[i][0].z + .5 : weft_vtxs[i][0].z - .5
     });
 
-
-
-    //look at each warp
-    for(let j = 1; j < warps(dd); j++){
+    // //look at each warp
+    for(let j = 0; j < warps(dd); j++){
      
-      //get the interlacements associated with this row
       let a = ilaces.filter(el => el.j_right == j);
-      console.log("INTERLACEMENTS ON THIS WARP ", j, a.slice());
 
       //if there is at least one interlacement 
       if(a.length > 0){  
@@ -1446,9 +1353,8 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
         for(let x = 0; x < a.length; x++){
           
           const ilace_start: WeftInterlacementTuple = a[x];
-
           const res = getNonInterlacingWeftSegment(ilace_start, a);
-          console.log("LENGTH OF NON INTERLACING ", res)
+
           let ilace_end: WeftInterlacementTuple = null;
 
             if(res.ndx == -1){
@@ -1467,29 +1373,40 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
 
             if(res.dist > range || res.ndx == -1){
             
-            
-              let count = 1;
-         
-              const weft = layerWeftsInXZBetweenInterlacements(count, ilace_start.j_right, ilace_start.j_left-1, ilace_start.i, ilace_end.i,draft, range, warp_vtxs, weft_vtxs);
+                   
+              const weft = layerWeftsInYZBetweenInterlacements(0, ilace_start.j_right, ilace_start.j_left, ilace_start.i, ilace_end.i,draft, range, ms, warp_vtxs, weft_vtxs);
               weft_vtxs = weft;             
             
             }else{
 
               const ilaces = getInterlacementsBetweenWarps(ilace_start.j_right, ilace_start.j_left, ilace_start.i, ilace_end.i, draft);
-              weft_vtxs = setLayerXandZ(ilaces, 0, warp_vtxs, weft_vtxs);
+              weft_vtxs = pushWeftInterlacementsToVtxList(ilaces, draft, ms, warp_vtxs, weft_vtxs);
             }
         }
       }
+  
 
     }
 
 
+  
 
-    //and the ending point for each weft 
     // draft.drawdown.forEach((row, i) => {
+    //   let offset = getWeftOffsetFromWarp(draft, i, 0, ms);
+    //   weft_vtxs[i].unshift({x: warp_vtxs[i][0].x, y: warp_vtxs[i][0].y, z: warp_vtxs[i][0].z})
+
+    
+    //   weft_vtxs[i].push({x: warp_vtxs[i][0].x, y: warp_vtxs[i][0].y, z: warp_vtxs[i][0].z});
+    //   weft_vtxs[i][0].z = (row[0].getHeddle()) ? weft_vtxs[i][0].z + offset : weft_vtxs[i][0].z - offset
+    // });
+
+    // //and the ending point for each weft 
+    // draft.drawdown.forEach((row, i) => {
+      
     //   const last = warp_vtxs[i].length-1;
+    //   let offset = getWeftOffsetFromWarp(draft, i, last, ms);
     //   let weft_vtx = {x: warp_vtxs[i][last].x, y: warp_vtxs[i][last].y, z: warp_vtxs[i][last].z};
-    //   weft_vtx.z = (row[last].getHeddle()) ?  weft_vtx.z + .5 :  weft_vtx.z - .5
+    //   weft_vtx.z = (row[last].getHeddle()) ?  weft_vtx.z + offset :  weft_vtx.z - offset
 
     //   weft_vtxs[i].push(weft_vtx)
     // });

@@ -19,7 +19,7 @@ canvas{
 }
 
 .origin-selector{
-  color: white;
+  color: #333;
 }
 
 #threading{
@@ -40,7 +40,6 @@ canvas{
 
 #draft-scale-container{
   margin: auto;
-  border: #fff;
   width: fit-content;
   height: fit-content;
 }
@@ -253,12 +252,15 @@ canvas{
 }
 
 
-
+.warp-number-container{
+  display: flex;
+  height: 20px;
+}
 
 .warp-systems-text {
       cursor: pointer;
-      height: 60px;
       font-size: 10px;
+      color: #333;
       line-height: 10px;
       z-index: 1;
       display: flex;
@@ -267,14 +269,6 @@ canvas{
     
     }
   
-    .warp-systems-text.weaver {
-      background: #3d3d3d;
-      opacity: .8;
-    }
-    
-    .warp-systems-text.mixer {
-      background: #fff;
-    }
 
     .warp-systems-text.origin0,
     .warp-systems-text.origin1
@@ -307,8 +301,9 @@ canvas{
         line-height: 8px;
       
       .warp_selectors{
-        display: block;
-        height: 90px;
+        display: flex;
+        height: 50px;
+        flex-direction: column;
       }
     
       &:hover {
@@ -448,20 +443,13 @@ canvas{
     cursor: pointer;
     font-size: 10px;
     line-height: 10px;
+    color: #333;
     z-index: 2;
     display: flex;
     justify-content: flex-start;
     height: fit-content;
   }
 
-  .weft-systems-text.weaver {
-    background: #3d3d3d;
-    opacity: .8;
-  }
-  
-  .weft-systems-text.mixer {
-    background: #fff;
-  }
   
   .weft-systems-text.origin0,
   .weft-systems-text.origin3
@@ -476,13 +464,17 @@ canvas{
  
   }
 
+  .weft_actions{
+    display: flex;
+    width: 50px;
+    flex-direction: row;
+  }
 
   .weft-system-row{
     height: 10px;
-    width: 80px;
     display: flex;
     flex-grow: 1;
-    color: #fff;
+    color: #333;
     z-index: 1;
     opacity: 1;
     text-align: center;
@@ -522,14 +514,14 @@ canvas{
     display: block;
     width: 10px;
     height: 10px; 
-    border-left: thin solid white;
-    border-top: thin solid white;
+    border-left: thin solid #333;
+    border-top: thin solid #333;
   }
   
   .weft_number{
     display: block;
     position: relative;
-    border-bottom: thin solid white;
+    border-bottom: thin solid #333;
     width: 20px;
   }
 
@@ -558,7 +550,7 @@ canvas{
   .weft_number_last.origin0,
   .weft_number_last.origin3
   {
-    border-bottom: thin solid white;
+    border-bottom: thin solid #333;
 
 
   }
@@ -573,6 +565,7 @@ canvas{
   .weft_insert,
   .weft_clone,
   .weft_delete{
+
     align-items: right;
     justify-content: right;
     cursor: pointer;
@@ -582,4 +575,33 @@ canvas{
     display: none;
   
   }
+
+  a{
+    color: black;
+  }
+
+  .weft-material,
+  .warp-material{
+    position: relative;
+    top: 1px;
+    width: 9px;
+    height: 9px;
+    border: thin solid grey;
+}
+
+.warp-system{
+  display: block;
+}
+
+.warp-material{
+  display: block;
+}
+
+.weft-material,
+.weft-system{
+  display: inline-block;
+  margin: 0px 2px;
+
+}
+  
   

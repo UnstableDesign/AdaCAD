@@ -1279,5 +1279,6 @@ loomChange(e:any){
     console.log("mixer draft details", id)
     this.show_details = true;
     this.details.loadDraft(id);
+    this.dm.selectDesignMode('toggle','draw_modes')
   }
 }

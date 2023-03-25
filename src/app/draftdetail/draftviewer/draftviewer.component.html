@@ -19,12 +19,17 @@
       <div class="warp-systems-container origin{{ws.selected_origin_option}} ">
         <div class="warp-systems-text origin{{ws.selected_origin_option}}" id="warp-systems-text">
          
-           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
-          *ngFor="let i of colShuttleMapping; let j = index;" >
-      
+          <div class="warp-system-col origin{{ws.selected_origin_option}}" 
+          *ngFor="let i of colSystemMapping; let j = index;" >
+          <a class="warp-material" [style.background-color]="this.ms.getColor(colShuttleMapping[j])" (click)="incrementWarpMaterial(j)">   
+          </a>
+            <a class="warp-system" (click)="incrementWarpSystem(j)"> {{ss.getWarpSystemCode(i)}}</a>
+     
+          <div class="warp-number-container">
             <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol(j))" class="warp_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+          
             <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>      
-
+          </div>
             <div  class="warp_selectors">
             <span *ngIf="!viewonly"class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
               </span>
@@ -48,8 +53,6 @@
 
           </div>  
 
-        <canvas id="warp-systems" #warp_systems>  </canvas>
-        <canvas id="warp-materials" #warp_materials>  </canvas>
       </div>
       <div [class.hidden]="!isFrame" class="threading-tieup-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}">
         <canvas id="threading" class=""></canvas>
@@ -62,17 +65,25 @@
         <canvas [class.hidden]="!isFrame" id="treadling" #treadling></canvas>
         
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
-          <canvas id="weft-materials" #weft_materials>  </canvas>
-          <canvas id="weft-systems" #weft_systems>  </canvas>
           <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text">
             <div class="weft-system-row origin{{ws.selected_origin_option}}" 
             *ngFor="let i of (render?.visibleRows); let j = index;" >
-        
-  
-                  <div class="weft_indicies">
+               
+            <a class="weft-material" [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" (click)="incrementWeftMaterial(j)"> 
+            </a>
+            
+            <a class="weft-system" (click)="incrementWeftSystem(j)"> 
+                  {{ss.getWeftSystemCode(rowSystemMapping[i])}}</a>
+
+               
+
+
+                <div class="weft_indicies">
                   <span *ngIf="(i % render?.getTextInterval() == 0 && !isLastRow(j))" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
                   <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>      
                 </div>
+
+                <div class="weft_actions">
                   <span *ngIf="!viewonly" class = "weft_insert" 
                   (click)="insertRow(j, i)">
                   <i class="fa fa-plus-circle"></i>
@@ -87,7 +98,8 @@
                    (click)="deleteRow(i);">
                    <i class="fa fa-trash"></i>
                   </span>
-            </div>
+                </div>
+            </div> <!-- end weft system row-->
           </div> 
         </div>
       </div>

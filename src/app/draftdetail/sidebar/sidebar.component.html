@@ -29,15 +29,6 @@
             </button>
             </ng-container>
 
-            <ng-container *ngFor="let shuttle of ms.materials">
-                <button class="menu-button" 
-                mat-menu-item 
-                (click)="drawWithMaterial(shuttle.id)">
-                    <span class="swatch"  [style.background]="shuttle.color" ></span>
-                    <span>{{shuttle.name }}</span>
-                </button>
-                </ng-container>
-
 
         </mat-menu>
 

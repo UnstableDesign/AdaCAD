@@ -11,6 +11,7 @@ export class Shuttle {
   color: string;
   thickness: number; //percentage of base dims
   type: number;
+  diameter: number = 5;
   // image?: any;
   startLabel?: string;
   endLabel?: string;
@@ -26,6 +27,7 @@ export class Shuttle {
     this.visible = true;
     this.color="#666666";
     this.thickness=100;
+    this.diameter=5;
     this.type = 0;
     this.notes = "";
 
@@ -33,7 +35,7 @@ export class Shuttle {
 
   }
 
-  updateVariables({id, name, insert, visible, color, thickness, type, notes}) {
+  updateVariables({id, name, insert, visible, color, thickness, diameter, type, notes}) {
     
     this.id = id;
     this.name = name;
@@ -41,6 +43,7 @@ export class Shuttle {
     this.visible = visible;
     this.color = color;
     this.thickness = thickness;
+    this.diameter = (diameter === undefined) ? 5 : diameter;
     this.type = type;
     if(this.type === undefined) this.type = 0;
   // this.image = image;
@@ -68,6 +71,10 @@ export class Shuttle {
     this.thickness = n;
   }
 
+  setDiameter(n: number) {
+    this.diameter = n;
+  }
+
   //indexs into type list
   setType(type: number) {
     this.type = type;
@@ -85,6 +92,9 @@ export class Shuttle {
     return this.thickness;
   }
 
+  getDiameter() {
+    return this.diameter;
+  }
   getType() {
     return this.type;
   }

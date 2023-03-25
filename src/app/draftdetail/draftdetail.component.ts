@@ -87,6 +87,14 @@ export class DraftDetailComponent implements OnInit {
 
   density_units: Array<DesignMode> = [];
 
+  weft_threshold: number = 10;
+
+  warp_threshold: number = 3;
+
+  layer_spacing: number = 10;
+
+
+
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
@@ -141,6 +149,7 @@ export class DraftDetailComponent implements OnInit {
     
   }
 
+
   tabChange(event: any){
     if(event.index == 2){
       this.crosssection.initScene();
@@ -152,6 +161,7 @@ export class DraftDetailComponent implements OnInit {
   loadDraft(id: number){
     this.id = id;
     this.draft = this.tree.getDraft(id);
+    this.loom_settings = this.tree.getLoomSettings(id);
     this.viewonly = this.tree.hasParent(id);
     this.loom = this.tree.getLoom(id);
     this.loom_settings = this.tree.getLoomSettings(id);
@@ -171,7 +181,7 @@ export class DraftDetailComponent implements OnInit {
       weft_materials:true
     });
 
-    this.simRef.drawSimulation(this.draft);
+    this.simRef.drawSimulation(this.draft, this.loom_settings);
 
 
 
@@ -339,7 +349,9 @@ export class DraftDetailComponent implements OnInit {
   }
 
   public redrawSimulation(e: any){
-    this.simRef.updateSimulation(e);
+    let draft = this.tree.getDraft(this.id);
+    let loom_settings = this.tree.getLoomSettings(this.id);
+    this.simRef.updateSimulation(draft, loom_settings);
   }
 
   
@@ -1107,6 +1119,21 @@ public weftNumChange(e:any) {
       });    })
   }
  
+}
+
+weftThresholdChange(){
+  console.log("this.weft threshold", this.weft_threshold);
+  this.simRef.changeWeftThreshold(this.weft_threshold)
+}
+
+warpThresholdChange(){
+  console.log("this.warp threshold", this.warp_threshold);
+  this.simRef.changeWarpThreshold(this.warp_threshold)
+}
+
+layerSpacingChange(e: any){
+  console.log("layer spacing change ", this.layer_spacing, e);
+  this.simRef.changeLayerSpacing(this.layer_spacing)
 }
 
 

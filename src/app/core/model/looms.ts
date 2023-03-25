@@ -28,6 +28,17 @@ export const copyLoomSettings = (ls:LoomSettings) : LoomSettings => {
 }
 
 
+export const convertEPItoMM = (ls: LoomSettings) : number => {
+
+  if(ls.units == 'cm'){
+    return ls.epi;
+  }else{
+    return (25.4/ls.epi);
+  }
+
+}
+
+
 
 /*********** ESTABLISH SPECIFIC TYPES OF LOOMS and A CORE SET OF FUNCTIONS FOR EACH ************/
 
