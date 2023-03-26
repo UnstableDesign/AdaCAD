@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { positionWarpsInZ, positionWeftsInYZ } from '../model/yarnsimulation';
+import { getDraftToplogy, positionWarpsInZ, positionWeftsInYZ, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Draft, YarnVertex } from '../model/datatypes';
@@ -76,51 +76,52 @@ export class SimulationService {
     light.position.set( 20, 0, 50 );
     back_light.position.set( 20, 0, -50 );
 
- 
-    const warp_vtxs = positionWarpsInZ(draft, weft_range, warp_spacing,layer_spacing, ms);
-    const weft_vtxs = positionWeftsInYZ(draft, warp_range, warp_vtxs, ms);
+    const topology = getDraftToplogy(draft);
+    const vtxs = translateTopologyToPoints(draft, topology, warp_spacing, layer_spacing, ms);
+    // const warp_vtxs = positionWarpsInZ(draft, weft_range, warp_spacing,layer_spacing, ms);
+    // const weft_vtxs = positionWeftsInYZ(draft, warp_range, warp_vtxs, ms);
 
-    let vtxs = {
-      warps: warp_vtxs,
-      wefts: weft_vtxs
-    };
+    // let vtxs = {
+    //   warps: warp_vtxs,
+    //   wefts: weft_vtxs
+    // };
       
 
-    for(let j = 0; j < warps(draft.drawdown); j++){
-      const pts = [];
+    // for(let j = 0; j < warps(draft.drawdown); j++){
+    //   const pts = [];
 
-      const warp_vtx_list = vtxs.warps.reduce((acc, val)=> {
-        return acc.concat(val[j]);
-      }, [])
+    //   const warp_vtx_list = vtxs.warps.reduce((acc, val)=> {
+    //     return acc.concat(val[j]);
+    //   }, [])
 
-      const material_id = draft.colShuttleMapping[j];
-      let diameter = ms.getDiameter(material_id);
-      let color = this.ms.getColor(material_id);
-      if(j == 0) color="#ff0000"
+    //   const material_id = draft.colShuttleMapping[j];
+    //   let diameter = ms.getDiameter(material_id);
+    //   let color = this.ms.getColor(material_id);
+    //   if(j == 0) color="#ff0000"
 
 
-      pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
-      warp_vtx_list.forEach(vtx => {
-        pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-      });
-     let last = warp_vtx_list.length -1;
-     pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
+    //   pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
+    //   warp_vtx_list.forEach(vtx => {
+    //     pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+    //   });
+    //  let last = warp_vtx_list.length -1;
+    //  pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
 
-      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-      const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
-      const material = new THREE.MeshPhysicalMaterial( {
-        color: color,
-        depthTest: true,
-        emissive: 0x000000,
-        metalness: 0,
-        roughness: 0.5,
-        clearcoat: 1.0,
-        clearcoatRoughness: 1.0,
-        reflectivity: 0.0
-        } );      //const material = new THREE.MeshMatcapMaterial( {color: color, opacity: 0.84} );
-      const curveObject = new THREE.Mesh( geometry, material );
-      scene.add(curveObject);
-    };
+    //   const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+    //   const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
+    //   const material = new THREE.MeshPhysicalMaterial( {
+    //     color: color,
+    //     depthTest: true,
+    //     emissive: 0x000000,
+    //     metalness: 0,
+    //     roughness: 0.5,
+    //     clearcoat: 1.0,
+    //     clearcoatRoughness: 1.0,
+    //     reflectivity: 0.0
+    //     } );      //const material = new THREE.MeshMatcapMaterial( {color: color, opacity: 0.84} );
+    //   const curveObject = new THREE.Mesh( geometry, material );
+    //   scene.add(curveObject);
+    // };
 
 
     vtxs.wefts.forEach((weft_vtx_list, i) => {
@@ -156,7 +157,7 @@ export class SimulationService {
 
   
 
-    this.drawEndCaps(draft,{warps: vtxs.warps, wefts: vtxs.wefts}, ms, scene);
+    //this.drawEndCaps(draft,{warps: vtxs.warps, wefts: vtxs.wefts}, ms, scene);
 
 
 

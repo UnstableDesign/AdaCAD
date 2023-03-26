@@ -761,6 +761,25 @@ export type InterlacementLayerMap = {
 
 }
 
+//marks a point of interlacement between wefts and warps
+// x -             - x
+// - x === true    x - == false
+export type TopologyVtx ={
+  i_top: number,
+  i_bot: number,
+  j_left: number,
+  j_right: number,
+  z_pos: number,
+  orientation: boolean;
+
+}
+
+export type WarpRange ={
+  j_left: number, 
+  j_right: number
+
+}
+
 
 
 
