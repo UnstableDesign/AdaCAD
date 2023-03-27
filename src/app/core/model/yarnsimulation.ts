@@ -1,12 +1,7 @@
-import { F } from "@angular/cdk/keycodes";
-import { INITIAL_REDUCERS } from "@ngrx/store";
-import { group } from "console";
-import { update } from "firebase/database";
-import { sin } from "mathjs";
-import { arch } from "os";
+
 import { MaterialsService } from "../provider/materials.service";
 import { Cell } from "./cell";
-import { ClothHeight, Draft, Drawdown, TopologyVtx, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnSim, YarnVertex } from "./datatypes";
+import {  Draft, Drawdown, SimulationVars, TopologyVtx, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnSim, YarnVertex } from "./datatypes";
 import { getCol, warps, wefts } from "./drafts";
 import { Shuttle } from "./shuttle";
 import { System } from "./system";
@@ -1497,7 +1492,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     }
 
-  export const translateTopologyToPoints = (draft: Draft, topo: Array<TopologyVtx>, warp_spacing: number, layer_spacing: number, ms: MaterialsService) : {warps: Array<Array<YarnVertex>>, wefts: Array<Array<YarnVertex>>}=> {
+  export const translateTopologyToPoints = (draft: Draft, topo: Array<TopologyVtx>, sim: SimulationVars) : {warps: Array<Array<YarnVertex>>, wefts: Array<Array<YarnVertex>>}=> {
 
     // const warp_vtx: Array<Array<YarnVertex>> = [];
     // for(let j = 0; j < warps(draft.drawdown); j++) warp_vtx.push([]);
@@ -1505,34 +1500,25 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     let weft_vtx: Array<Array<YarnVertex>> = [];
     let warp_vtx: Array<Array<YarnVertex>> = [];
 
-    let cloth_heights: Array<ClothHeight> = [];
-    for(let j = 0; j < warps(draft.drawdown); j++){
-      cloth_heights.push({front: 0, back: 0});
-    }
-
-
     
     for(let i = 0; i < wefts(draft.drawdown); i++){
       weft_vtx.push([]);
 
       const ilaces_bot = topo.filter(el => el.i_bot == i);
-      const res = insertWeft(draft, ilaces_bot, weft_vtx, cloth_heights,  i, warp_spacing, layer_spacing, ms);
-      cloth_heights = res.heights.slice();
-      weft_vtx = res.weft_vtxs.slice();
+      weft_vtx = insertWeft(draft, ilaces_bot, weft_vtx,  i, sim).slice();
  
     } 
 
     for(let j = 0; j < warps(draft.drawdown); j++){
       warp_vtx.push([]);
 
-       const ilaces_left = topo.filter(el => el.j_left == j);
-       const res = insertWarp(draft, ilaces_left, warp_vtx, cloth_heights,  j, warp_spacing, layer_spacing, ms);
-       cloth_heights = res.heights.slice();
-       warp_vtx = res.warp_vtxs.slice();
-      
+      const ilaces_left = topo.filter(el => el.j_left == j);
+      warp_vtx = insertWarp(draft, ilaces_left, warp_vtx,  j, sim).slice();
+ 
  
     } 
 
+    console.log("WARPS ", warp_vtx);
 
     return {warps: warp_vtx, wefts:weft_vtx};
   }
@@ -1591,27 +1577,23 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
   }
 
 
-  export const insertWarp = (draft: Draft, unsorted_ilaces: Array<TopologyVtx>, warp_vtxs: Array<Array<YarnVertex>>, cloth_heights: Array<ClothHeight>, j: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService ) : {warp_vtxs: Array<Array<YarnVertex>>, heights: Array<ClothHeight>} => {
+  export const insertWarp = (draft: Draft, unsorted_ilaces: Array<TopologyVtx>, warp_vtxs: Array<Array<YarnVertex>>, j: number,sim: SimulationVars) :Array<Array<YarnVertex>> => {
 
     let ilaces = sortInterlacementsOnWarp(unsorted_ilaces);
-    console.log("Sorted ", ilaces);
-    let diam = ms.getDiameter(draft.colShuttleMapping[j]);
-    let res = processWarpInterlacement(draft, j, diam, ilaces.slice(), warp_vtxs, cloth_heights, [], warp_spacing, layer_spacing, ms);
+    let diam = sim.ms.getDiameter(draft.colShuttleMapping[j]);
+    let res = processWarpInterlacement(draft, j, diam, ilaces.slice(), warp_vtxs, [], sim);
 
     return res;
     
   }
 
 
-  export const insertWeft = (draft: Draft, unsorted_ilaces: Array<TopologyVtx>, weft_vtx: Array<Array<YarnVertex>>, cloth_heights: Array<ClothHeight>, i: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService ) : {weft_vtxs: Array<Array<YarnVertex>>, heights: Array<ClothHeight>} => {
+  export const insertWeft = (draft: Draft, unsorted_ilaces: Array<TopologyVtx>, weft_vtx: Array<Array<YarnVertex>>, i: number, sim: SimulationVars ) : Array<Array<YarnVertex>> => {
 
     let ilaces = sortInterlacementsOnWeft(unsorted_ilaces);
-    let diam = ms.getDiameter(draft.rowShuttleMapping[i]);
-    let res = processWeftInterlacements(draft, i, diam, ilaces.slice(), weft_vtx, cloth_heights, [], warp_spacing, layer_spacing, ms);
-    //res.heights = normalizeWeftPositions(ilaces, res.heights, res.weft_vtxs, diam);
+    let diam = sim.ms.getDiameter(draft.rowShuttleMapping[i]);
+    return  processWeftInterlacements(draft, i, diam, ilaces.slice(), weft_vtx, [],sim);
 
-
-    return res;
 
 
     // if(ilaces.length == 0 && i> 0 && i !== wefts(draft.drawdown)-1){
@@ -1630,41 +1612,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     return  diam * (radius-offset)/radius; 
   }
 
-  /**
-   * starting from an interlacement - span outward by radius and update the interlacements. 
-   * @param cloth_heights 
-   * @param j 
-   * @param diam 
-   * @param orient 
-   * @param radius 
-   * @returns 
-   */
-  export const updateClothHeight = (cloth_heights: Array<ClothHeight>, j: number, diam:number, orient:number) : Array<ClothHeight>=> {
-    if(orient == -1 ){
-      cloth_heights[j].front += diam;
-    }else{
-      cloth_heights[j].back += diam;
+ 
 
-    }
-
-    return cloth_heights;
-
-  }
-
-  export const getClothHeight = (cloth_heights: Array<ClothHeight>, j: number, orient:number) => {
-
-    if(orient == -1 ){
-      return cloth_heights[j].front;
-    }else{
-      return cloth_heights[j].back;
-    }
-
-  }
-
-  export const addWeftInterlacement = (draft: Draft, i: number, j: number, z_pos: number, diam: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService, cloth_heights: Array<ClothHeight>, weft_vtxs: Array<Array<YarnVertex>>) : {weft_vtxs: Array<Array<YarnVertex>>, heights: Array<ClothHeight>} => {
-    let offset = getWeftOffsetFromWarp(draft, i, j, ms);
+  export const addWeftInterlacement = (draft: Draft, i: number, j: number, z_pos: number, diam: number, sim: SimulationVars, weft_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>> => {
+    let offset = getWeftOffsetFromWarp(draft, i, j, sim.ms);
     let orient = getWeftOrientationVector(draft, i, j);
-    let y = getClothHeight(cloth_heights,j, orient);
     // weft_vtxs[i].push({
     //   x: j*warp_spacing, 
     //   y: y,
@@ -1672,95 +1624,40 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     //  });
 
       weft_vtxs[i].push({
-      x: j*warp_spacing, 
+      x: j*sim.warp_spacing, 
       y: i*diam,
-      z: z_pos*layer_spacing+offset*orient,
+      z: z_pos*sim.layer_spacing+offset*orient,
       i: i, 
       j: j
      });
 
 
-     //since this is a strong interlacement on the weft, make sure to push both sides of the warp to increment
-     cloth_heights = updateClothHeight(cloth_heights, j, diam, 1)
-     cloth_heights = updateClothHeight(cloth_heights, j, diam, -1)
 
-     return {weft_vtxs, heights: cloth_heights};
+     return weft_vtxs;
      
   }
 
 
-  export const addWarpInterlacement = (draft: Draft, i: number, j: number, z_pos: number, diam: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService, cloth_heights: Array<ClothHeight>, warp_vtxs: Array<Array<YarnVertex>>) : {warp_vtxs: Array<Array<YarnVertex>>, heights: Array<ClothHeight>} => {
+  export const addWarpInterlacement = (draft: Draft, i: number, j: number, z_pos: number, diam: number, sim: SimulationVars, warp_vtxs: Array<Array<YarnVertex>>) :  Array<Array<YarnVertex>> => {
 
 
     warp_vtxs[j].push({
-      x: j*warp_spacing, 
+      x: j*sim.warp_spacing, 
       y: i*diam,
-      z: z_pos*layer_spacing,
+      z: z_pos*sim.layer_spacing,
       i: i, 
       j: j
      });
 
 
-     //since this is a strong interlacement on the weft, make sure to push both sides of the warp to increment
-     cloth_heights = updateClothHeight(cloth_heights, j, diam, 1)
-     cloth_heights = updateClothHeight(cloth_heights, j, diam, -1)
-
-     return {warp_vtxs, heights: cloth_heights};
+     return warp_vtxs;
      
   }
 
-  export const normalizeWeftPositions = (sorted: Array<TopologyVtx>, cloth_heights: Array<ClothHeight>, weft_vtx: Array<Array<YarnVertex>>, diam: number) => {
 
+  export const processWeftInterlacements = (draft: Draft, i: number, diam: number,  ilaces: Array<TopologyVtx>, weft_vtxs: Array<Array<YarnVertex>>,  drawn_positions: Array<number>, sim: SimulationVars) : Array<Array<YarnVertex>> => {
 
-
-    if(sorted.length <= 1) return cloth_heights;
-
-    let min = sorted.reduce((acc, val) => {
-      if(val.i_top < acc) return val.i_top;
-      return acc;
-    }, 10000)
-
-    let max = sorted.reduce((acc, val) => {
-      if(val.i_top > acc) return val.i_top;
-      return acc;
-    }, 0);
-
-    for(let x = min; x <= max; x++){
-      let layer = sorted.filter(el => el.i_top == x);
-      let highest_warp = layer.reduce((acc, val, ndx) => {
-        let val1 = Math.max(cloth_heights[val.j_left].back, cloth_heights[val.j_left].front);
-        let val2 = Math.max(cloth_heights[val.j_right].front, cloth_heights[val.j_right].back);
-        let high = Math.max(val1, val2);
-        if(high > acc) return high;
-        return acc;
-      }, 0);
-
-      layer.forEach(ilace => {
-        let comp = Math.max(cloth_heights[ilace.j_left].back, cloth_heights[ilace.j_left].front);
-        if(Math.abs(comp - highest_warp) > diam){
-          cloth_heights[ilace.j_left].back = highest_warp;
-          cloth_heights[ilace.j_left].front = highest_warp;
-        } 
-
-        comp = Math.max(cloth_heights[ilace.j_right].back, cloth_heights[ilace.j_right].front);
-        if(Math.abs(comp - highest_warp) > diam){
-
-          cloth_heights[ilace.j_right].back = highest_warp ;
-          cloth_heights[ilace.j_right].front = highest_warp;
-        } 
-
-      })
-
-    }
-
-    return cloth_heights;
-
-  }
-
-
-  export const processWeftInterlacements = (draft: Draft, i: number, diam: number,  ilaces: Array<TopologyVtx>, weft_vtxs: Array<Array<YarnVertex>>, cloth_heights: Array<ClothHeight>,  drawn_positions: Array<number>, warp_spacing: number, layer_spacing: number, ms: MaterialsService) : {weft_vtxs: Array<Array<YarnVertex>>, heights: Array<ClothHeight>} => {
-
-    if(ilaces.length == 0) return {weft_vtxs, heights: cloth_heights};
+    if(ilaces.length == 0) return weft_vtxs;
 
     //get first interlacement; 
     let first = ilaces[0].j_left;
@@ -1783,15 +1680,9 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     //ADD LEFT SIDE OF INTERLACEMENT
     if(drawn_positions.findIndex(el => el == ilace.j_left) == -1){
-     let res = addWeftInterlacement(draft, i, ilace.j_left, ilace.z_pos, diam, warp_spacing, layer_spacing, ms, cloth_heights, weft_vtxs );
-     weft_vtxs = res.weft_vtxs;
-     cloth_heights = res.heights.slice();
+    weft_vtxs = addWeftInterlacement(draft, i, ilace.j_left, ilace.z_pos, diam, sim, weft_vtxs );
      drawn_positions.push(ilace.j_left);
      
-      //make sure the right side of the interlacement is in range of this point
-     for(let x = ilace.j_left+1; x < ilace.j_right; x ++){
-      cloth_heights = updateClothHeight(cloth_heights, x, diam, getWeftOrientationVector(draft, i,x));
-     }
     }
 
  
@@ -1804,24 +1695,23 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     // }
 
-     let res =  processWeftInterlacements(draft, i, diam, ilaces.slice(), weft_vtxs, cloth_heights, drawn_positions, warp_spacing, layer_spacing, ms);
+     let res =  processWeftInterlacements(draft, i, diam, ilaces.slice(), weft_vtxs, drawn_positions, sim);
 
     return res;
   }
 
-  export const processWarpInterlacement = (draft: Draft, j: number, diam: number,  ilaces: Array<TopologyVtx>, warp_vtxs: Array<Array<YarnVertex>>, cloth_heights: Array<ClothHeight>,  drawn_positions: Array<number>, warp_spacing: number, layer_spacing: number, ms: MaterialsService) : {warp_vtxs: Array<Array<YarnVertex>>, heights: Array<ClothHeight>} => {
+  export const processWarpInterlacement = (draft: Draft, j: number, diam: number,  ilaces: Array<TopologyVtx>, warp_vtxs: Array<Array<YarnVertex>>, drawn_positions: Array<number>, sim: SimulationVars) : Array<Array<YarnVertex>> => {
 
-    if(ilaces.length == 0) return {warp_vtxs, heights: cloth_heights};
+    if(ilaces.length == 0) return warp_vtxs;
 
-    console.log("PROCESSING ", ilaces)
     //get first interlacement; 
     let first = ilaces[0].i_bot;
-    let multiples = ilaces.filter(el => el.j_left == first);
+    let multiples = ilaces.filter(el => el.i_bot == first);
     let ilace_array: Array<TopologyVtx> = [];
     let ilace: TopologyVtx;
 
 
-    if(multiples.length > 0){
+    if(multiples.length > 1){
       let closest_warp = multiples.reduce((acc, ilace, ndx) => {
         if(ilace.i_top < acc.val) return {ndx: ndx, val: ilace.i_top}
         return acc;
@@ -1834,10 +1724,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     }
 
     //ADD LEFT SIDE OF INTERLACEMENT
-    if(drawn_positions.findIndex(el => el == ilace.j_left) == -1){
-     let res = addWarpInterlacement(draft, ilace.i_bot, ilace.j_left,ilace.z_pos, diam, warp_spacing, layer_spacing, ms, cloth_heights, warp_vtxs.slice() );
-     warp_vtxs = res.warp_vtxs;
-     cloth_heights = res.heights.slice();
+    if(drawn_positions.findIndex(el => el == ilace.i_bot) == -1){
+     warp_vtxs = addWarpInterlacement(draft, ilace.i_bot, ilace.j_left,ilace.z_pos, diam, sim, warp_vtxs.slice() );    
      drawn_positions.push(ilace.i_bot);
      
       //make sure the right side of the interlacement is in range of this point
@@ -1848,7 +1736,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
 
-     let res =  processWarpInterlacement(draft, j, diam, ilaces.slice(), warp_vtxs, cloth_heights, drawn_positions, warp_spacing, layer_spacing, ms);
+     let res =  processWarpInterlacement(draft, j, diam, ilaces.slice(), warp_vtxs, drawn_positions, sim);
 
     return res;
   }

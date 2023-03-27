@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { getDraftToplogy, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Draft, YarnVertex } from '../model/datatypes';
+import { Draft, SimulationVars, YarnVertex } from '../model/datatypes';
 import { warps } from '../model/drafts';
 
 @Injectable({
@@ -77,7 +77,10 @@ export class SimulationService {
     back_light.position.set( 20, 0, -50 );
 
     const topology = getDraftToplogy(draft);
-    const vtxs = translateTopologyToPoints(draft, topology, warp_spacing, layer_spacing, ms);
+    const sim:SimulationVars= {
+      warp_spacing, layer_spacing, ms
+    }
+    const vtxs = translateTopologyToPoints(draft, topology, sim);
       
 
     for(let j = 0; j < warps(draft.drawdown); j++){
@@ -89,17 +92,17 @@ export class SimulationService {
       let diameter = ms.getDiameter(material_id);
       let color = this.ms.getColor(material_id);
       
-      if(j == 0) color="#ff0000"
+      if(j == 0) color="#ff0000";
 
 
-     // pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
-     vtxs.warps[j].forEach(vtx => {
-        console.log(vtx)
+
+     pts.push(new THREE.Vector3(vtxs.warps[j][0].x, vtxs.warps[j][0].y-10, vtxs.warps[j][0].z));
+     vtxs.warps[j].slice().forEach(vtx => {
         if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
       });
 
-    // let last = warp_vtx_list.length -1;
-    // pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
+    let last = vtxs.warps[j].length -1;
+    pts.push(new THREE.Vector3(vtxs.warps[j][last].x, vtxs.warps[j][last].y+10, vtxs.warps[j][last].z));
 
       const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
       const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
@@ -114,17 +117,9 @@ export class SimulationService {
         reflectivity: 0.0
         } );     
         
-      const curveObject = new THREE.Mesh( geometry, material );
-      const quaternion = new THREE.Quaternion();
-          
-      //rotate around the x axis to match draft orientation in top left
-      quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), Math.PI );
-      curveObject.applyQuaternion(quaternion);
+      let curveObject = new THREE.Mesh( geometry, material );
+      curveObject = this.applyOrientationConversion(curveObject);
 
-      //then rotate around the y axis to match draft orientation in top left
-
-      // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI );
-      // curveObject.applyQuaternion(quaternion);
 
       scene.add(curveObject);
       }
@@ -156,17 +151,10 @@ export class SimulationService {
           clearcoatRoughness: 1.0,
           reflectivity: 0.0
           } );        
-          const curveObject = new THREE.Mesh( geometry, material );
-          const quaternion = new THREE.Quaternion();
+          let curveObject = new THREE.Mesh( geometry, material );
+          curveObject = this.applyOrientationConversion(curveObject);
           
-          //rotate around the x axis to match draft orientation in top left
-          quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), Math.PI );
-          curveObject.applyQuaternion(quaternion);
-
-          //then rotate around the y axis to match draft orientation in top left
-
-          // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI );
-          // curveObject.applyQuaternion(quaternion);
+   
 
           scene.add(curveObject);
         }
@@ -175,16 +163,30 @@ export class SimulationService {
 
   
 
-    //this.drawEndCaps(draft,{warps: vtxs.warps, wefts: vtxs.wefts}, ms, scene);
+    this.drawEndCaps(draft,{warps: vtxs.warps, wefts: vtxs.wefts}, ms, scene);
 
 
 
+  }
+
+  applyOrientationConversion(object) {
+    const quaternion = new THREE.Quaternion();
+          
+    //rotate around the x axis to match draft orientation in top left
+    quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), Math.PI );
+    object.applyQuaternion(quaternion);
+
+              // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI );
+          // curveObject.applyQuaternion(quaternion);
+
+    return object;
   }
 
   drawEndCaps(draft: Draft, vtxs: {warps: Array<Array<YarnVertex>>, wefts:Array<Array<YarnVertex>>}, ms: MaterialsService, scene ){
 
 
     vtxs.warps.forEach((warp, j) => {
+      if(warp.length > 0){
       const material_id = draft.colShuttleMapping[j];
       let diameter = ms.getDiameter(material_id);
       const color = this.ms.getColor(material_id)
@@ -192,16 +194,20 @@ export class SimulationService {
 
       const top_geometry = new THREE.CircleGeometry( diameter/2, 32 );
       top_geometry.rotateX(Math.PI/2);
-      top_geometry.translate(warp[0].x, warp[0].y-10, warp[0].z);
+      
+      top_geometry.translate(vtxs.warps[j][0].x, vtxs.warps[j][0].y-10, vtxs.warps[j][0].z);
       const material = new THREE.MeshBasicMaterial( { color: color } );
-      const end_circle = new THREE.Mesh( top_geometry, material );
+      let end_circle = new THREE.Mesh( top_geometry, material );
+      end_circle = this.applyOrientationConversion(end_circle);
       scene.add( end_circle );
       
       const bot_geometry = new THREE.CircleGeometry(  diameter/2, 32 );
       bot_geometry.rotateX(3*Math.PI/2);
       bot_geometry.translate(warp[warp.length-1].x, warp[warp.length-1].y+10, warp[warp.length-1].z);
-      const top_circle = new THREE.Mesh( bot_geometry, material );
+      let top_circle = new THREE.Mesh( bot_geometry, material );
+      top_circle = this.applyOrientationConversion(top_circle);
       scene.add( top_circle );
+      }
 
     })
 
@@ -215,13 +221,15 @@ export class SimulationService {
       top_geometry.rotateY(3*Math.PI/2);
       top_geometry.translate(weft[0].x-10, weft[0].y, weft[0].z);
       const material = new THREE.MeshBasicMaterial( { color: color } );
-      const end_circle = new THREE.Mesh( top_geometry, material );
+      let end_circle = new THREE.Mesh( top_geometry, material );
+      end_circle = this.applyOrientationConversion(end_circle);
       scene.add( end_circle );
       
       const bot_geometry = new THREE.CircleGeometry( diameter/2, 32 );
       bot_geometry.rotateY(Math.PI/2);
       bot_geometry.translate(weft[weft.length-1].x+10, weft[weft.length-1].y, weft[weft.length-1].z);
-      const top_circle = new THREE.Mesh( bot_geometry, material );
+      let top_circle = new THREE.Mesh( bot_geometry, material );
+      top_circle = this.applyOrientationConversion(top_circle);
       scene.add( top_circle );
       }
 

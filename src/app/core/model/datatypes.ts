@@ -2,6 +2,7 @@ import { ViewRef } from "@angular/core";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
+import { MaterialsService } from "../provider/materials.service";
 import { Note } from "../provider/notes.service";
 import { Cell } from "./cell";
 import { Shuttle } from "./shuttle";
@@ -787,9 +788,11 @@ export type WarpRange ={
 
 }
 
-export type ClothHeight = {
-  front: number,
-  back: number
+
+export type SimulationVars = {
+  warp_spacing: number, 
+  layer_spacing: number,
+  ms: MaterialsService
 }
 
 
