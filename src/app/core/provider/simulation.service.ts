@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { getDraftToplogy, positionWarpsInZ, positionWeftsInYZ, translateTopologyToPoints } from '../model/yarnsimulation';
+import { getDraftToplogy, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Draft, YarnVertex } from '../model/datatypes';
@@ -48,7 +48,7 @@ export class SimulationService {
     };
     scene.background = new THREE.Color( 0xf0f0f0 );
 
-    camera.position.set( 20, 0, -200 );
+    camera.position.set( 20, 0, 200 );
     camera.lookAt( 0, 0, 0 );  
     controls.update();
 
@@ -78,50 +78,57 @@ export class SimulationService {
 
     const topology = getDraftToplogy(draft);
     const vtxs = translateTopologyToPoints(draft, topology, warp_spacing, layer_spacing, ms);
-    // const warp_vtxs = positionWarpsInZ(draft, weft_range, warp_spacing,layer_spacing, ms);
-    // const weft_vtxs = positionWeftsInYZ(draft, warp_range, warp_vtxs, ms);
-
-    // let vtxs = {
-    //   warps: warp_vtxs,
-    //   wefts: weft_vtxs
-    // };
       
 
-    // for(let j = 0; j < warps(draft.drawdown); j++){
-    //   const pts = [];
+    for(let j = 0; j < warps(draft.drawdown); j++){
+      const pts = [];
 
-    //   const warp_vtx_list = vtxs.warps.reduce((acc, val)=> {
-    //     return acc.concat(val[j]);
-    //   }, [])
+      if(vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
 
-    //   const material_id = draft.colShuttleMapping[j];
-    //   let diameter = ms.getDiameter(material_id);
-    //   let color = this.ms.getColor(material_id);
-    //   if(j == 0) color="#ff0000"
+      const material_id = draft.colShuttleMapping[j];
+      let diameter = ms.getDiameter(material_id);
+      let color = this.ms.getColor(material_id);
+      
+      if(j == 0) color="#ff0000"
 
 
-    //   pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
-    //   warp_vtx_list.forEach(vtx => {
-    //     pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-    //   });
-    //  let last = warp_vtx_list.length -1;
-    //  pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
+     // pts.push(new THREE.Vector3(warp_vtx_list[0].x, warp_vtx_list[0].y-10, warp_vtx_list[0].z));
+     vtxs.warps[j].forEach(vtx => {
+        console.log(vtx)
+        if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+      });
 
-    //   const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-    //   const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
-    //   const material = new THREE.MeshPhysicalMaterial( {
-    //     color: color,
-    //     depthTest: true,
-    //     emissive: 0x000000,
-    //     metalness: 0,
-    //     roughness: 0.5,
-    //     clearcoat: 1.0,
-    //     clearcoatRoughness: 1.0,
-    //     reflectivity: 0.0
-    //     } );      //const material = new THREE.MeshMatcapMaterial( {color: color, opacity: 0.84} );
-    //   const curveObject = new THREE.Mesh( geometry, material );
-    //   scene.add(curveObject);
-    // };
+    // let last = warp_vtx_list.length -1;
+    // pts.push(new THREE.Vector3(warp_vtx_list[last].x, warp_vtx_list[last].y+10, warp_vtx_list[last].z));
+
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+      const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
+      const material = new THREE.MeshPhysicalMaterial( {
+        color: color,
+        depthTest: true,
+        emissive: 0x000000,
+        metalness: 0,
+        roughness: 0.5,
+        clearcoat: 1.0,
+        clearcoatRoughness: 1.0,
+        reflectivity: 0.0
+        } );     
+        
+      const curveObject = new THREE.Mesh( geometry, material );
+      const quaternion = new THREE.Quaternion();
+          
+      //rotate around the x axis to match draft orientation in top left
+      quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), Math.PI );
+      curveObject.applyQuaternion(quaternion);
+
+      //then rotate around the y axis to match draft orientation in top left
+
+      // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI );
+      // curveObject.applyQuaternion(quaternion);
+
+      scene.add(curveObject);
+      }
+    };
 
 
     vtxs.wefts.forEach((weft_vtx_list, i) => {
@@ -129,7 +136,7 @@ export class SimulationService {
       if(weft_vtx_list.length != 0){
         pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
         weft_vtx_list.forEach(vtx => {
-          pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+          if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
         });
       let last = weft_vtx_list.length -1;
       pts.push(new THREE.Vector3(weft_vtx_list[last].x+10, weft_vtx_list[last].y, weft_vtx_list[last].z));
@@ -150,6 +157,17 @@ export class SimulationService {
           reflectivity: 0.0
           } );        
           const curveObject = new THREE.Mesh( geometry, material );
+          const quaternion = new THREE.Quaternion();
+          
+          //rotate around the x axis to match draft orientation in top left
+          quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), Math.PI );
+          curveObject.applyQuaternion(quaternion);
+
+          //then rotate around the y axis to match draft orientation in top left
+
+          // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), Math.PI );
+          // curveObject.applyQuaternion(quaternion);
+
           scene.add(curveObject);
         }
     });

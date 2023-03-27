@@ -681,7 +681,12 @@ export type YarnCell = number;
 /**
  * represts the point of this yarn within the simulation
  */
-export type YarnVertex = {x: number, y: number, z: number};
+export type YarnVertex = {
+  x: number, 
+  y: number, 
+  z: number, 
+  i: number, 
+  j: number};
 
 
 /**
@@ -767,8 +772,10 @@ export type InterlacementLayerMap = {
 export type TopologyVtx ={
   i_top: number,
   i_bot: number,
+  i_mid: number,
   j_left: number,
   j_right: number,
+  j_mid: number,
   z_pos: number,
   orientation: boolean;
 
@@ -778,6 +785,11 @@ export type WarpRange ={
   j_left: number, 
   j_right: number
 
+}
+
+export type ClothHeight = {
+  front: number,
+  back: number
 }
 
 
