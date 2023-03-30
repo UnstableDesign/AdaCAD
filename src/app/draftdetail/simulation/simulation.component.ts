@@ -14,7 +14,7 @@ import { MaterialsService } from '../../core/provider/materials.service';
 export class SimulationComponent implements OnInit {
 
   @Input('id') id;
-  @Input('weft_threshold') weft_threshold;
+  @Input('layer_threshold') layer_threshold;
   @Input('warp_threshold') warp_threshold;
   @Input('layer_spacing') layer_spacing;
 
@@ -69,29 +69,29 @@ export class SimulationComponent implements OnInit {
     this.draft = draft;
     this.loom_settings = loom_settings;
     this.layer_spacing = this.calcDefaultLayerSpacing(draft);
-    this.simulation.setupAndDrawSimulation(draft, this.renderer, this.scene, this.camera, this.weft_threshold, this.warp_threshold, convertEPItoMM(loom_settings), this.layer_spacing, this.ms);
+    this.simulation.setupAndDrawSimulation(draft, this.renderer, this.scene, this.camera, this.layer_threshold, this.warp_threshold, convertEPItoMM(loom_settings), this.layer_spacing, this.ms);
   }
 
   updateSimulation(draft: Draft, loom_settings){
     this.draft = draft;
     this.loom_settings = loom_settings;
-    this.simulation.drawDrawdown(draft,  this.scene, this.weft_threshold, this.warp_threshold, convertEPItoMM(loom_settings), this.layer_spacing,this.ms);
+    this.simulation.drawDrawdown(draft,  this.scene, this.layer_threshold, this.warp_threshold, convertEPItoMM(loom_settings), this.layer_spacing,this.ms);
   }
 
-  changeWeftThreshold(threshold: number){
-    this.weft_threshold = threshold;
-    this.simulation.drawDrawdown(this.draft, this.scene, this.weft_threshold, this.warp_threshold, convertEPItoMM(this.loom_settings), this.layer_spacing, this.ms)
+  changeLayerThreshold(threshold: number){
+    this.layer_threshold = threshold;
+    this.simulation.drawDrawdown(this.draft, this.scene, this.layer_threshold, this.warp_threshold, convertEPItoMM(this.loom_settings), this.layer_spacing, this.ms)
   }
 
 
   changeWarpThreshold(threshold: number){
     this.warp_threshold = threshold;
-    this.simulation.drawDrawdown(this.draft, this.scene, this.weft_threshold, this.warp_threshold, convertEPItoMM(this.loom_settings), this.layer_spacing,  this.ms)
+    this.simulation.drawDrawdown(this.draft, this.scene, this.layer_threshold, this.warp_threshold, convertEPItoMM(this.loom_settings), this.layer_spacing,  this.ms)
   }
 
   changeLayerSpacing(amt: number){
     this.layer_spacing = amt;
-    this.simulation.drawDrawdown(this.draft, this.scene, this.weft_threshold, this.warp_threshold, convertEPItoMM(this.loom_settings), this.layer_spacing,  this.ms)
+    this.simulation.drawDrawdown(this.draft, this.scene, this.layer_threshold, this.warp_threshold, convertEPItoMM(this.loom_settings), this.layer_spacing,  this.ms)
   }
 
   pageClose(){

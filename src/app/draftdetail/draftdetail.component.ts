@@ -87,7 +87,7 @@ export class DraftDetailComponent implements OnInit {
 
   density_units: Array<DesignMode> = [];
 
-  weft_threshold: number = 10;
+  layer_threshold: number = 2;
 
   warp_threshold: number = 3;
 
@@ -1121,9 +1121,9 @@ public weftNumChange(e:any) {
  
 }
 
-weftThresholdChange(){
-  console.log("this.weft threshold", this.weft_threshold);
-  this.simRef.changeWeftThreshold(this.weft_threshold)
+layerThresholdChange(){
+  console.log("layer threshold", this.layer_threshold);
+  this.simRef.changeLayerThreshold(this.layer_threshold)
 }
 
 warpThresholdChange(){

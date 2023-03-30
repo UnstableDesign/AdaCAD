@@ -50,7 +50,7 @@
       <app-simulation 
       style= 'width: 50%' 
       [id]="id"
-      [weft_threshold]="weft_threshold"
+      [layer_threshold]="layer_threshold"
       [warp_threshold]="warp_threshold"
       [layer_spacing]="layer_spacing"
       >
@@ -224,15 +224,15 @@
         
 
         <mat-form-field class="example-full-width">
-          <mat-label>Weft Layer Threshold</mat-label>
+          <mat-label>Layer Threshold</mat-label>
           <input 
           matInput
-          [(ngModel)] = "weft_threshold"
+          [(ngModel)] = "layer_threshold"
           type = "number"
           [min]=0
           [max]="draft.drawdown.length"
           step = 1
-          (change)= "weftThresholdChange()">
+          (change)= "layerThresholdChange()">
         </mat-form-field>
 
         <mat-form-field class="example-full-width">

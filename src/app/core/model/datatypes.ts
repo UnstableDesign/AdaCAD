@@ -788,6 +788,13 @@ export type WarpRange ={
 
 }
 
+export type WarpLayerCount = {
+  i: number, 
+  count: number,
+  layer: number
+}
+
+
 
 export type SimulationVars = {
   warp_spacing: number, 
