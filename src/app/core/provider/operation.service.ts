@@ -3429,7 +3429,7 @@ export class OperationService {
                 
                 });
             });
-            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'stretch');
+           // this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'stretch');
             d.gen_name = this.formatName(child_input.drafts, "resize")
             return d;
         });
@@ -4768,7 +4768,10 @@ export class OperationService {
         if(child_input == undefined) return Promise.resolve([]);
 
         const outputs: Array<Draft> =child_input.drafts.map(input => {
-            const d: Draft =initDraftWithParams({warps:parent_input.params[0]*warps(input.drawdown), wefts:parent_input.params[1]*wefts(input.drawdown)});
+            const d: Draft =initDraftWithParams(
+              {warps:parent_input.params[0]*warps(input.drawdown), 
+              wefts:parent_input.params[1]*wefts(input.drawdown)
+            });
             input.drawdown.forEach((row, i) => {
               for(let p = 0; p <parent_input.params[1]; p++){
                 let i_ndx =parent_input.params[1] * i + p;
@@ -4776,12 +4779,14 @@ export class OperationService {
                   for(let r = 0; r <parent_input.params[0]; r++){
                     let j_ndx =parent_input.params[0] * j + r;
                     d.drawdown[i_ndx][j_ndx].setHeddle(cell.getHeddle());
+                    d.rowShuttleMapping[i_ndx] = input.rowShuttleMapping[i];
+                    d.rowSystemMapping[i_ndx] = input.rowSystemMapping[i];
                   }
                 });
 
               }
             });
-            this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'stretch');
+           // this.transferSystemsAndShuttles(d,child_input.drafts,parent_input.params, 'stretch');
             d.gen_name = this.formatName(child_input.drafts, "stretch")
             return d;
             
