@@ -31,17 +31,63 @@ canvas{
   margin-top: 10px;
 }
 
+.controls{
+  width: 25%;
+  display: flex;
+  padding: 24px;
+  flex-direction: column;
+  font-size: 0.8em;
+}
+
+
+
+.expand{
+  position: absolute;
+  top: 10px;
+  left: 30vw;
+  z-index: 2;
+}
+
+.expand.expanded{
+  position: absolute;
+  top: 10px;
+  left: 60vw;
+  z-index: 2;
+}
+
+.left-side{
+  display: flex;
+  flex-direction: column;
+}
+
+.right-side{
+  display: flex;
+  flex-direction: column;
+}
+
+.fullwidth{
+  width: 100%;
+}
+
+
 #draft-container{
   display: flex;
   overflow: scroll;
-  max-height: 66vh;
-  min-height: 50vh;
+  height: 100%;
+  width: 100%;
 }
 
+#draft-container.expanded{
+  width: 75%;
+}
+
+
+
 #draft-scale-container{
-  margin: auto;
   width: fit-content;
   height: fit-content;
+  margin: auto;
+
 }
 
 #draft-scale-container.origin0,

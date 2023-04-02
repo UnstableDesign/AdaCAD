@@ -16,9 +16,9 @@ a.help{
 
 .design-container{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width:100%;
-    max-height: 50vh;
+    height: 100%;
 }
 
 .detail_data{
@@ -31,4 +31,18 @@ a.help{
 
 .mat-form-field{
     width: 100%;
+}
+
+#draft_viewer{
+    min-width: 50%;
+    margin: auto;
+    height: 100%;
+}
+
+#draft_viewer.expanded{
+    min-width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: row-reverse;
+    height: 100%;
 }

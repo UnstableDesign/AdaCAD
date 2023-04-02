@@ -1,6 +1,13 @@
-<div class="draft-container {{source}}" id="draft-container">
+<div class="draft-container {{source}}"  [class.expanded] ="expanded" id="draft-container">
 
-
+  <div class="expand"      
+   [class.expanded] ="expanded"
+  >
+    <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
+      <i *ngIf='!expanded' class="fa-solid fa-maximize"></i>
+      <i *ngIf='expanded' class="fa-solid fa-minimize"></i>
+        </button>
+  </div>
   
     <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
 
@@ -135,6 +142,145 @@
  
  
      <canvas #bitmapImage hidden></canvas>
+    </div>
 
+      <div class="controls" 
+      [style.display]="(expanded) ? 'flex' : 'none'" 
+      *ngIf="id !== -1">
 
-   </div>
+        <div class="left-side">
+        <form #envt="ngForm" novalidate>
+
+          <mat-form-field class="fullwidth">
+  
+          <mat-label>Loom Type</mat-label>
+          <mat-select  (selectionChange) ="loomChange(envt)" [(value)]="loom_settings.type" [(ngModel)]="loom_settings.type" name="loomtype">
+            <mat-option *ngFor="let loomtype of loomtypes" [value]="loomtype.value">
+              {{loomtype.viewValue}}
+            </mat-option>
+          </mat-select>
+          </mat-form-field>
+  
+           
+          <mat-form-field class="fullwidth">
+            <input matInput name="warps" 
+            [(ngModel)]="warps" 
+            type="number" 
+            min="2" 
+            placeholder="Warp Ends" 
+            (change)="warpChange(envt)"
+            (blur)="warpChange(envt)"> 
+            
+         
+          </mat-form-field>
+  
+          <mat-form-field class="fullwidth">
+            <input matInput name="wefts" 
+            [(ngModel)]="wefts" 
+            type="number" 
+            min="2" 
+            placeholder="Weft Pics" 
+            (change)="weftChange(envt)"
+            (blur)="weftChange(envt)"> 
+         
+          </mat-form-field>
+  
+          <mat-form-field class="fullwidth">
+            <mat-label>Density Units</mat-label>            
+            <mat-select [(value)]="units" [(ngModel)]="loom_settings.units" name="units" (selectionChange) ="unitChange(envt)">
+              <mat-option *ngFor="let unit of density_units" [value]="unit.value">
+                {{unit.viewValue}}
+              </mat-option>
+            </mat-select>
+            </mat-form-field>
+  
+            <mat-form-field class="fullwidth">
+            <mat-label>Density</mat-label>    
+            <input matInput  
+            name="epi" 
+            [(ngModel)]="loom_settings.epi" 
+            type="number" 
+            min= "0" 
+            (change)="epiChange(envt)"
+            (blur)="epiChange(envt)">  
+    
+            <ng-container *ngIf="loom_settings.units === 'cm'">
+              <span matSuffix>ends / 10cm</span>
+            </ng-container>
+            <ng-container *ngIf="loom_settings.units == 'in'">
+             <span matSuffix>epi</span> 
+            </ng-container>
+          </mat-form-field>
+  
+  
+  
+          <mat-form-field class="fullwidth">
+            <input matInput 
+            name="width" 
+            [(ngModel)]="width" 
+            step="0.125" 
+            type="number" 
+            min= "0.25" 
+            max ="60" 
+            placeholder="Width" 
+            (change)="widthChange(envt)"
+            (blur)="widthChange(envt)"> 
+  
+            <ng-container *ngIf="loom_settings.units === 'in'">
+              <span matSuffix>inches</span> 
+            </ng-container>
+    
+             <ng-container *ngIf="loom_settings.units === 'cm'">
+              <span matSuffix>cm</span> 
+           </ng-container>
+    
+          </mat-form-field>
+  
+  
+    
+            <mat-form-field class="fullwidth">
+              <mat-label >Number of Frames</mat-label>    
+              <input matInput 
+              name="frames" 
+              [disabled]="loom_settings.type == 'jacquard'"
+              [(ngModel)]="frames"  
+              step="1" 
+              type="number" 
+              min= "2" 
+              max ="1000" 
+              (change)="updateMinFrames(envt)" 
+              (blur)="updateMinFrames(envt)"> 
+               <span matSuffix>frames</span> 
+             </mat-form-field>
+      
+      
+            <mat-form-field class="fullwidth">
+              <mat-label>Number of Treadles</mat-label>      
+              <input matInput 
+              name="treadles" 
+              [disabled]="loom_settings.type == 'jacquard'"
+              [(ngModel)]="treadles" 
+              step="1" 
+              type="number" 
+              min= "2" 
+              max ="1000" 
+              (change)="updateMinTreadles(envt)"
+              (blur)="updateMinTreadles(envt)"
+              > 
+               <span matSuffix>treadles</span> 
+             </mat-form-field>
+    
+
+          </form> 
+        </div>
+  
+           <div class="right-side fullwidth" > 
+            <mat-label>Editing Mode: </mat-label>
+            <mat-slide-toggle
+            [disabled]="loom_settings.type == 'jacquard'"
+            (click)="swapEditingStyle()">
+            </mat-slide-toggle>
+            <div><mat-label>{{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}</mat-label></div>
+            </div>
+          
+      </div>

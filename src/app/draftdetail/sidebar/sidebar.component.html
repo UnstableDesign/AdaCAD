@@ -2,6 +2,19 @@
 <div class="sidebar">
     <!--on both weaver and mixer-->
 
+    <div class="tool-chunk" >
+
+        <button 
+        mat-icon-button
+        color="primary" 
+        (click)="closeDetailView()">
+        <i class="fa fa-angle-double-right"></i> 
+        </button>
+
+
+    </div>
+
+
 <!-- WEAVER EDITING TOOLS -->
     <div class="tool-chunk">
 
@@ -121,6 +134,7 @@
         <mat-slider 
         tickInterval=".1" 
         color="primary"
+        [vertical]="true"
         step=".1"
         min="0" 
         max="2" 
@@ -137,17 +151,6 @@
 
    
 <!-- EQUIPMENT SETTINGS -->
-    <div class="tool-chunk" >
-
-        <button 
-        mat-icon-button
-        color="primary" 
-        (click)="closeDetailView()">
-        <i class="fa fa-angle-double-right"></i> 
-        </button>
-
-
-    </div>
 
 
  

@@ -1,16 +1,16 @@
 .sidebar {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     text-align: center;
-    justify-content: space-evenly;
-    height: 42px;
-    width: 100%;
+    justify-content: space-between;
+    width: 42px;
+    height: 100%;
     font-size: .8em;
 }
 
 .slider{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     max-width: 33%;
 }
 

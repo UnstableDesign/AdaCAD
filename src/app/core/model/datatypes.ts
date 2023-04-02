@@ -788,17 +788,28 @@ export type WarpRange ={
 
 }
 
-export type WarpLayerCount = {
-  i: number, 
+export type WarpWeftLayerCount = {
+  ndx: number, 
   count: number,
   layer: number
 }
 
 
 
+export type SimulationData = {
+  draft: Draft,
+  sim: SimulationVars,
+  topo: Array<TopologyVtx>,
+  vtxs: {warps: Array<Array<YarnVertex>> , wefts: Array<Array<YarnVertex>>},
+  layer_map: Array<Array<number>>,
+  top: number,
+  right: number
+};
+
 export type SimulationVars = {
   warp_spacing: number, 
   layer_spacing: number,
+  layer_threshold: number,
   ms: MaterialsService
 }
 

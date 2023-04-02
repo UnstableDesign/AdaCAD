@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, HostListener, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Subscription, Subject, fromEvent } from 'rxjs';
 import { Cell } from '../../core/model/cell';
-import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, Operation, OpInput } from '../../core/model/datatypes';
+import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, LoomUtil, Operation, OpInput } from '../../core/model/datatypes';
 import { FileService } from '../../core/provider/file.service';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { MaterialsService } from '../../core/provider/materials.service';
@@ -10,13 +10,14 @@ import { Shuttle } from '../../core/model/shuttle';
 import { StateService } from '../../core/provider/state.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
-import { getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
+import { generateDirectTieup, getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
 import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../../core/model/yarnsimulation';
 import { TreeService } from '../../core/provider/tree.service';
 import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
 import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-draftviewer',
@@ -30,7 +31,7 @@ export class DraftviewerComponent implements OnInit {
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
 
 
-  @Input('id') id;
+  @Input('id') id = -1;
 
   /**
    * a descriptor of the parent who generated this window
@@ -51,6 +52,7 @@ export class DraftviewerComponent implements OnInit {
  
    @Output() onNewSelection = new EventEmitter();
    @Output() onDrawdownUpdated = new EventEmitter();
+   @Output() onViewerExpanded = new EventEmitter();
  
   hold_copy_for_paste: boolean = false;
 
@@ -206,7 +208,25 @@ export class DraftviewerComponent implements OnInit {
  
    private lastPos: Interlacement;
  
+
+   /** USED ONLY FOR FORM UPDATES */
    isFrame: boolean;
+   treadles: number;
+   frames: number;
+   warps: number; 
+   wefts: number;
+   width: number;
+   loom_settings: LoomSettings;
+   epi: number;
+
+   loomtypes:Array<DesignMode>  = [];
+
+   density_units: Array<DesignMode> = [];
+  units: string;
+
+  /** VIEW OPTIONS */
+
+  expanded: boolean = false;
 
  
    /// ANGULAR FUNCTIONS
@@ -224,12 +244,16 @@ export class DraftviewerComponent implements OnInit {
     public timeline: StateService,
     private tree:TreeService,
     private ops: OperationService,
-    public render: RenderService,
-    private cdRef:ChangeDetectorRef
-    ) { 
+    public render: RenderService
+  ) { 
 
     this.flag_recompute = false;
     this.flag_history = false;
+    this.loomtypes = dm.getOptionSet('loom_types');
+    this.density_units = dm.getOptionSet('density_units');
+
+      console.log("ID IS ", this.id)
+
   }
 
   ngOnInit() {
@@ -278,12 +302,25 @@ export class DraftviewerComponent implements OnInit {
 
   }
 
+  expand(){
+    this.expanded = !this.expanded;
+    this.onViewerExpanded.emit();
+  }
+
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
-
+    console.log("LOOM SETTINGS ", loom_settings)
+    
+    this.loom_settings = loom_settings;
     const frames = Math.max(numFrames(loom), loom_settings.frames);
     const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
+
+    this.warps = warps(draft.drawdown);
+    this.wefts = wefts(draft.drawdown);
+    this.width = warps(draft.drawdown) / loom_settings.epi;
+    if(loom_settings.units = 'cm') this.width *= 10;
+    this.units = loom_settings.units;
 
     const warp_num:number = warps(draft.drawdown);
     const weft_num:number = wefts(draft.drawdown);
@@ -304,6 +341,15 @@ export class DraftviewerComponent implements OnInit {
     this.tieupsCanvas.height = frames * dims.h;
 
     // this.cdRef.detectChanges();
+
+     this.redraw(draft, loom, loom_settings, {
+      drawdown: true, 
+      loom:true, 
+      warp_systems: true, 
+      weft_systems: true, 
+      warp_materials: true,
+      weft_materials:true
+    });
 
   }
 
@@ -2868,6 +2914,405 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   }
 
  
+
+
+
+  swapEditingStyle(){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value === 'drawdown'){
+      this.dm.selectDesignMode('loom', 'drawdown_editing_style')
+    }else{
+      this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+    }
+  
+  }
+  
+  
+  loomChange(e:any){
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+  
+    let utils:LoomUtil = null;
+  
+      const new_settings:LoomSettings = {
+        type: e.value.loomtype,
+        epi: loom_settings.epi,
+        units: loom_settings.units,
+        frames: loom_settings.frames,
+        treadles: loom_settings.treadles
+      }
+  
+      if(loom_settings.type == 'direct'){
+        new_settings.frames = Math.max(loom_settings.treadles, loom_settings.frames);
+        new_settings.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
+        this.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
+        this.frames = Math.max(loom_settings.treadles, loom_settings.frames);
+  
+      }
+  
+      //if we are changing from null or jacquard to a frame type loom 
+      if((loom_settings.type === null || loom_settings.type === 'jacquard')){
+       //from jacquard to frame
+  
+        utils = getLoomUtilByType(new_settings.type);
+        utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+        .then(loom => {
+          this.tree.setLoom(this.id, loom);
+          this.redraw(draft, loom, loom_settings, {loom: true});
+        });
+      }else if(isFrame(loom_settings) && new_settings.type == 'jacquard'){
+      //from a frame loom to jacquard
+  
+       utils = getLoomUtilByType(new_settings.type);
+       utils.computeDrawdownFromLoom(loom,this.ws.selected_origin_option)
+        .then(drawdown => {
+          draft.drawdown = drawdown;
+          this.tree.setDraftOnly(this.id, draft);
+          this.redraw(draft, loom, loom_settings, {loom: true});
+  
+        });
+      
+      }else if(isFrame(loom_settings) && isFrame(new_settings)){
+        //from one frame loom to another
+        const utils = getLoomUtilByType(new_settings.type);
+        if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+          utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+          .then(loom => {
+            this.tree.setLoom(this.id, loom);
+            this.redraw(draft, loom, loom_settings, {loom: true});
+  
+          })
+        }else{
+          utils.recomputeLoomFromThreadingAndDrawdown(loom,new_settings, draft.drawdown, this.ws.selected_origin_option)
+          .then(loom => {
+            this.tree.setLoom(this.id, loom);
+            this.redraw(draft, loom, loom_settings, {loom: true});
+          });
+  
+        }
+  
+  
+      }
+  
+      
+      if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+      else this.dm.selectDesignMode('loom', 'drawdown_editing_style');
+  
+      this.tree.setLoomSettings(this.id, new_settings);
+  
+  
+  
+    } 
+  
+  
+  public unitChange(e:any){
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    loom_settings.units = e.value.units;
+    this.tree.setLoomSettings(this.id, loom_settings);
+    this.redraw(draft, loom, loom_settings, {loom: true});
+  
+  }
+  
+  
+  
+  /**
+   * recomputes warps and epi if the width of the loom is changed
+   * @param f 
+   */
+  widthChange(f: NgForm) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+  
+    if(!f.value.width){
+      f.value.width = 1;
+      this.width = f.value.width;
+    } 
+  
+    // if(this.warp_locked){
+      var new_epi = (loom_settings.units == "in") ? f.value.warps / f.value.width : (10 * f.value.warps / f.value.width);   
+      loom_settings.epi = new_epi;
+      f.value.epi = new_epi;
+      this.tree.setLoomSettings(this.id, loom_settings);
+      this.redraw(draft, loom, loom_settings, {loom: true});
+    // }else{
+    //   var new_warps = (loom_settings.units === "in") 
+    //   ? Math.ceil(f.value.width * f.value.epi) : 
+    //   Math.ceil((10 * f.value.warps / f.value.width));
+  
+    //   this.warpNumChange({warps: new_warps});
+    // }
+  }
+  
+  public warpNumChange(e:any) {
+  
+    if(e.warps == "") return;
+  
+    const draft = this.tree.getDraft(this.id);
+    let loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+  
+  
+    if(e.warps > warps(draft.drawdown)){
+      var diff = e.warps -  warps(draft.drawdown);
+      for(var i = 0; i < diff; i++){  
+  
+        let ndx = warps(draft.drawdown);
+        const utils = getLoomUtilByType(loom_settings.type);
+        loom = utils.insertIntoThreading(loom, ndx, -1);
+  
+        draft.drawdown = insertDrawdownCol(draft.drawdown,ndx, null);
+        draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping,ndx, 0);
+        draft.colSystemMapping = insertMappingCol(draft.colSystemMapping,ndx, 0);
+        
+      }
+    }else{
+  
+      var diff = warps(draft.drawdown) - e.warps;
+      for(var i = 0; i < diff; i++){  
+        let ndx = warps(draft.drawdown)-1;
+  
+        const utils = getLoomUtilByType(loom_settings.type);
+        loom = utils.deleteFromThreading(loom, ndx);
+        draft.drawdown = deleteDrawdownCol(draft.drawdown, ndx);
+        draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping,ndx);
+        draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping,ndx);
+  
+      }
+  
+    }
+  
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      .then(loom => {
+          this.redraw(draft, loom, loom_settings, {
+            drawdown: true, 
+            loom:true, 
+            warp_systems: true, 
+            warp_materials: true,
+          });
+        })
+  
+    }else{
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      .then(draft => {
+        this.redraw(draft, loom, loom_settings, {
+          drawdown: true, 
+          loom:true, 
+          warp_systems: true, 
+          warp_materials: true,
+        });
+        })
+  
+    }
+  
+  
+  }
+  
+  
+  warpChange(f: NgForm) {
+  
+    const loom_settings = this.tree.getLoomSettings(this.id);
+  
+    if(!f.value.warps){
+     f.value.warps = 2;
+     this.warps = f.value.warps;
+    }
+    this.warpNumChange({warps: f.value.warps})
+    this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
+    f.value.width = this.width;
+  
+  }
+  
+  weftChange(f: NgForm) {
+    if(!f.value.wefts){
+      f.value.wefts = 2;
+      this.wefts = 2;
+    } 
+    this.weftNumChange({wefts: f.value.wefts})
+  
+  }
+  
+  public weftNumChange(e:any) {
+  
+    if(e.wefts === "" || e.wefts =="null") return;
+  
+  
+    const draft = this.tree.getDraft(this.id);
+    let loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+  
+  
+    if(e.wefts > wefts(draft.drawdown)){
+      var diff = e.wefts - wefts(draft.drawdown);
+  
+      for(var i = 0; i < diff; i++){  
+        let ndx = wefts(draft.drawdown);
+  
+        draft.drawdown = insertDrawdownRow(draft.drawdown,ndx, null);
+        draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping,  ndx, 1)
+        draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping,  ndx, 0)
+        const utils = getLoomUtilByType(loom_settings.type);
+        loom = utils.insertIntoTreadling(loom, ndx, []);
+      }
+    }else{
+      var diff = wefts(draft.drawdown) - e.wefts;
+      for(var i = 0; i < diff; i++){  
+        let ndx = wefts(draft.drawdown)-1;
+        draft.drawdown = deleteDrawdownRow(draft.drawdown, ndx);
+        draft.rowShuttleMapping = deleteMappingRow(draft.rowShuttleMapping, ndx)
+        draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping,  ndx)
+        const utils = getLoomUtilByType(loom_settings.type);
+        loom =  utils.deleteFromTreadling(loom, ndx);
+      }
+    }
+  
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+  
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      .then(loom => {
+        this.redraw(draft, loom, loom_settings, {
+          drawdown: true, 
+          loom:true, 
+          weft_systems: true, 
+          weft_materials: true,
+        });
+      })
+    }else{
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      .then(draft => {
+        this.redraw(draft, loom, loom_settings, {
+          drawdown: true, 
+          loom:true, 
+          weft_systems: true, 
+          weft_materials: true,
+        });    })
+    }
+   
+  }
+
+
+
+  public frameChange(e:any){
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    loom_settings.frames = e.value;
+    this.tree.setLoomSettings(this.id, loom_settings);
+    this.redraw(draft, loom, loom_settings, {loom: true});
+  }
+
+  public treadleChange(e:any){
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.tree.setLoomSettings(this.id, loom_settings);
+    this.redraw(draft, loom, loom_settings, {loom: true});
+  }
+
+
+  updateMinTreadles(f: NgForm){
+    //validate the input
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const draft = this.tree.getDraft(this.id);
+
+    if(!f.value.treadles){
+      f.value.treadles = 2; 
+      this.treadles = f.value.treadles;
+    } 
+
+    f.value.treadles = Math.ceil(f.value.treadles);
+   
+
+      loom_settings.treadles = f.value.treadles;
+
+      if(loom_settings.type == 'direct'){
+        this.frames = f.value.treadles;
+        this.treadles = f.value.treadles;
+        loom_settings.frames = this.frames;
+        loom_settings.treadles = this.treadles;
+        loom.tieup = generateDirectTieup(f.value.treadles);
+        this.tree.setLoom(this.id, loom);
+
+      }
+
+      this.tree.setLoomSettings(this.id, loom_settings);
+      this.redraw(draft, loom, loom_settings, {
+        loom:true, 
+      });
+    
+
+  }
+
+  updateMinFrames(f: NgForm){
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const draft = this.tree.getDraft(this.id);
+
+    if(!f.value.frames){
+      f.value.frames = 2; 
+      this.frames = f.value.frames;
+
+    }
+     
+
+    f.value.frames = Math.ceil(f.value.frames);
+    
+
+      loom_settings.frames = f.value.frames;
+
+      if(loom_settings.type == 'direct'){
+        this.frames = f.value.frames;
+        this.treadles = f.value.frames;
+        loom_settings.frames = this.frames;
+        loom_settings.treadles = this.treadles;
+        loom.tieup = generateDirectTieup(f.value.frames);
+        this.tree.setLoom(this.id, loom);
+      }
+
+      this.tree.setLoomSettings(this.id, loom_settings);      
+      this.redraw(draft, loom, loom_settings, {
+        loom:true, 
+      });
+    
+  }
+
+
+epiChange(f: NgForm) {
+
+  const loom_settings = this.tree.getLoomSettings(this.id);
+
+  if(!f.value.epi){
+    f.value.epi = 1;
+    loom_settings.epi = f.value.epi;
+    this.tree.setLoomSettings(this.id, loom_settings);
+  } 
+  
+  //this.loom.overloadEpi(f.value.epi);
+  this.ws.epi = f.value.epi;
+
+   // if(this.warp_locked){
+      //change the width
+      this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
+      f.value.width = this.width;
+      
+    // }else{
+    //   var new_warps = (loom_settings.units === "in") 
+    //   ? Math.ceil(f.value.width * f.value.epi) : 
+    //   Math.ceil((10 * f.value.warps / f.value.width));
+    //   f.value.warps = new_warps;
+    //   this.warps = new_warps;
+    //   this.warpNumChange({warps: new_warps});
+    // }
+  
+
+  }
+
+
+
 
 
  

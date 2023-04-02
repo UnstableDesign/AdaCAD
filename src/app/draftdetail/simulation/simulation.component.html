@@ -1,5 +1,86 @@
 
 <div id="simulation_container">
+  <div class="expand">
+    <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
+      <i *ngIf='!sim_expanded' class="fa-solid fa-maximize"></i>
+      <i *ngIf='sim_expanded' class="fa-solid fa-minimize"></i>
+        </button>
+  </div>
+
+  <div class="controls" [style.display]="(sim_expanded) ? 'flex' : 'none'">
+      <mat-form-field class="example-full-width">
+        <mat-label>Space Between Layers</mat-label>
+        <input 
+        matInput
+        [(ngModel)] = "layer_spacing"
+        type = "number"
+        [min]=0
+        [max]=100
+        step = 1
+        (change)= "changeLayerSpacing($event)">
+      </mat-form-field>
+      
+
+      <mat-form-field class="example-full-width">
+        <mat-label>Layer Threshold</mat-label>
+        <input 
+        matInput
+        [(ngModel)] = "layer_threshold"
+        type = "number"
+        [min]=1
+        [max]="100"
+        step = 1
+        (change)= "changeLayerThreshold()">
+      </mat-form-field>
+
+      <div class="toggle fullwidth" > 
+        <mat-slide-toggle
+        [(ngModel)]="showing_layer_map"
+        (click)="toggleLayerView()">
+        Show Layer Map
+        </mat-slide-toggle>
+      </div>
+      <div class="toggle fullwidth" > 
+        <mat-slide-toggle
+        [(ngModel)]="showing_topo"
+        (click)="toggleTopo()"> Show Topography
+        </mat-slide-toggle>
+      </div>
+
+      <div class="toggle fullwidth" > 
+        <mat-slide-toggle
+        [(ngModel)]="showing_draft"
+        (click)="toggleDraft()"> Show Draft
+        </mat-slide-toggle>
+      </div>
+
+      <div class="toggle fullwidth" > 
+        <mat-slide-toggle
+        [(ngModel)]="showing_warps"
+        (click)="toggleWarps()">
+        Show Warps 
+        </mat-slide-toggle>
+      </div>
 
 
+      <div class="toggle fullwidth" > 
+        <mat-slide-toggle
+        [(ngModel)]="showing_wefts"
+        (click)="toggleWefts()"> Show Wefts
+        </mat-slide-toggle>
+      </div>
+  </div>
+    <!-- <mat-form-field class="example-full-width">
+    <mat-label>Warp Layer Threshold</mat-label>
+    <input 
+    matInput
+    [(ngModel)] = "warp_threshold"
+    type = "number"
+    [min]=0
+    [max]="draft.drawdown[0].length"
+    step = 1
+    (change)= "warpThresholdChange()">
+  </mat-form-field>
+  -->
 </div>
+    

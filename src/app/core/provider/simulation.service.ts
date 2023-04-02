@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { createLayerMap, getDraftToplogy, translateTopologyToPoints } from '../model/yarnsimulation';
+import { createLayerMap, getDraftToplogy, relaxWefts, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Draft, SimulationVars, YarnVertex } from '../model/datatypes';
-import { warps } from '../model/drafts';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Lut } from 'three/examples/jsm/math/Lut';
+import { Draft, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
+import { warps, wefts } from '../model/drafts';
+
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,14 @@ import { warps } from '../model/drafts';
 export class SimulationService {
 
   hasSimulation: boolean = false;
-  
+  currentSim: SimulationData  = null;
+
+  layer_map_scene: any;
+  warp_scene: any;
+  weft_scene: any;
+  topo_scene: any;
+  draft_scene: any;
+
   
   constructor(private ms: MaterialsService) { 
 
@@ -34,8 +43,61 @@ export class SimulationService {
     this.hasSimulation = false;
   }
 
-  public setupAndDrawSimulation(draft: Draft, renderer, scene, camera, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService){
-    this.hasSimulation = true;
+  public generateSimulationData(draft: Draft, sim: SimulationVars) : Promise<SimulationData>{
+
+   
+
+    const currentSim:SimulationData  = {
+      draft: draft, 
+      sim: sim,
+      topo: null,
+      vtxs: null, 
+      layer_map: null,
+      top: 0, 
+      right: 0
+    };
+    
+
+
+    return getDraftToplogy(draft).then(
+      topology => {
+      currentSim.topo = topology;
+      return createLayerMap(draft, topology, sim.layer_threshold);
+      }
+    ).then(lm => {
+      currentSim.layer_map = lm;
+      return translateTopologyToPoints(draft,  currentSim.topo, lm, sim);
+
+    }).then(vtxs => {
+
+      currentSim.top = vtxs.warps.reduce((acc, val, j) => {
+        let max = val.reduce((sub_acc, vtx) => {
+          if(vtx.y > sub_acc) return vtx.y;
+          return sub_acc;
+        }, 0);
+
+        if(max > acc) return max;
+        return acc;
+      }, 0);
+
+      currentSim.right = vtxs.wefts.reduce((acc, val) => {
+        let max = val.reduce((sub_acc, vtx) => {
+          if(vtx.x > sub_acc) return vtx.x;
+          return sub_acc;
+        }, 0);
+
+        if(max > acc) return max;
+        return acc;
+      }, 0);
+
+      vtxs.wefts = relaxWefts(draft, currentSim.layer_map,sim,  vtxs.wefts);
+      currentSim.vtxs = vtxs;
+      return currentSim;
+    });
+
+  }
+
+  public setupSimulation(draft: Draft, renderer, scene, camera, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService) : Promise<SimulationData> {
 
     camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
     const controls = new OrbitControls( camera, renderer.domElement );
@@ -51,20 +113,46 @@ export class SimulationService {
     camera.position.set( 20, 0, 200 );
     camera.lookAt( 0, 0, 0 );  
     controls.update();
-
-    this.drawDrawdown(draft, scene, layer_threshold, warp_range, warp_spacing, layer_spacing, ms);
-
-   
     animate();
 
+    const sim:SimulationVars= {
+      warp_spacing, 
+      layer_spacing, 
+      ms,
+      layer_threshold
+    }
+    
+    return this.generateSimulationData(draft, sim)
+    .then(simdata => {
+      this.currentSim = simdata;
+      return simdata;
+    })
 
-    // renderer.setSize(400, 400, false);
+   
+
   }
 
+  public recalcSimData(scene, draft: Draft, warp_spacing:number, layer_spacing:number, layer_threshold:number, ms) : Promise<SimulationData>{
 
+    const sim:SimulationVars= {
+      warp_spacing, 
+      layer_spacing, 
+      ms,
+      layer_threshold
+    };
+    this.currentSim.sim = sim;
+    
+    return this.generateSimulationData(draft, sim)
+    .then(simdata => {
+      this.currentSim = simdata;
+      return simdata
+    })
+  }
 
-  public drawDrawdown(draft: Draft, scene, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService){
+  public renderSimdata(scene, simdata: SimulationData, warps: boolean, wefts: boolean, layers: boolean, topo: boolean, show_draft: boolean){
     this.hasSimulation = true;
+
+    if(this.currentSim.draft == null) return;
 
     scene.clear();
 
@@ -75,122 +163,441 @@ export class SimulationService {
 
     light.position.set( 20, 0, 50 );
     back_light.position.set( 20, 0, -50 );
-    const sim:SimulationVars= {
-      warp_spacing, layer_spacing, ms
-    }
+   
+    this.drawYarns(scene, simdata);
+    this.drawEndCaps(scene, simdata);
+    this.drawLayerMap(scene);
+    this.drawTopology(scene);
+    this.drawDraft(scene, this.currentSim.draft, this.currentSim.sim);
 
-    let topo = null;
-    getDraftToplogy(draft).then(
-      topology => {
-      topo = topology;
-      return createLayerMap(draft, topo, 2);
 
+    if(!wefts) this.hideWefts();
+    if(!warps) this.hideWarps();
+    if(!layers) this.hideLayerMap();
+    if(!topo) this.hideTopo();
+    if(!show_draft) this.hideDraft();
+
+  }
+
+  drawYarns(scene, simdata: SimulationData){
+
+    this.warp_scene =  new THREE.Group();
+    this.weft_scene =  new THREE.Group();
+
+    const vtxs = simdata.vtxs;
+    const draft = simdata.draft;
+
+    for(let j = 0; j < warps(simdata.draft.drawdown); j++){
+      const pts = [];
+
+      if(simdata.vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
+
+      const material_id = draft.colShuttleMapping[j];
+      let diameter = this.ms.getDiameter(material_id);
+      let color = this.ms.getColor(material_id);
+      
+      if(j == 0) color="#ff0000";
+
+     pts.push(new THREE.Vector3(vtxs.warps[j][0].x, vtxs.warps[j][0].y-10, vtxs.warps[j][0].z));
+     vtxs.warps[j].slice().forEach(vtx => {
+        if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+      });
+
+    let last = vtxs.warps[j].length -1;
+    pts.push(new THREE.Vector3(vtxs.warps[j][last].x, vtxs.warps[j][last].y+10, vtxs.warps[j][last].z));
+
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+      const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
+      const material = new THREE.MeshPhysicalMaterial( {
+        color: color,
+        depthTest: true,
+        emissive: 0x000000,
+        metalness: 0,
+        roughness: 0.5,
+        clearcoat: 1.0,
+        clearcoatRoughness: 1.0,
+        reflectivity: 0.0
+        } );     
+      
+      let curveObject = new THREE.Mesh( geometry, material );
+
+
+      this.warp_scene.add(curveObject);
       }
-    ).then(lm => {
-      return translateTopologyToPoints(draft, topo, lm, sim);
+    };
 
-    }).then(vtxs => {
+    this.warp_scene = this.applyOrientationConversion(this.warp_scene, this.currentSim.top, this.currentSim.right);
+    scene.add(this.warp_scene);
 
-      console.log("VTX ", vtxs)
 
-      for(let j = 0; j < warps(draft.drawdown); j++){
-        const pts = [];
-  
-        if(vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
-  
-        const material_id = draft.colShuttleMapping[j];
-        let diameter = ms.getDiameter(material_id);
-        let color = this.ms.getColor(material_id);
-        
-        if(j == 0) color="#ff0000";
-  
-  
-  
-       pts.push(new THREE.Vector3(vtxs.warps[j][0].x, vtxs.warps[j][0].y-10, vtxs.warps[j][0].z));
-       vtxs.warps[j].slice().forEach(vtx => {
+
+
+
+    vtxs.wefts.forEach((weft_vtx_list, i) => {
+      const pts = [];
+      if(weft_vtx_list.length != 0){
+        pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
+        weft_vtx_list.forEach(vtx => {
           if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
         });
-  
-      let last = vtxs.warps[j].length -1;
-      pts.push(new THREE.Vector3(vtxs.warps[j][last].x, vtxs.warps[j][last].y+10, vtxs.warps[j][last].z));
-  
+      let last = weft_vtx_list.length -1;
+      pts.push(new THREE.Vector3(weft_vtx_list[last].x+10, weft_vtx_list[last].y, weft_vtx_list[last].z));
+        const material_id = draft.rowShuttleMapping[i];
+        let diameter = this.ms.getDiameter(material_id);
+        let color = this.ms.getColor(material_id)
+        if(i == 0) color="#ff0000"
         const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
         const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
         const material = new THREE.MeshPhysicalMaterial( {
           color: color,
-          depthTest: true,
           emissive: 0x000000,
+          depthTest: true,
           metalness: 0,
           roughness: 0.5,
           clearcoat: 1.0,
           clearcoatRoughness: 1.0,
           reflectivity: 0.0
-          } );     
+          } );        
+          let curveObject = new THREE.Mesh( geometry, material );
+          this.weft_scene.add(curveObject);
+
           
-        let curveObject = new THREE.Mesh( geometry, material );
-        curveObject = this.applyOrientationConversion(curveObject);
-  
-  
-        scene.add(curveObject);
         }
-      };
-
-
-
-      vtxs.wefts.forEach((weft_vtx_list, i) => {
-        const pts = [];
-        if(weft_vtx_list.length != 0){
-          pts.push(new THREE.Vector3(weft_vtx_list[0].x-10, weft_vtx_list[0].y, weft_vtx_list[0].z));
-          weft_vtx_list.forEach(vtx => {
-            if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-          });
-        let last = weft_vtx_list.length -1;
-        pts.push(new THREE.Vector3(weft_vtx_list[last].x+10, weft_vtx_list[last].y, weft_vtx_list[last].z));
-          const material_id = draft.rowShuttleMapping[i];
-          let diameter = ms.getDiameter(material_id);
-          let color = this.ms.getColor(material_id)
-          if(i == 0) color="#ff0000"
-          const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-          const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
-          const material = new THREE.MeshPhysicalMaterial( {
-            color: color,
-            emissive: 0x000000,
-            depthTest: true,
-            metalness: 0,
-            roughness: 0.5,
-            clearcoat: 1.0,
-            clearcoatRoughness: 1.0,
-            reflectivity: 0.0
-            } );        
-            let curveObject = new THREE.Mesh( geometry, material );
-            curveObject = this.applyOrientationConversion(curveObject);
-            
-     
-  
-            scene.add(curveObject);
-          }
-      });
-  
-  
-    
-  
-      this.drawEndCaps(draft,{warps: vtxs.warps, wefts: vtxs.wefts}, ms, scene);
-  
-
     });
- 
+
+    this.weft_scene = this.applyOrientationConversion(this.weft_scene, this.currentSim.top, this.currentSim.right);
+    scene.add(this.weft_scene);
+
+  }
+
+  drawDraft(scene, draft: Draft, sim: SimulationVars){
+    this.draft_scene =  new THREE.Group();
+    const geometry = new THREE.BufferGeometry();
+    // const yarn_height = 5;
+    const yarn_height = this.currentSim.sim.warp_spacing;
+
+    let alldata = [];
+    let positions = [];
+    let colors = [];
+    let normals = [];
+    let indicies = [];
+
+    for(let i = 0; i < wefts(draft.drawdown); i++){
+      for(let j = 0; j < warps(draft.drawdown); j++){
+
+       const col = (draft.drawdown[i][j].isUp()) ? 0 : 1;
+
+
+       alldata.push({
+          pos: [sim.warp_spacing*j, yarn_height*i, 0],
+          norm: [0, 1, 0],
+          color: [col, col, col]
+        });
+    
+        alldata.push({
+          pos: [sim.warp_spacing*(j+1), yarn_height*i, 0],
+          norm: [0, 1, 0],
+          color: [col, col, col]
+        })
+    
+        alldata.push({
+          pos: [sim.warp_spacing*j, yarn_height*(i+1), 0],
+          norm: [0, 1, 0],
+          color: [col, col, col]
+        });
+    
+        alldata.push({
+          pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), 0],
+          norm: [0, 1, 0],
+          color: [col, col, col]
+        });
+
+        let starting_index = ((i*warps(draft.drawdown)) + j) *4;
+
+        indicies =  indicies.concat([
+          starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+        ]);
+      }
+    }
+
+
+    for (const vertex of alldata) {
+      positions.push(...vertex.pos);
+      normals.push(...vertex.norm);
+      colors.push(...vertex.color);
+    }
+
+    geometry.setIndex(indicies);
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+    const material = new THREE.MeshBasicMaterial( {
+      side: THREE.DoubleSide,
+      vertexColors: true
+    } );
 
 
 
-
-
-
-
+    let mesh = new THREE.Mesh( geometry, material );
+    this.draft_scene.add(mesh);
+    this.draft_scene = this.applyOrientationConversion(this.draft_scene, this.currentSim.top, this.currentSim.right);
+		scene.add( this.draft_scene );
 
 
   }
 
-  applyOrientationConversion(object) {
+  showDraft(){
+    this.draft_scene.visible = true;
+  }
+
+  hideDraft(){
+    this.draft_scene.visible = false;
+  }
+
+
+  showWarps(){
+    this.warp_scene.visible = true;
+  }
+
+  hideWarps(){
+    this.warp_scene.visible = false;
+  }
+
+  showWefts(){
+    console.log("SHOW WEFTS");
+    this.weft_scene.visible = true;
+  }
+
+  hideWefts(){
+    this.weft_scene.visible = false;
+  }
+
+
+  hideLayerMap(){
+    this.layer_map_scene.visible = false;
+  }
+
+  showLayerMap(){
+    this.layer_map_scene.visible = true;
+    console.log("SHOW LAYER MAP", this.layer_map_scene)
+  }
+
+  hideTopo(){
+    this.topo_scene.visible = false;
+  }
+
+  showTopo(){
+    this.topo_scene.visible = true;
+    console.log("SHOW LAYER MAP", this.layer_map_scene)
+  }
+
+  drawLayerMap(scene){
+
+    console.log("LAYER MAP DRAWN")
+    this.layer_map_scene =  new THREE.Group();
+
+    let z = -20;
+
+    const lm = this.currentSim.layer_map;
+    const sim = this.currentSim.sim;
+    const draft = this.currentSim.draft;
+
+    let range = lm.reduce((acc, val) => {
+      let max = val.reduce((sub_acc, vtx) => {
+        if(vtx > sub_acc) return vtx;
+        return sub_acc;
+      }, 0);
+
+      if(max > acc) return max;
+      return acc;
+    }, 0);
+
+    if(range == 0) range = 1;
+
+    const lut = new Lut();
+
+    lut.setColorMap( 'rainbow', 512);
+
+  
+    const geometry = new THREE.BufferGeometry();
+    // const yarn_height = 5;
+    const yarn_height = this.currentSim.sim.warp_spacing;
+
+    let alldata = [];
+    let positions = [];
+    let colors = [];
+    let normals = [];
+    let indicies = [];
+
+    for(let i = 0; i < lm.length; i++){
+      for(let j = 0; j < lm[0].length; j++){
+
+        const r = 0.5 + ( lm[i][j] / range );
+        const col = lut.getColor(r);
+       
+
+
+
+       alldata.push({
+          pos: [sim.warp_spacing*j, yarn_height*i, z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        });
+    
+        alldata.push({
+          pos: [sim.warp_spacing*(j+1), yarn_height*i, z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        })
+    
+        alldata.push({
+          pos: [sim.warp_spacing*j, yarn_height*(i+1), z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        });
+    
+        alldata.push({
+          pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        });
+
+        let starting_index = ((i*warps(draft.drawdown)) + j) *4;
+
+        indicies =  indicies.concat([
+          starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+        ]);
+      }
+    }
+
+
+
+    for (const vertex of alldata) {
+      positions.push(...vertex.pos);
+      normals.push(...vertex.norm);
+      colors.push(...vertex.color);
+    }
+
+
+
+
+    geometry.setIndex(indicies);
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+    const material = new THREE.MeshBasicMaterial( {
+      side: THREE.DoubleSide,
+      transparent: true,
+      vertexColors: true,
+      opacity: .5
+    } );
+
+
+
+    let mesh = new THREE.Mesh( geometry, material );    
+    this.layer_map_scene.add(mesh);
+    this.layer_map_scene = this.applyOrientationConversion( this.layer_map_scene, this.currentSim.top, this.currentSim.right);
+		scene.add(  this.layer_map_scene );
+
+  }
+
+  drawTopology(scene){
+
+
+    console.log("LAYER MAP DRAWN")
+    this.topo_scene =  new THREE.Group();
+    const geometry = new THREE.BufferGeometry();
+    let alldata = [];
+    let positions = [];
+    let colors = [];
+    let normals = [];
+    let indicies = [];
+
+
+    const topo = this.currentSim.topo;
+    const sim = this.currentSim.sim;
+    const yarn_height = sim.warp_spacing;
+
+    const lut = new Lut();
+    const range = 10;
+
+    lut.setColorMap( 'rainbow', 10);
+
+    topo.forEach((vtx, x) => {
+      const r = 0.5 + ( vtx.z_pos / range );
+      const col = lut.getColor(r);
+      // let z = vtx.z_pos * sim.layer_spacing;
+
+      // let z = -10 + vtx.z_pos;
+      let z = -1;
+      alldata.push({
+        pos: [sim.warp_spacing*vtx.j_left+2, yarn_height*vtx.i_bot+2, z],
+        norm: [0, 1, 0],
+        color: [col.r, col.g, col.b]
+      });
+  
+      alldata.push({
+        pos: [sim.warp_spacing*vtx.j_right+sim.warp_spacing-2, yarn_height*vtx.i_bot+2, z],
+        norm: [0, 1, 0],
+        color: [col.r, col.g, col.b]
+      })
+  
+      alldata.push({
+        pos: [sim.warp_spacing*vtx.j_left+2,yarn_height*vtx.i_top+yarn_height-2, z],
+        norm: [0, 1, 0],
+        color: [col.r, col.g, col.b]
+      });
+  
+      alldata.push({
+        pos: [sim.warp_spacing*vtx.j_right+sim.warp_spacing-2, yarn_height*vtx.i_top+yarn_height-2, z],
+        norm: [0, 1, 0],
+        color: [col.r, col.g, col.b]
+      });
+
+      let starting_index = x*4;
+
+      indicies =  indicies.concat([
+        starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+      ]);
+
+    })
+
+
+    for (const vertex of alldata) {
+      positions.push(...vertex.pos);
+      normals.push(...vertex.norm);
+      colors.push(...vertex.color);
+    }
+
+
+    geometry.setIndex(indicies);
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+    const material = new THREE.MeshBasicMaterial( {
+      side: THREE.DoubleSide,
+      transparent: true,
+      vertexColors: true,
+      opacity: .5,
+      wireframe: true
+    } );
+
+
+
+    let mesh = new THREE.Mesh( geometry, material );
+    this.topo_scene.add(mesh);
+    this.topo_scene = this.applyOrientationConversion(  this.topo_scene, this.currentSim.top, this.currentSim.right);
+		scene.add(  this.topo_scene );
+
+  }
+
+
+  applyOrientationConversion(object, top, right) {
+    const trans = new THREE.Matrix4();
+    trans.makeTranslation(-right/2,top/2, 0);
+    object.applyMatrix4(trans);
+
+
     const quaternion = new THREE.Quaternion();
           
     //rotate around the x axis to match draft orientation in top left
@@ -203,8 +610,13 @@ export class SimulationService {
     return object;
   }
 
-  drawEndCaps(draft: Draft, vtxs: {warps: Array<Array<YarnVertex>>, wefts:Array<Array<YarnVertex>>}, ms: MaterialsService, scene ){
+  drawEndCaps(scene,simdata: SimulationData ){
 
+    const vtxs = simdata.vtxs;
+    const draft = simdata.draft;
+    const ms = simdata.sim.ms;
+    const top = simdata.top;
+    const right = simdata.right;
 
     vtxs.warps.forEach((warp, j) => {
       if(warp.length > 0){
@@ -219,18 +631,20 @@ export class SimulationService {
       top_geometry.translate(vtxs.warps[j][0].x, vtxs.warps[j][0].y-10, vtxs.warps[j][0].z);
       const material = new THREE.MeshBasicMaterial( { color: color } );
       let end_circle = new THREE.Mesh( top_geometry, material );
-      end_circle = this.applyOrientationConversion(end_circle);
-      scene.add( end_circle );
+      this.warp_scene.add(end_circle);
+
       
       const bot_geometry = new THREE.CircleGeometry(  diameter/2, 32 );
       bot_geometry.rotateX(3*Math.PI/2);
       bot_geometry.translate(warp[warp.length-1].x, warp[warp.length-1].y+10, warp[warp.length-1].z);
       let top_circle = new THREE.Mesh( bot_geometry, material );
-      top_circle = this.applyOrientationConversion(top_circle);
-      scene.add( top_circle );
+      // top_circle.tranlsateY(-top/2);
+      // top_circle.tranlsateX(-right/2);
+      this.warp_scene.add( top_circle );
       }
 
     })
+
 
     vtxs.wefts.forEach((weft, i) => {
       if(weft.length > 0){
@@ -243,15 +657,15 @@ export class SimulationService {
       top_geometry.translate(weft[0].x-10, weft[0].y, weft[0].z);
       const material = new THREE.MeshBasicMaterial( { color: color } );
       let end_circle = new THREE.Mesh( top_geometry, material );
-      end_circle = this.applyOrientationConversion(end_circle);
-      scene.add( end_circle );
+
+      this.weft_scene.add(end_circle);
       
       const bot_geometry = new THREE.CircleGeometry( diameter/2, 32 );
       bot_geometry.rotateY(Math.PI/2);
       bot_geometry.translate(weft[weft.length-1].x+10, weft[weft.length-1].y, weft[weft.length-1].z);
       let top_circle = new THREE.Mesh( bot_geometry, material );
-      top_circle = this.applyOrientationConversion(top_circle);
-      scene.add( top_circle );
+      this.weft_scene.add(top_circle);
+
       }
 
     })
