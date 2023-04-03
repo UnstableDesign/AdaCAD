@@ -1261,6 +1261,12 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
   }
 
 
+  /**
+   * given a list of weft-oriented tuples (comapring wefts at each warp) find all the relevant interlacements
+   * @param tuples 
+   * @param count 
+   * @returns 
+   */
   export const extractInterlacementsFromTuples = (tuples: Array<WarpInterlacementTuple>, count: number) : Array<TopologyVtx> => {
     const topo: Array<TopologyVtx> = [];
 
@@ -1278,22 +1284,39 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
             orientation: !tuples[last].orientation,
             z_pos: count
           });
-
-
+        }
       }
-    }
 
-    return topo;
+      //look right to left
+      // for(let x = tuples.length-2; x >=0; x--){
+      //   let last = x +1;
+      //   if(tuples[last].orientation !== tuples[x].orientation){
+      //       topo.push({
+      //         i_top: tuples[x].i_top, 
+      //         i_bot: tuples[x].i_bot,
+      //         i_mid: getMidpoint(tuples[x].i_top, tuples[x].i_bot),
+      //         j_left: tuples[x].j,
+      //         j_right: tuples[last].j,
+      //         j_mid: getMidpoint(tuples[x].j, tuples[last].j,),
+      //         orientation: !tuples[x].orientation,
+      //         z_pos: count
+      //       });
+      //   }
+      // }
 
-    // let optimal_topo: Array<TopologyVtx> = [];
-    // topo.forEach(vtx => {
-    //   let reduced = reduceInterlacement(vtx, tuples, count);
-    //   if(reduced === null) optimal_topo.push(vtx);
-    //   else optimal_topo.push(reduced);
-    // })
+    // return topo;
 
-    //  return optimal_topo;
+    let optimal_topo: Array<TopologyVtx> = [];
+    topo.forEach(vtx => {
+      let reduced = reduceInterlacement(vtx, tuples, count);
+      console.log("REDUCED ILACE ", reduced)
+      if(reduced === null) optimal_topo.push(vtx);
+      else optimal_topo.push(reduced);
+    })
 
+     return optimal_topo;
+
+    
   }
 
   export const reduceInterlacement = (vtx: TopologyVtx, tuples: Array<WarpInterlacementTuple>, count: number) : TopologyVtx => {
@@ -1310,8 +1333,9 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         return acc;
       },{ndx: -1, dist: vtx.j_right - vtx.j_left});
 
+
       //this was irreducible
-      if(closest.dist == vtx.j_right - vtx.j_left) return null;
+      if(closest.dist == vtx.j_right - vtx.j_left || closest.dist == 0) return null;
       
       let new_vtx:TopologyVtx = {
         i_bot: vtx.i_bot, 
@@ -1339,11 +1363,14 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
   export const getInterlacements = (tuples: Array<WarpInterlacementTuple>, range: WarpRange, count: number,  draft: Draft) : Array<TopologyVtx> => {
 
 
-    
+    let closeness_to_edge = Math.ceil(warps(draft.drawdown)/8);
+
 
     if(tuples.length < 1) return [];
 
     if(tuples[0].i_bot < 0) return [];
+
+    if(tuples[0].i_top == wefts(draft.drawdown)-1) return [];
 
     
     tuples = getTuplesWithinRange(tuples, range);
@@ -1356,13 +1383,21 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     let ilaces: Array<TopologyVtx> = [];
     let float_groups: Array<WarpRange> = splitRangeByVerticies(range , topo);
     float_groups = float_groups.filter(el => el.j_left !== el.j_right);
+
+    //filter out groups where the last warp is included because they tend to be noisy  
+    float_groups = float_groups.filter(el => !(el.j_right != warps(draft.drawdown)-1 && el.j_right - el.j_left < closeness_to_edge));
+
     
-    float_groups.forEach(range => {
-      
+    console.log("FLOAT GROUPS AT ", i_top, i_bot, range, topo, float_groups);
+
+
+    float_groups.forEach((range, x) => {
+      console.log("LOOKING AT FLOAT GROUP ", x)
       count = orientation ? count + 1 : count -1;
       
-      //go down a row
       let next_row_tuple: Array<WarpInterlacementTuple> = getInterlacementsBetweenWefts(i_top, i_bot-1, range.j_left, range.j_right, draft);
+      
+
       ilaces = ilaces.concat(getInterlacements(next_row_tuple.slice(), range, count,  draft));
 
     });
@@ -1557,6 +1592,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
    
       //look at each weft
       for(let i = 0; i < wefts(dd); i++){
+        console.log("LOOKING AT I ", i)
         //get the interlacements associated with this row
         let a = warp_tuples.filter(el => el.i_top == i);
 
@@ -1665,7 +1701,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         }
 
       });
-      console.log("MERGED", merged)
+      // console.log("MERGED", merged)
       return Promise.resolve(merged);
 
 
@@ -1674,7 +1710,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
    export const  mergeLayerGroups = async (counts: Array<WarpWeftLayerCount>, layer_threshold: number) : Promise<Array<WarpWeftLayerCount>> => {
 
-    for(let i = 1; i <= layer_threshold; i++){
+    for(let i = 1; i < layer_threshold; i++){
        counts = await mergeGroupsOfSize(counts.slice(), i);
     }
 
@@ -1748,6 +1784,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         };
       });
 
+      // console.log("ANALYZING ", j)
       //check what we're left with at the end. 
       return mergeLayerGroups(counts, layer_threshold)
       .then(counts => {
@@ -1893,6 +1930,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       }
 
       return Promise.all(layer_fns).then(res => {
+       
         res.forEach((lm, j) => {
           for(let i = 0; i < wefts(draft.drawdown); i++){
             layer_map[i][j] = lm[i];
