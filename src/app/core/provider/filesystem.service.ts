@@ -74,7 +74,6 @@ export class FilesystemService {
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
           //only add values that haven't already been added
-          console.log("ON CHILD ADDED")
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
             this.addToTree(parseInt(childsnapshot.key), childsnapshot.val());
            this.file_tree_change$.next(this.file_tree.slice());

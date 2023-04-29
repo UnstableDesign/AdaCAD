@@ -33,6 +33,7 @@ import { Auth, authState, User } from '@angular/fire/auth';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { MatDrawer } from '@angular/material/sidenav';
 import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
+import { RenderService } from '../draftdetail/provider/render.service';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -78,91 +79,7 @@ export class MixerComponent implements OnInit {
 
 
 
-/**
-   * Change to draw mode on keypress d
-   * @returns {void}
-   */
- @HostListener('window:keydown', ['$event'])
- private keyEventDetected(e) {
 
-   if(e.key =="=" && e.metaKey){
-    const old_zoom = this.zs.zoom;
-    this.zs.zoomIn();
-    this.renderChange(old_zoom);
-    e.preventDefault();
-   }
-
-   if(e.key =="-" && e.metaKey){
-    const old_zoom = this.zs.zoom;
-    this.zs.zoomOut();
-    this.renderChange(old_zoom);
-    e.preventDefault();
-   }
-
-   if(e.key =="/" && e.metaKey){
-    const op_modal = this.dialog.open(OpsComponent,
-      {disableClose: true,
-        maxWidth:350, 
-        hasBackdrop: false,
-      data: {searchOnly: true}});
-  
-  
-        op_modal.componentInstance.onOperationAdded.subscribe(event => { this.operationAdded(event)});
-  
-  
-        op_modal.afterClosed().subscribe(result => {
-          //this.onLoomChange.emit();
-         // dialogRef.componentInstance.onChange.removeSubscription();
-      });
-   }
-
-  //  if(e.key =="o" && e.metaKey){
-  //   console.log("Save")
-  //  }
-
-
-   if(e.key =="s" && e.metaKey){
-    this.fs.saver.ada(
-      'mixer', 
-      true,
-      this.zs.zoom)
-      .then(so => {
-        this.ss.addMixerHistoryState(so);
-      });
-      e.preventDefault();
-   }
-
-   if(e.key =="z" && e.metaKey){
-    console.log("");
-    this.undo();
-   }
-
-   if(e.key =="y" && e.metaKey){
-    console.log("Redo");
-    this.redo();
-    e.preventDefault();
-   }
-
-
-
-
-
-
-
-
-
-
-  //  //make sure the path doesn't change if we're typing
-  //  const from_ta = e.path.find(el => el.localName === 'textarea');
-
-  //  if(from_ta !== undefined){
-  //    return;
-  //  } 
-   
-
-  //  this.dm.selectDesignMode('draw', 'design_modes');
-  //  this.designModeChange('draw');
- }
 
  /**
    * The weave Timeline object.
@@ -178,6 +95,8 @@ export class MixerComponent implements OnInit {
   collapsed:boolean = true;
 
   scrollingSubscription: any;
+
+
 
 
 
@@ -205,6 +124,7 @@ export class MixerComponent implements OnInit {
     private http: HttpClient,
     private zs: ZoomService,
     private files: FilesystemService,
+    private render: RenderService,
     @Optional() private fbauth: Auth,
     ) {
 
@@ -230,7 +150,7 @@ export class MixerComponent implements OnInit {
     this.vp.setAbsolute(16380, 16380); //max size of canvas, evenly divisible by default cell size
    
 
-    
+
 
     //subscribe to the login event and handle what happens in that case 
 
@@ -248,6 +168,7 @@ export class MixerComponent implements OnInit {
 
 
   ngOnInit(){
+    
 
 
     const analytics = getAnalytics();
@@ -257,7 +178,7 @@ export class MixerComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-
+ 
   }
 
 
@@ -280,6 +201,11 @@ export class MixerComponent implements OnInit {
     this.show_details = false ; 
     this.details.windowClosed();
   
+  }
+
+  detailViewChange(){
+    this.details.weaveRef.rescale(this.render.getZoom());
+
   }
 
 
@@ -1109,6 +1035,7 @@ zoomChange(e:any, source: string){
    * Updates the canvas based on the weave view.
    */
   public renderChange(old_zoom: number) {
+    console.log("RENDER CHANGE", old_zoom)
     this.palette.rescale(old_zoom);
   }
 

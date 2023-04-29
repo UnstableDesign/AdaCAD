@@ -52,6 +52,8 @@ import { BlankdraftModal } from './modal/blankdraft/blankdraft.modal';
 import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 import { FilebrowserComponent } from './filebrowser/filebrowser.component';
+import { KeycodesDirective } from './keycodes.directive';
+import { DefaultsService } from './provider/defaults.service';
 
 @NgModule({
     imports: [
@@ -105,7 +107,8 @@ import { FilebrowserComponent } from './filebrowser/filebrowser.component';
         BlankdraftModal,
         ExamplesComponent,
         LoadfileComponent,
-        FilebrowserComponent        ],
+        FilebrowserComponent,
+        KeycodesDirective],
     providers: [
         UploadService,
         FileService,
@@ -155,7 +158,7 @@ import { FilebrowserComponent } from './filebrowser/filebrowser.component';
         MaterialModal,
         LoomModal,
         FilebrowserComponent,
-        ExamplesComponent
-    ]
+        ExamplesComponent,
+        KeycodesDirective    ]
 })
 export class CoreModule { }

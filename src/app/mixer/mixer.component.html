@@ -1,4 +1,12 @@
 
+<appKeycodes
+  (onUndo)="undo()"
+  (onRedo)="redo()"
+  (updateMixerView)="renderChange($event)"
+  (updateDetailView)="detailViewChange()"
+>
+</appKeycodes>
+
 <mat-drawer-container [hasBackdrop]="false" #container class="mat-drawer-container" cdkScrollable>
 
 

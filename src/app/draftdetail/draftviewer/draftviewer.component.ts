@@ -18,6 +18,7 @@ import { OperationService } from '../../core/provider/operation.service';
 import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
 import { NgForm } from '@angular/forms';
+import { DefaultsService } from '../../core/provider/defaults.service';
 
 @Component({
   selector: 'app-draftviewer',
@@ -127,7 +128,6 @@ export class DraftviewerComponent implements OnInit {
    cxWarpMaterials: any;
  
  
- 
    cxWeftMaterials: any;
 
 
@@ -222,7 +222,7 @@ export class DraftviewerComponent implements OnInit {
    loomtypes:Array<DesignMode>  = [];
 
    density_units: Array<DesignMode> = [];
-  units: string;
+    units: string;
 
   /** VIEW OPTIONS */
 
@@ -244,15 +244,14 @@ export class DraftviewerComponent implements OnInit {
     public timeline: StateService,
     private tree:TreeService,
     private ops: OperationService,
-    public render: RenderService
+    public render: RenderService,
+    public defaults: DefaultsService
   ) { 
 
     this.flag_recompute = false;
     this.flag_history = false;
     this.loomtypes = dm.getOptionSet('loom_types');
     this.density_units = dm.getOptionSet('density_units');
-
-      console.log("ID IS ", this.id)
 
   }
 
@@ -309,8 +308,6 @@ export class DraftviewerComponent implements OnInit {
 
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
-
-    console.log("LOOM SETTINGS ", loom_settings)
     
     this.loom_settings = loom_settings;
     const frames = Math.max(numFrames(loom), loom_settings.frames);
@@ -410,18 +407,33 @@ export class DraftviewerComponent implements OnInit {
   private onStart(event) {
 
     const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
 
-    const frames = numFrames(loom);
-    const treadles = numTreadles(loom);
+    const frames = loom_settings.frames;
+    const treadles =loom_settings.treadles;
+
+    const el = document.getElementById('drawdown');
+    console.log("DD OFFSET W", el.offsetWidth)
 
 
     //get dimis based on zoom.
-    let dims ={
-      w: this.canvasEl.width / warps(draft.drawdown),
-      h:  this.canvasEl.height / this.render.visibleRows.length
-    }
+    // let dims ={
+    //   w:  el.offsetWidth / warps(draft.drawdown),
+    //   h:  el.offsetHeight / this.render.visibleRows.length
+    // }
 
+    let dims = this.render.getCellDims("base");
+
+    console.log("EVENT OFFSET and POS", event.offsetX-dims.w, event.offsetY-dims.h, dims.w*this.render.zoom)
+    var screen_row = Math.round((event.offsetY) / (dims.h));
+    var screen_col = Math.round((event.offsetX) / (dims.w));
+
+    const currentPos: Interlacement = {
+      si: screen_row,
+      i: screen_row, //row
+      j: screen_col, //col
+    };
 
     if (event.target.localName === 'canvas') {
     
@@ -431,13 +443,7 @@ export class DraftviewerComponent implements OnInit {
         fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));   
 
       // set up the Point to be used.
-      var screen_row = Math.floor(event.offsetY / dims.h);
 
-      const currentPos: Interlacement = {
-        si: screen_row,
-        i: screen_row, //row
-        j: Math.floor((event.offsetX) / dims.w), //col
-      };
 
 
       if(!event.target) return;
@@ -445,26 +451,29 @@ export class DraftviewerComponent implements OnInit {
       //reject out of bounds requests
       switch(event.target.id){
         case 'drawdown':
-          currentPos.si -=1;
-          currentPos.i -=1;
-          currentPos.j -=1;
+
+          currentPos.i -= 1;
+          currentPos.j -= 1;
+
+          console.log("CURRENT POS",currentPos)
+
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break;
 
         case 'threading':
-          // if(currentPos.i < 0 || currentPos.i >= frames) return;
-          // if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
+          if(currentPos.i < 0 || currentPos.i >= frames) return;
+          if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break; 
 
         case 'treadling':
-          // if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
-          // if(currentPos.j < 0 || currentPos.j >= treadles) return;    
+          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.j < 0 || currentPos.j >= treadles) return;    
           break;
 
         case 'tieups':
-          // if(currentPos.i < 0 || currentPos.i >= frames) return;
-          // if(currentPos.j < 0 || currentPos.j >= treadles) return;    
+          if(currentPos.i < 0 || currentPos.i >= frames) return;
+          if(currentPos.j < 0 || currentPos.j >= treadles) return;    
         break;
 
         case 'warp-materials':
@@ -1790,7 +1799,6 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
    */
   //this does not draw on canvas but just rescales the canvas
   public rescale(zoom: number){
-
   //   //var dims = this.render.getCellDims("base");
     const container: HTMLElement = document.getElementById('draft-scale-container');
     container.style.transformOrigin = 'top center';
@@ -2044,7 +2052,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.cx.strokeStyle = "#3d3d3d";
         this.cx.fillStyle = "#ffffff";
         this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-        this.cx.strokeRect(base_dims.w,base_dims.h,this.canvasEl.width-base_dims.w*2,this.canvasEl.height-base_dims.h*2);
+        this.cx.strokeRect(0,0,this.canvasEl.width,this.canvasEl.height);
         this.drawDrawdown(draft, loom, loom_settings);
     }
 
@@ -2070,8 +2078,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
     
     var base_dims = this.render.getCellDims("base");
-    this.cx.fillStyle = "grey";
-    this.cx.fillRect(base_dims.w,base_dims.h,this.canvasEl.width - base_dims.w*2,this.canvasEl.height-base_dims.h*2);
+    this.cx.fillStyle = "white";
+    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
 
     var i,j;
 
@@ -2139,7 +2147,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     var base_dims = this.render.getCellDims("base");
     this.cx.fillStyle = "white";
-    this.cx.fillRect(base_dims.w,base_dims.h,this.canvasEl.width - base_dims.w*2,this.canvasEl.height-base_dims.h*2);
+    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
 
     var i,j;
 

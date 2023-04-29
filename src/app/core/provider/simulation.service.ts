@@ -30,6 +30,10 @@ export class SimulationService {
   }
 
 
+  /**
+   * clears the memory devoted to a scene
+   * @param scene 
+   */
   public endSimulation(scene){
 
    // document.body.removeChild(this.renderer.domElement);
@@ -43,6 +47,13 @@ export class SimulationService {
     this.hasSimulation = false;
   }
 
+
+  /**
+   * generates a new simulation with the given draft and simulation parameters
+   * @param draft 
+   * @param sim 
+   * @returns promise for simulation data
+   */
   public generateSimulationData(draft: Draft, sim: SimulationVars) : Promise<SimulationData>{
 
    
@@ -59,7 +70,7 @@ export class SimulationService {
     
 
 
-    return getDraftToplogy(draft).then(
+    return getDraftToplogy(draft, sim).then(
       topology => {
       currentSim.topo = topology;
       return createLayerMap(draft, topology, sim.layer_threshold);
@@ -364,7 +375,7 @@ export class SimulationService {
   }
 
   showWefts(){
-    console.log("SHOW WEFTS");
+    // console.log("SHOW WEFTS");
     this.weft_scene.visible = true;
   }
 

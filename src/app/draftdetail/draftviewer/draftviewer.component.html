@@ -24,11 +24,16 @@
       
 
       <div class="warp-systems-container origin{{ws.selected_origin_option}} ">
-        <div class="warp-systems-text origin{{ws.selected_origin_option}}" id="warp-systems-text">
+        <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text">
          
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
+          [style.width.px] = "defaults.draft_detail_cell_size"
           *ngFor="let i of colSystemMapping; let j = index;" >
-          <a class="warp-material" [style.background-color]="this.ms.getColor(colShuttleMapping[j])" (click)="incrementWarpMaterial(j)">   
+          <a class="warp-material" 
+          [style.background-color]="this.ms.getColor(colShuttleMapping[j])" 
+          [style.width.px]="defaults.draft_detail_cell_size-1"
+          [style.height.px]="defaults.draft_detail_cell_size-1"
+          (click)="incrementWarpMaterial(j)">   
           </a>
             <a class="warp-system" (click)="incrementWarpSystem(j)"> {{ss.getWarpSystemCode(i)}}</a>
      
@@ -74,9 +79,14 @@
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
           <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text">
             <div class="weft-system-row origin{{ws.selected_origin_option}}" 
+            [style.height.px]="defaults.draft_detail_cell_size"
             *ngFor="let i of (render?.visibleRows); let j = index;" >
                
-            <a class="weft-material" [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" (click)="incrementWeftMaterial(j)"> 
+            <a class="weft-material" 
+            [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" 
+            [style.width.px]="defaults.draft_detail_cell_size-1"
+            [style.height.px]="defaults.draft_detail_cell_size-1"
+            (click)="incrementWeftMaterial(j)"> 
             </a>
             
             <a class="weft-system" (click)="incrementWeftSystem(j)"> 

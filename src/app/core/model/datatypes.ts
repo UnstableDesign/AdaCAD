@@ -814,5 +814,14 @@ export type SimulationVars = {
 }
 
 
+export type LayerData = {
+  confidence: number, 
+  proximity_to_edge: number,
+  longest_ray: number,
+  default: number,
+}
+
+
+
 
 

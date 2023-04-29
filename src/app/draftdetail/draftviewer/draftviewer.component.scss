@@ -105,9 +105,9 @@ canvas{
 
 
 .warp-systems-container{
-  padding-left: 10px;
+  padding-left: 15px;
   display: flex;
-  padding-right: 10px;
+  padding-right: 15px;
 }
 
 .warp-systems-container.origin0
@@ -282,7 +282,7 @@ canvas{
 
 .weft-systems-container{
   display: flex;
-  padding-top: 10px; 
+  padding-top: 15px; 
 }
 
 .weft-systems-container.origin0,
@@ -305,9 +305,9 @@ canvas{
 
 .warp-systems-text {
       cursor: pointer;
-      font-size: 10px;
-      color: #333;
-      line-height: 10px;
+      font-size: 14px;
+      line-height: 14px;
+            color: #333;
       z-index: 1;
       display: flex;
       width: fit-content;
@@ -487,8 +487,8 @@ canvas{
   
   .weft-systems-text {
     cursor: pointer;
-    font-size: 10px;
-    line-height: 10px;
+    font-size: 14px;
+    line-height: 14px;
     color: #333;
     z-index: 2;
     display: flex;
