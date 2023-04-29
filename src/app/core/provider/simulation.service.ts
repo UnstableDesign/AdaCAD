@@ -101,7 +101,7 @@ export class SimulationService {
         return acc;
       }, 0);
 
-      vtxs.wefts = relaxWefts(draft, currentSim.layer_map,sim,  vtxs.wefts);
+      // vtxs.wefts = relaxWefts(draft, currentSim.layer_map,sim,  vtxs.wefts);
       currentSim.vtxs = vtxs;
       return currentSim;
     });
