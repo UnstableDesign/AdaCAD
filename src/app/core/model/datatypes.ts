@@ -810,6 +810,8 @@ export type SimulationVars = {
   warp_spacing: number, 
   layer_spacing: number,
   layer_threshold: number,
+  max_interlacement_width: number,
+  max_interlacement_height: number,
   ms: MaterialsService
 }
 

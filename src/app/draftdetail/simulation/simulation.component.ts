@@ -27,6 +27,8 @@ export class SimulationComponent implements OnInit {
   layer_spacing: number = 10;
   layer_threshold: number = 2;
   warp_threshold: number = 2;
+  max_interlacement_width: number = 10;
+  max_interlacement_height: number = 10;
   showing_layer_map: boolean = false;
   showing_warps: boolean = true;
   showing_wefts: boolean = true;
@@ -89,8 +91,26 @@ export class SimulationComponent implements OnInit {
     this.loom_settings = loom_settings;
     this.layer_spacing = this.calcDefaultLayerSpacing(draft);
   
-    this.simulation.setupSimulation(draft, this.renderer, this.scene, this.camera, this.layer_threshold, this.warp_threshold, convertEPItoMM(loom_settings), this.layer_spacing, this.ms).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+    this.simulation.setupSimulation(
+      draft, 
+      this.renderer, 
+      this.scene, 
+      this.camera, 
+      this.layer_threshold, 
+      this.warp_threshold, convertEPItoMM(loom_settings), 
+      this.layer_spacing, 
+      this.max_interlacement_width,
+      this.max_interlacement_height, 
+      this.ms)
+      .then(simdata => {
+      this.simulation.renderSimdata(
+        this.scene, 
+        simdata, 
+        this.showing_warps, 
+        this.showing_wefts, 
+        this.showing_layer_map, 
+        this.showing_topo, 
+        this.showing_draft);
 
     })
 
@@ -100,14 +120,32 @@ export class SimulationComponent implements OnInit {
   updateSimulation(draft: Draft, loom_settings){
     this.draft = draft;
     this.loom_settings = loom_settings;
-    this.simulation.recalcSimData(this.scene, draft, convertEPItoMM(this.loom_settings), this.layer_spacing, this.layer_threshold, this.ms).then(simdata => {
+    this.simulation.recalcSimData(
+      this.scene, 
+      draft, 
+      convertEPItoMM(this.loom_settings), 
+      this.layer_spacing, 
+      this.layer_threshold, 
+      this.max_interlacement_width, 
+      this.max_interlacement_height,
+      this.ms
+      ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
     });
 
   }
 
   changeLayerThreshold(){
-    this.simulation.recalcSimData(this.scene, this.draft, convertEPItoMM(this.loom_settings), this.layer_spacing, this.layer_threshold, this.ms).then(simdata => {
+    this.simulation.recalcSimData(
+      this.scene, 
+      this.draft, 
+      convertEPItoMM(this.loom_settings), 
+      this.layer_spacing, 
+      this.layer_threshold, 
+      this.max_interlacement_width, 
+      this.max_interlacement_height,
+      this.ms
+      ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
     });
   }
@@ -143,10 +181,52 @@ export class SimulationComponent implements OnInit {
 
   changeLayerSpacing(e: any){
 
-    this.simulation.recalcSimData(this.scene, this.draft, convertEPItoMM(this.loom_settings), this.layer_spacing, this.layer_threshold, this.ms).then(simdata => {
+    this.simulation.recalcSimData(
+      this.scene, 
+      this.draft, 
+      convertEPItoMM(this.loom_settings), 
+      this.layer_spacing, 
+      this.layer_threshold, 
+      this.max_interlacement_width, 
+      this.max_interlacement_height,
+      this.ms
+      ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
     });
   }
+
+  changeILaceWidth(){
+
+    this.simulation.recalcSimData(
+      this.scene, 
+      this.draft, 
+      convertEPItoMM(this.loom_settings), 
+      this.layer_spacing, 
+      this.layer_threshold, 
+      this.max_interlacement_width, 
+      this.max_interlacement_height,
+      this.ms
+      ).then(simdata => {
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+    });
+  }
+
+  changeILaceHeight(){
+
+    this.simulation.recalcSimData(
+      this.scene, 
+      this.draft, 
+      convertEPItoMM(this.loom_settings), 
+      this.layer_spacing, 
+      this.layer_threshold, 
+      this.max_interlacement_width, 
+      this.max_interlacement_height,
+      this.ms
+      ).then(simdata => {
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+    });
+  }
+
 
   pageClose(){
     this.simulation.endSimulation(this.scene);

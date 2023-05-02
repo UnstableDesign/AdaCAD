@@ -73,7 +73,7 @@ export class SimulationService {
     return getDraftToplogy(draft, sim).then(
       topology => {
       currentSim.topo = topology;
-      return createLayerMaps(draft, topology, sim.layer_threshold);
+      return createLayerMaps(draft, topology, sim);
       }
     ).then(lm => {
       currentSim.layer_maps = lm;
@@ -108,7 +108,7 @@ export class SimulationService {
 
   }
 
-  public setupSimulation(draft: Draft, renderer, scene, camera, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, ms: MaterialsService) : Promise<SimulationData> {
+  public setupSimulation(draft: Draft, renderer, scene, camera, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, max_interlacement_width: number, max_interlacement_height: number,  ms: MaterialsService) : Promise<SimulationData> {
 
     camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
     const controls = new OrbitControls( camera, renderer.domElement );
@@ -130,7 +130,9 @@ export class SimulationService {
       warp_spacing, 
       layer_spacing, 
       ms,
-      layer_threshold
+      layer_threshold,
+      max_interlacement_width,
+      max_interlacement_height
     }
     
     return this.generateSimulationData(draft, sim)
@@ -143,13 +145,15 @@ export class SimulationService {
 
   }
 
-  public recalcSimData(scene, draft: Draft, warp_spacing:number, layer_spacing:number, layer_threshold:number, ms) : Promise<SimulationData>{
+  public recalcSimData(scene, draft: Draft, warp_spacing:number, layer_spacing:number, layer_threshold:number,max_interlacement_width: number, max_interlacement_height: number, ms: MaterialsService) : Promise<SimulationData>{
 
     const sim:SimulationVars= {
       warp_spacing, 
       layer_spacing, 
       ms,
-      layer_threshold
+      layer_threshold,
+      max_interlacement_width,
+      max_interlacement_height
     };
     this.currentSim.sim = sim;
     

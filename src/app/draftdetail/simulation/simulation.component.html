@@ -33,6 +33,30 @@
         (change)= "changeLayerThreshold()">
       </mat-form-field>
 
+      <mat-form-field class="example-full-width">
+        <mat-label>Max Interlacement Width</mat-label>
+        <input 
+        matInput
+        [(ngModel)] = "max_interlacement_width"
+        type = "number"
+        [min]=1
+        [max]="100"
+        step = 1
+        (change)= "changeILaceWidth()">
+      </mat-form-field>
+
+      <mat-form-field class="example-full-width">
+        <mat-label>Max Interlacement Height</mat-label>
+        <input 
+        matInput
+        [(ngModel)] = "max_interlacement_height"
+        type = "number"
+        [min]=1
+        [max]="100"
+        step = 1
+        (change)= "changeILaceHeight()">
+      </mat-form-field>
+
       <div class="toggle fullwidth" > 
         <mat-slide-toggle
         [(ngModel)]="showing_layer_map"
