@@ -794,7 +794,10 @@ export type WarpWeftLayerCount = {
   layer: number
 }
 
-
+export type WarpHeight = {
+  over: number,
+  under: number
+}
 
 export type SimulationData = {
   draft: Draft,

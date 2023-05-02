@@ -3,7 +3,7 @@ import { create } from "domain";
 import { max } from "mathjs";
 import { MaterialsService } from "../provider/materials.service";
 import { Cell } from "./cell";
-import {  Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpInterlacementTuple, WarpRange, WarpWeftLayerCount, WeftInterlacementTuple, YarnCell, YarnFloat, YarnSim, YarnVertex } from "./datatypes";
+import {  Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WarpWeftLayerCount, WeftInterlacementTuple, YarnCell, YarnFloat, YarnSim, YarnVertex } from "./datatypes";
 import { getCol, warps, wefts } from "./drafts";
 import { Shuttle } from "./shuttle";
 import { System } from "./system";
@@ -2086,6 +2086,69 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       return Promise.resolve(layer_map);
 
     }
+
+
+    export const packWefts = (weft: Array<YarnVertex>, layer_maps: LayerMaps, draft: Draft,  warp_heights:Array<WarpHeight>, max_offset: number, diam: number) : {weft: Array<YarnVertex>, warp_heights: Array<WarpHeight>} => {
+
+
+
+
+
+      // let clipped_weft = weft.slice();
+      // clipped_weft.pop();
+      // clipped_weft.shift();
+      // console.log("WEFT< CLIPPED", weft, clipped_weft)
+
+      // const range = clipped_weft.reduce((acc, val) => {
+      //   let dist = val.y - warp_heights[val.j];
+      //   if(dist > acc.max) acc.max = dist;
+      //   if(dist < acc.min) acc.min = dist;
+      //   return acc;
+      // }, {min:10000, max:0});
+
+      // console.log("RANGE ", range.min, range.max,  diam);
+
+      let active_y = 0;
+      weft.forEach(vtx => {
+        console.log("VTX", vtx)
+        //if the the warp is interlacing with the weft at this position then we should consider its height
+        if(layer_maps.warp[vtx.i][vtx.j] == layer_maps.weft[vtx.i][vtx.j]){
+          
+          if(draft.drawdown[vtx.i][vtx.j].getHeddle() == true){
+            warp_heights[vtx.j].under += diam;
+            warp_heights[vtx.j].over += 7*diam/8;
+            active_y = warp_heights[vtx.j].under;
+          }else{
+            warp_heights[vtx.j].over += diam;
+            warp_heights[vtx.j].under +=  7*diam/8;
+
+            active_y = warp_heights[vtx.j].over;
+          }
+        }
+
+        vtx.y = active_y;
+      });
+
+      const range = weft.reduce((acc, val) => {
+        if(val.y > acc.max) acc.max = val.y;
+        if(val.y < acc.min) acc.min = val.y;
+        return acc;
+      }, {min:10000, max:0});
+
+      console.log("RANGE ",range.max - range.min, diam/4 )
+      //if(range.max - range.min > diam){
+        weft.forEach(vtx => {
+          vtx.y = range.max;
+        })
+      //}
+
+
+
+
+  
+
+      return {weft, warp_heights};
+    }
   
 
 
@@ -2103,20 +2166,21 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     let weft_vtx: Array<Array<YarnVertex>> = [];
     let warp_vtx: Array<Array<YarnVertex>> = [];
-    let warp_heights: Array<number> = [];
+    let warp_heights: Array<WarpHeight> = [];
 
     for(let j = 0; j < warps(draft.drawdown); j++){
-      warp_heights.push(0);
+      warp_heights.push({over: 0, under: 0});
     } 
 
 
     for(let i = 0; i < wefts(draft.drawdown); i++){
       weft_vtx.push([]);
-
-      const ilaces_assoc_with_weft = topo.filter(el => el.i_bot == i || el.i_top==i);
-      let weft = insertWeft(draft, ilaces_assoc_with_weft, weft_vtx,  i, sim, layer_maps, warp_heights);
-      weft_vtx = res.weft_vtxs.slice();
-      warp_heights = res.warp_heights;
+      let weft_mat = draft.rowShuttleMapping[i];
+      let diam = sim.ms.getDiameter(weft_mat);
+      let weft = insertWeft(draft, [],  i, sim, layer_maps);
+      let res = packWefts(weft, layer_maps, draft, warp_heights, diam, diam);
+      weft_vtx[i] = res.weft.slice();
+      warp_heights = res.warp_heights.slice();
 
     } 
 
@@ -2210,16 +2274,15 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
    */
   export const insertWeft 
   = (draft: Draft, 
-    weft_vtx: Array<Array<YarnVertex>>, 
+    weft_vtx: Array<YarnVertex>, 
     i: number, 
     sim: SimulationVars, 
-    layer_maps: LayerMaps, 
-    warp_heights: Array<number> 
+    layer_maps: LayerMaps
     ) 
-    : {weft_vtxs: Array<Array<YarnVertex>>, warp_heights: Array<number>} => {
+    : Array<YarnVertex> => {
 
     let diam = sim.ms.getDiameter(draft.rowShuttleMapping[i]);
-    return  processWeftInterlacements(draft, i, diam, weft_vtx, warp_heights,sim, layer_maps);
+    return  processWeftInterlacements(draft, i, diam, weft_vtx,sim, layer_maps);
   }
 
   // export const bookendWeft = (draft: Draft, weft_vtx: Array<Array<YarnVertex>>, i: number, sim: SimulationVars, layer_map: Array<Array<number>> ) : Array<Array<YarnVertex>> => {
@@ -2306,16 +2369,23 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
  
 
   export const addWeftInterlacement 
-  =  (draft: Draft, i: number, j: number, z_pos: number, diam: number, sim: SimulationVars, weft_vtxs: Array<Array<YarnVertex>>, warp_heights: Array<number>) 
-  : {weft_vtxs: Array<Array<YarnVertex>>, warp_heights: Array<number>} => {
+  =  (
+    draft: Draft, 
+    i: number, 
+    j: number, 
+    z_pos: number, 
+    diam: number, 
+    sim: SimulationVars, 
+    weft_vtxs: Array<YarnVertex>, 
+    ) 
+  : Array<YarnVertex> => {
     let offset = getWeftOffsetFromWarp(draft, i, j, sim.ms);
     let orient = getWeftOrientationVector(draft, i, j);
-    warp_heights[j] += diam;
 
 
-      weft_vtxs[i].push({
+      weft_vtxs.push({
       x: j*sim.warp_spacing, 
-      y: warp_heights[j],
+      y: i*diam,
       z: z_pos*sim.layer_spacing+offset*orient,
       i: i, 
       j: j
@@ -2323,7 +2393,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
 
-     return {weft_vtxs, warp_heights};
+     return weft_vtxs;
      
   }
 
@@ -2367,16 +2437,21 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
    * @param layer_map 
    * @returns 
    */
-  export const processWeftInterlacements = (draft: Draft, i: number,  diam: number, weft_vtxs: Array<Array<YarnVertex>>,  warp_heights: Array<number>, sim: SimulationVars, layer_maps:  LayerMaps) : {weft_vtxs: Array<Array<YarnVertex>>, warp_heights: Array<number>} => {
+  export const processWeftInterlacements 
+  = (draft: Draft, 
+    i: number,  
+    diam: number, 
+    weft_vtxs: Array<YarnVertex>,  
+    sim: SimulationVars, 
+    layer_maps:  LayerMaps) 
+    : Array<YarnVertex> => {
 
     let indexs_added = [];
 
     //look across the row and make new interlacements
     let last_layer = layer_maps.weft[i][0];
     let last_orientation = draft.drawdown[i][0].getHeddle();
-    let res = addWeftInterlacement(draft, i, 0, last_layer, diam, sim, weft_vtxs, warp_heights);
-    weft_vtxs = res.weft_vtxs;
-    warp_heights = res.warp_heights;
+    weft_vtxs = addWeftInterlacement(draft, i, 0, last_layer, diam, sim, weft_vtxs).slice();
     indexs_added.push(0);
 
     for(let j = 1; j < warps(draft.drawdown); j++){
@@ -2388,17 +2463,13 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         if(layer_id == last_layer && orientation !== last_orientation){
           
           if(indexs_added.find(el => el == j-1)==undefined){
-            res = addWeftInterlacement(draft, i, j-1, last_layer, diam, sim, weft_vtxs, warp_heights);
-            weft_vtxs = res.weft_vtxs;
-            warp_heights = res.warp_heights;
+            weft_vtxs = addWeftInterlacement(draft, i, j-1, last_layer, diam, sim, weft_vtxs).slice();
             indexs_added.push(j-1);
   
             //add mid point?
           } 
   
-          res = addWeftInterlacement(draft, i, j, layer_id, diam, sim, weft_vtxs, warp_heights);
-          weft_vtxs = res.weft_vtxs;
-          warp_heights = res.warp_heights;
+          weft_vtxs = addWeftInterlacement(draft, i, j, layer_id, diam, sim, weft_vtxs).slice();
           indexs_added.push(j);
   
         }
@@ -2412,12 +2483,10 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
     if(indexs_added.find(el => el ==warps(draft.drawdown)-1)==undefined){
-      res = addWeftInterlacement(draft, i, warps(draft.drawdown)-1, last_layer, diam, sim, weft_vtxs, warp_heights);
-      weft_vtxs = res.weft_vtxs;
-      warp_heights = res.warp_heights;
+      weft_vtxs = addWeftInterlacement(draft, i, warps(draft.drawdown)-1, last_layer, diam, sim, weft_vtxs).slice();
     }
 
-    return {weft_vtxs, warp_heights};
+    return weft_vtxs;
 
   }
 
