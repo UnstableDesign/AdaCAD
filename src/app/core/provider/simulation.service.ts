@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { createLayerMap, getDraftToplogy, relaxWefts, translateTopologyToPoints } from '../model/yarnsimulation';
+import { createLayerMaps, getDraftToplogy, relaxWefts, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
@@ -63,7 +63,7 @@ export class SimulationService {
       sim: sim,
       topo: null,
       vtxs: null, 
-      layer_map: null,
+      layer_maps: null,
       top: 0, 
       right: 0
     };
@@ -73,10 +73,10 @@ export class SimulationService {
     return getDraftToplogy(draft, sim).then(
       topology => {
       currentSim.topo = topology;
-      return createLayerMap(draft, topology, sim.layer_threshold);
+      return createLayerMaps(draft, topology, sim.layer_threshold);
       }
     ).then(lm => {
-      currentSim.layer_map = lm;
+      currentSim.layer_maps = lm;
       return translateTopologyToPoints(draft,  currentSim.topo, lm, sim);
 
     }).then(vtxs => {
@@ -404,16 +404,15 @@ export class SimulationService {
 
   drawLayerMap(scene){
 
-    console.log("LAYER MAP DRAWN")
     this.layer_map_scene =  new THREE.Group();
 
     let z = -20;
 
-    const lm = this.currentSim.layer_map;
+    const lm = this.currentSim.layer_maps;
     const sim = this.currentSim.sim;
     const draft = this.currentSim.draft;
 
-    let range = lm.reduce((acc, val) => {
+    let range = lm.warp.reduce((acc, val) => {
       let max = val.reduce((sub_acc, vtx) => {
         if(vtx > sub_acc) return vtx;
         return sub_acc;
@@ -440,10 +439,10 @@ export class SimulationService {
     let normals = [];
     let indicies = [];
 
-    for(let i = 0; i < lm.length; i++){
-      for(let j = 0; j < lm[0].length; j++){
+    for(let i = 0; i < lm.warp.length; i++){
+      for(let j = 0; j < lm.warp[0].length; j++){
 
-        const r = 0.5 + ( lm[i][j] / range );
+        const r = 0.5 + ( lm.warp[i][j] / range );
         const col = lut.getColor(r);
        
 

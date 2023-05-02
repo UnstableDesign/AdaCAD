@@ -800,8 +800,8 @@ export type SimulationData = {
   draft: Draft,
   sim: SimulationVars,
   topo: Array<TopologyVtx>,
-  vtxs: {warps: Array<Array<YarnVertex>> , wefts: Array<Array<YarnVertex>>},
-  layer_map: Array<Array<number>>,
+  vtxs: VertexMaps,
+  layer_maps: LayerMaps,
   top: number,
   right: number
 };
@@ -813,13 +813,17 @@ export type SimulationVars = {
   ms: MaterialsService
 }
 
-
-export type LayerData = {
-  confidence: number, 
-  proximity_to_edge: number,
-  longest_ray: number,
-  default: number,
+export type LayerMaps = {
+  warp: Array<Array<number>>,
+  weft: Array<Array<number>>
 }
+
+export type VertexMaps = {
+  warps: Array<Array<YarnVertex>>,
+  wefts: Array<Array<YarnVertex>>
+}
+
+
 
 
 
