@@ -56,12 +56,18 @@
         step = 1
         (change)= "changeILaceHeight()">
       </mat-form-field>
-
       <div class="toggle fullwidth" > 
         <mat-slide-toggle
-        [(ngModel)]="showing_layer_map"
-        (click)="toggleLayerView()">
-        Show Layer Map
+        [(ngModel)]="showing_warp_layer_map"
+        (click)="toggleWarpLayerView()">
+        Show Warp Layer Map
+        </mat-slide-toggle>
+      </div>
+      <div class="toggle fullwidth" > 
+        <mat-slide-toggle
+        [(ngModel)]="showing_weft_layer_map"
+        (click)="toggleWeftLayerView()">
+        Show Weft Layer Map
         </mat-slide-toggle>
       </div>
       <div class="toggle fullwidth" > 

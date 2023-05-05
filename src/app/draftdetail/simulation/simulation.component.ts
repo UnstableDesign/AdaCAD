@@ -29,7 +29,8 @@ export class SimulationComponent implements OnInit {
   warp_threshold: number = 2;
   max_interlacement_width: number = 10;
   max_interlacement_height: number = 10;
-  showing_layer_map: boolean = false;
+  showing_warp_layer_map: boolean = false;
+  showing_weft_layer_map: boolean = false;
   showing_warps: boolean = true;
   showing_wefts: boolean = true;
   showing_topo: boolean = false;
@@ -108,7 +109,8 @@ export class SimulationComponent implements OnInit {
         simdata, 
         this.showing_warps, 
         this.showing_wefts, 
-        this.showing_layer_map, 
+        this.showing_warp_layer_map, 
+        this.showing_weft_layer_map, 
         this.showing_topo, 
         this.showing_draft);
 
@@ -130,7 +132,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_height,
       this.ms
       ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
     });
 
   }
@@ -146,7 +148,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_height,
       this.ms
       ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
     });
   }
 
@@ -172,11 +174,14 @@ export class SimulationComponent implements OnInit {
     else this.simulation.hideTopo();
   }
 
+  toggleWeftLayerView(){
+    if(!this.showing_weft_layer_map) this.simulation.showWeftLayerMap();
+    else this.simulation.hideWeftLayerMap();
+  }
 
-
-  toggleLayerView(){
-    if(!this.showing_layer_map) this.simulation.showLayerMap();
-    else this.simulation.hideLayerMap();
+  toggleWarpLayerView(){
+    if(!this.showing_warp_layer_map) this.simulation.showWarpLayerMap();
+    else this.simulation.hideWarpLayerMap();
   }
 
   changeLayerSpacing(e: any){
@@ -191,7 +196,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_height,
       this.ms
       ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
     });
   }
 
@@ -207,7 +212,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_height,
       this.ms
       ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
     });
   }
 
@@ -223,7 +228,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_height,
       this.ms
       ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_layer_map, this.showing_topo, this.showing_draft);
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
     });
   }
 

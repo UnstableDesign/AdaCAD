@@ -1276,12 +1276,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       let last = x -1;
       if(tuples[last].orientation !== tuples[x].orientation){
           topo.push({
+            id: tuples[last].i_bot+"."+tuples[last].i_top+"."+tuples[last].j+"."+tuples[x].j+"."+count,
             i_top: tuples[last].i_top, 
             i_bot: tuples[last].i_bot,
-            i_mid: getMidpoint(tuples[last].i_top, tuples[last].i_bot),
             j_left: tuples[last].j,
             j_right: tuples[x].j,
-            j_mid: getMidpoint(tuples[last].j, tuples[x].j,),
             orientation: !tuples[last].orientation,
             z_pos: count
           });
@@ -1339,13 +1338,12 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       if(closest.dist == vtx.j_right - vtx.j_left || closest.dist == 0) return null;
       
       let new_vtx:TopologyVtx = {
+        id: vtx.i_bot+"."+vtx.i_top+"."+vtx.j_left+"."+vtx.j_right+"."+vtx.z_pos,
         i_bot: vtx.i_bot, 
         i_top: vtx.i_top,
-        i_mid: vtx.i_mid, 
         j_left: inner_tuples[closest.ndx].j,
         j_right: vtx.j_right,
         z_pos: count,
-        j_mid: getMidpoint(vtx.j_right, inner_tuples[closest.ndx].j),
         orientation: vtx.orientation
       }
 
@@ -1524,11 +1522,31 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       let a = warp_tuples.filter(el => el.i_top == i);
       let range = {j_left: 0, j_right: warps(draft.drawdown)-1}
       let verticies = getInterlacements( a, range, 0,  draft);
-
-
-
       topology = topology.concat(verticies);
     }
+
+    //this is a list of every possible interlacement between wefts but also includes sometimes more interlacements than we need. For instance, with satin, it might detect layers within float spaces. We can identify those as interlacements that share a corner. 
+
+    // let hard_overlaps = [];
+    // let to_check = topology.slice();
+    // topology.forEach((topo) => {
+    //     to_check = to_check.filter(el => el.id != topo.id);
+    //     to_check.forEach((check) => {
+    //       if(topo.i_bot == check.i_bot && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
+    //       if(topo.i_bot == check.i_bot && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
+    //       if(topo.i_top == check.i_top && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
+    //       if(topo.i_top == check.i_top && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
+    //     });
+    // })
+
+    // hard_overlaps.forEach(topo => {
+    //   let a:TopologyVtx = topology.find(el => el.id == topo.a);
+    //   let b:TopologyVtx = topology.find(el => el.id == topo.b);
+    //   if(Math.abs(a.z_pos) < Math.abs(b.z_pos)) topology = topology.filter(el => el.id !== b.id);
+    //   else topology = topology.filter(el => el.id !== a.id);
+    // })
+
+
 
     return  Promise.resolve( removeOutlierInterlacements(draft, topology, sim.layer_threshold));
 
@@ -1849,7 +1867,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       interlacements.forEach(ilace => {
         let width = ilace.j_right-ilace.j_left;
         if(width <= max_ilace_width){
-
+        console.log("ADDING ILACE ", ilace)
     
           //span the interlaced warps onto the same layer
          for(let i = ilace.i_bot; i <= ilace.i_top; i++){
@@ -2002,6 +2020,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
           layer_map[i][j] = null;
         }
       }
+
       
 
       //go through layers 0 -> max and push interlacements to the layer map 
@@ -2015,7 +2034,10 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
         layers_to_check.forEach(layer_id => {
+          console.log("CHECKING LAYER ", layer_id)
           let layer_ilace = topo.filter(ilace => ilace.z_pos == layer_id);
+          console.log("ILACES ", layer_ilace)
+
           layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height);
         })
         
@@ -2023,11 +2045,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
         //if not, 
-        // for(let i = 0; i < wefts(draft.drawdown); i++){
-        //   for(let j = 0; j < warps(draft.drawdown); j++){
-        //     if(layer_map[i][j] == null) layer_map[i][j]=0;
-        //   }
-        // }
+        for(let i = 0; i < wefts(draft.drawdown); i++){
+          for(let j = 0; j < warps(draft.drawdown); j++){
+            if(layer_map[i][j] == null) layer_map[i][j]=0;
+          }
+        }
 
       }
 
@@ -2075,11 +2097,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
         //if not, 
-        // for(let i = 0; i < wefts(draft.drawdown); i++){
-        //   for(let j = 0; j < warps(draft.drawdown); j++){
-        //     if(layer_map[i][j] == null) layer_map[i][j]=0;
-        //   }
-        // }
+        for(let i = 0; i < wefts(draft.drawdown); i++){
+          for(let j = 0; j < warps(draft.drawdown); j++){
+            if(layer_map[i][j] == null) layer_map[i][j]=0;
+          }
+        }
 
       }
 
@@ -2110,7 +2132,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
       let active_y = 0;
       weft.forEach(vtx => {
-        console.log("VTX", vtx)
         //if the the warp is interlacing with the weft at this position then we should consider its height
         if(layer_maps.warp[vtx.i][vtx.j] == layer_maps.weft[vtx.i][vtx.j]){
           
@@ -2178,9 +2199,9 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       let weft_mat = draft.rowShuttleMapping[i];
       let diam = sim.ms.getDiameter(weft_mat);
       let weft = insertWeft(draft, [],  i, sim, layer_maps);
-      let res = packWefts(weft, layer_maps, draft, warp_heights, diam, diam);
-      weft_vtx[i] = res.weft.slice();
-      warp_heights = res.warp_heights.slice();
+     // let res = packWefts(weft, layer_maps, draft, warp_heights, diam, diam);
+      weft_vtx[i] = weft.slice();
+      // warp_heights = res.warp_heights.slice();
 
     } 
 
@@ -2451,30 +2472,36 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     //look across the row and make new interlacements
     let last_layer = layer_maps.weft[i][0];
     let last_orientation = draft.drawdown[i][0].getHeddle();
+
     weft_vtxs = addWeftInterlacement(draft, i, 0, last_layer, diam, sim, weft_vtxs).slice();
     indexs_added.push(0);
 
     for(let j = 1; j < warps(draft.drawdown); j++){
 
-      if(layer_maps.warp[i][j]==layer_maps.weft[i][j]){
+        console.log("LAYER MAP VALUES",layer_maps.warp[i][j],layer_maps.weft[i][j] )
+
+       if(layer_maps.warp[i][j]==layer_maps.weft[i][j]){
 
         let layer_id:number = layer_maps.weft[i][j];
         let orientation:boolean = draft.drawdown[i][j].getHeddle();
-        if(layer_id == last_layer && orientation !== last_orientation){
+        
+        weft_vtxs = addWeftInterlacement(draft, i, j, layer_id, diam, sim, weft_vtxs).slice();
+
+
+        // if(layer_id == last_layer && orientation !== last_orientation){
           
-          if(indexs_added.find(el => el == j-1)==undefined){
-            weft_vtxs = addWeftInterlacement(draft, i, j-1, last_layer, diam, sim, weft_vtxs).slice();
-            indexs_added.push(j-1);
+        //   if(indexs_added.find(el => el == j-1)==undefined){
+        //     weft_vtxs = addWeftInterlacement(draft, i, j-1, last_layer, diam, sim, weft_vtxs).slice();
+        //     indexs_added.push(j-1);
+        //     //add mid point?
+        //   } 
   
-            //add mid point?
-          } 
+        //   weft_vtxs = addWeftInterlacement(draft, i, j, layer_id, diam, sim, weft_vtxs).slice();
+        //   indexs_added.push(j);
   
-          weft_vtxs = addWeftInterlacement(draft, i, j, layer_id, diam, sim, weft_vtxs).slice();
-          indexs_added.push(j);
-  
-        }
-        last_layer = layer_id;
-        last_orientation = orientation;
+        // }
+        // last_layer = layer_id;
+        // last_orientation = orientation;
 
       }
 
@@ -2482,9 +2509,9 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     }
 
 
-    if(indexs_added.find(el => el ==warps(draft.drawdown)-1)==undefined){
-      weft_vtxs = addWeftInterlacement(draft, i, warps(draft.drawdown)-1, last_layer, diam, sim, weft_vtxs).slice();
-    }
+    // if(indexs_added.find(el => el ==warps(draft.drawdown)-1)==undefined){
+    //   weft_vtxs = addWeftInterlacement(draft, i, warps(draft.drawdown)-1, last_layer, diam, sim, weft_vtxs).slice();
+    // }
 
     return weft_vtxs;
 

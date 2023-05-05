@@ -771,12 +771,11 @@ export type InterlacementLayerMap = {
 // x -             - x
 // - x === true    x - == false
 export type TopologyVtx ={
+  id: string,
   i_top: number,
   i_bot: number,
-  i_mid: number,
   j_left: number,
   j_right: number,
-  j_mid: number,
   z_pos: number,
   orientation: boolean;
 

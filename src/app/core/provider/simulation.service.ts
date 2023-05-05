@@ -16,7 +16,8 @@ export class SimulationService {
   hasSimulation: boolean = false;
   currentSim: SimulationData  = null;
 
-  layer_map_scene: any;
+  warp_layer_map_scene: any;
+  weft_layer_map_scene: any;
   warp_scene: any;
   weft_scene: any;
   topo_scene: any;
@@ -164,7 +165,7 @@ export class SimulationService {
     })
   }
 
-  public renderSimdata(scene, simdata: SimulationData, warps: boolean, wefts: boolean, layers: boolean, topo: boolean, show_draft: boolean){
+  public renderSimdata(scene, simdata: SimulationData, warps: boolean, wefts: boolean, warp_layer: boolean,weft_layers: boolean, topo: boolean, show_draft: boolean){
     this.hasSimulation = true;
 
     if(this.currentSim.draft == null) return;
@@ -181,14 +182,16 @@ export class SimulationService {
    
     this.drawYarns(scene, simdata);
     this.drawEndCaps(scene, simdata);
-    this.drawLayerMap(scene);
+    this.drawWarpLayerMap(scene);
+    this.drawWeftLayerMap(scene);
     this.drawTopology(scene);
     this.drawDraft(scene, this.currentSim.draft, this.currentSim.sim);
 
 
     if(!wefts) this.hideWefts();
     if(!warps) this.hideWarps();
-    if(!layers) this.hideLayerMap();
+    if(!warp_layer) this.hideWarpLayerMap();
+    if(!weft_layers) this.hideWeftLayerMap();
     if(!topo) this.hideTopo();
     if(!show_draft) this.hideDraft();
 
@@ -388,13 +391,22 @@ export class SimulationService {
   }
 
 
-  hideLayerMap(){
-    this.layer_map_scene.visible = false;
+  hideWarpLayerMap(){
+    this.warp_layer_map_scene.visible = false;
   }
 
-  showLayerMap(){
-    this.layer_map_scene.visible = true;
-    console.log("SHOW LAYER MAP", this.layer_map_scene)
+  showWarpLayerMap(){
+    this.warp_layer_map_scene.visible = true;
+    console.log("SHOW WARP LAYER MAP", this.warp_layer_map_scene)
+  }
+
+  hideWeftLayerMap(){
+    this.weft_layer_map_scene.visible = false;
+  }
+
+  showWeftLayerMap(){
+    this.weft_layer_map_scene.visible = true;
+    console.log("SHOW LAYER MAP", this.weft_layer_map_scene)
   }
 
   hideTopo(){
@@ -403,12 +415,123 @@ export class SimulationService {
 
   showTopo(){
     this.topo_scene.visible = true;
-    console.log("SHOW LAYER MAP", this.layer_map_scene)
+    console.log("SHOW LAYER MAP", this.topo_scene)
   }
 
-  drawLayerMap(scene){
+  drawWeftLayerMap(scene){
 
-    this.layer_map_scene =  new THREE.Group();
+    this.weft_layer_map_scene =  new THREE.Group();
+
+    let z = -20;
+
+    const lm = this.currentSim.layer_maps;
+    const sim = this.currentSim.sim;
+    const draft = this.currentSim.draft;
+
+    let range = lm.weft.reduce((acc, val) => {
+      let max = val.reduce((sub_acc, vtx) => {
+        if(vtx > sub_acc) return vtx;
+        return sub_acc;
+      }, 0);
+
+      if(max > acc) return max;
+      return acc;
+    }, 0);
+
+    if(range == 0) range = 1;
+
+    const lut = new Lut();
+
+    lut.setColorMap( 'rainbow', 512);
+
+  
+    const geometry = new THREE.BufferGeometry();
+    // const yarn_height = 5;
+    const yarn_height = this.currentSim.sim.warp_spacing;
+
+    let alldata = [];
+    let positions = [];
+    let colors = [];
+    let normals = [];
+    let indicies = [];
+
+    for(let i = 0; i < lm.weft.length; i++){
+      for(let j = 0; j < lm.weft[0].length; j++){
+
+        const r = 0.5 + ( lm.weft[i][j] / range );
+        const col = lut.getColor(r);
+       
+
+
+
+       alldata.push({
+          pos: [sim.warp_spacing*j, yarn_height*i, z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        });
+    
+        alldata.push({
+          pos: [sim.warp_spacing*(j+1), yarn_height*i, z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        })
+    
+        alldata.push({
+          pos: [sim.warp_spacing*j, yarn_height*(i+1), z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        });
+    
+        alldata.push({
+          pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), z],
+          norm: [0, 1, 0],
+          color: [col.r, col.g, col.b]
+        });
+
+        let starting_index = ((i*warps(draft.drawdown)) + j) *4;
+
+        indicies =  indicies.concat([
+          starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+        ]);
+      }
+    }
+
+
+
+    for (const vertex of alldata) {
+      positions.push(...vertex.pos);
+      normals.push(...vertex.norm);
+      colors.push(...vertex.color);
+    }
+
+
+
+
+    geometry.setIndex(indicies);
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+    const material = new THREE.MeshBasicMaterial( {
+      side: THREE.DoubleSide,
+      transparent: true,
+      vertexColors: true,
+      opacity: .5
+    } );
+
+
+
+    let mesh = new THREE.Mesh( geometry, material );    
+    this.weft_layer_map_scene.add(mesh);
+    this.weft_layer_map_scene = this.applyOrientationConversion( this.weft_layer_map_scene, this.currentSim.top, this.currentSim.right);
+		scene.add(  this.weft_layer_map_scene );
+
+  }
+
+
+
+  drawWarpLayerMap(scene){
+
+    this.warp_layer_map_scene =  new THREE.Group();
 
     let z = -20;
 
@@ -509,9 +632,9 @@ export class SimulationService {
 
 
     let mesh = new THREE.Mesh( geometry, material );    
-    this.layer_map_scene.add(mesh);
-    this.layer_map_scene = this.applyOrientationConversion( this.layer_map_scene, this.currentSim.top, this.currentSim.right);
-		scene.add(  this.layer_map_scene );
+    this.warp_layer_map_scene.add(mesh);
+    this.warp_layer_map_scene = this.applyOrientationConversion( this.warp_layer_map_scene, this.currentSim.top, this.currentSim.right);
+		scene.add(  this.warp_layer_map_scene );
 
   }
 
