@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { createLayerMaps, getDraftToplogy, relaxWefts, translateTopologyToPoints } from '../model/yarnsimulation';
+import { createLayerMaps, getDraftTopology, relaxWefts, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
@@ -71,7 +71,7 @@ export class SimulationService {
     
 
 
-    return getDraftToplogy(draft, sim).then(
+    return getDraftTopology(draft, sim).then(
       topology => {
       currentSim.topo = topology;
       return createLayerMaps(draft, topology, sim);

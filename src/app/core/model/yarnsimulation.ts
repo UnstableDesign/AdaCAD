@@ -917,7 +917,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     
     tuples = getTuplesWithinRange(tuples, range);
-    const floats  = extractInterlacementsFromTuples(tuples, count);
     const topo  = extractInterlacementsFromTuples(tuples, count);
 
     let i_bot = tuples[0].i_bot;
@@ -1019,14 +1018,76 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
 
-  
+  export const correctInterlacementLayers = (all: Array<TopologyVtx>, weft: Array<TopologyVtx>, layer_threshold: number) : Array<TopologyVtx> => {
+
+    let compressed_weft = [];
+    let last = null;
+
+    //check weft from left to right and strip out anything that seems to be an outlier
+    weft.forEach(vtx => {
+      if(vtx.z_pos == last){
+         compressed_weft[compressed_weft.length-1].count++;
+         compressed_weft[compressed_weft.length-1].els.push(vtx);
+      }else{
+        compressed_weft.push({id: vtx.z_pos, count: 1, els: [vtx]});
+      }
+      last = vtx.z_pos;
+    });
+    console.log("WEFT BEFORE IS ", compressed_weft, weft)
+
+    let mark_for_removal = [];
+    compressed_weft.forEach((item, ndx) => {
+      if(item.count < layer_threshold){
+        //check left 
+        console.log("Removing below threshold elements")
+        item.els.forEach(el => {
+          mark_for_removal.push(el.id);
+        })
+        //let left_mag = (ndx -1 >= 0) ? compressed_weft[ndx-1].count : -1;
+        //let right_mag = (ndx +1 < compressed_weft.length) ? compressed_weft[ndx+1].count : -1;
+
+        // if(left_mag !== -1 && right_mag != -1){
+        //   let new_pos = -1;
+        //   if(left_mag >= right_mag){
+        //     new_pos = compressed_weft[ndx-1].id;
+        //   }else{
+        //     new_pos = compressed_weft[ndx+1].id;
+        //   }
+          
+         
+        // }
+
+      }
+    })
+
+    weft = weft.filter(el => mark_for_removal.find(item => item == el.id) == undefined);
+    console.log("AFTER ", weft)
+
+
+
+    //check weft from top to bottom
+    //this has the problem that if there is an error somewhere, it will no ripple out through the cloth. 
+    weft.forEach(vtx => {
+
+      let shares_layer = all.filter(el => 
+        (el.j_left == vtx.j_right && el.i_top == vtx.i_bot) || (el.j_right == vtx.j_left && el.i_top == vtx.i_bot))
+
+
+      shares_layer.forEach(topo_vtx => {
+        vtx.z_pos = topo_vtx.z_pos;
+      })
+
+    });
+
+    return weft;
+  }
 
 
 
   /**
    * this function takes a draft and input variables and uses those to generate a list of vertexes between which yarns will cross on the z plane. These points are used to determine how layers are formed and how yarns will stack relative to eacother. 
    */
-  export const getDraftToplogy = (draft: Draft, sim: SimulationVars) : Promise<Array<TopologyVtx>> => {
+  export const getDraftTopology = (draft: Draft, sim: SimulationVars) : Promise<Array<TopologyVtx>> => {
     const dd = draft.drawdown;
     const warp_tuples = getWarpInterlacementTuples(dd);
     let topology: Array<TopologyVtx> = [];
@@ -1040,7 +1101,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       let a = warp_tuples.filter(el => el.i_top == i);
       let range = {j_left: 0, j_right: warps(draft.drawdown)-1}
       let verticies = getInterlacements( a, range, 0,  draft);
-      topology = topology.concat(verticies);
+      console.log("CHECKING ", i)
+      let corrected = correctInterlacementLayers(topology, verticies, sim.layer_threshold);
+      
+
+      topology = topology.concat(corrected);
     }
 
     //this is a list of every possible interlacement between wefts but also includes sometimes more interlacements than we need. For instance, with satin, it might detect layers within float spaces. We can identify those as interlacements that share a corner. 
@@ -1065,6 +1130,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       else topology = topology.filter(el => el.id !== a.id);
       }
     })
+
+
+    
+
+    console.log("TOPO ", topology);
 
 
 
@@ -1155,38 +1225,38 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
             
          } 
 
-         let i_min = Math.max(0, ilace.i_bot - max_ilace_height);
-         let i_max = Math.min(ilace.i_top + max_ilace_height, layer_map.length-1);
+        //  let i_min = Math.max(0, ilace.i_bot - max_ilace_height);
+        //  let i_max = Math.min(ilace.i_top + max_ilace_height, layer_map.length-1);
 
-        //reach out from all four corners and see if there is an interlacement with the same layer val in range
-         let bottom_left = warpLayerValueInRange(layer_map, ilace.z_pos, i_min, ilace.i_bot, ilace.j_left);
+        // //reach out from all four corners and see if there is an interlacement with the same layer val in range
+        //  let bottom_left = warpLayerValueInRange(layer_map, ilace.z_pos, i_min, ilace.i_bot, ilace.j_left);
 
-        if(bottom_left !== -1){
-         for(let i = bottom_left; i < ilace.i_bot; i++){
-          if(layer_map[i][ilace.j_left] == null) layer_map[i][ilace.j_left] = ilace.z_pos;
-         }
-        }
+        // if(bottom_left !== -1){
+        //  for(let i = bottom_left; i < ilace.i_bot; i++){
+        //   if(layer_map[i][ilace.j_left] == null) layer_map[i][ilace.j_left] = ilace.z_pos;
+        //  }
+        // }
 
-        let bottom_right = warpLayerValueInRange(layer_map, ilace.z_pos, i_min, ilace.i_bot, ilace.j_right);
-        if(bottom_right !== -1){
-          for(let i = bottom_right; i < ilace.i_bot; i++){
-           if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;
-          }
-         }
+        // let bottom_right = warpLayerValueInRange(layer_map, ilace.z_pos, i_min, ilace.i_bot, ilace.j_right);
+        // if(bottom_right !== -1){
+        //   for(let i = bottom_right; i < ilace.i_bot; i++){
+        //    if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;
+        //   }
+        //  }
  
-         let top_left = warpLayerValueInRange(layer_map, ilace.z_pos, ilace.i_top, i_max, ilace.j_left);
-         if(top_left !== -1){
-          for(let i = ilace.i_top; i <= top_left; i++){
-            if(layer_map[i][ilace.j_left] == null) layer_map[i][ilace.j_left] = ilace.z_pos;
-          }
-         }
+        //  let top_left = warpLayerValueInRange(layer_map, ilace.z_pos, ilace.i_top, i_max, ilace.j_left);
+        //  if(top_left !== -1){
+        //   for(let i = ilace.i_top; i <= top_left; i++){
+        //     if(layer_map[i][ilace.j_left] == null) layer_map[i][ilace.j_left] = ilace.z_pos;
+        //   }
+        //  }
 
-         let top_right = warpLayerValueInRange(layer_map, ilace.z_pos, ilace.i_top, i_max, ilace.j_right);
-         if(top_right !== -1){
-          for(let i = ilace.i_top; i <= top_right; i++){
-            if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;
-          }
-         }
+        //  let top_right = warpLayerValueInRange(layer_map, ilace.z_pos, ilace.i_top, i_max, ilace.j_right);
+        //  if(top_right !== -1){
+        //   for(let i = ilace.i_top; i <= top_right; i++){
+        //     if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;
+        //   }
+        //  }
 
 
 
@@ -1294,8 +1364,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     export const createWarpLayerMap = (draft: Draft, topo: Array<TopologyVtx>, sim: SimulationVars, active_layers: Array<number>, max_layer: number) : Promise<Array<Array<number>>> => {
     
     //get the closest weft interlacements 
-    const max_width = topo.reduce((acc, val) => {
-      if((val.j_right - val.j_left) > acc) return (val.j_right - val.j_left);
+    const max_height = topo.reduce((acc, val) => {
+      if((val.i_top - val.i_bot) > acc) return (val.i_top - val.i_bot);
       return acc;
     }, 0);
 
@@ -1305,7 +1375,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     
 
 
-      //default all layers to null
+      // //default all layers to null
       let layer_map: Array<Array<number>> = [];
       for(let i = 0; i < wefts(draft.drawdown); i++){
         layer_map.push([]);
@@ -1317,60 +1387,83 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       
 
       //go through layers 0 -> max and push interlacements to the layer map 
-      for(let i = 0; i <= max_layer; i++){
-        let layers_to_check: Array<number> = []; 
-        if(i !== 0){
-          layers_to_check = [i, -i];
-        }else{
-          layers_to_check = [0]
-        }
+      for(let i = 1; i <= max_height; i++){
+          let layer_ilace = topo.filter(ilace => ilace.i_top-ilace.i_bot == i);
+          // console.log("CHECKING ILACES OF SIZE ", i, layer_ilace)
+          layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height); 
+      //  console.log("WARP LAYER MAP ", layer_map.slice())
+      }
+        // if(i !== 0){
+        //   layers_to_check = [i, -i];
+        // }else{
+        //   layers_to_check = [0]
+        // }
 
 
-        layers_to_check.forEach(layer_id => {
-          console.log("CHECKING LAYER ", layer_id)
-          let layer_ilace = topo.filter(ilace => ilace.z_pos == layer_id);
-          layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height);
-          console.log("LAYER MAP ", layer_map)
+        // ilaces_to_check.forEach(layer_id => {
+        //   console.log("CHECKING ILACES OF SIZE ", layer_id)
+        //   let layer_ilace = topo.filter(ilace => ilace.z_pos == layer_id);
+        //   layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height);
+        //   console.log("LAYER MAP ", layer_map)
 
 
-        })
+        // })
         
 
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
         //if not, 
-        // for(let j = 0; j < warps(draft.drawdown); j++){
+        for(let j = 0; j < warps(draft.drawdown); j++){
 
-        //   let col = layer_map.reduce((acc,el) => {
-        //     return acc.concat(el[j]);
-        //   }, []);
+          let col = layer_map.reduce((acc,el) => {
+            return acc.concat(el[j]);
+          }, []);
 
-        //   let null_vals = col.map((ndx, el) => {
-        //     if(el == null) return ndx;
-        //     else return -1;
-        //   });
-
-        //   if(null_vals.length == col.length){
-        //     for(let i = 0; i < wefts(draft.drawdown); i++){
-        //       layer_map[i][j] = 0;
-        //     }
-        //   }else{
-        //     null_vals.forEach(index => {
-        //       let below = ( index -1 >= 0) ? layer_map[index-1][j] : null;
-        //       let above = ( index +1 >= 0) ? layer_map[index-1][j] : null;
-        //     })
-        //   }
+          //find all of the non null vals
+          let vals = [];
+          
+          col.forEach((el, ndx) => {
+            if(el !== null) vals.push(ndx);
+          });
 
 
+          if(vals.length == 0){
+            //find the first non-zero val to the columns to the right 
+            //fill this with those columns 
+          }else{
+
+            vals.forEach(val => {
+              //fill downwards
+              let found = false;
+              for(let i = val-1; i >= 0 && !found; i--){
+                if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
+                else found = true;
+              };
+
+              //fill upwards
+               found = false;
+              for(let i = val+1; i < col.length && !found; i++){
+                if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
+                else found = true;
+              };
+
+
+            });
             
 
+          }
 
            
         // }
 
-      }
+        }
 
-      // console.log("LAYER MAP", layer_map)
+
+
+
+      //now clean up 
+
+      console.log("LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
      
     }
