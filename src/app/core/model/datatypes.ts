@@ -690,25 +690,6 @@ export type YarnVertex = {
   j: number};
 
 
-/**
- * yarn verticies can be understood as expressions generated from their relatonships through the cloth. For instance, you can represent the distance between two weft pics as a function of the warp behaviors at those picks. If warps interlace, the weft is pushed away by a factor 'of PUSH. If the warps float, its pushed by a factor of "pack".  
- */
-export type YarnVertexExpression = {
-  x: {push: number, pack: number},
-  y: {push: number, pack: number},
-  z: {push: number, pack: number}
-}
-
-/**
- * stores the vertices of each warp as a list from 0-j
- */
-export type SystemVerticies = Array<Array<YarnVertexExpression>>;
-
-
-export type DraftTopology = {
-  wefts: SystemVerticies, 
-  warps: SystemVerticies
-}
 
 /**
  * used to calculate arching of floats
@@ -719,23 +700,8 @@ export type YarnFloat = {
   start: number
 }
 
-/**
- * Stores all the simulation information as a 2D array mapped onto the draft
- */
- export type YarnSim = Array<Array<YarnCell>>;
 
 
-
-export type InterlacementForceVector = {
-  fweft: ForceVector  
-  fwarp: ForceVector
-}
-
-export type ForceVector = {
-  x: number,
-  y: number, 
-  z: number
-}
 
 
 export type YarnSimSettings = {

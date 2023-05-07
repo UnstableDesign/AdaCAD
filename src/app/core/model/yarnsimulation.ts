@@ -1,468 +1,9 @@
 
-import { create } from "domain";
-import { max } from "mathjs";
 import { MaterialsService } from "../provider/materials.service";
 import { Cell } from "./cell";
-import {  Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WarpWeftLayerCount, WeftInterlacementTuple, YarnCell, YarnFloat, YarnSim, YarnVertex } from "./datatypes";
-import { getCol, warps, wefts } from "./drafts";
-import { Shuttle } from "./shuttle";
-import { System } from "./system";
+import {  Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnVertex } from "./datatypes";
+import {warps, wefts } from "./drafts";
 
-
-
-
-
-
-  export const getDirection = (neighbors:number, is_up:boolean) : string =>{
-
-    var is_up_dirs =     ["ew","ew", "ns", "sw", "ew", "ew", "se", "ew", "ns", "nw", "ns", "ew", "ne", "ew", "ew", "ew"];
-    var not_is_up_dirs = ["x", "x", "x",  "sw", "x",  "ew", "se", "ew", "x",  "nw", "ns", "sw", "ne", "ew", "sw", "ew"];
-    
-    if(is_up) return is_up_dirs[neighbors];
-    else return not_is_up_dirs[neighbors];
-
-  }
-
-
-
-
-  //searches to the west (on this row only) for an interlacement
-  export const hasWestNeighbor = (drawdown: Drawdown, i:number, j:number): boolean =>{
-
-      for(var ndx = j-1; ndx >= 0; ndx--){
-        if(drawdown[i][ndx].isUp()) return true;
-      }
-      return false;
-  }
-
-
-  /***
-  If this doesn't have east set, then there is nothing to the west
-  */
-  export const setWestNeighbors = (yarnsim: YarnSim, drawdown: Drawdown, i:number, j:number) : YarnSim => {
-
-      for(var ndx = j-1; ndx >= 0; ndx--){
-        yarnsim[i][ndx] = setEast(yarnsim[i][ndx]);
-        if(drawdown[i][ndx].isUp()) return;
-      }
-
-      return yarnsim;
-  }
-
-  export const unsetWestNeighbors = (yarnsim: YarnSim, drawdown: Drawdown, i:number, j:number) : YarnSim => {
-
-      //there is something else for the western cells to reference
-      if(hasEastNeighbor(drawdown, i,j)) return; 
-
-      //unset until you find the next set cell
-      for(var ndx = j-1; ndx >= 0; ndx--){
-        yarnsim[i][ndx] = unsetEast(yarnsim[i][ndx]); 
-        if(drawdown[i][ndx].isUp()) return;
-      }
-
-      return yarnsim;
-  }
-
-
-  //searches to the east (on this row only) for an interlacement
-  export const hasEastNeighbor = (drawdown: Drawdown, i:number, j:number): boolean =>{
-      
-      for(var ndx = j+1; ndx < warps(drawdown); ndx++){
-        if(drawdown[i][ndx].isUp()) return true;
-      }
-      return false;
-  }
-
-
-  //walks to the east until it hits another set cell, adds "west" to each 
-  export const setEastNeighbors = (drawdown: Drawdown, yarnsim: YarnSim, i:number, j:number) : YarnSim =>{
-
-      for(var ndx = j+1; ndx < warps(drawdown); ndx++){
-        yarnsim[i][ndx] = setWest( yarnsim[i][ndx]);
-        if(drawdown[i][ndx].isUp()) return;
-      }
-
-      return yarnsim;
-  }
-
-  export const unsetEastNeighbors = (drawdown: Drawdown, yarnsim: YarnSim,i:number, j:number) : YarnSim => {
-
-      //there is something else for the western cells to reference
-      if(hasWestNeighbor(drawdown, i,j)) return; 
-
-      //unset until you find the next set cell
-       for(var ndx = j+1; ndx < warps(drawdown); ndx++){
-         yarnsim[i][ndx] = unsetWest( yarnsim[i][ndx]); 
-        if(drawdown[i][ndx].isUp()) return;
-      }
-
-      return yarnsim;
-  }
-
-  //searches rows to the north for any interlacement on the same shuttle
-  export const hasNorthNeighbor = (draft: Draft, i:number, j:number, shuttle_id: number): boolean =>{
-      for(var ndx = i-1; ndx >= 0; ndx--){
-        if(draft.rowShuttleMapping[ndx] === shuttle_id){
-          if(draft.drawdown[ndx][j].isUp()) return true;
-          if(hasWestNeighbor(draft.drawdown, ndx,j)) return true;
-          if(hasEastNeighbor(draft.drawdown, ndx,j)) return true;
-        }
-      }
-      return false;
-  }
-
-  //searches rows to the north for any interlacement on the same shuttle
-  export const setNorthNeighbors = (draft: Draft, i:number, j:number, shuttle_id: number): boolean =>{
-
-      for(var ndx = i-1; ndx >= 0; ndx--){
-        if(draft.rowShuttleMapping[ndx] === shuttle_id){
-          
-             
-
-          for(var col = 0; col < warps(draft.drawdown); col++){
-            
-          }
-
-          if(draft.drawdown[ndx][j].isUp()) return true;
-          if(hasWestNeighbor(draft.drawdown, ndx,j)) return true;
-          if(hasEastNeighbor(draft.drawdown, ndx,j)) return true;
-        }
-      }
-      return false;
-  }
-
-  //searches rows to the south for any interlacement on the same shuttle
-  export const hasSouthNeighbor = (draft: Draft, i:number, j:number, shuttle_id:number): boolean =>{
-      for(var ndx = i+1; ndx < wefts(draft.drawdown); ndx++){
-        if(draft.rowShuttleMapping[ndx] === shuttle_id){
-          if(draft.drawdown[ndx][j].isUp()) return true;
-          if(hasWestNeighbor(draft.drawdown, ndx,j)) return true;
-          if(hasEastNeighbor(draft.drawdown, ndx,j)) return true;
-        }
-      }
-      return false;
-  }
-
-
- 
-
-  //checks system assignments and updates visibility of systems that are being used
-  // updateSystemVisibility(type:string){
-
-  //   var mapping;
-  //   var systems;
-
-  //   if(type == "weft"){
-  //     mapping = this.rowSystemMapping;
-  //     systems = this.weft_systems;
-  //   } else {
-  //     mapping = this.colSystemMapping;
-  //     systems = this.warp_systems;
-  //   }
-
-
-  //   for(var i =0; i < systems.length; i++){
-  //     systems[i].setVisible(mapping.includes(systems[i].id));
-  //   }
-  // }
-
-
-export const getNextPath = (paths:Array<{row:number, overs: Array<number>}>, i:number) : {row:number, overs: Array<number>} =>{
-  if(i+1 < paths.length){
-    return paths[i+1];
-  }
-
-  return {
-    row: -1,
-    overs: []
-  }
-
-}
-
-
-export const setNorth = (cell: YarnCell) : YarnCell =>{
-    return (cell | 0b1000);
-  }
-
-export const setEast = (cell: YarnCell) : YarnCell => {
-    return (cell | 0b0100);
-
-  }
-
-export const setNorthSouth = (cell:YarnCell) : YarnCell => {
-    cell = setNorth(cell);
-    cell = setSouth(cell);
-    return cell;
-  }
-
-export const setEastWest = (cell:YarnCell) : YarnCell =>{
-    cell = setEast(cell);
-    cell = setWest(cell);
-    return cell;
-  }
-
-export const setSouth = (cell:YarnCell) : YarnCell =>{
-    return (cell | 0b0010);
-  }
-
-export const setWest = (cell:YarnCell) : YarnCell =>{
-   return (cell | 0b0001);
-  }
-
-  export const unsetNorth = (cell:YarnCell) : YarnCell =>{
-    return (cell ^ 0b1000);
-  }
-
-  export const unsetEast = (cell:YarnCell) : YarnCell =>{
-   return (cell ^ 0b010);
-
-  }
-
-  export const unsetSouth = (cell:YarnCell) : YarnCell => {
-   return (cell ^ 0b0010);
-  }
-
-  export const unsetWest = (cell: YarnCell): YarnCell =>{
-    return (cell ^ 0b0001);
-  }
-
-
-  export const hasNorth = (cell: YarnCell):boolean =>{
-    let p:number = cell >>> 3;
-    return(p === 1);
-  }
-
-  export const isEastWest = (cell: YarnCell): boolean => {
-    return ((cell & 0b0101) === 0b0101);
-  }
-
-  export const isSouthEast = (cell: YarnCell) :boolean =>{
-    return ((cell & 0b0110) === 0b0110);
-  }
-
-  export const isSouthWest = (cell: YarnCell):boolean =>{
-    return ((cell & 0b0011) === 0b0011);
-  }
-
-  export const isNorthSouth = (cell:YarnCell):boolean =>{
-    return ((cell & 0b1010) === 0b1010);
-  }
-
-  export const isNorthEast = (cell:YarnCell):boolean =>{
-    return ((cell & 0b1100) === 0b1100);
-  }
-
-  export const isNorthWest = (cell:YarnCell):boolean =>{
-    return ((cell & 0b1001) === 0b1001);
-  }
-
-  export const isWest = (cell: YarnCell):boolean =>{
-    return ((cell & 0b0001) === 0b0001);
-  }
-
-  export const isEast = (cell:YarnCell):boolean =>{
-    return ((cell & 0b0100) === 0b0100);
-  }
-
-  export const hasEast = (cell:YarnCell):boolean =>{
-    let p:number = cell >>> 2;
-    return((p %2)===1);
-  }
-
-  export const hasSouth = (cell:YarnCell):boolean =>{
-    let p:number = cell >>> 1;
-    return((p %2)===1);
-  }
-
-  export const hasWest = (cell:YarnCell):boolean =>{
-    return((cell %2)===1);
-  }
-
-  export const unsetPole = (cell:YarnCell) : YarnCell => {
-    return 0b0000;
-  }
-
-
-  export const setPoles = (cell:YarnCell, poles: number) : YarnCell =>{
-     cell = poles;
-     return cell;
-  }
-
-  /***
-   * determines the directionality of the yarn at this particular point in the cell
-   * it considers each draft cell having four poles (NESW) and determines which of those are active
-   * @param i: the draft row, j: the draft column
-   * @returns a bit string value created by adding a 1 on the string n,e,s,w where the direction is true
-   */ 
-
-   export const pingNeighbors = (draft: Draft, i:number, j:number): number =>{
-
-    let cell:YarnCell = 0b0000;
-    let shuttle_id: number = draft.rowShuttleMapping[i];
-
-
-    if(hasNorthNeighbor(draft, i,j,shuttle_id)) cell = setNorth(cell); 
-    if(hasEastNeighbor(draft.drawdown, i,j)) cell = setEast(cell);             
-    if(hasSouthNeighbor(draft, i,j,shuttle_id)) cell = setSouth(cell); 
-    if(hasWestNeighbor(draft.drawdown, i,j)) cell = setWest(cell);            
-
-    return cell;
-  }
-
-  export const computeYarnPaths = (draft: Draft, shuttles: Array<Shuttle>) : YarnSim => {
-    
-
-    const pattern = draft.drawdown.slice();
-    const yarnsim:YarnSim = [];
-
-    // //unset_all
-    for(let i = 0; i < pattern.length; i++){
-        yarnsim.push([]);
-        for(let j = 0; j < pattern[i].length; j++){
-            yarnsim[i].push(0b0000);
-        }
-      }
-  
-  
-      for (var l = 0; l < shuttles.length; l++) {
-  
-        // Draw each shuttle on by one.
-        var shuttle = shuttles[l];
-  
-        //acc is an array of row_ids that are assigned to this shuttle
-        const acc = draft.rowShuttleMapping.reduce((acc, v, idx) => v === shuttle.id ? acc.concat([idx]) : acc, []);
-  
-        //screen rows are reversed to go from bottom to top
-        //[row index] -> (indexes where there is interlacement)
-        let path:Array<{row:number, overs: Array<number>}> = [];
-        for (var i = 0; i < acc.length ; i++) {
-         
-          //this gets the row
-          const row_values = pattern[acc[i]];
-  
-  
-          const overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
-  
-          //only push the rows with at least one interlacement     
-          if(overs.length > 0 && overs.length < row_values.length){
-            path.push({row: acc[i], overs:overs});
-          }
-        
-        }
-  
-        var started = false;
-        var last = {
-          row: 0,
-          ndx: 0
-        };
-  
-        path = path.reverse();
-  
-  
-        for(let k = 0; k < path.length; k++){
-  
-          let row:number = path[k].row; 
-          let overs:Array<number> = path[k].overs; 
-  
-          let next_path = getNextPath(path, k);
-  
-          let min_ndx:number = overs.shift();
-          let max_ndx:number = overs.pop();
-          
-          let next_min_ndx:number;
-          let next_max_ndx:number;
-          
-          if(next_path.row !== -1 ){
-           
-            next_max_ndx = next_path.overs[next_path.overs.length-1];
-            next_min_ndx = next_path.overs[0];
-  
-          }else{
-            next_min_ndx = min_ndx;
-            next_max_ndx = max_ndx;
-          }  
-  
-  
-  
-          let moving_left:boolean = (k%2 === 0 && shuttle.insert) || (k%2 !== 0 && !shuttle.insert);
-  
-          if(moving_left){
-            if(started) max_ndx = Math.max(max_ndx, last.ndx);
-            min_ndx = Math.min(min_ndx, next_min_ndx);
-          } else {
-            max_ndx = Math.max(max_ndx, next_max_ndx);
-            if(started) min_ndx = Math.min(min_ndx, last.ndx);
-  
-          }
-         
-          //draw upwards if required
-          if(started){
-  
-            
-           // console.log("row/last.row", row, last.row);
-            // for(let j = last.row-1; j > row; j--){
-            //  if(moving_left) this.setNorthSouth(j, last.ndx+1);
-            //  else this.setNorthSouth(j, last.ndx-1);
-            // }
-          }
-  
-          //set by lookiing at the ends ends
-          if(moving_left){
-  
-            if(started){
-                yarnsim[row][max_ndx+1] = setSouth(yarnsim[row][max_ndx+1]); //set where it came from
-            } 
-            
-            yarnsim[row][max_ndx+1] = setWest(yarnsim[row][max_ndx+1]);
-            yarnsim[row][max_ndx-1] = setNorth(yarnsim[row][max_ndx-1]);
-            yarnsim[row][max_ndx-1] = setEast(yarnsim[row][max_ndx-1]);
-  
-            last.ndx = min_ndx;
-  
-          }else{
-  
-            if(started){
-                yarnsim[row][max_ndx-1] = setSouth(yarnsim[row][max_ndx-1]);
-            }
-  
-            yarnsim[row][max_ndx-1] = setEast(yarnsim[row][max_ndx-1]);
-            yarnsim[row][max_ndx+1] = setNorth(yarnsim[row][max_ndx+1]);
-            yarnsim[row][max_ndx+1] = setWest(yarnsim[row][max_ndx+1]);
-            
-            last.ndx = max_ndx;
-  
-          } 
-  
-          //set in between
-          for(i = min_ndx; i <= max_ndx; i++){
-             yarnsim[row][i] = setEastWest(yarnsim[row][i]); 
-          }
-  
-          started = true;
-          last.row = row;
-         
-        } 
-      }
-
-      return yarnsim.slice();
-
-
-  }
-
-  /**
-   * generates a list of vertices associated with the positions of this row based onl..
-   * @param yarn_last_point the direction, shuttle, and posiition where the yarn left off on the last row
-   * @param draft the draft to model
-   */
-  // export const getNextRow = (systems: SystemVerticies, yarn_last_point: any, draft: Draft) :  =>{
-
-  //   const pts = [];
-  //   if(yarn_last_point.i == -1){  
-  //     pts.push({x: -1, y: 0, z: 0});
-  //     yarn_last_point.i = 0;
-  //   }
-
-  // }
 
   // export const getPreviousInterlacementOnWarp = (drawdown: Drawdown, j: number, cur: number) : number => {
 
@@ -908,8 +449,6 @@ export const setWest = (cell:YarnCell) : YarnCell =>{
    * @returns 
    */
   export const hasWeftBarrierInRange = (ilaces: Array<WarpInterlacementTuple>, start: number, end: number, size: number, draft: Draft) : boolean => {
-
-
 
     let adj_start = Math.max(start-size, 0);
     let adj_end = Math.min(end+size, warps(draft.drawdown));
@@ -1412,27 +951,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
   }
 
-  // export const extractAnyInterlacementsWithinRange = (tuples: Array<WarpInterlacementTuple>, range: WarpRange, count: number,  draft: Draft) : Array<TopologyVtx> => {
-  //   const topo = [];
-
-  //   for(let x = 0; x < range.j_right; x++){
-  //     let last = x -1;
-  //     if(tuples[last].orientation !== tuples[x].orientation){
-  //         topo.push({
-  //           i_top: tuples[last].i_top, 
-  //           i_bot: tuples[last].i_bot,
-  //           i_mid: getMidpoint(tuples[last].i_top, tuples[last].i_bot),
-  //           j_left: tuples[last].j,
-  //           j_right: tuples[x].j,
-  //           j_mid: getMidpoint(tuples[last].j, tuples[x].j,),
-  //           orientation: !tuples[last].orientation,
-  //           z_pos: count
-  //         });
-        
-  //     }
-  //   }
-
-  // }
 
   export const getFloatRanges = (draft: Draft, i: number) => {
     const ranges: Array<WarpRange> = [];
@@ -1527,270 +1045,32 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     //this is a list of every possible interlacement between wefts but also includes sometimes more interlacements than we need. For instance, with satin, it might detect layers within float spaces. We can identify those as interlacements that share a corner. 
 
-    // let hard_overlaps = [];
-    // let to_check = topology.slice();
-    // topology.forEach((topo) => {
-    //     to_check = to_check.filter(el => el.id != topo.id);
-    //     to_check.forEach((check) => {
-    //       if(topo.i_bot == check.i_bot && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
-    //       if(topo.i_bot == check.i_bot && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
-    //       if(topo.i_top == check.i_top && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
-    //       if(topo.i_top == check.i_top && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
-    //     });
-    // })
+    let hard_overlaps = [];
+    let to_check = topology.slice();
+    topology.forEach((topo) => {
+        to_check = to_check.filter(el => el.id != topo.id);
+        to_check.forEach((check) => {
+          if(topo.i_bot == check.i_bot && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
+          if(topo.i_bot == check.i_bot && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
+          if(topo.i_top == check.i_top && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
+          if(topo.i_top == check.i_top && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
+        });
+    })
 
-    // hard_overlaps.forEach(topo => {
-    //   let a:TopologyVtx = topology.find(el => el.id == topo.a);
-    //   let b:TopologyVtx = topology.find(el => el.id == topo.b);
-    //   if(Math.abs(a.z_pos) < Math.abs(b.z_pos)) topology = topology.filter(el => el.id !== b.id);
-    //   else topology = topology.filter(el => el.id !== a.id);
-    // })
-
-
-
-    return  Promise.resolve( removeOutlierInterlacements(draft, topology, sim.layer_threshold));
-
-  }
-
-
-/**
- * if you render each layer as a different color, you can spot incorrect layers as those that are islands of their layer type. This function looks for neighboring cells corresponding to the layer order to develop a confidence level that this is or isn't a layer
- * @param layer_map 
- * @param draft 
- */
-    // export const cleanLayers = (layer_map: Array<Array<number>>, draft: Draft, x: number) :  Array<Array<number>> =>{
-      
-    //   //scan warps and find all regions with count 1
-
-    //   //COUNT HOW MANY OF EACH LAYER 
-    //   for(let j =0; j < warps(draft.drawdown); j++){
-
-    //     let counts = [];
-    //     let last = layer_map[0][j];
-    //     let i_start = 0;
-    //     counts.push({i_start: 0, val: layer_map[0][j], count: 1});
-    //     for(let i = 1; i < wefts(draft.drawdown); i++){
-    //       if(last == layer_map[i][j]){
-    //         let c = counts.find(el => el.i_start == i_start);
-    //         c.count++;
-    //       }else{
-    //         i_start = i;
-    //         counts.push({i_start: i, val: layer_map[i][j], count: 1});
-    //       }
-    //       last = layer_map[i][j];
-    //     }
-
-    //     let too_small = counts.filter(el => el.count <= x );
-        
-    //     //
-    //     too_small.forEach(count => {
-    //       let layer = Math.abs(count.val);
-
-    //       //search the neighbors. 
-    //       let ray = {n: 0, e: 0, s: 0, w: 0};
-
-    //     })
-
-  
-  
-
-
-
-    //   }
-
-    //   //comapre with neighbors "n" distance away (e.g. if layer is 1, skip every other)
-    //   // if no matching neighbor is found in a distance of x; 
-    //   //assign this cell a very low confidence that it is indeed a layer, 
-    //   //if all four neighbors are found OR its part of a very long chain, give it a high confidence 
-
-    //   //repeats for counts of 2 etc. 
-
-      
-    //   return layer_map;
-    // }
-
-
-    /**
-     * given a list of verticies and the number of interlacement with that same value, merge groups of size lower than size to one couup. 
-     * @param counts 
-     * @param size 
-     * @returns 
-     */
-  //   export const mergeGroupsOfSize = (counts: Array<WarpWeftLayerCount>, size: number) : Promise<Array<WarpWeftLayerCount>> => {
-
-
-  //     let matching_groups = counts.filter(el => el.count == size);
-  //     // console.log("MERGING GROUPS OF SIZE ", counts, matching_groups);
-
-  //     if(matching_groups.length == 0) return Promise.resolve(counts.slice());
-
-    
-  //     let merged: Array<WarpWeftLayerCount> = counts.slice();
-  //     matching_groups.forEach(g => {
-
-  //       //find this element in the count
-  //       let ndx =  counts.findIndex(el => el.ndx == g.ndx);
-      
-  //       if(ndx == -1) {
-  //         console.error("ELEMENT IN MERGE NOT FOUND, looking for", g.ndx, counts)
-  //         return Promise.resolve(counts);
-  //       }
-
-
-
-  //       let before: number = (ndx == 0) ? 0 : counts[ndx-1].count;
-  //       let after : number = (ndx == counts.length-1) ? 0 : counts[ndx+1].count;
-  //       let before_layer:number =  (ndx == 0) ? 0 : counts[ndx-1].layer;
-  //       let after_layer:number = (ndx == counts.length-1) ? 0 :  counts[ndx+1].layer;
-
-        
-  //       //get the bigger element 
-  //       if(ndx -1 < 0 && (ndx + 1) < counts.length){
-  //         let new_el: WarpWeftLayerCount = {
-  //           ndx: counts[ndx].ndx,
-  //           count: counts[ndx+1].count + counts[ndx].count,
-  //           layer: counts[ndx+1].layer
-  //         }
-
-  //         merged.splice(ndx, 2, new_el);
-
-  //       }else if(ndx -1 >= 0 && (ndx + 1) >= counts.length){
-  //           //merge this into before
-  //           let new_el: WarpWeftLayerCount = {
-  //             ndx: counts[ndx-1].ndx,
-  //             count: counts[ndx-1].count + counts[ndx].count,
-  //             layer: counts[ndx-1].layer
-  //           }
-  
-  //           merged.splice(ndx-1, 2, new_el);
-    
-  //       }else if(ndx -1 < 0 && (ndx + 1) >= counts.length){
-  //         //do nothing, because there is nothing you could do 
-  //       }else if(before > after || (before === after && before_layer < after_layer)){
-  //         //merge this into before
-  //         let new_el: WarpWeftLayerCount = {
-  //           ndx: counts[ndx-1].ndx,
-  //           count: counts[ndx-1].count + counts[ndx].count,
-  //           layer: counts[ndx-1].layer
-  //         }
-
-  //         merged.splice(ndx-1, 2, new_el);
-
-  //       }else if(after > before  || (before === after && after_layer < before_layer)){
-
-  //         let new_el: WarpWeftLayerCount = {
-  //           ndx: counts[ndx].ndx,
-  //           count: counts[ndx+1].count + counts[ndx].count,
-  //           layer: counts[ndx+1].layer
-  //         }
-
-  //         merged.splice(ndx, 2, new_el);
-
-  //       }else if(after === before && counts[ndx-1].layer == counts[ndx+1].layer){
-  //         //they are equal and on the same layer - merge into one big group
-  //         let new_el: WarpWeftLayerCount = {
-  //           ndx: counts[ndx-1].ndx,
-  //           count: counts[ndx-1].count + counts[ndx].count + counts[ndx+1].count,
-  //           layer: counts[ndx-1].layer
-  //         }
-
-  //         merged.splice(ndx-1, 3, new_el);
-
-  //       }else{
-  //         console.error("MERGE FAILED TO IDENTIFY CANDIDATE", before, after, counts);
-
-  //       }
-
-  //     });
-  //     // console.log("MERGED", merged)
-  //     return Promise.resolve(merged);
-
-
-  //   }
-
-
-   export const removeOutlierInterlacements = (draft: Draft, topo: Array<TopologyVtx>, threshold: number) : Array<TopologyVtx> => {
-
-    return topo;
-
-
-    const topo_layer_counts = [];
-     topo.forEach((ilace, t) => {
-      let ndx = topo_layer_counts.findIndex(el => el.layer == ilace.z_pos);
-      if(ndx == -1) topo_layer_counts.push({layer: ilace.z_pos, count: 1, ilaces: [ilace]});
-      else{
-        topo_layer_counts[ndx].count ++;
-        topo_layer_counts[ndx].ilaces.push(ilace);
-      } 
-    });
-    // console.log("TOPO LAYER COUNTS BEFORE", topo_layer_counts);
-
-    topo_layer_counts.forEach(topocount => {
-      if(topocount.count < threshold){
-        // console.log("Looking to remove ", topocount);
-        topocount.ilaces.forEach(ilace => {
-          let found_at = topo.findIndex(el => el.j_left == ilace.j_left && el.j_right == ilace.j_right && el.i_top == ilace.i_top && el.i_bot == ilace.i_bot);
-          if(found_at !== -1){
-            // console.log("REMOVED !", found_at)
-            topo.splice(found_at, 1);
-          }else{
-            // console.log("INTERLACEMENT NOT FOUND")
-          }
-        })
+    hard_overlaps.forEach(topo => {
+      let a:TopologyVtx = topology.find(el => el.id == topo.a);
+      let b:TopologyVtx = topology.find(el => el.id == topo.b);
+      if(a !== undefined && b!== undefined){
+      if(Math.abs(a.z_pos) < Math.abs(b.z_pos)) topology = topology.filter(el => el.id !== b.id);
+      else topology = topology.filter(el => el.id !== a.id);
       }
     })
-  
-    // console.log("TOPO LAYER COUNTS AFTER", topo.length);
-
-    return topo; 
-    // let layer_data: Array<Array<LayerData>> = [];
-    // // for(let i = 0; i < wefts(draft.drawdown); i++){
-    // //   for(let j = 0; j < warps(draft.drawdown); j++){
-
-    // //     //get all the interlacements to which this cell belongs. 
-    // //     let ilaces = topo.filter(el => (el.j_left == j || el.j_right == j) && (el.i_top == i || el.i_bot == i));
-
-    // //     if(ilaces.length == 0){
-    // //       let closest = getClosestInterlacementOnWarp(topo, i, j);
-    // //       //this is not really mapped to any layer so give it a low confidence 
-    // //       layer_data[i][j] = {
-    // //         proximity_to_edge: Math.min(i, j, wefts(draft.drawdown)-i, warps(draft.drawdown)-j ),
-    // //         confidence: 0,
-    // //         longest_ray: -1, 
-    // //         default: closest.z_pos
-    // //       }
-    // //     }else{
-
-    // //       let smallest_warp_distance = ilaces.reduce((acc, val, ndx) => {
-    // //         let dist = val.i_top-val.i_bot;
-    // //         if(dist < acc.dist ) return {ilace: val, dist: dist};
-    // //         return acc;
-    // //       }, {ilace: null, dist: 1000000});
-
-    // //       let all_smallest_warps = ilaces.filter(el => el.i_top-el.i_bot == smallest_warp_distance.dist);
-
-    // //       let smallest_weft_distance = all_smallest_warps.reduce((acc, val, ndx) => {
-    // //         let dist = val.j_right-val.j_left;
-    // //         if(dist < acc.dist ) return {ilace: val, dist: dist};
-    // //         return acc;
-    // //       }, {ilace: null, dist: 1000000});
-
-    // //       let all_smallest_wefts = ilaces.filter(el => el.j_right-el.j_left == smallest_weft_distance.dist);
 
 
-    // //       //confidence is proportional to size - the smaller the interlacement, the more strongly it is correct
-    // //       let confidence  = 1/(smallest_warp_distance.dist * smallest_weft_distance.dist * 1)
 
-          
-    // //     }
+    return  Promise.resolve(topology);
 
-    // //   }
-    // // }
-    // return [];
-
-   }
-
-
+  }
 
 
    /**
@@ -1867,7 +1147,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       interlacements.forEach(ilace => {
         let width = ilace.j_right-ilace.j_left;
         if(width <= max_ilace_width){
-        console.log("ADDING ILACE ", ilace)
     
           //span the interlaced warps onto the same layer
          for(let i = ilace.i_bot; i <= ilace.i_top; i++){
@@ -1994,7 +1273,9 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
        const max_layer = active_layers.reduce((acc, val) => {
          if(val > acc) return val;
          return acc;
-       }, 0)
+       }, 0);
+
+
 
       return createWarpLayerMap(draft, topo, sim, active_layers, max_layer)
       .then(warps => {
@@ -2011,6 +1292,18 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
      * use the topology generated to create a map describing the relationship between warp and weft layers. assign each position along a warp with an associated layer. If a weft interlaces with that warp, it must do so on the warps associated layer
      */
     export const createWarpLayerMap = (draft: Draft, topo: Array<TopologyVtx>, sim: SimulationVars, active_layers: Array<number>, max_layer: number) : Promise<Array<Array<number>>> => {
+    
+    //get the closest weft interlacements 
+    const max_width = topo.reduce((acc, val) => {
+      if((val.j_right - val.j_left) > acc) return (val.j_right - val.j_left);
+      return acc;
+    }, 0);
+
+    //start from the smallest width to the largest  
+    //push interlacements to the map in this order, not adding any additional. 
+    //add a "strength, field that extends out from interlacement in "
+    
+
 
       //default all layers to null
       let layer_map: Array<Array<number>> = [];
@@ -2036,20 +1329,44 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         layers_to_check.forEach(layer_id => {
           console.log("CHECKING LAYER ", layer_id)
           let layer_ilace = topo.filter(ilace => ilace.z_pos == layer_id);
-          console.log("ILACES ", layer_ilace)
-
           layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height);
+          console.log("LAYER MAP ", layer_map)
+
+
         })
         
 
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
         //if not, 
-        for(let i = 0; i < wefts(draft.drawdown); i++){
-          for(let j = 0; j < warps(draft.drawdown); j++){
-            if(layer_map[i][j] == null) layer_map[i][j]=0;
-          }
-        }
+        // for(let j = 0; j < warps(draft.drawdown); j++){
+
+        //   let col = layer_map.reduce((acc,el) => {
+        //     return acc.concat(el[j]);
+        //   }, []);
+
+        //   let null_vals = col.map((ndx, el) => {
+        //     if(el == null) return ndx;
+        //     else return -1;
+        //   });
+
+        //   if(null_vals.length == col.length){
+        //     for(let i = 0; i < wefts(draft.drawdown); i++){
+        //       layer_map[i][j] = 0;
+        //     }
+        //   }else{
+        //     null_vals.forEach(index => {
+        //       let below = ( index -1 >= 0) ? layer_map[index-1][j] : null;
+        //       let above = ( index +1 >= 0) ? layer_map[index-1][j] : null;
+        //     })
+        //   }
+
+
+            
+
+
+           
+        // }
 
       }
 
@@ -2097,11 +1414,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
         //if not, 
-        for(let i = 0; i < wefts(draft.drawdown); i++){
-          for(let j = 0; j < warps(draft.drawdown); j++){
-            if(layer_map[i][j] == null) layer_map[i][j]=0;
-          }
-        }
+        // for(let i = 0; i < wefts(draft.drawdown); i++){
+        //   for(let j = 0; j < warps(draft.drawdown); j++){
+        //     if(layer_map[i][j] == null) layer_map[i][j]=0;
+        //   }
+        // }
 
       }
 
@@ -2478,7 +1795,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     for(let j = 1; j < warps(draft.drawdown); j++){
 
-        console.log("LAYER MAP VALUES",layer_maps.warp[i][j],layer_maps.weft[i][j] )
 
        if(layer_maps.warp[i][j]==layer_maps.weft[i][j]){
 

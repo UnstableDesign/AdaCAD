@@ -1,6 +1,5 @@
-import { floor } from "mathjs";
 import { Cell } from "./cell";
-import { Draft, Drawdown, Loom, Vertex, YarnFloat, YarnVertexExpression } from "./datatypes";
+import { Draft, Drawdown, YarnFloat } from "./datatypes";
 import utilInstance from "./util";
 
 /**

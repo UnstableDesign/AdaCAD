@@ -11,7 +11,6 @@ import { StateService } from '../../core/provider/state.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
 import { generateDirectTieup, getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
-import { computeYarnPaths, isEastWest, isNorthEast, isNorthWest, isSouthEast, isSouthWest } from '../../core/model/yarnsimulation';
 import { TreeService } from '../../core/provider/tree.service';
 import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
@@ -659,7 +658,6 @@ export class DraftviewerComponent implements OnInit {
 
 
      if(this.flag_recompute && event.type == 'mouseup'){
-      if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
       this.flag_recompute = false;
      }
 
@@ -1904,42 +1902,6 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
   //}
 
 
-  
-
-
-  public redrawYarnView(draft: Draft){
-
-   
-
-    const yarnsim = computeYarnPaths(draft, this.ms.getShuttles());
-    
-
-    for(let i = 0; i < this.render.visibleRows.length; i++){
-
-      let index_row = this.render.visibleRows[i];
-
-      let row_values = yarnsim[index_row];
-
-      let shuttle_id = draft.rowShuttleMapping[index_row];
-
-      let s = this.ms.getShuttle(shuttle_id);
-
-      //iterate through the rows
-      for(let j = 0; j < row_values.length; j++){
-        
-        let p = row_values[j];
-
-        if(isEastWest(p))  this.drawWeftOver(draft, i,j,s);
-        if(isSouthWest(p)) this.drawWeftBottomLeft(draft, i,j,s);
-       // if(p.isNorthSouth())this.drawWeftUp(i, j, s);
-        if(isSouthEast(p)) this.drawWeftBottomRight(draft, i,j,s);
-        if(isNorthWest(p)) this.drawWeftLeftUp(draft, i,j,s);
-        if(isNorthEast(p)) this.drawWeftRightUp(draft, i, j, s);
-
-      }
-    }
-
-  }
 
 
   /**
@@ -2023,14 +1985,6 @@ public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
    switch(this.render.getCurrentView()){
       case 'pattern':
       this.redrawDraft(draft, loom, loom_settings);
-      break;
-
-      case 'yarn':
-      this.redrawVisualView(draft);
-      break;
-
-      case 'visual':
-      this.redrawVisualView(draft);
       break;
 
       case 'crossing':
@@ -2161,37 +2115,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   }
 
 
-
-  /**
-   * Simulates the visual look of the weave pattern.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public redrawVisualView(draft: Draft) {
-
-
-
-
-    
-
-
-
-    // computeYarnPaths(draft, this.ms.getShuttles());
-
-    // this.cx.fillStyle = "#3d3d3d";
-    // this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-
-    // this.drawWarps(draft, this.cx);
-    
-    // this.redrawYarnView(draft);
-
-    // if(this.render.getCurrentView() === 'visual'){
-    //   this.drawWarpsOver(draft);
-    // }
-
-    // this.cx.strokeStyle = "#000";
-    // this.cx.fillStyle = "#000";
-  }
 
   /**
    * Prints the pattern to the console.
@@ -2492,7 +2415,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
-        computeYarnPaths(draft, this.ms.getShuttles());
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
@@ -2502,7 +2424,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
-        computeYarnPaths(draft, this.ms.getShuttles());
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
@@ -2534,7 +2455,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
-        computeYarnPaths(draft, this.ms.getShuttles());
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
@@ -2545,7 +2465,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
-        computeYarnPaths(draft, this.ms.getShuttles());
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
@@ -2574,7 +2493,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
         this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
-          computeYarnPaths(draft, this.ms.getShuttles());
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
           this.timeline.addHistoryState(draft);
           this.colShuttleMapping = draft.colShuttleMapping;
@@ -2583,7 +2501,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       }else{
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
-          computeYarnPaths(draft, this.ms.getShuttles());
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
           this.timeline.addHistoryState(draft);
           this.colShuttleMapping = draft.colShuttleMapping;

@@ -8,7 +8,6 @@ import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { generateMappingFromPattern } from '../core/model/drafts';
 import { isFrame } from '../core/model/looms';
 import { RenderService } from './provider/render.service';
-import { computeYarnPaths } from '../core/model/yarnsimulation';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
@@ -219,7 +218,6 @@ export class DraftDetailComponent implements OnInit {
     this.dm.selectDesignMode(value, 'view_modes');
     this.render.setCurrentView(value);
 
-    if(this.render.isYarnBasedView()) computeYarnPaths(draft, this.ms.getShuttles());
 
     this.weaveRef.redraw(draft, loom, loom_settings,  {
       drawdown: true
@@ -251,65 +249,7 @@ export class DraftDetailComponent implements OnInit {
   }
 
   
-  /**
-   * Tell the weave directive to fill selection with pattern.
-   * @extends WeaveComponent
-   * @param {Event} e - fill event from design component.
-   * @returns {void}
-   */
-  // public onFill(e) {
-    
-  //   let p:Pattern = this.patterns[e.id];
-    
-  //   this.draft.fillArea(this.weaveRef.selection, p, 'original', this.render.visibleRows, this.loom);
 
-  //   const utils = getLoomUtilByType(this.loom.type);
-  //   utils.computeLoomFromDrawdown(this.draft, this.ws.selected_origin_option).then(loom => {
-      
-  //     this.loom = loom;
-
-  //     if(this.render.isYarnBasedView()) this.draft.computeYarnPaths(this.ms.getShuttles());
-    
-  //     this.weaveRef.copyArea();
-  
-  //     this.weaveRef.redraw({drawdown:true, loom:true});
-  //   });
-
-
-    
-
-    //this.timeline.addHistoryState(this.draft);
-    
- //}
-
-  // /**
-  //  * Tell weave reference to clear selection.
-  //  * @extends WeaveComponent
-  //  * @param {Event} Delete - clear event from design component.
-  //  * @returns {void}
-  //  */
-  // public onClear(b:boolean) {
-    
-  //   const pattern: Drawdown = [[new Cell(b)]];
-
-  //   this.draft = initDraftWithParams({warps: warps(this.draft.drawdown), wefts: wefts(this.draft.drawdown), pattern: pattern});
-
-  //   const utils = getLoomUtilByType(this.loom_settings.type);
-  //   utils.computeLoomFromDrawdown(this.draft.drawdown, this.ws.selected_origin_option).then(loom => {
-  //     this.loom = loom;
-
-  //     if(this.render.isYarnBasedView()) computeYarnPaths(this.draft, this.ms.getShuttles());
-
-  //     this.weaveRef.copyArea();
-  
-  //     this.weaveRef.redraw({drawdown:true, loom:true});
-  //   });
-    
-   
-
-   // this.timeline.addHistoryState(this.draft);
-
-  //}
 
   public onScroll(){
   }
@@ -403,7 +343,6 @@ export class DraftDetailComponent implements OnInit {
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
-    computeYarnPaths(draft, this.ms.getShuttles());
     this.tree.setDraftOnly(this.id, draft);
 
     this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, weft_materials: true});
