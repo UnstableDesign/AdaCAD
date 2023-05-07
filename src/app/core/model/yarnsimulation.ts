@@ -1020,6 +1020,34 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
   export const correctInterlacementLayers = (all: Array<TopologyVtx>, weft: Array<TopologyVtx>, layer_threshold: number) : Array<TopologyVtx> => {
 
+
+//this is a list of every possible interlacement between wefts but also includes sometimes more interlacements than we need. For instance, with satin, it might detect layers within float spaces. We can identify those as interlacements that share a corner. 
+
+    let hard_overlaps = [];
+    let to_check = weft.slice();
+    all.forEach((topo) => {
+        to_check = to_check.filter(el => el.id != topo.id);
+        to_check.forEach((check) => {
+          if(topo.i_bot == check.i_bot && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
+          if(topo.i_bot == check.i_bot && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
+          if(topo.i_top == check.i_top && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
+          if(topo.i_top == check.i_top && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
+        });
+    })
+
+    hard_overlaps.forEach(topo => {
+
+      weft = weft.filter(el => el.id !== topo.b);
+
+      // let a:TopologyVtx = all.find(el => el.id == topo.a);
+      // let b:TopologyVtx = weft.find(el => el.id == topo.b);
+      // if(a !== undefined && b!== undefined){
+      // if(Math.abs(a.z_pos) < Math.abs(b.z_pos)) weft = weft.filter(el => el.id !== b.id);
+      // else all = all.filter(el => el.id !== a.id);
+      // }
+    })
+
+
     let compressed_weft = [];
     let last = null;
 
@@ -1033,7 +1061,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       }
       last = vtx.z_pos;
     });
-    console.log("WEFT BEFORE IS ", compressed_weft, weft)
 
     let mark_for_removal = [];
     compressed_weft.forEach((item, ndx) => {
@@ -1061,7 +1088,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     })
 
     weft = weft.filter(el => mark_for_removal.find(item => item == el.id) == undefined);
-    console.log("AFTER ", weft)
 
 
 
@@ -1074,6 +1100,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
       shares_layer.forEach(topo_vtx => {
+        console.log("CHANGING ZPOS from to ", vtx.z_pos, topo_vtx.z_pos)
         vtx.z_pos = topo_vtx.z_pos;
       })
 
@@ -1108,33 +1135,12 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       topology = topology.concat(corrected);
     }
 
-    //this is a list of every possible interlacement between wefts but also includes sometimes more interlacements than we need. For instance, with satin, it might detect layers within float spaces. We can identify those as interlacements that share a corner. 
-
-    let hard_overlaps = [];
-    let to_check = topology.slice();
-    topology.forEach((topo) => {
-        to_check = to_check.filter(el => el.id != topo.id);
-        to_check.forEach((check) => {
-          if(topo.i_bot == check.i_bot && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
-          if(topo.i_bot == check.i_bot && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
-          if(topo.i_top == check.i_top && topo.j_left == check.j_left) hard_overlaps.push({a: topo.id, b: check.id})
-          if(topo.i_top == check.i_top && topo.j_right == check.j_right) hard_overlaps.push({a: topo.id, b: check.id})
-        });
-    })
-
-    hard_overlaps.forEach(topo => {
-      let a:TopologyVtx = topology.find(el => el.id == topo.a);
-      let b:TopologyVtx = topology.find(el => el.id == topo.b);
-      if(a !== undefined && b!== undefined){
-      if(Math.abs(a.z_pos) < Math.abs(b.z_pos)) topology = topology.filter(el => el.id !== b.id);
-      else topology = topology.filter(el => el.id !== a.id);
-      }
-    })
+  
 
 
     
 
-    console.log("TOPO ", topology);
+    console.log("TOPO ", topology, topology.map(el => el.z_pos));
 
 
 
@@ -1463,7 +1469,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
       //now clean up 
 
-      console.log("LAYER MAP", layer_map)
+      console.log("WARP LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
      
     }
