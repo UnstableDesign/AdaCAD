@@ -1,9 +1,9 @@
 import { ViewRef } from "@angular/core";
+import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
-import { Note } from "../provider/notes.service";
 import { Cell } from "./cell";
 import { Shuttle } from "./shuttle";
 
@@ -157,6 +157,18 @@ export interface ViewModes {
   children: Array<DesignMode>;
   selected: boolean;
 }
+
+export interface Note{
+  id: number,
+  interlacement: Interlacement; 
+  text: string;
+  ref: ViewRef;
+  color: string;
+  component: NoteComponent; 
+  imageurl: string;
+  width: number;
+  height: number;
+ }
 
 /****** OBJECTS/TYPES to CONTROL YARN SIMULATION ******/
 

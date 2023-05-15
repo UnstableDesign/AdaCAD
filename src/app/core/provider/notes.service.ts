@@ -1,15 +1,9 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
-import { Interlacement } from '../model/datatypes';
+import { Interlacement, Note } from '../model/datatypes';
 
 
-export interface Note{
-  id: number,
-  interlacement: Interlacement; 
-  text: string;
-  ref: ViewRef;
-  component: NoteComponent   
- }
+
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +12,7 @@ export class NotesService {
 
 
   //id in array should always match note id. 
-  notes: Array<Note>;
-  
+  notes: Array<Note>;  
 
 
   constructor() { 
@@ -38,7 +31,11 @@ export class NotesService {
         interlacement: i,
         text: "",
         ref: ref,
-        component: component
+        color: "#FFFF00",
+        component: component,
+        imageurl: null,
+        width: 200, 
+        height: 200
       }
     }else{
       gennote = {
@@ -46,7 +43,11 @@ export class NotesService {
         interlacement: i,
         text: note.text,
         ref: ref,
-        component: component
+        color: (note.color !== undefined) ? note.color : "#FFFF00",
+        component: component,
+        imageurl: (note.imageurl !== undefined) ? note.imageurl : null,
+        width: (note.width !== undefined) ? note.width : 200,
+        height: (note.height !== undefined) ? note.height : 200,
       }
     }
 
@@ -60,8 +61,12 @@ export class NotesService {
       id: this.notes.length,
       interlacement: i,
       text: "",
+      color: "#FFFF00",
       ref: null,
-      component: null
+      component: null,
+      imageurl: null,
+      width: 200,
+      height: 200
     }
 
     this.notes.push(note);
@@ -82,7 +87,11 @@ export class NotesService {
       return {
       id: note.id, 
       text: note.text,
-      interlacement: note.interlacement
+      color: note.color,
+      interlacement: note.interlacement,
+      imageurl: note.imageurl,
+      width: note.width,
+      height: note.height
     }
     });
   }
@@ -126,6 +135,11 @@ export class NotesService {
   delete(id: number){
     this.notes = this.notes.filter(el => el.id != id);
   }
+
+  setColor(id: number, color: string){
+    let note = this.get(id);
+    note.color = color;
+  } 
 
 
 }

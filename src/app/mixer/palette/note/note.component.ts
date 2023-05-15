@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Bounds, Point } from '../../../core/model/datatypes';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { fromEvent, Subscription } from 'rxjs';
+import { Bounds, Point, Note } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
-import { Note, NotesService } from '../../../core/provider/notes.service';
+import { NotesService } from '../../../core/provider/notes.service';
 import { ViewportService } from '../../provider/viewport.service';
 
 @Component({
@@ -34,10 +35,12 @@ export class NoteComponent implements OnInit {
   };
 
 
+  show_url: boolean = false;
   canvas: HTMLCanvasElement;
   cx: any;
   disable_drag: boolean = false;
-
+  image_url: string = "";
+  moveSubscription: Subscription;
   constructor(private notes: NotesService,private viewport:ViewportService) { 
 
   }
@@ -52,6 +55,7 @@ export class NoteComponent implements OnInit {
         x: this.note.interlacement.j * this.scale,
         y: this.note.interlacement.i * this.scale
       }
+
     }
 
    
@@ -63,6 +67,32 @@ export class NoteComponent implements OnInit {
     this.rescale();
     
   }
+
+  @HostListener('mousedown', ['$event'])
+  private onStart(event) {
+    console.log("EVENT", event, event.target.id);
+    if(event.target.id == 'resize_button'){
+      this.moveSubscription = 
+           fromEvent(document, 'mousemove').subscribe(e => this.onDrag(e)); 
+
+    }
+
+  }
+
+  @HostListener('mouseup', ['$event'])
+  private onEnd(event) {
+      if(this.moveSubscription !== undefined) this.moveSubscription.unsubscribe();
+    
+
+  }
+
+  onDrag(event: any){
+    const zoom_factor:number = this.default_cell/this.scale;
+    const pointer:Point = {x: event.clientX, y: event.clientY};  
+    this.note.width =(pointer.x - this.bounds.topleft.x + 10)*zoom_factor;
+    this.note.height = (pointer.y - this.bounds.topleft.y + 10)*zoom_factor;
+  }
+
 
   delete(){
     console.log("DELETE NOTE EMITTED!")
@@ -85,24 +115,31 @@ export class NoteComponent implements OnInit {
    * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
    */
    rescale(){
-
+    console.log("RESCALE CALLED")
     if(this.note === undefined){
       // console.error("note is undefined on rescale");
        return;
     }
 
     const zoom_factor:number = this.scale/this.default_cell;
+    console.log("RECALE CALLED", this.scale, zoom_factor);
 
     //redraw at scale
     const container: HTMLElement = document.getElementById('scalenote-'+this.note.id);
+    console.log("Container Before", container.style)
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
-   
+    console.log("Container After", container)
+
 
     this.bounds.topleft = {
       x: this.note.interlacement.j * this.scale,
       y: this.note.interlacement.i * this.scale
     };
+
+    // this.note.width*= zoom_factor;
+    // this.note.height*= zoom_factor;
+
 
   
   }
@@ -136,6 +173,35 @@ export class NoteComponent implements OnInit {
   enableDrag(){
     this.disable_drag = false;
   }
+
+  uploadImage(){
+    this.show_url = true;
+
+  }
+
+  enterUrl(event: any){
+    console.log("URL IS ", this.image_url);
+    this.note.imageurl = this.image_url;
+    this.show_url = false;
+
+  }
+
+  colorChange(event: any){
+   this.notes.setColor(this.id, event);
+  }
+
+  // expandDown(event: any){
+  //   console.log("EXPAND DOWN")
+  //   this.moveSubscription = 
+  //         fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
+  // }
+
+  // expandUp(event: any) {
+  //   console.log("EXPAND UP")
+  //   this.moveSubscription.unsubscribe();
+  // }
+
+
 
 
 

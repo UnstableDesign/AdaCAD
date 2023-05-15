@@ -91,6 +91,7 @@ export class KeycodesDirective {
    * SAVE
    */
     if(e.key =="s" && e.metaKey){
+      console.log("KEYDOWN S")
     this.fs.saver.ada(
       'mixer', 
       true,

@@ -1,11 +1,11 @@
 import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point } from '../../core/model/datatypes';
 import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
-import { Note, NotesService } from '../../core/provider/notes.service';
+import { NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { InkService } from '../../mixer/provider/ink.service';
@@ -440,6 +440,7 @@ handlePan(diff: Point){
     });
 
     this.notes.getComponents().forEach(el => {
+      console.log("CALLING WITH ", this.zs.zoom)
       el.scale = this.zs.zoom;
     });
 
@@ -976,6 +977,7 @@ handlePan(diff: Point){
       this.unfreezePaletteObjects();
 
     }else{
+      console.log("DESIGN MODE CHANGED")
       this.freezePaletteObjects();
     }
 
@@ -1860,7 +1862,7 @@ connectionMade(obj: any){
  }
 
  panStarted(mouse_pos: Point){
-
+  console.log("PAN STARTED")
   this.last_point = mouse_pos;
   this.freezePaletteObjects();
 

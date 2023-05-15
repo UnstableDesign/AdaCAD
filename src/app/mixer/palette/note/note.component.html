@@ -1,18 +1,48 @@
 
 <!--TODO add z index support here-->
-<div class="note-container selectable-{{!disable_drag}}" 
-id="scalenote-{{note.id}}"
+<div class="selectable-{{!disable_drag}}" 
 [cdkDragDisabled] = "disable_drag"
 cdkDrag
 [cdkDragFreeDragPosition]="bounds.topleft"
-(cdkDragMoved)="dragMove($event)" >
+(cdkDragMoved)="dragMove($event)">
+
+
+<div class="note-container" 
+[style.width.px]="note.width"
+[style.min-height.px]="note.height"
+[style.background]="note.color"
+id="scalenote-{{note.id}}">
 
 
 
 
-      <div class="note-opts"> 
+  <div class="note-opts"> 
 
-  
+        <div class="align-left">
+        <div class="handle" cdkDragHandle>
+          <i class="fa-solid fa-up-down-left-right"></i>
+        </div>
+      </div>
+        
+      <div class="align-right">
+      <button 
+          mat-icon-button
+          (colorPickerChange) = 'colorChange($event)'  
+          class="fa-solid fa-palette" 
+          [(colorPicker)]="note.color" 
+          [style.background]="note.color" 
+          >
+      </button> 
+    
+
+        <button *ngIf="!show_url"
+        matTooltip= "Upload Image"
+        mat-icon-button
+        class="fas fa-image"
+        (click)="uploadImage()">
+        </button>
+
+ 
     
         <button 
         matTooltip= "Delete"
@@ -22,20 +52,40 @@ cdkDrag
         (click)="delete()">
         </button>
       </div>
-
+    </div>
     <div class="text-entry">
+
+      <div *ngIf="image_url !== ''">
+        <img [src]="image_url" >     
+       </div>
     
     <form class="example-form">
- 
+      <mat-form-field *ngIf="show_url"
+      class="example-full-width">
+        <mat-label>url</mat-label>
+        <input type="tel" matInput [(ngModel)]="image_url" [style.width.px]="note.width">
+        <button 
+        matTooltip= "enter url"
+
+        mat-icon-button
+        class="fa-solid fa-check"
+        (click)="enterUrl()">
+        </button>
+      </mat-form-field>
+  
         <mat-form-field class="textfield" appearance="fill">
-          <textarea cdkTextareaAutosize matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
+          <textarea cdkTextareaAutosize resizeToFitContent matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
         </mat-form-field>
     </form>
 
     </div>
 
-    <canvas id="notecanvas-{{note.id}}" hidden></canvas>
+    <div class="expand" id="resize_button">
+       <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+    </div>
 
+    <canvas id="notecanvas-{{note.id}}" hidden></canvas>
+</div>
 </div>
 
 

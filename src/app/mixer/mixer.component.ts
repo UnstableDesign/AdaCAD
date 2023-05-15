@@ -863,131 +863,13 @@ zoomChange(e:any, source: string){
   
 
 
-
-
-  /**
-   * Change to draw mode on keypress s
-   * @returns {void}
-   */
-   @HostListener('window:keydown.s', ['$event'])
-   private keyChangeToSelect(e) {
-      this.toggleSelectMode();
-   }
-
-
-     /**
-   * Change to draw mode on keypress s
-   * @returns {void}
-   */
-      @HostListener('window:keydown.m', ['$event'])
-      private keyChangeToMove(e) {
-        // this.dm.selectDesignMode('move','design_modes');
-        // this.designModeChange('move');
-      }
-   
-
     operationAdded(name:string){
       this.palette.addOperation(name);
     }
 
-/**
-   * Call zoom out on Shift+o.
-   * @extends WeaveComponent
-   * @param {Event} shift+o
-   * @returns {void}
-   */
-  // @HostListener('window:keydown.Shift.o', ['$event'])
-  // private keyEventZoomOut(e) {
-  //   console.log("zoom out");
-  //   this.render.zoomOut();
-  //   this.palette.rescale();
-  // }
-
 
   /**
-   * Sets selected area to clear
-   * @extends WeaveComponent
-   * @param {Event} delete key pressed
-   * @returns {void}
-   */
-
-  // @HostListener('window:keydown.e', ['$event'])
-  // private keyEventErase(e) {
-  //   this.design_mode = {
-  //     name: 'down',
-  //     id: -1
-  //   };
-  //   this.palette.unsetSelection();
-
-  // }
-
-  /**
-   * Sets brush to point on key control + d.
-   * @extends WeaveComponent
-   * @param {Event} e - Press Control + d
-   * @returns {void}
-   */
-  // @HostListener('window:keydown.d', ['$event'])
-  // private keyEventPoint(e) {
-  //   this.design_mode = {
-  //     name: 'up',
-  //     id: -1};
-  //   this.palette.unsetSelection();
-
-  // }
-
-  /**
-   * Sets brush to select on key control + s
-   * @extends WeaveComponent
-   * @param {Event} e - Press Control + s
-   * @returns {void}
-   */
-  // @HostListener('window:keydown.s', ['$event'])
-  // private keyEventSelect(e) {
-  //   this.design_mode = {
-  //     name: 'select',
-  //     id: -1};
-  //   this.palette.unsetSelection();
-
-  // }
-
-  /**
-   * Sets key control to invert on control + x
-   * @extends WeaveComponent
-   * @param {Event} e - Press Control + x
-   * @returns {void}
-   */
-  // @HostListener('window:keydown.x', ['$event'])
-  // private keyEventInvert(e) {
-  //   this.design_mode = {
-  //     name: 'toggle',
-  //     id: -1
-  //   };
-  //   this.palette.unsetSelection();
-
-  // }
-
-  /**
-   * Sets key to copy 
-   * @extends WeaveComponent
-   * @param {Event} e - Press Control + x
-   * @returns {void}
-   */
-  // @HostListener('window:keydown.c', ['$event'])
-  // private keyEventCopy(e) {
-  //   this.onCopy();  
-  // }
-
-    /**
-   * Sets key to copy 
-   * @extends WeaveComponent
-   * @param {Event} e - Press Control + x
-   * @returns {void}
-   */
-
-
-  /**
-   * this is called when a user pushes bring from the topbar
+   * this is called when a user pushes save from the topbar
    * @param event 
    */
   public async onSave(e: any) : Promise<any>{
