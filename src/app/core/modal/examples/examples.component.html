@@ -1,139 +1,21 @@
     <div class="preloaded_files">
-      <mat-card>
-        <mat-card-title>Introduction, Lesson 1
-          <button (click)="loadExample('lesson1')" mat-raised-button color="white">Load</button>
+
+      <mat-card *ngFor="let example of local_examples">
+        <mat-card-title>{{example.title}}
+          <!-- <button (click)="loadExample('lesson1')" mat-raised-button color="white">Load</button> -->
 
         </mat-card-title>
-        <img mat-card-image src="/assets/example_img/lesson1.png" alt="Screenshot of the File Contents">
+        <img mat-card-image src="/assets/example_img/{{example.id}}.png" alt="Screenshot of the File Contents">
           <mat-card-content>
             <p>
-              If this is your first time using AdaCAD, start here to learn our vocabulary and how you can go
+              {{example.desc}}
             </p>
           </mat-card-content>
         <mat-card-actions>
-          <button (click)="loadExample('lesson1')" mat-raised-button color="primary">Load</button>
+          <button (click)="loadExample(example.id)" mat-raised-button color="primary"> Open </button>
         </mat-card-actions>
       </mat-card>
+
+      </div>
      
-      <mat-card >
-        <mat-card-title>A Sample Draft
-          <button (click)="loadExample('intro')" mat-raised-button color="white">Load</button>
-
-        </mat-card-title>
-        <img mat-card-image src="/assets/example_img/intro.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
-            <p>
-             If this is your first time using AdaCAD, start here for some quick tips. 
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample('intro')" mat-raised-button color="primary">Load</button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card >
-        <mat-card-title>Operations Playground
-          <button (click)="loadExample('operation_playground')" mat-raised-button color="white">Load</button>
-        </mat-card-title>
-        <img mat-card-image src="/assets/example_img/operation_playground.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
-            <p>
-              A file that shows all possible operations currently supported by AdaCAD, allowing you to manipulate and play
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample('operation_playground')" mat-raised-button color="primary">Load</button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-title>E-Textiles Sampler
-          <button (click)="loadExample('etextile')" mat-raised-button color="white">Load</button>
-        </mat-card-title>
-        <img mat-card-image src="/assets/example_img/etextile.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
-            <p>
-              Shows partiuclar techniques that can be particularly useful for creating e-textile LED circuits, force sensors, or electrodes
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample('etextile')" mat-raised-button color="primary">Load</button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-title>Woven Electrode Sample
-          <button (click)="loadExample('electrode')" mat-raised-button color="white">Load</button>
-        </mat-card-title>
-        <img mat-card-image src="/assets/example_img/electrode.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
-            <p>
-              Presents strategies and patterns for drafting woven electrodes. 
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample('electrode')" mat-raised-button color="primary">Load</button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-title>Two Pick Structures
-          <button (click)="loadExample('twopic')" mat-raised-button color="white">Load</button>
-        </mat-card-title>
-        <img mat-card-image src="/assets/example_img/twopic.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
-            <p>
-              Two pick structures can create really interesting graphic patterns in the cloth and you can a apply a set of operations to make any weft-facing structure a 2 pic structure
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample('twopic')" mat-raised-button color="primary">Load</button>
-        </mat-card-actions>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-title>Mapping Layers to an Image
-          <button (click)="loadExample('threelayer')" mat-raised-button color="white">Load</button>
-        </mat-card-title>
-        <img mat-card-image src="/assets/example_img/threelayer.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
-            <p>
-            We create three variations of a three layer weave structure, each which has a different layer on top. We then map each of those to an image.
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample('threelayer')" mat-raised-button color="primary">Load</button>
-        </mat-card-actions>
-      </mat-card>
-
- 
-
-      <!-- <mat-card>
-        <mat-card-title>Floor Loom</mat-card-title>
-        <img mat-card-image src="/assets/example_img/etextiles.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
-            <p>
-              Shows partiuclar techniques that can be particularly useful for creating e-textile LED circuits, force sensors, or electrodes
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample('etextiles')" mat-raised-button color="primary">Load</button>
-        </mat-card-actions>
-      </mat-card> -->
-
-      <!-- <button mat-button color="primary" (click)="loadExample('operation_playground')">Operations Playground</button>
-      <p>A file that shows all possible operations currently supported by AdaCAD, allowing you to manipulate and play</p>
-
-      <button mat-button color="accent">Floor Loom Drafting Example</button>
-      <p>A file that shows how one might design for floor looms useing AdaCAD</p>
-
-      <button mat-button color="accent">Jacquard Drafting Example</button>
-      <p>A file that shows how one might design for floor looms useing AdaCAD</p>
-
-      <button mat-button color="accent">E-Textile Structures</button>
-      <p>A file containing several possible weaving structures for common e-textile operations (e.g. LED circuit, force sensing, electrodes)</p>
- -->
-
-
-    </div>    
 

@@ -35,6 +35,8 @@ export class NoteComponent implements OnInit {
   };
 
 
+  markdown: string = "";
+
   show_url: boolean = false;
   canvas: HTMLCanvasElement;
   cx: any;
@@ -68,9 +70,12 @@ export class NoteComponent implements OnInit {
     
   }
 
+  /**
+   * called via resize button
+   * @param event 
+   */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
-    console.log("EVENT", event, event.target.id);
     if(event.target.id == 'resize_button'){
       this.moveSubscription = 
            fromEvent(document, 'mousemove').subscribe(e => this.onDrag(e)); 
@@ -86,6 +91,10 @@ export class NoteComponent implements OnInit {
 
   }
 
+  /**
+   * called via drag handler to reset position
+   * @param event 
+   */
   onDrag(event: any){
     const zoom_factor:number = this.default_cell/this.scale;
     const pointer:Point = {x: event.clientX, y: event.clientY};  
@@ -115,21 +124,17 @@ export class NoteComponent implements OnInit {
    * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
    */
    rescale(){
-    console.log("RESCALE CALLED")
     if(this.note === undefined){
       // console.error("note is undefined on rescale");
        return;
     }
 
     const zoom_factor:number = this.scale/this.default_cell;
-    console.log("RECALE CALLED", this.scale, zoom_factor);
 
     //redraw at scale
     const container: HTMLElement = document.getElementById('scalenote-'+this.note.id);
-    console.log("Container Before", container.style)
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
-    console.log("Container After", container)
 
 
     this.bounds.topleft = {
@@ -179,9 +184,7 @@ export class NoteComponent implements OnInit {
 
   }
 
-  enterUrl(event: any){
-    console.log("URL IS ", this.image_url);
-    this.note.imageurl = this.image_url;
+  enterUrl(){
     this.show_url = false;
 
   }
@@ -189,6 +192,9 @@ export class NoteComponent implements OnInit {
   colorChange(event: any){
    this.notes.setColor(this.id, event);
   }
+
+  hidePreview(e) { console.log(e.getContent()); }
+
 
   // expandDown(event: any){
   //   console.log("EXPAND DOWN")

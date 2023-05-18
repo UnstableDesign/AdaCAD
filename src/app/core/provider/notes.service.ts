@@ -29,6 +29,7 @@ export class NotesService {
      gennote = {
         id: this.notes.length,
         interlacement: i,
+        title: "",
         text: "",
         ref: ref,
         color: "#FFFF00",
@@ -41,6 +42,7 @@ export class NotesService {
       gennote = {
         id: note.id,
         interlacement: i,
+        title: (note.title !== undefined) ? note.title : "",
         text: note.text,
         ref: ref,
         color: (note.color !== undefined) ? note.color : "#FFFF00",
@@ -60,6 +62,7 @@ export class NotesService {
     const note: Note = {
       id: this.notes.length,
       interlacement: i,
+      title: "",
       text: "",
       color: "#FFFF00",
       ref: null,
@@ -86,6 +89,7 @@ export class NotesService {
     return this.notes.map(note => {
       return {
       id: note.id, 
+      title: note.title,
       text: note.text,
       color: note.color,
       interlacement: note.interlacement,

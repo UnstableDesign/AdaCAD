@@ -9,13 +9,12 @@ p{
 
 .preloaded_files{
 	display: flex;
-	flex-wrap: wrap;
-	flex-direction:row;
+	flex-direction:column;
 }
 
 .preloaded_files .mat-card{
-	width: 100%;
-	margin: 10px 10px 10px 0;
+	width: 90%;
+	margin: 10px 5%;
 }
 
 .mat-card-title{

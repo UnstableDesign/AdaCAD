@@ -23,7 +23,8 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [],
+            "scripts": [
+            ],
             "vendorChunk": true,
             "extractLicenses": false,
             "buildOptimizer": false,

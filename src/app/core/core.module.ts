@@ -108,14 +108,15 @@ import { DefaultsService } from './provider/defaults.service';
         ExamplesComponent,
         LoadfileComponent,
         FilebrowserComponent,
-        KeycodesDirective],
+        KeycodesDirective
+    ],
     providers: [
         UploadService,
         FileService,
         VaeService,
         PatternfinderService,
         AuthService
-    ],
+        ],
     exports: [
         CommonModule,
         FormsModule,
@@ -159,6 +160,7 @@ import { DefaultsService } from './provider/defaults.service';
         LoomModal,
         FilebrowserComponent,
         ExamplesComponent,
-        KeycodesDirective    ]
+        KeycodesDirective
+        ]
 })
 export class CoreModule { }

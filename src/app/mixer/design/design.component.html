@@ -19,7 +19,7 @@
             (click)="redoClicked($event);"
             [disabled]="ss.redo_disabled "
             matTooltip ="redo">
-            <i class="fas fa-redo"></i>Redo
+            <i class="fas fa-redo"></i> Redo
             </button>
         </div>
 
@@ -50,14 +50,18 @@
 
 
 
-        <app-quickop
-        (onOperationAdded)="addOperation($event)"
-    >
-        </app-quickop>
-
 
         <mat-divider></mat-divider>
-        <h3>Operation Descriptions</h3>
+
+
+        <!-- <app-quickop
+        (onOperationAdded)="addOperation($event)"
+    >
+        </app-quickop> -->
+
+
+        <h2>Operation Descriptions</h2>
+        <p>You can add operations to the AdaCAD workspace to mathematically describe different relationships within your weave draft. We've organized them into categories that you can browse below  </p>
 
 
 
@@ -65,7 +69,7 @@
 
             <mat-accordion class="operation_categories" multi>
 
-                <mat-expansion-panel expanded="true">
+                <mat-expansion-panel>
                     <mat-expansion-panel-header>
                       <mat-panel-title class="cat_title">
                         {{class.category_name}}
@@ -83,25 +87,26 @@
                 
                         <mat-expansion-panel>
                             <mat-expansion-panel-header>
-                              <mat-panel-title>
+                              <mat-panel-title class="opname">
                                 {{op_desc.getDisplayName(op_name)}}
                              </mat-panel-title>
                               <mat-panel-description>
                                          <!-- {{class.description}} -->
-
+                                         <button mat-button color="primary" class="fa-solid fa-plus add" (click)="addOperation(op_name)">
+                                         </button>
 
         
                             </mat-panel-description>
                         </mat-expansion-panel-header>
-                        <h2> Description </h2>
+                        <h4> Description </h4>
                         <p>{{op_desc.getOpDescription(op_name)}}</p>
 
-                        <h2> Application </h2>
+                        <h4>Application  </h4>
                         <p> {{op_desc.getOpApplication(op_name)}}</p>
 
-                        <h2 *ngIf="ops.getOp(op_name).params.length > 0"> Parameters </h2>
+                        <h4 *ngIf="ops.getOp(op_name).params.length > 0"> Parameters </h4>
                         <ng-container *ngFor="let param of ops.getOp(op_name).params">
-                            <h3>{{param.name}}</h3>
+                            <h5>{{param.name}}</h5>
                             <p *ngIf="param.dx === undefined">{{op_desc.getParamDescription(param.name)}}</p>
                             <p *ngIf="param.dx !== undefined">{{param.dx}}</p>
 
@@ -124,13 +129,36 @@
                  </mat-accordion>
 
                 </mat-expansion-panel>    
-                </mat-accordion>            
+                </mat-accordion>   
+                
+                
     
             <!-- <p> {{class.description}}</p> -->
           
           </ng-container>
 
 
+          <mat-divider></mat-divider>
+          <h2 class="setting_title"> Keyboard Shortcuts</h2>
+          <mat-list>
+            <mat-list-item>&#8984;x Undo</mat-list-item>
+            <mat-list-item>&#8984;y Redo</mat-list-item>
+            <mat-list-item>&#8984;= Zoom In</mat-list-item>
+            <mat-list-item>&#8984;- Zoom Out</mat-list-item>
+            <mat-list-item>&#8984;s Save</mat-list-item>
+           </mat-list>
+  
+           <h2 class="setting_title">Interaction</h2>
+           <h3>Chain Operations</h3>
+            <p> To connect operations together, click the <i class="fa-sharp fa-solid fa-circle-down"></i> on the bottom of a draft and connect it to the <i class="draft-inlet-icon"></i> on the top of an operation. </p>
 
+            <h3>Highlight an Operation Chain</h3>
+            <p> If you'd like to highlight the chain of operations that generated a particular operation input, you can do so by clicking the  <i class="fa-solid fa-eye"></i> on the input</p>
+
+            <h3>Multiselect Operations</h3>
+             <p>Hold the shift key and click all the operations you would like to select. Once you let go, you can move them all as a group. </p>
+
+            <h3>Add Materials to Drafts</h3>
+            <p> Some operations allow you to add in information about the materials and systems to be used when they compute a new draft. These operations will have a <i class="material-inlet-icon"></i> as one of their inputs. The material and system information from the draft you connect will be used in the resulting draft </p>
      
     </div>

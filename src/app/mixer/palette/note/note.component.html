@@ -20,13 +20,14 @@ id="scalenote-{{note.id}}">
 
         <div class="align-left">
         <div class="handle" cdkDragHandle>
-          <i class="fa-solid fa-up-down-left-right"></i>
+          <button mat-icon-button class="fa-solid fa-up-down-left-right"></button>
         </div>
       </div>
         
       <div class="align-right">
       <button 
           mat-icon-button
+          matTooltip= "Change Note Color"
           (colorPickerChange) = 'colorChange($event)'  
           class="fa-solid fa-palette" 
           [(colorPicker)]="note.color" 
@@ -55,33 +56,40 @@ id="scalenote-{{note.id}}">
     </div>
     <div class="text-entry">
 
-      <div *ngIf="image_url !== ''">
-        <img [src]="image_url" >     
+    <form class="example-form">
+      <mat-form-field class="notetitle" appearance="fill">
+        <input matInput placeholder="note title"  [(ngModel)]="note.title" (focusout)="save()" name="title">
+
+      </mat-form-field>
+      <div *ngIf="note.imageurl">
+        <img [src]="note.imageurl" >     
        </div>
     
-    <form class="example-form">
+
       <mat-form-field *ngIf="show_url"
-      class="example-full-width">
+      class="url">
         <mat-label>url</mat-label>
-        <input type="tel" matInput [(ngModel)]="image_url" [style.width.px]="note.width">
+        <input type="tel" matInput [(ngModel)]="note.imageurl" [style.width.px]="note.width" placeholder="enter the url to your image">
         <button 
         matTooltip= "enter url"
-
         mat-icon-button
         class="fa-solid fa-check"
         (click)="enterUrl()">
         </button>
       </mat-form-field>
+
+
   
         <mat-form-field class="textfield" appearance="fill">
-          <textarea cdkTextareaAutosize resizeToFitContent matInput placeholder="something descriptive about your file..." [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
+          <textarea cdkTextareaAutosize resizeToFitContent matInput placeholder="add your note text here" [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
         </mat-form-field>
     </form>
 
     </div>
 
-    <div class="expand" id="resize_button">
-       <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+    <div class="expand" >
+       <button mat-icon-button id="resize_button" class="expand-icon fa-solid fa-up-right-and-down-left-from-center"></button>
+       
     </div>
 
     <canvas id="notecanvas-{{note.id}}" hidden></canvas>

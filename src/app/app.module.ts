@@ -19,7 +19,6 @@ import { CoreModule } from './core/core.module';
 import { MixerModule } from './mixer/mixer.module';
 import { DraftDetailModule } from './draftdetail/draftdetail.module';
 
-
 @NgModule({
   declarations: [
     AppComponent
@@ -46,7 +45,7 @@ import { DraftDetailModule } from './draftdetail/draftdetail.module';
     
   providers: [{ 
     provide: HAMMER_GESTURE_CONFIG, 
-    useClass: HammerGestureConfig 
+    useClass: HammerGestureConfig, 
   }],
   bootstrap: [AppComponent]
 })

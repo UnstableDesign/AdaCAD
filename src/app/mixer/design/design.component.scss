@@ -9,6 +9,39 @@
 
 }
 
+.opname{
+    font-weight: bold;
+}
+
+h4{
+    font-weight: bold;
+}
+
+h5{
+    font-weight: normal;
+    font-style: italic;
+}
+
+i{
+    display: inline-block;
+}
+
+.setting_title{
+    padding: 18px 0px;
+}
+.draft-inlet-icon {
+    width: 24px;
+    height: 20px;
+    background: url(../../../assets/svg/draft_inlet.svg);
+    background-size: 24px 24px;
+  }
+
+  .material-inlet-icon {
+    width: 24px;
+    height: 20px;
+    background: url(../../../assets/svg/material_inlet.svg);
+    background-size: 24px 24px;
+  }
 
 .undoredo{
     width: 100%;
@@ -21,10 +54,18 @@
     }
 }
 
+.add{
+    width: 40px;
+    height: 40px;
+    width: 100%;
+    text-align: right;
+}
+
 h3{
     color: rgba(0,0,0,.54);
     font-size: .8em;
     padding-bottom: 12px;
+    padding-top: 18px;
 }
 
 
@@ -34,10 +75,12 @@ h3{
 
 
 
-h2,.cat_title{
-    font-size: 1.1em;
+h2,
+.cat_title{
     font-weight: bold;
 }
+
+
 
 .mat-divider{
     padding: 12px 0px;
@@ -48,18 +91,13 @@ h2,.cat_title{
 }
 
 .cat_desc{
-    font-size: .8em;
-    margin-bottom: 12px;
+    margin-bottom: 32px;
 
 }
 
-h3{
-    font-size: .8em;
-    font-weight: bold;
-}
 
 p{
-    font-size: .8em;
+    line-height: 1.6em;
     margin-bottom: 12px;
 }
 

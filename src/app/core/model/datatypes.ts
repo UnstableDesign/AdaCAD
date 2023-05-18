@@ -161,6 +161,7 @@ export interface ViewModes {
 export interface Note{
   id: number,
   interlacement: Interlacement; 
+  title: string;
   text: string;
   ref: ViewRef;
   color: string;
@@ -805,6 +806,14 @@ export type VertexMaps = {
   wefts: Array<Array<YarnVertex>>
 }
 
+
+/**** SETTINGS FOR OTHER FEATURES */
+
+export type Example = {
+  id: string,
+  title: string,
+  desc: string
+}
 
 
 

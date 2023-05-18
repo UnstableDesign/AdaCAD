@@ -16,6 +16,11 @@
     flex-direction: column;
 }
 
+.notetitle{
+	font-weight: bold;
+	width: 100%;
+}
+
 .expand{
 	display: flex;
 	width: 100%;
@@ -28,11 +33,21 @@
     line-height: 40px;
     border-radius: 50%;
 	text-align: center;
-
-	i{
-	pointer-events: none;
-	}
 }
+
+.expand-icon{
+	transform: rotate(90deg);
+}
+
+img{
+	pointer-events: none;
+}
+
+
+.mat-icon-button{
+	opacity: .6;
+}
+
 
 .handle{
 	padding: 0;
@@ -59,6 +74,12 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+}
+
+.url{
+	width: 100%;
+	padding: 8px;
+	border: thin solid black;
 }
 
 
