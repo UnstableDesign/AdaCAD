@@ -5,10 +5,10 @@
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialMap } from "../provider/materials.service";
-import { Cell } from "./cell";
-import { Point, Interlacement, Bounds, Draft, Loom, LoomSettings } from "./datatypes";
+import { getCellValue, setCellValue } from "./cell";
+import { Point, Interlacement, Bounds, Draft, Loom, LoomSettings, Material, Cell } from "./datatypes";
 import { hasCell, initDraftWithParams, warps, wefts } from "./drafts";
-import { Shuttle } from "./shuttle";
+import { createMaterial, setMaterialID } from "./material";
 
 
 class Util {
@@ -43,7 +43,7 @@ class Util {
         unmatch = false;
         if(j_comp != j){
           for(let i = 0; i < drawdown.length && !unmatch; i++){
-            if(drawdown[i][j].getHeddle() !== drawdown[i][j_comp].getHeddle()){
+            if(getCellValue(drawdown[i][j]) !== getCellValue(drawdown[i][j_comp])){
               unmatch = true;
             }
           }
@@ -69,7 +69,7 @@ class Util {
        
         let blank = true;
         drawdown.forEach((row, i) => {
-          if(row[j].isUp()) blank = false;
+          if(getCellValue(row[j]) == true) blank = false;
         });
   
         return blank;
@@ -90,7 +90,7 @@ class Util {
       unmatch = false;
       if(i_comp != i){
         for(let j = 0; j < drawdown[i_comp].length && !unmatch; j++){
-          if(drawdown[i][j].getHeddle() !== drawdown[i_comp][j].getHeddle()){
+          if(getCellValue(drawdown[i][j]) !== getCellValue(drawdown[i_comp][j])){
             unmatch = true;
           }
         }
@@ -659,11 +659,11 @@ class Util {
   }
 
   //can likely simplify this as it is mostlyy like the function above but with different variable names for the respective applications
-  getColorTable(e) :Array<Shuttle>  {
+  getColorTable(e) :Array<Material>  {
     var color_table = [];
-    var originalShuttle = new Shuttle();
-    originalShuttle.setColor("#3d3d3d");
-    originalShuttle.setID(0);
+    var originalShuttle = createMaterial();
+    originalShuttle.color = "#3d3d3d";
+    setMaterialID(originalShuttle, 0);
     color_table.push(originalShuttle);
 
     var indexOfLabel = e.search("COLOR TABLE]");
@@ -700,9 +700,9 @@ class Util {
         hex += hexb;
       }
 
-      var shuttle = new Shuttle();
-      shuttle.setColor(hex);
-      shuttle.setID(id);
+      var shuttle = createMaterial();
+      shuttle.color = hex;
+      setMaterialID(shuttle, id);
       id++;
 
       color_table.push(shuttle);
@@ -809,7 +809,7 @@ class Util {
   }
 
   hasOnlyUnset(cells: Array<Cell>) : boolean{
-    const hasValue = cells.find(el => el.getHeddle() !== null);
+    const hasValue = cells.find(el => getCellValue(el) !== null);
     if(hasValue === undefined) return true;
     else return false;
   }
@@ -923,7 +923,7 @@ areDraftsTheSame(d1: Draft, d2: Draft) : boolean {
 
   for(let p = 0; p < d1.drawdown.length; p++){
     for(let q = 0; q < d1.drawdown[p].length; q++){
-      if(d1.drawdown[p][q].getHeddle() !== d2.drawdown[p][q].getHeddle()) return false;
+      if(getCellValue(d1.drawdown[p][q]) !== getCellValue(d2.drawdown[p][q])) return false;
     }
   }
 
@@ -971,10 +971,10 @@ interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft)
           const select_col = (factor_in_repeats === 1) ? j % warps(drafts[select_array].drawdown) : j;
           if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
               const pattern = drafts[select_array].drawdown;
-              cell.setHeddle(pattern[select_row][select_col].getHeddle());
+              cell = setCellValue(cell, getCellValue(pattern[select_row][select_col]));
 
           }else{
-              cell.setHeddle(null);
+              cell = setCellValue(cell, null);
           }
       });
 
@@ -1022,10 +1022,10 @@ interlace_warps(drafts: Array<Draft>, factor_in_repeats: number, weft_patterns: 
           const select_row = (factor_in_repeats === 1) ? i % wefts(drafts[select_array].drawdown) : i;
           if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
               const pattern = drafts[select_array].drawdown;
-              cell.setHeddle(pattern[select_row][select_col].getHeddle());
+              cell = setCellValue(cell, getCellValue(pattern[select_row][select_col])); 
 
           }else{
-              cell.setHeddle(null);
+              cell = setCellValue(cell, null);
           }
       });
 
@@ -1179,7 +1179,7 @@ printDraft(d: Draft){
   console.log('draft ', d.id);
   for(let i = 0; i < wefts(d.drawdown);i++){
     const row: string = d.drawdown[i].reduce((acc, el) => {
-      if(el.getHeddle() === true) acc = acc.concat('x')
+      if(getCellValue(el) === true) acc = acc.concat('x')
       else acc = acc.concat('o')
       return acc;
     }, '');

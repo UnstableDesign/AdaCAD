@@ -1,12 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, HostListener, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Subscription, Subject, fromEvent } from 'rxjs';
-import { Cell } from '../../core/model/cell';
-import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, LoomUtil, Operation, OpInput } from '../../core/model/datatypes';
+import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, LoomUtil, Material, Operation, OpInput, Cell } from '../../core/model/datatypes';
 import { FileService } from '../../core/provider/file.service';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
-import { Shuttle } from '../../core/model/shuttle';
 import { StateService } from '../../core/provider/state.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
@@ -18,6 +16,7 @@ import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
 import { NgForm } from '@angular/forms';
 import { DefaultsService } from '../../core/provider/defaults.service';
+import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 
 @Component({
   selector: 'app-draftviewer',
@@ -711,7 +710,7 @@ export class DraftviewerComponent implements OnInit {
     var w = this.selection.getWidth();
     var h = this.selection.getHeight();
 
-    this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[new Cell(false)]]}).drawdown;
+    this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[createCell(false)]]}).drawdown;
     const temp_copy: Array<Array<boolean>> = [];
 
     if(this.selection.getTargetId() === 'weft-systems'){
@@ -805,7 +804,7 @@ export class DraftviewerComponent implements OnInit {
     const temp_dd: Drawdown = createBlankDrawdown(temp_copy.length, temp_copy[0].length);
      temp_copy.forEach((row,i) => {
       row.forEach((cell, j) => {
-        temp_dd[i][j].setHeddle(cell);
+        temp_dd[i][j] = setCellValue( temp_dd[i][j], cell);
       })
     })
 
@@ -1476,7 +1475,7 @@ export class DraftviewerComponent implements OnInit {
       const sys_id = draft.colSystemMapping[j];
       const sys = this.ss.getWarpSystem(sys_id)
     
-      if(sys !== undefined && sys.isVisible()){
+      if(sys !== undefined && sys.visible){
         this.drawCell(draft, loom, loom_settings, this.cx, i, j, "drawdown");
       }else{
 
@@ -1485,293 +1484,7 @@ export class DraftviewerComponent implements OnInit {
   }
 
 
-  /**
-   * 
-   * @param top  the index of this weft row
-   * @param shuttle the shuttle assigned to this row
-   */
-  public drawWeft(draft: Draft, top:number, shuttle:Shuttle){
-    var dims = this.render.getCellDims("base");
-    var cx = this.cx;
-    var view = this.render.getCurrentView();
 
-
-    const left = 0;
-    top =  (top + 1) * dims.h;
-
-    top += dims.h/2;
-
-
-    cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
-    cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-    cx.shadowColor = 'white';
-    cx.shadowOffsetX = .5;
-    cx.shadowOffsetY = 0;
-
-    cx.beginPath();
-    cx.moveTo(left+dims.w/2,top+dims.h/2);
-    cx.lineTo(left+warps(draft.drawdown) * dims.w,top+dims.h/2);
-    cx.stroke();
-  }
-
-
-  public drawWeftLeftUp(draft: Draft, top:number, left:number, shuttle:Shuttle){
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-      top += dims.h/2;
-
-
-      cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.shadowColor = 'white';
-      cx.shadowOffsetX = 0;
-      cx.shadowOffsetY = .5;
-
-      cx.beginPath();
-      cx.moveTo(left,top);
-      cx.arcTo(left+dims.w/2, top, left+dims.w/2, top - dims.h/2, dims.w/2);
-      cx.stroke();
-  }
-
-
-  public drawWeftRightUp(draft:Draft, top:number, left:number, shuttle:Shuttle){
-
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-      top += dims.h/2;
-
-
-      cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.shadowColor = 'white';
-      cx.shadowOffsetX = 0;
-      cx.shadowOffsetY = .5;
-
-      cx.beginPath();
-      cx.moveTo(left+dims.w,top);
-      cx.arcTo(left+dims.w/2, top, left+dims.w/2, top-dims.h/2, dims.w/2);
-      cx.stroke();
-  }
-
-
-
-  public drawWeftBottomLeft(draft: Draft, top:number, left:number, shuttle:Shuttle){
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-      top += dims.h/2;
-
-
-      cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.shadowColor = 'white';
-      cx.shadowOffsetX = .5;
-      cx.shadowOffsetY = 0;
-
-      cx.beginPath();
-      cx.moveTo(left+dims.w/2,top+dims.h/2);
-      cx.arcTo(left+dims.w/2, top, left, top, dims.w/2);
-      cx.stroke();
-  }
-
-  public drawWeftBottomRight(draft:Draft, top, left, shuttle){
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-      top += dims.h/2;
-
-
-      cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.shadowColor = 'white';
-      cx.shadowOffsetX = .5;
-      cx.shadowOffsetY = 0;
-
-      cx.beginPath();
-      cx.moveTo(left+dims.w/2,top+dims.h/2);
-      cx.arcTo(left+dims.w/2, top, left+dims.w, top, dims.w/2);
-              cx.stroke();
-  }
-
-
-  public drawWeftUp(draft: Draft, top:number, left:number, shuttle:Shuttle){
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-      left += dims.w/2
-
-      var width = shuttle.getThickness()/100 * .9*dims.w;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor()
-      cx.lineWidth = width;
-      cx.shadowColor = 'white';
-      cx.shadowOffsetX = .5;
-      cx.shadowOffsetY = 0;
-
-      cx.beginPath();
-      cx.moveTo(left, top);
-      cx.lineTo(left, top+dims.h);
-      cx.stroke();
-
-  }
-
-  public drawWeftStart(draft: Draft, top:number, left:number, shuttle:Shuttle){
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-
-      top += dims.h/2;
-
-
-      cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.fillStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-
-
-      cx.beginPath();
-      var circle = new Path2D();
-      circle.arc(left+dims.w/2, top, dims.h/2, 0, 2 * Math.PI);
-      cx.fill(circle);
-
-
-}
-
-public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-
-      top += dims.h/2;
-
-
-      cx.lineWidth = 1;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.fillStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-
-      cx.beginPath();
-      var circle = new Path2D();
-      circle.arc(left+dims.w/2, top, dims.h/2, 0, 2 * Math.PI);
-      cx.stroke(circle);
-
-
-}
-
- //break down all cells into the various kinds of drawings
-  public drawWeftOver(draft: Draft, top:number, left:number, shuttle:Shuttle){
-      var dims = this.render.getCellDims("base");
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-      top += dims.h/2;
-
-
-      cx.lineWidth = shuttle.getThickness()/100 * .9*dims.h;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.shadowColor = 'white';
-      cx.shadowOffsetX = 0;
-      cx.shadowOffsetY = .5;
-
-      cx.beginPath();
-      cx.moveTo(left, top);
-      cx.lineTo(left+dims.w, top);
-      cx.stroke();
-
-  }
-
-   //break down all cells into the various kinds of drawings
-  public drawWeftUnder(draft: Draft, top:number, left:number, shuttle:Shuttle){
-      var dims = this.render.getCellDims("base");
-      var warp_shuttle = this.ms.getShuttle(draft.colShuttleMapping[left]);
-      var cx = this.cx;
-      var view = this.render.getCurrentView();
-
-      if(left < -1 || left > warps(draft.drawdown)) return;
-
-      left = (left+1)*dims.w;
-      top =  (top + 1) * dims.h;
-
-      top += dims.h/2
-
-      var warp_width = warp_shuttle.getThickness()/100 * .9*dims.w;
-      var stroke_width = shuttle.getThickness()/100 * .9*dims.h;
-      var margin = (.9*dims.w - warp_width)/2;
-
-      cx.lineWidth = stroke_width;
-      cx.strokeStyle = (view === "yarn" && shuttle.type === 0) ? shuttle.getColor()+"10" : shuttle.getColor();
-      cx.shadowColor = 'white';
-      cx.shadowOffsetX = 0;
-      cx.shadowOffsetY = .5;
-
-      cx.fillStyle = "#393939";
-      cx.fillRect(left, top-dims.h/2, dims.w, dims.h);
-
-      cx.beginPath();
-      cx.moveTo(left, top);
-      cx.lineTo(left+margin, top);
-      cx.stroke();
-  
-      cx.beginPath();
-      cx.moveTo(left+margin+warp_width, top);
-      cx.lineTo(left+dims.w, top);
-      cx.stroke();
-     
-      cx.lineWidth = warp_width;
-      cx.strokeStyle = (view === "yarn" && warp_shuttle.type === 0) ? warp_shuttle.getColor()+"10" : warp_shuttle.getColor();
-
-      cx.beginPath();
-      cx.moveTo(left+dims.w/2, top-dims.h/2);
-      cx.lineTo(left+dims.w/2, top+dims.h/2);
-      cx.stroke();
-
-  }
 
   /**
    * called on scroll
@@ -1806,32 +1519,6 @@ public drawWeftEnd(draft: Draft, top:number, left:number, shuttle:Shuttle){
    }
 
 
-  public drawWarpsOver(draft: Draft){
-
-
-    for (var i = 0; i < this.render.visibleRows.length ; i++) {
-       
-        const row_index = this.render.visibleRows[i];
-        const row_values = draft.drawdown[row_index];
-        
-
-        let overs = [];
-        if(this.render.isFront()){
-          overs = row_values.reduce((overs, v, idx) => v.isUp() ? overs.concat([idx]) : overs, []);
-        }else{
-          overs = row_values.reduce((overs, v, idx) => !v.isUp() ? overs.concat([idx]) : overs, []);
-        }
-
-        for(var o in overs){
-            const shuttle_id = draft.colShuttleMapping[overs[o]];
-            const system_id = draft.colSystemMapping[overs[o]];
-            if(this.ss.warp_systems[system_id].isVisible()) this.drawWeftUp(draft, i, overs[o], this.ms.getShuttle(shuttle_id));
-        }
-
-    }
-
-
-  }
 
   
 
@@ -2070,8 +1757,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       var shuttle = this.ms.getShuttle(id);
 
       if(system !== undefined && system.visible){
-          var c = shuttle.getColor();
-          var t = shuttle.getThickness();
+          var c = shuttle.color;
+          var t = shuttle.thickness;
           var center = base_dims.w/2;
 
 
@@ -2559,7 +2246,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     let width = this.selection.getWidth();
     let height = this.selection.getHeight();
-    draft.drawdown = pasteIntoDrawdown(draft.drawdown,[[new Cell(b)]],this.selection.getStartingRowScreenIndex(),this.selection.getStartingColIndex(), width, height);
+    draft.drawdown = pasteIntoDrawdown(draft.drawdown,[[createCell(b)]],this.selection.getStartingRowScreenIndex(),this.selection.getStartingColIndex(), width, height);
     
     switch(this.selection.getTargetId()){    
       case 'drawdown':
@@ -2610,34 +2297,34 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       return flipDraft(copy_draft, flips.horiz, flips.vert)
       .then(flipped_draft => {
 
-        switch(type){
-          case 'invert':
-            op = this.ops.getOp('invert');
-            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-          break;
-          case 'mirrorX':
-            op = this.ops.getOp('flip horiz');
-            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-            break;
-          case 'mirrorY':
-            op = this.ops.getOp('flip vert');
-            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-            break;
-          case 'shiftLeft':
-            op = this.ops.getOp('shift left');
-            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
-            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-            break;
-          case 'shiftUp':
-            op = this.ops.getOp('shift up');
-            inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
-            inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-            break;
-        }
-        return op.perform(inputs);
+        // switch(type){
+        //   case 'invert':
+        //     op = this.ops.getOp('invert');
+        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+        //   break;
+        //   case 'mirrorX':
+        //     op = this.ops.getOp('flip horiz');
+        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+        //     break;
+        //   case 'mirrorY':
+        //     op = this.ops.getOp('flip vert');
+        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+        //     break;
+        //   case 'shiftLeft':
+        //     op = this.ops.getOp('shift left');
+        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
+        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+        //     break;
+        //   case 'shiftUp':
+        //     op = this.ops.getOp('shift up');
+        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
+        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+        //     break;
+        // }
+        // return op.perform(inputs);
       })
       .then(res => {
         return flipDraft(res[0], flips.horiz, flips.vert);
@@ -2745,7 +2432,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
          pattern = []; 
           for(let j = 0; j < this.copy[0].length; j++){
-              const assigned_to = this.copy.findIndex(sys => sys[j].getHeddle() == true);
+              const assigned_to = this.copy.findIndex(sys => getCellValue(sys[j]) == true);
               pattern.push(assigned_to);
            }
             mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
@@ -2765,7 +2452,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
         pattern = []; 
         for(let j = 0; j < this.copy[0].length; j++){
-            const assigned_to = this.copy.findIndex(sys => sys[j].getHeddle() == true);
+            const assigned_to = this.copy.findIndex(sys => getCellValue(sys[j]) == true);
             pattern.push(assigned_to);
          }
           mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
@@ -2787,7 +2474,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
           pattern = []; 
           for(let i = 0; i < this.copy.length; i++){
-              const assigned_to = this.copy[i].findIndex(sys => sys.getHeddle() == true);
+              const assigned_to = this.copy[i].findIndex(sys => getCellValue(sys) == true);
               pattern.push(assigned_to);
            }
             mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
@@ -2808,7 +2495,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           
             pattern = []; 
             for(let i = 0; i < this.copy.length; i++){
-                const assigned_to = this.copy[i].findIndex(sys => sys.getHeddle() == true);
+                const assigned_to = this.copy[i].findIndex(sys => getCellValue(sys) == true);
                 pattern.push(assigned_to);
              }
               mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);

@@ -1,5 +1,5 @@
-import { Cell } from "./cell";
-import { Draft, Drawdown, YarnFloat } from "./datatypes";
+import { createCell, getCellValue, setCellValue } from "./cell";
+import { Draft, Drawdown, YarnFloat, Cell } from "./datatypes";
 import utilInstance from "./util";
 
 /**
@@ -84,7 +84,7 @@ import utilInstance from "./util";
     d.rowSystemMapping.push(0);
     d.rowShuttleMapping.push(1);
     for(let j = 0; j < params.warps; j++){
-      d.drawdown[i][j] = new Cell(false);
+      d.drawdown[i][j] =  createCell(false);
     }
   }
 
@@ -96,7 +96,9 @@ import utilInstance from "./util";
   if(params.drawdown !== undefined){
     d.drawdown.forEach((row, i) => {
       row.forEach((cell, j) => {
-       cell.setHeddle(params.drawdown[i%wefts(params.drawdown)][j%warps(params.drawdown)].getHeddle());
+      cell = setCellValue(cell, getCellValue(params.drawdown[i%wefts(params.drawdown)][j%warps(params.drawdown)]));
+
+
       })
     })
   }
@@ -211,8 +213,7 @@ export const createDraft = (
     for(var i = 0; i < wefts(pattern); i++) {
         drawdown.push([]);
         for (var j = 0; j < warps(pattern); j++){
-          drawdown[i][j]= new Cell(null);
-          drawdown[i][j].reloadCell(pattern[i][j]); //this takes a cell param and updates from there
+          drawdown[i][j]= createCell(pattern[i][j]);
         }
     }
     return drawdown;
@@ -262,7 +263,7 @@ export const createDraft = (
   export const isUp = (d: Drawdown, i:number, j:number) : boolean =>{
     //console.log("is up", i, j, wefts(d), warps(d), d[i][j]);
     if ( i > -1 && i < wefts(d) && j > -1 && j < warps(d)) {
-      return d[i][j].isUp();
+      return d[i][j].is_set && d[i][j].is_up;
     } else {
       return false;
     }
@@ -277,7 +278,7 @@ export const createDraft = (
    */  
   export const isSet = (d: Drawdown, i:number, j:number) : boolean => {
     if ( i > -1 && i < wefts(d) && j > -1 && j < warps(d)) {
-      return d[i][j].isSet();
+      return d[i][j].is_set;
     } else {
       return false;
     }
@@ -293,7 +294,7 @@ export const createDraft = (
    * @returns 
    */
   export const setHeddle = (d:Drawdown, i:number, j:number, bool:boolean) : Drawdown => {
-      d[i][j].setHeddle(bool);
+      d[i][j] = setCellValue( d[i][j], bool);
       return d;
   }
 
@@ -306,7 +307,7 @@ export const createDraft = (
    */
   export const getHeddle = (d: Drawdown, i: number, j: number) : boolean => {
     if(i > wefts(d) || j > warps(d)) return null;
-    return d[i][j].getHeddle();
+    return getCellValue(d[i][j]);
   }
 
 
@@ -338,7 +339,7 @@ export const createDraft = (
     for (var i = 0; i < height; i++ ) {
       for (var j = 0; j < width; j++ ) {
         try{
-          drawdown[start_i+i][start_j+j].setHeddle(fill_pattern[i % rows][j % cols].getHeddle());
+          drawdown[start_i+i][start_j+j] = createCell(getCellValue(fill_pattern[i % rows][j % cols]));
         }catch(e){
           console.error(e);
         }
@@ -361,7 +362,7 @@ export const createDraft = (
     for(let i = 0; i < wefts; i++){
       drawdown.push([]);
       for(let j = 0; j < warps; j++){
-        drawdown[i].push(new Cell(false));
+        drawdown[i].push(createCell(false));
       }
     } 
     return drawdown;
@@ -379,9 +380,9 @@ export const createDraft = (
     const res = createBlankDrawdown(wefts(mask), warps(mask));
     for(let i = 0; i < wefts(mask); i++){
       for(let j = 0; j < warps(mask); j++){
-        if(mask[i][j].getHeddle()){
-          const set_to = pattern[i%wefts(pattern)][j%warps(pattern)].getHeddle();
-          res[i][j].setHeddle(set_to);
+        if(getCellValue(mask[i][j])){
+          const set_to = getCellValue(pattern[i%wefts(pattern)][j%warps(pattern)]);
+          res[i][j] = createCell(set_to);
         }
         
       }
@@ -399,9 +400,9 @@ export const createDraft = (
     const inverted = drawdown.slice();
     for(let i = 0; i < wefts(drawdown); i++){
       for(let j = 0; j < warps(drawdown); j++){
-        if(drawdown[i][j].isSet()){
-          const set_to = !drawdown[i][j].getHeddle();
-          inverted[i][j].setHeddle(set_to);
+        if(drawdown[i][j].is_set){
+          const set_to = !getCellValue(drawdown[i][j]);
+          inverted[i][j] = createCell(set_to);
         }
         
       }
@@ -422,9 +423,9 @@ export const createDraft = (
       for(let i = 0; i < wefts(drawdown); i++){
         for(let j = 0; j < warps(drawdown); j++){
             let set_to = false;
-            if(up)  set_to = drawdown[(i+inc)%wefts(drawdown)][j].getHeddle();
-            else set_to = drawdown[i][(j+inc)%warps(drawdown)].getHeddle();
-            shifted[i][j].setHeddle(set_to);
+            if(up)  set_to = getCellValue(drawdown[(i+inc)%wefts(drawdown)][j]);
+            else set_to = getCellValue(drawdown[i][(j+inc)%warps(drawdown)]);
+            shifted[i][j] = createCell(set_to);
         }
       } 
       return shifted;
@@ -444,9 +445,9 @@ export const createDraft = (
     for(let i = 0; i < wefts(drawdown); i++){
       for(let j = 0; j < warps(drawdown); j++){
           let set_to = false;
-          if(horiz)  set_to = drawdown[i][warps(drawdown)-1-j].getHeddle();
-          else set_to = drawdown[wefts(drawdown)-1 - i][j].getHeddle();
-          flip[i][j].setHeddle(set_to);
+          if(horiz)  set_to = getCellValue(drawdown[i][warps(drawdown)-1-j]);
+          else set_to = getCellValue(drawdown[wefts(drawdown)-1 - i][j]);
+          flip[i][j] = createCell(set_to);
       }
     } 
     return flip;
@@ -545,7 +546,7 @@ export const createDraft = (
     if(row === null){
       row = [];
       for (var j = 0; j < warps(d); j++) {
-        row.push(new Cell(false));
+        row.push(createCell(false));
       }
     }
     if(row.length !== warps(d)) console.error("inserting row of incorrect length into drawdown");
@@ -625,11 +626,11 @@ export const createDraft = (
     if(col == null){
       col = [];
       for(let i = 0; i < wefts(d); i++){
-        col.push(new Cell(false));
+        col.push(createCell(false));
       }
     }
     for (var ndx = 0; ndx < wefts(d); ndx++) {
-      d[ndx].splice(j, 0, new Cell(col[ndx].getHeddle()));
+      d[ndx].splice(j, 0, createCell(getCellValue(col[ndx])));
     }
     return d;
   }
@@ -681,7 +682,7 @@ export const createDraft = (
   export const getCol = (d: Drawdown, j: number) : Array<Cell> => {
 
     const col = d.reduce((acc, val, i) =>{
-      const cell = new Cell(d[i][j].getHeddle());
+      const cell = createCell(getCellValue(d[i][j]));
       acc.push(cell);
       return acc;
     }, []);
@@ -736,7 +737,7 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
     for(let j = 0; j < warps(d.drawdown); j++){
       let flipped_j = j;
       if(horiz) flipped_j = warps(d.drawdown) -1 -j;
-      draft.drawdown[i][j].setHeddle(d.drawdown[flipped_i][flipped_j].getHeddle()); 
+      draft.drawdown[i][j] = createCell(getCellValue(d.drawdown[flipped_i][flipped_j])); 
     }
 
     draft.rowShuttleMapping[i] = d.rowShuttleMapping[flipped_i];
@@ -767,7 +768,7 @@ export const getFloatLength = (complete: Array<Cell>, start: number, val: boolea
   }
 
   let j = start;
-  while( j < complete.length && complete[j].getHeddle() == val){
+  while( j < complete.length && getCellValue(complete[j]) == val){
     f.total_length++;
     j++;
   }
@@ -791,7 +792,7 @@ export const createWeftFloatMap = (drawdown: Drawdown) : {float_list: Array<{id:
 
     let j = 0;
     while(j < warps(drawdown)){
-      let f:YarnFloat = getFloatLength(row, j, row[j].getHeddle());
+      let f:YarnFloat = getFloatLength(row, j, getCellValue(row[j]));
       let f_id = float_list.length;
       float_list.push({id: f_id, float: f })
       for(let x = j; x < j+f.total_length; x++){
@@ -803,5 +804,9 @@ export const createWeftFloatMap = (drawdown: Drawdown) : {float_list: Array<{id:
   });
 
   return {float_list, float_map};
+}
+
+function getCellVallue(arg0: Cell) {
+  throw new Error("Function not implemented.");
 }
 

@@ -1,11 +1,10 @@
 import { Component, OnInit, Inject, EventEmitter, Output } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Shuttle } from '../../../core/model/shuttle';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import utilInstance from '../../model/util';
-import { Draft,DraftNode } from '../../model/datatypes';
+import { Draft,DraftNode, Material } from '../../model/datatypes';
+import { createMaterial, setMaterialID } from '../../model/material';
 
 
 @Component({
@@ -23,7 +22,7 @@ export class MaterialModal{
 
   replacements: Array<number> = [];
   types: any;
-  newshuttle: Shuttle = new Shuttle();
+  newshuttle: Material = createMaterial();
   addmaterial: boolean = false;
 
   constructor(
@@ -85,9 +84,9 @@ export class MaterialModal{
 
   addNewShuttle(){
     console.log(this.newshuttle);
-    this.newshuttle.setID(this.ms.getShuttles().length);
+    setMaterialID(this.newshuttle,this.ms.getShuttles().length);
     this.ms.addShuttle(this.newshuttle);
-    this.newshuttle = new Shuttle();
+    this.newshuttle = createMaterial();
   }
 
   // close() {

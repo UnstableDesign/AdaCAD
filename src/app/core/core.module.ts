@@ -38,7 +38,6 @@ import { AboutModal } from './modal/about/about.modal';
 import { InitModal } from './modal/init/init.modal';
 import { LoomModal } from './modal/loom/loom.modal';
 import { MaterialModal } from './modal/material/material.modal';
-import { FilterPipe } from './pipe/filter.pipe';
 import { ProfileComponent } from './profile/profile.component';
 import { AuthService } from './provider/auth.service';
 import { FileService } from './provider/file.service';
@@ -93,7 +92,6 @@ import { DefaultsService } from './provider/defaults.service';
         MatBadgeModule
     ],
     declarations: [
-        FilterPipe,
         UploadFormComponent,
         TopbarComponent,
         InitModal,
@@ -151,7 +149,6 @@ import { DefaultsService } from './provider/defaults.service';
         ScrollingModule,
         MatBadgeModule,
         DragDropModule,
-        FilterPipe,
         UploadFormComponent,
         TopbarComponent,
         InitModal,

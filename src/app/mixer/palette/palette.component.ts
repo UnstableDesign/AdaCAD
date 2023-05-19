@@ -1,7 +1,8 @@
 import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point } from '../../core/model/datatypes';
+import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
+import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point, Cell} from '../../core/model/datatypes';
 import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
@@ -10,11 +11,9 @@ import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
-import { Shape } from '../model/shape';
 import { MultiselectService } from '../provider/multiselect.service';
 import { ViewportService } from '../provider/viewport.service';
 import { ZoomService } from '../provider/zoom.service';
-import { Cell } from './../../core/model/cell';
 import { FileService } from './../../core/provider/file.service';
 import { ConnectionComponent } from './connection/connection.component';
 import { MarqueeComponent } from './marquee/marquee.component';
@@ -1055,24 +1054,24 @@ handlePan(diff: Point){
   private setCell(ndx: Interlacement){
 
     const rel: Interlacement = this.getRelativeInterlacement(ndx);
-    const c: Cell = this.scratch_pad[rel.i][rel.j];
+    let c: Cell = this.scratch_pad[rel.i][rel.j];
 
     const selected: string = this.dm.getSelectedDesignMode('draw_modes').value;
 
     switch(selected){
       case 'toggle':
-        const cur: boolean = c.getHeddle();
-        if(cur == null)  c.setHeddle(true);
-        else c.setHeddle(!cur);
+        const cur: boolean = getCellValue(c);
+        if(cur == null)  c = setCellValue(c, true);
+        else c = setCellValue(c, !cur)
         break;
       case 'down':
-        c.setHeddle(false);
+        c = setCellValue(c, false)
         break;
       case 'up':
-        c.setHeddle(true);
+        c = setCellValue(c, true)
       break;
       case 'unset':
-        c.setHeddle(null);
+        c = setCellValue(c, null);
       break;
     }
 
@@ -1114,7 +1113,7 @@ handlePan(diff: Point){
    */
   private computeCellValue(ink: string, over: Cell, under: boolean): boolean{
     
-    let res: boolean = utilInstance.computeFilter(ink, over.getHeddle(), under);
+    let res: boolean = utilInstance.computeFilter(ink, getCellValue(over), under);
     return res;   
   }
 
@@ -1989,80 +1988,6 @@ shapeDragged(mouse: Point, shift: boolean){
   }
 }
 
-/**
- * converts the shape on screen to a component
- */
-processShapeEnd() : Promise<any> {
-
-  this.closeSnackBar();
-
-  //if circle, the topleft functoins as the center and the bounsd need to expand to fit the entire shape 
-  if(this.dm.isSelected('fill_circle', 'shapes') || this.dm.isSelected('stroke_circle', 'shapes')){
-    this.shape_bounds.topleft.x -=  this.shape_bounds.width;
-    this.shape_bounds.topleft.y -=  this.shape_bounds.height;
-    this.shape_bounds.width *=2;
-    this.shape_bounds.height *= 2;
-  }else if(this.dm.isSelected('free','shapes')){
-    
-    if(this.shape_vtxs.length === 0) return;
-      //default to current segment
-    let top = this.shape_bounds.topleft.y;
-    let left = this.shape_bounds.topleft.x;
-    let bottom = this.shape_bounds.topleft.y +this.shape_bounds.height;
-    let right = this.shape_bounds.topleft.x +this.shape_bounds.width;
-    
-    //iteraate through the poitns and find the leftmost and topmost 
-    for(let i = 1; i < this.shape_vtxs.length; i++ ){
-        if(this.shape_vtxs[i].y < top) top = this.shape_vtxs[i].y;
-        if(this.shape_vtxs[i].x < left) left = this.shape_vtxs[i].x;
-        if(this.shape_vtxs[i].y > bottom) bottom = this.shape_vtxs[i].y;
-        if(this.shape_vtxs[i].x > right) right = this.shape_vtxs[i].x;
-    }
-
-    this.shape_bounds.topleft = {x: left, y: top};
-    this.shape_bounds.width = right - left;
-    this.shape_bounds.height = bottom - top;
-
-    this.shape_vtxs = [];
-    
-  }else{
-    if( this.shape_bounds.width < 0){
-      this.shape_bounds.width = Math.abs(this.shape_bounds.width);
-      this.shape_bounds.topleft.x-= this.shape_bounds.width
-    }  
-
-    if( this.shape_bounds.height < 0){
-      this.shape_bounds.height = Math.abs(this.shape_bounds.height);
-      this.shape_bounds.topleft.y-= this.shape_bounds.height
-    }  
-  }
-
-  const shape: Shape = new Shape(this.canvas, this.shape_bounds, this.zs.zoom); 
-  //const img_data = shape.getImageData();
-  // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  // this.cx.putImageData(img_data, 0, 0);
-  const pattern: Array<Array<Cell>> = shape.getDraft();
-
-  const wefts: number = pattern.length;
-  if(wefts <= 0) return;
-  const warps: number = pattern[0].length;
-
-  this.shape_bounds.topleft.x += this.viewport.getTopLeft().x;
-  this.shape_bounds.topleft.y += this.viewport.getTopLeft().y;
-  
-
-  return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
-  .then(sd => {
-    sd.setPosition(this.shape_bounds.topleft);
-    // sd.setComponentSize(this.shape_bounds.width, this.shape_bounds.height);
-    const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.topleft, this.zs.zoom); 
-    this.viewport.addObj(sd.id, interlacement);
-    this.addTimelineState();
-  }).catch(console.error);
-  
-
-  
-}
 
 /**
  * clears the scratchpad for the new drawing event
@@ -2076,7 +2001,7 @@ drawStarted(){
   for(let i = 0; i < this.canvas.height; i+=this.zs.zoom ){
       const row = [];
       for(let j = 0; j< this.canvas.width; j+=this.zs.zoom ){
-          row.push(new Cell(null));
+          row.push(createCell(null));
       }
     this.scratch_pad.push(row);
     }
@@ -2097,7 +2022,7 @@ drawStarted(){
 
     for(let i = 0; i < this.scratch_pad.length; i++ ){
       for(let j = 0; j<  this.scratch_pad[0].length; j++){
-        if((this.scratch_pad[i][j].isSet())){
+        if((this.scratch_pad[i][j].is_set)){
           if(i < top) top = i;
           if(j < left) left = j;
           if(i > bottom) bottom = i;
@@ -2142,7 +2067,7 @@ drawStarted(){
       for(let j = 0; j< warps; j++){
         const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
         const b = this.getScratchpadProduct({i:i, j:j, si:-1}, this.inks.getSelected(),c);
-        pattern[i].push(new Cell(b));
+        pattern[i].push(createCell(b));
       }
     }
 
@@ -2875,8 +2800,8 @@ drawStarted(){
     
             const p = {x: left, y: top};
             const val = this.computeHeddleValue(p, primary, isect);
-            if(val != null) temp.drawdown[i][j].setHeddle(val);
-            else temp.drawdown[i][j].unsetHeddle();
+            if(val != null) temp.drawdown[i][j] = setCellValue(temp.drawdown[i][j], val);
+            else setCellValue(temp.drawdown[i][j], null);
           }
         }
         return temp;

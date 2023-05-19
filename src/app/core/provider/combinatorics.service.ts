@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
-import { Cell } from '../model/cell';
-import { Draft } from '../model/datatypes';
+import { createCell, getCellValue, setCellValue } from '../model/cell';
+import { Draft, Cell } from '../model/datatypes';
 import { initDraftWithParams } from '../model/drafts';
 
 
@@ -164,7 +164,7 @@ export class CombinatoricsService {
     
         for(let i = 0; i < wefts; i++){
           for(let j = 0; j < warps; j++){
-            if(i == 0) draft.drawdown[i][j].setHeddle((opt[j] == 0) ? false: true);
+            if(i == 0) draft.drawdown[i][j] = setCellValue(draft.drawdown[i][j], ((opt[j] == 0) ? false: true));
           }
         }
         
@@ -265,7 +265,7 @@ export class CombinatoricsService {
 
     let set = [];
     for(let j = 0; j < i; j++){
-      set.push(draft.drawdown[i][j].getHeddle() ? 1 : 0);
+      set.push(getCellValue(draft.drawdown[i][j]) ? 1 : 0);
     }
     //console.log("Generated set ", set, );
 
@@ -278,7 +278,7 @@ export class CombinatoricsService {
       pattern = draft.drawdown.slice();
       //add to the draft and push
       for(let j = 0; j < n; j++){
-        pattern[i][j] = (opt[j] == 0) ? new Cell(false) : new Cell(true);
+        pattern[i][j] = (opt[j] == 0) ? createCell(false) : createCell(true);
       }
 
       expanded_drafts.push(initDraftWithParams({warps: n, wefts: n, pattern: pattern.slice()}));
@@ -296,7 +296,7 @@ export class CombinatoricsService {
 
     let set = [];
     for(let i = 0; i < (j+1); i++){
-      set.push(draft.drawdown[i][j].getHeddle() ? 1 : 0);
+      set.push(getCellValue(draft.drawdown[i][j]) ? 1 : 0);
     }
 
     let opts = this.getOptions(set, tree);
@@ -308,7 +308,7 @@ export class CombinatoricsService {
       pattern = draft.drawdown.slice();
       //add to the draft and push
       for(let i = 0; i < n; i++){
-        pattern[i][j] = (opt[i] == 0) ? new Cell(false) : new Cell(true);
+        pattern[i][j] = (opt[i] == 0) ? createCell(false) : createCell(true);
       }
 
       expanded_drafts.push(initDraftWithParams({warps: n, wefts: n, pattern: pattern.slice()}));

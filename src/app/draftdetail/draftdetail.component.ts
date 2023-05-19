@@ -3,8 +3,7 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
-import { Cell } from '../core/model/cell';
-import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
+import { Draft, Drawdown, Loom, LoomSettings, Cell } from '../core/model/datatypes';
 import { generateMappingFromPattern } from '../core/model/drafts';
 import { isFrame } from '../core/model/looms';
 import { RenderService } from './provider/render.service';
@@ -19,6 +18,7 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { CrosssectionComponent } from './crosssection/crosssection.component';
 import { SimulationComponent } from './simulation/simulation.component';
+import { createCell } from '../core/model/cell';
 
 
 
@@ -107,7 +107,7 @@ export class DraftDetailComponent implements OnInit {
     });
 
 
-    this.copy = [[new Cell(false)]];
+    this.copy = [[createCell(false)]];
     this.dm.selectDesignMode('draw', 'design_modes');
     this.dm.selectDesignMode('toggle', 'draw_modes');
 

@@ -8,8 +8,8 @@ import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/a
 import {MatChipInputEvent} from '@angular/material/chips';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
-import { System } from '../../core/model/system';
 import { TreeService } from '../../core/provider/tree.service';
+import { System } from '../../core/model/datatypes';
 
 @Component({
   selector: 'app-actions',
@@ -115,7 +115,7 @@ export class ActionsComponent implements OnInit {
 
 
     for(var i = 0; i < this.ms.getShuttles().length; i++){
-      let s_name = this.ms.getShuttle(i).getName().toLowerCase();
+      let s_name = this.ms.getShuttle(i).name.toLowerCase();
       if(s_name.localeCompare(s.toLowerCase()) === 0) return i;
     }
     return -1;

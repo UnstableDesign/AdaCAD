@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
-import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVals, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
 import { copyDraft, createDraft, flipDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -119,8 +119,6 @@ export class TreeService {
         let static_inputs = op.inlets.filter(el => el.type === 'static');
         let num_dynamic_inlets = inlets.length - static_inputs.length;
         let matches = [];
-
-        console.log("DYNAMIC PARAM _TYPE ", type)
 
         switch(type){
 
@@ -1381,12 +1379,13 @@ isValidIOTuple(io: IOTuple) : boolean {
   if(op === null || op === undefined) return Promise.reject("Operation is null")
 
   let inputs: Array<OpInput> = [];
-
+  let param_vals: OpParamVals = null;
   //if(this.ops.isDynamic(opnode.name)){
     
     //first push the parent params
 
-    inputs.push({op_name: op.name, drafts: [], inlet: -1, params: opnode.params});
+
+    param_vals = {op_name: op.name, params: opnode.params};
 
     const flip_fns = [];
     const draft_id_to_ndx = [];
@@ -1417,16 +1416,20 @@ isValidIOTuple(io: IOTuple) : boolean {
             console.error("Draft not found in flipped", flipped_drafts,draft_id_to_ndx, el);
             return undefined;
           } 
-          else return {op_name:'child', drafts: [draft], inlet: el.ndx, params: [opnode.inlets[el.ndx]]}
+          else return {drafts: [draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
         })
       
-      const cleaned_inputs = paraminputs.filter(el => el != undefined);
+      const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el != undefined);
 
       inputs = inputs.concat(cleaned_inputs);
-      return op.perform(inputs);
+      return op.perform(param_vals, inputs);
 
     })
     .then(res => {
+          
+          res.forEach(draft => {
+            draft.gen_name = op.generateName(param_vals, inputs);
+          })
           const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
           return Promise.all(res.map(el => flipDraft(el,  flips.horiz, flips.vert)));
       })

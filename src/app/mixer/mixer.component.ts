@@ -4,8 +4,6 @@ import { Component, enableProdMode, HostListener, OnInit, Optional, ViewChild } 
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
-import { InitModal } from '../core/modal/init/init.modal';
-import { Cell } from '../core/model/cell';
 import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { copyDraft, flipDraft, initDraftWithParams } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
@@ -34,6 +32,7 @@ import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { MatDrawer } from '@angular/material/sidenav';
 import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
 import { RenderService } from '../draftdetail/provider/render.service';
+import { createCell } from '../core/model/cell';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -676,7 +675,7 @@ zoomChange(e:any, source: string){
       .filter(el => el.draft === null)
       .forEach(el => {
         if(this.tree.hasParent(el.id)){
-          el.draft = initDraftWithParams({warps: 1, wefts: 1, pattern: [[new Cell(false)]]});
+          el.draft = initDraftWithParams({warps: 1, wefts: 1, pattern: [[createCell(false)]]});
           el.draft.id = el.id;
         } else{
           console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));

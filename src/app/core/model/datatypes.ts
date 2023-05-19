@@ -4,8 +4,6 @@ import { ConnectionComponent } from "../../mixer/palette/connection/connection.c
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
-import { Cell } from "./cell";
-import { Shuttle } from "./shuttle";
 
 /**
  * This file contains all definitions of custom types and objects
@@ -41,6 +39,37 @@ export interface Draft{
   rowSystemMapping: Array<number>,
   colShuttleMapping: Array<number>,
   colSystemMapping: Array<number>,
+}
+
+export interface Cell{
+  is_set: boolean,
+  is_up: boolean
+}
+
+
+export interface System{
+  id: number;
+  name: string;
+  notes: string;
+  visible: boolean;
+  in_use: boolean;
+}
+
+
+
+export interface Material {
+  id: number;
+  name: string;
+  insert: boolean; //true is left, false is right
+  visible: boolean;
+  color: string;
+  thickness: number; //percentage of base dims
+  type: number;
+  diameter: number;
+  startLabel?: string;
+  endLabel?: string;
+  notes: string;
+
 }
 
 /**
@@ -170,58 +199,6 @@ export interface Note{
   width: number;
   height: number;
  }
-
-/****** OBJECTS/TYPES to CONTROL YARN SIMULATION ******/
-
-
-/**
- * Used to draw on screen paths, refers to x, y coordiantes relative to the draft simulation
- * Used only in yarn sim
- * @param x - x position rendered as a % of the total width
- * @param y - y position
- */
- export interface Vertex{
-  x_pcent: number;
-  y: number;
-}
-
-/**
- * Used to draw on screen paths, refers to x, y coordiantes relative to the draft simulation
- * Used only in yarn sim
- * @param draft_ndx - the row id within the draft of this yarn
- * @param material_id the material id at this row
- * @param verticies - list of points that form this path
- */
- export interface YarnPath{
-  draft_ndx: number;
-  material_id: number;
-  verticies: Array<Vertex>;
-}
-
-/**
- * describes the relationship between weft rows along the same warp
- */
- export type crossType = {t:boolean, b:boolean} |
-   {t:null, b:null} | //"FLOAT",
-   {t:null, b:true} | //"UNSET_UNDER"
-  {t:null, b:false} | //"UNSET_OVER"
-  {t:true, b:null} | //"UNDER_UNSET"
-  {t:false, b:null} | //"OVER_UNSET"
-  {t:false, b:true} | //"OVER_UNDER",
-  {t:true, b:false}; //"UNDER_OVER", 
-
-
-/**
- * A yarn cross describes the relationship betwen two draft cells
- * read from top to bottom. This is used within the sparce 
- * draft representation, stores only "warp" crossings
- */
- export interface Crossing{
-  j: number, 
-  type: crossType;
-}
-
-
 
 
 /**
@@ -364,7 +341,7 @@ export interface NodeComponentProxy{
   draft_nodes: Array<DraftNodeProxy>,
   ops: Array<any>,
   notes: Array<Note>,
-  materials: Array<Shuttle>,
+  materials: Array<Material>,
   scale: number
  }
 
@@ -525,41 +502,27 @@ export type StringParam = OperationParam & {
 }
 
 
-/**
- * A container operation that takes drafts with some parameter assigned to them 
- * @param name the internal name of this operation used for index (DO NOT CHANGE THESE NAMES!)
- * @param displayname the name to show the viewer 
- * @param params the parameters that one can directly input to the parent
- * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
- * @param dynamic_param_type the type of parameter that we look to generate
- * @param inlets the inlets available for input by default on this operation
- * @param dx the description of this operation
- * @param old_names referes to any prior name of this operation to aid when loading old files
- * @param perform a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
- */
-export interface DynamicOperation {
-  name: string,
-  params: Array<OperationParam>, 
-  dynamic_param_id: number,
-  dynamic_param_type: string,
-  inlets: Array<OperationInlet>,
-  old_names: Array<string>,
-  perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
-}
+ /**
+  * this containers the parameters associated with the operation
+  * @param op_name the name of the operation  input parameter
+  * @param params the parameters associated with this operation OR child input
+  */
+ export interface OpParamVals{
+  op_name: string,
+  params: Array<any>
+ }
 
 
  /**
-  * this is a type that contains a series of smaller operations held under the banner of one larger operation (such as layer)
-  * @param op_name the name of the operation or "child" if this is an assignment to an input parameter
-  * @param drafts the drafts associated with this input
-  * @param params the parameters associated with this operation OR child input
-  * @param inlets the index of the inlet for which the draft is entering upon
+  * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
+  * @param drafts the drafts (from zero to multiple) associated with this input
+  * @param params the parameters associated with this input
+  * @param inlet_id the index of the inlet for which the draft is entering upon
   */
   export interface OpInput{
-    op_name: string,
     drafts: Array<Draft>,
     params: Array<any>,
-    inlet: number
+    inlet_id: number
    }
   
 /**
@@ -571,14 +534,29 @@ export interface DynamicOperation {
  * @param inets the inlets associated with this operation
  * @param old_names referes to any prior name of this operation to aid when loading old files
  * @param perform a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
+ * @param generateName a function that computes the system provided name default based on the inputs
  */
-export interface Operation {
+export type Operation = {
     name: string,
     params: Array<OperationParam>,
     inlets: Array<OperationInlet>,
     old_names: Array<string>,
-    perform: (op_inputs: Array<OpInput>) => Promise<Array<Draft>>
+    perform: (op_settings: OpParamVals, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
+    generateName: (op_settings: OpParamVals, op_inputs: Array<OpInput>) => string
  }
+
+ /**
+ * A container operation that takes drafts with some parameter assigned to them 
+ * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
+ * @param dynamic_param_type the type of parameter that we look to generate
+ * @param onParamChange a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
+ */
+export type DynamicOperation = Operation &  {
+  dynamic_param_id: number,
+  dynamic_param_type: string,
+  onParamChange: (opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) => Promise<Array<any>>;
+  perform: (param_vals: OpParamVals, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
+}
 
 
 

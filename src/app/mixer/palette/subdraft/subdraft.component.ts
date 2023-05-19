@@ -481,7 +481,7 @@ export class SubdraftComponent implements OnInit {
     
     const draft = this.tree.getDraft(this.id);
 
-    if(!draft.drawdown[coords.i][coords.j].isSet()) return null;
+    if(!draft.drawdown[coords.i][coords.j].is_set) return null;
     
     return isUp(draft.drawdown, coords.i, coords.j);
   

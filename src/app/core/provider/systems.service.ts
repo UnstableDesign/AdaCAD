@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Draft } from '../model/datatypes';
-import { System } from '../model/system';
-import utilInstance from '../model/util';
+import { Draft, System } from '../model/datatypes';
+import { createSystem } from '../model/system';
 
 @Injectable({
   providedIn: 'root'
@@ -19,12 +18,12 @@ export class SystemsService {
   constructor() { 
 
     for(let i = 0; i < 26; i++){
-      const weft = new System();
+      const weft = createSystem();
       weft.id = i; 
       weft.name = String.fromCharCode(i+97);
       this.weft_systems.push(weft);
 
-      const warp = new System();
+      const warp = createSystem();
       warp.id = i; 
       warp.name = ""+(i+1);
       this.warp_systems.push(warp);
@@ -79,11 +78,11 @@ export class SystemsService {
   }
 
   weftSystemIsVisible(id: number){
-    return this.weft_systems[id].isVisible();
+    return this.weft_systems[id].visible;
   }
 
   warpSystemIsVisible(id: number){
-    return this.warp_systems[id].isVisible();
+    return this.warp_systems[id].visible;
   }
 
     /**
@@ -188,75 +187,6 @@ export class SystemsService {
    return  system.name;
  }
 
- /**
-   * takes system maps and makes them all unique by adding a base value to the n+1th map. This helps when interlacing 
-   * drafts that have different system mappings, and making sure they are each unique. 
-   * This function will also return standard sized arrays = to the maximum sized input
-   * @param systems the system mappings to compare
-   */
-  private makeSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
-   
 
-     if(systems.length === 0) return [];
-
-
-    const max_in_systems: Array<number> = systems.map(el => utilInstance.getArrayMax(el));
-   
-    let last_max = 0;
-    const unique_systems = systems.map((sys, ndx) => {
-      if(ndx > 0){
-        last_max += (max_in_systems[ndx -1]+1)
-        return sys.map(el => el + last_max);
-      }else{
-        return sys;
-      }
-    });  
-
-     //standardize teh lengths of all the returned arrays 
-     const max_length:number = unique_systems.reduce((acc, el) => {
-      const len = el.length;
-      if(len > acc) return len;
-      else return acc;
-    }, 0);
-
-
-    unique_systems.forEach((sys, ndx) => {
-      if(sys.length < max_length){
-        for(let i = sys.length; i < max_length; i++){
-          sys.push(sys[0]);
-        }
-      }
-    });
-
-    return unique_systems;
-  }
-
-  makeWeftSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
-
-    const unique = this.makeSystemsUnique(systems);
-
-    //add any weft systems required
-    unique.forEach(system => {
-      system.forEach(el => {
-        if(this.getWeftSystem(el) === undefined) this.addWeftSystemFromId(el);
-      })
-    })
-
-
-    return unique;
-  }
-
-  makeWarpSystemsUnique(systems: Array<Array<number>>) : Array<Array<number>> {
-
-    const unique = this.makeSystemsUnique(systems);
-
-    unique.forEach(system => {
-      system.forEach(el => {
-        if(this.getWarpSystem(el) === undefined) this.addWarpSystemFromId(el);
-      })
-    })
-
-    return unique;
-  }
 
 }

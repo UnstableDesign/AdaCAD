@@ -1,8 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Draft } from '../../core/model/datatypes';
-import { System } from '../../core/model/system';
-import utilInstance from '../../core/model/util';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { System } from '../../core/model/datatypes';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { SystemsService } from '../../core/provider/systems.service';
 import { RenderService } from '../provider/render.service';

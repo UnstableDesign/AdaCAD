@@ -6,6 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
 import { Draft, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
 import { warps, wefts } from '../model/drafts';
+import { getCellValue } from '../model/cell';
 
 
 @Injectable({
@@ -303,7 +304,7 @@ export class SimulationService {
     for(let i = 0; i < wefts(draft.drawdown); i++){
       for(let j = 0; j < warps(draft.drawdown); j++){
 
-       const col = (draft.drawdown[i][j].isUp()) ? 0 : 1;
+       const col = (getCellValue(draft.drawdown[i][j])==true) ? 0 : 1;
 
 
        alldata.push({

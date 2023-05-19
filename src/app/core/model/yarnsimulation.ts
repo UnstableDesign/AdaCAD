@@ -1,7 +1,7 @@
 
 import { MaterialsService } from "../provider/materials.service";
-import { Cell } from "./cell";
-import {  Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnVertex } from "./datatypes";
+import { getCellValue } from "./cell";
+import {  Cell, Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnVertex } from "./datatypes";
 import {warps, wefts } from "./drafts";
 
 
@@ -327,9 +327,9 @@ import {warps, wefts } from "./drafts";
   
   export const areInterlacement = (a: Cell, b: Cell) : boolean => {
 
-    if(a.getHeddle() == null || b.getHeddle() == null) return false;
+    if(getCellValue(a) == null || getCellValue(b) == null) return false;
 
-    if(a.getHeddle() != b.getHeddle()) return true;
+    if( getCellValue(a) != getCellValue(b)) return true;
 
     return false;
   }
@@ -337,7 +337,7 @@ import {warps, wefts } from "./drafts";
 
   export const getOrientation = (a: Cell, b: Cell) : boolean => {
 
-    if(a.getHeddle() == true && b.getHeddle() == false) return true;
+    if(getCellValue(a) == true && getCellValue(b) == false) return true;
     return false;
   }
 
@@ -958,9 +958,9 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     draft.drawdown[i].forEach((cell, j) => {
       if(j == 0){
         last_ndx = 0;
-        last_value = cell.isSet() && cell.isUp();
+        last_value = cell.is_set && cell.is_up;
       } else{
-        cur_value = cell.isSet() && cell.isUp();
+        cur_value = cell.is_set && cell.is_up;
         if(cur_value != last_value){
           ranges.push({j_left:last_ndx, j_right:j})
         }
@@ -1551,7 +1551,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         //if the the warp is interlacing with the weft at this position then we should consider its height
         if(layer_maps.warp[vtx.i][vtx.j] == layer_maps.weft[vtx.i][vtx.j]){
           
-          if(draft.drawdown[vtx.i][vtx.j].getHeddle() == true){
+          if(getCellValue(draft.drawdown[vtx.i][vtx.j]) == true){
             warp_heights[vtx.j].under += diam;
             warp_heights[vtx.j].over += 7*diam/8;
             active_y = warp_heights[vtx.j].under;
@@ -1683,7 +1683,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
   }
 
   export const getWeftOrientationVector = (draft: Draft, i: number, j: number) : number => {
-    return (draft.drawdown[i][j].isSet() && draft.drawdown[i][j].isUp()) ? 1 : -1; 
+    return (draft.drawdown[i][j].is_set && draft.drawdown[i][j].is_up) ? 1 : -1; 
 
   }
 
@@ -1887,7 +1887,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     //look across the row and make new interlacements
     let last_layer = layer_maps.weft[i][0];
-    let last_orientation = draft.drawdown[i][0].getHeddle();
+    let last_orientation = getCellValue(draft.drawdown[i][0]);
 
     weft_vtxs = addWeftInterlacement(draft, i, 0, last_layer, diam, sim, weft_vtxs).slice();
     indexs_added.push(0);
@@ -1898,7 +1898,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
        if(layer_maps.warp[i][j]==layer_maps.weft[i][j]){
 
         let layer_id:number = layer_maps.weft[i][j];
-        let orientation:boolean = draft.drawdown[i][j].getHeddle();
+        let orientation:boolean = getCellValue(draft.drawdown[i][j]);
         
         weft_vtxs = addWeftInterlacement(draft, i, j, layer_id, diam, sim, weft_vtxs).slice();
 
@@ -1984,7 +1984,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
             let dist = ((vtx.x-diam/2) - (last_vtx.x + last_diam/2));
             let arch_height = Math.min(10, dist*.2);
-            let direction = (draft.drawdown[i][last_vtx.j].isUp()) ? 1 : -1;
+            let direction = (getCellValue(draft.drawdown[i][last_vtx.j]) == true) ? 1 : -1;
             let new_vtx = {
               x: last_vtx.x+ dist/2,
               y: last_vtx.y,
