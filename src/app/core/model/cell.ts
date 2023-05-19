@@ -3,8 +3,12 @@ import { Cell } from "./datatypes";
 
 
 export const createCell = (setting: boolean) : Cell => {
-  const c:Cell = {is_up: false, is_set: false};
   
+  let c:Cell = {
+    is_set: false,
+    is_up: false
+  };
+
   if(setting === null || setting === undefined){
     c.is_set = false;
     c.is_up = false;

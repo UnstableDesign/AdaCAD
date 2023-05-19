@@ -42,7 +42,7 @@ export interface Draft{
 }
 
 export interface Cell{
-  is_set: boolean,
+  is_set: boolean;
   is_up: boolean
 }
 
@@ -471,13 +471,6 @@ export type FileParam = OperationParam & {
   process: (data: any) => Promise<Array<any>>;
 }
 
-/**
-* An extension of Param that handles extra requirements for select drafts as inputs
-* @param id draft id at this parameter --- unusued currently 
-*/
-export type DraftParam = OperationParam & {
-  id: number;
-}
 
 /**
 * An extension of Param that in intended to shape how inlets parse layer notation to generate inlets
@@ -507,9 +500,9 @@ export type StringParam = OperationParam & {
   * @param op_name the name of the operation  input parameter
   * @param params the parameters associated with this operation OR child input
   */
- export interface OpParamVals{
-  op_name: string,
-  params: Array<any>
+ export interface OpParamVal{
+  param: OperationParam,
+  val: any
  }
 
 
@@ -541,8 +534,8 @@ export type Operation = {
     params: Array<OperationParam>,
     inlets: Array<OperationInlet>,
     old_names: Array<string>,
-    perform: (op_settings: OpParamVals, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
-    generateName: (op_settings: OpParamVals, op_inputs: Array<OpInput>) => string
+    perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
+    generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string
  }
 
  /**
@@ -555,7 +548,7 @@ export type DynamicOperation = Operation &  {
   dynamic_param_id: number,
   dynamic_param_type: string,
   onParamChange: (opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) => Promise<Array<any>>;
-  perform: (param_vals: OpParamVals, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
+  perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 
 

@@ -1,6 +1,7 @@
 import { createCell, getCellValue } from "../../model/cell";
-import { Draft, NumParam, Operation, OpInput, OpParamVals } from "../../model/datatypes";
-import { initDraftWithParams, warps, wefts } from "../../model/drafts";
+import { Draft, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
+import { initDraftWithParams, setHeddle, warps, wefts } from "../../model/drafts";
+import { getOpParamValById } from "../../model/operations";
 
 
 const name = "tabbyder";
@@ -51,18 +52,18 @@ const params = [warps_raised, warps_lowered, base_pics, alt_pics];
   const inlets = [];
 
 
-const  perform = (param_vals: OpParamVals, op_inputs: Array<OpInput>) => {
+const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
-      const raised: number =param_vals.params[0];
-      const lowered: number =param_vals.params[1];
-      const rep: number =param_vals.params[2];
-      const alt_rep: number =param_vals.params[3];
+      const raised: number = getOpParamValById(0, param_vals);
+      const lowered: number = getOpParamValById(1, param_vals);;
+      const rep: number = getOpParamValById(2, param_vals);
+      const alt_rep: number = getOpParamValById(3, param_vals);
 
       const d: Draft = initDraftWithParams({warps: raised + lowered, wefts: rep+alt_rep});
 
       for(let i = 0; i < warps(d.drawdown); i++){
-        if(i < raised) d.drawdown[0][i] = createCell(true);
-        else d.drawdown[0][i] = createCell(false);
+        if(i < raised) d.drawdown = setHeddle(d.drawdown, 0, i, true);
+        else d.drawdown = setHeddle(d.drawdown, 0, i, false);
       }
 
       for(let i = 1; i < wefts(d.drawdown); i++){
@@ -80,7 +81,7 @@ const  perform = (param_vals: OpParamVals, op_inputs: Array<OpInput>) => {
   }   
 
 
-const generateName = (param_vals: OpParamVals, op_inputs: Array<OpInput>) : string => {
+const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
   return 'tabby';
 }
 

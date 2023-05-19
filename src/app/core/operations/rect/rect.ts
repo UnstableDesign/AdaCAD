@@ -1,7 +1,7 @@
 import { createCell } from "../../model/cell";
-import { Draft, NumParam, Operation, OperationInlet, OpInput, OpParamVals, Cell } from "../../model/datatypes";
-import { initDraftWithParams } from "../../model/drafts";
-import { parseOpInputNames } from "../../model/operations";
+import { Draft, NumParam, Operation, OperationInlet, OpInput, Cell, OpParamVal } from "../../model/datatypes";
+import { initDraft, initDraftWithParams } from "../../model/drafts";
+import { getInputDraft, getOpParamValById, parseOpInputNames } from "../../model/operations";
 
 
 const name = "rectangle";
@@ -41,28 +41,31 @@ const draft_inlet: OperationInlet = {
   const inlets = [draft_inlet];
 
 
-const  perform = (op_params: OpParamVals, op_inputs: Array<OpInput>) => {
+const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
-    const draft = (op_inputs.length !== 0 && op_inputs[0].drafts.length > 0) ? op_inputs[0].drafts[0] : initDraftWithParams({drawdown: [[createCell(true)]]});
+  let input_draft = getInputDraft(op_inputs);
 
-    const outputs: Array<Draft> = [];
-    const d: Draft = initDraftWithParams(
-      {warps: op_params.params[0], 
-        wefts: op_params.params[1], 
-        drawdown: draft.drawdown,
-        rowShuttleMapping: draft.rowShuttleMapping,
-        colShuttleMapping: draft.colShuttleMapping,
-        rowSystemMapping: draft.rowSystemMapping,
-        colSystemMapping: draft.colSystemMapping
-        });
+  if(input_draft == null){
+    input_draft = initDraftWithParams({drawdown: [[createCell(true)]]});
+  }
 
-    outputs.push(d);
+  console.log("INPUT DRAFT ", input_draft, op_params)
 
-    return Promise.resolve(outputs);
+  const d: Draft = initDraftWithParams(
+      {warps: getOpParamValById(0, op_params), 
+        wefts: getOpParamValById(1, op_params), 
+        drawdown: input_draft.drawdown,
+        rowShuttleMapping: input_draft.rowShuttleMapping,
+        colShuttleMapping: input_draft.colShuttleMapping,
+        rowSystemMapping: input_draft.rowSystemMapping,
+        colSystemMapping: input_draft.colSystemMapping
+    });
+
+    return Promise.resolve([d]);
   }   
 
-const generateName = (param_vals: OpParamVals, op_inputs: Array<OpInput>) : string => {
+const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 
   return 'rect('+parseOpInputNames(op_inputs)+")";
 }

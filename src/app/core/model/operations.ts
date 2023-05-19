@@ -1,7 +1,35 @@
-import { Draft, OpInput } from "./datatypes";
+import { Draft, OpInput, OpParamVal } from "./datatypes";
 import { generateMappingFromPattern, getDraftName, warps, wefts } from "./drafts";
 import { standardizeMaterialLists } from "./material";
 import { makeWarpSystemsUnique, makeWeftSystemsUnique } from "./system";
+
+
+export const operationHasInputs = (op_inputs : Array<OpInput>) : boolean => {
+    return op_inputs.length > 0; 
+}
+
+export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
+    if(!operationHasInputs(op_inputs)) return null;
+    else return op_inputs[0].drafts[0];
+}
+
+export const getOpParamValById = (id: number, params: Array<OpParamVal>) : any => {
+    
+    if(params.length > 0 && id < params.length){
+        return params[id].val;
+    }else{
+        return null
+    }
+}
+
+export const getOpParamValByName = (name: string, params: Array<OpParamVal>) : any => {
+    
+    const item = params.find(el => el.param.name == 'name');
+    if(item == undefined) console.error("CANNOT FIND OPERATION PARAMETER WITH NAME ", name);
+    return item;
+
+    
+}
 
 
 export const parseOpInputNames = (op_inputs: Array<OpInput>) : string  => {

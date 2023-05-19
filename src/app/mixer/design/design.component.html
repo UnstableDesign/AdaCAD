@@ -104,13 +104,13 @@
                         <h4>Application  </h4>
                         <p> {{op_desc.getOpApplication(op_name)}}</p>
 
-                        <h4 *ngIf="ops.getOp(op_name).params.length > 0"> Parameters </h4>
+                        <!-- <h4 *ngIf="ops.getOp(op_name) !== null && ops.getOp(op_name).params.length > 0"> Parameters </h4>
                         <ng-container *ngFor="let param of ops.getOp(op_name).params">
                             <h5>{{param.name}}</h5>
                             <p *ngIf="param.dx === undefined">{{op_desc.getParamDescription(param.name)}}</p>
                             <p *ngIf="param.dx !== undefined">{{param.dx}}</p>
 
-                        </ng-container>
+                        </ng-container> -->
 
 
                         <!-- {{op_desc.getOpApplication(op_name)}}
