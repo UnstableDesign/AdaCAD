@@ -44,7 +44,6 @@ const alt_pics: NumParam =
     dx: 'the number of pics upon which the repeat the alteranting pattern'
     };
 
-
 const params = [warps_raised, warps_lowered, base_pics, alt_pics];
 
 //INLETS

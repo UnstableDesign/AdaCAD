@@ -32,7 +32,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { ColorPickerModule } from 'ngx-color-picker';
-import { EmailComponent } from './email/email.component';
 import { LoginComponent } from './login/login.component';
 import { AboutModal } from './modal/about/about.modal';
 import { InitModal } from './modal/init/init.modal';
@@ -101,7 +100,6 @@ import { DefaultsService } from './provider/defaults.service';
         LoginComponent,
         SignupComponent,
         ProfileComponent,
-        EmailComponent,
         BlankdraftModal,
         ExamplesComponent,
         LoadfileComponent,

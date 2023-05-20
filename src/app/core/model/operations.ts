@@ -1,5 +1,5 @@
-import { Draft, OpInput, OpParamVal } from "./datatypes";
-import { generateMappingFromPattern, getDraftName, warps, wefts } from "./drafts";
+import { Draft, OperationInlet, OpInput, OpParamVal } from "./datatypes";
+import { generateMappingFromPattern, getDraftName, initDraftWithParams, warps, wefts } from "./drafts";
 import { standardizeMaterialLists } from "./material";
 import { makeWarpSystemsUnique, makeWeftSystemsUnique } from "./system";
 
@@ -13,19 +13,64 @@ export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
     else return op_inputs[0].drafts[0];
 }
 
+const returnDefaultValue = ( p: OpParamVal) : any => {
+    switch(p.param.type){
+        case 'boolean': 
+        return false;
+
+        case 'draft':
+            return null;
+
+        case 'file':
+            return null;
+        
+        case 'notation_toggle':
+            return false;
+        
+        case 'number':
+            return 0;
+        
+        case 'select':
+            return null;
+        
+        case 'string':
+            return '';
+    }
+}
+
+export const reduceToStaticInputs = (inlets: Array<OperationInlet>, inlet_vals: Array<any>) : Array<any> => {
+
+  let static_inputs = inlets.filter(el => el.type === 'static');
+  inlet_vals = inlet_vals.slice(0,static_inputs.length);
+
+  return inlet_vals;
+
+}
+
+
+
+
 export const getOpParamValById = (id: number, params: Array<OpParamVal>) : any => {
     
-    if(params.length > 0 && id < params.length){
+    if(params.length == 0) return null;
+
+    if(id < params.length){
         return params[id].val;
     }else{
-        return null
+    console.error("PARAM ID ", id, " NOT FOUND IN PARAMS ", params)
+     return returnDefaultValue(params[0]);
     }
 }
 
 export const getOpParamValByName = (name: string, params: Array<OpParamVal>) : any => {
-    
+    if(params.length == 0) return null;
+
     const item = params.find(el => el.param.name == 'name');
-    if(item == undefined) console.error("CANNOT FIND OPERATION PARAMETER WITH NAME ", name);
+    if(item == undefined){
+        console.error("CANNOT FIND OPERATION PARAMETER WITH NAME ", name);
+        return returnDefaultValue(params[0])
+    } 
+    
     return item;
 
     

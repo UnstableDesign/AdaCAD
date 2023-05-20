@@ -36,7 +36,9 @@ export const getSystemChar = (sys: System) : string => {
 }
 
 
-
+export const getSystemCharFromId = (id: number) : string => {
+  return String.fromCharCode(97 + id)
+}
  /**
    * takes system maps and makes them all unique by adding a base value to the n+1th map. This helps when interlacing 
    * drafts that have different system mappings, and making sure they are each unique. 

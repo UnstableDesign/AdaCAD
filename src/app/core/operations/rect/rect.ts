@@ -50,8 +50,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     input_draft = initDraftWithParams({drawdown: [[createCell(true)]]});
   }
 
-  console.log("INPUT DRAFT ", input_draft, op_params)
-
   const d: Draft = initDraftWithParams(
       {warps: getOpParamValById(0, op_params), 
         wefts: getOpParamValById(1, op_params), 

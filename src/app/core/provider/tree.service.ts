@@ -106,130 +106,147 @@ export class TreeService {
    onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
 
-
       const op = this.ops.getOp(name);
       const opnode = this.getOpNode(opid);
 
-      let param_type = op.params[param_id].type;
+      console.log("CALLING PARAM CHANGE ", op, opnode)
+
+      let param_vals:Array<OpParamVal> = opnode.params.map((el, ndx) =>  {
+       return  { op_name: name, param: op.params[ndx], val: el}
+      });
+
+      inlets = (<DynamicOperation> op).onParamChange(param_vals, op.inlets, inlets, param_id, param_val);
+      return inlets;
+  }
+
+//   onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
 
-      if(param_id === (<DynamicOperation>op).dynamic_param_id || param_type == 'notation_toggle'){
-        const type = (<DynamicOperation>op).dynamic_param_type;
+
+//     const op = this.ops.getOp(name);
+//     const opnode = this.getOpNode(opid);
+
+//     let param_type = op.params[param_id].type;
+
+
+//     if(param_id === (<DynamicOperation>op).dynamic_param_id || param_type == 'notation_toggle'){
+//       const type = (<DynamicOperation>op).dynamic_param_type;
+      
+//       let static_inputs = op.inlets.filter(el => el.type === 'static');
+//       let num_dynamic_inlets = inlets.length - static_inputs.length;
+//       let matches = [];
+
+//       switch(type){
+
+
+
+//         case 'notation':
+
+//           const system_parsing_regex = /.*?(.*?[a-xA-Z]+[\d]+).*?/i;
+
+//           if(param_id == 1 && param_val == 0){
+//             const string_to_parse = op.params[0].value;
+//             matches = utilInstance.parseRegex(opnode.params[0], (<StringParam> op.params[0]).regex);
+//             matches = matches.map(el => el.slice(1, -1))
+//             matches = matches.reduce((acc, val) => {
+//               const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
+//               return acc.concat(sub_match);
+//             }, []);
+
+//             inlets = inlets.slice(0,static_inputs.length);
+//             matches.forEach(el => {
+//               inlets.push(el);
+//             })
+//           }else if(param_id == 1 && param_val == 1){
+//             matches = utilInstance.parseRegex(opnode.params[0],(<StringParam> op.params[0]).regex);
+//             matches = matches.map(el => el.slice(1, -1))
+//             inlets = inlets.slice(0,static_inputs.length);
+//             matches.forEach(el => {
+//               inlets.push(el);
+//             })
+//           }else{
+  
+
+//             matches = utilInstance.parseRegex(param_val, (<StringParam> op.params[0]).regex);
+//             matches = matches.map(el => el.slice(1, -1))
+//             if(opnode.params[1] == 0){
+//               matches = matches.reduce((acc, val) => {
+//                 const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
+//                 return acc.concat(sub_match);
+//               }, []);
+//             }  
+
+//             inlets = inlets.slice(0,static_inputs.length);
+//             matches.forEach(el => {
+//               inlets.push(el);
+//             })
+//           }
+          
+//         break;
+
+//         case 'profile':
+//           matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
+//           inlets = inlets.slice(0,static_inputs.length);
+//           matches.forEach(el => {
+//             if(inlets.find(inletval => inletval == el.charAt(0)) === undefined) inlets.push(el.charAt(0));
+//           })
+//         break;
+
+//         case 'draft':
+//           if(param_val !== -1){
+//             const draftNode = <DraftNode> this.getNode(param_val);
+//             const uniqueVals = utilInstance.filterToUniqueValues(draftNode.loom.threading);
+//             const inlet_nums = uniqueVals.length;
+//             inlets = inlets.slice(0,static_inputs.length);
+//             for(let i = 0; i < inlet_nums; i++){
+//               inlets.push(i+1);
+//             }
+//           }
+//         break;
+
         
-        let static_inputs = op.inlets.filter(el => el.type === 'static');
-        let num_dynamic_inlets = inlets.length - static_inputs.length;
-        let matches = [];
+//         case 'number':
 
-        switch(type){
+//         if(param_type === 'number'){
+//           if(param_val > num_dynamic_inlets){
+//             for(let i = num_dynamic_inlets; i < param_val; i++){
+//                 inlets.push(i+1);
+//             }
+//           }else if(param_val < num_dynamic_inlets){
+//             const delete_num = num_dynamic_inlets - param_val;
+//             inlets = inlets.slice(0, -delete_num);
+//           }
+//         }else if(param_type == 'string'){
+//           const all_inputs = param_val.split(' ');
+//           const unique_values = utilInstance.filterToUniqueValues(all_inputs);
+//           inlets = inlets.slice(0,static_inputs.length);
+//           unique_values.forEach(el => {
+//             inlets.push(el);
+//           })
+//         }
 
+//         break;
+//         case 'system':
+//            static_inputs = op.inlets.filter(el => el.type === 'static');
+//            num_dynamic_inlets = inlets.length - static_inputs.length;
 
-
-          case 'notation':
-
-            const system_parsing_regex = /.*?(.*?[a-xA-Z]+[\d]+).*?/i;
-
-            if(param_id == 1 && param_val == 0){
-              const string_to_parse = op.params[0].value;
-              matches = utilInstance.parseRegex(opnode.params[0], (<StringParam> op.params[0]).regex);
-              matches = matches.map(el => el.slice(1, -1))
-              matches = matches.reduce((acc, val) => {
-                const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
-                return acc.concat(sub_match);
-              }, []);
-
-              inlets = inlets.slice(0,static_inputs.length);
-              matches.forEach(el => {
-                inlets.push(el);
-              })
-            }else if(param_id == 1 && param_val == 1){
-              matches = utilInstance.parseRegex(opnode.params[0],(<StringParam> op.params[0]).regex);
-              matches = matches.map(el => el.slice(1, -1))
-              inlets = inlets.slice(0,static_inputs.length);
-              matches.forEach(el => {
-                inlets.push(el);
-              })
-            }else{
-    
-
-              matches = utilInstance.parseRegex(param_val, (<StringParam> op.params[0]).regex);
-              matches = matches.map(el => el.slice(1, -1))
-              if(opnode.params[1] == 0){
-                matches = matches.reduce((acc, val) => {
-                  const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
-                  return acc.concat(sub_match);
-                }, []);
-              }  
-
-              inlets = inlets.slice(0,static_inputs.length);
-              matches.forEach(el => {
-                inlets.push(el);
-              })
-            }
-            
-          break;
-
-          case 'profile':
-            matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
-            inlets = inlets.slice(0,static_inputs.length);
-            matches.forEach(el => {
-              if(inlets.find(inletval => inletval == el.charAt(0)) === undefined) inlets.push(el.charAt(0));
-            })
-          break;
-
-          case 'draft':
-            if(param_val !== -1){
-              const draftNode = <DraftNode> this.getNode(param_val);
-              const uniqueVals = utilInstance.filterToUniqueValues(draftNode.loom.threading);
-              const inlet_nums = uniqueVals.length;
-              inlets = inlets.slice(0,static_inputs.length);
-              for(let i = 0; i < inlet_nums; i++){
-                inlets.push(i+1);
-              }
-            }
-          break;
+//           if(param_val > num_dynamic_inlets){
+//             for(let i = num_dynamic_inlets; i < param_val; i++){
+//                 this.systemsservice.weft_systems[i].in_use = true;
+//                 inlets.push(i);  
+//             }
+//           }else if(param_val < num_dynamic_inlets){
+//             inlets = inlets.slice(0, param_val+static_inputs);
+//           }
+//         break;
 
           
-          case 'number':
 
-          if(param_type === 'number'){
-            if(param_val > num_dynamic_inlets){
-              for(let i = num_dynamic_inlets; i < param_val; i++){
-                  inlets.push(i+1);
-              }
-            }else if(param_val < num_dynamic_inlets){
-              const delete_num = num_dynamic_inlets - param_val;
-              inlets = inlets.slice(0, -delete_num);
-            }
-          }else if(param_type == 'string'){
-            const all_inputs = param_val.split(' ');
-            const unique_values = utilInstance.filterToUniqueValues(all_inputs);
-            inlets = inlets.slice(0,static_inputs.length);
-            unique_values.forEach(el => {
-              inlets.push(el);
-            })
-          }
+//       }
+//     }
+//   return inlets;
+// }
 
-          break;
-          case 'system':
-             static_inputs = op.inlets.filter(el => el.type === 'static');
-             num_dynamic_inlets = inlets.length - static_inputs.length;
-
-            if(param_val > num_dynamic_inlets){
-              for(let i = num_dynamic_inlets; i < param_val; i++){
-                  this.systemsservice.weft_systems[i].in_use = true;
-                  inlets.push(i);  
-              }
-            }else if(param_val < num_dynamic_inlets){
-              inlets = inlets.slice(0, param_val+static_inputs);
-            }
-          break;
-
-            
-
-        }
-      }
-    return inlets;
-  }
 
 
 
@@ -298,7 +315,9 @@ export class TreeService {
       if(inlets === undefined || inlets.length == 0){
         inlets = default_inlet_values.slice();
         if(this.ops.isDynamic(name)){
+          console.log("LOADING DYNAMIC OP")
           const op = <DynamicOperation> this.ops.getOp(name);
+          (<OpNode> node).params = params_out.slice()
           let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
           inlets = dynamic_inlets.slice();
         }

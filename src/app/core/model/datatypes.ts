@@ -547,7 +547,7 @@ export type Operation = {
 export type DynamicOperation = Operation &  {
   dynamic_param_id: number,
   dynamic_param_type: string,
-  onParamChange: (opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) => Promise<Array<any>>;
+  onParamChange: ( param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, param_val: any) => Array<any>;
   perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 

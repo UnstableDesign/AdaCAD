@@ -12,7 +12,7 @@ import { standardizeMaterialLists } from '../model/material';
 import { makeWarpSystemsUnique, makeWeftSystemsUnique } from '../model/system';
 import { rect } from '../operations/rect/rect';
 import { tabby_der } from '../operations/tabby/tabby';
-
+import {notation} from '../operations/layer_notation/layer_notation'
  
 
 @Injectable({
@@ -45,7 +45,7 @@ export class OperationService {
     // this.dynamic_ops.push(dynamic_join_top);
     // this.dynamic_ops.push(imagemap);
     // this.dynamic_ops.push(bwimagemap);
-    // this.dynamic_ops.push(layernotation);
+     this.dynamic_ops.push(notation);
     // this.dynamic_ops.push(weft_profile);
     // this.dynamic_ops.push(warp_profile);
     // this.dynamic_ops.push(sample_width);
