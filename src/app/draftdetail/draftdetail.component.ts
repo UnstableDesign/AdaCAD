@@ -225,8 +225,7 @@ export class DraftDetailComponent implements OnInit {
   }
 
   public onCloseDrawer(){
-    console.log("CLOSE")
-    this.closeDrawer.emit();
+    this.closeDrawer.emit(this.id);
   }
 
   /**

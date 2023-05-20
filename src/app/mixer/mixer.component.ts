@@ -196,10 +196,16 @@ export class MixerComponent implements OnInit {
    //this.view_tool.updateViewPort(data);
   }
 
-  closeDetailViewer(){
+  closeDetailViewer(obj: any){
+    console.log("CLOSING OBJ ", obj)
     this.show_details = false ; 
     this.details.windowClosed();
-  
+    this.palette.updateDownstream(obj).then(el => {
+      this.palette.addTimelineState();
+    });
+    //reperform all of the ops 
+
+
   }
 
   detailViewChange(){

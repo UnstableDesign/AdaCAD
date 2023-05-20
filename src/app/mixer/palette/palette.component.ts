@@ -532,7 +532,6 @@ handlePan(diff: Point){
 
 
   revealDraftDetails(id: number){
-    console.log("palette, details", id)
     this.onRevealDraftDetails.emit(id);
   }
 
@@ -1656,6 +1655,66 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
 
   return this.tree.performGenerationOps([op_id])
+  .then(draft_ids => {
+
+    const fns = this.tree.getDraftNodes()
+      .filter(el => el.component !== null && el.dirty)
+      .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
+
+
+
+    //create any new subdrafts nodes
+    const new_drafts = this.tree.getDraftNodes()
+      .filter(el => el.component === null)
+      .map(el => {
+        //console.log("loading new subdraft", (<DraftNode>el).draft);
+        return this.loadSubDraft(
+          el.id, 
+          (<DraftNode>el).draft, 
+          {
+            node_id: el.id,
+            type: el.type,
+            topleft: this.calculateInitialLocaiton(el.id),
+          }, null,this.zs.zoom);
+        });
+      
+
+        return  Promise.all([Promise.all(fns), Promise.all(new_drafts)]);
+        
+       
+  }).then(el => {
+    const loads =[];
+    const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);   
+    new_cxns.forEach(cxn => {
+      const from_node:Array<number> = this.tree.getInputs(cxn.id);
+      const to_node:Array<number> = this.tree.getOutputs(cxn.id);
+      if(from_node.length !== 1 || to_node.length !== 1) Promise.reject("connection has zero or more than one input or output");
+      loads.push(this.loadConnection(cxn.id));
+    })
+
+    return Promise.all(loads);
+
+    }
+  );
+
+}
+
+/**
+ * when a subdraft is closed, it has no operation to run before updaing downstream, instead it ONLY needs to update the downstream values
+ * @param subdraft_id 
+ */
+updateDownstream(subdraft_id: number) {
+
+  let out = this.tree.getNonCxnOutputs(subdraft_id);
+  console.log("out ", out)
+  
+  out.forEach(op_id => {
+    this.tree.getOpNode(op_id).dirty = true;
+    this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);  
+  })
+
+ 
+  return this.tree.performGenerationOps(out)
   .then(draft_ids => {
 
     const fns = this.tree.getDraftNodes()

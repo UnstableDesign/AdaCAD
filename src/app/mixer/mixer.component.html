@@ -228,7 +228,7 @@
 
   <mat-drawer  #detail_drawer class="detail_view" mode="over" position="end" [opened]="show_details" [@.disabled]="true">  
 
-    <app-draftdetail #details (closeDrawer)="closeDetailViewer()"></app-draftdetail>
+    <app-draftdetail #details (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
     
      </mat-drawer>
 
