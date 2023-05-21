@@ -109,7 +109,6 @@ export class TreeService {
       const op = this.ops.getOp(name);
       const opnode = this.getOpNode(opid);
 
-      console.log("CALLING PARAM CHANGE ", op, opnode)
 
       let param_vals:Array<OpParamVal> = opnode.params.map((el, ndx) =>  {
        return  { op_name: name, param: op.params[ndx], val: el}
@@ -315,7 +314,6 @@ export class TreeService {
       if(inlets === undefined || inlets.length == 0){
         inlets = default_inlet_values.slice();
         if(this.ops.isDynamic(name)){
-          console.log("LOADING DYNAMIC OP")
           const op = <DynamicOperation> this.ops.getOp(name);
           (<OpNode> node).params = params_out.slice()
           let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
@@ -1151,12 +1149,10 @@ removeOperationNode(id:number) : Array<Node>{
 
 
   const cxn_id:number = this.getConnectionAtInlet(from, to, inletid);
-  console.log("got connection ", cxn_id);
 
   const deleted:Array<Node> = []; 
   if(cxn_id === undefined) return;
 
-  console.log("removeing node in connection")
   deleted.push(this.removeNode(cxn_id));
 
   return deleted;
@@ -1166,12 +1162,10 @@ removeOperationNode(id:number) : Array<Node>{
 removeConnectionNodeById(cxn_id: number) : Array<Node>{
 
 
-  console.log("got connection ", cxn_id);
 
   const deleted:Array<Node> = []; 
   if(cxn_id === undefined) return;
 
-  console.log("removeing node in connection")
   deleted.push(this.removeNode(cxn_id));
 
   return deleted;
@@ -1187,7 +1181,6 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
  */
   removeNode(id: number) : Node{
 
-    console.log("REMOVE NODE CALLED ON ", id);
 
     const deleted: Array<Node> = [];
 
@@ -2003,7 +1996,6 @@ isValidIOTuple(io: IOTuple) : boolean {
    * @returns an array of objects that describe nodes
    */
     exportDraftNodeProxiesForSaving() : Promise<Array<DraftNodeProxy>> {
-
       const objs: Array<any> = []; 
   
       this.getDraftNodes().forEach(node => {
@@ -2025,7 +2017,7 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
           loom:  (this.hasParent(node.id)) ? null :loom_export,
           loom_settings: node.loom_settings,
-          render_colors: (<DraftNode>node).render_colors
+          render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors
         }
         objs.push(savable);
   

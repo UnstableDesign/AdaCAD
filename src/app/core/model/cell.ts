@@ -4,6 +4,9 @@ import { Cell } from "./datatypes";
 
 export const createCell = (setting: boolean) : Cell => {
   
+  if(setting !== null && typeof setting !== 'boolean') console.error("CREATE CELL GOT NON BOOLEAN VALUE", setting)
+
+
   let c:Cell = {
     is_set: false,
     is_up: false

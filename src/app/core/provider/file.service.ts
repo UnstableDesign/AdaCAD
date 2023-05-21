@@ -57,7 +57,6 @@ export class FileService {
       if(filename == undefined) filename = 'draft' 
       if(id === -1) id = this.files.generateFileId();
       
-      console.log("LOADER", filename, id, desc, data);
       let draft_nodes: Array<DraftNodeProxy> = [];
       //let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
@@ -89,8 +88,6 @@ export class FileService {
       const loom_fns = []
       const draft_elements = [];
       const draft_fns = [];
-
-
 
       if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
         data.nodes.forEach(node => {
@@ -133,7 +130,7 @@ export class FileService {
             node_id: (node === undefined) ? -1 : node.node_id,
             draft_id: node.node_id,
             draft_name: node.draft_name,
-            draft:null,
+            draft:draft,
             draft_visible: (node === undefined) ? true : node.draft_visible,
             loom:null,
             loom_settings: (loom === undefined) 
@@ -152,6 +149,7 @@ export class FileService {
             loom_fns.push(loadLoomFromFile(loom, flips_required, version));
             loom_elements.push(dn);
           }
+
 
         });
 

@@ -27,6 +27,7 @@ import utilInstance from "./util";
  * @returns 
  */
  export const copyDraft = (d: Draft) : Draft => {
+
   const copy_draft = initDraftWithParams({
     id: d.id,
     ud_name: d.ud_name,
@@ -182,9 +183,10 @@ export const createDraft = (
     draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
     
     if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){
-      draft.drawdown = parseSavedPattern(data.pattern);
+      draft.drawdown = parseSavedDrawdown(data.pattern);
     }else{
-      draft.drawdown = parseSavedPattern(data.drawdown);
+      draft.drawdown = parseSavedDrawdown(data.drawdown);
+
     }
 
     draft.rowShuttleMapping = (data.rowShuttleMapping === undefined) ? [] : data.rowShuttleMapping;
@@ -216,8 +218,25 @@ export const createDraft = (
           drawdown[i][j]= createCell(pattern[i][j]);
         }
     }
+
     return drawdown;
   }
+
+  const parseSavedDrawdown = (dd: Array<Array<Cell>>) : Drawdown => {
+
+    const drawdown:Drawdown = [];
+    if(dd === undefined) return [];
+
+    for(var i = 0; i < wefts(dd); i++) {
+        drawdown.push([]);
+        for (var j = 0; j < warps(dd); j++){
+          drawdown[i][j] = dd[i][j];
+        }
+    }
+
+    return drawdown;
+  }
+
 
   /**
    * calcualte the number of wefts (rows) in a pattern

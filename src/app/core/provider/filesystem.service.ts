@@ -211,8 +211,10 @@ export class FilesystemService {
     const db = getDatabase();
     return fbget(fbref(db, `filedata/${fileid}`)).then((filedata) => {
 
+
         if(filedata.exists()){
-         return Promise.resolve(filedata.val().ada);
+          return Promise.resolve(filedata.val().ada);
+
         }else{
          return Promise.reject("User found but file id not found")
         }

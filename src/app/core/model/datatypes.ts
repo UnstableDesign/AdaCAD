@@ -42,7 +42,7 @@ export interface Draft{
 }
 
 export interface Cell{
-  is_set: boolean;
+  is_set: boolean,
   is_up: boolean
 }
 

@@ -55,23 +55,6 @@ export class StateService {
 
  
 
-
-
-  // update(item: Item) {
-  //   // this.itemDoc.update(item);
-  // }
-
-  // public writeUserData(userId, name, email, imageUrl) {
-  //   const db = getDatabase();
-  //   fbset(fbref(db, 'users/' + userId), {
-  //     username: name,
-  //     email: email,
-  //     profile_picture : imageUrl
-  //   });
-  // }
-
- 
- 
 /**
  * used in weaver - adds a draft to the history state
  * @param draft 
