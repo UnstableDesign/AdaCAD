@@ -1,0 +1,273 @@
+
+import { createCellFromSequenceVal, getCellValue } from "./cell";
+import { Drawdown } from "./datatypes";
+import utilInstance from "./util";
+
+export module Sequence{
+
+  export class OneD{
+
+    private state: Array<number> = [];
+
+
+    constructor(initSequence = []){
+      if(initSequence){
+        this.state = initSequence;
+      }
+      return this;
+    }
+
+    /**
+     * pushes a new value to the current sequence state
+     * @param val can accept a number or boolean. 
+     */
+    push(val: number | boolean){
+      if(typeof val == 'number'){
+        this.state.push(val)
+      }else{
+        switch(val){
+          case null:
+            this.state.push(2);
+          case false: 
+            this.state.push(0);
+          case true: 
+            this.state.push(1);
+        }
+      }
+
+      return this;
+    }
+
+
+    /**
+     * repeats the current sequence so that it is of length n.
+     * @param n the length of the sequence 
+     */
+    expand(n: number){
+
+      if(this.state.length == 0) return;
+
+      let len = this.state.length;
+      let remainder = n - len;
+
+      for(let j = 0; j < remainder; j++){
+        this.state.push(this.state[j%len]); 
+      };
+
+      return this;
+    }
+
+
+    /**
+     * inverts all of the values of the current state
+     * @returns 
+     */
+    invert(){
+      this.state = this.state.map(el => {
+        if(el == 2) return 2;
+        else return (el == 0) ? 1: 0;
+      });
+      return this;
+    }
+
+
+    /**
+     * shifts the sequence in the amount of val
+     * @param val a positive or negative number that controls the direction of the shift
+     * @returns 
+     */
+    shift(val: number){
+      this.state = this.state.map((el, ndx) => {     
+        let shift_ndx = (ndx - val)%this.state.length;
+        if(shift_ndx < 0) shift_ndx+= this.state.length;
+        return this.state[shift_ndx];
+      });
+      return this;
+    }
+
+    /**
+     * repeats the sequence val times returning a sequence of size val * original sequence
+     * @param val the number of times you would like to repeat. 1 returns itself. 0 returns nothing
+     * @returns 
+     */
+    repeat(val: number){
+      if(val <= 0) return;
+      for(let j = 0; j < val-1; j++){
+        this.state = this.state.concat(this.state);
+      }
+      return this;
+    }
+
+
+    /**
+     * provides the value of the state at this given moment of computation. 
+     * @returns the sequence as a numeric array
+     */
+    val():Array<number>{
+      return this.state.slice();
+    }
+
+  }
+
+  export class TwoD{
+
+    private state: Array<Array<number>> = [];
+
+
+    constructor(){
+      return this;
+    }
+
+    /**
+     * adds a row to the first (or subsequent row) of the 2D sequence
+     * @param seq the 1D sequence value to add 
+     * @returns 
+     */
+    pushWeftSequence(seq: Array<number>){
+
+      if(this.state.length == 0){
+        this.state.push(seq);
+      }else{
+        let width = this.state[0].length;
+        if(width == seq.length){
+          this.state.push(seq);
+        }else{
+          let lcm = utilInstance.lcm([width, seq.length]);
+          this.state.forEach((row, ndx) => {
+            this.state[ndx] = new OneD(row).repeat(lcm).val();
+          })
+        }
+      }
+      return this;
+    }
+
+    setBlank(val: number | boolean = 1){
+
+      let res = new OneD().push(val).val();
+      this.state = [res];
+      return this;
+    }
+
+
+    /**
+     * fills a rectangle of given size with the current state.
+     * @param w the width
+     * @param h the hieght
+     */
+    fill(w: number, h: number) {
+      if(w < 0 || h < 0) return this;
+      if(this.state.length == 0) return;
+
+      let len = this.state.length;
+
+      for(let i = 0; i < h; i++){
+        let row = new OneD(this.state[i%len]).expand(w).val();
+        this.state[i] = row;
+      }
+      return this;
+    }
+
+
+    /**
+     * clears the current state (if any)
+     * and creates a new 2D Sequence Object from a DD
+     * @param dd 
+     */
+    import(dd: Drawdown) {
+      this.state = [];
+      dd.forEach((row, i) => {
+        this.state.push([]);
+        row.forEach((cell, j)=> {
+          switch(getCellValue(cell)){
+            case null:
+              this.state[i][j] = 2;
+              break;
+            case false:
+              this.state[i][j] = 0;
+              break;
+            case true:
+              this.state[i][j] = 1;
+              break;
+          }
+        })
+      });
+      console.log('CREATED', this.state.slice())
+      return this;
+    }
+
+    /**
+     * converts the current state to a drawdown format
+     * @returns 
+     */
+    export() : Drawdown {
+
+      const dd: Drawdown = [];
+      this.state.forEach((row, i) =>{
+        dd.push([]);
+        row.forEach((cell_val, j) => {
+          dd[i][j] = createCellFromSequenceVal(cell_val);
+        });
+      })
+      return dd;
+
+    }
+
+ 
+
+
+
+
+
+  }
+}
+
+
+
+
+// var SequenceClass = function(){
+
+//   this.val = [0,1];
+
+// }
+
+// SequenceClass.prototype.invert = function () {
+
+//   this.sequence = this.sequence.map(el => !el)
+  
+//   return this;
+
+// }
+
+
+
+// export const sequence = {
+//     state: { value: [false,true] },
+//     callbacks: [] as ((...args: any[]) => any)[],
+//     _exec: {
+//       setValue: (arr: Array<boolean>) => (sequence.state.value = arr),
+//       invert: () => (sequence.state.value = sequence.state.value.map(el => !el)),
+//       shift: (val: number) => (
+//         sequence.state.value = sequence.state.value.map((el, ndx) => sequence.state.value[(ndx+val)%sequence.state.value.length])
+//         )
+//     },
+//     _queue: {
+//       setValue: (arr: Array<boolean>) => {
+//         sequence.callbacks.push(() => sequence._exec.setValue(arr));
+//         return sequence._queue;
+//       },
+//       invert: () => {
+//         sequence.callbacks.push(() => sequence._exec.invert());
+//         return sequence._queue;
+//       },
+//       shift: (val: number) => {
+//         sequence.callbacks.push(() => sequence._exec.shift(val));
+//         return sequence._queue;
+//       },
+//       run: () => {
+//         sequence.callbacks.forEach((cb) => cb());
+//         sequence.callbacks = [];
+//       },
+//     },
+//     chain: () => sequence._queue,
+//   };
+  

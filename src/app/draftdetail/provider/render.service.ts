@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DefaultsService } from '../../core/provider/defaults.service';
+import {defaults} from '../../core/model/defaults'
 import { Draft } from '../../core/model/datatypes';
 import { wefts } from '../../core/model/drafts';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -23,11 +23,10 @@ select:{
   offset_y: {max: number, min: number};
 }
   constructor(
-    private ss: SystemsService,
-    private defaults: DefaultsService
+    private ss: SystemsService
     ) { 
  //max values
-   this.zoom = this.defaults.draft_detail_zoom; //zoom can range from .1 to 2
+   this.zoom = defaults.draft_detail_zoom; //zoom can range from .1 to 2
  // this.view_frames = view_frames;
   this.current_view = 'pattern';
   this.view_front = true;
@@ -94,8 +93,8 @@ select:{
     return {
       x: 0,
       y: 0,
-      w: this.defaults.draft_detail_cell_size,
-      h: this.defaults.draft_detail_cell_size
+      w: defaults.draft_detail_cell_size,
+      h: defaults.draft_detail_cell_size
     };
 
     // return {

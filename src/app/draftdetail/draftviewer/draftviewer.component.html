@@ -27,12 +27,12 @@
         <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text">
          
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
-          [style.width.px] = "defaults.draft_detail_cell_size"
+          [style.width.px] = "cell_size"
           *ngFor="let i of colSystemMapping; let j = index;" >
           <a class="warp-material" 
           [style.background-color]="this.ms.getColor(colShuttleMapping[j])" 
-          [style.width.px]="defaults.draft_detail_cell_size-1"
-          [style.height.px]="defaults.draft_detail_cell_size-1"
+          [style.width.px]="cell_size-1"
+          [style.height.px]="cell_size-1"
           (click)="incrementWarpMaterial(j)">   
           </a>
             <a class="warp-system" (click)="incrementWarpSystem(j)"> {{ss.getWarpSystemCode(i)}}</a>
@@ -79,13 +79,13 @@
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
           <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text">
             <div class="weft-system-row origin{{ws.selected_origin_option}}" 
-            [style.height.px]="defaults.draft_detail_cell_size"
+            [style.height.px]="cell_size"
             *ngFor="let i of (render?.visibleRows); let j = index;" >
                
             <a class="weft-material" 
             [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" 
-            [style.width.px]="defaults.draft_detail_cell_size-1"
-            [style.height.px]="defaults.draft_detail_cell_size-1"
+            [style.width.px]="cell_size-1"
+            [style.height.px]="cell_size-1"
             (click)="incrementWeftMaterial(j)"> 
             </a>
             

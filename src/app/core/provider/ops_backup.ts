@@ -5031,7 +5031,8 @@ const atop: Operation = {
       max: 100,
       value: 3,
       },
-      <BoolParam> {name: 'S/Z',
+      <BoolParam> 
+      {name: 'S/Z',
       type: 'boolean',
       falsestate: 'S',
       truestate: 'Z',

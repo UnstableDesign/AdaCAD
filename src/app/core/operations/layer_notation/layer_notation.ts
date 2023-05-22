@@ -16,7 +16,7 @@ const pattern:StringParam =
     {name: 'pattern',
     type: 'string',
     value: '(a1)(b2)',
-    regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+    regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //this is the layer parsing regex
     error: 'invalid entry',
     dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
     }
@@ -27,7 +27,7 @@ const toggle:NotationTypeParam =
     falsestate: "drafts to systems",
     truestate: "drafts to layers",
     value: 1,
-    dx: 'determine if the inlets should represent the different layers or different systems'
+    dx: 'determines if the inlets should represent the different layers or different systems'
 }
 
 
@@ -170,7 +170,6 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 
   return 'notation('+parseOpInputNames(op_inputs)+")";
 }
-
 
 
 const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, param_val: any) : Array<any> => {

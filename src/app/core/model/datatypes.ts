@@ -10,6 +10,7 @@ import { MaterialsService } from "../provider/materials.service";
  */
 
 
+
 /*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/
 
 
@@ -225,7 +226,6 @@ export type Loom = {
   tieup: Array<Array<boolean>>,
   treadling: Array<Array<number>>
 }
-
 
 
 

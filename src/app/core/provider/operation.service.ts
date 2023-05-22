@@ -13,7 +13,8 @@ import { makeWarpSystemsUnique, makeWeftSystemsUnique } from '../model/system';
 import { rect } from '../operations/rect/rect';
 import { tabby_der } from '../operations/tabby/tabby';
 import {notation} from '../operations/layer_notation/layer_notation'
- 
+import {twill} from '../operations/twill/twill'
+import {satin} from '../operations/satin/satin'
 
 @Injectable({
   providedIn: 'root'
@@ -54,10 +55,10 @@ export class OperationService {
 
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
-    // this.ops.push(twill);
+    this.ops.push(twill);
     // this.ops.push(complextwill);
     // this.ops.push(waffle);
-    // this.ops.push(satin);
+    this.ops.push(satin);
     // this.ops.push(shaded_satin);
     // this.ops.push(tabby);
     this.ops.push(tabby_der);

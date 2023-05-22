@@ -23,6 +23,36 @@ export const createCell = (setting: boolean) : Cell => {
   return c;
 }
 
+
+export const createCellFromSequenceVal = (val: number) : Cell => {
+  
+
+  let c:Cell = {
+    is_set: false,
+    is_up: false
+  };
+
+  switch(val){
+    case 0:
+      c.is_set = true;
+      c.is_up = false;
+      break;
+
+    case 1: 
+      c.is_set = true;
+      c.is_up = true;
+      break;
+
+    case 2: 
+      c.is_set = false;
+      c.is_up = false;
+    break;
+  }
+  return c;
+}
+
+
+
 export const setCellValue = (c: Cell, value:boolean) : Cell => {
  if(value === null){
    c.is_up = false;

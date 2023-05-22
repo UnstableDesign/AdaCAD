@@ -1,7 +1,8 @@
 import { createCell } from "../../model/cell";
-import { Draft, NumParam, Operation, OperationInlet, OpInput, Cell, OpParamVal } from "../../model/datatypes";
-import { initDraft, initDraftWithParams } from "../../model/drafts";
+import { Draft, NumParam, Operation, OperationInlet, OpInput, Cell, OpParamVal, Drawdown } from "../../model/datatypes";
+import { initDraft, initDraftFromDrawdown, initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../model/drafts";
 import { getInputDraft, getOpParamValById, parseOpInputNames } from "../../model/operations";
+import { Sequence } from "../../model/sequence";
 
 
 const name = "rectangle";
@@ -43,22 +44,20 @@ const draft_inlet: OperationInlet = {
 
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
-
   let input_draft = getInputDraft(op_inputs);
+  let w = getOpParamValById(0, op_params);
+  let h = getOpParamValById(1, op_params);
 
-  if(input_draft == null){
-    input_draft = initDraftWithParams({drawdown: [[createCell(true)]]});
-  }
+  console.log("INPUT DRAFT", input_draft)
 
-  const d: Draft = initDraftWithParams(
-      {warps: getOpParamValById(0, op_params), 
-        wefts: getOpParamValById(1, op_params), 
-        drawdown: input_draft.drawdown,
-        rowShuttleMapping: input_draft.rowShuttleMapping,
-        colShuttleMapping: input_draft.colShuttleMapping,
-        rowSystemMapping: input_draft.rowSystemMapping,
-        colSystemMapping: input_draft.colSystemMapping
-    });
+  let seq = new Sequence.TwoD();
+  if(input_draft !== null) seq.import(input_draft.drawdown);
+  else seq.setBlank();
+
+  let dd: Drawdown = seq.fill(w,h).export();
+  let d = initDraftFromDrawdown(dd);
+  d = updateWeftSystemsAndShuttles(d, input_draft);
+  d = updateWarpSystemsAndShuttles(d, input_draft);
 
     return Promise.resolve([d]);
   }   

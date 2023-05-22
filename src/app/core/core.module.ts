@@ -51,7 +51,6 @@ import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 import { FilebrowserComponent } from './filebrowser/filebrowser.component';
 import { KeycodesDirective } from './keycodes.directive';
-import { DefaultsService } from './provider/defaults.service';
 
 @NgModule({
     imports: [

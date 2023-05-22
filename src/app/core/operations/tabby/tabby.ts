@@ -1,7 +1,9 @@
+import { first } from "rxjs/operators";
 import { createCell, getCellValue } from "../../model/cell";
 import { Draft, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
-import { initDraftWithParams, setHeddle, warps, wefts } from "../../model/drafts";
+import { initDraftFromDrawdown, initDraftWithParams, setHeddle, warps, wefts } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
+import { Sequence } from "../../model/sequence";
 
 
 const name = "tabbyder";
@@ -58,25 +60,33 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       const rep: number = getOpParamValById(2, param_vals);
       const alt_rep: number = getOpParamValById(3, param_vals);
 
-      const d: Draft = initDraftWithParams({warps: raised + lowered, wefts: rep+alt_rep});
 
-      for(let i = 0; i < warps(d.drawdown); i++){
-        if(i < raised) d.drawdown = setHeddle(d.drawdown, 0, i, true);
-        else d.drawdown = setHeddle(d.drawdown, 0, i, false);
+      let first_row = new Sequence.OneD();
+      for(let j = 0; j < raised; j++){
+        first_row.push(1);
       }
 
-      for(let i = 1; i < wefts(d.drawdown); i++){
-        if(i < rep) d.drawdown[i] = d.drawdown[0].slice();
-        else{
-          for(let j = 0; j < warps(d.drawdown); j++){
-            d.drawdown[i][j] = createCell(!getCellValue(d.drawdown[0][j]));
-          }
-        } 
+      for(let j = 0; j < lowered; j++){
+        first_row.push(0);
       }
 
-      return Promise.resolve([d]);
 
-   
+      let pattern = new Sequence.TwoD();
+      for(let i = 0; i < rep; i++){
+        pattern.pushWeftSequence(first_row.val());
+      }
+
+      let inverted =first_row.invert().val();
+
+      for(let i = 0; i < alt_rep; i++){
+        console.log("first row invert ", first_row, inverted)
+        pattern.pushWeftSequence(inverted);
+      }
+
+      console.log("pattern ", pattern);
+      console.log("DRAFT ", initDraftFromDrawdown(pattern.export()))
+      return Promise.resolve([initDraftFromDrawdown(pattern.export())]);
+
   }   
 
 

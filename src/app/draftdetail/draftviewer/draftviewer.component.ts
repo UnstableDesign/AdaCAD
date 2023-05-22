@@ -15,8 +15,8 @@ import { OperationService } from '../../core/provider/operation.service';
 import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
 import { NgForm } from '@angular/forms';
-import { DefaultsService } from '../../core/provider/defaults.service';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
+import {defaults} from '../../core/model/defaults'
 
 @Component({
   selector: 'app-draftviewer',
@@ -226,6 +226,8 @@ export class DraftviewerComponent implements OnInit {
 
   expanded: boolean = false;
 
+  cell_size: number = 10;
+
  
    /// ANGULAR FUNCTIONS
    /**
@@ -242,14 +244,14 @@ export class DraftviewerComponent implements OnInit {
     public timeline: StateService,
     private tree:TreeService,
     private ops: OperationService,
-    public render: RenderService,
-    public defaults: DefaultsService
+    public render: RenderService
   ) { 
 
     this.flag_recompute = false;
     this.flag_history = false;
     this.loomtypes = dm.getOptionSet('loom_types');
     this.density_units = dm.getOptionSet('density_units');
+    this.cell_size = defaults.draft_detail_cell_size;
 
   }
 

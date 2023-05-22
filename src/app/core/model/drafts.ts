@@ -1,5 +1,6 @@
 import { createCell, getCellValue, setCellValue } from "./cell";
 import { Draft, Drawdown, YarnFloat, Cell } from "./datatypes";
+import { defaults } from "./defaults";
 import utilInstance from "./util";
 
 /**
@@ -9,7 +10,7 @@ import utilInstance from "./util";
  export const initDraft = () : Draft => {
   const d: Draft = {
     id: utilInstance.generateId(8),
-    gen_name: 'draft',
+    gen_name: defaults.draft_name,
     ud_name: "",
     drawdown: [],
     rowShuttleMapping: [],
@@ -51,7 +52,7 @@ import utilInstance from "./util";
  export const initDraftWithParams = (params:any) : Draft => {
   const d: Draft = {
     id: utilInstance.generateId(8),
-    gen_name: 'draft',
+    gen_name: defaults.draft_name,
     ud_name: "",
     drawdown: [],
     rowShuttleMapping: [],
@@ -82,16 +83,16 @@ import utilInstance from "./util";
  
   for(let i = 0; i < params.wefts; i++){
     d.drawdown.push([]);
-    d.rowSystemMapping.push(0);
-    d.rowShuttleMapping.push(1);
+    d.rowSystemMapping.push(defaults.row_system);
+    d.rowShuttleMapping.push(defaults.row_shuttle);
     for(let j = 0; j < params.warps; j++){
       d.drawdown[i][j] =  createCell(false);
     }
   }
 
   for(let j = 0; j < params.warps; j++){
-    d.colSystemMapping.push(0);
-    d.colShuttleMapping.push(0);
+    d.colSystemMapping.push(defaults.col_system);
+    d.colShuttleMapping.push(defaults.col_shuttle);
   }
 
   if(params.drawdown !== undefined){
@@ -131,6 +132,47 @@ import utilInstance from "./util";
 
   return d;
 }
+
+/**
+ * creates a draft using only information from a drawdown (no system or column information)
+ * @returns 
+ */
+export const initDraftFromDrawdown = (drawdown:Drawdown) : Draft => {
+  const d: Draft = {
+    id: utilInstance.generateId(8),
+    gen_name: defaults.draft_name,
+    ud_name: "",
+    drawdown: [],
+    rowShuttleMapping: [],
+    rowSystemMapping: [],
+    colShuttleMapping: [],
+    colSystemMapping: []
+  };
+
+ 
+    drawdown.forEach((row, i) => {
+      d.drawdown.push([]);
+      row.forEach((cell, j) => {
+      d.drawdown[i][j] = setCellValue(cell, getCellValue(drawdown[i][j]));
+      })
+    })
+
+    for(let i = 0; i < wefts(d.drawdown); i++){
+      d.rowShuttleMapping[i] = defaults.row_shuttle;
+      d.rowSystemMapping[i] = defaults.row_system;
+    }
+
+    for(let j = 0; j < warps(d.drawdown); j++){
+      d.colShuttleMapping[j] = defaults.col_shuttle;
+      d.colSystemMapping[j] = defaults.col_system;
+    }
+
+    
+  
+
+  return d;
+}
+
 
 /**
  * generates a new draft from the paramters specified.
@@ -502,6 +544,35 @@ export const createDraft = (
     }
 
     return mapping.slice();
+  }
+
+
+  /**
+   * take the system and shuttle and 
+   * @param to 
+   * @param from 
+   */
+  export const updateWeftSystemsAndShuttles = (to: Draft, from: Draft) : Draft => {
+
+    if(from == null || from == undefined) from = initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]});
+
+    to.rowShuttleMapping =  generateMappingFromPattern(to.drawdown, from.rowShuttleMapping,'row', 3);
+
+    to.rowSystemMapping =  generateMappingFromPattern(to.drawdown, from.rowSystemMapping,'row', 3);
+
+    return to;
+  }
+
+  
+  export const updateWarpSystemsAndShuttles = (to: Draft, from: Draft) : Draft => {
+
+    if(from == null || from == undefined) from = initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]});
+
+    to.colShuttleMapping =  generateMappingFromPattern(to.drawdown, from.colShuttleMapping,'col', 3);
+
+    to.rowSystemMapping =  generateMappingFromPattern(to.drawdown, from.colSystemMapping,'col', 3);
+
+    return to;
   }
 
 
