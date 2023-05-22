@@ -15,6 +15,9 @@ import { tabby_der } from '../operations/tabby/tabby';
 import {notation} from '../operations/layer_notation/layer_notation'
 import {twill} from '../operations/twill/twill'
 import {satin} from '../operations/satin/satin'
+import { complextwill } from '../operations/complex_twill/complex_twill';
+import { shifty } from '../operations/shifty/shifty';
+import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
 
 @Injectable({
   providedIn: 'root'
@@ -56,9 +59,11 @@ export class OperationService {
     //**push operations that you want the UI to show as options here */
     this.ops.push(rect);
     this.ops.push(twill);
-    // this.ops.push(complextwill);
+    this.ops.push(complextwill);
+    this.ops.push(undulatingtwill);
     // this.ops.push(waffle);
     this.ops.push(satin);
+    this.ops.push(shifty);
     // this.ops.push(shaded_satin);
     // this.ops.push(tabby);
     this.ops.push(tabby_der);

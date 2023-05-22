@@ -6,6 +6,18 @@
             "description":"Generates an unfilled rectangle of the size defined by the parameters. If given an input, the rectangle fills with the input.",
             "application": "Creating a rectangle that is the width of the cloth (total ends) and height of your pattern repeat (total pics) and inputting a generated draft is an easy way to repeat a draft or pattern across the width of your cloth. Rectangles can be joined together as bars, tiles, and layers using operations under “combine”."
         },
+        {
+            "name":"shifty",
+            "displayname": "shifty",
+            "description":"Generates a structure by shifting the first row (described by the input string), the number of shifts specified on each row.",
+            "application": "Allows for the creation and customization of satin or steep twills by shifting more than 1 end to the left or right on each subsequence pic"
+        },
+        {
+            "name":"undulatingtwill",
+            "displayname": "undulating twill",
+            "description":"Generates an undulating twill structure by shifting the first row (described by the input string), the number of shifts specified by the second input string.",
+            "application": "Allows for the creation and customization of satin or steep twills by shifting more than 1 end to the left or right on each subsequence pic"
+        },
 
         {
             "name":"clear",

@@ -28,15 +28,30 @@ export module Sequence{
         switch(val){
           case null:
             this.state.push(2);
+            break;
           case false: 
             this.state.push(0);
+            break;
           case true: 
             this.state.push(1);
+            break;
         }
       }
 
       return this;
     }
+
+ 
+
+     pushMultiple(push_val: number | boolean, multiple: number){
+
+      for(let i = 0; i < multiple; i++){
+        this.push(push_val);
+      }
+      return this;
+
+    }
+    
 
 
     /**

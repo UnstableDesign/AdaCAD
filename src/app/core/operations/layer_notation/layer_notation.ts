@@ -48,11 +48,6 @@ const systems: OperationInlet = {
 
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
-
-
-
-      
-      const by_layer = getOpParamValById(1, op_params);
       const original_string = getOpParamValById(0, op_params);
       const original_string_split = utilInstance.parseRegex(original_string, /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i);
 

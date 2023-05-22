@@ -65,13 +65,7 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       let first_row = new Sequence.OneD();
-      for(let j = 0; j < raised; j++){
-        first_row.push(1);
-      }
-
-      for(let j = 0; j < lowered; j++){
-        first_row.push(0);
-      }
+      first_row.pushMultiple(1, raised).pushMultiple(0, lowered);
 
       if(facing) first_row.invert();
 

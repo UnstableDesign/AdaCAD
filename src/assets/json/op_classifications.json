@@ -10,11 +10,13 @@
                 "shaded_satin", 
                 "waffle", 
                 "complextwill", 
+                "undulatingtwill", 
                 "random", 
                 "combos",
                 "bwimagemap",
                 "sine",
-                "sawtooth"
+                "sawtooth",
+                "shifty"
             ]
         },
         {
