@@ -4,7 +4,7 @@ import { getOpParamValById } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
 
-const name = "shifty";
+const name = "satinish";
 const old_names = [];
 
 //PARAMS
@@ -82,7 +82,7 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 }
 
 
-export const shifty: Operation = {name, old_names, params, inlets, perform, generateName};
+export const satinish: Operation = {name, old_names, params, inlets, perform, generateName};
 
 
 

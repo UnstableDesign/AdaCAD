@@ -13,6 +13,19 @@ export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
     else return op_inputs[0].drafts[0];
 }
 
+export const getAllDraftsAtInlet = (op_inputs : Array<OpInput>, inlet_id: number) : Array<Draft> => {
+  if(!operationHasInputs(op_inputs) || inlet_id < 0 || inlet_id >= op_inputs.length) return [];
+  else{
+
+    let req_inputs = op_inputs.filter(el => el.inlet_id == inlet_id);
+    let drafts:Array<Draft> = req_inputs.reduce((acc, el)=> {
+      return acc.concat(el.drafts);
+    }, []);
+
+    return drafts;
+  } 
+}
+
 const returnDefaultValue = ( p: OpParamVal) : any => {
     switch(p.param.type){
         case 'boolean': 

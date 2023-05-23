@@ -16,8 +16,13 @@ import {notation} from '../operations/layer_notation/layer_notation'
 import {twill} from '../operations/twill/twill'
 import {satin} from '../operations/satin/satin'
 import { complextwill } from '../operations/complex_twill/complex_twill';
-import { shifty } from '../operations/shifty/shifty';
+import { satinish } from '../operations/satinish/satinish';
 import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
+
+import { invert } from '../operations/invert/invert';
+import { interlace } from '../operations/interlace/interlace';
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -63,19 +68,19 @@ export class OperationService {
     this.ops.push(undulatingtwill);
     // this.ops.push(waffle);
     this.ops.push(satin);
-    this.ops.push(shifty);
+    this.ops.push(satinish);
     // this.ops.push(shaded_satin);
     // this.ops.push(tabby);
     this.ops.push(tabby_der);
     // this.ops.push(rib);
     // this.ops.push(random);
-    // this.ops.push(interlace);
+    this.ops.push(interlace);
     // this.ops.push(interlace_warps);
     // this.ops.push(splicein);
     // this.ops.push(spliceinwarps);
     // this.ops.push(assignwefts);
     // this.ops.push(assignwarps);
-   // this.ops.push(invert);
+   this.ops.push(invert);
   //   this.ops.push(vertcut);
   //  this.ops.push(replicate);
   //   this.ops.push(flipx);

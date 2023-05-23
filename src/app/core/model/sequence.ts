@@ -1,6 +1,6 @@
 
 import { createCellFromSequenceVal, getCellValue } from "./cell";
-import { Drawdown } from "./datatypes";
+import { Cell, Drawdown } from "./datatypes";
 import utilInstance from "./util";
 
 export module Sequence{
@@ -10,7 +10,7 @@ export module Sequence{
     private state: Array<number> = [];
 
 
-    constructor(initSequence = []){
+    constructor(initSequence:Array<number> = []){
       if(initSequence){
         this.state = initSequence;
       }
@@ -72,6 +72,25 @@ export module Sequence{
       return this;
     }
 
+        /**
+     * adds unset cells so that it is of length n.
+     * @param n the length of the sequence 
+     */
+      padTo(n: number){
+
+        if(this.state.length == 0) return;
+  
+        let len = this.state.length;
+        let remainder = n - len;
+  
+        for(let j = 0; j < remainder; j++){
+          this.state.push(2); 
+        };
+  
+        return this;
+      }
+    
+
 
     /**
      * inverts all of the values of the current state
@@ -82,6 +101,28 @@ export module Sequence{
         if(el == 2) return 2;
         else return (el == 0) ? 1: 0;
       });
+      return this;
+    }
+
+    import(row: Array<Cell>){
+      this.state = [];
+      row.forEach(cell => {
+        this.push(getCellValue(cell));
+      })
+      return this;
+
+    }
+
+    deleteAndDrawIn(val: number){
+
+      console.log("DRAWING IN ", val)
+      if(val < 1 || val >= this.state.length) return this;
+      
+      let deleted = this.state[val];
+
+      this.state = this.state.filter((el, ndx) => ndx !== val);
+      this.state.unshift(deleted);
+      // this.state.push(deleted);
       return this;
     }
 
@@ -147,9 +188,11 @@ export module Sequence{
         if(width == seq.length){
           this.state.push(seq);
         }else{
+
           let lcm = utilInstance.lcm([width, seq.length]);
+          
           this.state.forEach((row, ndx) => {
-            this.state[ndx] = new OneD(row).repeat(lcm).val();
+            this.state[ndx] = new OneD(row).expand(lcm).val();
           })
         }
       }

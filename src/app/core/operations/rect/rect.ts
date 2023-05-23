@@ -48,8 +48,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let w = getOpParamValById(0, op_params);
   let h = getOpParamValById(1, op_params);
 
-  console.log("INPUT DRAFT", input_draft)
-
   let seq = new Sequence.TwoD();
   if(input_draft !== null) seq.import(input_draft.drawdown);
   else seq.setBlank();
@@ -59,8 +57,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   d = updateWeftSystemsAndShuttles(d, input_draft);
   d = updateWarpSystemsAndShuttles(d, input_draft);
 
-    return Promise.resolve([d]);
-  }   
+  return Promise.resolve([d]);
+}   
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 

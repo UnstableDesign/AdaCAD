@@ -1,7 +1,5 @@
-import { first } from "rxjs/operators";
-import { createCell, getCellValue } from "../../model/cell";
-import { Draft, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
-import { initDraftFromDrawdown, initDraftWithParams, setHeddle, warps, wefts } from "../../model/drafts";
+import { NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
+import { initDraftFromDrawdown } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
