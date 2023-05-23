@@ -1,7 +1,6 @@
-import { createCell } from "../../model/cell";
-import { Draft, NumParam, Operation, OperationInlet, OpInput, Cell, OpParamVal, Drawdown } from "../../model/datatypes";
-import { initDraft, initDraftFromDrawdown, initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../model/drafts";
-import { getInputDraft, getOpParamValById, parseOpInputNames } from "../../model/operations";
+import { Drawdown, NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
+import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../model/drafts";
+import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
 
@@ -62,7 +61,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 
-  return 'rect('+parseOpInputNames(op_inputs)+")";
+  let drafts = getAllDraftsAtInlet(op_inputs, 0);
+  return 'rect('+parseDraftNames(drafts)+")";
 }
 
 

@@ -1,6 +1,6 @@
 import { BoolParam, Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, warps, wefts } from "../../model/drafts";
-import { getAllDraftsAtInlet, getOpParamValById } from "../../model/operations";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 import utilInstance from "../../model/util";
 
@@ -51,9 +51,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   let systems = getAllDraftsAtInlet(op_inputs, 1);
   let repeat = getOpParamValById(0, op_params);
 
-
-
   if(drafts.length == 0) return Promise.resolve([]);
+
 
   let total_wefts = utilInstance.lcm(drafts.map(el => wefts(el.drawdown)))*drafts.length;
 
@@ -70,21 +69,23 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   let weft_shuttles: Array<number> = [];
 
   for(let i = 0; i < total_wefts; i++){
+
     let selected_draft_id = i % drafts.length;
     let within_draft_i = Math.floor(i / drafts.length);
     let selected_draft = drafts[selected_draft_id];
 
-    if(repeat || (within_draft_i) < wefts(selected_draft.drawdown)){
+    if(repeat || within_draft_i < wefts(selected_draft.drawdown)){
+
         let selected_draft = drafts[selected_draft_id];
         let modulated_id = within_draft_i % wefts(selected_draft.drawdown);
         let row = new Sequence.OneD().import(selected_draft.drawdown[modulated_id]);
+        
         if(repeat) row.expand(total_warps);
         else row.padTo(total_warps);
+
         pattern.pushWeftSequence(row.val());
         weft_systems.push(selected_draft.rowSystemMapping[modulated_id]);
         weft_shuttles.push(selected_draft.rowShuttleMapping[modulated_id]);
-    }else{
-        console.log("I out of bounds at ", i, selected_draft_id)
     }
   }
 
@@ -101,8 +102,9 @@ if(systems.length > 0) d = updateWarpSystemsAndShuttles(d, systems[0]);
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 
-
-  return "rect()";
+    let drafts = getAllDraftsAtInlet(op_inputs, 0);
+    let name_list = parseDraftNames(drafts);
+  return "interlace("+name_list+")";
 }
 
 

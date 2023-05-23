@@ -1,8 +1,6 @@
-import { first } from "rxjs/operators";
-import { createCell, getCellValue } from "../../model/cell";
-import { BoolParam, Draft, NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { initDraftFromDrawdown, initDraftWithParams, setHeddle, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
-import { getInputDraft, getOpParamValById, parseOpInputNames, transferSystemsAndShuttles } from "../../model/operations";
+import { Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
+import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../model/drafts";
+import { getAllDraftsAtInlet, getInputDraft, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
 
@@ -48,7 +46,8 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
-    return 'invert('+parseOpInputNames(op_inputs)+")";
+    let drafts = getAllDraftsAtInlet(op_inputs, 0);
+    return 'invert('+parseDraftNames(drafts)+")";
 
 
 }

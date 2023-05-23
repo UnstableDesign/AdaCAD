@@ -90,17 +90,14 @@ export const getOpParamValByName = (name: string, params: Array<OpParamVal>) : a
 }
 
 
-export const parseOpInputNames = (op_inputs: Array<OpInput>) : string  => {
+export const parseDraftNames = (drafts: Array<Draft>) : string  => {
     
-    if(op_inputs.length == 0) return '';
+    if(drafts.length == 0) return '';
 
-    let all_names: Array<string>  = op_inputs.reduce((acc, el) => {
-        let input_names = el.drafts.map(draft => getDraftName(draft));
-        return acc.concat(input_names);
-    }, []);
 
-    let flat_names = all_names.reduce((acc, el) => {
-        return acc+"+"+el;
+
+    let flat_names = drafts.reduce((acc, el) => {
+        return acc+"+"+getDraftName(el);
     }, '');
 
     return flat_names.substring(1);
