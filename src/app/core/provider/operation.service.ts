@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 // import { VaeService} from "../../core/provider/vae.service"
-import { BoolParam, Draft, DynamicOperation, FileParam, LoomSettings, NotationTypeParam, NumParam, Operation, OperationClassification, OpInput, SelectParam, StringParam, Cell } from '../../core/model/datatypes';
-import { applyMask, copyDraft, flipDraft, flipDrawdown, generateMappingFromPattern, getDraftName, initDraft, initDraftWithParams, invertDrawdown, isUp, shiftDrawdown, warps, wefts } from '../../core/model/drafts';
-import { CombinatoricsService } from '../../core/provider/combinatorics.service';
+import { Draft, DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
+import { generateMappingFromPattern, isUp, warps, wefts } from '../../core/model/drafts';
 import { ImageService } from '../../core/provider/image.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { PatternfinderService } from "../../core/provider/patternfinder.service";
@@ -10,18 +9,20 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { standardizeMaterialLists } from '../model/material';
 import { makeWarpSystemsUnique, makeWeftSystemsUnique } from '../model/system';
-import { rect } from '../operations/rect/rect';
-import { tabby_der } from '../operations/tabby/tabby';
-import {notation} from '../operations/layer_notation/layer_notation'
-import {twill} from '../operations/twill/twill'
-import {satin} from '../operations/satin/satin'
 import { complextwill } from '../operations/complex_twill/complex_twill';
-import { satinish } from '../operations/satinish/satinish';
-import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
-import { invert } from '../operations/invert/invert';
+import { deinterlace } from '../operations/deinterlace/deinterlace';
 import { interlace } from '../operations/interlace/interlace';
 import { interlacewarps } from '../operations/interlace_warps/interlace_warps';
-import { deinterlace } from '../operations/deinterlace/deinterlace';
+import { invert } from '../operations/invert/invert';
+import { notation } from '../operations/layer_notation/layer_notation';
+import {random } from '../operations/random/random'
+import { rect } from '../operations/rect/rect';
+import { satin } from '../operations/satin/satin';
+import { satinish } from '../operations/satinish/satinish';
+import { tabby_der } from '../operations/tabby/tabby';
+import { twill } from '../operations/twill/twill';
+import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
+import { combinatorics } from '../operations/combinatorics/combinatorics';
 
 
 
@@ -40,8 +41,7 @@ export class OperationService {
     private ms: MaterialsService,
     private ss: SystemsService,
     private is: ImageService,
-    private ws: WorkspaceService,
-    private combos: CombinatoricsService) { 
+    private ws: WorkspaceService) { 
      
 
   
@@ -74,7 +74,7 @@ export class OperationService {
     // this.ops.push(tabby);
     this.ops.push(tabby_der);
     // this.ops.push(rib);
-    // this.ops.push(random);
+    this.ops.push(random);
     this.ops.push(interlace);
     this.ops.push(deinterlace);
     this.ops.push(interlacewarps);
@@ -122,7 +122,7 @@ export class OperationService {
   //   this.ops.push(directdrawdown);
   //   this.ops.push(erase_blank);
   //   this.ops.push(apply_mats);
-  //   this.ops.push(combinatorics);
+    this.ops.push(combinatorics);
   //   this.ops.push(sinewave);
   //   this.ops.push(sawtooth);
     }
@@ -371,27 +371,6 @@ export class OperationService {
     const parent_ndx: number = this.dynamic_ops.findIndex(el => el.name === name);
     if(parent_ndx == -1) return false;
     return true;
-  }
-
-   drawCell(cx, draft, cell_size, i, j, top,  left){
-    let is_up = isUp(draft.drawdown, i, j);
-    let color = "#ffffff"
-   
-    if(is_up){
-      color = '#000000';
-    }else{
-      color = '#ffffff';
-    }
-    cx.fillStyle = color;
-    cx.strokeStyle = '#000000';
-
- 
-
-    //hack, draw upside down to account for later flip
-    i = (wefts(draft.drawdown)-1) - i;
-
-    cx.strokeRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
-    cx.fillRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
   }
 
 

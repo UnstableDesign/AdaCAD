@@ -1,46 +1,174 @@
+import { D } from "@angular/cdk/keycodes";
+import { createCell, getCellValue, setCellValue } from "../../model/cell";
+import { BoolParam, Draft, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
+import { initDraftFromDrawdown, initDraftWithParams, isUp, warps, wefts } from "../../model/drafts";
+import { getOpParamValById } from "../../model/operations";
+import { Sequence } from "../../model/sequence";
 
-import { Injectable } from '@angular/core';
-import { createCell, getCellValue, setCellValue } from '../model/cell';
-import { Draft, Cell } from '../model/datatypes';
-import { initDraftWithParams } from '../model/drafts';
 
+const name = "combos";
+const old_names = [];
+
+//PARAMS
+const ends:NumParam =  
+      {name: 'size',
+      type: 'number',
+        min: 2,
+        max: 4,
+      value: 3,
+      dx: 'the size of the structure'
+      }
+
+const selection: NumParam = 
+    {name: 'selection',
+    type: 'number',
+    min: 1,
+    max: 22874,
+    value: 1,
+    dx: 'the id of the generated structure you would like to view'
+    }
+
+const download: BoolParam = 
+    {
+    name: 'download all',
+    type: 'boolean',
+    falsestate: '',
+    truestate: 'downloading',
+    value: 0,
+    dx: "when this is set to true, it will trigger download of an image of the whole set everytime it recomputes, this may result in multiple downloads"
+    }
+
+
+const params = [ends, selection, download];
+
+//INLETS
+
+  const inlets = [];
+
+
+const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
+
+      const size: number = getOpParamValById(0, param_vals);
+      let selection: number = getOpParamValById(1, param_vals);
+      const download: number = getOpParamValById(2, param_vals);
+
+      //adjust by one to convert user input to the array index of the structure
+      selection -= 1;
+
+      //for larger set sizes, you must split up the download into multiple files
+      const divisor = (size - 3 > 0) ? Math.pow(2,(size-3)): 1;
+
+      return getSet(size, size)
+      .then(alldrafts => { 
+
+        if(download){
+
+          for(let set_id = 0; set_id < divisor; set_id++){
+            
+            const cc = 10;
+            const set_data = getDrafts(set_id, divisor);
+
+            let b:HTMLCanvasElement = <HTMLCanvasElement>document.createElement('canvas'); 
+            let context = b.getContext('2d');
+            b.width = (cc*(size+5))*20;
+            b.height = Math.ceil(set_data.length  / 20)*((5+size)*cc);
+            context.fillStyle = "white";
+            context.fillRect(0,0,b.width,b.height);
+
+            set_data.forEach((set, ndx) => {
+              
+              const top = Math.floor(ndx / 20) * (wefts(set.draft.drawdown)+5)*cc + 10;
+              const left = ndx % 20 * (warps(set.draft.drawdown)+5)*cc + 10; 
+              
+              context.font = "8px Arial";
+              context.fillStyle = "#000000"
+              context.fillText((set.id+1).toString(),left, top-2,size*cc)
+              context.strokeRect(left,top,size*cc,size*cc);
+
+              for (let i = 0; i < wefts(set.draft.drawdown); i++) {
+                for (let j = 0; j < warps(set.draft.drawdown); j++) {
+                  drawCell(context, set.draft, cc, i, j, top, left);
+                }
+              }            
+            })
+
+            // console.log("b", b);
+            const a = document.createElement('a')
+            a.href = b.toDataURL("image/jpg")
+            a.download = "allvalid_"+size+"x"+size+"_drafts_"+set_id+".jpg";
+            a.click();
+          }
+
+        }
+
+        
+        return Promise.resolve([getDraft(selection).draft]);
+
+      })
+      
+  }   
+
+
+const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
+    const selection: number = getOpParamValById(1, param_vals);
+    const size: number = getOpParamValById(0, param_vals);
+
+  return size+'x'+size+'-'+selection;
+}
+
+
+export const combinatorics: Operation = {name, old_names, params, inlets, perform, generateName};
+
+
+
+/**** CUSTOM FUNCTIONS FOR GENERATING ALL POSSIBLE STRUCRTURES****/
 
 
 interface ComboTree {
-  set: Array<Array<number>>,
-  top: ComboNode
-}
-
-interface ComboNode {
-  parent: ComboNode;
-  value: number,
-  set: Array<Array<number>>,
-  children: Array<ComboNode>;
-}
-
-
-@Injectable({
-  providedIn: 'root'
-})
-export class CombinatoricsService {
-
-  cur_set: any = {warps: 0, wefts: 0};
-  all_possible_drafts: Array<{draft:Draft, id:number}> = [];
-  min_interlacements: number = 1;
-
-  constructor() { 
-
+    set: Array<Array<number>>,
+    top: ComboNode
+  }
+  
+  interface ComboNode {
+    parent: ComboNode;
+    value: number,
+    set: Array<Array<number>>,
+    children: Array<ComboNode>;
   }
 
+  let cur_set: any = {warps: 0, wefts: 0};
+  let all_possible_drafts: Array<{draft:Draft, id:number}> = [];
+  let min_interlacements: number = 1;
+
+
+  function drawCell(cx, draft, cell_size, i, j, top,  left){
+    let is_up = isUp(draft.drawdown, i, j);
+    let color = "#ffffff"
+   
+    if(is_up){
+      color = '#000000';
+    }else{
+      color = '#ffffff';
+    }
+    cx.fillStyle = color;
+    cx.strokeStyle = '#000000';
 
  
+
+    //hack, draw upside down to account for later flip
+    i = (wefts(draft.drawdown)-1) - i;
+
+    cx.strokeRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
+    cx.fillRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
+  }
+
 
   /**
    * returns all the values from the valid set that match the sequence
    * @param seq 
    * @param valid 
    */
-  filterForSeq(seq: Array<number>, valid: Array<Array<number>>) : Array<Array<number>>{
+  function filterForSeq(seq: Array<number>, valid: Array<Array<number>>) : Array<Array<number>>{
     let filtered = valid.slice();
     seq.forEach((val, ndx) => {
       filtered = filtered.filter(set => set[ndx] == val);
@@ -53,17 +181,17 @@ export class CombinatoricsService {
    * prints the tree for verification
    * @param tree 
    */
-  printTree(tree: ComboTree){
+  function printTree(tree: ComboTree){
 
     console.log("***PRINT TREE***");
-    this.printNodes([tree.top]);
+    printNodes([tree.top]);
   }
 
-  printNodes(nodes: Array<ComboNode>){
+  function printNodes(nodes: Array<ComboNode>){
     
     nodes.forEach(node => {
      // console.log("Node: ", this.traceSequenceViaParents(node), node.set);
-      this.printNodes(node.children);
+      printNodes(node.children);
     });
   }
 
@@ -73,7 +201,7 @@ export class CombinatoricsService {
    * @param node a tree node from which to start
    * @returns the sequence reprsented by this node. 
    */
-  traceSequenceViaParents(node: ComboNode) : Array<number>{
+  function traceSequenceViaParents(node: ComboNode) : Array<number>{
     let seq = [];
     while(node.parent !== null){
       seq = [node.value].concat(seq);
@@ -90,7 +218,7 @@ export class CombinatoricsService {
    * @param valid the valid set of combinations
    * @returns a Combination Tree accounting for every valid set
    */
-  createTreeFromValidSet(valid: Array<Array<number>>) : Promise<ComboTree> {
+  function createTreeFromValidSet(valid: Array<Array<number>>) : Promise<ComboTree> {
 
     let tree:ComboTree = {
       set: valid.slice(),
@@ -137,26 +265,26 @@ export class CombinatoricsService {
    * @param warps the number of warps in the structure
    * @returns a promise containing the array of all drafts generated
    */
-  initSet(wefts: number, warps: number) : Promise<Array<{draft:Draft, id:number}>>{
+  function initSet(wefts: number, warps: number) : Promise<Array<{draft:Draft, id:number}>>{
 
-    this.cur_set = {warps:0, wefts:0};
-    this.all_possible_drafts = [];
+    cur_set = {warps:0, wefts:0};
+    all_possible_drafts = [];
 
-    return this.getAllPossible(warps-1)
+    return getAllPossible(warps-1)
     .then(possible => {
-      return this.makeValid(possible);
+      return makeValid(possible);
     })
     .then(valid => {
 
-      return this.createTreeFromValidSet(valid);
+      return createTreeFromValidSet(valid);
 
 
     }).then(tree => {
 
-      this.printTree(tree);
+      printTree(tree);
 
       let drafts: Array<Draft> = [];
-       let opts = this.getOptions([], tree);
+       let opts = getOptions([], tree);
        
        opts.forEach(opt => {
 
@@ -177,17 +305,17 @@ export class CombinatoricsService {
       
       const its = (wefts * 2) -1;
       for(let i = 1; i <= its; i++){
-       drafts = this.expandDrafts(drafts, tree, i, wefts);
+       drafts = expandDrafts(drafts, tree, i, wefts);
        //drafts.forEach(el => utilInstance.printDraft(el));
 
       }
 
       //drafts.forEach(el => utilInstance.printDraft(el));
 
-      this.all_possible_drafts = drafts.map((el, ndx) => {return {draft: el, id: ndx}});
-      this.cur_set.wefts = wefts;
-      this.cur_set.warps = warps;
-      return Promise.resolve(this.all_possible_drafts);
+      all_possible_drafts = drafts.map((el, ndx) => {return {draft: el, id: ndx}});
+      cur_set.wefts = wefts;
+       cur_set.warps = warps;
+      return Promise.resolve(all_possible_drafts);
 
 
     });
@@ -201,9 +329,9 @@ export class CombinatoricsService {
    * @param wefts the wefts to check
    * @returns a boolean 
    */
-  getSet(warps: number, wefts: number) : Promise<Array<{draft:Draft, id:number}>> {
-    if(warps === this.cur_set.warps && wefts === this.cur_set.wefts) return Promise.resolve(this.all_possible_drafts);
-    else return this.initSet(warps, wefts);
+  function getSet(warps: number, wefts: number) : Promise<Array<{draft:Draft, id:number}>> {
+    if(warps === cur_set.warps && wefts === cur_set.wefts) return Promise.resolve(all_possible_drafts);
+    else return initSet(warps, wefts);
   }
 
   /**
@@ -211,8 +339,8 @@ export class CombinatoricsService {
    * @param ndx the index to return
    * @returns returns the draft at the index, or an empty draft if so
    */
-  getDraft(ndx: number) : {draft: Draft, id: number}{
-    const found = this.all_possible_drafts.find(el => el.id == ndx)
+  function getDraft(ndx: number) : {draft: Draft, id: number}{
+    const found = all_possible_drafts.find(el => el.id == ndx)
     if(found == undefined) return {draft: initDraftWithParams({wefts: 1, warps: 1}), id: -1};
     else return found;
   }
@@ -222,11 +350,11 @@ export class CombinatoricsService {
    * @param ndx the index to return
    * @returns returns the draft at the index, or an empty draft if so
    */
-  getDrafts(ndx: number, divisor: number) : Array<{draft: Draft, id: number}>{
-    const set_size = Math.floor(this.all_possible_drafts.length/divisor);
+  function getDrafts(ndx: number, divisor: number) : Array<{draft: Draft, id: number}>{
+    const set_size = Math.floor(all_possible_drafts.length/divisor);
     const begin = ndx * set_size;
     const stop = begin + set_size;
-    const drafts = this.all_possible_drafts.filter(el => (el.id >= begin && el.id <= stop));
+    const drafts = all_possible_drafts.filter(el => (el.id >= begin && el.id <= stop));
     return drafts;
   }
 
@@ -237,12 +365,12 @@ export class CombinatoricsService {
    * @param wefts the size of the structure
    * @returns an (expanded)array of drafts and associated valid sets
    */
-  expandDrafts(drafts: Array<Draft>, tree: ComboTree, ndx: number, wefts: number) : Array<Draft> {
+  function expandDrafts(drafts: Array<Draft>, tree: ComboTree, ndx: number, wefts: number) : Array<Draft> {
 
     let all_drafts: Array< Draft> = [];
     drafts.forEach(draft => {
-      if(ndx % 2 == 0) all_drafts = all_drafts.concat(this.addRow(draft, tree, Math.floor(ndx/2), wefts));
-      if(ndx % 2 == 1) all_drafts = all_drafts.concat(this.addCol(draft, tree, Math.floor(ndx/2), wefts));
+      if(ndx % 2 == 0) all_drafts = all_drafts.concat(addRow(draft, tree, Math.floor(ndx/2), wefts));
+      if(ndx % 2 == 1) all_drafts = all_drafts.concat(addCol(draft, tree, Math.floor(ndx/2), wefts));
     })
 
     //console.log("returning from all drafts", all_drafts.length);
@@ -259,7 +387,7 @@ export class CombinatoricsService {
    * @param n 
    * @returns 
    */
-  addRow(draft: Draft, tree: ComboTree, i:number, n: number){
+  function addRow(draft: Draft, tree: ComboTree, i:number, n: number){
     let expanded_drafts = [];  
     //console.log("adding rows to ", vsd);
 
@@ -270,7 +398,7 @@ export class CombinatoricsService {
     //console.log("Generated set ", set, );
 
 
-    let opts = this.getOptions(set, tree);
+    let opts = getOptions(set, tree);
     //console.log("generated options", opts);
     opts.forEach(opt => {
 
@@ -289,7 +417,7 @@ export class CombinatoricsService {
     return expanded_drafts;
   }
 
-  addCol(draft: Draft, tree: ComboTree, j:number, n: number){
+  function addCol(draft: Draft, tree: ComboTree, j:number, n: number){
     //console.log("adding cols to ", vsd);
 
     let expanded_drafts = [];
@@ -299,7 +427,7 @@ export class CombinatoricsService {
       set.push(getCellValue(draft.drawdown[i][j]) ? 1 : 0);
     }
 
-    let opts = this.getOptions(set, tree);
+    let opts =getOptions(set, tree);
     //console.log("generated options for set", set, opts);
 
     opts.forEach(opt => {
@@ -327,7 +455,7 @@ export class CombinatoricsService {
    * @param tree the tree to search
    * @returns 
    */
-  getOptions(seq: Array<Number>, tree: ComboTree) : Array<Array<number>>{
+  function getOptions(seq: Array<Number>, tree: ComboTree) : Array<Array<number>>{
 
     let children = tree.top.children.slice();
     
@@ -351,7 +479,7 @@ export class CombinatoricsService {
    * @param all_possible 
    * @returns 
    */
-  makeValid(all_possible: Array<Array<number>>) : Promise<Array<Array<number>>>{
+  function makeValid(all_possible: Array<Array<number>>) : Promise<Array<Array<number>>>{
     const all_valid = [];
 
     for(let i = 0; i < all_possible.length; i++){
@@ -375,12 +503,12 @@ export class CombinatoricsService {
    * all elements > 0
    * @param n 
    */
-  getAllPossible(n: number): Promise<Array<Array<number>>>{
+  function getAllPossible(n: number): Promise<Array<Array<number>>>{
 
     let all_combos = [];
 
     for(let i = 0; i < n; i++){
-      all_combos = this.addBit(all_combos);
+      all_combos = addBit(all_combos);
     }
     return Promise.resolve(all_combos);
     
@@ -389,7 +517,7 @@ export class CombinatoricsService {
 
   
 
-  addBit(set: Array<Array<number>>) : Array<Array<number>> {
+  function addBit(set: Array<Array<number>>) : Array<Array<number>> {
     
     const expanded_set = [];
 
@@ -407,12 +535,3 @@ export class CombinatoricsService {
 
 
 
-
-
-
-
-
-  
-
-
-}
