@@ -179,15 +179,46 @@ export module Sequence{
      * @param seq the 1D sequence value to add 
      * @returns 
      */
-    pushWeftSequence(seq: Array<number>){
+    pushWarpSequence(seq: Array<number>){
+
+      let height = this.state.length;
+      if(this.state.length > 0 && height != seq.length){
+        let lcm = utilInstance.lcm([height, seq.length]);
+        let width = this.state[0].length;
+
+        for(let j = 0; j < width; j++){
+          let col = this.state.map(el => el[j]);
+          let col_seq = new OneD(col).expand(lcm).val();
+          for(let i = 0; i < lcm; i++){
+            this.state[i][j] = col_seq[i];
+          }
+        }
+      }
 
       if(this.state.length == 0){
-        this.state.push(seq);
-      }else{
-        let width = this.state[0].length;
-        if(width == seq.length){
-          this.state.push(seq);
-        }else{
+        seq.forEach((num, ndx) => {
+          this.state.push([]);
+        })
+      }
+
+      seq.forEach((num, ndx) => {
+        this.state[ndx].push(num);
+      })
+      
+      return this;
+    }
+
+     /**
+     * adds a col to the first (or subsequent col) of the 2D sequence
+     * @param seq the 1D sequence value to add 
+     * @returns 
+     */
+     pushWeftSequence(seq: Array<number>){
+
+
+     
+      if(this.state.length > 0 && this.state[0].length !== seq.length){
+          let width = this.state[0].length;     
 
           let lcm = utilInstance.lcm([width, seq.length]);
           
@@ -195,7 +226,9 @@ export module Sequence{
             this.state[ndx] = new OneD(row).expand(lcm).val();
           })
         }
-      }
+        this.state.push(seq);
+
+      
       return this;
     }
 

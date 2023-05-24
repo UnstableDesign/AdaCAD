@@ -16,7 +16,7 @@
                 "bwimagemap",
                 "sine",
                 "sawtooth",
-                "shifty"
+                "satinish"
             ]
         },
         {
@@ -61,15 +61,22 @@
         },
         {
             "category_name": "compound",
-            "description": "Descriptions operations that support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.",
+            "description": "Describes operations that support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.",
             "op_names":[
                 "interlace",
-                "interlace_warps",
+                "interlacewarps",
                 "splice in wefts",
                 "splice in warps",
                 "layer",
                 "assignlayers",
                 "notation"
+            ]
+        },
+        {
+            "category_name": "dissect",
+            "description": "Describes operations that split apart a single input draft into multiple outputs according to some criteria.",
+            "op_names":[
+                "deinterlace"
             ]
         },
         {

@@ -20,6 +20,7 @@ import { satinish } from '../operations/satinish/satinish';
 import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
 import { invert } from '../operations/invert/invert';
 import { interlace } from '../operations/interlace/interlace';
+import { interlacewarps } from '../operations/interlace_warps/interlace_warps';
 import { deinterlace } from '../operations/deinterlace/deinterlace';
 
 
@@ -76,7 +77,7 @@ export class OperationService {
     // this.ops.push(random);
     this.ops.push(interlace);
     this.ops.push(deinterlace);
-    // this.ops.push(interlace_warps);
+    this.ops.push(interlacewarps);
     // this.ops.push(splicein);
     // this.ops.push(spliceinwarps);
     // this.ops.push(assignwefts);

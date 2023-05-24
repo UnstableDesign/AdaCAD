@@ -110,7 +110,7 @@
             "application": "Not sure, but perhaps it is interesting for the purposes of analysing a draft structure or splitting apart layered drafts into their component layer patterns" 
         },
         {
-            "name":"interlace_warps",
+            "name":"interlacewarps",
             "displayname": "interlace warps",
             "description": "Creates a new draft by taking one end from each input and assigning them to sucessive ends in the output draft.",
             "application": "Combines two structures into a compound structure." 
