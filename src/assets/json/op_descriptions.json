@@ -104,6 +104,12 @@
             "application": "Combines two structures into a compound structure. For instance, for overshot, you might interlace a tabby into a floating structure, the alteranting tabby pics would add structure, the floats would add surface color and texture" 
         },
         {
+            "name":"deinterlace",
+            "displayname": "deinterlace wefts",
+            "description": "Creates multiple draft by splitting each pic from the input and assigning it to separate drafts. If the factor of two, two drafts are created. The first with all the odd pics and the send with all the even. If 3 is selected, three drafts are created, and so on",
+            "application": "Not sure, but perhaps it is interesting for the purposes of analysing a draft structure or splitting apart layered drafts into their component layer patterns" 
+        },
+        {
             "name":"interlace_warps",
             "displayname": "interlace warps",
             "description": "Creates a new draft by taking one end from each input and assigning them to sucessive ends in the output draft.",

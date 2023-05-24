@@ -18,9 +18,9 @@ import {satin} from '../operations/satin/satin'
 import { complextwill } from '../operations/complex_twill/complex_twill';
 import { satinish } from '../operations/satinish/satinish';
 import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
-
 import { invert } from '../operations/invert/invert';
 import { interlace } from '../operations/interlace/interlace';
+import { deinterlace } from '../operations/deinterlace/deinterlace';
 
 
 
@@ -75,6 +75,7 @@ export class OperationService {
     // this.ops.push(rib);
     // this.ops.push(random);
     this.ops.push(interlace);
+    this.ops.push(deinterlace);
     // this.ops.push(interlace_warps);
     // this.ops.push(splicein);
     // this.ops.push(spliceinwarps);
