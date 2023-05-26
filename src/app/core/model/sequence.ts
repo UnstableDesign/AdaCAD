@@ -17,6 +17,30 @@ export module Sequence{
       return this;
     }
 
+       /**
+     * adds a new value to the front of current sequence state
+     * @param val can accept a number or boolean. 
+     */
+       unshift(val: number | boolean){
+        if(typeof val == 'number'){
+          this.state.unshift(val)
+        }else{
+          switch(val){
+            case null:
+              this.state.unshift(2);
+              break;
+            case false: 
+              this.state.unshift(0);
+              break;
+            case true: 
+              this.state.unshift(1);
+              break;
+          }
+        }
+  
+        return this;
+      }
+
     /**
      * pushes a new value to the current sequence state
      * @param val can accept a number or boolean. 
@@ -51,6 +75,16 @@ export module Sequence{
       return this;
 
     }
+
+    unshiftMultiple(push_val: number | boolean, multiple: number){
+
+      for(let i = 0; i < multiple; i++){
+        this.unshift(push_val);
+      }
+      return this;
+
+    }
+    
     
 
 
@@ -155,6 +189,12 @@ export module Sequence{
     }
 
 
+    reverse(){
+      this.state = this.state.reverse();
+      return this;
+    }
+
+
     /**
      * provides the value of the state at this given moment of computation. 
      * @returns the sequence as a numeric array
@@ -162,6 +202,8 @@ export module Sequence{
     val():Array<number>{
       return this.state.slice();
     }
+
+
 
   }
 
@@ -173,6 +215,18 @@ export module Sequence{
     constructor(){
       return this;
     }
+
+    deleteWeft(i: number){
+      this.state = this.state.filter((el, ndx)=> ndx != i);
+      return this;
+   }
+
+   deleteWarp(j: number){
+     this.state.forEach((row, i) => {
+      this.state[i] = row.filter((el, ndx)=> ndx != j);
+     });
+     return this;
+  }
 
     /**
      * adds a row to the first (or subsequent row) of the 2D sequence
@@ -232,11 +286,44 @@ export module Sequence{
       return this;
     }
 
+         /**
+     * adds this weft to the front of the pattern
+     * @param seq the 1D sequence value to add 
+     * @returns 
+     */
+      unshiftWeftSequence(seq: Array<number>){
+
+
+     
+          if(this.state.length > 0 && this.state[0].length !== seq.length){
+              let width = this.state[0].length;     
+    
+              let lcm = utilInstance.lcm([width, seq.length]);
+              
+              this.state.forEach((row, ndx) => {
+                this.state[ndx] = new OneD(row).expand(lcm).val();
+              })
+            }
+            this.state.unshift(seq);
+    
+          
+          return this;
+      }
+
     setBlank(val: number | boolean = 1){
 
       let res = new OneD().push(val).val();
       this.state = [res];
       return this;
+    }
+
+    wefts(): number{
+      return this.state.length;
+    }
+
+    warps(): number{
+      if(this.state.length == 0) return 0;
+      return this.state[0].length;
     }
 
 
@@ -282,7 +369,6 @@ export module Sequence{
           }
         })
       });
-      console.log('CREATED', this.state.slice())
       return this;
     }
 
@@ -303,13 +389,9 @@ export module Sequence{
 
     }
 
- 
-
-
-
-
-
   }
+
+  
 }
 
 

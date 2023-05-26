@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 // import { VaeService} from "../../core/provider/vae.service"
 import { Draft, DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
 import { generateMappingFromPattern, isUp, warps, wefts } from '../../core/model/drafts';
-import { ImageService } from '../../core/provider/image.service';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { PatternfinderService } from "../../core/provider/patternfinder.service";
 import { SystemsService } from '../../core/provider/systems.service';
@@ -23,7 +22,10 @@ import { tabby_der } from '../operations/tabby/tabby';
 import { twill } from '../operations/twill/twill';
 import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
 import { combinatorics } from '../operations/combinatorics/combinatorics';
-
+import { waffle } from '../operations/square_waffle/square_waffle';
+import {tile} from '../operations/tile/tile'
+import {flipx} from '../operations/flipx/flipx'
+import {flipy} from '../operations/flipy/flipy'
 
 
 @Injectable({
@@ -37,11 +39,8 @@ export class OperationService {
 
   constructor(
     // private vae: VaeService, 
-    private pfs: PatternfinderService,
     private ms: MaterialsService,
-    private ss: SystemsService,
-    private is: ImageService,
-    private ws: WorkspaceService) { 
+    private ss: SystemsService) { 
      
 
   
@@ -67,7 +66,7 @@ export class OperationService {
     this.ops.push(twill);
     this.ops.push(complextwill);
     this.ops.push(undulatingtwill);
-    // this.ops.push(waffle);
+    this.ops.push(waffle);
     this.ops.push(satin);
     this.ops.push(satinish);
     // this.ops.push(shaded_satin);
@@ -85,8 +84,8 @@ export class OperationService {
    this.ops.push(invert);
   //   this.ops.push(vertcut);
   //  this.ops.push(replicate);
-  //   this.ops.push(flipx);
-  //   this.ops.push(flipy);
+    this.ops.push(flipx);
+    this.ops.push(flipy);
   //   this.ops.push(shiftx);
   //   this.ops.push(shifty);
   //   this.ops.push(layer);
@@ -96,7 +95,7 @@ export class OperationService {
   //   this.ops.push(joinleft);
   //   this.ops.push(jointop);
   //   this.ops.push(slope);
-  //   this.ops.push(tile);
+    this.ops.push(tile);
   //   this.ops.push(chaos);
   //   this.ops.push(stretch);
   //   this.ops.push(resize);
