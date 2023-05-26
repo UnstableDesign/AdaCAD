@@ -214,10 +214,16 @@
             "application": "Generates a twill or twill derivative structure that can be modified as needed as ones design evolves." 
         },
         {
-            "name":"waffle",
+            "name":"waffleish",
             "displayname": "waffle-ish",
             "description": "Waffle weave is a twill-based structure in which warp and weft floats of increasing and then decreasing lengths are bound by a border of tabby interlacements to create a grid of cells. There is typically an equal number of pics and ends in a single pattern unit. This operation generates waffle-type structures, but also creates something strange when given uneven pics and ends, or more than one border of tabby interlacements",
             "application": "Generates a waffle or waffle-inspired structure that can be modified as needed as ones design evolves." 
+        },
+        {
+            "name":"waffle",
+            "displayname": "waffle",
+            "description": "Waffle weave is a twill-based structure in which warp and weft floats of increasing and then decreasing lengths are bound by a border of tabby interlacements to create a grid of cells. There is typically an equal number of pics and ends in a single pattern unit. This operation generates waffle structures based on specifying the longest float and number of binding rows to surround each waffle. ",
+            "application": "Generates a waffle  structure that can be modified as needed as ones design evolves." 
         },
         {
             "name":"complextwill",

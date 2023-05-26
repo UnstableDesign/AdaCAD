@@ -129,7 +129,7 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 }
 
 
-export const waffle: Operation = {name, old_names, params, inlets, perform, generateName};
+export const square_waffle: Operation = {name, old_names, params, inlets, perform, generateName};
 
 
 

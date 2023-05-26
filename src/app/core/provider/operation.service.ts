@@ -1,31 +1,34 @@
 import { Injectable } from '@angular/core';
 // import { VaeService} from "../../core/provider/vae.service"
 import { Draft, DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
-import { generateMappingFromPattern, isUp, warps, wefts } from '../../core/model/drafts';
+import { generateMappingFromPattern, warps, wefts } from '../../core/model/drafts';
 import { MaterialsService } from '../../core/provider/materials.service';
-import { PatternfinderService } from "../../core/provider/patternfinder.service";
 import { SystemsService } from '../../core/provider/systems.service';
-import { WorkspaceService } from '../../core/provider/workspace.service';
 import { standardizeMaterialLists } from '../model/material';
 import { makeWarpSystemsUnique, makeWeftSystemsUnique } from '../model/system';
+import { combinatorics } from '../operations/combinatorics/combinatorics';
 import { complextwill } from '../operations/complex_twill/complex_twill';
 import { deinterlace } from '../operations/deinterlace/deinterlace';
 import { interlace } from '../operations/interlace/interlace';
 import { interlacewarps } from '../operations/interlace_warps/interlace_warps';
 import { invert } from '../operations/invert/invert';
 import { notation } from '../operations/layer_notation/layer_notation';
-import {random } from '../operations/random/random'
+import { random } from '../operations/random/random';
 import { rect } from '../operations/rect/rect';
 import { satin } from '../operations/satin/satin';
 import { satinish } from '../operations/satinish/satinish';
+import { square_waffle } from '../operations/square_waffle/square_waffle';
 import { tabby_der } from '../operations/tabby/tabby';
 import { twill } from '../operations/twill/twill';
 import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
-import { combinatorics } from '../operations/combinatorics/combinatorics';
-import { waffle } from '../operations/square_waffle/square_waffle';
-import {tile} from '../operations/tile/tile'
-import {flipx} from '../operations/flipx/flipx'
-import {flipy} from '../operations/flipy/flipy'
+import { waffleish } from '../operations/waffleish/waffleish';
+
+import { flipx } from '../operations/flipx/flipx';
+import { flipy } from '../operations/flipy/flipy';
+import { shaded_satin } from '../operations/shaded_satin/shaded_satin';
+import { shiftx } from '../operations/shiftx/shiftx';
+import { shifty } from '../operations/shifty/shifty';
+import { tile } from '../operations/tile/tile';
 
 
 @Injectable({
@@ -66,10 +69,11 @@ export class OperationService {
     this.ops.push(twill);
     this.ops.push(complextwill);
     this.ops.push(undulatingtwill);
-    this.ops.push(waffle);
+    this.ops.push(square_waffle);
+    this.ops.push(waffleish);
     this.ops.push(satin);
     this.ops.push(satinish);
-    // this.ops.push(shaded_satin);
+    this.ops.push(shaded_satin);
     // this.ops.push(tabby);
     this.ops.push(tabby_der);
     // this.ops.push(rib);
@@ -86,8 +90,8 @@ export class OperationService {
   //  this.ops.push(replicate);
     this.ops.push(flipx);
     this.ops.push(flipy);
-  //   this.ops.push(shiftx);
-  //   this.ops.push(shifty);
+    this.ops.push(shiftx);
+    this.ops.push(shifty);
   //   this.ops.push(layer);
   //   this.ops.push(selvedge);
   //   this.ops.push(bindweftfloats);
