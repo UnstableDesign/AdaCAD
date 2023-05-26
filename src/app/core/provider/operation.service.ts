@@ -29,6 +29,7 @@ import { shaded_satin } from '../operations/shaded_satin/shaded_satin';
 import { shiftx } from '../operations/shiftx/shiftx';
 import { shifty } from '../operations/shifty/shifty';
 import { tile } from '../operations/tile/tile';
+import { splicein } from '../operations/spliceinwefts/spliceinwefts'
 
 
 @Injectable({
@@ -81,7 +82,7 @@ export class OperationService {
     this.ops.push(interlace);
     this.ops.push(deinterlace);
     this.ops.push(interlacewarps);
-    // this.ops.push(splicein);
+    this.ops.push(splicein);
     // this.ops.push(spliceinwarps);
     // this.ops.push(assignwefts);
     // this.ops.push(assignwarps);

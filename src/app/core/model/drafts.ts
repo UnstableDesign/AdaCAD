@@ -570,7 +570,7 @@ export const createDraft = (
 
     to.colShuttleMapping =  generateMappingFromPattern(to.drawdown, from.colShuttleMapping,'col', 3);
 
-    to.rowSystemMapping =  generateMappingFromPattern(to.drawdown, from.colSystemMapping,'col', 3);
+    to.colSystemMapping =  generateMappingFromPattern(to.drawdown, from.colSystemMapping,'col', 3);
 
     return to;
   }
