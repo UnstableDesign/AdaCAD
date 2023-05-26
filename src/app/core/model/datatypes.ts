@@ -403,7 +403,7 @@ export interface FileSaver{
   type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
   dx: string,
   uses: 'draft' | 'weft-data' | 'warp-data' | 'warp-and-weft-data' ,
-  value: number | string,
+  value: number | string | null,
   num_drafts: number
 }
 

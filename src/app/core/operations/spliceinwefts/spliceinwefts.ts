@@ -43,7 +43,7 @@ dx: "controls if the whole draft is spliced in every nth weft or just the next p
 const params = [pics_btwn, repeats, style];
 
 //INLETS
-const draft_inlet: OperationInlet = {
+const receiving: OperationInlet = {
     name: 'receiving draft', 
     type: 'static',
     value: null,
@@ -52,7 +52,7 @@ const draft_inlet: OperationInlet = {
     num_drafts: 1
 }
 
-  const warp_systems: OperationInlet = {
+  const splicing: OperationInlet = {
     name: 'splicing draft', 
     type: 'static',
     value: null,
@@ -62,7 +62,7 @@ const draft_inlet: OperationInlet = {
   }
 
 
-  const inlets = [draft_inlet, warp_systems];
+  const inlets = [receiving, splicing];
 
 
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Promise<Array<Draft>> => {
@@ -80,6 +80,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   const all_drafts = [receiving_draft, splicing_draft];
 
   if(all_drafts.length == 0) return Promise.resolve([]);
+  if(receiving_draft == null || splicing_draft == null) return Promise.resolve([]);
 
   let total_wefts: number = 0;
   if(repeat === 1){

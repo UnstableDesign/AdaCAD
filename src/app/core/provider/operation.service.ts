@@ -30,6 +30,7 @@ import { shiftx } from '../operations/shiftx/shiftx';
 import { shifty } from '../operations/shifty/shifty';
 import { tile } from '../operations/tile/tile';
 import { splicein } from '../operations/spliceinwefts/spliceinwefts'
+import { spliceinwarps } from '../operations/spliceinwarps/spliceinwarps'
 
 
 @Injectable({
@@ -83,7 +84,7 @@ export class OperationService {
     this.ops.push(deinterlace);
     this.ops.push(interlacewarps);
     this.ops.push(splicein);
-    // this.ops.push(spliceinwarps);
+    this.ops.push(spliceinwarps);
     // this.ops.push(assignwefts);
     // this.ops.push(assignwarps);
    this.ops.push(invert);
