@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { shareReplay } from 'rxjs/operators';
 import { BoolParam, FileParam, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
@@ -149,14 +150,15 @@ export class ParameterComponent implements OnInit {
    
   }
 
+  /**
+   * this is called by the upload services "On Data function" which uploads and analyzes the image data in the image and returns it as a image data object
+   * @param obj 
+   */
   handleFile(obj: any){
-    this.fc.setValue(obj.data.name);
-    this.opnode.params[this.paramid] = obj.id;
-    const param = <FileParam> this.ops.getOp(this.opnode.name).params[this.paramid];
-    param.process(obj).then(inlets => {
-      this.onFileUpload.emit({id: obj.id, data: obj.data, inlets: inlets});
 
-    })
+    this.opnode.params[this.paramid] = {id: obj[0].id, data: obj[0]};
+    this.onOperationParamChange.emit({id: this.paramid, value: this.opnode.params[this.paramid]});
+    this.fc.setValue(obj[0].name);
   }
 
 

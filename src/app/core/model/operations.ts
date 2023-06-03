@@ -26,6 +26,9 @@ export const getAllDraftsAtInlet = (op_inputs : Array<OpInput>, inlet_id: number
   } 
 }
 
+
+
+
 const returnDefaultValue = ( p: OpParamVal) : any => {
     switch(p.param.type){
         case 'boolean': 

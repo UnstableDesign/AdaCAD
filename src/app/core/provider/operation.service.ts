@@ -31,7 +31,7 @@ import { shifty } from '../operations/shifty/shifty';
 import { tile } from '../operations/tile/tile';
 import { splicein } from '../operations/spliceinwefts/spliceinwefts'
 import { spliceinwarps } from '../operations/spliceinwarps/spliceinwarps'
-
+import {imagemap} from '../operations/imagemap/imagemap'
 
 @Injectable({
   providedIn: 'root'
@@ -57,7 +57,7 @@ export class OperationService {
     // this.dynamic_ops.push(assignlayers);
     // this.dynamic_ops.push(dynamic_join_left);
     // this.dynamic_ops.push(dynamic_join_top);
-    // this.dynamic_ops.push(imagemap);
+    this.dynamic_ops.push(imagemap);
     // this.dynamic_ops.push(bwimagemap);
      this.dynamic_ops.push(notation);
     // this.dynamic_ops.push(weft_profile);

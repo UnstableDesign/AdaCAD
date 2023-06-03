@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
+import { AnalyzedImage } from '../model/datatypes';
 import utilInstance from '../model/util';
 import { UploadService } from '../uploads/upload.service';
 
@@ -15,14 +17,15 @@ export class ImageService {
 
 
   loadFiles(ids: Array<string>) : Promise<any> {
-    const fns = ids.map(id => this.loadFile(id));
+    const fns = ids
+    .filter(id => id !== '')
+    .map(id => this.loadFile(id));
     return Promise.all(fns);
   }
 
 
-  loadFile(id: string) : Promise<any>{
+  loadFile(id: string) : Promise<AnalyzedImage>{
 
-    
     let url = "";
     this.images.push({id: id, data: null});
   
@@ -108,7 +111,7 @@ export class ImageService {
           });
         }
       
-        var obj = {
+        var obj: AnalyzedImage = {
           id: id,
           name: id,
           data: imgdata,

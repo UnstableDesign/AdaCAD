@@ -57,12 +57,12 @@ export class UploadFormComponent implements OnInit {
 
   async uploadImage(upload: Upload, file: File){
      await this.upSvc.pushUpload(upload).then(snapshot => {
-       console.log("loading :", upload.name)
       return  this.imageService.loadFiles([upload.name]);
     }).then(uploaded => {
       const obj = this.imageService.getImageData(upload.name);
-      this.onData.emit(obj);
-      this.uploading = false;
+     // this.onData.emit(obj);
+    this.onData.emit(uploaded);
+     this.uploading = false;
       this.selectedFiles = null;
 
     }).catch(console.error); 

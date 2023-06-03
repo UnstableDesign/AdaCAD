@@ -4,6 +4,7 @@ import { ConnectionComponent } from "../../mixer/palette/connection/connection.c
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
+import { Subject } from "rxjs";
 
 /**
  * This file contains all definitions of custom types and objects
@@ -465,10 +466,8 @@ export type BoolParam = OperationParam & {
 
 /**
 * An extension of Param that handles extra requirements for select file inputs
-* Currently a placeholder should extra data be required. 
 */
 export type FileParam = OperationParam & {
-  process: (data: any) => Promise<Array<any>>;
 }
 
 
@@ -563,6 +562,22 @@ export type DynamicOperation = Operation &  {
   category_name: string,
   description: string,
   op_names: Array<string>;
+ }
+
+
+
+ export interface AnalyzedImage{
+    id: string,
+    name: string,
+    data: ImageData, 
+    colors: Array<string>,
+    colors_to_bw: Array<any>,
+    image: HTMLImageElement,
+    image_map: Array<Array<number>>,
+    width:number,
+    height: number,
+    type: string,
+    warning: string
  }
 
 

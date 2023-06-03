@@ -566,21 +566,26 @@ zoomChange(e:any, source: string){
 
     //start processing images first thing 
     const images_to_load = [];
+   
     data.ops.forEach(op => {
       const internal_op = this.ops.getOp(op.name); 
       if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
       const param_types = internal_op.params.map(el => el.type);
       param_types.forEach((p, ndx) => {
-        if(p === 'file') images_to_load.push(op.params[ndx]);
+        if(p === 'file'){
+          images_to_load.push(op.params[ndx]);
+        } 
       });
     })
 
 
     return this.image.loadFiles(images_to_load).then(el => {
+      console.log("LOADED IMAGE FILES")
       return this.tree.replaceOutdatedOps(data.ops);
     })
     .then(correctedOps => {    
       data.ops = correctedOps; 
+      console.log("LAODING NODES")
       return this.loadNodes(data.nodes)
     })
     .then(id_map => {

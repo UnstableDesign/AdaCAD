@@ -9,6 +9,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
+import { ImageService } from './image.service';
 import { OperationService } from './operation.service';
 
 
@@ -30,6 +31,7 @@ export class TreeService {
   constructor(
     private ws: WorkspaceService,
     private ops: OperationService,
+    private imageservice: ImageService,
     private systemsservice: SystemsService) { 
   }
 
@@ -106,15 +108,21 @@ export class TreeService {
    onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
 
-      const op = this.ops.getOp(name);
+      const op = <DynamicOperation> this.ops.getOp(name);
       const opnode = this.getOpNode(opid);
+
+      if(!this.ops.isDynamic(name)) return;
+
+      console.log(" op.dynamic_param_id, param_id ",op.dynamic_param_id, param_id)
+      if(op.dynamic_param_id != param_id) return;
 
 
       let param_vals:Array<OpParamVal> = opnode.params.map((el, ndx) =>  {
        return  { op_name: name, param: op.params[ndx], val: el}
       });
 
-      inlets = (<DynamicOperation> op).onParamChange(param_vals, op.inlets, inlets, param_id, param_val);
+      inlets = op.onParamChange(param_vals, op.inlets, inlets, param_id, param_val);
+
       return inlets;
   }
 
@@ -293,7 +301,9 @@ export class TreeService {
             return (params[ndx]) ? 1 : 0;
           
             case "file":
-              return params[ndx];
+              const id_and_data = this.imageservice.getImageData(params[ndx]);
+              if(id_and_data === undefined  || id_and_data.data === undefined) return {id: params[ndx], data: null}
+              else return {id: params[ndx], data: id_and_data.data};
         
             default:
               return params[ndx];
@@ -2206,11 +2216,21 @@ isValidIOTuple(io: IOTuple) : boolean {
     const objs: Array<any> = []; 
 
     this.getOpNodes().forEach(op_node => {
+      const op = this.ops.getOp(op_node.name);
+
+      let cleaned_params = op.params.map((param_template, ndx) => {
+        if(param_template.type == 'file'){
+          return op_node.params[ndx].id;
+        }else{
+          return op_node.params[ndx];
+        }
+      })
+      
 
       const savable:OpComponentProxy = {
         node_id: op_node.id,
         name: op_node.name,
-        params: op_node.params,
+        params: cleaned_params,
         inlets: op_node.inlets
       }
 

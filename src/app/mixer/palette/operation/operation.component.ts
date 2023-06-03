@@ -151,10 +151,6 @@ export class OperationComponent implements OnInit {
     this.opnode = <OpNode> this.tree.getNode(this.id);
     if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
 
-    this.hasInlets = this.op.inlets.length > 0;
-
-
-
   }
 
   ngAfterViewInit(){
@@ -169,6 +165,7 @@ export class OperationComponent implements OnInit {
 
 
     this.viewInit = true;
+    this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
 
 
@@ -180,30 +177,35 @@ export class OperationComponent implements OnInit {
 
       const opnode = this.tree.getOpNode(this.id);
       const paramid = this.op.params.findIndex(el => el.type === 'file');
-      const obj = this.imageService.getImageData(opnode.params[paramid]);
+      const obj = this.imageService.getImageData(opnode.params[paramid].id);
 
       if(obj === undefined) return;
 
-      this.has_image_preview = true;
-      const image_div =  document.getElementById('param-image-'+this.id);
-      image_div.style.display = 'flex';
+        const data = obj.data;
 
-      const dims_div =  document.getElementById('param-image-dims-'+this.id);
-      dims_div.innerHTML=obj.data.width+"px x "+obj.data.height+"px";
+        this.has_image_preview = true;
+        const image_div =  document.getElementById('param-image-'+this.id);
+        image_div.style.display = 'flex';
+  
+        const dims_div =  document.getElementById('param-image-dims-'+this.id);
+        dims_div.innerHTML=data.width+"px x "+data.height+"px";
+  
+        const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.id);
+        const ctx = canvas.getContext('2d');
+  
+        const max_dim = (data.width > data.height) ? data.width : data.height;
+        const use_width = (data.width > 100) ? data.width / max_dim * 100 : data.width;
+        const use_height = (data.height > 100) ? data.height / max_dim * 100 : data.height;
+  
+        canvas.width = use_width;
+        canvas.height = use_height;
+  
+  
+        ctx.drawImage(data.image, 0, 0, use_width, use_height);
+    
 
-      const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.id);
-      const ctx = canvas.getContext('2d');
+      
 
-      const max_dim = (obj.data.width > obj.data.height) ? obj.data.width : obj.data.height;
-      const use_width = (obj.data.width > 100) ? obj.data.width / max_dim * 100 : obj.data.width;
-      const use_height = (obj.data.height > 100) ? obj.data.height / max_dim * 100 : obj.data.height;
-
-      canvas.width = use_width;
-      canvas.height = use_height;
-
-
-      ctx.drawImage(obj.data.image, 0, 0, use_width, use_height);
-     
     }
 
 
@@ -219,9 +221,9 @@ export class OperationComponent implements OnInit {
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
-  refreshInlets(){
-    this.opnode.inlets
-  }
+  // refreshInlets(){
+  //   this.opnode.inlets
+  // }
 
 
 
@@ -373,27 +375,39 @@ export class OperationComponent implements OnInit {
    */
   onParamChange(obj: any){
 
-    console.log("on param change", this.is_dynamic_op)
-
 
     if(this.is_dynamic_op){
       const opnode = <OpNode> this.tree.getNode(this.id);
       const op = <DynamicOperation> this.operations.getOp(opnode.name);
       //this is a hack to use an input draft to generate inlets
       
-      if(op.params[obj.id].type == 'draft'){
-        const inputs:Array<IOTuple> = this.tree.getInputsAtNdx(this.id, 0);
-        if(inputs.length === 0) obj.value = -1;
-        else {
-          const draft_node_in_id = inputs[0].tn.inputs[0].tn.node.id;
-          obj.value = draft_node_in_id;
-        }
-        
-      }
-      const new_inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value)
-      this.opnode.inlets = new_inlets.slice();
+      if(op.dynamic_param_id == obj.id){
 
-      if(op.dynamic_param_type == "number") this.opnode.inlets = this.opnode.inlets.map(el => parseInt(el));
+        if(op.params[obj.id].type == 'draft'){
+          const inputs:Array<IOTuple> = this.tree.getInputsAtNdx(this.id, 0);
+          if(inputs.length === 0) obj.value = -1;
+          else {
+            const draft_node_in_id = inputs[0].tn.inputs[0].tn.node.id;
+            obj.value = draft_node_in_id;
+          }
+          
+        }
+
+        this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value)
+        this.hasInlets = opnode.inlets.length > 0;
+
+        if(opnode.name == 'imagemap' || opnode.name == 'bwimagemap'){
+          this.drawImagePreview();
+
+          //update the width and height
+          let image_param = opnode.params[op.dynamic_param_id];
+          opnode.params[1] = image_param.data.width;
+          opnode.params[2] = image_param.data.height;
+
+
+        }
+      }
+
     }
     
     this.onOperationParamChange.emit({id: this.id});

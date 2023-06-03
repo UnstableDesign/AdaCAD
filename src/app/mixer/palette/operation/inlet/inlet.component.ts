@@ -52,10 +52,9 @@ export class InletComponent implements OnInit {
     for(let i = 1; i < 50; i++){
       this.number_opts.push(i);
     }
-
     
     // initalize any dyanmic inlets
-    if(this.inletid >= op.inlets.length && this.dynamic){
+    if(this.opnode.inlets.length > 0 && this.inletid >= op.inlets.length && this.dynamic){
       const type = (<DynamicOperation> op).dynamic_param_type;
       this.inlet = <OperationInlet>{
         type: type,
@@ -101,8 +100,12 @@ export class InletComponent implements OnInit {
         break;
       case 'notation':
       case 'string':
-      case 'color':
         return value.slice();
+        break;
+
+      case 'color':
+        return value;
+        break;
       
     }
   }
