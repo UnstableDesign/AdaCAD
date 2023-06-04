@@ -3,9 +3,12 @@ import { Draft, SaveObj } from '../model/datatypes';
 import {cloneDeep} from 'lodash';
 import {Firestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import {getDatabase, ref as fbref, set as fbset, onValue} from '@angular/fire/database'
+import {getDatabase, ref as fbref, set as fbset, onValue, update} from '@angular/fire/database'
 import { AuthService } from './auth.service';
 import * as _ from 'lodash';
+import { getAuth } from 'firebase/auth';
+import utilInstance from '../model/util';
+import { FilesystemService } from './filesystem.service';
 /**
  * stores a state within the undo/redo timeline
  * weaver uses draft, mixer uses ada
@@ -29,7 +32,12 @@ export class StateService {
   timeline: Array<HistoryState>; //new states are always pushed to front of draft
   // private itemDoc: AngularFirestoreDocument<Item>;
   
-  constructor(firestore: Firestore, public auth: AuthService) {
+  current_file_id: number = -1;
+  current_file_name: string = "draft"
+  current_file_desc: string = ""
+
+
+  constructor(firestore: Firestore, public auth: AuthService, private files: FilesystemService) {
 
     const db = getDatabase();
 
@@ -39,6 +47,7 @@ export class StateService {
     this.redo_disabled = true;
 
   }
+
 
   printValue(value: any){
     console.log("printing", value);
@@ -50,24 +59,30 @@ export class StateService {
     return cur_state;
   }
 
+
   /**
    * this writes the most current state of the program to the user's entry to the realtime database
    * @param cur_state returned from file saver, constains the JSON string of the file as well as the obj
    * @returns 
    */
-  public writeUserData(cur_state: any) {
+  // public writeUserData(cur_state: any) {
 
-    if(this.auth.uid === undefined) return;
+  //   if(this.auth.uid === undefined) return;
 
-    cur_state = this.validateWriteData(cur_state)
+  //   cur_state = this.validateWriteData(cur_state)
 
 
-    const db = getDatabase();
-    fbset(fbref(db, 'users/' + this.auth.uid), {
-      timestamp: Date.now(),
-      ada: cur_state
-    }).catch(console.error);
-  }
+
+
+    
+  //   const db = getDatabase();
+  //   fbset(fbref(db, 'users/' + this.auth.uid), {
+  //     timestamp: Date.now(),
+  //     ada: cur_state
+  //   }).catch(console.error);
+  // }
+
+  
 
 
   // update(item: Item) {
@@ -121,37 +136,91 @@ export class StateService {
  * used in mixer - adds an ada file to the history state
  * @param ada 
  */
-  public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
+public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
 
-    var state = {
-      draft: null,
-      ada: cloneDeep(ada.file),
+
+  var state = {
+    draft: null,
+    ada: {
+      version: ada.file.version,
+      workspace: ada.file.workspace,
+      type: ada.file.type,
+      nodes: ada.file.nodes.slice(),
+      tree: ada.file.tree.slice(),
+      draft_nodes: ada.file.draft_nodes.slice(),
+      ops: ada.file.ops.slice(),
+      notes: ada.file.notes.slice(),
+      materials: ada.file.materials.slice(),
+      scale: ada.file.scale
     }
+  }
 
-    //write this to database, overwritting what was previously there
-    this.writeUserData(ada.file);
+  //write this to database, overwritting what was previously there
+  //this.files.writeUserData(ada.file);
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if(user !== null){
+    this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
+  } 
+
+  //we are looking at the most recent state
+  if(this.active_id > 0){
 
 
-    //we are looking at the most recent state
-    if(this.active_id > 0){
-
-
-      //erase all states until you get to the active row
-      this.timeline.splice(0, this.active_id);
-      this.active_id = 0;
-      this.redo_disabled = true;
-
-    }
-
-    //add the new element to position 0
-    var len = this.timeline.unshift(state);
-    if(len > this.max_size) this.timeline.pop();
-
-    if(this.timeline.length > 1) this.undo_disabled = false;
-
-    //this.logState(ada);
+    //erase all states until you get to the active row
+    this.timeline.splice(0, this.active_id);
+    this.active_id = 0;
+    this.redo_disabled = true;
 
   }
+
+  //add the new element to position 0
+  var len = this.timeline.unshift(state);
+  if(len > this.max_size) this.timeline.pop();
+
+  if(this.timeline.length > 1) this.undo_disabled = false;
+
+  //this.logState(ada);
+
+}
+
+/**
+ * used in mixer - adds an ada file to the history state
+ * @param ada 
+ */
+  // public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
+
+  //   var state = {
+  //     draft: null,
+  //     ada: cloneDeep(ada.file),
+  //   }
+
+  //   //write this to database, overwritting what was previously there
+  //   this.writeUserData(ada.file);
+
+
+  //   //we are looking at the most recent state
+  //   if(this.active_id > 0){
+
+
+  //     //erase all states until you get to the active row
+  //     this.timeline.splice(0, this.active_id);
+  //     this.active_id = 0;
+  //     this.redo_disabled = true;
+
+  //   }
+
+  //   //add the new element to position 0
+  //   var len = this.timeline.unshift(state);
+  //   if(len > this.max_size) this.timeline.pop();
+
+  //   if(this.timeline.length > 1) this.undo_disabled = false;
+
+  //   //this.logState(ada);
+
+  // }
 
   
 /**

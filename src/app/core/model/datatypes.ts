@@ -376,7 +376,7 @@ export interface LoadResponse{
 }
 
 export interface Fileloader{
-  ada: (filename: string, data: any) => Promise<LoadResponse>,
+  ada: (filename: string, id: number, data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
   //bmp: (filename: string, data: any) => Promise<LoadResponse>,
   //jpg: (filename: string, data: any) => Promise<LoadResponse>,

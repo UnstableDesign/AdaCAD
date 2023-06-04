@@ -83,7 +83,7 @@ export class InitModal implements OnInit {
       //   );
       
       case 'ada': 
-        return this.fls.loader.ada(e.name, e.data)
+        return this.fls.loader.ada(e.name, -1, e.data)
         .then(
           res => this.dialogRef.close(res)
         );
@@ -101,22 +101,22 @@ export class InitModal implements OnInit {
     });
   }
 
-  loadExample(filename: string){
+  // loadExample(filename: string){
     
-    const analytics = getAnalytics();
-    logEvent(analytics, 'onloadexample', {
-      items: [{ uid: this.auth.uid, name: filename }]
-    });
+  //   const analytics = getAnalytics();
+  //   logEvent(analytics, 'onloadexample', {
+  //     items: [{ uid: this.auth.uid, name: filename }]
+  //   });
 
-    console.log("loading example: ", filename);
-    this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
+  //   console.log("loading example: ", filename);
+  //   this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
 
-      return this.fls.loader.ada(filename, res.body)
-        .then(
-          res => this.dialogRef.close(res)
-        );
-    }); 
-  }
+  //     return this.fls.loader.ada(filename, res.body)
+  //       .then(
+  //         res => this.dialogRef.close(res)
+  //       );
+  //   }); 
+  // }
 
  
 

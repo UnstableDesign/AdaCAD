@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR, enableProdMode } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, HostListener, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ɵNOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR, enableProdMode, Optional } from '@angular/core';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import {Subject} from 'rxjs';
@@ -27,6 +27,8 @@ import * as _ from 'lodash';
 import { any } from '@tensorflow/tfjs';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import utilInstance from '../core/model/util';
+import { FilesystemService } from '../core/provider/filesystem.service';
+import { Auth, authState, User } from '@angular/fire/auth';
 
 
 //disables some angular checking mechanisms
@@ -88,7 +90,9 @@ export class MixerComponent implements OnInit {
     private dialog: MatDialog,
     private image: ImageService,
     private ops: OperationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private files: FilesystemService,
+    @Optional() private fbauth: Auth,
     ) {
 
 
@@ -103,6 +107,14 @@ export class MixerComponent implements OnInit {
     
     this.vp.setAbsolute(16380, 16380); //max size of canvas, evenly divisible by default cell size
    
+
+
+    if (auth) {
+      const success = authState(this.fbauth).subscribe(async user => {
+         this.initLoginLogoutSequence(user) 
+      })
+
+   }
   }
 
 
@@ -115,13 +127,6 @@ export class MixerComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    let searchParams = new URLSearchParams(window.location.search);
-
-    if(searchParams.has('ex')){
-      this.loadExampleAtURL(searchParams.get('ex'));  
-    }else{
-      this.loadLoggedInUser();
-    }
 
   }
 
@@ -538,61 +543,181 @@ export class MixerComponent implements OnInit {
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
-      return this.fs.loader.ada(name, res.body)
+
+      this.clearAll();
+      return this.fs.loader.ada(name, -1, res.body)
      .then(loadresponse => {
        this.loadNewFile(loadresponse)
      });
     }); 
   }
 
+  isBlankWorkspace() : boolean {
+    return this.tree.nodes.length == 0;
+  }
 
-  loadLoggedInUser(){
+  loadBlankFile(){
+    this.clearAll();
+    this.files.setCurrentFileInfo(this.files.generateFileId(), 'load blank', '');
+    this.saveFile();
+  }
 
-    this.auth.user.subscribe(user => {
+  saveFile(){
+    //if this user is logged in, write it to the
+    this.fs.saver.ada(
+      'mixer', 
+      true,
+      this.scale)
+      .then(so => {
+        this.ss.addMixerHistoryState(so);
+      });
+}
 
-      if(user === null){
 
-        const dialogRef = this.dialog.open(InitModal, {
-          data: {source: 'mixer'}
-        });
+  prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
+    return this.fs.loader.ada(name, id, ada).then(lr => {
+      this.loadNewFile(lr);
+    });
+  }
 
 
-        dialogRef.afterClosed().subscribe(loadResponse => {
-          this.palette.changeDesignmode('move');
-          if(loadResponse !== undefined){
-            if(loadResponse.status == -1){
-              this.clearAll();
-            }
-            else{
-              this.loadNewFile(loadResponse);
-            }
-          } 
+  initLoginLogoutSequence(user:User) {
+    console.log("IN LOGIN/LOGOUT ", user)
+
+
+    let searchParams = new URLSearchParams(window.location.search);
+    if(searchParams.has('ex')){
+      this.loadExampleAtURL(searchParams.get('ex'));  
+      return;
+    }
+
+
+    if(user === null){
+      //this is a logout event
+      this.files.setCurrentFileInfo(this.files.generateFileId(), 'blank draft','');
+      this.files.clearTree();
+
+
+
+    }else{
+
+      if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
+    
+        this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
+
+          if(fileid !== null){
+
+            const ada = await this.files.getFile(fileid);
+            const meta = await this.files.getFileMeta(fileid);           
+             
+
+              if(ada === undefined){
+                this.loadBlankFile();
+
+              }else if(meta === undefined){
+                this.files.setCurrentFileInfo(fileid, 'file name not found', '');
+                this.prepAndLoadFile('file name not found', fileid, '', ada);
+              
+              }else{
+
+                this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
+                this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+              }
+
+          }else{
+              console.log("LOOKING FOR ADA FILE")
+             this.auth.getMostRecentAdaFromUser(user).then(async adafile => {
+                console.log("ADA FILE IS ", adafile)
+                if(adafile !== null){
+                    let fileid = await this.files.convertAdaToFile(user.uid, adafile); 
+                    console.log("convert ada to file id ", fileid)
+            
+                    let ada = await this.files.getFile(fileid);
+                    let meta = await this.files.getFileMeta(fileid);           
+                    
+                    if(ada === undefined){
+                      this.loadBlankFile();
+                    }else if(meta === undefined){
+                      this.files.setCurrentFileInfo(fileid, 'file name not found', '');
+                      this.prepAndLoadFile('file name not found', fileid, '', ada);
+      
+                    }else{
+                      this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
+                      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+                    }
+
+                }else{
+                  console.log("load blank")
+                  this.loadBlankFile();
+                  return;
+                }
+             });
+          }
+        }) 
+
+      }else{
+        
+        //this.loadBlankFile();
+        this.saveFile();
+        this.files.writeNewFileMetaData(user.uid, this.files.current_file_id, this.files.current_file_name, this.files.current_file_desc)
+
+    
+      }
+      
+    }
+  }
+
+
+
+  // loadLoggedInUser(){
+
+  //   this.auth.user.subscribe(user => {
+
+  //     if(user === null){
+
+  //       const dialogRef = this.dialog.open(InitModal, {
+  //         data: {source: 'mixer'}
+  //       });
+
+
+  //       dialogRef.afterClosed().subscribe(loadResponse => {
+  //         this.palette.changeDesignmode('move');
+  //         if(loadResponse !== undefined){
+  //           if(loadResponse.status == -1){
+  //             this.ss.setCurrentFileInfo(this.ss.generateFileId(), loadResponse,'');
+  //             this.clearAll();
+  //           }
+  //           else{
+  //             this.ss.setCurrentFileInfo(, loadResponse,'');
+  //             this.loadNewFile(loadResponse);
+  //           }
+  //         } 
         
     
-       });
-      }else{
+  //      });
+  //     }else{
 
-        //in the case someone logs in mid way through, don't replace their work. 
-        if(this.tree.nodes.length > 0) return;
+  //       //in the case someone logs in mid way through, don't replace their work. 
+  //       if(this.tree.nodes.length > 0) return;
        
 
-        const db = fbref(getDatabase());
+  //       const db = fbref(getDatabase());
 
 
-                fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
-                  if (snapshot.exists()) {
-                    this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
-                      this.loadNewFile(lr);
-                    });
-                  }
-                }).catch((error) => {
-                  console.error(error);
-                });
+  //               fbget(child(db, `users/${this.auth.uid}/ada`)).then((snapshot) => {
+  //                 if (snapshot.exists()) {
+  //                   this.fs.loader.ada("recovered draft", snapshot.val()).then(lr => {
+  //                     this.loadNewFile(lr);
+  //                   });
+  //                 }
+  //               }).catch((error) => {
+  //                 console.error(error);
+  //               });
 
-      }
-    });
+  //     }
+  //   });
 
-  }
+  // }
 
 
   loadSavedFile(){
@@ -645,7 +770,7 @@ export class MixerComponent implements OnInit {
 
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
-    this.fs.loader.ada(this.filename, so).then(
+    this.fs.loader.ada(this.filename, this.ss.current_file_id, so).then(
       lr => this.loadNewFile(lr)
     );
 
@@ -657,7 +782,7 @@ export class MixerComponent implements OnInit {
     let so: SaveObj = this.ss.restoreNextMixerHistoryState();
     if(so === null || so === undefined) return;
 
-    this.fs.loader.ada(this.filename, so)
+    this.fs.loader.ada(this.filename, this.ss.current_file_id, so)
     .then(lr =>  this.loadNewFile(lr));
 
    

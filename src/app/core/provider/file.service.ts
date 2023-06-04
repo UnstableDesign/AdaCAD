@@ -12,6 +12,8 @@ import { getLoomUtilByType, loadLoomFromFile } from '../model/looms';
 import { WorkspaceService } from './workspace.service';
 import * as _ from 'lodash';
 import { I } from '@angular/cdk/keycodes';
+import { StateService } from './state.service';
+import { FilesystemService } from './filesystem.service';
 
 
 
@@ -39,7 +41,8 @@ export class FileService {
     private ms: MaterialsService,
     private ss: SystemsService,
     private vs: VersionService,
-    private ws: WorkspaceService) { 
+    private ws: WorkspaceService,
+    private files: FilesystemService) { 
   
   this.status = [
     {id: 0, message: 'success', success: true},
@@ -53,13 +56,15 @@ export class FileService {
    */
   const dloader: Fileloader = {
 
-     ada: async (filename: string, data: any) : Promise<LoadResponse> => {
+     ada: async (filename: string, id: number, data: any) : Promise<LoadResponse> => {
       console.log("DATA IN", _.cloneDeep(data))
 
       let draft_nodes: Array<DraftNodeProxy> = [];
       //let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
       let version = "0.0.0";
+      if(id === -1) id = this.files.generateFileId();
+
       
       this.clearAll();
 
