@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, Output, Input, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { UploadService } from '../upload.service';
-import { Upload } from '../upload';
-import { finalize } from 'rxjs/operators';
-import utilInstance from '../../model/util';
+import { UploadService } from '../../provider/upload.service';
+import { Draft, Drawdown, Upload } from '../../model/datatypes';
 import { ImageService } from '../../provider/image.service';
+import { Sequence } from '../../model/sequence';
+import { initDraftFromDrawdown } from '../../model/drafts';
 
 @Component({
   selector: 'upload-form',
@@ -12,14 +12,20 @@ import { ImageService } from '../../provider/image.service';
   styleUrls: ['./upload-form.component.scss']
 })
 export class UploadFormComponent implements OnInit {
-  @Input() warps: number;
-  @Input() type: string;
+ 
+  @Input() type: string; //'single_image', 'ada', or 'bitmap_collection'
+  @Input() multiple: boolean;
+  @Input() accepts: string;
+
+
   progress:number = 0;
   selectedFiles: FileList;
   uploading: boolean = false;
   imageToShow: any;
   downloadid: string;
+
   @ViewChild('uploadImage') canvas: ElementRef;
+
   @Output() onData: any = new EventEmitter();
 
   constructor(private upSvc: UploadService, private httpClient: HttpClient, private imageService: ImageService) { }
@@ -56,37 +62,60 @@ export class UploadFormComponent implements OnInit {
   }
 
   async uploadImage(upload: Upload, file: File){
-     await this.upSvc.pushUpload(upload).then(snapshot => {
+
+    this.upSvc.pushUpload(upload).then(snapshot => {
       return  this.imageService.loadFiles([upload.name]);
     }).then(uploaded => {
-      const obj = this.imageService.getImageData(upload.name);
-     // this.onData.emit(obj);
+
+
     this.onData.emit(uploaded);
-     this.uploading = false;
-      this.selectedFiles = null;
+    this.uploading = false;
+    this.selectedFiles = null;
 
     }).catch(console.error); 
   }
 
+  uploadBitmap(upload: Upload, file: File) : Promise<any> {
+    
+    return this.upSvc.pushUpload(upload).then(snapshot => {
+     return  this.imageService.loadFiles([upload.name]);
+   }).catch(console.error); 
+ }
 
+  upload(){
+    //determine if single or multiple. 
+    if(this.selectedFiles.length == 1) this.uploadSingle();
+    else{
+      this.uploadMultiple();
+    }
+  }
+
+
+  
   uploadSingle() {
 
     this.uploading = true;
 
     let file:File = this.selectedFiles.item(0)
     let fileType = file.name.split(".").pop();
-   const upload = new Upload(file);
+    let fileName = file.name.split(".")[0];
+
+    const upload:Upload = {
+          $key: '',
+          file:file,
+          name:fileName,
+          url:'',
+          progress:0,
+          createdAt: new Date()
+      };
 
 
-    switch(fileType){
+    switch(this.type){
       case 'ada':
         this.uploadAda(upload, file);
       break;
 
-      case 'jpg':
-      case 'bmp':
-      case 'png':
-
+      case 'single_image':
       this.uploadImage(upload, file);
       break;
 
@@ -97,6 +126,63 @@ export class UploadFormComponent implements OnInit {
 
 
   }
+
+  uploadMultiple() {
+    
+    if(this.type == 'bitmap_collection'){
+      this.uploading = true;
+
+        const uploads= [];
+        const fns = [];
+        for(let i = 0; i < this.selectedFiles.length; i++){
+
+          let file:File = this.selectedFiles.item(i)
+          let fileName = file.name.split(".")[0];
+
+          const upload:Upload = {
+            $key: '',
+            file:file,
+            name:fileName,
+            url:'',
+            progress:0,
+            createdAt: new Date()
+        };
+        uploads.push(upload);
+        fns.push(this.uploadBitmap(upload, file));
+
+        }
+
+       Promise.all(fns).then(res => {
+        let drafts = [];
+        res.forEach(upload_arr => {
+          let upload = upload_arr[0];
+          const twod: Sequence.TwoD = new Sequence.TwoD();
+          for(let i = 0; i < upload.height; i++){
+            const oned: Sequence.OneD = new Sequence.OneD();
+            for(let j = 0; j < upload.width; j++){
+              oned.push(upload.image_map[i][j]);
+            }
+            twod.pushWeftSequence(oned.val());
+          }
+          const d: Draft = initDraftFromDrawdown(twod.export());
+          d.gen_name = upload.name;
+          drafts.push(d);
+        })
+
+        this.onData.emit({type: this.type, drafts: drafts});
+        this.uploading = false;
+        this.selectedFiles = null;
+        return [];
+       }).then(res => {
+          let functions = uploads.map(el => this.upSvc.deleteUpload(el));
+          Promise.all(functions);
+       }).catch(console.error);
+
+
+    }
+
+  }
+
 
   ngOnInit() {
   }

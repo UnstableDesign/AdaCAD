@@ -10,11 +10,18 @@ import { FileService } from '../../provider/file.service';
 export class LoadfileComponent {
  
  
+  multiple: boolean = false;
+  accepts: string = '';
+  type: string = ''; //'single_image', 'ada', or 'bitmap_collection'
  
   constructor(
     private fls: FileService,
     private dialogRef: MatDialogRef<LoadfileComponent>, 
     @Inject(MAT_DIALOG_DATA) private data: any) {
+
+      this.multiple = data.multiple;
+      this.accepts = data.accepts;
+      this.type = data.type;
       
   }
 
@@ -23,6 +30,7 @@ export class LoadfileComponent {
    * @param e 
    */
    async handleFile(e: any) : Promise<any>{
+    console.log("Handling TYPE ", e);
 
     switch(e.type){
       // case 'image': 
@@ -34,6 +42,11 @@ export class LoadfileComponent {
       //   .then(
       //     res => this.dialogRef.close(res)
       //   );
+
+      case 'bitmap_collection':
+        this.dialogRef.close(e.drafts)
+        break;
+
       
       case 'ada': 
         return this.fls.loader.ada(e.name,-1, '', e.data)

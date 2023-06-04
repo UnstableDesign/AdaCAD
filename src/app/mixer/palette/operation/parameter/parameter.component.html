@@ -140,7 +140,13 @@
     <ng-container  *ngIf="param.type == 'file'">
        
       <div class='param-file'>
-        <upload-form type="init" (onData)="handleFile($event)" class="button"></upload-form>
+        <upload-form 
+        type="init" 
+        multiple="false"
+        accepts=".jpg,.png,.bmp"
+        type="single_image"
+        (onData)="handleFile($event)" class="button">
+      </upload-form>
      </div>
 
    

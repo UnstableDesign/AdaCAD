@@ -580,6 +580,17 @@ export type DynamicOperation = Operation &  {
     warning: string
  }
 
+ export interface Upload {
+  $key: string,
+  file:File,
+  name:string,
+  url:string,
+  progress:number,
+  createdAt: Date,
+
+}
+
+
 
 /****************** OBJECTS/TYPES RELATED to OPERATION TREE *****************/
 

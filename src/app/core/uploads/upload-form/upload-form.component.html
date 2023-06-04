@@ -1,14 +1,14 @@
 <div class="upload-container">
 
    <label>
-      <input type="file" (change)="detectFiles($event)">
+      <input type="file" [multiple]="multiple" [accept]="accepts" (change)="detectFiles($event)">
    </label>
 
    <div *ngIf="!uploading" class="upload-button">
       <button mat-button
             color="primary"
             [disabled]="!selectedFiles"
-            (click)="uploadSingle();">
+            (click)="upload();">
             Upload
       </button>
    </div>

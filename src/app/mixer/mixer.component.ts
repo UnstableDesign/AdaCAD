@@ -4,7 +4,7 @@ import { Component, enableProdMode, HostListener, OnInit, Optional, ViewChild } 
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
-import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, LoomUtil, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { copyDraft, flipDraft, initDraftWithParams } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
 import { AuthService } from '../core/provider/auth.service';
@@ -33,6 +33,7 @@ import { MatDrawer } from '@angular/material/sidenav';
 import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
 import { RenderService } from '../draftdetail/provider/render.service';
 import { createCell } from '../core/model/cell';
+import { defaults } from '../core/model/defaults';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -580,7 +581,6 @@ zoomChange(e:any, source: string){
 
 
     return this.image.loadFiles(images_to_load).then(el => {
-      console.log("LOADED IMAGE FILES")
       return this.tree.replaceOutdatedOps(data.ops);
     })
     .then(correctedOps => {    
@@ -771,7 +771,30 @@ zoomChange(e:any, source: string){
 
  
 
-  
+  loadDrafts(drafts: any){
+    console.log("LOADING ", drafts);
+    const loom:Loom = {
+      threading:[],
+      tieup:[],
+      treadling: []
+    };
+
+    const loom_settings:LoomSettings = {
+      type:this.ws.type,
+      epi: this.ws.epi,
+      units: this.ws.units,
+      frames: this.ws.min_frames,
+      treadles: this.ws.min_treadles
+      
+    }
+    drafts.forEach(draft => {
+      const id = this.tree.createNode("draft", null, null);
+      this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
+      this.palette.loadSubDraft(id, draft, null, null, this.zs.zoom);
+      //id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number
+    });
+    
+  }
 
 
   loadExampleAtURL(name: string){

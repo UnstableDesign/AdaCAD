@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from "firebase/storage";
 import { Observable } from 'rxjs';
 import { AuthService } from '../provider/auth.service';
-import { Upload } from './upload';
+import { Upload } from '../model/datatypes';
+
 const httpOptions = {
   headers: new HttpHeaders({
   })
@@ -14,9 +15,8 @@ const httpOptions = {
 @Injectable()
 export class UploadService {
 
-   constructor(private auth: AuthService) { }
+  constructor(private auth: AuthService) { }
 
-  private basePath:string = '/uploads';
   uploadProgress: Observable<number>;
   progress: number;
   imageToShow: any;
@@ -66,7 +66,6 @@ export class UploadService {
   uploadData(id: string, upload: Upload, metadata: UploadMetadata){
       const storage = getStorage();
       const storageRef = ref(storage, 'uploads/'+id);
-      console.log("upload data" , upload);
       const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
       uploadTask
@@ -128,7 +127,6 @@ export class UploadService {
   }
 
   getDownloadData(id: string) : Promise<any> {
-    console.log('getdownload data for', id)
     const storage = getStorage();
     if(id === 'noinput') return Promise.resolve('');
     return getDownloadURL(ref(storage, 'uploads/'+id))

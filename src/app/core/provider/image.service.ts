@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AnalyzedImage } from '../model/datatypes';
 import utilInstance from '../model/util';
-import { UploadService } from '../uploads/upload.service';
+import { UploadService } from '../provider/upload.service';
 
 @Injectable({
   providedIn: 'root'
