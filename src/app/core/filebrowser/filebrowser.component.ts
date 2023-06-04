@@ -164,8 +164,7 @@ export class FilebrowserComponent implements OnInit {
   }
 
 
-     //need to handle this and load the file somehow
-     openBitmaps() {
+  openBitmaps() {
 
 
       const dialogRef = this.dialog.open(LoadfileComponent, {
