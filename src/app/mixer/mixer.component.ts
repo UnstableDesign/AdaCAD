@@ -4,7 +4,7 @@ import { Component, enableProdMode, HostListener, OnInit, Optional, ViewChild } 
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
-import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, LoomUtil, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, LoomUtil, NodeComponentProxy, OpNode, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { copyDraft, flipDraft, initDraftWithParams } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
 import { AuthService } from '../core/provider/auth.service';
@@ -34,6 +34,7 @@ import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
 import { RenderService } from '../draftdetail/provider/render.service';
 import { createCell } from '../core/model/cell';
 import { defaults } from '../core/model/defaults';
+import { MultiselectService } from './provider/multiselect.service';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -81,6 +82,7 @@ export class MixerComponent implements OnInit {
 
 
 
+
  /**
    * The weave Timeline object.
    * @property {Timeline}
@@ -97,7 +99,7 @@ export class MixerComponent implements OnInit {
   scrollingSubscription: any;
 
 
-
+  selected_nodes_copy: any = null;
 
 
   /// ANGULAR FUNCTIONS
@@ -125,7 +127,8 @@ export class MixerComponent implements OnInit {
     private zs: ZoomService,
     private files: FilesystemService,
     private render: RenderService,
-    @Optional() private fbauth: Auth,
+    private multiselect: MultiselectService,
+    @Optional() private fbauth: Auth
     ) {
 
 
@@ -868,6 +871,35 @@ zoomChange(e:any, source: string){
     .then(lr =>  this.loadNewFile(lr));
 
    
+  }
+
+  onCopySelections(){
+    const selections = this.multiselect.copySelections();
+    console.log("COPIED ", selections)
+    this.selected_nodes_copy = selections;
+  }
+
+  onPasteSelections(){
+    const selections =  this.selected_nodes_copy;
+    console.log("PASTING ", selections);
+
+    selections.all_nodes.forEach(node => {
+      
+      if(node.type == 'op'){
+        this.palette.pasteOperation(node);
+      }else if(node.type == 'draft'){
+        let draft = <DraftNode> node;
+        this.palette.addSubdraftFromDraft(draft.draft);
+      }else{
+        
+      }
+
+
+
+    })
+
+    this.multiselect.clearSelections();
+    
   }
 
   togglePanMode(){

@@ -328,7 +328,7 @@ export module Sequence{
 
 
     /**
-     * fills a rectangle of given size with the current state.
+     * fills a rectangle of given size with the current state. If the rectangle specified is smaller than state, it crops the current state
      * @param w the width
      * @param h the hieght
      */
@@ -339,9 +339,20 @@ export module Sequence{
       let len = this.state.length;
 
       for(let i = 0; i < h; i++){
-        let row = new OneD(this.state[i%len]).expand(w).val();
+        let row;
+        if(w >= len)
+        row = new OneD(this.state[i%len]).expand(w).val();
+        else{
+        row = new OneD(this.state[i%len].slice(0, w)).val()
+        }
         this.state[i] = row;
       }
+
+      if(h < len){
+        this.state = this.state.slice(0, h);
+      }
+
+
       return this;
     }
 

@@ -16,6 +16,8 @@ export class KeycodesDirective {
   @Output() onRedo: any = new EventEmitter();
   @Output() updateMixerView: any = new EventEmitter();
   @Output() updateDetailView: any = new EventEmitter();
+  @Output() onCopySelections: any = new EventEmitter();
+  @Output() onPasteSelections: any = new EventEmitter();
 
 
   constructor( 
@@ -117,6 +119,15 @@ export class KeycodesDirective {
     this.onRedo.emit();
     }
 
+
+    if(e.key =="c" && e.metaKey){
+      this.onCopySelections.emit();
+      }
+  
+    if(e.key =="v" && e.metaKey){
+      this.onPasteSelections.emit();
+      }
+    
    
 
   // /**

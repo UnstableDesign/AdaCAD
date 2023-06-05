@@ -7,6 +7,7 @@ import { StateService } from '../../core/provider/state.service';
 import { OperationService } from '../../core/provider/operation.service';
 import { OperationDescriptionsService } from '../../core/provider/operation-descriptions.service';
 import { OperationClassification } from '../../core/model/datatypes';
+import { LoadfileComponent } from '../../core/modal/loadfile/loadfile.component';
 
 @Component({
   selector: 'app-design',
@@ -20,6 +21,7 @@ export class DesignComponent {
   @Output() onOperationAdded: any = new EventEmitter();
   @Output() onImport: any = new EventEmitter();
   @Output() onNoteCreate: any = new EventEmitter();
+  @Output() onLoadDrafts: any = new EventEmitter();
 
   upload_modal: MatDialogRef<InitModal, any>;
   op_modal: MatDialogRef<OpsComponent, any>;
@@ -38,6 +40,29 @@ export class DesignComponent {
   }
 
 
+  openBitmaps() {
+
+
+    const dialogRef = this.dialog.open(LoadfileComponent, {
+      data: {
+        multiple: true,
+        accepts: '.jpg,.bmp,.png',
+        type: 'bitmap_collection',
+        title: 'Select Bitmap Files to Convert to Drafts'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(drafts => {
+      if(drafts !== undefined){
+        this.onLoadDrafts.emit(drafts);
+
+      } 
+      
+   });
+  }
+
+
+
   createNewDraft(){
 
     const dialogRef = this.dialog.open(BlankdraftModal, {
@@ -49,23 +74,7 @@ export class DesignComponent {
    });
   }
 
-  upload(){
-    //need to handle this and load the file somehow
-    if(this.upload_modal != undefined && this.upload_modal.componentInstance != null) return;
 
-
-    this.upload_modal = this.dialog.open(InitModal, {
-      data: {source: 'import'}
-    });
-
-    this.upload_modal.afterClosed().subscribe(result => {
-      if(result !== undefined) this.onImport.emit(result);
-      
-
-   });
-
-
-  }
 
 
 openOps(){

@@ -552,6 +552,7 @@ export class TreeService {
 
 
 
+
   getConnectionsInvolving(node_id: number) : {from: number, to: number}{
 
     const tn = this.getTreeNode(node_id);
@@ -1586,6 +1587,11 @@ isValidIOTuple(io: IOTuple) : boolean {
   }
 
 
+  /**
+   * gets the tree node associated with a given Node 
+   * @param id the idea of the node (not the tree node id) 
+   * @returns 
+   */
   getTreeNode(id:number): TreeNode{
     const found =  this.tree.find(el => el.node.id === id);
     if(found === undefined){
@@ -1721,7 +1727,7 @@ isValidIOTuple(io: IOTuple) : boolean {
      const combined = set_a.concat(set_b);
 
     if(combined.length === 0){
-      console.error("No connection found between", a, b);
+      //console.error("No connection found between", a, b);
       return -1;
     } 
 

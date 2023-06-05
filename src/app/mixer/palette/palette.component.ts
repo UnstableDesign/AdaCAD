@@ -2,7 +2,7 @@ import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point, Cell} from '../../core/model/datatypes';
+import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point, Cell, OpNode} from '../../core/model/datatypes';
 import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
@@ -398,15 +398,39 @@ handlePan(diff: Point){
   //  * called anytime an operation is added. Adds the operation to the tree. 
   //  * @param name the name of the operation to add
   //  */
-  addOperation(name:string){
+  addOperation(name:string) : number{
       
       const opcomp:OperationComponent = this.createOperation(name);
       this.performAndUpdateDownstream(opcomp.id).then(el => {
         this.addTimelineState();
       });
 
+      return opcomp.id;
       
   }
+
+   /**
+  //  * called anytime an operation is added. Adds the operation to the tree. 
+  //  * @param name the name of the operation to add
+  //  */
+  pasteOperation(opnode:OpNode){
+      
+    const opcomp:OperationComponent = this.createOperation(opnode.name);
+
+    const new_node = <OpNode> this.tree.getNode(opcomp.id);
+
+    new_node.inlets = opnode.inlets.slice();
+    new_node.params = opnode.params.slice();
+    new_node.component.topleft = {x: opnode.component.topleft.x+100, y:opnode.component.topleft.y+100};
+
+
+
+    this.performAndUpdateDownstream(opcomp.id).then(el => {
+      this.addTimelineState();
+    });
+    
+}
+
 
 
 
@@ -2577,6 +2601,8 @@ drawStarted(){
   moveAllSelections(moving_id: number){
     const selections = this.multiselect.getSelections();
     if(selections.length == 0) return;
+    console.log("MOVE ALL SELECTIONS")
+
     const rel_pos = this.multiselect.getRelativePosition();
     const cur_pos = this.tree.getComponent(moving_id).topleft;
     const diff:Point = {x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y};

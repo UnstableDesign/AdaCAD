@@ -13,7 +13,8 @@ export class LoadfileComponent {
   multiple: boolean = false;
   accepts: string = '';
   type: string = ''; //'single_image', 'ada', or 'bitmap_collection'
- 
+  title: string = 'Select Files'
+
   constructor(
     private fls: FileService,
     private dialogRef: MatDialogRef<LoadfileComponent>, 
@@ -22,6 +23,7 @@ export class LoadfileComponent {
       this.multiple = data.multiple;
       this.accepts = data.accepts;
       this.type = data.type;
+      if(data.title !== undefined) this.title = data.title;
       
   }
 
@@ -30,7 +32,6 @@ export class LoadfileComponent {
    * @param e 
    */
    async handleFile(e: any) : Promise<any>{
-    console.log("Handling TYPE ", e);
 
     switch(e.type){
       // case 'image': 

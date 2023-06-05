@@ -4,6 +4,9 @@
   (onRedo)="redo()"
   (updateMixerView)="renderChange($event)"
   (updateDetailView)="detailViewChange()"
+  (onCopySelections)="onCopySelections()"
+  (onPasteSelections)="onPasteSelections()"
+
 >
 </appKeycodes>
 
@@ -141,7 +144,6 @@
         (onLoadFromDB)="loadFromDB($event);"
         (onClearScreen)="loadBlankFile();"
         (onCurrentFileDeleted)="deleteCurrentFile();"
-        (onLoadDrafts)="loadDrafts($event);"
         (onSave)="onSave($event);">
       </app-filebrowser>
       </mat-tab>
@@ -151,7 +153,9 @@
         (onRedo)="redo();"
         (onOperationAdded) = "operationAdded($event)"
         (onImport) = "importNewFile($event)"
-        (onNoteCreate) ="createNote();"     (onNewDraftCreated)="newDraftCreated($event)"
+        (onLoadDrafts)="loadDrafts($event);"
+        (onNoteCreate) ="createNote();"     
+        (onNewDraftCreated)="newDraftCreated($event)"
         ></app-design>
 
 

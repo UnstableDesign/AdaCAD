@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Point } from '../../core/model/datatypes';
+import { sec } from 'mathjs';
+import { Node, Point } from '../../core/model/datatypes';
 import { TreeService } from '../../core/provider/tree.service';
 
 @Injectable({
@@ -64,7 +65,6 @@ export class MultiselectService {
 
       return false;
     }else{
-      console.log("adding selection", id);
 
       this.selected.push({id, topleft});
       container = <HTMLElement> document.getElementById("scale-"+id);
@@ -115,5 +115,43 @@ export class MultiselectService {
     const f = this.selected.find(el => el.id == id);
     return {x: f.topleft.x + diff.x, y: f.topleft.y + diff.y}
   }
+
+  /**
+   * creates a copy of each of the elements (and their positions, for pasting into this file or another file)
+   * @returns 
+   */
+  copySelections() : any {
+
+    let selected_nodes:Array<Node> = this.selected
+    .map(el => this.tree.getNode(el.id))
+    .filter(el => el.type !== 'cxn')
+    .filter(el => el.type !== 'draft' && !this.tree.hasParent(el.id));
+   
+    let node_mirror:Array<Node> =selected_nodes.slice();
+
+
+    let relevant_connection_ids = [];
+    let relevant_connection_nodes = [];
+
+    selected_nodes.forEach(node => {
+
+      node_mirror = node_mirror.filter( el => el.id !== node.id);
+
+      node_mirror.forEach(mirror => {
+        let cxn = this.tree.getConnection(node.id, mirror.id);
+        if(cxn !== -1 && relevant_connection_ids.find(el => el == cxn) === undefined) relevant_connection_ids.push(cxn);
+      });
+
+    });
+
+    relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
+    let all_nodes = selected_nodes.concat(relevant_connection_nodes);
+    let treenodes = all_nodes.map(el => this.tree.getTreeNode(el.id));
+
+    return {all_nodes, treenodes};
+
+  }
+
+
 
 }

@@ -1,7 +1,11 @@
+
+<h2 mat-dialog-title>{{title}}</h2>
+
 <mat-dialog-content>
 <upload-form type="init" [multiple]="multiple"  [type]="type" [accepts]="accepts" (onData)="handleFile($event)" class="button"></upload-form>
 </mat-dialog-content>
 
-<!-- <mat-dialog-actions>
-    <button class="mat-raised-button mat-primary">Load</button>
-</mat-dialog-actions> -->
+<mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="true">Close (and don't upload)</button>
+  </mat-dialog-actions>
+

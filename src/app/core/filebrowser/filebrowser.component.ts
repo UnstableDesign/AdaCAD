@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { LoginComponent } from '../login/login.component';
 import { InitModal } from '../modal/init/init.modal';
 import { WorkspaceService } from '../provider/workspace.service';
-import { UploadFormComponent } from '../uploads/upload-form/upload-form.component';
 import { LoadfileComponent } from '../modal/loadfile/loadfile.component';
 
 
@@ -21,7 +20,6 @@ export class FilebrowserComponent implements OnInit {
   @Output() onCurrentFileDeleted: any = new EventEmitter();
   @Output() onSave: any = new EventEmitter();
   @Output() onLoadFromDB: any = new EventEmitter();
-  @Output() onLoadDrafts: any = new EventEmitter();
 
   
   isLoggedIn = false;
@@ -153,7 +151,8 @@ export class FilebrowserComponent implements OnInit {
       data: {
         multiple: false,
         accepts: '.ada',
-        type: 'ada'
+        type: 'ada',
+        title: 'Select an AdaCAD (.ada) file to Import'
       }
     });
 
@@ -164,26 +163,6 @@ export class FilebrowserComponent implements OnInit {
   }
 
 
-  openBitmaps() {
-
-
-      const dialogRef = this.dialog.open(LoadfileComponent, {
-        data: {
-          multiple: true,
-          accepts: '.jpg,.bmp,.png',
-          type: 'bitmap_collection'
-        }
-      });
-  
-      dialogRef.afterClosed().subscribe(drafts => {
-        if(drafts !== undefined){
-          this.onLoadDrafts.emit(drafts);
-
-        } 
-        
-     });
-    }
-  
 
 openLoginDialog() {
     const dialogRef = this.dialog.open(LoginComponent, {
