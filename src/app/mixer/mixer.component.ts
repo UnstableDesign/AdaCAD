@@ -1,15 +1,23 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { HttpClient } from '@angular/common/http';
-import { Component, enableProdMode, HostListener, OnInit, Optional, ViewChild } from '@angular/core';
+import { Component, enableProdMode, OnInit, Optional, ViewChild } from '@angular/core';
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
+import { Auth, authState, User } from '@angular/fire/auth';
+import { NgForm } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
 import { Subject } from 'rxjs';
-import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, LoomUtil, NodeComponentProxy, OpNode, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
-import { copyDraft, flipDraft, initDraftWithParams } from '../core/model/drafts';
+import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
+import { createCell } from '../core/model/cell';
+import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { defaults } from '../core/model/defaults';
+import { copyDraft, flipDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
+import utilInstance from '../core/model/util';
 import { AuthService } from '../core/provider/auth.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
+import { FilesystemService } from '../core/provider/filesystem.service';
 import { ImageService } from '../core/provider/image.service';
 import { MaterialsService } from '../core/provider/materials.service';
 import { NotesService } from '../core/provider/notes.service';
@@ -18,23 +26,13 @@ import { StateService } from '../core/provider/state.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { OpsComponent } from './modal/ops/ops.component';
-import { PaletteComponent } from './palette/palette.component';
-import { SubdraftComponent } from './palette/subdraft/subdraft.component';
-import { ViewportService } from './provider/viewport.service';
-import { ZoomService } from './provider/zoom.service';
-import {MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from '@angular/material/tooltip';
-import { FormControl, NgForm } from '@angular/forms';
-import utilInstance from '../core/model/util';
-import { FilesystemService } from '../core/provider/filesystem.service';
-import { Auth, authState, User } from '@angular/fire/auth';
-import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
-import { MatDrawer } from '@angular/material/sidenav';
 import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
 import { RenderService } from '../draftdetail/provider/render.service';
-import { createCell } from '../core/model/cell';
-import { defaults } from '../core/model/defaults';
+import { PaletteComponent } from './palette/palette.component';
+import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
+import { ViewportService } from './provider/viewport.service';
+import { ZoomService } from './provider/zoom.service';
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -150,7 +148,7 @@ export class MixerComponent implements OnInit {
             this.onWindowScroll(data);
     });
     
-    this.vp.setAbsolute(16380, 16380); //max size of canvas, evenly divisible by default cell size
+    this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
    
 
 
@@ -201,7 +199,6 @@ export class MixerComponent implements OnInit {
   }
 
   closeDetailViewer(obj: any){
-    console.log("CLOSING OBJ ", obj)
     this.show_details = false ; 
     this.details.windowClosed();
     this.palette.updateDownstream(obj).then(el => {
@@ -774,8 +771,12 @@ zoomChange(e:any, source: string){
 
  
 
+  /**
+   * Called from import bitmaps to drafts features. The drafts have already been imported and sent to this function, 
+   * which now needs to draw them to the workspace
+   * @param drafts 
+   */
   loadDrafts(drafts: any){
-    console.log("LOADING ", drafts);
     const loom:Loom = {
       threading:[],
       tieup:[],
@@ -790,11 +791,45 @@ zoomChange(e:any, source: string){
       treadles: this.ws.min_treadles
       
     }
+
+    let topleft = this.vp.getTopLeft();
+
+    let max_h = 0;
+    let cur_h = topleft.y + 20; //start offset from top
+    let cur_w = topleft.x + 50;
+    let zoom_factor = defaults.mixer_cell_size / this.zs.zoom;
+    let x_margin = 20 / zoom_factor;
+    let y_margin = 40 / zoom_factor;
+
+    let view_width = this.vp.getWidth() * zoom_factor;
+    console.log("VIEW WIDTH IS ", view_width)
+
     drafts.forEach(draft => {
+      
+      
       const id = this.tree.createNode("draft", null, null);
       this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
       this.palette.loadSubDraft(id, draft, null, null, this.zs.zoom);
-      //id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number
+
+      //position the drafts so that they don't all overlap. 
+       max_h = (wefts(draft.drawdown)*defaults.mixer_cell_size > max_h) ? wefts(draft.drawdown)*defaults.mixer_cell_size : max_h;
+      
+       let approx_w = warps(draft.drawdown);
+
+       //300 because each draft is defined as having min-width of 300pm
+       let w = (approx_w*defaults.mixer_cell_size > 300) ? approx_w *defaults.mixer_cell_size : 300 / zoom_factor;
+
+       let dn = this.tree.getNode(id);
+       dn.component.topleft = {x: cur_w, y: cur_h};
+       
+       cur_w += (w + x_margin);
+       if(cur_w > view_width){
+        cur_w = topleft.x + 50;
+        cur_h += (max_h+y_margin);
+        max_h = 0;
+       }
+
+
     });
     
   }
@@ -875,13 +910,11 @@ zoomChange(e:any, source: string){
 
   onCopySelections(){
     const selections = this.multiselect.copySelections();
-    console.log("COPIED ", selections)
     this.selected_nodes_copy = selections;
   }
 
   onPasteSelections(){
     const selections =  this.selected_nodes_copy;
-    console.log("PASTING ", selections);
 
     selections.all_nodes.forEach(node => {
       

@@ -1,6 +1,7 @@
 import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
+import { defaults } from '../../core/model/defaults';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point, Cell, OpNode} from '../../core/model/datatypes';
 import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
@@ -168,6 +169,7 @@ export class PaletteComponent implements OnInit{
   ngOnInit(){
     this.scale_string = this.default_cell_size+"px "+this.default_cell_size+"px";
     this.vc.clear();
+    this.default_cell_size = defaults.mixer_cell_size; 
 
 
     
