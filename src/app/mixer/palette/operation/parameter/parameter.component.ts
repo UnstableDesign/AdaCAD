@@ -156,6 +156,7 @@ export class ParameterComponent implements OnInit {
    */
   handleFile(obj: any){
 
+
     this.opnode.params[this.paramid] = {id: obj[0].id, data: obj[0]};
     this.onOperationParamChange.emit({id: this.paramid, value: this.opnode.params[this.paramid]});
     this.fc.setValue(obj[0].name);

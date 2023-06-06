@@ -61,15 +61,12 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     
 
     const data:AnalyzedImage = file_param.data;
-    console.log("FILE LOADED ", data)
 
     const color_to_drafts = data.colors.map((color, ndx) => {
         const child_of_color = op_inputs.find(input => (input.params.findIndex(param => param === color) !== -1));
         if(child_of_color === undefined) return {color: color, draft: null};
         else return {color: color, draft: child_of_color.drafts[0]};
       });
-
-      console.log("COLOR TO DRAFTS ", color_to_drafts);
 
     const pattern: Array<Array<Cell>> = [];
       for(let i = 0; i < res_h; i++){
@@ -102,8 +99,13 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 // const image_data = getImageData(getOpParamValById(0, param_vals));
+  const file_param = getOpParamValById(0, param_vals);   
+  if(file_param.id == '' || file_param.data == null){
+      return 'image';
+  }else{
+    return file_param.data.name;
+  } 
 
-  return 'image()';
 }
 
 
