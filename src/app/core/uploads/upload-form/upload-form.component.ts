@@ -79,24 +79,16 @@ export class UploadFormComponent implements OnInit {
 
   uploadBitmap(upload: Upload, file: File) : Promise<any> {
     
-
-
     return this.upSvc.pushUpload(upload).then(snapshot => {
      return  this.imageService.loadFiles([upload.name]);
    }).catch(console.error); 
  }
 
-  upload(){
-    //determine if single or multiple. 
-    if(this.selectedFiles.length == 1) this.uploadSingle();
-    else{
-      this.uploadMultiple();
-    }
-  }
 
 
   
-  uploadSingle() {
+  upload() {
+    console.log("UPLOAD SINGLE", this.type)
 
     this.uploading = true;
 
@@ -120,8 +112,13 @@ export class UploadFormComponent implements OnInit {
       break;
 
       case 'single_image':
-      this.uploadImage(upload, file);
+          this.uploadImage(upload, file);
       break;
+
+      case 'bitmap_collection':
+        this.uploadMultiple();
+        break;
+
 
       default: 
       break;
@@ -145,7 +142,6 @@ export class UploadFormComponent implements OnInit {
 
           let file:File = this.selectedFiles.item(i)
           let fileName = file.name.split(".")[0];
-          console.log("FILE NAME ", fileName)
 
           const upload:Upload = {
             $key: '',

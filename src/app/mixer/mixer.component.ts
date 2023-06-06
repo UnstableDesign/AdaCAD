@@ -831,6 +831,9 @@ zoomChange(e:any, source: string){
 
 
     });
+
+    this.palette.addTimelineState();
+
     
   }
 
