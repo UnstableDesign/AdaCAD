@@ -1,6 +1,6 @@
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from "firebase/storage";
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, getMetadata, uploadBytesResumable, UploadMetadata } from "firebase/storage";
 import { Observable } from 'rxjs';
 import { AuthService } from '../provider/auth.service';
 import { Upload } from '../model/datatypes';
@@ -66,6 +66,8 @@ export class UploadService {
   uploadData(id: string, upload: Upload, metadata: UploadMetadata){
       const storage = getStorage();
       const storageRef = ref(storage, 'uploads/'+id);
+      console.log("UPLOAD META", metadata)
+      
       const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
       uploadTask
@@ -111,10 +113,10 @@ export class UploadService {
     return this.getHash(upload)
     .then(hash => {
       id = hash;
-      upload.name = id;
       metadata  = {
-        customMetadata: {user: this.auth.uid, filename: upload.file.name} 
+        customMetadata: {user: this.auth.uid, filename: upload.name} 
       };
+      upload.name = id;
 
       return this.alreadyLoaded(id);
     })
@@ -126,9 +128,30 @@ export class UploadService {
      
   }
 
+  // Get metadata properties
+  getDownloadMetaData(id: string) : Promise<any>{
+
+    const storage = getStorage();
+    return getMetadata(ref(storage, 'uploads/'+id))
+    .then((metadata) => {
+      console.log("GOT META DATA ", metadata)
+      return Promise.resolve(metadata)
+      // Metadata now contains the metadata for 'images/forest.jpg'
+    })
+    .catch((error) => {
+      // Uh-oh, an error occurred!
+    });
+  }
+ 
+
+
   getDownloadData(id: string) : Promise<any> {
     const storage = getStorage();
     if(id === 'noinput') return Promise.resolve('');
+
+
+    this.getDownloadMetaData(id);
+
     return getDownloadURL(ref(storage, 'uploads/'+id))
       .then((url) => {
         console.log("url", url)

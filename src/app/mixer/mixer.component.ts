@@ -580,12 +580,13 @@ zoomChange(e:any, source: string){
     })
 
 
+
+
     return this.image.loadFiles(images_to_load).then(el => {
       return this.tree.replaceOutdatedOps(data.ops);
     })
     .then(correctedOps => {    
       data.ops = correctedOps; 
-      console.log("LAODING NODES")
       return this.loadNodes(data.nodes)
     })
     .then(id_map => {
@@ -802,7 +803,6 @@ zoomChange(e:any, source: string){
     let y_margin = 40 / zoom_factor;
 
     let view_width = this.vp.getWidth() * zoom_factor;
-    console.log("VIEW WIDTH IS ", view_width)
 
     drafts.forEach(draft => {
       

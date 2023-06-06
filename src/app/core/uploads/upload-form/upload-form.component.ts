@@ -75,8 +75,12 @@ export class UploadFormComponent implements OnInit {
     }).catch(console.error); 
   }
 
+
+
   uploadBitmap(upload: Upload, file: File) : Promise<any> {
     
+
+
     return this.upSvc.pushUpload(upload).then(snapshot => {
      return  this.imageService.loadFiles([upload.name]);
    }).catch(console.error); 
@@ -127,6 +131,9 @@ export class UploadFormComponent implements OnInit {
 
   }
 
+  /**
+   * used when handling the upload of multiple images (bitmaps) that should be converted into a drfat
+   */
   uploadMultiple() {
     
     if(this.type == 'bitmap_collection'){
@@ -138,6 +145,7 @@ export class UploadFormComponent implements OnInit {
 
           let file:File = this.selectedFiles.item(i)
           let fileName = file.name.split(".")[0];
+          console.log("FILE NAME ", fileName)
 
           const upload:Upload = {
             $key: '',

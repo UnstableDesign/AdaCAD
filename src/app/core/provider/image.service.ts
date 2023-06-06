@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
 import { AnalyzedImage } from '../model/datatypes';
 import utilInstance from '../model/util';
 import { UploadService } from '../provider/upload.service';
@@ -113,7 +112,7 @@ export class ImageService {
       
         var obj: AnalyzedImage = {
           id: id,
-          name: id,
+          name: 'placeholder',
           data: imgdata,
           colors: unique,
           colors_to_bw: color_to_bw,
@@ -125,10 +124,18 @@ export class ImageService {
           warning: filewarning
         }
 
-        this.setImageData(id, obj);
-        return Promise.resolve(obj);
+        return obj;
       
-      });
+      }).then(imageobj => {
+
+        return this.upSvc.getDownloadMetaData(id).then(metadata => {
+          if(metadata.customMetadata.filename !== undefined) imageobj.name = metadata.customMetadata.filename;
+          this.setImageData(id, imageobj);
+          return Promise.resolve(imageobj);
+
+        })
+
+      }) ;
   });
   }
 
