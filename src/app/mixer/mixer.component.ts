@@ -645,25 +645,25 @@ zoomChange(e:any, source: string){
         }
 
   
-
-        d.id = (sn.cur_id); //do this so that all draft ids match the component / node ids
-
-      return {
-        entry: sn,
-        id: sn.cur_id,
-        draft: d,
-        loom: l,
-        loom_settings: ls,
-        render_colors: render_colors
+        if(d !== null && d !== undefined){
+          d.id = (sn.cur_id); //do this so that all draft ids match the component / node ids
+        }else{
+          d = initDraftWithParams({warps: 1, wefts: 1, drawdown: [[false]]});
+          d.id = (sn.cur_id);
         }
+
+          return {
+            entry: sn,
+            id: sn.cur_id,
+            draft: d,
+            loom: l,
+            loom_settings: ls,
+            render_colors: render_colors
+            }
+        
       });
 
       
-
-      // console.log("ALL TREADLING in Mixer");
-      // seeds.forEach(node => {
-      //   console.log(node.loom.treadling)
-      // })
       const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors));
   
       const op_fns = data.ops.map(op => {
@@ -920,12 +920,10 @@ zoomChange(e:any, source: string){
     const selections =  this.selected_nodes_copy;
 
     selections.all_nodes.forEach(node => {
-      
       if(node.type == 'op'){
         this.palette.pasteOperation(node);
       }else if(node.type == 'draft'){
-        let draft = <DraftNode> node;
-        this.palette.addSubdraftFromDraft(draft.draft);
+        this.palette.pasteSubdraft(node);
       }else{
         
       }

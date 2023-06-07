@@ -116,7 +116,7 @@ export class UploadFormComponent implements OnInit {
       break;
 
       case 'bitmap_collection':
-        this.uploadMultiple();
+        this.uploadBitmaps();
         break;
 
 
@@ -131,9 +131,8 @@ export class UploadFormComponent implements OnInit {
   /**
    * used when handling the upload of multiple images (bitmaps) that should be converted into a drfat
    */
-  uploadMultiple() {
+  uploadBitmaps() {
     
-    if(this.type == 'bitmap_collection'){
       this.uploading = true;
 
         const uploads= [];
@@ -183,7 +182,7 @@ export class UploadFormComponent implements OnInit {
        }).catch(console.error);
 
 
-    }
+    
 
   }
 

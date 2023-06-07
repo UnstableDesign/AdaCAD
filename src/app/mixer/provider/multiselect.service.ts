@@ -41,6 +41,8 @@ export class MultiselectService {
    * @param topleft the topleft point of this element, used to update position if one selected element moves
    */
   toggleSelection(id: number, topleft: Point) : boolean{
+
+    console.log("TOGGLING SELECTION ON ", id)
     const type = this.tree.getType(id);
     let container: HTMLElement;
 
@@ -48,7 +50,7 @@ export class MultiselectService {
        
       this.selected = this.selected.filter(el => el.id != id);
        
-       container = <HTMLElement> document.getElementById("scale-"+id);
+      container = <HTMLElement> document.getElementById("scale-"+id);
       container.classList.remove('multiselected');
 
       //remove the children as well 
@@ -125,7 +127,7 @@ export class MultiselectService {
     let selected_nodes:Array<Node> = this.selected
     .map(el => this.tree.getNode(el.id))
     .filter(el => el.type !== 'cxn')
-    .filter(el => el.type !== 'draft' && !this.tree.hasParent(el.id));
+    .filter(el => !(el.type == 'draft' && this.tree.hasParent(el.id)));
    
     let node_mirror:Array<Node> =selected_nodes.slice();
 

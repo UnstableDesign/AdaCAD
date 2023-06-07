@@ -41,7 +41,8 @@ export class SubdraftComponent implements OnInit {
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
-    this.rescale();
+    console.log("CALLED RESCALE ")
+    this.rescale().catch(e => console.error(e))
   }
   private _scale:number = 5;
 
@@ -224,7 +225,7 @@ export class SubdraftComponent implements OnInit {
 
 
     if(this.draft === null){
-      return;
+      return Promise.reject("draft is null on draft rescale");
     } 
 
     const zoom_factor:number = this.scale/this.default_cell;
@@ -232,7 +233,7 @@ export class SubdraftComponent implements OnInit {
     //redraw at scale
     const container: HTMLElement = document.getElementById('scale-'+this.id.toString());
    
-    if(container === null) return Promise.reject("no container initialized");
+    if(container === null) return Promise.reject("no container initialized on draft rescale");
 
 
     container.style.transformOrigin = 'top left';

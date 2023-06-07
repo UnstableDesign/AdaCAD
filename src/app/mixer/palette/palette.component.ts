@@ -4,7 +4,7 @@ import { fromEvent, Subscription } from 'rxjs';
 import { defaults } from '../../core/model/defaults';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point, Cell, OpNode} from '../../core/model/datatypes';
-import { getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { NotesService } from '../../core/provider/notes.service';
@@ -461,11 +461,11 @@ handlePan(diff: Point){
 
 
     this.tree.getConnections().forEach(sd => {
+
       sd.rescale(this.zs.zoom);
     });
 
     this.notes.getComponents().forEach(el => {
-      console.log("CALLING WITH ", this.zs.zoom)
       el.scale = this.zs.zoom;
     });
 
@@ -653,8 +653,9 @@ handlePan(diff: Point){
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
-    
     this.setSubdraftSubscriptions(subdraft.instance);
+   
+    console.log("CREATED SUBDRAFT with id ", id, d)
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
     subdraft.instance.default_cell = this.default_cell_size;
@@ -891,6 +892,27 @@ handlePan(diff: Point){
     });
     
   }
+
+  /**
+  //  * called anytime an operation is added. Adds the operation to the tree. 
+  //  * @param name the name of the operation to add
+  //  */
+  pasteSubdraft(draftnode:DraftNode){
+    //create a new idea for this draft node: 
+
+    
+    let d = copyDraft(draftnode.draft);
+    d.id = utilInstance.generateId(8);
+
+
+    this.createSubDraft(d, -1).then(sd => {
+      sd.setPosition({x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + 60});
+      sd.topleft = {x: draftnode.component.topleft.x+100, y:draftnode.component.topleft.y+100};
+
+      this.addTimelineState();
+    });
+    
+}
 
   /**
    * a subdraft can only have an operation for a parent
