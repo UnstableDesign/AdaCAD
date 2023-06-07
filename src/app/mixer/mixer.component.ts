@@ -917,20 +917,38 @@ zoomChange(e:any, source: string){
   }
 
   onPasteSelections(){
+
+    const id_maps = [];
+    const fns = [];
+    let id;
     const selections =  this.selected_nodes_copy;
 
-    selections.all_nodes.forEach(node => {
+    //make sure all the operations and drafts are in place
+    selections.all_nodes.forEach(async node => {
       if(node.type == 'op'){
-        this.palette.pasteOperation(node);
+        fns.push(this.palette.pasteOperation(node));
+        id_maps.push({old: node.id});
       }else if(node.type == 'draft'){
-        this.palette.pasteSubdraft(node);
-      }else{
-        
+        fns.push(this.palette.pasteSubdraft(node));
+        id_maps.push({old: node.id});
       }
-
-
-
     })
+
+    Promise.all(fns).then(new_ids => {
+      new_ids.forEach((id, ndx) => {
+        id_maps[ndx].new = id;
+      })
+
+       //add the connections last
+      selections.all_nodes.forEach(node => {
+        if(node.type == 'cxn'){
+          //this needs to have the new ids updated
+          this.palette.pasteConnection(node, id_maps);
+        }
+      })
+    })
+
+   
 
     this.multiselect.clearSelections();
     

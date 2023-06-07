@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
 import { defaults } from '../../core/model/defaults';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Point, Cell, OpNode} from '../../core/model/datatypes';
+import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Node, Point, Cell, OpNode} from '../../core/model/datatypes';
 import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
@@ -415,7 +415,7 @@ handlePan(diff: Point){
   //  * called anytime an operation is added. Adds the operation to the tree. 
   //  * @param name the name of the operation to add
   //  */
-  pasteOperation(opnode:OpNode){
+  pasteOperation(opnode:OpNode) : Promise<number>{
       
     const opcomp:OperationComponent = this.createOperation(opnode.name);
 
@@ -427,8 +427,9 @@ handlePan(diff: Point){
 
 
 
-    this.performAndUpdateDownstream(opcomp.id).then(el => {
+    return this.performAndUpdateDownstream(opcomp.id).then(el => {
       this.addTimelineState();
+      return Promise.resolve(new_node.id);
     });
     
 }
@@ -897,7 +898,7 @@ handlePan(diff: Point){
   //  * called anytime an operation is added. Adds the operation to the tree. 
   //  * @param name the name of the operation to add
   //  */
-  pasteSubdraft(draftnode:DraftNode){
+  pasteSubdraft(draftnode:DraftNode): Promise<number>{
     //create a new idea for this draft node: 
 
     
@@ -905,11 +906,12 @@ handlePan(diff: Point){
     d.id = utilInstance.generateId(8);
 
 
-    this.createSubDraft(d, -1).then(sd => {
+    return this.createSubDraft(d, -1).then(sd => {
       sd.setPosition({x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + 60});
       sd.topleft = {x: draftnode.component.topleft.x+100, y:draftnode.component.topleft.y+100};
 
       this.addTimelineState();
+      return Promise.resolve(sd.id);
     });
     
 }
@@ -1932,6 +1934,26 @@ connectionMade(obj: any){
   });
 
   this.processConnectionEnd();
+
+}
+
+pasteConnection(node: Node, id_map){
+
+  const from = this.tree.getConnectionInput(node.id);
+  const to = this.tree.getConnectionOutput(node.id);
+
+  const n_from = id_map.find(el => el.old == from);
+  const n_to = id_map.find(el => el.old == to);
+
+
+  const inlet = this.tree.getInletOfCxn(from, node.id);
+
+   console.log("CREATING ", from, to, inlet)
+  this.createConnection(n_from.new, n_to.new, inlet);
+
+  this.performAndUpdateDownstream(n_to.new).then(el => {
+    this.addTimelineState();
+  });
 
 }
 

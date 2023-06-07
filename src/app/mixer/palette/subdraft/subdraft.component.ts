@@ -656,7 +656,9 @@ export class SubdraftComponent implements OnInit {
 
     if(this.parent_id !== -1){
       const container = document.getElementById('scale-'+this.parent_id);
-      const w = container.offsetWidth;
+      if(container === undefined || container === null) return;
+      const w = (container !== undefined && container !== null) ? container.offsetWidth : 300;
+      
       const thiscontainer = document.getElementById('scale-'+this.id);
       thiscontainer.style.minWidth = w+"px";
       
