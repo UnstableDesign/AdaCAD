@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { sec } from 'mathjs';
-import { Node, Point } from '../../core/model/datatypes';
+import { Node, Point, TreeNode } from '../../core/model/datatypes';
 import { TreeService } from '../../core/provider/tree.service';
 
 @Injectable({
@@ -9,7 +8,7 @@ import { TreeService } from '../../core/provider/tree.service';
 export class MultiselectService {
 
   selected: Array<{id: number, topleft: Point}> = [];
-  relative_position: Point; 
+  relative_position: Point = {x: 0, y: 0}; 
 
 
   constructor(private tree: TreeService) { 
@@ -122,7 +121,7 @@ export class MultiselectService {
    * creates a copy of each of the elements (and their positions, for pasting into this file or another file)
    * @returns 
    */
-  copySelections() : any {
+  copySelections() : {all_nodes: Array<Node>, treenodes: Array<TreeNode>} {
 
     let selected_nodes:Array<Node> = this.selected
     .map(el => this.tree.getNode(el.id))

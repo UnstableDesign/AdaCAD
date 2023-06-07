@@ -420,13 +420,12 @@ handlePan(diff: Point){
     const opcomp:OperationComponent = this.createOperation(opnode.name);
 
     const new_node = <OpNode> this.tree.getNode(opcomp.id);
-
     new_node.inlets = opnode.inlets.slice();
+    console.log("PASTING INLETS ", new_node.inlets)
     new_node.params = opnode.params.slice();
     new_node.component.topleft = {x: opnode.component.topleft.x+100, y:opnode.component.topleft.y+100};
 
-
-
+   
     return this.performAndUpdateDownstream(opcomp.id).then(el => {
       this.addTimelineState();
       return Promise.resolve(new_node.id);
@@ -1937,21 +1936,11 @@ connectionMade(obj: any){
 
 }
 
-pasteConnection(node: Node, id_map){
+pasteConnection(from: number, to: number, inlet: number){
 
-  const from = this.tree.getConnectionInput(node.id);
-  const to = this.tree.getConnectionOutput(node.id);
+  this.createConnection(from, to, inlet);
 
-  const n_from = id_map.find(el => el.old == from);
-  const n_to = id_map.find(el => el.old == to);
-
-
-  const inlet = this.tree.getInletOfCxn(from, node.id);
-
-   console.log("CREATING ", from, to, inlet)
-  this.createConnection(n_from.new, n_to.new, inlet);
-
-  this.performAndUpdateDownstream(n_to.new).then(el => {
+  this.performAndUpdateDownstream(to).then(el => {
     this.addTimelineState();
   });
 
@@ -2644,16 +2633,24 @@ drawStarted(){
 
   }
 
+  /**
+   * this is called when a multi-selected block of items is moved. 
+   * Sometimes its called if you paste one set of items to a new space, in which case the nodes do
+   * not yet exist. 
+   * @param moving_id 
+   * @returns 
+   */
   moveAllSelections(moving_id: number){
     const selections = this.multiselect.getSelections();
     if(selections.length == 0) return;
-    console.log("MOVE ALL SELECTIONS")
 
     const rel_pos = this.multiselect.getRelativePosition();
     const cur_pos = this.tree.getComponent(moving_id).topleft;
     const diff:Point = {x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y};
 
     selections.forEach(sel => {
+      if(this.tree.getNode(sel) == null) return;
+
       if(this.tree.getType(sel) == 'op' && sel !== moving_id){
         const comp = this.tree.getComponent(sel);
         comp.topleft = this.multiselect.getNewPosition(sel, diff);

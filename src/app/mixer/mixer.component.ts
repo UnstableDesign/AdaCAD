@@ -9,7 +9,7 @@ import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { createCell } from '../core/model/cell';
-import { DesignMode, Draft, DraftNode, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNode, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { copyDraft, flipDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
@@ -926,6 +926,7 @@ zoomChange(e:any, source: string){
     //make sure all the operations and drafts are in place
     selections.all_nodes.forEach(async node => {
       if(node.type == 'op'){
+        //THIS NEEDS TO MAKE SURE THAT ALL THE PARAMS ARE UPDATED BY THE TIME THE NEXT ONE GOES
         fns.push(this.palette.pasteOperation(node));
         id_maps.push({old: node.id});
       }else if(node.type == 'draft'){
@@ -940,10 +941,31 @@ zoomChange(e:any, source: string){
       })
 
        //add the connections last
-      selections.all_nodes.forEach(node => {
+      selections.all_nodes.forEach((node, ndx) => {
         if(node.type == 'cxn'){
-          //this needs to have the new ids updated
-          this.palette.pasteConnection(node, id_maps);
+
+          const from: IOTuple = selections.treenodes[ndx].inputs[0];
+          const to: IOTuple = selections.treenodes[ndx].outputs[0];
+        
+          console.log("FROM/TO", from, to);
+          let inlet;
+          //get the operation to which this is connected
+          const map_from = id_maps.find(el => el.old == from.tn.node.id);
+          const map_to_ndx = id_maps.findIndex(el => el.old == to.tn.node.id);
+          const map_to = id_maps[map_to_ndx];
+          const to_node = selections.all_nodes.find(el => el.id == map_to.old);
+          if(to_node.type == 'op'){
+            const op_inputs = selections.treenodes.find(el => el.node.id == map_to.old);
+            console.log("OP INPUTS ", op_inputs)
+            const op_input: IOTuple = op_inputs.inputs.find(el => el.tn.node.id == node.id);
+            console.log("inlet", op_input);
+            inlet = op_input.ndx;
+          }else{
+            inlet = 0;
+          }
+
+
+          this.palette.pasteConnection(node, map_from.new, map_to.new, inlet);
         }
       })
     })

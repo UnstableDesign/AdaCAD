@@ -335,13 +335,13 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  toggleMultiSelection(e: any){
-    if(e.shiftKey){
-      this.multiselect.toggleSelection(this.id, this.topleft);
-    }else{
-      this.multiselect.clearSelections();
-    }
-  }
+  // toggleMultiSelection(e: any){
+  //   if(e.shiftKey){
+  //     this.multiselect.toggleSelection(this.id, this.topleft);
+  //   }else{
+  //     this.multiselect.clearSelections();
+  //   }
+  // }
   
 
 
