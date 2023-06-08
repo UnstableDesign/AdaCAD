@@ -340,7 +340,7 @@ export interface NodeComponentProxy{
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
   draft_nodes: Array<DraftNodeProxy>,
-  ops: Array<any>,
+  ops: Array<OpComponentProxy>,
   notes: Array<Note>,
   materials: Array<Material>,
   scale: number
@@ -374,6 +374,7 @@ export interface LoadResponse{
 
 export interface Fileloader{
   ada: (filename: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
+  paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
   //bmp: (filename: string, data: any) => Promise<LoadResponse>,
   //jpg: (filename: string, data: any) => Promise<LoadResponse>,
@@ -381,6 +382,7 @@ export interface Fileloader{
 
 export interface FileSaver{
   ada: (type: string, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
+  copy: (include: Array<number>, current_scale: number) => Promise<SaveObj>,
   //wif: (draft: Draft, loom: Loom) => Promise<string>,
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>

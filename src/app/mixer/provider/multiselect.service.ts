@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Node, Point, TreeNode } from '../../core/model/datatypes';
+import { FileService } from '../../core/provider/file.service';
+import { ZoomService } from './zoom.service';
+import { Node, Point, SaveObj, TreeNode } from '../../core/model/datatypes';
 import { TreeService } from '../../core/provider/tree.service';
 
 @Injectable({
@@ -9,9 +11,10 @@ export class MultiselectService {
 
   selected: Array<{id: number, topleft: Point}> = [];
   relative_position: Point = {x: 0, y: 0}; 
+  copy: any;
 
 
-  constructor(private tree: TreeService) { 
+  constructor(private tree: TreeService, private fs: FileService, private zs: ZoomService) { 
 
   }
 
@@ -82,6 +85,15 @@ export class MultiselectService {
           container = <HTMLElement> document.getElementById("scale-"+child);
           if(container !== null)  container.classList.add('multiselected');
           } );
+        }else if(type == 'draft'){
+          const parent = this.tree.getSubdraftParent(id);
+          if(parent !== -1){
+            let tl = this.tree.getComponent(parent).topleft;
+            this.selected.push({id: parent, topleft: tl });
+            container = <HTMLElement> document.getElementById("scale-"+parent);
+            if(container !== null)  container.classList.add('multiselected');
+
+          }
         }
       return true;
     }
@@ -121,15 +133,15 @@ export class MultiselectService {
    * creates a copy of each of the elements (and their positions, for pasting into this file or another file)
    * @returns 
    */
-  copySelections() : {all_nodes: Array<Node>, treenodes: Array<TreeNode>} {
+  copySelections()  {
+    console.log("COPY SELECTIONS ")
 
     let selected_nodes:Array<Node> = this.selected
     .map(el => this.tree.getNode(el.id))
-    .filter(el => el.type !== 'cxn')
-    .filter(el => !(el.type == 'draft' && this.tree.hasParent(el.id)));
+    .filter(el => el.type !== 'cxn') //filter out connections because we will add these in later
+    // .filter(el => !(el.type == 'draft' && this.tree.hasParent(el.id))); //only add subdrafts if they have no parent
    
     let node_mirror:Array<Node> =selected_nodes.slice();
-
 
     let relevant_connection_ids = [];
     let relevant_connection_nodes = [];
@@ -147,11 +159,15 @@ export class MultiselectService {
 
     relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
     let all_nodes = selected_nodes.concat(relevant_connection_nodes);
-    let treenodes = all_nodes.map(el => this.tree.getTreeNode(el.id));
 
-    return {all_nodes, treenodes};
+    this.copy = this.fs.saver.copy(all_nodes.map(el => el.id), this.zs.zoom);
+     
+
 
   }
+
+
+
 
 
 

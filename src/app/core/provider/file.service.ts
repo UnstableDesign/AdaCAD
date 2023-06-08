@@ -225,6 +225,111 @@ export class FileService {
 
     }, 
 
+    paste: async (data: any) : Promise<LoadResponse> => {
+      
+      let draft_nodes: Array<DraftNodeProxy> = [];
+      let ops: Array<OpComponentProxy> = [];
+      let version = "0.0.0";
+      
+      // this.clearAll();
+
+     
+
+      if(data.shuttles !== undefined){
+       //handle shuttles here
+      }
+
+      const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+
+    
+      const loom_elements = []
+      const loom_fns = []
+      const draft_elements = [];
+      const draft_fns = [];
+
+      draft_nodes = data.draft_nodes;
+
+      draft_nodes.forEach(el => {
+        if(el.draft !== null && el.draft !== undefined){
+          draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
+          draft_elements.push(el);
+        }
+
+        if(el.loom !== null && el.loom !== undefined){
+          loom_fns.push(loadLoomFromFile(el.loom, flips_required, version));
+          loom_elements.push(el);
+        }
+      });
+
+      return Promise.all(draft_fns)
+      .then( res => {
+
+          for(let i = 0; i < draft_elements.length; i++){
+            draft_elements[i].draft = res[i];
+          }
+
+      return Promise.all(loom_fns)
+      })
+      .then(res => {
+
+        for(let i = 0; i < loom_elements.length; i++){
+          draft_elements[i].loom = res[i];
+        }
+        
+        draft_nodes
+        .filter(el => el.draft !== null)
+        .forEach(el => {
+          //scan the systems and add any that need to be added
+          if(el.draft !== null && el.draft !== undefined && el.draft.rowSystemMapping !== undefined){
+            el.draft.rowSystemMapping.forEach(el => {
+              if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
+            });
+          }  
+  
+          //scan the systems and add any that need to be added
+          if(el.draft !== null && el.draft !== undefined && el.draft.colSystemMapping !== undefined){
+            el.draft.colSystemMapping.forEach(el => {
+              if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
+            });
+          }  
+        })
+      
+    
+        if(data.ops !== undefined){
+          ops = data.ops.map(data => {
+            const op: OpComponentProxy = {
+              node_id: data.node_id,
+              name: data.name,
+              params: data.params,
+              inlets: (data.inlets === undefined) ? [0] : data.inlets 
+            }
+            return op;
+          });
+        }
+        
+          const envt: FileObj = {
+            version: '0.0.0',
+            workspace: null,
+            filename: 'paste',
+            nodes: (data.nodes === undefined) ? [] : data.nodes,
+            treenodes: (data.tree === undefined) ? [] : data.tree,
+            draft_nodes: draft_nodes,
+            notes:  [],
+            ops: ops,
+            scale: 5,
+          }
+    
+          return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1 }); 
+  
+        }
+      )
+
+
+
+    
+
+    }, 
+
     // wif: async (filename: string, data: any) : Promise<LoadResponse> => {
     //   this.clearAll();
 
@@ -544,6 +649,33 @@ export class FileService {
   
 
   const dsaver: FileSaver = {
+
+    copy:  async (include: Array<number>, current_scale: number) : Promise<SaveObj> => {
+    
+      const out: SaveObj = {
+        type: 'partial',
+        version: this.vs.currentVersion(),
+        workspace: null,
+        nodes: this.tree.exportNodesForSaving(current_scale),
+        tree: this.tree.exportTreeForSaving(),
+        draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
+        ops: this.tree.exportOpMetaForSaving(),
+        notes: [],
+        materials: this.ms.exportForSaving(),
+        scale: 5
+      }
+
+      //now filter out things that aren't relevant
+      out.nodes = out.nodes.filter(node => include.find(el => el == node.node_id) !== undefined);
+      out.nodes.forEach(node => {node.topleft = {x: node.topleft.x + 50, y: node.topleft.y+50}});
+      out.tree = out.tree.filter(tn => include.find(el => el == tn.node) !== undefined);
+      out.draft_nodes = out.draft_nodes.filter(dn =>  include.find(el => el == dn.node_id) !== undefined);
+      out.ops = out.ops.filter(op => include.find(el => el == op.node_id) !== undefined)
+
+
+      return Promise.resolve(out);
+
+    },
     
     ada:  async (type: string, for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
            

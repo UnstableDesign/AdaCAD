@@ -41,8 +41,7 @@ export class SubdraftComponent implements OnInit {
   get scale(): number { return this._scale; }
   set scale(value: number) {
     this._scale = value;
-    console.log("CALLED RESCALE ")
-    this.rescale().catch(e => console.error(e))
+    this.rescale().catch(e => console.log(e))
   }
   private _scale:number = 5;
 
@@ -335,13 +334,13 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  // toggleMultiSelection(e: any){
-  //   if(e.shiftKey){
-  //     this.multiselect.toggleSelection(this.id, this.topleft);
-  //   }else{
-  //     this.multiselect.clearSelections();
-  //   }
-  // }
+  toggleMultiSelection(e: any){
+    if(e.shiftKey){
+      this.multiselect.toggleSelection(this.id, this.topleft);
+    }else{
+      this.multiselect.clearSelections();
+    }
+  }
   
 
 

@@ -9,6 +9,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
+import { createCell } from '../model/cell';
 import { ImageService } from './image.service';
 import { OperationService } from './operation.service';
 
@@ -679,8 +680,14 @@ export class TreeService {
   
     const tn: TreeNode = this.getTreeNode(node_id);
     tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
-    tn.inputs = inputs.map(input => {return {tn: this.getTreeNode(input.tn), ndx: input.ndx}});
-    tn.outputs = outputs.map(output => {return {tn: this.getTreeNode(output.tn), ndx: output.ndx}});
+    tn.inputs = inputs
+      .filter(input => input !== undefined)
+      .map(input => {return {tn: this.getTreeNode(input.tn), ndx: input.ndx}});
+    tn.outputs = outputs
+      .filter(output => output !== undefined)
+      .map(output => {
+      return {tn: this.getTreeNode(output.tn), ndx: output.ndx}
+    });
     return Promise.resolve({tn, entry});
 
 
@@ -1452,9 +1459,13 @@ isValidIOTuple(io: IOTuple) : boolean {
     })
     .then(res => {
           
+        //this is a hack to make copy paste work. This makes sure that every operation has an output when it first runs. 
+          //if(res.length == 0) res = [initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]})];
+
           res.forEach(draft => {
             draft.gen_name = op.generateName(param_vals, inputs);
-          })
+          });
+
           const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
           return Promise.all(res.map(el => flipDraft(el,  flips.horiz, flips.vert)));
       })

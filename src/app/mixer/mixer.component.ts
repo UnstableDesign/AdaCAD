@@ -352,6 +352,20 @@ zoomChange(e:any, source: string){
     }
   }
 
+    /**
+   * this is called when paste is called and has loaded in the data from the copy event. 
+   * @param result 
+   */
+    insertPasteFile(result: LoadResponse){
+
+      this.processFileData(result.data).then(data => {
+        this.palette.changeDesignmode('move');
+        this.saveFile();
+      }
+  
+      ).catch(console.error);
+      
+    }
 
   /**
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
@@ -527,7 +541,9 @@ zoomChange(e:any, source: string){
               console.error("could not find matching node"); 
             }
           }else{
+            
             const output_map = id_map.find(el => el.prev_id === output.tn);
+
             if(output_map !== undefined){
              return {tn: output_map.cur_id, ndx: output.ndx};
             }else{
@@ -536,8 +552,6 @@ zoomChange(e:any, source: string){
           } 
       });
       
-
-
       const new_tn: TreeNodeProxy = {
         node: id_map.find(el => el.prev_id === tn.node).cur_id,
         parent: (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id,
@@ -918,58 +932,17 @@ zoomChange(e:any, source: string){
 
   onPasteSelections(){
 
-    const id_maps = [];
-    const fns = [];
-    let id;
-    const selections =  this.selected_nodes_copy;
+    //check to make sure something has been copied
+    if(this.multiselect.copy == undefined) return;
 
-    //make sure all the operations and drafts are in place
-    selections.all_nodes.forEach(async node => {
-      if(node.type == 'op'){
-        //THIS NEEDS TO MAKE SURE THAT ALL THE PARAMS ARE UPDATED BY THE TIME THE NEXT ONE GOES
-        fns.push(this.palette.pasteOperation(node));
-        id_maps.push({old: node.id});
-      }else if(node.type == 'draft'){
-        fns.push(this.palette.pasteSubdraft(node));
-        id_maps.push({old: node.id});
-      }
+    this.multiselect.copy.then(ada => {
+
+      return this.fs.loader.paste(ada).then(lr => {
+        this.insertPasteFile(lr);
+      });
     })
 
-    Promise.all(fns).then(new_ids => {
-      new_ids.forEach((id, ndx) => {
-        id_maps[ndx].new = id;
-      })
-
-       //add the connections last
-      selections.all_nodes.forEach((node, ndx) => {
-        if(node.type == 'cxn'){
-
-          const from: IOTuple = selections.treenodes[ndx].inputs[0];
-          const to: IOTuple = selections.treenodes[ndx].outputs[0];
-        
-          console.log("FROM/TO", from, to);
-          let inlet;
-          //get the operation to which this is connected
-          const map_from = id_maps.find(el => el.old == from.tn.node.id);
-          const map_to_ndx = id_maps.findIndex(el => el.old == to.tn.node.id);
-          const map_to = id_maps[map_to_ndx];
-          const to_node = selections.all_nodes.find(el => el.id == map_to.old);
-          if(to_node.type == 'op'){
-            const op_inputs = selections.treenodes.find(el => el.node.id == map_to.old);
-            console.log("OP INPUTS ", op_inputs)
-            const op_input: IOTuple = op_inputs.inputs.find(el => el.tn.node.id == node.id);
-            console.log("inlet", op_input);
-            inlet = op_input.ndx;
-          }else{
-            inlet = 0;
-          }
-
-
-          this.palette.pasteConnection(node, map_from.new, map_to.new, inlet);
-        }
-      })
-    })
-
+   
    
 
     this.multiselect.clearSelections();

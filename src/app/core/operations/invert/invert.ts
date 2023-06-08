@@ -1,3 +1,4 @@
+import { promise } from "protractor";
 import { Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../model/drafts";
 import { getAllDraftsAtInlet, getInputDraft, parseDraftNames } from "../../model/operations";
@@ -28,6 +29,7 @@ const inlets = [input];
 
 const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
      const input_draft = getInputDraft(op_inputs);
+     if(input_draft == null) return Promise.resolve([]);
      
      let pattern = new Sequence.TwoD();
      input_draft.drawdown.forEach(row => {

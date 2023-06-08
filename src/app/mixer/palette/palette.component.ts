@@ -22,6 +22,7 @@ import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
+import { child } from 'firebase/database';
 
 @Component({
   selector: 'app-palette',
@@ -421,12 +422,12 @@ handlePan(diff: Point){
 
     const new_node = <OpNode> this.tree.getNode(opcomp.id);
     new_node.inlets = opnode.inlets.slice();
-    console.log("PASTING INLETS ", new_node.inlets)
     new_node.params = opnode.params.slice();
     new_node.component.topleft = {x: opnode.component.topleft.x+100, y:opnode.component.topleft.y+100};
 
    
     return this.performAndUpdateDownstream(opcomp.id).then(el => {
+
       this.addTimelineState();
       return Promise.resolve(new_node.id);
     });
@@ -2365,8 +2366,6 @@ drawStarted(){
       const diff = {
         x:  (this.last_point.x-event.clientX), 
         y: (this.last_point.y-event.clientY)}
-
-      console.log("diff", diff);
 
       this.handlePan(diff);
 
