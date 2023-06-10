@@ -32,6 +32,8 @@ import { tile } from '../operations/tile/tile';
 import { splicein } from '../operations/spliceinwefts/spliceinwefts'
 import { spliceinwarps } from '../operations/spliceinwarps/spliceinwarps'
 import {imagemap} from '../operations/imagemap/imagemap'
+import {layer} from '../operations/layer/layer'
+import {notation_system} from '../operations/system_notation/system_notation'
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +62,7 @@ export class OperationService {
     this.dynamic_ops.push(imagemap);
     // this.dynamic_ops.push(bwimagemap);
      this.dynamic_ops.push(notation);
+     this.dynamic_ops.push(notation_system);
     // this.dynamic_ops.push(weft_profile);
     // this.dynamic_ops.push(warp_profile);
     // this.dynamic_ops.push(sample_width);
@@ -94,7 +97,7 @@ export class OperationService {
     this.ops.push(flipy);
     this.ops.push(shiftx);
     this.ops.push(shifty);
-  //   this.ops.push(layer);
+    this.ops.push(layer);
   //   this.ops.push(selvedge);
   //   this.ops.push(bindweftfloats);
   //   this.ops.push(bindwarpfloats);

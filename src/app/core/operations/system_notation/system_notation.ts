@@ -3,26 +3,24 @@ import { Draft, OperationInlet, OpInput, OpParamVal, StringParam, NotationTypePa
 import {  generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames, reduceToStaticInputs } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
-import { getSystemCharFromId } from "../../model/system";
 import utilInstance from "../../model/util";
 
 
-const name = "notation";
+const name = "notation_system";
 const old_names = [];
 const dynamic_param_id = 0;
 const dynamic_param_type = 'notation';
+const layer_parsing_regex =/.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i;
 
 //PARAMS
 const pattern:StringParam =  
     {name: 'pattern',
     type: 'string',
-    value: '(a1)(b2)',
-    regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //this is the layer parsing regex
+    value: '(a1b2c3)',
+    regex:  /.*?(.*?[a-xA-Z]+[\d]+).*?/i,
     error: 'invalid entry',
     dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
-  }
-
-
+    }
 
 
 const params = [pattern];
@@ -41,12 +39,11 @@ const systems: OperationInlet = {
 
 
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
-      console.log("OP INPUTS ", op_inputs)
 
       const original_string = getOpParamValById(0, op_params);
-      const original_string_split = utilInstance.parseRegex(original_string,  /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i);
-      
 
+      const original_string_split = utilInstance.parseRegex(original_string, /.*?(.*?[a-xA-Z]+[\d]+).*?/i);
+      const layer_units = utilInstance.parseRegex(original_string, layer_parsing_regex);
 
       if(original_string_split == null || original_string_split.length == 0) return Promise.resolve([]);
 
@@ -61,20 +58,20 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       let warp_system_map = new Sequence.OneD(system_map[0].colSystemMapping);
 
       //make sure the system draft map has a representation for every layer, even if the draft at that layer is null.
-      const layer_draft_map = original_string_split.map((unit, layer) => {
-  
+      const layer_draft_map = original_string_split.map((unit, ndx) => {
         
-        let drafts = getAllDraftsAtInlet(op_inputs, layer+1);
+        let layer_id = layer_units.findIndex(el => el.includes(unit));
+
+        let drafts = getAllDraftsAtInlet(op_inputs, ndx+1);
     
         return {
           wesy: parseWeftSystem(unit), 
           wasy: parseWarpSystem(unit),
-          layer: layer, //map layer order to the inlet id, all inlets must be ordered the same as the input
+          layer: layer_id, //map layer order to the inlet id, all inlets must be ordered the same as the input
           draft: (drafts.length == 0) ? initDraftWithParams({wefts: 1, warps: 1, drawdown:[[createCell(false)]]}) : drafts[0]
         }
       })
 
-      console.log("Layer draft map ", layer_draft_map)
 
       let composite = new Sequence.TwoD().setBlank(2);
 
@@ -109,7 +106,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   }   
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
-
   return ''+param_vals[0]+"";
 }
 
@@ -119,11 +115,22 @@ const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInl
     inlet_vals = reduceToStaticInputs(inlets, inlet_vals);
 
     const param_regex = (<StringParam> param_vals[0].param).regex;
-    
+
     let matches = [];
 
-    matches = utilInstance.parseRegex(param_val,param_regex);
+
+    matches = utilInstance.parseRegex(param_val, layer_parsing_regex);
+    console.log(matches);
+
     matches = matches.map(el => el.slice(1, -1))
+
+    matches = matches.reduce((acc, val) => {
+    const sub_match = utilInstance.parseRegex(val, param_regex);
+    return acc.concat(sub_match);
+    }, []);
+
+    
+   
 
     matches.forEach(el => {
       inlet_vals.push(el);
@@ -161,4 +168,4 @@ const parseWeftSystem = (val: string) : Array<number> => {
 }
   
 
-export const notation: DynamicOperation = {name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName,onParamChange};
+export const notation_system: DynamicOperation = {name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName,onParamChange};

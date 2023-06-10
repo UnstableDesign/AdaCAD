@@ -14,7 +14,7 @@ export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
 }
 
 export const getAllDraftsAtInlet = (op_inputs : Array<OpInput>, inlet_id: number) : Array<Draft> => {
-  if(!operationHasInputs(op_inputs) || inlet_id < 0 || inlet_id >= op_inputs.length) return [];
+  if(!operationHasInputs(op_inputs) || inlet_id < 0) return [];
   else{
 
     let req_inputs = op_inputs.filter(el => el.inlet_id == inlet_id);

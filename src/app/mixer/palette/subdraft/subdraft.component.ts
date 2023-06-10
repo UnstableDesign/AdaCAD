@@ -539,7 +539,7 @@ export class SubdraftComponent implements OnInit {
       }
     } else{
       if(forprint) this.draft_cx.fillStyle =  '#ffffff'
-      else this.draft_cx.fillStyle =  '#eeeeee';
+      else this.draft_cx.fillStyle =  '#ADD8E6';
     // this.cx.fillStyle =  '#ff0000';
 
     }

@@ -113,37 +113,37 @@ export class ParameterComponent implements OnInit {
       case 'number': 
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
-        this.onOperationParamChange.emit({id: this.paramid, value: value});
+        this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'boolean':
         opnode.params[this.paramid] = (value) ? 1 : 0;
         this.fc.setValue(value);
-        this.onOperationParamChange.emit({id: this.paramid, value: value});
+        this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'notation_toggle':
         opnode.params[this.paramid] = (value) ? 1 : 0;
         this.fc.setValue(value);
-        this.onOperationParamChange.emit({id: this.paramid, value: value});
+        this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'string':
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
-        if(!this.fc.hasError('forbiddenInput'))this.onOperationParamChange.emit({id: this.paramid, value: value});
+        if(!this.fc.hasError('forbiddenInput'))this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'select':
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
-        this.onOperationParamChange.emit({id: this.paramid, value: value});
+        this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'draft':
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
-        this.onOperationParamChange.emit({id: this.paramid, value: value});
+        this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
     }
 

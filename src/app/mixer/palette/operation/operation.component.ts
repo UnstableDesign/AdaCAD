@@ -376,12 +376,15 @@ export class OperationComponent implements OnInit {
   onParamChange(obj: any){
 
 
+
+
     if(this.is_dynamic_op){
+
       const opnode = <OpNode> this.tree.getNode(this.id);
       const op = <DynamicOperation> this.operations.getOp(opnode.name);
       //this is a hack to use an input draft to generate inlets
       
-      if(op.dynamic_param_id == obj.id){
+      if(op.dynamic_param_id == obj.id || obj.type =="notation_toggle"){
 
         if(op.params[obj.id].type == 'draft'){
           const inputs:Array<IOTuple> = this.tree.getInputsAtNdx(this.id, 0);

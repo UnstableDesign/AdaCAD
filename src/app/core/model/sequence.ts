@@ -1,4 +1,5 @@
 
+import { first } from "rxjs/operators";
 import { createCellFromSequenceVal, getCellValue } from "./cell";
 import { Cell, Drawdown } from "./datatypes";
 import utilInstance from "./util";
@@ -149,7 +150,6 @@ export module Sequence{
 
     deleteAndDrawIn(val: number){
 
-      console.log("DRAWING IN ", val)
       if(val < 1 || val >= this.state.length) return this;
       
       let deleted = this.state[val];
@@ -203,7 +203,23 @@ export module Sequence{
       return this.state.slice();
     }
 
+    /**
+     * gets the value at a specified position
+     * @returns the value at this location, or -1 if the location was invalid
+     */
+    get(i: number):number{
+      if(i >= 0 && i < this.length()) return this.state[i];
+      return -1;
+    }
+    
 
+    /**
+     * returns the length of the given state
+     * @returns a number 0 or above
+     */
+    length():number{
+      return this.state.length;
+    }
 
   }
 
@@ -215,6 +231,7 @@ export module Sequence{
     constructor(){
       return this;
     }
+
 
     deleteWeft(i: number){
       this.state = this.state.filter((el, ndx)=> ndx != i);
@@ -228,89 +245,314 @@ export module Sequence{
      return this;
   }
 
-    /**
-     * adds a row to the first (or subsequent row) of the 2D sequence
-     * @param seq the 1D sequence value to add 
-     * @returns 
-     */
-    pushWarpSequence(seq: Array<number>){
+  /**
+   * uses the current state to populate a new space, but only upon a certain set of warps and wefts. 
+   * @param weftsys - the weft system upon which to map this draft
+   * @param warpsys - the warp system upon which to map this draft
+   * @param weft_system_map - the pattern of weft systems along the wefts
+   * @param warp_system_draft - the pattern of warp systems along the warps
+   */
+  mapToSystems(weftsys: Array<number>, warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD){
+    // console.log("MAPPING ", this.state, " to ", weftsys, warpsys)
+    let total_wefts: number = 0;
+    total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
 
-      let height = this.state.length;
-      if(this.state.length > 0 && height != seq.length){
-        let lcm = utilInstance.lcm([height, seq.length]);
-        let width = this.state[0].length;
+    let total_warps: number = 0;
+    total_warps = utilInstance.lcm([this.warps(), warp_system_map.length()])*warp_system_map.length();
 
-        for(let j = 0; j < width; j++){
-          let col = this.state.map(el => el[j]);
-          let col_seq = new OneD(col).expand(lcm).val();
-          for(let i = 0; i < lcm; i++){
-            this.state[i][j] = col_seq[i];
+    //create a blank draft of the size needed that we'll copy into 
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(total_warps, total_wefts);
+
+    //now map the new values within that space
+    let within_sequence_i = 0; 
+    let within_sequence_j = 0;
+
+    for(let i = 0; i < total_wefts; i++){
+      let active_weft_system = weft_system_map.get(i%weft_system_map.length());
+      if(weftsys.find(el => el == active_weft_system) !== undefined){
+        within_sequence_j = 0;
+        for(let j = 0; j < total_warps; j++){
+          let active_warp_system = warp_system_map.get(j%warp_system_map.length());
+
+          if(warpsys.find(el => el == active_warp_system) !== undefined){
+            mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j))
+            within_sequence_j = (within_sequence_j + 1) % this.warps();
           }
         }
+        within_sequence_i = (within_sequence_i + 1) % this.wefts();
+      }
+    }
+
+    this.state = mapped_seq.state.slice();
+    return this;
+
+  }
+
+
+  /**
+   * places the non unset values from seq atop any unset values in the current state. It will also make the two sequences compatable sizes by repeating their original values. 
+   * @param seq 
+   * @returns 
+   */
+  overlay(seq: Sequence.TwoD) {
+
+    //first, make the seqences of compatible sizes
+    let total_wefts: number = 0;
+    total_wefts = utilInstance.lcm([this.wefts(), seq.wefts()]);
+
+    let total_warps: number = 0;
+    total_warps = utilInstance.lcm([this.warps(), seq.warps()]);
+
+    this.fill(total_warps, total_wefts);
+    seq.fill(total_warps, total_wefts);
+
+    this.state.forEach((row, i) => {
+      row.forEach((cell, j) => {
+        if(seq.get(i, j) !== 2 && cell == 2){
+          this.set(i, j, seq.get(i, j));
+        }else if(seq.get(i, j) !== 2 && cell != 2){
+          console.error("Sequence 2D, overlay is attempting to overwrite a set value")
+        }
+      })
+    })
+
+    
+
+
+
+
+    return this;
+  }
+
+  /**
+   * looks at the given weft. Sets any unset value in this weft to the value provided to the function
+   * @param i 
+   * @param val 
+   */
+  setUnsetOnWeft(i: number, val: number) {
+
+    let weft:Array<number> = this.getWeft(i);
+    weft.forEach((el, j) => {
+      if(el == 2) this.set(i, j, val);
+    });
+
+    return this;
+  }
+
+    /**
+   * looks at the given warp. Sets any unset value in this warp to the value provided to the function
+   * @param j 
+   * @param val 
+   */
+    setUnsetOnWarp(j: number, val: number) {
+
+      let warp:Array<number> = this.getWarp(j);
+      warp.forEach((el, i) => {
+        if(el == 2) this.set(i, j, val);
+      });
+
+      return this;
+    }
+  
+
+
+  layerSystems(warp_system_to_layers: Array<{ws: number, layer: number}>, warp_system_map: Sequence.OneD){
+
+    let before_layering: Sequence.TwoD = this.copy();
+
+    //get the actual layers we are dealing with
+    let layers = utilInstance.filterToUniqueValues(warp_system_to_layers.map(el => el.layer));
+    //might have to make these numbers consequtive?
+
+    for(let l = 0; l < layers.length; l++){
+
+      //get the warp systems associated with this layer
+      let warp_systems: Array<number> = warp_system_to_layers.filter(el => el.layer == l).map(el => el.ws);
+
+      //now go through the wefts, do they interlace on this warp? If yes, 
+      //set all the unset values on this weft to down
+      before_layering.state.forEach((row, i) => {
+        
+        //get the first set value
+        let first_set = row.findIndex(el => el !== 2);
+
+        if(first_set !== -1){
+          //is it on this warp system? 
+          let interlacing_ws = warp_system_map.get(first_set);
+          // console.log("First set value on  ", i, " is ", first_set, "interlacing on ", interlacing_ws, " current warp system is ", warp_systems);
+
+          if(warp_systems.find(el => el == interlacing_ws) !== undefined){
+            //this warp system is interlacing on this layer!
+            this.setUnsetOnWeft(i, 0);
+          }
+        }
+
+      });
+
+      //how, set all the unset values on the warps associated with this 
+      for(let j = 0; j < this.warps(); j++){
+        let warp_syst = warp_system_map.get(j % warp_system_map.length());
+        if(warp_systems.find(el => el == warp_syst) !== undefined){
+          this.setUnsetOnWarp(j, 1);
+        }
       }
 
-      if(this.state.length == 0){
-        seq.forEach((num, ndx) => {
-          this.state.push([]);
+
+    } // end for each layer
+    
+
+    return this;
+
+
+  }
+
+/**
+ * this sets the value at a given location specified by i and j
+ * This function will only succesfully set a value if the current value in that place is "unset", otherwise it returns an error that it is attempting to overwrite a value
+ * @param i 
+ * @param j 
+ * @param val 
+ * @returns 
+ */
+  set(i: number, j: number, val: number) {
+    if(i < 0 || i >= this.wefts()){
+      console.error("Sequence2D - attempting to set an out of range weft value");
+      return this;
+    }
+    if(j < 0 || j >= this.warps()){
+      console.error("Sequence2D - attempting to set an out of range warp value");
+      return this;
+    }
+
+    if(this.state[i][j] !== 2){
+      console.error("overriding set value at ", i, j, this.state[i][j]);
+      return this;
+    }
+
+    this.state[i][j] = val;
+    return this;
+  }
+
+  get(i: number, j: number) : number {
+
+    if(i < 0 || i >= this.wefts()){
+      console.error("Sequence2D - attempting to get an out of range weft value");
+      return -1;
+    }
+    if(j < 0 || j >= this.warps()){
+      console.error("Sequence2D - attempting to get an out of range warp value");
+      return -1;
+    }
+
+    return  this.state[i][j];
+  }
+
+  getWeft(i: number )  : Array<number>{
+    if(i < 0 || i >= this.wefts()){
+      console.error("Sequence2D - attempting to get an out of range weft value");
+      return [];
+    }
+
+    return this.state[i];
+
+  }
+
+  getWarp(j: number )  : Array<number>{
+    if(j < 0 || j >= this.warps()){
+      console.error("Sequence2D - attempting to get an out of range warp value");
+      return [];
+    }
+    return this.state.reduce((acc, val) => {
+      return acc.concat(val[j]);
+    }, []);
+
+  }
+
+
+
+  /**
+   * adds a row to the first (or subsequent row) of the 2D sequence
+   * @param seq the 1D sequence value to add 
+   * @returns 
+   */
+  pushWarpSequence(seq: Array<number>){
+
+    let height = this.state.length;
+    if(this.state.length > 0 && height != seq.length){
+      let lcm = utilInstance.lcm([height, seq.length]);
+      let width = this.state[0].length;
+
+      for(let j = 0; j < width; j++){
+        let col = this.state.map(el => el[j]);
+        let col_seq = new OneD(col).expand(lcm).val();
+        for(let i = 0; i < lcm; i++){
+          this.state[i][j] = col_seq[i];
+        }
+      }
+    }
+
+    if(this.state.length == 0){
+      seq.forEach((num, ndx) => {
+        this.state.push([]);
+      })
+    }
+
+    seq.forEach((num, ndx) => {
+      this.state[ndx].push(num);
+    })
+    
+    return this;
+  }
+
+    /**
+   * adds a col to the first (or subsequent col) of the 2D sequence
+   * @param seq the 1D sequence value to add 
+   * @returns 
+   */
+    pushWeftSequence(seq: Array<number>){
+
+
+    
+    if(this.state.length > 0 && this.state[0].length !== seq.length){
+        let width = this.state[0].length;     
+
+        let lcm = utilInstance.lcm([width, seq.length]);
+        
+        this.state.forEach((row, ndx) => {
+          this.state[ndx] = new OneD(row).expand(lcm).val();
         })
       }
+      this.state.push(seq);
 
-      seq.forEach((num, ndx) => {
-        this.state[ndx].push(num);
-      })
-      
-      return this;
+    
+    return this;
+  }
+
+   /**
+   * adds this weft to the front of the pattern
+   * @param seq the 1D sequence value to add 
+   * @returns 
+   */
+    unshiftWeftSequence(seq: Array<number>){
+
+
+    
+        if(this.state.length > 0 && this.state[0].length !== seq.length){
+            let width = this.state[0].length;     
+  
+            let lcm = utilInstance.lcm([width, seq.length]);
+            
+            this.state.forEach((row, ndx) => {
+              this.state[ndx] = new OneD(row).expand(lcm).val();
+            })
+          }
+          this.state.unshift(seq);
+  
+        
+        return this;
     }
 
-     /**
-     * adds a col to the first (or subsequent col) of the 2D sequence
-     * @param seq the 1D sequence value to add 
-     * @returns 
-     */
-     pushWeftSequence(seq: Array<number>){
-
-
-     
-      if(this.state.length > 0 && this.state[0].length !== seq.length){
-          let width = this.state[0].length;     
-
-          let lcm = utilInstance.lcm([width, seq.length]);
-          
-          this.state.forEach((row, ndx) => {
-            this.state[ndx] = new OneD(row).expand(lcm).val();
-          })
-        }
-        this.state.push(seq);
-
-      
-      return this;
-    }
-
-         /**
-     * adds this weft to the front of the pattern
-     * @param seq the 1D sequence value to add 
-     * @returns 
-     */
-      unshiftWeftSequence(seq: Array<number>){
-
-
-     
-          if(this.state.length > 0 && this.state[0].length !== seq.length){
-              let width = this.state[0].length;     
-    
-              let lcm = utilInstance.lcm([width, seq.length]);
-              
-              this.state.forEach((row, ndx) => {
-                this.state[ndx] = new OneD(row).expand(lcm).val();
-              })
-            }
-            this.state.unshift(seq);
-    
-          
-          return this;
-      }
-
-    setBlank(val: number | boolean = 1){
+    setBlank(val: number | boolean = 2){
 
       let res = new OneD().push(val).val();
       this.state = [res];
@@ -354,6 +596,15 @@ export module Sequence{
 
 
       return this;
+    }
+
+    copy() : Sequence.TwoD {
+
+      let dd = this.export();
+      let copy = new Sequence.TwoD();
+      copy.import(dd);
+
+      return copy;
     }
 
 
@@ -406,52 +657,3 @@ export module Sequence{
 }
 
 
-
-
-// var SequenceClass = function(){
-
-//   this.val = [0,1];
-
-// }
-
-// SequenceClass.prototype.invert = function () {
-
-//   this.sequence = this.sequence.map(el => !el)
-  
-//   return this;
-
-// }
-
-
-
-// export const sequence = {
-//     state: { value: [false,true] },
-//     callbacks: [] as ((...args: any[]) => any)[],
-//     _exec: {
-//       setValue: (arr: Array<boolean>) => (sequence.state.value = arr),
-//       invert: () => (sequence.state.value = sequence.state.value.map(el => !el)),
-//       shift: (val: number) => (
-//         sequence.state.value = sequence.state.value.map((el, ndx) => sequence.state.value[(ndx+val)%sequence.state.value.length])
-//         )
-//     },
-//     _queue: {
-//       setValue: (arr: Array<boolean>) => {
-//         sequence.callbacks.push(() => sequence._exec.setValue(arr));
-//         return sequence._queue;
-//       },
-//       invert: () => {
-//         sequence.callbacks.push(() => sequence._exec.invert());
-//         return sequence._queue;
-//       },
-//       shift: (val: number) => {
-//         sequence.callbacks.push(() => sequence._exec.shift(val));
-//         return sequence._queue;
-//       },
-//       run: () => {
-//         sequence.callbacks.forEach((cb) => cb());
-//         sequence.callbacks = [];
-//       },
-//     },
-//     chain: () => sequence._queue,
-//   };
-  

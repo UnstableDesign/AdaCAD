@@ -108,14 +108,16 @@ export class TreeService {
    */
    onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
+    console.log("ON DYNAMIC PARAM CHANGE ", opid, param_id, param_val)
 
       const op = <DynamicOperation> this.ops.getOp(name);
+      const param_type = op.params[param_id].type
       const opnode = this.getOpNode(opid);
 
       if(!this.ops.isDynamic(name)) return;
 
       console.log(" op.dynamic_param_id, param_id ",op.dynamic_param_id, param_id)
-      if(op.dynamic_param_id != param_id) return;
+      if(op.dynamic_param_id != param_id && param_type !== 'notation_toggle') return;
 
 
       let param_vals:Array<OpParamVal> = opnode.params.map((el, ndx) =>  {

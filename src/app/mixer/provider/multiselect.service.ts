@@ -134,12 +134,10 @@ export class MultiselectService {
    * @returns 
    */
   copySelections()  {
-    console.log("COPY SELECTIONS ")
 
     let selected_nodes:Array<Node> = this.selected
     .map(el => this.tree.getNode(el.id))
     .filter(el => el.type !== 'cxn') //filter out connections because we will add these in later
-    // .filter(el => !(el.type == 'draft' && this.tree.hasParent(el.id))); //only add subdrafts if they have no parent
    
     let node_mirror:Array<Node> =selected_nodes.slice();
 
