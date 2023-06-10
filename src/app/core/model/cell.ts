@@ -1,3 +1,4 @@
+import { create } from "domain";
 import { Cell } from "./datatypes";
 
 
@@ -19,6 +20,16 @@ export const createCell = (setting: boolean) : Cell => {
   else {
     c.is_set = true;
     c.is_up = setting;
+  }
+  return c;
+}
+
+export const toggleHeddle = (c:Cell) : Cell => {
+  if(!c.is_set){
+    c.is_set = true;
+    c.is_up = true;
+  }else{
+    c.is_up = !c.is_up;
   }
   return c;
 }
@@ -165,14 +176,7 @@ export const getCellValue = (c: Cell) : boolean => {
   //      return null;
   //   }
 
-  // toggleHeddle(){
-  //   if(!this.is_set){
-  //     this.is_set = true;
-  //     this.is_up = true;
-  //   }else{
-  //     this.is_up = !this.is_up;
-  //   }
-  // }
+
 
 
   // unsetHeddle(){

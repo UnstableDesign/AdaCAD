@@ -35,6 +35,7 @@ import {imagemap} from '../operations/imagemap/imagemap'
 import {layer} from '../operations/layer/layer'
 import {notation_system} from '../operations/system_notation/system_notation'
 import {selvedge} from '../operations/selvedge/selvedge'
+import {bindweftfloats} from '../operations/bindweftfloats/bindweftfloats'
 
 @Injectable({
   providedIn: 'root'
@@ -100,7 +101,7 @@ export class OperationService {
     this.ops.push(shifty);
     this.ops.push(layer);
     this.ops.push(selvedge);
-  //   this.ops.push(bindweftfloats);
+    this.ops.push(bindweftfloats);
   //   this.ops.push(bindwarpfloats);
   //   this.ops.push(joinleft);
   //   this.ops.push(jointop);
