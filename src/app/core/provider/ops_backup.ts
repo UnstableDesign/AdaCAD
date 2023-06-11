@@ -661,6 +661,8 @@ const atop: Operation = {
       const to_bind = child_input.drafts[0];
 
         const d: Draft =initDraftWithParams({warps: warps(to_bind.drawdown), wefts: wefts(to_bind.drawdown), pattern: to_bind.drawdown.slice()});
+       
+       
         let float_len: number = 0;
         let last:boolean = false;
 

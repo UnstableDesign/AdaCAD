@@ -80,7 +80,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
         let modulated_id = within_draft_i % wefts(selected_draft.drawdown);
         let row = new Sequence.OneD().import(selected_draft.drawdown[modulated_id]);
         
-        if(repeat) row.expand(total_warps);
+        if(repeat) row.resize(total_warps);
         else row.padTo(total_warps);
 
         pattern.pushWeftSequence(row.val());

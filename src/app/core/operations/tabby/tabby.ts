@@ -77,12 +77,9 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       let inverted =first_row.invert().val();
 
       for(let i = 0; i < alt_rep; i++){
-        console.log("first row invert ", first_row, inverted)
         pattern.pushWeftSequence(inverted);
       }
 
-      console.log("pattern ", pattern);
-      console.log("DRAFT ", initDraftFromDrawdown(pattern.export()))
       return Promise.resolve([initDraftFromDrawdown(pattern.export())]);
 
   }   

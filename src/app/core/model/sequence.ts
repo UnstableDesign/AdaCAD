@@ -90,19 +90,24 @@ export module Sequence{
 
 
     /**
-     * repeats the current sequence so that it is of length n.
+     * repeats or cuts the current sequence so that it is of length n.
      * @param n the length of the sequence 
      */
-    expand(n: number){
+    resize(n: number){
 
       if(this.state.length == 0) return;
-
       let len = this.state.length;
-      let remainder = n - len;
 
-      for(let j = 0; j < remainder; j++){
-        this.state.push(this.state[j%len]); 
-      };
+      if(n < len){
+        this.state.slice(0, n);
+      }else{
+
+        let remainder = n - len;
+
+        for(let j = 0; j < remainder; j++){
+          this.state.push(this.state[j%len]); 
+        };
+      }
 
       return this;
     }
@@ -139,10 +144,12 @@ export module Sequence{
       return this;
     }
 
-    import(row: Array<Cell>){
+    import(row: Array<Cell> | Array<number>){
       this.state = [];
       row.forEach(cell => {
-        this.push(getCellValue(cell));
+        if(typeof cell == 'number') this.push(cell);
+
+        else this.push(getCellValue(cell));
       })
       return this;
 
@@ -484,7 +491,7 @@ export module Sequence{
 
       for(let j = 0; j < width; j++){
         let col = this.state.map(el => el[j]);
-        let col_seq = new OneD(col).expand(lcm).val();
+        let col_seq = new OneD(col).resize(lcm).val();
         for(let i = 0; i < lcm; i++){
           this.state[i][j] = col_seq[i];
         }
@@ -505,6 +512,41 @@ export module Sequence{
   }
 
     /**
+   * adds this weft to the front of the pattern
+   * @param seq the 1D sequence value to add 
+   * @returns 
+   */
+    unshiftWarpSequence(seq: Array<number>){
+      let height = this.state.length;
+      if(this.state.length > 0 && height != seq.length){
+        let lcm = utilInstance.lcm([height, seq.length]);
+        let width = this.state[0].length;
+  
+        for(let j = 0; j < width; j++){
+          let col = this.state.map(el => el[j]);
+          let col_seq = new OneD(col).resize(lcm).val();
+          for(let i = 0; i < lcm; i++){
+            this.state[i][j] = col_seq[i];
+          }
+        }
+      }
+  
+      if(this.state.length == 0){
+        seq.forEach((num, ndx) => {
+          this.state.push([]);
+        })
+      }
+  
+      seq.forEach((num, ndx) => {
+        this.state[ndx].unshift(num);
+      })
+      
+      return this;
+
+    
+  }
+
+    /**
    * adds a col to the first (or subsequent col) of the 2D sequence
    * @param seq the 1D sequence value to add 
    * @returns 
@@ -519,7 +561,7 @@ export module Sequence{
         let lcm = utilInstance.lcm([width, seq.length]);
         
         this.state.forEach((row, ndx) => {
-          this.state[ndx] = new OneD(row).expand(lcm).val();
+          this.state[ndx] = new OneD(row).resize(lcm).val();
         })
       }
       this.state.push(seq);
@@ -543,7 +585,7 @@ export module Sequence{
             let lcm = utilInstance.lcm([width, seq.length]);
             
             this.state.forEach((row, ndx) => {
-              this.state[ndx] = new OneD(row).expand(lcm).val();
+              this.state[ndx] = new OneD(row).resize(lcm).val();
             })
           }
           this.state.unshift(seq);
@@ -583,7 +625,7 @@ export module Sequence{
       for(let i = 0; i < h; i++){
         let row;
         if(w >= len)
-        row = new OneD(this.state[i%len]).expand(w).val();
+        row = new OneD(this.state[i%len]).resize(w).val();
         else{
         row = new OneD(this.state[i%len].slice(0, w)).val()
         }

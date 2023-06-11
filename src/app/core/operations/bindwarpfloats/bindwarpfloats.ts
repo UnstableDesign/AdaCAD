@@ -5,17 +5,17 @@ import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames 
 import { Sequence } from "../../model/sequence";
 
 
-const name = "bind weft floats";
+const name = "bind warp floats";
 const old_names = [];
 
 //PARAMS
 const max_float:NumParam =  
-{name: 'max float length',
+{name: 'length',
 type: 'number',
 min: 1,
-max: 1000000,
+max: 100,
 value: 10,
-dx: 'the maximum length of a weft float'
+dx: 'the maximum length of a warp float'
 }
 
 const params = [max_float];
@@ -47,10 +47,10 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let last:boolean = false;
 
 
-  for(let i = 0; i < wefts(input_draft.drawdown); i++){
+  for(let j = 0; j < warps(input_draft.drawdown); j++){
     float_len = 1;
     last = null;
-    for(let j = 0; j < warps(input_draft.drawdown); j++){
+    for(let i = 0; i < wefts(input_draft.drawdown); i++){
 
       if(getHeddle(input_draft.drawdown,i,j) === null){
         float_len = 1;
@@ -87,8 +87,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 
   let drafts = getAllDraftsAtInlet(op_inputs, 0);
-  return 'bound wefts('+parseDraftNames(drafts)+")";
+  return 'bound warps('+parseDraftNames(drafts)+")";
 }
 
 
-export const bindweftfloats: Operation = {name, old_names, params, inlets, perform, generateName};
+export const bindwarpfloats: Operation = {name, old_names, params, inlets, perform, generateName};
