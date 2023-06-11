@@ -1,9 +1,7 @@
-import { D } from "@angular/cdk/keycodes";
 import { createCell, getCellValue, setCellValue } from "../../model/cell";
 import { BoolParam, Draft, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
-import { initDraftFromDrawdown, initDraftWithParams, isUp, warps, wefts } from "../../model/drafts";
+import { initDraftWithParams, isUp, warps, wefts } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
-import { Sequence } from "../../model/sequence";
 
 
 const name = "combos";
@@ -43,7 +41,7 @@ const params = [ends, selection, download];
 
 //INLETS
 
-  const inlets = [];
+const inlets = [];
 
 
 const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {

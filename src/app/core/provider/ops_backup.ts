@@ -3496,7 +3496,8 @@ const atop: Operation = {
     name: 'rotate',
     old_names:[],     
     params: [
-      <SelectParam>{name: 'amount',
+      <SelectParam>{
+        name: 'amount',
       type: 'select',
       selectlist: [
         {name: '90', value: 0},
