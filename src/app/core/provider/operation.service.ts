@@ -40,6 +40,8 @@ import {bindwarpfloats} from '../operations/bindwarpfloats/bindwarpfloats'
 import {rotate} from '../operations/rotate/rotate'
 import {joinleft} from '../operations/joinleft/joinleft'
 import {jointop} from '../operations/jointop/jointop'
+import {slope} from '../operations/slope/slope'
+import {undulatewefts} from '../operations/undulatewefts/undulatewefts'
 
 
 
@@ -111,8 +113,9 @@ export class OperationService {
     this.ops.push(bindwarpfloats);
     this.ops.push(joinleft);
     this.ops.push(jointop);
-  //   this.ops.push(slope);
+    this.ops.push(slope);
     this.ops.push(tile);
+    this.ops.push(undulatewefts);
   //   this.ops.push(chaos);
   //   this.ops.push(stretch);
   //   this.ops.push(resize);
