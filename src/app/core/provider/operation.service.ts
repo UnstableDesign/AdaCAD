@@ -39,6 +39,7 @@ import {bindweftfloats} from '../operations/bindweftfloats/bindweftfloats'
 import {bindwarpfloats} from '../operations/bindwarpfloats/bindwarpfloats'
 import {rotate} from '../operations/rotate/rotate'
 import {joinleft} from '../operations/joinleft/joinleft'
+import {jointop} from '../operations/jointop/jointop'
 
 
 
@@ -109,7 +110,7 @@ export class OperationService {
     this.ops.push(bindweftfloats);
     this.ops.push(bindwarpfloats);
     this.ops.push(joinleft);
-  //   this.ops.push(jointop);
+    this.ops.push(jointop);
   //   this.ops.push(slope);
     this.ops.push(tile);
   //   this.ops.push(chaos);

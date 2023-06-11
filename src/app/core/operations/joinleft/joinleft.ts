@@ -1,6 +1,6 @@
 import { BoolParam, Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { generateMappingFromPattern, getCol, getHeddle, initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
-import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames, transferSystemsAndShuttles } from "../../model/operations";
+import { getHeddle, initDraftFromDrawdown, warps, wefts } from "../../model/drafts";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 import utilInstance from "../../model/util";
 
@@ -14,7 +14,7 @@ type: 'boolean',
 falsestate: 'do not repeat inputs to match size',
 truestate: 'repeat inputs to match size',
 value: 1,
-dx: "controls if the inputs are repeated along the width so they repeat in even intervals"}
+dx: "controls if the inputs are repeated along the height so they repeat in even intervals"}
 
 
 
