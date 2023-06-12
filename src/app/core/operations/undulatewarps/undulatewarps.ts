@@ -1,11 +1,11 @@
-import { BoolParam, Draft, NumParam, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
-import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
+import { BoolParam, Draft, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
+import { getCol, initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 import utilInstance from "../../model/util";
 
 
-const name = "undulatewefts";
+const name = "undulatewarps";
 const old_names = [];
 
 //PARAMS
@@ -15,7 +15,7 @@ const shift_pattern:StringParam =
     regex: /(\d+)/,
     value: '1 1 1 2 2 3',
     error: '',
-    dx: 'shifts the starting row by the amount spefied on each subsequent pic to create undulating patterns'
+    dx: 'shifts each end of the input draft according to the number sequence specified.'
 };
 const force_fit: BoolParam = 
         {name: 'fit to input',
@@ -48,7 +48,6 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       const undulating_string: string = getOpParamValById(0, param_vals);
-
  
       const forcefit: number = getOpParamValById(1, param_vals);
 
@@ -68,8 +67,8 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       if(forcefit){
-        max_wefts = undulating_array.length;
-        max_warps = undulating_array.reduce((acc, val)=> {
+        max_warps = undulating_array.length;
+        max_wefts = undulating_array.reduce((acc, val)=> {
             if(Math.abs(val) > acc) return Math.abs(val);
             return acc;
         }, -1);
@@ -78,15 +77,15 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         max_warps = warps(drafts[0].drawdown)
       }
 
-      for(let i = 0; i < max_wefts; i++){
+      for(let j = 0; j < max_warps; j++){
 
-        let und_val = undulating_array[i%undulating_array.length];
+        let und_val = undulating_array[j%undulating_array.length];
 
    
-        pattern.pushWeftSequence(
+        pattern.pushWarpSequence(
             new Sequence.OneD()
-        .import(drafts[0].drawdown[i%wefts(drafts[0].drawdown)])
-        .resize(max_warps)
+        .import(getCol(drafts[0].drawdown, j%warps(drafts[0].drawdown)))
+        .resize(max_wefts)
         .shift(und_val)
         .val());
 
@@ -102,11 +101,11 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
-  return 'undulate wefts';
+  return 'undulate warps';
 }
 
 
-export const undulatewefts: Operation = {name, old_names, params, inlets, perform, generateName};
+export const undulatewarps: Operation = {name, old_names, params, inlets, perform, generateName};
 
 
 

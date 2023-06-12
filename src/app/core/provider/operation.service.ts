@@ -42,6 +42,9 @@ import {joinleft} from '../operations/joinleft/joinleft'
 import {jointop} from '../operations/jointop/jointop'
 import {slope} from '../operations/slope/slope'
 import {undulatewefts} from '../operations/undulatewefts/undulatewefts'
+import { undulatewarps } from '../operations/undulatewarps/undulatewarps';
+import { chaos } from '../operations/chaos/chaos';
+import { stretch } from '../operations/stretch/stretch';
 
 
 
@@ -116,8 +119,9 @@ export class OperationService {
     this.ops.push(slope);
     this.ops.push(tile);
     this.ops.push(undulatewefts);
-  //   this.ops.push(chaos);
-  //   this.ops.push(stretch);
+    this.ops.push(undulatewarps);
+    this.ops.push(chaos);
+    this.ops.push(stretch);
   //   this.ops.push(resize);
   //   this.ops.push(margin);
   //   this.ops.push(clear);

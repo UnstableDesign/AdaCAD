@@ -144,6 +144,11 @@ export module Sequence{
       return this;
     }
 
+    /**
+     * clears the current state and pushes a new row into the state value
+     * @param row 
+     * @returns 
+     */
     import(row: Array<Cell> | Array<number>){
       this.state = [];
       row.forEach(cell => {
@@ -154,6 +159,21 @@ export module Sequence{
       return this;
 
     }
+
+      /**
+     *  pushes a new row into the state value without clearing the state
+     * @param row 
+     * @returns 
+     */
+      pushRow(row: Array<Cell> | Array<number>){
+        row.forEach(cell => {
+          if(typeof cell == 'number') this.push(cell);
+  
+          else this.push(getCellValue(cell));
+        })
+        return this;
+  
+      }
 
     deleteAndDrawIn(val: number){
 

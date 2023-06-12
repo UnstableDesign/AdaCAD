@@ -39,7 +39,8 @@
                 "crop",
                 "trim",
                 "margin",
-                "undulatewefts"
+                "undulatewefts",
+                "undulatewarps"
             ]
         },
         {
