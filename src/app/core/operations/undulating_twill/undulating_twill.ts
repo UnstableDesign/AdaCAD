@@ -2,6 +2,7 @@ import { BoolParam, NumParam, Operation, OpInput, OpParamVal, StringParam } from
 import { initDraftFromDrawdown } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
+import utilInstance from "../../model/util";
 
 
 const name = "undulatingtwill";
@@ -50,9 +51,13 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       const sz: number = getOpParamValById(2, param_vals);
 
 
-      const input_array: Array<number> = input_string.split(' ').map(el => parseInt(el));
 
-      const undulating_array: Array<number> = undulating_string.split(' ').map(el => parseInt(el));
+      let regex_matches= utilInstance.parseRegex(input_string, shift_pattern.regex)
+      let input_array = regex_matches.map(el => parseInt(el))
+
+       regex_matches= utilInstance.parseRegex(undulating_string, shift_pattern.regex)
+      let undulating_array = regex_matches.map(el => parseInt(el))
+
 
 
 

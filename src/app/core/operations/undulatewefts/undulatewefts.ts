@@ -2,6 +2,7 @@ import { BoolParam, Draft, NumParam, Operation, OperationInlet, OpInput, OpParam
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
+import utilInstance from "../../model/util";
 
 
 const name = "undulatewefts";
@@ -47,13 +48,18 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       const undulating_string: string = getOpParamValById(0, param_vals);
+
+ 
       const forcefit: number = getOpParamValById(1, param_vals);
 
       const drafts: Array<Draft> = getAllDraftsAtInlet(op_inputs, 0);
 
       if(drafts.length == 0) return Promise.resolve([]);
 
-      const undulating_array: Array<number> = undulating_string.split(' ').map(el => parseInt(el));
+      let regex_matches= utilInstance.parseRegex(undulating_string, shift_pattern.regex)
+
+
+      let undulating_array = regex_matches.map(el => parseInt(el))
 
       let pattern = new Sequence.TwoD();
 
@@ -77,7 +83,8 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         let und_val = undulating_array[i%undulating_array.length];
 
    
-        pattern.pushWeftSequence(new Sequence.OneD()
+        pattern.pushWeftSequence(
+            new Sequence.OneD()
         .import(drafts[0].drawdown[i%wefts(drafts[0].drawdown)])
         .resize(max_warps)
         .shift(und_val)
