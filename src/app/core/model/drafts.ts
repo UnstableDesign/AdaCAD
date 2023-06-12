@@ -811,8 +811,6 @@ export const createDraft = (
 */ 
 export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Draft> => {
 
-  console.log("FLIPPING DRAFT ", d, horiz, vert)
-
   const draft = initDraftWithParams(
     {id: d.id, 
     wefts: wefts(d.drawdown),
