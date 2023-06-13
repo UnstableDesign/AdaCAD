@@ -49,6 +49,7 @@ import { resize } from '../operations/resize/resize';
 import { margin } from '../operations/margin/margin';
 import { clear } from '../operations/clear/clear';
 import { set } from '../operations/set/set';
+import { unset } from '../operations/unset/unset';
 import { apply_mats } from '../operations/applymaterialsandsystems/applymaterialsandsystems';
 
 
@@ -131,7 +132,7 @@ export class OperationService {
     this.ops.push(margin);
     this.ops.push(clear);
     this.ops.push(set);
-  //   this.ops.push(unset);
+    this.ops.push(unset);
     this.ops.push(rotate);
   //   this.ops.push(makesymmetric);
   //   this.ops.push(fill);
