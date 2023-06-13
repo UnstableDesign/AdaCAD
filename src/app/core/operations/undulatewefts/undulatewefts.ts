@@ -15,7 +15,7 @@ const shift_pattern:StringParam =
     regex: /(\d+)/,
     value: '1 1 1 2 2 3',
     error: '',
-    dx: 'shifts the starting row by the amount spefied on each subsequent pic to create undulating patterns'
+    dx: 'shifts each pic of the input draft according to the number sequence specified.'
 };
 const force_fit: BoolParam = 
         {name: 'fit to input',

@@ -46,6 +46,8 @@ import { undulatewarps } from '../operations/undulatewarps/undulatewarps';
 import { chaos } from '../operations/chaos/chaos';
 import { stretch } from '../operations/stretch/stretch';
 import { resize } from '../operations/resize/resize';
+import { margin } from '../operations/margin/margin';
+import { clear } from '../operations/clear/clear';
 
 
 
@@ -124,8 +126,8 @@ export class OperationService {
     this.ops.push(chaos);
     this.ops.push(stretch);
     this.ops.push(resize);
-  //   this.ops.push(margin);
-  //   this.ops.push(clear);
+    this.ops.push(margin);
+    this.ops.push(clear);
   //   this.ops.push(set);
   //   this.ops.push(unset);
     this.ops.push(rotate);
