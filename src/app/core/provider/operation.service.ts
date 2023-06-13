@@ -48,6 +48,7 @@ import { stretch } from '../operations/stretch/stretch';
 import { resize } from '../operations/resize/resize';
 import { margin } from '../operations/margin/margin';
 import { clear } from '../operations/clear/clear';
+import { apply_mats } from '../operations/applymaterialsandsystems/applymaterialsandsystems';
 
 
 
@@ -147,7 +148,7 @@ export class OperationService {
   //   this.ops.push(drawdown);
   //   this.ops.push(directdrawdown);
   //   this.ops.push(erase_blank);
-  //   this.ops.push(apply_mats);
+    this.ops.push(apply_mats);
     this.ops.push(combinatorics);
   //   this.ops.push(sinewave);
   //   this.ops.push(sawtooth);

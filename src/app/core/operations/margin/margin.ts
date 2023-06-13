@@ -1,6 +1,6 @@
 import { Draft, NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { getHeddle, initDraftFromDrawdown, initDraftWithParams, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
-import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
+import { initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
 const name = "margin";
