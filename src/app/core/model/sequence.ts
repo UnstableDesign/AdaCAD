@@ -144,6 +144,16 @@ export module Sequence{
       return this;
     }
 
+     /**
+     * slices a portion of the sequence
+     * @returns 
+     */
+        slice(start: number, end: number){
+          this.state = this.state.slice(start, end);
+          return this;
+        }
+    
+
     /**
      * clears the current state and pushes a new row into the state value
      * @param row 

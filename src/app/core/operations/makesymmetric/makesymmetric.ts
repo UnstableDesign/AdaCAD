@@ -1,4 +1,5 @@
 import { create } from "domain";
+import { row } from "mathjs";
 import { createCell } from "../../model/cell";
 import { BoolParam, Operation, OperationInlet, OpInput, OpParamVal, SelectParam } from "../../model/datatypes";
 import { initDraftFromDrawdown, initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
@@ -54,7 +55,7 @@ const draft_inlet: OperationInlet = {
 
   const inlets = [draft_inlet];
 
-
+/**TODO - make this support systems as well */
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let input_draft = getInputDraft(op_inputs);
@@ -64,8 +65,11 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   if(input_draft == null) return Promise.resolve([]);
 
     let pattern = new Sequence.TwoD();
+    let warp_systems = new Sequence.OneD();
+    let warp_mats = new Sequence.OneD();
+    let weft_systems = new Sequence.OneD();
+    let weft_materials = new Sequence.OneD();
 
-        let seq = new Sequence.OneD();
         switch(sym_mode){
 
             //4-way, top left - 2-way left
@@ -74,24 +78,43 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
                 input_draft.drawdown.forEach((row, i) =>{
                     let rev = new Sequence.OneD().import(row).reverse();
-                    let orig;
+                  
+                    let rev_warp_sys = new Sequence.OneD().import(input_draft.colSystemMapping).reverse();
+                    let rev_warp_mats = new Sequence.OneD().import(input_draft.colShuttleMapping).reverse();
 
                     if(remove_center == 1){
-                        orig = row.slice(1);
-                    }else{
-                        orig = row;                 
+                        rev.slice(0, row.length-1);
+                        rev_warp_mats.slice(0, row.length-1);
+                        rev_warp_sys.slice(0, row.length-1);
                     }
-                      rev.pushRow(orig);
-                    
+                    rev.pushRow(row);
+
+                    if(i == 0){
+                        warp_mats = rev_warp_mats.pushRow(input_draft.colShuttleMapping);
+                        warp_systems = rev_warp_sys.pushRow(input_draft.colSystemMapping);
+                    }                    
 
                     if(remove_center == 1 && i == 0){
+                        
                         pattern.pushWeftSequence(rev.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
+
                     }else{
                         pattern.pushWeftSequence(rev.val())
-                        if(sym_mode==0)pattern.unshiftWeftSequence(rev.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
+
+                        if(sym_mode==0){
+
+                            pattern.unshiftWeftSequence(rev.val())
+                            weft_materials.unshift(input_draft.rowShuttleMapping[i]);
+                            weft_systems.unshift(input_draft.rowSystemMapping[i]);
+                        }
 
                     }
             });
+
             break;
 
             //4-way top right // 2-way - right
@@ -100,22 +123,43 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             case 5:
                 input_draft.drawdown.forEach((row, i) =>{
                     let rev = new Sequence.OneD().import(row).reverse();
-                    let orig;
+                    let rev_warp_sys = new Sequence.OneD().import(input_draft.colSystemMapping).reverse();
+                    let rev_warp_mats = new Sequence.OneD().import(input_draft.colShuttleMapping).reverse();
 
                     if(remove_center == 1 && (sym_mode == 1 || sym_mode == 5)){
-                        orig = row.slice(0, row.length-1);
-                    }else{
-                        orig = row;                 
+                        rev.slice(1,row.length);
+                        rev_warp_mats.slice(1, row.length);
+                        rev_warp_sys.slice(1, row.length);
                     }
 
-                    let seq = new Sequence.OneD().import(orig);
-                    if(sym_mode !== 4)seq.pushRow(rev.val());
+                    let seq = new Sequence.OneD().import(row);
+                    if(i == 0){
+                        warp_mats.import(input_draft.colShuttleMapping).pushRow(rev_warp_mats.val());
+                        warp_systems.import(input_draft.colSystemMapping).pushRow(rev_warp_sys.val());
+                    }   
+
+
+                    if(sym_mode !== 4){
+                    
+                        seq.pushRow(rev.val());
+                        warp_mats.pushRow(rev_warp_mats.val());
+                        warp_systems.pushRow(rev_warp_sys.val());
+                    
+                    }
 
                     if(remove_center == 1 && i == 0){
                         pattern.pushWeftSequence(seq.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
                     }else{
                         pattern.pushWeftSequence(seq.val())
-                        if(sym_mode == 1 || sym_mode == 4) pattern.unshiftWeftSequence(seq.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
+                        if(sym_mode == 1 || sym_mode == 4){
+                            pattern.unshiftWeftSequence(seq.val())
+                            weft_materials.unshift(input_draft.rowShuttleMapping[i]);
+                            weft_systems.unshift(input_draft.rowSystemMapping[i]);
+                        }
 
                     }
             });
@@ -125,28 +169,43 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             //4-way bottom right, 2-way bottom 
             case 2:
             case 6:
+
+            
                 for(let i = input_draft.drawdown.length-1; i >=0; i--){
                     let row = input_draft.drawdown[i];
                     let rev = new Sequence.OneD().import(row).reverse();
-                    let orig;
+                    let rev_warp_sys = new Sequence.OneD().import(input_draft.colSystemMapping).reverse();
+                    let rev_warp_mats = new Sequence.OneD().import(input_draft.colShuttleMapping).reverse();
+                    
+                    let seq = new Sequence.OneD().import(row);
+
 
                     if(remove_center == 1 && sym_mode == 2){
-                        orig = row.slice(0, row.length-1);
-                    }else{
-                        orig = row;                 
+                        rev.slice(1, row.length);
+                        rev_warp_mats.slice(1, row.length);
+                        rev_warp_sys.slice(1, row.length);
                     }
 
-                    let seq = new Sequence.OneD().import(orig);
+
                     if(sym_mode == 2){
-                     seq.pushRow(rev.val());
+                     warp_mats.import(input_draft.colShuttleMapping).pushRow(rev_warp_mats.val());
+                     warp_systems.import(input_draft.colSystemMapping).pushRow(rev_warp_sys.val());
+                    }else if(i==0){
+                        warp_mats.import(input_draft.colShuttleMapping)
+                        warp_systems.import(input_draft.colSystemMapping)
                     }
 
                     if(remove_center == 1 && i == input_draft.drawdown.length-1){
                         pattern.pushWeftSequence(seq.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
                     }else{
                         pattern.pushWeftSequence(seq.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
                         pattern.unshiftWeftSequence(seq.val())
-
+                        weft_materials.unshift(input_draft.rowShuttleMapping[i]);
+                        weft_systems.unshift(input_draft.rowSystemMapping[i]);
                     }
                 }
           
@@ -157,20 +216,33 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                 for(let i = input_draft.drawdown.length-1; i >=0; i--){
                     let row = input_draft.drawdown[i];
                     let rev = new Sequence.OneD().import(row).reverse();
+                    let rev_warp_sys = new Sequence.OneD().import(input_draft.colSystemMapping).reverse();
+                    let rev_warp_mats = new Sequence.OneD().import(input_draft.colShuttleMapping).reverse();
                     let orig;
 
                     if(remove_center == 1){
-                        orig = row.slice(1);
-                    }else{
-                        orig = row;                 
+                        rev.slice(0, rev.length()-1);
+                        rev_warp_mats.slice(0, rev.length()-1);
+                        rev_warp_sys.slice(0, rev.length()-1);
                     }
+
                     rev.pushRow(orig);
+                    if(i == 0){
+                      rev_warp_mats.pushRow(input_draft.colShuttleMapping)
+                      rev_warp_sys.pushRow(input_draft.colSystemMapping)
+                    }
 
                     if(remove_center == 1 && i == input_draft.drawdown.length-1){
                         pattern.pushWeftSequence(rev.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
                     }else{
                         pattern.pushWeftSequence(rev.val())
+                        weft_materials.push(input_draft.rowShuttleMapping[i]);
+                        weft_systems.push(input_draft.rowSystemMapping[i]);
                         pattern.unshiftWeftSequence(rev.val())
+                        weft_materials.unshift(input_draft.rowShuttleMapping[i]);
+                        weft_systems.unshift(input_draft.rowSystemMapping[i]);
 
                     }
                 }
@@ -185,9 +257,10 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
   let d = initDraftFromDrawdown(pattern.export())
-  d = updateWeftSystemsAndShuttles(d, input_draft);
-  d = updateWarpSystemsAndShuttles(d, input_draft);
-
+    d.colShuttleMapping = warp_mats.val();
+    d.colSystemMapping = warp_systems.val();
+    d.rowShuttleMapping = weft_materials.val();
+    d.rowSystemMapping = weft_systems.val();
   return Promise.resolve([d]);
 }   
 
