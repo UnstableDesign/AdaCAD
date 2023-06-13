@@ -51,6 +51,7 @@ import { clear } from '../operations/clear/clear';
 import { set } from '../operations/set/set';
 import { unset } from '../operations/unset/unset';
 import { apply_mats } from '../operations/applymaterialsandsystems/applymaterialsandsystems';
+import { makesymmetric } from '../operations/makesymmetric/makesymmetric';
 
 
 
@@ -134,7 +135,7 @@ export class OperationService {
     this.ops.push(set);
     this.ops.push(unset);
     this.ops.push(rotate);
-  //   this.ops.push(makesymmetric);
+    this.ops.push(makesymmetric);
   //   this.ops.push(fill);
   //   this.ops.push(overlay);
   //   this.ops.push(atop);
