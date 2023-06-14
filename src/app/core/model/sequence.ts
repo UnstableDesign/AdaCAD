@@ -514,8 +514,9 @@ export module Sequence{
    */
   pushWarpSequence(seq: Array<number>){
 
+    console.log("PUSHING SEQ", seq)
     let height = this.state.length;
-    if(this.state.length > 0 && height != seq.length){
+    if(height > 0 && height != seq.length){
       let lcm = utilInstance.lcm([height, seq.length]);
       let width = this.state[0].length;
 

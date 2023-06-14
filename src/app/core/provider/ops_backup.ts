@@ -2694,6 +2694,7 @@ const atop: Operation = {
 
       for(let i =0; i < weft_num; i++){
         pattern.push([]);
+        
         for(let j = 0; j < warp_num; j++){
           switch(corner){
 
@@ -5097,7 +5098,8 @@ const atop: Operation = {
     name: 'set down to unset',
     old_names:['set'],
     params: <Array<BoolParam>>[
-      {name: 'raised/lowered',
+      {
+        name: 'raised/lowered',
       type: 'boolean',
       falsestate: 'warp raised to unset',
       truestate: 'warp lowered to unset',

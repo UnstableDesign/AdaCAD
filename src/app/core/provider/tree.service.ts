@@ -116,7 +116,6 @@ export class TreeService {
 
       if(!this.ops.isDynamic(name)) return;
 
-      console.log(" op.dynamic_param_id, param_id ",op.dynamic_param_id, param_id)
       if(op.dynamic_param_id != param_id && param_type !== 'notation_toggle') return;
 
 
@@ -124,7 +123,9 @@ export class TreeService {
        return  { op_name: name, param: op.params[ndx], val: el}
       });
 
+
       inlets = op.onParamChange(param_vals, op.inlets, inlets, param_id, param_val);
+
 
       return inlets;
   }
@@ -330,6 +331,7 @@ export class TreeService {
           const op = <DynamicOperation> this.ops.getOp(name);
           (<OpNode> node).params = params_out.slice()
           let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
+          
           inlets = dynamic_inlets.slice();
         }
       }

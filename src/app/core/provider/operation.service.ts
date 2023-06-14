@@ -52,6 +52,8 @@ import { set } from '../operations/set/set';
 import { unset } from '../operations/unset/unset';
 import { apply_mats } from '../operations/applymaterialsandsystems/applymaterialsandsystems';
 import { makesymmetric } from '../operations/makesymmetric/makesymmetric';
+import { weft_profile } from '../operations/weft_profile/weft_profile';
+import { warp_profile } from '../operations/warp_profile/warp_profile';
 
 
 
@@ -82,8 +84,8 @@ export class OperationService {
     // this.dynamic_ops.push(bwimagemap);
      this.dynamic_ops.push(notation);
      this.dynamic_ops.push(notation_system);
-    // this.dynamic_ops.push(weft_profile);
-    // this.dynamic_ops.push(warp_profile);
+     this.dynamic_ops.push(weft_profile);
+    this.dynamic_ops.push(warp_profile);
     // this.dynamic_ops.push(sample_width);
     // this.dynamic_ops.push(sample_length);
 
@@ -110,7 +112,6 @@ export class OperationService {
     // this.ops.push(assignwefts);
     // this.ops.push(assignwarps);
    this.ops.push(invert);
-  //   this.ops.push(vertcut);
   //  this.ops.push(replicate);
     this.ops.push(flipx);
     this.ops.push(flipy);
