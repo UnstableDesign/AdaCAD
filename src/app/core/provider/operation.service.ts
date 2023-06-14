@@ -76,7 +76,6 @@ export class OperationService {
     
 
 
-    // this.dynamic_ops.push(assignlayers);
     // this.dynamic_ops.push(dynamic_join_left);
     // this.dynamic_ops.push(dynamic_join_top);
     this.dynamic_ops.push(imagemap);

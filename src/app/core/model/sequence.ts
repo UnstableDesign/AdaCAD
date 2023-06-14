@@ -148,10 +148,10 @@ export module Sequence{
      * slices a portion of the sequence
      * @returns 
      */
-        slice(start: number, end: number){
-          this.state = this.state.slice(start, end);
-          return this;
-        }
+      slice(start: number, end: number){
+        this.state = this.state.slice(start, end);
+        return this;
+      }
     
 
     /**

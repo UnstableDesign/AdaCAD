@@ -160,19 +160,6 @@
             "application": "To arrange different structures on different layers" 
         },
         {
-            "name":"assignlayers",
-            "displayname": "assign drafts to layers",
-            "description": "Assigns one or more drafts to layers of cloth, defined by the parameters described below, using inputs that can also be assigned to weft systems.",
-            "application": "To arrange different structures on different layers, while determining the ordering of systems across layers",
-            "dynamic": "true"
-        },
-        {
-            "name":"veritcal cut",
-            "displayname": "warp-wise cut",
-            "description": "Creates two drafts with two systems, one representing the input draft on left side of the cloth and the other representing the right side",
-            "application": "To create an opening, perhaps for a pocket, one can weave with two different shuttles on different pics, each of which travels part way across the cloth" 
-        },
-        {
             "name":"selvedge",
             "displayname": "selvedge",
             "description": "Adds a selvedge of so many ends on both sides of the input draft, 'draft.' The second input, 'selvedge,' determines the selvedge pattern, and if none is given, a selvedge is generated.",
