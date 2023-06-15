@@ -88,7 +88,8 @@
                 "atop",
                 "overlay",
                 "mask",
-                "knockout"
+                "cutout",
+                "diff"
             ]
         },
         {

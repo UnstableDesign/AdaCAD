@@ -1,8 +1,7 @@
-import { BoolParam, Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { generateMappingFromPattern, getCol, initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
-import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames, transferSystemsAndShuttles } from "../../model/operations";
+import { Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
+import { generateMappingFromPattern, initDraftFromDrawdown } from "../../model/drafts";
+import { getAllDraftsAtInlet, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
-import utilInstance from "../../model/util";
 
 const name = "layer";
 const old_names = [];

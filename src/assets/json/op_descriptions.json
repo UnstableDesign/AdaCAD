@@ -184,10 +184,16 @@
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts." 
         },
         {
-            "name":"knockout",
-            "displayname": "knockout, (a, b) => (a XOR b)",
-            "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b and copies the interlacement in a where a is present",
+            "name":"cutout",
+            "displayname": "cut, (a, b) => (a NAND b)",
+            "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a and b are both marked as having warped raised, it changes the value to warp lowered, effectively cutting the black cells in b from a. This is the opposite of mask",
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts." 
+        },
+        {
+            "name":"diff",
+            "displayname": "diff, (a, b) => (a NEQ b)",
+            "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b and it returns a black cell in any location where the two draft cells were different",
+            "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Diffs are widly used in computation to compare how two things are similar or different" 
         },
         {
             "name":"mask",

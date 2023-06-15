@@ -58,7 +58,11 @@ import { sample_length } from '../operations/samplelength/samplelength';
 import { sample_width } from '../operations/samplewidth/samplewidth';
 
 import {  assignsystems} from '../operations/assignsystems/assignsystems';
-import {  fill} from '../operations/fill/fill';
+import { fill } from '../operations/fill/fill';
+import { atop } from '../operations/atop/atop';
+import { mask } from '../operations/mask/mask';
+import { diff } from '../operations/diff/diff';
+import { cutout } from '../operations/cutout/cutout';
 
 
 @Injectable({
@@ -141,8 +145,11 @@ export class OperationService {
     this.ops.push(makesymmetric);
     this.ops.push(fill);
     this.ops.push(overlay);
-  //   this.ops.push(atop);
-  //   this.ops.push(mask);
+    this.ops.push(atop);
+    this.ops.push(mask);
+    this.ops.push(diff);
+    this.ops.push(cutout);
+
   //   //this.ops.push(germanify);
   //   //this.ops.push(crackleify);
   //   //this.ops.push(variants);
