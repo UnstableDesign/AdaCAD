@@ -80,8 +80,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let d = initDraftFromDrawdown(pattern.export());
   d.colShuttleMapping = warp_mats.val();
   d.colSystemMapping = warp_sys.val();
-  d.rowShuttleMapping = weft_sys.val();
-  d.rowSystemMapping = weft_mats.val();
+  d.rowShuttleMapping = weft_mats.val();
+  d.rowSystemMapping = weft_sys.val();
 
 
   return Promise.resolve([d]);

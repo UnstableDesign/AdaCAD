@@ -197,6 +197,53 @@ export module Sequence{
       return this;
     }
 
+    /**
+     * given a sequence as input. It makes sure the current state and the sequence submitted to the function are modified to be the same length. They are made the same length by appending unset values to the sequence.  
+     * @param seq 
+     * @returns 
+     */
+    matchSize(seq: Sequence.OneD) {
+      if(this.state.length < seq.length()){
+        let diff = seq.length() - this.state.length;
+        this.pushMultiple(2, diff);
+      }else if(this.state.length > seq.length()){
+        let diff = seq.length() - this.state.length;
+        seq.pushMultiple(2, diff)
+      }
+      return this;
+    }
+
+    computeFilter(filter: string, seq: Sequence.OneD){
+
+      this.matchSize(seq);
+
+      for(let i = 0; i < this.length(); i++){
+        let bool_a = null;
+        if(this.state[i] == 0) bool_a = false;
+        if(this.state[i] == 1) bool_a = true;
+
+        let bool_b = null;
+        if(seq.get(i) == 0) bool_b = false;
+        if(seq.get(i) == 1) bool_b = true;
+        let res:boolean = utilInstance.computeFilter(filter, bool_a, bool_b);
+
+        switch (res){
+          case null:
+            this.state[i] = 2;
+            break;
+          case false:
+            this.state[i] = 0;
+            break;
+          case true:
+            this.state[i] = 1;
+            break;
+        }
+      }
+
+      return this;
+
+    }
+
 
     /**
      * shifts the sequence in the amount of val
@@ -257,6 +304,8 @@ export module Sequence{
     length():number{
       return this.state.length;
     }
+
+  
 
   }
 

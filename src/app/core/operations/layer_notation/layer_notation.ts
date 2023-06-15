@@ -74,7 +74,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         }
       })
 
-      console.log("Layer draft map ", layer_draft_map)
 
       let composite = new Sequence.TwoD().setBlank(2);
 
