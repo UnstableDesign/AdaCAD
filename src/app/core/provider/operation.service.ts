@@ -55,6 +55,9 @@ import { makesymmetric } from '../operations/makesymmetric/makesymmetric';
 import { weft_profile } from '../operations/weft_profile/weft_profile';
 import { warp_profile } from '../operations/warp_profile/warp_profile';
 
+import { sample_width } from '../operations/samplewidth/samplewidth';
+import { sample_length } from '../operations/samplelength/samplelength';
+
 
 
 @Injectable({
@@ -82,12 +85,12 @@ export class OperationService {
     // this.dynamic_ops.push(dynamic_join_top);
     this.dynamic_ops.push(imagemap);
     // this.dynamic_ops.push(bwimagemap);
-     this.dynamic_ops.push(notation);
-     this.dynamic_ops.push(notation_system);
-     this.dynamic_ops.push(weft_profile);
+    this.dynamic_ops.push(notation);
+    this.dynamic_ops.push(notation_system);
+    this.dynamic_ops.push(weft_profile);
     this.dynamic_ops.push(warp_profile);
-    // this.dynamic_ops.push(sample_width);
-    // this.dynamic_ops.push(sample_length);
+    this.dynamic_ops.push(sample_width);
+    this.dynamic_ops.push(sample_length);
 
 
     //**push operations that you want the UI to show as options here */

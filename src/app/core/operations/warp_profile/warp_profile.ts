@@ -118,7 +118,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 
   
-  return 'warp profile:'+param_vals[0].val+"";
+  return 'pattern across width:'+param_vals[0].val+"";
 }
 
 

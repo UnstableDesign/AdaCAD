@@ -1,11 +1,11 @@
 import { Draft, DynamicOperation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
-import { initDraftFromDrawdown, warps } from "../../model/drafts";
+import { getCol, initDraftFromDrawdown, warps } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, reduceToStaticInputs } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 import utilInstance from "../../model/util";
 
 
-const name = "weft_profile";
+const name = "sample_width";
 const old_names = [""];
 const dynamic_param_id = 0;
 const dynamic_param_type = 'profile';
@@ -14,10 +14,10 @@ const dynamic_param_type = 'profile';
 const pattern:StringParam =  
     {name: 'pattern',
     type: 'string',
-    value: 'a b c a b c',
-    regex: /\S+/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+    value: 'a20 b20 a40 b40',
+    regex:/(?:[a-xA-Z][\d]*[\ ]*).*?/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
     error: 'invalid entry',
-    dx: 'all entries must be letters separated by a space'
+    dx: 'all entries must be a single letter followed by a number, which each letter-number unit separated by a space'
   }
 
 
@@ -27,10 +27,10 @@ const params = [pattern];
 
 //INLETS
 const systems: OperationInlet = {
-    name: 'warp pattern', 
+    name: 'weft pattern', 
     type: 'static',
     value: null,
-    uses: "warp-data",
+    uses: "weft-data",
     dx: 'optional, define a custom weft material or system pattern here',
     num_drafts: 1
   }
@@ -56,15 +56,15 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             return acc;
         }, []);
 
-        let total_warps: number = 0;
-        const all_warps = all_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
-        total_warps = utilInstance.lcm(all_warps);
+        let total_wefts: number = 0;
+        const all_wefts = all_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+        total_wefts = utilInstance.lcm(all_wefts);
   
         const profile_draft_map = op_inputs
         .map(el => {
           return  {
             id: el.inlet_id, 
-            val: (el.params[0]).toString(),
+            val: el.params[0].toString(),
             draft: el.drafts[0]
           }
         });
@@ -76,26 +76,30 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         let weft_materials = new Sequence.OneD();
 
         if(system_data.length == 0){
-            warp_systems.import(all_drafts[0].colSystemMapping).resize(total_warps);
-            warp_mats.import(all_drafts[0].colShuttleMapping).resize(total_warps);
+            weft_systems.import(all_drafts[0].rowSystemMapping).resize(total_wefts);
+            weft_materials.import(all_drafts[0].rowShuttleMapping).resize(total_wefts);
         }else{
-            warp_systems.import(system_data[0].colSystemMapping).resize(total_warps);
-            warp_mats.import(system_data[0].colShuttleMapping).resize(total_warps);
+            weft_systems.import(system_data[0].rowSystemMapping).resize(total_wefts);
+            weft_materials.import(system_data[0].rowShuttleMapping).resize(total_wefts);
 
         }
 
         original_string_split.forEach(string_id => {
 
-            let pdm_item = profile_draft_map.find(el => el.val == string_id);
+            const label = string_id.charAt(0);
+            const qty = parseInt((<string>string_id).substring(1))
+            let pdm_item = profile_draft_map.find(el => el.val == label.toString());
             if(pdm_item !== undefined){
                 let draft = pdm_item.draft;
            
-                draft.drawdown.forEach((row, i) => {
-                    let seq = new Sequence.OneD().import(row).resize(total_warps);
-                    pattern.pushWeftSequence(seq.val());
-                    weft_materials.push(draft.rowShuttleMapping[i%draft.rowShuttleMapping.length]);
-                    weft_systems.push(draft.rowSystemMapping[i%draft.rowSystemMapping.length]);
-                })
+                for(let j = 0; j < qty; j++){
+                    let col = getCol(draft.drawdown, j%warps(draft.drawdown));
+                    let seq = new Sequence.OneD().import(col).resize(total_wefts);
+                    pattern.pushWarpSequence(seq.val());
+                    warp_mats.push(draft.colShuttleMapping[j%draft.colShuttleMapping.length]);
+                    warp_systems.push(draft.colSystemMapping[j%draft.colSystemMapping.length]);
+          
+                }
 
              }
 
@@ -115,22 +119,23 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
 
-  return 'pattern across length:'+param_vals[0].val+"";
+  
+  return 'pattern width:'+param_vals[0].val+"";
 }
 
 
 const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, param_val: any) : Array<any> => {
     
-
-  
     inlet_vals = reduceToStaticInputs(inlets, inlet_vals);
     const param_regex = (<StringParam> param_vals[0].param).regex;
 
     let matches = [];
 
     matches = utilInstance.parseRegex(param_val,param_regex);
+    matches = matches.map(el => el.charAt(0));
     matches = utilInstance.filterToUniqueValues(matches);
 
+    
     matches.forEach(el => {
       inlet_vals.push(el);
     })
@@ -142,4 +147,4 @@ const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInl
 
 
 
-export const weft_profile: DynamicOperation = {name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName,onParamChange};
+export const sample_width: DynamicOperation = {name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName,onParamChange};

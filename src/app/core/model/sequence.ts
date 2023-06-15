@@ -514,11 +514,20 @@ export module Sequence{
    */
   pushWarpSequence(seq: Array<number>){
 
-    console.log("PUSHING SEQ", seq)
     let height = this.state.length;
     if(height > 0 && height != seq.length){
+     
       let lcm = utilInstance.lcm([height, seq.length]);
       let width = this.state[0].length;
+
+      let difference = lcm - height;
+      if(difference > 0){
+        for(let i = 0; i < difference; i++){
+          this.state.push([]);
+        }
+      }
+
+
 
       for(let j = 0; j < width; j++){
         let col = this.state.map(el => el[j]);
