@@ -69,7 +69,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     let height = Math.max(wefts(draft_b.drawdown) + shift_pics, wefts(draft_a.drawdown));
     let width = Math.max(warps(draft_b.drawdown) + shift_ends, warps(draft_a.drawdown));
 
-    console.log("W AND H", width, height, draft_a, draft_b)
 
     //offset draft b:
     let pattern_b = new Sequence.TwoD();
