@@ -64,6 +64,7 @@ import { mask } from '../operations/mask/mask';
 import { diff } from '../operations/diff/diff';
 import { cutout } from '../operations/cutout/cutout';
 import { crop } from '../operations/crop/crop';
+import { trim } from '../operations/trim/trim';
 
 
 @Injectable({
@@ -155,7 +156,7 @@ export class OperationService {
   //   //this.ops.push(crackleify);
   //   //this.ops.push(variants);
      this.ops.push(crop);
-  //   this.ops.push(trim);
+    this.ops.push(trim);
   //   this.ops.push(makeloom);
   //   this.ops.push(makedirectloom);
   //   this.ops.push(drawdown);
