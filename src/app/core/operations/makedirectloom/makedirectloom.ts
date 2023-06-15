@@ -4,7 +4,7 @@ import { getLoomUtilByType, numFrames, numTreadles } from "../../model/looms";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 
 
-const name = "floor loom";
+const name = "direct loom";
 const old_names = [];
 
 //PARAMS
@@ -18,16 +18,8 @@ type: 'number',
 dx: 'number of frames to use. If the drawdown requires more, it will generate more'
 }
 
-const treadles:NumParam = {
-    name: 'treadles',
-      min: 1,
-      max: 10000,
-      value: 12,
-      type: 'number',
-      dx: 'number of treadles to use. If the drawdown requires more, it will generate more'
-    }
 
-const params = [frames, treadles];
+const params = [frames];
 
 //INLETS
 
@@ -36,7 +28,7 @@ const drawdown: OperationInlet = {
     type: 'static',
     value: null,
     uses: "draft",
-    dx: 'the drawdown from which to create threading, tieup and treadling data from',
+    dx: 'the drawdown from which to create threading and lift plan from',
     num_drafts: 1
   }
 
@@ -48,18 +40,17 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let draft = getInputDraft(op_inputs);
   let frames = getOpParamValById(0, op_params);
-  let treadles = getOpParamValById(1, op_params);
 
   
   if(draft == null) return Promise.resolve([]);
 
 
   const loom_settings:LoomSettings = {
-    type: 'frame',
+    type: 'direct',
     epi: 10, 
     units: 'in',
     frames: frames,
-    treadles: treadles
+    treadles: frames
   }
 
   const utils = getLoomUtilByType(loom_settings.type);
@@ -75,25 +66,16 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   });
   threading.gen_name = "threading"+getDraftName(draft);
 
+
   const treadling: Draft =initDraftWithParams({warps:treadles, wefts:wefts(draft.drawdown)});   
   l.treadling.forEach((treadle_row, i) =>{
     treadle_row.forEach(treadle_num => {
       setHeddle(treadling.drawdown, i, treadle_num, true);
     })
   });
-  treadling.gen_name = "treadling_"+getDraftName(draft);
+  treadling.gen_name = "lift plan: "+getDraftName(draft);
 
-
-  const tieup: Draft =initDraftWithParams({warps: treadles, wefts: frames});
-  l.tieup.forEach((row, i) => {
-    row.forEach((val, j) => {
-      setHeddle(tieup.drawdown, i, j, val);
-    })
-  });
-  tieup.gen_name = "tieup_"+getDraftName(draft);
-  return Promise.resolve([threading, tieup, treadling]);
-
-
+  return Promise.resolve([threading, treadling]);
 
   });
    
@@ -101,8 +83,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
   let drafts = getAllDraftsAtInlet(op_inputs, 0);
-  return 'drawdown('+parseDraftNames(drafts)+")";
+  return 'makedirectloom('+parseDraftNames(drafts)+")";
 }
 
 
-export const makeloom: Operation = {name, old_names, params, inlets, perform, generateName};
+export const makedirectloom: Operation = {name, old_names, params, inlets, perform, generateName};
