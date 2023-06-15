@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
 // import { VaeService} from "../../core/provider/vae.service"
-import { Draft, DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
-import { generateMappingFromPattern, warps, wefts } from '../../core/model/drafts';
+import { DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
-import { standardizeMaterialLists } from '../model/material';
-import { makeWarpSystemsUnique, makeWeftSystemsUnique } from '../model/system';
 import { combinatorics } from '../operations/combinatorics/combinatorics';
 import { complextwill } from '../operations/complex_twill/complex_twill';
 import { deinterlace } from '../operations/deinterlace/deinterlace';
@@ -23,41 +20,43 @@ import { twill } from '../operations/twill/twill';
 import { undulatingtwill } from '../operations/undulating_twill/undulating_twill';
 import { waffleish } from '../operations/waffleish/waffleish';
 
+import { apply_mats } from '../operations/applymaterialsandsystems/applymaterialsandsystems';
+import { bindwarpfloats } from '../operations/bindwarpfloats/bindwarpfloats';
+import { bindweftfloats } from '../operations/bindweftfloats/bindweftfloats';
+import { chaos } from '../operations/chaos/chaos';
+import { clear } from '../operations/clear/clear';
 import { flipx } from '../operations/flipx/flipx';
 import { flipy } from '../operations/flipy/flipy';
+import { imagemap } from '../operations/imagemap/imagemap';
+import { joinleft } from '../operations/joinleft/joinleft';
+import { jointop } from '../operations/jointop/jointop';
+import { layer } from '../operations/layer/layer';
+import { makesymmetric } from '../operations/makesymmetric/makesymmetric';
+import { margin } from '../operations/margin/margin';
+import { resize } from '../operations/resize/resize';
+import { rotate } from '../operations/rotate/rotate';
+import { selvedge } from '../operations/selvedge/selvedge';
+import { set } from '../operations/set/set';
 import { shaded_satin } from '../operations/shaded_satin/shaded_satin';
 import { shiftx } from '../operations/shiftx/shiftx';
 import { shifty } from '../operations/shifty/shifty';
-import { tile } from '../operations/tile/tile';
-import { splicein } from '../operations/spliceinwefts/spliceinwefts'
-import { spliceinwarps } from '../operations/spliceinwarps/spliceinwarps'
-import {imagemap} from '../operations/imagemap/imagemap'
-import {layer} from '../operations/layer/layer'
-import {notation_system} from '../operations/system_notation/system_notation'
-import {selvedge} from '../operations/selvedge/selvedge'
-import {bindweftfloats} from '../operations/bindweftfloats/bindweftfloats'
-import {bindwarpfloats} from '../operations/bindwarpfloats/bindwarpfloats'
-import {rotate} from '../operations/rotate/rotate'
-import {joinleft} from '../operations/joinleft/joinleft'
-import {jointop} from '../operations/jointop/jointop'
-import {slope} from '../operations/slope/slope'
-import {undulatewefts} from '../operations/undulatewefts/undulatewefts'
-import { undulatewarps } from '../operations/undulatewarps/undulatewarps';
-import { chaos } from '../operations/chaos/chaos';
+import { slope } from '../operations/slope/slope';
+import { spliceinwarps } from '../operations/spliceinwarps/spliceinwarps';
+import { splicein } from '../operations/spliceinwefts/spliceinwefts';
 import { stretch } from '../operations/stretch/stretch';
-import { resize } from '../operations/resize/resize';
-import { margin } from '../operations/margin/margin';
-import { clear } from '../operations/clear/clear';
-import { set } from '../operations/set/set';
+import { notation_system } from '../operations/system_notation/system_notation';
+import { tile } from '../operations/tile/tile';
+import { undulatewarps } from '../operations/undulatewarps/undulatewarps';
+import { undulatewefts } from '../operations/undulatewefts/undulatewefts';
 import { unset } from '../operations/unset/unset';
-import { apply_mats } from '../operations/applymaterialsandsystems/applymaterialsandsystems';
-import { makesymmetric } from '../operations/makesymmetric/makesymmetric';
-import { weft_profile } from '../operations/weft_profile/weft_profile';
 import { warp_profile } from '../operations/warp_profile/warp_profile';
+import { weft_profile } from '../operations/weft_profile/weft_profile';
 
-import { sample_width } from '../operations/samplewidth/samplewidth';
+import { bwimagemap } from '../operations/bwimagemap/bwimagemap';
 import { sample_length } from '../operations/samplelength/samplelength';
+import { sample_width } from '../operations/samplewidth/samplewidth';
 
+import {  assignsystems} from '../operations/assignsystems/assignsystems';
 
 
 @Injectable({
@@ -84,7 +83,7 @@ export class OperationService {
     // this.dynamic_ops.push(dynamic_join_left);
     // this.dynamic_ops.push(dynamic_join_top);
     this.dynamic_ops.push(imagemap);
-    // this.dynamic_ops.push(bwimagemap);
+    this.dynamic_ops.push(bwimagemap);
     this.dynamic_ops.push(notation);
     this.dynamic_ops.push(notation_system);
     this.dynamic_ops.push(weft_profile);
@@ -112,9 +111,8 @@ export class OperationService {
     this.ops.push(interlacewarps);
     this.ops.push(splicein);
     this.ops.push(spliceinwarps);
-    // this.ops.push(assignwefts);
-    // this.ops.push(assignwarps);
-   this.ops.push(invert);
+    this.ops.push(assignsystems);
+    this.ops.push(invert);
   //  this.ops.push(replicate);
     this.ops.push(flipx);
     this.ops.push(flipy);

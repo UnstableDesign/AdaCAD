@@ -54,8 +54,6 @@
                 "weft_profile", 
                 "sample_width", 
                 "sample_length", 
-                "dynamicjoinleft",
-                "dynamicjointop",
                 "fill",
                 "imagemap",
                 "join left",
@@ -72,7 +70,8 @@
                 "splice in warps",
                 "layer",
                 "notation",
-                "notation_system"
+                "notation_system",
+                "assign weft systems"
             ]
         },
         {

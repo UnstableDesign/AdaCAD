@@ -140,6 +140,12 @@
             "application": "Warp-wise splicing can be used to add a specific textual feature to the length of the cross in even intervals" 
         },
         {
+            "name":"assign systems",
+            "displayname": "assign draft to systems",
+            "description": "Given a user specified pattern for the weft (a b c) and warp systems (1 2 3), this function will create a draft that follows those system patterns and then map the input draft to the system specified. ",
+            "application": "While the same function could be achieved with layer notation, this might be a simpler way to assign drafts to systems while having control over the system order across multiple drafts, ensuring alignment. It can also be helpful for making systems without having to edit the system assignments directly on a draft" 
+        },
+        {
             "name":"notation",
             "displayname": "notation (assign by layer)",
             "description": "Developed in collaboration with Kathryn Walters, this operation uses a notation system to assign drafts to different warp and weft patterns on different layers of cloth. Layers are represented by () so (1a)(2b) puts warp 1 and weft a on layer 1, warp 2 and weft b on layer 2. This function is slightly different than notation (assign by system) because it will apply a single input draft across all systems associated with a layer.",
