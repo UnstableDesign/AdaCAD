@@ -67,6 +67,8 @@ import { crop } from '../operations/crop/crop';
 import { trim } from '../operations/trim/trim';
 import { makeloom } from '../operations/makeloom/makeloom';
 import { makedirectloom } from '../operations/makedirectloom/makedirectloom';
+import { drawdown } from '../operations/drawdown/drawdown';
+import { directdrawdown } from '../operations/directdrawdown/directdrawdown';
 
 
 @Injectable({
@@ -161,8 +163,8 @@ export class OperationService {
     this.ops.push(trim);
     this.ops.push(makeloom);
     this.ops.push(makedirectloom);
-  //   this.ops.push(drawdown);
-  //   this.ops.push(directdrawdown);
+    this.ops.push(drawdown);
+    this.ops.push(directdrawdown);
   //   this.ops.push(erase_blank);
     this.ops.push(apply_mats);
     this.ops.push(combinatorics);
