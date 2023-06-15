@@ -1,5 +1,5 @@
 import { Draft, LoomSettings, NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { getDraftName, initDraftWithParams, setHeddle, warps, wefts } from "../../model/drafts";
+import { getDraftName, initDraftWithParams, setHeddle, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getLoomUtilByType, numFrames, numTreadles } from "../../model/looms";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 
@@ -69,28 +69,33 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     const frames = Math.max(numFrames(l), loom_settings.frames);
     const treadles = Math.max(numTreadles(l), loom_settings.treadles);
  
-    const threading: Draft =initDraftWithParams({warps:warps(draft.drawdown), wefts: frames});
+    let threading: Draft =initDraftWithParams({warps:warps(draft.drawdown), wefts: frames});
   l.threading.forEach((frame, j) =>{
     if(frame !== -1) setHeddle(threading.drawdown,frame, j, true);
   });
   threading.gen_name = "threading"+getDraftName(draft);
+  threading = updateWarpSystemsAndShuttles(threading, draft)
 
-  const treadling: Draft =initDraftWithParams({warps:treadles, wefts:wefts(draft.drawdown)});   
+  let treadling: Draft =initDraftWithParams({warps:treadles, wefts:wefts(draft.drawdown)});   
   l.treadling.forEach((treadle_row, i) =>{
     treadle_row.forEach(treadle_num => {
       setHeddle(treadling.drawdown, i, treadle_num, true);
     })
   });
   treadling.gen_name = "treadling_"+getDraftName(draft);
+  treadling = updateWeftSystemsAndShuttles(treadling, draft)
 
 
-  const tieup: Draft =initDraftWithParams({warps: treadles, wefts: frames});
+  let tieup: Draft =initDraftWithParams({warps: treadles, wefts: frames});
   l.tieup.forEach((row, i) => {
     row.forEach((val, j) => {
       setHeddle(tieup.drawdown, i, j, val);
     })
   });
   tieup.gen_name = "tieup_"+getDraftName(draft);
+  tieup = updateWeftSystemsAndShuttles(tieup, draft)
+  tieup = updateWarpSystemsAndShuttles(tieup, draft)
+
   return Promise.resolve([threading, tieup, treadling]);
 
 
