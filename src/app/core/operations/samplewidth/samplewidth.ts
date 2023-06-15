@@ -27,11 +27,11 @@ const params = [pattern];
 
 //INLETS
 const systems: OperationInlet = {
-    name: 'weft pattern', 
+    name: 'warp pattern', 
     type: 'static',
     value: null,
-    uses: "weft-data",
-    dx: 'optional, define a custom weft material or system pattern here',
+    uses: "warp-data",
+    dx: 'optional, define a custom warp material or system pattern here',
     num_drafts: 1
   }
 
@@ -88,6 +88,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
             const label = string_id.charAt(0);
             const qty = parseInt((<string>string_id).substring(1))
+
             let pdm_item = profile_draft_map.find(el => el.val == label.toString());
             if(pdm_item !== undefined){
                 let draft = pdm_item.draft;

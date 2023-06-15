@@ -95,11 +95,12 @@ export module Sequence{
      */
     resize(n: number){
 
+
       if(this.state.length == 0) return;
       let len = this.state.length;
 
       if(n < len){
-        this.state.slice(0, n);
+        this.state = this.state.slice(0, n);
       }else{
 
         let remainder = n - len;

@@ -7,7 +7,7 @@ import utilInstance from "../../model/util";
 
 
 const name = "diff";
-const old_names = [];
+const old_names = ['knockout'];
 
 //PARAMS
 
