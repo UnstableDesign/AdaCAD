@@ -69,7 +69,8 @@ import { makeloom } from '../operations/makeloom/makeloom';
 import { makedirectloom } from '../operations/makedirectloom/makedirectloom';
 import { drawdown } from '../operations/drawdown/drawdown';
 import { directdrawdown } from '../operations/directdrawdown/directdrawdown';
-
+import { sinewave } from '../operations/sinewave/sineweave';
+import { sawtooth } from '../operations/sawtooth/sawtooth';
 
 @Injectable({
   providedIn: 'root'
@@ -80,17 +81,10 @@ export class OperationService {
   dynamic_ops: Array<DynamicOperation> = [];
   classification: Array<OperationClassification> = [];
 
-  constructor(
-    // private vae: VaeService, 
-    private ms: MaterialsService,
-    private ss: SystemsService) { 
+  constructor() { 
      
 
   
-
-    
-    
-
 
     // this.dynamic_ops.push(dynamic_join_left);
     // this.dynamic_ops.push(dynamic_join_top);
@@ -168,8 +162,8 @@ export class OperationService {
   //   this.ops.push(erase_blank);
     this.ops.push(apply_mats);
     this.ops.push(combinatorics);
-  //   this.ops.push(sinewave);
-  //   this.ops.push(sawtooth);
+    this.ops.push(sinewave);
+    this.ops.push(sawtooth);
     }
 
 

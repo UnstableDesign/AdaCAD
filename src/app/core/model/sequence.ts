@@ -296,6 +296,34 @@ export module Sequence{
       if(i >= 0 && i < this.length()) return this.state[i];
       return -1;
     }
+
+       /**
+     * gets the value at a specified position
+     * @returns the value at this location, or -1 if the location was invalid
+     */
+    set(i: number, val: number |boolean){
+        if(i < 0 || i > this.length()) return this;
+
+        let insert_val = <number> val;
+        if(typeof val != 'number'){
+         
+          switch(val){
+            case null:
+              insert_val = 2;
+              break;
+            case false: 
+            insert_val = 0;
+            break;
+            case true: 
+            insert_val = 1;
+            break;
+          }
+        }
+
+        this.state[i] = insert_val
+        return this;
+    }
+        
     
 
     /**
