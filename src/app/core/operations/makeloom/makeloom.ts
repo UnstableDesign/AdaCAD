@@ -113,7 +113,6 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>, 
 
     case 2: 
     return   "treadling_"+parseDraftNames(drafts);
-
   }
 return ''
 }

@@ -5,7 +5,6 @@ import { ZoomService } from '../../provider/zoom.service';
 import { OperationComponent } from '../operation/operation.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { OperationService } from '../../../core/provider/operation.service';
-import { getDraftName } from '../../../core/model/drafts';
 
 @Component({
   selector: 'app-connection',
@@ -59,7 +58,6 @@ export class ConnectionComponent implements OnInit {
     const to = to_io.tn.node.id;
 
     this.no_draw = this.tree.getType(from) === 'op' && this.tree.hasSingleChild(from);
-
 
     this.updatePathText()
 
@@ -176,8 +174,22 @@ export class ConnectionComponent implements OnInit {
     
    }
 
+   //TODO, add positing here
   fromOpUpdate(op_comp: OperationComponent){
-
+      const scale = document.getElementById("scale-"+op_comp.id);
+      if(scale === null){
+        // console.log("draft not found on update")
+        // this.b_from = 
+        // {x: draft_comp.topleft.x+5, 
+        //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
+      }else{
+        this.b_from = 
+        {x: op_comp.topleft.x+5, 
+         y: (op_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
+      }
+      
+     
+   
   }
 
   fromDraftUpdate(draft_comp: SubdraftComponent){
@@ -231,6 +243,7 @@ export class ConnectionComponent implements OnInit {
 
   
   drawConnection(scale: number){
+
 
     const stublength = 15;
     const connector_opening = 10;

@@ -64,7 +64,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   l.threading.forEach((frame, j) =>{
     if(frame !== -1) setHeddle(threading.drawdown,frame, j, true);
   });
-  threading.gen_name = "threading"+getDraftName(draft);
+
   threading = updateWarpSystemsAndShuttles(threading, draft)
 
 
@@ -76,7 +76,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   });
 
   treadling = updateWeftSystemsAndShuttles(treadling, draft)
-  treadling.gen_name = "lift plan: "+getDraftName(draft);
 
   return Promise.resolve([threading, treadling]);
 
