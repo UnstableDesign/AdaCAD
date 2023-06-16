@@ -56,12 +56,6 @@
             "application": "Swaps the faces of the cloth, moving the front to back and back to front." 
         },
         {
-            "name":"flip horiz",
-            "displayname": "flip horiz",
-            "description": "Generates an output draft that mirrors the input draft from left to right.",
-            "application": "Can be used to create structures that include rotations of a basic motif" 
-        },  
-        {
             "name":"flip",
             "displayname": "flip",
             "description": "Generates an output draft that mirrors the input draft from left to right and/or top to bottom as the parameters indicate.",
@@ -72,13 +66,6 @@
             "displayname": "shift",
             "description": "Generates an output that is shifted to the left and top by the number of warp ends and weft pics specified in the parameters.",
             "application": "Creates a version of a draft that is structurally identical, but has the placement of interlacements fine tuned in relation to other structures" 
-        },
- 
-        {
-            "name":"flip vert",
-            "displayname": "flip vert",
-            "description": "Generates an output draft that mirrors the input draft from top to bottom.",
-            "application": "Can be used to create structures that include rotations of a basic motif" 
         },
         {
             "name":"slope",
