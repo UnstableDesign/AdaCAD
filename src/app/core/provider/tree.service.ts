@@ -1257,11 +1257,11 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
    * @param res the list of results from perform op
    * @returns a list of the draft nodes touched. 
    */
- async updateDraftsFromResults(parent: number, res: Array<Draft>) : Promise<Array<number>>{
+ async updateDraftsFromResults(parent: number, res: Array<Draft>, inputs: Array<OpInput>) : Promise<Array<number>>{
   const out = this.getNonCxnOutputs(parent);
   const touched: Array<number> = [];
-
-
+  const opnode:OpNode = this.getOpNode(parent);
+  const op: Operation = this.ops.getOp(opnode.name);
 
   //console.log("updating drafts, there are currently: ", out.length, "existing ouputs and ", res.length, "new outputs");
 
@@ -1269,7 +1269,6 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
 
     out.forEach((output, ndx) => {
       this.setDraftOnly(output, res[ndx]);
-
       touched.push(output);
     });
     return Promise.resolve(touched);
@@ -1278,7 +1277,7 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
     //create a new draft node for each outcome;
     for(let i = res.length; i < out.length; i++){
       const dn = <DraftNode> this.getNode(out[i]);
-      if(dn.render_colors === undefined) dn.render_colors = true;
+      if(dn.render_colors === undefined) dn.render_colors = false;
       dn.draft = initDraftWithParams({wefts: 1, warps: 1});
       dn.loom_settings = {
         type: this.ws.type,
@@ -1310,7 +1309,19 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
 
     return Promise.all(fns)
     .then(drafts_loaded => {
+
+    const param_vals = op.params.map((param, ndx) => {
+      return {
+        param: param,
+        val: opnode.params[ndx]
+      }
+    })
+
      const ids = drafts_loaded.map(el => el.entry.cur_id);
+     ids.forEach((id, ndx) => {
+      let d = this.getDraft(id);
+       d.gen_name = op.generateName(param_vals, inputs, ndx);
+     })
 
 
      return Promise.resolve(ids);
@@ -1463,20 +1474,15 @@ isValidIOTuple(io: IOTuple) : boolean {
     })
     .then(res => {
           
-        //this is a hack to make copy paste work. This makes sure that every operation has an output when it first runs. 
-          //if(res.length == 0) res = [initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]})];
-
-          res.forEach(draft => {
-            draft.gen_name = op.generateName(param_vals, inputs);
-          });
-
           const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
           return Promise.all(res.map(el => flipDraft(el,  flips.horiz, flips.vert)));
       })
     .then(flipped => {
         opnode.dirty = false;
-        return this.updateDraftsFromResults(id, flipped);
-      });
+        
+        return this.updateDraftsFromResults(id, flipped, inputs);
+      })
+
         
 
   

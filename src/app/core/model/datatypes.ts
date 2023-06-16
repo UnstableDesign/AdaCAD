@@ -528,7 +528,7 @@ export type StringParam = OperationParam & {
  * @param inets the inlets associated with this operation
  * @param old_names referes to any prior name of this operation to aid when loading old files
  * @param perform a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
- * @param generateName a function that computes the system provided name default based on the inputs
+ * @param generateName a function that computes the system provided name default based on the inputs. a number can be passed in args to handle cases where the operation needs to assign different names to different draft outputs
  */
 export type Operation = {
     name: string,
@@ -536,7 +536,7 @@ export type Operation = {
     inlets: Array<OperationInlet>,
     old_names: Array<string>,
     perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
-    generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string
+    generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>, ...args) => string
  }
 
  /**

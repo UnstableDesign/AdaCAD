@@ -73,7 +73,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   l.threading.forEach((frame, j) =>{
     if(frame !== -1) setHeddle(threading.drawdown,frame, j, true);
   });
-  threading.gen_name = "threading"+getDraftName(draft);
   threading = updateWarpSystemsAndShuttles(threading, draft)
 
   let treadling: Draft =initDraftWithParams({warps:treadles, wefts:wefts(draft.drawdown)});   
@@ -82,7 +81,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       setHeddle(treadling.drawdown, i, treadle_num, true);
     })
   });
-  treadling.gen_name = "treadling_"+getDraftName(draft);
   treadling = updateWeftSystemsAndShuttles(treadling, draft)
 
 
@@ -92,7 +90,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       setHeddle(tieup.drawdown, i, j, val);
     })
   });
-  tieup.gen_name = "tieup_"+getDraftName(draft);
   tieup = updateWeftSystemsAndShuttles(tieup, draft)
   tieup = updateWarpSystemsAndShuttles(tieup, draft)
 
@@ -104,9 +101,21 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
    
 }   
 
-const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
+const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>, ndx: number) : string => {
   let drafts = getAllDraftsAtInlet(op_inputs, 0);
-  return 'drawdown('+parseDraftNames(drafts)+")";
+
+  switch (ndx ){
+    case 0: 
+    return   "threading_"+parseDraftNames(drafts);
+
+    case 1: 
+    return   "tie_up_"+parseDraftNames(drafts);
+
+    case 2: 
+    return   "treadling_"+parseDraftNames(drafts);
+
+  }
+return ''
 }
 
 

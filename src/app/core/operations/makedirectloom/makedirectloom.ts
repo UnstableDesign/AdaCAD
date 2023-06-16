@@ -84,8 +84,19 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
    
 }   
 
-const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
+const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>, ndx: number) : string => {
+
   let drafts = getAllDraftsAtInlet(op_inputs, 0);
+
+  switch (ndx ){
+    case 0: 
+    return   "threading_"+parseDraftNames(drafts);
+
+    case 1: 
+    return   "lift plan_"+parseDraftNames(drafts);
+
+  }
+
   return 'makedirectloom('+parseDraftNames(drafts)+")";
 }
 
