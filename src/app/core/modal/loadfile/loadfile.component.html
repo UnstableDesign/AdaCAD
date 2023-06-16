@@ -2,7 +2,11 @@
 <h2 mat-dialog-title>{{title}}</h2>
 
 <mat-dialog-content>
-<upload-form type="init" [multiple]="multiple"  [type]="type" [accepts]="accepts" (onData)="handleFile($event)" class="button"></upload-form>
+<upload-form type="init" [multiple]="multiple"  [type]="type" [accepts]="accepts" (onData)="handleFile($event)" 
+(onError)="handleError($event)" class="button"></upload-form>
+
+<div class='err'>{{errorstring}}</div>
+
 </mat-dialog-content>
 
 <mat-dialog-actions>

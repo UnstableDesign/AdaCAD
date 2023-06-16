@@ -14,6 +14,7 @@ export class LoadfileComponent {
   accepts: string = '';
   type: string = ''; //'single_image', 'ada', or 'bitmap_collection'
   title: string = 'Select Files'
+  errorstring: string = '';
 
   constructor(
     private fls: FileService,
@@ -27,12 +28,16 @@ export class LoadfileComponent {
       
   }
 
+  handleError(e: any){
+      this.errorstring = e;
+  }
+
   /**
    * this is called on upload of a file from any location
    * @param e 
    */
    async handleFile(e: any) : Promise<any>{
-
+    this.errorstring = '';
     switch(e.type){
       // case 'image': 
       // return this.fls.loader.bmp(e.name, e.data).then(

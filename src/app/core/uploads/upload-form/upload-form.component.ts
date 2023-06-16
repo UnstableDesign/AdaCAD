@@ -86,7 +86,11 @@ export class UploadFormComponent implements OnInit {
     
     return this.upSvc.pushUpload(upload).then(snapshot => {
      return  this.imageService.loadFiles([upload.name]);
-   }).catch(console.error); 
+   }).catch(e => {
+      this.onError.emit(e);
+      this.uploading = false;
+      this.selectedFiles = null;
+   }); 
  }
 
 
@@ -118,11 +122,7 @@ export class UploadFormComponent implements OnInit {
 
       case 'single_image':
           this.uploadImage(upload, file)
-          .then(el => {
-            console.log("GOT IMAGE ")
-          }).catch(e => {
-            console.error(e)
-          })
+     
       break;
 
       case 'bitmap_collection':
@@ -168,12 +168,19 @@ export class UploadFormComponent implements OnInit {
        Promise.all(fns).then(res => {
         let drafts = [];
         res.forEach(upload_arr => {
+          
           let upload = upload_arr[0];
+
           const twod: Sequence.TwoD = new Sequence.TwoD();
+          let bw_ndx = upload.colors_to_bw.map(el => el.black);
+
           for(let i = 0; i < upload.height; i++){
             const oned: Sequence.OneD = new Sequence.OneD();
             for(let j = 0; j < upload.width; j++){
-              oned.push(upload.image_map[i][j]);
+             // oned.push(bw_ndx[upload.image_map[i][j]].is_black);
+              const ndx = upload.image_map[i][j];
+              let val:boolean = (ndx < bw_ndx.length) ? bw_ndx[ndx] : null;
+              oned.push(val);
             }
             twod.pushWeftSequence(oned.val());
           }
@@ -188,8 +195,13 @@ export class UploadFormComponent implements OnInit {
         return [];
        }).then(res => {
           let functions = uploads.map(el => this.upSvc.deleteUpload(el));
-          Promise.all(functions);
-       }).catch(console.error);
+          return Promise.all(functions);
+       }).catch(e => {
+
+        this.onError.emit('one of the files you uploaded was not a bitmap (and had more than 100 colors, so it could not be converted to black and white), please try again');
+        this.uploading = false;
+        this.selectedFiles = null;
+       });
 
 
     
