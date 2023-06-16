@@ -5,6 +5,7 @@ import { ZoomService } from '../../provider/zoom.service';
 import { OperationComponent } from '../operation/operation.component';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { OperationService } from '../../../core/provider/operation.service';
+import { defaults } from '../../../core/model/defaults';
 
 @Component({
   selector: 'app-connection',
@@ -60,7 +61,8 @@ export class ConnectionComponent implements OnInit {
 
     this.no_draw = this.tree.getType(from) === 'op' && this.tree.hasSingleChild(from);
     this.show_disconnect = !(this.tree.getType(from) === 'op' && !(this.tree.hasSingleChild(from)));
-
+    // this.path_text = this.id+'';
+    // this.show_path_text = true;
 
     this.updatePathText()
 
@@ -126,7 +128,6 @@ export class ConnectionComponent implements OnInit {
    * @param to the id of the component this connection goes to
    */
   updateToPosition(to: number, scale: number){
-
    
     const to_comp = <SubdraftComponent | OperationComponent> this.tree.getComponent(to);
 
@@ -135,26 +136,60 @@ export class ConnectionComponent implements OnInit {
       y: to_comp.topleft.y
     };
 
+
     if(this.tree.getType(to_comp.id) === 'op'){
       // get the inlet value 
       const ndx = this.tree.getInletOfCxn(to_comp.id, this.id);
-
       if(ndx !== -1){
+
+        
         
         const ndx_in_list = this.tree.getInputsAtNdx(to_comp.id, ndx).findIndex(el => el.tn.node.id === this.id);
 
-      
-        const element = document.getElementById('inlet'+to_comp.id+"-"+ndx+"-"+ndx_in_list);
-        if(element !== undefined && element !== null){
+
+        const element: HTMLElement = document.getElementById('inlet'+to_comp.id+"-"+ndx+"-"+ndx_in_list);
+
+        //to get a current position, you need the inlets parent to have a defined position. 
+        if( element !== undefined && element.offsetParent !== null){
           const left_offset = element.offsetLeft;
-          this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
+            this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
+        }else{
+            const left_offset = (ndx + ndx_in_list)*defaults.inlet_button_width;
+            this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
+
         }
+        
       }
     }
 
     this.calculateBounds();
     this.drawConnection(scale);
   }
+
+   /**
+   * if every connection goes from one node to another, the to node is always the topleft corner
+   * unless the to node is a dynamic operation, in which case we must move to an inlet. 
+   * @param to the id of the component this connection goes to
+   */
+  //  updateInitalToPosition(to: number, inlet_id: number, within_inlet_id: number,  scale: number){
+  //   console.log("***UPDATE INITIAL POSITION***", to, scale)
+   
+  //   const to_comp = <OperationComponent> this.tree.getComponent(to);
+
+  //   this.b_to = {
+  //     x:  to_comp.topleft.x + 3*this.scale/this.default_cell_size +  15* this.scale/this.default_cell_size,
+  //     y: to_comp.topleft.y
+  //   };
+
+
+
+  //   this.b_to = {x: to_comp.topleft.x + (inlet_id*100+15)*this.scale/this.default_cell_size, y: to_comp.topleft.y}
+  //   console.log("THIS B TO ", this.b_to)
+  
+
+  //   this.calculateBounds();
+  //   this.drawConnection(scale);
+  // }
 
 
   /**

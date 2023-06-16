@@ -8,5 +8,6 @@ export const defaults = {
     col_system: 0,
     mixer_cell_size: 5,
     mixer_canvas_width: 16380,
-    mixer_canvas_height: 16380
+    mixer_canvas_height: 16380,
+    inlet_button_width: 50
 }

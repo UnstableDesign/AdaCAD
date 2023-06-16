@@ -770,7 +770,6 @@ zoomChange(e:any, source: string){
 
     })
     .then(res => {
-
       // this.palette.rescale(data.scale);
       return Promise.resolve('alldone')
     })

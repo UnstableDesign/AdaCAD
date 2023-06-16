@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
 import { defaults } from '../../core/model/defaults';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Node, Point, Cell, OpNode} from '../../core/model/datatypes';
+import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Node, Point, Cell, OpNode, Operation} from '../../core/model/datatypes';
 import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
@@ -133,6 +133,8 @@ export class PaletteComponent implements OnInit{
     * a reference to the base size of each cell. Zoom in and out only modifies the view, not this base size.
     */
    default_cell_size: number = 5;
+
+   needs_init: boolean = true;
   
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
@@ -733,6 +735,8 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
     this.operationSubscriptions.push(op.onInputAdded.subscribe(this.connectionMade.bind(this)));
     this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
+    this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
+    this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
   }
 
 
@@ -1741,6 +1745,15 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
       loads.push(this.loadConnection(cxn.id));
     })
 
+    //update the positions of the connections
+    let all_cxns = this.tree.getConnections();
+    all_cxns.forEach(cxn => {
+      let to = this.tree.getOutputs(cxn.id);
+      to.forEach(id => {
+        cxn.updateToPosition(id, this.zs.zoom)
+      })
+    })
+
     return Promise.all(loads);
 
     }
@@ -1910,6 +1923,47 @@ updateVisibility(obj: any){
     if(obj.show) this.highlightPathToInlet(obj.id, obj.ndx, obj.ndx_in_inlets);
   } 
 }
+
+/**
+ * called from an operation or inlet to allow for the inlighting of all upstream operations and drafts
+ * @param obj 
+ */
+inletLoaded(obj: any){
+  //redraw the inlet
+  // let opid = obj.opid;
+  // let ndx = obj.ndx;
+
+  // const opnode = this.tree.getOpNode(opid);
+  // const cxns = this.tree.getInputsAtNdx(opnode.id, ndx);
+  // // console.log("CXNS ", cxns);
+  // cxns.forEach(io => {
+  //   const cxn = <ConnectionComponent> this.tree.getComponent(io.tn.node.id);
+  //   // console.log("ATTEMPTING TO UPDATE TO POSITION ")
+  //   cxn.updateToPosition(opnode.id, this.zs.zoom)
+  // })
+}
+
+/**
+ * called from an operation or inlet to allow for the inlighting of all upstream operations and drafts
+ * @param obj 
+ */
+opCompLoaded(obj: any){
+  //redraw the inlet
+  let opid = obj.id;
+
+  const cxns = this.tree.getInputsWithNdx(opid);
+
+  cxns.forEach((cxn, input_ndx) => {
+    const cxn_comp = <ConnectionComponent>this.tree.getComponent(cxn.tn.node.id)
+    cxn_comp.updateToPosition(opid,this.zs.zoom)
+  })
+
+
+
+
+
+}
+
 
 
 
@@ -2232,7 +2286,22 @@ drawStarted(){
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
 
-     // console.log("HI", this.dm.getSelectedDesignMode('design_modes'));
+      if(this.needs_init){
+      //this is a hack to update the screen posiitons because not all inforamtion is ready when onload and onview init completes
+        let ops = this.tree.getOpNodes();
+        ops.forEach(op => {
+          this.opCompLoaded(op);
+  
+          let drafts = this.tree.getDraftOutputs(op.id);
+          drafts.forEach((draft, ndx) => {
+            let draftcomp = <SubdraftComponent> this.tree.getComponent(draft);
+            draftcomp.updatePositionFromParent(<OperationComponent>op.component, ndx)
+          })
+  
+          }
+        );
+        this.needs_init = false;
+      }
 
       const ctrl: boolean = event.ctrlKey;
       const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
@@ -2301,6 +2370,11 @@ drawStarted(){
 
   @HostListener('mousemove', ['$event'])
   private onMove(event) {
+
+
+
+
+
     const shift: boolean = event.shiftKey;
     const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
     const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);

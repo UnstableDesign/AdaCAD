@@ -50,6 +50,8 @@ export class OperationComponent implements OnInit {
    @Output() duplicateOp = new EventEmitter <any>(); 
    @Output() onInputAdded = new EventEmitter <any> ();
    @Output() onInputVisibilityChange = new EventEmitter <any> ();
+   @Output() onInletLoaded = new EventEmitter <any> ();
+   @Output() onOpLoaded = new EventEmitter <any> ();
 
 
    params_visible: boolean = true;
@@ -162,12 +164,12 @@ export class OperationComponent implements OnInit {
 
     // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
-
-
+   
     this.viewInit = true;
     this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
 
+    this.onOpLoaded.emit({id: this.id})
 
   }
 
@@ -474,6 +476,11 @@ export class OperationComponent implements OnInit {
 
     this.onOperationParamChange.emit({id: this.id});  
 
+  }
+
+  inletLoaded(obj){
+    obj.opid = this.id;
+    this.onInletLoaded.emit(obj);
   }
 
   /**

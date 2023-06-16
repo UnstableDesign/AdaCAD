@@ -21,6 +21,7 @@ export class InletComponent implements OnInit {
   @Output() onInputVisibilityChange = new EventEmitter <any>(); 
   @Output() onConnectionRemoved = new EventEmitter <any>(); 
   @Output() onInletChange = new EventEmitter <any>(); 
+  @Output() onInletLoaded = new EventEmitter <any>(); 
 
   fc: UntypedFormControl;
   textValidate: any;
@@ -84,6 +85,11 @@ export class InletComponent implements OnInit {
     this.inlet_desc = "input "+this.inlet.dx;
     this.inlet_for_drafts = this.inlet.uses === 'draft';
 
+  }
+
+  ngAfterViewInit(){
+
+    this.onInletLoaded.emit({ndx: this.inletid});
   }
 
   checkIfInletIsOpen(){
