@@ -71,7 +71,9 @@ import { drawdown } from '../operations/drawdown/drawdown';
 import { directdrawdown } from '../operations/directdrawdown/directdrawdown';
 import { sinewave } from '../operations/sinewave/sineweave';
 import { sawtooth } from '../operations/sawtooth/sawtooth';
-
+import { erase_blank } from '../operations/erase_blank/erase_blank';
+import { shift } from '../operations/shift/shift';
+import {flip} from '../operations/flip/flip'
 @Injectable({
   providedIn: 'root'
 })
@@ -149,6 +151,8 @@ export class OperationService {
     this.ops.push(mask);
     this.ops.push(diff);
     this.ops.push(cutout);
+    this.ops.push(shift);
+    this.ops.push(flip);
 
   //   //this.ops.push(germanify);
   //   //this.ops.push(crackleify);
@@ -159,7 +163,7 @@ export class OperationService {
     this.ops.push(makedirectloom);
     this.ops.push(drawdown);
     this.ops.push(directdrawdown);
-  //   this.ops.push(erase_blank);
+    this.ops.push(erase_blank);
     this.ops.push(apply_mats);
     this.ops.push(combinatorics);
     this.ops.push(sinewave);

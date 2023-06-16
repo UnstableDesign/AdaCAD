@@ -25,10 +25,8 @@
             "description": "Takes an input structure or draft and transforms it in some way.",
             "op_names":[
                 "invert", 
-                "flip horiz", 
-                "flip vert", 
-                "shift left", 
-                "shift up", 
+                "flip", 
+                "shift", 
                 "rotate", 
                 "makesymmetric", 
                 "slope",

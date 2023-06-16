@@ -60,19 +60,20 @@
             "displayname": "flip horiz",
             "description": "Generates an output draft that mirrors the input draft from left to right.",
             "application": "Can be used to create structures that include rotations of a basic motif" 
-        },
+        },  
         {
-            "name":"shift left",
-            "displayname": "shift left",
-            "description": "Generates an output that is shifted to the left by the number of warp ends specified in the parameters.",
+            "name":"flip",
+            "displayname": "flip",
+            "description": "Generates an output draft that mirrors the input draft from left to right and/or top to bottom as the parameters indicate.",
+            "application": "Can be used to create structures that include rotations of a basic motif" 
+        },       
+         {
+            "name":"shift",
+            "displayname": "shift",
+            "description": "Generates an output that is shifted to the left and top by the number of warp ends and weft pics specified in the parameters.",
             "application": "Creates a version of a draft that is structurally identical, but has the placement of interlacements fine tuned in relation to other structures" 
         },
-        {
-            "name":"shift up",
-            "displayname": "shift up",
-            "description": "Generates an output that is shifted upward by the number of pics specified in the parameters.",
-            "application": "Creates a version of a draft that is structurally identical, but has the placement of interlacements fine tuned in relation to other structures" 
-        },
+ 
         {
             "name":"flip vert",
             "displayname": "flip vert",
