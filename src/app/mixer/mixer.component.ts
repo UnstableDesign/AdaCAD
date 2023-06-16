@@ -292,8 +292,10 @@ zoomChange(e:any, source: string){
 
           if(fileid !== null){
 
-            const ada = await this.files.getFile(fileid);
-            const meta = await this.files.getFileMeta(fileid);           
+            const ada = await this.files.getFile(fileid).catch(e => {
+              console.error("HI ", e)
+            });
+            const meta = await this.files.getFileMeta(fileid).catch(console.error);           
              
 
               if(ada === undefined){
@@ -410,7 +412,11 @@ zoomChange(e:any, source: string){
 
   deleteCurrentFile(){
     this.clearAll();
-    this.files.setCurrentFileInfo(this.files.generateFileId(), 'new blank file', '');
+    if(this.files.file_tree.length > 0){
+      this.loadFromDB(this.files.file_tree[0].id)
+    }else{
+      this.files.setCurrentFileInfo(this.files.generateFileId(), 'new blank file', '');
+    }
     this.saveFile();
   }
 

@@ -114,36 +114,42 @@ export class ParameterComponent implements OnInit {
    * changes the view and updates the tree with the new value
    * @param value 
    */
-  onParamChange(value: number){
+  onParamChange(value: any){
 
+    console.log("VAL ON CHANGE ", value)
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 
     switch(this.param.type){
       case 'number': 
+       if(value == null) value = 1;
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
         this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'boolean':
+        if(value == null) value = false;
         opnode.params[this.paramid] = (value) ? 1 : 0;
         this.fc.setValue(value);
         this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'notation_toggle':
+        if(value == null) value = false;
         opnode.params[this.paramid] = (value) ? 1 : 0;
         this.fc.setValue(value);
         this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'string':
+        if(value == null) value = '';
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
         if(!this.fc.hasError('forbiddenInput'))this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'select':
+        if(value == null) value = 0;
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
         this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});

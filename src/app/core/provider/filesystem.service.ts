@@ -177,7 +177,6 @@ export class FilesystemService {
     const user = auth.currentUser;
     if(user){
       const db = getDatabase();
-      console.log("renaming to "+newname);
       update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
         name: newname});
     }
@@ -209,7 +208,12 @@ export class FilesystemService {
    */
   getFile(fileid: number) : Promise<any> {
     const db = getDatabase();
-    return fbget(fbref(db, `filedata/${fileid}`)).then((filedata) => {
+
+    
+
+
+    return fbget(fbref(db, `filedata/${fileid}`))
+    .then((filedata) => {
 
 
         if(filedata.exists()){
@@ -219,7 +223,7 @@ export class FilesystemService {
          return Promise.reject("User found but file id not found")
         }
 
-      });
+      }).catch(e => {console.error(e)});
 
   }
 
@@ -272,8 +276,16 @@ export class FilesystemService {
    */
   writeFileData(uid: string, fileid: number, cur_state: any) {
     const db = getDatabase();
-    update(fbref(db, 'filedata/'+fileid),{ada: cur_state});
+    const ref = fbref(db, 'filedata/'+fileid);
+    update(ref,{ada: cur_state})
+    .then(success => {
+    })
+    .catch(err => {
+      console.error(err);
+    })
   }
+
+
 
 
 

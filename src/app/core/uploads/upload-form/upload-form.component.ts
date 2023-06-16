@@ -177,7 +177,6 @@ export class UploadFormComponent implements OnInit {
           for(let i = 0; i < upload.height; i++){
             const oned: Sequence.OneD = new Sequence.OneD();
             for(let j = 0; j < upload.width; j++){
-             // oned.push(bw_ndx[upload.image_map[i][j]].is_black);
               const ndx = upload.image_map[i][j];
               let val:boolean = (ndx < bw_ndx.length) ? bw_ndx[ndx] : null;
               oned.push(val);

@@ -64,7 +64,8 @@ export class FileService {
       
       this.clearAll();
 
-     
+      if(data == undefined) return Promise.reject(" there is no data")
+
       if(data.version !== undefined) version = data.version;
 
       if(data.workspace !== undefined){

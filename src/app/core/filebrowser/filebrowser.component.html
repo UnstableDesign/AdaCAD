@@ -98,46 +98,34 @@
               </div>
 
               <div class="more"> 
-                
-                <button  *ngIf="file.id === this.files.current_file_id"
-                mat-icon-button [matMenuTriggerFor]="fileopts">  
-               <i class="fa-solid fa-ellipsis"></i></button>
-              
-
-               <mat-menu #fileopts>
-                  <button
-                  mat-icon-button 
-                  matListItemIcon
-                  [matMenuTriggerFor]="downloadDropdown"
-                  ><i class="fa-solid fa-download"></i>
-                  </button>
- 
-                  <button 
-                  mat-icon-button 
-                  matListItemIcon
-                  (click)="rename()"
-                  ><i class="fas fa-edit"></i>
+                <button *ngIf="file.id === this.files.current_file_id"
+                mat-icon-button 
+                matListItemIcon
+                [matMenuTriggerFor]="downloadDropdown"
+                ><i class="fa-solid fa-download"></i>
                 </button>
+
+                <button *ngIf="file.id === this.files.current_file_id"
+                mat-icon-button 
+                matListItemIcon
+                (click)="rename()"
+                ><i class="fas fa-edit"></i>
+              </button>
+
+              
  
-                <button  
+                <!-- <button  
                 mat-icon-button 
                 matListItemIcon
                 (click)="duplicate()"
                 >            
                 <i class="fa-solid fa-copy"></i>
     
-                </button>
+                </button> -->
  
             
-                <button
-                mat-icon-button 
-                matListItemIcon
-                [matMenuTriggerFor]="deleteConfirm"
-                >
-                <i class="fa-solid fa-trash"></i>
-                </button>
-              </mat-menu>
-
+      
+           
 
 
   
@@ -145,7 +133,7 @@
 
        
            
-             <button *ngIf="file.id !== this.files.current_file_id" 
+             <button 
              mat-icon-button 
              matListItemIcon
              [matMenuTriggerFor]="deleteConfirm"
