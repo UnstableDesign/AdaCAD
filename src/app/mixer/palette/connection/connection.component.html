@@ -6,10 +6,11 @@ cdkDrag
 
 >
 
-<button 
+<button
 mat-icon-button
 color="accent" 
 id="connector-{{id}}" 
+[class.hidden] = "!show_disconnect"
 (click)="disconnect()"
 aria-label="Example icon button with a menu icon">
 <i class="fas fa-times"></i></button>

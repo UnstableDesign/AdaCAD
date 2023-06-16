@@ -176,6 +176,9 @@ export class SubdraftComponent implements OnInit {
 
     this.draft_cell_size = this.calculateDefaultCellSize(this.draft);
 
+    if(this.tree.isSibling(this.id)) this.disableDrag();
+
+
   }
 
 
@@ -274,7 +277,7 @@ export class SubdraftComponent implements OnInit {
   /**
    * updates this components position based on the input component's position
    * */
-  updatePositionFromParent(parent: OperationComponent){
+  updatePositionFromParent(parent: OperationComponent, ndx: number){
 
     if(this.parent_id !== parent.id){
       console.error("attempitng to update subdraft position from non-parent operation",  this.parent_id, parent.id);
@@ -282,8 +285,38 @@ export class SubdraftComponent implements OnInit {
     }
 
     let container = <HTMLElement> document.getElementById("scale-"+this.parent_id);
-    if(container !== null) this.setPosition({x: parent.topleft.x, y: parent.topleft.y + (container.offsetHeight * this.scale/this.default_cell) });
-    else {console.error("no element named scale-"+this.parent_id+"found")}
+    let outs = this.tree.getNonCxnOutputs(this.parent_id);
+
+
+    if(outs.length == 1 ){
+      if(container !== null) this.setPosition({x: parent.topleft.x, y: parent.topleft.y + (container.offsetHeight * this.scale/this.default_cell) });
+      else {console.error("no element named scale-"+this.parent_id+"found")}
+    }else{
+
+      let offlet_left = parent.topleft.x;
+      let total_width = 0;
+      outs.forEach((out, i) => {
+
+        let child_container = <HTMLElement> document.getElementById("scale-"+out);
+        if(i < ndx) offlet_left += (child_container.offsetWidth * this.scale/this.default_cell + 10);
+        total_width += (child_container.offsetWidth  * this.scale/this.default_cell + 10);
+
+      });
+
+      let rel_size = total_width - (container.offsetWidth * this.scale/this.default_cell)
+      let margin = rel_size/2;
+      offlet_left -= margin;
+
+      outs.forEach((out, i) => {
+
+        if(i == ndx){
+          if(container !== null) this.setPosition({x: offlet_left, y: parent.topleft.y +20 + (container.offsetHeight * this.scale/this.default_cell) });
+          else {console.error("no element named scale-"+this.parent_id+"found")}
+        } 
+       });
+
+
+    }
 
   }
 
@@ -773,6 +806,7 @@ export class SubdraftComponent implements OnInit {
   }
 
   dragStart($event: any) {
+
     this.moving = true;
     this.counter = 0;  
       //set the relative position of this operation if its the one that's dragging
@@ -787,6 +821,7 @@ export class SubdraftComponent implements OnInit {
   }
 
   dragMove($event: any) {
+
     //position of pointer of the page
     const pointer:Point = $event.pointerPosition;
 

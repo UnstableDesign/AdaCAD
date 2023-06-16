@@ -41,6 +41,7 @@ export class ConnectionComponent implements OnInit {
   path_text: string = '';
 
   show_path_text: boolean = false;
+  show_disconnect: boolean = true;
 
   constructor(
     public tree: TreeService,
@@ -58,6 +59,8 @@ export class ConnectionComponent implements OnInit {
     const to = to_io.tn.node.id;
 
     this.no_draw = this.tree.getType(from) === 'op' && this.tree.hasSingleChild(from);
+    this.show_disconnect = !(this.tree.getType(from) === 'op' && !(this.tree.hasSingleChild(from)));
+
 
     this.updatePathText()
 

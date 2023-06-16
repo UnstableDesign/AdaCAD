@@ -656,7 +656,6 @@ handlePan(diff: Point){
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
     this.setSubdraftSubscriptions(subdraft.instance);
    
-    console.log("CREATED SUBDRAFT with id ", id, d)
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
     subdraft.instance.default_cell = this.default_cell_size;
@@ -2521,10 +2520,15 @@ drawStarted(){
    const outs: Array<number> = this.tree.getNonCxnOutputs(id);
 
    //if this an operation with one child, move the child. 
-   if(this.tree.getType(moving.id) === "op" && outs.length === 1){
-      const out = <SubdraftComponent> this.tree.getComponent(outs[0]);
-      if(this.tree.getType(out.id) === 'draft') out.updatePositionFromParent(moving);
-      this.updateAttachedComponents(out.id, false);
+   if(this.tree.getType(moving.id) === "op" ){
+
+      outs.forEach((out, ndx) => {
+        const out_comp = <SubdraftComponent> this.tree.getComponent(out);
+        if(this.tree.getType(out_comp.id) === 'draft') out_comp.updatePositionFromParent(moving, ndx);
+        this.updateAttachedComponents(out_comp.id, false);
+      })
+
+    
     }
 
     const ins = this.tree.getNonCxnInputs(id);
@@ -2593,7 +2597,7 @@ drawStarted(){
   }
 
 /**
- * called from an operatiino cmoponent when it is dragged
+ * called from an operation component when it is dragged
  * @param obj (id, point of toplleft)
  */
   operationMoved(obj: any){
