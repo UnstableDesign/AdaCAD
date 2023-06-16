@@ -134,7 +134,6 @@ export class UploadService {
     const storage = getStorage();
     return getMetadata(ref(storage, 'uploads/'+id))
     .then((metadata) => {
-      console.log("GOT META DATA ", metadata)
       return Promise.resolve(metadata)
       // Metadata now contains the metadata for 'images/forest.jpg'
     })

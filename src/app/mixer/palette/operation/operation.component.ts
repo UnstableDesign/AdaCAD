@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Bounds, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import utilInstance from '../../../core/model/util';
@@ -12,6 +12,7 @@ import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
+import { ParameterComponent } from './parameter/parameter.component';
 
 
 
@@ -21,6 +22,9 @@ import { SubdraftComponent } from '../subdraft/subdraft.component';
   styleUrls: ['./operation.component.scss']
 })
 export class OperationComponent implements OnInit {
+
+
+  @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
@@ -159,6 +163,7 @@ export class OperationComponent implements OnInit {
     this.rescale();
    // this.onOperationParamChange.emit({id: this.id});
     if(this.name == 'imagemap' || this.name == 'bwimagemap'){
+      
       this.drawImagePreview();
     }
 
@@ -173,42 +178,6 @@ export class OperationComponent implements OnInit {
 
   }
 
-  
-
-  drawImagePreview(){
-
-      const opnode = this.tree.getOpNode(this.id);
-      const paramid = this.op.params.findIndex(el => el.type === 'file');
-      const obj = this.imageService.getImageData(opnode.params[paramid].id);
-
-      if(obj === undefined) return;
-
-        const data = obj.data;
-
-        this.has_image_preview = true;
-        const image_div =  document.getElementById('param-image-'+this.id);
-        image_div.style.display = 'flex';
-  
-        const dims_div =  document.getElementById('param-image-dims-'+this.id);
-        dims_div.innerHTML=data.width+"px x "+data.height+"px";
-  
-        const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.id);
-        const ctx = canvas.getContext('2d');
-  
-        const max_dim = (data.width > data.height) ? data.width : data.height;
-        const use_width = (data.width > 100) ? data.width / max_dim * 100 : data.width;
-        const use_height = (data.height > 100) ? data.height / max_dim * 100 : data.height;
-  
-        canvas.width = use_width;
-        canvas.height = use_height;
-  
-  
-        ctx.drawImage(data.image, 0, 0, use_width, use_height);
-    
-
-      
-
-    }
 
 
   // setBounds(bounds:Bounds){
@@ -402,6 +371,8 @@ export class OperationComponent implements OnInit {
         this.hasInlets = opnode.inlets.length > 0;
 
         if(opnode.name == 'imagemap' || opnode.name == 'bwimagemap'){
+
+
           this.drawImagePreview();
 
           //update the width and height
@@ -416,6 +387,12 @@ export class OperationComponent implements OnInit {
     }
     
     this.onOperationParamChange.emit({id: this.id});
+  }
+
+  drawImagePreview(){
+    console.log("CHILDREN ", this.paramsComps)
+    let param = this.paramsComps.get( (<DynamicOperation>this.op).dynamic_param_id)
+    param.drawImagePreview();
   }
 
   //returned from a file upload event
@@ -467,7 +444,6 @@ export class OperationComponent implements OnInit {
           //now update the default parameters to the original size 
           opnode.params[1] = obj.data.width;
           opnode.params[2] = obj.data.height;
-          this.drawImagePreview();
 
 
         }

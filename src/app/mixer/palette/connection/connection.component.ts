@@ -150,7 +150,7 @@ export class ConnectionComponent implements OnInit {
         const element: HTMLElement = document.getElementById('inlet'+to_comp.id+"-"+ndx+"-"+ndx_in_list);
 
         //to get a current position, you need the inlets parent to have a defined position. 
-        if( element !== undefined && element.offsetParent !== null){
+        if( element !== undefined && element !== null && element.offsetParent !== null){
           const left_offset = element.offsetLeft;
             this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
         }else{

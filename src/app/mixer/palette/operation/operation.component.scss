@@ -45,7 +45,6 @@
     justify-content: flex-start;
     padding: 6px 0 0 0 ;   
     border-top: white thin solid;
-    height: 42px;
 }
 
 
@@ -147,16 +146,12 @@ button.cxn{
 }
 
 
-.param-image{
-    padding: 8px;
-    width: 116px;
-    display: none;
-    flex-direction: column;
-}
-
-.image_preview{
-    font-size: .5em;
-}
+// .param-image{
+//     padding: 8px;
+//     width: 116px;
+//     display: none;
+//     flex-direction: column;
+// }
 
 .input-group{
     display: flex;
@@ -188,31 +183,35 @@ button.is-primary.is-active{
 .name{
     margin: 0px 8px;
     color: white;
+    font-size: 1.5em;
     font-weight: bold;
-    font-size: 1.2em;
 }
 
 
 
 .params{
-    display:flex;
-    flex-direction: row;
+        display: flex;
+        flex-direction: row;
+        padding: 16px 8px;
+        width: 100%;
 
 }
 
-::ng-deep  .mat-form-field-infix{
-    width: 33%;
-}
+.param{
 
-
-.param-list{
     display: flex;
-    flex-direction: row;
-    flex-grow: 2;
-    font-size: .8em;
-    padding-right: 8px;
-
+    flex: 1 1 0px;
 }
+
+
+// .param-list{
+//     display: flex;
+//     flex-direction: row;
+//     flex-grow: 2;
+//     font-size: .8em;
+//     padding-right: 8px;
+
+// }
 
 .operation-details{
     animation-name: added_to_workspace;

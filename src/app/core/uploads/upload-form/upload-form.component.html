@@ -5,8 +5,8 @@
    </label>
 
    <div *ngIf="!uploading" class="upload-button">
-      <button mat-button
-            color="primary"
+      <button mat-raised-button
+            color="accent"
             [disabled]="!selectedFiles"
             (click)="upload();">
             Upload

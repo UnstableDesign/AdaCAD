@@ -10,104 +10,82 @@ cdkDrag
 (cdkDragStarted)="dragStart($event)"
 >
 
-<div id='scale-{{id}}' class="operation-container">
+  <div id='scale-{{id}}' class="operation-container">
 
-    <div class="cxn-row" [class.hidden]="!hasInlets">
-        <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">
+        <div class="cxn-row" [class.hidden]="!hasInlets">
+            <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">
+              
+              <app-inlet 
+              [opid]='id'
+              [inletid]='i'
+              [dynamic]='is_dynamic_op'
+              (onInputSelected)="inputSelected($event)"
+              (onInputVisibilityChange)="visibilityChange($event)"
+              (onConnectionRemoved)="removeConnectionTo($event)"
+              (onInletChange)="onInletChange($event)"
+              (onInletLoaded)="inletLoaded($event)"
+              ></app-inlet>
+            </div>
           
-          <app-inlet 
-          [opid]='id'
-          [inletid]='i'
-          [dynamic]='is_dynamic_op'
-          (onInputSelected)="inputSelected($event)"
-          (onInputVisibilityChange)="visibilityChange($event)"
-          (onConnectionRemoved)="removeConnectionTo($event)"
-          (onInletChange)="onInletChange($event)"
-          (onInletLoaded)="inletLoaded($event)"
-          ></app-inlet>
         </div>
-       
-    </div>
 
 
-    <div class="top-row" >
-
-
-
-    <div class="operation-details">
-        <!-- <div class="name">{{op.name}} // {{id}}</div> -->
-        <div class="name no-text-select">{{displayname}}</div>
-      
-    </div>
-
-    <button 
-    class="button is-small is-primary fas fa-question"
-    (click)="openHelpDialog()">
-</button> 
-
-    <button 
-    matTooltip= "Duplilcate"
-    class="button is-small is-primary fa fa-clone"
-    (click)="duplicate()">
-    </button>
-    
-
-    <button 
-    class="button is-small is-primary"
-    (click)="delete()">
-    <i class="fas fa-times"></i>
-    </button>
-</div>
+        <div class="top-row" >
 
 
 
+        <div class="operation-details">
+            <!-- <div class="name">{{op.name}} // {{id}}</div> -->
+            <div class="name no-text-select">{{displayname}}</div>
+          
+        </div>
+
+        <button 
+        class="button is-small is-primary fas fa-question"
+        (click)="openHelpDialog()">
+    </button> 
+
+        <button 
+        matTooltip= "Duplilcate"
+        class="button is-small is-primary fa fa-clone"
+        (click)="duplicate()">
+        </button>
+        
+
+        <button 
+        class="button is-small is-primary"
+        (click)="delete()">
+        <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="params">
+
+        
+          <ng-container *ngFor="let param of op.params; let i = index">
+            
+            <app-parameter class="param" 
+            [param]='param' 
+            [opid]='id' 
+            [paramid]='i'
+            (onOperationParamChange) = onParamChange($event)
+            (onFileUpload) = handleFile($event)>
+          </app-parameter>
+
+          </ng-container>
 
 
-         
 
-<div class="params">
+      <!-- 
+        <button class="refresh" 
+        mat-icon-button
+          (click)="toggleParamsVisible()"
+          matTooltip="update draft with input values">
+          <i *ngIf="!params_visible" class="fas fa-edit"></i>
+          <i *ngIf="params_visible" class="fas fa-eye-slash"></i>
+      </button>   -->
 
-
-  <div class='param-image' id="param-image-{{id}}" >
-    <div class="image_preview" id="image_preview-{{id}}">
-      <canvas id="preview_canvas-{{id}}"></canvas>
-      <div id="param-image-dims-{{id}}"></div> 
-    </div>
-    <div class="error"><p>{{filewarning}}</p></div> 
-   </div>
-
-   <div *ngIf="params_visible" class="param-list">
-   
-    <ng-container *ngFor="let param of op.params; let i = index">
-      
-      <app-parameter 
-      [param]='param' 
-      [opid]='id' 
-      [paramid]='i'
-      (onOperationParamChange) = onParamChange($event)
-      (onFileUpload) = handleFile($event)>
-     </app-parameter>
-
-    </ng-container>
+      </div>
 
   </div>
-
-  <div *ngIf="!params_visible" class="param-list">
-   
-    <ng-container *ngFor="let param of op.params; let i = index">
-      {{param.name}}: {{param.value}};
-    </ng-container>
-
-  </div>
-<!-- 
-  <button class="refresh" 
-  mat-icon-button
-    (click)="toggleParamsVisible()"
-    matTooltip="update draft with input values">
-    <i *ngIf="!params_visible" class="fas fa-edit"></i>
-    <i *ngIf="params_visible" class="fas fa-eye-slash"></i>
-</button>   -->
-
-</div>
-</div>
 </div>  

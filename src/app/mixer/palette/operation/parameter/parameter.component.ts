@@ -1,9 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { AbstractControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { BoolParam, FileParam, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
+import { ImageService } from '../../../../core/provider/image.service';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -19,7 +21,11 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
 @Component({
   selector: 'app-parameter',
   templateUrl: './parameter.component.html',
-  styleUrls: ['./parameter.component.scss']
+  styleUrls: ['./parameter.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  // providers: [
+  //   {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline', subscriptSizing: 'dynamic' }}
+  // ]
 })
 export class ParameterComponent implements OnInit {
   
@@ -40,12 +46,15 @@ export class ParameterComponent implements OnInit {
   selectparam: SelectParam;
   fileparam: FileParam;
   description: string;
+  has_image_preview: boolean = false;
+  filewarning: string = '';
 
 
   constructor(
     public tree: TreeService, 
     public ops: OperationService,
-    public op_desc: OperationDescriptionsService) { 
+    public op_desc: OperationDescriptionsService,
+    public imageService: ImageService) { 
   }
 
   ngOnInit(): void {
@@ -94,10 +103,11 @@ export class ParameterComponent implements OnInit {
          
        
       }
+
+   
   
 
   }
-
 
 
   /**
@@ -149,17 +159,112 @@ export class ParameterComponent implements OnInit {
    
   }
 
+  handleError(err: any){
+    console.log("CAUGHT ERROR", err);
+    this.filewarning = err;
+    this.clearImagePreview();
+
+  }
+
   /**
    * this is called by the upload services "On Data function" which uploads and analyzes the image data in the image and returns it as a image data object
    * @param obj 
    */
   handleFile(obj: any){
 
+    this.filewarning = "";
 
     this.opnode.params[this.paramid] = {id: obj[0].id, data: obj[0]};
+    
+    
     this.onOperationParamChange.emit({id: this.paramid, value: this.opnode.params[this.paramid]});
+    
     this.fc.setValue(obj[0].name);
+
+
+    switch(obj.type){
+      case 'image':
+
+        if(obj.data.warning !== ''){
+            this.filewarning = obj.warning;
+        }else{
+
+          const opnode = this.tree.getOpNode(this.opid);
+          //now update the default parameters to the original size 
+          opnode.params[1] = obj.data.width;
+          opnode.params[2] = obj.data.height;
+          this.drawImagePreview();
+
+        }
+        break;
+    }
+
+
+
+
   }
+
+  drawImagePreview(){
+
+    const opnode = this.tree.getOpNode(this.opid);
+    const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
+
+    if(obj === undefined) return;
+
+      const data = obj.data;
+
+      this.has_image_preview = true;
+      const image_div =  document.getElementById('param-image-'+this.opid);
+      image_div.style.display = 'flex';
+
+      const dims_div =  document.getElementById('param-image-dims-'+this.opid);
+      dims_div.innerHTML=data.width+"px x "+data.height+"px";
+
+      const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.opid);
+      const ctx = canvas.getContext('2d');
+
+      const max_dim = (data.width > data.height) ? data.width : data.height;
+      const use_width = (data.width > 100) ? data.width / max_dim * 100 : data.width;
+      const use_height = (data.height > 100) ? data.height / max_dim * 100 : data.height;
+
+      canvas.width = use_width;
+      canvas.height = use_height;
+
+
+      ctx.drawImage(data.image, 0, 0, use_width, use_height);
+  
+
+    
+
+  }
+  clearImagePreview(){
+
+      this.has_image_preview = false;
+
+      const opnode = this.tree.getOpNode(this.opid);
+      const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
+  
+      if(obj === undefined) return;
+  
+        const data = obj.data;
+  
+        const image_div =  document.getElementById('param-image-'+this.opid);
+        image_div.style.display = 'none';
+  
+        const dims_div =  document.getElementById('param-image-dims-'+this.opid);
+        dims_div.innerHTML="";
+  
+        const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.opid);
+  
+
+        canvas.width = 0;
+        canvas.height = 0;
+  
+  
+    
+  
+  }
+
 
 
 }

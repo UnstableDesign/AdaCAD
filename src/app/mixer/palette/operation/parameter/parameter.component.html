@@ -1,11 +1,9 @@
-<div class="param-row">
     
 
     <ng-container  *ngIf="param.type === 'number'">
         
-      <mat-form-field>
-          <mat-label class="param-name">{{param.name}}</mat-label>
-
+      <div class="number_input">
+          
             <input 
             matInput
             [ngModel] = "opnode.params[paramid]"
@@ -18,7 +16,11 @@
             step = 1
             (change)= "onParamChange(fc.value)"
         >
-        </mat-form-field>
+
+        <div class="number-label">
+          {{param.name}}
+        </div>
+      </div>
 
 
       <!-- <div class="param-slider">
@@ -40,7 +42,6 @@
     <div class="select-input">
     <!-- <mat-form-field> -->
 
-      <mat-label class="slider-label">{{param.name}}</mat-label>
 
         <mat-select 
             [ngModel] = "opnode.params[paramid]"
@@ -52,65 +53,87 @@
           </mat-option>
         </mat-select>
      <!-- </mat-form-field> -->
+
+     <mat-label class="select-label">{{param.name}}</mat-label>
+
     </div>
  </ng-container>
 
     <ng-container  *ngIf="param.type == 'boolean' || param.type == 'notation_toggle'">
       <!-- <mat-form-field> -->
 
-        <div class="boolean-group">
-        <mat-label class="slider-label">{{param.name}}</mat-label>
+        <div class="boolean-input">
 
-        <!-- <input 
-        matInput
-        [ngModel] = "opnode.params[paramid]"
-        [formControl]="fc"
-        [matTooltip]=param.dx
-        type = "number"
-        (change)= "onParamChange(fc.value)"
-    > -->
+
         <mat-slide-toggle
             [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
             [matTooltip]="description"
             (change)= "onParamChange(fc.value)"
             > 
+            <!-- <span *ngIf="fc.value==1">{{boolparam.truestate}}</span>
+            <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span>  -->
+          </mat-slide-toggle>
+
+          <div class="boolean-label">
+            <!-- {{param.name}}: -->
+
             <span *ngIf="fc.value==1">{{boolparam.truestate}}</span>
             <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span> 
-          </mat-slide-toggle>
+
+          </div>
+
         </div>
         <!-- </mat-form-field> -->
     </ng-container>
 
     <ng-container  *ngIf="param.type == 'string'">
 
-      <div class="stringandrefresh">
+      <div class="string-input">
 
-           <mat-form-field> 
+        <div class="string-and-refresh">
+         
+          <textarea matInput
+          class='param-text'
+          [(ngModel)] = "opnode.params[paramid]"
+          [matTooltip]="description"
+          [formControl]="fc"
+          [errorStateMatcher]="regexValidator"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="5"
+          (change)= "onParamChange(fc.value)">
+        </textarea>
 
-            <mat-label class="param-name">{{param.name}}</mat-label>
-
-         <div class='param-text'>
-            <input matInput
+            <!-- <input matInput class='param-text'
             [(ngModel)] = "opnode.params[paramid]"
             [formControl]="fc"
             [errorStateMatcher]="regexValidator"
             [matTooltip]="description"
             type = "text"
             (change)= "onParamChange(fc.value)"
-          >
-        </div>
+          > -->
 
-        <div class='param-label'>
           <button class="refresh" 
           mat-icon-button
-          color = "accent"
           (click)= "onParamChange(fc.value)"
           [disabled]="!fc.dirty || fc.hasError('required') || fc.hasError('forbiddenInput')"
           matTooltip="update draft with input values">
           <i class="fas fa-redo"></i></button>
          </div> 
-        </mat-form-field>
+
+        <div class="string-label">{{param.name}} 
+          <div class="text-err" *ngIf="fc.hasError('required')">
+            an input is required 
+           </div>
+       
+         <div class="text-err" *ngIf="fc.hasError('forbiddenInput')">
+           the current input is not correctly formatted
+           </div>
+
+        </div>
+
 
     </div>
       
@@ -118,49 +141,44 @@
 
     </ng-container>
 
-    <!-- <ng-container  *ngIf="param.type == 'draft'">
-       
-
-     <div class='param-label'>
-         <button class="refresh" 
-         mat-icon-button
-         color = "accent"
-         (click)= "onParamChange(fc.value)"
-         matTooltip="update draft with input values">
-         <i class="fas fa-redo"></i></button>
-     </div>
-
-   
-
-
- </ng-container> -->
-
-
 
     <ng-container  *ngIf="param.type == 'file'">
        
-      <div class='param-file'>
+      <div class='file-input-param'>
+        
+        <div class="form-and-image">
         <upload-form 
         type="init" 
         multiple="false"
         accepts=".jpg,.png,.bmp"
         type="single_image"
-        (onData)="handleFile($event)" class="button">
+        (onData)="handleFile($event)"
+        (onError)="handleError($event)"
+         class="upload-form-box">
       </upload-form>
-     </div>
+
+           
+        <div class='param-image' [class.has_image]="has_image_preview" [class.no_image]="!has_image_preview" id="param-image-{{opid}}" >
+          <div class="image_preview" id="image_preview-{{opid}}">
+            <canvas id="preview_canvas-{{opid}}"></canvas>
+            <div id="param-image-dims-{{opid}}"></div> 
+          </div>
+        </div>
+      </div>
+
+     
+        
+      <div class="file-label">
+        <div class="text-err" *ngIf="filewarning !== ''">{{filewarning}}</div>
+      </div>
+      
+    </div>
+
+
 
    
   </ng-container>
 
 
-</div>
 
 
-
-  <div class="text-err" *ngIf="fc.hasError('required')">
-     an input is required 
-    </div>
-
-  <div class="text-err" *ngIf="fc.hasError('forbiddenInput')">
-    the current input is not correctly formatted
-    </div>

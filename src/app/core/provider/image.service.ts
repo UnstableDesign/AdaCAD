@@ -79,9 +79,34 @@ export class ImageService {
 
 
           all_colors.push({hex: '#'+r+''+g+''+b, black: is_black});
+
         }
 
         const just_hex = all_colors.map(el => el.hex);
+        let filewarning = "";
+
+        let seen_vals = [];
+        let unique_count = 0;
+        for(let i = 0; i < just_hex.length && unique_count < 100; i++){
+          if(seen_vals.find(el => el == just_hex[i]) == undefined){
+            unique_count++;
+            seen_vals.push(just_hex[i]);
+          } 
+        }
+
+
+        if(unique_count >= 100){
+          filewarning = "this image contains more than 100 colors and will take too much time to process, consider indexing to a smaller color space"
+          return Promise.reject(filewarning);
+        } 
+
+
+        
+
+     
+
+
+        /**this is expensive, so just do a fast run to make sure the size is okay before we go into this */
         const unique = utilInstance.filterToUniqueValues(just_hex);
 
         const color_to_bw = unique.map(el => {
@@ -90,11 +115,10 @@ export class ImageService {
         })
 
  
-        let filewarning = "";
         let image_map: Array<Array<number>> = [];
         if(unique.length > 100){
           filewarning = "this image contains "+unique.length+" color and will take too much time to process, consider indexing to a smaller color space"
-          Promise.reject('color');
+          return Promise.reject(filewarning);
         } 
         else{
           const image_map_flat: Array<number> = all_colors.map(item => unique.findIndex(el => el === item.hex));

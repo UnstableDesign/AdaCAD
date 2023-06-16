@@ -1,6 +1,7 @@
 
 
 .param-row{
+    display: flex;
     vertical-align:middle;
     flex-direction: row;
     text-align: left;
@@ -8,6 +9,163 @@
     padding:.25em 0em 0em 0.5em;
     font-size: 1.5em;
 }
+
+.number_input{
+    display: flex;
+    flex-direction: column;
+    color: white;
+    height: fit-content;
+
+    input{
+        height: 100%;
+        align-content: baseline;
+        font-size: 1.2em;
+        flex-basis: 0;
+        font-weight: bolder;
+        font-size: 1.5em;
+
+    }
+}
+
+.number-label,
+.select-label,
+.boolean-label,
+.string-label{
+    color: white;
+    height: fit-content;
+    font-size: .8em;
+    font-size: 1em;
+}
+
+.boolean-input{
+    display: flex;
+    flex-direction: column;
+
+    .mat-slide-toggle-bar{
+        position: relative;
+        width: 30px !important;
+        height: 15px !important;
+        flex-shrink: 0;
+        border-radius: 6px;
+    }
+    
+    .mat-slide-toggle-content {
+        font-size: .8em;
+    }
+    
+    .mat-slide-toggle-thumb {
+        height: 18px !important;
+        width: 18px !important;
+    }
+    
+
+
+}
+
+
+.select-input{
+    margin-right: 20px;
+    flex-grow: 2;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    height: fit-content;
+    width: fit-content;
+
+   .mat-select {
+        height: 100%;
+        align-content: baseline;
+        flex-basis: 0;
+    }
+
+    .mat-select-value{
+        color: white;
+        font-weight: bolder;
+        font-size: 1.5em;
+
+    }
+
+    .mat-select-arrow{
+        color: white;
+    }
+
+    .mat-option-text{
+
+    }
+}
+
+
+.file-input-param{
+    width: fit-content;
+    flex-grow: 4;
+
+    .form-and-image{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .upload-form-box{
+        flex-grow: 4;
+        width: fit-content;
+        height: fit-content;
+    }
+
+    .no_image{
+        height:0px;
+    }
+
+    .has_image{
+        height: max-content;
+    }
+}
+
+
+
+.string-input{
+    margin-right: 20px;
+    flex-grow: 2;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    height: fit-content;
+    width: 100%;
+
+    .string-and-refresh{
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .param-text{
+        font-size: 1.2em;
+        font-weight: bolder;
+        font-size: 1.5em;
+        color: white;
+    }
+
+    .mat-input-element{
+        caret-color: white !important;
+        border-bottom: thin solid white;
+        width: 90%;
+    }
+
+    .refresh,
+    .mat-icon-button{
+        color: white;
+        top: -1px;
+        font-size: 1.2em;
+        width: fit-content;
+    }
+    
+    .dirty{
+        color: rgb(255, 64, 129) !important; 
+    }
+  
+}
+
+
+
+
 
 
 
@@ -27,15 +185,6 @@
 
 }
 
-.param-text{
-    width: 75%;
-    text-align: left;
-    padding: 0px 10px;
-    overflow: hidden;
-    caret-color: red;
-
-
-}
 
 
 // .param-label{
@@ -86,21 +235,11 @@ button.is-primary.is-active{
     background-color: rgb(255, 64, 129);
 }
 
-.refresh{
-    color: white;
-}
 
-.refresh .dirty{
-    color: rgb(255, 64, 129); 
-}
 
 .text-err,
 .error{
-    color: red;
-    width: 100%;
-    overflow: hidden;
-    text-align: center;
-    font-size: .8em;
+    color:  rgb(255, 64, 129);
 }
 
 .inputs{
@@ -109,36 +248,10 @@ button.is-primary.is-active{
     text-align: center;
 }
 
-.boolean-group{
-    display: flex;
-    flex-direction: column;
-}
-
-::ng-deep .mat-slide-toggle-bar{
-    position: relative;
-    width: 30px !important;
-    height: 8px !important;
-    flex-shrink: 0;
-    border-radius: 6px;
-}
-
-::ng-deep .mat-slide-toggle-content {
-    font-size: .8em;
-}
-
-::ng-deep .mat-slide-toggle-thumb {
-    height: 15px !important;
-    width: 15px !important;
-}
 
 
 
 
-.select-input{
-    width: 100px;
-    display: flex;
-    flex-direction: column;
-}
 
 
 .slider-label,
@@ -154,7 +267,3 @@ button.is-primary.is-active{
     flex-direction: row;
 }
 
-.param-label{
-    font-size: .8em;
-    height: 20px;
-}

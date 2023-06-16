@@ -27,6 +27,7 @@ export class UploadFormComponent implements OnInit {
   @ViewChild('uploadImage') canvas: ElementRef;
 
   @Output() onData: any = new EventEmitter();
+  @Output() onError: any = new EventEmitter();
 
   constructor(private upSvc: UploadService, private httpClient: HttpClient, private imageService: ImageService) { }
 
@@ -61,18 +62,22 @@ export class UploadFormComponent implements OnInit {
   
   }
 
-  async uploadImage(upload: Upload, file: File){
+   uploadImage(upload: Upload, file: File) : Promise<any> {
 
-    this.upSvc.pushUpload(upload).then(snapshot => {
+    return this.upSvc.pushUpload(upload).then(snapshot => {
       return  this.imageService.loadFiles([upload.name]);
     }).then(uploaded => {
 
 
-    this.onData.emit(uploaded);
-    this.uploading = false;
-    this.selectedFiles = null;
+      this.onData.emit(uploaded);
+      this.uploading = false;
+      this.selectedFiles = null;
 
-    }).catch(console.error); 
+    }).catch(e => {
+      this.onError.emit(e);
+      this.uploading = false;
+      this.selectedFiles = null;
+    }); 
   }
 
 
@@ -112,7 +117,12 @@ export class UploadFormComponent implements OnInit {
       break;
 
       case 'single_image':
-          this.uploadImage(upload, file);
+          this.uploadImage(upload, file)
+          .then(el => {
+            console.log("GOT IMAGE ")
+          }).catch(e => {
+            console.error(e)
+          })
       break;
 
       case 'bitmap_collection':
