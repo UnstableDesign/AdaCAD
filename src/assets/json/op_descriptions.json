@@ -27,13 +27,13 @@
         },
         {
             "name":"set unset",
-            "displayname": "set unset interlacements to...",
+            "displayname": "set unset interlacements to",
             "description": "Sets all unset interlacements/cells in this draft to the value set in the parameter.",
             "application": "Unset cells allows someone to describe shape or inlay elements in a cloth. Set unset can control if interlacements outside that region are interpreted as warp lifts or lowers. " 
         },
         {
             "name":"set down to unset",
-            "displayname": "set interlacements of type to unset...",
+            "displayname": "set interlacements of type to unset",
             "description": "This sets all interlacements of a particular type (e.g. raised or lowered) in the input draft to unset",
             "application": "Unset cells allows someone to describe shapeed or inlay elements in a cloth. Set interlacements of one type to unset will have the effect of specifying an area where no weft will travel" 
         },

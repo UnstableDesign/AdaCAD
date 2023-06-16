@@ -25,3 +25,34 @@
     color:  #3f51b5;
 }
 
+.mat-option{
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    text-overflow: normal !important;
+    display: block;
+    line-height: 1.2em !important;
+    height: fit-content !important;
+    padding: 16px !important;
+    text-align: left;
+    text-decoration: none;
+    max-width: 100%;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mat-option-text{
+    display: block !important;
+    flex-grow: 1 !important;
+    overflow-wrap: normal !important;
+}
+
+
+
+
