@@ -457,8 +457,6 @@ export class DraftviewerComponent implements OnInit {
           currentPos.i -= 1;
           currentPos.j -= 1;
 
-          console.log("CURRENT POS",currentPos)
-
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break;

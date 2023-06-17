@@ -32,7 +32,7 @@ flex-direction: row;
   .warp-systems-container.origin0
   {
 	flex-direction: column;
-	align-items: flex-end;
+	align-items: flex-start;
 	padding-right: 30px;
 
   }
@@ -47,8 +47,8 @@ flex-direction: row;
   
   .warp-systems-container.origin1{
   
-    flex-direction: column;
-    align-items: flex-end;
+    flex-direction: column-reverse;
+    align-items: flex-start;
     padding-right: 10px;
 
   
@@ -57,7 +57,7 @@ flex-direction: row;
   
   .warp-systems-container.origin2
   {
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: flex-end;
     padding-right: 10px;
   
@@ -239,6 +239,7 @@ button.output:hover{
 
 .local_zoom{
 	transform-origin: top center;
+	display: flex;
 }
 
 .cloak{

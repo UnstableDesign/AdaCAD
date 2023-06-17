@@ -377,10 +377,16 @@ canvas{
 
     }
 
-    .warp-system-col.origin1,
     .warp-system-col.origin2
     {
       flex-direction: column;
+      justify-content: flex-start;
+
+    }
+
+    .warp-system-col.origin1
+    {
+      flex-direction: column-reverse;
       justify-content: flex-start;
 
     }
@@ -637,6 +643,8 @@ canvas{
 
 .warp-system{
   display: block;
+  padding: 4px 0px;
+
 }
 
 .warp-material{

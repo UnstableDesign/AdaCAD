@@ -69,6 +69,7 @@ export class FileService {
       if(data.version !== undefined) version = data.version;
 
       if(data.workspace !== undefined){
+        console.log("LOADING SAVED WORKSPACE ", data.workspace)
         this.ws.loadWorkspace(data.workspace);
       }else{
         this.ws.initDefaultWorkspace();

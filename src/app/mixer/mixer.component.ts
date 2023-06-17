@@ -130,6 +130,7 @@ export class MixerComponent implements OnInit {
     ) {
 
 
+      console.log("SELECTED ORIGIN OPTION is ", this.ws.selected_origin_option)
       this.selected_origin = this.ws.selected_origin_option;
 
       this.origin_options = this.ws.getOriginOptions();
@@ -584,6 +585,7 @@ zoomChange(e:any, source: string){
     let entry_mapping = [];
 
 
+    this.updateOrigin(this.ws.selected_origin_option)
 
     //start processing images first thing 
     const images_to_load = [];
@@ -1102,18 +1104,27 @@ zoomChange(e:any, source: string){
  }
 
 
+ /**
+  * the origin must be updated after the file has been loaded. 
+  * @param selection 
+  */
+ updateOrigin(selection: number){
+  this.selected_origin = selection
+ }
 
 
 
 /**
  * when the origin changes, all drafts on the canavs should be modified to the new position
  * origin changes can ONLY happen on globals
+ * flips must be calculated from the prior state
  * @param e 
  */
 originChange(e:any){
 
 
-  const flips = utilInstance.getFlips(this.ws.selected_origin_option, this.selected_origin);
+  const flips = utilInstance.getFlips(this.selected_origin, e.value);
+  this.selected_origin = e.value;
   this.ws.selected_origin_option = this.selected_origin;
   
   const dn: Array<DraftNode> = this.tree.getDraftNodes();

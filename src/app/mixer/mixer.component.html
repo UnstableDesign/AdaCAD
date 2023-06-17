@@ -166,7 +166,7 @@
 
           <mat-form-field>
             <mat-label>When viewing Draft Details, Place the (0,0) point at: </mat-label>
-            <mat-select (selectionChange) ="originChange(envt)" [(value)]="selected_origin">
+            <mat-select (selectionChange) ="originChange($event)" [value]="selected_origin">
               <mat-option *ngFor="let option of origin_options" [value]="option.value">
                 {{option.view}}
               </mat-option>
