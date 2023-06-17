@@ -301,6 +301,13 @@ export class DraftviewerComponent implements OnInit {
 
   }
 
+  getFlippedWarpNum(j: number) : number{
+    let draft = this.tree.getDraft(this.id);
+    let warpnum = warps(draft.drawdown);
+
+    return warpnum - j;
+  }
+
   expand(){
     this.expanded = !this.expanded;
     this.onViewerExpanded.emit();
@@ -822,48 +829,48 @@ export class DraftviewerComponent implements OnInit {
 
 
 
-  private drawWeftMaterialCell(draft:Draft, cx:any, i:number){
+  // private drawWeftMaterialCell(draft:Draft, cx:any, i:number){
            
 
-    var dims = this.render.getCellDims("base");
-    var margin = this.render.zoom*2;
+  //   var dims = this.render.getCellDims("base");
+  //   var margin = this.render.zoom*2;
 
-    const ndx: number = draft.rowShuttleMapping[i];
-    cx.fillStyle = this.ms.getColor(ndx);
-    cx.strokeStyle = '#000000';
-    cx.lineWidth = '1';
+  //   const ndx: number = draft.rowShuttleMapping[i];
+  //   cx.fillStyle = this.ms.getColor(ndx);
+  //   cx.strokeStyle = '#000000';
+  //   cx.lineWidth = '1';
 
-     cx.fillRect(margin, (dims.h*i)+margin, dims.w-margin, dims.h-(margin));
-     cx.strokeRect(margin, (dims.h*i)+margin, dims.w-margin, dims.h-(margin));
-
-
-  }
+  //    cx.fillRect(margin, (dims.h*i)+margin, dims.w-margin, dims.h-(margin));
+  //    cx.strokeRect(margin, (dims.h*i)+margin, dims.w-margin, dims.h-(margin));
 
 
-  private drawWeftMaterials(draft:Draft, cx:any, canvas:any){
-
-      var dims = this.render.getCellDims("base");
-      var margin = this.render.zoom;
-      var top = dims.h;
-
-      cx.clearRect(0,0, cx.canvas.width, cx.canvas.height);
+  // }
 
 
-      canvas.width =  dims.w;
-      canvas.height = this.render.visibleRows.length * dims.h;
+  // private drawWeftMaterials(draft:Draft, cx:any, canvas:any){
 
-      cx.fillStyle = "white";
-      cx.fillRect(0,0,canvas.width,this.render.visibleRows.length*dims.h);
+  //     var dims = this.render.getCellDims("base");
+  //     var margin = this.render.zoom;
+  //     var top = dims.h;
 
-      for(var i = 0 ; i < this.render.visibleRows.length; i++){
-          this.drawWeftMaterialCell(draft, cx, i);        
-      }
+  //     cx.clearRect(0,0, cx.canvas.width, cx.canvas.height);
 
 
-  }
+  //     canvas.width =  dims.w;
+  //     canvas.height = this.render.visibleRows.length * dims.h;
+
+  //     cx.fillStyle = "white";
+  //     cx.fillRect(0,0,canvas.width,this.render.visibleRows.length*dims.h);
+
+  //     for(var i = 0 ; i < this.render.visibleRows.length; i++){
+  //         this.drawWeftMaterialCell(draft, cx, i);        
+  //     }
+
+
+  // }
 
   private drawWarpMaterialCell(draft:Draft, cx:any, j:number){
-
+      console.log("THIS CX ", cx)
 
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom*2;
@@ -1122,20 +1129,24 @@ export class DraftviewerComponent implements OnInit {
   }
 
   incrementWarpMaterial(col: number){
-    const draft = this.tree.getDraft(this.id);
-    const material_mode: DesignMode = this.dm.getDesignMode('material', 'draw_modes');
 
-    if(material_mode.selected){
-        const material_id:string = material_mode.children[0].value;
-        draft.colShuttleMapping[col] = parseInt(material_id);
+    const warp = col;
+
+    const draft = this.tree.getDraft(this.id);
+    if(this.dm.isSelected('material', 'draw_modes')){
+      const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
+      draft.colShuttleMapping[warp] = parseInt(material_id);
     }else{
-      const newShuttle = this.ms.getNextShuttle( draft.colShuttleMapping[col]);
-     draft.colShuttleMapping[col] = newShuttle.id;
+      const len = this.ms.getShuttles().length;
+      var shuttle_id = draft.colShuttleMapping[warp];
+      var newShuttle = (shuttle_id + 1) % len;
+      draft.colShuttleMapping[warp] = newShuttle;
     }
 
     this.tree.setDraftOnly(this.id, draft);
-    this.drawWarpMaterialCell(draft, this.cxWarpMaterials,col);
     this.colShuttleMapping = draft.colShuttleMapping;
+
+   
   }
 
 

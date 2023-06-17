@@ -69,7 +69,6 @@ export class FileService {
       if(data.version !== undefined) version = data.version;
 
       if(data.workspace !== undefined){
-        console.log("LOADING SAVED WORKSPACE ", data.workspace)
         this.ws.loadWorkspace(data.workspace);
       }else{
         this.ws.initDefaultWorkspace();
@@ -84,8 +83,9 @@ export class FileService {
         }
       }
 
-      const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-    
+      const flips_required = utilInstance.getFlips(3, this.ws.selected_origin_option);
+      console.log("FLIPS REQUIRED ON LOAD ", flips_required)
+
       const loom_elements = []
       const loom_fns = []
       const draft_elements = [];
@@ -99,6 +99,7 @@ export class FileService {
 
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
         draft_nodes = data.draft_nodes;
+
         if(draft_nodes == undefined) draft_nodes = [];
 
         if(draft_nodes !== undefined){
@@ -140,6 +141,7 @@ export class FileService {
               : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles},
             render_colors: (node === undefined || node.render_colors === undefined) ? true : node.render_colors,
           }
+
           draft_nodes.push(dn);
 
           if(draft !== null && draft !== undefined){

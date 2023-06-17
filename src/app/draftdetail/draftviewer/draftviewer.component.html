@@ -38,9 +38,16 @@
             <a class="warp-system" (click)="incrementWarpSystem(j)"> {{ss.getWarpSystemCode(i)}}</a>
      
           <div class="warp-number-container">
-            <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol(j))" class="warp_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+            <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol(j))" class="warp_number origin{{ws.selected_origin_option}}">
+              <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j}}</ng-container>
+              <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j)}}</ng-container>
+            </span>      
           
-            <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>      
+            <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">
+              <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j+1}}</ng-container>
+              <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j) - 1}}</ng-container>
+              
+              </span>      
           </div>
             <div  class="warp_selectors">
             <span *ngIf="!viewonly"class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>

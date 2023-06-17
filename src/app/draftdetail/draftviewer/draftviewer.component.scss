@@ -87,6 +87,7 @@ canvas{
   width: fit-content;
   height: fit-content;
   margin: auto;
+  display: flex;
 
 }
 
@@ -319,7 +320,7 @@ canvas{
     .warp-systems-text.origin0,
     .warp-systems-text.origin1
     {
-      flex-direction: row-reverse;
+      flex-direction: row;
       justify-content: flex-start;
 
     }

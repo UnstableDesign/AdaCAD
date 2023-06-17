@@ -2065,6 +2065,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       let flip_fs = [];
       let ids = [];
       const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+      console.log("BEFORE SAVE GOT FLIPS ", flips)
       objs.forEach((obj, i) => {
         if(obj.draft !== null){
           flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
