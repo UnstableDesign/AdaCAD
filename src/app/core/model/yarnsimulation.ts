@@ -568,7 +568,7 @@ import {warps, wefts } from "./drafts";
  
 
   export const setLayerZ = (ilace_list: Array<WarpInterlacementTuple>, count: number, layer_spacing: number, warp_vtxs: Array<Array<YarnVertex>>) :  Array<Array<YarnVertex>> => {
-      if(count == 0) console.log("------COUNT 0 ", ilace_list);
+      // if(count == 0) console.log("------COUNT 0 ", ilace_list);
 
     ilace_list.forEach(ilace => {
 
@@ -646,7 +646,7 @@ import {warps, wefts } from "./drafts";
     let ilace_list: Array<WarpInterlacementTuple> = getInterlacementsBetweenWefts(i_active, i_check, j_start, j_end, draft);
     //if check is 0 there are no more rows to check and we should just return where we are. 
     if(i_check < 0){
-      console.log("we are at the end of the range, sending count ", count, ilace_list)
+      // console.log("we are at the end of the range, sending count ", count, ilace_list)
       return setLayerZ(ilace_list, count, layer_spacing, warp_vtxs);
     }
 
@@ -1066,7 +1066,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     compressed_weft.forEach((item, ndx) => {
       if(item.count < layer_threshold){
         //check left 
-        console.log("Removing below threshold elements")
+        // console.log("Removing below threshold elements")
         item.els.forEach(el => {
           mark_for_removal.push(el.id);
         })
@@ -1100,7 +1100,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
       shares_layer.forEach(topo_vtx => {
-        console.log("CHANGING ZPOS from to ", vtx.z_pos, topo_vtx.z_pos)
+        // console.log("CHANGING ZPOS from to ", vtx.z_pos, topo_vtx.z_pos)
         vtx.z_pos = topo_vtx.z_pos;
       })
 
@@ -1128,7 +1128,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       let a = warp_tuples.filter(el => el.i_top == i);
       let range = {j_left: 0, j_right: warps(draft.drawdown)-1}
       let verticies = getInterlacements( a, range, 0,  draft);
-      console.log("CHECKING ", i)
+      // console.log("CHECKING ", i)
       let corrected = correctInterlacementLayers(topology, verticies, sim.layer_threshold);
       
 
@@ -1140,7 +1140,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     
 
-    console.log("TOPO ", topology, topology.map(el => el.z_pos));
+    // console.log("TOPO ", topology, topology.map(el => el.z_pos));
 
 
 
@@ -1469,7 +1469,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
       //now clean up 
 
-      console.log("WARP LAYER MAP", layer_map)
+      // console.log("WARP LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
      
     }
@@ -1572,7 +1572,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         return acc;
       }, {min:10000, max:0});
 
-      console.log("RANGE ",range.max - range.min, diam/4 )
+      // console.log("RANGE ",range.max - range.min, diam/4 )
       //if(range.max - range.min > diam){
         weft.forEach(vtx => {
           vtx.y = range.max;

@@ -412,9 +412,12 @@ export class DraftviewerComponent implements OnInit {
 
     const frames = loom_settings.frames;
     const treadles =loom_settings.treadles;
+    let dims = this.render.getCellDims("base");
 
     const el = document.getElementById('drawdown');
-    console.log("DD OFFSET W", el.offsetWidth)
+  
+
+  // console.log("DIV COORDS", )
 
 
     //get dimis based on zoom.
@@ -423,17 +426,16 @@ export class DraftviewerComponent implements OnInit {
     //   h:  el.offsetHeight / this.render.visibleRows.length
     // }
 
-    let dims = this.render.getCellDims("base");
 
-    console.log("EVENT OFFSET and POS", event.offsetX-dims.w, event.offsetY-dims.h, dims.w*this.render.zoom)
-    var screen_row = Math.round((event.offsetY) / (dims.h));
-    var screen_col = Math.round((event.offsetX) / (dims.w));
+    var screen_row = Math.floor(event.offsetY / dims.h);
+    var screen_col = Math.floor(event.offsetX / dims.w);
 
     const currentPos: Interlacement = {
       si: screen_row,
       i: screen_row, //row
       j: screen_col, //col
     };
+
 
     if (event.target.localName === 'canvas') {
     

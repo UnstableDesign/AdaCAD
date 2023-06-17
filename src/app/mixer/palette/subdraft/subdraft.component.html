@@ -25,6 +25,12 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 
 
 				<button mat-icon-button
+				class="fa-solid fa-magnifying-glass"
+				matTooltip ="View Draft Details"
+				(click)="finetune()">
+				</button>
+
+				<button mat-icon-button
 				class="is-small fa-solid"
 				[class.fa-chess-board] = 'use_colors'
 				[class.fa-rug] = '!use_colors'
@@ -32,11 +38,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 				(click)="toggleDraftRendering()">
 				</button>
 
-				<button mat-icon-button
-				class="is-small fas fa-expand-alt"
-				matTooltip ="View Draft Details"
-				(click)="finetune()">
-				</button>
+			
 
 							<button mat-icon-button
 				[matMenuTriggerFor]="subdraftOptions"

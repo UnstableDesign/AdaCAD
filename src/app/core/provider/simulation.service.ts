@@ -398,7 +398,7 @@ export class SimulationService {
 
   showWarpLayerMap(){
     this.warp_layer_map_scene.visible = true;
-    console.log("SHOW WARP LAYER MAP", this.warp_layer_map_scene)
+    // console.log("SHOW WARP LAYER MAP", this.warp_layer_map_scene)
   }
 
   hideWeftLayerMap(){
@@ -407,7 +407,7 @@ export class SimulationService {
 
   showWeftLayerMap(){
     this.weft_layer_map_scene.visible = true;
-    console.log("SHOW LAYER MAP", this.weft_layer_map_scene)
+    // console.log("SHOW LAYER MAP", this.weft_layer_map_scene)
   }
 
   hideTopo(){
@@ -416,7 +416,7 @@ export class SimulationService {
 
   showTopo(){
     this.topo_scene.visible = true;
-    console.log("SHOW LAYER MAP", this.topo_scene)
+    // console.log("SHOW LAYER MAP", this.topo_scene)
   }
 
   drawWeftLayerMap(scene){
@@ -642,7 +642,7 @@ export class SimulationService {
   drawTopology(scene){
 
 
-    console.log("LAYER MAP DRAWN")
+    // console.log("LAYER MAP DRAWN")
     this.topo_scene =  new THREE.Group();
     const geometry = new THREE.BufferGeometry();
     let alldata = [];
