@@ -9,11 +9,11 @@ button{
     margin-bottom: 4px;
 }
 
-button i {
-    width: 24px;
-}
+// button i {
+//     width: 24px;
+// }
 
-.mat-divider{
+.mat-stroked-button{
      margin: 4px 0px;
 }
 
@@ -30,22 +30,19 @@ button i {
     font-size: .8em;
 }
 
-.file_name{
-    display: flex;
-    flex-direction: row;
-    width:80%;
-}
-
 .file-item-block{
     display: flex;
+    flex: 1 0 0px;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
+    padding: 4px 0px;
 }
 
-.fav{
-    width: 10%;
+.current{
+    color: #ff4081;
 }
+
 
 .more{
     display: flex;
@@ -67,18 +64,42 @@ button i {
 // }
 
 .timestamp{
-    color: grey;
-    font-size: 0.6em;
-    text-align: left;
     position: relative;
-    top: -12px;
     left: 16px;
+    font-size: .8em;
+    padding: 4px 0px;
 }
 
 .details{
-    width: 80%
+    width: inherit;
+    display: flex;
+    flex: 2 2 75%;
+    flex-direction: column;
 }
 
 .accent{
     color:#ff4081;
 }
+
+.details .mat-button{
+    height: fit-content !important;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.details .mat-button-wrapper{
+    display: flex;
+    white-space:normal;
+    text-overflow: clip ;
+    overflow-wrap: anywhere;
+    overflow: hidden;
+    line-height: 1em;
+    width: inherit;
+}
+
+.details .mat-icon-button{
+    width: 30px;
+    height: 30px;
+}
+

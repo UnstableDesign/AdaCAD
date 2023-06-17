@@ -40,10 +40,16 @@ import { FilebrowserComponent } from '../filebrowser/filebrowser.component';
 export class FilesystemService {
 
   file_tree_change$ = new Subject<any>();
+  file_saved_change$ = new Subject<any>();
+
   file_tree: Array<any> = [];
+
   current_file_id: number = -1;
   current_file_name: string = "draft"
   current_file_desc: string = "";
+
+  last_saved_time: number = 0;
+
   updateUItree: Observable<Array<any>>;
 
 
@@ -100,6 +106,10 @@ export class FilesystemService {
     
     
       });
+
+
+     
+   
 
   }
 
@@ -181,6 +191,23 @@ export class FilesystemService {
         name: newname});
     }
   }
+
+  updateDescription(fileid: number, desc: string){
+  
+    if(fileid === null || fileid == undefined) return; 
+    if(desc === null || desc === undefined) desc = ''; 
+    
+    this.current_file_desc = desc;
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if(user){
+      const db = getDatabase();
+      update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
+        desc: desc});
+    }
+  }
+
 
   generateFileId() : number{
     return utilInstance.generateId(8);
@@ -279,6 +306,9 @@ export class FilesystemService {
     const ref = fbref(db, 'filedata/'+fileid);
     update(ref,{ada: cur_state})
     .then(success => {
+      this.last_saved_time = Date.now();
+      this.file_saved_change$.next(this.last_saved_time);
+
     })
     .catch(err => {
       console.error(err);

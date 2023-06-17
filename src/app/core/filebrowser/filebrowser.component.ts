@@ -1,17 +1,17 @@
-import { Component, EventEmitter, OnInit, Optional, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
 import { AuthService } from '../provider/auth.service';
 import { FilesystemService } from '../provider/filesystem.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginComponent } from '../login/login.component';
-import { InitModal } from '../modal/init/init.modal';
 import { WorkspaceService } from '../provider/workspace.service';
 import { LoadfileComponent } from '../modal/loadfile/loadfile.component';
-
 
 @Component({
   selector: 'app-filebrowser',
   templateUrl: './filebrowser.component.html',
-  styleUrls: ['./filebrowser.component.scss']
+  styleUrls: ['./filebrowser.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+
 })
 export class FilebrowserComponent implements OnInit {
 
@@ -25,6 +25,7 @@ export class FilebrowserComponent implements OnInit {
   isLoggedIn = false;
   filelist = [];
   rename_mode = false;
+  last_saved_time = '--';
 
   constructor(
     public files: FilesystemService, 
@@ -35,11 +36,16 @@ export class FilebrowserComponent implements OnInit {
   
     this.filelist = this.files.file_tree;
 
-    this.files.file_tree_change$.subscribe(data => {
-      
-      this.updateFileData(data);
-    }
+      this.files.file_tree_change$.subscribe(data => {
+        
+        this.updateFileData(data);
+      }
     );
+
+    this.files.file_saved_change$.subscribe(data => {
+      this.last_saved_time =new Date(data).toUTCString();
+    });
+
 
 
   
@@ -93,6 +99,7 @@ export class FilebrowserComponent implements OnInit {
   rename(){
     if(this.rename_mode === true){
       this.files.renameFile(this.files.current_file_id, this.files.current_file_name);
+      this.files.updateDescription(this.files.current_file_id, this.files.current_file_desc);
       this.rename_mode = false;
     }else{
       this.rename_mode = true;
@@ -101,7 +108,6 @@ export class FilebrowserComponent implements OnInit {
   }
 
   remove(fileid: number){
-    console.log("removing ", fileid)
     this.files.removeFile(fileid);
     if(fileid === this.files.current_file_id){
       this.onCurrentFileDeleted.emit();

@@ -116,7 +116,6 @@ export class ParameterComponent implements OnInit {
    */
   onParamChange(value: any){
 
-    console.log("VAL ON CHANGE ", value)
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 
     switch(this.param.type){
