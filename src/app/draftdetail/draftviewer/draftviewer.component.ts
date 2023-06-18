@@ -308,6 +308,13 @@ export class DraftviewerComponent implements OnInit {
     return warpnum - j;
   }
 
+  getFlippedWeftNum(i: number) : number{
+    let draft = this.tree.getDraft(this.id);
+    let weftnum = wefts(draft.drawdown);
+
+    return weftnum - i;
+  }
+
   expand(){
     this.expanded = !this.expanded;
     this.onViewerExpanded.emit();
@@ -1261,6 +1268,8 @@ export class DraftviewerComponent implements OnInit {
     this.tree.setLoomAndRecomputeDrawdown(this.id, loom,loom_settings)
     .then(draft => {
       this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
+      this.tree.setDraftOnly(this.id, draft);
+      this.onDrawdownUpdated.emit(draft);
     })
      
     }
@@ -1305,6 +1314,8 @@ export class DraftviewerComponent implements OnInit {
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
+        this.tree.setDraftOnly(this.id, draft);
+        this.onDrawdownUpdated.emit(draft);
       });
     }
   }
@@ -1345,6 +1356,8 @@ export class DraftviewerComponent implements OnInit {
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
+        this.tree.setDraftOnly(this.id, draft);
+        this.onDrawdownUpdated.emit(draft);
       })
     }
    }

@@ -130,7 +130,6 @@ export class MixerComponent implements OnInit {
     ) {
 
 
-      console.log("SELECTED ORIGIN OPTION is ", this.ws.selected_origin_option)
       this.selected_origin = this.ws.selected_origin_option;
 
       this.origin_options = this.ws.getOriginOptions();
@@ -199,9 +198,20 @@ export class MixerComponent implements OnInit {
    //this.view_tool.updateViewPort(data);
   }
 
+
+
   closeDetailViewer(obj: any){
     this.show_details = false ; 
     this.details.windowClosed();
+  
+    //refresh all of the subdrafts
+    let tlds:Array<number> = this.tree.getTopLevelDrafts();
+    tlds.forEach(tld => {
+      let comp: SubdraftComponent = <SubdraftComponent>this.tree.getComponent(tld);
+      comp.redrawExistingDraft();
+    })
+
+
     this.palette.updateDownstream(obj).then(el => {
       this.palette.addTimelineState();
     });
@@ -1051,24 +1061,6 @@ zoomChange(e:any, source: string){
 
 
 
- 
-  /**
-   * global loom ahs just changed to be deafults, so we don't need to update specific looms based on the outcomes
-   * @param e 
-   */
-  public globalLoomChange(e: any){
-    
-    const dn = this.tree.getDraftNodes();
-    dn.forEach(node => {
-      const draft = this.tree.getDraft(node.id)
-      const loom = this.tree.getLoom(node.id)
-      const loom_settings = this.tree.getLoomSettings(node.id);
-      (<SubdraftComponent> node.component).drawDraft(draft)});
-    
-  }
-
-
-
   public notesChanged(e:any) {
     console.log(e);
     //this.draft.notes = e;
@@ -1169,12 +1161,10 @@ originChange(e:any){
       }
     }
   })
-.then(res => {
-  this.globalLoomChange({});
+
+
+
 })
-
-
-  })
 
   
 
@@ -1197,12 +1187,24 @@ epiChange(f: NgForm) {
 }
 
 
-
+/**
+ * when a user selects a new loom type, the software will pull all subdrafts and update their loom information 
+ * @param e 
+ * @returns 
+ */
 loomChange(e:any){
 
-    this.ws.type = e.value.loomtype;
-    if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
-    else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
+  console.log("e.value.loomtype", e.value.loomtype)
+   this.ws.type = e.value.loomtype;
+  if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+  else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
+  
+  const dn: Array<DraftNode> = this.tree.getDraftNodes();
+  dn.forEach(node => {
+    node.loom_settings.type = e.value.loomtype; 
+  })
+
+
 }
 
   unitChange(e:any){

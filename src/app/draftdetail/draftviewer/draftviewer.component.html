@@ -103,8 +103,16 @@
 
 
                 <div class="weft_indicies">
-                  <span *ngIf="(i % render?.getTextInterval() == 0 && !isLastRow(j))" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
-                  <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>      
+
+                <ng-container *ngIf="ws.selected_origin_option == 1 || ws.selected_origin_option == 2">
+                  <span *ngIf="(i % render?.getTextInterval() == 0 && !isLastRow(j))" class="weft_number origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)}}</span>      
+                  <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)-1}}</span>      
+                </ng-container>  
+                <ng-container *ngIf="ws.selected_origin_option == 0 || ws.selected_origin_option == 3">
+
+                <span *ngIf="(i % render?.getTextInterval() == 0 && !isLastRow(j))" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+                <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>      
+              </ng-container>  
                 </div>
 
                 <div class="weft_actions">

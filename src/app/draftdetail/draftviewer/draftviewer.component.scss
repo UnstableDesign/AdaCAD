@@ -23,12 +23,12 @@ canvas{
 }
 
 #threading{
-  padding-right: 10px;
+  padding-right: 15px;
   //width: fit-content;
 }
 
 #treadling{
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .controls{
@@ -163,7 +163,7 @@ canvas{
 
 .threading-tieup-spacer.origin3,
 .threading-tieup-spacer.origin2{
-  width: 10px;
+  width: 15px;
   display: block;
 }
 
@@ -251,7 +251,7 @@ canvas{
 .threading-tieup-container.origin1
 {
   flex-direction: row; 
-  padding-left: 10px;
+  padding-left: 15px;
 }
 
 .threading-tieup-container.origin2,
@@ -337,7 +337,7 @@ canvas{
     
     
     .warp-system-col{
-        width: 10px;
+        width: 15px;
         flex-grow: 1;
         color: #000;
         z-index: 1;
@@ -387,7 +387,7 @@ canvas{
 
     .warp-system-col.origin1
     {
-      flex-direction: column-reverse;
+      flex-direction: column;
       justify-content: flex-start;
 
     }
@@ -513,7 +513,7 @@ canvas{
   .weft-systems-text.origin1,
   .weft-systems-text.origin2
   {
-    flex-direction: column-reverse;
+    flex-direction: column;
  
   }
 
@@ -524,7 +524,7 @@ canvas{
   }
 
   .weft-system-row{
-    height: 10px;
+    height: 15px;
     display: flex;
     flex-grow: 1;
     color: #333;
