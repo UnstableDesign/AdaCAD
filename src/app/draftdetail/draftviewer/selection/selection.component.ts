@@ -89,7 +89,6 @@ export class SelectionComponent implements OnInit {
 
 
   designActionChange(action : string){
-    console.log("Design action", action)
 
 
     switch(action){
@@ -357,6 +356,7 @@ export class SelectionComponent implements OnInit {
     this.screen_width = this.width * this.render.getCellDims('base').w;
     this.screen_height = this.height * this.render.getCellDims('base').h;
     
+
   
   }
 
@@ -414,8 +414,8 @@ export class SelectionComponent implements OnInit {
       let abs_left = this.target.offsetLeft;
 
       if(this.target.id == 'drawdown'){
-        abs_top+=10;
-        abs_left+=10;
+        abs_top+=defaults.draft_detail_cell_size;
+        abs_left+=defaults.draft_detail_cell_size;
       } 
 
 

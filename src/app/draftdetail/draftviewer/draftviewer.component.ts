@@ -430,9 +430,6 @@ export class DraftviewerComponent implements OnInit {
 
     const frames = loom_settings.frames;
     const treadles =loom_settings.treadles;
-    let dims = this.render.getCellDims("base");
-
-    const el = document.getElementById('drawdown');
   
 
   // console.log("DIV COORDS", )
@@ -444,7 +441,7 @@ export class DraftviewerComponent implements OnInit {
     //   h:  el.offsetHeight / this.render.visibleRows.length
     // }
 
-
+    let dims = this.render.getCellDims("base");
     var screen_row = Math.floor(event.offsetY / dims.h);
     var screen_col = Math.floor(event.offsetX / dims.w);
 
@@ -474,6 +471,7 @@ export class DraftviewerComponent implements OnInit {
 
           currentPos.i -= 1;
           currentPos.j -= 1;
+          currentPos.si -=1;
 
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
@@ -578,20 +576,29 @@ export class DraftviewerComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
 
-    let dims ={
-      w: this.canvasEl.width / warps(draft.drawdown),
-      h:  this.canvasEl.height /this.render.visibleRows.length
-    };    
+
+    let dims = this.render.getCellDims("base");
+    // var screen_row = Math.floor(event.offsetY / dims.h);
+    // var screen_col = Math.floor(event.offsetX / dims.w);
+
+    // let dims ={
+    //   w: this.canvasEl.width / warps(draft.drawdown),
+    //   h:  this.canvasEl.height /this.render.visibleRows.length
+    // };    
+
+    
 
     var offset = this.render.getCellDims(this.dm.getSelectedDesignMode('design_modes').value);
-  
+
     // set up the point based on touched square.
-    var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
+    //var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
+     var screen_row = Math.floor(event.offsetY / dims.h);
+     var screen_col = Math.floor(event.offsetX / dims.w);
 
     const currentPos: Interlacement = {
       si: screen_row,
       i:  screen_row,
-      j:  Math.floor((event.offsetX + offset.x) / dims.w)
+      j:  screen_col
     };
 
    

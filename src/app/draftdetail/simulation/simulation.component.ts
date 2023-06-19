@@ -1,10 +1,12 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { TreeService } from '../../core/provider/tree.service';
 import { SimulationService } from '../../core/provider/simulation.service';
-import { Draft, LoomSettings } from '../../core/model/datatypes';
+import { Draft, Interlacement, LoomSettings } from '../../core/model/datatypes';
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
+import { createCell, getCellValue } from '../../core/model/cell';
+import { initDraftFromDrawdown } from '../../core/model/drafts';
 
 @Component({
   selector: 'app-simulation',
@@ -58,7 +60,6 @@ export class SimulationComponent implements OnInit {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
     this.renderer.setSize(div.offsetWidth, div.offsetHeight);
-    console.log("SIZE ", div.offsetWidth, div.offsetHeight);
     div.appendChild(this.renderer.domElement);
   }
 
@@ -115,6 +116,42 @@ export class SimulationComponent implements OnInit {
         this.showing_draft);
 
     })
+
+
+  }
+
+  /**
+   * creates a new draft from a subset of an input draft, and tells the simulator to draw that portion
+   * @param draft 
+   * @param loom_settings 
+   * @param start 
+   * @param end 
+   */
+  updateSelection(draft: Draft, loom_settings:LoomSettings, start: Interlacement, end: Interlacement){
+
+    let dd = [];
+    let rowShuttle = [];
+    let rowSystem = [];
+    let colShuttle = [];
+    let colSystem = [];
+    
+    for(let i = start.i; i < end.i; i++){
+        dd.push([]);
+        rowShuttle.push(draft.rowShuttleMapping[i]);
+        rowSystem.push(draft.rowSystemMapping[i]);
+
+      for(let j = start.j; j < end.j; j++){
+        if(i == start.i){
+          colShuttle.push(draft.colShuttleMapping[j]);
+          colSystem.push(draft.rowSystemMapping[j]);
+        }
+        dd[i-start.i].push(createCell(getCellValue(draft.drawdown[i][j])));
+      }
+    }
+
+    let new_draft = initDraftFromDrawdown(dd);
+    this.updateSimulation(new_draft, loom_settings);
+    
 
 
   }

@@ -136,9 +136,9 @@ export class DraftDetailComponent implements OnInit {
 
 
   tabChange(event: any){
-    if(event.index == 2){
-      this.crosssection.initScene();
-    }
+    // if(event.index == 2){
+    //   this.crosssection.initScene();
+    // }
   }
 
   expandSimulation(){
@@ -462,7 +462,7 @@ export class DraftDetailComponent implements OnInit {
 
   public updateSelection(e:any){
     if(e.copy !== undefined) this.copy = e;
-    if(e.id !== undefined) this.crosssection.updateSelection(this.tree.getDraft(e.id), e.start, e.end);
+    if(e.id !== undefined) this.simRef.updateSelection(this.tree.getDraft(e.id),this.tree.getLoomSettings(e.id), e.start, e.end);
   }
 
 
