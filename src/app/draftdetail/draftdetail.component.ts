@@ -225,7 +225,6 @@ export class DraftDetailComponent implements OnInit {
   }
 
   public onCloseDrawer(){
-    console.log("THIS DRAFT IS ", this.draft)
     this.closeDrawer.emit(this.id);
   }
 
@@ -483,11 +482,15 @@ export class DraftDetailComponent implements OnInit {
 
      if(e.source === "in"){
         this.render.zoomIn();
+        this.weaveRef.rescale(this.render.getZoom());
+
 
      } 
 
      if(e.source === "out"){
         this.render.zoomOut();
+        this.weaveRef.rescale(this.render.getZoom());
+
 
      } 
      if(e.source === "front"){

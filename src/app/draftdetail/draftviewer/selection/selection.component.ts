@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TreeService } from '../../../core/provider/tree.service';
-import { Interlacement, LoomSettings } from '../../../core/model/datatypes';
+import { Interlacement } from '../../../core/model/datatypes';
 import { numFrames, numTreadles } from '../../../core/model/looms';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { RenderService } from '../../provider/render.service';
-import { MatMenu } from '@angular/material/menu';
+import { defaults } from '../../../core/model/defaults';
 
 @Component({
   selector: 'app-selection',
@@ -407,8 +407,8 @@ export class SelectionComponent implements OnInit {
       let left_ndx = Math.min(this.start.j, this.end.j);
 
 
-      let in_div_top:number = top_ndx * 10;
-      let in_div_left:number = left_ndx * 10;
+      let in_div_top:number = top_ndx * defaults.draft_detail_cell_size;
+      let in_div_left:number = left_ndx * defaults.draft_detail_cell_size;
 
       let abs_top = this.target.offsetTop;
       let abs_left = this.target.offsetLeft;

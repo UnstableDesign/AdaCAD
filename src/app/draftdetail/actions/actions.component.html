@@ -112,7 +112,7 @@
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wesy', j)">
-      {{ss.weft_systems[sys].getChar()}}
+      {{system_codes[sys]}}
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
     </mat-chip>
     <input
@@ -126,8 +126,8 @@
       (matChipInputTokenEnd)="add($event)">
   </mat-chip-list>
   <mat-autocomplete #auto_wesy="matAutocomplete" (optionSelected)="selected('wesy', $event)">
-    <mat-option *ngFor="let sys of ss.weft_systems" [value]="system">
-      {{sys.getChar()}}
+    <mat-option *ngFor="let sys of system_codes" [value]="system">
+      {{sys}}
     </mat-option>
   </mat-autocomplete>
 </mat-form-field>

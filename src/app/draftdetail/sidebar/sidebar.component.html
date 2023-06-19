@@ -30,7 +30,7 @@
 
         <mat-menu #inks="matMenu">
             <ng-container *ngFor="let mode of dm.draw_modes">
-                <button 
+                <button *ngIf="mode.value !== 'material'"
             class="menu-button" 
             mat-menu-item 
             [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
@@ -38,7 +38,7 @@
             [disabled]= "viewonly"
             (click)="drawModeChange(mode.value)">
                 <span class="{{mode.icon}}"></span>
-                <span>{{mode.viewValue}}</span>
+                <span class="menu-item">{{mode.viewValue}}</span>
             </button>
             </ng-container>
 
@@ -128,7 +128,7 @@
 
     <div class="tool-chunk slider" >
 
-        <button color="primary" mat-icon-button><i class="fas fa-search-plus"></i></button>
+        <button color="primary" mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
         
         <div class="view_slider">
         <mat-slider 
@@ -142,7 +142,7 @@
         (change)="zoomChange($event, 'slider')"></mat-slider>
     </div> 
 
-       <button mat-icon-button color="primary"><i class="fas fa-search-minus"></i></button> 
+       <button mat-icon-button color="primary"  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button> 
        
 
 

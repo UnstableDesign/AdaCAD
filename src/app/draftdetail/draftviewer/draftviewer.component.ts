@@ -17,6 +17,7 @@ import { SelectionComponent } from './selection/selection.component';
 import { NgForm } from '@angular/forms';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import {defaults} from '../../core/model/defaults'
+import { K } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-draftviewer',
@@ -228,6 +229,8 @@ export class DraftviewerComponent implements OnInit {
 
   cell_size: number = 10;
 
+  system_codes: Array<string> = [];
+
  
    /// ANGULAR FUNCTIONS
    /**
@@ -252,6 +255,7 @@ export class DraftviewerComponent implements OnInit {
     this.loomtypes = dm.getOptionSet('loom_types');
     this.density_units = dm.getOptionSet('density_units');
     this.cell_size = defaults.draft_detail_cell_size;
+    this.system_codes = defaults.weft_system_codes;
 
   }
 
@@ -1711,6 +1715,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     var base_dims = this.render.getCellDims("base");
     this.colSystemMapping = draft.colSystemMapping;
+    this.rowSystemMapping = draft.rowSystemMapping;
 
     if(flags.drawdown !== undefined){
         this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
@@ -2742,7 +2747,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           warp_systems: true, 
           warp_materials: true,
         });
-        })
+      })
   
     }
   
@@ -2791,7 +2796,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   
         draft.drawdown = insertDrawdownRow(draft.drawdown,ndx, null);
         draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping,  ndx, 1)
-        draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping,  ndx, 0)
+        draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping,  ndx, 0);
+        this.render.updateVisible(draft);
         const utils = getLoomUtilByType(loom_settings.type);
         loom = utils.insertIntoTreadling(loom, ndx, []);
       }
@@ -2804,6 +2810,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping,  ndx)
         const utils = getLoomUtilByType(loom_settings.type);
         loom =  utils.deleteFromTreadling(loom, ndx);
+        this.render.updateVisible(draft);
+
       }
     }
   
@@ -2821,12 +2829,14 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     }else{
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
+
         this.redraw(draft, loom, loom_settings, {
           drawdown: true, 
           loom:true, 
           weft_systems: true, 
           weft_materials: true,
-        });    })
+        });    
+      })
     }
    
   }

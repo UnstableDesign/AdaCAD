@@ -149,6 +149,14 @@ export class SidebarComponent implements OnInit {
   }
 
 
+  zoomIn(){
+    this.onZoomChange.emit({source: 'in', val: -1});
+  }
+
+
+  zoomOut(){
+    this.onZoomChange.emit({source: 'out', val: -1});
+  }
 
   viewFront(e:any, value:any, source: string){
     e.source = source;

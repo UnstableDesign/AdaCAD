@@ -8,8 +8,8 @@ import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/a
 import {MatChipInputEvent} from '@angular/material/chips';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
-import { TreeService } from '../../core/provider/tree.service';
 import { System } from '../../core/model/datatypes';
+import { defaults } from '../../core/model/defaults';
 
 @Component({
   selector: 'app-actions',
@@ -33,6 +33,8 @@ export class ActionsComponent implements OnInit {
   selectable = true;
   removable = true;
   separatorKeysCodes: number[] = [ENTER, COMMA];
+
+  system_codes = defaults.weft_system_codes;
 
 
   warpSystemCtrl = new UntypedFormControl();
@@ -75,8 +77,6 @@ export class ActionsComponent implements OnInit {
   constructor(
     public ms: MaterialsService, 
     public ss: SystemsService,
-    private dialog: MatDialog,
-    private tree: TreeService,
     private dialogRef: MatDialogRef<ActionsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
 

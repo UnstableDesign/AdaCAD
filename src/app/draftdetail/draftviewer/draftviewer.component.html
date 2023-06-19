@@ -35,7 +35,7 @@
           [style.height.px]="cell_size-1"
           (click)="incrementWarpMaterial(j)">   
           </a>
-            <a class="warp-system" (click)="incrementWarpSystem(j)"> {{ss.getWarpSystemCode(i)}}</a>
+            <a class="warp-system" (click)="incrementWarpSystem(j)"> {{i+1}}</a>
      
           <div class="warp-number-container">
             <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol(j))" class="warp_number origin{{ws.selected_origin_option}}">
@@ -97,7 +97,7 @@
             </a>
             
             <a class="weft-system" (click)="incrementWeftSystem(j)"> 
-                  {{ss.getWeftSystemCode(rowSystemMapping[i])}}</a>
+                  {{ system_codes[rowSystemMapping[i]]}}</a>
 
                
 
