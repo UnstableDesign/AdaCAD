@@ -12,6 +12,7 @@ import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
+import { InletComponent } from './inlet/inlet.component';
 import { ParameterComponent } from './parameter/parameter.component';
 
 
@@ -25,6 +26,7 @@ export class OperationComponent implements OnInit {
 
 
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
+  @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
@@ -313,6 +315,20 @@ export class OperationComponent implements OnInit {
   visibilityChange(obj: any){
     this.onInputVisibilityChange.emit({id: this.id, ndx:  obj.inletid, ndx_in_inlets: obj.ndx_in_inlets, show: obj.show});
   }
+
+  /**
+   * resets the visibility on any inlet in the attached list
+   * @param inlets 
+   */
+  resetVisibliity(inlets: Array<number>){
+
+    inlets.forEach(id => {
+      const ilet = this.inletComps.find(el => el.inletid == id);
+      if(ilet !== undefined) ilet.show_connection_name = -1;
+    })
+  }
+
+
 
 
   removeConnectionTo(obj:any){

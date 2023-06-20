@@ -135,6 +135,10 @@ export class PaletteComponent implements OnInit{
    default_cell_size: number = 5;
 
    needs_init: boolean = true;
+
+   visible_op: number = -1;
+
+   visible_op_inlet: number = -1;
   
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
@@ -1939,8 +1943,35 @@ resetOpacity(){
  */
 updateVisibility(obj: any){
   {
+
     this.resetOpacity();
-    if(obj.show) this.highlightPathToInlet(obj.id, obj.ndx, obj.ndx_in_inlets);
+    if(obj.show == true){
+
+      //unset any no longer selected inlets
+      const ops:Array<OpNode> = this.tree.getOpNodes();
+      const not_selected = ops.filter(el => el.id !== obj.id);
+
+
+      not_selected.forEach((op, ndx) => {
+        const inlets = op.inlets.map((val, ndx)=> ndx);
+        (<OperationComponent>op.component).resetVisibliity(inlets);
+      })
+
+      let selected = ops.filter(el => el.id == obj.id);
+      if(selected.length > 0){
+        const inlets = selected[0].inlets.map((val, ndx)=> ndx).filter(el => el !== obj.ndx);
+        (<OperationComponent>selected[0].component).resetVisibliity(inlets);
+      }
+
+
+      this.highlightPathToInlet(obj.id, obj.ndx, obj.ndx_in_inlets);
+
+
+    }else{
+      this.visible_op = -1;
+      this.visible_op_inlet = -1;
+    }
+
   } 
 }
 
