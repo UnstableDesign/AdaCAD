@@ -1643,6 +1643,8 @@ connectionDragged(mouse: Point, shift: boolean){
  */
 calculateInitialLocaiton(id: number) : Point {
   
+  console.log("CALC INIT LOCATION")
+
   let new_tl =  this.viewport.getTopLeft(); 
   
 

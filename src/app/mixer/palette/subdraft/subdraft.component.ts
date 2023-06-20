@@ -160,7 +160,6 @@ export class SubdraftComponent implements OnInit {
     const tl: Point = this.viewport.getTopRight();
     const tl_offset = {x: tl.x - 250, y: tl.y + 200};
 
-
     if(this.topleft.x === 0 && this.topleft.y === 0) this.setPosition(tl_offset);
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
@@ -278,6 +277,7 @@ export class SubdraftComponent implements OnInit {
    * updates this components position based on the input component's position
    * */
   updatePositionFromParent(parent: OperationComponent, ndx: number){
+
 
     if(this.parent_id !== parent.id){
       console.error("attempitng to update subdraft position from non-parent operation",  this.parent_id, parent.id);

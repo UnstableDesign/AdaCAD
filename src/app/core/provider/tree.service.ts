@@ -477,7 +477,7 @@ export class TreeService {
 
    }
 
-   if(render_colors === undefined || render_colors === null)  (<DraftNode> nodes[0]).render_colors = true;
+   if(render_colors === undefined || render_colors === null)  (<DraftNode> nodes[0]).render_colors = false;
    else (<DraftNode> nodes[0]).render_colors = render_colors;
    //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode> nodes[0]))
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
@@ -2065,7 +2065,6 @@ isValidIOTuple(io: IOTuple) : boolean {
       let flip_fs = [];
       let ids = [];
       const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-      console.log("BEFORE SAVE GOT FLIPS ", flips)
       objs.forEach((obj, i) => {
         if(obj.draft !== null){
           flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
