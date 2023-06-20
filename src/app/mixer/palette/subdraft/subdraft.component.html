@@ -166,6 +166,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 			<button 
 			id = "{{id}}-out" 
 			class="output"
+			[class.active]="selecting_connection"
 			matTooltip = "connect this draft to an operation"
 			(click)="connectionStarted(id)">
 			<i class="fa-sharp fa-solid fa-circle-down"></i>

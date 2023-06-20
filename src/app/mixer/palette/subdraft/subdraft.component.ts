@@ -404,14 +404,25 @@ export class SubdraftComponent implements OnInit {
   }
 
   connectionStarted(event: any){
-    this.selecting_connection = true;
-    
-    this.disableDrag();
 
-    this.onConnectionStarted.emit({
-      event: event,
-      id: this.id
-    });
+    if(this.selecting_connection == true){
+      this.selecting_connection = false;
+      this.onConnectionStarted.emit({
+        type: 'stop',
+        event: event,
+        id: this.id
+      });
+    }else{ 
+      this.selecting_connection = true;
+      
+      this.disableDrag();
+
+      this.onConnectionStarted.emit({
+        type: 'start',
+        event: event,
+        id: this.id
+      });
+    }
 
   }
 

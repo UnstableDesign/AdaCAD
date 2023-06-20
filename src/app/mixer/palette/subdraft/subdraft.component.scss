@@ -188,10 +188,13 @@ button.output{
 	border: none;
 }
 
+button.output.active,
 button.output:active,
 button.output:hover{
 	color: #ff3860;
 }
+
+
 
 .single_line{
 	display: flex;

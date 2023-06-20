@@ -1423,11 +1423,29 @@ handlePan(diff: Point){
   */
  onConnectionStarted(obj: any){
 
+  if(obj.type == 'stop'){
+    this.selecting_connection = false;
+    this.tree.unsetOpenConnection();
+    this.processConnectionEnd();
+    return;
+  }
+
+
   const valid = this.tree.setOpenConnection(obj.id);
   if(!valid) return;
 
   this.changeDesignmode('operation');
   this.selecting_connection = true;
+
+  //make sure to unselect anything else that had previously been selected
+  const all_drafts = this.tree.getDraftNodes();
+  const not_selected = all_drafts.filter(el => el.id !== obj.id);
+  not_selected.forEach(node => {
+    let comp = <SubdraftComponent>node.component;
+    comp.selecting_connection = false;
+  })
+
+
 
   const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
 
@@ -1631,7 +1649,7 @@ connectionDragged(mouse: Point, shift: boolean){
 
   
   const sd: SubdraftComponent = this.tree.getOpenConnection();
-  sd.connectionEnded();
+  if(sd !== null) sd.connectionEnded();
   this.tree.unsetOpenConnection();
 } 
 
@@ -2287,6 +2305,10 @@ drawStarted(){
   */
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
+
+      if(this.selecting_connection == true){
+        this.processConnectionEnd();
+      }
 
       if(this.needs_init){
       //this is a hack to update the screen posiitons because not all inforamtion is ready when onload and onview init completes
