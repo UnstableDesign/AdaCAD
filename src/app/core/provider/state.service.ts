@@ -22,6 +22,7 @@ export class StateService {
 
   active_id = 0;
   max_size = 10;
+  last_saved_time: string = "";
   undo_disabled: boolean;
   redo_disabled: boolean;
   timeline: Array<HistoryState>; //new states are always pushed to front of draft

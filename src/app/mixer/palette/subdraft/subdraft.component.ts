@@ -968,24 +968,25 @@ export class SubdraftComponent implements OnInit {
   
     async saveAsPrint() {
      
-      let dims = this.scale;
-      let b = this.bitmap.nativeElement;
-      let context = b.getContext('2d');
+      // let dims = this.default_cell;
+      // let b = this.bitmap.nativeElement;
+      // let context = b.getContext('2d');
 
-      const draft = this.tree.getDraft(this.id);
+      // console.log(dims)
+       const draft = this.tree.getDraft(this.id);
 
 
-      b.width = warps(draft.drawdown) * dims;
-      b.height = wefts(draft.drawdown) * dims;
+      // b.width = warps(draft.drawdown) * dims;
+      // b.height = wefts(draft.drawdown) * dims;
       
-      context.fillStyle = "white";
-      context.fillRect(0,0,b.width,b.height);
+      // context.fillStyle = "white";
+      // context.fillRect(0,0,b.width,b.height);
       
 
-      context.drawImage(this.draft_canvas, 0, 0);
+      // context.drawImage(this.draft_canvas, 0, 0);
 
       const a = document.createElement('a')
-      return this.fs.saver.jpg(b)
+      return this.fs.saver.jpg(this.draft_canvas)
         .then(href => {
           a.href =  href;
           a.download = getDraftName(draft) + ".jpg";

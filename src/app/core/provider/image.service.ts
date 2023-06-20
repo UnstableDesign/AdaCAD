@@ -100,12 +100,6 @@ export class ImageService {
           return Promise.reject(filewarning);
         } 
 
-
-        
-
-     
-
-
         /**this is expensive, so just do a fast run to make sure the size is okay before we go into this */
         const unique = utilInstance.filterToUniqueValues(just_hex);
 
