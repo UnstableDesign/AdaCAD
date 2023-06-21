@@ -5,8 +5,9 @@ import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
 import { Draft, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
-import { warps, wefts } from '../model/drafts';
+import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
 import { getCellValue } from '../model/cell';
+import { Sequence } from '../model/sequence';
 
 
 @Injectable({
@@ -49,6 +50,71 @@ export class SimulationService {
     this.hasSimulation = false;
   }
 
+  private tileDraft(draft: Draft, boundary: number) : Promise<Draft>{
+    //extend to left and right top and bottom
+    let pattern = new Sequence.TwoD();
+    let weft_mats = new Sequence.OneD();
+    let weft_sys  = new Sequence.OneD();
+    let warp_mats = new Sequence.OneD();
+    let warp_sys = new Sequence.OneD();
+
+    draft.drawdown.forEach((row, ndx) => {
+      let seq = new Sequence.OneD().import(row);
+      weft_mats.push(draft.rowShuttleMapping[ndx]);
+      weft_sys.push(draft.rowSystemMapping[ndx]);
+
+      if(ndx == 0){
+        warp_mats.import(draft.colShuttleMapping);
+        warp_sys.import(draft.colSystemMapping)
+      }
+
+      for(let i = 0; i < boundary; i++){
+        
+        seq.push(getCellValue(row[i%row.length]));
+        let from_end = (i%row.length);
+        seq.unshift(getCellValue(row[(row.length -1 -from_end)]))
+
+        if(i == 0){
+
+          warp_mats.push(draft.colShuttleMapping[i%row.length]);
+          warp_mats.push(draft.colShuttleMapping[(row.length -1 -from_end)])
+          warp_sys.push(draft.colSystemMapping[i%row.length]);
+          warp_sys.push(draft.colSystemMapping[(row.length -1 -from_end)])
+
+        }
+      
+      }
+
+
+      pattern.pushWeftSequence(seq.val());
+    })
+
+    let extended_pattern = new Sequence.TwoD().import(pattern.export());
+    for(let i = 0; i < boundary; i++){
+      let row = pattern.getWeft(i);
+      extended_pattern.pushWeftSequence(row);
+
+      let offset = i % wefts(draft.drawdown);
+      let ending_row = pattern.getWeft(wefts(draft.drawdown) -1 - offset);
+      extended_pattern.unshiftWeftSequence(ending_row);
+
+      weft_mats.push(draft.rowShuttleMapping[i]);
+      weft_sys.push(draft.rowSystemMapping[i]);
+      weft_mats.unshift(draft.rowShuttleMapping[wefts(draft.drawdown) -1 - offset]);
+      weft_sys.unshift(draft.rowSystemMapping[wefts(draft.drawdown) -1 - offset]);
+
+
+    }
+  
+    const expanded_draft = initDraftFromDrawdown(extended_pattern.export());
+    expanded_draft.colShuttleMapping = warp_mats.val();
+    expanded_draft.colSystemMapping = warp_sys.val();
+    expanded_draft.rowShuttleMapping = weft_mats.val();
+    expanded_draft.rowSystemMapping = weft_sys.val();
+
+    return Promise.resolve(expanded_draft);
+  }
+
 
   /**
    * generates a new simulation with the given draft and simulation parameters
@@ -58,7 +124,7 @@ export class SimulationService {
    */
   public generateSimulationData(draft: Draft, sim: SimulationVars) : Promise<SimulationData>{
 
-   
+   console.log("GENERATING SIM DATA ");
 
     const currentSim:SimulationData  = {
       draft: draft, 
@@ -69,17 +135,18 @@ export class SimulationService {
       top: 0, 
       right: 0
     };
-    
 
-
-    return getDraftTopology(draft, sim).then(
+    return this.tileDraft(draft, 10).then(expandeddraft => {
+      currentSim.draft = expandeddraft;
+      return getDraftTopology(currentSim.draft, sim)
+    }).then(
       topology => {
       currentSim.topo = topology;
-      return createLayerMaps(draft, topology, sim);
+      return createLayerMaps(currentSim.draft, topology, sim);
       }
     ).then(lm => {
       currentSim.layer_maps = lm;
-      return translateTopologyToPoints(draft,  currentSim.topo, lm, sim);
+      return translateTopologyToPoints(currentSim.draft,  currentSim.topo, lm, sim);
 
     }).then(vtxs => {
 

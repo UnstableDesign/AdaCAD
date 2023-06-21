@@ -3,6 +3,7 @@ import { MaterialsService } from "../provider/materials.service";
 import { getCellValue } from "./cell";
 import {  Cell, Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnVertex } from "./datatypes";
 import {warps, wefts } from "./drafts";
+import { Sequence } from "./sequence";
 
 
   // export const getPreviousInterlacementOnWarp = (drawdown: Drawdown, j: number, cur: number) : number => {
@@ -42,239 +43,6 @@ import {warps, wefts } from "./drafts";
 
 
 
-  // export const getDraftTopology = (drawdown: Drawdown) : {warps: SystemVerticies, wefts: SystemVerticies} => {
-
-  //   const all_warps: SystemVerticies = [];
-  //   const all_wefts: SystemVerticies = [];
-
-  //   //position each warp first. 
-  //   for(let j = 0; j < warps(drawdown); j++){
-  //     const col = getCol(drawdown, j);
-      
-  //     const col_vtx: Array<YarnVertexExpression> = [];
-  //     const acc_vtx: YarnVertexExpression =  {
-  //       x: {push: 1.5*j, pack: 0},
-  //       y: {push: 0, pack: 0},
-  //       z: {push: 0, pack: 0},
-  //     }
-  //     let last: Cell = new Cell(false);
-  //     col.forEach((cell, i) => {
-        
-  //       if(cell.isSet() && i > 0){
-
-         
-  //         acc_vtx.z.push = (cell.getHeddle()) ? .5  : 0;
-
-  //         if(cell.getHeddle() != last.getHeddle()){
-  //           acc_vtx.y.push++;
-  //         }else{
-  //           acc_vtx.y.pack++;
-  //         }
-  //       }
-  //       //deep copy by manually assigning. 
-  //       col_vtx.push({
-  //         x: {push: acc_vtx.x.push, pack: acc_vtx.x.pack},
-  //         y: {push: acc_vtx.y.push, pack: acc_vtx.y.pack},
-  //         z: {push: acc_vtx.z.push, pack: acc_vtx.z.pack},
-  //       });
-
-  //       last = new Cell(cell.getHeddle());
-
-  //     });
-
-  //     all_warps.push(col_vtx.slice());
-
-  //   }
-    
-
-  //   const weft_floats = analyzeWeftFloats(drawdown);
-  //   const wefts:Array<Array<YarnVertexExpression>> = [];
-   
-  //   drawdown.forEach((row, i) => {
-  //     const single_weft = [];
-  //     row.forEach((cell, j) => {
-      
-  //       const warp_vtx:YarnVertexExpression = all_warps[j][i];
-  //       const assoc_float = weft_floats[i].find(el => (j >= el.start && j < el.start + el.total_length));
-  //       const middle = assoc_float.total_length/2;
-  //       const float_position = middle - Math.abs((j - assoc_float.start) - middle);
-  //       const linear_position = j - assoc_float.start;
-  //       const adj_float = assoc_float.total_length -1;
-
-  //      // need to check something here about setting a limit on how far a single warp can be pushed. 
-  //       const y_start = calculateWeftFloatPosition(drawdown, i, all_warps, assoc_float.start);
-  //       const y_end = calculateWeftFloatPosition(drawdown, i, all_warps, assoc_float.start + adj_float);
-  //       const y_span = {push: y_end.push - y_start.push, pack: y_end.pack - y_start.pack}
-
-  //       let vtx = {
-  //         x: {push: warp_vtx.x.push, pack: warp_vtx.x.pack},
-  //         y: {push: y_start.push, pack: y_start.pack},
-  //         z: {push: warp_vtx.z.push, pack: warp_vtx.z.pack},
-  //       }
-
-  //       if(adj_float > 0){
-  //         vtx.y.push += linear_position/adj_float*y_span.push;
-  //         vtx.y.pack += linear_position/adj_float*y_span.pack;
-  //       }
-
-  //       //push z based on weft position 
-  //       const ortho = (float_position+1) * .5;
-  //       let layer = 0;
-  //       // const layer = (i - start_pack_to > 0) ? .5 : 0;
-  //       if(assoc_float.heddle == true){
-  //         vtx.z.pack -= ortho;
-  //         vtx.z.push -= layer;
-  //         warp_vtx.z.push -= layer;
-  //       }else{
-  //         vtx.z.pack += ortho;
-  //         vtx.z.push += layer;
-  //         warp_vtx.z.push += layer;
-  //       }
-
-
-
-  //       single_weft.push(vtx);
-  //     });
-  //     wefts.push(single_weft.slice());
-  //   });
-
-
-  //   return {warps: all_warps, wefts: wefts};
-  // }
-
-  /**
-   * compute based on material thicknesses and inputs of push and pack factors
-   */
-  // export const evaluateVerticies = (warps_exps: SystemVerticies, wefts_exps: SystemVerticies, push_factor: number, pack_factor: number) : {warps:Array<Array<YarnVertex>>,  wefts: Array<Array<YarnVertex>>}  =>  {
-
-  //   const warps: Array<Array<YarnVertex>> = [];
-
-  //   warps_exps.forEach((warp_exps, j) =>{
-  //     const warp_vtxs: Array<YarnVertex> = [];
-  //     let vtx:YarnVertex = {x: 0, y: 0, z: 0};
-  //     warp_exps.forEach((exp, i) => {
-
-  //       vtx = {
-  //         x: exp.x.push * push_factor + exp.x.pack * pack_factor,
-  //         y: exp.y.push * push_factor + exp.y.pack * pack_factor,
-  //         z: exp.z.push * push_factor + exp.z.pack * pack_factor,
-  //       }
-
-  //       warp_vtxs.push(vtx);
-
-  //     });
-  //     warps.push(warp_vtxs.slice())
-  //   });
-
-  //   const wefts: Array<Array<YarnVertex>> = [];
-
-  //   wefts_exps.forEach((weft_exp, i) =>{
-  //     let vtx:YarnVertex = {x: 0, y: 0, z: 0};
-  //     const weft_vtxs: Array<YarnVertex> = [];
-
-  //     //console.log(weft_exp);
-  //     weft_exp.forEach((exp, j) => {
-
-  //       vtx = {
-  //         x: exp.x.push * push_factor + exp.x.pack * pack_factor,
-  //         y: exp.y.push * push_factor + exp.y.pack * pack_factor,
-  //         z: exp.z.push * push_factor + exp.z.pack * pack_factor,
-  //       }
-  //       weft_vtxs.push(vtx);
-  //     });
-  //     wefts.push(weft_vtxs.slice())
-  //   });
-
-  //   return {warps, wefts};
-  // }
-
-
-  /**
-   * weft forces are added by looking at the warp interlacements and seeing if they repel or attact the wefts together
-   * @param fg the force graph we are calculating
-   * @param i the current weft row
-   * @param j the current warp col
-   * @param dd the drawdown
-   * @returns 
-   */
-  // export const addWeftForces = (fg:Array<Array<InterlacementForceVector>>, i: number, j: number, dd: Drawdown) : Array<Array<InterlacementForceVector>> => {
-   
-  //   if(i+1 >= wefts(dd)) return fg; 
-
-  //   const cur_cell = dd[i][j].getHeddle();
-  //   const next_cell = dd[i+1][j].getHeddle();
-
-  //   if(cur_cell == null || next_cell) return fg;
-
-  //   //warp interlacements repel neighboring wefts away from eachother
-  //   if(cur_cell !== next_cell){
-  //     fg[i][j].fweft.y += -1;
-  //     fg[i+1][j].fweft.y += 1;
-  //   }else{
-  //   //warp floats attact 
-  //   fg[i][j].fweft.y += 1;
-  //   fg[i+1][j].fweft.y += -1;
-
-  //   }
-
-  //   return fg;
-
-  // }
-
-  /**
-   * warp forces (e.g. forces pushing the warps apart or together) are added by looking at the WEFT interlacements and seeing if they repel or attact the warps together
-   * @param fg the force graph we are calculating
-   * @param i the current weft row
-   * @param j the current warp col
-   * @param dd the drawdown
-   * @returns the modified force graph
-   */
-  // export const addWarpForces = (fg:Array<Array<InterlacementForceVector>>, i: number, j: number, dd: Drawdown) : Array<Array<InterlacementForceVector>> => {
-   
-  //   if(j+1 >= warps(dd)) return fg; 
-
-  //   const cur_cell = dd[i][j].getHeddle();
-  //   const next_cell = dd[i][j+1].getHeddle();
-
-  //   if(cur_cell == null || next_cell) return fg;
-
-  //   //warp interlacements repel neighboring wefts away from eachother
-  //   if(cur_cell !== next_cell){
-  //     fg[i][j].fwarp.x += -1;
-  //     fg[i][j+1].fwarp.x += 1;
-  //   }else{
-  //     //warp floats attact 
-  //     fg[i][j].fwarp.x += 1;
-  //     fg[i][j+1].fwarp.x += -1;
-  //   }
-
-  //   return fg;
-
-  // }
-
-  // export const updateForces = (fg:Array<Array<InterlacementForceVector>>, i: number, j: number, material: YarnSimSettings) : Array<Array<InterlacementForceVector>> => {
-   
-  //   if(j+1 >= warps(dd)) return fg; 
-
-  //   const cur_cell = dd[i][j].getHeddle();
-  //   const next_cell = dd[i][j+1].getHeddle();
-
-  //   if(cur_cell == null || next_cell) return fg;
-
-  //   //warp interlacements repel neighboring wefts away from eachother
-  //   if(cur_cell !== next_cell){
-  //     fg[i][j].fwarp.x += -1;
-  //     fg[i][j+1].fwarp.x += 1;
-  //   }else{
-  //     //warp floats attact 
-  //     fg[i][j].fwarp.x += 1;
-  //     fg[i][j+1].fwarp.x += -1;
-  //   }
-
-  //   return fg;
-
-  // }
-
 
 
   /**
@@ -288,41 +56,6 @@ import {warps, wefts } from "./drafts";
 
 
   }
-
-  /**
-   * This is a second strategy that uses interlacement data to create force vectors on any given yarn. 
-   */
-
-  // export const computeYarnForcesFromDrawdown = (dd: Drawdown) =>{
-
-  //   let fgraph: Array<Array<InterlacementForceVector>> = [];
-
-  //   //initialize blank vectors
-  //   dd.forEach((weft, i) => {
-  //     weft.forEach((warp, j) => {
-  //       const vec: InterlacementForceVector = {fweft: {x: 0, y: 0, z: 0}, fwarp:  {x: 0, y: 0, z: 0}};
-  //       fgraph[i].push(vec);
-  //     });
-  //   });
-
-  //   //create an initial force graph based only on the values of the drawdown
-  //   for(let i = 0; i < wefts(dd); i++){
-  //     for(let j = 0; j < warps(dd); j++){
-  //       fgraph = addWeftForces(fgraph, i, j, dd);
-  //       fgraph = addWarpForces(fgraph, i, j, dd);
-  //     }
-  //   }
-
-  //   //update z based on float data
-  //   const float_data = createWeftFloatMap(dd);
-  //   const float_list = float_data.float_list; 
-  //   const float_map = float_data.float_map;
-
-  //   float_map.forEach((row, i) => {
-  //     float_map
-  //   })
-
-  // }
 
   
   export const areInterlacement = (a: Cell, b: Cell) : boolean => {
@@ -351,10 +84,11 @@ import {warps, wefts } from "./drafts";
     const ilace_list: Array<WarpInterlacementTuple> = [];
     
     for(let i = 0; i < wefts(dd); i++){
+      let i_top = i+1;
+      let i_bot = i;
+
       for(let j = 0; j < warps(dd); j++){
 
-        let i_top = i+1;
-        let i_bot = i;
 
         if(i_top !== wefts(dd)){
 
@@ -528,7 +262,6 @@ import {warps, wefts } from "./drafts";
 
     for(let j =j_start; j <= j_end; j++){
       
-    9
       const are_interlacements = areInterlacement(draft.drawdown[i_active][j], draft.drawdown[i_check][j]);
       if(are_interlacements) ilace_list.push({
         i_top: i_active,
@@ -1115,10 +848,15 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
    * this function takes a draft and input variables and uses those to generate a list of vertexes between which yarns will cross on the z plane. These points are used to determine how layers are formed and how yarns will stack relative to eacother. 
    */
   export const getDraftTopology = (draft: Draft, sim: SimulationVars) : Promise<Array<TopologyVtx>> => {
-    const dd = draft.drawdown;
+    let boundary = 10;
+    let dd = draft.drawdown;
+
+    //extend the drawdown by boundary in all directions so that we can eliminate strange data that emerges from drafts that don't have enough interlacements because they are small. This artifically tiles the draft to get more fidelity. 
+
+
+
     const warp_tuples = getWarpInterlacementTuples(dd);
     let topology: Array<TopologyVtx> = [];
-
 
   
     //look at each weft
@@ -1126,9 +864,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
       //get the interlacements associated with this row
       let a = warp_tuples.filter(el => el.i_top == i);
+
       let range = {j_left: 0, j_right: warps(draft.drawdown)-1}
+
       let verticies = getInterlacements( a, range, 0,  draft);
-      // console.log("CHECKING ", i)
+
       let corrected = correctInterlacementLayers(topology, verticies, sim.layer_threshold);
       
 
@@ -1353,6 +1093,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
 
+
       return createWarpLayerMap(draft, topo, sim, active_layers, max_layer)
       .then(warps => {
         layer_maps.warp = warps;
@@ -1391,11 +1132,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       }
 
       
-
+      console.log("MAX HEIGHT", max_height)
       //go through layers 0 -> max and push interlacements to the layer map 
       for(let i = 1; i <= max_height; i++){
           let layer_ilace = topo.filter(ilace => ilace.i_top-ilace.i_bot == i);
-          // console.log("CHECKING ILACES OF SIZE ", i, layer_ilace)
+           console.log("CHECKING ILACES OF SIZE ", i, layer_ilace)
           layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height); 
       //  console.log("WARP LAYER MAP ", layer_map.slice())
       }
@@ -1469,7 +1210,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
       //now clean up 
 
-      // console.log("WARP LAYER MAP", layer_map)
+       console.log("WARP LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
      
     }
