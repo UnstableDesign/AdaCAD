@@ -1,5 +1,6 @@
 <mat-toolbar class="topbar" color="primary">
 
+  <div class="left">
   <button mat-icon-button
   (click)=" collapse()"
   class="collapse" 
@@ -11,22 +12,24 @@
   aria-hidden="true"></i>
   </button>
 
-     <div>AdaCAD</div>
-<!-- 
+     <div class="titlebar">AdaCAD 4.0, <i>beta</i></div>
+
      <button mat-icon-button
      (click)="openAboutDialog()"
      matTooltip ="about AdaCAD"
      >
      <i class="fas fa-info-circle"></i>
-    </button> -->
+    </button>
+    </div>
+
+    <div class="right">
 
 
-
-
-  <div class="auth" *ngIf="(auth.showLogoutButton)">
-    Hi {{auth.username}} <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+      <div class="auth" *ngIf="(auth.showLogoutButton)">
+        <span class="loggedInUserName">Hi {{auth.username}} </span>
+        <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+      </div>
   </div>
-  
 
 
 
@@ -42,3 +45,40 @@
 
 
 </mat-toolbar>
+
+<div class="betadesc">
+  <p>
+  This is a new/"beta" release of AdaCAD 4.0. This release has more features, including file loading/saving, multiselection, simulation, but has not been tested as extensively as our previous version of AdaCAD. <b>Use at your own risk.</b> 
+  </p>
+  <p>
+  If you would like to use the existing, and stable, version of AdaCAD, you can do so here: 
+  <a href="http://adacad.org" class="mat-stroked-button stable" >
+    use stable version at: adacad.org
+  </a>
+  </p>
+
+  <p>
+    If you would like to use use this version, we reccomend logging in or creating an account and watching our video about how to use this new version. This will allow you to load and save files within AdaCAD: </p>
+    
+    <div class="buttonrow">
+    
+    <div *ngIf="!auth.isLoggedIn">
+      <button mat-stroked-button class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
+    </div>
+
+    <div *ngIf="auth.isLoggedIn">
+      You are already logged in!
+    </div>
+
+
+    <!-- <a href="http://adacad.org" class="mat-stroked-button" >
+      Watch Intro Video
+     </a>
+      -->
+    </div>
+
+
+
+</div>
+
+

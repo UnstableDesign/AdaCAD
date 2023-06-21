@@ -3,6 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { LoginComponent } from '../login/login.component';
 import { AboutModal } from '../modal/about/about.modal';
 import { AuthService } from '../provider/auth.service';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-topbar',
@@ -23,7 +24,7 @@ export class TopbarComponent implements OnInit {
 
 
 
-  constructor(private dialog: MatDialog, public auth: AuthService) { }
+  constructor(private dialog: MatDialog, public auth: AuthService, private location: Location) { }
 
   ngOnInit(){
   }
@@ -31,6 +32,7 @@ export class TopbarComponent implements OnInit {
   ngAfterViewInit() {
 
   }
+
 
 
 

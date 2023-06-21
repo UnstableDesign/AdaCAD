@@ -36,7 +36,6 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
 import { SimulationComponent } from './simulation/simulation.component';
 
-
 @NgModule({
     declarations: [
         DraftDetailComponent,

@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class VersionService {
 
-  private version: string = '3.4.9'
+  private version: string = '4.0.0'
 
   constructor() { }
 

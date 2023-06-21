@@ -406,7 +406,6 @@ export class OperationComponent implements OnInit {
   }
 
   drawImagePreview(){
-    console.log("CHILDREN ", this.paramsComps)
     let param = this.paramsComps.get( (<DynamicOperation>this.op).dynamic_param_id)
     param.drawImagePreview();
   }

@@ -1,5 +1,21 @@
 
+.left, 
+.right{
+    display: flex;
+    flex-direction: row;
+}
 
+.betadesc{
+    padding: 0px 40px;
+    font-size: .8em;
+    color: white;
+    background-color: #3f51b5;
+}
+
+.login{
+    background-color: white;
+    color: #3f51b5;
+}
 
 
 .filename{
@@ -11,7 +27,41 @@
 .auth{
     font-size: .6em;
     font-weight: 400;
+    display: flex;
+    flex-direction: row;
 
+}
+
+.titlebar{
+    font-size: 0.8em;
+    color: white;
+    display: inline;
+    line-height: 25px;
+}
+
+.buttonrow{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.loggedInUserName{
+    display: flex;
+    line-height: 26px;
+}
+
+.stable{
+    background-color: white;
+    color: #3f51b5;
+    display: block;
+}
+
+p{
+    padding: 8px 0px;
+}
+
+a{
+    display: inline-block;
 }
 
 
