@@ -8,6 +8,7 @@ import { Draft, SimulationData, SimulationVars, YarnVertex } from '../model/data
 import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
 import { getCellValue } from '../model/cell';
 import { Sequence } from '../model/sequence';
+import { from } from 'rxjs';
 
 
 @Injectable({
@@ -69,31 +70,36 @@ export class SimulationService {
         warp_sys.import(draft.colSystemMapping)
       }
 
+      //first, expand rows
       for(let i = 0; i < boundary; i++){
         
         seq.push(getCellValue(row[i%row.length]));
         let from_end = (i%row.length);
         seq.unshift(getCellValue(row[(row.length -1 -from_end)]))
 
-        if(i == 0){
+        if(ndx == 0){
 
           warp_mats.push(draft.colShuttleMapping[i%row.length]);
-          warp_mats.push(draft.colShuttleMapping[(row.length -1 -from_end)])
+          warp_mats.unshift(draft.colShuttleMapping[(row.length -1 -from_end)])
           warp_sys.push(draft.colSystemMapping[i%row.length]);
-          warp_sys.push(draft.colSystemMapping[(row.length -1 -from_end)])
+          warp_sys.unshift(draft.colSystemMapping[(row.length -1 -from_end)])
 
         }
       
       }
       pattern.pushWeftSequence(seq.val());
+
     })
+
+    console.log("PATTERN ", pattern)
+    console.log("WARP MATS ", warp_mats)
 
     let extended_pattern = new Sequence.TwoD().import(pattern.export());
     for(let i = 0; i < boundary; i++){
-      let row = pattern.getWeft(i);
+      let offset = i % wefts(draft.drawdown);
+      let row = pattern.getWeft(i% wefts(draft.drawdown));
       extended_pattern.pushWeftSequence(row);
 
-      let offset = i % wefts(draft.drawdown);
       let ending_row = pattern.getWeft(wefts(draft.drawdown) -1 - offset);
       extended_pattern.unshiftWeftSequence(ending_row);
 
@@ -452,15 +458,12 @@ export class SimulationService {
 
       if(start_vtx !== null)  pts.push(new THREE.Vector3(boundary_vtx.min_x-10, start_vtx.y,start_vtx.z));
 
-      let last_z = 0;
       in_bound_vtxs.forEach(vtx => {
         if(vtx.x !== undefined){
           pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
-          // last_z = vtx.z;
         } 
       });
 
-      console.log("END VTX ", end_vtx)
       if(end_vtx !== null) pts.push(new THREE.Vector3(boundary_vtx.max_x+10, end_vtx.y, end_vtx.z));
 
 

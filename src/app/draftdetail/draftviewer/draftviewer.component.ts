@@ -1111,14 +1111,13 @@ export class DraftviewerComponent implements OnInit {
     draft.rowSystemMapping[weft] = newSystem;
     this.tree.setDraftOnly(this.id, draft);
 
+
   }
 
 
   
   incrementWeftMaterial(si: number){
     const weft = this.render.visibleRows[si];
-    console.log("SI / WFT" , si, weft);
-
     const draft = this.tree.getDraft(this.id);
     if(this.dm.isSelected('material', 'draw_modes')){
       const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
@@ -1132,6 +1131,8 @@ export class DraftviewerComponent implements OnInit {
 
     this.tree.setDraftOnly(this.id, draft);
     this.rowShuttleMapping = draft.rowShuttleMapping;
+    this.onDrawdownUpdated.emit(draft);
+
   }
 
 
@@ -1163,6 +1164,8 @@ export class DraftviewerComponent implements OnInit {
 
     this.tree.setDraftOnly(this.id, draft);
     this.colShuttleMapping = draft.colShuttleMapping;
+    this.onDrawdownUpdated.emit(draft);
+
 
    
   }
@@ -2028,6 +2031,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
       })
     }else{
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
@@ -2036,6 +2040,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
     }
 
@@ -2068,6 +2074,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
     }else{
       loom = utils.insertIntoTreadling(loom, index, loom.treadling[index].slice());
@@ -2078,6 +2086,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
     }
 
@@ -2107,6 +2117,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
     }else{
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
@@ -2115,6 +2127,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
     }
   }
@@ -2143,6 +2157,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
 
     }else{
@@ -2152,6 +2168,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
 
     }
@@ -2183,6 +2201,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
 
     }else{
@@ -2193,6 +2213,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
+        this.onDrawdownUpdated.emit(draft);
+
       })
 
     }
@@ -2221,6 +2243,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
           this.timeline.addHistoryState(draft);
           this.colShuttleMapping = draft.colShuttleMapping;
+          this.onDrawdownUpdated.emit(draft);
+
         })
   
       }else{
@@ -2229,6 +2253,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
           this.timeline.addHistoryState(draft);
           this.colShuttleMapping = draft.colShuttleMapping;
+          this.onDrawdownUpdated.emit(draft);
+
         })
   
       }

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { TreeService } from '../../core/provider/tree.service';
 import { SimulationService } from '../../core/provider/simulation.service';
-import { Draft, Interlacement, LoomSettings } from '../../core/model/datatypes';
+import { Draft, Interlacement, LoomSettings, SimulationData } from '../../core/model/datatypes';
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
@@ -38,6 +38,7 @@ export class SimulationComponent implements OnInit {
   showing_topo: boolean = false;
   showing_draft: boolean = false;
   boundary: number = 10;
+  current_simdata: SimulationData = null;
 
 
   constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
@@ -107,6 +108,7 @@ export class SimulationComponent implements OnInit {
       this.boundary,
       this.ms)
       .then(simdata => {
+        this.current_simdata = simdata;
       this.simulation.renderSimdata(
         this.scene, 
         simdata, 
@@ -123,41 +125,35 @@ export class SimulationComponent implements OnInit {
   }
 
   /**
-   * creates a new draft from a subset of an input draft, and tells the simulator to draw that portion
+   * this passes new information to a current rendering, updating which portion of the data we are visualizing. 
    * @param draft 
    * @param loom_settings 
    * @param start 
    * @param end 
    */
-  updateSelection(draft: Draft, loom_settings:LoomSettings, start: Interlacement, end: Interlacement){
+  updateSelection(start: Interlacement, end: Interlacement){
 
-    let dd = [];
-    let rowShuttle = [];
-    let rowSystem = [];
-    let colShuttle = [];
-    let colSystem = [];
-    
-    for(let i = start.i; i < end.i; i++){
-        dd.push([]);
-        rowShuttle.push(draft.rowShuttleMapping[i]);
-        rowSystem.push(draft.rowSystemMapping[i]);
+    let width = end.j - start.j;
+    if(width <= 0) return;
 
-      for(let j = start.j; j < end.j; j++){
-        if(i == start.i){
-          colShuttle.push(draft.colShuttleMapping[j]);
-          colSystem.push(draft.rowSystemMapping[j]);
-        }
-        dd[i-start.i].push(createCell(getCellValue(draft.drawdown[i][j])));
-      }
+    let height = end.i - start.i;
+    if(height <= 0) return;
+
+    this.current_simdata.bounds = {
+      topleft: {x: start.j, y: start.i},
+      width, height
     }
 
-    let new_draft = initDraftFromDrawdown(dd);
-    this.updateSimulation(new_draft, loom_settings);
-    
-
+    this.simulation.renderSimdata(this.scene, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
 
   }
 
+  /**
+   * call this when the simulation needs to be updated due to a structural change. 
+   * This will recalculate all the simulation data and then redraw it to screen. 
+   * @param draft 
+   * @param loom_settings 
+   */
   updateSimulation(draft: Draft, loom_settings){
     this.draft = draft;
     this.loom_settings = loom_settings;
