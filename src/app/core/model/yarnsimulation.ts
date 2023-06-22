@@ -1,7 +1,7 @@
 
 import { MaterialsService } from "../provider/materials.service";
 import { getCellValue } from "./cell";
-import {  Cell, Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnVertex } from "./datatypes";
+import {  Bounds, Cell, Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnVertex } from "./datatypes";
 import {warps, wefts } from "./drafts";
 import { Sequence } from "./sequence";
 
@@ -1673,7 +1673,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
   }
 
-  //*just draw the layer map*/
   export const processWarpInterlacement = (draft: Draft, j: number, diam: number,  ilaces: Array<TopologyVtx>, warp_vtxs: Array<Array<YarnVertex>>, drawn_positions: Array<number>, sim: SimulationVars, layer_map: Array<Array<number>>) : Array<Array<YarnVertex>> => {
 
     //ilaces is all the interlacements on this warp

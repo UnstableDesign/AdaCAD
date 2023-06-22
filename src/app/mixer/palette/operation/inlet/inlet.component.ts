@@ -119,7 +119,6 @@ export class InletComponent implements OnInit {
 
 
   toggleVisibility(input_ndx: number){
-      console.log("TOGGLE VISIBLE", input_ndx)
       if(input_ndx == this.show_connection_name){
         this.onInputVisibilityChange.emit({inletid: this.inletid, ndx_in_inlets: input_ndx, show: false});
         this.show_connection_name = -1;

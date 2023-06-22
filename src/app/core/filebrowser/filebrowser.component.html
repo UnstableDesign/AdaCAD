@@ -45,9 +45,11 @@
       
 
 
-      
+      <ng-container *ngIf="!files.connected">
+        Saved files cannot be accessed because you are offline.
+      </ng-container>
 
-        <ng-container *ngIf="filelist !== undefined && auth.isLoggedIn">
+        <ng-container *ngIf="filelist !== undefined && auth.isLoggedIn && files.connected">
 
         <div  *ngFor="let file of filelist">
           <ng-container *ngIf="file !== null && file.meta !== null">

@@ -782,9 +782,7 @@ export type SimulationData = {
   sim: SimulationVars,
   topo: Array<TopologyVtx>,
   vtxs: VertexMaps,
-  layer_maps: LayerMaps,
-  top: number,
-  right: number
+  layer_maps: LayerMaps
 };
 
 export type SimulationVars = {

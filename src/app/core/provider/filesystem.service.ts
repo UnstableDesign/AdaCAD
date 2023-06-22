@@ -1,7 +1,7 @@
 import { Injectable, Optional } from '@angular/core';
 import { getDatabase, ref as fbref, set as fbset, query, ref, get as fbget, remove } from '@angular/fire/database';
 import utilInstance from '../model/util';
-import { DataSnapshot, onChildAdded, onChildChanged, onChildRemoved, update } from 'firebase/database';
+import { DataSnapshot, onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, update } from 'firebase/database';
 import { FileService } from './file.service';
 import { ZoomService } from '../../mixer/provider/zoom.service';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
@@ -48,6 +48,8 @@ export class FilesystemService {
   current_file_name: string = "draft"
   current_file_desc: string = "";
 
+  connected: boolean = false;
+
   last_saved_time: number = 0;
 
   updateUItree: Observable<Array<any>>;
@@ -56,9 +58,22 @@ export class FilesystemService {
  constructor(@Optional() private auth: Auth,
     private fs: FileService, private zs: ZoomService) {
 
+      const db = getDatabase();
 
-      
+    const presenceRef = ref(db, "disconnectmessage");
+    // Write a string when this client loses connection
+    onDisconnect(presenceRef).set("I disconnected!");
 
+    const connectedRef = ref(db, ".info/connected");
+    onValue(connectedRef, (snap) => {
+      if (snap.val() === true) {
+        console.log("connected");
+        this.connected = true;
+      } else {
+        console.log("not connected");
+        this.connected = false;
+      }
+    });
 
       this.file_tree = [];
 
@@ -73,7 +88,6 @@ export class FilesystemService {
     
     
     
-        const db = getDatabase();
         const userFiles = query(ref(db, 'users/'+user.uid+'/files'));
         
 
