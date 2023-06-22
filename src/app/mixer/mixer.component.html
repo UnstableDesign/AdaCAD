@@ -212,7 +212,9 @@
       </mat-tab>
 
       <mat-tab class="mat-tab-label-custom" label="Materials">
-        <app-material-modal></app-material-modal>
+        <app-material-modal
+        (onMaterialChange)="materialChange($event)"
+        ></app-material-modal>
       </mat-tab>
 
       <mat-tab class="mat-tab-label-custom" label="Examples">

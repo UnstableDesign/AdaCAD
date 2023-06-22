@@ -1046,7 +1046,6 @@ zoomChange(e:any, source: string){
    * Updates the canvas based on the weave view.
    */
   public renderChange(old_zoom: number) {
-    console.log("RENDER CHANGE", old_zoom)
     this.palette.rescale(old_zoom);
   }
 
@@ -1065,6 +1064,8 @@ zoomChange(e:any, source: string){
     console.log(e);
     //this.draft.notes = e;
   }
+
+ 
 
 
   public toggleCollapsed(){
@@ -1091,8 +1092,11 @@ zoomChange(e:any, source: string){
    * there is a modal showing materials open and update it if there is
    */
    public materialChange() {
-    this.palette.redrawOpenModals();
     this.palette.redrawAllSubdrafts();
+
+    if(this.show_details){
+      this.details.redrawSimulation();
+    }
  }
 
 

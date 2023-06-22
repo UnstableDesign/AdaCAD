@@ -17,7 +17,7 @@ import { createMaterial, setMaterialID } from '../../model/material';
 
 export class MaterialModal{
 
-  @Output() onChange: any = new EventEmitter();
+  @Output() onMaterialChange: any = new EventEmitter();
 
 
   replacements: Array<number> = [];
@@ -45,8 +45,8 @@ export class MaterialModal{
 
   /**emitted on any action that would change the current rendering */
   change(){
-    this.onChange.emit();
-
+    console.log("SHUTTLE VALS ", this.ms.getShuttles())
+    this.onMaterialChange.emit();
   }
 
   addMaterial(){
@@ -79,7 +79,7 @@ export class MaterialModal{
     //map remaning replacement values to valid indices 
     this.replacements = this.replacements.map(el => (el%this.ms.getShuttles().length));
 
-    this.onChange.emit();
+    this.onMaterialChange.emit();
   }
 
   addNewShuttle(){

@@ -41,14 +41,14 @@
       <mat-form-field class="form-field">
         <input matInput  
         type="number" 
-        placeholder="Yarn Thickness" 
-        name="thickness" 
+        placeholder="Yarn Diameter (in mm)" 
+        name="diameter" 
         min="0"
         max="100"
-        step="10"
+        step=".5"
         (change)="change()"
-        [(ngModel)]="shuttle.thickness"> 
-        <span>&nbsp;&nbsp;%</span>
+        [(ngModel)]="shuttle.diameter"> 
+        <span>&nbsp;&nbsp;mm</span>
       </mat-form-field>
 
      

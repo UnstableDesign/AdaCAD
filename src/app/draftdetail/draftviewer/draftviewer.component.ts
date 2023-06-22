@@ -2965,6 +2965,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 epiChange(f: NgForm) {
 
   const loom_settings = this.tree.getLoomSettings(this.id);
+  const draft = this.tree.getDraft(this.id);
 
   if(!f.value.epi){
     f.value.epi = 1;
@@ -2975,20 +2976,11 @@ epiChange(f: NgForm) {
   //this.loom.overloadEpi(f.value.epi);
   this.ws.epi = f.value.epi;
 
-   // if(this.warp_locked){
-      //change the width
-      this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
-      f.value.width = this.width;
-      
-    // }else{
-    //   var new_warps = (loom_settings.units === "in") 
-    //   ? Math.ceil(f.value.width * f.value.epi) : 
-    //   Math.ceil((10 * f.value.warps / f.value.width));
-    //   f.value.warps = new_warps;
-    //   this.warps = new_warps;
-    //   this.warpNumChange({warps: new_warps});
-    // }
+  this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
+  f.value.width = this.width;
   
+  this.onDrawdownUpdated.emit(draft);
+
 
   }
 

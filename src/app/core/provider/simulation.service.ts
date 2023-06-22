@@ -4,7 +4,7 @@ import { createLayerMaps, getDraftTopology, relaxWefts, translateTopologyToPoint
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
-import { Draft, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
+import { Draft, Interlacement, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
 import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
 import { getCellValue } from '../model/cell';
 import { Sequence } from '../model/sequence';
@@ -257,6 +257,12 @@ export class SimulationService {
 
   }
 
+  updateSelection(start: Interlacement, end: Interlacement){
+
+   
+
+  }
+
   drawAxis(scene, simdata: SimulationData, boundary_vtx: any){
 
     this.axis_scene =  new THREE.Group();
@@ -403,6 +409,7 @@ export class SimulationService {
       if(vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
       const material_id = draft.colShuttleMapping[j];
       let diameter = this.ms.getDiameter(material_id);
+      if(material_id == 0) console.log("GOT DIAM ", diameter, this.ms.getShuttle(material_id))
       let color = this.ms.getColor(material_id);
 
 
@@ -416,7 +423,7 @@ export class SimulationService {
      in_bounds_vxts.slice().forEach(vtx => {
         if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
       });
-      if(end_vtx !== null)pts.push(new THREE.Vector3(end_vtx.x, boundary_vtx.max_y+10, end_vtx.z));
+      if(end_vtx !== null) pts.push(new THREE.Vector3(end_vtx.x, boundary_vtx.max_y+10, end_vtx.z));
 
       const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
       const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
