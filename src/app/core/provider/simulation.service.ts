@@ -236,6 +236,7 @@ export class SimulationService {
 
 
     const boundary_vtx = this.getBoundaryVtxs(simdata);
+    console.log("BOUNDARY VTX ", boundary_vtx, simdata.vtxs.wefts[0].map(el => el.x))
 
 
    
@@ -317,9 +318,10 @@ export class SimulationService {
 
     //get the weft boundary, draw warps from this data
     let in_bound_wefts = vtxs.wefts.filter((el, ndx)=> (ndx >= bounds.topleft.y && ndx < bounds.topleft.y + bounds.height));
+    console.log("IN BOUND WEFTS ", in_bound_wefts.length);
 
     let min_y = in_bound_wefts.reduce((acc, row) => {
-      let min_in_row = row.filter((vtx, ndx) => ndx >= bounds.topleft.x && ndx < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let min_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
         if(vtx.y < subacc) return vtx.y;
         return subacc;
       }, 10000);
@@ -329,7 +331,7 @@ export class SimulationService {
     }, 100000);
 
     let max_y = in_bound_wefts.reduce((acc, row) => {
-      let max_in_row = row.filter((vtx, ndx) => ndx >= bounds.topleft.x && ndx < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let max_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
         if(vtx.y > subacc) return vtx.y;
         return subacc;
       }, 0);
@@ -339,7 +341,7 @@ export class SimulationService {
     }, 0);
 
     let min_x = in_bound_wefts.reduce((acc, row) => {
-      let min_in_row = row.filter((vtx, ndx) => ndx >= bounds.topleft.x && ndx < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let min_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
         if(vtx.x < subacc) return vtx.x;
         return subacc;
       }, 10000);
@@ -349,7 +351,7 @@ export class SimulationService {
     }, 100000);
 
     let max_x = in_bound_wefts.reduce((acc, row) => {
-      let max_in_row = row.filter((vtx, ndx) => ndx >= bounds.topleft.x && ndx < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let max_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
         if(vtx.x > subacc) return vtx.x;
         return subacc;
       }, 0);
@@ -409,7 +411,6 @@ export class SimulationService {
       if(vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
       const material_id = draft.colShuttleMapping[j];
       let diameter = this.ms.getDiameter(material_id);
-      if(material_id == 0) console.log("GOT DIAM ", diameter, this.ms.getShuttle(material_id))
       let color = this.ms.getColor(material_id);
 
 
