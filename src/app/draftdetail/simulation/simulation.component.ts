@@ -37,6 +37,7 @@ export class SimulationComponent implements OnInit {
   showing_wefts: boolean = true;
   showing_topo: boolean = false;
   showing_draft: boolean = false;
+  boundary: number = 10;
 
 
   constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
@@ -103,6 +104,7 @@ export class SimulationComponent implements OnInit {
       this.layer_spacing, 
       this.max_interlacement_width,
       this.max_interlacement_height, 
+      this.boundary,
       this.ms)
       .then(simdata => {
       this.simulation.renderSimdata(
@@ -167,6 +169,7 @@ export class SimulationComponent implements OnInit {
       this.layer_threshold, 
       this.max_interlacement_width, 
       this.max_interlacement_height,
+      this.boundary,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
@@ -183,6 +186,7 @@ export class SimulationComponent implements OnInit {
       this.layer_threshold, 
       this.max_interlacement_width, 
       this.max_interlacement_height,
+      this.boundary,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
@@ -231,6 +235,7 @@ export class SimulationComponent implements OnInit {
       this.layer_threshold, 
       this.max_interlacement_width, 
       this.max_interlacement_height,
+      this.boundary,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
@@ -247,6 +252,7 @@ export class SimulationComponent implements OnInit {
       this.layer_threshold, 
       this.max_interlacement_width, 
       this.max_interlacement_height,
+      this.boundary,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
@@ -263,6 +269,7 @@ export class SimulationComponent implements OnInit {
       this.layer_threshold, 
       this.max_interlacement_width, 
       this.max_interlacement_height,
+      this.boundary,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);

@@ -778,6 +778,7 @@ export type WarpHeight = {
 
 export type SimulationData = {
   draft: Draft,
+  bounds: Bounds,
   sim: SimulationVars,
   topo: Array<TopologyVtx>,
   vtxs: VertexMaps,
@@ -792,6 +793,7 @@ export type SimulationVars = {
   layer_threshold: number,
   max_interlacement_width: number,
   max_interlacement_height: number,
+  boundary: number,
   ms: MaterialsService
 }
 
