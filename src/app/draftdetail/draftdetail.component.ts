@@ -4,8 +4,8 @@ import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { Draft, Drawdown, Loom, LoomSettings, Cell } from '../core/model/datatypes';
-import { generateMappingFromPattern } from '../core/model/drafts';
-import { isFrame } from '../core/model/looms';
+import { copyDraft, createDraft, generateMappingFromPattern } from '../core/model/drafts';
+import { copyLoom, isFrame } from '../core/model/looms';
 import { RenderService } from './provider/render.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -19,6 +19,7 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { CrosssectionComponent } from './crosssection/crosssection.component';
 import { SimulationComponent } from './simulation/simulation.component';
 import { createCell } from '../core/model/cell';
+import utilInstance from '../core/model/util';
 
 
 
@@ -80,6 +81,7 @@ export class DraftDetailComponent implements OnInit {
   sim_expanded: boolean = false;
   viewer_expanded: boolean = false;
 
+  clone_id: number = -1;
 
 
   /// ANGULAR FUNCTIONS
@@ -172,18 +174,62 @@ export class DraftDetailComponent implements OnInit {
   }
 
 
+  /**
+   * create a new object 
+   * @param id 
+   */
   loadDraft(id: number){
-    this.id = id;
-    this.draft = this.tree.getDraft(id);
-    this.loom_settings = this.tree.getLoomSettings(id);
-    this.viewonly = this.tree.hasParent(id);
-    this.loom = this.tree.getLoom(id);
-    this.render.loadNewDraft(this.draft);
-    this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
-    this.simRef.drawSimulation(this.draft, this.loom_settings);
+
+    if(!this.tree.hasParent(id)){
+      this.id = id;
+      this.clone_id = -1;
+      this.draft = this.tree.getDraft(id);
+      this.loom = this.tree.getLoom(id);
+      this.loom_settings = this.tree.getLoomSettings(id);
+      this.viewonly = this.tree.hasParent(id);
+      this.render.loadNewDraft(this.draft);
+      this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
+      this.simRef.drawSimulation(this.draft, this.loom_settings);
+    }else{
+      this.clone_id  = id;
+      const newid = this.tree.createNode('draft', null, null);
+
+      let d = this.tree.getDraft(id);
+      this.draft= copyDraft(d);
+      this.draft.id =newid;
+      this.id = newid;
+
+      const loom_settings:LoomSettings = this.tree.getLoomSettings(id);
+      this.id = this.draft.id;
+
+      this.loom_settings = {
+        type: loom_settings.type,
+        epi: loom_settings.epi,
+        units: loom_settings.units,
+        frames: loom_settings.frames,
+        treadles: loom_settings.treadles
+      }
+      this.loom = copyLoom(this.tree.getLoom(id));
+
+      return this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, this.draft, this.loom, this.loom_settings, false)
+      .then(d => {
+        this.viewonly = this.tree.hasParent(id);
+
+        this.render.loadNewDraft(this.draft);
+    
+        this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
+      
+        this.simRef.drawSimulation(this.draft, this.loom_settings);
+
+        })
+    }
+   
   }
 
   windowClosed(){
+    this.draft = null;
+    this.id = null;
+    this.loom_settings = null;
     this.simRef.endSimulation();
   }
 
@@ -225,7 +271,7 @@ export class DraftDetailComponent implements OnInit {
   }
 
   public onCloseDrawer(){
-    this.closeDrawer.emit(this.id);
+    this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
   }
 
   /**
@@ -241,6 +287,7 @@ export class DraftDetailComponent implements OnInit {
 
   }
 
+  
   public redrawSimulation(e: any){
     let draft = this.tree.getDraft(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);

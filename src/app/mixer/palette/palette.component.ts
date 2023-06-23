@@ -558,7 +558,6 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
-    this.subdraftSubscriptions.push(sd.createNewSubdraftFromEdits.subscribe(this.createNewSubdraftFromEdits.bind(this)));
     this.subdraftSubscriptions.push(sd.onShowDetails.subscribe(this.revealDraftDetails.bind(this)));
   }
 
@@ -674,6 +673,26 @@ handlePan(diff: Point){
         return Promise.resolve(subdraft.instance);
         }
       )
+  }
+
+  createSubDraftFromEditedDetail(id: number) : Promise<SubdraftComponent>{
+    
+    const node  = this.tree.getNode(id);
+    const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
+    const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+    this.setSubdraftSubscriptions(subdraft.instance);
+
+    node.component = subdraft.instance;
+    node.ref = subdraft.hostView;
+
+    subdraft.instance.id = id;
+    subdraft.instance.draft = this.tree.getDraft(id);
+    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.scale = this.zs.zoom;
+    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+
+    return Promise.resolve(subdraft.instance);
+
   }
 
 
@@ -1308,45 +1327,45 @@ handlePan(diff: Point){
   * @param obj {parent_id, new_id}
   * @returns 
   */
-   createNewSubdraftFromEdits(obj: any){
-    this.changeDesignmode('move')
+  // createNewSubdraftFromEdits(obj: any){
+  //   this.changeDesignmode('move')
 
-    if(obj === null) return;
+  //   if(obj === null) return;
 
-    const sd = <SubdraftComponent> this.tree.getComponent(obj.parent_id);
-    const new_draft = this.tree.getDraft(obj.new_id);
-    const new_loom = this.tree.getLoom(obj.new_id);
-    const new_ls = this.tree.getLoomSettings(obj.new_id);
-    const new_topleft = {
-        x: sd.topleft.x + 40 + this.zs.zoom *2, 
-        y: sd.topleft.y}
+  //   const sd = <SubdraftComponent> this.tree.getComponent(obj.parent_id);
+  //   const new_draft = this.tree.getDraft(obj.new_id);
+  //   const new_loom = this.tree.getLoom(obj.new_id);
+  //   const new_ls = this.tree.getLoomSettings(obj.new_id);
+  //   const new_topleft = {
+  //       x: sd.topleft.x + 40 + this.zs.zoom *2, 
+  //       y: sd.topleft.y}
 
     
 
 
-    this.loadSubDraft(
-      obj.new_id, 
-      new_draft, 
-      {
-        node_id: obj.new_id,
-        type: 'draft',
-        topleft: sd.topleft
-      },
-      {
-        node_id: obj.new_id,
-        draft_id: new_draft.id,
-        draft_name: new_draft.ud_name,
-        draft: new_draft,
-        draft_visible: true,
-        loom: new_loom,
-        loom_settings:new_ls,
-        render_colors: true
-      },
-      this.zs.zoom);
-      this.addTimelineState();
+  //   this.loadSubDraft(
+  //     obj.new_id, 
+  //     new_draft, 
+  //     {
+  //       node_id: obj.new_id,
+  //       type: 'draft',
+  //       topleft: sd.topleft
+  //     },
+  //     {
+  //       node_id: obj.new_id,
+  //       draft_id: new_draft.id,
+  //       draft_name: new_draft.ud_name,
+  //       draft: new_draft,
+  //       draft_visible: true,
+  //       loom: new_loom,
+  //       loom_settings:new_ls,
+  //       render_colors: true
+  //     },
+  //     this.zs.zoom);
+  //     this.addTimelineState();
 
    
-   }
+  //  }
 
 
     onDuplicateSubdraftCalled(obj: any){

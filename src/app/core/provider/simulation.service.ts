@@ -236,8 +236,6 @@ export class SimulationService {
 
 
     const boundary_vtx = this.getBoundaryVtxs(simdata);
-    console.log("BOUNDARY VTX ", boundary_vtx, simdata.vtxs.wefts[0].map(el => el.x))
-
 
    
     this.drawAxis(scene, simdata, boundary_vtx);
@@ -255,12 +253,6 @@ export class SimulationService {
     if(!weft_layers) this.hideWeftLayerMap();
     if(!topo) this.hideTopo();
     if(!show_draft) this.hideDraft();
-
-  }
-
-  updateSelection(start: Interlacement, end: Interlacement){
-
-   
 
   }
 
@@ -318,7 +310,6 @@ export class SimulationService {
 
     //get the weft boundary, draw warps from this data
     let in_bound_wefts = vtxs.wefts.filter((el, ndx)=> (ndx >= bounds.topleft.y && ndx < bounds.topleft.y + bounds.height));
-    console.log("IN BOUND WEFTS ", in_bound_wefts.length);
 
     let min_y = in_bound_wefts.reduce((acc, row) => {
       let min_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {

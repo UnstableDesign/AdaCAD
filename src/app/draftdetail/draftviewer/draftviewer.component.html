@@ -38,16 +38,16 @@
             <a class="warp-system" (click)="incrementWarpSystem(j)"> {{i+1}}</a>
      
           <div class="warp-number-container">
-            <span *ngIf="(j % render?.getTextInterval() == 0 && !isLastCol(j))" class="warp_number origin{{ws.selected_origin_option}}">
+            <span *ngIf="j % render?.getTextInterval() == 0" class="warp_number origin{{ws.selected_origin_option}}">
               <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j}}</ng-container>
               <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j)}}</ng-container>
             </span>      
           
-            <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">
+            <!-- <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">
               <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j+1}}</ng-container>
               <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j) - 1}}</ng-container>
               
-              </span>      
+            </span>       -->
           </div>
             <div  class="warp_selectors">
             <span *ngIf="!viewonly"class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
@@ -105,13 +105,13 @@
                 <div class="weft_indicies">
 
                 <ng-container *ngIf="ws.selected_origin_option == 1 || ws.selected_origin_option == 2">
-                  <span *ngIf="(i % render?.getTextInterval() == 0 && !isLastRow(j))" class="weft_number origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)}}</span>      
-                  <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)-1}}</span>      
+                  <span *ngIf="(i % render?.getTextInterval() == 0)" class="weft_number origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)}}</span>      
+                  <!-- <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)-1}}</span>       -->
                 </ng-container>  
                 <ng-container *ngIf="ws.selected_origin_option == 0 || ws.selected_origin_option == 3">
 
-                <span *ngIf="(i % render?.getTextInterval() == 0 && !isLastRow(j))" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
-                <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>      
+                <span *ngIf="i % render?.getTextInterval() == 0" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+                <!-- <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>       -->
               </ng-container>  
                 </div>
 

@@ -170,8 +170,6 @@ export class MixerComponent implements OnInit {
 
   ngOnInit(){
     
-
-
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
@@ -201,21 +199,55 @@ export class MixerComponent implements OnInit {
 
 
   closeDetailViewer(obj: any){
-    this.show_details = false ; 
+    console.log("OBJ ", obj)
+    this.show_details = false; 
     this.details.windowClosed();
+
+    //the object was never copied
+    if(obj.clone_id == -1){
+      let comp = <SubdraftComponent>this.tree.getComponent(obj.id);
+      comp.redrawExistingDraft();
+
+      this.palette.updateDownstream(obj.id).then(el => {
+        this.palette.addTimelineState();
+      });
+    //reperform all of the ops 
+    }else{
+      //this object was copied and we need to keep the copy
+      if(obj.dirty){
+        const parent = this.tree.getComponent(obj.clone_id);
+        let el = document.getElementById('scale-'+parent.id);
+        let width = 0;
+        if(el !== null && el !== undefined) width = el.offsetWidth;
+        this.palette.createSubDraftFromEditedDetail(obj.id).then(sd => {
+          const new_topleft = {
+            x: parent.topleft.x+((width+40)*this.zs.zoom/defaults.mixer_cell_size), 
+            y: parent.topleft.y};
+    
+            sd.setPosition(new_topleft);
+        });
+
+       
+      }else{
+        this.tree.removeSubdraftNode(obj.id);
+      }
+    }
+
+
+
   
     //refresh all of the subdrafts
-    let tlds:Array<number> = this.tree.getTopLevelDrafts();
-    tlds.forEach(tld => {
-      let comp: SubdraftComponent = <SubdraftComponent>this.tree.getComponent(tld);
-      comp.redrawExistingDraft();
-    })
+    // let tlds:Array<number> = this.tree.getTopLevelDrafts();
+    // tlds.forEach(tld => {
+    //   let comp: SubdraftComponent = <SubdraftComponent>this.tree.getComponent(tld);
+    //   comp.redrawExistingDraft();
+    // })
 
 
-    this.palette.updateDownstream(obj).then(el => {
-      this.palette.addTimelineState();
-    });
-    //reperform all of the ops 
+    // this.palette.updateDownstream(obj).then(el => {
+    //   this.palette.addTimelineState();
+    // });
+    // //reperform all of the ops 
 
 
   }

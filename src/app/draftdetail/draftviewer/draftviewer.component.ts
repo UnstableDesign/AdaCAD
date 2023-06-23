@@ -131,6 +131,8 @@ export class DraftviewerComponent implements OnInit {
 
 
    copy: Drawdown;
+
+   is_dirty: boolean = false;
  
  
    /**
@@ -307,6 +309,7 @@ export class DraftviewerComponent implements OnInit {
 
   getFlippedWarpNum(j: number) : number{
     let draft = this.tree.getDraft(this.id);
+    if(draft == null) return;
     let warpnum = warps(draft.drawdown);
 
     return warpnum - j;
@@ -314,6 +317,8 @@ export class DraftviewerComponent implements OnInit {
 
   getFlippedWeftNum(i: number) : number{
     let draft = this.tree.getDraft(this.id);
+    if(draft == null) return;
+
     let weftnum = wefts(draft.drawdown);
 
     return weftnum - i;
@@ -326,6 +331,9 @@ export class DraftviewerComponent implements OnInit {
 
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
+
+    console.log("LOADING NEW DRAFT ", draft.id, draft.drawdown)
+    
     
     this.loom_settings = loom_settings;
     const frames = Math.max(numFrames(loom), loom_settings.frames);
@@ -1105,6 +1113,8 @@ export class DraftviewerComponent implements OnInit {
  
 
   public incrementWeftSystem(i: number){
+    this.is_dirty = true;
+
     const draft = this.tree.getDraft(this.id);
     let weft = this.render.visibleRows[i];
     var newSystem = this.ss.getNextWeftSystem(weft, draft);
@@ -1117,6 +1127,8 @@ export class DraftviewerComponent implements OnInit {
 
   
   incrementWeftMaterial(si: number){
+    this.is_dirty = true;
+
     const weft = this.render.visibleRows[si];
     const draft = this.tree.getDraft(this.id);
     if(this.dm.isSelected('material', 'draw_modes')){
@@ -1138,6 +1150,8 @@ export class DraftviewerComponent implements OnInit {
 
 
   public incrementWarpSystem(j: number){
+    this.is_dirty = true;
+
     const draft = this.tree.getDraft(this.id);
     var newSystem = this.ss.getNextWarpSystem(j,draft);
     console.log(newSystem, j);
@@ -1148,7 +1162,7 @@ export class DraftviewerComponent implements OnInit {
   }
 
   incrementWarpMaterial(col: number){
-
+    this.is_dirty = true;
     const warp = col;
 
     const draft = this.tree.getDraft(this.id);
@@ -1194,6 +1208,7 @@ export class DraftviewerComponent implements OnInit {
 
     
     if(hasCell(draft.drawdown, currentPos.i, currentPos.j)){
+      this.is_dirty = true;
 
       // Set the heddles based on the brush.
       switch (this.dm.getSelectedDesignMode('draw_modes').value) {
@@ -1239,7 +1254,6 @@ export class DraftviewerComponent implements OnInit {
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
         this.onDrawdownUpdated.emit(draft);
-        
       })
       .catch(console.error);
     
@@ -1263,6 +1277,8 @@ export class DraftviewerComponent implements OnInit {
 
 
     if (isInUserTieupRange(loom, loom_settings,  currentPos)){
+      this.is_dirty = true;
+
       switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
             val = true;
@@ -1304,6 +1320,7 @@ export class DraftviewerComponent implements OnInit {
 
     if (isInUserThreadingRange(loom, loom_settings, currentPos)){
       var val = false;
+      this.is_dirty = true;
 
       //modify based on the current view 
        // currentPos.i = this.translateThreadingRowForView(loom, loom_settings,currentPos.i)
@@ -1344,7 +1361,8 @@ export class DraftviewerComponent implements OnInit {
   private drawOnTreadling(loom: Loom, loom_settings: LoomSettings, currentPos: Interlacement ) {
 
     if (!this.cxTreadling || !currentPos) { return; }
-    
+    this.is_dirty = true;
+
     var val = false;
 
     if(isInUserTreadlingRange(loom, loom_settings, currentPos)){
