@@ -1,5 +1,5 @@
 import { max } from "rxjs/operators";
-import { createCell } from "../../model/cell";
+import { createCell, getCellValue, setCellValue } from "../../model/cell";
 import { Cell, Draft, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
 import { initDraftFromDrawdown, initDraftWithParams } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
@@ -97,6 +97,12 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         
       }
     }
+
+    pattern.forEach(row => {
+      row.forEach(cell => {
+        if(getCellValue(cell) == null) cell = setCellValue(cell, false);
+      })
+    })
 
 
       

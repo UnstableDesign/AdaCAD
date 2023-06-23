@@ -1124,11 +1124,14 @@ zoomChange(e:any, source: string){
    * there is a modal showing materials open and update it if there is
    */
    public materialChange() {
+    
     this.palette.redrawAllSubdrafts();
 
     if(this.show_details){
       this.details.redrawSimulation();
     }
+
+    this.saveFile();
  }
 
 
@@ -1138,6 +1141,7 @@ zoomChange(e:any, source: string){
   */
  updateOrigin(selection: number){
   this.selected_origin = selection
+  
  }
 
 
@@ -1196,6 +1200,8 @@ originChange(e:any){
         }
       }
     }
+  }).then(out => {
+    this.saveFile();
   })
 
 

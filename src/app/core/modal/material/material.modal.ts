@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Inject, EventEmitter, Output, ViewChild, Input } from '@angular/core';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -18,7 +18,6 @@ import { createMaterial, setMaterialID } from '../../model/material';
 export class MaterialModal{
 
   @Output() onMaterialChange: any = new EventEmitter();
-
 
   replacements: Array<number> = [];
   types: any;
@@ -45,13 +44,13 @@ export class MaterialModal{
 
   /**emitted on any action that would change the current rendering */
   change(){
-    console.log("SHUTTLE VALS ", this.ms.getShuttles())
     this.onMaterialChange.emit();
   }
 
   addMaterial(){
 
   }
+
 
 
 
@@ -93,8 +92,7 @@ export class MaterialModal{
   //   this.dialogRef.close(null);
   // }
 
-  // save() {
-  //   this.dialogRef.close(null);
-  // }
+  save() {
+  }
 
 }

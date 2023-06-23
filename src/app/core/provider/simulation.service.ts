@@ -373,7 +373,7 @@ export class SimulationService {
       //on wefts 
       let vtxs = simdata.vtxs.wefts[i];
       let closest_ndx = vtxs.reduce((acc, vtx, ndx) => {
-        if(vtx.j < (simdata.bounds.topleft.x + simdata.bounds.width) && Math.abs(vtx.j - j) < acc.dist) return {dist: Math.abs(vtx.j - j), ndx};
+        if(vtx.j >= simdata.bounds.topleft.x && vtx.j < (simdata.bounds.topleft.x + simdata.bounds.width) && Math.abs(vtx.j - j) < acc.dist) return {dist: Math.abs(vtx.j - j), ndx};
         return acc;
       }, {dist: 10000, ndx: -1});
       if(closest_ndx.ndx == -1) return null;
