@@ -14,6 +14,7 @@ export class ExampleserviceService {
     examples.examples.forEach(e => {
       this.example_set.push({
         id: e.id,
+        ext: e.ext,
         desc: e.desc,
         title: e.title
       })

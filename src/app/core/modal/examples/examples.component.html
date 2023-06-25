@@ -2,11 +2,10 @@
 
       <mat-card *ngFor="let example of local_examples">
         <mat-card-title>{{example.title}}
-          <!-- <button (click)="loadExample('lesson1')" mat-raised-button color="white">Load</button> -->
 
         </mat-card-title>
-        <img mat-card-image src="/assets/example_img/{{example.id}}.png" alt="Screenshot of the File Contents">
-          <mat-card-content>
+       <img mat-card-image src="/assets/example_img/{{example.id}}.{{example.ext}}" alt="Screenshot of the File Contents">
+          <mat-card-content >
             <p>
               {{example.desc}}
             </p>

@@ -218,7 +218,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                     let rev = new Sequence.OneD().import(row).reverse();
                     let rev_warp_sys = new Sequence.OneD().import(input_draft.colSystemMapping).reverse();
                     let rev_warp_mats = new Sequence.OneD().import(input_draft.colShuttleMapping).reverse();
-                    let orig;
 
                     if(remove_center == 1){
                         rev.slice(0, rev.length()-1);
@@ -226,7 +225,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                         rev_warp_sys.slice(0, rev.length()-1);
                     }
 
-                    rev.pushRow(orig);
+                    console.log("IN MS", row);
+                    rev.pushRow(row);
                     if(i == 0){
                       rev_warp_mats.pushRow(input_draft.colShuttleMapping)
                       rev_warp_sys.pushRow(input_draft.colSystemMapping)

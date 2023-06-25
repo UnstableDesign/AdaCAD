@@ -810,6 +810,7 @@ export type VertexMaps = {
 
 export type Example = {
   id: string,
+  ext: string,
   title: string,
   desc: string
 }

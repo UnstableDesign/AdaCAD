@@ -13,6 +13,15 @@
     flex-direction: row;
 }
 
+.cameracontrols{
+    position: absolute;
+    width: 75%;
+    text-align: center;
+    top: 90vh;
+    font-size: 0.8em;
+    left: 3%;
+}
+
 .controls{
     position: absolute;
     width: 25%;
