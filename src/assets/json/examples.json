@@ -1,6 +1,11 @@
 {
     "examples": [
-
+        {
+            "id": "praxis-workshop",
+            "ext": "png",
+            "title":"Intro to AdaCAD for Praxis",
+            "desc":"Hi! Open this file to follow along"
+        },
         {
             "id": "material-calculus",
             "ext": "png",
