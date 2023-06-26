@@ -28,7 +28,7 @@ export class ImageService {
     let url = "";
     this.images.push({id: id, data: null});
   
-    
+    console.log("LOADING FILES")
     //const data = ids.map(id => this.upSvc.getDownloadData(id));
     return this.upSvc.getDownloadData(id).then(obj =>{
         if(obj === '') return Promise.resolve(null)

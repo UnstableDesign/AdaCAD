@@ -41,6 +41,7 @@ export class UploadService {
      
       reader.onload = function (event) {
         let data = event.target.result;
+        console.log("GET HASH ", data)
         let ret: any = data;
         if (data) {
           let uintArBuff = new Uint8Array(ret);   //Does an array buffer convert to a Uint8Array?
@@ -49,6 +50,7 @@ export class UploadService {
                 new Uint8Array(data)
                   .reduce((data, byte) => data + String.fromCharCode(byte), '')
               );
+              console.log("RESOLVING WITH ", base64)
               resolve(base64);
             }
           );
@@ -66,7 +68,6 @@ export class UploadService {
   uploadData(id: string, upload: Upload, metadata: UploadMetadata){
       const storage = getStorage();
       const storageRef = ref(storage, 'uploads/'+id);
-      console.log("UPLOAD META", metadata)
       
       const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
@@ -151,13 +152,16 @@ export class UploadService {
 
     this.getDownloadMetaData(id);
 
+    console.log("GET DOWNLOAD DATA")
     return getDownloadURL(ref(storage, 'uploads/'+id))
       .then((url) => {
-        console.log("url", url)
+        console.log("GETTING DOWNLOAD URL", url)
         const xhr = new XMLHttpRequest();
         xhr.responseType = 'blob';
+        xhr.withCredentials = false;
         xhr.onload = (event) => {
           const blob = xhr.response;
+          
         };
         xhr.open('GET', url);
         xhr.send();
@@ -204,7 +208,6 @@ export class UploadService {
         return Promise.resolve(true);
       })
       .catch((error) => {
-
         switch (error.code) {
           case 'storage/object-not-found':
             console.error("file does not exist")

@@ -623,7 +623,7 @@ zoomChange(e:any, source: string){
    */
    async processFileData(data: FileObj) : Promise<string|void>{
 
-
+    console.log("PROCESS FILE DATA")
     let entry_mapping = [];
 
 

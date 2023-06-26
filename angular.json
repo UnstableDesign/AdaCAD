@@ -97,8 +97,8 @@
             "prerender": false,
             "ssr": false,
             "browserTarget": "adacad-weaver:build:production",
-            "firebaseProject": "adacad-weaver",
-            "firebaseHostingSite": "adacad-weaver"
+            "firebaseProject": "adacad-beta-fa4dc",
+            "firebaseHostingSite": "adacad-beta-fa4dc"
           }
         }
       }

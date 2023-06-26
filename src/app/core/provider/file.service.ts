@@ -84,7 +84,6 @@ export class FileService {
       }
 
       const flips_required = utilInstance.getFlips(3, this.ws.selected_origin_option);
-      console.log("FLIPS REQUIRED ON LOAD ", flips_required)
 
       const loom_elements = []
       const loom_fns = []
