@@ -1,6 +1,7 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
 import { Interlacement, Note } from '../model/datatypes';
+import utilInstance from '../model/util';
 
 
 
@@ -27,7 +28,7 @@ export class NotesService {
     let gennote: Note = null;
     if(note == null){
      gennote = {
-        id: this.notes.length,
+        id: utilInstance.generateId(8),
         interlacement: i,
         title: "",
         text: "",
@@ -40,7 +41,7 @@ export class NotesService {
       }
     }else{
       gennote = {
-        id: note.id,
+        id: utilInstance.generateId(8),
         interlacement: i,
         title: (note.title !== undefined) ? note.title : "",
         text: note.text,
@@ -60,7 +61,7 @@ export class NotesService {
 
   createBlankNode(i: Interlacement) : Note{
     const note: Note = {
-      id: this.notes.length,
+      id: utilInstance.generateId(8),
       interlacement: i,
       title: "",
       text: "",

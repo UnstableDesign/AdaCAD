@@ -958,8 +958,11 @@ zoomChange(e:any, source: string){
 
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
-    this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, so).then(
-      lr => this.loadNewFile(lr)
+    this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, so).then(lr => {
+      console.log("LOADing FILE ", lr);
+      this.loadNewFile(lr)
+    }
+    
     );
 
   

@@ -421,7 +421,6 @@ export module Sequence{
     this.fill(total_warps, total_wefts);
     seq.fill(total_warps, total_wefts);
 
-    console.log("THIS STATE ", this.state, seq, consider_heddle_down_as_unset)
 
     this.state.forEach((row, i) => {
       row.forEach((cell, j) => {
@@ -429,9 +428,7 @@ export module Sequence{
           this.set(i, j, seq.get(i, j), false);
         }else if(seq.get(i, j) !== 2 && cell != 2){
           if(consider_heddle_down_as_unset){
-            console.log("CHECKING FOR 1")
             if(seq.get(i, j) == 1){
-              console.log("SET I J", i, j)
               this.set(i,j, 1, true);
             }
           }else{

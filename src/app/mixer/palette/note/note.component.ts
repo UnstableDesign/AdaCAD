@@ -51,7 +51,6 @@ export class NoteComponent implements OnInit {
     this.note = this.notes.get(this.id);
     if(this.note == undefined){
       this.bounds.topleft = {x: 0, y: 0};
-      console.error("cound not find note on init ", this.id, this.notes.notes);
     }else{
       this.bounds.topleft = {
         x: this.note.interlacement.j * this.scale,
@@ -104,7 +103,6 @@ export class NoteComponent implements OnInit {
 
 
   delete(){
-    console.log("DELETE NOTE EMITTED!")
     this.deleteNote.emit(this.note.id);
   }
     
@@ -125,7 +123,7 @@ export class NoteComponent implements OnInit {
    */
    rescale(){
     if(this.note === undefined){
-      // console.error("note is undefined on rescale");
+       console.error("note is undefined on rescale");
        return;
     }
 
@@ -142,11 +140,6 @@ export class NoteComponent implements OnInit {
       y: this.note.interlacement.i * this.scale
     };
 
-    // this.note.width*= zoom_factor;
-    // this.note.height*= zoom_factor;
-
-
-  
   }
 
   save(){
