@@ -55,6 +55,7 @@ export class LoadfileComponent {
 
       
       case 'ada': 
+      
         return this.fls.loader.ada(e.name,-1, '', e.data)
         .then(
           res => this.dialogRef.close(res)
