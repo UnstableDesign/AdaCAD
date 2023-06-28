@@ -214,7 +214,7 @@ export class ParameterComponent implements OnInit {
     const opnode = this.tree.getOpNode(this.opid);
     const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
 
-    if(obj === undefined) return;
+    if(obj === undefined || obj.data == undefined || obj.data.image == null ) return;
 
       const data = obj.data;
 

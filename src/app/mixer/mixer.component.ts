@@ -75,6 +75,7 @@ export class MixerComponent implements OnInit {
   selected_origin: number = 0;
   show_viewer: boolean = false;
   show_details: boolean = false;
+  loading: boolean = false;
 
 
 
@@ -402,10 +403,10 @@ zoomChange(e:any, source: string){
    * @param result 
    */
     insertPasteFile(result: LoadResponse){
-
       this.processFileData(result.data).then(data => {
         this.palette.changeDesignmode('move');
         this.saveFile();
+
       }
   
       ).catch(console.error);
@@ -430,7 +431,9 @@ zoomChange(e:any, source: string){
       this.saveFile();
     }
 
-    ).catch(console.error);
+    ).catch(e => {
+      console.log("CAUGHT ERROR through from process file data")
+    });
     
   }
 
@@ -622,8 +625,8 @@ zoomChange(e:any, source: string){
    * Take a fileObj returned from the fileservice and process
    */
    async processFileData(data: FileObj) : Promise<string|void>{
+    this.loading = true;
 
-    console.log("PROCESS FILE DATA")
     let entry_mapping = [];
 
 
@@ -642,7 +645,6 @@ zoomChange(e:any, source: string){
         } 
       });
     })
-
 
 
 
@@ -670,11 +672,7 @@ zoomChange(e:any, source: string){
 
          let d:Draft =null;
          let render_colors = true;
-        // let ls:LoomSettings = {
-        //   this.ws.type
-        // }
-        // let l = new Loom(d, this.ws.type, this.ws.min_frames, this.ws.min_treadles);
-
+ 
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
         //let d: Draft = initDraft();
         let l: Loom = {
@@ -821,9 +819,13 @@ zoomChange(e:any, source: string){
     })
     .then(res => {
       // this.palette.rescale(data.scale);
+      this.loading = false;
       return Promise.resolve('alldone')
     })
-    .catch(console.error);
+    .catch(e => {
+      this.loading = false;
+      console.log("ERROR THOWN in process", e)
+    });
 
 
     //print out all trees:

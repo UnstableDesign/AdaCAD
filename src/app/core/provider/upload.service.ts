@@ -152,13 +152,10 @@ export class UploadService {
 
     this.getDownloadMetaData(id);
 
-    console.log("GET DOWNLOAD DATA")
     return getDownloadURL(ref(storage, 'uploads/'+id))
       .then((url) => {
-        console.log("GETTING DOWNLOAD URL", url)
         const xhr = new XMLHttpRequest();
         xhr.responseType = 'blob';
-        xhr.withCredentials = false;
         xhr.onload = (event) => {
           const blob = xhr.response;
           
@@ -168,13 +165,12 @@ export class UploadService {
         return Promise.resolve(url);
       })
       .catch((error) => {
-        
         // A full list of error codes is available at
     // https://firebase.google.com/docs/storage/web/handle-errors
         switch (error.code) {
           case 'storage/object-not-found':
             console.error("file does not exist")
-            Promise.reject("not found");
+            Promise.resolve(null);
             break;
           case 'storage/unauthorized':
             console.error("not authorized")

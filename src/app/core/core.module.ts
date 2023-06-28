@@ -141,6 +141,7 @@ import { KeycodesDirective } from './keycodes.directive';
         MatTooltipModule,
         MatTreeModule,
         ColorPickerModule,
+        MatProgressBarModule,
         MatChipsModule,
         MatSnackBarModule,
         ScrollingModule,

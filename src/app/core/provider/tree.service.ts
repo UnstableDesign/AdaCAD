@@ -2045,7 +2045,7 @@ isValidIOTuple(io: IOTuple) : boolean {
             treadling: this.adjustTreadlingForSaving(  (<DraftNode>node).loom.treadling)
           }
         }
-
+        if((<DraftNode>node).draft !== null && (<DraftNode>node).draft !== undefined){
         const savable: DraftNodeProxy = {
           node_id: node.id,
           draft_id: (<DraftNode>node).draft.id,
@@ -2057,6 +2057,7 @@ isValidIOTuple(io: IOTuple) : boolean {
           render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors
         }
         objs.push(savable);
+      }
   
       })
 

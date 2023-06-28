@@ -1111,6 +1111,8 @@ filterToUniqueValues(arr: Array<any>) : Array<any>{
  * @param input 
  */
 parseRegex(input:string, regex: RegExp) : Array<any> {
+  if(input == undefined || regex == undefined) return [];
+  input = input.toString();
   const global_regex = new RegExp(regex, 'g');
   const matches = input.match(global_regex);
   return matches;

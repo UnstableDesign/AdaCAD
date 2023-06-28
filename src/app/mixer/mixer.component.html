@@ -253,6 +253,8 @@
   (onRevealDraftDetails)="showDraftDetails($event)" >
   </app-palette>
 
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
   <canvas id="saver"></canvas>
 
   <div  id="mixerview" class="mixerview">

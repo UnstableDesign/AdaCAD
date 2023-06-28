@@ -9,7 +9,7 @@ import { UploadService } from '../provider/upload.service';
 })
 export class ImageService {
 
-  images: Array<{id: string, data: any}> = [];
+  images: Array<{id: string, data: AnalyzedImage}> = [];
 
 
   constructor(private upSvc: UploadService, private httpClient: HttpClient) { }
@@ -28,15 +28,29 @@ export class ImageService {
     let url = "";
     this.images.push({id: id, data: null});
   
-    console.log("LOADING FILES")
-    //const data = ids.map(id => this.upSvc.getDownloadData(id));
     return this.upSvc.getDownloadData(id).then(obj =>{
-        if(obj === '') return Promise.resolve(null)
-        url = obj;
-        return  this.processImage(obj);
+      console.log("GOT DOWNLOAD DATA ", obj);
+      if(obj === undefined) return null;
+      url = obj;
+      return  this.processImage(obj);
       
     }).then(data => {
-      if(data == null) return Promise.reject('nulldata');
+      if(data == null){
+        var obj: AnalyzedImage = {
+          id: id,
+          name: 'placeholder',
+          data: null,
+          colors: [],
+          colors_to_bw: [],
+          image: null,
+          image_map: [],
+          width: 0,
+          height: 0,
+          type: 'image',
+          warning: 'image not found'
+        }
+        return obj;
+      } 
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       var image = new Image();
@@ -146,7 +160,12 @@ export class ImageService {
       
       }).then(imageobj => {
 
-        return this.upSvc.getDownloadMetaData(id).then(metadata => {
+        if(imageobj.data == null){
+          return Promise.resolve(imageobj);
+        }
+
+        return this.upSvc.getDownloadMetaData(id)
+        .then(metadata => {
           if(metadata.customMetadata.filename !== undefined) imageobj.name = metadata.customMetadata.filename;
           this.setImageData(id, imageobj);
           return Promise.resolve(imageobj);
@@ -159,7 +178,7 @@ export class ImageService {
 
   
 
-  getImageData(id: string){
+  getImageData(id: string) : {id: string, data: AnalyzedImage}{
     return this.images.find(el => el.id === id);
   }
 
