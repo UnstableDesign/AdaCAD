@@ -80,7 +80,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       layer_draft_map.forEach((sdm, ndx) => {
         let seq = new Sequence.TwoD().import(sdm.draft.drawdown);
         seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
-        composite.overlay(seq);
+        composite.overlay(seq, false);
         
 
        });

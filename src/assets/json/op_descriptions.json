@@ -166,6 +166,12 @@
             "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Retains the pattern of raised warp ends (black cells) from each input draft when they are overlaid. (Keeps any region that is marked black/true in either draft)" 
         },
         {
+            "name":"overlay_multiple",
+            "displayname": "overlay multiple",
+            "description": "This function will take the lifted heddles within each draft and combine them to make a composite draft whereby each draft can be understood to be overlayed upon eachother. The resulting draft size is recalculated in order to ensure equal repeats",
+            "application": "Can be a useful way to think about the composite structures as independent units, which can then be combined into a composite draft" 
+        },
+        {
             "name":"atop",
             "displayname": "set atop, (a, b) => b",
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a is marked warp raised and b marked warp lowered, or vice versa, it sets the corresponding interlacement in the output draft to warp raised.",

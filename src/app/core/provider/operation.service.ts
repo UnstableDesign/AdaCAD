@@ -52,11 +52,10 @@ import { unset } from '../operations/unset/unset';
 import { warp_profile } from '../operations/warp_profile/warp_profile';
 import { weft_profile } from '../operations/weft_profile/weft_profile';
 import { overlay } from '../operations/overlay/overlay';
-
+import { overlay_multi } from '../operations/overlay_multiple/overlay_multiple';
 import { bwimagemap } from '../operations/bwimagemap/bwimagemap';
 import { sample_length } from '../operations/samplelength/samplelength';
 import { sample_width } from '../operations/samplewidth/samplewidth';
-
 import {  assignsystems} from '../operations/assignsystems/assignsystems';
 import { fill } from '../operations/fill/fill';
 import { atop } from '../operations/atop/atop';
@@ -153,6 +152,7 @@ export class OperationService {
     this.ops.push(cutout);
     this.ops.push(shift);
     this.ops.push(flip);
+    this.ops.push(overlay_multi);
 
   //   //this.ops.push(germanify);
   //   //this.ops.push(crackleify);

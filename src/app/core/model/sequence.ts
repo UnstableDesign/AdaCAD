@@ -390,7 +390,7 @@ export module Sequence{
           let active_warp_system = warp_system_map.get(j%warp_system_map.length());
 
           if(warpsys.find(el => el == active_warp_system) !== undefined){
-            mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j))
+            mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
             within_sequence_j = (within_sequence_j + 1) % this.warps();
           }
         }
@@ -409,7 +409,7 @@ export module Sequence{
    * @param seq 
    * @returns 
    */
-  overlay(seq: Sequence.TwoD) {
+  overlay(seq: Sequence.TwoD, consider_heddle_down_as_unset: boolean) {
 
     //first, make the seqences of compatible sizes
     let total_wefts: number = 0;
@@ -421,12 +421,22 @@ export module Sequence{
     this.fill(total_warps, total_wefts);
     seq.fill(total_warps, total_wefts);
 
+    console.log("THIS STATE ", this.state, seq, consider_heddle_down_as_unset)
+
     this.state.forEach((row, i) => {
       row.forEach((cell, j) => {
         if(seq.get(i, j) !== 2 && cell == 2){
-          this.set(i, j, seq.get(i, j));
+          this.set(i, j, seq.get(i, j), false);
         }else if(seq.get(i, j) !== 2 && cell != 2){
-          console.error("Sequence 2D, overlay is attempting to overwrite a set value")
+          if(consider_heddle_down_as_unset){
+            console.log("CHECKING FOR 1")
+            if(seq.get(i, j) == 1){
+              console.log("SET I J", i, j)
+              this.set(i,j, 1, true);
+            }
+          }else{
+              console.error("Sequence 2D, overlay is attempting to overwrite a set value");
+          }
         }
       })
     })
@@ -448,7 +458,7 @@ export module Sequence{
 
     let weft:Array<number> = this.getWeft(i);
     weft.forEach((el, j) => {
-      if(el == 2) this.set(i, j, val);
+      if(el == 2) this.set(i, j, val, false);
     });
 
     return this;
@@ -463,7 +473,7 @@ export module Sequence{
 
       let warp:Array<number> = this.getWarp(j);
       warp.forEach((el, i) => {
-        if(el == 2) this.set(i, j, val);
+        if(el == 2) this.set(i, j, val, false);
       });
 
       return this;
@@ -529,7 +539,7 @@ export module Sequence{
  * @param val 
  * @returns 
  */
-  set(i: number, j: number, val: number) {
+  set(i: number, j: number, val: number, can_overwrite_set: boolean) {
     if(i < 0 || i >= this.wefts()){
       console.error("Sequence2D - attempting to set an out of range weft value");
       return this;
@@ -539,8 +549,9 @@ export module Sequence{
       return this;
     }
 
-    if(this.state[i][j] !== 2){
-      console.error("overriding set value at ", i, j, this.state[i][j]);
+    if(this.state[i][j] !== 2 && !can_overwrite_set){
+
+        console.error("overriding set value at ", i, j, this.state[i][j]);
       return this;
     }
 

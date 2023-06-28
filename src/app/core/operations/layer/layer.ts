@@ -43,7 +43,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
    drafts.forEach((draft, ndx) => {
     let seq = new Sequence.TwoD().import(draft.drawdown);
     seq.mapToSystems([ndx], [ndx], sys_seq, sys_seq);
-    composite.overlay(seq);
+    composite.overlay(seq, false);
    })
 
    let system_layer_map = sys_seq.val().map(el => {return {ws: el, layer: el}});

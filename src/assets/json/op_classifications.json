@@ -64,6 +64,7 @@
             "op_names":[
                 "interlace",
                 "interlacewarps",
+                "overlay_multiple",
                 "splice in wefts",
                 "splice in warps",
                 "layer",
