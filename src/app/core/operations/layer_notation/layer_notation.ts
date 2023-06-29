@@ -58,6 +58,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
       let weft_system_map = new Sequence.OneD(system_map[0].rowSystemMapping);
       let warp_system_map = new Sequence.OneD(system_map[0].colSystemMapping);
+      let weft_shuttle_map = new Sequence.OneD(system_map[0].rowShuttleMapping);
+      let warp_shuttle_map = new Sequence.OneD(system_map[0].colShuttleMapping);
 
       //make sure the system draft map has a representation for every layer, even if the draft at that layer is null.
       const layer_draft_map = original_string_split.map((unit, layer) => {
@@ -100,7 +102,10 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
        let d: Draft = initDraftFromDrawdown(composite.export());
        d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col', 3);
        d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row', 3);
+       d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(),'col', 3);
+       d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(),'row', 3);
 
+      
       
       return  Promise.resolve([d]);
 
