@@ -1,14 +1,9 @@
 {
     "examples": [
-        {
-            "id": "praxis-workshop",
-            "ext": "png",
-            "title":"Intro to AdaCAD for Praxis",
-            "desc":"Hi! Open this file to follow along"
-        },
+
         {
             "id": "material-calculus",
-            "ext": "png",
+            "ext": "gif",
             "title":"Intro to Drafting as Material Calculus",
             "desc":"Not sure what a weave draft is or how you might think about weave drafting as a series of algorithmic operations, start here."
         },
@@ -23,6 +18,12 @@
             "ext": "png",
             "title":"Operations Playground",
             "desc":"Play with every possible operation that AdaCAD offers"
+        },
+        {
+            "id": "shading",
+            "ext": "png",
+            "title":"Shaded Structures",
+            "desc":"A few different examples of how AdaCAD structures can be leveraged to make shaded structures"
         },
         {
             "id": "etextile",

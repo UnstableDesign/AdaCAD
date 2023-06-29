@@ -418,7 +418,6 @@ zoomChange(e:any, source: string){
    * @param result 
    */
   loadNewFile(result: LoadResponse){
-    console.log("LOADING NEW FILE", result)
     this.clearAll();
 
 
