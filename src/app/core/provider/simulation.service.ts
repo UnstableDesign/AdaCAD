@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { createLayerMaps, getDraftTopology, relaxWefts, translateTopologyToPoints } from '../model/yarnsimulation';
+import { createLayerMaps, getDraftTopology, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
@@ -138,19 +138,20 @@ export class SimulationService {
 
     return this.tileDraft(draft, sim.boundary).then(expandeddraft => {
       currentSim.draft = expandeddraft;
-      return getDraftTopology(currentSim.draft, sim)
-    }).then(
+       return getDraftTopology(currentSim.draft, sim);
+     })
+    .then(
       topology => {
       currentSim.topo = topology;
       return createLayerMaps(currentSim.draft, topology, sim);
       }
-    ).then(lm => {
+    )
+    .then(lm => {
       currentSim.layer_maps = lm;
       return translateTopologyToPoints(currentSim.draft,  currentSim.topo, lm, sim);
 
+
     }).then(vtxs => {
-      currentSim.vtxs = vtxs;
-      // vtxs.wefts = relaxWefts(draft, currentSim.layer_map,sim,  vtxs.wefts);
       currentSim.vtxs = vtxs;
       return currentSim;
     });
@@ -305,6 +306,7 @@ export class SimulationService {
   getBoundaryVtxs(simdata: SimulationData) : {min_x: number, max_x: number, min_y: number, max_y: number}{
     const vtxs = simdata.vtxs;
     const bounds = simdata.bounds;
+
 
     //get the weft boundary, draw warps from this data
     let in_bound_wefts = vtxs.wefts.filter((el, ndx)=> (ndx >= bounds.topleft.y && ndx < bounds.topleft.y + bounds.height));
