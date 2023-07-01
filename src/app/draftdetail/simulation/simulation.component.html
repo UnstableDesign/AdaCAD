@@ -22,8 +22,9 @@
         (change)= "changeLayerSpacing($event)">
       </mat-form-field>
       
-
-      <!-- <mat-form-field class="example-full-width">
+      <!--this number tells the code how many interlacements with a certain layer need to be observed on a single weft  
+      for it to "count" as a real value. For small unit drafts, this number can be really low -->
+     <mat-form-field class="example-full-width">
         <mat-label>Layer Threshold</mat-label>
         <input 
         matInput
@@ -33,10 +34,11 @@
         [max]="100"
         step = 1
         (change)= "changeLayerThreshold()">
-      </mat-form-field>
+      </mat-form-field> 
 
+      <!--this number considered how close two warps, of contrasting interlacement val, need to be together for them to actually be considered an interlacement -->
       <mat-form-field class="example-full-width">
-        <mat-label>Max Interlacement Width</mat-label>
+        <mat-label>Longest Weft Float</mat-label>
         <input 
         matInput
         [(ngModel)] = "max_interlacement_width"
@@ -47,7 +49,7 @@
         (change)= "changeILaceWidth()">
       </mat-form-field>
 
-      <mat-form-field class="example-full-width">
+      <!-- <mat-form-field class="example-full-width">
         <mat-label>Max Interlacement Height</mat-label>
         <input 
         matInput
@@ -57,53 +59,56 @@
         [max]="100"
         step = 1
         (change)= "changeILaceHeight()">
-      </mat-form-field>
-      <div class="toggle fullwidth" > 
+      </mat-form-field> -->
+
+      <!-- <div class="toggle fullwidth" > 
         <mat-slide-toggle
         [(ngModel)]="showing_warp_layer_map"
         (click)="toggleWarpLayerView()">
         Show Warp Layer Map
         </mat-slide-toggle>
-      </div>
-      <div class="toggle fullwidth" > 
+      </div> -->
+      <!-- <div class="toggle fullwidth" > 
         <mat-slide-toggle
         [(ngModel)]="showing_weft_layer_map"
         (click)="toggleWeftLayerView()">
         Show Weft Layer Map
         </mat-slide-toggle>
-      </div>
-      <div class="toggle fullwidth" > 
+      </div> -->
+
+      <!-- <div class="toggle fullwidth" > 
         <mat-slide-toggle
         [(ngModel)]="showing_topo"
         (click)="toggleTopo()"> Show Topography
         </mat-slide-toggle>
-      </div>
+      </div> -->
 
-      <div class="toggle fullwidth" > 
+      <!-- <div class="toggle fullwidth" > 
         <mat-slide-toggle
         [(ngModel)]="showing_draft"
         (click)="toggleDraft()"> Show Draft
         </mat-slide-toggle>
-      </div>
+      </div> -->
 
-      <div class="toggle fullwidth" > 
+      <!-- <div class="toggle fullwidth" > 
         <mat-slide-toggle
         [(ngModel)]="showing_warps"
         (click)="toggleWarps()">
         Show Warps 
         </mat-slide-toggle>
-      </div>
+      </div> -->
 
 
-      <div class="toggle fullwidth" > 
+      <!-- <div class="toggle fullwidth" > 
         <mat-slide-toggle
         [(ngModel)]="showing_wefts"
         (click)="toggleWefts()"> Show Wefts
-        </mat-slide-toggle> -->
-      <!-- </div> -->
+        </mat-slide-toggle> 
+      </div>  -->
   </div>
     <!-- <mat-form-field class="example-full-width">
-    <mat-label>Warp Layer Threshold</mat-label>
+    
+     <mat-label>Warp Layer Threshold</mat-label>
     <input 
     matInput
     [(ngModel)] = "warp_threshold"
@@ -112,8 +117,8 @@
     [max]="draft.drawdown[0].length"
     step = 1
     (change)= "warpThresholdChange()">
-  </mat-form-field>
-  -->
+  </mat-form-field>  -->
+ 
 </div>
 
 <div class="cameracontrols">

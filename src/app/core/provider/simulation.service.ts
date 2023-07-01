@@ -91,9 +91,7 @@ export class SimulationService {
 
     })
 
-    console.log("PATTERN ", pattern)
-    console.log("WARP MATS ", warp_mats)
-
+  
     let extended_pattern = new Sequence.TwoD().import(pattern.export());
     for(let i = 0; i < boundary; i++){
       let offset = i % wefts(draft.drawdown);
@@ -131,7 +129,7 @@ export class SimulationService {
 
     const currentSim:SimulationData  = {
       draft: draft, 
-      bounds: {topleft: {x: sim.boundary, y: sim.boundary}, width: warps(draft.drawdown), height: wefts(draft.drawdown)},
+     bounds: {topleft: {x: sim.boundary, y: sim.boundary}, width: warps(draft.drawdown), height: wefts(draft.drawdown)},
       sim: sim,
       topo: null,
       vtxs: null, 

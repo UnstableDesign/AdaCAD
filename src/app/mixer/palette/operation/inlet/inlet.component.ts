@@ -35,7 +35,7 @@ export class InletComponent implements OnInit {
   inlet_open = true;
   show_inlet_desc = false;
   inlet_for_drafts = true;
-
+  inlet_name = "";
   constructor(
     public tree: TreeService, 
     private systems: SystemsService, 
@@ -84,6 +84,7 @@ export class InletComponent implements OnInit {
     this.fc = new UntypedFormControl(this.parseDefaultInletValue(this.inlet.type, this.opnode.inlets[this.inletid]));
     this.inlet_desc = "input "+this.inlet.dx;
     this.inlet_for_drafts = this.inlet.uses === 'draft';
+    this.inlet_name = this.inlet.name;
 
   }
 

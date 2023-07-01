@@ -8,16 +8,22 @@
             "desc":"Not sure what a weave draft is or how you might think about weave drafting as a series of algorithmic operations, start here."
         },
         {
+            "id": "operation_playground",
+            "ext": "gif",
+            "title":"Operations Playground",
+            "desc":"Play with every possible operation that AdaCAD offers"
+        },
+        {
             "id": "drawdownexperiments",
             "ext": "gif",
             "title":"Drawdown Experiments",
             "desc":"Playing with generating drawdowns by manipulating threading and threadlines with sine waves and zig zags"
         },
         {
-            "id": "operation_playground",
+            "id":"sample7b",
             "ext": "png",
-            "title":"Operations Playground",
-            "desc":"Play with every possible operation that AdaCAD offers"
+            "title": "Lattice Structures",
+            "desc":"We recreate one of Elizabeth Meiklejohn's Samples from the 2023 Experimental Weaving Residency in AdaCAD for those who are interesting in making stretchy, multi-layer, lattice structures"
         },
         {
             "id": "shading",

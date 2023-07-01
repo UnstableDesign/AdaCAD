@@ -27,7 +27,7 @@ export class SimulationComponent implements OnInit {
   loom_settings: LoomSettings;
   sim_expanded: boolean = false;
   layer_spacing: number = 10;
-  layer_threshold: number = 2;
+  layer_threshold: number = 1;
   warp_threshold: number = 2;
   max_interlacement_width: number = 10;
   max_interlacement_height: number = 10;

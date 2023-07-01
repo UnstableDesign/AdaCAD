@@ -16,11 +16,20 @@ value: 12,
 dx: "the number of ends of selvedge on each side of the cloth"
 }
 
+const right_shift:NumParam =  
+{name: 'right shift',
+type: 'number',
+min: 0,
+max: 100,
+value: 0,
+dx: "the number of pics to shift the right side by to ensure the ends catch"
+}
 
 
 
 
-const params = [ends];
+
+const params = [ends, right_shift];
 
 //INLETS
 const draft: OperationInlet = {
@@ -50,6 +59,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     const draft = getAllDraftsAtInlet(op_inputs, 0);
     const sel = getAllDraftsAtInlet(op_inputs, 1);
     const w = getOpParamValById(0, op_params);
+    const shift = getOpParamValById(1, op_params);
 
     if(draft.length == 0 && sel.length == 0) return Promise.resolve([]);
 
@@ -81,7 +91,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
         }
 
         for(let j = 0; j < w; j++){
-            row_seq.push(getHeddle(sel_draft.drawdown,i%sel_draft_wefts,j%sel_draft_warps));
+            row_seq.push(getHeddle(sel_draft.drawdown,(i+shift)%sel_draft_wefts,j%sel_draft_warps));
             warp_materials.push(sel_draft.colShuttleMapping[j%sel_draft_warps]);
             warp_systems.push(sel_draft.colSystemMapping[j%sel_draft_warps]);
         }
