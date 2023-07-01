@@ -1139,9 +1139,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
           
           
           let current_left:YarnVertex = weft[current_left_ndx];
-          let current_right:YarnVertex = weft.find(el => el.j == ilace.j_right);
 
-          if(current_right == undefined) return;
+          let current_right_ndx:number = weft.findIndex(el => el.j == ilace.j_right);
+          if(current_right_ndx == -1) return;
+          let current_right:YarnVertex = weft[current_right_ndx];
+
 
           let prior_left = prior_wefts[ilace.i_bot].find(el => el.j == ilace.j_left);
           let prior_right = prior_wefts[ilace.i_bot].find(el => el.j == ilace.j_right);
@@ -1168,7 +1170,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
             let left_y = prior_left.y;
             let right_y = prior_right.y;
-            let y_pos = left_y +  (((right_y - left_y) /2) + (weft_diam /2) + 10);
+            let y_pos = left_y +  (((right_y - left_y) /2) + (weft_diam /2));
 
             //TODO, don't just pull pull these up, calculate their distance from teh interlacement and let them be affected by packing force. 
             // current_left.y = y_pos;
@@ -1184,13 +1186,14 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
             let to_left = getVtxsInRange(weft, isect_vtx.x - 100, isect_vtx.x);
-            //console.log("TOLEFT is ", to_left);
+            console.log("TOLEFT is ", to_left);
             to_left.forEach(left_vtx => {
-              //left_vtx.y = updateY(isect_vtx.j, isect_vtx.y, left_vtx, sim.warp_spacing);
+              left_vtx.y = updateY(isect_vtx.j, isect_vtx.y, left_vtx, sim.warp_spacing);
             })
             
             //now, push the vertex representing the 
-            //weft.splice(current_left_ndx, 0, isect_vtx);
+            weft.splice(current_right_ndx, 0, isect_vtx);
+            console.log("WEFT AFTER ADD ", current_right_ndx, weft.slice())
 
           }
          
