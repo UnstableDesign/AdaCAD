@@ -22,6 +22,18 @@
         (change)= "changeLayerSpacing($event)">
       </mat-form-field>
       
+      <mat-form-field class="example-full-width">
+        <mat-label>Radius</mat-label>
+        <input 
+        matInput
+        [(ngModel)] = "radius"
+        type = "number"
+        [min]=1
+        [max]=1000
+        step = 1
+        (change)= "changeRadius($event)">
+      </mat-form-field>
+
       <!--this number tells the code how many interlacements with a certain layer need to be observed on a single weft  
       for it to "count" as a real value. For small unit drafts, this number can be really low -->
      <mat-form-field class="example-full-width">

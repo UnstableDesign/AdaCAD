@@ -699,7 +699,20 @@ export type YarnVertex = {
   y: number, 
   z: number, 
   i: number, 
-  j: number};
+  j: number
+};
+
+/**
+ * used in the relaxing round of the simulation to store teh amount of deflection that should be inflicted on any individual vertex. 
+ */
+export type Deflection = {
+  dx: number, 
+  dy: number, 
+  dz: number, 
+  i: number, 
+  j: number
+};
+
 
 
 
@@ -792,6 +805,7 @@ export type SimulationVars = {
   max_interlacement_width: number,
   max_interlacement_height: number,
   boundary: number,
+  radius: number,
   ms: MaterialsService
 }
 

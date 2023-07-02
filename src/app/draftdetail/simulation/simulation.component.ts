@@ -38,6 +38,7 @@ export class SimulationComponent implements OnInit {
   showing_topo: boolean = false;
   showing_draft: boolean = false;
   boundary: number = 10;
+  radius: number = 40;
   current_simdata: SimulationData = null;
 
 
@@ -106,6 +107,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_width,
       this.max_interlacement_height, 
       this.boundary,
+      this.radius,
       this.ms)
       .then(simdata => {
         this.current_simdata = simdata;
@@ -166,6 +168,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_width, 
       this.max_interlacement_height,
       this.boundary,
+      this.radius,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
@@ -183,6 +186,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_width, 
       this.max_interlacement_height,
       this.boundary,
+      this.radius,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
@@ -221,6 +225,25 @@ export class SimulationComponent implements OnInit {
     else this.simulation.hideWarpLayerMap();
   }
 
+
+  changeRadius(e: any){
+
+    this.simulation.recalcSimData(
+      this.scene, 
+      this.draft, 
+      convertEPItoMM(this.loom_settings), 
+      this.layer_spacing, 
+      this.layer_threshold, 
+      this.max_interlacement_width, 
+      this.max_interlacement_height,
+      this.boundary,
+      this.radius,
+      this.ms
+      ).then(simdata => {
+      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
+    });
+  }
+
   changeLayerSpacing(e: any){
 
     this.simulation.recalcSimData(
@@ -232,6 +255,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_width, 
       this.max_interlacement_height,
       this.boundary,
+      this.radius,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
@@ -249,6 +273,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_width, 
       this.max_interlacement_height,
       this.boundary,
+      this.radius,
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
@@ -266,6 +291,7 @@ export class SimulationComponent implements OnInit {
       this.max_interlacement_width, 
       this.max_interlacement_height,
       this.boundary,
+      this.radius, 
       this.ms
       ).then(simdata => {
       this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);

@@ -237,10 +237,8 @@ export const createDraft = (
     draft.colSystemMapping= (data.colSystemMapping === undefined) ? [] : data.colSystemMapping;;
 
 
-    console.log("BEFORE FLIP ", draft.colShuttleMapping);
     return flipDraft(draft, flips.horiz, flips.vert)
     .then(flipped => {
-      console.log("AFTER FLIP ", flipped.colShuttleMapping);
       return flipped;
     })
     
