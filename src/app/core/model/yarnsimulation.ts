@@ -1095,7 +1095,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
       let new_y =  cur.y + (y_dist*displacement_factor);
 
-      console.log("DIST, DISP, YDIST, NEWY", dist, displacement_factor, y_dist, cur.y, new_y, interlacement_y);
+      // console.log("DIST, DISP, YDIST, NEWY", dist, displacement_factor, y_dist, cur.y, new_y, interlacement_y);
       return new_y;
 
     
@@ -1119,96 +1119,162 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     }
 
 
+    export const setBaselineYForWeft = (i: number, weft: Array<YarnVertex>, layer_maps: LayerMaps, draft: Draft, prior_wefts:Array<Array<YarnVertex>>, sim: SimulationVars) : Array<YarnVertex> => {
+        let updated_weft = [];
+        let weft_diam = sim.ms.getDiameter(draft.rowShuttleMapping[i]);
+
+        //find the y value of the same layer
+        weft.forEach((vtx) => {
+
+          let this_layer = layer_maps.weft[vtx.i][vtx.j];
+          let layer_ndx_map = layer_maps.weft
+          .filter((el, ndx) => ndx < i)
+          .map(el => el[vtx.j])
+          .map( (el, ndx) => {return {layer: el, i: ndx, j: vtx.j}});
+
+        let prev_wefts_on_layer = layer_ndx_map.filter(el => el.layer == this_layer);
+        let prev_weft = null;
+        let layer_y = {y: 0, i: -1};
+        
+        if(prev_wefts_on_layer.length > 0){
+          prev_weft = prev_wefts_on_layer.slice().pop();
+          let prev_weft_vtx = prior_wefts[prev_weft.i].find(el => el.j == vtx.j);
+          if(prev_weft_vtx !== undefined)
+          layer_y = {y:prev_weft_vtx.y, i: prev_weft.i};
+        }
+
+        //compare the last layer y to the highest y in the set
+        let max_y = layer_ndx_map.filter(el => el.layer !== this_layer).reduce((acc, el) => {
+          let max_in_weft = prior_wefts[el.i].reduce((subacc, vtx) => {
+            if(vtx.y > subacc) return vtx.y;
+            return subacc;
+          }, 0);
+
+          if(max_in_weft >= acc.y) return {y: max_in_weft, i: el.i};
+          return acc;
+        }, {y: 0, i: -1});
+
+        let use_y = 0;
+
+        if(max_y.i !== -1){
+          //if the layer_y is within acceptable distance from max
+          let diff = (max_y.y + sim.ms.getDiameter(draft.rowShuttleMapping[max_y.i])/2)  - (layer_y.y + weft_diam/2);
+          if(layer_y.i == -1 || diff > weft_diam){
+            use_y = max_y.y + sim.ms.getDiameter(draft.rowShuttleMapping[max_y.i])/2 - weft_diam;
+          } 
+          else{
+            use_y = layer_y.y + sim.ms.getDiameter(draft.rowShuttleMapping[layer_y.i])/2 + weft_diam/2;
+
+          } 
+
+        }
+
+       
+        updated_weft.push({
+          x: vtx.x,
+          y: use_y, 
+          z: vtx.z,
+          i: vtx.i,
+          j: vtx.j
+        })
+    })
+
+    return updated_weft;
+    }
+
 
     export const packWeft = (i: number, weft: Array<YarnVertex>, topo: Array<TopologyVtx>, layer_maps: LayerMaps, draft: Draft,  prior_wefts:Array<Array<YarnVertex>>, sim: SimulationVars) : Array<YarnVertex> => {
 
       //get the interlacements that have the current weft as the top value
       let ilaces = topo.filter(el => el.i_top === i);
+      let row = draft.drawdown[i];
       let weft_diam = sim.ms.getDiameter(draft.rowShuttleMapping[i]);
       let prior_ilaces = [];
 
 
-      ilaces.forEach(ilace => {
+      weft = setBaselineYForWeft(i, weft, layer_maps, draft, prior_wefts, sim);
+    
+
+      // ilaces.forEach(ilace => {
 
 
-          //--- code to add the center point of this ilace as a vertex --//
-          let width = ilace.j_right - ilace.j_left;
+      //     //--- code to add the center point of this ilace as a vertex --//
+      //     let width = ilace.j_right - ilace.j_left;
          
-          let current_left_ndx:number = weft.findIndex(el => el.j == ilace.j_left);
-          if(current_left_ndx == -1) return;
+      //     let current_left_ndx:number = weft.findIndex(el => el.j == ilace.j_left);
+      //     if(current_left_ndx == -1) return;
           
           
-          let current_left:YarnVertex = weft[current_left_ndx];
+      //     let current_left:YarnVertex = weft[current_left_ndx];
 
-          let current_right_ndx:number = weft.findIndex(el => el.j == ilace.j_right);
-          if(current_right_ndx == -1) return;
-          let current_right:YarnVertex = weft[current_right_ndx];
-
-
-          let prior_left = prior_wefts[ilace.i_bot].find(el => el.j == ilace.j_left);
-          let prior_right = prior_wefts[ilace.i_bot].find(el => el.j == ilace.j_right);
+      //     let current_right_ndx:number = weft.findIndex(el => el.j == ilace.j_right);
+      //     if(current_right_ndx == -1) return;
+      //     let current_right:YarnVertex = weft[current_right_ndx];
 
 
-          //this interlacement has a warp where it would otherwise overlap, figure out if we need to push it to 
-          //either side of this warp. 
-          let z_pos = current_left.z/ 2;
-          let center_j =  ilace.j_right + (width/2);
+      //     let prior_left = prior_wefts[ilace.i_bot].find(el => el.j == ilace.j_left);
+      //     let prior_right = prior_wefts[ilace.i_bot].find(el => el.j == ilace.j_right);
 
-          if(width % 2 == 0){
-            if(layer_maps.warp[i][center_j] == ilace.z_pos){
-              let warp_diam = sim.ms.getDiameter(draft.colShuttleMapping[center_j])
-              let interlacement_side = !(draft.drawdown[i][center_j].is_set && draft.drawdown[i][center_j].is_up);
-              z_pos =  (interlacement_side) ? z_pos += (warp_diam/2+weft_diam/2)  : z_pos -= (warp_diam/2+weft_diam/2);
-            }
-          }
+
+      //     //this interlacement has a warp where it would otherwise overlap, figure out if we need to push it to 
+      //     //either side of this warp. 
+      //     let z_pos = current_left.z/ 2;
+      //     let center_j =  ilace.j_right + (width/2);
+
+      //     if(width % 2 == 0){
+      //       if(layer_maps.warp[i][center_j] == ilace.z_pos){
+      //         let warp_diam = sim.ms.getDiameter(draft.colShuttleMapping[center_j])
+      //         let interlacement_side = !(draft.drawdown[i][center_j].is_set && draft.drawdown[i][center_j].is_up);
+      //         z_pos =  (interlacement_side) ? z_pos += (warp_diam/2+weft_diam/2)  : z_pos -= (warp_diam/2+weft_diam/2);
+      //       }
+      //     }
          
-          // console.log("PRIOR LEFT ", prior_left, prior_right)
-          // console.log("CURRENT LEFT ", current_left, current_right)
-         //take the ends of the interlacements and push them up to the interlacement location
-          if(prior_left !== undefined && prior_right !==  undefined){
+      //     // console.log("PRIOR LEFT ", prior_left, prior_right)
+      //     // console.log("CURRENT LEFT ", current_left, current_right)
+      //    //take the ends of the interlacements and push them up to the interlacement location
+      //     if(prior_left !== undefined && prior_right !==  undefined){
 
 
-            let left_y = prior_left.y;
-            let right_y = prior_right.y;
-            let y_pos = left_y +  (((right_y - left_y) /2) + (weft_diam /2));
+      //       let left_y = prior_left.y;
+      //       let right_y = prior_right.y;
+      //       let y_pos = left_y +  (((right_y - left_y) /2) + (weft_diam /2));
 
-            //TODO, don't just pull pull these up, calculate their distance from teh interlacement and let them be affected by packing force. 
-            // current_left.y = y_pos;
-            // current_right.y = y_pos;
+      //       //TODO, don't just pull pull these up, calculate their distance from teh interlacement and let them be affected by packing force. 
+      //       // current_left.y = y_pos;
+      //       // current_right.y = y_pos;
 
-            let isect_vtx: YarnVertex = {
-              x: current_left.x + (current_right.x - current_left.x) /2, 
-              y: y_pos,
-              z: z_pos,
-              i: i, 
-              j: center_j 
-            };
+      //       let isect_vtx: YarnVertex = {
+      //         x: current_left.x + (current_right.x - current_left.x) /2, 
+      //         y: y_pos,
+      //         z: z_pos,
+      //         i: i, 
+      //         j: center_j 
+      //       };
 
 
-            let to_left = getVtxsInRange(weft, isect_vtx.x - 100, isect_vtx.x);
-            console.log("TOLEFT is ", to_left);
-            to_left.forEach(left_vtx => {
-              left_vtx.y = updateY(isect_vtx.j, isect_vtx.y, left_vtx, sim.warp_spacing);
-            })
+      //       let to_left = getVtxsInRange(weft, isect_vtx.x - 100, isect_vtx.x);
+      //       to_left.forEach(left_vtx => {
+      //         left_vtx.y = updateY(isect_vtx.j, isect_vtx.y, left_vtx, sim.warp_spacing);
+      //       })
             
-            //now, push the vertex representing the 
-            weft.splice(current_right_ndx, 0, isect_vtx);
-            console.log("WEFT AFTER ADD ", current_right_ndx, weft.slice())
+      //       //now, push the vertex representing the 
+      //       weft.splice(current_right_ndx, 0, isect_vtx);
+      //       console.log("WEFT AFTER ADD ", current_right_ndx, weft.slice())
 
-          }
+      //     }
          
 
 
-        if(prior_ilaces.length == 0){
+      //   if(prior_ilaces.length == 0){
         
 
 
-        }else{
-          //add the float point
-        }
+      //   }else{
+      //     //add the float point
+      //   }
 
 
-      });
+      // });
       
       return weft;
     }
