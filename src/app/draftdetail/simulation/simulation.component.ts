@@ -37,7 +37,7 @@ export class SimulationComponent implements OnInit {
   showing_wefts: boolean = true;
   showing_topo: boolean = false;
   showing_draft: boolean = false;
-  boundary: number = 10;
+  boundary: number = 0;
   radius: number = 40;
   current_simdata: SimulationData = null;
 

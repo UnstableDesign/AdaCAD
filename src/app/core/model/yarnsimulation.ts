@@ -1,5 +1,6 @@
 
 import { SQRT1_2 } from "mathjs";
+import { start } from "repl";
 import { drawdown } from "../operations/drawdown/drawdown";
 import { layer } from "../operations/layer/layer";
 import { MaterialsService } from "../provider/materials.service";
@@ -699,12 +700,9 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       let a = warp_tuples.filter(el => el.i_top == i);
 
       let range = {j_left: 0, j_right: warps(draft.drawdown)-1}
-     // console.log("LOOKING AT ", i, " ", a)
 
       let verticies = getInterlacements( a, range, 0,  draft, sim);
-      topology = topology.concat(verticies);
-
-
+  
       let corrected = correctInterlacementLayers(topology, verticies, sim.layer_threshold);
 
       topology = topology.concat(corrected);
@@ -775,6 +773,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
    
   }
 
+  
+
 
     /**
      * takes interlacements associted with a layer and organizes them to associate each warp location with a given location
@@ -794,9 +794,40 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
           //span the interlaced warps onto the same layer
          for(let i = ilace.i_bot; i <= ilace.i_top; i++){
               if(layer_map[i][ilace.j_left] == null) layer_map[i][ilace.j_left] = ilace.z_pos;
-              if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;
-            
+              if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;   
          } 
+
+         let i_min = Math.max(0, ilace.i_bot - max_ilace_height);
+         let i_max = Math.min(ilace.i_top + max_ilace_height, layer_map.length-1);
+         
+        //reach out from all four corners and see if there is an interlacement with the same layer val in range
+        let bottom_left = warpLayerValueInRange(layer_map, ilace.z_pos, i_min, ilace.i_bot, ilace.j_left);
+        if(bottom_left !== -1){
+          for(let i = bottom_left; i < ilace.i_bot; i++){
+            if(layer_map[i][ilace.j_left] == null) layer_map[i][ilace.j_left] = ilace.z_pos;
+          }
+        }
+
+        let bottom_right = warpLayerValueInRange(layer_map, ilace.z_pos, i_min, ilace.i_bot, ilace.j_right);
+        if(bottom_right !== -1){
+         for(let i = bottom_right; i <= ilace.i_bot; i++){
+           if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;
+         }
+        }
+
+        let top_left = warpLayerValueInRange(layer_map, ilace.z_pos, ilace.i_top,i_max, ilace.j_left);
+        if(top_left !== -1){
+          for(let i = ilace.i_top; i < top_left; i++){
+            if(layer_map[i][ilace.j_left] == null) layer_map[i][ilace.j_left] = ilace.z_pos;
+          }
+        }
+
+        let top_right = warpLayerValueInRange(layer_map, ilace.z_pos,ilace.i_top,i_max, ilace.j_right);
+        if(top_right !== -1){
+          for(let i = ilace.i_top; i < top_right; i++){
+            if(layer_map[i][ilace.j_right] == null) layer_map[i][ilace.j_right] = ilace.z_pos;
+         }
+        }
 
         }
       });
@@ -829,6 +860,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
           if(layer_map[ilace.i_bot][j] == null) layer_map[ilace.i_bot][j] = ilace.z_pos;
          }
         }
+
+        
 
         let top_left = weftLayerValueInRange(layer_map, ilace.z_pos, j_min, ilace.j_left, ilace.i_top);
         if(top_left !== -1){
@@ -896,6 +929,14 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
         layer_maps.weft = wefts;
         
+  
+        //make sure every column in the warp map has at least one weft traveling on it in the weft map. 
+        // for(let j = 0; j < warps(draft.drawdown); j++){
+        //   let col = getCol(draft.drawdown, j);
+        //   let unique_layer_vals = 
+        // }
+
+
         return layer_maps;
       });
     }
@@ -905,6 +946,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
      */
     export const createWarpLayerMap = (draft: Draft, topo: Array<TopologyVtx>, sim: SimulationVars, active_layers: Array<number>, max_layer: number) : Promise<Array<Array<number>>> => {
     
+      console.log("TOPO ", topo)
+
     //get the closest weft interlacements 
     const max_height = topo.reduce((acc, val) => {
       if((val.i_top - val.i_bot) > acc) return (val.i_top - val.i_bot);
@@ -913,10 +956,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     //start from the smallest width to the largest  
     //push interlacements to the map in this order, not adding any additional. 
-    //add a "strength, field that extends out from interlacement in "
     
-
-
       // //default all layers to null
       let layer_map: Array<Array<number>> = [];
       for(let i = 0; i < wefts(draft.drawdown); i++){
@@ -932,8 +972,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
           layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height); 
       }
 
-    
-        
 
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
@@ -989,21 +1027,40 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
    * values it had just saw, and replace this value with those values. 
    */
     let prior_pattern = [];
+    let needs_value = [];
+    let starting_pattern = [];
     let count_null = 0;
+    let has_pattern = false;
     for(let i = 0; i < wefts(draft.drawdown); i++){
+      prior_pattern = [];
+      needs_value = [];
+      starting_pattern = [];
+      count_null = 0;
+      has_pattern = false;
       for(let j = 0; j < warps(draft.drawdown); j++){
         if(layer_map[i][j] !== null){
           if(count_null > 0) prior_pattern = [];
           prior_pattern.push(layer_map[i][j]);
           count_null = 0;
         }else{
-       //   console.log("FOUND NULL AT ", i, j, "PRIOR IS ", prior_pattern, " ", count_null);
-          if(prior_pattern.length == 0) layer_map[i][j] = 0;
-          else layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
+        
+          if(prior_pattern.length == 0) needs_value.push(j);
+          else{
+            if(!has_pattern) starting_pattern = prior_pattern.slice();
+            has_pattern = true;
+            layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
+          } 
           count_null++;
         }
-
       }
+
+      for(let n = 0; n <needs_value.length; n++){
+        layer_map[i][needs_value[n]] = starting_pattern[n%starting_pattern.length];
+      }
+
+
+
+
     }
 
 
@@ -1072,7 +1129,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         }
       }
 
-    //  console.log("WEFT LAYER MAP", layer_map)
+      console.log("WEFT LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
 
     }
@@ -1169,7 +1226,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
           else{
             //make sure the new y isn't too far away
             if(Math.ceil(max_y.y - layer_y.y) >= weft_diam) {
-              console.log("DETECTED DIFFERENCE ")
               layer_y.y = max_y.y - weft_diam; 
             }
 
@@ -1325,6 +1381,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       if(draft.drawdown[i].length == 0) return [];
 
       let start_id = getFirstWarpAssociatedWithLayer(i, layer_maps.weft[i][0], layer_maps);
+      if(start_id == -1) start_id = 0;
 
       let floats:Array<YarnFloat> = [{
         heddle: getCellValue(draft.drawdown[i][start_id]),
