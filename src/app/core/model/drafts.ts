@@ -848,23 +848,6 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
 }
 
 
-export const getFloatLength = (complete: Array<Cell>, start: number, val: boolean) : YarnFloat => {
-
-  const f: YarnFloat = {
-    heddle: val,
-    total_length: 0,
-    start: start
-  }
-
-  let j = start;
-  while( j < complete.length && getCellValue(complete[j]) == val){
-    f.total_length++;
-    j++;
-  }
-
-  return f;
-
-}
 
 
 /**
@@ -872,30 +855,28 @@ export const getFloatLength = (complete: Array<Cell>, start: number, val: boolea
  * @param drawdown 
  * @returns 
  */
-export const createWeftFloatMap = (drawdown: Drawdown) : {float_list: Array<{id: number, float: YarnFloat}>, float_map: Array<Array<number>>} => {
+// export const createWeftFloatMap = (drawdown: Drawdown) : {float_list: Array<{id: number, float: YarnFloat}>, float_map: Array<Array<number>>} => {
 
-  const float_list: Array<{id: number, float: YarnFloat}> = [] ;
-  const float_map:Array<Array<number>> = [];
+//   const float_list: Array<{id: number, float: YarnFloat}> = [] ;
+//   const float_map:Array<Array<number>> = [];
 
-  drawdown.forEach((row, i) => {
+//   drawdown.forEach((row, i) => {
 
-    let j = 0;
-    while(j < warps(drawdown)){
-      let f:YarnFloat = getFloatLength(row, j, getCellValue(row[j]));
-      let f_id = float_list.length;
-      float_list.push({id: f_id, float: f })
-      for(let x = j; x < j+f.total_length; x++){
-        float_map[i][x] = f_id;
-      }
-      j += f.total_length;
-    }
+//     let j = 0;
+//     while(j < warps(drawdown)){
+//       let f:YarnFloat = getFloatLength(row, j, getCellValue(row[j]));
+//       let f_id = float_list.length;
+//       float_list.push({id: f_id, float: f })
+//       for(let x = j; x < j+f.total_length; x++){
+//         float_map[i][x] = f_id;
+//       }
+//       j += f.total_length;
+//     }
 
-  });
+//   });
 
-  return {float_list, float_map};
-}
+//   return {float_list, float_map};
+// }
 
-function getCellVallue(arg0: Cell) {
-  throw new Error("Function not implemented.");
-}
+
 

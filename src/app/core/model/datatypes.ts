@@ -721,8 +721,9 @@ export type Deflection = {
  */
 export type YarnFloat = {
   heddle: boolean, 
-  total_length: number,
-  start: number
+  end: number,
+  start: number,
+  layer: number
 }
 
 
