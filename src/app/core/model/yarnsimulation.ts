@@ -478,7 +478,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
    // if(tuples[0].i_top == wefts(draft.drawdown)-1) return [];
-
+   if(tuples[0].i_bot == 6 && tuples[0].i_top == 8) console.log("GETTING TUPLES IN RANGE ", range)
 
     
     tuples = getTuplesWithinRange(tuples, range);
@@ -490,14 +490,14 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     let orientation = tuples[0].orientation
 
     let ilaces: Array<TopologyVtx> = [];
+    if(i_top == 8) console.log("GOT TOPO ",topo, range, count)
     let float_groups: Array<WarpRange> = splitRangeByVerticies(range , topo);
+    if(i_top == 8) console.log("SPLIT RANGE TO ",float_groups)
+
     float_groups = float_groups.filter(el => el.j_left !== el.j_right);
 
     //filter out groups where the last warp is included because they tend to be noisy  
     float_groups = float_groups.filter(el => !(el.j_right != warps(draft.drawdown)-1 && el.j_right - el.j_left < closeness_to_edge));
-
-    
-    // console.log("FLOAT GROUPS AT ", i_top, i_bot, range, topo, float_groups);
 
 
     float_groups.forEach((range, x) => {
@@ -551,19 +551,19 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     let groups:Array<WarpRange> = [];
     verticies = sortInterlacementsOnWeft(verticies);
 
-    //this would happen if the row just checked didn't have any interlacements, 
     if(verticies.length == 0) return [range];
 
+
     for(let v = 0; v < verticies.length; v++){
+      
       if(v == 0){
         groups.push({
           j_left: range.j_left, 
           j_right: verticies[v].j_left
         })
-      }
+      } 
       
-
-      if( v > 0 && v < verticies.length-1){
+      if( v > 0 && v <= verticies.length-1){
         groups.push({
           j_left: verticies[v-1].j_right, 
           j_right:  verticies[v].j_left
@@ -578,7 +578,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       }
 
     }
-
     return groups;
   }
 
@@ -702,9 +701,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       let range = {j_left: 0, j_right: warps(draft.drawdown)-1}
 
       let verticies = getInterlacements( a, range, 0,  draft, sim);
-  
-      let corrected = correctInterlacementLayers(topology, verticies, sim.layer_threshold);
 
+      let corrected = correctInterlacementLayers(topology, verticies, sim.layer_threshold);
       topology = topology.concat(corrected);
     }
 
@@ -785,6 +783,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
      * @returns 
      */
     export const addWarpLayerInterlacementsToMap = (layer_map: Array<Array<number>>, interlacements: Array<TopologyVtx>, max_ilace_width: number, max_ilace_height: number) : Array<Array<number>> => {
+      console.log("MAX ILACE HEIGHT ", max_ilace_height)
 
 
       interlacements.forEach(ilace => {
@@ -931,10 +930,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         
   
         //make sure every column in the warp map has at least one weft traveling on it in the weft map. 
-        // for(let j = 0; j < warps(draft.drawdown); j++){
-        //   let col = getCol(draft.drawdown, j);
-        //   let unique_layer_vals = 
-        // }
 
 
         return layer_maps;
@@ -976,92 +971,92 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
         //if not, 
-        for(let j = 0; j < warps(draft.drawdown); j++){
+        // for(let j = 0; j < warps(draft.drawdown); j++){
 
-          let col = layer_map.reduce((acc,el) => {
-            return acc.concat(el[j]);
-          }, []);
+        //   let col = layer_map.reduce((acc,el) => {
+        //     return acc.concat(el[j]);
+        //   }, []);
 
-          //find all of the non null vals
-          let vals = [];
+        //   //find all of the non null vals
+        //   let vals = [];
           
-          col.forEach((el, ndx) => {
-            if(el !== null) vals.push(ndx);
-          });
+        //   col.forEach((el, ndx) => {
+        //     if(el !== null) vals.push(ndx);
+        //   });
 
 
-          if(vals.length == 0){
-            //find the first non-zero val to the columns to the right 
-            //fill this with those columns 
-          }else{
+        //   if(vals.length == 0){
+        //     //find the first non-zero val to the columns to the right 
+        //     //fill this with those columns 
+        //   }else{
 
-            vals.forEach(val => {
-              //fill downwards
-              let found = false;
-              for(let i = val-1; i >= 0 && !found; i--){
-                if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
-                else found = true;
-              };
+        //     vals.forEach(val => {
+        //       //fill downwards
+        //       let found = false;
+        //       for(let i = val-1; i >= 0 && !found; i--){
+        //         if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
+        //         else found = true;
+        //       };
 
-              //fill upwards
-               found = false;
-              for(let i = val+1; i < col.length && !found; i++){
-                if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
-                else found = true;
-              };
+        //       //fill upwards
+        //        found = false;
+        //       for(let i = val+1; i < col.length && !found; i++){
+        //         if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
+        //         else found = true;
+        //       };
 
 
-            });
+        //     });
             
 
-          }
+        //   }
 
            
-        // }
+        // // }
 
-        }
+        // }
 
 
   /**
    * look through rows, if you hit a null value in a row, look to the preview 
    * values it had just saw, and replace this value with those values. 
    */
-    let prior_pattern = [];
-    let needs_value = [];
-    let starting_pattern = [];
-    let count_null = 0;
-    let has_pattern = false;
-    for(let i = 0; i < wefts(draft.drawdown); i++){
-      prior_pattern = [];
-      needs_value = [];
-      starting_pattern = [];
-      count_null = 0;
-      has_pattern = false;
-      for(let j = 0; j < warps(draft.drawdown); j++){
-        if(layer_map[i][j] !== null){
-          if(count_null > 0) prior_pattern = [];
-          prior_pattern.push(layer_map[i][j]);
-          count_null = 0;
-        }else{
+    // // let prior_pattern = [];
+    // // let needs_value = [];
+    // // let starting_pattern = [];
+    // // let count_null = 0;
+    // // let has_pattern = false;
+    // // for(let i = 0; i < wefts(draft.drawdown); i++){
+    // //   prior_pattern = [];
+    // //   needs_value = [];
+    // //   starting_pattern = [];
+    // //   count_null = 0;
+    // //   has_pattern = false;
+    // //   for(let j = 0; j < warps(draft.drawdown); j++){
+    // //     if(layer_map[i][j] !== null){
+    // //       if(count_null > 0) prior_pattern = [];
+    // //       prior_pattern.push(layer_map[i][j]);
+    // //       count_null = 0;
+    // //     }else{
         
-          if(prior_pattern.length == 0) needs_value.push(j);
-          else{
-            if(!has_pattern) starting_pattern = prior_pattern.slice();
-            has_pattern = true;
-            layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
-          } 
-          count_null++;
-        }
-      }
+    // //       if(prior_pattern.length == 0) needs_value.push(j);
+    // //       else{
+    // //         if(!has_pattern) starting_pattern = prior_pattern.slice();
+    // //         has_pattern = true;
+    // //         layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
+    // //       } 
+    // //       count_null++;
+    // //     }
+    // //   }
 
-      for(let n = 0; n <needs_value.length; n++){
-        layer_map[i][needs_value[n]] = starting_pattern[n%starting_pattern.length];
-      }
-
-
+    // //   for(let n = 0; n <needs_value.length; n++){
+    // //     layer_map[i][needs_value[n]] = starting_pattern[n%starting_pattern.length];
+    // //   }
 
 
-    }
+
+
+    // }
 
 
       //now clean up 

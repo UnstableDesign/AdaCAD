@@ -30,7 +30,7 @@ export class SimulationComponent implements OnInit {
   layer_threshold: number = 1;
   warp_threshold: number = 2;
   max_interlacement_width: number = 10;
-  max_interlacement_height: number = 10;
+  max_interlacement_height: number = 20;
   showing_warp_layer_map: boolean = false;
   showing_weft_layer_map: boolean = false;
   showing_warps: boolean = true;
