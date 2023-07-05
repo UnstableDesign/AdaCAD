@@ -260,45 +260,45 @@ import { Sequence } from "./sequence";
    * @param warp_vtxs the warp positions
    * @returns 
    */
-  export const layerWarpsInZBetweenInterlacements = (count: number, i_active:number, i_check: number, j_start: number, j_end: number, draft: Draft, range: number, layer_spacing: number,  warp_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>>=> {
+  // export const layerWarpsInZBetweenInterlacements = (count: number, i_active:number, i_check: number, j_start: number, j_end: number, draft: Draft, range: number, layer_spacing: number,  warp_vtxs: Array<Array<YarnVertex>>) : Array<Array<YarnVertex>>=> {
 
-    let ilace_list: Array<WarpInterlacementTuple> = getInterlacementsBetweenWefts(i_active, i_check, j_start, j_end, draft);
-    //if check is 0 there are no more rows to check and we should just return where we are. 
-    if(i_check < 0){
-      // console.log("we are at the end of the range, sending count ", count, ilace_list)
-      return setLayerZ(ilace_list, count, layer_spacing, warp_vtxs);
-    }
+  //   let ilace_list: Array<WarpInterlacementTuple> = getInterlacementsBetweenWefts(i_active, i_check, j_start, j_end, draft);
+  //   //if check is 0 there are no more rows to check and we should just return where we are. 
+  //   if(i_check < 0){
+  //     // console.log("we are at the end of the range, sending count ", count, ilace_list)
+  //     return setLayerZ(ilace_list, count, layer_spacing, warp_vtxs);
+  //   }
 
   
-    // console.log("i lace list comparing", i_active, i_check, j_start, j_end, ilace_list)
+  //   // console.log("i lace list comparing", i_active, i_check, j_start, j_end, ilace_list)
     
-    //if there are no interlacements on this row, it was a duplicate of the previous row, and so we couls just move
-    if(ilace_list.length == 0)
-      return layerWarpsInZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, layer_spacing,  warp_vtxs);
+  //   //if there are no interlacements on this row, it was a duplicate of the previous row, and so we couls just move
+  //   if(ilace_list.length == 0)
+  //     return layerWarpsInZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, layer_spacing,  warp_vtxs);
     
 
-    const has_barrier = hasWeftBarrierInRange(ilace_list, j_start, j_end, range, draft);
-    // console.log("has barrier ", has_barrier);
-    if(has_barrier){
-      //set the warp positions here
-      //each mark each of the barriers as a place that needs to move 
-      console.log("we are at a barrier, sending count ", count, ilace_list)
+  //   const has_barrier = hasWeftBarrierInRange(ilace_list, j_start, j_end, range, draft);
+  //   // console.log("has barrier ", has_barrier);
+  //   if(has_barrier){
+  //     //set the warp positions here
+  //     //each mark each of the barriers as a place that needs to move 
+  //     console.log("we are at a barrier, sending count ", count, ilace_list)
 
-      return setLayerZ(ilace_list, count, layer_spacing, warp_vtxs);
+  //     return setLayerZ(ilace_list, count, layer_spacing, warp_vtxs);
 
-    }else{
+  //   }else{
     
-      let orientation = ilace_list[0].orientation;
-      if(orientation){
-        count = count -1;
-      }else{
-        count = count + 1;
-      }
-      return layerWarpsInZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, layer_spacing, warp_vtxs);
+  //     let orientation = ilace_list[0].orientation;
+  //     if(orientation){
+  //       count = count -1;
+  //     }else{
+  //       count = count + 1;
+  //     }
+  //     return layerWarpsInZBetweenInterlacements(count, i_active, i_check-1, j_start, j_end, draft, range, layer_spacing, warp_vtxs);
   
-    } 
+  //   } 
 
-  }
+  // }
 
   /**
    * gets the first instance of an interlacement with a different orientation to the start, returns the index at which it was found and the distance
@@ -478,7 +478,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
    // if(tuples[0].i_top == wefts(draft.drawdown)-1) return [];
-   if(tuples[0].i_bot == 6 && tuples[0].i_top == 8) console.log("GETTING TUPLES IN RANGE ", range)
 
     
     tuples = getTuplesWithinRange(tuples, range);
@@ -490,9 +489,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     let orientation = tuples[0].orientation
 
     let ilaces: Array<TopologyVtx> = [];
-    if(i_top == 8) console.log("GOT TOPO ",topo, range, count)
     let float_groups: Array<WarpRange> = splitRangeByVerticies(range , topo);
-    if(i_top == 8) console.log("SPLIT RANGE TO ",float_groups)
 
     float_groups = float_groups.filter(el => el.j_left !== el.j_right);
 
@@ -501,11 +498,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
     float_groups.forEach((range, x) => {
-      // console.log("LOOKING AT FLOAT GROUP ", x)
-      count = orientation ? count + 1 : count -1;
+      //you need this here so it doesn't increment the count un-neccessarily
+      let cur_count = orientation ? count - 1 : count + 1;
       
       let next_row_tuple: Array<WarpInterlacementTuple> = getInterlacementsBetweenWefts(i_top, i_bot-1, range.j_left, range.j_right, draft);
-      ilaces = ilaces.concat(getInterlacements(next_row_tuple.slice(), range, count,  draft, simvars));
+      ilaces = ilaces.concat(getInterlacements(next_row_tuple.slice(), range, cur_count,  draft, simvars));
 
     });
   
@@ -754,11 +751,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     */
    export const weftLayerValueInRange = (layer_map: Array<Array<number>>, val: number, j_min: number, j_max: number, i: number) : number => {
 
-
-
     let range = layer_map[i]
     .filter((el, ndx) => ndx > Math.max(0, j_min) && ndx < j_max)
-
 
     let has_value = range.findIndex(el => el == val);
     if(has_value !== -1) return has_value;
@@ -835,8 +829,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     }
 
     export const addWeftLayerInterlacementsToMap = (layer_map: Array<Array<number>>, interlacements: Array<TopologyVtx>, max_ilace_width: number) : Array<Array<number>> => {
-
-
+      max_ilace_width = 5;
+      console.log("INTERLACEMENTS ", interlacements)
       interlacements.forEach(ilace => {
         let width = ilace.j_right-ilace.j_left;
         if(width <= max_ilace_width){
@@ -922,7 +916,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       .then(warps => {
 
         layer_maps.warp = warps;
-        return createWeftLayerMap(draft, topo, sim, active_layers, max_layer)
+        return createWeftLayerMap(draft, topo, sim, warps)
       }
       ).then(wefts =>{
 
@@ -971,92 +965,92 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         //now scan through the layer map. Count the number of consecutive layer values on a warp. 
         //if it is larger than the layer threshold, keep them
         //if not, 
-        // for(let j = 0; j < warps(draft.drawdown); j++){
+        for(let j = 0; j < warps(draft.drawdown); j++){
 
-        //   let col = layer_map.reduce((acc,el) => {
-        //     return acc.concat(el[j]);
-        //   }, []);
+          let col = layer_map.reduce((acc,el) => {
+            return acc.concat(el[j]);
+          }, []);
 
-        //   //find all of the non null vals
-        //   let vals = [];
+          //find all of the non null vals
+          let vals = [];
           
-        //   col.forEach((el, ndx) => {
-        //     if(el !== null) vals.push(ndx);
-        //   });
+          col.forEach((el, ndx) => {
+            if(el !== null) vals.push(ndx);
+          });
 
 
-        //   if(vals.length == 0){
-        //     //find the first non-zero val to the columns to the right 
-        //     //fill this with those columns 
-        //   }else{
+          if(vals.length == 0){
+            //find the first non-zero val to the columns to the right 
+            //fill this with those columns 
+          }else{
 
-        //     vals.forEach(val => {
-        //       //fill downwards
-        //       let found = false;
-        //       for(let i = val-1; i >= 0 && !found; i--){
-        //         if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
-        //         else found = true;
-        //       };
+            vals.forEach(val => {
+              //fill downwards
+              let found = false;
+              for(let i = val-1; i >= 0 && !found; i--){
+                if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
+                else found = true;
+              };
 
-        //       //fill upwards
-        //        found = false;
-        //       for(let i = val+1; i < col.length && !found; i++){
-        //         if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
-        //         else found = true;
-        //       };
+              //fill upwards
+               found = false;
+              for(let i = val+1; i < col.length && !found; i++){
+                if(layer_map[i][j] == null) layer_map[i][j] =  layer_map[val][j];
+                else found = true;
+              };
 
 
-        //     });
+            });
             
 
-        //   }
+          }
 
            
-        // // }
-
         // }
+
+        }
 
 
   /**
    * look through rows, if you hit a null value in a row, look to the preview 
    * values it had just saw, and replace this value with those values. 
    */
-    // // let prior_pattern = [];
-    // // let needs_value = [];
-    // // let starting_pattern = [];
-    // // let count_null = 0;
-    // // let has_pattern = false;
-    // // for(let i = 0; i < wefts(draft.drawdown); i++){
-    // //   prior_pattern = [];
-    // //   needs_value = [];
-    // //   starting_pattern = [];
-    // //   count_null = 0;
-    // //   has_pattern = false;
-    // //   for(let j = 0; j < warps(draft.drawdown); j++){
-    // //     if(layer_map[i][j] !== null){
-    // //       if(count_null > 0) prior_pattern = [];
-    // //       prior_pattern.push(layer_map[i][j]);
-    // //       count_null = 0;
-    // //     }else{
+    let prior_pattern = [];
+    let needs_value = [];
+    let starting_pattern = [];
+    let count_null = 0;
+    let has_pattern = false;
+    for(let i = 0; i < wefts(draft.drawdown); i++){
+      prior_pattern = [];
+      needs_value = [];
+      starting_pattern = [];
+      count_null = 0;
+      has_pattern = false;
+      for(let j = 0; j < warps(draft.drawdown); j++){
+        if(layer_map[i][j] !== null){
+          if(count_null > 0) prior_pattern = [];
+          prior_pattern.push(layer_map[i][j]);
+          count_null = 0;
+        }else{
         
-    // //       if(prior_pattern.length == 0) needs_value.push(j);
-    // //       else{
-    // //         if(!has_pattern) starting_pattern = prior_pattern.slice();
-    // //         has_pattern = true;
-    // //         layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
-    // //       } 
-    // //       count_null++;
-    // //     }
-    // //   }
+          if(prior_pattern.length == 0) needs_value.push(j);
+          else{
+            if(!has_pattern) starting_pattern = prior_pattern.slice();
+            has_pattern = true;
+            layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
+          } 
+          count_null++;
+        }
+      }
 
-    // //   for(let n = 0; n <needs_value.length; n++){
-    // //     layer_map[i][needs_value[n]] = starting_pattern[n%starting_pattern.length];
-    // //   }
-
-
+      for(let n = 0; n <needs_value.length; n++){
+        layer_map[i][needs_value[n]] = starting_pattern[n%starting_pattern.length];
+      }
 
 
-    // }
+
+
+    }
 
 
       //now clean up 
@@ -1073,7 +1067,14 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
      * @param layer_threshold how many consecutive layer assignments need to be seen in order to call it a layer
      * @returns 
      */
-    export const createWeftLayerMap = (draft: Draft, topo: Array<TopologyVtx>, sim: SimulationVars, active_layers: Array<number>, max_layer: number) : Promise<Array<Array<number>>> => {
+    export const createWeftLayerMap = (draft: Draft, topo: Array<TopologyVtx>, sim: SimulationVars, warp_layer_map: Array<Array<number>>) : Promise<Array<Array<number>>> => {
+
+    //get the closest weft interlacements 
+        const max_width = topo.reduce((acc, val) => {
+          if((val.j_right - val.j_left) > acc) return (val.i_top - val.i_bot);
+          return acc;
+        }, 0);
+
 
         //default all layers to null
         let layer_map: Array<Array<number>> = [];
@@ -1083,49 +1084,144 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
             layer_map[i][j] = null;
           }
         }
-      
 
-      //go through layers 0 -> max and push interlacements to the layer map 
-      for(let i = 0; i <= max_layer; i++){
-        let layers_to_check: Array<number> = []; 
-        if(i !== 0){
-          layers_to_check = [i, -i];
-        }else{
-          layers_to_check = [0]
+        //go through layers 0 -> max and push interlacements to the layer map 
+        for(let j = 1; j <= max_width; j++){
+          console.log("ADDING INTERLACEMENTS OF SIZE ", j)
+          let layer_ilace = topo.filter(ilace => ilace.j_right-ilace.j_left == j);
+          layer_map = addWeftLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width); 
         }
 
-
-        layers_to_check.forEach(layer_id => {
-          let layer_ilace = topo.filter(ilace => ilace.z_pos == layer_id);
-          layer_map = addWeftLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width);
-        })
-        
-      }
-
-        /**
-       * look through rows, if you hit a null value in a row, look to the preview 
-       * values it had just saw, and replace this value with those values. 
-       */
-      let prior_pattern = [];
-      let count_null = 0;
-      for(let j = 0; j < warps(draft.drawdown); j++){
-        for(let i = 0; i < wefts(draft.drawdown); i++){
-          if(layer_map[i][j] !== null){
-            if(count_null > 0) prior_pattern = [];
-            prior_pattern.push(layer_map[i][j]);
-            count_null = 0;
-          }else{
-        //   console.log("FOUND NULL AT ", i, j, "PRIOR IS ", prior_pattern, " ", count_null);
-            if(prior_pattern.length == 0) layer_map[i][j] = 0;
-            else layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
-            count_null++;
+      let null_set;
+      for(let i = 0; i < wefts(draft.drawdown); i++){
+        null_set = [];
+        for(let j = 0; j < warps(draft.drawdown); j++){
+          if(layer_map[i][j] == null) null_set.push(j); 
+          else if(null_set.length > 0){
+            let layers = inferWeftNullLayers(i, draft, null_set, layer_map,  warp_layer_map);
+            for(let n = 0; n<null_set.length; n++){
+                layer_map[i][null_set[n]] = layers[n];
+            }
+            null_set = [];
           }
-
         }
+        
+        //catch any last nulls left over at teh end of the weft
+        let layers = inferWeftNullLayers(i, draft, null_set, layer_map,  warp_layer_map);
+        for(let n = 0; n<null_set.length; n++){
+            layer_map[i][null_set[n]] = layers[n];
+        }
+
+
+
       }
+
+
+       
+
+      
+        /**
+         * look through columns, if you hit a null value in a column, look to the preview 
+         * values it had just saw, and replace this value with those values. 
+         */
+        // let prior_pattern = [];
+        // let needs_value = [];
+        // let starting_pattern = [];
+        // let count_null = 0;
+        // let has_pattern = false;
+        // for(let j = 0; j < warps(draft.drawdown); j++){
+        //   prior_pattern = [];
+        //   needs_value = [];
+        //   starting_pattern = [];
+        //   count_null = 0;
+        //   has_pattern = false;
+        //   for(let i = 0; i < wefts(draft.drawdown); i++){
+        //     if(layer_map[i][j] !== null){
+        //       if(count_null > 0) prior_pattern = [];
+        //       prior_pattern.push(layer_map[i][j]);
+        //       count_null = 0;
+        //     }else{
+            
+        //       if(prior_pattern.length == 0) needs_value.push(i);
+        //       else{
+        //         if(!has_pattern) starting_pattern = prior_pattern.slice();
+        //         has_pattern = true;
+        //         layer_map[i][j] = prior_pattern[count_null%prior_pattern.length];
+        //       } 
+        //       count_null++;
+        //     }
+        //   }
+
+          // if(starting_pattern.length > 0){
+          //   for(let n = 0; n < needs_value.length; n++){
+          //     console.log("STARTING PATTERN ON ", needs_value[n], j, layer_map.length, starting_pattern, n%starting_pattern.length)
+          //     layer_map[needs_value[n]][j] = starting_pattern[n%starting_pattern.length];
+          //   }
+          // }else{
+          //   //there are absolutely no values on this column, what to do?
+          // }
+         //}
+
+
+     
 
       console.log("WEFT LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
+
+    }
+
+    /**
+     * try to guess the layer for the weft based on the draft and the warp layer assignments
+     * @param i 
+     * @param draft 
+     * @param null_set 
+     * @param weft_map 
+     * @param warp_map 
+     * @returns 
+     */
+    export const inferWeftNullLayers = (i: number, draft: Draft, null_set: Array<number>, weft_map:Array<Array<number>>, warp_map:Array<Array<number>>) : Array<number> => {
+
+      let layer_bounds = {atleast: -1000, atmost: 1000};
+      let layer_vals = null_set.map(el => null);
+      let last_val = 0;
+
+      for(let n = 0; n < null_set.length; n++ ){
+       
+        let j = null_set[n];
+        let warp_layer = warp_map[i][j];
+
+
+        if(getCellValue(draft.drawdown[i][j]) == true){
+          if(warp_layer < layer_bounds.atmost) layer_bounds.atmost = warp_layer;
+        }else{
+          if(warp_layer > layer_bounds.atleast) layer_bounds.atleast = warp_layer;
+        }
+
+        console.log("j, warp", j, warp_layer, getCellValue(draft.drawdown[i][j]), layer_bounds)
+
+
+        if(layer_bounds.atleast == layer_bounds.atmost){
+          console.log("WRITING ON EQUAL")
+          for(let l = 0; l <= n; l++){
+            if(layer_vals[l] == null) layer_vals[l] = layer_bounds.atleast;
+          }
+          layer_bounds = {atleast: -1000, atmost: 1000};
+        }else if(layer_bounds.atleast > layer_bounds.atmost){
+          console.log("writing on difference")
+          for(let l = 0; l < n; l++){
+            if(layer_vals[l] == null) layer_vals[l] = last_val;
+          }
+          layer_vals[n] = warp_layer;
+          layer_bounds = {atleast: -1000, atmost: 1000};
+          
+        }
+        last_val = warp_layer;
+
+      }
+
+      console.log("ON i ", i, layer_bounds, null_set, layer_vals)
+      return layer_vals;
+
 
     }
 
@@ -1348,7 +1444,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
        
         //let positioned_dx = (float.heddle) ? max_dx*pcent : -max_dx*pcent; 
-        let positioned_dx = (float.heddle) ? pcent*max_dx : -pcent*max_dx; 
+        let positioned_dx = (float.heddle) ? -pcent*max_dx : pcent*max_dx; 
        // console.log("POSITINED DX ", positioned_dx)
 
         return positioned_dx;
@@ -1571,7 +1667,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
   // }
 
   export const getWeftOrientationVector = (draft: Draft, i: number, j: number) : number => {
-    return (draft.drawdown[i][j].is_set && draft.drawdown[i][j].is_up) ? 1 : -1; 
+    return (draft.drawdown[i][j].is_set && draft.drawdown[i][j].is_up) ? -1 : 1; 
 
   }
 

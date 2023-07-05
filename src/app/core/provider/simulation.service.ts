@@ -413,11 +413,11 @@ export class SimulationService {
       let end_vtx = this.getClosestVtx(simdata, true, simdata.bounds.topleft.y + simdata.bounds.height, j);
 
       
-     if(start_vtx !== null) pts.push(new THREE.Vector3(start_vtx.x, boundary_vtx.min_y-10, start_vtx.z));
+     if(start_vtx !== null) pts.push(new THREE.Vector3(start_vtx.x, boundary_vtx.min_y-10, -start_vtx.z));
      in_bounds_vxts.slice().forEach(vtx => {
-        if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+        if(vtx.x !== undefined) pts.push(new THREE.Vector3(vtx.x, vtx.y, -vtx.z));
       });
-      if(end_vtx !== null) pts.push(new THREE.Vector3(end_vtx.x, boundary_vtx.max_y+10, end_vtx.z));
+      if(end_vtx !== null) pts.push(new THREE.Vector3(end_vtx.x, boundary_vtx.max_y+10, -end_vtx.z));
 
       const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
       const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
@@ -457,15 +457,15 @@ export class SimulationService {
       let end_vtx = this.getClosestVtx(simdata, false, i, simdata.bounds.topleft.x + simdata.bounds.width);
 
 
-      if(start_vtx !== null)  pts.push(new THREE.Vector3(boundary_vtx.min_x-10, start_vtx.y,start_vtx.z));
+      if(start_vtx !== null)  pts.push(new THREE.Vector3(boundary_vtx.min_x-10, start_vtx.y,-start_vtx.z));
 
       in_bound_vtxs.forEach(vtx => {
         if(vtx.x !== undefined){
-          pts.push(new THREE.Vector3(vtx.x, vtx.y, vtx.z));
+          pts.push(new THREE.Vector3(vtx.x, vtx.y, -vtx.z));
         } 
       });
 
-      if(end_vtx !== null) pts.push(new THREE.Vector3(boundary_vtx.max_x+10, end_vtx.y, end_vtx.z));
+      if(end_vtx !== null) pts.push(new THREE.Vector3(boundary_vtx.max_x+10, end_vtx.y, -end_vtx.z));
 
 
       const material_id = draft.rowShuttleMapping[i];
@@ -994,7 +994,7 @@ export class SimulationService {
       
 
 
-      if(start_vtx !== null) top_geometry.translate(start_vtx.x, boundary_vtx.min_y-10, start_vtx.z);
+      if(start_vtx !== null) top_geometry.translate(start_vtx.x, boundary_vtx.min_y-10, -start_vtx.z);
       const material = new THREE.MeshBasicMaterial( { color: color } );
       let end_circle = new THREE.Mesh( top_geometry, material );
       this.warp_scene.add(end_circle);
@@ -1002,7 +1002,7 @@ export class SimulationService {
       
       const bot_geometry = new THREE.CircleGeometry(  diameter/2, 32 );
       bot_geometry.rotateX(3*Math.PI/2);
-      if(end_vtx !== null) bot_geometry.translate(end_vtx.x, boundary_vtx.max_y+10, end_vtx.z);
+      if(end_vtx !== null) bot_geometry.translate(end_vtx.x, boundary_vtx.max_y+10, -end_vtx.z);
       let top_circle = new THREE.Mesh( bot_geometry, material );
       // top_circle.tranlsateY(-top/2);
       // top_circle.tranlsateX(-right/2);
@@ -1031,7 +1031,7 @@ export class SimulationService {
 
       const top_geometry = new THREE.CircleGeometry(  diameter/2, 32 );
       top_geometry.rotateY(3*Math.PI/2);
-      if(start_vtx !== null) top_geometry.translate(boundary_vtx.min_x-10, start_vtx.y,start_vtx.z);
+      if(start_vtx !== null) top_geometry.translate(boundary_vtx.min_x-10, start_vtx.y,-start_vtx.z);
       const material = new THREE.MeshBasicMaterial( { color: color } );
       let end_circle = new THREE.Mesh( top_geometry, material );
 
@@ -1039,7 +1039,7 @@ export class SimulationService {
       
       const bot_geometry = new THREE.CircleGeometry( diameter/2, 32 );
       bot_geometry.rotateY(Math.PI/2);
-      if(end_vtx !== null) bot_geometry.translate(boundary_vtx.max_x+10, end_vtx.y, end_vtx.z);
+      if(end_vtx !== null) bot_geometry.translate(boundary_vtx.max_x+10, end_vtx.y, -end_vtx.z);
       let top_circle = new THREE.Mesh( bot_geometry, material );
       this.weft_scene.add(top_circle);
 
