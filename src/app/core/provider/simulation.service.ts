@@ -669,8 +669,6 @@ export class SimulationService {
         const col = lut.getColor(r);
        
 
-
-
        alldata.push({
           pos: [sim.warp_spacing*j, yarn_height*i, z],
           norm: [0, 1, 0],
