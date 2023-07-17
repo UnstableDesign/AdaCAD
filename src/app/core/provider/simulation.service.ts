@@ -668,6 +668,7 @@ export class SimulationService {
         const r = 0.5 + ( lm.weft[i][j] / range );
         const col = lut.getColor(r);
        
+        if(col !== undefined){
 
        alldata.push({
           pos: [sim.warp_spacing*j, yarn_height*i, z],
@@ -692,6 +693,7 @@ export class SimulationService {
           norm: [0, 1, 0],
           color: [col.r, col.g, col.b]
         });
+        }
 
         let starting_index = ((i*warps(draft.drawdown)) + j) *4;
 
@@ -969,7 +971,7 @@ export class SimulationService {
 
 
     //DRAW WARP ENDS
-    let in_bounds_warps = vtxs.warps.filter(el => el[0].j >= bounds.topleft.x && el[0].j < bounds.topleft.x + bounds.width);
+    let in_bounds_warps = vtxs.warps.filter(el => el.length > 0 && el[0].j >= bounds.topleft.x && el[0].j < bounds.topleft.x + bounds.width);
 
     in_bounds_warps.forEach((warp, ndx) => {
 
