@@ -1,26 +1,19 @@
 # AdaCAD
 AdaCAD is a parametric design tools for making woven drafts. It supports a designer in creating drafts by connecting different operations into a model or pipeline that results in drafts. It currently supports outputs and representations for Jacuqard, Floor, and Direct-Tieup Loom. 
 
-You can use the last release of the tool at [https://adacad.org/](https://adacad.org/).
-For more information about the project and user guides, visit [https://adacad.unstable.design/](https://adacad.unstable.design/)
+- stable release of the tool at [https://adacad.org/](https://adacad.org/).
+- beta release of our most recent developments at [https://adacad-beta-fa4dc.web.app/](https://adacad-beta-fa4dc.web.app/)
+  
+For more information about the project and user guides, visit [https://adacad.unstable.design/](https://adacad.unstable.design/) or our [YouTube Channel](https://www.youtube.com/playlist?list=PLy2lIjrar_02XiqfJG8kLpeWOyCtDXeFJ)
 
 AdaCAD does not require any installing or downloading anything on your device, just [open the app in your browser](https://adacad.org/) (same link as above). 
 
 We invite anyone interested to hack on AdaCAD, should you wish to dive into the code. If that describes you, read on!
 
-## Development Notes
-There are three core modules in this repo: 
-- Core: contains components, services, directives, etc. that are used by both weaver (individual draft view) and mixer (generative workspace) modules. Changes to core will affect both deployments and should be checked before pushing.
-
-- Weaver: contains all components, services, directives, etc. that are used in "Fine Tune" mode for a given draft. This view supports designing on a simulated loom and viewing yarn paths.
-
-- Mixer: contains all components, services, directives, etc. that are used to design and control the AdaCAD Mixer. This view supports more freeform and parametric experimentation on stitch structures.
-
-## Developer Documentation 
-You can use view automatically generated documentation of our project at [http://adacad.unstable.design/AdaCAD/](http://adacad.unstable.design/AdaCAD/).
-
 ## Development Setup
 AdaCAD is built with Angular, a web development framework for progressive web apps. This project was generated with Angular CLI version 7.3.8.
+
+To ask questions, make suggestions, and get support, consider posting to the [AdaCAD Forum](https://groups.google.com/u/1/g/adacad-forum)
 
 ### Prerequisites
 - [Node.JS](https://nodejs.dev/learn/how-to-install-nodejs) and [Node Package Manager (npm)](https://nodejs.dev/learn/an-introduction-to-the-npm-package-manager)
@@ -30,9 +23,22 @@ AdaCAD is built with Angular, a web development framework for progressive web ap
 
 ### Installation for developers
 1. Clone this repository onto your local hard drive.
-2. Open your terminal on the local root directory and run `npm install` to download the requirements. This can take a while.
-3. Once installed, run `ng serve` in the terminal and wait for Angular to compile the app. It should tell you once it's ready. If your system doesn't recognize `ng serve`, make sure that you're in the app and run `node_modules/.bin/ng serve`
+2. Install Angular 
+3. Open your terminal on the local root directory and run `npm install` to download the requirements. This can take a while.
+4. Once installed, run `ng serve` in the terminal and wait for Angular to compile the app. It should tell you once it's ready. If your system doesn't recognize `ng serve`, make sure that you're in the app and run `node_modules/.bin/ng serve`
 5. Navigate to `http://localhost:4200/` and you should see AdaCAD!
+
+## Development Notes
+There are three core modules in this repo: 
+
+- Core: contains components, services, directives, etc. that are used by both weaver (individual draft view) and mixer (generative workspace) modules. Changes to core will affect both deployments and should be checked before pushing.
+
+- DraftDetail: contains all components, services, directives, etc. that are used in "Detail" mode for a given draft. This view supports designing on a simulated loom and viewing yarn paths.
+
+- Mixer: contains all components, services, directives, etc. that are used to design and control the AdaCAD Mixer. This view supports more freeform and parametric experimentation on stitch structures.
+
+## Developer Documentation 
+You can use view automatically generated documentation of our project at [http://adacad.unstable.design/AdaCAD/](http://adacad.unstable.design/AdaCAD/).
 
 ### Code organization
 The information here references Angular documentation, such as this page on [Angular concepts and architectural patterns](https://angular.io/guide/architecture).
