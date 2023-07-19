@@ -140,6 +140,7 @@ export class FilesystemService {
   public clearTree(){
     this.file_tree = [];
   }
+  
 
 
   /**
@@ -307,8 +308,8 @@ export class FilesystemService {
         }
 
       });
+    }
 
-  }
 
   /**
    * writes the data for the currently open file to the database

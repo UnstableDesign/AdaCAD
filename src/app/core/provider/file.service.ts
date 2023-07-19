@@ -61,6 +61,8 @@ export class FileService {
       //let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
       let version = "0.0.0";
+      if(id === -1) id = this.files.generateFileId();
+
       
       this.clearAll();
 

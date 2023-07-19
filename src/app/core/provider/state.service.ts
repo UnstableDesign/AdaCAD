@@ -45,6 +45,7 @@ export class StateService {
 
   }
 
+
   printValue(value: any){
     console.log("printing", value);
   }
@@ -110,6 +111,7 @@ export class StateService {
         scale: ada.file.scale
       }
     }
+  
 
     //write this to database, overwritting what was previously there
     //this.files.writeUserData(ada.file);
@@ -121,26 +123,66 @@ export class StateService {
       this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
     } 
 
-    //we are looking at the most recent state
-    if(this.active_id > 0){
+  if(user !== null){
+    this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
+  } 
+
+  //we are looking at the most recent state
+  if(this.active_id > 0){
 
 
-      //erase all states until you get to the active row
-      this.timeline.splice(0, this.active_id);
-      this.active_id = 0;
-      this.redo_disabled = true;
-
-    }
-
-    //add the new element to position 0
-    var len = this.timeline.unshift(state);
-    if(len > this.max_size) this.timeline.pop();
-
-    if(this.timeline.length > 1) this.undo_disabled = false;
-
-    //this.logState(ada);
+    //erase all states until you get to the active row
+    this.timeline.splice(0, this.active_id);
+    this.active_id = 0;
+    this.redo_disabled = true;
 
   }
+
+  //add the new element to position 0
+  var len = this.timeline.unshift(state);
+  if(len > this.max_size) this.timeline.pop();
+
+  if(this.timeline.length > 1) this.undo_disabled = false;
+
+  //this.logState(ada);
+
+}
+
+/**
+ * used in mixer - adds an ada file to the history state
+ * @param ada 
+ */
+  // public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
+
+  //   var state = {
+  //     draft: null,
+  //     ada: cloneDeep(ada.file),
+  //   }
+
+  //   //write this to database, overwritting what was previously there
+  //   this.writeUserData(ada.file);
+
+
+  //   //we are looking at the most recent state
+  //   if(this.active_id > 0){
+
+
+  //     //erase all states until you get to the active row
+  //     this.timeline.splice(0, this.active_id);
+  //     this.active_id = 0;
+  //     this.redo_disabled = true;
+
+  //   }
+
+  //   //add the new element to position 0
+  //   var len = this.timeline.unshift(state);
+  //   if(len > this.max_size) this.timeline.pop();
+
+  //   if(this.timeline.length > 1) this.undo_disabled = false;
+
+  //   //this.logState(ada);
+
+  // }
 
   
 /**
