@@ -11,6 +11,7 @@ import { interlacewarps } from '../operations/interlace_warps/interlace_warps';
 import { invert } from '../operations/invert/invert';
 import { notation } from '../operations/layer_notation/layer_notation';
 import { random } from '../operations/random/random';
+import { tree } from '../operations/tree/tree';
 import { rect } from '../operations/rect/rect';
 import { satin } from '../operations/satin/satin';
 import { satinish } from '../operations/satinish/satinish';
@@ -113,6 +114,7 @@ export class OperationService {
     this.ops.push(tabby_der);
     // this.ops.push(rib);
     this.ops.push(random);
+    this.ops.push(tree);
     this.ops.push(interlace);
     this.ops.push(deinterlace);
     this.ops.push(interlacewarps);
