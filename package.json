@@ -19,7 +19,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "doc": "npx compodoc -p tsconfig.doc.json"
+    "doc": "npx compodoc -p tsconfig.doc.json",
+    "deploy": "git push origin `git subtree split --prefix documentation main`:gh-pages --force"
+
   },
   "private": true,
   "dependencies": {
