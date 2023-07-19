@@ -1,0 +1,862 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>adacad documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">adacad documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content injectable">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >ImageService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/app/core/provider/image.service.ts</code>
+        </p>
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#images" >images</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#getImageData" >getImageData</a>
+                            </li>
+                            <li>
+                                <a href="#loadFile" >loadFile</a>
+                            </li>
+                            <li>
+                                <a href="#loadFiles" >loadFiles</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#processImage" >processImage</a>
+                            </li>
+                            <li>
+                                <a href="#setImageData" >setImageData</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(upSvc: <a href="../injectables/UploadService.html" target="_self">UploadService</a>, httpClient: HttpClient)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/app/core/provider/image.service.ts:12</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>upSvc</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/UploadService.html" target="_self" >UploadService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>httpClient</td>
+                                                  
+                                                        <td>
+                                                                    <code>HttpClient</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getImageData"></a>
+                    <span class="name">
+                        <span ><b>getImageData</b></span>
+                        <a href="#getImageData"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getImageData(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="181"
+                            class="link-to-prism">src/app/core/provider/image.service.ts:181</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>literal type</code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadFile"></a>
+                    <span class="name">
+                        <span ><b>loadFile</b></span>
+                        <a href="#loadFile"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>loadFile(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="26"
+                            class="link-to-prism">src/app/core/provider/image.service.ts:26</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="../interfaces/AnalyzedImage.html" target="_self" >Promise&lt;AnalyzedImage&gt;</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadFiles"></a>
+                    <span class="name">
+                        <span ><b>loadFiles</b></span>
+                        <a href="#loadFiles"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>loadFiles(ids: Array<string>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="18"
+                            class="link-to-prism">src/app/core/provider/image.service.ts:18</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ids</td>
+                                    <td>
+                                            <code>Array&lt;string&gt;</code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="processImage"></a>
+                    <span class="name">
+                        <span class="modifier">Async</span>
+                        <span ><b>processImage</b></span>
+                        <a href="#processImage"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>processImage(url)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="191"
+                            class="link-to-prism">src/app/core/provider/image.service.ts:191</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>url</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setImageData"></a>
+                    <span class="name">
+                        <span ><b>setImageData</b></span>
+                        <a href="#setImageData"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>setImageData(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, data: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="185"
+                            class="link-to-prism">src/app/core/provider/image.service.ts:185</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>data</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="images"></a>
+                    <span class="name">
+                        <span ><b>images</b></span>
+                        <a href="#images"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Array&lt;literal type&gt;</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/app/core/provider/image.service.ts:12</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpClient } from &#x27;@angular/common/http&#x27;;
+import { Injectable } from &#x27;@angular/core&#x27;;
+import { AnalyzedImage } from &#x27;../model/datatypes&#x27;;
+import utilInstance from &#x27;../model/util&#x27;;
+import { UploadService } from &#x27;../provider/upload.service&#x27;;
+
+@Injectable({
+  providedIn: &#x27;root&#x27;
+})
+export class ImageService {
+
+  images: Array&lt;{id: string, data: AnalyzedImage}&gt; &#x3D; [];
+
+
+  constructor(private upSvc: UploadService, private httpClient: HttpClient) { }
+
+
+  loadFiles(ids: Array&lt;string&gt;) : Promise&lt;any&gt; {
+    const fns &#x3D; ids
+    .filter(id &#x3D;&gt; id !&#x3D;&#x3D; &#x27;&#x27;)
+    .map(id &#x3D;&gt; this.loadFile(id));
+    return Promise.all(fns);
+  }
+
+
+  loadFile(id: string) : Promise&lt;AnalyzedImage&gt;{
+
+    let url &#x3D; &quot;&quot;;
+    this.images.push({id: id, data: null});
+  
+    return this.upSvc.getDownloadData(id).then(obj &#x3D;&gt;{
+      console.log(&quot;GOT DOWNLOAD DATA &quot;, obj);
+      if(obj &#x3D;&#x3D;&#x3D; undefined) return null;
+      url &#x3D; obj;
+      return  this.processImage(obj);
+      
+    }).then(data &#x3D;&gt; {
+      if(data &#x3D;&#x3D; null){
+        var obj: AnalyzedImage &#x3D; {
+          id: id,
+          name: &#x27;placeholder&#x27;,
+          data: null,
+          colors: [],
+          colors_to_bw: [],
+          image: null,
+          image_map: [],
+          width: 0,
+          height: 0,
+          type: &#x27;image&#x27;,
+          warning: &#x27;image not found&#x27;
+        }
+        return obj;
+      } 
+      var canvas &#x3D; document.createElement(&#x27;canvas&#x27;);
+      var ctx &#x3D; canvas.getContext(&#x27;2d&#x27;);
+      var image &#x3D; new Image();
+      image.src &#x3D; url;
+      image.crossOrigin &#x3D; &quot;Anonymous&quot;;
+
+      return image.decode().then(() &#x3D;&gt; {
+        canvas.width &#x3D; image.naturalWidth;
+        canvas.height &#x3D; image.naturalHeight; 
+
+        if(image.naturalWidth &gt; 10000) Promise.reject(&#x27;width error&#x27;);
+        if(image.naturalHeight &gt; 10000) Promise.reject(&#x27;height error&#x27;);
+
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        var imgdata &#x3D; ctx.getImageData(0,0, canvas.width, canvas.height);
+
+        const pixels &#x3D; imgdata.data;
+
+        //process the pixels into meaningful values;
+        const all_colors: Array&lt;any&gt; &#x3D; [];
+        for(let i &#x3D; 0; i &lt; pixels.length; i+&#x3D; 4){
+
+          let r: string&#x3D; pixels[i].toString(16);
+          let r_val: number &#x3D; pixels[i];
+      
+          if(r.length &#x3D;&#x3D; 1) r &#x3D; &#x27;0&#x27;+r;
+
+          let g:string &#x3D; pixels[i+1].toString(16);
+          let g_val: number &#x3D; pixels[i+1];
+          if(g.length &#x3D;&#x3D; 1) g &#x3D; &#x27;0&#x27;+g;
+
+          let b:string &#x3D; pixels[i+2].toString(16);
+          let b_val: number &#x3D; pixels[i+2];
+
+          if(b.length &#x3D;&#x3D; 1) b &#x3D; &#x27;0&#x27;+b;
+
+          const is_black:boolean &#x3D; ((r_val + g_val + b_val/3) &lt; (255/2))
+          const o &#x3D; pixels[i+3].toString(16);
+
+
+          all_colors.push({hex: &#x27;#&#x27;+r+&#x27;&#x27;+g+&#x27;&#x27;+b, black: is_black});
+
+        }
+
+        const just_hex &#x3D; all_colors.map(el &#x3D;&gt; el.hex);
+        let filewarning &#x3D; &quot;&quot;;
+
+        let seen_vals &#x3D; [];
+        let unique_count &#x3D; 0;
+        for(let i &#x3D; 0; i &lt; just_hex.length &amp;&amp; unique_count &lt; 100; i++){
+          if(seen_vals.find(el &#x3D;&gt; el &#x3D;&#x3D; just_hex[i]) &#x3D;&#x3D; undefined){
+            unique_count++;
+            seen_vals.push(just_hex[i]);
+          } 
+        }
+
+
+        if(unique_count &gt;&#x3D; 100){
+          filewarning &#x3D; &quot;this image contains more than 100 colors and will take too much time to process, consider indexing to a smaller color space&quot;
+          return Promise.reject(filewarning);
+        } 
+
+        /**this is expensive, so just do a fast run to make sure the size is okay before we go into this */
+        const unique &#x3D; utilInstance.filterToUniqueValues(just_hex);
+
+        const color_to_bw &#x3D; unique.map(el &#x3D;&gt; {
+          const item &#x3D; all_colors.find(ell &#x3D;&gt; ell.hex &#x3D;&#x3D; el);
+          if(item !&#x3D;&#x3D; undefined) return item
+        })
+
+ 
+        let image_map: Array&lt;Array&lt;number&gt;&gt; &#x3D; [];
+        if(unique.length &gt; 100){
+          filewarning &#x3D; &quot;this image contains &quot;+unique.length+&quot; color and will take too much time to process, consider indexing to a smaller color space&quot;
+          return Promise.reject(filewarning);
+        } 
+        else{
+          const image_map_flat: Array&lt;number&gt; &#x3D; all_colors.map(item &#x3D;&gt; unique.findIndex(el &#x3D;&gt; el &#x3D;&#x3D;&#x3D; item.hex));
+
+          let cur_i &#x3D; 0;
+          let cur_j &#x3D; 0;
+          image_map_flat.forEach((id, ndx)&#x3D;&gt; {
+            cur_i &#x3D; Math.floor(ndx / imgdata.width);
+            cur_j &#x3D; ndx % imgdata.width;
+            
+            if(cur_i &gt;&#x3D; image_map.length) image_map.push([]);
+            image_map[cur_i][cur_j] &#x3D; id;
+          });
+        }
+      
+        var obj: AnalyzedImage &#x3D; {
+          id: id,
+          name: &#x27;placeholder&#x27;,
+          data: imgdata,
+          colors: unique,
+          colors_to_bw: color_to_bw,
+          image: image,
+          image_map: image_map,
+          width: imgdata.width,
+          height: imgdata.height,
+          type: &#x27;image&#x27;,
+          warning: filewarning
+        }
+
+        return obj;
+      
+      }).then(imageobj &#x3D;&gt; {
+
+        if(imageobj.data &#x3D;&#x3D; null){
+          return Promise.resolve(imageobj);
+        }
+
+        return this.upSvc.getDownloadMetaData(id)
+        .then(metadata &#x3D;&gt; {
+          if(metadata.customMetadata.filename !&#x3D;&#x3D; undefined) imageobj.name &#x3D; metadata.customMetadata.filename;
+          this.setImageData(id, imageobj);
+          return Promise.resolve(imageobj);
+
+        })
+
+      }) ;
+  });
+  }
+
+  
+
+  getImageData(id: string) : {id: string, data: AnalyzedImage}{
+    return this.images.find(el &#x3D;&gt; el.id &#x3D;&#x3D;&#x3D; id);
+  }
+
+  setImageData(id: string, data: any){
+    const entry &#x3D; this.getImageData(id);
+    entry.data &#x3D; data;
+  }
+
+
+  async processImage(url) : Promise&lt;any&gt; {
+    return  await this.httpClient.get(url, {responseType: &#x27;blob&#x27;}).toPromise();
+  }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'ImageService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

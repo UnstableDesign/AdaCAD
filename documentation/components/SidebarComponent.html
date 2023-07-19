@@ -1,0 +1,3177 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>adacad documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">adacad documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  SidebarComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/draftdetail/sidebar/sidebar.component.ts</code>
+</p>
+
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>OnInit</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-sidebar</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./sidebar.component.scss</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./sidebar.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#actions_modal" >actions_modal</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#dm" >dm</a>
+                            </li>
+                            <li>
+                                <a href="#draft" >draft</a>
+                            </li>
+                            <li>
+                                <a href="#front" >front</a>
+                            </li>
+                            <li>
+                                <a href="#loom_settings" >loom_settings</a>
+                            </li>
+                            <li>
+                                <a href="#mode_draw" >mode_draw</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#ms" >ms</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#render" >render</a>
+                            </li>
+                            <li>
+                                <a href="#view" >view</a>
+                            </li>
+                            <li>
+                                <a href="#weaver_view_modal" >weaver_view_modal</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#addNote" >addNote</a>
+                            </li>
+                            <li>
+                                <a href="#closeDetailView" >closeDetailView</a>
+                            </li>
+                            <li>
+                                <a href="#closeWeaverModals" >closeWeaverModals</a>
+                            </li>
+                            <li>
+                                <a href="#createNewDraft" >createNewDraft</a>
+                            </li>
+                            <li>
+                                <a href="#designModeChange" >designModeChange</a>
+                            </li>
+                            <li>
+                                <a href="#drawModeChange" >drawModeChange</a>
+                            </li>
+                            <li>
+                                <a href="#drawWithMaterial" >drawWithMaterial</a>
+                            </li>
+                            <li>
+                                <a href="#inkChanged" >inkChanged</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit" >ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#openActions" >openActions</a>
+                            </li>
+                            <li>
+                                <a href="#openWeaverView" >openWeaverView</a>
+                            </li>
+                            <li>
+                                <a href="#redoClicked" >redoClicked</a>
+                            </li>
+                            <li>
+                                <a href="#select" >select</a>
+                            </li>
+                            <li>
+                                <a href="#shapeChange" >shapeChange</a>
+                            </li>
+                            <li>
+                                <a href="#undoClicked" >undoClicked</a>
+                            </li>
+                            <li>
+                                <a href="#viewChange" >viewChange</a>
+                            </li>
+                            <li>
+                                <a href="#viewFront" >viewFront</a>
+                            </li>
+                            <li>
+                                <a href="#visibleButton" >visibleButton</a>
+                            </li>
+                            <li>
+                                <a href="#zoomChange" >zoomChange</a>
+                            </li>
+                            <li>
+                                <a href="#zoomIn" >zoomIn</a>
+                            </li>
+                            <li>
+                                <a href="#zoomOut" >zoomOut</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Inputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#id" >id</a>
+                            </li>
+                            <li>
+                                <a href="#timeline" >timeline</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Outputs</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#closeDrawer" >closeDrawer</a>
+                            </li>
+                            <li>
+                                <a href="#onDesignModeChange" >onDesignModeChange</a>
+                            </li>
+                            <li>
+                                <a href="#onGlobalLoomChange" >onGlobalLoomChange</a>
+                            </li>
+                            <li>
+                                <a href="#onHideWarpSystem" >onHideWarpSystem</a>
+                            </li>
+                            <li>
+                                <a href="#onHideWeftSystem" >onHideWeftSystem</a>
+                            </li>
+                            <li>
+                                <a href="#onImport" >onImport</a>
+                            </li>
+                            <li>
+                                <a href="#onLocalLoomNeedsRedraw" >onLocalLoomNeedsRedraw</a>
+                            </li>
+                            <li>
+                                <a href="#onMaterialChange" >onMaterialChange</a>
+                            </li>
+                            <li>
+                                <a href="#onMLChange" >onMLChange</a>
+                            </li>
+                            <li>
+                                <a href="#onNewDraftCreated" >onNewDraftCreated</a>
+                            </li>
+                            <li>
+                                <a href="#onNoteCreate" >onNoteCreate</a>
+                            </li>
+                            <li>
+                                <a href="#onOperationAdded" >onOperationAdded</a>
+                            </li>
+                            <li>
+                                <a href="#onRedo" >onRedo</a>
+                            </li>
+                            <li>
+                                <a href="#onShowWarpSystem" >onShowWarpSystem</a>
+                            </li>
+                            <li>
+                                <a href="#onShowWeftSystem" >onShowWeftSystem</a>
+                            </li>
+                            <li>
+                                <a href="#onUndo" >onUndo</a>
+                            </li>
+                            <li>
+                                <a href="#onUpdateWarpShuttles" >onUpdateWarpShuttles</a>
+                            </li>
+                            <li>
+                                <a href="#onUpdateWarpSystems" >onUpdateWarpSystems</a>
+                            </li>
+                            <li>
+                                <a href="#onUpdateWeftShuttles" >onUpdateWeftShuttles</a>
+                            </li>
+                            <li>
+                                <a href="#onUpdateWeftSystems" >onUpdateWeftSystems</a>
+                            </li>
+                            <li>
+                                <a href="#onViewChange" >onViewChange</a>
+                            </li>
+                            <li>
+                                <a href="#onViewFront" >onViewFront</a>
+                            </li>
+                            <li>
+                                <a href="#onViewPortMove" >onViewPortMove</a>
+                            </li>
+                            <li>
+                                <a href="#onZoomChange" >onZoomChange</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(dm: <a href="../injectables/DesignmodesService.html" target="_self">DesignmodesService</a>, is: <a href="../injectables/InkService.html" target="_self">InkService</a>, tree: <a href="../injectables/TreeService.html" target="_self">TreeService</a>, ms: <a href="../injectables/MaterialsService.html" target="_self">MaterialsService</a>, dialog: MatDialog, render: <a href="../injectables/RenderService.html" target="_self">RenderService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:63</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>dm</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/DesignmodesService.html" target="_self" >DesignmodesService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>is</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/InkService.html" target="_self" >InkService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>tree</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/TreeService.html" target="_self" >TreeService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>ms</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MaterialsService.html" target="_self" >MaterialsService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>dialog</td>
+                                                  
+                                                        <td>
+                                                                    <code>MatDialog</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>render</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/RenderService.html" target="_self" >RenderService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+    <section data-compodoc="block-inputs">
+    <h3 id="inputs">Inputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="id"></a>
+                        <b>id</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:25</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="timeline"></a>
+                        <b>timeline</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:24</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <section data-compodoc="block-outputs">
+    <h3 id="outputs">Outputs</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="closeDrawer"></a>
+                        <b>closeDrawer</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:50</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onDesignModeChange"></a>
+                        <b>onDesignModeChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:29</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onGlobalLoomChange"></a>
+                        <b>onGlobalLoomChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:38</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onHideWarpSystem"></a>
+                        <b>onHideWarpSystem</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:34</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onHideWeftSystem"></a>
+                        <b>onHideWeftSystem</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:36</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onImport"></a>
+                        <b>onImport</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:40</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onLocalLoomNeedsRedraw"></a>
+                        <b>onLocalLoomNeedsRedraw</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:37</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onMaterialChange"></a>
+                        <b>onMaterialChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:46</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onMLChange"></a>
+                        <b>onMLChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:48</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onNewDraftCreated"></a>
+                        <b>onNewDraftCreated</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:49</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onNoteCreate"></a>
+                        <b>onNoteCreate</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:47</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onOperationAdded"></a>
+                        <b>onOperationAdded</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:39</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onRedo"></a>
+                        <b>onRedo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:28</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onShowWarpSystem"></a>
+                        <b>onShowWarpSystem</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:33</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onShowWeftSystem"></a>
+                        <b>onShowWeftSystem</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:35</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUndo"></a>
+                        <b>onUndo</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:27</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWarpShuttles"></a>
+                        <b>onUpdateWarpShuttles</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:44</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWarpSystems"></a>
+                        <b>onUpdateWarpSystems</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:42</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWeftShuttles"></a>
+                        <b>onUpdateWeftShuttles</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:45</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onUpdateWeftSystems"></a>
+                        <b>onUpdateWeftSystems</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:43</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onViewChange"></a>
+                        <b>onViewChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:31</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onViewFront"></a>
+                        <b>onViewFront</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:32</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onViewPortMove"></a>
+                        <b>onViewPortMove</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:41</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="onZoomChange"></a>
+                        <b>onZoomChange</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-2" colspan="2">
+                                    <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:30</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="addNote"></a>
+                    <span class="name">
+                        <span ><b>addNote</b></span>
+                        <a href="#addNote"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>addNote()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="282"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:282</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="closeDetailView"></a>
+                    <span class="name">
+                        <span ><b>closeDetailView</b></span>
+                        <a href="#closeDetailView"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>closeDetailView()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="104"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:104</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="closeWeaverModals"></a>
+                    <span class="name">
+                        <span ><b>closeWeaverModals</b></span>
+                        <a href="#closeWeaverModals"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>closeWeaverModals()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="109"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:109</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createNewDraft"></a>
+                    <span class="name">
+                        <span ><b>createNewDraft</b></span>
+                        <a href="#createNewDraft"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>createNewDraft()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="93"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:93</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="designModeChange"></a>
+                    <span class="name">
+                        <span ><b>designModeChange</b></span>
+                        <a href="#designModeChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>designModeChange(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="275"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:275</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>name</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="drawModeChange"></a>
+                    <span class="name">
+                        <span ><b>drawModeChange</b></span>
+                        <a href="#drawModeChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>drawModeChange(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="123"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:123</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>name</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="drawWithMaterial"></a>
+                    <span class="name">
+                        <span ><b>drawWithMaterial</b></span>
+                        <a href="#drawWithMaterial"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>drawWithMaterial(material_id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="131"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:131</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>material_id</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="inkChanged"></a>
+                    <span class="name">
+                        <span ><b>inkChanged</b></span>
+                        <a href="#inkChanged"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>inkChanged(value: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="268"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:268</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>value</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <span ><b>ngOnInit</b></span>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="77"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:77</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="openActions"></a>
+                    <span class="name">
+                        <span ><b>openActions</b></span>
+                        <a href="#openActions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>openActions()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="235"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:235</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="openWeaverView"></a>
+                    <span class="name">
+                        <span ><b>openWeaverView</b></span>
+                        <a href="#openWeaverView"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>openWeaverView()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="207"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:207</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="redoClicked"></a>
+                    <span class="name">
+                        <span ><b>redoClicked</b></span>
+                        <a href="#redoClicked"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>redoClicked(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="264"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:264</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="select"></a>
+                    <span class="name">
+                        <span ><b>select</b></span>
+                        <a href="#select"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>select()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="85"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:85</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="shapeChange"></a>
+                    <span class="name">
+                        <span ><b>shapeChange</b></span>
+                        <a href="#shapeChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>shapeChange(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="114"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:114</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>name</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="undoClicked"></a>
+                    <span class="name">
+                        <span ><b>undoClicked</b></span>
+                        <a href="#undoClicked"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>undoClicked(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="260"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:260</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="viewChange"></a>
+                    <span class="name">
+                        <span ><b>viewChange</b></span>
+                        <a href="#viewChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>viewChange(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="167"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:167</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="viewFront"></a>
+                    <span class="name">
+                        <span ><b>viewFront</b></span>
+                        <a href="#viewFront"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>viewFront(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, value: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, source: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="161"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:161</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>value</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>source</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="visibleButton"></a>
+                    <span class="name">
+                        <span ><b>visibleButton</b></span>
+                        <a href="#visibleButton"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>visibleButton(id, visible, type)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="179"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:179</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>visible</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>type</td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="zoomChange"></a>
+                    <span class="name">
+                        <span ><b>zoomChange</b></span>
+                        <a href="#zoomChange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>zoomChange(e: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, source: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="146"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:146</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Parameters :</b>
+                        
+                        <table class="params">
+                            <thead>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Type</td>
+                                    <td>Optional</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>e</td>
+                                    <td>
+                                                <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                                <tr>
+                                    <td>source</td>
+                                    <td>
+                                                <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                    </td>
+
+                                    <td>
+                                        No
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                    </div>
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                    <div class="io-description">
+                        
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="zoomIn"></a>
+                    <span class="name">
+                        <span ><b>zoomIn</b></span>
+                        <a href="#zoomIn"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>zoomIn()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="152"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:152</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="zoomOut"></a>
+                    <span class="name">
+                        <span ><b>zoomOut</b></span>
+                        <a href="#zoomOut"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>zoomOut()</code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-line">Defined in <a href="" data-line="157"
+                            class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:157</a></div>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                    <div class="io-description">
+                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="actions_modal"></a>
+                    <span class="name">
+                        <span ><b>actions_modal</b></span>
+                        <a href="#actions_modal"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../components/ActionsComponent.html" target="_self" >MatDialogRef&lt;ActionsComponent | any&gt;</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:63</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dm"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>dm</b></span>
+                        <a href="#dm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../injectables/DesignmodesService.html" target="_self" >DesignmodesService</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:67</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="draft"></a>
+                    <span class="name">
+                        <span ><b>draft</b></span>
+                        <a href="#draft"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Draft.html" target="_self" >Draft</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:53</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="front"></a>
+                    <span class="name">
+                        <span ><b>front</b></span>
+                        <a href="#front"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>true</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:60</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loom_settings"></a>
+                    <span class="name">
+                        <span ><b>loom_settings</b></span>
+                        <a href="#loom_settings"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#LoomSettings" target="_self" >LoomSettings</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:54</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mode_draw"></a>
+                    <span class="name">
+                        <span ><b>mode_draw</b></span>
+                        <a href="#mode_draw"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:57</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ms"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>ms</b></span>
+                        <a href="#ms"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../injectables/MaterialsService.html" target="_self" >MaterialsService</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:70</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="render"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>render</b></span>
+                        <a href="#render"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../injectables/RenderService.html" target="_self" >RenderService</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:72</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="view"></a>
+                    <span class="name">
+                        <span ><b>view</b></span>
+                        <a href="#view"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;pattern&#x27;</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:59</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="weaver_view_modal"></a>
+                    <span class="name">
+                        <span ><b>weaver_view_modal</b></span>
+                        <a href="#weaver_view_modal"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../components/WeaverViewComponent.html" target="_self" >MatDialogRef&lt;WeaverViewComponent | any&gt;</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/app/draftdetail/sidebar/sidebar.component.ts:62</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, EventEmitter, Input, OnInit, Output } from &#x27;@angular/core&#x27;;
+import { MatDialog, MatDialogRef } from &#x27;@angular/material/dialog&#x27;;
+import { BlankdraftModal } from &#x27;../../core/modal/blankdraft/blankdraft.modal&#x27;;
+import { Draft, LoomSettings } from &#x27;../../core/model/datatypes&#x27;;
+import { DesignmodesService } from &#x27;../../core/provider/designmodes.service&#x27;;
+import { MaterialsService } from &#x27;../../core/provider/materials.service&#x27;;
+import { TreeService } from &#x27;../../core/provider/tree.service&#x27;;
+import { InkService } from &#x27;../../mixer/provider/ink.service&#x27;;
+import { ActionsComponent } from &#x27;../actions/actions.component&#x27;;
+import { RenderService } from &#x27;../provider/render.service&#x27;;
+import { WeaverViewComponent } from &#x27;../weaverview/weaverview.component&#x27;;
+
+
+@Component({
+  selector: &#x27;app-sidebar&#x27;,
+  templateUrl: &#x27;./sidebar.component.html&#x27;,
+  styleUrls: [&#x27;./sidebar.component.scss&#x27;]
+})
+
+
+export class SidebarComponent implements OnInit {
+
+
+  @Input() timeline;
+  @Input() id;
+
+  @Output() onUndo: any &#x3D; new EventEmitter();
+  @Output() onRedo: any &#x3D; new EventEmitter();
+  @Output() onDesignModeChange: any &#x3D; new EventEmitter();
+  @Output() onZoomChange: any &#x3D; new EventEmitter();
+  @Output() onViewChange: any &#x3D; new EventEmitter();
+  @Output() onViewFront: any &#x3D; new EventEmitter();
+  @Output() onShowWarpSystem: any &#x3D; new EventEmitter();
+  @Output() onHideWarpSystem: any &#x3D; new EventEmitter();
+  @Output() onShowWeftSystem: any &#x3D; new EventEmitter();
+  @Output() onHideWeftSystem: any &#x3D; new EventEmitter();
+  @Output() onLocalLoomNeedsRedraw: any &#x3D; new EventEmitter();
+  @Output() onGlobalLoomChange: any &#x3D; new EventEmitter();
+  @Output() onOperationAdded: any &#x3D; new EventEmitter();
+  @Output() onImport: any &#x3D; new EventEmitter();
+  @Output() onViewPortMove: any &#x3D; new EventEmitter();
+  @Output() onUpdateWarpSystems: any &#x3D; new EventEmitter();
+  @Output() onUpdateWeftSystems: any &#x3D; new EventEmitter();
+  @Output() onUpdateWarpShuttles: any &#x3D; new EventEmitter();
+  @Output() onUpdateWeftShuttles: any &#x3D; new EventEmitter();
+  @Output() onMaterialChange: any &#x3D; new EventEmitter();
+  @Output() onNoteCreate: any &#x3D; new EventEmitter();
+  @Output() onMLChange: any &#x3D; new EventEmitter();
+  @Output() onNewDraftCreated: any &#x3D; new EventEmitter();
+  @Output() closeDrawer: any &#x3D; new EventEmitter();
+
+  
+  draft:Draft;
+  loom_settings:LoomSettings;
+
+  //design mode options
+  mode_draw: any;
+
+  view: string &#x3D; &#x27;pattern&#x27;;
+  front: boolean &#x3D; true;
+
+  weaver_view_modal: MatDialogRef&lt;WeaverViewComponent, any&gt;;
+  actions_modal: MatDialogRef&lt;ActionsComponent, any&gt;;
+
+
+  constructor(
+    public dm: DesignmodesService, 
+    private is:InkService,
+    private tree: TreeService,
+    public ms: MaterialsService, 
+    private dialog: MatDialog,
+    public render : RenderService) { 
+    this.view &#x3D; this.dm.getSelectedDesignMode(&#x27;view_modes&#x27;).value;
+
+  }
+
+  ngOnInit() {
+
+    this.draft &#x3D; this.tree.getDraft(this.id);
+    this.loom_settings &#x3D; this.tree.getLoomSettings(this.id);
+    this.front &#x3D; this.render.view_front;
+
+  }
+
+  select(){
+    var obj: any &#x3D; {};
+     obj.name &#x3D; &quot;select&quot;;
+     obj.target &#x3D; &quot;design_modes&quot;;
+     this.dm.selectDesignMode(obj.name, obj.target);
+     this.onDesignModeChange.emit(obj);
+  }
+
+  createNewDraft(){
+
+    const dialogRef &#x3D; this.dialog.open(BlankdraftModal, {
+    });
+
+    dialogRef.afterClosed().subscribe(obj &#x3D;&gt; {
+      // if(loadResponse !&#x3D;&#x3D; undefined) this.onLoadNewFile.emit(loadResponse);
+      if(obj !&#x3D;&#x3D; undefined &amp;&amp; obj !&#x3D;&#x3D; null) this.onNewDraftCreated.emit(obj);
+   });
+  }
+
+  closeDetailView(){
+    this.closeDrawer.emit();
+  }
+
+
+  closeWeaverModals(){
+    if(this.actions_modal !&#x3D; undefined &amp;&amp; this.actions_modal.componentInstance !&#x3D; null) this.actions_modal.close();
+    if(this.weaver_view_modal !&#x3D; undefined &amp;&amp; this.weaver_view_modal.componentInstance !&#x3D; null) this.weaver_view_modal.close();
+  }
+
+  shapeChange(name:string){
+    var obj: any &#x3D; {};
+    obj.name &#x3D; name;
+    obj.target &#x3D; &quot;shapes&quot;;
+    console.log(&#x27;setting shape&#x27;, name)
+    this.dm.selectDesignMode(obj.name, obj.target);
+    this.onDesignModeChange.emit(obj);
+  }
+
+  drawModeChange(name: string) {
+     var obj: any &#x3D; {};
+     obj.name &#x3D; name;
+     obj.target &#x3D; &quot;draw_modes&quot;;
+     this.dm.selectDesignMode(obj.name, obj.target);
+     this.onDesignModeChange.emit(obj);
+  }
+
+  drawWithMaterial(material_id: number){
+    console.log(&quot;draw with material&quot;, material_id)
+    var obj: any &#x3D; {};
+    obj.name &#x3D; &#x27;material&#x27;;
+    obj.target &#x3D; &#x27;draw_modes&#x27;;
+    obj.id &#x3D; material_id;
+
+    this.dm.selectDesignMode(obj.name, obj.target);
+    const mode &#x3D; this.dm.getDesignMode(obj.name, obj.target);
+    mode.children &#x3D; [];
+    mode.children.push({value: obj.id, viewValue:&quot;&quot;, icon:&quot;&quot;, children:[], selected:false});
+    console.log(&quot;children&quot;, mode.children);
+    this.onDesignModeChange.emit(obj);
+  }
+
+  zoomChange(e:any, source: string){
+    e.source &#x3D; source;
+    this.onZoomChange.emit(e);
+  }
+
+
+  zoomIn(){
+    this.onZoomChange.emit({source: &#x27;in&#x27;, val: -1});
+  }
+
+
+  zoomOut(){
+    this.onZoomChange.emit({source: &#x27;out&#x27;, val: -1});
+  }
+
+  viewFront(e:any, value:any, source: string){
+    e.source &#x3D; source;
+    e.value &#x3D; !value;
+    this.onViewFront.emit(e);
+  }
+
+  viewChange(e:any){
+    if(e.checked){
+      this.onViewChange.emit(&#x27;visual&#x27;);
+      this.dm.selectDesignMode(&#x27;visual&#x27;, &#x27;view_modes&#x27;);
+    } else{
+      this.onViewChange.emit(&#x27;pattern&#x27;);
+      this.dm.selectDesignMode(&#x27;pattern&#x27;, &#x27;view_modes&#x27;);
+    }     
+
+  }
+
+    
+ visibleButton(id, visible, type) {
+  console.log(&quot;called&quot;, id, visible, type);
+  if(type &#x3D;&#x3D; &quot;weft&quot;){
+    if (visible) {
+      this.onShowWeftSystem.emit({systemId: id});
+    } else {
+      this.onHideWeftSystem.emit({systemId: id});
+    }
+  }else{
+    if (visible) {
+      this.onShowWarpSystem.emit({systemId: id});
+    } else {
+      this.onHideWarpSystem.emit({systemId: id});
+    }
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+openWeaverView(){
+  if(this.weaver_view_modal !&#x3D; undefined &amp;&amp; this.weaver_view_modal.componentInstance !&#x3D; null) return;
+
+  this.weaver_view_modal  &#x3D;  this.dialog.open(WeaverViewComponent,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {
+        render: this.render,
+        draft: this.draft}});
+
+     
+       this.weaver_view_modal.componentInstance.onZoomChange.subscribe(event &#x3D;&gt; { this.onZoomChange.emit(event)});
+       this.weaver_view_modal.componentInstance.onViewChange.subscribe(event &#x3D;&gt; { this.onViewChange.emit(event)});
+       this.weaver_view_modal.componentInstance.onViewFront.subscribe(event &#x3D;&gt; { this.onViewFront.emit(event)});
+       this.weaver_view_modal.componentInstance.onShowWarpSystem.subscribe(event &#x3D;&gt; { this.onShowWarpSystem.emit(event)});
+       this.weaver_view_modal.componentInstance.onHideWarpSystem.subscribe(event &#x3D;&gt; { this.onHideWarpSystem.emit(event)});
+       this.weaver_view_modal.componentInstance.onShowWeftSystem.subscribe(event &#x3D;&gt; { this.onShowWeftSystem.emit(event)});
+       this.weaver_view_modal.componentInstance.onHideWeftSystem.subscribe(event &#x3D;&gt; { this.onHideWeftSystem.emit(event)});
+
+  
+      this.weaver_view_modal.afterClosed().subscribe(result &#x3D;&gt; {
+        //this.onLoomChange.emit();
+       // dialogRef.componentInstance.onChange.removeSubscription();
+    });
+}
+
+
+openActions(){
+ if(this.actions_modal !&#x3D; undefined &amp;&amp; this.actions_modal.componentInstance !&#x3D; null) return;
+
+  this.actions_modal  &#x3D;  this.dialog.open(ActionsComponent,
+    {disableClose: true,
+      maxWidth:350, 
+      hasBackdrop: false,
+      data: {id: this.id}});
+
+
+       this.actions_modal.componentInstance.onUpdateWarpShuttles.subscribe(event &#x3D;&gt; { this.onUpdateWarpShuttles.emit(event)});
+       this.actions_modal.componentInstance.onUpdateWarpSystems.subscribe(event &#x3D;&gt; { this.onUpdateWarpSystems.emit(event)});
+       this.actions_modal.componentInstance.onUpdateWeftShuttles.subscribe(event &#x3D;&gt; { this.onUpdateWeftShuttles.emit(event)});
+       this.actions_modal.componentInstance.onUpdateWeftSystems.subscribe(event &#x3D;&gt; { this.onUpdateWeftSystems.emit(event)});
+
+  
+    //   this.view_modal.afterClosed().subscribe(result &#x3D;&gt; {
+    //     //this.onLoomChange.emit();
+    //    // dialogRef.componentInstance.onChange.removeSubscription();
+    // });
+}
+
+  
+
+
+  undoClicked(e:any) {
+    this.onUndo.emit();
+  }
+
+  redoClicked(e:any) {
+    this.onRedo.emit();
+  }
+
+  inkChanged(value:string){
+    console.log(&quot;changing to&quot;, value);
+    this.is.select(value);
+    //this.onInkChange.emit(e.target.name);
+  }
+
+
+  designModeChange(name: string) {
+    console.log(&quot;design mode change&quot;, name);
+    this.dm.selectDesignMode(name, &#x27;design_modes&#x27;);
+    this.onDesignModeChange.emit(name);
+  }
+
+
+  addNote(){
+    this.onNoteCreate.emit();
+  }
+
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">
+&lt;div class&#x3D;&quot;sidebar&quot;&gt;
+    &lt;!--on both weaver and mixer--&gt;
+
+    &lt;div class&#x3D;&quot;tool-chunk&quot; &gt;
+
+        &lt;button 
+        mat-icon-button
+        color&#x3D;&quot;primary&quot; 
+        (click)&#x3D;&quot;closeDetailView()&quot;&gt;
+        &lt;i class&#x3D;&quot;fa fa-angle-double-right&quot;&gt;&lt;/i&gt; 
+        &lt;/button&gt;
+
+
+    &lt;/div&gt;
+
+
+&lt;!-- WEAVER EDITING TOOLS --&gt;
+    &lt;div class&#x3D;&quot;tool-chunk&quot;&gt;
+
+
+        &lt;button 
+        mat-icon-button
+        color&#x3D;&quot;primary&quot;
+        matTooltip&#x3D; &quot;Edit Draft Cells&quot;
+        [matMenuTriggerFor]&#x3D;&quot;inks&quot;
+        [class.is-active]&#x3D;&quot;dm.isSelected(&#x27;draw&#x27;,&#x27;design_modes&#x27;)&quot;        &gt;
+        &lt;i class&#x3D;&quot;fas fa-edit&quot;&gt;&lt;/i&gt;
+        &lt;/button&gt;
+
+        &lt;mat-menu #inks&#x3D;&quot;matMenu&quot;&gt;
+            &lt;ng-container *ngFor&#x3D;&quot;let mode of dm.draw_modes&quot;&gt;
+                &lt;button *ngIf&#x3D;&quot;mode.value !&#x3D;&#x3D; &#x27;material&#x27;&quot;
+            class&#x3D;&quot;menu-button&quot; 
+            mat-menu-item 
+            [class.is-active]&#x3D;&quot;dm.isSelected(mode.value,&#x27;draw_modes&#x27;)&quot;
+            [name] &#x3D; &quot;mode.value&quot;
+            [disabled]&#x3D; &quot;viewonly&quot;
+            (click)&#x3D;&quot;drawModeChange(mode.value)&quot;&gt;
+                &lt;span class&#x3D;&quot;{{mode.icon}}&quot;&gt;&lt;/span&gt;
+                &lt;span class&#x3D;&quot;menu-item&quot;&gt;{{mode.viewValue}}&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;/ng-container&gt;
+
+
+        &lt;/mat-menu&gt;
+
+        &lt;button 
+        mat-icon-button
+        color&#x3D;&quot;primary&quot;
+        matTooltip&#x3D; &quot;Set Colors&quot;
+        [matMenuTriggerFor]&#x3D;&quot;colors&quot;
+        [class.is-active]&#x3D;&quot;dm.isSelected(&#x27;draw&#x27;,&#x27;design_modes&#x27;)&quot;        &gt;
+        &lt;i class&#x3D;&quot;fa-solid fa-paintbrush&quot;&gt;&lt;/i&gt;
+        &lt;/button&gt;
+
+        &lt;mat-menu #colors&#x3D;&quot;matMenu&quot;&gt;
+
+            &lt;ng-container *ngFor&#x3D;&quot;let shuttle of ms.materials&quot;&gt;
+                &lt;button class&#x3D;&quot;menu-button&quot; 
+                mat-menu-item 
+                (click)&#x3D;&quot;drawWithMaterial(shuttle.id)&quot;&gt;
+                    &lt;span class&#x3D;&quot;swatch&quot;  [style.background]&#x3D;&quot;shuttle.color&quot; &gt;&lt;/span&gt;
+                    &lt;span&gt;{{shuttle.name }}&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;/ng-container&gt;
+
+
+        &lt;/mat-menu&gt;
+
+        &lt;button 
+        mat-icon-button
+        color&#x3D;&quot;primary&quot;
+        matTooltip&#x3D; &quot;Select Region&quot;
+        [class.is-active]&#x3D;&quot;dm.isSelected(&#x27;select&#x27;,&#x27;design_modes&#x27;)&quot;
+        (click)&#x3D;&quot;select()&quot;&gt;
+        &lt;i class&#x3D;&quot;fas fa-expand&quot;&gt;&lt;/i&gt;
+        &lt;/button&gt;
+
+        &lt;button
+        matTooltip&#x3D; &quot;Set Repeats&quot;
+        color&#x3D;&quot;primary&quot;
+        mat-icon-button 
+        [class.is-active] &#x3D; &quot;actions_modal &amp;&amp; actions_modal.componentInstance !&#x3D; null&quot;
+        (click)&#x3D;&#x27;openActions()&#x27;&gt;&lt;i class&#x3D;&quot;fas fa-magic&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+
+        &lt;!-- &lt;button
+            mat-icon-button
+            matTooltip&#x3D;&quot;Design with ML&quot;
+            (click)&#x3D;&quot;engageMLMode()&quot;&gt;
+            &lt;i class&#x3D;&quot;fas fa-robot&quot;&gt;&lt;/i&gt;
+        &lt;/button&gt;
+
+        --&gt;
+
+
+        &lt;!-- &lt;button 
+        mat-icon-button
+        matTooltip&#x3D; &quot;Edit Draft Materials&quot;
+        [matMenuTriggerFor]&#x3D;&quot;set_materials&quot;
+        [class.is-active]&#x3D;&quot;selected_mode &#x3D;&#x3D;&#x3D; &#x27;material&#x27;&quot;
+        &gt;
+        &lt;i class&#x3D;&quot;fas fa-palette&quot;&gt;&lt;/i&gt;
+        &lt;/button&gt;
+
+        &lt;mat-menu #set_materials&#x3D;&quot;matMenu&quot;&gt;
+        &lt;ng-container *ngFor&#x3D;&quot;let shuttle of draft.shuttles&quot;&gt;
+        &lt;button class&#x3D;&quot;menu-button&quot; 
+        mat-menu-item 
+        (click)&#x3D;&quot;drawWithMaterial(shuttle.id)&quot;&gt;
+            &lt;span class&#x3D;&quot;swatch&quot;  [style.background]&#x3D;&quot;shuttle.color&quot; &gt;&lt;/span&gt;
+            &lt;span&gt;{{shuttle.name }}&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;/ng-container&gt;
+
+        &lt;button class&#x3D;&quot;menu-button&quot; 
+        mat-menu-item 
+        (click)&#x3D;&quot;openMaterialEditor()&quot;&gt;
+        &lt;span class&#x3D;&quot;fa fa-plus&quot;&gt;&lt;/span&gt;
+        &lt;span&gt;Add / Edit Materials&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;/mat-menu&gt; --&gt;
+
+    &lt;/div&gt;
+    
+
+&lt;!-- VIEW TOOLS --&gt;
+
+    &lt;div class&#x3D;&quot;tool-chunk slider&quot; &gt;
+
+        &lt;button color&#x3D;&quot;primary&quot; mat-icon-button (click)&#x3D;&quot;zoomIn()&quot;&gt;&lt;i class&#x3D;&quot;fas fa-search-plus&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+        
+        &lt;div class&#x3D;&quot;view_slider&quot;&gt;
+        &lt;mat-slider 
+        tickInterval&#x3D;&quot;.1&quot; 
+        color&#x3D;&quot;primary&quot;
+        [vertical]&#x3D;&quot;true&quot;
+        step&#x3D;&quot;.1&quot;
+        min&#x3D;&quot;0&quot; 
+        max&#x3D;&quot;2&quot; 
+        value&#x3D;&quot;{{render.zoom}}&quot; 
+        (change)&#x3D;&quot;zoomChange($event, &#x27;slider&#x27;)&quot;&gt;&lt;/mat-slider&gt;
+    &lt;/div&gt; 
+
+       &lt;button mat-icon-button color&#x3D;&quot;primary&quot;  (click)&#x3D;&quot;zoomOut()&quot;&gt;&lt;i class&#x3D;&quot;fas fa-search-minus&quot;&gt;&lt;/i&gt;&lt;/button&gt; 
+       
+
+
+    &lt;/div&gt;
+
+
+   
+&lt;!-- EQUIPMENT SETTINGS --&gt;
+
+
+ 
+ 
+   
+    &lt;!-- &lt;div  class&#x3D;&quot;designtools&quot; *ngIf&#x3D;&quot;source&#x3D;&#x3D;&#x3D;&#x27;mixer&#x27;&quot;&gt;
+
+        &lt;div class&#x3D;&quot;undoredo&quot;&gt;
+        &lt;button #undoEvent 
+        mat-stroked-button 
+        color&#x3D;&quot;primary&quot;
+        (click)&#x3D;&quot;undoClicked($event);&quot;
+        [disabled]&#x3D;&quot;ss.undo_disabled || viewonly&quot;
+        matTooltip &#x3D;&quot;undo&quot;&gt;
+        &lt;i class&#x3D;&quot;fas fa-undo&quot;&gt;&lt;/i&gt; Undo
+        &lt;/button&gt;
+
+        &lt;button #redoEvent 
+        mat-stroked-button 
+        color&#x3D;&quot;primary&quot;
+        (click)&#x3D;&quot;redoClicked($event);&quot;
+        [disabled]&#x3D;&quot;ss.redo_disabled  || viewonly&quot;
+        matTooltip &#x3D;&quot;redo&quot;&gt;
+        &lt;i class&#x3D;&quot;fas fa-redo&quot;&gt;&lt;/i&gt;Redo
+        &lt;/button&gt;
+        &lt;/div&gt;
+
+
+    
+        &lt;button 
+        mat-stroked-button 
+        color&#x3D;&quot;primary&quot;
+        matTooltip&#x3D; &quot;Blank Draft&quot;
+        (click)&#x3D;&quot;createNewDraft()&quot;&gt;
+        &lt;i class&#x3D;&quot;fas fa-chess-board&quot;&gt;&lt;/i&gt; Add Blank Draft to Workspace
+        &lt;/button&gt;
+    
+
+  
+        &lt;button 
+        mat-stroked-button 
+        color&#x3D;&quot;primary&quot;
+        matTooltip&#x3D; &quot;Note&quot;
+        color&#x3D;&quot;primary&quot;
+        (click)&#x3D;&quot;addNote()&quot;&gt;
+        &lt;i class&#x3D;&quot;fas fa-comment&quot;&gt;&lt;/i&gt; Add Comment to Workspace
+        &lt;/button&gt;
+
+
+
+        &lt;app-quickop
+            (onOperationAdded)&#x3D;&quot;addOperation($event)&quot;
+        &gt;
+        &lt;/app-quickop&gt;
+
+        &lt;button 
+        mat-button
+        [class.is-active] &#x3D; &quot;op_modal &amp;&amp; op_modal.componentInstance !&#x3D; null&quot;
+        matTooltip&#x3D; &quot;Operation&quot;
+        (click)&#x3D;&quot;openOps()&quot;&gt;
+        &lt;i class&#x3D;&quot;fas fa-project-diagram&quot;&gt;&lt;/i&gt; View All Operations
+        &lt;/button&gt;
+    &lt;/div&gt; --&gt;
+
+
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./sidebar.component.scss</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.sidebar {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: space-between;
+    width: 42px;
+    height: 100%;
+    font-size: .8em;
+}
+
+.slider{
+    display: flex;
+    flex-direction: column;
+    max-width: 33%;
+}
+
+.swatch{
+    width: 9px;
+    height: 9px;
+    margin-right: 4px;
+    display: inline-block;
+    border: thin solid grey;
+}
+
+.menu-item{
+    font-style: inherit;
+    display: inline-block;
+    padding-left: 12px;
+    font-weight: inherit;
+}
+
+
+
+
+
+// .sidebar{
+//     display: flex;
+//     flex-direction: column;
+//     justify-content:flex-start;
+//     font-size: .8em;
+
+// }
+
+// .swatch{
+//     width: 10px;
+//     height: 10px;
+//     display: inline-block;
+//     border: 1px solid grey;
+// }
+
+// .is-active{
+//    color:#ff3860;
+// }
+
+
+// span{
+//     padding-right: 10px;
+// }</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="sidebar">    <!--on both weaver and mixer-->    <div class="tool-chunk" >        <button         mat-icon-button        color="primary"         (click)="closeDetailView()">        <i class="fa fa-angle-double-right"></i>         </button>    </div><!-- WEAVER EDITING TOOLS -->    <div class="tool-chunk">        <button         mat-icon-button        color="primary"        matTooltip= "Edit Draft Cells"        [matMenuTriggerFor]="inks"        [class.is-active]="dm.isSelected(\'draw\',\'design_modes\')"        >        <i class="fas fa-edit"></i>        </button>        <mat-menu #inks="matMenu">            <ng-container *ngFor="let mode of dm.draw_modes">                <button *ngIf="mode.value !== \'material\'"            class="menu-button"             mat-menu-item             [class.is-active]="dm.isSelected(mode.value,\'draw_modes\')"            [name] = "mode.value"            [disabled]= "viewonly"            (click)="drawModeChange(mode.value)">                <span class="{{mode.icon}}"></span>                <span class="menu-item">{{mode.viewValue}}</span>            </button>            </ng-container>        </mat-menu>        <button         mat-icon-button        color="primary"        matTooltip= "Set Colors"        [matMenuTriggerFor]="colors"        [class.is-active]="dm.isSelected(\'draw\',\'design_modes\')"        >        <i class="fa-solid fa-paintbrush"></i>        </button>        <mat-menu #colors="matMenu">            <ng-container *ngFor="let shuttle of ms.materials">                <button class="menu-button"                 mat-menu-item                 (click)="drawWithMaterial(shuttle.id)">                    <span class="swatch"  [style.background]="shuttle.color" ></span>                    <span>{{shuttle.name }}</span>                </button>                </ng-container>        </mat-menu>        <button         mat-icon-button        color="primary"        matTooltip= "Select Region"        [class.is-active]="dm.isSelected(\'select\',\'design_modes\')"        (click)="select()">        <i class="fas fa-expand"></i>        </button>        <button        matTooltip= "Set Repeats"        color="primary"        mat-icon-button         [class.is-active] = "actions_modal && actions_modal.componentInstance != null"        (click)=\'openActions()\'><i class="fas fa-magic"></i></button>        <!-- <button            mat-icon-button            matTooltip="Design with ML"            (click)="engageMLMode()">            <i class="fas fa-robot"></i>        </button>        -->        <!-- <button         mat-icon-button        matTooltip= "Edit Draft Materials"        [matMenuTriggerFor]="set_materials"        [class.is-active]="selected_mode === \'material\'"        >        <i class="fas fa-palette"></i>        </button>        <mat-menu #set_materials="matMenu">        <ng-container *ngFor="let shuttle of draft.shuttles">        <button class="menu-button"         mat-menu-item         (click)="drawWithMaterial(shuttle.id)">            <span class="swatch"  [style.background]="shuttle.color" ></span>            <span>{{shuttle.name }}</span>        </button>        </ng-container>        <button class="menu-button"         mat-menu-item         (click)="openMaterialEditor()">        <span class="fa fa-plus"></span>        <span>Add / Edit Materials</span>        </button>        </mat-menu> -->    </div>    <!-- VIEW TOOLS -->    <div class="tool-chunk slider" >        <button color="primary" mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>                <div class="view_slider">        <mat-slider         tickInterval=".1"         color="primary"        [vertical]="true"        step=".1"        min="0"         max="2"         value="{{render.zoom}}"         (change)="zoomChange($event, \'slider\')"></mat-slider>    </div>        <button mat-icon-button color="primary"  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>            </div>   <!-- EQUIPMENT SETTINGS -->         <!-- <div  class="designtools" *ngIf="source===\'mixer\'">        <div class="undoredo">        <button #undoEvent         mat-stroked-button         color="primary"        (click)="undoClicked($event);"        [disabled]="ss.undo_disabled || viewonly"        matTooltip ="undo">        <i class="fas fa-undo"></i> Undo        </button>        <button #redoEvent         mat-stroked-button         color="primary"        (click)="redoClicked($event);"        [disabled]="ss.redo_disabled  || viewonly"        matTooltip ="redo">        <i class="fas fa-redo"></i>Redo        </button>        </div>            <button         mat-stroked-button         color="primary"        matTooltip= "Blank Draft"        (click)="createNewDraft()">        <i class="fas fa-chess-board"></i> Add Blank Draft to Workspace        </button>              <button         mat-stroked-button         color="primary"        matTooltip= "Note"        color="primary"        (click)="addNote()">        <i class="fas fa-comment"></i> Add Comment to Workspace        </button>        <app-quickop            (onOperationAdded)="addOperation($event)"        >        </app-quickop>        <button         mat-button        [class.is-active] = "op_modal && op_modal.componentInstance != null"        matTooltip= "Operation"        (click)="openOps()">        <i class="fas fa-project-diagram"></i> View All Operations        </button>    </div> --></div></div>'
+    var COMPONENTS = [{'name': 'AboutModal', 'selector': 'app-about'},{'name': 'ActionsComponent', 'selector': 'app-actions'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'BlankdraftModal', 'selector': 'app-blankdraft'},{'name': 'ConnectionComponent', 'selector': 'app-connection'},{'name': 'CrosssectionComponent', 'selector': 'app-crosssection'},{'name': 'DesignComponent', 'selector': 'app-design'},{'name': 'DraftDetailComponent', 'selector': 'app-draftdetail'},{'name': 'DraftviewerComponent', 'selector': 'app-draftviewer'},{'name': 'ExamplesComponent', 'selector': 'app-examples'},{'name': 'FilebrowserComponent', 'selector': 'app-filebrowser'},{'name': 'ImageComponent', 'selector': 'app-image'},{'name': 'InitModal', 'selector': 'app-init'},{'name': 'InletComponent', 'selector': 'app-inlet'},{'name': 'LoadfileComponent', 'selector': 'app-loadfile'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'LoomModal', 'selector': 'app-loom-modal'},{'name': 'MaterialModal', 'selector': 'app-material-modal'},{'name': 'MixerComponent', 'selector': 'app-mixer'},{'name': 'MixerViewComponent', 'selector': 'app-mixerview'},{'name': 'NoteComponent', 'selector': 'app-note'},{'name': 'OperationComponent', 'selector': 'app-operation'},{'name': 'OpHelpModal', 'selector': 'app-ophelp'},{'name': 'OpsComponent', 'selector': 'app-ops'},{'name': 'PaletteComponent', 'selector': 'app-palette'},{'name': 'ParameterComponent', 'selector': 'app-parameter'},{'name': 'ProfileComponent', 'selector': 'app-profile'},{'name': 'QuickopComponent', 'selector': 'app-quickop'},{'name': 'SelectionComponent', 'selector': 'app-selection'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SignupComponent', 'selector': 'app-signup'},{'name': 'SimulationComponent', 'selector': 'app-simulation'},{'name': 'SnackbarComponent', 'selector': 'app-snackbar'},{'name': 'SubdraftComponent', 'selector': 'app-subdraft'},{'name': 'TopbarComponent', 'selector': 'app-topbar'},{'name': 'UploadFormComponent', 'selector': 'upload-form'},{'name': 'WeaverViewComponent', 'selector': 'app-weaverview'}];
+    var DIRECTIVES = [{'name': 'KeycodesDirective', 'selector': 'appKeycodes'},{'name': 'MarqueeComponent', 'selector': 'app-marquee'},{'name': 'SelectionComponent', 'selector': 'app-selection'}];
+    var ACTUAL_COMPONENT = {'name': 'SidebarComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'SidebarComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

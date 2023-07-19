@@ -1,0 +1,797 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>adacad documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">adacad documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  ComboTree</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/app/core/operations/combinatorics/combinatorics.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>CUSTOM FUNCTIONS FOR GENERATING ALL POSSIBLE STRUCRTURES</p>
+
+            </p>
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#set" 
+>
+                                            set
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#top" 
+>
+                                            top
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="set"></a>
+                                        <span class="name "><b>set</b>
+                                            <a href="#set">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>set:     <code>Array&lt;Array&lt;number&gt;&gt;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>Array&lt;Array&lt;number&gt;&gt;</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="top"></a>
+                                        <span class="name "><b>top</b>
+                                            <a href="#top">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>top:         <code><a href="../interfaces/ComboNode.html" target="_self" >ComboNode</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="../interfaces/ComboNode.html" target="_self" >ComboNode</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createCell, getCellValue, setCellValue } from &quot;../../model/cell&quot;;
+import { BoolParam, Draft, NumParam, Operation, OpInput, OpParamVal } from &quot;../../model/datatypes&quot;;
+import { initDraftWithParams, isUp, warps, wefts } from &quot;../../model/drafts&quot;;
+import { getOpParamValById } from &quot;../../model/operations&quot;;
+
+
+const name &#x3D; &quot;combos&quot;;
+const old_names &#x3D; [];
+
+//PARAMS
+const ends:NumParam &#x3D;  
+      {name: &#x27;size&#x27;,
+      type: &#x27;number&#x27;,
+        min: 2,
+        max: 4,
+      value: 3,
+      dx: &#x27;the size of the structure&#x27;
+      }
+
+const selection: NumParam &#x3D; 
+    {name: &#x27;selection&#x27;,
+    type: &#x27;number&#x27;,
+    min: 1,
+    max: 22874,
+    value: 1,
+    dx: &#x27;the id of the generated structure you would like to view&#x27;
+    }
+
+const download: BoolParam &#x3D; 
+    {
+    name: &#x27;download all&#x27;,
+    type: &#x27;boolean&#x27;,
+    falsestate: &#x27;&#x27;,
+    truestate: &#x27;downloading&#x27;,
+    value: 0,
+    dx: &quot;when this is set to true, it will trigger download of an image of the whole set everytime it recomputes, this may result in multiple downloads&quot;
+    }
+
+
+const params &#x3D; [ends, selection, download];
+
+//INLETS
+
+const inlets &#x3D; [];
+
+
+const  perform &#x3D; (param_vals: Array&lt;OpParamVal&gt;, op_inputs: Array&lt;OpInput&gt;) &#x3D;&gt; {
+
+      const size: number &#x3D; getOpParamValById(0, param_vals);
+      let selection: number &#x3D; getOpParamValById(1, param_vals);
+      const download: number &#x3D; getOpParamValById(2, param_vals);
+
+      //adjust by one to convert user input to the array index of the structure
+      selection -&#x3D; 1;
+
+      //for larger set sizes, you must split up the download into multiple files
+      const divisor &#x3D; (size - 3 &gt; 0) ? Math.pow(2,(size-3)): 1;
+
+      return getSet(size, size)
+      .then(alldrafts &#x3D;&gt; { 
+
+        if(download){
+
+          for(let set_id &#x3D; 0; set_id &lt; divisor; set_id++){
+            
+            const cc &#x3D; 10;
+            const set_data &#x3D; getDrafts(set_id, divisor);
+
+            let b:HTMLCanvasElement &#x3D; &lt;HTMLCanvasElement&gt;document.createElement(&#x27;canvas&#x27;); 
+            let context &#x3D; b.getContext(&#x27;2d&#x27;);
+            b.width &#x3D; (cc*(size+5))*20;
+            b.height &#x3D; Math.ceil(set_data.length  / 20)*((5+size)*cc);
+            context.fillStyle &#x3D; &quot;white&quot;;
+            context.fillRect(0,0,b.width,b.height);
+
+            set_data.forEach((set, ndx) &#x3D;&gt; {
+              
+              const top &#x3D; Math.floor(ndx / 20) * (wefts(set.draft.drawdown)+5)*cc + 10;
+              const left &#x3D; ndx % 20 * (warps(set.draft.drawdown)+5)*cc + 10; 
+              
+              context.font &#x3D; &quot;8px Arial&quot;;
+              context.fillStyle &#x3D; &quot;#000000&quot;
+              context.fillText((set.id+1).toString(),left, top-2,size*cc)
+              context.strokeRect(left,top,size*cc,size*cc);
+
+              for (let i &#x3D; 0; i &lt; wefts(set.draft.drawdown); i++) {
+                for (let j &#x3D; 0; j &lt; warps(set.draft.drawdown); j++) {
+                  drawCell(context, set.draft, cc, i, j, top, left);
+                }
+              }            
+            })
+
+            // console.log(&quot;b&quot;, b);
+            const a &#x3D; document.createElement(&#x27;a&#x27;)
+            a.href &#x3D; b.toDataURL(&quot;image/jpg&quot;)
+            a.download &#x3D; &quot;allvalid_&quot;+size+&quot;x&quot;+size+&quot;_drafts_&quot;+set_id+&quot;.jpg&quot;;
+            a.click();
+          }
+
+        }
+
+        
+        return Promise.resolve([getDraft(selection).draft]);
+
+      })
+      
+  }   
+
+
+const generateName &#x3D; (param_vals: Array&lt;OpParamVal&gt;, op_inputs: Array&lt;OpInput&gt;) : string &#x3D;&gt; {
+    const selection: number &#x3D; getOpParamValById(1, param_vals);
+    const size: number &#x3D; getOpParamValById(0, param_vals);
+
+  return size+&#x27;x&#x27;+size+&#x27;-&#x27;+selection;
+}
+
+
+export const combinatorics: Operation &#x3D; {name, old_names, params, inlets, perform, generateName};
+
+
+
+/**** CUSTOM FUNCTIONS FOR GENERATING ALL POSSIBLE STRUCRTURES****/
+
+
+interface ComboTree {
+    set: Array&lt;Array&lt;number&gt;&gt;,
+    top: ComboNode
+  }
+  
+  interface ComboNode {
+    parent: ComboNode;
+    value: number,
+    set: Array&lt;Array&lt;number&gt;&gt;,
+    children: Array&lt;ComboNode&gt;;
+  }
+
+  let cur_set: any &#x3D; {warps: 0, wefts: 0};
+  let all_possible_drafts: Array&lt;{draft:Draft, id:number}&gt; &#x3D; [];
+  let min_interlacements: number &#x3D; 1;
+
+
+  function drawCell(cx, draft, cell_size, i, j, top,  left){
+    let is_up &#x3D; isUp(draft.drawdown, i, j);
+    let color &#x3D; &quot;#ffffff&quot;
+   
+    if(is_up){
+      color &#x3D; &#x27;#000000&#x27;;
+    }else{
+      color &#x3D; &#x27;#ffffff&#x27;;
+    }
+    cx.fillStyle &#x3D; color;
+    cx.strokeStyle &#x3D; &#x27;#000000&#x27;;
+
+ 
+
+    //hack, draw upside down to account for later flip
+    i &#x3D; (wefts(draft.drawdown)-1) - i;
+
+    cx.strokeRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
+    cx.fillRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
+  }
+
+
+  /**
+   * returns all the values from the valid set that match the sequence
+   * @param seq 
+   * @param valid 
+   */
+  function filterForSeq(seq: Array&lt;number&gt;, valid: Array&lt;Array&lt;number&gt;&gt;) : Array&lt;Array&lt;number&gt;&gt;{
+    let filtered &#x3D; valid.slice();
+    seq.forEach((val, ndx) &#x3D;&gt; {
+      filtered &#x3D; filtered.filter(set &#x3D;&gt; set[ndx] &#x3D;&#x3D; val);
+    });
+    return filtered;
+  }
+
+
+  /**
+   * prints the tree for verification
+   * @param tree 
+   */
+  function printTree(tree: ComboTree){
+
+    console.log(&quot;***PRINT TREE***&quot;);
+    printNodes([tree.top]);
+  }
+
+  function printNodes(nodes: Array&lt;ComboNode&gt;){
+    
+    nodes.forEach(node &#x3D;&gt; {
+     // console.log(&quot;Node: &quot;, this.traceSequenceViaParents(node), node.set);
+      printNodes(node.children);
+    });
+  }
+
+
+  /**
+   * given a node, it creates the sequence (e.g. 0110) that it represnts by calling each parent
+   * @param node a tree node from which to start
+   * @returns the sequence reprsented by this node. 
+   */
+  function traceSequenceViaParents(node: ComboNode) : Array&lt;number&gt;{
+    let seq &#x3D; [];
+    while(node.parent !&#x3D;&#x3D; null){
+      seq &#x3D; [node.value].concat(seq);
+      node &#x3D; node.parent;
+    }
+    return seq;
+  }
+
+
+  /**
+   * converts the valid set into a tree, where the root/top node branches between 0, 1 at each child. 
+   * therefore, every valid set traverses the tree. Each treenode stores the valid sets at its location
+   * allowing for each row add to be a lookup operation
+   * @param valid the valid set of combinations
+   * @returns a Combination Tree accounting for every valid set
+   */
+  function createTreeFromValidSet(valid: Array&lt;Array&lt;number&gt;&gt;) : Promise&lt;ComboTree&gt; {
+
+    let tree:ComboTree &#x3D; {
+      set: valid.slice(),
+      top: {
+        parent: null,
+        value: -1,
+        set: valid.slice(),
+        children: []},
+    }
+
+
+    valid.forEach(valid_set &#x3D;&gt; {
+
+      let node &#x3D; tree.top;
+
+      valid_set.forEach(val &#x3D;&gt; {
+            
+         const found &#x3D; node.children.filter(el &#x3D;&gt; el.value &#x3D;&#x3D;&#x3D; val);
+         if(found.length &#x3D;&#x3D; 0){
+           const combo_node: ComboNode &#x3D; {
+            parent: node,
+            value: val,
+            set: [valid_set],
+            children: []
+            }
+            node.children.push(combo_node);
+            node &#x3D; combo_node;
+          }else{
+            node &#x3D; found[0];
+            node.set.push(valid_set);
+          }
+      });
+    })
+
+    return Promise.resolve(tree);
+
+  }
+
+
+  /**
+   * initializes a set of all possible valid drafts of a given dimension
+   * Right now must be square and have a minimum of 1 interlacement
+   * @param wefts the number of wefts of the structure
+   * @param warps the number of warps in the structure
+   * @returns a promise containing the array of all drafts generated
+   */
+  function initSet(wefts: number, warps: number) : Promise&lt;Array&lt;{draft:Draft, id:number}&gt;&gt;{
+
+    cur_set &#x3D; {warps:0, wefts:0};
+    all_possible_drafts &#x3D; [];
+
+    return getAllPossible(warps-1)
+    .then(possible &#x3D;&gt; {
+      return makeValid(possible);
+    })
+    .then(valid &#x3D;&gt; {
+
+      return createTreeFromValidSet(valid);
+
+
+    }).then(tree &#x3D;&gt; {
+
+      printTree(tree);
+
+      let drafts: Array&lt;Draft&gt; &#x3D; [];
+       let opts &#x3D; getOptions([], tree);
+       
+       opts.forEach(opt &#x3D;&gt; {
+
+        const draft: Draft &#x3D; initDraftWithParams({warps: warps, wefts: wefts});
+    
+        for(let i &#x3D; 0; i &lt; wefts; i++){
+          for(let j &#x3D; 0; j &lt; warps; j++){
+            if(i &#x3D;&#x3D; 0) draft.drawdown[i][j] &#x3D; setCellValue(draft.drawdown[i][j], ((opt[j] &#x3D;&#x3D; 0) ? false: true));
+          }
+        }
+        
+        drafts &#x3D; drafts.concat([draft]);
+
+      });
+
+      //drafts.forEach(el &#x3D;&gt; utilInstance.printDraft(el));
+
+      
+      const its &#x3D; (wefts * 2) -1;
+      for(let i &#x3D; 1; i &lt;&#x3D; its; i++){
+       drafts &#x3D; expandDrafts(drafts, tree, i, wefts);
+       //drafts.forEach(el &#x3D;&gt; utilInstance.printDraft(el));
+
+      }
+
+      //drafts.forEach(el &#x3D;&gt; utilInstance.printDraft(el));
+
+      all_possible_drafts &#x3D; drafts.map((el, ndx) &#x3D;&gt; {return {draft: el, id: ndx}});
+      cur_set.wefts &#x3D; wefts;
+       cur_set.warps &#x3D; warps;
+      return Promise.resolve(all_possible_drafts);
+
+
+    });
+
+  }
+
+
+  /**
+   * gets the set of a defined size. If that set is already in memory, it returns it. If not, it generates it.
+   * @param warps the warps to check
+   * @param wefts the wefts to check
+   * @returns a boolean 
+   */
+  function getSet(warps: number, wefts: number) : Promise&lt;Array&lt;{draft:Draft, id:number}&gt;&gt; {
+    if(warps &#x3D;&#x3D;&#x3D; cur_set.warps &amp;&amp; wefts &#x3D;&#x3D;&#x3D; cur_set.wefts) return Promise.resolve(all_possible_drafts);
+    else return initSet(warps, wefts);
+  }
+
+  /**
+   * gets the draft at location NDX from the current set of generated drafts
+   * @param ndx the index to return
+   * @returns returns the draft at the index, or an empty draft if so
+   */
+  function getDraft(ndx: number) : {draft: Draft, id: number}{
+    const found &#x3D; all_possible_drafts.find(el &#x3D;&gt; el.id &#x3D;&#x3D; ndx)
+    if(found &#x3D;&#x3D; undefined) return {draft: initDraftWithParams({wefts: 1, warps: 1}), id: -1};
+    else return found;
+  }
+
+  /**
+   * gets the draft at location NDX from the current set of generated drafts
+   * @param ndx the index to return
+   * @returns returns the draft at the index, or an empty draft if so
+   */
+  function getDrafts(ndx: number, divisor: number) : Array&lt;{draft: Draft, id: number}&gt;{
+    const set_size &#x3D; Math.floor(all_possible_drafts.length/divisor);
+    const begin &#x3D; ndx * set_size;
+    const stop &#x3D; begin + set_size;
+    const drafts &#x3D; all_possible_drafts.filter(el &#x3D;&gt; (el.id &gt;&#x3D; begin &amp;&amp; el.id &lt;&#x3D; stop));
+    return drafts;
+  }
+
+  /**
+   * gets a list of possible drafts by adding a single row or column
+   * @param vsd an array of drafts and associated valid sets
+   * @param ndx the index in the adding of row columns
+   * @param wefts the size of the structure
+   * @returns an (expanded)array of drafts and associated valid sets
+   */
+  function expandDrafts(drafts: Array&lt;Draft&gt;, tree: ComboTree, ndx: number, wefts: number) : Array&lt;Draft&gt; {
+
+    let all_drafts: Array&lt; Draft&gt; &#x3D; [];
+    drafts.forEach(draft &#x3D;&gt; {
+      if(ndx % 2 &#x3D;&#x3D; 0) all_drafts &#x3D; all_drafts.concat(addRow(draft, tree, Math.floor(ndx/2), wefts));
+      if(ndx % 2 &#x3D;&#x3D; 1) all_drafts &#x3D; all_drafts.concat(addCol(draft, tree, Math.floor(ndx/2), wefts));
+    })
+
+    //console.log(&quot;returning from all drafts&quot;, all_drafts.length);
+    return all_drafts;
+
+
+  }
+
+
+  /**
+   * adds a row to the set of drafts added
+   * @param vsd 
+   * @param i 
+   * @param n 
+   * @returns 
+   */
+  function addRow(draft: Draft, tree: ComboTree, i:number, n: number){
+    let expanded_drafts &#x3D; [];  
+    //console.log(&quot;adding rows to &quot;, vsd);
+
+    let set &#x3D; [];
+    for(let j &#x3D; 0; j &lt; i; j++){
+      set.push(getCellValue(draft.drawdown[i][j]) ? 1 : 0);
+    }
+    //console.log(&quot;Generated set &quot;, set, );
+
+
+    let opts &#x3D; getOptions(set, tree);
+    //console.log(&quot;generated options&quot;, opts);
+    opts.forEach(opt &#x3D;&gt; {
+
+      let pattern &#x3D; [];
+      pattern &#x3D; draft.drawdown.slice();
+      //add to the draft and push
+      for(let j &#x3D; 0; j &lt; n; j++){
+        pattern[i][j] &#x3D; (opt[j] &#x3D;&#x3D; 0) ? createCell(false) : createCell(true);
+      }
+
+      expanded_drafts.push(initDraftWithParams({warps: n, wefts: n, pattern: pattern.slice()}));
+      
+    });
+
+
+    return expanded_drafts;
+  }
+
+  function addCol(draft: Draft, tree: ComboTree, j:number, n: number){
+    //console.log(&quot;adding cols to &quot;, vsd);
+
+    let expanded_drafts &#x3D; [];
+
+    let set &#x3D; [];
+    for(let i &#x3D; 0; i &lt; (j+1); i++){
+      set.push(getCellValue(draft.drawdown[i][j]) ? 1 : 0);
+    }
+
+    let opts &#x3D;getOptions(set, tree);
+    //console.log(&quot;generated options for set&quot;, set, opts);
+
+    opts.forEach(opt &#x3D;&gt; {
+
+      let pattern &#x3D; [];
+      pattern &#x3D; draft.drawdown.slice();
+      //add to the draft and push
+      for(let i &#x3D; 0; i &lt; n; i++){
+        pattern[i][j] &#x3D; (opt[i] &#x3D;&#x3D; 0) ? createCell(false) : createCell(true);
+      }
+
+      expanded_drafts.push(initDraftWithParams({warps: n, wefts: n, pattern: pattern.slice()}));
+      
+    });
+    //console.log(&quot;****returning ****&quot;);
+   // expanded_drafts.forEach(el &#x3D;&gt; utilInstance.printDraft(el.draft))
+    return expanded_drafts;
+  }
+
+
+
+  /**
+   * uses the input sequence to identify the node of possible children
+   * @param seq the input sequence to locate 
+   * @param tree the tree to search
+   * @returns 
+   */
+  function getOptions(seq: Array&lt;Number&gt;, tree: ComboTree) : Array&lt;Array&lt;number&gt;&gt;{
+
+    let children &#x3D; tree.top.children.slice();
+    
+    if(seq.length &#x3D;&#x3D; 0) return tree.set.slice();
+    //get to the node we need
+    let node &#x3D; null;
+
+
+    seq.forEach(val &#x3D;&gt; {
+      node &#x3D; children.find(el &#x3D;&gt; el.value &#x3D;&#x3D; val);
+      if(node &#x3D;&#x3D;&#x3D; undefined) children &#x3D; [];
+      else children &#x3D; node.children.slice();
+    });
+
+    if(node &#x3D;&#x3D;&#x3D; undefined) return [];
+    else return node.set.slice();
+  }
+
+  /**
+   * if there is all zeros or all ones, it adds a contrasting bit at the end, or both bits 
+   * @param all_possible 
+   * @returns 
+   */
+  function makeValid(all_possible: Array&lt;Array&lt;number&gt;&gt;) : Promise&lt;Array&lt;Array&lt;number&gt;&gt;&gt;{
+    const all_valid &#x3D; [];
+
+    for(let i &#x3D; 0; i &lt; all_possible.length; i++){
+      if(all_possible[i].find(el &#x3D;&gt; el &#x3D;&#x3D; 0) &#x3D;&#x3D;&#x3D; undefined){
+        all_valid.push(all_possible[i].concat([0]))
+      }else if(all_possible[i].find(el &#x3D;&gt; el &#x3D;&#x3D; 1) &#x3D;&#x3D;&#x3D; undefined){
+        all_valid.push(all_possible[i].concat([1]))
+      }else{
+        all_valid.push(all_possible[i].concat([0]))
+        all_valid.push(all_possible[i].concat([1]))
+      }
+    }
+
+    return Promise.resolve(all_valid);
+  }
+
+
+
+  /**
+   * generates a list of all valid sums with n factors that total t. 
+   * all elements &gt; 0
+   * @param n 
+   */
+  function getAllPossible(n: number): Promise&lt;Array&lt;Array&lt;number&gt;&gt;&gt;{
+
+    let all_combos &#x3D; [];
+
+    for(let i &#x3D; 0; i &lt; n; i++){
+      all_combos &#x3D; addBit(all_combos);
+    }
+    return Promise.resolve(all_combos);
+    
+  }
+
+
+  
+
+  function addBit(set: Array&lt;Array&lt;number&gt;&gt;) : Array&lt;Array&lt;number&gt;&gt; {
+    
+    const expanded_set &#x3D; [];
+
+    if(set.length &#x3D;&#x3D; 0){
+      expanded_set.push([0]);
+      expanded_set.push([1]);
+    }else{
+      for(let i &#x3D; 0; i &lt; set.length; i++){
+        expanded_set.push(set[i].concat([0]));
+        expanded_set.push(set[i].concat([1]));
+      }
+    }
+    return expanded_set;
+  }
+
+
+
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'ComboTree.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
