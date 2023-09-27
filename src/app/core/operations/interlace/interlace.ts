@@ -2,7 +2,7 @@ import { BoolParam, Draft, Operation, OperationInlet, OpInput, OpParamVal } from
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
-import { makeWeftSystemsUnique } from "../../model/system";
+import { makeSystemsUnique } from "../../model/system";
 import utilInstance from "../../model/util";
 
 const name = "interlace";
@@ -64,11 +64,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     return acc;
   }, [])
 
-  console.log("Make Unique ", make_unique)
-
-  let unique = makeWeftSystemsUnique(make_unique);
-  console.log("UNIQUE ", unique)
-
+  let unique = makeSystemsUnique(make_unique);
 
     let total_warps;
     if(repeat){
