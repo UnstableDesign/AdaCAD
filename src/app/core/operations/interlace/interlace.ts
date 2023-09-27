@@ -2,6 +2,7 @@ import { BoolParam, Draft, Operation, OperationInlet, OpInput, OpParamVal } from
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
+import { makeWeftSystemsUnique } from "../../model/system";
 import utilInstance from "../../model/util";
 
 const name = "interlace";
@@ -56,6 +57,19 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
   let total_wefts = utilInstance.lcm(drafts.map(el => wefts(el.drawdown)))*drafts.length;
 
+
+  let make_unique = drafts.reduce((acc, draft) => {
+    let sized = new Sequence.OneD().import(draft.rowSystemMapping).resize(total_wefts).val();
+    acc.push(sized);
+    return acc;
+  }, [])
+
+  console.log("Make Unique ", make_unique)
+
+  let unique = makeWeftSystemsUnique(make_unique);
+  console.log("UNIQUE ", unique)
+
+
     let total_warps;
     if(repeat){
         total_warps  = utilInstance.lcm(drafts.map(el => warps(el.drawdown)));
@@ -74,6 +88,9 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     let within_draft_i = Math.floor(i / drafts.length);
     let selected_draft = drafts[selected_draft_id];
 
+    
+
+
     if(repeat || within_draft_i < wefts(selected_draft.drawdown)){
 
         let selected_draft = drafts[selected_draft_id];
@@ -84,7 +101,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
         else row.padTo(total_warps);
 
         pattern.pushWeftSequence(row.val());
-        weft_systems.push(selected_draft.rowSystemMapping[modulated_id]);
+        weft_systems.push(unique[selected_draft_id][within_draft_i]);
         weft_shuttles.push(selected_draft.rowShuttleMapping[modulated_id]);
     }
   }

@@ -1,13 +1,8 @@
 
-import { SQRT1_2 } from "mathjs";
-import { start } from "repl";
-import { drawdown } from "../operations/drawdown/drawdown";
-import { layer } from "../operations/layer/layer";
 import { MaterialsService } from "../provider/materials.service";
 import { getCellValue } from "./cell";
-import {  Bounds, Cell, Deflection, Draft, Drawdown, LayerMaps, SimulationData, SimulationVars, TopologyVtx, VertexMaps, WarpHeight, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnCell, YarnFloat, YarnVertex } from "./datatypes";
-import {getCol, getHeddle, warps, wefts } from "./drafts";
-import { Sequence } from "./sequence";
+import { Cell, Deflection, Draft, Drawdown, LayerMaps, SimulationVars, TopologyVtx, VertexMaps, WarpInterlacementTuple, WarpRange, WeftInterlacementTuple, YarnFloat, YarnVertex } from "./datatypes";
+import { warps, wefts } from "./drafts";
 
 
 
@@ -943,6 +938,8 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       return acc;
     }, 0);
 
+    console.log("MAX HEIGHT ", max_height)
+
     //start from the smallest width to the largest  
     //push interlacements to the map in this order, not adding any additional. 
     
@@ -958,10 +955,12 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     //go through layers 0 -> max and push interlacements to the layer map 
     for(let i = 1; i <= max_height; i++){
         let layer_ilace = topo.filter(ilace => ilace.i_top-ilace.i_bot == i);
-        console.log("LAYER ILACE ", i, layer_ilace);
+        // console.log("LAYER ILACE ", i, layer_ilace);
         layer_map = addWarpLayerInterlacementsToMap(layer_map, layer_ilace, sim.max_interlacement_width, sim.max_interlacement_height); 
       
     }
+
+    console.log("LAYER MAP AFTER ILACES ", layer_map)
 
     
 

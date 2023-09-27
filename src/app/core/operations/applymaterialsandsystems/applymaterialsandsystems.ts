@@ -18,7 +18,7 @@ dx: 'number of ends by which to shift the warp color pattern'
 }
 
 const shift_weft_mats:NumParam = {
-    name: 'warp colors shift',
+    name: 'weft colors shift',
       min: 0,
       max: 10000,
       value: 0,
@@ -79,8 +79,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     const base_drafts = getAllDraftsAtInlet(op_inputs, 0);
     const materials_drafts = getAllDraftsAtInlet(op_inputs, 1);
 
-    const weft_mat_shift = getOpParamValById(0, op_params);
-    const warp_mat_shift = getOpParamValById(1, op_params);
+    const weft_mat_shift = getOpParamValById(1, op_params);
+    const warp_mat_shift = getOpParamValById(0, op_params);
     const warp_sys_shift = getOpParamValById(2, op_params);
     const weft_sys_shift = getOpParamValById(3, op_params);
 

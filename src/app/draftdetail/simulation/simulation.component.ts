@@ -28,16 +28,16 @@ export class SimulationComponent implements OnInit {
   sim_expanded: boolean = false;
   layer_spacing: number = 10;
   layer_threshold: number = 1;
-  warp_threshold: number = 2;
+  warp_threshold: number = 10;
   max_interlacement_width: number = 10;
-  max_interlacement_height: number = 2;
+  max_interlacement_height: number = 10;
   showing_warp_layer_map: boolean = false;
   showing_weft_layer_map: boolean = false;
   showing_warps: boolean = true;
   showing_wefts: boolean = true;
   showing_topo: boolean = false;
   showing_draft: boolean = false;
-  boundary: number = 0;
+  boundary: number = 10;
   radius: number = 40;
   current_simdata: SimulationData = null;
 

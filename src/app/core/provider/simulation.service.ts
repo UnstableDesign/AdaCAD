@@ -53,6 +53,7 @@ export class SimulationService {
   }
 
   private tileDraft(draft: Draft, boundary: number) : Promise<Draft>{
+    console.log("TILING TO ", boundary)
     //extend to left and right top and bottom
     let pattern = new Sequence.TwoD();
     let weft_mats = new Sequence.OneD();
