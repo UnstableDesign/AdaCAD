@@ -101,7 +101,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
         else row.padTo(total_warps);
 
         pattern.pushWeftSequence(row.val());
-        weft_systems.push(unique[selected_draft_id][within_draft_i]);
+        weft_systems.push(unique[selected_draft_id ][within_draft_i]);
         weft_shuttles.push(selected_draft.rowShuttleMapping[modulated_id]);
     }
   }
