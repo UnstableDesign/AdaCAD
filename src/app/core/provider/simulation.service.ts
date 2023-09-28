@@ -130,7 +130,7 @@ export class SimulationService {
 
     const currentSim:SimulationData  = {
       draft: draft, 
-     bounds: {topleft: {x: sim.boundary, y: sim.boundary}, width: warps(draft.drawdown), height: wefts(draft.drawdown)},
+      bounds: {topleft: {x: sim.boundary, y: sim.boundary}, width: warps(draft.drawdown), height: wefts(draft.drawdown)},
       sim: sim,
       topo: null,
       vtxs: null, 

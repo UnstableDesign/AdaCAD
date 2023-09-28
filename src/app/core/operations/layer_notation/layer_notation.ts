@@ -62,18 +62,22 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       let warp_shuttle_map = new Sequence.OneD(system_map[0].colShuttleMapping);
 
       //make sure the system draft map has a representation for every layer, even if the draft at that layer is null.
-      const layer_draft_map = original_string_split.map((unit, layer) => {
+
+      let layer_num = 0;
+      const layer_draft_map = original_string_split.map((unit, ndx) => {
   
-        
-        let drafts = getAllDraftsAtInlet(op_inputs, layer+1);
-    
+        let drafts = getAllDraftsAtInlet(op_inputs, ndx+1);
+        if(parseWarpSystem(unit).length != 0) layer_num++;
+
         return {
           wesy: parseWeftSystem(unit), 
           wasy: parseWarpSystem(unit),
-          layer: layer, //map layer order to the inlet id, all inlets must be ordered the same as the input
+          layer: layer_num, //map layer order to the inlet id, all inlets must be ordered the same as the input
           draft: (drafts.length == 0) ? initDraftWithParams({wefts: 1, warps: 1, drawdown:[[createCell(false)]]}) : drafts[0]
         }
       })
+
+      console.log("LAYER DRAFT ", layer_draft_map)
 
 
       let composite = new Sequence.TwoD().setBlank(2);
@@ -94,6 +98,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             system_layer_map.push({ws: wasy, layer:el.layer})
           })
         });
+        console.log("SYS LAYER MAP ", system_layer_map)
         composite.layerSystems(system_layer_map, warp_system_map);
     
     
