@@ -1,4 +1,4 @@
-import { BoolParam, Draft, NumParam, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
+import { Draft, NumParam, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById } from "../../model/operations";
 import { Sequence } from "../../model/sequence";

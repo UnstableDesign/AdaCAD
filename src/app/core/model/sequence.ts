@@ -409,6 +409,49 @@ export module Sequence{
 
 
   /**
+   * used to handle layers that are composed only of floats, this function writes this stored sequence accross all warp systems 
+   * @param weftsys 
+   * @param weft_system_map 
+   * @param warp_system_map 
+   * @returns 
+   */
+  mapToWeftSystems(weftsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD){
+    let total_wefts: number = 0;
+    total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
+
+    let total_warps: number = 0;
+    total_warps = utilInstance.lcm([this.warps(), warp_system_map.length()])*warp_system_map.length();
+
+    //create a blank draft of the size needed that we'll copy into 
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(total_warps, total_wefts);
+
+    //now map the new values within that space
+    let within_sequence_i = 0; 
+    let within_sequence_j = 0;
+
+    for(let i = 0; i < total_wefts; i++){
+      let active_weft_system = weft_system_map.get(i%weft_system_map.length());
+      if(weftsys.find(el => el == active_weft_system) !== undefined){
+        within_sequence_j = 0;
+        for(let j = 0; j < total_warps; j++){
+
+            mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
+            within_sequence_j = (within_sequence_j + 1) % this.warps();
+          
+        }
+        within_sequence_i = (within_sequence_i + 1) % this.wefts();
+      }
+    }
+
+    this.state = mapped_seq.state.slice();
+    return this;
+
+  }
+
+
+
+
+  /**
    * places the non unset values from seq atop any unset values in the current state. It will also make the two sequences compatable sizes by repeating their original values. 
    * @param seq 
    * @returns 
@@ -497,14 +540,7 @@ export module Sequence{
 
     //get the actual layers we are dealing with
     let layers = utilInstance.filterToUniqueValues(warp_system_to_layers.map(el => el.layer));
-    
-    //TO DO RUN A TEST HERE IF THERE ARE ANY ROW WITH NO INTERLACEMENTS (E.G. FLOATING IN STACK)
-    //IF SO, YOU NEED TO DETERMINE WHERE THAT LAYER'S SYSTEM IS WITHIN THE LAYER STACK. 
-    //"LIFT" ANY WARPS ON THAT ROW THAT WILL BE "ABOVE" THAT LAYER AND LOWER THE OTHERS. 
 
-
-
-    //might have to make these numbers consequtive?
     for(let l = 0; l < layers.length; l++){
 
       //get the warp systems associated with this layer
