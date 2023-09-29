@@ -1,9 +1,8 @@
 import { createCell, getCellValue } from "../../model/cell";
-import { Draft, OperationInlet, OpInput, OpParamVal, StringParam, NotationTypeParam, DynamicOperation, OperationParam } from "../../model/datatypes";
+import { Draft, OperationInlet, OpInput, OpParamVal, StringParam, NotationTypeParam, DynamicOperation, OperationParam, BoolParam } from "../../model/datatypes";
 import {  generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames, reduceToStaticInputs } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
-import { getSystemCharFromId } from "../../model/system";
 import utilInstance from "../../model/util";
 
 
@@ -19,8 +18,9 @@ const pattern:StringParam =
     value: '(a1)(b2)',
     regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //this is the layer parsing regex
     error: 'invalid entry',
-    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
+    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). If you enter a letter, wthout an number such as (a1)(b)(c2), weft system be will be constructed as a float between layers 1 and 3'
   }
+
 
 
 
@@ -78,23 +78,24 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       let composite = new Sequence.TwoD().setBlank(2);
-
+      console.log("layer draft map", layer_draft_map)
 
 
       //assign drafts to their specified systems. 
       layer_draft_map.forEach((sdm, ndx) => {
         let seq;
+
         if(sdm.wasy.length == 0){
           let oneD = new Sequence.OneD().pushMultiple(1, sdm.layer).pushMultiple(0, warp_system_map.length() - sdm.layer);
           seq = new Sequence.TwoD().pushWeftSequence(oneD.val());
           seq.mapToWeftSystems(sdm.wesy, weft_system_map, warp_system_map);
 
         }else{
+
           seq = new Sequence.TwoD().import(sdm.draft.drawdown);
           seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
         }
         composite.overlay(seq, false);
-
        });
 
 
@@ -105,8 +106,9 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             system_layer_map.push({ws: wasy, layer:el.layer})
           })
         });
+        console.log("LAYER SYSTEMS ", system_layer_map)
         composite.layerSystems(system_layer_map, warp_system_map);
-    
+        
  
 
 
