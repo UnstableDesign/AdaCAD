@@ -337,10 +337,11 @@ zoomChange(e:any, source: string){
           if(fileid !== null){
 
             const ada = await this.files.getFile(fileid).catch(e => {
-              console.error("HI ", e)
+              console.error("error on get file ", e)
             });
             const meta = await this.files.getFileMeta(fileid).catch(console.error);           
              
+            console.log("ADA GOT ", ada)
 
               if(ada === undefined){
                 this.loadBlankFile();
@@ -418,9 +419,8 @@ zoomChange(e:any, source: string){
    * @param result 
    */
   loadNewFile(result: LoadResponse){
-    this.clearAll();
 
-
+    //DO NOT CALL CLEAR ALL HERE AS IT WILL OVERWRITE LOADED FILE DATA
 
     this.files.setCurrentFileInfo(result.id, result.name, result.desc);
     
@@ -922,6 +922,7 @@ zoomChange(e:any, source: string){
 
 
   prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
+    this.clearAll();
       return this.fs.loader.ada(name, id,desc, ada).then(lr => {
         this.loadNewFile(lr);
       });
@@ -937,11 +938,11 @@ zoomChange(e:any, source: string){
 
   clearAll() : void{
 
-    console.log("CLEAR ALL")
     this.clearView();
     this.tree.clear();
     this.ss.clearTimeline();
     this.notes.clear();
+    this.ms.reset();
 
   }
 
@@ -957,8 +958,8 @@ zoomChange(e:any, source: string){
 
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
+    this.clearAll();
     this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, so).then(lr => {
-      console.log("LOADing FILE ", lr);
       this.loadNewFile(lr)
     }
     
@@ -971,7 +972,7 @@ zoomChange(e:any, source: string){
 
     let so: SaveObj = this.ss.restoreNextMixerHistoryState();
     if(so === null || so === undefined) return;
-
+    this.clearAll();
     this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id,this.files.current_file_desc,  so)
     .then(lr =>  this.loadNewFile(lr));
 

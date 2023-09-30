@@ -53,7 +53,6 @@ export class SimulationService {
   }
 
   private tileDraft(draft: Draft, boundary: number) : Promise<Draft>{
-    console.log("TILING TO ", boundary)
     //extend to left and right top and bottom
     let pattern = new Sequence.TwoD();
     let weft_mats = new Sequence.OneD();
@@ -159,10 +158,9 @@ export class SimulationService {
 
   }
 
-  public setupSimulation(draft: Draft, renderer, scene, camera, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius:number, ms: MaterialsService) : Promise<SimulationData> {
+  public setupSimulation(draft: Draft, renderer, scene, camera, controls, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius:number, ms: MaterialsService) : Promise<SimulationData> {
 
-    camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
-    const controls = new OrbitControls( camera, renderer.domElement );
+    
     
     const animate = function(){
       requestAnimationFrame( animate );
@@ -197,6 +195,13 @@ export class SimulationService {
    
 
   }
+
+  public snapToX(controls){
+    controls.target = new THREE.Vector3(200,0,0);
+    controls.update();
+  }
+
+
 
   public recalcSimData(scene, draft: Draft, warp_spacing:number, layer_spacing:number, layer_threshold:number,max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius: number, ms: MaterialsService) : Promise<SimulationData>{
 
@@ -233,8 +238,6 @@ export class SimulationService {
 
     light.position.set( 20, 0, 50 );
     back_light.position.set( 20, 0, -50 );
-
-
 
 
     const boundary_vtx = this.getBoundaryVtxs(simdata);

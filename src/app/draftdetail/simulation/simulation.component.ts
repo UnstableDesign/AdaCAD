@@ -5,8 +5,7 @@ import { Draft, Interlacement, LoomSettings, SimulationData } from '../../core/m
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
-import { createCell, getCellValue } from '../../core/model/cell';
-import { initDraftFromDrawdown } from '../../core/model/drafts';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 @Component({
   selector: 'app-simulation',
@@ -23,6 +22,7 @@ export class SimulationComponent implements OnInit {
   renderer;
   scene;
   camera;
+  controls;
   draft: Draft;
   loom_settings: LoomSettings;
   sim_expanded: boolean = false;
@@ -61,7 +61,8 @@ export class SimulationComponent implements OnInit {
     const div = document.getElementById('simulation_container');
     this.renderer = new THREE.WebGLRenderer();
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
+    this.camera = new THREE.OrthographicCamera( div.offsetWidth / - 2, div.offsetWidth / 2, div.offsetHeight / 2, div.offsetHeight / - 2, 1, 1000 );
+    this.controls = new OrbitControls( this.camera, this.renderer.domElement );
     this.renderer.setSize(div.offsetWidth, div.offsetHeight);
     div.appendChild(this.renderer.domElement);
   }
@@ -101,6 +102,7 @@ export class SimulationComponent implements OnInit {
       this.renderer, 
       this.scene, 
       this.camera, 
+      this.controls,
       this.layer_threshold, 
       this.warp_threshold, convertEPItoMM(loom_settings), 
       this.layer_spacing, 
@@ -193,6 +195,9 @@ export class SimulationComponent implements OnInit {
     });
   }
 
+  snapToX(){
+    this.simulation.snapToX(this.controls);
+  }
 
   toggleWefts(){
     if(!this.showing_wefts) this.simulation.showWefts();
@@ -311,12 +316,12 @@ export class SimulationComponent implements OnInit {
     if(this.sim_expanded){
       const ex_div = document.getElementById('expanded-container');
       this.renderer.setSize( ex_div.offsetWidth, ex_div.offsetHeight );
-      this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
+      //this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
     }else{
       const small_div = document.getElementById('simulation_container');
 
       this.renderer.setSize( small_div.offsetWidth, small_div.offsetHeight );
-      this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
+     // this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
     }
 
 
@@ -333,16 +338,15 @@ export class SimulationComponent implements OnInit {
     if(this.sim_expanded){
       const ex_div = document.getElementById('expanded-container');
       this.renderer.setSize( ex_div.offsetWidth, ex_div.offsetHeight );
-      this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
+     // this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
     }else{
       const small_div = document.getElementById('simulation_container');
 
       this.renderer.setSize( small_div.offsetWidth, small_div.offsetHeight );
-      this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
+     // this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
     }
 
     this.camera.updateProjectionMatrix();
-
     this.renderer.render( this.scene, this.camera );
 
   }
