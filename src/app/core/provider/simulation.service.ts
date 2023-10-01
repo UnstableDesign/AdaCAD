@@ -168,10 +168,7 @@ export class SimulationService {
       controls.update();
 
     };
-    scene.background = new THREE.Color( 0xf0f0f0 );
 
-    camera.position.set( 20, 0, 200 );
-    camera.lookAt( 0, 0, 0 );  
     controls.update();
     animate();
 

@@ -147,13 +147,9 @@ export class DraftDetailComponent implements OnInit {
     this.sim_expanded = !this.sim_expanded;
 
     if(this.sim_expanded){
-      const sbdiv = document.getElementById('sidebar');
-      sbdiv.style.display = 'none';
       const dvdiv = document.getElementById('draft_viewer');
       dvdiv.style.display = 'none';
     }else{
-      const sbdiv = document.getElementById('sidebar');
-      sbdiv.style.display = 'flex';
       const dvdiv = document.getElementById('draft_viewer');
       dvdiv.style.display = 'flex';
     }

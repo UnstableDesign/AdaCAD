@@ -8,17 +8,43 @@ a.help{
 
 }
 
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: space-between;
+    width: 42px;
+    height: 100%;
+    font-size: .8em;
+    flex: none;
+}
+
+#draft_viewer{
+    flex: 1 1 auto;
+    margin: auto;
+    width: 50%;
+    height: 100%;
+}
+
+#simulation_container{
+    display: flex;
+    flex: 1 1 auto;
+    overflow: hidden;
+    width: 50%;
+}
+
+
+
 .viewers{
+    flex: 1 1 auto;
     display: flex;
     flex-direction: row;
-    width: 100%;
+    width: 66vw;
 }
 
 .design-container{
     display: flex;
     flex-direction: row;
-    width:100%;
-    height: 100%;
 }
 
 .detail_data{
@@ -33,12 +59,6 @@ a.help{
     width: 100%;
 }
 
-#draft_viewer{
-    min-width: 50%;
-    margin: auto;
-    height: 100%;
-}
-
 #draft_viewer.expanded{
     min-width: 100%;
     margin: auto;
@@ -46,3 +66,10 @@ a.help{
     flex-direction: row-reverse;
     height: 100%;
 }
+
+// #expanded-container{
+//     width: 100%;
+//     height: 100%;
+//     min-height: 400px;
+//     display: flex;
+// }

@@ -1,4 +1,4 @@
-.sidebar {
+#sidebar {
     display: flex;
     flex-direction: column;
     text-align: center;
@@ -6,6 +6,7 @@
     width: 42px;
     height: 100%;
     font-size: .8em;
+    flex: none;
 }
 
 .slider{

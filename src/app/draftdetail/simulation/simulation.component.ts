@@ -40,6 +40,8 @@ export class SimulationComponent implements OnInit {
   boundary: number = 10;
   radius: number = 40;
   current_simdata: SimulationData = null;
+  tanFOV: number = 0;
+  originalHeight: number = 0; 
 
 
   constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
@@ -58,13 +60,36 @@ export class SimulationComponent implements OnInit {
   }
 
   ngAfterViewInit(){
+    
     const div = document.getElementById('simulation_container');
+
+
     this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    div.appendChild( this.renderer.domElement );
+
+
     this.scene = new THREE.Scene();
-    this.camera = new THREE.OrthographicCamera( div.offsetWidth / - 2, div.offsetWidth / 2, div.offsetHeight / 2, div.offsetHeight / - 2, 1, 1000 );
-    this.controls = new OrbitControls( this.camera, this.renderer.domElement );
-    this.renderer.setSize(div.offsetWidth, div.offsetHeight);
-    div.appendChild(this.renderer.domElement);
+    this.scene.background = new THREE.Color( 0xf0f0f0 );
+
+    this.camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+    // this.camera.position.set( 20, 0, 200 );
+    // this.camera.lookAt( 0, 0, 0 );  
+    this.camera.position.set(16, 8, 500); 
+    this.camera.lookAt( this.scene.position );
+    this.scene.add(this.camera);
+
+
+    // this.camera = new THREE.OrthographicCamera(  div.offsetWidth / - 2,  div.offsetWidth / 2,div.offsetHeight / 2, div.offsetHeight / - 2, 1, 1000 );
+    // console.log("DIV OFFSET ",div.offsetWidth, div.offsetHeight)
+     this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+
+
+    this.tanFOV = Math.tan( ( ( Math.PI / 180 ) * this.camera.fov / 2 ) );
+    this.originalHeight = window.innerHeight;
+
+    this.renderer(this.scene, this.camera);
+
   }
 
   calcDefaultLayerSpacing(draft: Draft){
@@ -309,44 +334,45 @@ export class SimulationComponent implements OnInit {
   }
 
   expand(){
+   
     this.onExpanded.emit();
     this.sim_expanded = !this.sim_expanded;
-
-
-    if(this.sim_expanded){
-      const ex_div = document.getElementById('expanded-container');
-      this.renderer.setSize( ex_div.offsetWidth, ex_div.offsetHeight );
-      //this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
-    }else{
-      const small_div = document.getElementById('simulation_container');
-
-      this.renderer.setSize( small_div.offsetWidth, small_div.offsetHeight );
-     // this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
-    }
-
-
-
+    this.onWindowResize();
   
-    this.camera.updateProjectionMatrix();
 
-    this.renderer.render( this.scene, this.camera );
+
+
   }
 
+  /**
+   * this gets called even if its not open!
+   */
   onWindowResize() {
+    console.log("RESIZE")
+    // const div = document.getElementById('simulation_container');
+    // console.log("DIV OFFSET ",div.offsetWidth, div.offsetHeight)
+    // this.camera.aspect = div.offsetWidth /div.offsetHeight ;
+    // this.camera.fov = ( 360 / Math.PI ) * Math.atan( this.tanFOV * ( div.offsetHeight / this.originalHeight ) );
+    // this.camera.updateProjectionMatrix();
+    // this.camera.lookAt(this.scene.position);
 
 
-    if(this.sim_expanded){
-      const ex_div = document.getElementById('expanded-container');
-      this.renderer.setSize( ex_div.offsetWidth, ex_div.offsetHeight );
-     // this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
-    }else{
-      const small_div = document.getElementById('simulation_container');
+    // this.renderer.setSize( div.offsetWidth, div.offsetHeight );
+    // this.renderer.render( this.scene, this.camera );
 
-      this.renderer.setSize( small_div.offsetWidth, small_div.offsetHeight );
-     // this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
-    }
+   
+    // console.log("THIS CAMERA ASPECT ", this.camera.aspect)
 
+
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    
+    // adjust the FOV
+    this.camera.fov = ( 360 / Math.PI ) * Math.atan( this.tanFOV * ( window.innerHeight / this.originalHeight ) );
+    
     this.camera.updateProjectionMatrix();
+    this.camera.lookAt( this.scene.position );
+
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
     this.renderer.render( this.scene, this.camera );
 
   }
