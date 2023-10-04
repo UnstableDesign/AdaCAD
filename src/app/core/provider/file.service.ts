@@ -217,6 +217,7 @@ export class FileService {
             scale: (data.scale === undefined) ? 5 : data.scale,
           }
     
+          console.log("DATA IS ", envt)
           return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
   
         }
@@ -681,23 +682,45 @@ export class FileService {
     },
     
     ada:  async (type: string, for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
-           
-      const out: SaveObj = {
-        version: this.vs.currentVersion(),
-        workspace: this.ws.exportWorkspace(),
-        type: type,
-        nodes: this.tree.exportNodesForSaving(current_scale),
-        tree: this.tree.exportTreeForSaving(),
-        draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
-        ops: this.tree.exportOpMetaForSaving(),
-        notes: this.ns.exportForSaving(),
-        materials: this.ms.exportForSaving(),
-        scale: current_scale
-      }
+      
 
-      //update this to return the object and see how it writes
-      var theJSON = JSON.stringify(out);
-      return Promise.resolve({json: theJSON, file: out});
+      return this.tree.exportDraftNodeProxiesForSaving().then(draft_nodes => {
+        console.log("SAVING ", draft_nodes);
+
+        const out: SaveObj = {
+          version: this.vs.currentVersion(),
+          workspace: this.ws.exportWorkspace(),
+          type: type,
+          nodes: this.tree.exportNodesForSaving(current_scale),
+          tree: this.tree.exportTreeForSaving(),
+          draft_nodes: draft_nodes,
+          ops: this.tree.exportOpMetaForSaving(),
+          notes: this.ns.exportForSaving(),
+          materials: this.ms.exportForSaving(),
+          scale: current_scale
+        }
+
+        var theJSON = JSON.stringify(out);
+        return Promise.resolve({json: theJSON, file: out});
+        })
+
+
+      // const out: SaveObj = {
+      //   version: this.vs.currentVersion(),
+      //   workspace: this.ws.exportWorkspace(),
+      //   type: type,
+      //   nodes: this.tree.exportNodesForSaving(current_scale),
+      //   tree: this.tree.exportTreeForSaving(),
+      //   draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
+      //   ops: this.tree.exportOpMetaForSaving(),
+      //   notes: this.ns.exportForSaving(),
+      //   materials: this.ms.exportForSaving(),
+      //   scale: current_scale
+      // }
+
+      // //update this to return the object and see how it writes
+      // var theJSON = JSON.stringify(out);
+      // return Promise.resolve({json: theJSON, file: out});
 
 
     },

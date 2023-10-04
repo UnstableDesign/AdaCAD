@@ -50,7 +50,6 @@ export class MaterialsService {
    * @param shuttles 
    */
   overloadShuttles(shuttles: Array<Material>): Array<MaterialMap>{
-    console.log("OVERLOADING SHUTTLES ", shuttles)
     const map: Array<MaterialMap> = [];
     if(shuttles === undefined) return map;
 
@@ -76,7 +75,6 @@ export class MaterialsService {
       this.materials.push(createMaterial(shuttle));
     });
 
-    console.log("THIS.MATERIALS", this.materials)
     return map;
   }
 

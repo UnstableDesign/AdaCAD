@@ -200,9 +200,10 @@ export class MixerComponent implements OnInit {
 
 
   closeDetailViewer(obj: any){
-    console.log("OBJ ", obj)
     this.show_details = false; 
     this.details.windowClosed();
+
+    console.log("CLOSED DETAIL VIEWER ", obj)
 
     //the object was never copied
     if(obj.clone_id == -1){
@@ -341,8 +342,6 @@ zoomChange(e:any, source: string){
             });
             const meta = await this.files.getFileMeta(fileid).catch(console.error);           
              
-            console.log("ADA GOT ", ada)
-
               if(ada === undefined){
                 this.loadBlankFile();
 
@@ -484,6 +483,7 @@ zoomChange(e:any, source: string){
    */
    importNewFile(result: LoadResponse){
     
+
     this.processFileData(result.data)
     .then( data => {
       this.palette.changeDesignmode('move')
@@ -675,6 +675,7 @@ zoomChange(e:any, source: string){
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
         //let d: Draft = initDraft();
         let l: Loom = {
+          id: utilInstance.generateId(8),
           treadling: [],
           tieup: [],
           threading: []
@@ -843,6 +844,7 @@ zoomChange(e:any, source: string){
    */
   loadDrafts(drafts: any){
     const loom:Loom = {
+      id: utilInstance.generateId(8),
       threading:[],
       tieup:[],
       treadling: []
@@ -931,7 +933,8 @@ zoomChange(e:any, source: string){
 
 
   clearView() : void {
-    this.palette.clearComponents();
+
+    if(this.palette !== undefined) this.palette.clearComponents();
     this.vp.clear();
 
   }
@@ -1199,6 +1202,7 @@ originChange(e:any){
     for(let i = 0; i < dn.length; i++){
       if(res[i] !== null){
         dn[i].loom = {
+          id: res[i].id,
           threading: res[i].threading.slice(),
           tieup: res[i].tieup.slice(),
           treadling: res[i].treadling.slice()
@@ -1241,7 +1245,6 @@ epiChange(f: NgForm) {
  */
 loomChange(e:any){
 
-  console.log("e.value.loomtype", e.value.loomtype)
    this.ws.type = e.value.loomtype;
   if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
   else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
@@ -1262,7 +1265,6 @@ loomChange(e:any){
   }
 
   showDraftDetails(id: number){
-    console.log("mixer draft details", id)
     this.show_details = true;
     this.details.loadDraft(id);
     this.dm.selectDesignMode('toggle','draw_modes')

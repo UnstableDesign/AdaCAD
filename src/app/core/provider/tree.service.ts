@@ -1631,7 +1631,7 @@ isValidIOTuple(io: IOTuple) : boolean {
    */
   addConnection(from:number, from_ndx: number, to:number, to_ndx: number, cxn:number): Array<number>{
 
-
+    console.log("ADD CONNECTION", from, to)
     let from_tn: TreeNode = this.getTreeNode(from);
     let to_tn: TreeNode = this.getTreeNode(to);
     const cxn_tn: TreeNode = this.getTreeNode(cxn);
@@ -2033,11 +2033,15 @@ isValidIOTuple(io: IOTuple) : boolean {
    * @returns an array of objects that describe nodes
    */
     exportDraftNodeProxiesForSaving() : Promise<Array<DraftNodeProxy>> {
+   
+   
       const objs: Array<any> = []; 
   
       this.getDraftNodes().forEach(node => {
 
         let loom_export = null;
+
+
         if((<DraftNode>node).loom !== null && (<DraftNode>node).loom !== undefined){
           loom_export = {
             threading:  (<DraftNode>node).loom.threading.slice(),
@@ -2046,6 +2050,7 @@ isValidIOTuple(io: IOTuple) : boolean {
           }
         }
         if((<DraftNode>node).draft !== null && (<DraftNode>node).draft !== undefined){
+
         const savable: DraftNodeProxy = {
           node_id: node.id,
           draft_id: (<DraftNode>node).draft.id,
@@ -2064,36 +2069,43 @@ isValidIOTuple(io: IOTuple) : boolean {
 
       //MAKE SURE ALL DRAFTS ARE ORIENTED TO TOP LEFT ON SAVE
       let flip_fs = [];
-      let ids = [];
       const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-      objs.forEach((obj, i) => {
+      
+      objs.forEach((obj) => {
         if(obj.draft !== null){
           flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
-          ids.push(i);
         }
       });
 
      return  Promise.all(flip_fs)
       .then(drafts => {
-        drafts.forEach((draft, i) => {
-          objs[i].draft = draft;
+
+        //reassign the output draft to the correct spot in the obj array
+        drafts.forEach((draft) => {
+
+          let ndx = objs.findIndex(el => el.draft_id == draft.id);
+          if(ndx == -1 ) console.error("Couldn't find draft after flip");
+          else objs[ndx].draft = draft;
         })
-        let ids = [];
+
         let flip_fs = [];
-        objs.forEach((obj, i) => {
+        objs.forEach((obj) => {
           if(obj.loom !== null){
             flip_fs.push(flipLoom(obj.loom, flips.horiz, flips.vert));
-            ids.push(i);
           }
         });
+      
 
         return Promise.all(flip_fs);
 
       })
       .then(looms => {
-        looms.forEach((loom, i) => {
-          objs[i].loom = loom;
+        looms.forEach((loom) => {
+          let ndx = objs.findIndex(el => el.loom.id == loom.id);
+          if(ndx == -1 ) console.error("Couldn't find draft after flip");
+          objs[ndx].loom = loom;
         })
+
 
         return objs;
 
@@ -2102,6 +2114,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   
     }
+    
 
   /**
    * this function is used when the file loader needs to create a template for an object that doesn't yet exist in the tree

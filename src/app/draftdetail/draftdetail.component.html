@@ -1,32 +1,21 @@
 
       <div class ="design-container">
-       
-        <!-- <app-tab
-        (onGenerativeModeChange)="onGenerativeModeChange($event)"
-        (onDraftSelected)="loadGeneratedDraft($event)"
-        ></app-tab>  -->
-        <app-sidebar id="sidebar"
-         #sidebar
-        (onDesignModeChange)='designModeChange($event)'
-        (onZoomChange) ="renderChange($event);"
-        (onViewChange) ="viewChange($event);"
-        (onViewFront) ="renderChange($event);"
-        (onHideWeftSystem)="hideWeftSystem($event);"
-        (onShowWeftSystem)="showWeftSystem($event);"
-        (onHideWarpSystem)="hideWarpSystem($event);"
-        (onShowWarpSystem)="showWarpSystem($event);"
-        (onGlobalLoomChange)="globalLoomChange($event)"
-        (onLocalLoomNeedsRedraw)="redrawLoomAndDraft()"
-        (onUpdateWarpSystems) = "updateWarpSystems($event)"
-        (onUpdateWeftSystems) = "updateWeftSystems($event)"
-        (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
-        (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
-        (closeDrawer) = "onCloseDrawer()"
-        ></app-sidebar>
-
 
    
+        <div class="tool-chunk" >
 
+          <button 
+          mat-icon-button
+          color="white" 
+          (click)="closeDetailView()">
+          <i class="fas fa-window-close"></i>
+          </button>
+
+
+          <!-- <h1>viewing detail for: {{draftname}}</h1> -->
+  
+  
+      </div>
 
       <app-draftviewer id="draft_viewer"
       [id]="id"
@@ -37,7 +26,8 @@
       (onViewerExpanded)="expandViewer()">
       </app-draftviewer>
   
-      
+
+
       <app-simulation id="simulation_container"
       [id]="id"
       (onExpanded)="expandSimulation()"

@@ -223,6 +223,7 @@ export interface Note{
  * a loom is just a threading, tieup, and treadling
  */
 export type Loom = {
+  id: number,
   threading: Array<number>,
   tieup: Array<Array<boolean>>,
   treadling: Array<Array<number>>

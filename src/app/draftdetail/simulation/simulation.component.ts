@@ -64,18 +64,22 @@ export class SimulationComponent implements OnInit {
     const div = document.getElementById('simulation_container');
 
 
+    let width = 2 * window.innerWidth / 3;
+    let height = window.innerHeight;
+
+
     this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setSize( width, height );
     div.appendChild( this.renderer.domElement );
 
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color( 0xf0f0f0 );
 
-    this.camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 5000 );
+    this.camera = new THREE.PerspectiveCamera( 30, width / height, 1, 5000 );
     // this.camera.position.set( 20, 0, 200 );
     // this.camera.lookAt( 0, 0, 0 );  
-    this.camera.position.set(16, 8, 500); 
+    this.camera.position.set(0, 0, 500); 
     this.camera.lookAt( this.scene.position );
     this.scene.add(this.camera);
 
@@ -86,9 +90,9 @@ export class SimulationComponent implements OnInit {
 
 
     this.tanFOV = Math.tan( ( ( Math.PI / 180 ) * this.camera.fov / 2 ) );
-    this.originalHeight = window.innerHeight;
+    this.originalHeight = height;
 
-    this.renderer(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
 
   }
 
@@ -333,7 +337,7 @@ export class SimulationComponent implements OnInit {
     this.simulation.endSimulation(this.scene);
   }
 
-  expand(){
+  expandSimulation(){
    
     this.onExpanded.emit();
     this.sim_expanded = !this.sim_expanded;
@@ -348,31 +352,22 @@ export class SimulationComponent implements OnInit {
    * this gets called even if its not open!
    */
   onWindowResize() {
-    console.log("RESIZE")
-    // const div = document.getElementById('simulation_container');
-    // console.log("DIV OFFSET ",div.offsetWidth, div.offsetHeight)
-    // this.camera.aspect = div.offsetWidth /div.offsetHeight ;
-    // this.camera.fov = ( 360 / Math.PI ) * Math.atan( this.tanFOV * ( div.offsetHeight / this.originalHeight ) );
-    // this.camera.updateProjectionMatrix();
-    // this.camera.lookAt(this.scene.position);
+    let width;
 
+    if(this.sim_expanded)   width = 2*window.innerWidth/3;
+    else width = window.innerWidth/3;
 
-    // this.renderer.setSize( div.offsetWidth, div.offsetHeight );
-    // this.renderer.render( this.scene, this.camera );
+    let height = window.innerHeight;
 
-   
-    // console.log("THIS CAMERA ASPECT ", this.camera.aspect)
-
-
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.aspect = width / height;
     
     // adjust the FOV
-    this.camera.fov = ( 360 / Math.PI ) * Math.atan( this.tanFOV * ( window.innerHeight / this.originalHeight ) );
+    this.camera.fov = ( 360 / Math.PI ) * Math.atan( this.tanFOV * ( height / this.originalHeight ) );
     
     this.camera.updateProjectionMatrix();
-    this.camera.lookAt( this.scene.position );
+    // this.camera.lookAt( this.scene.position );
 
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setSize( width, height );
     this.renderer.render( this.scene, this.camera );
 
   }

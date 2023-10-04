@@ -1,15 +1,28 @@
+<app-sidebar id="draft_sidebar"
+#sidebar
+[expanded]="expanded"
+(onDesignModeChange)='designModeChange($event)'
+(onZoomChange) ="renderChange($event);"
+(onViewChange) ="viewChange($event);"
+(onHideWeftSystem)="hideWeftSystem($event);"
+(onShowWeftSystem)="showWeftSystem($event);"
+(onHideWarpSystem)="hideWarpSystem($event);"
+(onShowWarpSystem)="showWarpSystem($event);"
+(onLocalLoomNeedsRedraw)="redrawLoomAndDraft()"
+(onUpdateWarpSystems) = "updateWarpSystems($event)"
+(onUpdateWeftSystems) = "updateWeftSystems($event)"
+(onUpdateWarpShuttles) = "updateWarpShuttles($event)"
+(onUpdateWeftShuttles) = "updateWeftShuttles($event)"
+(onExpand)="expand()"
+></app-sidebar>
+
+
+
 <div class="draft-container {{source}}"  [class.expanded] ="expanded" id="draft-container">
 
-  <div class="expand"      
-   [class.expanded] ="expanded"
-  >
-    <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
-      <i *ngIf='!expanded' class="fa-solid fa-maximize"></i>
-      <i *ngIf='expanded' class="fa-solid fa-minimize"></i>
-        </button>
-  </div>
-  
+
     <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
+
 
       <app-selection 
       #selection
