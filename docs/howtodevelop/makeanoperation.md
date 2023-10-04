@@ -3,10 +3,9 @@ sidebar_position: 1
 ---
 # How to Make an Operation
 
-You can make an operation. What do you need as input, parameters, spits out a draft
+:::info
 
-Draft -> Operation  -> Draft
-
+Coming soon.
 
 <!-- Src/app/core/operation
 
@@ -34,7 +33,7 @@ Src/assets/json/op_descriptions.json
 Name: (same as the name assigned in your ts. 
 Displayname: “what will be shown 
  -->
-
+<!-- 
 
 ```js title="twill.ts"
 import { first } from "rxjs/operators";
@@ -131,4 +130,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 
 
 export const twill: Operation = {name, old_names, params, inlets, perform, generateName};
-```
+``` -->

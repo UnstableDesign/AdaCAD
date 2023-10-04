@@ -1,4 +1,4 @@
-# Inlet
+# Layer Notation
 
 :::info
 

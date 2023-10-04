@@ -1,8 +1,8 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
 ---
 
-# Making Drafts for the TC2
+# Make A Draft for the TC2
 
 AdaCAD an be a bit strange for those used to Photoshop and the Woven Pixel because instead of making a blank canvas and filling it with our structures, you start from the structures and "grow" them into the size of the canvas/loom that you are working with. In this video, we do this by using the "rectangle" and "selvedge" functions. 
 

@@ -2,21 +2,21 @@
 sidebar_position: 1
 ---
 # Getting Started
-<p>Welcome to AdaCAD. This resources on this page will give you an overview of the interface and a few tips on how to get started drafting. There are three primary ways to go about drafting with AdaCAD. First, you can add <i>operations</i> that generate and combine drafts in particular ways. You can connect these operations together to make more complex structures and drafts. Second, you can design graphically, by drawing shapes onto the screen and manually overlaying them or moving them to create new graphical shapes. Third, you can use the select tool to create an empty draft, expand it, and then draw manually draw in the drawdown (or threading, tieup and treadling if you're using a floor loom).</p>
+<p>Welcome to AdaCAD. The resources on this page will give you an overview of the interface and a few tips on how to get started drafting.</p>
 
 
 # What is AdaCAD?
-AdaCAD is a parametric design tools for making woven drafts. It supports a designer in creating drafts by connecting different operations into a model or pipeline that results in drafts. It currently supports outputs and representations for Jacquard, Floor, and Direct-Tieup Loom. 
+AdaCAD is a [parametric design](./glossary/parametric-design) tool for making woven [drafts](./glossary/draft). While most drafting software starts with a blank canvas that the designer fills in their structures, AdaCAD works differently by "growing" a draft from the ground up: starting from structures and arranging them into more complex structural and visual designs. Essentially, it lets you create little workflows that "grow" designs based on a set of rules you define. Its programming for weaving and it makes explicit the inherently algorithmic nature of draft making. It  supports the creation of drafts for [Jacquard](./glossary/jacquard-loom), [Harness](./glossary/harness-loom), and [Direct Tie or Dobby](./glossary/direct-tie-loom) Looms. 
 
 
-# Where to Use It
+# How to Get the Software
 AdaCAD is accessible online:
 - stable release of the tool at [https://adacad.org/](https://adacad.org/).
 - beta release of our most recent developments at [https://adacad-beta-fa4dc.web.app/](https://adacad-beta-fa4dc.web.app/)
 
 
 # Tutorials
-For more information about the project and user guides, visit [https://adacad.unstable.design/](https://adacad.unstable.design/) or our [YouTube Channel](https://www.youtube.com/playlist?list=PLy2lIjrar_02XiqfJG8kLpeWOyCtDXeFJ)
+For more information about the project and user guides, explore projects in our  [learn](/docs/category/learn/) category or on our [YouTube Channel](https://www.youtube.com/playlist?list=PLy2lIjrar_02XiqfJG8kLpeWOyCtDXeFJ)
 
 
 
@@ -24,7 +24,7 @@ For more information about the project and user guides, visit [https://adacad.un
 
 
 ![file](./img/Mixer_Overview.jpeg)
-<p>The image above is a labeled guide to the AdaCAD interface (which has the buttons you need to push create drafts as listed above). On the topbar, there are links allowing you to:</p>
+<p>The image above is a labeled guide to the AdaCAD interface (which has the buttons you need to push create drafts as listed above). On the top bar, there are links allowing you to:</p>
 <ul>
 <li>Sign in: Signing in with a google account will automatically save your work so that you can recover it if something unexpected happens in your web browser. We collect only your google email and name, and do not share it. </li>
 <li>Get Help: Links to this page :)</li>
@@ -40,7 +40,7 @@ For more information about the project and user guides, visit [https://adacad.un
 <li>Undo: you can undo up to 10 previous changes</li>
 <li>Redo: you can redo up to your 10 next changes</li>
 <li><i>Add an Image: No longer used, adding an image is an operation now</i></li>
-<li>Add an Operation to the Workspace: opens a panel where you can select the operation you want to add to the workpace</li>
+<li>Add an Operation to the Workspace: opens a panel where you can select the operation you want to add to the workspace</li>
 <li>Draw Line: allows you to draw lines freehand on the workspace</li>
 <li>Draw Shape: allows you to draw shapes freehand on the workspace</li>
 <li>Select: selects a portion of a draft from the workspace and copies it in a new draft</li>
@@ -53,7 +53,7 @@ For more information about the project and user guides, visit [https://adacad.un
 
 <p>When you add operations and drafts to the workspace, and connect them together to create new drafts. On those new drafts you have a few options. These become visible when you hover your mouse over a draft:</p>
 <ul>
-<li>Expand into Finetune Mode: you can expand into fine-tune mode, which gives you more options for editing and viewing details on an indivdiual draft</li>
+<li>Expand into Fine Tune Mode: you can expand into fine-tune mode, which gives you more options for editing and viewing details on an individual draft</li>
 <li>Show/Hide: reveals or hides the draft (to save space on the interface)</li>
 <li>Copy: copies the draft into a new draft, without an operation parent, so that you can make edits or changes outline of the operation-draft-workflow</li>
 <li>Download: downloads the draft as a bitmap or image. You can use this to export structures which you may later import into Photoshop.</li>
@@ -69,7 +69,7 @@ For more information about the project and user guides, visit [https://adacad.un
 </ul>
 
 ![file](./img/Finetune_Overview.jpeg)
-<p>A labeled guide to the fine-tuning interface. When you add drafts and operations to the workspace, you can expand the to enter "fine tuning" mode, which allows you see more details about an indivdiual draft. There is a sidebar on this window that offers you controls to</p>
+<p>A labeled guide to the fine-tuning interface. When you add drafts and operations to the workspace, you can expand the to enter "fine tuning" mode, which allows you see more details about an individual draft. There is a sidebar on this window that offers you controls to</p>
 
 <ul>
 <li>Draw: change the value (up,down, unset) of each draft cell. Black represents heddle up, white heddle down, Unset cells mean that a yarn will not travel over this warp and can be useful when shape weaving or integrating inlays in portions of the draft.</li>

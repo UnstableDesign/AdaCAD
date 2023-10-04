@@ -1,1 +1,5 @@
 # Structure
+
+:::info
+
+Coming soon.

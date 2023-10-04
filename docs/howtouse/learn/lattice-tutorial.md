@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Creating Lattice Structures With AdaCAD
+# Create Lattice Structures Using Layer Notation
 In this tutorial, we are taking inspiration from one of Elizabeth Meiklejohn's samples from the 2023 Experimental Weaving Residency. In this sample, four layers are interlocking to create a lattice structure. Elastic foats are placed between the layers to pull the ends together (puffing up the structure), allowing you to pull out the sides to collapse the structure. 
 
 ![file](./img/lattice_open.jpg)

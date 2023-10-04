@@ -1,4 +1,4 @@
-# Inlet
+# Parametric Design
 
 :::info
 
