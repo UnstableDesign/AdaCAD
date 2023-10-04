@@ -685,7 +685,6 @@ export class FileService {
       
 
       return this.tree.exportDraftNodeProxiesForSaving().then(draft_nodes => {
-        console.log("SAVING ", draft_nodes);
 
         const out: SaveObj = {
           version: this.vs.currentVersion(),

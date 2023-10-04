@@ -81,8 +81,6 @@ export class DraftDetailComponent implements OnInit {
 
   clone_id: number = -1;
 
-  dirty: boolean = false; 
-
 
   /// ANGULAR FUNCTIONS
   /**
@@ -130,7 +128,7 @@ export class DraftDetailComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    
+
 
   
     
@@ -157,7 +155,7 @@ export class DraftDetailComponent implements OnInit {
   }
 
   closeDetailView(){
-    this.closeDrawer.emit({clone_id: this.clone_id, dirty: this.dirty});
+    this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
   }
 
 
@@ -180,7 +178,8 @@ export class DraftDetailComponent implements OnInit {
    * @param id 
    */
   loadDraft(id: number){
-
+      //reset the dirty value every time the window is open
+      this.weaveRef.is_dirty = false;
 
     if(!this.tree.hasParent(id)){
       this.id = id;
@@ -260,8 +259,17 @@ export class DraftDetailComponent implements OnInit {
   }
 
 
+  /**
+   * this is emitted from the detail viewer to indicate that something changed on the draft while it was in detail view. 
+   * if this is a generated draft, it now needs to be cloned on window close. If not, an update on the draft chain needs to be called for the original draft
+   * @param obj {id: the draft id}
+   */
+  public onDrawdownUpdate(obj: any){
+    this.redrawSimulation()
+  }
+
   
-  public redrawSimulation(e: any){
+  public redrawSimulation(){
     let draft = this.tree.getDraft(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);
     this.simRef.updateSimulation(draft, loom_settings);

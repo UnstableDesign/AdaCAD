@@ -333,8 +333,7 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
-    console.log("LOADING NEW DRAFT ", draft.id, draft.drawdown)
-    
+    this.is_dirty = false;
     
     this.loom_settings = loom_settings;
     const frames = Math.max(numFrames(loom), loom_settings.frames);

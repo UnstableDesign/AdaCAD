@@ -22,7 +22,7 @@
       [class.expanded]="viewer_expanded"
       source = "weaver"
       (onNewSelection) = "updateSelection($event)"
-      (onDrawdownUpdated)="redrawSimulation($event)"
+      (onDrawdownUpdated)="onDrawdownUpdate($event)"
       (onViewerExpanded)="expandViewer()">
       </app-draftviewer>
   

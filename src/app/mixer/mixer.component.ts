@@ -199,6 +199,13 @@ export class MixerComponent implements OnInit {
 
 
 
+  /**
+   * this is called when the detail view is closed. It passes an object that has three values: 
+   * id: the draft id
+   * clone_id: the id for the cloned draft
+   * is_dirty: a boolean to note if the draft was changed at all while in detail view. 
+   * @param obj 
+   */
   closeDetailViewer(obj: any){
     this.show_details = false; 
     this.details.windowClosed();
