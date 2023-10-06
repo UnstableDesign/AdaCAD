@@ -17,22 +17,22 @@ The original design was made with the following materials:
 - Base: plain weave in w1, 15 epi per layer
 - Floats: w2 running through the center of the layer stack, not interlacing with anything. 
 
- Elizabeth designed the structure in PointCarre, and we explored how we might make the same structure in AdaCAD using the `layer notation` [operation](../glossary/operation) and offer it to this audience for reference and play. 
+ Elizabeth designed the structure in PointCarre, and we explored how we might make the same structure in AdaCAD using the `layer notation` [operation](/docs/howtouse/glossary/operation) and offer it to this audience for reference and play. 
  
  
  # Understanding the Structure
 
  ![file](./img/7bExplained.jpg)
  
- Each layer in the lattice structure follows the path of a sine wave. We visualize the lattice by drawing multiple sine waves (in this case 4), and overlaying the waves so they are equally spaced. In math language, this movement is called a phase shift. This overlapping creates lattice and when we weave it, we can imagine each wave as a different [weft system](../glossary/weft-system) traveling between different layer groups. THe openings in the lattice are formed by the intersections/crossing of sine-waves/weft-systems. If you look closely, you see that 'a' follows the exact opposite path of 'b', and 'c' follows the opposite of 'd'.
+ Each layer in the lattice structure follows the path of a sine wave. We visualize the lattice by drawing multiple sine waves (in this case 4), and overlaying the waves so they are equally spaced. In math language, this movement is called a phase shift. This overlapping creates lattice and when we weave it, we can imagine each wave as a different [weft system](/docs/howtouse/glossary/weft-system) traveling between different layer groups. THe openings in the lattice are formed by the intersections/crossing of sine-waves/weft-systems. If you look closely, you see that 'a' follows the exact opposite path of 'b', and 'c' follows the opposite of 'd'.
 
 
- If we see the structure as these sine waves, we can start to imagine every wave being created from a [weft system](../glossary/weft-system) of a unique color. As it travels from left to right, the weft travels up and down the layers stack (e.g. a term we use to describe the layers in cloth from top to bottom). For example, if we are looking from top to bottom along the leftmost vertical line in the diagram, we see that the layer stack has weft 'a' on top, 'd' next, then 'c', then 'b'. So the layer stack goes 'a-d-c-b'. If we want to recreate this structure in the woven form, the question then becomes, how many different layer stacks are there in one repeat of the sine wave lattice? If we place these stacked layer structures side-by-side along the width of the cloth, we should be able to recreate this cross section. 
+ If we see the structure as these sine waves, we can start to imagine every wave being created from a [weft system](/docs/howtouse/glossary/weft-system) of a unique color. As it travels from left to right, the weft travels up and down the layers stack (e.g. a term we use to describe the layers in cloth from top to bottom). For example, if we are looking from top to bottom along the leftmost vertical line in the diagram, we see that the layer stack has weft 'a' on top, 'd' next, then 'c', then 'b'. So the layer stack goes 'a-d-c-b'. If we want to recreate this structure in the woven form, the question then becomes, how many different layer stacks are there in one repeat of the sine wave lattice? If we place these stacked layer structures side-by-side along the width of the cloth, we should be able to recreate this cross section. 
 
 As we look left to right in our diagram, we see that there are exactly 8 different layer stacks before they start to repeat. Now, we can use the layer notation operation to create drafts for each of these 8 layer stacks. 
 
 ## Understanding Layer Notation
-Layer notation emerged as an operation in conversation with Kathryn Walters, who needed AdaCAD to help her manage complex structures that could arbitrarily map warp and weft systems to different layers, layer orders, or even different numbers of layers (e.g. a structure that goes from 2 to 4 to 3 layers for instance.) Beyond her immediate needs, we found it to be a useful system for describing the relationship between different cloth layers. You can learn more about it on the [layer notation](../glossary/layer-notation) page in our glossary.
+Layer notation emerged as an operation in conversation with Kathryn Walters, who needed AdaCAD to help her manage complex structures that could arbitrarily map warp and weft systems to different layers, layer orders, or even different numbers of layers (e.g. a structure that goes from 2 to 4 to 3 layers for instance.) Beyond her immediate needs, we found it to be a useful system for describing the relationship between different cloth layers. You can learn more about it on the [layer notation](/docs/howtouse/glossary/layer-notation) page in our glossary.
 
 To use the Layer Notation Operation, you must first tell the operation the relationship between different warp and weft systems in your cloth. 
 

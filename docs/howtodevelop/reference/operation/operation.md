@@ -1,7 +1,4 @@
----
-sidebar_position: 5
----
-# Opeartion 
+# Operation 
 Operations perform computations upon a draft. They are the core of AdaCAD, as they can be combined and arranged to "grow" different kinds of drafts. Operations each contain a set of data, which the software can interpret into an on screen element the user can add to their data flow. Each operation has a `name` which must be a unique name that is only used internally to locate this specific operation. `old_names` is a field I made when the name changes or when you no longer want to support an old operation and want to load this operation instead.  
 
 Operations can hold a series of parameters or `params` of type "OpParam" (below) which define that data that can be used when the draft is recomputed by the operation. In addition to the parameters, each operation can offer a set of `inlets`. Inlets are parameterized inputs to the operation and each inlet can accept one or more drafts. So, drafts come into an operation via the inlets, and then are computed according to the specified parameters. 

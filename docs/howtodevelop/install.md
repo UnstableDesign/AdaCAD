@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+sidebar_label: Install AdaCAD
+
 ---
 
 # Install AdaCAD

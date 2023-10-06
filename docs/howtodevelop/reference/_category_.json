@@ -1,9 +1,8 @@
 {
     "label": "Reference",
     "position": 3,
-    "link": {
-      "type": "generated-index",
-      "description": "References to the most commonly used data types used in AdaCAD. All of these datatypes are stored in /core/model/datatypes.ts"
-    }
-  }
+    "collapsible": true,
+    "collapsed": false,
+    "link":null
+   }
   
