@@ -19,9 +19,9 @@ a boolean to describe the value of this cell according to the following inputs:
 ## Implementation
 ```
 if(getCellValue(c) == null){
-    c.is_set = true;
+    c = setCellValue(true);
 }
 ```
 
-This function checks if Cell c is unset and, if so, it changes it to be . 
+This function checks if Cell c is unset and, if so, it changes it to be true. 
 

@@ -1,4 +1,4 @@
-# Wefts
+# wefts
 Gets the number of wefts in a drawdown
 
 

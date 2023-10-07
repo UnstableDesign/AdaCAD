@@ -18,5 +18,5 @@ This function takes the `rowShuttleMapping` and `rowSystemMapping` from one draf
 d = updateWeftSystemsAndShuttles(d_to, d_from);
 ```
 
-This function will copy the information from d_from into d_to and then return the modified d_to draft. 
+This function will copy the information from d_from into d_to and then return the modified d_to draft and assigns it into d. 
 

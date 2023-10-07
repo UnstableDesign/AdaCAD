@@ -1,6 +1,3 @@
----
-sidebar_position: 1
----
 # Draft
 In AdaCAD, a draft is a container for  a drawdown as well as information that can be used to interpret the drawdown. 
 
@@ -36,3 +33,5 @@ There are a number of helper features to assist in easily getting, setting, and 
 - [initDraftWithParams](initDraftWithParams)
 - [initDraftFromDrawdown](initDraftFromDrawdown)
 - [copyDraft](copyDraft)
+- [updateWeftSystemsAndShuttles](updateWeftSystemsAndShuttles)
+- [updateWarpSystemsAndShuttles](updateWarpSystemsAndShuttles)

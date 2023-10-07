@@ -1,4 +1,5 @@
 # isUp
+Given an index within the drawdown, it will return true or false to describe if this heddle is set and is up. 
 
 
 ## Parameters

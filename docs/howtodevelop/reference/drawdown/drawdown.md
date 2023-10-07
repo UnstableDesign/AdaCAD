@@ -16,3 +16,4 @@ export type Drawdown = Array<Array<Cell>>;
 - [wefts](wefts)
 - [hasCell](hasCell)
 - [isUp](isUp)
+- [setCellValue](setCellValue)

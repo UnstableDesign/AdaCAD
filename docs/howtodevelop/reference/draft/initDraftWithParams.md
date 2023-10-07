@@ -45,7 +45,7 @@ Will generate a drawdown with 10 ends and 10 picks filled with the drawdown "d".
 ```
 initDraftWithParams({wefts: 10, warps: 10, drawdown: d, rowShuttleMapping: [0,1]})
 ```
-Will generate a drawdown with 10 ends and 10 picks filled with the drawdown "d". It will also create default values for 10 ends and 10 picks in `rowSystemMapping`, `colSystemMapping` and `colShuttleMapping`. `rowShuttleMapping` will be filled with the repeating pattern
+Will generate a drawdown with 10 ends and 10 picks filled with the drawdown "d". It will also create default values for 10 ends and 10 picks in `rowSystemMapping`, `colSystemMapping` and `colShuttleMapping`. `rowShuttleMapping` will be filled with the repeating pattern [0,1]
 
 
 

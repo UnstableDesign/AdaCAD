@@ -1,5 +1,5 @@
 # initDraft
-Generates an empty draft object with a unique id with the following default values.
+Initializes an empty draft object with a unique id with the following default values.
 
 | parameter      | default |
 | -----------  |----------|

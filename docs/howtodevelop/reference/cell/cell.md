@@ -35,3 +35,10 @@ The following designations are applied for each combination of values of `is_up`
 | false | false | heddle is unset
 
 There are a number of helper features to assist in easily getting, setting, and reading cell values in a file located at: [src/app/core/model/cell.js](https://github.com/UnstableDesign/AdaCAD/blob/main/src/app/core/model/cell.ts)
+
+
+## Related Functions
+
+- [createCell](createCell)
+- [getCellValue](getCellValue)
+- [setCellValue](setCellValue)
