@@ -86,8 +86,7 @@ export module Sequence{
 
     }
     
-    
-
+  
 
     /**
      * repeats or cuts the current sequence so that it is of length n.
