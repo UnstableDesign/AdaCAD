@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { createCell, getCellValue } from '../../core/model/cell';
-import { initDraftFromDrawdown } from '../../core/model/drafts';
+import { initDraftFromDrawdown, warps, wefts } from '../../core/model/drafts';
 
 @Component({
   selector: 'app-simulation',
@@ -134,6 +134,7 @@ export class SimulationComponent implements OnInit {
    * @param end 
    */
   updateSelection(start: Interlacement, end: Interlacement){
+    console.log("UPDATE SELECTION CALLED", start, end)
 
     let width = end.j - start.j;
     if(width <= 0) return;
@@ -149,6 +150,24 @@ export class SimulationComponent implements OnInit {
     this.simulation.renderSimdata(this.scene, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
 
   }
+
+
+    /**
+   * removes the current selection to, instead, show the entire simulation
+   */
+    clearSelection(){
+
+      let width = warps(this.draft.drawdown);
+      let height = wefts(this.draft.drawdown);
+  
+      this.current_simdata.bounds = {
+        topleft: {x: 0, y: 0},
+        width, height
+      }
+  
+      this.simulation.renderSimdata(this.scene, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
+  
+    }
 
   /**
    * call this when the simulation needs to be updated due to a structural change. 

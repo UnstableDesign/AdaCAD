@@ -271,6 +271,8 @@ export class DraftDetailComponent implements OnInit {
   }
 
   public onCloseDrawer(){
+    this.weaveRef.clearSelection();
+    this.simRef.clearSelection();
     this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
   }
 

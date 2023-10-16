@@ -87,6 +87,14 @@ export class SelectionComponent implements OnInit {
     this.parent = document.getElementById('selection-container');
   }
 
+  clearSelection(){
+    this.start = {i: 0, si:0, j: 0};
+    this.end = {i: 0, si:0, j: 0};
+    this.top = 0;
+    this.left = 0;
+
+  }
+
 
   designActionChange(action : string){
 
