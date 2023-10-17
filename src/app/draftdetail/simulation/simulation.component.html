@@ -4,11 +4,11 @@
 (onExpand)="expandSimulation()"
 ></app-sim-sidebar>
 
-<div id="sim_container">
+<div id="simulation_container">
+</div>
 
-
-  <!-- <div class="controls" [style.display]="(sim_expanded) ? 'flex' : 'none'">
-      <mat-form-field class="example-full-width">
+  <!-- <div class="controls" [style.display]="(sim_expanded) ? 'flex' : 'none'"> -->
+      <!-- <mat-form-field class="example-full-width">
         <mat-label>Space Between Layers</mat-label>
         <input 
         matInput
@@ -18,9 +18,9 @@
         [max]=100
         step = 1
         (change)= "changeLayerSpacing($event)">
-      </mat-form-field>
+      </mat-form-field> -->
       
-       <mat-form-field class="example-full-width">
+       <!-- <mat-form-field class="example-full-width">
         <mat-label>Radius</mat-label>
         <input 
         matInput
@@ -30,7 +30,7 @@
         [max]=1000
         step = 1
         (change)= "changeRadius($event)">
-      </mat-form-field> -->
+      </mat-form-field> --> 
 
       <!--this number tells the code how many interlacements with a certain layer need to be observed on a single weft  
       for it to "count" as a real value. For small unit drafts, this number can be really low -->
@@ -130,12 +130,12 @@
     step = 1
     (change)= "warpThresholdChange()">
   </mat-form-field>  -->
-
+<!-- </div> -->
 
 <!-- <div class="cameracontrols">
   Press and move to rotate the simulation. Press+Control and move will pan the camera. Scroll in/out will zoom in/out
-</div>
-     -->
+</div> -->
+     
 
-    </div>
+ 
 

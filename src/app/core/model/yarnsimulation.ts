@@ -1056,6 +1056,17 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     }
 
 
+    layer_map = layer_map.map((warp)=> {
+      return warp.map(el => {
+        if(el === undefined){
+          return 0;
+        }else{
+          return el;
+        }
+      })
+    })
+
+
       //now clean up 
       console.log("WARP LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
@@ -1166,7 +1177,16 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
          //}
 
 
-     
+     //IFF THERE IS STILL UNDEFINED, SET THEM TO 0
+      layer_map = layer_map.map((weft)=> {
+        return weft.map(el => {
+          if(el === undefined){
+            return 0;
+          }else{
+            return el;
+          }
+        })
+      })
 
       console.log("WEFT LAYER MAP", layer_map)
       return Promise.resolve(layer_map);

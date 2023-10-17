@@ -17,12 +17,15 @@ a.help{
 
 }
 
-#simulation_container{
+
+#sim_viewer{
     display: flex;
-    flex: 1 1 auto;
-    overflow: hidden;
-    width: 50%;
+    flex-direction: row;
+    max-width: 50%;
+    background-color: white;
+
 }
+
 
 .tool-chunk{
     display: flex;

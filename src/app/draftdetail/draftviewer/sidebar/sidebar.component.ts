@@ -8,7 +8,6 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { InkService } from '../../../mixer/provider/ink.service';
 import { ActionsComponent } from '../../actions/actions.component';
 import { RenderService } from '../../provider/render.service';
-import { WeaverViewComponent } from '../../weaverview/weaverview.component';
 
 
 @Component({
@@ -60,7 +59,6 @@ export class SidebarComponent implements OnInit {
   view: string = 'pattern';
   front: boolean = true;
 
-  weaver_view_modal: MatDialogRef<WeaverViewComponent, any>;
   actions_modal: MatDialogRef<ActionsComponent, any>;
 
 
@@ -107,10 +105,6 @@ export class SidebarComponent implements OnInit {
   }
 
 
-  closeWeaverModals(){
-    if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
-    if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
-  }
 
   shapeChange(name:string){
     var obj: any = {};

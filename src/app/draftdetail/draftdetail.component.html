@@ -1,7 +1,8 @@
+  
 
-      <div class ="design-container">
+      <div class ="design-container" id="expanded-container">
+       
 
-   
         <div class="tool-chunk" >
 
           <button 
@@ -16,23 +17,32 @@
   
   
       </div>
-
-      <app-draftviewer id="draft_viewer"
-      [id]="id"
-      [class.expanded]="viewer_expanded"
-      source = "weaver"
-      (onNewSelection) = "updateSelection($event)"
-      (onDrawdownUpdated)="onDrawdownUpdate($event)"
-      (onViewerExpanded)="expandViewer()">
-      </app-draftviewer>
   
 
+      <div class="viewers">
 
-      <app-simulation id="simulation_container"
-      [id]="id"
-      (onExpanded)="expandSimulation()"
-      >
-      </app-simulation>
+        <app-draftviewer id="draft_viewer"
+        [id]="id"
+        [class.expanded]="viewer_expanded"
+        source = "weaver"
+        (onNewSelection) = "updateSelection($event)"
+        (onDrawdownUpdated)="redrawSimulation()"
+        (onMaterialChange)="redrawSimulation()"
+        (onViewerExpanded)="expandViewer()">
+        </app-draftviewer>
 
+        
+
+        <app-simulation id="sim_viewer" style= 'width: 50%'
+        [id]="id"
+        (onExpanded)="expandSimulation()"
+        >
+        </app-simulation>
+      </div>
+
+
+
+  
+ 
 
    </div>

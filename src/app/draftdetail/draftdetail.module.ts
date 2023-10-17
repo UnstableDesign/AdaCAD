@@ -29,7 +29,6 @@ import { CoreModule } from '../core/core.module';
 import { DraftDetailComponent } from './draftdetail.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { ActionsComponent } from './actions/actions.component';
-import { WeaverViewComponent } from './weaverview/weaverview.component';
 import { RenderService } from './provider/render.service';
 import { SidebarComponent } from './draftviewer/sidebar/sidebar.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
@@ -41,7 +40,6 @@ import { SimSidebarComponent } from './simulation/sim-sidebar/sim-sidebar.compon
         DraftDetailComponent,
         DraftviewerComponent,
         ActionsComponent,
-        WeaverViewComponent,
         SidebarComponent,
         SelectionComponent,
         SimulationComponent,

@@ -42,10 +42,12 @@
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
           [style.width.px] = "cell_size"
           *ngFor="let i of colSystemMapping; let j = index;" >
-          <a class="warp-material" 
+          <a class="warp-material"
+          id="warp-material-{{j}}"
           [style.background-color]="this.ms.getColor(colShuttleMapping[j])" 
           [style.width.px]="cell_size-1"
           [style.height.px]="cell_size-1"
+          (mouseover)="checkForPaint('warp', j, $event)"
           (click)="incrementWarpMaterial(j)">   
           </a>
             <a class="warp-system" (click)="incrementWarpSystem(j)"> {{i+1}}</a>
@@ -103,9 +105,11 @@
             *ngFor="let i of (render?.visibleRows); let j = index;" >
                
             <a class="weft-material" 
+            id="weft-material-{{j}}"
             [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" 
             [style.width.px]="cell_size-1"
             [style.height.px]="cell_size-1"
+            (mouseover)="checkForPaint('weft', j, $event)"
             (click)="incrementWeftMaterial(j)"> 
             </a>
             

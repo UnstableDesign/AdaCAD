@@ -469,6 +469,7 @@ export class SimulationService {
       if(end_vtx !== null) pts.push(new THREE.Vector3(boundary_vtx.max_x+10, end_vtx.y, -end_vtx.z));
 
 
+
       const material_id = draft.rowShuttleMapping[i];
       let diameter = this.ms.getDiameter(material_id);
       let color = this.ms.getColor(material_id)
@@ -493,7 +494,7 @@ export class SimulationService {
       
     this.weft_scene = this.applyOrientationConversion(this.weft_scene, boundary_vtx);
     scene.add(this.weft_scene);
-
+    
   }
 
   drawDraft(scene, draft: Draft, sim: SimulationVars, boundary_vtx){

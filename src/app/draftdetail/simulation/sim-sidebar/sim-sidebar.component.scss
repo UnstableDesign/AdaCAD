@@ -6,6 +6,13 @@ h1{
 
 .tool-chunk{
     height: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+.spacer{
+  height: 100px;
+  padding-top: 35px;
 }
   
 

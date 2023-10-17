@@ -11,7 +11,7 @@
         mat-icon-button
         matTooltip= "Edit Draft Cells"
         [matMenuTriggerFor]="inks"
-        [class.is-active]="dm.isSelected('draw','design_modes')"        >
+        [class.is-active]="dm.isSelected('draw','design_modes') && !dm.isSelected('material', 'draw_modes')"        >
         <i class="fas fa-edit"></i>
         </button>
 
@@ -52,7 +52,7 @@
         color="primary"
         matTooltip= "Set Colors"
         [matMenuTriggerFor]="colors"
-        [class.is-active]="dm.isSelected('draw','design_modes')"        >
+        [class.is-active]="dm.isSelected('draw','design_modes') && dm.isSelected('material', 'draw_modes')"        >
         <i class="fa-solid fa-paintbrush"></i>
         </button>
 
@@ -129,7 +129,8 @@
            <i *ngIf='expanded' class="fa-solid fa-minimize"></i>
              </button>
        </div>
-       <h1>Draft</h1></div>
+       <h1>Draft</h1>
+    </div>
 
 <!-- VIEW TOOLS -->
 

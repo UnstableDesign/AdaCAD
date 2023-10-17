@@ -54,7 +54,9 @@ export class DraftviewerComponent implements OnInit {
    @Output() onNewSelection = new EventEmitter();
    @Output() onDrawdownUpdated = new EventEmitter();
    @Output() onViewerExpanded = new EventEmitter();
- 
+   @Output() onDesignModeChange = new EventEmitter();
+   @Output() onMaterialChange = new EventEmitter();
+
   hold_copy_for_paste: boolean = false;
 
   //store this here as you need it to draw the view
@@ -134,6 +136,8 @@ export class DraftviewerComponent implements OnInit {
    copy: Drawdown;
 
    is_dirty: boolean = false;
+
+   mouse_pressed: boolean = false; 
  
  
    /**
@@ -432,6 +436,8 @@ export class DraftviewerComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+    this.mouse_pressed = true;
+
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
@@ -507,6 +513,7 @@ export class DraftviewerComponent implements OnInit {
 
         case 'weft-materials':
         case 'weft-systems':
+          console.log("WEFT SYSTEMS MOUSE DOWN")
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           break;
       }
@@ -631,6 +638,7 @@ export class DraftviewerComponent implements OnInit {
           case 'down':
           case 'unset':
           case 'material':
+          case 'toggle':
           //this.unsetSelection();
 
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
@@ -676,6 +684,9 @@ export class DraftviewerComponent implements OnInit {
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
+    this.mouse_pressed = false;
+
+
     const draft = this.tree.getDraft(this.id);
 
 
@@ -709,8 +720,9 @@ export class DraftviewerComponent implements OnInit {
    * This is emitted from the selection
    */
   onSelectionEnd(){
-    console.log("ON SELECTION END ", this.selection, this.hold_copy_for_paste)
-    
+
+    if(!this.selection.hasSelection()) return;
+
     if(!this.hold_copy_for_paste) this.copyArea();
     
     this.onNewSelection.emit(
@@ -1128,6 +1140,7 @@ export class DraftviewerComponent implements OnInit {
     let weft = this.render.visibleRows[i];
     var newSystem = this.ss.getNextWeftSystem(weft, draft);
     draft.rowSystemMapping[weft] = newSystem;
+    this.rowSystemMapping = draft.rowSystemMapping.slice();
     this.tree.setDraftOnly(this.id, draft);
 
 
@@ -1165,6 +1178,8 @@ export class DraftviewerComponent implements OnInit {
     var newSystem = this.ss.getNextWarpSystem(j,draft);
     console.log(newSystem, j);
     draft.colSystemMapping[j] = newSystem;
+    this.colSystemMapping = draft.colSystemMapping.slice();
+
     this.tree.setDraftOnly(this.id, draft);
     // this.cdRef.detectChanges();
 
@@ -3012,19 +3027,21 @@ epiChange(f: NgForm) {
   }
 
 
-
-
-
-  /**
-   * Inserts an empty row on system, system
-   */
-  public shuttleColorChange() {
+  public checkForPaint(source: string, index: number, event: any){
     const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    this.redraw(draft, loom, loom_settings, {drawdown: true, warp_materials:true,  weft_materials:true});
-   // this.timeline.addHistoryState(this.draft);
+    if(this.dm.isSelected('material', 'draw_modes') && this.mouse_pressed){
+      
+      const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
+      if(source == 'weft') draft.rowShuttleMapping[index] = parseInt(material_id);
+      if(source == 'warp') draft.colShuttleMapping[index] = parseInt(material_id);
+      this.onMaterialChange.emit();
+
+    } 
+
+
+
   }
+
 
   public updateWarpSystems(pattern: Array<number>) {
     const draft = this.tree.getDraft(this.id);
@@ -3033,6 +3050,7 @@ epiChange(f: NgForm) {
     draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
     this.tree.setDraftOnly(this.id, draft);
     this.redraw(draft, loom, loom_settings, {drawdown: true, warp_systems: true});
+    
   }
 
   public updateWeftSystems(pattern: Array<number>) {
@@ -3040,8 +3058,10 @@ epiChange(f: NgForm) {
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
+    this.rowSystemMapping = draft.rowSystemMapping.slice();
     this.tree.setDraftOnly(this.id, draft);
      this.redraw(draft, loom, loom_settings, {drawdown: true, weft_systems: true});
+     
   }
 
   public updateWarpShuttles(pattern: Array<number>) {
@@ -3051,8 +3071,11 @@ epiChange(f: NgForm) {
     
     draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
     this.tree.setDraftOnly(this.id, draft);
+    this.colShuttleMapping = draft.colShuttleMapping.slice();
 
      this.redraw(draft, loom, loom_settings,{drawdown: true, warp_materials: true});
+     this.onMaterialChange.emit();
+
   }
 
   public updateWeftShuttles(pattern: Array<number>) {
@@ -3061,8 +3084,11 @@ epiChange(f: NgForm) {
     const loom_settings = this.tree.getLoomSettings(this.id);
     draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
     this.tree.setDraftOnly(this.id, draft);
-
+    this.rowShuttleMapping = draft.rowShuttleMapping.slice();
      this.redraw(draft, loom, loom_settings,{drawdown: true, weft_materials: true});
+
+     this.onMaterialChange.emit();
+
   }
 
 
@@ -3147,9 +3173,9 @@ epiChange(f: NgForm) {
    */
     public designModeChange(e:any) {
 
-
       this.unsetSelection();
-  
+      this.onDesignModeChange.emit(e)
+;  
     }
   
 

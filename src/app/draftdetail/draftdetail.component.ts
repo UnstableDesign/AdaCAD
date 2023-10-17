@@ -147,9 +147,13 @@ export class DraftDetailComponent implements OnInit {
     if(this.sim_expanded){
       const dvdiv = document.getElementById('draft-container');
       dvdiv.style.display = 'none';
+      const el = document.getElementById('draft_sidebar');
+      el.style.display = "none";
     }else{
       const dvdiv = document.getElementById('draft-container');
       dvdiv.style.display = 'flex';
+      const el = document.getElementById('draft_sidebar');
+      el.style.display = "flex";
     }
 
   }
@@ -163,10 +167,10 @@ export class DraftDetailComponent implements OnInit {
     this.viewer_expanded = !this.viewer_expanded;
 
     if(this.viewer_expanded){
-      const dvdiv = document.getElementById('sim_container');
+      const dvdiv = document.getElementById('sim_viewer');
       dvdiv.style.display = 'none';
     }else{
-      const dvdiv = document.getElementById('sim_container');
+      const dvdiv = document.getElementById('sim_viewer');
       dvdiv.style.display = 'flex';
     }
 
@@ -267,7 +271,7 @@ export class DraftDetailComponent implements OnInit {
    * @param obj {id: the draft id}
    */
   public designModeChange(e:any) {
-
+    console.log("design mode change", e)
     this.simRef.unsetSelection();
     this.weaveRef.unsetSelection();
   }

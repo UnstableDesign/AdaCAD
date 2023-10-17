@@ -183,6 +183,7 @@ export class SimulationComponent implements OnInit {
   }
 
   unsetSelection(){
+    console.log("unset selection")
     this.current_simdata.bounds = {
       topleft: {x: 0, y: 0},
       width: warps(this.draft.drawdown), 

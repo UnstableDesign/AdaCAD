@@ -170,7 +170,6 @@ export class MixerComponent implements OnInit {
 
 
   ngOnInit(){
-    console.log("WHAT?")
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
@@ -209,8 +208,6 @@ export class MixerComponent implements OnInit {
   closeDetailViewer(obj: any){
     this.show_details = false; 
     this.details.windowClosed();
-
-    console.log("CLOSED DETAIL VIEWER ", obj)
 
     //the object was never copied
     if(obj.clone_id == -1){
