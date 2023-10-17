@@ -170,7 +170,7 @@ export class MixerComponent implements OnInit {
 
 
   ngOnInit(){
-    
+    console.log("WHAT?")
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]

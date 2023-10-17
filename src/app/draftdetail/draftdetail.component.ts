@@ -271,6 +271,8 @@ export class DraftDetailComponent implements OnInit {
   }
 
   public onCloseDrawer(){
+    this.weaveRef.unsetSelection();
+    this.simRef.unsetSelection();
     this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
   }
 
@@ -282,7 +284,7 @@ export class DraftDetailComponent implements OnInit {
    */
   public designModeChange(e:any) {
 
-
+    this.simRef.unsetSelection();
     this.weaveRef.unsetSelection();
 
   }
@@ -508,6 +510,7 @@ export class DraftDetailComponent implements OnInit {
 
 
   public updateSelection(e:any){
+    if(!this.weaveRef.hasSelection()) return;
     if(e.copy !== undefined) this.copy = e;
     if(e.id !== undefined) this.simRef.updateSelection(e.start, e.end);
   }

@@ -709,7 +709,10 @@ export class DraftviewerComponent implements OnInit {
    * This is emitted from the selection
    */
   onSelectionEnd(){
+    console.log("ON SELECTION END ", this.selection, this.hold_copy_for_paste)
+    
     if(!this.hold_copy_for_paste) this.copyArea();
+    
     this.onNewSelection.emit(
       { 
         id: this.id, 
@@ -728,6 +731,10 @@ export class DraftviewerComponent implements OnInit {
     }
   }
 
+  private hasSelection() : boolean {
+    return this.selection.hasSelection();
+  }
+
   /**
    * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d arrray representing the 
    * threading or treadling with "true" in the frame/threadle associated with that col/row. 
@@ -735,6 +742,8 @@ export class DraftviewerComponent implements OnInit {
    * @returns {void}
    */
   private copyArea() {
+
+    
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
