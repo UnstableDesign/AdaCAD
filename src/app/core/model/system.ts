@@ -43,8 +43,10 @@ export const getSystemCharFromId = (id: number) : string => {
    * takes system maps and makes them all unique by adding a base value to the n+1th map. This helps when interlacing 
    * drafts that have different system mappings, and making sure they are each unique. 
    * This function will also return standard sized arrays = to the maximum sized input
-   * @param systems the system mappings to compare
-   */
+  * @param systems a 2D array of systems, each row representing a the systems of a different draft. 
+  * @returns 
+  */
+
  export const makeSystemsUnique = (systems: Array<Array<number>>) : Array<Array<number>>  => {
    
 
@@ -82,24 +84,25 @@ export const getSystemCharFromId = (id: number) : string => {
  return unique_systems;
 }
 
-export const  makeWeftSystemsUnique = (systems: Array<Array<number>>) : Array<Array<number>> => {
 
- const unique = makeSystemsUnique(systems);
+// export const  makeWeftSystemsUnique = (systems: Array<Array<number>>) : Array<Array<number>> => {
 
- return unique;
-}
+//  const unique = makeSystemsUnique(systems);
 
-export const makeWarpSystemsUnique = (systems: Array<Array<number>>) : Array<Array<number>> => {
+//  return unique;
+// }
 
- const unique = makeSystemsUnique(systems);
+// export const makeWarpSystemsUnique = (systems: Array<Array<number>>) : Array<Array<number>> => {
 
-//  unique.forEach(system => {
-//    system.forEach(el => {
-//      if(this.getWarpSystem(el) === undefined) this.addWarpSystemFromId(el);
-//    })
-//  })
+//  const unique = makeSystemsUnique(systems);
 
- return unique;
-}
+// //  unique.forEach(system => {
+// //    system.forEach(el => {
+// //      if(this.getWarpSystem(el) === undefined) this.addWarpSystemFromId(el);
+// //    })
+// //  })
+
+//  return unique;
+// }
 
 

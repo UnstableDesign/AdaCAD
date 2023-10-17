@@ -107,7 +107,6 @@ export class AuthService {
    * @returns true if this is the first time the page is being loaded, false if it has already been active
    */
   isFirstSession() : boolean {
-    console.log("this.firstload", this.firstLoad)
     return this.firstLoad;
   }
 

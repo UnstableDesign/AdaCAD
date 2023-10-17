@@ -1,15 +1,13 @@
 
-<div id="simulation_container">
+<app-sim-sidebar id="sim_sidebar"
+[sim_expanded]="sim_expanded"
+(onExpand)="expandSimulation()"
+></app-sim-sidebar>
+
+<div id="sim_container">
 
 
-  <div class="expand">
-    <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
-      <i *ngIf='!sim_expanded' class="fa-solid fa-maximize"></i>
-      <i *ngIf='sim_expanded' class="fa-solid fa-minimize"></i>
-        </button>
-  </div>
-
-  <div class="controls" [style.display]="(sim_expanded) ? 'flex' : 'none'">
+  <!-- <div class="controls" [style.display]="(sim_expanded) ? 'flex' : 'none'">
       <mat-form-field class="example-full-width">
         <mat-label>Space Between Layers</mat-label>
         <input 
@@ -22,7 +20,7 @@
         (change)= "changeLayerSpacing($event)">
       </mat-form-field>
       
-      <mat-form-field class="example-full-width">
+       <mat-form-field class="example-full-width">
         <mat-label>Radius</mat-label>
         <input 
         matInput
@@ -32,11 +30,11 @@
         [max]=1000
         step = 1
         (change)= "changeRadius($event)">
-      </mat-form-field>
+      </mat-form-field> -->
 
       <!--this number tells the code how many interlacements with a certain layer need to be observed on a single weft  
       for it to "count" as a real value. For small unit drafts, this number can be really low -->
-     <mat-form-field class="example-full-width">
+     <!-- <mat-form-field class="example-full-width">
         <mat-label>Layer Threshold</mat-label>
         <input 
         matInput
@@ -46,10 +44,10 @@
         [max]="100"
         step = 1
         (change)= "changeLayerThreshold()">
-      </mat-form-field> 
+      </mat-form-field>  -->
 
       <!--this number considered how close two warps, of contrasting interlacement val, need to be together for them to actually be considered an interlacement -->
-      <mat-form-field class="example-full-width">
+      <!-- <mat-form-field class="example-full-width">
         <mat-label>Longest Weft Float</mat-label>
         <input 
         matInput
@@ -59,9 +57,9 @@
         [max]="100"
         step = 1
         (change)= "changeILaceWidth()">
-      </mat-form-field>
+      </mat-form-field> -->
 
-      <mat-form-field class="example-full-width">
+      <!-- <mat-form-field class="example-full-width">
         <mat-label>Longest Warp Float</mat-label>
         <input 
         matInput
@@ -71,7 +69,9 @@
         [max]="100"
         step = 1
         (change)= "changeILaceHeight()">
-      </mat-form-field>
+      </mat-form-field> -->
+
+      <!-- <button mat-button (click)="snapToX()">Snap X</button> -->
 
       <!-- <div class="toggle fullwidth" > 
         <mat-slide-toggle
@@ -117,7 +117,7 @@
         (click)="toggleWefts()"> Show Wefts
         </mat-slide-toggle> 
       </div>  -->
-  </div>
+  <!-- </div>  -->
     <!-- <mat-form-field class="example-full-width">
     
      <mat-label>Warp Layer Threshold</mat-label>
@@ -130,10 +130,12 @@
     step = 1
     (change)= "warpThresholdChange()">
   </mat-form-field>  -->
- 
-</div>
 
-<div class="cameracontrols">
+
+<!-- <div class="cameracontrols">
   Press and move to rotate the simulation. Press+Control and move will pan the camera. Scroll in/out will zoom in/out
 </div>
-    
+     -->
+
+    </div>
+

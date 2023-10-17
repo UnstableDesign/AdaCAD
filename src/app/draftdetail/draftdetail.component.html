@@ -1,69 +1,38 @@
-<!-- <mat-drawer-container  style="background: #3d3d3d;" #container class="mat-drawer-container" cdkScrollable>
-  
-  <mat-drawer #drawer class="example-sidenav" mode="top" position="start" opened>   -->
 
-      <div class ="design-container" id="expanded-container">
-       
-        <!-- <app-tab
-        (onGenerativeModeChange)="onGenerativeModeChange($event)"
-        (onDraftSelected)="loadGeneratedDraft($event)"
-        ></app-tab>  -->
-
-        <app-sidebar id="sidebar"
-         #sidebar
-        (onDesignModeChange)='designModeChange($event)'
-        (onZoomChange) ="renderChange($event);"
-        (onViewChange) ="viewChange($event);"
-        (onViewFront) ="renderChange($event);"
-        (onHideWeftSystem)="hideWeftSystem($event);"
-        (onShowWeftSystem)="showWeftSystem($event);"
-        (onHideWarpSystem)="hideWarpSystem($event);"
-        (onShowWarpSystem)="showWarpSystem($event);"
-        (onGlobalLoomChange)="globalLoomChange($event)"
-        (onLocalLoomNeedsRedraw)="redrawLoomAndDraft()"
-        (onUpdateWarpSystems) = "updateWarpSystems($event)"
-        (onUpdateWeftSystems) = "updateWeftSystems($event)"
-        (onUpdateWarpShuttles) = "updateWarpShuttles($event)"
-        (onUpdateWeftShuttles) = "updateWeftShuttles($event)"
-        (closeDrawer) = "onCloseDrawer()"
-        ></app-sidebar>
-
+      <div class ="design-container">
 
    
-    <!-- <div class="generative-options" *ngIf="weaveRef.selected==false">
-      <h1>testing</h1>
-      <button matTooltip="start making changes" 
-      [name]='changesFromGenerative'
-      class="button material is-small is-primary fas fa-square"
-      >
-    </button>
-    </div> -->
-  <!-- </mat-drawer> -->
+        <div class="tool-chunk" >
 
-    <div class="viewers">
+          <button 
+          mat-icon-button
+          color="white" 
+          (click)="closeDetailView()">
+          <i class="fas fa-window-close"></i>
+          </button>
+
+
+          <!-- <h1>viewing detail for: {{draftname}}</h1> -->
+  
+  
+      </div>
+
       <app-draftviewer id="draft_viewer"
       [id]="id"
       [class.expanded]="viewer_expanded"
       source = "weaver"
       (onNewSelection) = "updateSelection($event)"
-      (onDrawdownUpdated)="redrawSimulation($event)"
+      (onDrawdownUpdated)="onDrawdownUpdate($event)"
       (onViewerExpanded)="expandViewer()">
       </app-draftviewer>
+  
 
-      
 
-      <app-simulation style= 'width: 50%'
+      <app-simulation id="simulation_container"
       [id]="id"
       (onExpanded)="expandSimulation()"
       >
       </app-simulation>
-    </div>
 
-    <!-- <div class="detail_data" *ngIf="id !== -1">
-
-
-  
-   </div> -->
 
    </div>
-<!-- </mat-drawer-container> -->

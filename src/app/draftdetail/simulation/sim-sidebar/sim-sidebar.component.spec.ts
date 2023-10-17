@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CrosssectionComponent } from './crosssection.component';
+import { SimSidebarComponent } from './sim-sidebar.component';
 
-describe('CrosssectionComponent', () => {
-  let component: CrosssectionComponent;
-  let fixture: ComponentFixture<CrosssectionComponent>;
+describe('SimSidebarComponent', () => {
+  let component: SimSidebarComponent;
+  let fixture: ComponentFixture<SimSidebarComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CrosssectionComponent ]
+      declarations: [ SimSidebarComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CrosssectionComponent);
+    fixture = TestBed.createComponent(SimSidebarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

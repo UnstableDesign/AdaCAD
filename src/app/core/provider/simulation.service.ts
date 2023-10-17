@@ -129,7 +129,7 @@ export class SimulationService {
 
     const currentSim:SimulationData  = {
       draft: draft, 
-     bounds: {topleft: {x: sim.boundary, y: sim.boundary}, width: warps(draft.drawdown), height: wefts(draft.drawdown)},
+      bounds: {topleft: {x: sim.boundary, y: sim.boundary}, width: warps(draft.drawdown), height: wefts(draft.drawdown)},
       sim: sim,
       topo: null,
       vtxs: null, 
@@ -158,10 +158,9 @@ export class SimulationService {
 
   }
 
-  public setupSimulation(draft: Draft, renderer, scene, camera, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius:number, ms: MaterialsService) : Promise<SimulationData> {
+  public setupSimulation(draft: Draft, renderer, scene, camera, controls, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius:number, ms: MaterialsService) : Promise<SimulationData> {
 
-    camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
-    const controls = new OrbitControls( camera, renderer.domElement );
+    
     
     const animate = function(){
       requestAnimationFrame( animate );
@@ -169,10 +168,7 @@ export class SimulationService {
       controls.update();
 
     };
-    scene.background = new THREE.Color( 0xf0f0f0 );
 
-    camera.position.set( 20, 0, 200 );
-    camera.lookAt( 0, 0, 0 );  
     controls.update();
     animate();
 
@@ -196,6 +192,13 @@ export class SimulationService {
    
 
   }
+
+  public snapToX(controls){
+    controls.target = new THREE.Vector3(200,0,0);
+    controls.update();
+  }
+
+
 
   public recalcSimData(scene, draft: Draft, warp_spacing:number, layer_spacing:number, layer_threshold:number,max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius: number, ms: MaterialsService) : Promise<SimulationData>{
 
@@ -232,8 +235,6 @@ export class SimulationService {
 
     light.position.set( 20, 0, 50 );
     back_light.position.set( 20, 0, -50 );
-
-
 
 
     const boundary_vtx = this.getBoundaryVtxs(simdata);

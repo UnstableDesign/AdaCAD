@@ -199,10 +199,18 @@ export class MixerComponent implements OnInit {
 
 
 
+  /**
+   * this is called when the detail view is closed. It passes an object that has three values: 
+   * id: the draft id
+   * clone_id: the id for the cloned draft
+   * is_dirty: a boolean to note if the draft was changed at all while in detail view. 
+   * @param obj 
+   */
   closeDetailViewer(obj: any){
-    console.log("OBJ ", obj)
     this.show_details = false; 
     this.details.windowClosed();
+
+    console.log("CLOSED DETAIL VIEWER ", obj)
 
     //the object was never copied
     if(obj.clone_id == -1){
@@ -337,11 +345,10 @@ zoomChange(e:any, source: string){
           if(fileid !== null){
 
             const ada = await this.files.getFile(fileid).catch(e => {
-              console.error("HI ", e)
+              console.error("error on get file ", e)
             });
             const meta = await this.files.getFileMeta(fileid).catch(console.error);           
              
-
               if(ada === undefined){
                 this.loadBlankFile();
 
@@ -418,9 +425,8 @@ zoomChange(e:any, source: string){
    * @param result 
    */
   loadNewFile(result: LoadResponse){
-    this.clearAll();
 
-
+    //DO NOT CALL CLEAR ALL HERE AS IT WILL OVERWRITE LOADED FILE DATA
 
     this.files.setCurrentFileInfo(result.id, result.name, result.desc);
     
@@ -484,6 +490,7 @@ zoomChange(e:any, source: string){
    */
    importNewFile(result: LoadResponse){
     
+
     this.processFileData(result.data)
     .then( data => {
       this.palette.changeDesignmode('move')
@@ -675,6 +682,7 @@ zoomChange(e:any, source: string){
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
         //let d: Draft = initDraft();
         let l: Loom = {
+          id: utilInstance.generateId(8),
           treadling: [],
           tieup: [],
           threading: []
@@ -843,6 +851,7 @@ zoomChange(e:any, source: string){
    */
   loadDrafts(drafts: any){
     const loom:Loom = {
+      id: utilInstance.generateId(8),
       threading:[],
       tieup:[],
       treadling: []
@@ -922,6 +931,7 @@ zoomChange(e:any, source: string){
 
 
   prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
+    this.clearAll();
       return this.fs.loader.ada(name, id,desc, ada).then(lr => {
         this.loadNewFile(lr);
       });
@@ -930,18 +940,19 @@ zoomChange(e:any, source: string){
 
 
   clearView() : void {
-    this.palette.clearComponents();
+
+    if(this.palette !== undefined) this.palette.clearComponents();
     this.vp.clear();
 
   }
 
   clearAll() : void{
 
-    console.log("CLEAR ALL")
     this.clearView();
     this.tree.clear();
     this.ss.clearTimeline();
     this.notes.clear();
+    this.ms.reset();
 
   }
 
@@ -957,8 +968,8 @@ zoomChange(e:any, source: string){
 
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
+    this.clearAll();
     this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, so).then(lr => {
-      console.log("LOADing FILE ", lr);
       this.loadNewFile(lr)
     }
     
@@ -971,7 +982,7 @@ zoomChange(e:any, source: string){
 
     let so: SaveObj = this.ss.restoreNextMixerHistoryState();
     if(so === null || so === undefined) return;
-
+    this.clearAll();
     this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id,this.files.current_file_desc,  so)
     .then(lr =>  this.loadNewFile(lr));
 
@@ -1198,6 +1209,7 @@ originChange(e:any){
     for(let i = 0; i < dn.length; i++){
       if(res[i] !== null){
         dn[i].loom = {
+          id: res[i].id,
           threading: res[i].threading.slice(),
           tieup: res[i].tieup.slice(),
           treadling: res[i].treadling.slice()
@@ -1240,7 +1252,6 @@ epiChange(f: NgForm) {
  */
 loomChange(e:any){
 
-  console.log("e.value.loomtype", e.value.loomtype)
    this.ws.type = e.value.loomtype;
   if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
   else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
@@ -1261,7 +1272,6 @@ loomChange(e:any){
   }
 
   showDraftDetails(id: number){
-    console.log("mixer draft details", id)
     this.show_details = true;
     this.details.loadDraft(id);
     this.dm.selectDesignMode('toggle','draw_modes')
