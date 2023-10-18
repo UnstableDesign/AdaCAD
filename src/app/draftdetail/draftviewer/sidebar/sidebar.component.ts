@@ -1,14 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { BlankdraftModal } from '../../core/modal/blankdraft/blankdraft.modal';
-import { Draft, LoomSettings } from '../../core/model/datatypes';
-import { DesignmodesService } from '../../core/provider/designmodes.service';
-import { MaterialsService } from '../../core/provider/materials.service';
-import { TreeService } from '../../core/provider/tree.service';
-import { InkService } from '../../mixer/provider/ink.service';
-import { ActionsComponent } from '../actions/actions.component';
-import { RenderService } from '../provider/render.service';
-import { WeaverViewComponent } from '../weaverview/weaverview.component';
+import { BlankdraftModal } from '../../../core/modal/blankdraft/blankdraft.modal';
+import { Draft, LoomSettings } from '../../../core/model/datatypes';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { MaterialsService } from '../../../core/provider/materials.service';
+import { TreeService } from '../../../core/provider/tree.service';
+import { InkService } from '../../../mixer/provider/ink.service';
+import { ActionsComponent } from '../../actions/actions.component';
+import { RenderService } from '../../provider/render.service';
 
 
 @Component({
@@ -23,13 +22,13 @@ export class SidebarComponent implements OnInit {
 
   @Input() timeline;
   @Input() id;
+  @Input() expanded;
 
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
   @Output() onDesignModeChange: any = new EventEmitter();
   @Output() onZoomChange: any = new EventEmitter();
   @Output() onViewChange: any = new EventEmitter();
-  @Output() onViewFront: any = new EventEmitter();
   @Output() onShowWarpSystem: any = new EventEmitter();
   @Output() onHideWarpSystem: any = new EventEmitter();
   @Output() onShowWeftSystem: any = new EventEmitter();
@@ -48,6 +47,7 @@ export class SidebarComponent implements OnInit {
   @Output() onMLChange: any = new EventEmitter();
   @Output() onNewDraftCreated: any = new EventEmitter();
   @Output() closeDrawer: any = new EventEmitter();
+  @Output() onExpand: any = new EventEmitter();
 
   
   draft:Draft;
@@ -59,7 +59,6 @@ export class SidebarComponent implements OnInit {
   view: string = 'pattern';
   front: boolean = true;
 
-  weaver_view_modal: MatDialogRef<WeaverViewComponent, any>;
   actions_modal: MatDialogRef<ActionsComponent, any>;
 
 
@@ -82,6 +81,10 @@ export class SidebarComponent implements OnInit {
 
   }
 
+  expand(){
+    this.onExpand.emit();
+  }
+
   select(){
     var obj: any = {};
      obj.name = "select";
@@ -101,15 +104,7 @@ export class SidebarComponent implements OnInit {
    });
   }
 
-  closeDetailView(){
-    this.closeDrawer.emit();
-  }
 
-
-  closeWeaverModals(){
-    if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) this.actions_modal.close();
-    if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) this.weaver_view_modal.close();
-  }
 
   shapeChange(name:string){
     var obj: any = {};
@@ -158,11 +153,11 @@ export class SidebarComponent implements OnInit {
     this.onZoomChange.emit({source: 'out', val: -1});
   }
 
-  viewFront(e:any, value:any, source: string){
-    e.source = source;
-    e.value = !value;
-    this.onViewFront.emit(e);
-  }
+  // viewFront(e:any, value:any, source: string){
+  //   e.source = source;
+  //   e.value = !value;
+  //   this.onViewFront.emit(e);
+  // }
 
   viewChange(e:any){
     if(e.checked){
@@ -204,32 +199,32 @@ export class SidebarComponent implements OnInit {
 
 
 
-openWeaverView(){
-  if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) return;
+// openWeaverView(){
+//   if(this.weaver_view_modal != undefined && this.weaver_view_modal.componentInstance != null) return;
 
-  this.weaver_view_modal  =  this.dialog.open(WeaverViewComponent,
-    {disableClose: true,
-      maxWidth:350, 
-      hasBackdrop: false,
-      data: {
-        render: this.render,
-        draft: this.draft}});
+//   this.weaver_view_modal  =  this.dialog.open(WeaverViewComponent,
+//     {disableClose: true,
+//       maxWidth:350, 
+//       hasBackdrop: false,
+//       data: {
+//         render: this.render,
+//         draft: this.draft}});
 
      
-       this.weaver_view_modal.componentInstance.onZoomChange.subscribe(event => { this.onZoomChange.emit(event)});
-       this.weaver_view_modal.componentInstance.onViewChange.subscribe(event => { this.onViewChange.emit(event)});
-       this.weaver_view_modal.componentInstance.onViewFront.subscribe(event => { this.onViewFront.emit(event)});
-       this.weaver_view_modal.componentInstance.onShowWarpSystem.subscribe(event => { this.onShowWarpSystem.emit(event)});
-       this.weaver_view_modal.componentInstance.onHideWarpSystem.subscribe(event => { this.onHideWarpSystem.emit(event)});
-       this.weaver_view_modal.componentInstance.onShowWeftSystem.subscribe(event => { this.onShowWeftSystem.emit(event)});
-       this.weaver_view_modal.componentInstance.onHideWeftSystem.subscribe(event => { this.onHideWeftSystem.emit(event)});
+//        this.weaver_view_modal.componentInstance.onZoomChange.subscribe(event => { this.onZoomChange.emit(event)});
+//        this.weaver_view_modal.componentInstance.onViewChange.subscribe(event => { this.onViewChange.emit(event)});
+//        this.weaver_view_modal.componentInstance.onViewFront.subscribe(event => { this.onViewFront.emit(event)});
+//        this.weaver_view_modal.componentInstance.onShowWarpSystem.subscribe(event => { this.onShowWarpSystem.emit(event)});
+//        this.weaver_view_modal.componentInstance.onHideWarpSystem.subscribe(event => { this.onHideWarpSystem.emit(event)});
+//        this.weaver_view_modal.componentInstance.onShowWeftSystem.subscribe(event => { this.onShowWeftSystem.emit(event)});
+//        this.weaver_view_modal.componentInstance.onHideWeftSystem.subscribe(event => { this.onHideWeftSystem.emit(event)});
 
   
-      this.weaver_view_modal.afterClosed().subscribe(result => {
-        //this.onLoomChange.emit();
-       // dialogRef.componentInstance.onChange.removeSubscription();
-    });
-}
+//       this.weaver_view_modal.afterClosed().subscribe(result => {
+//         //this.onLoomChange.emit();
+//        // dialogRef.componentInstance.onChange.removeSubscription();
+//     });
+// }
 
 
 openActions(){

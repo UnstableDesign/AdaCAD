@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { compositionDependencies } from 'mathjs';
 import { DesignMode, Draft, Loom, LoomSettings } from '../../model/datatypes';
 import { initDraft, initDraftWithParams } from '../../model/drafts';
+import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { FileService } from '../../provider/file.service';
 
@@ -62,6 +63,7 @@ export class BlankdraftModal implements OnInit {
 
     if(this.loomtype !== 'jacquard'){
       loom = {
+        id: utilInstance.generateId(8),
         threading: [],
         treadling: [],
         tieup: []

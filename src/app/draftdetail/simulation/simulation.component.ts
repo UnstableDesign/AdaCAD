@@ -5,8 +5,8 @@ import { Draft, Interlacement, LoomSettings, SimulationData } from '../../core/m
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
-import { createCell, getCellValue } from '../../core/model/cell';
-import { initDraftFromDrawdown } from '../../core/model/drafts';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { initDraftFromDrawdown, warps, wefts } from '../../core/model/drafts';
 
 @Component({
   selector: 'app-simulation',
@@ -23,23 +23,26 @@ export class SimulationComponent implements OnInit {
   renderer;
   scene;
   camera;
+  controls;
   draft: Draft;
   loom_settings: LoomSettings;
   sim_expanded: boolean = false;
   layer_spacing: number = 10;
   layer_threshold: number = 1;
-  warp_threshold: number = 2;
+  warp_threshold: number = 10;
   max_interlacement_width: number = 10;
-  max_interlacement_height: number = 2;
+  max_interlacement_height: number = 10;
   showing_warp_layer_map: boolean = false;
   showing_weft_layer_map: boolean = false;
   showing_warps: boolean = true;
   showing_wefts: boolean = true;
   showing_topo: boolean = false;
   showing_draft: boolean = false;
-  boundary: number = 0;
+  boundary: number = 10;
   radius: number = 40;
   current_simdata: SimulationData = null;
+  tanFOV: number = 0;
+  originalHeight: number = 0; 
 
 
   constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
@@ -58,12 +61,40 @@ export class SimulationComponent implements OnInit {
   }
 
   ngAfterViewInit(){
+    
     const div = document.getElementById('simulation_container');
+
+
+    let width = 2 * window.innerWidth / 3;
+    let height = window.innerHeight;
+
+
     this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setSize( width, height );
+    div.appendChild( this.renderer.domElement );
+
+
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
-    this.renderer.setSize(div.offsetWidth, div.offsetHeight);
-    div.appendChild(this.renderer.domElement);
+    this.scene.background = new THREE.Color( 0xf0f0f0 );
+
+    this.camera = new THREE.PerspectiveCamera( 30, width / height, 1, 5000 );
+    // this.camera.position.set( 20, 0, 200 );
+    // this.camera.lookAt( 0, 0, 0 );  
+    this.camera.position.set(0, 0, 500); 
+    this.camera.lookAt( this.scene.position );
+    this.scene.add(this.camera);
+
+
+    // this.camera = new THREE.OrthographicCamera(  div.offsetWidth / - 2,  div.offsetWidth / 2,div.offsetHeight / 2, div.offsetHeight / - 2, 1, 1000 );
+    // console.log("DIV OFFSET ",div.offsetWidth, div.offsetHeight)
+     this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+
+
+    this.tanFOV = Math.tan( ( ( Math.PI / 180 ) * this.camera.fov / 2 ) );
+    this.originalHeight = height;
+
+    this.renderer.render(this.scene, this.camera);
+
   }
 
   calcDefaultLayerSpacing(draft: Draft){
@@ -101,6 +132,7 @@ export class SimulationComponent implements OnInit {
       this.renderer, 
       this.scene, 
       this.camera, 
+      this.controls,
       this.layer_threshold, 
       this.warp_threshold, convertEPItoMM(loom_settings), 
       this.layer_spacing, 
@@ -150,6 +182,17 @@ export class SimulationComponent implements OnInit {
 
   }
 
+  unsetSelection(){
+    console.log("unset selection")
+    this.current_simdata.bounds = {
+      topleft: {x: 0, y: 0},
+      width: warps(this.draft.drawdown), 
+      height: wefts(this.draft.drawdown)
+    }
+
+    this.simulation.renderSimdata(this.scene, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
+  }
+
   /**
    * call this when the simulation needs to be updated due to a structural change. 
    * This will recalculate all the simulation data and then redraw it to screen. 
@@ -193,6 +236,9 @@ export class SimulationComponent implements OnInit {
     });
   }
 
+  snapToX(){
+    this.simulation.snapToX(this.controls);
+  }
 
   toggleWefts(){
     if(!this.showing_wefts) this.simulation.showWefts();
@@ -303,46 +349,37 @@ export class SimulationComponent implements OnInit {
     this.simulation.endSimulation(this.scene);
   }
 
-  expand(){
+  expandSimulation(){
+   
     this.onExpanded.emit();
     this.sim_expanded = !this.sim_expanded;
-
-
-    if(this.sim_expanded){
-      const ex_div = document.getElementById('expanded-container');
-      this.renderer.setSize( ex_div.offsetWidth, ex_div.offsetHeight );
-      this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
-    }else{
-      const small_div = document.getElementById('simulation_container');
-
-      this.renderer.setSize( small_div.offsetWidth, small_div.offsetHeight );
-      this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
-    }
-
-
-
+    this.onWindowResize();
   
-    this.camera.updateProjectionMatrix();
 
-    this.renderer.render( this.scene, this.camera );
+
+
   }
 
+  /**
+   * this gets called even if its not open!
+   */
   onWindowResize() {
+    let width;
 
+    if(this.sim_expanded)   width = 2*window.innerWidth/3;
+    else width = window.innerWidth/3;
 
-    if(this.sim_expanded){
-      const ex_div = document.getElementById('expanded-container');
-      this.renderer.setSize( ex_div.offsetWidth, ex_div.offsetHeight );
-      this.camera.aspect = ex_div.offsetWidth /ex_div.offsetHeight ;
-    }else{
-      const small_div = document.getElementById('simulation_container');
+    let height = window.innerHeight;
 
-      this.renderer.setSize( small_div.offsetWidth, small_div.offsetHeight );
-      this.camera.aspect = small_div.offsetWidth /small_div.offsetHeight ;
-    }
-
+    this.camera.aspect = width / height;
+    
+    // adjust the FOV
+    this.camera.fov = ( 360 / Math.PI ) * Math.atan( this.tanFOV * ( height / this.originalHeight ) );
+    
     this.camera.updateProjectionMatrix();
+    // this.camera.lookAt( this.scene.position );
 
+    this.renderer.setSize( width, height );
     this.renderer.render( this.scene, this.camera );
 
   }

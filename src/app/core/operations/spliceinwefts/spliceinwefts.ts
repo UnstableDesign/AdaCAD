@@ -1,8 +1,8 @@
 import { BoolParam, Draft, NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getHeddle, initDraftFromDrawdown, updateWarpSystemsAndShuttles, warps, wefts } from "../../model/drafts";
-import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames, transferSystemsAndShuttles } from "../../model/operations";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
-import { makeWeftSystemsUnique } from "../../model/system";
+import { makeSystemsUnique } from "../../model/system";
 import utilInstance from "../../model/util";
 
 const name = "splice in wefts";
@@ -105,7 +105,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   else  total_warps = utilInstance.getMaxWarps(all_drafts);
 
 
-  const uniqueSystemRows = makeWeftSystemsUnique(all_drafts.map(el => el.rowSystemMapping));
+  const uniqueSystemRows = makeSystemsUnique(all_drafts.map(el => el.rowSystemMapping));
 
   let array_a_ndx = 0;
   let array_b_ndx = 0;

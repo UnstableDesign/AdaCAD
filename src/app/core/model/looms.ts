@@ -10,6 +10,7 @@ import utilInstance from "./util";
 export const copyLoom = (l:Loom) : Loom => {
   if(l === undefined || l == null) return null;
   const copy_loom  = {
+    id: l.id,
     threading: l.threading.slice(),
     treadling: l.treadling.slice(),
     tieup: l.tieup.slice(),
@@ -99,6 +100,7 @@ const jacquard_utils: LoomUtil = {
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
         
         const l: Loom = {
+            id: utilInstance.generateId(8), 
             threading: [],
             tieup: [],
             treadling: []
@@ -142,6 +144,7 @@ const jacquard_utils: LoomUtil = {
     },
     recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number): Promise<Loom> =>{
       const new_loom: Loom = {
+        id: l.id,
         threading: l.threading.slice(),
         tieup: [],
         treadling: []
@@ -224,6 +227,7 @@ const jacquard_utils: LoomUtil = {
     dx: "draft from drawdown or threading/tieup/treadling. Assumes you are assigning treadles to specific frame via tieup",
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
         const loom: Loom = {
+            id: utilInstance.generateId(8),
             threading: [],
             tieup: [],
             treadling: []
@@ -273,6 +277,7 @@ const jacquard_utils: LoomUtil = {
     },
     recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number): Promise<Loom> =>{
       const new_loom: Loom = {
+        id: l.id,
         threading: l.threading.slice(),
         tieup: [],
         treadling: []
@@ -553,6 +558,7 @@ export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: 
 
     const refs = [];
     let new_loom = {
+      id: loom.id,
       threading: loom.threading.slice(), 
       tieup: loom.tieup.slice(),
       treadling: loom.treadling.slice()
