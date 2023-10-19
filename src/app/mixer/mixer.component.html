@@ -233,11 +233,14 @@
 
   </mat-drawer>
 
-  <mat-drawer  #detail_drawer class="detail_view" mode="over" position="end" [opened]="show_details" [@.disabled]="true">  
+  <mat-drawer  #detail_drawer class="detail_view" mode="over" position="end">  
 
-    <app-draftdetail #details (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
+    <app-draftdetail 
+    #details 
+    [new_draft_flag$]="new_draft_flag$"
+    (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
     
-     </mat-drawer>
+  </mat-drawer>
 
   <!-- <mat-drawer #files class="example-sidenav" mode="side" position="start" opened>  
 

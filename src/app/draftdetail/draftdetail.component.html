@@ -21,7 +21,8 @@
 
       <div class="viewers">
 
-        <app-draftviewer id="draft_viewer"
+        <app-draftviewer 
+        id="draft_viewer"
         [id]="id"
         [class.expanded]="viewer_expanded"
         source = "weaver"
@@ -35,6 +36,7 @@
 
         <app-simulation id="sim_viewer" style= 'width: 50%'
         [id]="id"
+        [new_draft_flag$]="new_draft_flag$"
         (onExpanded)="expandSimulation()"
         >
         </app-simulation>

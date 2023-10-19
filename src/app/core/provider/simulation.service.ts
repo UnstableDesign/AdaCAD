@@ -250,7 +250,7 @@ export class SimulationService {
   }
 
 
-  public renderSimdata(scene, simdata: SimulationData, warps: boolean, wefts: boolean, warp_layer: boolean,weft_layers: boolean, topo: boolean, show_draft: boolean){
+  public renderSimdata(scene, simdata: SimulationData, warps: boolean, wefts: boolean, warp_layer: boolean,weft_layers: boolean, topo: boolean, show_draft: boolean) : Promise<any>{
     this.hasSimulation = true;
 
     if(this.currentSim.draft == null) return;
@@ -284,6 +284,8 @@ export class SimulationService {
     if(!weft_layers) this.hideWeftLayerMap();
     if(!topo) this.hideTopo();
     if(!show_draft) this.hideDraft();
+
+    return Promise.resolve()
 
   }
 

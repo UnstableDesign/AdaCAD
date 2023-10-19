@@ -36,11 +36,13 @@ export class DraftDetailComponent implements OnInit {
   @ViewChild(SimulationComponent, {static: true}) simRef;
   
 
+  @Input()   new_draft_flag$: Subject<any>;
   @Output() closeDrawer: any = new EventEmitter();
 
   id: number = -1;  
+
+
   
-  viewonly: boolean; 
 
   /**
   The current selection, as a Pattern 
@@ -180,12 +182,12 @@ export class DraftDetailComponent implements OnInit {
 
 
   /**
-   * create a new object 
+   * loads a new draft into the detail viewer
    * @param id 
    */
-  loadDraft(id: number){
+  loadDraft(id: number) : Promise<any> {
       //reset the dirty value every time the window is open
-      this.weaveRef.is_dirty = false;
+    this.weaveRef.is_dirty = false;
 
     if(!this.tree.hasParent(id)){
       this.id = id;
@@ -194,10 +196,9 @@ export class DraftDetailComponent implements OnInit {
       this.draftname = getDraftName(this.draft)
       this.loom = this.tree.getLoom(id);
       this.loom_settings = this.tree.getLoomSettings(id);
-      this.viewonly = this.tree.hasParent(id);
       this.render.loadNewDraft(this.draft);
       this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
-      this.simRef.drawSimulation(this.draft, this.loom_settings);
+      // return this.simRef.loadNewDraft(this.draft, this.loom_settings);
     }else{
       this.clone_id  = id;
       const newid = this.tree.createNode('draft', null, null);
@@ -223,13 +224,12 @@ export class DraftDetailComponent implements OnInit {
 
       return this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, this.draft, this.loom, this.loom_settings, false)
       .then(d => {
-        this.viewonly = this.tree.hasParent(id);
 
         this.render.loadNewDraft(this.draft);
     
         this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
       
-        this.simRef.drawSimulation(this.draft, this.loom_settings);
+        // return this.simRef.loadNewDraft(this.draft, this.loom_settings);
 
         })
     }
@@ -253,13 +253,6 @@ export class DraftDetailComponent implements OnInit {
 
 
 
-
-
-  // public closeAllModals(){
-  //   this.sidebar.closeWeaverModals();
-  // }
-
-
   public onCloseDrawer(){
     this.weaveRef.unsetSelection();
     this.simRef.unsetSelection();
@@ -273,13 +266,11 @@ export class DraftDetailComponent implements OnInit {
    * @param obj {id: the draft id}
    */
   public designModeChange(e:any) {
-    console.log("design mode change", e)
     this.simRef.unsetSelection();
     this.weaveRef.unsetSelection();
   }
 
   public drawdownUpdated(){
-    console.log("DRAWDOWN CHANGE ")
 
     this.simRef.setDirty();
     this.redrawSimulation()
@@ -287,7 +278,6 @@ export class DraftDetailComponent implements OnInit {
 
 
   public materialChange() {
-    console.log("MATERIAL CHANGE ")
     this.simRef.redrawCurrentSim();
   }
   

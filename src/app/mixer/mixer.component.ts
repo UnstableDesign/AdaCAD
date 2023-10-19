@@ -5,6 +5,7 @@ import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { NgForm } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
@@ -33,6 +34,8 @@ import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
+import {MatSidenavModule} from '@angular/material/sidenav';
+
 //disables some angular checking mechanisms
 enableProdMode();
 
@@ -62,6 +65,7 @@ export class MixerComponent implements OnInit {
 
   @ViewChild(PaletteComponent) palette;
   @ViewChild(DraftDetailComponent) details;
+  @ViewChild('detail_drawer') detail_drawer;
 
   epi: number = 10;
   units:string = 'cm';
@@ -82,14 +86,15 @@ export class MixerComponent implements OnInit {
 
 
 
+
  /**
    * The weave Timeline object.
    * @property {Timeline}
    */
 
-   viewonly: boolean = false;
+  viewonly: boolean = false;
 
-   manual_scroll: boolean = false;
+  manual_scroll: boolean = false;
 
   private unsubscribe$ = new Subject();
 
@@ -97,8 +102,9 @@ export class MixerComponent implements OnInit {
 
   scrollingSubscription: any;
 
-
   selected_nodes_copy: any = null;
+
+  new_draft_flag$ = new Subject<any>();
 
 
   /// ANGULAR FUNCTIONS
@@ -206,8 +212,9 @@ export class MixerComponent implements OnInit {
    * @param obj 
    */
   closeDetailViewer(obj: any){
-    this.show_details = false; 
+
     this.details.windowClosed();
+    this.detail_drawer.close();
 
     //the object was never copied
     if(obj.clone_id == -1){
@@ -1269,8 +1276,15 @@ loomChange(e:any){
   }
 
   showDraftDetails(id: number){
-    this.show_details = true;
-    this.details.loadDraft(id);
     this.dm.selectDesignMode('toggle','draw_modes')
+    this.detail_drawer.open().then(res => {
+       this.details.loadDraft(id);
+      this.new_draft_flag$.next(id)
+    })
+
+
   }
+
+
+
 }

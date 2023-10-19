@@ -825,7 +825,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
     export const addWeftLayerInterlacementsToMap = (layer_map: Array<Array<number>>, interlacements: Array<TopologyVtx>, max_ilace_width: number) : Array<Array<number>> => {
       max_ilace_width = 5;
-      console.log("INTERLACEMENTS ", interlacements)
+      //console.log("INTERLACEMENTS ", interlacements)
       interlacements.forEach(ilace => {
         let width = ilace.j_right-ilace.j_left;
         if(width <= max_ilace_width){
@@ -930,7 +930,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
      */
     export const createWarpLayerMap = (draft: Draft, topo: Array<TopologyVtx>, sim: SimulationVars, active_layers: Array<number>, max_layer: number) : Promise<Array<Array<number>>> => {
     
-    console.log("TOPO ", topo)
+   // console.log("TOPO ", topo)
 
     //get the closest weft interlacements 
     const max_height = topo.reduce((acc, val) => {
@@ -938,7 +938,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       return acc;
     }, 0);
 
-    console.log("MAX HEIGHT ", max_height)
+    //console.log("MAX HEIGHT ", max_height)
 
     //start from the smallest width to the largest  
     //push interlacements to the map in this order, not adding any additional. 
@@ -960,7 +960,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       
     }
 
-    console.log("LAYER MAP AFTER ILACES ", layer_map)
+    //console.log("LAYER MAP AFTER ILACES ", layer_map)
 
     
 
@@ -1068,7 +1068,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
 
       //now clean up 
-      console.log("WARP LAYER MAP", layer_map)
+      //console.log("WARP LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
      
     }
@@ -1188,7 +1188,7 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
         })
       })
 
-      console.log("WEFT LAYER MAP", layer_map)
+      //console.log("WEFT LAYER MAP", layer_map)
       return Promise.resolve(layer_map);
 
     }
