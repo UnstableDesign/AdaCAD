@@ -221,6 +221,35 @@ export class SimulationService {
     })
   }
 
+  /**
+   * called when a rendering value changes that does not require a full recalculation of the simulation data
+   */
+  public redrawCurrentSim(scene, draft: Draft, warps: boolean, wefts: boolean, warp_layer: boolean,weft_layers: boolean, topo: boolean, show_draft: boolean){
+    
+    //update warp material colors
+    draft.colShuttleMapping.forEach((material_id, j)=> {
+      let color = this.ms.getColorForSim(material_id);
+      const render_color = new THREE.Color(color);
+        let warp_render = scene.getObjectByName('warp-'+j);
+        warp_render.material.color.set(render_color);
+
+    })
+
+    draft.rowShuttleMapping.forEach((material_id, j)=> {
+      let color = this.ms.getColorForSim(material_id);
+      const render_color = new THREE.Color(color);
+        let weft_render = scene.getObjectByName('weft-'+j);
+        weft_render.material.color.set(render_color);
+
+    })
+
+
+
+
+    
+  }
+
+
   public renderSimdata(scene, simdata: SimulationData, warps: boolean, wefts: boolean, warp_layer: boolean,weft_layers: boolean, topo: boolean, show_draft: boolean){
     this.hasSimulation = true;
 
@@ -242,7 +271,7 @@ export class SimulationService {
    
     this.drawAxis(scene, simdata, boundary_vtx);
     this.drawYarns(scene, simdata, boundary_vtx);
-    this.drawEndCaps(scene, simdata, boundary_vtx);
+    //this.drawEndCaps(scene, simdata, boundary_vtx);
     this.drawWarpLayerMap(scene, boundary_vtx);
     this.drawWeftLayerMap(scene, boundary_vtx);
     this.drawTopology(scene, boundary_vtx);
@@ -392,7 +421,9 @@ export class SimulationService {
   drawYarns(scene, simdata: SimulationData, boundary_vtx: any){
 
     this.warp_scene =  new THREE.Group();
+    this.warp_scene.name = 'warp-scene'
     this.weft_scene =  new THREE.Group();
+    this.weft_scene.name = 'weft-scene'
 
     const vtxs = simdata.vtxs;
     const draft = simdata.draft;
@@ -405,7 +436,7 @@ export class SimulationService {
       if(vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
       const material_id = draft.colShuttleMapping[j];
       let diameter = this.ms.getDiameter(material_id);
-      let color = this.ms.getColor(material_id);
+      let color = this.ms.getColorForSim(material_id);
 
 
       let in_bounds_vxts = simdata.vtxs.warps[j].filter(el => el.i >= simdata.bounds.topleft.y && el.i < simdata.bounds.topleft.y + simdata.bounds.height);
@@ -434,7 +465,7 @@ export class SimulationService {
         } );     
       
       let curveObject = new THREE.Mesh( geometry, material );
-
+      curveObject.name = 'warp-'+(j-simdata.bounds.topleft.x);
 
       this.warp_scene.add(curveObject);
       }
@@ -472,7 +503,7 @@ export class SimulationService {
 
       const material_id = draft.rowShuttleMapping[i];
       let diameter = this.ms.getDiameter(material_id);
-      let color = this.ms.getColor(material_id)
+      let color = this.ms.getColorForSim(material_id)
 
       const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
       const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
@@ -487,6 +518,8 @@ export class SimulationService {
         reflectivity: 0.0
         } );        
         let curveObject = new THREE.Mesh( geometry, material );
+        curveObject.name = 'weft-'+(i-simdata.bounds.topleft.y);
+
         this.weft_scene.add(curveObject);
 
           
@@ -988,7 +1021,7 @@ export class SimulationService {
 
       const material_id = draft.colShuttleMapping[j];
       let diameter = ms.getDiameter(material_id);
-      const color = this.ms.getColor(material_id)
+      const color = this.ms.getColorForSim(material_id)
 
 
       const top_geometry = new THREE.CircleGeometry( diameter/2, 32 );
@@ -1029,7 +1062,7 @@ export class SimulationService {
 
       const material_id = draft.rowShuttleMapping[i];
       let diameter = ms.getDiameter(material_id);
-      const color = this.ms.getColor(material_id)
+      const color = this.ms.getColorForSim(material_id)
 
       const top_geometry = new THREE.CircleGeometry(  diameter/2, 32 );
       top_geometry.rotateY(3*Math.PI/2);

@@ -172,6 +172,8 @@ export class DraftDetailComponent implements OnInit {
     }else{
       const dvdiv = document.getElementById('sim_viewer');
       dvdiv.style.display = 'flex';
+      this.redrawSimulation();
+
     }
 
   }
@@ -275,15 +277,31 @@ export class DraftDetailComponent implements OnInit {
     this.simRef.unsetSelection();
     this.weaveRef.unsetSelection();
   }
-  public onDrawdownUpdate(obj: any){
+
+  public drawdownUpdated(){
+    console.log("DRAWDOWN CHANGE ")
+
+    this.simRef.setDirty();
     this.redrawSimulation()
   }
+
+
+  public materialChange() {
+    console.log("MATERIAL CHANGE ")
+    this.simRef.redrawCurrentSim();
+  }
+  
+  
+
+
 
   
   public redrawSimulation(){
     let draft = this.tree.getDraft(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);
-    this.simRef.updateSimulation(draft, loom_settings);
+
+    if(!this.viewer_expanded)
+     this.simRef.updateSimulation(draft, loom_settings);
   }
 
   
@@ -321,16 +339,6 @@ export class DraftDetailComponent implements OnInit {
     console.log(e);
   }
 
-
-  /**
-   */
-   public materialChange() {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, warp_materials:true,  weft_materials:true});
-    //this.timeline.addHistoryState(this.draft);
-  }
 
 
 

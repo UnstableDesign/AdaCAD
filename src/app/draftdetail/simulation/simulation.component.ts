@@ -43,6 +43,7 @@ export class SimulationComponent implements OnInit {
   current_simdata: SimulationData = null;
   tanFOV: number = 0;
   originalHeight: number = 0; 
+  dirty: boolean; //flags the need to recompute 
 
 
   constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
@@ -116,6 +117,15 @@ export class SimulationComponent implements OnInit {
   }
 
 
+  setDirty(){
+    this.dirty = true;
+  }
+
+  unsetDirty(){
+    this.dirty = false;
+  }
+
+
   endSimulation(){
     this.simulation.endSimulation(this.scene);
   }
@@ -183,7 +193,6 @@ export class SimulationComponent implements OnInit {
   }
 
   unsetSelection(){
-    console.log("unset selection")
     this.current_simdata.bounds = {
       topleft: {x: 0, y: 0},
       width: warps(this.draft.drawdown), 
@@ -200,6 +209,10 @@ export class SimulationComponent implements OnInit {
    * @param loom_settings 
    */
   updateSimulation(draft: Draft, loom_settings){
+
+    if(!this.dirty) return; //only recalc and redraw when there is a change that requires it. 
+
+
     this.draft = draft;
     this.loom_settings = loom_settings;
     this.simulation.recalcSimData(
@@ -290,23 +303,34 @@ export class SimulationComponent implements OnInit {
     });
   }
 
+  
   changeLayerSpacing(e: any){
 
-    this.simulation.recalcSimData(
-      this.scene, 
-      this.draft, 
-      convertEPItoMM(this.loom_settings), 
-      this.layer_spacing, 
-      this.layer_threshold, 
-      this.max_interlacement_width, 
-      this.max_interlacement_height,
-      this.boundary,
-      this.radius,
-      this.ms
-      ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
-    });
+    this.simulation.redrawCurrentSim(this.scene, this.draft, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft)
+
+    // this.simulation.recalcSimData(
+    //   this.scene, 
+    //   this.draft, 
+    //   convertEPItoMM(this.loom_settings), 
+    //   this.layer_spacing, 
+    //   this.layer_threshold, 
+    //   this.max_interlacement_width, 
+    //   this.max_interlacement_height,
+    //   this.boundary,
+    //   this.radius,
+    //   this.ms
+    //   ).then(simdata => {
+    //   this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
+    // });
   }
+
+
+  //this will update the colors on the current sim without recomputing the layer maps
+  redrawCurrentSim(){
+    this.simulation.redrawCurrentSim(this.scene, this.draft, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft)
+
+  }
+
 
   changeILaceWidth(){
 
@@ -355,9 +379,6 @@ export class SimulationComponent implements OnInit {
     this.sim_expanded = !this.sim_expanded;
     this.onWindowResize();
   
-
-
-
   }
 
   /**

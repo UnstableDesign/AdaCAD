@@ -1165,7 +1165,7 @@ export class DraftviewerComponent implements OnInit {
 
     this.tree.setDraftOnly(this.id, draft);
     this.rowShuttleMapping = draft.rowShuttleMapping;
-    this.onDrawdownUpdated.emit(draft);
+    this.onMaterialChange.emit(draft);
 
   }
 
@@ -1202,7 +1202,7 @@ export class DraftviewerComponent implements OnInit {
 
     this.tree.setDraftOnly(this.id, draft);
     this.colShuttleMapping = draft.colShuttleMapping;
-    this.onDrawdownUpdated.emit(draft);
+    this.onMaterialChange.emit(draft);
 
 
    
@@ -2755,6 +2755,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       f.value.epi = new_epi;
       this.tree.setLoomSettings(this.id, loom_settings);
       this.redraw(draft, loom, loom_settings, {loom: true});
+      this.onDrawdownUpdated.emit()
     // }else{
     //   var new_warps = (loom_settings.units === "in") 
     //   ? Math.ceil(f.value.width * f.value.epi) : 
@@ -2811,6 +2812,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
             warp_systems: true, 
             warp_materials: true,
           });
+          this.onDrawdownUpdated.emit()
+
         })
   
     }else{
@@ -2822,6 +2825,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           warp_systems: true, 
           warp_materials: true,
         });
+        this.onDrawdownUpdated.emit()
+
       })
   
     }
@@ -2900,6 +2905,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           weft_systems: true, 
           weft_materials: true,
         });
+        this.onDrawdownUpdated.emit()
+
       })
     }else{
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
@@ -2910,7 +2917,9 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           loom:true, 
           weft_systems: true, 
           weft_materials: true,
-        });    
+        });  
+        this.onDrawdownUpdated.emit()
+  
       })
     }
    
@@ -3021,7 +3030,7 @@ epiChange(f: NgForm) {
   this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
   f.value.width = this.width;
   
-  this.onDrawdownUpdated.emit(draft);
+  this.onMaterialChange.emit(draft);
 
 
   }
