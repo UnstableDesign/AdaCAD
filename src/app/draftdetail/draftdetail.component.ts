@@ -36,7 +36,6 @@ export class DraftDetailComponent implements OnInit {
   @ViewChild(SimulationComponent, {static: true}) simRef;
   
 
-  @Input()   new_draft_flag$: Subject<any>;
   @Output() closeDrawer: any = new EventEmitter();
 
   id: number = -1;  
@@ -186,6 +185,8 @@ export class DraftDetailComponent implements OnInit {
    * @param id 
    */
   loadDraft(id: number) : Promise<any> {
+
+
       //reset the dirty value every time the window is open
     this.weaveRef.is_dirty = false;
 
@@ -198,7 +199,7 @@ export class DraftDetailComponent implements OnInit {
       this.loom_settings = this.tree.getLoomSettings(id);
       this.render.loadNewDraft(this.draft);
       this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
-      // return this.simRef.loadNewDraft(this.draft, this.loom_settings);
+      return this.simRef.loadNewDraft(this.draft, this.loom_settings);
     }else{
       this.clone_id  = id;
       const newid = this.tree.createNode('draft', null, null);
@@ -229,7 +230,7 @@ export class DraftDetailComponent implements OnInit {
     
         this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
       
-        // return this.simRef.loadNewDraft(this.draft, this.loom_settings);
+        return this.simRef.loadNewDraft(this.draft, this.loom_settings);
 
         })
     }

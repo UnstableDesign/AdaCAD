@@ -62,12 +62,6 @@ export class SimulationComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.new_draft_flag$.subscribe(id => {
-      const draft = this.tree.getDraft(id);
-      const loom_settings = this.tree.getLoomSettings(id);
-      console.log("LOAD NEW DRAFT");
-      this.loadNewDraft(draft, loom_settings);
-    })
     
   }
 

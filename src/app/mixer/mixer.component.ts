@@ -104,7 +104,6 @@ export class MixerComponent implements OnInit {
 
   selected_nodes_copy: any = null;
 
-  new_draft_flag$ = new Subject<any>();
 
 
   /// ANGULAR FUNCTIONS
@@ -1279,7 +1278,6 @@ loomChange(e:any){
     this.dm.selectDesignMode('toggle','draw_modes')
     this.detail_drawer.open().then(res => {
        this.details.loadDraft(id);
-      this.new_draft_flag$.next(id)
     })
 
 

@@ -1,5 +1,15 @@
 
-
+<div class="tool-chunk">
+    <div class="expand"      
+   [class.expanded] ="expanded"
+  >
+    <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
+      <i *ngIf='!expanded' class="fa-solid fa-maximize"></i>
+      <i *ngIf='expanded' class="fa-solid fa-minimize"></i>
+        </button>
+  </div>
+  <h1>Draft</h1>
+</div>
 
 
 <!-- WEAVER EDITING TOOLS -->
@@ -120,17 +130,7 @@
     </div>
     
 
-    <div class="tool-chunk">
-         <div class="expand"      
-        [class.expanded] ="expanded"
-       >
-         <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
-           <i *ngIf='!expanded' class="fa-solid fa-maximize"></i>
-           <i *ngIf='expanded' class="fa-solid fa-minimize"></i>
-             </button>
-       </div>
-       <h1>Draft</h1>
-    </div>
+ 
 
 <!-- VIEW TOOLS -->
 
