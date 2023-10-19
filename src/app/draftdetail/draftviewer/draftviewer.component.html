@@ -1,15 +1,28 @@
+<app-sidebar id="draft_sidebar"
+#sidebar
+[expanded]="expanded"
+(onDesignModeChange)='designModeChange($event)'
+(onZoomChange) ="renderChange($event);"
+(onViewChange) ="viewChange($event);"
+(onHideWeftSystem)="hideWeftSystem($event);"
+(onShowWeftSystem)="showWeftSystem($event);"
+(onHideWarpSystem)="hideWarpSystem($event);"
+(onShowWarpSystem)="showWarpSystem($event);"
+(onLocalLoomNeedsRedraw)="redrawLoomAndDraft()"
+(onUpdateWarpSystems) = "updateWarpSystems($event)"
+(onUpdateWeftSystems) = "updateWeftSystems($event)"
+(onUpdateWarpShuttles) = "updateWarpShuttles($event)"
+(onUpdateWeftShuttles) = "updateWeftShuttles($event)"
+(onExpand)="expand()"
+></app-sidebar>
+
+
+
 <div class="draft-container {{source}}"  [class.expanded] ="expanded" id="draft-container">
 
-  <div class="expand"      
-   [class.expanded] ="expanded"
-  >
-    <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
-      <i *ngIf='!expanded' class="fa-solid fa-maximize"></i>
-      <i *ngIf='expanded' class="fa-solid fa-minimize"></i>
-        </button>
-  </div>
-  
+
     <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
+
 
       <app-selection 
       #selection
@@ -29,10 +42,12 @@
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
           [style.width.px] = "cell_size"
           *ngFor="let i of colSystemMapping; let j = index;" >
-          <a class="warp-material" 
+          <a class="warp-material"
+          id="warp-material-{{j}}"
           [style.background-color]="this.ms.getColor(colShuttleMapping[j])" 
           [style.width.px]="cell_size-1"
           [style.height.px]="cell_size-1"
+          (mouseover)="checkForPaint('warp', j, $event)"
           (click)="incrementWarpMaterial(j)">   
           </a>
             <a class="warp-system" (click)="incrementWarpSystem(j)"> {{i+1}}</a>
@@ -90,9 +105,11 @@
             *ngFor="let i of (render?.visibleRows); let j = index;" >
                
             <a class="weft-material" 
+            id="weft-material-{{j}}"
             [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" 
             [style.width.px]="cell_size-1"
             [style.height.px]="cell_size-1"
+            (mouseover)="checkForPaint('weft', j, $event)"
             (click)="incrementWeftMaterial(j)"> 
             </a>
             

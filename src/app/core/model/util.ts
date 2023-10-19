@@ -286,6 +286,8 @@ class Util {
   computeFilter(ink: string, a: boolean, b: boolean):boolean{
       switch(ink){
         case 'neq':
+          if(a == null) return b;
+          if(b == null) return a;
           return (a !== b);
         break;
   

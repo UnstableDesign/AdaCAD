@@ -1,32 +1,34 @@
 
-<div class="sidebar">
-    <!--on both weaver and mixer-->
 
-    <div class="tool-chunk" >
-
-        <button 
-        mat-icon-button
-        color="primary" 
-        (click)="closeDetailView()">
-        <i class="fa fa-angle-double-right"></i> 
-        </button>
-
-
-    </div>
 
 
 <!-- WEAVER EDITING TOOLS -->
     <div class="tool-chunk">
 
 
+
         <button 
         mat-icon-button
-        color="primary"
         matTooltip= "Edit Draft Cells"
         [matMenuTriggerFor]="inks"
-        [class.is-active]="dm.isSelected('draw','design_modes')"        >
+        [class.is-active]="dm.isSelected('draw','design_modes') && !dm.isSelected('material', 'draw_modes')"        >
         <i class="fas fa-edit"></i>
         </button>
+
+        <!-- <ng-container *ngFor="let mode of dm.draw_modes">
+            <button *ngIf="mode.value !== 'material'"
+            mat-icon-button
+            color="primary"
+
+        [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
+        [name] = "mode.value"
+        [disabled]= "viewonly"
+        (click)="drawModeChange(mode.value)">
+            <span class="{{mode.icon}}"></span>
+        </button>
+        </ng-container>
+ -->
+
 
         <mat-menu #inks="matMenu">
             <ng-container *ngFor="let mode of dm.draw_modes">
@@ -50,7 +52,7 @@
         color="primary"
         matTooltip= "Set Colors"
         [matMenuTriggerFor]="colors"
-        [class.is-active]="dm.isSelected('draw','design_modes')"        >
+        [class.is-active]="dm.isSelected('draw','design_modes') && dm.isSelected('material', 'draw_modes')"        >
         <i class="fa-solid fa-paintbrush"></i>
         </button>
 
@@ -68,6 +70,8 @@
 
         </mat-menu>
 
+
+
         <button 
         mat-icon-button
         color="primary"
@@ -84,14 +88,6 @@
         [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
         (click)='openActions()'><i class="fas fa-magic"></i></button>
 
-        <!-- <button
-            mat-icon-button
-            matTooltip="Design with ML"
-            (click)="engageMLMode()">
-            <i class="fas fa-robot"></i>
-        </button>
-
-        -->
 
 
         <!-- <button 
@@ -123,6 +119,18 @@
 
     </div>
     
+
+    <div class="tool-chunk">
+         <div class="expand"      
+        [class.expanded] ="expanded"
+       >
+         <button mat-icon-button color="primary" (click)="expand()" aria-label="expand to view simuation full screen">
+           <i *ngIf='!expanded' class="fa-solid fa-maximize"></i>
+           <i *ngIf='expanded' class="fa-solid fa-minimize"></i>
+             </button>
+       </div>
+       <h1>Draft</h1>
+    </div>
 
 <!-- VIEW TOOLS -->
 
@@ -216,4 +224,3 @@
     </div> -->
 
 
-</div>

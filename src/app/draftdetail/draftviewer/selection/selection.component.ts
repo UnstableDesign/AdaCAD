@@ -26,6 +26,8 @@ export class SelectionComponent implements OnInit {
   public height: number;
   private target: any;
 
+  private has_selection = false;
+
   public design_actions: Array<any>;
 
   screen_width: number;
@@ -215,7 +217,7 @@ export class SelectionComponent implements OnInit {
     //set view flags
     this.hide_options = true;
     this.hide_parent = false;
-
+    this.has_selection = true;
     this.redraw();
 
 
@@ -301,8 +303,6 @@ export class SelectionComponent implements OnInit {
   }
 
   onSelectCancel(){
-    this.hide_options = true;
-    this.hide_parent = true;
     this.unsetParameters();
   }
 
@@ -371,6 +371,7 @@ export class SelectionComponent implements OnInit {
 
 
   unsetParameters() {
+    this.has_selection = false;
     this.width = -1;
     this.height = -1;
     this.force_width = false;
@@ -380,7 +381,7 @@ export class SelectionComponent implements OnInit {
   }
 
   hasSelection(){
-    return (this.width > 0 && this.height > 0);
+    return (this.width > 0 && this.height > 0 && this.has_selection);
   }
 
   getTop(){

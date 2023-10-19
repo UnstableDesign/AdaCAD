@@ -17,7 +17,7 @@ import { SelectionComponent } from './selection/selection.component';
 import { NgForm } from '@angular/forms';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import {defaults} from '../../core/model/defaults'
-import { K } from '@angular/cdk/keycodes';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 @Component({
   selector: 'app-draftviewer',
@@ -29,6 +29,7 @@ export class DraftviewerComponent implements OnInit {
   @ViewChild('bitmapImage') bitmap;
 
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
+  @ViewChild(SidebarComponent, {static: true}) sidebar;
 
 
   @Input('id') id = -1;
@@ -53,7 +54,9 @@ export class DraftviewerComponent implements OnInit {
    @Output() onNewSelection = new EventEmitter();
    @Output() onDrawdownUpdated = new EventEmitter();
    @Output() onViewerExpanded = new EventEmitter();
- 
+   @Output() onDesignModeChange = new EventEmitter();
+   @Output() onMaterialChange = new EventEmitter();
+
   hold_copy_for_paste: boolean = false;
 
   //store this here as you need it to draw the view
@@ -133,6 +136,8 @@ export class DraftviewerComponent implements OnInit {
    copy: Drawdown;
 
    is_dirty: boolean = false;
+
+   mouse_pressed: boolean = false; 
  
  
    /**
@@ -332,8 +337,7 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
-    console.log("LOADING NEW DRAFT ", draft.id, draft.drawdown)
-    
+    this.is_dirty = false;
     
     this.loom_settings = loom_settings;
     const frames = Math.max(numFrames(loom), loom_settings.frames);
@@ -432,6 +436,8 @@ export class DraftviewerComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+    this.mouse_pressed = true;
+
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
@@ -507,6 +513,7 @@ export class DraftviewerComponent implements OnInit {
 
         case 'weft-materials':
         case 'weft-systems':
+          console.log("WEFT SYSTEMS MOUSE DOWN")
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           break;
       }
@@ -631,6 +638,7 @@ export class DraftviewerComponent implements OnInit {
           case 'down':
           case 'unset':
           case 'material':
+          case 'toggle':
           //this.unsetSelection();
 
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
@@ -676,6 +684,9 @@ export class DraftviewerComponent implements OnInit {
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
+    this.mouse_pressed = false;
+
+
     const draft = this.tree.getDraft(this.id);
 
 
@@ -709,7 +720,11 @@ export class DraftviewerComponent implements OnInit {
    * This is emitted from the selection
    */
   onSelectionEnd(){
+
+    if(!this.selection.hasSelection()) return;
+
     if(!this.hold_copy_for_paste) this.copyArea();
+    
     this.onNewSelection.emit(
       { 
         id: this.id, 
@@ -728,6 +743,10 @@ export class DraftviewerComponent implements OnInit {
     }
   }
 
+  private hasSelection() : boolean {
+    return this.selection.hasSelection();
+  }
+
   /**
    * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d arrray representing the 
    * threading or treadling with "true" in the frame/threadle associated with that col/row. 
@@ -735,6 +754,8 @@ export class DraftviewerComponent implements OnInit {
    * @returns {void}
    */
   private copyArea() {
+
+    
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -1119,6 +1140,7 @@ export class DraftviewerComponent implements OnInit {
     let weft = this.render.visibleRows[i];
     var newSystem = this.ss.getNextWeftSystem(weft, draft);
     draft.rowSystemMapping[weft] = newSystem;
+    this.rowSystemMapping = draft.rowSystemMapping.slice();
     this.tree.setDraftOnly(this.id, draft);
 
 
@@ -1156,6 +1178,8 @@ export class DraftviewerComponent implements OnInit {
     var newSystem = this.ss.getNextWarpSystem(j,draft);
     console.log(newSystem, j);
     draft.colSystemMapping[j] = newSystem;
+    this.colSystemMapping = draft.colSystemMapping.slice();
+
     this.tree.setDraftOnly(this.id, draft);
     // this.cdRef.detectChanges();
 
@@ -3003,8 +3027,200 @@ epiChange(f: NgForm) {
   }
 
 
+  public checkForPaint(source: string, index: number, event: any){
+    const draft = this.tree.getDraft(this.id);
+    if(this.dm.isSelected('material', 'draw_modes') && this.mouse_pressed){
+      
+      const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
+      if(source == 'weft') draft.rowShuttleMapping[index] = parseInt(material_id);
+      if(source == 'warp') draft.colShuttleMapping[index] = parseInt(material_id);
+      this.onMaterialChange.emit();
+
+    } 
 
 
+
+  }
+
+
+  public updateWarpSystems(pattern: Array<number>) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
+    this.tree.setDraftOnly(this.id, draft);
+    this.redraw(draft, loom, loom_settings, {drawdown: true, warp_systems: true});
+    
+  }
+
+  public updateWeftSystems(pattern: Array<number>) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
+    this.rowSystemMapping = draft.rowSystemMapping.slice();
+    this.tree.setDraftOnly(this.id, draft);
+     this.redraw(draft, loom, loom_settings, {drawdown: true, weft_systems: true});
+     
+  }
+
+  public updateWarpShuttles(pattern: Array<number>) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    
+    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
+    this.tree.setDraftOnly(this.id, draft);
+    this.colShuttleMapping = draft.colShuttleMapping.slice();
+
+     this.redraw(draft, loom, loom_settings,{drawdown: true, warp_materials: true});
+     this.onMaterialChange.emit();
+
+  }
+
+  public updateWeftShuttles(pattern: Array<number>) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
+    this.tree.setDraftOnly(this.id, draft);
+    this.rowShuttleMapping = draft.rowShuttleMapping.slice();
+     this.redraw(draft, loom, loom_settings,{drawdown: true, weft_materials: true});
+
+     this.onMaterialChange.emit();
+
+  }
+
+
+  /**
+   * Updates the canvas based on the weave view.
+   * @extends WeaveComponent
+   * @param {Event} e - view change event from design component.
+   * @returns {void}
+   */
+  public viewChange(value: any) {
+    
+    // const draft = this.tree.getDraft(this.id);
+    // const loom = this.tree.getDraft(this.id);
+    // const loom_settings = this.tree.getDraft(this.id);
+
+    // this.dm.selectDesignMode(value, 'view_modes');
+    // this.render.setCurrentView(value);
+
+
+    // // this.redraw(draft, loom, loom_settings,  {
+    // //   drawdown: true
+    // // });
+  }
+
+  public renderChange(e: any){
+
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+     
+     if(e.source === "slider"){
+        this.render.setZoom(e.value);
+        this.rescale(this.render.getZoom());
+
+     } 
+
+     if(e.source === "in"){
+        this.render.zoomIn();
+        this.rescale(this.render.getZoom());
+
+
+     } 
+
+     if(e.source === "out"){
+        this.render.zoomOut();
+        this.rescale(this.render.getZoom());
+
+
+     } 
+     if(e.source === "front"){
+        this.render.setFront(!e.checked);
+        this.flip();
+        this.redraw(draft, loom, loom_settings, {drawdown:true});
+     }      
+  }
+
+
+  public redrawLoomAndDraft(){
+
+    const draft = this.tree.getDraft(this.id)
+    const loom = this.tree.getLoom(this.id)
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.render.updateVisible(draft);
+
+    const is_frame = isFrame(loom_settings);
+    if(is_frame){
+      this.isFrame = true;
+    }else{
+      this.isFrame = false;
+    }
+    this.colShuttleMapping = draft.colShuttleMapping.slice();
+    this.rowShuttleMapping = draft.rowShuttleMapping.slice();
+    this.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, warp_systems: true, warp_materials: true, weft_systems: true, weft_materials:true});
+  
+  }
+
+    /**
+   * Change the name of the brush to reflect selected brush.
+   * @extends WeaveComponent
+   * @param {Event} e - brush change event from design component.
+   * @returns {void}
+   */
+    public designModeChange(e:any) {
+
+      this.unsetSelection();
+      this.onDesignModeChange.emit(e)
+;  
+    }
+  
+
+
+  public createShuttle(e: any) {
+    this.ms.addShuttle(e.shuttle); 
+  }
+
+  // public createWarpSystem(e: any) {
+  //   this.draft.addWarpSystem(e.system);
+  // }
+
+  // public createWeftSystem(e: any) {
+  //   this.draft.addWarpSystem(e.system);
+  // }
+
+  public hideWarpSystem(e:any) {
+    
+    //this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+  }
+
+  public showWarpSystem(e:any) {
+
+   // this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
+  }  
+
+  public hideWeftSystem(e:any) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    
+    this.render.updateVisible(draft);
+    
+    // this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+  }
+
+  public showWeftSystem(e:any) {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    
+    this.render.updateVisible(draft);
+
+    // this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+  }
 
  
 

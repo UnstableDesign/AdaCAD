@@ -4,7 +4,7 @@ import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { Draft, Drawdown, Loom, LoomSettings, Cell } from '../core/model/datatypes';
-import { copyDraft, createDraft, generateMappingFromPattern } from '../core/model/drafts';
+import { copyDraft, createDraft, generateMappingFromPattern, getDraftName } from '../core/model/drafts';
 import { copyLoom, isFrame } from '../core/model/looms';
 import { RenderService } from './provider/render.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -15,8 +15,6 @@ import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { CrosssectionComponent } from './crosssection/crosssection.component';
 import { SimulationComponent } from './simulation/simulation.component';
 import { createCell } from '../core/model/cell';
 import utilInstance from '../core/model/util';
@@ -36,8 +34,6 @@ export class DraftDetailComponent implements OnInit {
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
   @ViewChild(SimulationComponent, {static: true}) simRef;
-  @ViewChild(SidebarComponent, {static: true}) sidebar;
-  @ViewChild(CrosssectionComponent, {static: false}) crosssection: CrosssectionComponent;
   
 
   @Output() closeDrawer: any = new EventEmitter();
@@ -66,6 +62,8 @@ export class DraftDetailComponent implements OnInit {
   dims:any;
 
   draftelement:any;
+
+  draftname: string = "";
 
   scrollingSubscription: any;
 
@@ -130,7 +128,7 @@ export class DraftDetailComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    
+
 
   
     
@@ -147,27 +145,32 @@ export class DraftDetailComponent implements OnInit {
     this.sim_expanded = !this.sim_expanded;
 
     if(this.sim_expanded){
-      const sbdiv = document.getElementById('sidebar');
-      sbdiv.style.display = 'none';
-      const dvdiv = document.getElementById('draft_viewer');
+      const dvdiv = document.getElementById('draft-container');
       dvdiv.style.display = 'none';
+      const el = document.getElementById('draft_sidebar');
+      el.style.display = "none";
     }else{
-      const sbdiv = document.getElementById('sidebar');
-      sbdiv.style.display = 'flex';
-      const dvdiv = document.getElementById('draft_viewer');
+      const dvdiv = document.getElementById('draft-container');
       dvdiv.style.display = 'flex';
+      const el = document.getElementById('draft_sidebar');
+      el.style.display = "flex";
     }
 
   }
+
+  closeDetailView(){
+    this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
+  }
+
 
   expandViewer(){
     this.viewer_expanded = !this.viewer_expanded;
 
     if(this.viewer_expanded){
-      const dvdiv = document.getElementById('simulation_container');
+      const dvdiv = document.getElementById('sim_viewer');
       dvdiv.style.display = 'none';
     }else{
-      const dvdiv = document.getElementById('simulation_container');
+      const dvdiv = document.getElementById('sim_viewer');
       dvdiv.style.display = 'flex';
     }
 
@@ -179,11 +182,14 @@ export class DraftDetailComponent implements OnInit {
    * @param id 
    */
   loadDraft(id: number){
+      //reset the dirty value every time the window is open
+      this.weaveRef.is_dirty = false;
 
     if(!this.tree.hasParent(id)){
       this.id = id;
       this.clone_id = -1;
       this.draft = this.tree.getDraft(id);
+      this.draftname = getDraftName(this.draft)
       this.loom = this.tree.getLoom(id);
       this.loom_settings = this.tree.getLoomSettings(id);
       this.viewonly = this.tree.hasParent(id);
@@ -196,6 +202,8 @@ export class DraftDetailComponent implements OnInit {
 
       let d = this.tree.getDraft(id);
       this.draft= copyDraft(d);
+      this.draftname = getDraftName(this.draft)
+
       this.draft.id =newid;
       this.id = newid;
 
@@ -245,52 +253,34 @@ export class DraftDetailComponent implements OnInit {
 
 
 
-  public closeAllModals(){
-    this.sidebar.closeWeaverModals();
-  }
+  // public closeAllModals(){
+  //   this.sidebar.closeWeaverModals();
+  // }
 
-  /**
-   * Updates the canvas based on the weave view.
-   * @extends WeaveComponent
-   * @param {Event} e - view change event from design component.
-   * @returns {void}
-   */
-  public viewChange(value: any) {
-    
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getDraft(this.id);
-    const loom_settings = this.tree.getDraft(this.id);
-
-    this.dm.selectDesignMode(value, 'view_modes');
-    this.render.setCurrentView(value);
-
-
-    this.weaveRef.redraw(draft, loom, loom_settings,  {
-      drawdown: true
-    });
-  }
 
   public onCloseDrawer(){
-    this.weaveRef.clearSelection();
-    this.simRef.clearSelection();
+    this.weaveRef.unsetSelection();
+    this.simRef.unsetSelection();
     this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
   }
 
+
   /**
-   * Change the name of the brush to reflect selected brush.
-   * @extends WeaveComponent
-   * @param {Event} e - brush change event from design component.
-   * @returns {void}
+   * this is emitted from the detail viewer to indicate that something changed on the draft while it was in detail view. 
+   * if this is a generated draft, it now needs to be cloned on window close. If not, an update on the draft chain needs to be called for the original draft
+   * @param obj {id: the draft id}
    */
   public designModeChange(e:any) {
-
-
+    console.log("design mode change", e)
+    this.simRef.unsetSelection();
     this.weaveRef.unsetSelection();
-
+  }
+  public onDrawdownUpdate(obj: any){
+    this.redrawSimulation()
   }
 
   
-  public redrawSimulation(e: any){
+  public redrawSimulation(){
     let draft = this.tree.getDraft(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);
     this.simRef.updateSimulation(draft, loom_settings);
@@ -346,117 +336,8 @@ export class DraftDetailComponent implements OnInit {
 
 
 
-  /**
-   * Inserts an empty row on system, system
-   */
-  public shuttleColorChange() {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, warp_materials:true,  weft_materials:true});
-   // this.timeline.addHistoryState(this.draft);
-  }
-
-  public updateWarpSystems(pattern: Array<number>) {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
-    this.tree.setDraftOnly(this.id, draft);
-    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, warp_systems: true});
-  }
-
-  public updateWeftSystems(pattern: Array<number>) {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
-    this.tree.setDraftOnly(this.id, draft);
-    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, weft_systems: true});
-  }
-
-  public updateWarpShuttles(pattern: Array<number>) {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    
-    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
-    this.tree.setDraftOnly(this.id, draft);
-
-    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, warp_materials: true});
-  }
-
-  public updateWeftShuttles(pattern: Array<number>) {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
-    this.tree.setDraftOnly(this.id, draft);
-
-    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, weft_materials: true});
-  }
 
 
-  public createShuttle(e: any) {
-    this.ms.addShuttle(e.shuttle); 
-  }
-
-  // public createWarpSystem(e: any) {
-  //   this.draft.addWarpSystem(e.system);
-  // }
-
-  // public createWeftSystem(e: any) {
-  //   this.draft.addWarpSystem(e.system);
-  // }
-
-  public hideWarpSystem(e:any) {
-    
-    //this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-  }
-
-  public showWarpSystem(e:any) {
-
-   // this.weaveRef.redraw({drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-  }  
-
-  public hideWeftSystem(e:any) {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    
-    this.render.updateVisible(draft);
-    
-    this.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-  }
-
-  public showWeftSystem(e:any) {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    
-    this.render.updateVisible(draft);
-
-    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-  }
-
-
-  public redrawLoomAndDraft(){
-
-    const draft = this.tree.getDraft(this.id)
-    const loom = this.tree.getLoom(this.id)
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    this.render.updateVisible(draft);
-
-    const is_frame = isFrame(loom_settings);
-    if(is_frame){
-      this.weaveRef.isFrame = true;
-    }else{
-      this.weaveRef.isFrame = false;
-    }
-    this.weaveRef.colShuttleMapping = draft.colShuttleMapping.slice();
-    this.weaveRef.rowShuttleMapping = draft.rowShuttleMapping.slice();
-    this.weaveRef.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, warp_systems: true, warp_materials: true, weft_systems: true, weft_materials:true});
-  }
 
   /**
    * when a change happens to the defaults for looms, we must update all looms on screen
@@ -510,6 +391,7 @@ export class DraftDetailComponent implements OnInit {
 
 
   public updateSelection(e:any){
+    if(!this.weaveRef.hasSelection()) return;
     if(e.copy !== undefined) this.copy = e;
     if(e.id !== undefined) this.simRef.updateSelection(e.start, e.end);
   }
@@ -517,37 +399,7 @@ export class DraftDetailComponent implements OnInit {
 
 
 
-  public renderChange(e: any){
-
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-     
-     if(e.source === "slider"){
-        this.render.setZoom(e.value);
-        this.weaveRef.rescale(this.render.getZoom());
-
-     } 
-
-     if(e.source === "in"){
-        this.render.zoomIn();
-        this.weaveRef.rescale(this.render.getZoom());
-
-
-     } 
-
-     if(e.source === "out"){
-        this.render.zoomOut();
-        this.weaveRef.rescale(this.render.getZoom());
-
-
-     } 
-     if(e.source === "front"){
-        this.render.setFront(!e.checked);
-        this.weaveRef.flip();
-        this.weaveRef.redraw(draft, loom, loom_settings, {drawdown:true});
-     }      
-  }
+ 
 
   public toggleCollapsed(){
     this.collapsed = !this.collapsed;

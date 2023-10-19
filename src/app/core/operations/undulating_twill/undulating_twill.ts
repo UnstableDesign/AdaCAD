@@ -19,12 +19,12 @@ const string_input:StringParam =
 };
 
 const shift_pattern:StringParam =  
-    {name: 'first pic pattern',
+    {name: 'shift pattern',
     type: 'string',
     regex: /(\d+)/,
     value: '1 1 1 2 2 3',
     error: '',
-    dx: 'shifts the starting row by the amount spefied on each subsequent pic to create undulating patterns'
+    dx: 'shifts the starting row by the amount specified on each subsequent pic to create undulating patterns'
 };
 const sz: BoolParam = 
         {name: 'S/Z',

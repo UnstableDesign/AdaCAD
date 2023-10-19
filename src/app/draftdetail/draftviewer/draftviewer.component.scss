@@ -4,6 +4,19 @@ canvas{
   height: fit-content;
 }
 
+#draft_sidebar {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: space-between;
+  width: 42px;
+  font-size: .8em;
+  flex: none;
+  border-left:2px solid #3f51b5;
+  border-right:2px solid #3f51b5;
+}
+
+
 // #warp-systems,
 // #warp-materials{
 //   width: fit-content;
@@ -312,6 +325,7 @@ canvas{
       z-index: 1;
       display: flex;
       width: fit-content;
+      
     
     
     }
@@ -410,6 +424,11 @@ canvas{
       height: 15px;
       padding-left: 2px;
       border-left: thin solid black;
+      user-select: none;
+      -moz-user-select: none;
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      -o-user-select: none;
     }
 
 
@@ -576,6 +595,11 @@ canvas{
     position: relative;
     border-bottom: thin solid #333;
     width: 20px;
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
   }
 
   .weft_number.origin0,
