@@ -166,6 +166,7 @@ export class SimulationComponent implements OnInit {
    * @param end 
    */
   updateSelection(start: Interlacement, end: Interlacement){
+    console.log("UPDATE SELECTION CALLED", start, end)
 
     let width = end.j - start.j;
     if(width <= 0) return;

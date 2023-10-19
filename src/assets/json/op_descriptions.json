@@ -262,6 +262,12 @@
             "application": "We don't know of current random draft generators, so this one is just for the fun of applying code-based random number generators to weaving structures" 
         },
         {
+            "name":"glitchsatin",
+            "displayname": "glitch satin",
+            "description": "Generates a glitch satin.",
+            "application": "For Kathryn" 
+        },
+        {
             "name":"combos",
             "displayname": "all possible structures",
             "description": "This structure operation was prompted by a question from weaver and AdaCAD collaborator Marianne Fairbanks who wanted to implement an algorithm to find every possible structure for an N x N draft. The motivation was largely based on the observance that three structures are said to be the core of all weaving: satin, twill and tabby. M wanted to know why these three? What other options were there? And what might be possible in these other options. This algorithm revealed that there are 102 possible 3x3 structures and 22874 possible 4x4 structures (though some structures are rotations, reflections, and shifts of others, leading us to questions of definition of equivalency in structures).",
