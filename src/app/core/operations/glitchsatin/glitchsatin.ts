@@ -30,7 +30,7 @@ const pics: NumParam =
 
 const odds_min: NumParam =
 {
-  name: 'average float length',
+  name: 'min float length',
   type: 'number',
   min: 1,
   max: 100000,
@@ -38,18 +38,27 @@ const odds_min: NumParam =
   dx: 'average float length'
 };
 
-
 const odds_max: NumParam =
 {
-  name: 'average float length',
+  name: 'max float length',
   type: 'number',
   min: 1,
   max: 100000,
   value: 24,
-  dx: 'average float length'
+  dx: 'max float length'
 };
 
-const params = [ends, pics, odds_min, odds_max];
+const frequency: NumParam =
+{
+  name: 'float length frequency',
+  type: 'number',
+  min: 1,
+  max: 100,
+  value: 50,
+  dx: 'float length frequency'
+};
+
+const params = [ends, pics, odds_min, odds_max, frequency];
 
 //INLETS
 const inlets = [];
@@ -59,6 +68,7 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   const rows: number = getOpParamValById(1, param_vals);;
   const odds_min: number = getOpParamValById(2, param_vals);
   const odds_max: number = getOpParamValById(3, param_vals);
+  const frequency: number = getOpParamValById(4, param_vals);
 
   // make the grid
   let grid = [];
@@ -70,8 +80,8 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   }
 
   // glitch satin functions
-  grid = printDraftForVerticalDirection(cols, rows, grid, odds_min, odds_max);
-  grid = fillHorizontalGaps(cols, rows, grid, odds_min, odds_max);
+  grid = printDraftForVerticalDirection(grid, odds_min, odds_max, frequency);
+  grid = fillHorizontalGaps(grid, odds_min, odds_max, frequency);
 
   // make drawdown
   let seq_grid = new Sequence.TwoD();
@@ -100,13 +110,16 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 
 export const glitchsatin: Operation = { name, old_names, params, inlets, perform, generateName };
 
-function printDraftForVerticalDirection(cols: number, rows: number, grid: Array<Array<boolean>>, odds_denom_min: number, odds_denom_max: number): Array<Array<boolean>> {
+function printDraftForVerticalDirection(grid: Array<Array<boolean>>, odds_denom_min: number, odds_denom_max: number, frequency: number): Array<Array<boolean>> {
+  let cols = grid.length;
+  let rows = grid[0].length;
   let odds_step = (odds_denom_max - odds_denom_min) / cols;
+  let new_freq = remap(frequency, cols);
 
   for (let x = 0; x < cols; x++) {
     let y = 0;
     let currentFilledV = (Math.random() < 0.5);  // Initialize randomly
-    let odds = 1 / (odds_denom_min + odds_step * x);
+    let odds = 1 / (odds_denom_min + odds_step * new_freq); // change new_freq to x for gradient 
     let maxStreak = Math.round(1 / odds);
 
     while (y < rows) {
@@ -122,12 +135,15 @@ function printDraftForVerticalDirection(cols: number, rows: number, grid: Array<
   return grid;
 }
 
-function fillHorizontalGaps(cols: number, rows: number, grid: Array<Array<boolean>>, odds_denom_min: number, odds_denom_max: number): Array<Array<boolean>> {
+function fillHorizontalGaps(grid: Array<Array<boolean>>, odds_denom_min: number, odds_denom_max: number, frequency: number): Array<Array<boolean>> {
+  let cols = grid.length;
+  let rows = grid[0].length;
   let odds_step = (odds_denom_max - odds_denom_min) / cols;
+  let new_freq = remap(frequency, cols);
 
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
-      let odds = 1 / (odds_denom_min + odds_step * x);
+      let odds = 1 / (odds_denom_min + odds_step * new_freq); // change new_freq to x for gradient 
       if (!grid[x][y]) {
         let fillType = Math.random() < odds;
         grid[x][y] = fillType;
@@ -137,6 +153,16 @@ function fillHorizontalGaps(cols: number, rows: number, grid: Array<Array<boolea
 
   return grid;
 }
+
+function remap(num: number, cols: number): number {
+  const oldMin = 1;
+  const oldMax = 100;
+  const newMin = 0;
+  const newMax = cols - 1;
+
+  return ((num - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + newMin;
+}
+
 
 
 //version with single odds
