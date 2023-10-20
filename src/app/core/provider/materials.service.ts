@@ -87,7 +87,13 @@ export class MaterialsService {
 
     const s: Material = this.getShuttle(index);
     if(s === null) return "#ffffff";
-    return s.color;
+    return (s.color);
+  }
+
+  getColorForSim(index:number){
+    const s: Material = this.getShuttle(index);
+    var colorValue = parseInt ( s.color.replace("#","0x"), 16 );
+    return colorValue;
   }
 
 

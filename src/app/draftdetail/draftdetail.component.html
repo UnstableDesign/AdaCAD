@@ -21,13 +21,14 @@
 
       <div class="viewers">
 
-        <app-draftviewer id="draft_viewer"
+        <app-draftviewer 
+        id="draft_viewer"
         [id]="id"
         [class.expanded]="viewer_expanded"
         source = "weaver"
         (onNewSelection) = "updateSelection($event)"
-        (onDrawdownUpdated)="redrawSimulation()"
-        (onMaterialChange)="redrawSimulation()"
+        (onDrawdownUpdated)="drawdownUpdated()"
+        (onMaterialChange)="materialChange()"
         (onViewerExpanded)="expandViewer()">
         </app-draftviewer>
 

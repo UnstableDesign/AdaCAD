@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { TreeService } from '../../core/provider/tree.service';
 import { SimulationService } from '../../core/provider/simulation.service';
-import { Draft, Interlacement, LoomSettings, SimulationData } from '../../core/model/datatypes';
+import { Draft, Interlacement, Loom, LoomSettings, SimulationData } from '../../core/model/datatypes';
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
@@ -18,6 +18,7 @@ export class SimulationComponent implements OnInit {
 
   
   @Input('id') id;
+  @Input('new_draft_flag$') new_draft_flag$;
   @Output() onExpanded = new EventEmitter();
 
   renderer;
@@ -43,9 +44,13 @@ export class SimulationComponent implements OnInit {
   current_simdata: SimulationData = null;
   tanFOV: number = 0;
   originalHeight: number = 0; 
+  dirty: boolean; //flags the need to recompute 
 
 
   constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
+
+
+
 
   }
 
@@ -59,6 +64,8 @@ export class SimulationComponent implements OnInit {
 
     
   }
+
+
 
   ngAfterViewInit(){
     
@@ -78,15 +85,12 @@ export class SimulationComponent implements OnInit {
     this.scene.background = new THREE.Color( 0xf0f0f0 );
 
     this.camera = new THREE.PerspectiveCamera( 30, width / height, 1, 5000 );
-    // this.camera.position.set( 20, 0, 200 );
-    // this.camera.lookAt( 0, 0, 0 );  
+
+
     this.camera.position.set(0, 0, 500); 
     this.camera.lookAt( this.scene.position );
     this.scene.add(this.camera);
 
-
-    // this.camera = new THREE.OrthographicCamera(  div.offsetWidth / - 2,  div.offsetWidth / 2,div.offsetHeight / 2, div.offsetHeight / - 2, 1, 1000 );
-    // console.log("DIV OFFSET ",div.offsetWidth, div.offsetHeight)
      this.controls = new OrbitControls( this.camera, this.renderer.domElement );
 
 
@@ -116,18 +120,30 @@ export class SimulationComponent implements OnInit {
   }
 
 
+
+
+  setDirty(){
+    this.dirty = true;
+  }
+
+  unsetDirty(){
+    this.dirty = false;
+  }
+
+
   endSimulation(){
     this.simulation.endSimulation(this.scene);
   }
 
-  drawSimulation(draft: Draft, loom_settings: LoomSettings){
-    this.layer_spacing = this.calcDefaultLayerSpacing(draft);
+
+  loadNewDraft(draft: Draft, loom_settings: LoomSettings) : Promise<any>{
+    console.log("LOADING NEW DRAFT ", warps(draft.drawdown))
 
     this.draft = draft;
     this.loom_settings = loom_settings;
     this.layer_spacing = this.calcDefaultLayerSpacing(draft);
   
-    this.simulation.setupSimulation(
+    return this.simulation.setupSimulation(
       draft, 
       this.renderer, 
       this.scene, 
@@ -142,17 +158,11 @@ export class SimulationComponent implements OnInit {
       this.radius,
       this.ms)
       .then(simdata => {
+        console.log("DONE LOADING ", warps(draft.drawdown))
+        console.log("RENDERING ", warps(draft.drawdown))
         this.current_simdata = simdata;
-      this.simulation.renderSimdata(
-        this.scene, 
-        simdata, 
-        this.showing_warps, 
-        this.showing_wefts, 
-        this.showing_warp_layer_map, 
-        this.showing_weft_layer_map, 
-        this.showing_topo, 
-        this.showing_draft);
-
+        
+        return this.simulation.renderSimdata(this.scene, simdata,  this.showing_warps,  this.showing_wefts, this.showing_warp_layer_map,  this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
     })
 
 
@@ -184,7 +194,6 @@ export class SimulationComponent implements OnInit {
   }
 
   unsetSelection(){
-    console.log("unset selection")
     this.current_simdata.bounds = {
       topleft: {x: 0, y: 0},
       width: warps(this.draft.drawdown), 
@@ -201,6 +210,10 @@ export class SimulationComponent implements OnInit {
    * @param loom_settings 
    */
   updateSimulation(draft: Draft, loom_settings){
+
+    if(!this.dirty) return; //only recalc and redraw when there is a change that requires it. 
+
+
     this.draft = draft;
     this.loom_settings = loom_settings;
     this.simulation.recalcSimData(
@@ -291,23 +304,34 @@ export class SimulationComponent implements OnInit {
     });
   }
 
+
   changeLayerSpacing(e: any){
 
-    this.simulation.recalcSimData(
-      this.scene, 
-      this.draft, 
-      convertEPItoMM(this.loom_settings), 
-      this.layer_spacing, 
-      this.layer_threshold, 
-      this.max_interlacement_width, 
-      this.max_interlacement_height,
-      this.boundary,
-      this.radius,
-      this.ms
-      ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
-    });
+    this.simulation.redrawCurrentSim(this.scene, this.draft, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft)
+
+    // this.simulation.recalcSimData(
+    //   this.scene, 
+    //   this.draft, 
+    //   convertEPItoMM(this.loom_settings), 
+    //   this.layer_spacing, 
+    //   this.layer_threshold, 
+    //   this.max_interlacement_width, 
+    //   this.max_interlacement_height,
+    //   this.boundary,
+    //   this.radius,
+    //   this.ms
+    //   ).then(simdata => {
+    //   this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
+    // });
   }
+
+
+  //this will update the colors on the current sim without recomputing the layer maps
+  redrawCurrentSim(){
+    this.simulation.redrawCurrentSim(this.scene, this.draft, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft)
+
+  }
+
 
   changeILaceWidth(){
 
@@ -356,9 +380,6 @@ export class SimulationComponent implements OnInit {
     this.sim_expanded = !this.sim_expanded;
     this.onWindowResize();
   
-
-
-
   }
 
   /**

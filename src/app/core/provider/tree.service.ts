@@ -2044,6 +2044,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
         if((<DraftNode>node).loom !== null && (<DraftNode>node).loom !== undefined){
           loom_export = {
+            id: ((<DraftNode>node).loom.id === undefined) ? utilInstance.generateId(8) :(<DraftNode>node).loom.id,
             threading:  (<DraftNode>node).loom.threading.slice(),
             tieup:  (<DraftNode>node).loom.tieup.slice(),
             treadling: this.adjustTreadlingForSaving(  (<DraftNode>node).loom.treadling)
