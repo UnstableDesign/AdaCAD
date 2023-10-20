@@ -137,7 +137,7 @@ export class SimulationComponent implements OnInit {
 
 
   loadNewDraft(draft: Draft, loom_settings: LoomSettings) : Promise<any>{
-    console.log("LOADING NEW DRAFT ", warps(draft.drawdown))
+    console.log("LOADING NEW DRAFT SIM ", loom_settings)
 
     this.draft = draft;
     this.loom_settings = loom_settings;
@@ -158,8 +158,6 @@ export class SimulationComponent implements OnInit {
       this.radius,
       this.ms)
       .then(simdata => {
-        console.log("DONE LOADING ", warps(draft.drawdown))
-        console.log("RENDERING ", warps(draft.drawdown))
         this.current_simdata = simdata;
         
         return this.simulation.renderSimdata(this.scene, simdata,  this.showing_warps,  this.showing_wefts, this.showing_warp_layer_map,  this.showing_weft_layer_map, this.showing_topo, this.showing_draft);

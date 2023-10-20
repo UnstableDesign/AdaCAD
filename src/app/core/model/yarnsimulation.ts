@@ -1784,7 +1784,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
     let offset = getWeftOffsetFromWarp(draft, i, j, sim.ms);
     let orient = getWeftOrientationVector(draft, i, j);
 
-
       weft_vtxs.push({
       x: j*sim.warp_spacing, 
       y: i*diam,
@@ -1792,7 +1791,6 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
       i: i, 
       j: j
      });
-
 
 
      return weft_vtxs;

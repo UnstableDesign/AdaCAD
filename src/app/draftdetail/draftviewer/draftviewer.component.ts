@@ -56,6 +56,8 @@ export class DraftviewerComponent implements OnInit {
    @Output() onViewerExpanded = new EventEmitter();
    @Output() onDesignModeChange = new EventEmitter();
    @Output() onMaterialChange = new EventEmitter();
+   @Output() onLoomSettingsUpdated = new EventEmitter();
+
 
   hold_copy_for_paste: boolean = false;
 
@@ -228,7 +230,7 @@ export class DraftviewerComponent implements OnInit {
    loomtypes:Array<DesignMode>  = [];
 
    density_units: Array<DesignMode> = [];
-    units: string;
+   selected_units: 'cm' | 'in';
 
   /** VIEW OPTIONS */
 
@@ -337,6 +339,8 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
+    console.log("ON NEW DRAFT LOADED ", loom_settings)
+
     this.is_dirty = false;
     
     this.loom_settings = loom_settings;
@@ -346,8 +350,8 @@ export class DraftviewerComponent implements OnInit {
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
     this.width = warps(draft.drawdown) / loom_settings.epi;
-    if(loom_settings.units = 'cm') this.width *= 10;
-    this.units = loom_settings.units;
+    if(loom_settings.units == 'cm') this.width *= 10;
+    this.selected_units = loom_settings.units;
 
     const warp_num:number = warps(draft.drawdown);
     const weft_num:number = wefts(draft.drawdown);
@@ -2723,14 +2727,16 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     } 
   
   
-  public unitChange(e:any){
+  public unitChange(){
+
+    console.log("Changed to ", this.selected_units)
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    loom_settings.units = e.value.units;
+    loom_settings.units = this.selected_units;
     this.tree.setLoomSettings(this.id, loom_settings);
     this.redraw(draft, loom, loom_settings, {loom: true});
-  
+    this.onLoomSettingsUpdated.emit();
   }
   
   

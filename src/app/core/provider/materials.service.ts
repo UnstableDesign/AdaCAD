@@ -93,7 +93,7 @@ export class MaterialsService {
   getColorForSim(index:number){
     const s: Material = this.getShuttle(index);
     var colorValue = parseInt ( s.color.replace("#","0x"), 16 );
-    return colorValue;
+    return colorValue
   }
 
 
@@ -101,6 +101,7 @@ export class MaterialsService {
 
       const s: Material = this.getShuttle(index);
       if(s === null) return 1;
+
       return s.diameter;
     }
   

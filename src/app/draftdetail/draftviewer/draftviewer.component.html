@@ -229,7 +229,7 @@
   
           <mat-form-field class="fullwidth">
             <mat-label>Density Units</mat-label>            
-            <mat-select [(value)]="units" [(ngModel)]="loom_settings.units" name="units" (selectionChange) ="unitChange(envt)">
+            <mat-select [(value)]="selected_units" [(ngModel)]="selected_units" name="units" (selectionChange) ="unitChange()">
               <mat-option *ngFor="let unit of density_units" [value]="unit.value">
                 {{unit.viewValue}}
               </mat-option>

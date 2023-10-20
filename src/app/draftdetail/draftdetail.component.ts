@@ -37,6 +37,7 @@ export class DraftDetailComponent implements OnInit {
   
 
   @Output() closeDrawer: any = new EventEmitter();
+  @Output() saveChanges: any = new EventEmitter();
 
   id: number = -1;  
 
@@ -274,7 +275,15 @@ export class DraftDetailComponent implements OnInit {
   public drawdownUpdated(){
 
     this.simRef.setDirty();
-    this.redrawSimulation()
+    this.redrawSimulation();
+    
+  }
+
+  public loomSettingsUpdated(){
+    this.saveChanges.emit();
+    this.simRef.setDirty();
+    this.redrawSimulation();
+
   }
 
 
