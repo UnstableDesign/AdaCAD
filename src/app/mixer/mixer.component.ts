@@ -814,6 +814,7 @@ zoomChange(e:any, source: string){
 
        (<DraftNode> node).draft.ud_name = np.draft_name;
        (<DraftNode> node).loom_settings = np.loom_settings; 
+       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
       })
 
       // const dn = this.tree.getDraftNodes();

@@ -2068,6 +2068,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       })
 
 
+
       //MAKE SURE ALL DRAFTS ARE ORIENTED TO TOP LEFT ON SAVE
       let flip_fs = [];
       const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
