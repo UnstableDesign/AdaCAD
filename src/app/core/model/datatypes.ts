@@ -4,7 +4,6 @@ import { ConnectionComponent } from "../../mixer/palette/connection/connection.c
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
-import { Subject } from "rxjs";
 
 /**
  * This file contains all definitions of custom types and objects

@@ -457,7 +457,7 @@ export class SimulationService {
        if(pts.length !== 0){
 
         const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-        const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
+        const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 8, false );
         const material = new THREE.MeshPhysicalMaterial( {
           color: color,
           depthTest: true,
@@ -513,7 +513,7 @@ export class SimulationService {
           let color = this.ms.getColorForSim(material_id)
 
           const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-          const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
+          const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 8, false );
           const material = new THREE.MeshPhysicalMaterial( {
             color: color,
             emissive: 0x000000,
