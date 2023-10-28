@@ -219,13 +219,13 @@ export class MixerComponent implements OnInit {
     if(obj.clone_id == -1){
       let comp = <SubdraftComponent>this.tree.getComponent(obj.id);
       comp.redrawExistingDraft();
-
       this.palette.updateDownstream(obj.id).then(el => {
-        this.palette.addTimelineState();
+      this.palette.addTimelineState();
       });
     //reperform all of the ops 
     }else{
       //this object was copied and we need to keep the copy
+
       if(obj.dirty){
         const parent = this.tree.getComponent(obj.clone_id);
         let el = document.getElementById('scale-'+parent.id);
@@ -241,10 +241,14 @@ export class MixerComponent implements OnInit {
 
        
       }else{
+        //copy over any superficial changes 
+        this.tree.setLoomSettings(obj.clone_id, this.tree.getLoomSettings(obj.id))
+        this.tree.setLoom(obj.clone_id, copyLoom(this.tree.getLoom(obj.id)))
         this.tree.removeSubdraftNode(obj.id);
       }
     }
 
+    this.saveFile();
 
 
   
@@ -633,6 +637,7 @@ zoomChange(e:any, source: string){
    * Take a fileObj returned from the fileservice and process
    */
    async processFileData(data: FileObj) : Promise<string|void>{
+
     this.loading = true;
 
     let entry_mapping = [];
@@ -816,6 +821,7 @@ zoomChange(e:any, source: string){
 
        (<DraftNode> node).draft.ud_name = np.draft_name;
        (<DraftNode> node).loom_settings = np.loom_settings; 
+       (<DraftNode> node).loom = copyLoom(np.loom); 
        if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
       })
 
@@ -1286,10 +1292,11 @@ loomChange(e:any){
   if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
   else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
   
-  const dn: Array<DraftNode> = this.tree.getDraftNodes();
-  dn.forEach(node => {
-    node.loom_settings.type = e.value.loomtype; 
-  })
+
+  // const dn: Array<DraftNode> = this.tree.getDraftNodes();
+  // dn.forEach(node => {
+  //   node.loom_settings.type = e.value.loomtype; 
+  // })
 
 
 }

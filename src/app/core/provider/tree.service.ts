@@ -108,7 +108,6 @@ export class TreeService {
    */
    onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
-    console.log("ON DYNAMIC PARAM CHANGE ", opid, param_id, param_val)
 
       const op = <DynamicOperation> this.ops.getOp(name);
       const param_type = op.params[param_id].type
@@ -468,7 +467,6 @@ export class TreeService {
    }
 
   
-
    if(loom === null || loom == undefined){
     (<DraftNode> nodes[0]).loom = null;
   //   const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
@@ -1633,7 +1631,6 @@ isValidIOTuple(io: IOTuple) : boolean {
    */
   addConnection(from:number, from_ndx: number, to:number, to_ndx: number, cxn:number): Array<number>{
 
-    console.log("ADD CONNECTION", from, to)
     let from_tn: TreeNode = this.getTreeNode(from);
     let to_tn: TreeNode = this.getTreeNode(to);
     const cxn_tn: TreeNode = this.getTreeNode(cxn);
@@ -2035,11 +2032,12 @@ isValidIOTuple(io: IOTuple) : boolean {
    * @returns an array of objects that describe nodes
    */
     exportDraftNodeProxiesForSaving() : Promise<Array<DraftNodeProxy>> {
-   
+      
    
       const objs: Array<any> = []; 
   
       this.getDraftNodes().forEach(node => {
+      
 
         let loom_export:Loom = null;
 
@@ -2058,7 +2056,7 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft_name: getDraftName((<DraftNode>node).draft),
           draft: (this.hasParent(node.id)) ? null : (<DraftNode>node).draft,
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
-          loom:  (this.hasParent(node.id)) ? null :loom_export,
+          loom: (loom_export === null) ? null :loom_export,
           loom_settings: node.loom_settings,
           render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors
         }
@@ -2070,16 +2068,17 @@ isValidIOTuple(io: IOTuple) : boolean {
 
 
       //MAKE SURE ALL DRAFTS ARE ORIENTED TO TOP LEFT ON SAVE
-      let flip_fs = [];
+      let drafts_to_flip = [];
+      let looms_to_flip = [];
       const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
       
       objs.forEach((obj) => {
         if(obj.draft !== null){
-          flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
+          drafts_to_flip.push(flipDraft(obj.draft, flips.horiz, flips.vert));
         }
       });
 
-     return  Promise.all(flip_fs)
+     return  Promise.all(drafts_to_flip)
       .then(drafts => {
 
         //reassign the output draft to the correct spot in the obj array
@@ -2087,25 +2086,25 @@ isValidIOTuple(io: IOTuple) : boolean {
 
           let ndx = objs.findIndex(el => el.draft_id == draft.id);
           if(ndx == -1 ) console.error("Couldn't find draft after flip");
-          else objs[ndx].draft = draft;
+          else objs[ndx].draft = draft;        
+
         })
 
-        let flip_fs = [];
         objs.forEach((obj) => {
           if(obj.loom !== null){
-            flip_fs.push(flipLoom(obj.loom, flips.horiz, flips.vert));
+            looms_to_flip.push({id: obj.draft_id, fn: flipLoom(obj.loom, flips.horiz, flips.vert)});
           }
         });
       
 
-        return Promise.all(flip_fs);
+        return Promise.all(looms_to_flip.map(el => el.fn));
 
       })
       .then(looms => {
-        looms.forEach((loom) => {
-          let ndx = objs.filter(el => el.loom !== null).findIndex(el => el.loom.id == loom.id);
-          if(ndx == -1 ) console.error("Couldn't find draft after flip");
-          objs[ndx].loom = loom;
+        looms.forEach((loom, ndx) => {
+          let index = objs.filter(el => el.loom !== null).findIndex(el => el.draft_id == looms_to_flip[ndx].id);
+          if(index == -1 ) console.error("Couldn't find draft after flip");
+          else objs[index].loom = loom;
         })
 
 

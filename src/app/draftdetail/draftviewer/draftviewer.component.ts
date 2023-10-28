@@ -340,7 +340,6 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
-
     this.is_dirty = false;
     
     this.loom_settings = loom_settings;
@@ -2657,6 +2656,9 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const loom_settings = this.tree.getLoomSettings(this.id);
     this.selected_loom_type =  e.value.loomtype;
 
+    if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+    else this.dm.selectDesignMode('loom', 'drawdown_editing_style');
+ 
     let utils:LoomUtil = null;
   
       const new_settings:LoomSettings = {
@@ -2666,7 +2668,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         frames: loom_settings.frames,
         treadles: loom_settings.treadles
       }
-      console.log(e, loom_settings, new_settings)
   
 
       //make null effectively function as though it was jacquard
@@ -2682,6 +2683,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
         this.tree.setLoomSettings(this.id, new_settings);      
         this.loom_settings = new_settings;
+       
         utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
         .then(loom => {
           this.tree.setLoom(this.id, loom);
@@ -2690,6 +2692,11 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           this.treadles = Math.max(treadles, frames);
           this.frames = Math.max(treadles, frames);
           this.redraw(draft, loom, new_settings, {loom: true});
+
+          this.onLoomSettingsUpdated.emit();
+
+
+
         });
 
       }else if(loom_settings.type === 'jacquard' && new_settings.type === 'frame'){
@@ -2697,23 +2704,33 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           console.log("FROM JAC TO FRAME")
           this.tree.setLoomSettings(this.id, new_settings);      
           this.loom_settings = new_settings;
+          console.log("settings", this.tree.getLoomSettings(this.id))
+
           utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
           .then(loom => {
             this.tree.setLoom(this.id, loom);
             this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
             this.frames = Math.max(numFrames(loom), loom_settings.frames);
             this.redraw(draft, loom, new_settings, {loom: true});
+            this.onLoomSettingsUpdated.emit();
+
           });
       }else if(loom_settings.type === 'direct' && new_settings.type === 'jacquard'){
         // from direct-tie to jacquard
         //do nothing, we'll just keep the drawdown
+        this.tree.setLoom(this.id, null);
         this.tree.setLoomSettings(this.id, new_settings);      
         this.loom_settings = new_settings;
+        this.onLoomSettingsUpdated.emit();
+
       }else if(loom_settings.type === 'frame' && new_settings.type === 'jacquard'){
         // from direct-tie to jacquard
         //do nothing, we'll just keep the drawdown
+        this.tree.setLoom(this.id, null);
         this.tree.setLoomSettings(this.id, new_settings);      
         this.loom_settings = new_settings;
+        this.onLoomSettingsUpdated.emit();
+
       }else if(loom_settings.type == 'direct' && new_settings.type == 'frame'){
       // from direct-tie to floor
 
@@ -2724,6 +2741,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       this.tree.setLoomSettings(this.id, new_settings);      
       this.loom_settings = new_settings;
       this.redraw(draft, converted_loom, new_settings, {loom: true});
+      this.onLoomSettingsUpdated.emit();
+
 
 
 
@@ -2737,15 +2756,12 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.tree.setLoomSettings(this.id, new_settings);      
         this.loom_settings = new_settings;
         this.redraw(draft, converted_loom, new_settings, {loom: true});
+        this.onLoomSettingsUpdated.emit();
+
 
       }
 
- 
 
-      if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
-      else this.dm.selectDesignMode('loom', 'drawdown_editing_style');
-   
-  
   
     } 
   
@@ -3058,6 +3074,7 @@ epiChange(f: NgForm) {
   this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
   f.value.width = this.width;
   
+  this.onLoomSettingsUpdated.emit();
   this.onMaterialChange.emit(draft);
 
 

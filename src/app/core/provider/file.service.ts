@@ -53,6 +53,7 @@ export class FileService {
   const dloader: Fileloader = {
 
      ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
+
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
       if(id === -1) id = this.files.generateFileId();
@@ -108,11 +109,11 @@ export class FileService {
             if(el.draft !== null && el.draft !== undefined){
               draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
               draft_elements.push(el);
+            }
 
-              if(el.loom !== null && el.loom !== undefined){
-                loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.draft.id));
-                loom_elements.push(el);
-              }
+            if(el.loom !== null && el.loom !== undefined){
+              loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.draft_id));
+              loom_elements.push(el);
             }
 
          
@@ -218,8 +219,7 @@ export class FileService {
             ops: ops,
             scale: (data.scale === undefined) ? 5 : data.scale,
           }
-    
-          console.log("DATA IS ", envt)
+
           return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
   
         }
