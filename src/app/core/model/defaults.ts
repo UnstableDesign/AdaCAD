@@ -19,6 +19,7 @@ export const defaults = {
     loom_type: 'frame',
     min_frames: 8,
     min_treadles: 8,
-    selected_origin_option: 3
+    selected_origin_option: 3,
+    default_material_diameter: 1
 
 }

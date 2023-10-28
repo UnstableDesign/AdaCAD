@@ -35,7 +35,7 @@ const repeats:BoolParam =
     falsestate: 'do not repeat inputs to match size',
     truestate: 'repeat inputs to match size',
     value: 1,
-    dx: "controls if the inputs are intelaced in the exact format sumitted or repeated to fill evenly"
+    dx: "controls if the inputs are interlaced in the exact format submitted or repeated to fill evenly"
     }
 
 
@@ -89,7 +89,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   }
 
 
-
     //offset draft b:
     let pattern_b = new Sequence.TwoD();
     for(let i = 0; i < height; i++ ){
@@ -117,6 +116,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     let pattern_a = new Sequence.TwoD();
     for(let i = 0; i < height; i++ ){
         let seq = new Sequence.OneD();
+       
         if(!repeat){
           if(i < wefts(draft_a.drawdown)){
               seq.pushRow(draft_a.drawdown[i]);
@@ -126,7 +126,11 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
               seq.pushMultiple(2, width);
           }
         }else{
-          seq.pushRow(draft_a.drawdown[i]).resize(width).shift(shift_ends);
+          if(i < wefts(draft_a.drawdown)){
+           seq.pushRow(draft_a.drawdown[i]).resize(width).shift(shift_ends);
+          }else{
+           seq.pushMultiple(2, width)
+          }
         }
         pattern_a.pushWeftSequence(seq.val());
     }

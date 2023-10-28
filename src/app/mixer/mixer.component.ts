@@ -430,6 +430,7 @@ zoomChange(e:any, source: string){
   loadNewFile(result: LoadResponse){
 
     //DO NOT CALL CLEAR ALL HERE AS IT WILL OVERWRITE LOADED FILE DATA
+    console.log("LOADING ", result)
 
     this.files.setCurrentFileInfo(result.id, result.name, result.desc);
     

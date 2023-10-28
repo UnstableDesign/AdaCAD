@@ -8,7 +8,7 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { StateService } from '../../core/provider/state.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
-import { generateDirectTieup, getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
+import { convertLiftPlanToTieup, convertTieupToLiftPlan, generateDirectTieup, getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
 import { TreeService } from '../../core/provider/tree.service';
 import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
@@ -228,6 +228,7 @@ export class DraftviewerComponent implements OnInit {
    epi: number;
 
    loomtypes:Array<DesignMode>  = [];
+   selected_loom_type;
 
    density_units: Array<DesignMode> = [];
    selected_units: 'cm' | 'in';
@@ -339,13 +340,14 @@ export class DraftviewerComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
 
-    console.log("ON NEW DRAFT LOADED ", loom_settings)
 
     this.is_dirty = false;
     
     this.loom_settings = loom_settings;
-    const frames = Math.max(numFrames(loom), loom_settings.frames);
-    const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
+    this.selected_loom_type = loom_settings.type;
+
+    this.frames = Math.max(numFrames(loom), loom_settings.frames);
+    this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
@@ -365,11 +367,11 @@ export class DraftviewerComponent implements OnInit {
     this.canvasEl.width = warp_num * dims.w;
     this.canvasEl.height = weft_num * dims.h;
     this.threadingCanvas.width = warp_num * dims.w;
-    this.threadingCanvas.height = frames * dims.h;
+    this.threadingCanvas.height = this.frames * dims.h;
     this.treadlingCanvas.height = weft_num * dims.h;
-    this.treadlingCanvas.width = treadles * dims.w;
-    this.tieupsCanvas.width = treadles*dims.w;
-    this.tieupsCanvas.height = frames * dims.h;
+    this.treadlingCanvas.width = this.treadles * dims.w;
+    this.tieupsCanvas.width = this.treadles*dims.w;
+    this.tieupsCanvas.height = this.frames * dims.h;
 
     // this.cdRef.detectChanges();
 
@@ -1682,7 +1684,7 @@ export class DraftviewerComponent implements OnInit {
    * @returns 
    */
   public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
-
+    console.log("IN REDAW LOOM ", loom, loom_settings)
 
     this.isFrame = isFrame(loom_settings);
 
@@ -2653,7 +2655,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-  
+    this.selected_loom_type =  e.value.loomtype;
+
     let utils:LoomUtil = null;
   
       const new_settings:LoomSettings = {
@@ -2663,65 +2666,85 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         frames: loom_settings.frames,
         treadles: loom_settings.treadles
       }
+      console.log(e, loom_settings, new_settings)
   
-      if(loom_settings.type == 'direct'){
-        new_settings.frames = Math.max(loom_settings.treadles, loom_settings.frames);
-        new_settings.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
-        this.treadles = Math.max(loom_settings.treadles, loom_settings.frames);
-        this.frames = Math.max(loom_settings.treadles, loom_settings.frames);
-  
-      }
-  
-      //if we are changing from null or jacquard to a frame type loom 
-      if((loom_settings.type === null || loom_settings.type === 'jacquard')){
-       //from jacquard to frame
-  
-        utils = getLoomUtilByType(new_settings.type);
-        utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+
+      //make null effectively function as though it was jacquard
+      if(loom_settings.type === null) loom_settings.type == 'jacquard';
+
+      //there are several combinations that could take place
+
+      //from jacquard to direct tie loom
+      utils = getLoomUtilByType(new_settings.type);
+      this.isFrame = isFrame(new_settings);
+
+      if(loom_settings.type === 'jacquard' && new_settings.type === 'direct'){
+
+        this.tree.setLoomSettings(this.id, new_settings);      
+        this.loom_settings = new_settings;
+        utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
         .then(loom => {
           this.tree.setLoom(this.id, loom);
-          this.redraw(draft, loom, loom_settings, {loom: true});
+          const treadles = Math.max(numTreadles(loom), loom_settings.treadles);  
+          const frames = Math.max(numFrames(loom), loom_settings.frames);
+          this.treadles = Math.max(treadles, frames);
+          this.frames = Math.max(treadles, frames);
+          this.redraw(draft, loom, new_settings, {loom: true});
         });
-      }else if(isFrame(loom_settings) && new_settings.type == 'jacquard'){
-      //from a frame loom to jacquard
-  
-       utils = getLoomUtilByType(new_settings.type);
-       utils.computeDrawdownFromLoom(loom,this.ws.selected_origin_option)
-        .then(drawdown => {
-          draft.drawdown = drawdown;
-          this.tree.setDraftOnly(this.id, draft);
-          this.redraw(draft, loom, loom_settings, {loom: true});
-  
-        });
-      
-      }else if(isFrame(loom_settings) && isFrame(new_settings)){
-        //from one frame loom to another
-        const utils = getLoomUtilByType(new_settings.type);
-        if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
-          utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+
+      }else if(loom_settings.type === 'jacquard' && new_settings.type === 'frame'){
+          //from jacquard to floor loom (shaft/treadle) 'frame'
+          console.log("FROM JAC TO FRAME")
+          this.tree.setLoomSettings(this.id, new_settings);      
+          this.loom_settings = new_settings;
+          utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
           .then(loom => {
             this.tree.setLoom(this.id, loom);
-            this.redraw(draft, loom, loom_settings, {loom: true});
-  
-          })
-        }else{
-          utils.recomputeLoomFromThreadingAndDrawdown(loom,new_settings, draft.drawdown, this.ws.selected_origin_option)
-          .then(loom => {
-            this.tree.setLoom(this.id, loom);
-            this.redraw(draft, loom, loom_settings, {loom: true});
+            this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
+            this.frames = Math.max(numFrames(loom), loom_settings.frames);
+            this.redraw(draft, loom, new_settings, {loom: true});
           });
-  
-        }
-  
-  
+      }else if(loom_settings.type === 'direct' && new_settings.type === 'jacquard'){
+        // from direct-tie to jacquard
+        //do nothing, we'll just keep the drawdown
+        this.tree.setLoomSettings(this.id, new_settings);      
+        this.loom_settings = new_settings;
+      }else if(loom_settings.type === 'frame' && new_settings.type === 'jacquard'){
+        // from direct-tie to jacquard
+        //do nothing, we'll just keep the drawdown
+        this.tree.setLoomSettings(this.id, new_settings);      
+        this.loom_settings = new_settings;
+      }else if(loom_settings.type == 'direct' && new_settings.type == 'frame'){
+      // from direct-tie to floor
+
+      const converted_loom = convertLiftPlanToTieup(loom);
+      this.tree.setLoom(this.id, converted_loom);
+      this.frames = numFrames(converted_loom);
+      this.treadles = numTreadles(converted_loom);
+      this.tree.setLoomSettings(this.id, new_settings);      
+      this.loom_settings = new_settings;
+      this.redraw(draft, converted_loom, new_settings, {loom: true});
+
+
+
+
+      }else if(loom_settings.type == 'frame' && new_settings.type == 'direct'){
+        // from floor to direct
+        const converted_loom = convertTieupToLiftPlan(loom);
+        this.tree.setLoom(this.id, converted_loom);
+        this.frames = numFrames(converted_loom);
+        this.treadles = numTreadles(converted_loom);
+        this.tree.setLoomSettings(this.id, new_settings);      
+        this.loom_settings = new_settings;
+        this.redraw(draft, converted_loom, new_settings, {loom: true});
+
       }
-  
-      
+
+ 
+
       if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
       else this.dm.selectDesignMode('loom', 'drawdown_editing_style');
-  
-      this.tree.setLoomSettings(this.id, new_settings);
-  
+   
   
   
     } 
@@ -2729,7 +2752,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   
   public unitChange(){
 
-    console.log("Changed to ", this.selected_units)
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
