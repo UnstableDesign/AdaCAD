@@ -58,7 +58,6 @@ export class FileService {
       if(id === -1) id = this.files.generateFileId();
       
       let draft_nodes: Array<DraftNodeProxy> = [];
-      //let looms: Array<Loom> = [];
       let ops: Array<OpComponentProxy> = [];
       let version = "0.0.0";
       if(id === -1) id = this.files.generateFileId();
@@ -105,15 +104,18 @@ export class FileService {
 
         if(draft_nodes !== undefined){
           draft_nodes.forEach(el => {
+
             if(el.draft !== null && el.draft !== undefined){
               draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
               draft_elements.push(el);
+
+              if(el.loom !== null && el.loom !== undefined){
+                loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.draft.id));
+                loom_elements.push(el);
+              }
             }
 
-            if(el.loom !== null && el.loom !== undefined){
-              loom_fns.push(loadLoomFromFile(el.loom, flips_required, version));
-              loom_elements.push(el);
-            }
+         
         
           });
        }
@@ -147,34 +149,32 @@ export class FileService {
 
           if(draft !== null && draft !== undefined){
             draft_fns.push(loadDraftFromFile(draft, flips_required, version));
-            draft_elements.push(dn);
+
+            if(loom !== null && loom !== undefined){
+              loom_fns.push(loadLoomFromFile(loom, flips_required, version, draft.id));
+            }
           }
-
-          if(loom !== null && loom !== undefined){
-            loom_fns.push(loadLoomFromFile(loom, flips_required, version));
-            loom_elements.push(dn);
-          }
-
-
         });
 
-        //in previous versions drafts and looms were loaded separately
       }
 
       return Promise.all(draft_fns)
       .then( res => {
-
-          for(let i = 0; i < draft_elements.length; i++){
-            draft_elements[i].draft = res[i];
-          }
+          
+        res.forEach(result => {
+          let draft_ndx = draft_nodes.findIndex(el => el.draft_id == result.id);
+          if(draft_ndx !== -1)  draft_nodes[draft_ndx].draft = result.draft;
+        })
 
       return Promise.all(loom_fns)
       })
       .then(res => {
 
-        for(let i = 0; i < loom_elements.length; i++){
-          draft_elements[i].loom = res[i];
-        }
+        res.forEach(result => {
+          let draft_ndx = draft_nodes.findIndex(el => el.draft_id == result.id);
+          if(draft_ndx !== -1)  draft_nodes[draft_ndx].loom = result.loom;
+        })
+
         
         draft_nodes
         .filter(el => el.draft !== null)
@@ -259,12 +259,14 @@ export class FileService {
         if(el.draft !== null && el.draft !== undefined){
           draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
           draft_elements.push(el);
+
+          if(el.loom !== null && el.loom !== undefined){
+            loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.draft.id));
+            loom_elements.push(el);
+          }
         }
 
-        if(el.loom !== null && el.loom !== undefined){
-          loom_fns.push(loadLoomFromFile(el.loom, flips_required, version));
-          loom_elements.push(el);
-        }
+
       });
 
       return Promise.all(draft_fns)

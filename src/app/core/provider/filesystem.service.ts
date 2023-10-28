@@ -319,6 +319,7 @@ export class FilesystemService {
   writeFileData(uid: string, fileid: number, cur_state: any) {
     const db = getDatabase();
     const ref = fbref(db, 'filedata/'+fileid);
+    console.log("CUR STATE", cur_state)
     update(ref,{ada: cur_state})
     .then(success => {
       this.last_saved_time = Date.now();

@@ -217,7 +217,7 @@ export const createDraft = (
    * sets up the draft from the information saved in a .ada file
    * @param data 
    */
-  export const loadDraftFromFile = (data: any, flips: any, version: string) : Promise<Draft> => {
+  export const loadDraftFromFile = (data: any, flips: any, version: string) : Promise<{draft: Draft, id: number}> => {
 
     const draft: Draft = initDraft();
     if(data.id !== undefined) draft.id = data.id;
@@ -239,7 +239,7 @@ export const createDraft = (
 
     return flipDraft(draft, flips.horiz, flips.vert)
     .then(flipped => {
-      return flipped;
+      return {draft: flipped, id: flipped.id};
     })
     
   }

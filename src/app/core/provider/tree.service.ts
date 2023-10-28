@@ -467,19 +467,16 @@ export class TreeService {
     (<DraftNode> nodes[0]).loom_settings = loom_settings;
    }
 
-   console.log("  (<DraftNode> nodes[0]).loom_settings",   (<DraftNode> nodes[0]).loom_settings)
-
-
   
 
-   if(loom === null){
-    const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
-   loom_utils.computeLoomFromDrawdown(draft.drawdown,(<DraftNode> nodes[0]).loom_settings,  this.ws.selected_origin_option).then(loom => {
-      (<DraftNode> nodes[0]).loom = loom;
-    });
+   if(loom === null || loom == undefined){
+    (<DraftNode> nodes[0]).loom = null;
+  //   const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
+  //  loom_utils.computeLoomFromDrawdown(draft.drawdown,(<DraftNode> nodes[0]).loom_settings,  this.ws.selected_origin_option).then(loom => {
+  //     (<DraftNode> nodes[0]).loom = loom;
+  //   });
    }else{
     (<DraftNode> nodes[0]).loom = copyLoom(loom);
-
    }
 
    if(render_colors === undefined || render_colors === null)  (<DraftNode> nodes[0]).render_colors = false;
@@ -2044,11 +2041,10 @@ isValidIOTuple(io: IOTuple) : boolean {
   
       this.getDraftNodes().forEach(node => {
 
-        let loom_export = null;
+        let loom_export:Loom = null;
 
         if((<DraftNode>node).loom !== null && (<DraftNode>node).loom !== undefined){
           loom_export = {
-            id: ((<DraftNode>node).loom.id === undefined) ? utilInstance.generateId(8) :(<DraftNode>node).loom.id,
             threading:  (<DraftNode>node).loom.threading.slice(),
             tieup:  (<DraftNode>node).loom.tieup.slice(),
             treadling: this.adjustTreadlingForSaving(  (<DraftNode>node).loom.treadling)
@@ -2107,8 +2103,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       })
       .then(looms => {
         looms.forEach((loom) => {
-          console.log("LOOM ", loom, objs)
-          let ndx = objs.findIndex(el => el.loom.id == loom.id);
+          let ndx = objs.filter(el => el.loom !== null).findIndex(el => el.loom.id == loom.id);
           if(ndx == -1 ) console.error("Couldn't find draft after flip");
           objs[ndx].loom = loom;
         })

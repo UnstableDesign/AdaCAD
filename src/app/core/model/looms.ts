@@ -10,7 +10,6 @@ import utilInstance from "./util";
 export const copyLoom = (l:Loom) : Loom => {
   if(l === undefined || l == null) return null;
   const copy_loom  = {
-    id: l.id,
     threading: l.threading.slice(),
     treadling: l.treadling.slice(),
     tieup: l.tieup.slice(),
@@ -104,7 +103,6 @@ const jacquard_utils: LoomUtil = {
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
         
         const l: Loom = {
-            id: utilInstance.generateId(8), 
             threading: [],
             tieup: [],
             treadling: []
@@ -148,7 +146,6 @@ const jacquard_utils: LoomUtil = {
     },
     recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number): Promise<Loom> =>{
       const new_loom: Loom = {
-        id: l.id,
         threading: l.threading.slice(),
         tieup: [],
         treadling: []
@@ -231,7 +228,6 @@ const jacquard_utils: LoomUtil = {
     dx: "draft from drawdown or threading/tieup/treadling. Assumes you are assigning treadles to specific frame via tieup",
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
         const loom: Loom = {
-            id: utilInstance.generateId(8),
             threading: [],
             tieup: [],
             treadling: []
@@ -281,7 +277,6 @@ const jacquard_utils: LoomUtil = {
     },
     recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number): Promise<Loom> =>{
       const new_loom: Loom = {
-        id: l.id,
         threading: l.threading.slice(),
         tieup: [],
         treadling: []
@@ -562,7 +557,6 @@ export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: 
 
     const refs = [];
     let new_loom = {
-      id: loom.id,
       threading: loom.threading.slice(), 
       tieup: loom.tieup.slice(),
       treadling: loom.treadling.slice()
@@ -813,9 +807,10 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
 
    /**
    * sets up the draft from the information saved in a .ada file
+   * returns the loom as well as the draft_id that this loom is linked with 
    * @param data 
    */
-  export const loadLoomFromFile = (loom: any, flips: any, version: string) : Promise<Loom> => {
+  export const loadLoomFromFile = (loom: any, flips: any, version: string, id: number) : Promise<{loom:Loom, id:number}> => {
 
     if(loom == null) return Promise.resolve(null);
 
@@ -836,7 +831,7 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
     
       return flipLoom(loom, flips.horiz, flips.vert)
       .then(flipped => {
-        return flipped;
+        return {loom:flipped, id};
       })
       
     }
@@ -849,7 +844,6 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
       let size = Math.max(numFrames(loom), numTreadles(loom));
 
       let converted: Loom = {
-        id: loom.id,
         threading: loom.threading.slice(),
         tieup: generateDirectTieup(size),
         treadling: []
@@ -877,7 +871,6 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
       let tieup_ndx = 0;
       let shafts = numFrames(loom);
       let converted: Loom = {
-        id: loom.id,
         threading: loom.threading.slice(),
         tieup: [],
         treadling: []

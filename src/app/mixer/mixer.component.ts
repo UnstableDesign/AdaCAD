@@ -10,7 +10,7 @@ import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { createCell } from '../core/model/cell';
-import { DesignMode, Draft, DraftNode, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNode, DraftNodeProxy, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { copyDraft, flipDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
@@ -430,8 +430,6 @@ zoomChange(e:any, source: string){
   loadNewFile(result: LoadResponse){
 
     //DO NOT CALL CLEAR ALL HERE AS IT WILL OVERWRITE LOADED FILE DATA
-    console.log("LOADING ", result)
-
     this.files.setCurrentFileInfo(result.id, result.name, result.desc);
     
 
@@ -681,16 +679,17 @@ zoomChange(e:any, source: string){
 
 
          let d:Draft =null;
+         let loom:Loom = null;
          let render_colors = true;
  
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
-        //let d: Draft = initDraft();
-        let l: Loom = {
-          id: utilInstance.generateId(8),
-          treadling: [],
-          tieup: [],
-          threading: []
-        }
+
+        // let l: Loom = {
+        //   id: utilInstance.generateId(8),
+        //   treadling: [],
+        //   tieup: [],
+        //   threading: []
+        // }
 
         let ls: LoomSettings = {
           frames: this.ws.min_frames,
@@ -699,9 +698,11 @@ zoomChange(e:any, source: string){
           units: this.ws.units,
           type: this.ws.type
         }
+
         if(draft_node !== undefined){
 
-          const located_draft = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
+          const located_draft:DraftNodeProxy = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
+
           if(located_draft === undefined){
             console.log("Looking for ", draft_node.node_id,"in", data.draft_nodes.map(el => el.draft_id))
             console.error("could not find draft with id in draft list");
@@ -709,7 +710,7 @@ zoomChange(e:any, source: string){
           else{
             d = copyDraft(located_draft.draft);
             ls = copyLoomSettings(located_draft.loom_settings);
-            l = copyLoom(located_draft.loom);
+            loom = copyLoom(located_draft.loom);
             if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
           } 
 
@@ -729,7 +730,7 @@ zoomChange(e:any, source: string){
             entry: sn,
             id: sn.cur_id,
             draft: d,
-            loom: l,
+            loom: loom,
             loom_settings: ls,
             render_colors: render_colors
             }
@@ -856,7 +857,6 @@ zoomChange(e:any, source: string){
    */
   loadDrafts(drafts: any){
     const loom:Loom = {
-      id: utilInstance.generateId(8),
       threading:[],
       tieup:[],
       treadling: []
@@ -1214,7 +1214,6 @@ originChange(e:any){
     for(let i = 0; i < dn.length; i++){
       if(res[i] !== null){
         dn[i].loom = {
-          id: res[i].id,
           threading: res[i].threading.slice(),
           tieup: res[i].tieup.slice(),
           treadling: res[i].treadling.slice()

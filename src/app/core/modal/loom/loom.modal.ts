@@ -211,7 +211,6 @@ export class LoomModal implements OnInit {
       for(let i = 0; i < dn.length; i++){
         if(res[i] !== null){
           dn[i].loom = {
-            id: res[i].id,
             threading: res[i].threading.slice(),
             tieup: res[i].tieup.slice(),
             treadling: res[i].treadling.slice()
