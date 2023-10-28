@@ -915,6 +915,28 @@ zoomChange(e:any, source: string){
     
   }
 
+  // onLoadExample(name: string){
+  //   const analytics = getAnalytics();
+
+  //   logEvent(analytics, 'onloadexample', {
+  //     items: [{ uid: this.auth.uid, name: filename }]
+  //   });
+
+  //   this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
+
+  //   this.fls.loader.ada(filename, -1, '', res.body)
+  //       .then(res => {
+  //         this.onLoadExample.emit(res);
+  //         return;
+  //       }
+  //       )
+  //       .catch(e => {
+  //         console.log("CAUGHT ERROR IN FILE LOADER ");
+  //       });
+  //   }); 
+  // }
+
+
 
   loadExampleAtURL(name: string){
     const analytics = getAnalytics();
