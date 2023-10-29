@@ -4,6 +4,20 @@ canvas{
   height: fit-content;
 }
 
+
+.status{
+  width: 100%;
+  text-align: center;
+  position: fixed;
+  left: 50%;
+}
+
+#has_selection{
+  display: none;
+}
+
+
+
 #draft_sidebar {
   display: flex;
   flex-direction: column;
@@ -85,6 +99,7 @@ canvas{
 
 #draft-container{
   display: flex;
+  flex-direction: column;
   overflow: scroll;
   height: 100%;
   width: 100%;

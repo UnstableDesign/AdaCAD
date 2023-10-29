@@ -728,7 +728,7 @@ export class DraftviewerComponent implements OnInit {
 
     if(!this.selection.hasSelection()) return;
 
-    if(!this.hold_copy_for_paste) this.copyArea();
+    //if(!this.hold_copy_for_paste) this.copyArea();
     
     this.onNewSelection.emit(
       { 
@@ -870,8 +870,7 @@ export class DraftviewerComponent implements OnInit {
     })
 
     this.copy = initDraftWithParams({warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd}).drawdown;
-
-
+    document.getElementById("has_selection").style.display = 'flex';
 
     this.onNewSelection.emit({copy: this.copy});
 

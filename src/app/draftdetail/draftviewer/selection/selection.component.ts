@@ -92,6 +92,7 @@ export class SelectionComponent implements OnInit {
 
   designActionChange(action : string){
 
+    console.log("ACTION ", action)
 
     switch(action){
       case 'up': this.clearEvent(true);
