@@ -23,9 +23,9 @@
 
     
     
-  <div class="status">
-    <span id="has_selection">selection copied</span>
-  </div>
+    <div class="status">
+      <span id="has_selection">selection copied</span>
+    </div>
 
     <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
 
@@ -94,7 +94,11 @@
           </div>  
 
       </div>
-      <div [class.hidden]="!isFrame" class="threading-tieup-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}">
+      <div [class.hidden]="!isFrame" class="threading-tieup-container 
+      origin{{ws.selected_origin_option}} 
+      editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}
+      loomtype-{{selected_loom_type}}"
+      >
         <canvas id="threading" class=""></canvas>
         <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div>
         <canvas id="tieups" #tieups ></canvas>
@@ -325,8 +329,8 @@
             <mat-slide-toggle
             [disabled]="loom_settings.type == 'jacquard'"
             (click)="swapEditingStyle()">
+            {{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}
             </mat-slide-toggle>
-            <div><mat-label>{{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}</mat-label></div>
             </div>
           
       </div>

@@ -1784,12 +1784,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.drawDrawdown(draft, loom, loom_settings);
     }
 
-    // if(flags.weft_systems !== undefined && this.source == "weaver"){
-    //   this.drawWeftSystems(draft, this.cxWeftSystems, this.weftSystemsCanvas);
-    // }
-
-   
-
   
     if(flags.loom !== undefined){
        this.redrawLoom(draft, loom, loom_settings);
@@ -2640,10 +2634,14 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
 
   swapEditingStyle(){
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value === 'drawdown'){
-      this.dm.selectDesignMode('loom', 'drawdown_editing_style')
-    }else{
-      this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    if(loom_settings.type !== 'jacquard'){
+      this.selection.onSelectCancel();
+      if(this.dm.getSelectedDesignMode('drawdown_editing_style').value === 'drawdown'){
+        this.dm.selectDesignMode('loom', 'drawdown_editing_style')
+      }else{
+        this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+      }
     }
   
   }
@@ -2656,7 +2654,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     this.selected_loom_type =  e.value.loomtype;
 
     if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
-    else this.dm.selectDesignMode('loom', 'drawdown_editing_style');
  
     let utils:LoomUtil = null;
   
@@ -2700,10 +2697,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
       }else if(loom_settings.type === 'jacquard' && new_settings.type === 'frame'){
           //from jacquard to floor loom (shaft/treadle) 'frame'
-          console.log("FROM JAC TO FRAME")
           this.tree.setLoomSettings(this.id, new_settings);      
           this.loom_settings = new_settings;
-          console.log("settings", this.tree.getLoomSettings(this.id))
 
           utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
           .then(loom => {

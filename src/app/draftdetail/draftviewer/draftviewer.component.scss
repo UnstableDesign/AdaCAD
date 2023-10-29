@@ -181,13 +181,26 @@ canvas{
   opacity: 1;
   cursor: pointer;
 
+
+
+}
+
+.threading-tieup-container.editable-loom.loomtype-direct{
+  #tieups{
+  opacity:  .5;
+  cursor: not-allowed;
+  }
+
 }
 
 .threading-tieup-container.editable-drawdown{
-  opacity:  .75;
+  opacity:  .5;
   cursor: not-allowed;
-
 }
+
+
+
+
 
 .threading-tieup-spacer.origin3,
 .threading-tieup-spacer.origin2{
@@ -251,7 +264,7 @@ canvas{
   }
 
   #drawdown{
-    opacity: 0.75;
+    opacity: 0.5;
     cursor: not-allowed;
 
   }
@@ -260,7 +273,7 @@ canvas{
 
 .drawdown-container.editable-drawdown{
   #treadling{
-    opacity: .75;
+    opacity: .5;
     cursor: not-allowed;
   }
 

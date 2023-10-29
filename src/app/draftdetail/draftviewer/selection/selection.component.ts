@@ -150,6 +150,31 @@ export class SelectionComponent implements OnInit {
     this.onPaste.emit(obj);
   }
 
+
+  /**
+   * given the target of a mouse event, check if it is currently enabled (as indicated by the drawdown editing style)
+   */
+  isTargetEnabled(target: string):boolean{
+    const editing_mode = this.dm.getSelectedDesignMode('drawdown_editing_style').value;
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    switch(target){
+      case 'treadling':    
+      case 'threading':
+        if(editing_mode === "drawdown") return false;
+        break;
+      case 'tieups':
+        if(editing_mode === "drawdown") return false;
+        if(loom_settings.type === "direct") return false;
+        break;
+
+      case 'drawdown':
+        if(editing_mode === "loom") return false;
+        break;
+    }
+
+    return true;
+  }
+
   /**
    * set parameters and view when starting a new selections
    * @param target he HTML target that receieved the mouse down event
@@ -157,16 +182,18 @@ export class SelectionComponent implements OnInit {
    * @returns 
    */
   onSelectStart(target: HTMLElement, start: Interlacement){
+    console.log("SELECT START", target.id)
+    if(!target) return;
+    this.target = target;
+
+    if(!this.isTargetEnabled(target.id)) return;
+     
 
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-
     //clear existing params
     this.unsetParameters();
-
-    if(!target) return;
     
-    this.target = target;
     this.start = start;
     this.hide_parent = false;
 
@@ -198,8 +225,9 @@ export class SelectionComponent implements OnInit {
       break;
 
       case 'drawdown':
+
+        break;
       case 'tieups':
-      
       break;
 
     }
@@ -224,6 +252,12 @@ export class SelectionComponent implements OnInit {
    */
   onSelectDrag(pos: Interlacement): boolean{
    
+    if(this.target === undefined) return;
+    if(this.target !== null && !this.isTargetEnabled(this.target.id)) return;
+
+
+
+
     if(pos.si < 0){
       pos.si = 0;
       return false;
@@ -250,10 +284,10 @@ export class SelectionComponent implements OnInit {
         this.end.j = pos.j;
       break;
 
-      case 'weft-systems':
-      case 'weft-materials':
-      case 'warp-systems':
-      case 'warp-materials':
+      // case 'weft-systems':
+      // case 'weft-materials':
+      // case 'warp-systems':
+      // case 'warp-materials':
       case 'drawdown':
       case 'tieups':
       
@@ -270,6 +304,7 @@ export class SelectionComponent implements OnInit {
   onSelectStop(){
 
     if(this.target === undefined) return;
+    if(this.target !== null && !this.isTargetEnabled(this.target.id)) return;
 
     switch(this.target.id){
       case "threading":
@@ -402,7 +437,7 @@ export class SelectionComponent implements OnInit {
 
   redraw(){
 
-    if(this.hasSelection() && this.target.id !== 'tieups'){
+    if(this.hasSelection()){
 
       this.hide_parent = false;
       let top_ndx = Math.min(this.start.si, this.end.si);

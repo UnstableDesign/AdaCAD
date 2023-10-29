@@ -76,8 +76,8 @@ export class DesignmodesService {
     ]
 
     this.drawdown_editing_style = [
-      {value: 'drawdown', viewValue: 'Edit Drawdown (and Auto-Generate Loom Configuration)', icon: "fas fa-pen", children: [], selected: true},
-      {value: 'loom', viewValue: 'Edit Loom Configuration (and Auto-Generate Drawdown)', icon: "fas fa-shapes", children:[],selected: false},
+      {value: 'drawdown', viewValue: 'Drawdown', icon: "fas fa-pen", children: [], selected: true},
+      {value: 'loom', viewValue: 'Loom Configuration', icon: "fas fa-shapes", children:[],selected: false},
     ];
     
     this.design_modes = [
