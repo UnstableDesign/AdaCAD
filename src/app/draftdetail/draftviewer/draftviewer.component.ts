@@ -518,7 +518,6 @@ export class DraftviewerComponent implements OnInit {
 
         case 'weft-materials':
         case 'weft-systems':
-          console.log("WEFT SYSTEMS MOUSE DOWN")
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           break;
       }
@@ -1303,9 +1302,12 @@ export class DraftviewerComponent implements OnInit {
 
     if (!this.cxTieups || !currentPos) { return; }
 
+    console.log( currentPos, loom.tieup )
 
     if (isInUserTieupRange(loom, loom_settings,  currentPos)){
       this.is_dirty = true;
+
+
 
       switch (this.dm.getSelectedDesignMode('draw_modes').value) {
         case 'up':
@@ -1315,7 +1317,8 @@ export class DraftviewerComponent implements OnInit {
           val = false;
           break;
         case 'toggle':
-          val = !loom.tieup[currentPos.i][currentPos.j];
+          if(currentPos.i > loom.tieup.length || currentPos.j > loom.tieup[0].length) val = true;
+          else val = !loom.tieup[currentPos.i][currentPos.j];
           break;
         default:
           break;
@@ -1349,6 +1352,8 @@ export class DraftviewerComponent implements OnInit {
     if (isInUserThreadingRange(loom, loom_settings, currentPos)){
       var val = false;
       this.is_dirty = true;
+
+      console.log("CURRENT THREADING ", currentPos, loom)
 
       //modify based on the current view 
        // currentPos.i = this.translateThreadingRowForView(loom, loom_settings,currentPos.i)
@@ -1498,7 +1503,7 @@ export class DraftviewerComponent implements OnInit {
     //   cx.fillStyle = "white";
     //   let thread_val = loom.threading[j]+1;
     //   //if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(loom) - loom.threading[j];
-    //   //cx.fillText(thread_val, 2+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
+    //   cx.fillText(thread_val, 2+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
       
     // }
 
@@ -1682,7 +1687,6 @@ export class DraftviewerComponent implements OnInit {
    * @returns 
    */
   public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
-    console.log("IN REDAW LOOM ", loom, loom_settings)
 
     this.isFrame = isFrame(loom_settings);
 

@@ -177,8 +177,13 @@ const jacquard_utils: LoomUtil = {
 
     },
     updateThreading: (loom: Loom, ndx:InterlacementVal) => {
+
+
         if(ndx.val) loom.threading[ndx.j] = ndx.i;
         else loom.threading[ndx.j] = -1;
+
+   
+
         return loom;
     },
     updateTieup: (loom: Loom, ndx:InterlacementVal) => {
@@ -316,9 +321,48 @@ const jacquard_utils: LoomUtil = {
     updateThreading: (loom:Loom, ndx: InterlacementVal) : Loom => {
         if(ndx.val) loom.threading[ndx.j] = ndx.i;
         else loom.threading[ndx.j] = -1;
+
+        //in this case, we need to expand the size of the tieup to include a row for this threading
+        // if(ndx.i >= loom.tieup.length){
+        //   const treadles = numTreadles(loom);
+        //   const difference = ndx.i - loom.tieup.length;
+        //   console.log(difference);
+        //   for(let x = 0; x <= difference; x++){
+        //     let row = [];
+        //     for(let j = 0; j < treadles; j++){
+        //       row.push(false);
+        //     }
+        //     loom.tieup.push(row);
+        //   }
+        // }
         return loom;
     },
     updateTieup: (loom:Loom, ndx: InterlacementVal) : Loom => {
+       //based on the way that the draft viewer renders based on user specified frames and treadles (and not neccessarily how many frames and treadles are being used, we have to manually resize the tieup to fit the input)
+
+       let frames = loom.tieup.length;
+        let treadles = loom.tieup[0].length;
+        if(ndx.i > frames){
+            const difference = ndx.i - loom.tieup.length;
+            for(let x = 0; x <= difference; x++){
+              let row = [];
+              for(let j = 0; j < treadles; j++){
+                row.push(false);
+              }
+              loom.tieup.push(row);
+            }
+        }
+
+        if(ndx.j > treadles){
+          const difference = ndx.j - loom.tieup[0].length;
+          for(let i = 0; i < loom.tieup.length;i++){
+            for(let x = 0; x <= difference; x++){
+              loom.tieup[i].push(false);
+            }
+          }
+        }
+      
+
         loom.tieup[ndx.i][ndx.j] = ndx.val;
         return loom;
 
