@@ -1206,59 +1206,9 @@ originChange(e:any){
   const flips = utilInstance.getFlips(this.selected_origin, e.value);
   this.selected_origin = e.value;
   this.ws.selected_origin_option = this.selected_origin;
+  this.palette.redrawAllSubdrafts(); //force a redraw so that the weft/warp system info is up to date
   this.saveFile();
 
-  // const dn: Array<DraftNode> = this.tree.getDraftNodes();
-  // const data = dn.map(node => {
-  //   return {
-  //   draft: node.draft, 
-  //   loom: node.loom, 
-  //   horiz: flips.horiz,
-  //   vert: flips.vert}
-  // });
-
-  // dn.forEach(node => {
-  //  if(node.loom !== null) console.log(node.loom.treadling)
-  // })
-
-  //const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
-//  const draft_fns = [];
-
-  // return Promise.all(draft_fns)
-  // .then(res => {
-  //   for(let i = 0; i < dn.length; i++){
-  //     dn[i].draft = <Draft>{
-  //       id: res[i].id,
-  //       gen_name: res[i].gen_name,
-  //       ud_name: res[i].ud_name,
-  //       drawdown: res[i].drawdown,
-  //       rowShuttleMapping: res[i].rowShuttleMapping,
-  //       rowSystemMapping: res[i].rowSystemMapping,
-  //       colShuttleMapping: res[i].colShuttleMapping,
-  //       colSystemMapping: res[i].colSystemMapping
-  //     };
-  //   }
-  //   const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
-  //   return Promise.all(loom_fns)
-  // .then(res => {
-  //   for(let i = 0; i < dn.length; i++){
-  //     if(res[i] !== null){
-  //       dn[i].loom = {
-  //         threading: res[i].threading.slice(),
-  //         tieup: res[i].tieup.slice(),
-  //         treadling: res[i].treadling.slice()
-  //       }
-  //     }
-  //   }
-  // }).then(out => {
-  //   this.saveFile();
-  // })
-
-
-
-//})
-
-  
 
 
 }

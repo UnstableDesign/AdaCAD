@@ -616,10 +616,24 @@ export class SubdraftComponent implements OnInit {
     weft_mats_canvas.height = wefts(draft.drawdown) * cell_size;
     weft_mats_canvas.width =  cell_size;
 
+    let system = null;
 
       for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+
+        switch(this.ws.selected_origin_option){
+          case 1:
+          case 2: 
+          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
+
+          break;
+          case 0: 
+          case 3: 
+          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+
+          break;
+        }
+
         let color = this.ms.getColor(draft.rowShuttleMapping[j]);
-        let system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
         weft_mats_cx.fillStyle = color;
         weft_mats_cx.fillRect(1, j* cell_size+1,  cell_size-2,  cell_size-2);
         
@@ -650,14 +664,27 @@ export class SubdraftComponent implements OnInit {
     warp_systems_canvas.width = warps(draft.drawdown) * cell_size;
     warp_systems_canvas.height =  cell_size;
 
+    let system = null;
 
       for (let j = 0; j < draft.colShuttleMapping.length; j++) {
         let color = this.ms.getColor(draft.colShuttleMapping[j]);
-        let system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
+        switch(this.ws.selected_origin_option){
+          case 0:
+          case 1: 
+          system = this.ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
+
+          break;
+          case 2: 
+          case 3: 
+          system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
+
+          break;
+        }
       
         warp_mats_cx.fillStyle = color;
         warp_mats_cx.fillRect(j* cell_size+1, 1,  cell_size-2,  cell_size-2);
         
+        //need to flip this on certain origins. 
         warp_systems_cx.fillStyle = "#666666";
         warp_systems_cx.fillText(system, j*cell_size+2, cell_size)
 
