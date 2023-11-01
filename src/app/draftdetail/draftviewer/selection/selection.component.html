@@ -1,22 +1,18 @@
 <div id="selection-container" 
-[style.display]="(hide_parent)? 'none' : 'flex'"
+[style.display]="dm.isSelected('draw','design_modes')? 'none' : 'flex'"
 >
 
 <div class="selection-row">
+    <span>Selection Size: {{width}} x {{height}} </span>
+</div>
 
-    <div 
-    id="selection" 
-    class="selection"
-    [style.width.px]='screen_width'
-    [style.height.px] = 'screen_height'
-    [style.display]="(hide_selection)? 'none' : 'block'">
-    </div>
+<div class="selection-row">
 
 
-    <div id="selection-actions" class="selection-actions" [style.display]="(hide_options)? 'none' : 'flex'">
+    <div id="selection-actions" class="selection-actions">
         
         
-        <ng-container *ngIf="!hide_actions">
+        <!-- <ng-container *ngIf="!hide_actions">
         <button mat-icon-button
         matTooltip="edit design in this region"
         [matMenuTriggerFor]="actions"
@@ -33,20 +29,18 @@
         </button>
 
         </ng-container>
-         </mat-menu>
+         </mat-menu> -->
 
 
 
         
-        <button mat-icon-button  matTooltip="copy this region" (click)="copyEvent()"><i class="fas fa-clipboard"></i></button>
-        <button mat-icon-button  matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i></button>
+        <button mat-raised-button color="primary" matTooltip="copy this region" (click)="copyEvent()"><i class="fas fa-clipboard"></i> Copy</button>
+
+        <button mat-raised-button color="primary" [disabled]="!has_copy" [color]= "!has_copy ? 'primary' : 'accent'" matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i> Paste</button>
 
     </div>
 </div>
 
-<div class="selection-row">
-    <span>{{width}} x {{height}} </span>
 
-</div>
 
 </div>

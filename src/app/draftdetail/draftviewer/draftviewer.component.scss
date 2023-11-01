@@ -5,6 +5,7 @@ canvas{
 }
 
 
+
 .status{
   width: 100%;
   text-align: center;
@@ -216,12 +217,12 @@ canvas{
 
 .threading-tieup-container.origin0
 {
-  #threading{
+  #threading-canvas{
     //flip x and y
      transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
   }
-  #tieups{
+  #tieups-canvas{
     //flip y only
      transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
@@ -229,7 +230,7 @@ canvas{
 
 .drawdown-container.origin0{
 
-  #drawdown{
+  #drawdown-canvas{
     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
@@ -238,7 +239,7 @@ canvas{
 
 .threading-tieup-container.origin1
 {
-  #threading{
+  #threading-canvas{
     //flip x and y
      transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
@@ -248,11 +249,11 @@ canvas{
 .drawdown-container.origin1{
 
   //flip x and y
-  #drawdown{
+  #drawdown-canvas{
     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
-  #treadling{
+  #treadling-canvas{
     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
@@ -260,36 +261,41 @@ canvas{
 
 .threading-tieup-container.origin2
 {
-  #tieups{
+  #tieups-canvas{
      transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
 .drawdown-container.origin2
 {
-  #treadling{
+  #treadling-canvas{
      transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
-  #drawdown{
+  #drawdown-canvas{
+    position: relative;
     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
- }
+  }
+  
+
+
+ 
 }
 
 .threading-tieup-container.origin3
 {
-  #tieups{
+  #tieups-canvas{
      transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
-  #threading{
+  #threading-canvas{
      transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
 .drawdown-container.origin3
 {
-  #treadling{
+  #treadling-canvas{
      transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }

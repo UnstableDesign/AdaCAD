@@ -20,25 +20,23 @@
 
 <div class="draft-container {{source}}"  [class.expanded] ="expanded" id="draft-container">
 
+  <app-selection
+  #selection
+  [id]="id"
+  (onCopy)="onCopy()"
+  (onClear)="onClear($event)"
+  (onPaste)="onPaste($event)"
+  (onSelectionEnd)="onSelectionEnd()"
+  ></app-selection>
+ 
+    
+    
 
-    
-    
-    <div class="status">
-      <span id="has_selection">selection copied</span>
-    </div>
 
     <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
 
 
-      <app-selection 
-      #selection
-      [id]="id"
-      (onCopy)="onCopy()"
-      (onClear)="onClear($event)"
-      (onPaste)="onPaste($event)"
-      (onSelectionEnd)="onSelectionEnd()"
-      ></app-selection>
-     
+
       
       
 
@@ -98,14 +96,23 @@
       editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}
       loomtype-{{selected_loom_type}}"
       >
+      <div id="threading-canvas">
         <canvas id="threading" class=""></canvas>
+        </div>
         <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div>
+        <div id="tieups-canvas">
         <canvas id="tieups" #tieups ></canvas>
+        </div>
       </div>
 
       <div class="drawdown-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}" >
+        <div id="drawdown-canvas">
         <canvas id="drawdown" #drawdown  >  </canvas>
+      </div>
+
+      <div id="treadling-canvas">
         <canvas [class.hidden]="!isFrame" id="treadling" #treadling></canvas>
+        </div>
         
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
           <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text">

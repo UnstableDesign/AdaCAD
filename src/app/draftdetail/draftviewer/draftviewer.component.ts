@@ -471,6 +471,7 @@ export class DraftviewerComponent implements OnInit {
     };
 
 
+
     if (event.target.localName === 'canvas') {
     
       this.removeSubscription();    
@@ -497,6 +498,10 @@ export class DraftviewerComponent implements OnInit {
           break;
 
         case 'threading':
+
+          //offset for padding
+          currentPos.j -= 1;
+
           if(currentPos.i < 0 || currentPos.i >= frames) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break; 
@@ -524,6 +529,7 @@ export class DraftviewerComponent implements OnInit {
 
 
 
+      console.log("CURRENT POS ", currentPos, event.target.id)
 
 
       // Save temp pattern
@@ -1060,7 +1066,6 @@ export class DraftviewerComponent implements OnInit {
     cx.strokeStyle = '#000';
 
 
-    console.log("CANVAS ID ", canvas.id)
     if(canvas.id=== "drawdown"){
       cx.fillStyle = "white";
       cx.strokeRect(dims.w,dims.h,canvas.width-2*dims.w,canvas.height-2*dims.w);
