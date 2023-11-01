@@ -1054,8 +1054,18 @@ export class DraftviewerComponent implements OnInit {
     var i,j;
 
     var dims = this.render.getCellDims("base");
+    cx.fillStyle="black";
+    cx.lineWidth = .5;
+    cx.lineCap = 'round';
+    cx.strokeStyle = '#000';
 
-    if(canvas.id=== "threading"){
+
+    console.log("CANVAS ID ", canvas.id)
+    if(canvas.id=== "drawdown"){
+      cx.fillStyle = "white";
+      cx.strokeRect(dims.w,dims.h,canvas.width-2*dims.w,canvas.height-2*dims.w);
+
+    }else if(canvas.id=== "threading"){
       cx.fillStyle = "white";
       cx.fillRect(0,0,canvas.width,canvas.height);
       // cx.fillStyle = "#cccccc";

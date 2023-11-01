@@ -1195,9 +1195,9 @@ zoomChange(e:any, source: string){
 
 
 /**
- * when the origin changes, all drafts on the canavs should be modified to the new position
- * origin changes can ONLY happen on globals
- * flips must be calculated from the prior state
+ * the drafts stored in adacad are ALWAYs oriented with 0,0 as the top left corner
+ * any origin change is merely the rendering flipping the orientation. 
+ * when the global settings change, the data itself does NOT need to change, only the rendering
  * @param e 
  */
 originChange(e:any){
@@ -1206,55 +1206,57 @@ originChange(e:any){
   const flips = utilInstance.getFlips(this.selected_origin, e.value);
   this.selected_origin = e.value;
   this.ws.selected_origin_option = this.selected_origin;
-  
-  const dn: Array<DraftNode> = this.tree.getDraftNodes();
-  const data = dn.map(node => {
-    return {
-    draft: node.draft, 
-    loom: node.loom, 
-    horiz: flips.horiz,
-    vert: flips.vert}
-  });
+  this.saveFile();
+
+  // const dn: Array<DraftNode> = this.tree.getDraftNodes();
+  // const data = dn.map(node => {
+  //   return {
+  //   draft: node.draft, 
+  //   loom: node.loom, 
+  //   horiz: flips.horiz,
+  //   vert: flips.vert}
+  // });
 
   // dn.forEach(node => {
   //  if(node.loom !== null) console.log(node.loom.treadling)
   // })
 
-  const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
+  //const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
+//  const draft_fns = [];
 
-  return Promise.all(draft_fns)
-  .then(res => {
-    for(let i = 0; i < dn.length; i++){
-      dn[i].draft = <Draft>{
-        id: res[i].id,
-        gen_name: res[i].gen_name,
-        ud_name: res[i].ud_name,
-        drawdown: res[i].drawdown,
-        rowShuttleMapping: res[i].rowShuttleMapping,
-        rowSystemMapping: res[i].rowSystemMapping,
-        colShuttleMapping: res[i].colShuttleMapping,
-        colSystemMapping: res[i].colSystemMapping
-      };
-    }
-    const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
-    return Promise.all(loom_fns)
-  .then(res => {
-    for(let i = 0; i < dn.length; i++){
-      if(res[i] !== null){
-        dn[i].loom = {
-          threading: res[i].threading.slice(),
-          tieup: res[i].tieup.slice(),
-          treadling: res[i].treadling.slice()
-        }
-      }
-    }
-  }).then(out => {
-    this.saveFile();
-  })
+  // return Promise.all(draft_fns)
+  // .then(res => {
+  //   for(let i = 0; i < dn.length; i++){
+  //     dn[i].draft = <Draft>{
+  //       id: res[i].id,
+  //       gen_name: res[i].gen_name,
+  //       ud_name: res[i].ud_name,
+  //       drawdown: res[i].drawdown,
+  //       rowShuttleMapping: res[i].rowShuttleMapping,
+  //       rowSystemMapping: res[i].rowSystemMapping,
+  //       colShuttleMapping: res[i].colShuttleMapping,
+  //       colSystemMapping: res[i].colSystemMapping
+  //     };
+  //   }
+  //   const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
+  //   return Promise.all(loom_fns)
+  // .then(res => {
+  //   for(let i = 0; i < dn.length; i++){
+  //     if(res[i] !== null){
+  //       dn[i].loom = {
+  //         threading: res[i].threading.slice(),
+  //         tieup: res[i].tieup.slice(),
+  //         treadling: res[i].treadling.slice()
+  //       }
+  //     }
+  //   }
+  // }).then(out => {
+  //   this.saveFile();
+  // })
 
 
 
-})
+//})
 
   
 

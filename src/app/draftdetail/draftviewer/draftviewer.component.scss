@@ -50,7 +50,7 @@ canvas{
 }
 
 #threading{
-  padding-right: 15px;
+  padding: 0px 15px;
   //width: fit-content;
 }
 
@@ -134,9 +134,8 @@ canvas{
 
 
 .warp-systems-container{
-  padding-left: 15px;
+  padding: 15px;
   display: flex;
-  padding-right: 15px;
 }
 
 .warp-systems-container.origin0
@@ -204,7 +203,6 @@ canvas{
 
 .threading-tieup-spacer.origin3,
 .threading-tieup-spacer.origin2{
-  width: 15px;
   display: block;
 }
 
@@ -218,41 +216,81 @@ canvas{
 
 .threading-tieup-container.origin0
 {
-  #threading,
+  #threading{
+    //flip x and y
+     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
+  }
   #tieups{
+    //flip y only
+     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+.drawdown-container.origin0{
+
+  #drawdown{
+    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+
+}
+
+
+.threading-tieup-container.origin1
+{
+  #threading{
+    //flip x and y
+     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
+  }
+}
+
+.drawdown-container.origin1{
+
+  //flip x and y
+  #drawdown{
+    transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+
+  #treadling{
     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
+
 }
 
 .threading-tieup-container.origin2
 {
   #tieups{
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
 .drawdown-container.origin2
 {
   #treadling{
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
+
+  #drawdown{
+    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+ }
 }
 
 .threading-tieup-container.origin3
 {
   #tieups{
-    transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
   #threading{
-    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
 .drawdown-container.origin3
 {
   #treadling{
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
@@ -292,7 +330,6 @@ canvas{
 .threading-tieup-container.origin1
 {
   flex-direction: row; 
-  padding-left: 15px;
 }
 
 .threading-tieup-container.origin2,
@@ -324,7 +361,7 @@ canvas{
 
 .weft-systems-container{
   display: flex;
-  padding-top: 15px; 
+  padding: 15px 15px 0px 15px; 
 }
 
 .weft-systems-container.origin0,
@@ -362,7 +399,7 @@ canvas{
     .warp-systems-text.origin0,
     .warp-systems-text.origin1
     {
-      flex-direction: row;
+      flex-direction: row-reverse;
       justify-content: flex-start;
 
     }
@@ -560,7 +597,7 @@ canvas{
   .weft-systems-text.origin1,
   .weft-systems-text.origin2
   {
-    flex-direction: column;
+    flex-direction: column-reverse;
  
   }
 
