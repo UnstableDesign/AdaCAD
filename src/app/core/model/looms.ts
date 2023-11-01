@@ -596,7 +596,7 @@ export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: 
    */
   export const flipLoom = (loom:Loom, horiz: boolean, vert: boolean) : Promise<Loom> => {
    
-
+    return Promise.resolve(loom);
     if(loom === null || loom == undefined) return Promise.resolve(null);
 
     const refs = [];
