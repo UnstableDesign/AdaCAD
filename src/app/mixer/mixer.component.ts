@@ -12,7 +12,7 @@ import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { createCell } from '../core/model/cell';
 import { DesignMode, Draft, DraftNode, DraftNodeProxy, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
-import { copyDraft, flipDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
+import { copyDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
 import utilInstance from '../core/model/util';
 import { AuthService } from '../core/provider/auth.service';

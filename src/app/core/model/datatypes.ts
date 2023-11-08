@@ -617,12 +617,13 @@ type BaseNode = {
  * an OpNode is an extension of BaseNode that includes additional params
  * @param name the name of the operation at this node
  * @param params an array of the current param values at this node
- * @param inlets an array of the inlet values at this node
+ * @param inlets an array of the inlet values at this node (for instance, in the layer notation op, these might be 'a', 'b', etc.)
+ * @param outlets an array of the 
  */
 export type OpNode = BaseNode & {
   name: string,
   params: Array<any>
-  inlets: Array<any>;
+  inlets: Array<any>
  }
 
 
@@ -648,9 +649,9 @@ export type OpNode = BaseNode & {
 
  /**
   * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
-  * each node stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
-  * connections will have inlet/outlet indexes of 0, 0 (they cannot connect ot multiple things)
-  * drafts will have inset/outout indexes of 0, 0 (they can only have one parent)
+  * each IOTuple stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
+  * connections will have inlet/outlet indexes of {0, 0} (they cannot connect to multiple things)
+  * drafts will have inlet indexes of {0, 0} (they can only have one parent)
   * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
   * @param treenode - the treenode that this input or output goes towards
   * @param ndx - which ndx on the said treenodes does this connect to specifically

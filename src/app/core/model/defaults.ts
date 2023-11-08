@@ -20,6 +20,14 @@ export const defaults = {
     min_frames: 8,
     min_treadles: 8,
     selected_origin_option: 3,
-    default_material_diameter: 1
+    default_material_diameter: 1,
+    loom_settings:  {
+            frames: 8,
+            treadles: 8,
+            epi: 12,
+            units: <'in'> 'in',
+            type: 'frame'
+          }
+    
 
 }

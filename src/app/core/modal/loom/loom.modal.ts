@@ -4,7 +4,7 @@ import { DesignmodesService } from '../../provider/designmodes.service';
 import { DesignMode, Draft, LoomSettings, DraftNode, LoomUtil } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
 import { WorkspaceService } from '../../provider/workspace.service';
-import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, flipDraft, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../model/drafts';
+import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../model/drafts';
 import { flipLoom, generateDirectTieup, getLoomUtilByType, isFrame } from '../../model/looms';
 import { TreeService } from '../../provider/tree.service';
 import utilInstance from '../../model/util';
@@ -173,60 +173,8 @@ export class LoomModal implements OnInit {
   originChange(e:any){
 
 
-    const flips = utilInstance.getFlips(this.ws.selected_origin_option, this.selected_origin);
     this.ws.selected_origin_option = this.selected_origin;
-    
-    const dn: Array<DraftNode> = this.tree.getDraftNodes();
-    const data = dn.map(node => {
-      return {
-      draft: node.draft, 
-      loom: node.loom, 
-      horiz: flips.horiz,
-      vert: flips.vert}
-    });
-
-    // dn.forEach(node => {
-    //  if(node.loom !== null) console.log(node.loom.treadling)
-    // })
-
-    const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
-
-    return Promise.all(draft_fns)
-    .then(res => {
-      for(let i = 0; i < dn.length; i++){
-        dn[i].draft = <Draft>{
-          id: res[i].id,
-          gen_name: res[i].gen_name,
-          ud_name: res[i].ud_name,
-          drawdown: res[i].drawdown,
-          rowShuttleMapping: res[i].rowShuttleMapping,
-          rowSystemMapping: res[i].rowSystemMapping,
-          colShuttleMapping: res[i].colShuttleMapping,
-          colSystemMapping: res[i].colSystemMapping
-        };
-      }
-      const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
-      return Promise.all(loom_fns)
-    .then(res => {
-      for(let i = 0; i < dn.length; i++){
-        if(res[i] !== null){
-          dn[i].loom = {
-            threading: res[i].threading.slice(),
-            tieup: res[i].tieup.slice(),
-            treadling: res[i].treadling.slice()
-          }
-        }
-      }
-    })
-  .then(res => {
     this.onGlobalLoomChange.emit();
-  })
-
-
-    })
-
-    
-
 
   }
 

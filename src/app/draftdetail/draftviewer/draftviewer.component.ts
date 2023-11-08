@@ -7,7 +7,7 @@ import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
 import { StateService } from '../../core/provider/state.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
-import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, flipDraft, copyDraft } from '../../core/model/drafts';
+import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, copyDraft } from '../../core/model/drafts';
 import { convertLiftPlanToTieup, convertTieupToLiftPlan, generateDirectTieup, getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
 import { TreeService } from '../../core/provider/tree.service';
 import utilInstance from '../../core/model/util';
@@ -2399,81 +2399,81 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
 
 
-  public pasteViaOperation(type){
+  // public pasteViaOperation(type){
 
-    const draft =  this.tree.getDraft(this.id);
-    const copy_draft = initDraftWithParams({warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy});
-    const loom_settings = this.tree.getLoomSettings(this.id);
+  //   const draft =  this.tree.getDraft(this.id);
+  //   const copy_draft = initDraftWithParams({warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy});
+  //   const loom_settings = this.tree.getLoomSettings(this.id);
 
-    const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
-    const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
-    const height = adj_end_i - adj_start_i;
-    let op: Operation;
+  //   const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
+  //   const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
+  //   const height = adj_end_i - adj_start_i;
+  //   let op: Operation;
 
-    let inputs: Array<OpInput> = [];
+  //   let inputs: Array<OpInput> = [];
   
   
-      const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+  //     const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
       
 
 
-      return flipDraft(copy_draft, flips.horiz, flips.vert)
-      .then(flipped_draft => {
+  //     return flipDraft(copy_draft, flips.horiz, flips.vert)
+  //     .then(flipped_draft => {
 
-        // switch(type){
-        //   case 'invert':
-        //     op = this.ops.getOp('invert');
-        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-        //   break;
-        //   case 'mirrorX':
-        //     op = this.ops.getOp('flip horiz');
-        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-        //     break;
-        //   case 'mirrorY':
-        //     op = this.ops.getOp('flip vert');
-        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-        //     break;
-        //   case 'shiftLeft':
-        //     op = this.ops.getOp('shift left');
-        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
-        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-        //     break;
-        //   case 'shiftUp':
-        //     op = this.ops.getOp('shift up');
-        //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
-        //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-        //     break;
-        // }
-        // return op.perform(inputs);
-      })
-      .then(res => {
-        return flipDraft(res[0], flips.horiz, flips.vert);
-      })
-      .then(finalres => {
-        draft.drawdown = pasteIntoDrawdown(
-          draft.drawdown, 
-          finalres.drawdown, 
-          adj_start_i, 
-          this.selection.getStartingColIndex(),
-          this.selection.getWidth(),
-          height);
+  //       // switch(type){
+  //       //   case 'invert':
+  //       //     op = this.ops.getOp('invert');
+  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+  //       //   break;
+  //       //   case 'mirrorX':
+  //       //     op = this.ops.getOp('flip horiz');
+  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+  //       //     break;
+  //       //   case 'mirrorY':
+  //       //     op = this.ops.getOp('flip vert');
+  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
+  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+  //       //     break;
+  //       //   case 'shiftLeft':
+  //       //     op = this.ops.getOp('shift left');
+  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
+  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+  //       //     break;
+  //       //   case 'shiftUp':
+  //       //     op = this.ops.getOp('shift up');
+  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
+  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
+  //       //     break;
+  //       // }
+  //       // return op.perform(inputs);
+  //     })
+  //     .then(res => {
+  //       return flipDraft(res[0], flips.horiz, flips.vert);
+  //     })
+  //     .then(finalres => {
+  //       draft.drawdown = pasteIntoDrawdown(
+  //         draft.drawdown, 
+  //         finalres.drawdown, 
+  //         adj_start_i, 
+  //         this.selection.getStartingColIndex(),
+  //         this.selection.getWidth(),
+  //         height);
     
-        this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings).then(loom => {
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
+  //       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings).then(loom => {
+  //         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
 
-        })
+  //       })
 
-      })
+  //     })
      
 
   
   
      
     
-  }
+  // }
 
   /**
    * Tells weave reference to paste copied pattern.
@@ -2499,9 +2499,9 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     if(e.type === undefined) type = "original";
     else type =  e.type;
 
-    if(type !== 'original'){
-      this.pasteViaOperation(type);
-    }
+    // if(type !== 'original'){
+    //   this.pasteViaOperation(type);
+    // }
 
 
     const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];

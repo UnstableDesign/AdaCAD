@@ -211,7 +211,6 @@ export class DraftDetailComponent implements OnInit {
 
       this.clone_id  = id;
       const newid = this.tree.createNode('draft', null, null);
-      console.log("CLONE ID ", this.clone_id, newid)
 
       let d = this.tree.getDraft(id);
       this.draft= copyDraft(d);
@@ -231,7 +230,6 @@ export class DraftDetailComponent implements OnInit {
         treadles: loom_settings.treadles
       }
 
-      console.log("LOOM ON LOAD ", this.tree.getLoom(id), this.tree.getNode(id))
       const loom = this.tree.getLoom(id);
       const loom_fns = [];
 
