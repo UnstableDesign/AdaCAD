@@ -1269,7 +1269,6 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
   const update_looms = [];
   const new_draft_fns = [];
 
-
   //first, cycle through the existing nodes: 
   for(let i = 0; i < res.length; i++){
 
@@ -1286,7 +1285,7 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
     //this is a new draft
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
-      this.addConnection(parent, 0,  id, 0,  cxn);
+      this.addConnection(parent, i,  id, 0,  cxn);
       new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true)); 
       update_looms.push({id: id, draft:  res[i]});
       touched.push(id);
@@ -1634,6 +1633,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     const cxn_tn: TreeNode = this.getTreeNode(cxn);
 
     from_tn.outputs.push({tn:cxn_tn, ndx: from_ndx});
+    
     cxn_tn.inputs = [{tn: from_tn, ndx: 0}];
     cxn_tn.outputs = [{tn: to_tn, ndx: 0}];
     to_tn.inputs.push({tn: cxn_tn, ndx: to_ndx});
