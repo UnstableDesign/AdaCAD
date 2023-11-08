@@ -384,7 +384,8 @@ export class TreeService {
       draft: copyDraft(draft),
       loom: null,
       loom_settings: null,
-      render_colors: false
+      render_colors: false,
+      mark_for_deletion: false
     }
 
     sd.dirty = true;
@@ -618,6 +619,32 @@ export class TreeService {
     return Promise.resolve(viewRefs);
 
   }
+
+ 
+    /**
+     * when an operation has a variable amount of outputs, there may be cases where we need to delete one of the outputs 
+     * if it is no longer needed
+     * @param id the operation id, 
+    * @returns 
+     */
+    sweepOutlets(id: number) : Promise<Array<ViewRef>>{
+
+      const drafts: Array<number> =  this.getNonCxnOutputs(id);
+      const viewRefs: Array<ViewRef> = [];
+      
+      drafts.forEach(did => {
+        let draft = <DraftNode> this.getNode(did);
+        if(draft.mark_for_deletion){
+           viewRefs.push(draft.ref);
+           this.removeConnectionNode(id, did, 0);
+           this.removeSubdraftNode(did);
+        }
+      })
+ 
+    
+     return Promise.resolve(viewRefs);
+ 
+   }
     
 
   /**
@@ -1162,12 +1189,14 @@ removeOperationNode(id:number) : Array<Node>{
     
 }
 
+
 /**
- * deletes a connection
- * @param id - the connection to remove
- * @returns a list of all nodes removed as a result of this action
+ * deletes a connection between two nodes (an op and a draft)
+ * @param from the id of the node this connection is coming from
+ * @param to the id of the node this connection is going to
+ * @param inletid the id of the inlet into which this connection is traveling. 
+ * @returns 
  */
- //removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
   removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
 
 
@@ -1299,9 +1328,7 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
   out.forEach((output, ndx) => {
     if(touched.find(el => el == output) === undefined){
       const dn = <DraftNode> this.getNode(output);
-      if(dn.render_colors === undefined) dn.render_colors = false;
-      dn.draft = initDraftWithParams({wefts: 1, warps: 1});
-      update_looms.push({id: output, draft: dn.draft});
+      dn.mark_for_deletion = true;
     }
   });
   
@@ -2273,15 +2300,17 @@ isValidIOTuple(io: IOTuple) : boolean {
     const objs: Array<any> = []; 
 
     this.getOpNodes().forEach(op_node => {
-      const op = this.ops.getOp(op_node.name);
-
-      let cleaned_params = op.params.map((param_template, ndx) => {
-        if(param_template.type == 'file'){
-          return op_node.params[ndx].id;
-        }else{
-          return op_node.params[ndx];
-        }
-      })
+      if(op_node.name !== ""){
+        const op = this.ops.getOp(op_node.name);
+        let cleaned_params = op.params.map((param_template, ndx) => {
+          if(param_template.type == 'file'){
+            return op_node.params[ndx].id;
+          }else{
+            return op_node.params[ndx];
+          }
+        })
+      
+    
       
 
       const savable:OpComponentProxy = {
@@ -2293,6 +2322,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
       
       objs.push(savable);
+      }
     })
 
     return objs;

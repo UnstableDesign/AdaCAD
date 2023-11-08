@@ -2715,13 +2715,14 @@ drawStarted(){
   }
 
   /**
-   * emitted from an operatioin when its param has changed. This is automatically called on load 
+   * emitted from an operation when its param has changed. This is automatically called on load 
    * which is annoying because it recomputes everything!
    * checks for a child subdraft, recomputes, redraws. 
    * @param obj with attribute id describing the operation that called this
    * @returns 
    */
    async operationParamChanged(obj: any){
+    console.log("OPERATION PARAM CHANGE")
 
     if(obj === null) return;
 
@@ -2730,9 +2731,15 @@ drawStarted(){
         viewRefs.forEach(el => {
           this.removeFromViewContainer(el)
         });
-        this.performAndUpdateDownstream(obj.id)
+        return this.performAndUpdateDownstream(obj.id)
       } )
       .then(el => {
+        return this.tree.sweepOutlets(obj.id)
+      })
+      .then(viewRefs => {
+        viewRefs.forEach(el => {
+          this.removeFromViewContainer(el)
+        });
         this.addTimelineState();
       })
       .catch(console.error);

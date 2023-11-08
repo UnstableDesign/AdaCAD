@@ -616,6 +616,7 @@ zoomChange(e:any, source: string){
           } 
       });
       
+
       const new_tn: TreeNodeProxy = {
         node: id_map.find(el => el.prev_id === tn.node).cur_id,
         parent: (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id,

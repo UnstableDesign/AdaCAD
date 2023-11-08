@@ -637,7 +637,8 @@ export type OpNode = BaseNode & {
   draft: Draft,
   loom: Loom,
   loom_settings: LoomSettings,
-  render_colors: boolean
+  render_colors: boolean,
+  mark_for_deletion: boolean
  }
 
 
