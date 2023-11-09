@@ -529,8 +529,6 @@ export class DraftviewerComponent implements OnInit {
 
 
 
-      console.log("CURRENT POS ", currentPos, event.target.id)
-
 
       // Save temp pattern
       this.tempPattern = draft.drawdown.slice();
@@ -875,8 +873,9 @@ export class DraftviewerComponent implements OnInit {
     })
 
     this.copy = initDraftWithParams({warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd}).drawdown;
-    document.getElementById("has_selection").style.display = 'flex';
+   // document.getElementById("has_selection").style.display = 'flex';
 
+   console.log("COPIED ", this.copy)
     this.onNewSelection.emit({copy: this.copy});
 
 
@@ -2484,6 +2483,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    public onPaste(e) {
 
 
+    console.log("ON PASTE ", this.copy)
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -2509,9 +2509,10 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const height = adj_end_i - adj_start_i;
 
 
+    console.log("TARGET ", this.selection.getTargetId())
     switch(this.selection.getTargetId()){    
       case 'drawdown':
-
+        console.log("IN DRAWDOWN ",  this.selection.getWidth())
         draft.drawdown = pasteIntoDrawdown(
           draft.drawdown, 
           this.copy, 
