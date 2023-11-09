@@ -194,11 +194,6 @@ export class OperationComponent implements OnInit {
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
-  // refreshInlets(){
-  //   this.opnode.inlets
-  // }
-
-
 
   rescale(){
 
@@ -361,8 +356,8 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onParamChange(obj: any){
-
-    let original_inlets = [];
+    const opnode = <OpNode> this.tree.getNode(this.id);
+    const original_inlets = this.opnode.inlets.slice();
 
 
 
@@ -383,15 +378,7 @@ export class OperationComponent implements OnInit {
           }
           
         }
-
-        console.log("INLETS BEFORE ", this.opnode.inlets);
-        original_inlets = this.opnode.inlets.slice();
-        this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value)
-       
-
-       
-        console.log("INLETS After ", this.opnode.inlets);
-        //TODO Stitch the connections back to the matching inlet. You might do this by making sure just the weft systems are the same. 
+        this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value) 
 
         this.hasInlets = opnode.inlets.length > 0;
 

@@ -478,7 +478,6 @@ export class TreeService {
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
      const viewRefs:Array<ViewRef> = [];
 
-
      inputs_to_op.forEach((iotuple) => {
         //what was the value of the inlet
         let prior_val = prior_inlet_vals[iotuple.ndx];
@@ -489,11 +488,7 @@ export class TreeService {
         }else{
           iotuple.ndx = new_ndx;
         }
-
-
      })
-
-    
 
     return Promise.resolve(viewRefs);
 
