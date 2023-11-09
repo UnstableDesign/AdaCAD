@@ -362,6 +362,7 @@ export class OperationComponent implements OnInit {
    */
   onParamChange(obj: any){
 
+    let original_inlets = [];
 
 
 
@@ -383,7 +384,15 @@ export class OperationComponent implements OnInit {
           
         }
 
+        console.log("INLETS BEFORE ", this.opnode.inlets);
+        original_inlets = this.opnode.inlets.slice();
         this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value)
+       
+
+       
+        console.log("INLETS After ", this.opnode.inlets);
+        //TODO Stitch the connections back to the matching inlet. You might do this by making sure just the weft systems are the same. 
+
         this.hasInlets = opnode.inlets.length > 0;
 
         if(opnode.name == 'imagemap' || opnode.name == 'bwimagemap'){
@@ -402,7 +411,7 @@ export class OperationComponent implements OnInit {
 
     }
     
-    this.onOperationParamChange.emit({id: this.id});
+    this.onOperationParamChange.emit({id: this.id, prior_inlet_vals: original_inlets});
   }
 
   drawImagePreview(){

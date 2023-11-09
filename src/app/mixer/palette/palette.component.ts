@@ -2722,11 +2722,10 @@ drawStarted(){
    * @returns 
    */
    async operationParamChanged(obj: any){
-    console.log("OPERATION PARAM CHANGE")
 
     if(obj === null) return;
 
-    return this.tree.sweepInlets(obj.id)
+    return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
       .then(viewRefs => {
         viewRefs.forEach(el => {
           this.removeFromViewContainer(el)
