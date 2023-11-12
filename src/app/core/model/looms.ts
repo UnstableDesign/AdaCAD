@@ -391,7 +391,29 @@ const jacquard_utils: LoomUtil = {
     pasteTreadling: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
       return pasteDirectAndFrameTreadling(loom, drawdown, ndx, width, height);
     },
+    
     pasteTieup: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+    
+        const rows = wefts(drawdown);
+        const cols = warps(drawdown);
+
+        //expand the size of tieups to make sure it can hold the new values
+        const select_width = width + ndx.i;
+        const select_height = height + ndx.j;
+
+        for(let i = loom.tieup.length; i < select_height; i++){
+          loom.tieup.push([]);
+          for(let j = loom.tieup[0].length; j < select_width; j++){
+            loom.tieup[i].push(false);
+          }
+        }
+
+        for(let i = 0; i < height; i++){
+          for(let j = 0; j < width; j++){
+            loom.tieup[ndx.i + i][ndx.j + j] = getCellValue(drawdown[i % rows][j % cols]);
+          }
+        }
+          
       return loom;
     },
     deleteFromThreading: (loom: Loom, j: number) : Loom => {
@@ -422,6 +444,8 @@ export const pasteDirectAndFrameThreading = (loom:Loom, drawdown: Drawdown, ndx:
   return loom;
 
 }
+
+
 
 export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
     

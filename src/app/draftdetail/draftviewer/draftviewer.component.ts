@@ -499,9 +499,6 @@ export class DraftviewerComponent implements OnInit {
 
         case 'threading':
 
-          //offset for padding
-          currentPos.j -= 1;
-
           if(currentPos.i < 0 || currentPos.i >= frames) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break; 
@@ -835,14 +832,11 @@ export class DraftviewerComponent implements OnInit {
 
           break;
           case 'treadling':
-            temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);;
+            temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);
           break;
           case 'tieups':
-              //var frame = this.loom.frame_mapping[screen_row];
-              //temp_copy[i][j] = this.loom.hasTieup({i: frame, j: col, si: screen_row});
+           // console.log("COPYING ", i, j, loom.tieup)
               temp_copy[i][j] = loom.tieup[screen_row][col];
-
-
           break;  
           case 'warp-systems':
             temp_copy[i][j]= (draft.colSystemMapping[col] == i);
@@ -924,7 +918,6 @@ export class DraftviewerComponent implements OnInit {
   // }
 
   private drawWarpMaterialCell(draft:Draft, cx:any, j:number){
-      console.log("THIS CX ", cx)
 
         var dims = this.render.getCellDims("base");
         var margin = this.render.zoom*2;
@@ -1315,7 +1308,6 @@ export class DraftviewerComponent implements OnInit {
 
     if (!this.cxTieups || !currentPos) { return; }
 
-    console.log( currentPos, loom.tieup )
 
     if (isInUserTieupRange(loom, loom_settings,  currentPos)){
       this.is_dirty = true;
@@ -1366,7 +1358,6 @@ export class DraftviewerComponent implements OnInit {
       var val = false;
       this.is_dirty = true;
 
-      console.log("CURRENT THREADING ", currentPos, loom)
 
       //modify based on the current view 
        // currentPos.i = this.translateThreadingRowForView(loom, loom_settings,currentPos.i)
@@ -2482,7 +2473,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    public onPaste(e) {
 
 
-    console.log("ON PASTE ", this.copy)
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -2505,15 +2495,12 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     // const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
     // const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
-    console.log("adj start, end ", this.selection.getEndingRowScreenIndex(), this.selection.getStartingRowScreenIndex())
 
     const height = this.selection.getEndingRowScreenIndex() - this.selection.getStartingRowScreenIndex();
 
 
-    console.log("TARGET ", this.selection.getTargetId())
     switch(this.selection.getTargetId()){    
       case 'drawdown':
-        console.log("IN DRAWDOWN ",  this.selection.getWidth())
         draft.drawdown = pasteIntoDrawdown(
           draft.drawdown, 
           this.copy, 
@@ -2538,7 +2525,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
         });
         break;
-      case 'tieup':
+      case 'tieups':
+        
         loom_util.pasteTieup(loom,this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
