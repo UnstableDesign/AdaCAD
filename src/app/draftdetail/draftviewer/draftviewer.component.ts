@@ -875,7 +875,6 @@ export class DraftviewerComponent implements OnInit {
     this.copy = initDraftWithParams({warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd}).drawdown;
    // document.getElementById("has_selection").style.display = 'flex';
 
-   console.log("COPIED ", this.copy)
     this.onNewSelection.emit({copy: this.copy});
 
 
@@ -2504,9 +2503,11 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     // }
 
 
-    const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
-    const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
-    const height = adj_end_i - adj_start_i;
+    // const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
+    // const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
+    console.log("adj start, end ", this.selection.getEndingRowScreenIndex(), this.selection.getStartingRowScreenIndex())
+
+    const height = this.selection.getEndingRowScreenIndex() - this.selection.getStartingRowScreenIndex();
 
 
     console.log("TARGET ", this.selection.getTargetId())
@@ -2516,12 +2517,12 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         draft.drawdown = pasteIntoDrawdown(
           draft.drawdown, 
           this.copy, 
-          adj_start_i, 
+          this.selection.getStartingRowScreenIndex(), 
           this.selection.getStartingColIndex(),
           this.selection.getWidth(),
           height);
     
-
+        
         //if you do this when updates come from loom, it will erase those updates
         this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
@@ -2531,21 +2532,21 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
        break;
 
       case 'threading':
-        loom_util.pasteThreading(loom, this.copy, {i: adj_start_i, j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+        loom_util.pasteThreading(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
         });
         break;
       case 'tieup':
-        loom_util.pasteTieup(loom,this.copy, {i: adj_start_i, j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+        loom_util.pasteTieup(loom,this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
         });
         break;
       case 'treadling':
-        loom_util.pasteTreadling(loom, this.copy, {i: adj_start_i, j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+        loom_util.pasteTreadling(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
@@ -2604,7 +2605,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
             mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
 
            draft.rowSystemMapping = mapping.map((el, ndx) => {
-              if(ndx >= adj_start_i && ndx < adj_start_i + height){
+              if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + height){
                 return el;
               }else{
                 return draft.rowSystemMapping[ndx];
@@ -2625,7 +2626,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
               mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
   
              draft.rowShuttleMapping = mapping.map((el, ndx) => {
-                if(ndx >= adj_start_i && ndx < adj_start_i + height){
+                if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + height){
                   return el;
                 }else{
                   return draft.rowShuttleMapping[ndx];

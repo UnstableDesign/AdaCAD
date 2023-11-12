@@ -392,6 +392,8 @@ export const createDraft = (
     let rows = wefts(fill_pattern);
     let cols = warps(fill_pattern);
 
+    console.log("WIDTH, HEIGHT, ROWS, COLs ", width, height, start_i, start_j)
+
     //cycle through each visible row/column of the selection
     for (var i = 0; i < height; i++ ) {
       for (var j = 0; j < width; j++ ) {

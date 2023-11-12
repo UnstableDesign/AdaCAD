@@ -18,7 +18,7 @@ const pattern:StringParam =
     value: '(a1)(b2)',
     regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //this is the layer parsing regex
     error: 'invalid entry',
-    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). If you enter a letter, wthout an number such as (a1)(b)(c2), weft system be will be constructed as a float between layers 1 and 3'
+    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in parenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). If you enter a letter, without an number such as (a1)(b)(c2), weft system be will be constructed as a float between layers 1 and 3'
   }
 
 

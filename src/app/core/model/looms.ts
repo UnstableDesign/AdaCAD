@@ -233,7 +233,6 @@ const jacquard_utils: LoomUtil = {
     dx: "draft from drawdown or threading/tieup/treadling. Assumes you are assigning treadles to specific frame via tieup",
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
         
-      console.log("loom settings ", loom_settings)
       const loom: Loom = {
             threading: [],
             tieup: [],
