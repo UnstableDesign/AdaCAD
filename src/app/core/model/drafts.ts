@@ -217,7 +217,7 @@ export const createDraft = (
    * sets up the draft from the information saved in a .ada file
    * @param data 
    */
-  export const loadDraftFromFile = (data: any, flips: any, version: string) : Promise<Draft> => {
+  export const loadDraftFromFile = (data: any, flips: any, version: string) : Promise<{draft: Draft, id: number}> => {
 
     const draft: Draft = initDraft();
     if(data.id !== undefined) draft.id = data.id;
@@ -236,11 +236,7 @@ export const createDraft = (
     draft.colShuttleMapping = (data.colShuttleMapping === undefined) ? [] : data.colShuttleMapping;;
     draft.colSystemMapping= (data.colSystemMapping === undefined) ? [] : data.colSystemMapping;;
 
-
-    return flipDraft(draft, flips.horiz, flips.vert)
-    .then(flipped => {
-      return flipped;
-    })
+    return Promise.resolve({draft: draft, id: draft.id}); 
     
   }
 
@@ -396,6 +392,8 @@ export const createDraft = (
     let rows = wefts(fill_pattern);
     let cols = warps(fill_pattern);
 
+    console.log("WIDTH, HEIGHT, ROWS, COLs ", width, height, start_i, start_j)
+
     //cycle through each visible row/column of the selection
     for (var i = 0; i < height; i++ ) {
       for (var j = 0; j < width; j++ ) {
@@ -501,6 +499,7 @@ export const createDraft = (
    * @returns the flipped drawdown
    */
     export const flipDrawdown = (drawdown: Drawdown, horiz: boolean) : Drawdown =>  {
+      console.log("FLIP DRAWDOWN")
 
     const flip = createBlankDrawdown(wefts(drawdown), warps(drawdown));
     for(let i = 0; i < wefts(drawdown); i++){
@@ -804,13 +803,11 @@ export const createDraft = (
 
 
 
-/**
-* takes a draft as input, and flips the order of the rows
-* used to ensure mixer calculations are oriented from bottom left
-* @param draft 
-*/ 
+// /**
+// * takes a draft as input, and flips the order of the rows
+// * @param draft 
+// */ 
 export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Draft> => {
-
   const draft = initDraftWithParams(
     {id: d.id, 
     wefts: wefts(d.drawdown),
@@ -844,7 +841,7 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
   }
 
 
-  return Promise.resolve(draft);
+  return Promise.resolve(d);
 }
 
 

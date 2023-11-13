@@ -1,8 +1,6 @@
   
 
       <div class ="design-container" id="expanded-container">
-       
-
         <div class="tool-chunk" >
 
           <button 
@@ -21,6 +19,7 @@
 
       <div class="viewers">
 
+
         <app-draftviewer 
         id="draft_viewer"
         [id]="id"
@@ -28,6 +27,7 @@
         source = "weaver"
         (onNewSelection) = "updateSelection($event)"
         (onDrawdownUpdated)="drawdownUpdated()"
+        (onLoomSettingsUpdated)="loomSettingsUpdated()"
         (onMaterialChange)="materialChange()"
         (onViewerExpanded)="expandViewer()">
         </app-draftviewer>

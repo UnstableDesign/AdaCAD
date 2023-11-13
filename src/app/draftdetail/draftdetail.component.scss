@@ -46,14 +46,16 @@ h1{
     flex: 1 1 auto;
     display: flex;
     flex-direction: row;
-    width: 66vw;
+    width: 60vw;
 }
 
 .design-container{
     display: flex;
+    height: 100%;
     flex-direction: row;
     background-color: white;
     color:  #3f51b5;
+    overflow: hidden;
 }
 
 .detail_data{
@@ -70,7 +72,6 @@ h1{
 
 #draft_viewer.expanded{
     min-width: 100%;
-    margin: auto;
     display: flex;
     height: 100%;
 }

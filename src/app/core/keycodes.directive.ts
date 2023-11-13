@@ -2,6 +2,8 @@ import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
 import { Subject } from 'rxjs';
 import { RenderService } from '../draftdetail/provider/render.service';
 import { ZoomService } from '../mixer/provider/zoom.service';
+import { DesignMode } from './model/datatypes';
+import { DesignmodesService } from './provider/designmodes.service';
 import { FileService } from './provider/file.service';
 import { StateService } from './provider/state.service';
 
@@ -11,6 +13,7 @@ import { StateService } from './provider/state.service';
 export class KeycodesDirective {
 
   mixer_has_focus = true;
+  event_on_input_flag = false;
 
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
@@ -24,8 +27,15 @@ export class KeycodesDirective {
     private zs: ZoomService, 
     private fs: FileService,
     private ss: StateService,
-    private render: RenderService) { 
+    private render: RenderService,
+    private dm: DesignmodesService) { 
     }
+
+
+
+    /**
+     * check the series of the targets for this mouse or key event and see if it tracks to 
+     */
 
 
 
@@ -36,16 +46,21 @@ export class KeycodesDirective {
     @HostListener('window:mousedown', ['$event'])
     onMouseDown(event: MouseEvent) { 
       if((<HTMLElement>event.target).id == 'scrollable-container') this.mixer_has_focus = true;
-      if((<HTMLElement>event.target).id == 'draft-container') this.mixer_has_focus = false;
+      if((<HTMLElement>event.target).id == 'expanded-container') this.mixer_has_focus = false;
 
     }
+
+
   
+
+
 
 
   
 
   @HostListener('window:keydown', ['$event'])
   private keyEventDetected(e) {
+
 
   /**
    * ZOOM IN 
@@ -93,7 +108,6 @@ export class KeycodesDirective {
    * SAVE
    */
     if(e.key =="s" && e.metaKey){
-      console.log("KEYDOWN S")
     this.fs.saver.ada(
       'mixer', 
       true,
@@ -103,6 +117,22 @@ export class KeycodesDirective {
       });
       e.preventDefault();
     }
+
+
+      /**
+   * TOGGLE DRAW / SELECT MODE
+   */
+    if(e.key =="d" && e.metaKey){
+
+      let dm: DesignMode = this.dm.getSelectedDesignMode('design_modes');
+      if(dm.value == 'select'){
+        this.dm.selectDesignMode('draw', 'design_modes');
+      }else if(dm.value == 'draw'){
+        this.dm.selectDesignMode('select', 'design_modes');
+      }
+      e.preventDefault()
+    }
+
 
 
     /**

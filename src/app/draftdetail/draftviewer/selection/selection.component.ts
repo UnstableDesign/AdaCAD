@@ -24,7 +24,6 @@ export class SelectionComponent implements OnInit {
   private end: Interlacement;
   public width: number;
   public height: number;
-  private target: any;
 
   private has_selection = false;
 
@@ -40,33 +39,29 @@ export class SelectionComponent implements OnInit {
   force_width:boolean;
   
   hide_parent:boolean;
-  hide_options: boolean;
   hide_actions: boolean;
-  hide_selection: boolean = false;
 
-  /**
-   * reference to the SVG element edrawing the boundary
-   */
-  selectionEl: HTMLElement;
-  
+  has_copy: boolean = false;
+
+  selectionEl: HTMLElement = null;
   /**
    * reference to the parent div
    */
   parent: HTMLElement;
 
+  target: HTMLElement;
 
 
   constructor(
-    private dm: DesignmodesService,
+    public dm: DesignmodesService,
     private tree: TreeService,
     public render: RenderService
     ) { 
 
       this.design_actions = dm.getOptionSet('design_actions');
 
-    this.hide_options = true;
     this.hide_parent = true;
-    this.hide_actions = false;
+    this.hide_actions = true;
     this.force_height = false;
     this.force_width = false;
 
@@ -85,8 +80,8 @@ export class SelectionComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-    this.selectionEl = document.getElementById('selection');
-    this.parent = document.getElementById('selection-container');
+    // this.selectionEl = document.getElementById('selection');
+    // this.parent = document.getElementById('selection-container');
   }
 
   clearSelection(){
@@ -144,6 +139,7 @@ export class SelectionComponent implements OnInit {
   }
 
   copyEvent() {
+    this.has_copy = true;
     this.onCopy.emit();
   }
 
@@ -154,7 +150,33 @@ export class SelectionComponent implements OnInit {
   pasteEvent(type) {
     var obj: any = {};
     obj.type = type;
+    this.has_copy = false;
     this.onPaste.emit(obj);
+  }
+
+
+  /**
+   * given the target of a mouse event, check if it is currently enabled (as indicated by the drawdown editing style)
+   */
+  isTargetEnabled(target: string):boolean{
+    const editing_mode = this.dm.getSelectedDesignMode('drawdown_editing_style').value;
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    switch(target){
+      case 'treadling':    
+      case 'threading':
+        if(editing_mode === "drawdown") return false;
+        break;
+      case 'tieups':
+        if(editing_mode === "drawdown") return false;
+        if(loom_settings.type === "direct") return false;
+        break;
+
+      case 'drawdown':
+        if(editing_mode === "loom") return false;
+        break;
+    }
+
+    return true;
   }
 
   /**
@@ -164,16 +186,34 @@ export class SelectionComponent implements OnInit {
    * @returns 
    */
   onSelectStart(target: HTMLElement, start: Interlacement){
+    if(!target) return;
 
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.hide_actions = true;
 
     //clear existing params
     this.unsetParameters();
 
-    if(!target) return;
-    
     this.target = target;
+    if(!this.isTargetEnabled(target.id)) return;
+
+    if(this.selectionEl == null)  this.selectionEl = document.createElement("div");
+    
+    this.selectionEl.id = 'selection'
+    this.selectionEl.classList.add('selection');
+    this.selectionEl.style.display = 'block';
+    this.selectionEl .style.position ='absolute';
+    this.selectionEl.style.border = "dashed #ff4081 4px";
+    this.selectionEl.style.display = "none"
+    this.selectionEl.style.pointerEvents = 'none';
+    this.target.parentNode.appendChild( this.selectionEl);
+    
+ 
+
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    
+
+    
     this.start = start;
     this.hide_parent = false;
 
@@ -205,8 +245,9 @@ export class SelectionComponent implements OnInit {
       break;
 
       case 'drawdown':
+
+        break;
       case 'tieups':
-      
       break;
 
     }
@@ -214,9 +255,7 @@ export class SelectionComponent implements OnInit {
     this.end = start;
     this.recalculateSize();
 
-    //set view flags
-    this.hide_options = true;
-    this.hide_parent = false;
+
     this.has_selection = true;
     this.redraw();
 
@@ -231,6 +270,12 @@ export class SelectionComponent implements OnInit {
    */
   onSelectDrag(pos: Interlacement): boolean{
    
+    if(this.target === undefined) return;
+    if(this.target !== null && !this.isTargetEnabled(this.target.id)) return;
+
+
+
+
     if(pos.si < 0){
       pos.si = 0;
       return false;
@@ -257,10 +302,10 @@ export class SelectionComponent implements OnInit {
         this.end.j = pos.j;
       break;
 
-      case 'weft-systems':
-      case 'weft-materials':
-      case 'warp-systems':
-      case 'warp-materials':
+      // case 'weft-systems':
+      // case 'weft-materials':
+      // case 'warp-systems':
+      // case 'warp-materials':
       case 'drawdown':
       case 'tieups':
       
@@ -277,27 +322,8 @@ export class SelectionComponent implements OnInit {
   onSelectStop(){
 
     if(this.target === undefined) return;
-
-    switch(this.target.id){
-      case "threading":
-      case "treadling":
-      case "tieups":
-      case "warp-materials":
-      case "warp-systems":
-      case "weft-materials":
-      case "weft-systems":
-        this.hide_actions = true;
-
-        break;
-
-        default:
-          this.hide_actions = false;
-          break;
-    }
-
-
-
-    this.hide_options = false;
+    if(this.target !== null && !this.isTargetEnabled(this.target.id)) return;
+    this.hide_actions = false;
     this.onSelectionEnd.emit();
 
   }
@@ -346,13 +372,16 @@ export class SelectionComponent implements OnInit {
   }
 
   setStart(start: Interlacement){
+
     this.hide_parent = false;
-    this.hide_options = true;
+    this.hide_actions = true;
     this.start = start;
     this.recalculateSize();
 
     this.top = this.start.i * this.render.getCellDims('base').h;
     this.left = this.start.j * this.render.getCellDims('base').w;
+
+
   }
 
   recalculateSize(){
@@ -363,21 +392,41 @@ export class SelectionComponent implements OnInit {
   
     this.screen_width = this.width * this.render.getCellDims('base').w;
     this.screen_height = this.height * this.render.getCellDims('base').h;
-    
 
+
+    let container_el = document.getElementById("selection-container");
+
+    let parent_el = document.getElementById("expanded-container");
+    let el = document.getElementById("selection");
+    var rect = el.getBoundingClientRect();
+    var parent_rect = parent_el.getBoundingClientRect();
+    let top = (rect.y + rect.height + 20) - parent_rect.y;
+    let left = (rect.x) - parent_rect.x;
+
+    container_el.style.top = top+"px";
+    container_el.style.left = left+"px";
+
+
+   
   
   }
 
 
 
   unsetParameters() {
+
+    if(this.selectionEl !== null){
+      this.selectionEl.remove(); 
+      this.selectionEl = null;
+    }
+
     this.has_selection = false;
     this.width = -1;
     this.height = -1;
     this.force_width = false;
     this.force_height = false;
-    this.hide_parent = true;
-    this.hide_options = true;
+    //this.hide_parent = true;
+    // this.hide_options = true;
   }
 
   hasSelection(){
@@ -409,8 +458,9 @@ export class SelectionComponent implements OnInit {
 
   redraw(){
 
-    if(this.hasSelection() && this.target.id !== 'tieups'){
+    if(this.hasSelection()){
 
+      this.selectionEl.style.display = "block";
       this.hide_parent = false;
       let top_ndx = Math.min(this.start.si, this.end.si);
       let left_ndx = Math.min(this.start.j, this.end.j);
@@ -427,9 +477,14 @@ export class SelectionComponent implements OnInit {
         abs_left+=defaults.draft_detail_cell_size;
       } 
 
-
-      this.parent.style.top = abs_top+in_div_top+"px";
-      this.parent.style.left = abs_left+in_div_left+"px";
+      if(this.selectionEl !== null){
+      this.selectionEl.style.top = abs_top+in_div_top+"px"
+      this.selectionEl.style.left = abs_left+in_div_left+"px";
+      this.selectionEl.style.width = this.screen_width + "px";
+      this.selectionEl.style.height = this.screen_height + "px";
+      }
+      // this.parent.style.top = abs_top+in_div_top+"px";
+      // this.parent.style.left = abs_left+in_div_left+"px";
     }else{
       this.hide_parent = true;
     }

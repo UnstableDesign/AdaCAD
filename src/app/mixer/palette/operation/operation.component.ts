@@ -194,11 +194,6 @@ export class OperationComponent implements OnInit {
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
-  // refreshInlets(){
-  //   this.opnode.inlets
-  // }
-
-
 
   rescale(){
 
@@ -361,7 +356,8 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onParamChange(obj: any){
-
+    const opnode = <OpNode> this.tree.getNode(this.id);
+    const original_inlets = this.opnode.inlets.slice();
 
 
 
@@ -382,8 +378,8 @@ export class OperationComponent implements OnInit {
           }
           
         }
+        this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value) 
 
-        this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value)
         this.hasInlets = opnode.inlets.length > 0;
 
         if(opnode.name == 'imagemap' || opnode.name == 'bwimagemap'){
@@ -402,7 +398,7 @@ export class OperationComponent implements OnInit {
 
     }
     
-    this.onOperationParamChange.emit({id: this.id});
+    this.onOperationParamChange.emit({id: this.id, prior_inlet_vals: original_inlets});
   }
 
   drawImagePreview(){

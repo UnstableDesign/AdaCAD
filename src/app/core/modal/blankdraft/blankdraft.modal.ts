@@ -63,7 +63,6 @@ export class BlankdraftModal implements OnInit {
 
     if(this.loomtype !== 'jacquard'){
       loom = {
-        id: utilInstance.generateId(8),
         threading: [],
         treadling: [],
         tieup: []

@@ -111,8 +111,6 @@ export class StateService {
         scale: ada.file.scale
       }
     }
-
-    console.log("STATE", state)
   
 
     //write this to database, overwritting what was previously there

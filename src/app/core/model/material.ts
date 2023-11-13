@@ -1,4 +1,5 @@
 import { Material } from "./datatypes";
+import { defaults } from "./defaults";
 
 
 
@@ -11,7 +12,7 @@ export const createMaterial = (matDict = null) : Material => {
     visible: true, 
     color: "#666666",
     thickness: 100,
-    diameter: 5, 
+    diameter: defaults.default_material_diameter, 
     type: 0, 
     notes: '' 
   }
@@ -23,7 +24,7 @@ export const createMaterial = (matDict = null) : Material => {
     m.visible = matDict.visible;
     m.color = matDict.color;
     m.thickness = matDict.thickness;
-    m.diameter = (matDict.diameter === undefined) ? 5 : matDict.diameter;
+    m.diameter = (matDict.diameter === undefined) ? defaults.default_material_diameter : matDict.diameter;
     m.type = matDict.type;
     if(matDict.type === undefined) m.type = 0;
   // this.image = image;

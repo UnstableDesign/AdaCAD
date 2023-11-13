@@ -4,6 +4,21 @@ canvas{
   height: fit-content;
 }
 
+
+
+.status{
+  width: 100%;
+  text-align: center;
+  position: fixed;
+  left: 50%;
+}
+
+#has_selection{
+  display: none;
+}
+
+
+
 #draft_sidebar {
   display: flex;
   flex-direction: column;
@@ -36,7 +51,7 @@ canvas{
 }
 
 #threading{
-  padding-right: 15px;
+  margin: 0px 15px;
   //width: fit-content;
 }
 
@@ -85,6 +100,7 @@ canvas{
 
 #draft-container{
   display: flex;
+  flex-direction: column;
   overflow: scroll;
   height: 100%;
   width: 100%;
@@ -119,9 +135,8 @@ canvas{
 
 
 .warp-systems-container{
-  padding-left: 15px;
+  padding: 15px;
   display: flex;
-  padding-right: 15px;
 }
 
 .warp-systems-container.origin0
@@ -166,17 +181,29 @@ canvas{
   opacity: 1;
   cursor: pointer;
 
+
+
+}
+
+.threading-tieup-container.editable-loom.loomtype-direct{
+  #tieups{
+  opacity:  .5;
+  cursor: not-allowed;
+  }
+
 }
 
 .threading-tieup-container.editable-drawdown{
-  opacity:  .75;
+  opacity:  .5;
   cursor: not-allowed;
-
 }
+
+
+
+
 
 .threading-tieup-spacer.origin3,
 .threading-tieup-spacer.origin2{
-  width: 15px;
   display: block;
 }
 
@@ -190,41 +217,86 @@ canvas{
 
 .threading-tieup-container.origin0
 {
-  #threading,
-  #tieups{
+  #threading-canvas{
+    //flip x and y
+     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
+  }
+  #tieups-canvas{
+    //flip y only
+     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+.drawdown-container.origin0{
+
+  #drawdown-canvas{
+    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+
+}
+
+
+.threading-tieup-container.origin1
+{
+  #threading-canvas{
+    //flip x and y
+     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
+  }
+}
+
+.drawdown-container.origin1{
+
+  //flip x and y
+  #drawdown-canvas{
+    transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+
+  #treadling-canvas{
     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
+
 }
 
 .threading-tieup-container.origin2
 {
-  #tieups{
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  #tieups-canvas{
+     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
 .drawdown-container.origin2
 {
-  #treadling{
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  #treadling-canvas{
+     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
+
+  #drawdown-canvas{
+    position: relative;
+    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  
+
+
+ 
 }
 
 .threading-tieup-container.origin3
 {
-  #tieups{
-    transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  #tieups-canvas{
+     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
-  #threading{
-    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  #threading-canvas{
+     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
 .drawdown-container.origin3
 {
-  #treadling{
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  #treadling-canvas{
+     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
@@ -236,7 +308,7 @@ canvas{
   }
 
   #drawdown{
-    opacity: 0.75;
+    opacity: 0.5;
     cursor: not-allowed;
 
   }
@@ -245,7 +317,7 @@ canvas{
 
 .drawdown-container.editable-drawdown{
   #treadling{
-    opacity: .75;
+    opacity: .5;
     cursor: not-allowed;
   }
 
@@ -264,7 +336,6 @@ canvas{
 .threading-tieup-container.origin1
 {
   flex-direction: row; 
-  padding-left: 15px;
 }
 
 .threading-tieup-container.origin2,
@@ -296,7 +367,7 @@ canvas{
 
 .weft-systems-container{
   display: flex;
-  padding-top: 15px; 
+  padding: 15px 15px 0px 15px; 
 }
 
 .weft-systems-container.origin0,
@@ -334,7 +405,7 @@ canvas{
     .warp-systems-text.origin0,
     .warp-systems-text.origin1
     {
-      flex-direction: row;
+      flex-direction: row-reverse;
       justify-content: flex-start;
 
     }
@@ -532,7 +603,7 @@ canvas{
   .weft-systems-text.origin1,
   .weft-systems-text.origin2
   {
-    flex-direction: column;
+    flex-direction: column-reverse;
  
   }
 

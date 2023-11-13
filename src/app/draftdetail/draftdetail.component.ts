@@ -5,7 +5,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { Draft, Drawdown, Loom, LoomSettings, Cell } from '../core/model/datatypes';
 import { copyDraft, createDraft, generateMappingFromPattern, getDraftName } from '../core/model/drafts';
-import { copyLoom, isFrame } from '../core/model/looms';
+import { copyLoom, getLoomUtilByType, isFrame } from '../core/model/looms';
 import { RenderService } from './provider/render.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -37,6 +37,7 @@ export class DraftDetailComponent implements OnInit {
   
 
   @Output() closeDrawer: any = new EventEmitter();
+  @Output() saveChanges: any = new EventEmitter();
 
   id: number = -1;  
 
@@ -187,6 +188,8 @@ export class DraftDetailComponent implements OnInit {
   loadDraft(id: number) : Promise<any> {
 
 
+    console.log("LOADING DRAFT ", id)
+
       //reset the dirty value every time the window is open
     this.weaveRef.is_dirty = false;
 
@@ -197,10 +200,15 @@ export class DraftDetailComponent implements OnInit {
       this.draftname = getDraftName(this.draft)
       this.loom = this.tree.getLoom(id);
       this.loom_settings = this.tree.getLoomSettings(id);
+
       this.render.loadNewDraft(this.draft);
       this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
       return this.simRef.loadNewDraft(this.draft, this.loom_settings);
+    
     }else{
+
+      //set up a clone of this draft if it has a parent, so that major changes can spawn a new draft to be created
+
       this.clone_id  = id;
       const newid = this.tree.createNode('draft', null, null);
 
@@ -221,10 +229,29 @@ export class DraftDetailComponent implements OnInit {
         frames: loom_settings.frames,
         treadles: loom_settings.treadles
       }
-      this.loom = copyLoom(this.tree.getLoom(id));
 
-      return this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, this.draft, this.loom, this.loom_settings, false)
-      .then(d => {
+      const loom = this.tree.getLoom(id);
+      const loom_fns = [];
+
+      if(loom === null){
+        let loom_util = getLoomUtilByType(this.loom_settings.type);
+        loom_fns.push( loom_util.computeLoomFromDrawdown(this.draft.drawdown, this.loom_settings, this.ws.selected_origin_option))
+      }else{
+        this.loom = copyLoom(this.tree.getLoom(id));
+      }
+
+
+
+
+      return Promise.all(loom_fns)
+      .then(loom => {
+
+        if(loom.length > 0){
+          this.loom = copyLoom(loom[0]);
+          this.tree.setLoom(this.id, this.loom)
+        } 
+        return  this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, this.draft, this.loom, this.loom_settings, false)
+      }).then(d => {
 
         this.render.loadNewDraft(this.draft);
     
@@ -274,7 +301,15 @@ export class DraftDetailComponent implements OnInit {
   public drawdownUpdated(){
 
     this.simRef.setDirty();
-    this.redrawSimulation()
+    this.redrawSimulation();
+    
+  }
+
+  public loomSettingsUpdated(){
+    this.saveChanges.emit();
+    this.simRef.setDirty();
+    this.redrawSimulation();
+
   }
 
 

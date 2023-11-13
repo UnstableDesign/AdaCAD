@@ -138,6 +138,8 @@ export class SubdraftComponent implements OnInit {
 
   draft_cell_size: number = 8;
 
+  pixel_ratio: number = 1;
+
 
   constructor(private inks: InkService, 
     private layer: LayersService, 
@@ -191,6 +193,17 @@ export class SubdraftComponent implements OnInit {
     this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());
     this.warp_data_cx = this.draft_canvas.getContext("2d");
 
+        // set the width and height
+        let dpr = window.devicePixelRatio || 1;
+        let bsr =  this.draft_cx.webkitBackingStorePixelRatio ||
+        this.draft_cx.mozBackingStorePixelRatio ||
+        this.draft_cx.msBackingStorePixelRatio ||
+        this.draft_cx.oBackingStorePixelRatio ||
+        this.draft_cx.backingStorePixelRatio || 1;
+    
+        this.pixel_ratio = dpr/bsr;
+        
+    
 
     /**
      * when loading a draft from a file, the connections won't match if the connection is drawn before this
@@ -263,14 +276,6 @@ export class SubdraftComponent implements OnInit {
     this.draft_cell_size = event;
     this.drawDraft(this.draft);
     this.onSubdraftMove.emit({id: this.id, point: this.topleft});
-    // console.log(this.draft_zoom, event);
-    // const zoom_container = document.getElementById('local-zoom-'+this.id);
-    // zoom_container.style.transform = 'scale('+this.draft_zoom+')';
-    // zoom_container.style.width = (warps(this.draft.drawdown) * cell_size * event)+"px";
-    // zoom_container.style.height = (wefts(this.draft.drawdown) * cell_size * event)+"px";
-    // console.log(wefts(this.draft.drawdown), cell_size, event, this.scale);
-    
-
   }
 
   /**
@@ -567,6 +572,7 @@ export class SubdraftComponent implements OnInit {
 
   async drawCell(draft:Draft, cell_size:number, i:number, j:number, usecolor:boolean, forprint:boolean){
 
+    cell_size *= this.pixel_ratio;
     let is_up = isUp(draft.drawdown, i,j);
     let is_set = isSet(draft.drawdown, i, j);
     let color = "#ffffff"
@@ -608,23 +614,42 @@ export class SubdraftComponent implements OnInit {
     const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-'+this.id.toString());
     const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-'+this.id.toString());
     if(weft_systems_canvas === undefined) return;
+
     const weft_systems_cx = weft_systems_canvas.getContext("2d");
     const weft_mats_cx = weft_mats_canvas.getContext("2d");
 
-    weft_systems_canvas.height = wefts(draft.drawdown) * cell_size;
-    weft_systems_canvas.width = cell_size;
-    weft_mats_canvas.height = wefts(draft.drawdown) * cell_size;
-    weft_mats_canvas.width =  cell_size;
-
+    weft_systems_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
+    weft_systems_canvas.width = cell_size * this.pixel_ratio
+    weft_systems_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
+    weft_systems_canvas.style.width = cell_size+"px";
+    weft_mats_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
+    weft_mats_canvas.width =  cell_size*this.pixel_ratio;
+    weft_mats_canvas.style.height =(wefts(draft.drawdown) * cell_size)+"px";
+    weft_mats_canvas.style.width =  cell_size+"px";
+    let system = null;
 
       for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+
+        switch(this.ws.selected_origin_option){
+          case 1:
+          case 2: 
+          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
+
+          break;
+          case 0: 
+          case 3: 
+          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+
+          break;
+        }
+
         let color = this.ms.getColor(draft.rowShuttleMapping[j]);
-        let system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
         weft_mats_cx.fillStyle = color;
-        weft_mats_cx.fillRect(1, j* cell_size+1,  cell_size-2,  cell_size-2);
+        weft_mats_cx.fillRect(1, j* cell_size*this.pixel_ratio+1,  cell_size*this.pixel_ratio-2,  cell_size*this.pixel_ratio-2);
         
+        weft_systems_cx.font = cell_size*this.pixel_ratio+"px Arial";
         weft_systems_cx.fillStyle = "#666666";
-        weft_systems_cx.fillText(system, 0, (j+1)*cell_size - 1)
+        weft_systems_cx.fillText(system, 5, (j+1)*cell_size*this.pixel_ratio - 5)
 
 
       }
@@ -634,6 +659,8 @@ export class SubdraftComponent implements OnInit {
   }
 
   drawWarpData(draft: Draft) : Promise<boolean>{
+    // set the width and height
+
     draft =  this.tree.getDraft(this.id);
     let cell_size = this.calculateCellSize(draft);
 
@@ -644,22 +671,41 @@ export class SubdraftComponent implements OnInit {
     const warp_mats_cx = warp_mats_canvas.getContext("2d");
     const warp_systems_cx = warp_systems_canvas.getContext("2d");
 
-    warp_mats_canvas.width = warps(draft.drawdown) * cell_size;
-    warp_mats_canvas.height =  cell_size;
+    warp_mats_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
+    warp_mats_canvas.height =  cell_size * this.pixel_ratio;
+    warp_mats_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
+    warp_mats_canvas.style.height =  cell_size+"px";
 
-    warp_systems_canvas.width = warps(draft.drawdown) * cell_size;
-    warp_systems_canvas.height =  cell_size;
+    warp_systems_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
+    warp_systems_canvas.height =  cell_size * this.pixel_ratio;
+    warp_systems_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
+    warp_systems_canvas.style.height =  cell_size+"px";
 
+    let system = null;
 
       for (let j = 0; j < draft.colShuttleMapping.length; j++) {
         let color = this.ms.getColor(draft.colShuttleMapping[j]);
-        let system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
+        switch(this.ws.selected_origin_option){
+          case 0:
+          case 1: 
+          system = this.ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
+
+          break;
+          case 2: 
+          case 3: 
+          system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
+
+          break;
+        }
       
+        //cell_size *= this.pixel_ratio
         warp_mats_cx.fillStyle = color;
-        warp_mats_cx.fillRect(j* cell_size+1, 1,  cell_size-2,  cell_size-2);
+        warp_mats_cx.fillRect(j* cell_size*this.pixel_ratio+1, 1,  cell_size*this.pixel_ratio-2,  cell_size*this.pixel_ratio-2);
         
+        //need to flip this on certain origins. 
+        warp_systems_cx.font = cell_size*this.pixel_ratio+"px Arial";
         warp_systems_cx.fillStyle = "#666666";
-        warp_systems_cx.fillText(system, j*cell_size+2, cell_size)
+        warp_systems_cx.fillText(system, j*cell_size*this.pixel_ratio+2, cell_size*this.pixel_ratio-5)
 
       
       }
@@ -721,8 +767,11 @@ export class SubdraftComponent implements OnInit {
       const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
 
       return Promise.all(fns).then(el => {
-        this.draft_canvas.width = warps(draft.drawdown) * cell_size;
-        this.draft_canvas.height = wefts(draft.drawdown) * cell_size;
+        this.draft_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
+        this.draft_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
+        this.draft_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
+        this.draft_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
+   
           for (let i = 0; i <  wefts(draft.drawdown); i++) {
             for (let j = 0; j < warps(draft.drawdown); j++) {
               this.drawCell(draft, cell_size, i, j, use_colors, false);

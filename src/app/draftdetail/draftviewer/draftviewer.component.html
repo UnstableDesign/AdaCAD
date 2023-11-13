@@ -20,19 +20,23 @@
 
 <div class="draft-container {{source}}"  [class.expanded] ="expanded" id="draft-container">
 
+  <app-selection
+  #selection
+  [id]="id"
+  (onCopy)="onCopy()"
+  (onClear)="onClear($event)"
+  (onPaste)="onPaste($event)"
+  (onSelectionEnd)="onSelectionEnd()"
+  ></app-selection>
+ 
+    
+    
+
 
     <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
 
 
-      <app-selection 
-      #selection
-      [id]="id"
-      (onCopy)="onCopy()"
-      (onClear)="onClear($event)"
-      (onPaste)="onPaste($event)"
-      (onSelectionEnd)="onSelectionEnd()"
-      ></app-selection>
-     
+
       
       
 
@@ -54,8 +58,7 @@
      
           <div class="warp-number-container">
             <span *ngIf="j % render?.getTextInterval() == 0" class="warp_number origin{{ws.selected_origin_option}}">
-              <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j}}</ng-container>
-              <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j)}}</ng-container>
+              {{j}}
             </span>      
           
             <!-- <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">
@@ -88,15 +91,28 @@
           </div>  
 
       </div>
-      <div [class.hidden]="!isFrame" class="threading-tieup-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}">
+      <div [class.hidden]="!isFrame" class="threading-tieup-container 
+      origin{{ws.selected_origin_option}} 
+      editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}
+      loomtype-{{selected_loom_type}}"
+      >
+      <div id="threading-canvas">
         <canvas id="threading" class=""></canvas>
+        </div>
         <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div>
+        <div id="tieups-canvas">
         <canvas id="tieups" #tieups ></canvas>
+        </div>
       </div>
 
       <div class="drawdown-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}" >
+        <div id="drawdown-canvas">
         <canvas id="drawdown" #drawdown  >  </canvas>
+      </div>
+
+      <div id="treadling-canvas">
         <canvas [class.hidden]="!isFrame" id="treadling" #treadling></canvas>
+        </div>
         
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
           <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text">
@@ -122,7 +138,7 @@
                 <div class="weft_indicies">
 
                 <ng-container *ngIf="ws.selected_origin_option == 1 || ws.selected_origin_option == 2">
-                  <span *ngIf="(i % render?.getTextInterval() == 0)" class="weft_number origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)}}</span>      
+                  <span *ngIf="(i % render?.getTextInterval() == 0)" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
                   <!-- <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)-1}}</span>       -->
                 </ng-container>  
                 <ng-container *ngIf="ws.selected_origin_option == 0 || ws.selected_origin_option == 3">
@@ -154,9 +170,7 @@
       </div>
 
 
-    
-    
-    
+
     
           
 
@@ -196,7 +210,7 @@
           <mat-form-field class="fullwidth">
   
           <mat-label>Loom Type</mat-label>
-          <mat-select  (selectionChange) ="loomChange(envt)" [(value)]="loom_settings.type" [(ngModel)]="loom_settings.type" name="loomtype">
+          <mat-select  (selectionChange) ="loomChange(envt)" [(value)]="selected_loom_type" [(ngModel)]="selected_loom_type" name="loomtype">
             <mat-option *ngFor="let loomtype of loomtypes" [value]="loomtype.value">
               {{loomtype.viewValue}}
             </mat-option>
@@ -229,7 +243,7 @@
   
           <mat-form-field class="fullwidth">
             <mat-label>Density Units</mat-label>            
-            <mat-select [(value)]="units" [(ngModel)]="loom_settings.units" name="units" (selectionChange) ="unitChange(envt)">
+            <mat-select [(value)]="selected_units" [(ngModel)]="selected_units" name="units" (selectionChange) ="unitChange()">
               <mat-option *ngFor="let unit of density_units" [value]="unit.value">
                 {{unit.viewValue}}
               </mat-option>
@@ -280,11 +294,11 @@
   
   
     
-            <mat-form-field class="fullwidth">
+          <ng-container *ngIf="loom_settings.type != 'jacquard'">
+            <mat-form-field class="fullwidth" >
               <mat-label >Number of Frames</mat-label>    
               <input matInput 
               name="frames" 
-              [disabled]="loom_settings.type == 'jacquard'"
               [(ngModel)]="frames"  
               step="1" 
               type="number" 
@@ -294,7 +308,7 @@
               (blur)="updateMinFrames(envt)"> 
                <span matSuffix>frames</span> 
              </mat-form-field>
-      
+  
       
             <mat-form-field class="fullwidth">
               <mat-label>Number of Treadles</mat-label>      
@@ -311,7 +325,7 @@
               > 
                <span matSuffix>treadles</span> 
              </mat-form-field>
-    
+            </ng-container>
 
           </form> 
         </div>
@@ -321,8 +335,8 @@
             <mat-slide-toggle
             [disabled]="loom_settings.type == 'jacquard'"
             (click)="swapEditingStyle()">
+            {{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}
             </mat-slide-toggle>
-            <div><mat-label>{{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}</mat-label></div>
             </div>
           
       </div>

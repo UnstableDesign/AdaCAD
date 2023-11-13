@@ -10,7 +10,6 @@ import utilInstance from "./util";
 export const copyLoom = (l:Loom) : Loom => {
   if(l === undefined || l == null) return null;
   const copy_loom  = {
-    id: l.id,
     threading: l.threading.slice(),
     treadling: l.treadling.slice(),
     tieup: l.tieup.slice(),
@@ -32,9 +31,13 @@ export const copyLoomSettings = (ls:LoomSettings) : LoomSettings => {
 
 export const convertEPItoMM = (ls: LoomSettings) : number => {
 
+
+
   if(ls.units == 'cm'){
-    return ls.epi;
+
+    return (100/ls.epi);
   }else{
+
     return (25.4/ls.epi);
   }
 
@@ -49,7 +52,7 @@ const jacquard_utils: LoomUtil = {
     displayname: 'jacquard loom',
     dx: "draft exclusively from drawdown, disregarding any frame and treadle information",
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
-     return Promise.resolve(null);
+      return Promise.resolve(null);
     },
     computeDrawdownFromLoom: (l: Loom) : Promise<Drawdown> => {
       return Promise.resolve(null);
@@ -100,7 +103,6 @@ const jacquard_utils: LoomUtil = {
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
         
         const l: Loom = {
-            id: utilInstance.generateId(8), 
             threading: [],
             tieup: [],
             treadling: []
@@ -144,7 +146,6 @@ const jacquard_utils: LoomUtil = {
     },
     recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number): Promise<Loom> =>{
       const new_loom: Loom = {
-        id: l.id,
         threading: l.threading.slice(),
         tieup: [],
         treadling: []
@@ -176,8 +177,13 @@ const jacquard_utils: LoomUtil = {
 
     },
     updateThreading: (loom: Loom, ndx:InterlacementVal) => {
+
+
         if(ndx.val) loom.threading[ndx.j] = ndx.i;
         else loom.threading[ndx.j] = -1;
+
+   
+
         return loom;
     },
     updateTieup: (loom: Loom, ndx:InterlacementVal) => {
@@ -226,8 +232,8 @@ const jacquard_utils: LoomUtil = {
     displayname: 'shaft/treadle loom',
     dx: "draft from drawdown or threading/tieup/treadling. Assumes you are assigning treadles to specific frame via tieup",
     computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings, origin: number) : Promise<Loom>  => {
-        const loom: Loom = {
-            id: utilInstance.generateId(8),
+        
+      const loom: Loom = {
             threading: [],
             tieup: [],
             treadling: []
@@ -277,7 +283,6 @@ const jacquard_utils: LoomUtil = {
     },
     recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number): Promise<Loom> =>{
       const new_loom: Loom = {
-        id: l.id,
         threading: l.threading.slice(),
         tieup: [],
         treadling: []
@@ -317,9 +322,48 @@ const jacquard_utils: LoomUtil = {
     updateThreading: (loom:Loom, ndx: InterlacementVal) : Loom => {
         if(ndx.val) loom.threading[ndx.j] = ndx.i;
         else loom.threading[ndx.j] = -1;
+
+        //in this case, we need to expand the size of the tieup to include a row for this threading
+        // if(ndx.i >= loom.tieup.length){
+        //   const treadles = numTreadles(loom);
+        //   const difference = ndx.i - loom.tieup.length;
+        //   console.log(difference);
+        //   for(let x = 0; x <= difference; x++){
+        //     let row = [];
+        //     for(let j = 0; j < treadles; j++){
+        //       row.push(false);
+        //     }
+        //     loom.tieup.push(row);
+        //   }
+        // }
         return loom;
     },
     updateTieup: (loom:Loom, ndx: InterlacementVal) : Loom => {
+       //based on the way that the draft viewer renders based on user specified frames and treadles (and not neccessarily how many frames and treadles are being used, we have to manually resize the tieup to fit the input)
+
+       let frames = loom.tieup.length;
+        let treadles = loom.tieup[0].length;
+        if(ndx.i > frames){
+            const difference = ndx.i - loom.tieup.length;
+            for(let x = 0; x <= difference; x++){
+              let row = [];
+              for(let j = 0; j < treadles; j++){
+                row.push(false);
+              }
+              loom.tieup.push(row);
+            }
+        }
+
+        if(ndx.j > treadles){
+          const difference = ndx.j - loom.tieup[0].length;
+          for(let i = 0; i < loom.tieup.length;i++){
+            for(let x = 0; x <= difference; x++){
+              loom.tieup[i].push(false);
+            }
+          }
+        }
+      
+
         loom.tieup[ndx.i][ndx.j] = ndx.val;
         return loom;
 
@@ -347,7 +391,29 @@ const jacquard_utils: LoomUtil = {
     pasteTreadling: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
       return pasteDirectAndFrameTreadling(loom, drawdown, ndx, width, height);
     },
+    
     pasteTieup: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+    
+        const rows = wefts(drawdown);
+        const cols = warps(drawdown);
+
+        //expand the size of tieups to make sure it can hold the new values
+        const select_width = width + ndx.i;
+        const select_height = height + ndx.j;
+
+        for(let i = loom.tieup.length; i < select_height; i++){
+          loom.tieup.push([]);
+          for(let j = loom.tieup[0].length; j < select_width; j++){
+            loom.tieup[i].push(false);
+          }
+        }
+
+        for(let i = 0; i < height; i++){
+          for(let j = 0; j < width; j++){
+            loom.tieup[ndx.i + i][ndx.j + j] = getCellValue(drawdown[i % rows][j % cols]);
+          }
+        }
+          
       return loom;
     },
     deleteFromThreading: (loom: Loom, j: number) : Loom => {
@@ -378,6 +444,8 @@ export const pasteDirectAndFrameThreading = (loom:Loom, drawdown: Drawdown, ndx:
   return loom;
 
 }
+
+
 
 export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
     
@@ -553,12 +621,11 @@ export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: 
    */
   export const flipLoom = (loom:Loom, horiz: boolean, vert: boolean) : Promise<Loom> => {
    
-
+    return Promise.resolve(loom);
     if(loom === null || loom == undefined) return Promise.resolve(null);
 
     const refs = [];
     let new_loom = {
-      id: loom.id,
       threading: loom.threading.slice(), 
       tieup: loom.tieup.slice(),
       treadling: loom.treadling.slice()
@@ -809,9 +876,10 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
 
    /**
    * sets up the draft from the information saved in a .ada file
+   * returns the loom as well as the draft_id that this loom is linked with 
    * @param data 
    */
-  export const loadLoomFromFile = (loom: any, flips: any, version: string) : Promise<Loom> => {
+  export const loadLoomFromFile = (loom: any, flips: any, version: string, id: number) : Promise<{loom:Loom, id:number}> => {
 
     if(loom == null) return Promise.resolve(null);
 
@@ -832,7 +900,96 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
     
       return flipLoom(loom, flips.horiz, flips.vert)
       .then(flipped => {
-        return flipped;
+        return {loom:flipped, id};
       })
       
+    }
+
+    /**
+     * assumes the input to the function is a loom of type that uses a tieup and treadling and converts it to a loom that uses a direct tie and lift plan. 
+     */
+    export const convertTieupToLiftPlan = (loom: Loom) : Loom => {
+
+      let size = Math.max(numFrames(loom), numTreadles(loom));
+
+      let converted: Loom = {
+        threading: loom.threading.slice(),
+        tieup: generateDirectTieup(size),
+        treadling: []
+      }
+
+      converted.treadling = loom.treadling.map(treadle_vals => {
+
+        if(treadle_vals.length == 0) return [];
+          let active_treadle = treadle_vals[0];
+          let tieupcol: Array<boolean> = loom.tieup.reduce((acc, el, ndx) => {
+            return acc.concat(el[active_treadle])
+          }, [] );
+          return tieupcol.map((el, ndx)=> (el === true) ? ndx : -1).filter(el => el !== -1);
+        });
+        
+
+      return converted;
+    }
+
+        /**
+     * assumes the input to the function is a loom of type that uses a direct tie and lift plan and converts it to a loom that uses a tieup and treadling. 
+     */
+    export const convertLiftPlanToTieup = (loom: Loom) : Loom => {
+
+      let tieup_ndx = 0;
+      let shafts = numFrames(loom);
+      let converted: Loom = {
+        threading: loom.threading.slice(),
+        tieup: [],
+        treadling: []
+      }
+
+      let tieup_col = [];
+      for(let i = 0; i < shafts; i++){
+        tieup_col.push(false);
+        converted.tieup.push([]);
+      }
+
+      let seen = [];
+
+      //look at each pick
+      loom.treadling.forEach(pick => {
+        let pick_as_int: number = 0;
+       
+        if(pick.length != 0) {
+
+          pick_as_int = parseInt(pick.reduce((acc, el, ndx) => {
+            return acc + ((el) ? 1 : 0);
+          }, ''), 2);
+        
+
+          console.log("SEEN ", seen, pick_as_int)
+          let ndx = seen.findIndex(el => el == pick_as_int);
+          if(ndx !== -1){
+            //this pick will be assigned to an existing tieup column
+            converted.treadling.push([ndx]);
+          }else{
+            //make a black tieup column
+            let col = tieup_col.slice();
+            //assign each selected left to the associated shaft
+            pick.forEach(el => col[el] = true);
+
+            converted.treadling.push([tieup_ndx]);
+            //push this into the tieup
+            for(let i = 0; i < shafts; i++){
+              converted.tieup[i][tieup_ndx] = col[i];
+            }
+            seen.push(pick_as_int)
+            tieup_ndx++;
+          }
+        }else{
+          converted.treadling.push([]);
+        }
+    
+      })
+
+    
+
+      return converted;
     }

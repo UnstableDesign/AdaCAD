@@ -10,9 +10,9 @@ import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { createCell } from '../core/model/cell';
-import { DesignMode, Draft, DraftNode, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNode, DraftNodeProxy, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
-import { copyDraft, flipDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
+import { copyDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
 import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
 import utilInstance from '../core/model/util';
 import { AuthService } from '../core/provider/auth.service';
@@ -219,13 +219,13 @@ export class MixerComponent implements OnInit {
     if(obj.clone_id == -1){
       let comp = <SubdraftComponent>this.tree.getComponent(obj.id);
       comp.redrawExistingDraft();
-
       this.palette.updateDownstream(obj.id).then(el => {
-        this.palette.addTimelineState();
+      this.palette.addTimelineState();
       });
     //reperform all of the ops 
     }else{
       //this object was copied and we need to keep the copy
+
       if(obj.dirty){
         const parent = this.tree.getComponent(obj.clone_id);
         let el = document.getElementById('scale-'+parent.id);
@@ -241,10 +241,14 @@ export class MixerComponent implements OnInit {
 
        
       }else{
+        //copy over any superficial changes 
+        this.tree.setLoomSettings(obj.clone_id, this.tree.getLoomSettings(obj.id))
+        this.tree.setLoom(obj.clone_id, copyLoom(this.tree.getLoom(obj.id)))
         this.tree.removeSubdraftNode(obj.id);
       }
     }
 
+    this.saveFile();
 
 
   
@@ -430,7 +434,6 @@ zoomChange(e:any, source: string){
   loadNewFile(result: LoadResponse){
 
     //DO NOT CALL CLEAR ALL HERE AS IT WILL OVERWRITE LOADED FILE DATA
-
     this.files.setCurrentFileInfo(result.id, result.name, result.desc);
     
 
@@ -613,6 +616,7 @@ zoomChange(e:any, source: string){
           } 
       });
       
+
       const new_tn: TreeNodeProxy = {
         node: id_map.find(el => el.prev_id === tn.node).cur_id,
         parent: (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id,
@@ -634,6 +638,7 @@ zoomChange(e:any, source: string){
    * Take a fileObj returned from the fileservice and process
    */
    async processFileData(data: FileObj) : Promise<string|void>{
+
     this.loading = true;
 
     let entry_mapping = [];
@@ -680,16 +685,17 @@ zoomChange(e:any, source: string){
 
 
          let d:Draft =null;
+         let loom:Loom = null;
          let render_colors = true;
  
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
-        //let d: Draft = initDraft();
-        let l: Loom = {
-          id: utilInstance.generateId(8),
-          treadling: [],
-          tieup: [],
-          threading: []
-        }
+
+        // let l: Loom = {
+        //   id: utilInstance.generateId(8),
+        //   treadling: [],
+        //   tieup: [],
+        //   threading: []
+        // }
 
         let ls: LoomSettings = {
           frames: this.ws.min_frames,
@@ -698,9 +704,11 @@ zoomChange(e:any, source: string){
           units: this.ws.units,
           type: this.ws.type
         }
+
         if(draft_node !== undefined){
 
-          const located_draft = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
+          const located_draft:DraftNodeProxy = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
+
           if(located_draft === undefined){
             console.log("Looking for ", draft_node.node_id,"in", data.draft_nodes.map(el => el.draft_id))
             console.error("could not find draft with id in draft list");
@@ -708,7 +716,7 @@ zoomChange(e:any, source: string){
           else{
             d = copyDraft(located_draft.draft);
             ls = copyLoomSettings(located_draft.loom_settings);
-            l = copyLoom(located_draft.loom);
+            loom = copyLoom(located_draft.loom);
             if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
           } 
 
@@ -728,7 +736,7 @@ zoomChange(e:any, source: string){
             entry: sn,
             id: sn.cur_id,
             draft: d,
-            loom: l,
+            loom: loom,
             loom_settings: ls,
             render_colors: render_colors
             }
@@ -814,6 +822,8 @@ zoomChange(e:any, source: string){
 
        (<DraftNode> node).draft.ud_name = np.draft_name;
        (<DraftNode> node).loom_settings = np.loom_settings; 
+       (<DraftNode> node).loom = copyLoom(np.loom); 
+       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
       })
 
       // const dn = this.tree.getDraftNodes();
@@ -854,7 +864,6 @@ zoomChange(e:any, source: string){
    */
   loadDrafts(drafts: any){
     const loom:Loom = {
-      id: utilInstance.generateId(8),
       threading:[],
       tieup:[],
       treadling: []
@@ -912,6 +921,28 @@ zoomChange(e:any, source: string){
 
     
   }
+
+  // onLoadExample(name: string){
+  //   const analytics = getAnalytics();
+
+  //   logEvent(analytics, 'onloadexample', {
+  //     items: [{ uid: this.auth.uid, name: filename }]
+  //   });
+
+  //   this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
+
+  //   this.fls.loader.ada(filename, -1, '', res.body)
+  //       .then(res => {
+  //         this.onLoadExample.emit(res);
+  //         return;
+  //       }
+  //       )
+  //       .catch(e => {
+  //         console.log("CAUGHT ERROR IN FILE LOADER ");
+  //       });
+  //   }); 
+  // }
+
 
 
   loadExampleAtURL(name: string){
@@ -1165,9 +1196,9 @@ zoomChange(e:any, source: string){
 
 
 /**
- * when the origin changes, all drafts on the canavs should be modified to the new position
- * origin changes can ONLY happen on globals
- * flips must be calculated from the prior state
+ * the drafts stored in adacad are ALWAYs oriented with 0,0 as the top left corner
+ * any origin change is merely the rendering flipping the orientation. 
+ * when the global settings change, the data itself does NOT need to change, only the rendering
  * @param e 
  */
 originChange(e:any){
@@ -1176,61 +1207,15 @@ originChange(e:any){
   const flips = utilInstance.getFlips(this.selected_origin, e.value);
   this.selected_origin = e.value;
   this.ws.selected_origin_option = this.selected_origin;
-  
-  const dn: Array<DraftNode> = this.tree.getDraftNodes();
-  const data = dn.map(node => {
-    return {
-    draft: node.draft, 
-    loom: node.loom, 
-    horiz: flips.horiz,
-    vert: flips.vert}
-  });
+  this.palette.redrawAllSubdrafts(); //force a redraw so that the weft/warp system info is up to date
+  this.saveFile();
 
-  // dn.forEach(node => {
-  //  if(node.loom !== null) console.log(node.loom.treadling)
-  // })
-
-  const draft_fns = data.map(el => flipDraft(el.draft, el.horiz, el.vert));
-
-  return Promise.all(draft_fns)
-  .then(res => {
-    for(let i = 0; i < dn.length; i++){
-      dn[i].draft = <Draft>{
-        id: res[i].id,
-        gen_name: res[i].gen_name,
-        ud_name: res[i].ud_name,
-        drawdown: res[i].drawdown,
-        rowShuttleMapping: res[i].rowShuttleMapping,
-        rowSystemMapping: res[i].rowSystemMapping,
-        colShuttleMapping: res[i].colShuttleMapping,
-        colSystemMapping: res[i].colSystemMapping
-      };
-    }
-    const loom_fns = data.map(el => flipLoom(el.loom, el.horiz, el.vert))
-    return Promise.all(loom_fns)
-  .then(res => {
-    for(let i = 0; i < dn.length; i++){
-      if(res[i] !== null){
-        dn[i].loom = {
-          id: res[i].id,
-          threading: res[i].threading.slice(),
-          tieup: res[i].tieup.slice(),
-          treadling: res[i].treadling.slice()
-        }
-      }
-    }
-  }).then(out => {
-    this.saveFile();
-  })
-
-
-
-})
-
-  
 
 
 }
+
+
+
 
 epiChange(f: NgForm) {
 
@@ -1248,6 +1233,7 @@ epiChange(f: NgForm) {
 }
 
 
+
 /**
  * when a user selects a new loom type, the software will pull all subdrafts and update their loom information 
  * @param e 
@@ -1259,10 +1245,11 @@ loomChange(e:any){
   if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
   else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
   
-  const dn: Array<DraftNode> = this.tree.getDraftNodes();
-  dn.forEach(node => {
-    node.loom_settings.type = e.value.loomtype; 
-  })
+
+  // const dn: Array<DraftNode> = this.tree.getDraftNodes();
+  // dn.forEach(node => {
+  //   node.loom_settings.type = e.value.loomtype; 
+  // })
 
 
 }

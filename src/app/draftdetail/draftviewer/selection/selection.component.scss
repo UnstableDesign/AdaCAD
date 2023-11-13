@@ -1,45 +1,41 @@
 #selection-container{
-    position: absolute;
-    top: 0px;
-    left: 0px;
     display: flex;
-    flex-direction: column;
-    pointer-events: none;
-    z-index: 100;
+    flex-direction: row;
+    z-index: 4;
+    position: absolute;
+    color: #ff4081;
 }
 
+.selection-parent{
+    display: flex;
+    flex-direction: column;
+}
 
-.selection-row{
+.size-row{
     display: flex;
     flex-direction: row;
     pointer-events: none;
+    justify-content: flex-start;
+    background: white;
+    opacity: 0.8;
+    padding: 2px 6px 2px 6px;
 }
 
 .selection-actions{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: fit-content;
     background: white;
     opacity: 0.8;
     pointer-events: all;
 }
 
-.selection {
-    border: dashed #ff4081 4px;
-    //background: #ffffff98;
-    pointer-events: none;
-    overflow: visible;
-    z-index: 2;
-
-  }
-
-  .pattern-swatch svg{
-      border: thin solid grey;
-  }
 
   span{
       padding-left: 8px;
   }
+
+
 
   
   .menu-button{
