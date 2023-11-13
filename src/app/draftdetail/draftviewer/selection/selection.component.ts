@@ -24,7 +24,6 @@ export class SelectionComponent implements OnInit {
   private end: Interlacement;
   public width: number;
   public height: number;
-  private target: any;
 
   private has_selection = false;
 
@@ -40,18 +39,17 @@ export class SelectionComponent implements OnInit {
   force_width:boolean;
   
   hide_parent:boolean;
-  hide_options: boolean;
   hide_actions: boolean;
 
   has_copy: boolean = false;
 
   selectionEl: HTMLElement = null;
-  
   /**
    * reference to the parent div
    */
   parent: HTMLElement;
 
+  target: HTMLElement;
 
 
   constructor(
@@ -62,7 +60,6 @@ export class SelectionComponent implements OnInit {
 
       this.design_actions = dm.getOptionSet('design_actions');
 
-    this.hide_options = true;
     this.hide_parent = true;
     this.hide_actions = true;
     this.force_height = false;
@@ -146,7 +143,6 @@ export class SelectionComponent implements OnInit {
     var obj: any = {};
     obj.type = type;
     this.has_copy = false;
-    this.hide_actions = true;
     this.onPaste.emit(obj);
   }
 
@@ -184,6 +180,7 @@ export class SelectionComponent implements OnInit {
   onSelectStart(target: HTMLElement, start: Interlacement){
     if(!target) return;
 
+    this.hide_actions = true;
 
     //clear existing params
     this.unsetParameters();
@@ -191,8 +188,8 @@ export class SelectionComponent implements OnInit {
     this.target = target;
     if(!this.isTargetEnabled(target.id)) return;
 
-
-    if(this.selectionEl == null)     this.selectionEl = document.createElement("div");
+    if(this.selectionEl == null)  this.selectionEl = document.createElement("div");
+    
     this.selectionEl.id = 'selection'
     this.selectionEl.classList.add('selection');
     this.selectionEl.style.display = 'block';
@@ -201,10 +198,12 @@ export class SelectionComponent implements OnInit {
     this.selectionEl.style.display = "none"
     this.selectionEl.style.pointerEvents = 'none';
     this.target.parentNode.appendChild( this.selectionEl);
-
+    
+ 
 
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+    
 
     
     this.start = start;
@@ -248,9 +247,7 @@ export class SelectionComponent implements OnInit {
     this.end = start;
     this.recalculateSize();
 
-    //set view flags
-    //this.hide_options = true;
-    //this.hide_parent = false;
+
     this.has_selection = true;
     this.redraw();
 
@@ -318,27 +315,7 @@ export class SelectionComponent implements OnInit {
 
     if(this.target === undefined) return;
     if(this.target !== null && !this.isTargetEnabled(this.target.id)) return;
-
-    switch(this.target.id){
-      case "threading":
-      case "treadling":
-      case "tieups":
-      case "warp-materials":
-      case "warp-systems":
-      case "weft-materials":
-      case "weft-systems":
-        //this.hide_actions = true;
-
-        break;
-
-        default:
-          this.hide_actions = false;
-          break;
-    }
-
-
-
-    this.hide_options = false;
+    this.hide_actions = false;
     this.onSelectionEnd.emit();
 
   }
@@ -389,12 +366,14 @@ export class SelectionComponent implements OnInit {
   setStart(start: Interlacement){
 
     this.hide_parent = false;
-    this.hide_options = false;
+    this.hide_actions = true;
     this.start = start;
     this.recalculateSize();
 
     this.top = this.start.i * this.render.getCellDims('base').h;
     this.left = this.start.j * this.render.getCellDims('base').w;
+
+
   }
 
   recalculateSize(){
@@ -405,8 +384,22 @@ export class SelectionComponent implements OnInit {
   
     this.screen_width = this.width * this.render.getCellDims('base').w;
     this.screen_height = this.height * this.render.getCellDims('base').h;
-    
 
+
+    let container_el = document.getElementById("selection-container");
+
+    let parent_el = document.getElementById("expanded-container");
+    let el = document.getElementById("selection");
+    var rect = el.getBoundingClientRect();
+    var parent_rect = parent_el.getBoundingClientRect();
+    let top = (rect.y + rect.height + 20) - parent_rect.y;
+    let left = (rect.x) - parent_rect.x;
+
+    container_el.style.top = top+"px";
+    container_el.style.left = left+"px";
+
+
+   
   
   }
 

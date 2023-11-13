@@ -2,11 +2,11 @@
 [style.display]="dm.isSelected('draw','design_modes')? 'none' : 'flex'"
 >
 
-<div class="selection-row">
-    <span>Selection Size: {{width}} x {{height}} </span>
+<div class="size-row" *ngIf="width !== -1">
+    <span>{{width}} x {{height}} </span>
 </div>
 
-<div class="selection-row">
+<div class="selection-row" *ngIf="!hide_actions">
 
 
     <div id="selection-actions" class="selection-actions">
@@ -34,9 +34,9 @@
 
 
         
-        <button mat-raised-button color="primary" matTooltip="copy this region" (click)="copyEvent()"><i class="fas fa-clipboard"></i> Copy</button>
+        <button mat-icon-button  matTooltip="copy this region" (click)="copyEvent()" [color]= "!has_copy ? 'primary' : 'accent'" ><i class="fas fa-clipboard"></i></button>
 
-        <button mat-raised-button color="primary" [disabled]="!has_copy" [color]= "!has_copy ? 'primary' : 'accent'" matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i> Paste</button>
+        <button mat-icon-button color="primary" [disabled]="!has_copy" [color]= "!has_copy ? 'primary' : 'accent'"  matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i></button>
 
     </div>
 </div>

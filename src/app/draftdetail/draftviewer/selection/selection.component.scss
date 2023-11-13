@@ -1,16 +1,24 @@
 #selection-container{
     display: flex;
-    flex-direction: column;
-    margin: auto;
-    height: 62px;
+    flex-direction: row;
+    z-index: 4;
+    position: absolute;
+    color: #ff4081;
 }
 
+.selection-parent{
+    display: flex;
+    flex-direction: column;
+}
 
-.selection-row{
+.size-row{
     display: flex;
     flex-direction: row;
     pointer-events: none;
-    justify-content: center;
+    justify-content: flex-start;
+    background: white;
+    opacity: 0.8;
+    padding: 2px 6px 2px 6px;
 }
 
 .selection-actions{
