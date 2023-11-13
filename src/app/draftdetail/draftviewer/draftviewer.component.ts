@@ -241,6 +241,8 @@ export class DraftviewerComponent implements OnInit {
 
   system_codes: Array<string> = [];
 
+  pixel_ratio: number = 1;
+
  
    /// ANGULAR FUNCTIONS
    /**
@@ -310,6 +312,17 @@ export class DraftviewerComponent implements OnInit {
     this.cxTieups = this.tieupsCanvas.getContext('2d');
 
     // set the width and height
+    let dpr = window.devicePixelRatio || 1;
+    let bsr =  this.cxThreading.webkitBackingStorePixelRatio ||
+    this.cxThreading.mozBackingStorePixelRatio ||
+    this.cxThreading.msBackingStorePixelRatio ||
+    this.cxThreading.oBackingStorePixelRatio ||
+    this.cxThreading.backingStorePixelRatio || 1;
+
+    this.pixel_ratio = dpr/bsr;
+    
+
+
 
     this.rescale(this.render.getZoom());
 
@@ -1051,6 +1064,9 @@ export class DraftviewerComponent implements OnInit {
     var i,j;
 
     var dims = this.render.getCellDims("base");
+    dims.w *= this.pixel_ratio;
+    dims.h *= this.pixel_ratio;
+
     cx.fillStyle="black";
     cx.lineWidth = .5;
     cx.lineCap = 'round';
@@ -1063,7 +1079,7 @@ export class DraftviewerComponent implements OnInit {
 
     }else if(canvas.id=== "threading"){
       cx.fillStyle = "white";
-      cx.fillRect(0,0,canvas.width,canvas.height);
+      cx.fillRect(0,0,canvas.style.width,canvas.style.height);
       // cx.fillStyle = "#cccccc";
       // cx.fillRect(0, 0, canvas.width, (frames - loom_settings.frames)*dims.h);
     }
@@ -1093,6 +1109,7 @@ export class DraftviewerComponent implements OnInit {
 
     //only draw the lines if the zoom is big enough to render them well
 
+      
       // draw vertical lines
       for (i = 0; i <= canvas.width; i += dims.w) {
         
@@ -1432,6 +1449,60 @@ export class DraftviewerComponent implements OnInit {
    }
 
 
+  private getTransform(target: string) : Array<number> {
+   switch(this.ws.selected_origin_option){
+    case 0: 
+    if(target == 'threading'){
+      return [-1, 0, 0, -1, 0,  0];
+    }
+    if(target == 'treadling'){
+      return [1, 0, 0, 1, 0,  0];
+    }
+    if(target == 'tieup'){
+      return [1, 0, 0, -1, 0,  0];
+    }
+    break;
+
+    case 1: 
+    if(target == 'threading'){
+      return [-1, 0, 0, 1, 0,  0];
+    }
+    if(target == 'treadling'){
+      return [1, 0, 0, -1, 0,  0];
+    }
+    if(target == 'tieup'){
+      return [1, 0, 0, 1, 0,  0];
+    }
+    break;
+
+    case 2: 
+    if(target == 'threading'){
+      return [1, 0, 0, 1, 0,  0];
+    }
+    if(target == 'treadling'){
+      return [-1, 0, 0, -1, 0,  0];
+    }
+    if(target == 'tieup'){
+      return [-1, 0, 0, 1, 0,  0];
+    }
+    break;
+
+    case 3: 
+      if(target == 'threading'){
+        return [1, 0, 0,-1, 0, 0];
+      }
+      if(target == 'treadling'){
+        return [-1, 0, 0, 1, 0,  0];
+      }
+      if(target == 'tieup'){
+        return [-1, 0, 0,-1, 0, 0];
+      }
+      break;
+
+   }
+  }
+
+
 
 
 
@@ -1439,8 +1510,17 @@ export class DraftviewerComponent implements OnInit {
 //This function draws whatever the current value is at screen coordinates cell i, J
   private drawCell(draft: Draft, loom: Loom, loom_settings: LoomSettings, cx:any, i:number, j:number, type:string){
 
-    var base_dims = this.render.getCellDims("base");
     var base_fill = this.render.getCellDims("base_fill");
+    base_fill.w *= this.pixel_ratio;
+    base_fill.h *= this.pixel_ratio;
+
+    var base_dims = this.render.getCellDims("base");
+    base_dims.w *= this.pixel_ratio;
+    base_dims.h *= this.pixel_ratio;
+
+
+
+
     var is_up = false;
     var is_set = false;
     var color = "#FFFFFF";
@@ -1500,16 +1580,43 @@ export class DraftviewerComponent implements OnInit {
 
      //cx.fillStyle = color;
      cx.fillStyle = color;
+     cx.strokeStyle = "#999999";
      cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
 
-    // if(type =='threading'){
-    //   cx.font = "10px Arial";
-    //   cx.fillStyle = "white";
-    //   let thread_val = loom.threading[j]+1;
-    //   //if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(loom) - loom.threading[j];
-    //   cx.fillText(thread_val, 2+ left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y + base_fill.h);
+    if(type !== 'drawdown'){
+      cx.strokeRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
+
+      cx.font = "18px Arial";
+      cx.fillStyle = "white";
+
+      let number_val = -1;
+      if(type == "threading") number_val = i+1;
+      else if(type == "treadling") number_val = j+1 ;
+      else if(type == "tieup") number_val = i+1 ;
+
+      //if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(loom) - loom.threading[j];
+      let y_margin = 0;
+      if(type == "threading"){
+        y_margin = (this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2 ) ? 3/4 : 1/4;
+      }
+
+      if(type == "treadling"){
+        y_margin = (this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2 ) ? 1/4 : 3/4;
+      }
+
+      if(type == "tieup"){
+        y_margin = (this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2 ) ? 3/4 : 1/4;
+      }
+
+      cx.save();
+      cx.translate(left+ base_dims.w*(j + 1/2) , top+base_dims.h*(i + y_margin));
+      let tx = this.getTransform(type);
+      cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
+      cx.textAlign = "center";
+      cx.fillText(number_val, 0, 0);
+      cx.restore();
       
-    // }
+    }
 
   }
 
@@ -1692,11 +1799,17 @@ export class DraftviewerComponent implements OnInit {
    */
   public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
 
+
+
+
     this.isFrame = isFrame(loom_settings);
 
     if(loom === null || loom === undefined){
       return;
     }
+
+
+
 
     const frames = Math.max(numFrames(loom), loom_settings.frames);
     const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
@@ -1708,21 +1821,24 @@ export class DraftviewerComponent implements OnInit {
     this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
     this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
 
-    this.cxThreading.canvas.width = base_dims.w * loom.threading.length;
-    this.cxThreading.canvas.height = base_dims.h * frames;
+    this.cxThreading.canvas.width = base_dims.w * loom.threading.length * this.pixel_ratio;
+    this.cxThreading.canvas.height = base_dims.h * frames * this.pixel_ratio;
+    this.cxThreading.canvas.style.width =  (base_dims.w * loom.threading.length)+ "px"
+    this.cxThreading.canvas.style.height =  ( base_dims.h * frames )+ "px"
     this.drawGrid(loom, loom_settings, this.cxThreading,this.threadingCanvas);
-   // else this.drawBlank(this.cxThreading,this.threadingCanvas);
 
 
-    this.cxTreadling.canvas.width = base_dims.w * treadles;
-    this.cxTreadling.canvas.height = base_dims.h * this.render.visibleRows.length;
+    this.cxTreadling.canvas.width = base_dims.w * treadles * this.pixel_ratio;
+    this.cxTreadling.canvas.height = base_dims.h * this.render.visibleRows.length  * this.pixel_ratio;
+    this.cxTreadling.canvas.style.width = (base_dims.w * treadles) + "px";
+    this.cxTreadling.canvas.style.height = (base_dims.h * this.render.visibleRows.length) + "px";
     this.drawGrid(loom, loom_settings, this.cxTreadling,this.treadlingCanvas);
-    //else this.drawBlank(this.cxTreadling,this.treadlingCanvas);
 
-    this.cxTieups.canvas.width = base_dims.w * treadles;
-    this.cxTieups.canvas.height = base_dims.h *frames;
+    this.cxTieups.canvas.width = base_dims.w * treadles  * this.pixel_ratio;
+    this.cxTieups.canvas.height = base_dims.h *frames  * this.pixel_ratio;
+    this.cxTieups.canvas.style.width = (base_dims.w * treadles)+ "px";
+    this.cxTieups.canvas.style.height = (base_dims.h *frames)+ "px";
     this.drawGrid(loom, loom_settings, this.cxTieups,this.tieupsCanvas);
-    //else this.drawBlank(this.cxTieups,this.tieupsCanvas);
     
 
     for (var j = 0; j < loom.threading.length; j++) {
@@ -1783,8 +1899,10 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
     if(flags.drawdown !== undefined){
         this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
-        this.cx.canvas.width = base_dims.w * (warps(draft.drawdown)+2);
-        this.cx.canvas.height = base_dims.h * (this.render.visibleRows.length+2);
+        this.cx.canvas.width = base_dims.w * (warps(draft.drawdown)+2) * this.pixel_ratio;
+        this.cx.canvas.height = base_dims.h * (this.render.visibleRows.length+2) * this.pixel_ratio;
+        this.cx.canvas.style.width = (base_dims.w * (warps(draft.drawdown)+2)) + "px";
+        this.cx.canvas.style.height = (base_dims.h * (this.render.visibleRows.length+2)) +"px"
         this.cx.strokeStyle = "#3d3d3d";
         this.cx.fillStyle = "#ffffff";
         this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
