@@ -179,32 +179,16 @@
     </div>
 
 
- 
- 
- 
-
- 
-          
-  
- 
- 
-   
-     <!-- <svg #activeRow class="active_row">
-     </svg>
- 
-     <svg #activeCol class="active_col">
-     </svg>
-                -->
- 
- 
-     <canvas #bitmapImage hidden></canvas>
-    </div>
+     </div>
 
       <div class="controls" 
       [style.display]="(expanded) ? 'flex' : 'none'" 
       *ngIf="id !== -1">
 
         <div class="left-side">
+
+            <button class="print" mat-raised-button color="primary" (click)="print()">Print</button>
+          
         <form #envt="ngForm" novalidate>
 
           <mat-form-field class="fullwidth">
@@ -338,5 +322,8 @@
             {{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}
             </mat-slide-toggle>
             </div>
+
+
+       
           
       </div>

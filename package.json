@@ -21,7 +21,6 @@
     "e2e": "ng e2e",
     "doc": "npx compodoc -p tsconfig.doc.json",
     "deploy": "git push origin `git subtree split --prefix documentation main`:gh-pages --force"
-
   },
   "private": true,
   "dependencies": {
@@ -46,6 +45,7 @@
     "canvas2image": "^1.0.5",
     "core-js": "^3.6.4",
     "firebase": "^9.4.0",
+    "html-to-image": "^1.11.11",
     "mathjs": ">=7.5.1",
     "ngx-color-picker": "^11.0.0",
     "rxfire": "^6.0.0",
