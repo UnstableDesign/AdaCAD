@@ -392,7 +392,6 @@ export const createDraft = (
     let rows = wefts(fill_pattern);
     let cols = warps(fill_pattern);
 
-    console.log("WIDTH, HEIGHT, ROWS, COLs ", width, height, start_i, start_j)
 
     //cycle through each visible row/column of the selection
     for (var i = 0; i < height; i++ ) {
@@ -409,6 +408,28 @@ export const createDraft = (
 
    
   }
+
+
+  export const cropDraft = (draft: Draft, top: number, left: number, width: number, height: number) : Draft => {
+
+    const cropped = copyDraft(draft);
+    cropped.drawdown = createBlankDrawdown(height, width);
+    for(let i = top; i < top + height && i < wefts(draft.drawdown); i++){
+      cropped.rowShuttleMapping[i-top] = draft.rowShuttleMapping[i]; 
+      cropped.rowSystemMapping[i-top] = draft.rowSystemMapping[i]; 
+      for(let j = left; j < left + width && j < warps(draft.drawdown); j++){
+        cropped.drawdown[i - top][j - left] = createCell(getCellValue(draft.drawdown[i][j]));
+      }     
+    }
+
+    for(let j = left; j < left + width && j < warps(draft.drawdown); j++){
+      cropped.rowShuttleMapping[j-left] = draft.rowShuttleMapping[j]; 
+      cropped.rowSystemMapping[j-left] = draft.rowSystemMapping[j]; 
+    }    
+
+    return cropped;
+  }
+
 
   /**
    * creates an empty drawdown of a given size

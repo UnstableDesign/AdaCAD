@@ -35,6 +35,7 @@ import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import * as htmlToImage from 'html-to-image';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -1078,6 +1079,40 @@ zoomChange(e:any, source: string){
     }
 
 
+    printMixer(){
+      console.log("PRINT MIXER", "get bounding box of the elements and print")
+      var node = document.getElementById('scrollable-container');
+        htmlToImage.toPng(node, {width: 16380/2, height: 16380/2})
+        .then(function (dataUrl) {
+  
+          // var win = window.open('about:blank', "_new");
+          // win.document.open();
+          // win.document.write([
+          //     '<html>',
+          //     '   <head>',
+          //     '   </head>',
+          //     '   <body onload="window.print()" onafterprint="window.close()">',
+          //     '       <img src="' + dataUrl + '"/>',
+          //     '   </body>',
+          //     '</html>'
+          // ].join(''));
+          // win.document.close();
+  
+          const link = document.createElement('a')
+          link.href= dataUrl;
+          link.download = "mixer.jpg"
+          link.click();
+  
+      
+     
+  
+        })
+        .catch(function (error) {
+          console.error('oops, something went wrong!', error);
+        });
+      
+    }
+
   /**
    * this is called when a user pushes save from the topbar
    * @param event 
@@ -1090,13 +1125,7 @@ zoomChange(e:any, source: string){
     switch(e.type){
       case 'jpg': 
 
-      return this.fs.saver.jpg(this.palette.getPrintableCanvas(e))
-      .then(href => {
-        link.href= href;
-        link.download = this.files.current_file_name + ".jpg";
-        this.palette.clearCanvas();
-        link.click();
-      });
+      this.printMixer();
 
       break;
 

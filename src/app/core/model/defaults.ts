@@ -1,4 +1,5 @@
 export const defaults = {
+    max_simulation_area: 10000,
     draft_detail_cell_size: 15,
     draft_detail_zoom: 1,
     draft_name: 'drafty',
