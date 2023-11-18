@@ -672,34 +672,24 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
   /**
    * this function takes a draft and input variables and uses those to generate a list of vertexes between which yarns will cross on the z plane. These points are used to determine how layers are formed and how yarns will stack relative to eacother. 
    */
-  export const getDraftTopology = (draft: Draft, sim: SimulationVars) : Promise<Array<TopologyVtx>> => {
+  export const getDraftTopology = async (draft: Draft, sim: SimulationVars) : Promise<Array<TopologyVtx>> => {
     let dd = draft.drawdown;
-
-    //extend the drawdown by boundary in all directions so that we can eliminate strange data that emerges from drafts that don't have enough interlacements because they are small. This artifically tiles the draft to get more fidelity. 
-
-
-
-    const warp_tuples = getWarpInterlacementTuples(dd);
-    // console.log("WARP TUPLES ", warp_tuples);
     let topology: Array<TopologyVtx> = [];
+    const warp_tuples = getWarpInterlacementTuples(dd);
 
   
     //look at each weft
     for(let i = 0; i < wefts(dd); i++){
-
       //get the interlacements associated with this row
       let a = warp_tuples.filter(el => el.i_top == i);
-
       let range = {j_left: 0, j_right: warps(draft.drawdown)-1}
-
       let verticies = getInterlacements( a, range, 0,  draft, sim);
-
       let corrected = correctInterlacementLayers(topology, verticies, sim.layer_threshold);
-      
       topology = topology.concat(corrected);
     }
 
-  
+
+    
     return  Promise.resolve(topology);
 
   }

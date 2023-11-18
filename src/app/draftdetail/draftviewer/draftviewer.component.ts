@@ -19,7 +19,6 @@ import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import {defaults} from '../../core/model/defaults'
 import { SidebarComponent } from './sidebar/sidebar.component';
 import * as htmlToImage from 'html-to-image';
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
 
 @Component({
   selector: 'app-draftviewer',
@@ -2159,6 +2158,14 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
             '</html>'
         ].join(''));
         win.document.close();
+
+        // const link = document.createElement('a')
+        // link.href= dataUrl;
+        // link.download = getDraftName(draft)+"_detailview.jpg";
+        // link.click();
+
+    
+   
 
       })
       .catch(function (error) {

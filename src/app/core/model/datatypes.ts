@@ -793,7 +793,6 @@ export type WarpHeight = {
 
 export type SimulationData = {
   draft: Draft,
-  bounds: Bounds,
   sim: SimulationVars,
   topo: Array<TopologyVtx>,
   vtxs: VertexMaps,

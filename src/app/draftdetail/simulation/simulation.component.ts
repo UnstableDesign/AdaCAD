@@ -1,12 +1,12 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { TreeService } from '../../core/provider/tree.service';
 import { SimulationService } from '../../core/provider/simulation.service';
-import { Draft, Interlacement, Loom, LoomSettings, SimulationData } from '../../core/model/datatypes';
+import { Bounds, Draft, Interlacement, LoomSettings, SimulationData } from '../../core/model/datatypes';
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { initDraftFromDrawdown, warps, wefts } from '../../core/model/drafts';
+import { cropDraft, warps, wefts } from '../../core/model/drafts';
 
 @Component({
   selector: 'app-simulation',
@@ -14,8 +14,6 @@ import { initDraftFromDrawdown, warps, wefts } from '../../core/model/drafts';
   styleUrls: ['./simulation.component.scss']
 })
 export class SimulationComponent implements OnInit {
-
-
   
   @Input('id') id;
   @Input('new_draft_flag$') new_draft_flag$;
@@ -25,8 +23,6 @@ export class SimulationComponent implements OnInit {
   scene;
   camera;
   controls;
-  draft: Draft;
-  loom_settings: LoomSettings;
   sim_expanded: boolean = false;
   layer_spacing: number = 10;
   layer_threshold: number = 1;
@@ -45,7 +41,8 @@ export class SimulationComponent implements OnInit {
   tanFOV: number = 0;
   originalHeight: number = 0; 
   dirty: boolean; //flags the need to recompute 
-
+  selection_bounds: Bounds = null;
+  render_size_error: boolean = false;
 
   constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
 
@@ -137,33 +134,12 @@ export class SimulationComponent implements OnInit {
 
 
   loadNewDraft(draft: Draft, loom_settings: LoomSettings) : Promise<any>{
-    console.log("LOADING NEW DRAFT SIM ", loom_settings)
-
-    this.draft = draft;
-    this.loom_settings = loom_settings;
     this.layer_spacing = this.calcDefaultLayerSpacing(draft);
+    this.simulation.setupSimulation(this.renderer, this.scene, this.camera, this.controls);
+    this.resetSelectionBounds(draft);
+    this.recalcAndRenderSimData(draft, loom_settings, this.selection_bounds);
+    return Promise.resolve('done')
   
-    return this.simulation.setupSimulation(
-      draft, 
-      this.renderer, 
-      this.scene, 
-      this.camera, 
-      this.controls,
-      this.layer_threshold, 
-      this.warp_threshold, convertEPItoMM(loom_settings), 
-      this.layer_spacing, 
-      this.max_interlacement_width,
-      this.max_interlacement_height, 
-      this.boundary,
-      this.radius,
-      this.ms)
-      .then(simdata => {
-        this.current_simdata = simdata;
-        
-        return this.simulation.renderSimdata(this.scene, simdata,  this.showing_warps,  this.showing_wefts, this.showing_warp_layer_map,  this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
-    })
-
-
   }
 
   /**
@@ -175,29 +151,61 @@ export class SimulationComponent implements OnInit {
    */
   updateSelection(start: Interlacement, end: Interlacement){
 
+    console.log("UPDATE SELECTION ", start, end)
+
     let width = end.j - start.j;
     if(width <= 0) return;
 
     let height = end.i - start.i;
     if(height <= 0) return;
 
-    this.current_simdata.bounds = {
-      topleft: {x: start.j, y: start.i},
-      width, height
-    }
 
-    this.simulation.renderSimdata(this.scene, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
+
+    //recalc if this was currently too large to render or if we are making a new selection within an existing  
+    if(this.current_simdata == null || this.render_size_error){
+
+      let draft = this.tree.getDraft(this.id);
+      let loom_settings = this.tree.getLoomSettings(this.id);
+      let crop = cropDraft(draft, start.i, start.j, width, height);
+   
+      //since we trimmed the draft, the selection is now the entire trimmed draft
+      this.selection_bounds  = {
+        topleft: {x: this.boundary, y: this.boundary},
+        width, height
+      }
+      this.recalcAndRenderSimData(crop, loom_settings,  this.selection_bounds);
+
+    }else{
+
+      this.selection_bounds  = {
+        topleft: {x: start.j+this.boundary, y: start.i+this.boundary},
+        width, height
+      }
+  
+      console.log("RENDERING UPDATED DATA ", this.selection_bounds)
+      this.simulation.renderSimdata(this.scene, this.selection_bounds, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
+
+    }
 
   }
 
-  unsetSelection(){
-    this.current_simdata.bounds = {
-      topleft: {x: 0, y: 0},
-      width: warps(this.draft.drawdown), 
-      height: wefts(this.draft.drawdown)
-    }
 
-    this.simulation.renderSimdata(this.scene, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
+  resetSelectionBounds(draft: Draft){
+    if(draft == null) draft = this.tree.getDraft(this.id);
+    this.selection_bounds = {
+      topleft: {x: this.boundary, y: this.boundary},
+      width: warps(draft.drawdown),
+      height: wefts(draft.drawdown)
+    }
+  }
+
+  /**
+   * returns the simdata bounds to the size of the entire draft stored at this ID
+   */
+  unsetSelection(){
+
+    this.resetSelectionBounds(null);
+    this.simulation.renderSimdata(this.scene, this.selection_bounds, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
   }
 
   /**
@@ -206,46 +214,16 @@ export class SimulationComponent implements OnInit {
    * @param draft 
    * @param loom_settings 
    */
-  updateSimulation(draft: Draft, loom_settings){
+  updateSimulation(draft: Draft, loom_settings: LoomSettings){
 
     if(!this.dirty) return; //only recalc and redraw when there is a change that requires it. 
-
-
-    this.draft = draft;
-    this.loom_settings = loom_settings;
-    this.simulation.recalcSimData(
-      this.scene, 
-      draft, 
-      convertEPItoMM(this.loom_settings), 
-      this.layer_spacing, 
-      this.layer_threshold, 
-      this.max_interlacement_width, 
-      this.max_interlacement_height,
-      this.boundary,
-      this.radius,
-      this.ms
-      ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
-    });
+    this.recalcAndRenderSimData(draft, loom_settings, this.selection_bounds);
 
   }
 
-  changeLayerThreshold(){
-    this.simulation.recalcSimData(
-      this.scene, 
-      this.draft, 
-      convertEPItoMM(this.loom_settings), 
-      this.layer_spacing, 
-      this.layer_threshold, 
-      this.max_interlacement_width, 
-      this.max_interlacement_height,
-      this.boundary,
-      this.radius,
-      this.ms
-      ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
-    });
-  }
+  // changeLayerThreshold(){
+  //   this.recalcAndRenderSimData();
+  // }
 
   snapToX(){
     this.simulation.snapToX(this.controls);
@@ -284,58 +262,37 @@ export class SimulationComponent implements OnInit {
 
 
   changeRadius(e: any){
-
-    this.simulation.recalcSimData(
-      this.scene, 
-      this.draft, 
-      convertEPItoMM(this.loom_settings), 
-      this.layer_spacing, 
-      this.layer_threshold, 
-      this.max_interlacement_width, 
-      this.max_interlacement_height,
-      this.boundary,
-      this.radius,
-      this.ms
-      ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
-    });
+    let draft = this.tree.getDraft(this.id);
+    let loom_settings = this.tree.getLoomSettings(this.id);
+    this.recalcAndRenderSimData(draft, loom_settings, this.selection_bounds);
   }
 
 
-  changeLayerSpacing(e: any){
+  // changeLayerSpacing(e: any){
 
-    this.simulation.redrawCurrentSim(this.scene, this.draft, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft)
-
-    // this.simulation.recalcSimData(
-    //   this.scene, 
-    //   this.draft, 
-    //   convertEPItoMM(this.loom_settings), 
-    //   this.layer_spacing, 
-    //   this.layer_threshold, 
-    //   this.max_interlacement_width, 
-    //   this.max_interlacement_height,
-    //   this.boundary,
-    //   this.radius,
-    //   this.ms
-    //   ).then(simdata => {
-    //   this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map,this.showing_weft_layer_map,  this.showing_topo, this.showing_draft);
-    // });
-  }
+  //   this.simulation.redrawCurrentSim(this.scene, this.draft)
+  // }
 
 
   //this will update the colors on the current sim without recomputing the layer maps
   redrawCurrentSim(){
-    this.simulation.redrawCurrentSim(this.scene, this.draft, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft)
+    let draft = this.tree.getDraft(this.id);
+    this.simulation.redrawCurrentSim(this.scene, draft)
 
   }
 
-
-  changeILaceWidth(){
+  /**
+   * recomputes the simulation data for a given draft and selection (e.g. if will only compute the selection if there is one). Loom settings is passed to speak for the EPI. 
+   * @param draft 
+   * @param loom_settings 
+   * @param selection the bounds of the selection or null if no selection has been made. 
+   */
+  recalcAndRenderSimData(draft: Draft, loom_settings: LoomSettings, selection: Bounds){
 
     this.simulation.recalcSimData(
       this.scene, 
-      this.draft, 
-      convertEPItoMM(this.loom_settings), 
+      draft, 
+      convertEPItoMM(loom_settings), 
       this.layer_spacing, 
       this.layer_threshold, 
       this.max_interlacement_width, 
@@ -343,28 +300,35 @@ export class SimulationComponent implements OnInit {
       this.boundary,
       this.radius,
       this.ms
-      ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
-    });
+      )
+    .then(simdata => {
+      document.getElementById('sizeerror').style.display = "none"
+      document.getElementById('simulation_container').style.display = "flex";
+      this.render_size_error = false;
+      this.current_simdata = simdata;
+      this.simulation.renderSimdata(this.scene, selection,  simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
+    }).catch(err => {
+      console.error("Gen Sim Data Returned Error", err);
+      this.current_simdata = null;
+      this.render_size_error = true;
+      document.getElementById('sizeerror').style.display = "block"
+      document.getElementById('simulation_container').style.display = "none"
+    })
+  
+
+
+
   }
 
-  changeILaceHeight(){
 
-    this.simulation.recalcSimData(
-      this.scene, 
-      this.draft, 
-      convertEPItoMM(this.loom_settings), 
-      this.layer_spacing, 
-      this.layer_threshold, 
-      this.max_interlacement_width, 
-      this.max_interlacement_height,
-      this.boundary,
-      this.radius, 
-      this.ms
-      ).then(simdata => {
-      this.simulation.renderSimdata(this.scene, simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
-    });
-  }
+  // changeILaceWidth(){
+  //   this.recalcAndRenderSimData();
+  // }
+
+  // changeILaceHeight(){
+  //   this.recalcAndRenderSimData(draft);
+
+  // }
 
 
   pageClose(){
