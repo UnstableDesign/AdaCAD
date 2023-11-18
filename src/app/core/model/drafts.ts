@@ -1,5 +1,6 @@
+import { drawdown } from "../operations/drawdown/drawdown";
 import { createCell, getCellValue, setCellValue } from "./cell";
-import { Draft, Drawdown, YarnFloat, Cell } from "./datatypes";
+import { Draft, Drawdown, YarnFloat, Cell, CompressedDraft } from "./datatypes";
 import { defaults } from "./defaults";
 import utilInstance from "./util";
 
@@ -227,8 +228,11 @@ export const createDraft = (
     if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){
       draft.drawdown = parseSavedDrawdown(data.pattern);
     }else{
+      if(data.compressed_drawdown === undefined){
       draft.drawdown = parseSavedDrawdown(data.drawdown);
-
+      }else{
+        draft.drawdown = unpackDrawdownFromArray(data.compressed_drawdown, data.warps, data.wefts)
+      }
     }
 
     draft.rowShuttleMapping = (data.rowShuttleMapping === undefined) ? [] : data.rowShuttleMapping;
@@ -241,24 +245,7 @@ export const createDraft = (
   }
 
 
-  /**
-   * converts the saved structure of a pattern into the format used in memory
-   * @param pattern the saved pattern
-   * @returns the pattern in the form of a drawdown.
-   */
-  const parseSavedPattern = (pattern: Array<Array<boolean>>) : Drawdown => {
-    const drawdown:Drawdown = [];
-    if(pattern === undefined) return [];
 
-    for(var i = 0; i < wefts(pattern); i++) {
-        drawdown.push([]);
-        for (var j = 0; j < warps(pattern); j++){
-          drawdown[i][j]= createCell(pattern[i][j]);
-        }
-    }
-
-    return drawdown;
-  }
 
   const parseSavedDrawdown = (dd: Array<Array<Cell>>) : Drawdown => {
 
@@ -467,6 +454,24 @@ export const createDraft = (
     return cropped;
   }
 
+  export const compressDraft = (draft: Draft) : CompressedDraft => {
+    
+    let comp: CompressedDraft = {
+      id: draft.id, 
+      ud_name: draft.ud_name, 
+      gen_name: draft.gen_name,
+      warps: warps(draft.drawdown),
+      wefts: wefts(draft.drawdown),
+      compressed_drawdown: exportDrawdownToArray(draft.drawdown),
+      rowSystemMapping: draft.rowSystemMapping.slice(),
+      rowShuttleMapping: draft.rowShuttleMapping.slice(),
+      colSystemMapping: draft.colSystemMapping.slice(),
+      colShuttleMapping: draft.colShuttleMapping.slice(),
+    }
+    return comp;
+
+  }
+
   export const exportDrawdownToArray = (drawdown: Drawdown) : Uint8ClampedArray => {
     let arr = [];
     for(let i = 0; i < wefts(drawdown); i++){
@@ -489,12 +494,38 @@ export const createDraft = (
 
   }
 
+  export const unpackDrawdownFromArray = (compressed: Uint8ClampedArray, warps: number, wefts: number) : Drawdown => {
+    let dd:Drawdown = createBlankDrawdown(wefts, warps);
+
+    for(let n = 0; n < compressed.length; n++){
+      let i = Math.floor(n / warps);
+      let j = n % warps;
+      let cell;
+      switch(compressed[n]){
+        case 0:
+          cell = createCell(false);
+          break;
+
+        case 1:
+          cell = createCell(true);
+          break;
+
+        case 2:
+          cell = createCell(null);
+          break;
+      }
+    
+      dd[i][j] = cell;
+    }
+    return dd;
+  }
+
 
   /**
    * creates an empty drawdown of a given size
    * @param wefts 
    * @param warps 
-   * @returns 
+   * @returns a Drawdown object
    */
   export const createBlankDrawdown = (wefts: number, warps: number) : Drawdown => {
     const drawdown: Drawdown = [];
@@ -579,7 +610,6 @@ export const createDraft = (
    * @returns the flipped drawdown
    */
     export const flipDrawdown = (drawdown: Drawdown, horiz: boolean) : Drawdown =>  {
-      console.log("FLIP DRAWDOWN")
 
     const flip = createBlankDrawdown(wefts(drawdown), warps(drawdown));
     for(let i = 0; i < wefts(drawdown); i++){

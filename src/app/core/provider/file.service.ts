@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, LoomSettings, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
-import { initDraftWithParams, loadDraftFromFile } from '../model/drafts';
+import { compressDraft, exportDrawdownToArray, initDraftWithParams, loadDraftFromFile, warps, wefts } from '../model/drafts';
 import { getLoomUtilByType, loadLoomFromFile } from '../model/looms';
 import utilInstance from '../model/util';
 import { FilesystemService } from './filesystem.service';
@@ -53,6 +53,7 @@ export class FileService {
   const dloader: Fileloader = {
 
      ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
+      console.log("DATA ", data)
 
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
@@ -61,6 +62,7 @@ export class FileService {
       let draft_nodes: Array<DraftNodeProxy> = [];
       let ops: Array<OpComponentProxy> = [];
       let version = "0.0.0";
+      
       if(id === -1) id = this.files.generateFileId();
 
       
@@ -68,7 +70,6 @@ export class FileService {
 
       if(data == undefined) return Promise.reject(" there is no data")
 
-      console.log("DATA ", data)
       if(data.version !== undefined) version = data.version;
 
       if(data.workspace !== undefined){
@@ -93,6 +94,9 @@ export class FileService {
       const draft_elements = [];
       const draft_fns = [];
 
+
+
+
       if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
         data.nodes.forEach(node => {
           if(node.bounds !== undefined) node.topleft = node.bounds.topleft;
@@ -107,7 +111,10 @@ export class FileService {
         if(draft_nodes !== undefined){
           draft_nodes.forEach(el => {
 
-            if(el.draft !== null && el.draft !== undefined){
+            if(el.draft == undefined && el.compressed_draft !== undefined){
+              draft_fns.push(loadDraftFromFile(el.compressed_draft, flips_required, version));
+              draft_elements.push(el);
+            }else if(el.draft !== null && el.draft !== undefined){
               draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
               draft_elements.push(el);
             }
@@ -133,14 +140,13 @@ export class FileService {
         .forEach(async node => {
           const loom = data.looms.find(loom => loom.draft_id === node.node_id);
           const draft = data.drafts.find(draft => draft.id === node.node_id);
-          console.log("DRAFTS ", draft)
 
           const dn: DraftNodeProxy = {
             node_id: (node === undefined) ? -1 : node.node_id,
             draft_id: node.node_id,
             draft_name: node.draft_name,
-            draft:draft,
-            dd_compressed: null,
+            draft: null,
+            compressed_draft: (node.compressed_draft === undefined) ? compressDraft(node.draft) : node.compressDraft,
             draft_visible: (node === undefined) ? true : node.draft_visible,
             loom:null,
             loom_settings: (loom === undefined) 
@@ -259,12 +265,12 @@ export class FileService {
       draft_nodes = data.draft_nodes;
 
       draft_nodes.forEach(el => {
-        if(el.draft !== null && el.draft !== undefined){
-          draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
+        if(el.compressed_draft !== null && el.compressed_draft !== undefined){
+          draft_fns.push(loadDraftFromFile(el.compressed_draft, flips_required, version));
           draft_elements.push(el);
 
           if(el.loom !== null && el.loom !== undefined){
-            loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.draft.id));
+            loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.compressed_draft.id));
             loom_elements.push(el);
           }
         }
@@ -288,18 +294,18 @@ export class FileService {
         }
         
         draft_nodes
-        .filter(el => el.draft !== null)
+        .filter(el => el.compressed_draft !== null)
         .forEach(el => {
           //scan the systems and add any that need to be added
-          if(el.draft !== null && el.draft !== undefined && el.draft.rowSystemMapping !== undefined){
-            el.draft.rowSystemMapping.forEach(el => {
+          if(el.compressed_draft !== null && el.compressed_draft !== undefined && el.compressed_draft.rowSystemMapping !== undefined){
+            el.compressed_draft.rowSystemMapping.forEach(el => {
               if(this.ss.getWeftSystem(el) === undefined) this.ss.addWeftSystemFromId(el);
             });
           }  
   
           //scan the systems and add any that need to be added
-          if(el.draft !== null && el.draft !== undefined && el.draft.colSystemMapping !== undefined){
-            el.draft.colSystemMapping.forEach(el => {
+          if(el.compressed_draft !== null && el.compressed_draft !== undefined && el.compressed_draft.colSystemMapping !== undefined){
+            el.compressed_draft.colSystemMapping.forEach(el => {
               if(this.ss.getWarpSystem(el) === undefined) this.ss.addWarpSystemFromId(el);
             });
           }  
@@ -577,78 +583,78 @@ export class FileService {
   
     //   return Promise.resolve({data: f ,status: 0});  
     // },
-    form: async (f:any):Promise<LoadResponse> =>{
-      this.clearAll();
+    // form: async (f:any):Promise<LoadResponse> =>{
+    //   this.clearAll();
 
-      let drafts: Array<Draft> = [];
-      let looms: Array<Loom> = [];
+    //   let drafts: Array<Draft> = [];
+    //   let looms: Array<Loom> = [];
 
-      var warps = 20;
-      if(f.value.warps !== undefined) warps = f.value.warps;
+    //   var warps = 20;
+    //   if(f.value.warps !== undefined) warps = f.value.warps;
 
 
-      var wefts = 20;
-      if(f.value.wefts !== undefined) wefts = f.value.wefts;
+    //   var wefts = 20;
+    //   if(f.value.wefts !== undefined) wefts = f.value.wefts;
 
-      const draft: Draft = initDraftWithParams({warps: warps, wefts: wefts});
+    //   const draft: Draft = initDraftWithParams({warps: warps, wefts: wefts});
 
-      var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
-      var treadle_num = (f.value.treadle_num === undefined) ? 10 : f.value.treadle_num;
-      var loomtype = (f.value.loomtype === undefined) ? 'frame' : f.value.loomtype;
-      var frame_num = (f.value.frame_num === undefined) ? 2 : f.value.frame_num;
-      var treadle_num = (f.value.treadle_num === undefined) ? 2 : f.value.treadle_num;
-      if(f.value.loomtype == 'direct') treadle_num = frame_num;
-      var epi = (f.value.epi === undefined) ? 10 : f.value.epi;
-      var units = (f.value.units === undefined || ! f.value.units) ? "in" : f.value.units;
+    //   var frame_num = (f.value.frame_num === undefined) ? 8 : f.value.frame_num;
+    //   var treadle_num = (f.value.treadle_num === undefined) ? 10 : f.value.treadle_num;
+    //   var loomtype = (f.value.loomtype === undefined) ? 'frame' : f.value.loomtype;
+    //   var frame_num = (f.value.frame_num === undefined) ? 2 : f.value.frame_num;
+    //   var treadle_num = (f.value.treadle_num === undefined) ? 2 : f.value.treadle_num;
+    //   if(f.value.loomtype == 'direct') treadle_num = frame_num;
+    //   var epi = (f.value.epi === undefined) ? 10 : f.value.epi;
+    //   var units = (f.value.units === undefined || ! f.value.units) ? "in" : f.value.units;
       
 
 
-      const loom_settings: LoomSettings = {
-        type: loomtype,
-        epi: epi, 
-        units: units,
-        frames: frame_num,
-        treadles: treadle_num
-      }
+    //   const loom_settings: LoomSettings = {
+    //     type: loomtype,
+    //     epi: epi, 
+    //     units: units,
+    //     frames: frame_num,
+    //     treadles: treadle_num
+    //   }
 
-      this.ws.inferData([loom_settings]);
+    //   this.ws.inferData([loom_settings]);
       
 
-      const loomutils = getLoomUtilByType(loomtype);
-      return loomutils.computeLoomFromDrawdown(draft.drawdown, loom_settings, 0).then(loom => {
-        looms.push(loom);
-        const proxies = this.tree.getNewDraftProxies(draft, []);
-        draft.id  = proxies.node.node_id;
-        proxies.draft_node.draft = draft;
-        proxies.draft_node.draft_id = draft.id;
-        proxies.draft_node.loom = loom;
-        proxies.draft_node.loom_settings = loom_settings;
+    //   const loomutils = getLoomUtilByType(loomtype);
+    //   return loomutils.computeLoomFromDrawdown(draft.drawdown, loom_settings, 0).then(loom => {
+    //     looms.push(loom);
+    //     const proxies = this.tree.getNewDraftProxies(draft, []);
+    //     draft.id  = proxies.node.node_id;
+    //     proxies.draft_node.draft = draft;
+    //     proxies.draft_node.draft_id = draft.id;
+    //     proxies.draft_node.loom = loom;
+    //     proxies.draft_node.loom_settings = loom_settings;
 
 
 
         
-        const envt: FileObj = {
-          version: this.vs.currentVersion(),
-          workspace: this.ws.exportWorkspace(),
-          filename: "adacad mixer",
-          nodes: [proxies.node], 
-          treenodes: [proxies.treenode],
-          draft_nodes: [proxies.draft_node],
-          notes: [],
-          ops: [],
-          scale: 5
-        }
+    //     const envt: FileObj = {
+    //       version: this.vs.currentVersion(),
+    //       workspace: this.ws.exportWorkspace(),
+    //       filename: "adacad mixer",
+    //       nodes: [proxies.node], 
+    //       treenodes: [proxies.treenode],
+    //       draft_nodes: [proxies.draft_node],
+    //       notes: [],
+    //       ops: [],
+    //       scale: 5
+    //     }
     
-        return Promise.resolve({data: envt, name: "new draft", desc: "created via form", status: 0, id: this.files.generateFileId()});
+    //     return Promise.resolve({data: envt, name: "new draft", desc: "created via form", status: 0, id: this.files.generateFileId()});
 
-      });
+    //   });
 
   
 
       
 
 
-    }
+    // }
   }
 
   // interface FileSaver{

@@ -95,7 +95,6 @@ export class StateService {
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
 
-    console.log("ADD MIXER HISTORY")
     var state = {
       draft: null,
       ada: {

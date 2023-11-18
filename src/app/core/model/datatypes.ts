@@ -42,6 +42,24 @@ export interface Draft{
   colSystemMapping: Array<number>,
 }
 
+
+/**
+ * a modified version of the draft that stores the drawdown as a Byte Array to save space
+ */
+export interface CompressedDraft{
+  id: number,
+  gen_name: string,
+  ud_name: string,
+  warps: number; 
+  wefts: number;
+  compressed_drawdown: Uint8ClampedArray,
+  rowShuttleMapping: Array<number>,
+  rowSystemMapping: Array<number>,
+  colShuttleMapping: Array<number>,
+  colSystemMapping: Array<number>,
+}
+
+
 export interface Cell{
   is_set: boolean,
   is_up: boolean
@@ -298,7 +316,9 @@ export interface NodeComponentProxy{
   * @param draft_id the draft id associated with this node (if available)
  * @param draft_visible a boolean to state if this node is visible or not. 
  * @param draft_name a string representing a user defined name
- * @param draft this will only export if the draft is a seed draft
+ * @param warps the number of warps in the drawdown
+ * @param wefts the number of wefts in the drawdown 
+ * @param compressed_draft this will only export if the draft is a seed draft
  * @param loom this will only export if the draft is a seed draft 
  * @param loom_settings the associated loom settings on this node, if present
   */
@@ -308,7 +328,7 @@ export interface NodeComponentProxy{
     draft_id: number;
     draft_name: string;
     draft: Draft;
-    dd_compressed: Uint8ClampedArray;
+    compressed_draft: CompressedDraft;
     draft_visible: boolean;
     loom: Loom;
     loom_settings: LoomSettings;
@@ -378,7 +398,8 @@ export interface Fileloader{
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
   //bmp: (filename: string, data: any) => Promise<LoadResponse>,
   //jpg: (filename: string, data: any) => Promise<LoadResponse>,
-  form: (data: any) => Promise<LoadResponse>}
+ // form: (data: any) => Promise<LoadResponse
+}
 
 export interface FileSaver{
   ada: (type: string, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,

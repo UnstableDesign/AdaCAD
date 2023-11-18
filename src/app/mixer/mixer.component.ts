@@ -715,7 +715,7 @@ zoomChange(e:any, source: string){
             console.error("could not find draft with id in draft list");
           }
           else{
-            d = copyDraft(located_draft.draft);
+            d = copyDraft(located_draft.draft)
             ls = copyLoomSettings(located_draft.loom_settings);
             loom = copyLoom(located_draft.loom);
             if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
@@ -744,7 +744,6 @@ zoomChange(e:any, source: string){
         
       });
 
-      
       const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors));
   
       const op_fns = data.ops.map(op => {
