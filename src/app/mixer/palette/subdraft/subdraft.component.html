@@ -24,13 +24,15 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 			<div id="subdraft-details"> 
 
 
-				<button mat-icon-button
+				<button
+				mat-icon-button
 				class="fa-solid fa-magnifying-glass"
 				matTooltip ="View Draft Details"
 				(click)="finetune()">
 				</button>
 
-				<button mat-icon-button
+				<button *ngIf="!exceeds_size"
+				mat-icon-button
 				class="is-small fa-solid"
 				[class.fa-chess-board] = 'use_colors'
 				[class.fa-rug] = '!use_colors'
@@ -40,7 +42,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 
 			
 
-							<button mat-icon-button
+				<button mat-icon-button
 				[matMenuTriggerFor]="subdraftOptions"
 				class="is-small fa-solid fa-ellipsis"
 				matTooltip ="View Options">
@@ -94,7 +96,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 
 			</div>
 
-			<div id="slider">
+			<div id="slider" *ngIf="!exceeds_size">
 				<mat-slider 
 				[(ngModel)]="draft_cell_size"
 				min="1" 
@@ -120,7 +122,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 
 			<div id="local-zoom-{{id}}" class="local_zoom origin{{ws.selected_origin_option}}">
 
-			<div class="warp-systems-container origin{{ws.selected_origin_option}} ">
+			<div *ngIf="!exceeds_size" class="warp-systems-container origin{{ws.selected_origin_option}} ">
 
 				<div class="warp-systems-text origin{{ws.selected_origin_option}}" id="warp-systems-text">
 				 
@@ -139,7 +141,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 				<canvas class="maindraft" id="{{id}}" >  </canvas>
 			
 				
-				<div class="weft-systems-container origin{{ws.selected_origin_option}}">
+				<div *ngIf="!exceeds_size" class="weft-systems-container origin{{ws.selected_origin_option}}">
 				  <canvas id="weft-materials-{{id}}" class="weft-materials">  </canvas>
 				  <canvas id="weft-systems-{{id}}" class="weft-systems" >  </canvas>
 				</div>

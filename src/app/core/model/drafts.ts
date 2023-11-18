@@ -409,7 +409,44 @@ export const createDraft = (
    
   }
 
+  export const getDraftAsImage = (draft: Draft) : ImageData => {
 
+    let array_vals:Array<number> = [];
+    for(let i = 0; i < wefts(draft.drawdown); i++){
+      for(let j = 0; j < warps(draft.drawdown); j++){
+        if(getCellValue(draft.drawdown[i][j])){
+          array_vals.push(0);
+          array_vals.push(0);
+          array_vals.push(0);
+          array_vals.push(255);
+        }else{
+          array_vals.push(255);
+          array_vals.push(255);
+          array_vals.push(255);
+          array_vals.push(255);
+        }
+      } 
+    }
+
+    const arr = new Uint8ClampedArray(array_vals);
+    let image = new ImageData(arr, warps(draft.drawdown));
+    return image;
+    //return createImageBitmap(image);
+
+
+  }
+
+
+
+  /**
+   * given a draft and a region, this function returns a new draft that only represents a segment of the original
+   * @param draft 
+   * @param top 
+   * @param left 
+   * @param width 
+   * @param height 
+   * @returns 
+   */
   export const cropDraft = (draft: Draft, top: number, left: number, width: number, height: number) : Draft => {
 
     const cropped = copyDraft(draft);
@@ -428,6 +465,28 @@ export const createDraft = (
     }    
 
     return cropped;
+  }
+
+  export const exportDrawdownToArray = (drawdown: Drawdown) : Uint8ClampedArray => {
+    let arr = [];
+    for(let i = 0; i < wefts(drawdown); i++){
+      for(let j = 0; j < warps(drawdown); j++){
+         let val = getCellValue(drawdown[i][j]);
+         switch (val){
+          case null:
+            arr.push(2);
+            break;
+          case true: 
+            arr.push(1);
+            break;
+          case false:
+            arr.push(0);
+            break;
+         }
+      }
+    }
+    return new Uint8ClampedArray(arr);
+
   }
 
 

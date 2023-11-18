@@ -308,6 +308,7 @@ export interface NodeComponentProxy{
     draft_id: number;
     draft_name: string;
     draft: Draft;
+    dd_compressed: Uint8ClampedArray;
     draft_visible: boolean;
     loom: Loom;
     loom_settings: LoomSettings;

@@ -317,8 +317,11 @@ export class FilesystemService {
    * @returns 
    */
   writeFileData(uid: string, fileid: number, cur_state: any) {
+    console.log("WRITE FILE")
     const db = getDatabase();
     const ref = fbref(db, 'filedata/'+fileid);
+    var size = Object.keys( cur_state).length;
+
     update(ref,{ada: cur_state})
     .then(success => {
       this.last_saved_time = Date.now();

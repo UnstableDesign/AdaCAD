@@ -1,7 +1,7 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
 import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
-import { copyDraft, createDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -1964,11 +1964,13 @@ isValidIOTuple(io: IOTuple) : boolean {
         }
         if((<DraftNode>node).draft !== null && (<DraftNode>node).draft !== undefined){
 
-        const savable: DraftNodeProxy = {
+
+          const savable: DraftNodeProxy = {
           node_id: node.id,
           draft_id: (<DraftNode>node).draft.id,
           draft_name: getDraftName((<DraftNode>node).draft),
           draft: (this.hasParent(node.id)) ? null : (<DraftNode>node).draft,
+          dd_compressed: (this.hasParent(node.id)) ? null : exportDrawdownToArray((<DraftNode>node).draft.drawdown),
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
           loom: (loom_export === null) ? null :loom_export,
           loom_settings: node.loom_settings,
@@ -2053,6 +2055,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       draft_id: draft.id,
       draft_name: '',
       draft: null,
+      dd_compressed: null,
       draft_visible: true,
       loom: null, 
       loom_settings:null,

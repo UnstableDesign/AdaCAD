@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { Bounds, Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
-import { getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
+import { getDraftAsImage, getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 import utilInstance from '../../../core/model/util';
 import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
@@ -139,6 +139,8 @@ export class SubdraftComponent implements OnInit {
   draft_cell_size: number = 8;
 
   pixel_ratio: number = 1;
+
+  exceeds_size: boolean = false;
 
 
   constructor(private inks: InkService, 
@@ -537,6 +539,7 @@ export class SubdraftComponent implements OnInit {
   }
 
 
+
   // /**
   //  * sets a new draft
   //  * @param temp the draft to set this component to
@@ -761,22 +764,38 @@ export class SubdraftComponent implements OnInit {
       this.draft_canvas.height = 0;
       this.tree.setDraftClean(this.id);
       return Promise.resolve("complete");
+    }else if(wefts(draft.drawdown)*cell_size > 4096 || warps(draft.drawdown)*cell_size > 4096){
+      this.exceeds_size = true;
+      this.draft_canvas.width = warps(draft.drawdown);
+      this.draft_canvas.height = wefts(draft.drawdown);
+      this.draft_canvas.style.width = (warps(draft.drawdown))+"px";
+      this.draft_canvas.style.height = (wefts(draft.drawdown))+"px";
+ 
+      let img = getDraftAsImage(draft);
+      this.draft_cx.putImageData(img, 0, 0);
+      this.tree.setDraftClean(this.id);
 
     }else{
+      this.exceeds_size = false;
 
       const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
 
       return Promise.all(fns).then(el => {
-        this.draft_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
-        this.draft_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
-        this.draft_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
-        this.draft_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
-   
+
+
+          this.draft_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
+          this.draft_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
+          this.draft_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
+          this.draft_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
+     
           for (let i = 0; i <  wefts(draft.drawdown); i++) {
-            for (let j = 0; j < warps(draft.drawdown); j++) {
-              this.drawCell(draft, cell_size, i, j, use_colors, false);
+              for (let j = 0; j < warps(draft.drawdown); j++) {
+                this.drawCell(draft, cell_size, i, j, use_colors, false);
+              }
             }
-          }
+        
+    
+  
         
         this.tree.setDraftClean(this.id);
         return Promise.resolve("complete");

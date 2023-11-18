@@ -68,6 +68,7 @@ export class FileService {
 
       if(data == undefined) return Promise.reject(" there is no data")
 
+      console.log("DATA ", data)
       if(data.version !== undefined) version = data.version;
 
       if(data.workspace !== undefined){
@@ -132,12 +133,14 @@ export class FileService {
         .forEach(async node => {
           const loom = data.looms.find(loom => loom.draft_id === node.node_id);
           const draft = data.drafts.find(draft => draft.id === node.node_id);
+          console.log("DRAFTS ", draft)
 
           const dn: DraftNodeProxy = {
             node_id: (node === undefined) ? -1 : node.node_id,
             draft_id: node.node_id,
             draft_name: node.draft_name,
             draft:draft,
+            dd_compressed: null,
             draft_visible: (node === undefined) ? true : node.draft_visible,
             loom:null,
             loom_settings: (loom === undefined) 

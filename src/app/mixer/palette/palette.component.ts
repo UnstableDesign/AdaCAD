@@ -346,7 +346,7 @@ handlePan(diff: Point){
    * each time a user performs an action that they should be able to undo/redo
    */
   addTimelineState(){
-
+    console.log("ADD TIMELINE");
     // version: string,
     // workspace: any,
     // type: string,

@@ -95,7 +95,7 @@ export class StateService {
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
 
-
+    console.log("ADD MIXER HISTORY")
     var state = {
       draft: null,
       ada: {
@@ -113,19 +113,12 @@ export class StateService {
     }
   
 
-    //write this to database, overwritting what was previously there
-    //this.files.writeUserData(ada.file);
-
     const auth = getAuth();
     const user = auth.currentUser;
 
     if(user !== null){
       this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
     } 
-
-  if(user !== null){
-    this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
-  } 
 
   //we are looking at the most recent state
   if(this.active_id > 0){
