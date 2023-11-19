@@ -455,7 +455,7 @@ export const createDraft = (
   }
 
   export const compressDraft = (draft: Draft) : CompressedDraft => {
-    
+
     let comp: CompressedDraft = {
       id: draft.id, 
       ud_name: draft.ud_name, 

@@ -30,19 +30,7 @@
             "ext": "png",
             "title":"Shaded Structures",
             "desc":"A few different examples of how AdaCAD structures can be leveraged to make shaded structures"
-        },
-        {
-            "id": "etextile",
-            "ext": "png",
-            "title":"E-Textiles Sampler",
-            "desc":"Shows partiuclar techniques that can be particularly useful for creating e-textile LED circuits, force sensors, or electrodes"
-        },
-        {
-            "id": "electrode",
-            "ext": "png",
-            "title":"Woven Electrode Sample",
-            "desc":"Presents strategies and patterns for drafting woven electrodes."
-        },        
+        },    
         {
             "id": "twopic",
             "ext": "png",

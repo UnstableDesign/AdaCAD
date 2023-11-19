@@ -138,6 +138,7 @@ export class FileService {
         data.nodes
         .filter(el => el.type === 'draft')
         .forEach(async node => {
+
           const loom = data.looms.find(loom => loom.draft_id === node.node_id);
           const draft = data.drafts.find(draft => draft.id === node.node_id);
 
@@ -146,7 +147,7 @@ export class FileService {
             draft_id: node.node_id,
             draft_name: node.draft_name,
             draft: null,
-            compressed_draft: (node.compressed_draft === undefined) ? compressDraft(node.draft) : node.compressDraft,
+            compressed_draft: null,
             draft_visible: (node === undefined) ? true : node.draft_visible,
             loom:null,
             loom_settings: (loom === undefined) 

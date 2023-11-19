@@ -947,50 +947,52 @@ areDraftsTheSame(d1: Draft, d2: Draft) : boolean {
  * @param factor_in_repeats should we calculate the size such that the pattern repeats in even intervals? 
  * @param warp_patterns a draft to use to represent the warp systems. 
  */
-interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft): Draft {
+// interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft): Draft {
 
 
-  let total_wefts: number = 0;
-  const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
-  if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
-  else  total_wefts = utilInstance.getMaxWefts(drafts);
+//   let total_wefts: number = 0;
+//   const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+//   console.log("LCM WEFTS ")
+//   if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+//   else  total_wefts = utilInstance.getMaxWefts(drafts);
 
-  let total_warps: number = 0;
-  const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+//   let total_warps: number = 0;
+//   const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+//   console.log("LCM WARPS ")
 
-  if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
-  else  total_warps = utilInstance.getMaxWarps(drafts);
+//   if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
+//   else  total_warps = utilInstance.getMaxWarps(drafts);
 
 
 
-  //create a draft to hold the merged values
-  const d:Draft = initDraftWithParams(
-    {warps: total_warps, 
-      wefts:(total_wefts *drafts.length),
-      colShuttleMapping: warp_patterns.colShuttleMapping,
-      colSystemMapping: warp_patterns.colSystemMapping});
+//   //create a draft to hold the merged values
+//   const d:Draft = initDraftWithParams(
+//     {warps: total_warps, 
+//       wefts:(total_wefts *drafts.length),
+//       colShuttleMapping: warp_patterns.colShuttleMapping,
+//       colSystemMapping: warp_patterns.colSystemMapping});
 
-    d.drawdown.forEach((row, ndx) => {
+//     d.drawdown.forEach((row, ndx) => {
 
-      const select_array: number = ndx %drafts.length; 
-      const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % wefts(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
-      row.forEach((cell, j) =>{
-          const select_col = (factor_in_repeats === 1) ? j % warps(drafts[select_array].drawdown) : j;
-          if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
-              const pattern = drafts[select_array].drawdown;
-              cell = setCellValue(cell, getCellValue(pattern[select_row][select_col]));
+//       const select_array: number = ndx %drafts.length; 
+//       const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % wefts(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
+//       row.forEach((cell, j) =>{
+//           const select_col = (factor_in_repeats === 1) ? j % warps(drafts[select_array].drawdown) : j;
+//           if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
+//               const pattern = drafts[select_array].drawdown;
+//               cell = setCellValue(cell, getCellValue(pattern[select_row][select_col]));
 
-          }else{
-              cell = setCellValue(cell, null);
-          }
-      });
+//           }else{
+//               cell = setCellValue(cell, null);
+//           }
+//       });
 
-  });
+//   });
   
 
-  return d;
+//   return d;
 
-}
+// }
 
 /**
  * take an array of drafts and interlace them warp-wise, in the order in which they appear in the array
@@ -998,50 +1000,50 @@ interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft)
  * @param factor_in_repeats should we calculate the size such that the pattern repeats in even intervals? 
  * @param weft_patterns a draft to use to represent the warp systems. 
  */
-interlace_warps(drafts: Array<Draft>, factor_in_repeats: number, weft_patterns: Draft): Draft {
+// interlace_warps(drafts: Array<Draft>, factor_in_repeats: number, weft_patterns: Draft): Draft {
 
 
-  let total_warps: number = 0;
-  const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
-  if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
-  else  total_warps = utilInstance.getMaxWefts(drafts);
+//   let total_warps: number = 0;
+//   const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+//   if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
+//   else  total_warps = utilInstance.getMaxWefts(drafts);
 
-  let total_wefts: number = 0;
-  const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+//   let total_wefts: number = 0;
+//   const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
 
-  if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
-  else  total_wefts = utilInstance.getMaxWarps(drafts);
+//   if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
+//   else  total_wefts = utilInstance.getMaxWarps(drafts);
 
 
 
-  //create a draft to hold the merged values
-  const d:Draft = initDraftWithParams(
-    {warps: total_warps*drafts.length, 
-      wefts:(total_wefts),
-      rowShuttleMapping: weft_patterns.rowShuttleMapping,
-      rowSystemMapping: weft_patterns.rowSystemMapping});
+//   //create a draft to hold the merged values
+//   const d:Draft = initDraftWithParams(
+//     {warps: total_warps*drafts.length, 
+//       wefts:(total_wefts),
+//       rowShuttleMapping: weft_patterns.rowShuttleMapping,
+//       rowSystemMapping: weft_patterns.rowSystemMapping});
 
-    d.drawdown.forEach((col, ndx) => {
+//     d.drawdown.forEach((col, ndx) => {
 
-      const select_array: number = ndx %drafts.length; 
-      const select_col: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % warps(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
-      col.forEach((cell, i) =>{
-          const select_row = (factor_in_repeats === 1) ? i % wefts(drafts[select_array].drawdown) : i;
-          if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
-              const pattern = drafts[select_array].drawdown;
-              cell = setCellValue(cell, getCellValue(pattern[select_row][select_col])); 
+//       const select_array: number = ndx %drafts.length; 
+//       const select_col: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % warps(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
+//       col.forEach((cell, i) =>{
+//           const select_row = (factor_in_repeats === 1) ? i % wefts(drafts[select_array].drawdown) : i;
+//           if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
+//               const pattern = drafts[select_array].drawdown;
+//               cell = setCellValue(cell, getCellValue(pattern[select_row][select_col])); 
 
-          }else{
-              cell = setCellValue(cell, null);
-          }
-      });
+//           }else{
+//               cell = setCellValue(cell, null);
+//           }
+//       });
 
-  });
+//   });
   
 
-  return d;
+//   return d;
 
-}
+// }
 
 /**
  * in connection with lcm, the gcd (greatest common divisor) determines the largest number that can divide into both inputs
@@ -1063,7 +1065,7 @@ gcd(a: number, b: number) : number {
 
 /**
  * this is an algorithm for finding the least common multiple of a give set of input numbers 
- * it works based on the formulat lcd (a,b) = a*b / gcd(a,b), and then caculates in a pairwise fashion.
+ * it works based on the formula lcd (a,b) = a*b / gcd(a,b), and then calculates in a pairwise fashion.
  * this has the risk of breaking with very large sets of inputs and/or prime numbers of a large size
  */
 lcm(original: Array<number>) : number{

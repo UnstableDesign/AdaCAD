@@ -419,6 +419,8 @@ zoomChange(e:any, source: string){
    */
     insertPasteFile(result: LoadResponse){
       this.processFileData(result.data).then(data => {
+
+
         this.palette.changeDesignmode('move');
         this.saveFile();
 
@@ -680,6 +682,7 @@ zoomChange(e:any, source: string){
         .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
         .map(tn => tn.entry);
      
+        console.log("SEED NODES ", seednodes)
 
       const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors}> = seednodes
       .map(sn =>  {
@@ -691,6 +694,7 @@ zoomChange(e:any, source: string){
  
         const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
+        console.log("FOUND DRAFT NODE ", draft_node, data.draft_nodes)
         // let l: Loom = {
         //   id: utilInstance.generateId(8),
         //   treadling: [],
@@ -848,7 +852,6 @@ zoomChange(e:any, source: string){
     });
 
 
-    //print out all trees:
 
 
 

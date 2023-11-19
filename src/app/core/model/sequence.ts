@@ -368,6 +368,7 @@ export module Sequence{
    * @param warp_system_draft - the pattern of warp systems along the warps
    */
   mapToSystems(weftsys: Array<number>, warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD){
+    console.log("MAP TO SYS ")
     let total_wefts: number = 0;
     total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
 
