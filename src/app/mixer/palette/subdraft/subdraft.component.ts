@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { Bounds, Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
-import { getDraftAsImage, getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
+import { flipDraft, getDraftAsImage, getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 import utilInstance from '../../../core/model/util';
 import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
@@ -383,28 +383,6 @@ export class SubdraftComponent implements OnInit {
     }
   }
   
-
-
-
-   rescaleForBitmap(){
-
-
-    
-    if(this.draft_canvas === undefined) return;
-    
-    
-    const draft = this.tree.getDraft(this.id);
-
-
-    this.draft_canvas.width = warps(draft.drawdown) ;
-    this.draft_canvas.height = wefts(draft.drawdown) ;
-
-    for (let i = 0; i < wefts(draft.drawdown); i++) {
-      for (let j = 0; j < warps(draft.drawdown); j++) {
-        this.drawCell(draft, 1, i, j, false, true);
-      }
-    }
-  }
 
   connectionEnded(){
     this.selecting_connection = false;
@@ -795,35 +773,6 @@ export class SubdraftComponent implements OnInit {
       });
 
     }
-    // else{
-    //   this.exceeds_size = false;
-
-    //   const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
-
-    //   return Promise.all(fns).then(el => {
-
-
-    //       this.draft_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
-    //       this.draft_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
-    //       this.draft_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
-    //       this.draft_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
-     
-    //       for (let i = 0; i <  wefts(draft.drawdown); i++) {
-    //           for (let j = 0; j < warps(draft.drawdown); j++) {
-    //             this.drawCell(draft, cell_size, i, j, use_colors, false);
-    //           }
-    //         }
-        
-    
-  
-        
-    //     this.tree.setDraftClean(this.id);
-    //     return Promise.resolve("complete");
-    //   })
-
-     
-    // }
-    
   }
 
 
@@ -1008,18 +957,31 @@ export class SubdraftComponent implements OnInit {
    */
   async saveAsBmp() : Promise<any> {
 
-    this.rescaleForBitmap();
-
     let b = this.bitmap.nativeElement;
     let context = b.getContext('2d');
-    const draft = this.tree.getDraft(this.id);
+    let draft = this.tree.getDraft(this.id);
+    switch(this.ws.selected_origin_option){
+      case 0:
+        draft = await flipDraft(draft, true, false);
+      break;
 
-    b.width = (warps(draft.drawdown));
-    b.height = (wefts(draft.drawdown));
-    
-    context.fillStyle = "white";
-    context.fillRect(0,0,b.width,b.height);
-    context.drawImage(this.draft_canvas, 0, 0);
+      case 1:
+        draft = await flipDraft(draft, true, true);
+        break;
+
+      case 2:
+        draft = await flipDraft(draft, false, true);
+
+      break;
+
+    }
+
+    b.width = warps(draft.drawdown);
+    b.height = wefts(draft.drawdown);
+    let img = getDraftAsImage(draft, 1, false, this.ms.getShuttles());
+    this.draft_cx.putImageData(img, 0, 0);
+
+    context.putImageData(img, 0, 0);
 
     const a = document.createElement('a')
     return this.fs.saver.bmp(b)

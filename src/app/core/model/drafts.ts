@@ -1024,8 +1024,7 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
     }
   }
 
-
-  return Promise.resolve(d);
+  return Promise.resolve(draft);
 }
 
 
