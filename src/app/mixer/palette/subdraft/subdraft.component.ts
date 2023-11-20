@@ -979,8 +979,6 @@ export class SubdraftComponent implements OnInit {
     b.width = warps(draft.drawdown);
     b.height = wefts(draft.drawdown);
     let img = getDraftAsImage(draft, 1, false, this.ms.getShuttles());
-    this.draft_cx.putImageData(img, 0, 0);
-
     context.putImageData(img, 0, 0);
 
     const a = document.createElement('a')
@@ -989,25 +987,12 @@ export class SubdraftComponent implements OnInit {
       a.href =  href;
       a.download = getDraftName(draft) + "_bitmap.jpg";
       a.click();
-      this.drawDraft(draft);
-
     });
     
 
 
       
   }
-  
-    async saveAsAda() : Promise<any>{
-      const draft = this.tree.getDraft(this.id);
-
-      const a = document.createElement('a');
-      return this.fs.saver.ada('draft', false, this.scale).then(out => {
-        a.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-        a.download = getDraftName(draft) + ".ada";
-        a.click();
-      }); 
-    }
   
     async saveAsWif() {
 
@@ -1028,32 +1013,108 @@ export class SubdraftComponent implements OnInit {
     }
   
     async saveAsPrint() {
-     
-      // let dims = this.default_cell;
-      // let b = this.bitmap.nativeElement;
-      // let context = b.getContext('2d');
 
-      // console.log(dims)
-       const draft = this.tree.getDraft(this.id);
+      let b = this.bitmap.nativeElement;
+      let context = b.getContext('2d');
+      let draft = this.tree.getDraft(this.id);
+      b.width = (warps(draft.drawdown)+3)*10;
+      b.height =(wefts(draft.drawdown)+7)*10;
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, b.width, b.height);
 
+      switch(this.ws.selected_origin_option){
+        case 0:
+          draft = await flipDraft(draft, true, false);
+        break;
+  
+        case 1:
+          draft = await flipDraft(draft, true, true);
+          break;
+  
+        case 2:
+          draft = await flipDraft(draft, false, true);
+  
+        break;
+  
+      }
+  
+  
+    let system = null;
 
-      // b.width = warps(draft.drawdown) * dims;
-      // b.height = wefts(draft.drawdown) * dims;
+      for (let j = 0; j < draft.colShuttleMapping.length; j++) {
+        let color = this.ms.getColor(draft.colShuttleMapping[j]);
+        switch(this.ws.selected_origin_option){
+          case 0:
+          case 1: 
+          system = this.ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
+
+          break;
+          case 2: 
+          case 3: 
+          system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
+
+          break;
+        }
       
-      // context.fillStyle = "white";
-      // context.fillRect(0,0,b.width,b.height);
-      
+        context.fillStyle = color;
+        context.strokeStyle = "#666666";
+        context.fillRect(30+(j*10), 16,  8,  8);
+        context.strokeRect(30+(j*10), 16,  8,  8);
 
-      // context.drawImage(this.draft_canvas, 0, 0);
+        context.font = "10px Arial";
+        context.fillStyle = "#666666";
+        context.fillText(system, j*10+32, 10)
+
+      
+      }
+
+  
+        for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+  
+          switch(this.ws.selected_origin_option){
+            case 1:
+            case 2: 
+            system = this.ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
+  
+            break;
+            case 0: 
+            case 3: 
+            system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+  
+            break;
+          }
+  
+          let color = this.ms.getColor(draft.rowShuttleMapping[j]);
+          context.fillStyle = color;
+          context.strokeStyle = "#666666";
+          context.fillRect(16, j*10+31,  8,  8);
+          context.strokeRect(16, j*10+31,  8,  8);
+          
+          context.font = "10px Arial";
+          context.fillStyle = "#666666";
+          context.fillText(system, 0, 28+(j+1)*10)
+  
+  
+        }
+
+  
+
+      let img = getDraftAsImage(draft, 10, this.use_colors, this.ms.getShuttles());  
+      context.putImageData(img, 30, 30);
+
+      context.font = "12px Arial";
+      context.fillStyle = "#000000";
+      let textstring = getDraftName(draft)+" // "+warps(draft.drawdown)+" x "+wefts(draft.drawdown);
+      context.fillText(textstring, 30, 50+wefts(draft.drawdown)*10)
 
       const a = document.createElement('a')
-      return this.fs.saver.jpg(this.draft_canvas)
-        .then(href => {
-          a.href =  href;
-          a.download = getDraftName(draft) + ".jpg";
-          a.click();
+      return this.fs.saver.jpg(b)
+      .then(href => {
+        a.href =  href;
+        a.download = getDraftName(draft) + ".jpg";
+        a.click();  
+      });
       
-        });
     }
 
     warps(){

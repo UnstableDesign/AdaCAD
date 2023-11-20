@@ -33,7 +33,7 @@ export class MaterialsService {
       createMaterial({id: 1, name: 'white', insert: true, visible: true, color: "#ffffff", thickness: 100, diameter: 1,type: 0, notes: ""}), 
       createMaterial({id: 2, name: 'red', insert: true, visible: true, color: "#ff0000", thickness: 100,diameter: 1, type: 1, notes: ""}),
       createMaterial({id: 3, name: 'orange', insert: true, visible: true, color: "#ff6600", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 4, name: 'yellow', insert: true, visible: true, color: " #ffff00", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 4, name: 'yellow', insert: true, visible: true, color: "#ffff00", thickness: 100,diameter: 1, type: 1, notes: ""}),
       createMaterial({id: 5, name: 'green', insert: true, visible: true, color: "#00ff00", thickness: 100,diameter: 1, type: 1, notes: ""}),
       createMaterial({id: 6, name: 'dark green', insert: true, visible: true, color: "#006600", thickness: 100,diameter: 1, type: 1, notes: ""}),
       createMaterial({id: 7, name: 'dark blue', insert: true, visible: true, color: "#000099", thickness: 100,diameter: 1, type: 1, notes: ""}),

@@ -27,7 +27,7 @@ export const createMaterial = (matDict = null) : Material => {
     m.color = matDict.color;
     m.thickness = matDict.thickness;
     m.diameter = (matDict.diameter === undefined) ? defaults.default_material_diameter : matDict.diameter;
-    m.rgb = utilInstance.hexToRgb(m.color);
+    m.rgb = utilInstance.hexToRgb(m.color.trim());
     m.type = matDict.type;
     if(matDict.type === undefined) m.type = 0;
   // this.image = image;
