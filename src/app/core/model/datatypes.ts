@@ -88,6 +88,7 @@ export interface Material {
   startLabel?: string;
   endLabel?: string;
   notes: string;
+  rgb: {r: number, g: number, b: number}
 
 }
 

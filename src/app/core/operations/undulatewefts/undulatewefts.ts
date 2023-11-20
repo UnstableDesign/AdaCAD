@@ -73,6 +73,7 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             if(Math.abs(val) > acc) return Math.abs(val);
             return acc;
         }, -1);
+        max_warps++;
       }else{
         max_wefts = wefts(drafts[0].drawdown);
         max_warps = warps(drafts[0].drawdown)

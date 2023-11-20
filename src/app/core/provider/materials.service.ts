@@ -96,6 +96,11 @@ export class MaterialsService {
     return colorValue
   }
 
+  getRGB(index:number){
+    const s: Material = this.getShuttle(index);
+    return s.rgb;
+  }
+
 
     getDiameter(index: number) {
 

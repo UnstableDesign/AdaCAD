@@ -1,6 +1,6 @@
 import { drawdown } from "../operations/drawdown/drawdown";
 import { createCell, getCellValue, setCellValue } from "./cell";
-import { Draft, Drawdown, YarnFloat, Cell, CompressedDraft } from "./datatypes";
+import { Draft, Drawdown, YarnFloat, Cell, CompressedDraft, Material } from "./datatypes";
 import { defaults } from "./defaults";
 import utilInstance from "./util";
 
@@ -396,29 +396,103 @@ export const createDraft = (
    
   }
 
-  export const getDraftAsImage = (draft: Draft) : ImageData => {
+  export const getDraftAsImage = (draft: Draft, pix_per_cell: number, use_color: boolean, mats: Array<Material>) : ImageData => {
+    pix_per_cell = Math.floor(pix_per_cell);
 
     let array_vals:Array<number> = [];
-    for(let i = 0; i < wefts(draft.drawdown); i++){
-      for(let j = 0; j < warps(draft.drawdown); j++){
-        if(getCellValue(draft.drawdown[i][j])){
-          array_vals.push(0);
-          array_vals.push(0);
-          array_vals.push(0);
-          array_vals.push(255);
+    for(let i = 0; i < wefts(draft.drawdown) * pix_per_cell; i++){
+      for(let j = 0; j < warps(draft.drawdown) * pix_per_cell; j++){
+        let adj_i = Math.floor(i / pix_per_cell);
+        let adj_j = Math.floor(j / pix_per_cell);
+
+
+        let cell_val = getCellValue(draft.drawdown[adj_i][adj_j]);
+       
+        let warp_float = false;
+        if(adj_i > 0 && cell_val === getCellValue(draft.drawdown[adj_i-1][adj_j])){
+          warp_float = true;
+        }
+
+        let weft_float = false;
+        if(adj_j > 0 && cell_val === getCellValue(draft.drawdown[adj_i][adj_j-1])){
+          weft_float = true;
+        }
+        
+
+        let is_weftwise_edge = 
+        (i % pix_per_cell == 0) || 
+        (i ==  wefts(draft.drawdown) * pix_per_cell -1);
+
+        let is_warpwise_edge = 
+        (j % pix_per_cell == 0) ||
+        (j ==  warps(draft.drawdown) * pix_per_cell -1);
+
+        
+        if((is_weftwise_edge || is_warpwise_edge) && pix_per_cell > 4 && !use_color){
+
+            array_vals.push(150);
+            array_vals.push(150);
+            array_vals.push(150);
+            array_vals.push(255);
+          
+
+        }else if(cell_val){
+         
+          let mat: Material = mats.find(el => el.id == draft.colShuttleMapping[adj_j]);
+          if(mat !== undefined && use_color){
+            
+            if(pix_per_cell > 4 && (is_warpwise_edge || (is_weftwise_edge && !warp_float))){
+              array_vals.push(150);
+              array_vals.push(150);
+              array_vals.push(150);
+              array_vals.push(255);
+            
+            }else{
+              array_vals.push(mat.rgb.r);
+              array_vals.push(mat.rgb.g);
+              array_vals.push(mat.rgb.b);
+              array_vals.push(255);
+            }
+
+          }else{
+
+            array_vals.push(0);
+            array_vals.push(0);
+            array_vals.push(0);
+            array_vals.push(255);
+
+          }
+
         }else{
-          array_vals.push(255);
-          array_vals.push(255);
-          array_vals.push(255);
-          array_vals.push(255);
+          //weft over warp or weft unset
+          let mat: Material = mats.find(el => el.id == draft.rowShuttleMapping[adj_i]);
+          if(mat !== undefined && use_color){
+             
+            if(pix_per_cell > 4 && (is_weftwise_edge || (is_warpwise_edge && !weft_float))){
+              array_vals.push(150);
+              array_vals.push(150);
+              array_vals.push(150);
+              array_vals.push(255);
+            
+            }else{
+              array_vals.push(mat.rgb.r);
+              array_vals.push(mat.rgb.g);
+              array_vals.push(mat.rgb.b);
+              array_vals.push(255);
+            }
+          }else{
+            array_vals.push(255);
+            array_vals.push(255);
+            array_vals.push(255);
+            array_vals.push(255);
+          }
         }
       } 
     }
 
     const arr = new Uint8ClampedArray(array_vals);
-    let image = new ImageData(arr, warps(draft.drawdown));
+    let image = new ImageData(arr, warps(draft.drawdown)*pix_per_cell);
     return image;
-    //return createImageBitmap(image);
 
 
   }

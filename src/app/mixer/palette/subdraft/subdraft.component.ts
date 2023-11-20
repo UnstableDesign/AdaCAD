@@ -13,6 +13,7 @@ import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { OperationComponent } from '../operation/operation.component';
+import { max } from 'mathjs';
 
 
 
@@ -667,6 +668,7 @@ export class SubdraftComponent implements OnInit {
     draft =  this.tree.getDraft(this.id);
     let cell_size = this.calculateCellSize(draft);
 
+
     const warp_systems_canvas =  <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString());
     const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.id.toString());
 
@@ -731,7 +733,17 @@ export class SubdraftComponent implements OnInit {
    * @param draft 
    */
   calculateCellSize(draft: Draft): number{
-    return this.draft_cell_size;
+
+    let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
+    if(max_bound*this.draft_cell_size < 4096){
+      return Math.floor(this.draft_cell_size);
+    }else if(max_bound < 4096){
+      return  Math.floor(4096/max_bound);
+    }else{
+      this.draft_cell_size = 1;
+      return 1;
+    }
+
   }
 
   /**
@@ -758,51 +770,59 @@ export class SubdraftComponent implements OnInit {
 
     if(this.draft_canvas === undefined) return;
     this.draft_cx = this.draft_canvas.getContext("2d");
+
    
     if(draft === null){
       this.draft_canvas.width = 0;
       this.draft_canvas.height = 0;
       this.tree.setDraftClean(this.id);
       return Promise.resolve("complete");
-    }else if(wefts(draft.drawdown)*cell_size > 4096 || warps(draft.drawdown)*cell_size > 4096){
-      this.exceeds_size = true;
-      this.draft_canvas.width = warps(draft.drawdown);
-      this.draft_canvas.height = wefts(draft.drawdown);
-      this.draft_canvas.style.width = (warps(draft.drawdown))+"px";
-      this.draft_canvas.style.height = (wefts(draft.drawdown))+"px";
- 
-      let img = getDraftAsImage(draft);
-      this.draft_cx.putImageData(img, 0, 0);
-      this.tree.setDraftClean(this.id);
-
+ //   }else if(cell_size === 0){
     }else{
-      this.exceeds_size = false;
 
-      const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
-
+     const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
       return Promise.all(fns).then(el => {
 
 
-          this.draft_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
-          this.draft_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
-          this.draft_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
-          this.draft_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
+      this.draft_canvas.width = warps(draft.drawdown)*cell_size;
+      this.draft_canvas.height = wefts(draft.drawdown)*cell_size;
+      this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
+      this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
+ 
+      let img = getDraftAsImage(draft, cell_size, use_colors, this.ms.getShuttles());
+      this.draft_cx.putImageData(img, 0, 0);
+      this.tree.setDraftClean(this.id);
+      });
+
+    }
+    // else{
+    //   this.exceeds_size = false;
+
+    //   const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
+
+    //   return Promise.all(fns).then(el => {
+
+
+    //       this.draft_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
+    //       this.draft_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
+    //       this.draft_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
+    //       this.draft_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
      
-          for (let i = 0; i <  wefts(draft.drawdown); i++) {
-              for (let j = 0; j < warps(draft.drawdown); j++) {
-                this.drawCell(draft, cell_size, i, j, use_colors, false);
-              }
-            }
+    //       for (let i = 0; i <  wefts(draft.drawdown); i++) {
+    //           for (let j = 0; j < warps(draft.drawdown); j++) {
+    //             this.drawCell(draft, cell_size, i, j, use_colors, false);
+    //           }
+    //         }
         
     
   
         
-        this.tree.setDraftClean(this.id);
-        return Promise.resolve("complete");
-      })
+    //     this.tree.setDraftClean(this.id);
+    //     return Promise.resolve("complete");
+    //   })
 
      
-    }
+    // }
     
   }
 
@@ -1088,69 +1108,8 @@ export class SubdraftComponent implements OnInit {
      * @returns 
      */
     finetune(){
-
       this.onShowDetails.emit(this.id);
-
-
-      //if this is already open, don't reopen it
-      // if(this.modal != undefined && this.modal.componentInstance != null) return;
-     
-      // const draft = this.tree.getDraft(this.id);
-      // const loom = this.tree.getLoom(this.id);
-      // const loom_settings = this.tree.getLoomSettings(this.id);
-      // let use_id = this.id;
-
-      // /** if this was a generated draft, create a temp node to hold a copy of this draft*/
-      // if(this.tree.hasParent(this.id)){
-      //   const new_id = this.tree.createNode('draft', null, null);
-      //   draft.id = new_id;
-      //   this.tree.loadDraftData( {prev_id: null, cur_id: new_id}, draft, loom, loom_settings,false);
-      //   use_id = new_id;
-      // }
-
-
-      // this.modal = this.dialog.open(DraftdetailComponent,
-      //   {disableClose: true,
-      //     hasBackdrop: false,
-      //     data: {
-      //       id: use_id,
-      //       ink: this.inks.getInk(this.ink).viewValue
-      //     }
-      //   });
-
-
-
-      //   this.modal.afterClosed().subscribe(result => {
-      //     console.log("FINE TUNE CLOSED", this.id, result)
-
-      //     if(result === null) return;
-
-      //       if(this.parent_id == -1){
-      //         this.draft = this.tree.getDraft(this.id);
-      //         this.onDesignAction.emit({id: this.id});
-      //       }else{
-      //         const cur_draft = this.tree.getDraft(this.id);
-      //         const new_draft = this.tree.getDraft(result);
-
-      //         const cur_loom = this.tree.getLoom(this.id);
-      //         const new_loom = this.tree.getLoom(result);
-
-      //         if(!utilInstance.areDraftsTheSame(cur_draft, new_draft)){
-      //           this.createNewSubdraftFromEdits.emit({parent_id: this.parent_id, new_id: result});
-      //           return;
-      //         }
-
-      //         if(!utilInstance.areLoomsTheSame(cur_loom, new_loom)){
-      //           this.createNewSubdraftFromEdits.emit({parent_id: this.parent_id, new_id: result});
-      //           return;
-      //         }
-
-      //         //if you get here, then we can remove the temp node
-      //         console.log("NODE REMOVED", result)
-      //         this.tree.removeNode(result);
-      //       }
-      //   })   
-       }
+    }
 
  
 
