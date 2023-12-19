@@ -32,8 +32,6 @@ import { ActionsComponent } from './actions/actions.component';
 import { RenderService } from './provider/render.service';
 import { SidebarComponent } from './draftviewer/sidebar/sidebar.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
-import { SimulationComponent } from './simulation/simulation.component';
-import { SimSidebarComponent } from './simulation/sim-sidebar/sim-sidebar.component';
 
 @NgModule({
     declarations: [
@@ -41,9 +39,7 @@ import { SimSidebarComponent } from './simulation/sim-sidebar/sim-sidebar.compon
         DraftviewerComponent,
         ActionsComponent,
         SidebarComponent,
-        SelectionComponent,
-        SimulationComponent,
-        SimSidebarComponent
+        SelectionComponent
     ],
     imports: [
         CommonModule,

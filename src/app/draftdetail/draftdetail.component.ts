@@ -15,7 +15,6 @@ import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
-import { SimulationComponent } from './simulation/simulation.component';
 import { createCell } from '../core/model/cell';
 import utilInstance from '../core/model/util';
 
@@ -33,7 +32,7 @@ export class DraftDetailComponent implements OnInit {
    * @property {WeaveDirective}
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
-  @ViewChild(SimulationComponent, {static: true}) simRef;
+  // @ViewChild(SimulationComponent, {static: true}) simRef;
   
 
   @Output() closeDrawer: any = new EventEmitter();
@@ -189,7 +188,7 @@ export class DraftDetailComponent implements OnInit {
 
 
     console.log("LOADING DRAFT ", id)
-
+    
       //reset the dirty value every time the window is open
     this.weaveRef.is_dirty = false;
 
@@ -203,7 +202,8 @@ export class DraftDetailComponent implements OnInit {
 
       this.render.loadNewDraft(this.draft);
       this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
-      return this.simRef.loadNewDraft(this.draft, this.loom_settings);
+      //return this.simRef.loadNewDraft(this.draft, this.loom_settings);
+      return Promise.resolve(null);
     
     }else{
 
@@ -257,7 +257,8 @@ export class DraftDetailComponent implements OnInit {
     
         this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
       
-        return this.simRef.loadNewDraft(this.draft, this.loom_settings);
+        return Promise.resolve(null)
+        //return this.simRef.loadNewDraft(this.draft, this.loom_settings);
 
         })
     }
@@ -268,14 +269,14 @@ export class DraftDetailComponent implements OnInit {
     this.draft = null;
     this.id = null;
     this.loom_settings = null;
-    this.simRef.endSimulation();
+   // this.simRef.endSimulation();
   }
 
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    this.simRef.endSimulation();
+  //  this.simRef.endSimulation();
 
   }
 
@@ -283,7 +284,7 @@ export class DraftDetailComponent implements OnInit {
 
   public onCloseDrawer(){
     this.weaveRef.unsetSelection();
-    this.simRef.unsetSelection();
+   // this.simRef.unsetSelection();
     this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
   }
 
@@ -294,27 +295,27 @@ export class DraftDetailComponent implements OnInit {
    * @param obj {id: the draft id}
    */
   public designModeChange(e:any) {
-    this.simRef.unsetSelection();
+   // this.simRef.unsetSelection();
     this.weaveRef.unsetSelection();
   }
 
   public drawdownUpdated(){
 
-    this.simRef.setDirty();
+  //  this.simRef.setDirty();
     this.redrawSimulation();
     
   }
 
   public loomSettingsUpdated(){
     this.saveChanges.emit();
-    this.simRef.setDirty();
+   // this.simRef.setDirty();
     this.redrawSimulation();
 
   }
 
 
   public materialChange() {
-    this.simRef.redrawCurrentSim();
+   // this.simRef.redrawCurrentSim();
   }
   
   
@@ -326,8 +327,8 @@ export class DraftDetailComponent implements OnInit {
     let draft = this.tree.getDraft(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);
 
-    if(!this.viewer_expanded)
-     this.simRef.updateSimulation(draft, loom_settings);
+    //if(!this.viewer_expanded)
+    // this.simRef.updateSimulation(draft, loom_settings);
   }
 
   
@@ -427,7 +428,7 @@ export class DraftDetailComponent implements OnInit {
   public updateSelection(e:any){
     if(!this.weaveRef.hasSelection()) return;
     if(e.copy !== undefined) this.copy = e;
-    if(e.id !== undefined) this.simRef.updateSelection(e.start, e.end);
+   // if(e.id !== undefined) this.simRef.updateSelection(e.start, e.end);
   }
 
 
@@ -458,12 +459,12 @@ export class DraftDetailComponent implements OnInit {
 
 layerThresholdChange(){
   console.log("layer threshold", this.layer_threshold);
-  this.simRef.changeLayerThreshold(this.layer_threshold)
+  //this.simRef.changeLayerThreshold(this.layer_threshold)
 }
 
 warpThresholdChange(){
   console.log("this.warp threshold", this.warp_threshold);
-  this.simRef.changeWarpThreshold(this.warp_threshold)
+ // this.simRef.changeWarpThreshold(this.warp_threshold)
 }
 
 // layerSpacingChange(e: any){

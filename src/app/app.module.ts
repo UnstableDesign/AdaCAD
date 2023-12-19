@@ -20,6 +20,7 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { MixerModule } from './mixer/mixer.module';
 import { DraftDetailModule } from './draftdetail/draftdetail.module';
+import { SimulationModule } from './simulation/simulation.module';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { DraftDetailModule } from './draftdetail/draftdetail.module';
     CoreModule,
     DraftDetailModule,
     MixerModule,
+    SimulationModule,
     BrowserAnimationsModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),

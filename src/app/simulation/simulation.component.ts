@@ -1,12 +1,12 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
-import { TreeService } from '../../core/provider/tree.service';
-import { SimulationService } from '../../core/provider/simulation.service';
-import { Bounds, Draft, Interlacement, LoomSettings, SimulationData } from '../../core/model/datatypes';
+import { TreeService } from '../core/provider/tree.service';
+import { SimulationService } from '../core/provider/simulation.service';
+import { Bounds, Draft, Interlacement, LoomSettings, SimulationData } from '../core/model/datatypes';
 import * as THREE from 'three';
-import { convertEPItoMM } from '../../core/model/looms';
-import { MaterialsService } from '../../core/provider/materials.service';
+import { convertEPItoMM } from '../core/model/looms';
+import { MaterialsService } from '../core/provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { cropDraft, warps, wefts } from '../../core/model/drafts';
+import { cropDraft, warps, wefts } from '../core/model/drafts';
 
 @Component({
   selector: 'app-simulation',

@@ -1,3 +1,55 @@
 <!--The content below is only a placeholder and can be replaced.-->
 
-<router-outlet></router-outlet>
+<appKeycodes
+  (onUndo)="undo()"
+  (onRedo)="redo()"
+  (updateMixerView)="updateMixerView($event)"
+  (updateDetailView)="detailViewChange()"
+  (onCopySelections)="onCopySelections()"
+  (onPasteSelections)="onPasteSelections()"
+>
+</appKeycodes>
+
+
+
+<mat-toolbar>
+    <span>AdaCAD</span>
+  
+  <div class="topbar-button-group">
+    <button mat-button>Settings</button>
+    <button mat-button>File</button>
+    <button mat-button>Examples</button>
+  </div>
+  
+  <div class="topbar-button-group">
+    <button mat-button>Sign In</button>
+  </div>
+  
+  </mat-toolbar>
+  
+  <div class="ui-grid">
+    <div class="ui-main">
+        
+      <app-draftdetail 
+      #details 
+      (saveChanges)="saveFile()"
+      (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
+    </div>
+    <div class="ui-side">
+      <div class="ui-side-top">
+        <app-mixer  
+         (onDraftDetailOpen)="showDraftDetails($event)" >
+        </app-mixer>
+      </div>
+      <div class="ui-side-bottom">
+        
+  
+        <app-simulation id="sim_viewer" 
+        [id]="id"
+        (onExpanded)="expandSimulation()"
+        >
+        </app-simulation>
+      
+      </div>
+    </div>
+  </div>
