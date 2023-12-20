@@ -22,6 +22,7 @@ import { ZoomService } from './mixer/provider/zoom.service';
 import { SimulationComponent } from './simulation/simulation.component';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { ViewportService } from './mixer/provider/viewport.service';
+import { FormControl } from '@angular/forms';
 
 
 @Component({
@@ -37,9 +38,17 @@ export class AppComponent implements OnInit{
   @ViewChild(MixerComponent) mixer;
   @ViewChild(DraftDetailComponent) details;
   @ViewChild(SimulationComponent) sim;
+  
+  
   loading: boolean;
   selected_origin: number;
-  id: number;
+  active_file: number;
+  tabs = ['Filename1', 'Filename 2', 'Filename 3'];
+  ui = {
+    main: 'mixer',
+    fullscreen: false
+  };
+  views = [];
 
 
   constructor(
@@ -59,7 +68,7 @@ export class AppComponent implements OnInit{
     private zs: ZoomService
   ){
 
-    this.id = -1;
+    this.active_file = -1;
 
         //subscribe to the login event and handle what happens in that case 
 
@@ -83,6 +92,32 @@ export class AppComponent implements OnInit{
 
   ngAfterViewInit() {
  
+    this.views = [
+      {
+        name: 'mixer',
+        div: document.getElementById('mixer')
+      },
+      {
+        name: 'detail',
+        div: document.getElementById('detail')
+      },
+      {
+        name: 'sim',
+        div: document.getElementById('sim')
+      }
+
+
+
+    ]
+
+  }
+
+  addTab(selectAfterAdding: boolean) {
+    this.tabs.push('New');
+
+    // if (selectAfterAdding) {
+    //   this.selected.setValue(this.tabs.length - 1);
+    // }
   }
 
 
@@ -128,9 +163,59 @@ export class AppComponent implements OnInit{
     this.saveFile();
   }
 
-  expandSimulation(){
-    
+
+  collapseFullScreen(){
+    this.ui.fullscreen = false;
+    this.focusUIView(this.ui.main, true)
   }
+
+  focusUIView(view: string, forceCollapse: boolean){
+    let main_width = '67%';
+    let side_width = '33%';
+    let main_height = '100%';
+    let side_height = '50%';
+
+    console.log("THIS VIEWS ", this.views)
+    console.log("THIS UI ", this.ui)
+
+    let main_div = this.views.find(el => el.name == view);
+    let side_divs = this.views.filter(el => el.name != view)
+
+    
+    if(this.ui.main == view && !forceCollapse){
+      this.ui.fullscreen = true;
+      main_div.div.style.height = '100%';
+      main_div.div.style.width = '100%';
+      main_div.div.style.order = '1';
+
+      side_divs.forEach(viewitem => {
+        viewitem.div.style.display = "none";
+      })
+      
+    }else{
+      this.ui.main = view;
+      main_div.div.style.height = main_height;
+      main_div.div.style.width = main_width;
+      main_div.div.style.order = '1';
+      main_div.div.style.display = "block";
+
+      side_divs.forEach((viewitem, ndx) => {
+        viewitem.div.style.height = side_height;
+        viewitem.div.style.width = side_width;
+        let order = ndx+2;
+        viewitem.div.style.order = ''+order+'';
+        viewitem.div.style.display = "block";      
+      })
+
+    }
+
+
+
+  }
+
+
+
+
 
 
     /**
@@ -737,6 +822,10 @@ redo() {
   .then(lr =>  this.loadNewFile(lr));
 
  
+}
+
+removeTab(index: number) {
+  this.tabs.splice(index, 1);
 }
 
 saveFile(){

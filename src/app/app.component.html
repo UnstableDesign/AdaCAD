@@ -10,46 +10,120 @@
 >
 </appKeycodes>
 
+<div class="view-window">
 
-
-<mat-toolbar>
-    <span>AdaCAD</span>
-  
-  <div class="topbar-button-group">
-    <button mat-button>Settings</button>
-    <button mat-button>File</button>
-    <button mat-button>Examples</button>
-  </div>
-  
-  <div class="topbar-button-group">
-    <button mat-button>Sign In</button>
-  </div>
-  
-  </mat-toolbar>
-  
-  <div class="ui-grid">
-    <div class="ui-main">
+  <div *ngIf="!ui.fullscreen" class="header">
+    <mat-toolbar class="topbar">
+      <div class="topbar-button-group">
+        <span>AdaCAD</span>
         
-      <app-draftdetail 
-      #details 
-      (saveChanges)="saveFile()"
-      (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
-    </div>
-    <div class="ui-side">
-      <div class="ui-side-top">
-        <app-mixer  
-         (onDraftDetailOpen)="showDraftDetails($event)" >
-        </app-mixer>
+        <button mat-button [matMenuTriggerFor]="file">File</button>
+
+        <mat-menu #file="matMenu">
+          <button mat-menu-item>New Workspace</button>
+          <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button >
+          <button mat-menu-item>Save</button>
+          <button mat-menu-item>Import</button>
+          <button mat-menu-item>Export</button>
+          <button mat-menu-item>About</button>
+        </mat-menu>
+        
+        <mat-menu #openFile="matMenu">
+          <button mat-menu-item>From Computer</button>
+          <button mat-menu-item >From AdaCAD Cloud</button>
+        </mat-menu>
+
+        <button mat-button [matMenuTriggerFor]="edit">Edit</button>
+        <mat-menu #edit="matMenu">
+          <button mat-menu-item>Undo (ctrl-z)</button>
+          <button mat-menu-item >Redo</button>
+          <button mat-menu-item >Select</button>
+          <button mat-menu-item >Copy</button>
+          <button mat-menu-item >Paste</button>
+          <button mat-menu-item >Add Blank Draft</button>
+          <button mat-menu-item >Add Operation</button>
+          <button mat-menu-item >Add Comment</button>
+        </mat-menu>
+
+        <button mat-button [matMenuTriggerFor]="settings">Settings</button>
+        <mat-menu #settings="matMenu">
+          <button mat-menu-item>Origin</button>
+          <button mat-menu-item >Default Loom Type</button>
+          <button mat-menu-item >Default Density Units</button>
+          <button mat-menu-item >Default Density</button>
+          <button mat-menu-item >Optimize for Device</button>
+        </mat-menu>
+        <button mat-button>Materials</button> <!-- open as modal -->
+        <button mat-button>Examples</button> <!-- open as modal --> 
       </div>
-      <div class="ui-side-bottom">
-        
-  
-        <app-simulation id="sim_viewer" 
-        [id]="id"
-        (onExpanded)="expandSimulation()"
-        >
-        </app-simulation>
       
+      <div class="topbar-button-group">
+        <button mat-button>Sign In</button>
       </div>
+      
+      </mat-toolbar>
+
+
+
+          <!-- Open Files List-->
+      <div class="filelist">
+        <div class="fileitem" *ngFor="let tab of tabs; index as index;">
+          <button mat-button >{{tab}} </button>
+            <button mat-button >x</button>
+        </div>
+        <button class="addfile" mat-button >+</button>
+      </div>
+</div>
+
+
+      <div class="ui-grid">
+
+
+        <div class="mixer" id="mixer">
+          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">Collapse</button> 
+          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('mixer', false)">Expand</button>
+          
+          mixer {{ui.main}}
+                  <!-- <app-mixer  
+      (onDraftDetailOpen)="showDraftDetails($event)" >
+      </app-mixer>  -->
     </div>
-  </div>
+
+        <div class="detail" id="detail">
+          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">Collapse</button> 
+          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('detail', false)">Expand</button>
+     
+
+            <!-- <app-draftdetail 
+            #details 
+            (saveChanges)="saveFile()"
+            (closeDrawer)="closeDetailViewer($event)"></app-draftdetail> -->
+        </div>
+
+
+      
+      <div class="sim" id="sim">
+        <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">Collapse</button> 
+        <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('sim', false)">Expand</button>             simulation
+<!-- 
+    <app-simulation id="sim_viewer" 
+      [id]="id"
+      (onExpanded)="expandSimulation()"
+      >
+      </app-simulation> -->
+       </div>
+
+
+        
+      </div>
+
+
+
+
+
+</div>
+
+
+
+
+  

@@ -1,24 +1,24 @@
 
 
-
+<!-- 
   <app-palette  
   class="palette mode-{{dm.getSelectedDesignMode('design_modes').value}}"
   #palette  id="scrollable-container"
   (onRevealDraftDetails)="showDraftDetails($event)" >
-  </app-palette>
+  </app-palette> -->
 
   <div class="floating_ops">
     <app-quickop 
     (onOperationAdded)="addOp($event)"  >
     </app-quickop>
 
-  <!-- <app-palette  
+  <app-palette  
   class="palette mode-{{dm.getSelectedDesignMode('design_modes').value}}"
   [style.width.px]='vp.getAbsoluteWidth()' 
   [style.height.px]='vp.getAbsoluteHeight()' 
   #palette  id="scrollable-container"
   (onRevealDraftDetails)="showDraftDetails($event)" >
-  </app-palette> -->
+  </app-palette>
 
 
 

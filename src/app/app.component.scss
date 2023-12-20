@@ -1,22 +1,71 @@
+
+
+
+.view-window{
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.header{
+  flex: 0 1 auto;
+}
+
+.topbar{
+  display: flex;
+  justify-content: space-between;
+  
+}
+
 .ui-grid{
     display: flex;
-    flex-direction: row;
+    flex: 1 1 auto;
+    justify-content: space-around;
+    flex-flow: column wrap;
+    background-color: aqua;
   }
   
-  .ui-main{
-    width: 66%;
+  .mixer{
+    display: block;
+    background-color: red;
+    overflow: scroll;
+    height: 100%;
+    width: 67%;
+    flex: 1 1 auto;
   }
-  .ui-side{
+
+  .sim{
+    display: block;
+    background-color: blue;
+    overflow: scroll;
+    height: 50%;
     width: 33%;
-    display: flex;
+    flex: 1 1 auto;
+
+
+
+  }
+
+  .detail{
+    display: block;
     flex-direction: column;
-  }
-  
-  .ui-side-top{
+    background-color: green;
+    overflow: scroll;
     height: 50%;
+    width: 33%;
+    flex: 1 1 auto;
+
+
+
   }
-  
-  .ui-side-bottom{
-    height: 50%;
+
+  .filelist{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: row;
+  }
+
+  .fileitem{
+    margin: 0 1px;
   }
   

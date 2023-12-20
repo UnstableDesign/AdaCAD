@@ -1,18 +1,16 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { Component, enableProdMode, EventEmitter, OnInit, Optional, Output, ViewChild } from '@angular/core';
-import { Auth, authState, User } from '@angular/fire/auth';
+import { Component, enableProdMode, EventEmitter, Optional, Output, ViewChild } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { NgForm } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
+import * as htmlToImage from 'html-to-image';
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
-import { createCell } from '../core/model/cell';
-import { DesignMode, Draft, DraftNode, DraftNodeProxy, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
+import { DesignMode, Loom, LoomSettings } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
-import { copyDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
-import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
-import utilInstance from '../core/model/util';
+import { warps, wefts } from '../core/model/drafts';
+import { copyLoom } from '../core/model/looms';
 import { AuthService } from '../core/provider/auth.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -32,8 +30,6 @@ import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
-import {MatSidenavModule} from '@angular/material/sidenav';
-import * as htmlToImage from 'html-to-image';
 
 //disables some angular checking mechanisms
 enableProdMode();
