@@ -197,14 +197,14 @@ export class AppComponent implements OnInit{
       main_div.div.style.height = main_height;
       main_div.div.style.width = main_width;
       main_div.div.style.order = '1';
-      main_div.div.style.display = "block";
+      main_div.div.style.display = "flex";
 
       side_divs.forEach((viewitem, ndx) => {
         viewitem.div.style.height = side_height;
         viewitem.div.style.width = side_width;
         let order = ndx+2;
         viewitem.div.style.order = ''+order+'';
-        viewitem.div.style.display = "block";      
+        viewitem.div.style.display = "flex";      
       })
 
     }

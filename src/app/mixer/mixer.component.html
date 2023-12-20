@@ -1,16 +1,86 @@
 
 
-<!-- 
-  <app-palette  
-  class="palette mode-{{dm.getSelectedDesignMode('design_modes').value}}"
-  #palette  id="scrollable-container"
-  (onRevealDraftDetails)="showDraftDetails($event)" >
-  </app-palette> -->
 
-  <div class="floating_ops">
+<div class="sidenav_small" *ngIf="hasFocus">
+
+
     <app-quickop 
     (onOperationAdded)="addOp($event)"  >
     </app-quickop>
+
+  <div class="button_col">
+    <div class="design_opts">
+
+
+
+      <!-- <button 
+      mat-icon-button 
+      color="primary"
+      matTooltip= "Add an Operation"
+      (click)="createNewDraft()">
+      <i class="fa-solid fa-code-branch"></i>
+      </button> -->
+
+      <button 
+      mat-icon-button 
+      color="primary"
+      matTooltip= "Blank Draft"
+      (click)="createNewDraft()">
+      <i class="fas fa-chess-board"></i>
+      </button>
+
+      <button 
+      mat-icon-button 
+      color="primary"
+      matTooltip= "Note"
+      color="primary"
+      (click)="createNote()">
+      <i class="fas fa-comment"></i>
+      </button>
+
+
+      <button 
+      mat-icon-button 
+      [color]="(dm.isSelected('marquee','design_modes' ))? 'accent' : 'primary'" 
+      matTooltip= "Select"
+      (click)="toggleSelectMode()">
+      <i class="fas fa-expand"></i>
+      </button>
+
+
+      <button
+      mat-icon-button color="primary"  
+      (click)="onSave({type: 'ada'})"
+      ><i class="fa-solid fa-download"></i>
+      </button>
+    </div>
+
+
+<div class="slider-row">
+  <button  mat-icon-button (click)="zoomIn()" color="primary" class="fas fa-search-plus"></button>
+
+
+    <mat-slider 
+    class="slider"
+    [vertical]="true"
+    color="primary"
+    tickInterval="1" 
+    [step]="1" 
+    [min]= "0"
+    [max]= "zs.num_steps"
+    value="{{zs.zoom_table_ndx}}" 
+    (change)="zoomChange($event, 'slider')"></mat-slider>
+    
+    <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
+    <button
+    mat-icon-button 
+    [color]="(dm.isSelected('pan','design_modes' ))? 'accent' : 'primary'" 
+    (click)="togglePanMode()"
+    ><i class="fa-solid fa-hand"></i>
+    </button>
+      </div>
+</div>
+</div>
 
   <app-palette  
   class="palette mode-{{dm.getSelectedDesignMode('design_modes').value}}"
@@ -25,19 +95,9 @@
 <!-- <mat-drawer-container id="mixer-container" [hasBackdrop]="false" #container class="mat-drawer-container" cdkScrollable>
 
 
-  
 
 
-  <div class="floating_ops">
-    <app-quickop 
-    (onOperationAdded)="addOp($event)"  >
-    </app-quickop>
-  </div> -->
-
-
-
-  <!-- THIS IS THE COLLAPSED SIDEBAR -->
-  <!-- <mat-drawer *ngIf="collapsed"  [disableClose]="true"  class="sidenav_small" mode="over" position="start"  opened >  
+<mat-drawer *ngIf="collapsed"  [disableClose]="true"  class="sidenav_small" mode="over" position="start"  opened >  
 
     <div class="button_col">
       <div class="design_opts">

@@ -80,37 +80,51 @@
 
 
         <div class="mixer" id="mixer">
-          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">Collapse</button> 
-          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('mixer', false)">Expand</button>
+       
+          <div class="view-controls" [class.main]="ui.main=='mixer'" [class.fullscreen]="ui.fullscreen">
+          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">
+            <i  class="fa-solid fa-minimize"></i></button> 
+          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('mixer', false)">
+            <i class="fa-solid fa-maximize"></i></button>
+          </div>
           
-          mixer {{ui.main}}
-                  <!-- <app-mixer  
-      (onDraftDetailOpen)="showDraftDetails($event)" >
-      </app-mixer>  -->
+      <app-mixer class="app-mixer" 
+      [hasFocus]="ui.main == 'mixer'"  
+      (onDraftDetailOpen)="showDraftDetails($event)"
+       >
+      </app-mixer> 
     </div>
 
         <div class="detail" id="detail">
-          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">Collapse</button> 
-          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('detail', false)">Expand</button>
-     
+          <div class="view-controls" [class.main]="ui.main=='detail'" [class.fullscreen]="ui.fullscreen">
+            <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">
+              <i  class="fa-solid fa-minimize"></i></button> 
+            <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('detail', false)">
+              <i class="fa-solid fa-maximize"></i></button>
+            </div>
 
-            <!-- <app-draftdetail 
+            <app-draftdetail id="detail_viewer"
             #details 
+            [hasFocus]="ui.main == 'detail'"  
             (saveChanges)="saveFile()"
-            (closeDrawer)="closeDetailViewer($event)"></app-draftdetail> -->
+            (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
         </div>
 
 
       
       <div class="sim" id="sim">
-        <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">Collapse</button> 
-        <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('sim', false)">Expand</button>             simulation
-<!-- 
+        <div class="view-controls" [class.main]="ui.main=='sim'" [class.fullscreen]="ui.fullscreen">
+          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">
+            <i  class="fa-solid fa-minimize"></i></button> 
+          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('sim', false)">
+            <i class="fa-solid fa-maximize"></i></button>
+          </div>
+
     <app-simulation id="sim_viewer" 
-      [id]="id"
-      (onExpanded)="expandSimulation()"
+    [hasFocus]="ui.main == 'sim'"  
+      [id]="active_file"
       >
-      </app-simulation> -->
+      </app-simulation>
        </div>
 
 

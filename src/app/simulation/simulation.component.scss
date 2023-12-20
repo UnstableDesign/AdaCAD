@@ -13,6 +13,11 @@
 
 }
 
+#sim_viewer{
+    display: flex;
+    flex-direction: row;
+}
+
 #sizeerror{
     margin: auto 10%;    
     display: none;

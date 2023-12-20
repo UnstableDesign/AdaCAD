@@ -49,6 +49,7 @@ export class DraftviewerComponent implements OnInit {
   //  @Input('timeline') timeline: any;
  
    @Input() viewonly: boolean;
+   @Input() hasFocus: boolean;
 
  
  

@@ -2,35 +2,21 @@ canvas{
     position: absolute;
   }
 
-.palette{
-  position: absolute;
-  top: 0px;
-  left: 0px;
-}
-
-
 
 #saver{
   z-index: -1;
 }
 
 .sidenav_small{
-  width: 42px;
+  width: 20%;
+  position: fixed;
+  z-index: 4;
   display: flex;
+  background-color: white;
   flex-direction: column;
-
-
+  height: 100%;
 }
 
-.adacad{
-position: relative;}
-
-h1{
-  transform: rotate(-90deg);
-  color: #3f51b5;
-  font-weight: bold;
-  
-}
 
 .mode-pan{
   cursor:grab;
@@ -69,26 +55,14 @@ h1{
 .button_col{
   display: flex;
   flex-direction: column;
-  height: 95%;
   justify-content: space-between;
   overflow: hidden;
-  width: 42px;
-  padding-top: 5%;
 }
 
 .sidenav_opened{
   width:  33%;
 }
 
-
-.floating_ops{
-  width: 200px;
-  position: fixed;
-  top: 1vw;
-  left: 80vw;
-  z-index: 100;
-  
-}
 
 
 

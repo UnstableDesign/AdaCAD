@@ -1,4 +1,4 @@
-<app-sidebar id="draft_sidebar"
+<app-sidebar *ngIf="hasFocus" id="draft_sidebar"
 #sidebar
 [expanded]="expanded"
 (onDesignModeChange)='designModeChange($event)'

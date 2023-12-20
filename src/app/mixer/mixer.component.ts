@@ -1,5 +1,5 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { Component, enableProdMode, EventEmitter, Optional, Output, ViewChild } from '@angular/core';
+import { Component, enableProdMode, EventEmitter, Input, Optional, Output, ViewChild } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { NgForm } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,20 +11,13 @@ import { DesignMode, Loom, LoomSettings } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { warps, wefts } from '../core/model/drafts';
 import { copyLoom } from '../core/model/looms';
-import { AuthService } from '../core/provider/auth.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { FilesystemService } from '../core/provider/filesystem.service';
-import { ImageService } from '../core/provider/image.service';
-import { MaterialsService } from '../core/provider/materials.service';
 import { NotesService } from '../core/provider/notes.service';
-import { OperationService } from '../core/provider/operation.service';
-import { StateService } from '../core/provider/state.service';
-import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
-import { RenderService } from '../draftdetail/provider/render.service';
 import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
@@ -59,9 +52,8 @@ export class MixerComponent  {
 
 
   @ViewChild(PaletteComponent) palette;
-  @ViewChild(DraftDetailComponent) details;
-  @ViewChild('detail_drawer') detail_drawer;
 
+  @Input('hasFocus') hasFocus; 
   @Output() onDraftDetailOpen: any = new EventEmitter();
 
 
@@ -112,22 +104,15 @@ export class MixerComponent  {
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
   constructor(public dm: DesignmodesService, 
-    private auth: AuthService,
-    private ms: MaterialsService,
-    private sys: SystemsService,
     private tree: TreeService,
     public scroll: ScrollDispatcher,
     private fs: FileService,
     public ws: WorkspaceService,
     public vp: ViewportService,
     private notes: NotesService,
-    private ss: StateService,
     private dialog: MatDialog,
-    private image: ImageService,
-    private ops: OperationService,
-    private zs: ZoomService,
+    public zs: ZoomService,
     private files: FilesystemService,
-    private render: RenderService,
     private multiselect: MultiselectService,
     @Optional() private fbauth: Auth
     ) {

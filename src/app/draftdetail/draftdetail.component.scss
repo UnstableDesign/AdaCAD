@@ -14,16 +14,11 @@ a.help{
     flex-direction: row;
     background-color: white;
     height: 100%;
+    flex: 1 1 auto;
 }
 
 
-#sim_viewer{
-    display: flex;
-    flex-direction: row;
-    max-width: 50%;
-    background-color: white;
 
-}
 
 
 .tool-chunk{

@@ -44,12 +44,17 @@ export class SimulationComponent implements OnInit {
   selection_bounds: Bounds = null;
   render_size_error: boolean = false;
 
-  constructor(private tree: TreeService, public ms: MaterialsService,  public simulation: SimulationService) {
+  constructor(
+    private tree: TreeService, 
+    public ms: MaterialsService,  
+    public simulation: SimulationService) {
 
 
 
 
   }
+  @Input('hasFocus') hasFocus; 
+
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {

@@ -1,5 +1,5 @@
 
-<app-sim-sidebar id="sim_sidebar"
+<app-sim-sidebar *ngIf="hasFocus" id="sim_sidebar"
 [sim_expanded]="sim_expanded"
 (onExpand)="expandSimulation()"
 ></app-sim-sidebar>

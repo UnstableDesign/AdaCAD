@@ -37,6 +37,7 @@ export class DraftDetailComponent implements OnInit {
 
   @Output() closeDrawer: any = new EventEmitter();
   @Output() saveChanges: any = new EventEmitter();
+  @Input('hasFocus') hasFocus; 
 
   id: number = -1;  
 

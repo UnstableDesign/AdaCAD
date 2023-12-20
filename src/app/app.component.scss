@@ -23,15 +23,39 @@
     justify-content: space-around;
     flex-flow: column wrap;
     background-color: aqua;
+    overflow: hidden;
   }
   
   .mixer{
-    display: block;
+    position: relative;
+    display: flex;
+    flex-direction: row;
     background-color: red;
     overflow: scroll;
     height: 100%;
     width: 67%;
     flex: 1 1 auto;
+
+  }
+
+  .view-controls{
+    position: fixed;
+    z-index: 4;
+    width: 33%;
+    justify-content: end;
+    display: flex;
+    padding-right: 8px;
+  }
+
+  .main{
+    width: 67%;
+  }
+
+  .fullscreen{
+    width: 100%;
+  }
+  .app-mixer{
+    display: flex;
   }
 
   .sim{
@@ -47,7 +71,7 @@
   }
 
   .detail{
-    display: block;
+    display: flex;
     flex-direction: column;
     background-color: green;
     overflow: scroll;
@@ -57,6 +81,16 @@
 
 
 
+  }
+
+  #detail_viewer{
+    display: flex;
+    flex: 1 1 auto;
+    height: 100%;
+  }
+
+  #sim_viewer{
+    display: flex;
   }
 
   .filelist{
