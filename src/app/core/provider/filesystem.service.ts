@@ -55,25 +55,24 @@ export class FilesystemService {
   updateUItree: Observable<Array<any>>;
 
 
- constructor(@Optional() private auth: Auth,
-    private fs: FileService, private zs: ZoomService) {
+ constructor(@Optional() private auth: Auth) {
 
       const db = getDatabase();
 
-    const presenceRef = ref(db, "disconnectmessage");
-    // Write a string when this client loses connection
-    onDisconnect(presenceRef).set("I disconnected!");
+      const presenceRef = ref(db, "disconnectmessage");
+      // Write a string when this client loses connection
+      onDisconnect(presenceRef).set("I disconnected!");
 
-    const connectedRef = ref(db, ".info/connected");
-    onValue(connectedRef, (snap) => {
-      if (snap.val() === true) {
-        console.log("connected");
-        this.connected = true;
-      } else {
-        console.log("not connected");
-        this.connected = false;
-      }
-    });
+      const connectedRef = ref(db, ".info/connected");
+      onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+          console.log("connected");
+          this.connected = true;
+        } else {
+          console.log("not connected");
+          this.connected = false;
+        }
+      });
 
       this.file_tree = [];
 
@@ -120,11 +119,6 @@ export class FilesystemService {
     
     
       });
-
-
-     
-   
-
   }
 
   

@@ -35,7 +35,6 @@ export class FilebrowserComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
     ) { 
     
-  console.log("data is ", data)
 
     this.filelist = this.files.file_tree;
 

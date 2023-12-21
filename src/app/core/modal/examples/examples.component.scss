@@ -1,21 +1,17 @@
-p{
-	font: 100;
-	font-style: italic;
-	width: 80%;
-	padding-bottom: 8px;
-	padding-left:8px;
-}
-
 
 .preloaded_files{
 	display: flex;
-	flex-direction:column;
+	flex-direction:row;
+	width: 100%;
+	flex-wrap: wrap;
+
 }
 
 .preloaded_files .mat-card{
-	width: 90%;
-	margin: 10px 5%;
+	width: 30%;
+	margin: 8px;
 }
+
 
 .mat-card-title{
 	display: flex;

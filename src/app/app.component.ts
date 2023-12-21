@@ -28,6 +28,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { AboutModal } from './core/modal/about/about.modal';
 import { FilebrowserComponent } from './core/filebrowser/filebrowser.component';
 import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
+import { ExamplesComponent } from './core/modal/examples/examples.component';
+import { DesignmodesService } from './core/provider/designmodes.service';
 
 
 @Component({
@@ -48,6 +50,7 @@ export class AppComponent implements OnInit{
   //modals to manage
   filebrowser_modal: MatDialog |any;
   upload_modal: MatDialog |any;
+  example_modal: MatDialog |any;
   
   loading: boolean;
   selected_origin: number;
@@ -66,6 +69,7 @@ export class AppComponent implements OnInit{
   constructor(
     public auth: AuthService,
     private dialog: MatDialog,
+    private dm: DesignmodesService,
     private ss: StateService,
     @Optional() private fbauth: Auth,
     private files: FilesystemService,
@@ -137,6 +141,30 @@ export class AppComponent implements OnInit{
 
   }
 
+  createNewDraftOnMixer(obj: any){
+
+    let old_id = obj.original_id;
+    this.mixer.performAndUpdateDownstream(this.tree.getSubdraftParent(old_id))
+    this.addTimelineState();
+  }
+
+    /**
+   * adds a state to the timeline. This should be called 
+   * each time a user performs an action that they should be able to undo/redo
+   */
+    addTimelineState(){
+  
+  
+     this.fs.saver.ada(
+        'mixer', 
+        true,
+        this.zs.zoom)
+        .then(so => {
+          this.ss.addMixerHistoryState(so);
+        });
+    }
+  
+
   /**
    * this is called when the detail view is closed. It passes an object that has three values: 
    * id: the draft id
@@ -144,12 +172,13 @@ export class AppComponent implements OnInit{
    * is_dirty: a boolean to note if the draft was changed at all while in detail view. 
    * @param obj 
    */
-  closeDetailViewer(obj: any){
+  // closeDetailViewer(obj: any){
 
-    this.details.windowClosed();
-    this.mixer.updatePaletteFromDetailView(obj);
-    this.saveFile();
-  }
+  //   console.log("CLOSE DETAIL VIEW")
+  //   this.details.windowClosed();
+  //   this.mixer.updatePaletteFromDetailView(obj);
+  //   this.saveFile();
+  // }
 
 
   detailViewChange(){
@@ -581,6 +610,17 @@ onPasteSelections(){
 
   }
 
+  openExamples() {
+    if(this.example_modal != undefined && this.example_modal.componentInstance != null) return;
+
+  this.example_modal = this.dialog.open(ExamplesComponent, {data: {}});
+  this.example_modal.componentInstance.onLoadExample.subscribe(event => {
+    this.loadExampleAtURL(event);
+  });
+
+
+}
+
    //need to handle this and load the file somehow
    openNewFileDialog() {
     if(this.upload_modal != undefined && this.upload_modal != null) return;
@@ -914,18 +954,11 @@ saveFile(){
 }
 
 showDraftDetails(id: number){
-  console.log("SHOW DRAFT DETAILS", id);
   this.details.loadDraft(id);
   let draft = this.tree.getDraft(id);
   let loom_settings = this.tree.getLoomSettings(id);
   this.sim.loadNewDraft(draft, loom_settings)
-
-  // this.dm.selectDesignMode('toggle','draw_modes')
-  // this.detail_drawer.open().then(res => {
-  //    this.details.loadDraft(id);
-  // })
-
-
+  this.dm.selectDesignMode('toggle','draw_modes')
 }
 
 
@@ -942,6 +975,21 @@ showDraftDetails(id: number){
     );
 
   
+  }
+
+  /**
+   * this emerges from the detail or simulation when something needs to trigger the mixer to update
+   */
+  updateMixer(){
+  }
+
+    /**
+   * this emerges from the detail or simulation when something needs to trigger the mixer to update
+   */
+  updateSimulation(){
+
+    //this.sim.updateSimulation(draft: Draft, loom_settings: LoomSettings){
+
   }
 
    /**

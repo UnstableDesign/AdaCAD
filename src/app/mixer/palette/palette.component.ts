@@ -656,6 +656,7 @@ handlePan(diff: Point){
    */
   createSubDraft(d: Draft, parent: number) : Promise<SubdraftComponent>{
     
+
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
@@ -705,6 +706,8 @@ handlePan(diff: Point){
    * @param nodep the component proxy used to define
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
+
+    console.log("LOADING SUBDRAFT ", id)
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -1763,7 +1766,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
     const new_drafts = this.tree.getDraftNodes()
       .filter(el => el.component === null)
       .map(el => {
-        //console.log("loading new subdraft", (<DraftNode>el).draft);
         return this.loadSubDraft(
           el.id, 
           (<DraftNode>el).draft, 

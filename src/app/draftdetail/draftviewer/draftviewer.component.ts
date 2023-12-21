@@ -17,7 +17,6 @@ import { SelectionComponent } from './selection/selection.component';
 import { NgForm } from '@angular/forms';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import {defaults} from '../../core/model/defaults'
-import { SidebarComponent } from './sidebar/sidebar.component';
 import * as htmlToImage from 'html-to-image';
 
 @Component({
@@ -28,12 +27,7 @@ import * as htmlToImage from 'html-to-image';
 export class DraftviewerComponent implements OnInit {
 
   @ViewChild('bitmapImage') bitmap;
-
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
-  @ViewChild(SidebarComponent, {static: true}) sidebar;
-
-
-  @Input('id') id = -1;
 
   /**
    * a descriptor of the parent who generated this window
@@ -59,6 +53,7 @@ export class DraftviewerComponent implements OnInit {
    @Output() onDesignModeChange = new EventEmitter();
    @Output() onMaterialChange = new EventEmitter();
    @Output() onLoomSettingsUpdated = new EventEmitter();
+   @Output() onDraftChanged = new EventEmitter();
 
 
   hold_copy_for_paste: boolean = false;
@@ -139,7 +134,6 @@ export class DraftviewerComponent implements OnInit {
 
    copy: Drawdown;
 
-   is_dirty: boolean = false;
 
    mouse_pressed: boolean = false; 
  
@@ -226,7 +220,6 @@ export class DraftviewerComponent implements OnInit {
    warps: number; 
    wefts: number;
    width: number;
-   loom_settings: LoomSettings;
    epi: number;
 
    loomtypes:Array<DesignMode>  = [];
@@ -244,6 +237,10 @@ export class DraftviewerComponent implements OnInit {
   system_codes: Array<string> = [];
 
   pixel_ratio: number = 1;
+
+  id: number = -1;
+
+  is_dirty: boolean = false;
 
  
    /// ANGULAR FUNCTIONS
@@ -276,15 +273,7 @@ export class DraftviewerComponent implements OnInit {
   ngOnInit() {
 
 
-    // let draft: Draft = this.tree.getDraft(this.id);
-    // const loom = this.tree.getLoom(this.id);
-    // const loom_settings = this.tree.getLoomSettings(this.id);
-
-    // this.isFrame = isFrame(loom_settings);
-   //this.viewonly = !this.tree.isSeedDraft(this.id);
      this.viewonly = false;
-    // this.colShuttleMapping = draft.colShuttleMapping;
-    // this.rowShuttleMapping = draft.rowShuttleMapping;
 
 
 
@@ -353,11 +342,21 @@ export class DraftviewerComponent implements OnInit {
   }
 
   //this is called anytime a new draft object is loaded. 
-  onNewDraftLoaded(draft: Draft, loom:Loom, loom_settings:LoomSettings) {  
+  onNewDraftLoaded(id: number) {  
+    console.log("ON NEW DRAFT LOADED", id)
 
-    this.is_dirty = false;
+    this.id = id;  
+
+    if(id == -1) return;
+
+    const loom_settings = this.tree.getLoomSettings(id);
+    const draft = this.tree.getDraft(id);
+    const loom = this.tree.getLoom(id);
+
+    console.log("DATA ", loom_settings, draft, loom)
+
+    this.resetDirty();
     
-    this.loom_settings = loom_settings;
     this.selected_loom_type = loom_settings.type;
 
     this.frames = Math.max(numFrames(loom), loom_settings.frames);
@@ -455,6 +454,8 @@ export class DraftviewerComponent implements OnInit {
    */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
+
+    if(this.id == -1) return;
 
     this.mouse_pressed = true;
 
@@ -1158,11 +1159,20 @@ export class DraftviewerComponent implements OnInit {
 
 
 
+  public markDirty(){
+    this.is_dirty = true;
+    this.onDraftChanged.emit(this.id);
+  }  
 
+
+  public resetDirty(){
+    this.is_dirty = false;
+
+  }  
  
 
   public incrementWeftSystem(i: number){
-    this.is_dirty = true;
+    this.markDirty();
 
     const draft = this.tree.getDraft(this.id);
     let weft = this.render.visibleRows[i];
@@ -1177,7 +1187,7 @@ export class DraftviewerComponent implements OnInit {
 
   
   incrementWeftMaterial(si: number){
-    this.is_dirty = true;
+    this.markDirty();
 
     const weft = this.render.visibleRows[si];
     const draft = this.tree.getDraft(this.id);
@@ -1200,7 +1210,7 @@ export class DraftviewerComponent implements OnInit {
 
 
   public incrementWarpSystem(j: number){
-    this.is_dirty = true;
+    this.markDirty();
 
     const draft = this.tree.getDraft(this.id);
     var newSystem = this.ss.getNextWarpSystem(j,draft);
@@ -1214,7 +1224,7 @@ export class DraftviewerComponent implements OnInit {
   }
 
   incrementWarpMaterial(col: number){
-    this.is_dirty = true;
+    this.markDirty();
     const warp = col;
 
     const draft = this.tree.getDraft(this.id);
@@ -1260,7 +1270,7 @@ export class DraftviewerComponent implements OnInit {
 
     
     if(hasCell(draft.drawdown, currentPos.i, currentPos.j)){
-      this.is_dirty = true;
+      this.markDirty();
 
       // Set the heddles based on the brush.
       switch (this.dm.getSelectedDesignMode('draw_modes').value) {
@@ -1329,7 +1339,7 @@ export class DraftviewerComponent implements OnInit {
 
 
     if (isInUserTieupRange(loom, loom_settings,  currentPos)){
-      this.is_dirty = true;
+      this.markDirty();
 
 
 
@@ -1375,7 +1385,7 @@ export class DraftviewerComponent implements OnInit {
 
     if (isInUserThreadingRange(loom, loom_settings, currentPos)){
       var val = false;
-      this.is_dirty = true;
+      this.markDirty();
 
 
       //modify based on the current view 
@@ -1417,7 +1427,7 @@ export class DraftviewerComponent implements OnInit {
   private drawOnTreadling(loom: Loom, loom_settings: LoomSettings, currentPos: Interlacement ) {
 
     if (!this.cxTreadling || !currentPos) { return; }
-    this.is_dirty = true;
+    this.markDirty();
 
     var val = false;
 
@@ -1906,7 +1916,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.cx.canvas.style.width = (base_dims.w * (warps(draft.drawdown)+2)) + "px";
         this.cx.canvas.style.height = (base_dims.h * (this.render.visibleRows.length+2)) +"px"
         this.cx.strokeStyle = "#3d3d3d";
-        this.cx.fillStyle = "#ffffff";
+        this.cx.fillStyle = "#f0f0f0";
         this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
         this.cx.strokeRect(0,0,this.canvasEl.width,this.canvasEl.height);
         this.drawDrawdown(draft, loom, loom_settings);
@@ -1928,7 +1938,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
     
     var base_dims = this.render.getCellDims("base");
-    this.cx.fillStyle = "white";
+    this.cx.fillStyle = "#f0f0f0";
     this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
 
     var i,j;
@@ -2803,11 +2813,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const loom_settings = this.tree.getLoomSettings(this.id);
     if(loom_settings.type !== 'jacquard'){
       this.selection.onSelectCancel();
-      if(this.dm.getSelectedDesignMode('drawdown_editing_style').value === 'drawdown'){
-        this.dm.selectDesignMode('loom', 'drawdown_editing_style')
-      }else{
-        this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
-      }
     }
   
   }
@@ -2844,7 +2849,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       if(loom_settings.type === 'jacquard' && new_settings.type === 'direct'){
 
         this.tree.setLoomSettings(this.id, new_settings);      
-        this.loom_settings = new_settings;
        
         utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
         .then(loom => {
@@ -2864,8 +2868,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       }else if(loom_settings.type === 'jacquard' && new_settings.type === 'frame'){
           //from jacquard to floor loom (shaft/treadle) 'frame'
           this.tree.setLoomSettings(this.id, new_settings);      
-          this.loom_settings = new_settings;
-
           utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
           .then(loom => {
             this.tree.setLoom(this.id, loom);
@@ -2880,7 +2882,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         //do nothing, we'll just keep the drawdown
         this.tree.setLoom(this.id, null);
         this.tree.setLoomSettings(this.id, new_settings);      
-        this.loom_settings = new_settings;
         this.onLoomSettingsUpdated.emit();
 
       }else if(loom_settings.type === 'frame' && new_settings.type === 'jacquard'){
@@ -2888,7 +2889,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         //do nothing, we'll just keep the drawdown
         this.tree.setLoom(this.id, null);
         this.tree.setLoomSettings(this.id, new_settings);      
-        this.loom_settings = new_settings;
         this.onLoomSettingsUpdated.emit();
 
       }else if(loom_settings.type == 'direct' && new_settings.type == 'frame'){
@@ -2899,7 +2899,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       this.frames = numFrames(converted_loom);
       this.treadles = numTreadles(converted_loom);
       this.tree.setLoomSettings(this.id, new_settings);      
-      this.loom_settings = new_settings;
       this.redraw(draft, converted_loom, new_settings, {loom: true});
       this.onLoomSettingsUpdated.emit();
 
@@ -2914,7 +2913,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.frames = numFrames(converted_loom);
         this.treadles = numTreadles(converted_loom);
         this.tree.setLoomSettings(this.id, new_settings);      
-        this.loom_settings = new_settings;
         this.redraw(draft, converted_loom, new_settings, {loom: true});
         this.onLoomSettingsUpdated.emit();
 
@@ -3217,29 +3215,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   }
 
 
-epiChange(f: NgForm) {
-
-  const loom_settings = this.tree.getLoomSettings(this.id);
-  const draft = this.tree.getDraft(this.id);
-
-  if(!f.value.epi){
-    f.value.epi = 1;
-    loom_settings.epi = f.value.epi;
-    this.tree.setLoomSettings(this.id, loom_settings);
-  } 
-  
-  //this.loom.overloadEpi(f.value.epi);
-  this.ws.epi = f.value.epi;
-
-  this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
-  f.value.width = this.width;
-  
-  this.onLoomSettingsUpdated.emit();
-  this.onMaterialChange.emit(draft);
-
-
-  }
-
 
   public checkForPaint(source: string, index: number, event: any){
     const draft = this.tree.getDraft(this.id);
@@ -3379,20 +3354,7 @@ epiChange(f: NgForm) {
   
   }
 
-    /**
-   * Change the name of the brush to reflect selected brush.
-   * @extends WeaveComponent
-   * @param {Event} e - brush change event from design component.
-   * @returns {void}
-   */
-    public designModeChange(e:any) {
-
-      this.unsetSelection();
-      this.onDesignModeChange.emit(e)
-;  
-    }
-  
-
+   
 
   public createShuttle(e: any) {
     this.ms.addShuttle(e.shuttle); 

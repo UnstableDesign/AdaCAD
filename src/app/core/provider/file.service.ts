@@ -39,6 +39,8 @@ export class FileService {
     private vs: VersionService,
     private ws: WorkspaceService,
     private files: FilesystemService) { 
+
+      console.log("IN FILE SERVICE CONSTRUCTOR ", files)
   
   this.status = [
     {id: 0, message: 'success', success: true},
@@ -53,7 +55,7 @@ export class FileService {
   const dloader: Fileloader = {
 
      ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
-      console.log("DATA ", data)
+      console.log("DATA ", data, files)
 
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 

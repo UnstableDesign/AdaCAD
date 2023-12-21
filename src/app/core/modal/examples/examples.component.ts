@@ -4,6 +4,7 @@ import { getAnalytics, logEvent } from "@angular/fire/analytics";
 import { AuthService } from '../../provider/auth.service';
 import { FileService } from '../../provider/file.service';
 import { ExampleserviceService } from '../../provider/exampleservice.service';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-examples',
@@ -18,7 +19,9 @@ export class ExamplesComponent {
     private fls: FileService,
     private auth: AuthService,
     private http: HttpClient,
-    public examples: ExampleserviceService) {
+    public examples: ExampleserviceService,
+    private dialog: MatDialog,
+    public dialogRef: MatDialogRef<ExamplesComponent>) {
       
       this.local_examples = examples.getExamples();
   }
@@ -26,7 +29,7 @@ export class ExamplesComponent {
   loadExample(filename: string){
     
     this.onLoadExample.emit(filename);
-
+    this.dialogRef.close();
   }
 
 }

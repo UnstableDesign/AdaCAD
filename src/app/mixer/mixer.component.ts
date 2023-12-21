@@ -165,6 +165,7 @@ export class MixerComponent  {
 
 
 
+
   /**
    * this is called when the detail view is closed. It passes an object that has three values: 
    * id: the draft id
@@ -172,48 +173,53 @@ export class MixerComponent  {
    * is_dirty: a boolean to note if the draft was changed at all while in detail view. 
    * @param obj 
    */
-  updatePaletteFromDetailView(obj: any){
+  // updatePaletteFromDetailView(obj: any){
 
+  //   console.log("UPDATE PALETTE")
 
-    //the object was never copied
-    if(obj.clone_id == -1){
-      let comp = <SubdraftComponent>this.tree.getComponent(obj.id);
-      comp.redrawExistingDraft();
-      this.palette.updateDownstream(obj.id).then(el => {
-      this.palette.addTimelineState();
-      });
-    //reperform all of the ops 
-    }else{
-      //this object was copied and we need to keep the copy
+  //   //the object was never copied
+  //   if(obj.clone_id == -1){
+  //     let comp = <SubdraftComponent>this.tree.getComponent(obj.id);
+  //     comp.redrawExistingDraft();
+  //     this.palette.updateDownstream(obj.id).then(el => {
+  //     this.palette.addTimelineState();
+  //     });
+  //   //reperform all of the ops 
+  //   }else{
+  //     //this object was copied and we need to keep the copy
 
-      if(obj.dirty){
-        const parent = this.tree.getComponent(obj.clone_id);
-        let el = document.getElementById('scale-'+parent.id);
-        let width = 0;
-        if(el !== null && el !== undefined) width = el.offsetWidth;
-        this.palette.createSubDraftFromEditedDetail(obj.id).then(sd => {
-          const new_topleft = {
-            x: parent.topleft.x+((width+40)*this.zs.zoom/defaults.mixer_cell_size), 
-            y: parent.topleft.y};
+  //     if(obj.dirty){
+  //       const parent = this.tree.getComponent(obj.clone_id);
+  //       let el = document.getElementById('scale-'+parent.id);
+  //       let width = 0;
+  //       if(el !== null && el !== undefined) width = el.offsetWidth;
+  //       this.palette.createSubDraftFromEditedDetail(obj.id).then(sd => {
+  //         const new_topleft = {
+  //           x: parent.topleft.x+((width+40)*this.zs.zoom/defaults.mixer_cell_size), 
+  //           y: parent.topleft.y};
     
-            sd.setPosition(new_topleft);
-        });
+  //           sd.setPosition(new_topleft);
+  //       });
 
        
-      }else{
-        //copy over any superficial changes 
-        this.tree.setLoomSettings(obj.clone_id, this.tree.getLoomSettings(obj.id))
-        this.tree.setLoom(obj.clone_id, copyLoom(this.tree.getLoom(obj.id)))
-        this.tree.removeSubdraftNode(obj.id);
-      }
-    }
+  //     }else{
+  //       //copy over any superficial changes 
+  //       this.tree.setLoomSettings(obj.clone_id, this.tree.getLoomSettings(obj.id))
+  //       this.tree.setLoom(obj.clone_id, copyLoom(this.tree.getLoom(obj.id)))
+  //       this.tree.removeSubdraftNode(obj.id);
+  //     }
+  //   }
 
 
 
 
 
+  // }
+
+
+  performAndUpdateDownstream(obj_id: number){
+    this.palette.performAndUpdateDownstream(obj_id);
   }
-
 
 
   addOp(event: any){
@@ -275,6 +281,8 @@ zoomChange(e:any, source: string){
    * @param drafts 
    */
   loadDrafts(drafts: any){
+
+    console.log("MIXER LOAD DRAFTS CALLED")
     const loom:Loom = {
       threading:[],
       tieup:[],
@@ -538,6 +546,7 @@ zoomChange(e:any, source: string){
   }
 
   public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
+    console.log("MIXER LOAD SUBDRAFT CALLED")
     this.palette.loadSubDraft(id, d, nodep, draftp, saved_scale);
   }
 

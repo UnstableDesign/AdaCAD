@@ -111,15 +111,9 @@ canvas{
 #draft-container{
   display: flex;
   flex-direction: column;
-  overflow: scroll;
   height: 100%;
   width: 100%;
 }
-
-#draft-container.expanded{
-  width: 75%;
-}
-
 
 
 #draft-scale-container{

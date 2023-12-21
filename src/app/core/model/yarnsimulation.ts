@@ -906,13 +906,11 @@ export const getClosestWarpValue = (i: number, j: number, warp_vtx: Array<Array<
 
       return createWarpLayerMap(draft, topo, sim, active_layers, max_layer)
       .then(warps => {
-        console.log("WARP LAYER ", warps)
         layer_maps.warp = warps;
         return createWeftLayerMap(draft, topo, sim, warps)
       }
       ).then(wefts =>{
         layer_maps.weft = wefts;
-       console.log("WEFT LAYER ", wefts)
 
   
         //make sure every column in the warp map has at least one weft traveling on it in the weft map. 

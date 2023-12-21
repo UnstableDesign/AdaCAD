@@ -1,3 +1,292 @@
+<div *ngIf="hasFocus" class="detail-sidebar">
+        <div class="tool-chunk">
+                <h3>draft</h3>
+        
+        
+                <button 
+                mat-icon-button
+                matTooltip= "Edit Draft Cells"
+                [matMenuTriggerFor]="inks"
+                [class.is-active]="dm.isSelected('draw','design_modes') && !dm.isSelected('material', 'draw_modes')"        >
+                <i class="fas fa-edit"></i>
+                </button>
+        
+        
+                <mat-menu #inks="matMenu">
+                    <ng-container *ngFor="let mode of dm.draw_modes">
+                        <button *ngIf="mode.value !== 'material'"
+                    class="menu-button" 
+                    mat-menu-item 
+                    [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
+                    [name] = "mode.value"
+                    [disabled]= "viewonly"
+                    (click)="drawModeChange(mode.value)">
+                        <span class="{{mode.icon}}"></span>
+                        <span class="menu-item">{{mode.viewValue}}</span>
+                    </button>
+                    </ng-container>
+        
+        
+                </mat-menu>
+        
+                <button 
+                mat-icon-button
+                color="primary"
+                matTooltip= "Set Colors"
+                [matMenuTriggerFor]="colors"
+                [class.is-active]="dm.isSelected('draw','design_modes') && dm.isSelected('material', 'draw_modes')"        >
+                <i class="fa-solid fa-paintbrush"></i>
+                </button>
+        
+                <mat-menu #colors="matMenu">
+        
+                    <ng-container *ngFor="let shuttle of ms.materials">
+                        <button class="menu-button" 
+                        mat-menu-item 
+                        (click)="drawWithMaterial(shuttle.id)">
+                            <span class="swatch"  [style.background]="shuttle.color" ></span>
+                            <span>{{shuttle.name }}</span>
+                        </button>
+                        </ng-container>
+        
+        
+                </mat-menu>
+        
+        
+        
+                <button 
+                mat-icon-button
+                color="primary"
+                matTooltip= "Select Region"
+                [class.is-active]="dm.isSelected('select','design_modes')"
+                (click)="select()">
+                <i class="fas fa-expand"></i>
+                </button>
+        
+                <button
+                matTooltip= "Set Repeats"
+                color="primary"
+                mat-icon-button 
+                [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
+                (click)='openActions()'><i class="fas fa-magic"></i></button>
+        
+        
+                <div class="right-side fullwidth" > 
+                    <mat-label>Editing Mode: </mat-label>
+                    <mat-slide-toggle
+                    (click)="swapEditingStyleClicked()">
+                    {{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}
+                    </mat-slide-toggle>
+                    </div>
+        
+        
+            </div>
+        
+            <div class="tool-chunk">
+                <h3>View</h3>
+        
+        
+        <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+          <mat-button-toggle value="draft" (click)="viewChange('draft')">Draft</mat-button-toggle>
+          <mat-button-toggle value="structure">Structure</mat-button-toggle>
+          <mat-button-toggle value="color">Color</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <div class="tool-chunk slider" >
+        
+            <button color="primary" mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
+<!--             
+            <div class="view_slider">
+            <mat-slider 
+            tickInterval=".1" 
+            color="primary"
+            step=".1"
+            min="0" 
+            max="2" 
+            value="{{render.zoom}}" 
+            (change)="zoomChange($event, 'slider')"></mat-slider>
+        </div> 
+     -->
+           <button mat-icon-button color="primary"  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button> 
+           
+    
+    
+        </div>
+    
+        
+        
+        
+        
+               <span> view:
+                draft, floats, colors
+                </span>
+        
+                <span>
+                    editing mode
+                </span>
+            </div>
+        
+            <div class="tool-chunk">
+            <h3>Settings</h3>
+
+
+        <div class="left-side">
+
+            <!-- <button class="print" mat-raised-button color="primary" (click)="print()">Print</button> -->
+          
+        <form #envt="ngForm" novalidate>
+
+          <mat-form-field class="fullwidth">
+  
+          <mat-label>Loom Type</mat-label>
+          <mat-select  (selectionChange) ="loomChange(envt)" [(value)]="selected_loom_type" [(ngModel)]="selected_loom_type" name="loomtype">
+            <mat-option *ngFor="let loomtype of loomtypes" [value]="loomtype.value">
+              {{loomtype.viewValue}}
+            </mat-option>
+          </mat-select>
+          </mat-form-field>
+  
+           
+          <mat-form-field class="fullwidth">
+            <input matInput name="warps" 
+            [(ngModel)]="warps" 
+            type="number" 
+            min="2" 
+            placeholder="Warp Ends" 
+            (change)="warpChange(envt)"
+            (blur)="warpChange(envt)"> 
+            
+         
+          </mat-form-field>
+  
+          <mat-form-field class="fullwidth">
+            <input matInput name="wefts" 
+            [(ngModel)]="wefts" 
+            type="number" 
+            min="2" 
+            placeholder="Weft Pics" 
+            (change)="weftChange(envt)"
+            (blur)="weftChange(envt)"> 
+         
+          </mat-form-field>
+  
+          <mat-form-field class="fullwidth">
+            <mat-label>Density Units</mat-label>            
+            <mat-select [(value)]="selected_units" [(ngModel)]="selected_units" name="units" (selectionChange) ="unitChange()">
+              <mat-option *ngFor="let unit of density_units" [value]="unit.value">
+                {{unit.viewValue}}
+              </mat-option>
+            </mat-select>
+            </mat-form-field>
+  
+            <mat-form-field class="fullwidth">
+            <mat-label>Density</mat-label>    
+            <input matInput  
+            name="epi" 
+            [(ngModel)]="epi" 
+            type="number" 
+            min= "0" 
+            (change)="epiChange(envt)"
+            (blur)="epiChange(envt)">  
+    
+            <ng-container *ngIf="units === 'cm'">
+              <span matSuffix>ends / 10cm</span>
+            </ng-container>
+            <ng-container *ngIf="units == 'in'">
+             <span matSuffix>epi</span> 
+            </ng-container>
+          </mat-form-field>
+  
+  
+  
+          <mat-form-field class="fullwidth">
+            <input matInput 
+            name="width" 
+            [(ngModel)]="width" 
+            step="0.125" 
+            type="number" 
+            min= "0.25" 
+            max ="60" 
+            placeholder="Width" 
+            (change)="widthChange(envt)"
+            (blur)="widthChange(envt)"> 
+  
+            <ng-container *ngIf="units === 'in'">
+              <span matSuffix>inches</span> 
+            </ng-container>
+    
+             <ng-container *ngIf="units === 'cm'">
+              <span matSuffix>cm</span> 
+           </ng-container>
+    
+          </mat-form-field>
+  
+  
+    
+          <ng-container *ngIf="type != 'jacquard'">
+            <mat-form-field class="fullwidth" >
+              <mat-label >Number of Frames</mat-label>    
+              <input matInput 
+              name="frames" 
+              [(ngModel)]="frames"  
+              step="1" 
+              type="number" 
+              min= "2" 
+              max ="1000" 
+              (change)="updateMinFrames(envt)" 
+              (blur)="updateMinFrames(envt)"> 
+               <span matSuffix>frames</span> 
+             </mat-form-field>
+  
+      
+            <mat-form-field class="fullwidth">
+              <mat-label>Number of Treadles</mat-label>      
+              <input matInput 
+              name="treadles" 
+              [disabled]="type == 'jacquard'"
+              [(ngModel)]="treadles" 
+              step="1" 
+              type="number" 
+              min= "2" 
+              max ="1000" 
+              (change)="updateMinTreadles(envt)"
+              (blur)="updateMinTreadles(envt)"
+              > 
+               <span matSuffix>treadles</span> 
+             </mat-form-field>
+            </ng-container>
+
+          </form> 
+        </div>
+  
+        
+                <span> type
+                </span>
+                <span> warps
+                 </span>
+         
+                 <span>
+                     wefts
+                 </span>
+        
+                 <span>
+                    density
+                </span>
+        
+             </div>
+            
+        
+         
+        
+        <!-- VIEW TOOLS -->
+        
+          
+        
+           
+        
+        
+</div> <!-- end sidebar-->
+
 
 
 
@@ -5,11 +294,11 @@
 
         <app-draftviewer 
         id="draft_viewer"
-        [id]="id"
         [hasFocus]="hasFocus"
         source = "weaver"
         (onNewSelection) = "updateSelection($event)"
         (onDrawdownUpdated)="drawdownUpdated()"
+        (onDraftChanged)="detailDraftEdited($event)"
         (onLoomSettingsUpdated)="loomSettingsUpdated()"
         (onMaterialChange)="materialChange()"
         (onViewerExpanded)="expandViewer()">

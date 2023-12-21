@@ -30,7 +30,6 @@ import { DraftDetailComponent } from './draftdetail.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { ActionsComponent } from './actions/actions.component';
 import { RenderService } from './provider/render.service';
-import { SidebarComponent } from './draftviewer/sidebar/sidebar.component';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
 
 @NgModule({
@@ -38,7 +37,6 @@ import { SelectionComponent } from './draftviewer/selection/selection.component'
         DraftDetailComponent,
         DraftviewerComponent,
         ActionsComponent,
-        SidebarComponent,
         SelectionComponent
     ],
     imports: [

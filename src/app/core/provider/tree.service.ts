@@ -1550,8 +1550,16 @@ isValidIOTuple(io: IOTuple) : boolean {
    */
    setSubdraftParent(sd:number, op:number){
     const sd_tn: TreeNode = this.getTreeNode(sd);
-    const op_tn: TreeNode = this.getTreeNode(op);
-    sd_tn.parent = op_tn;
+    if(op == -1){
+      sd_tn.parent = null;
+
+    }else{
+      const op_tn: TreeNode = this.getTreeNode(op);
+      sd_tn.parent = op_tn;
+   
+    }
+
+
 
   }
 

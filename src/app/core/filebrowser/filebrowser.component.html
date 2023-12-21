@@ -1,6 +1,13 @@
+<p mat-dialog-title
+cdkDrag
+ cdkDragRootElement=".cdk-overlay-pane" 
+ cdkDragHandle>
+ <span *ngIf="data.selectOnly" >Load File From AdaCAD</span>
+ <span *ngIf="!data.selectOnly">Manage Files</span>
 
-<h2 *ngIf="data.selectOnly" mat-dialog-title>Load File From AdaCAD</h2>
-<h2 *ngIf="!data.selectOnly" mat-dialog-title>Manage Files</h2>
+
+
+</p>
 
 <mat-dialog-content class="filebrowser">
 

@@ -1,9 +1,9 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
-import { Draft, Drawdown, Loom, LoomSettings, Cell } from '../core/model/datatypes';
+import { Draft, Drawdown, Loom, LoomSettings, Cell, DraftNode } from '../core/model/datatypes';
 import { copyDraft, createDraft, generateMappingFromPattern, getDraftName } from '../core/model/drafts';
 import { copyLoom, getLoomUtilByType, isFrame } from '../core/model/looms';
 import { RenderService } from './provider/render.service';
@@ -17,6 +17,11 @@ import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component'
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { createCell } from '../core/model/cell';
 import utilInstance from '../core/model/util';
+import { ActionsComponent } from './actions/actions.component';
+import { NgForm } from '@angular/forms';
+import { defaults } from '../core/model/defaults';
+import { ZoomService } from '../mixer/provider/zoom.service';
+import { StateService } from '../core/provider/state.service';
 
 
 
@@ -37,23 +42,28 @@ export class DraftDetailComponent implements OnInit {
 
   @Output() closeDrawer: any = new EventEmitter();
   @Output() saveChanges: any = new EventEmitter();
+  @Output() updateSimulation: any = new EventEmitter();
+  @Output() updateMixer: any = new EventEmitter();
+  @Output() createNewDraftOnMixer: any = new EventEmitter();
+
   @Input('hasFocus') hasFocus; 
 
   id: number = -1;  
 
 
-  
+  actions_modal: MatDialogRef<ActionsComponent, any>;
+
 
   /**
   The current selection, as a Pattern 
   **/
   copy: Drawdown;
 
-  draft: Draft;
+  // draft: Draft;
 
-  loom: Loom;
+  // loom: Loom;
 
-  loom_settings: LoomSettings;
+  // loom_settings: LoomSettings;
 
   selected;
 
@@ -83,6 +93,14 @@ export class DraftDetailComponent implements OnInit {
 
   clone_id: number = -1;
 
+  width: number = 10;
+
+  epi: number = 10;
+  units: string = 'cm';
+  type: string = 'jacquard';
+
+  
+
 
   /// ANGULAR FUNCTIONS
   /**
@@ -96,11 +114,13 @@ export class DraftDetailComponent implements OnInit {
     private fs: FileService,
     public dm: DesignmodesService,
     public scroll: ScrollDispatcher,
-    private ms: MaterialsService,
+    public ms: MaterialsService,
     private ss: SystemsService,
+    private state: StateService,
     private ws: WorkspaceService,
     private tree: TreeService,
-    public render: RenderService) {
+    public render: RenderService,
+    private zs: ZoomService) {
 
     this.scrollingSubscription = this.scroll
           .scrolled()
@@ -124,6 +144,10 @@ export class DraftDetailComponent implements OnInit {
   }
   
   ngOnInit(){
+
+    this.epi = defaults.epi;
+    this.units =defaults.units;
+    this.type = defaults.loom_type;
 
 
   }
@@ -181,98 +205,166 @@ export class DraftDetailComponent implements OnInit {
   }
 
 
-  /**
-   * loads a new draft into the detail viewer
-   * @param id 
-   */
-  loadDraft(id: number) : Promise<any> {
+  //when the drawdown is updated see if it has a parent and if a new draft needs to be created. 
+  detailDraftEdited(id:number){
 
 
-    console.log("LOADING DRAFT ", id)
-    
-      //reset the dirty value every time the window is open
-    this.weaveRef.is_dirty = false;
+    this.addTimelineState();
 
-    if(!this.tree.hasParent(id)){
-      this.id = id;
-      this.clone_id = -1;
-      this.draft = this.tree.getDraft(id);
-      this.draftname = getDraftName(this.draft)
-      this.loom = this.tree.getLoom(id);
-      this.loom_settings = this.tree.getLoomSettings(id);
+    //if it has a parent and it does not yet have a view ref. 
+    if(this.tree.hasParent(id)){
 
-      this.render.loadNewDraft(this.draft);
-      this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
-      //return this.simRef.loadNewDraft(this.draft, this.loom_settings);
-      return Promise.resolve(null);
-    
-    }else{
+      //reset this id back to what it was before
+      //create a new draft of the edited draft. 
+ //   //set up a clone of this draft if it has a parent, so that major changes can spawn a new draft to be created
 
-      //set up a clone of this draft if it has a parent, so that major changes can spawn a new draft to be created
-
-      this.clone_id  = id;
       const newid = this.tree.createNode('draft', null, null);
-
       let d = this.tree.getDraft(id);
-      this.draft= copyDraft(d);
-      this.draftname = getDraftName(this.draft)
+      const copied_draft= copyDraft(d);
 
-      this.draft.id =newid;
+      copied_draft.id =newid;
       this.id = newid;
+      this.weaveRef.id = newid;
 
-      const loom_settings:LoomSettings = this.tree.getLoomSettings(id);
-      this.id = this.draft.id;
-
-      this.loom_settings = {
-        type: loom_settings.type,
-        epi: loom_settings.epi,
-        units: loom_settings.units,
-        frames: loom_settings.frames,
-        treadles: loom_settings.treadles
+      //copy over the loom settings
+      const old_loom_settings:LoomSettings = this.tree.getLoomSettings(id);
+      const loom_settings = {
+        type: old_loom_settings.type,
+        epi: old_loom_settings.epi,
+        units: old_loom_settings.units,
+        frames: old_loom_settings.frames,
+        treadles: old_loom_settings.treadles
       }
 
-      const loom = this.tree.getLoom(id);
+      this.tree.setLoomSettings(this.id, loom_settings)
+
+      let loom = this.tree.getLoom(id);
       const loom_fns = [];
 
       if(loom === null){
-        let loom_util = getLoomUtilByType(this.loom_settings.type);
-        loom_fns.push( loom_util.computeLoomFromDrawdown(this.draft.drawdown, this.loom_settings, this.ws.selected_origin_option))
+        let loom_util = getLoomUtilByType(loom_settings.type);
+        loom_fns.push( loom_util.computeLoomFromDrawdown(copied_draft.drawdown, loom_settings, this.ws.selected_origin_option))
       }else{
-        this.loom = copyLoom(this.tree.getLoom(id));
+        loom = copyLoom(this.tree.getLoom(id));
+        this.tree.setLoom(this.id, loom);
       }
-
-
 
 
       return Promise.all(loom_fns)
       .then(loom => {
 
         if(loom.length > 0){
-          this.loom = copyLoom(loom[0]);
-          this.tree.setLoom(this.id, this.loom)
-        } 
-        return  this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, this.draft, this.loom, this.loom_settings, false)
-      }).then(d => {
+          let new_loom = copyLoom(loom[0]);
+          this.tree.setLoom(this.id, new_loom)
+        }
 
-        this.render.loadNewDraft(this.draft);
-    
-        this.weaveRef.onNewDraftLoaded(this.draft, this.loom, this.loom_settings);
-      
+        let new_loom = this.tree.getLoom(this.id);
+        return  this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, copied_draft, new_loom, loom_settings, false)
+      }).then(d => {
+        //update the mixer 
+        this.tree.setSubdraftParent(this.id, -1)
+        this.createNewDraftOnMixer.emit({original_id: id, new_id: newid});
         return Promise.resolve(null)
-        //return this.simRef.loadNewDraft(this.draft, this.loom_settings);
 
         })
+        .catch(err => {console.error(err)})
     }
+
+
+
+    
+
+
+  }
+
+
+  /**
+   * loads a new draft into the detail viewer
+   * when a draft is loaded, it is loaded as is. 
+   * if someone goes to edit the draft...but it has a parent, then a new draft is created and pushed to the mixer. 
+   * @param id 
+   */
+  loadDraft(id: number) : Promise<any> {
+
+
+
+    if(id == -1) return;
+    
+    //reset the dirty value every time the window is open
+    this.weaveRef.is_dirty = false;
+
+   // if(!this.tree.hasParent(id)){
+
+      this.id = id;
+      this.clone_id = -1;
+      const draft = this.tree.getDraft(id);
+      this.draftname = getDraftName(draft)
+      this.render.loadNewDraft(draft);
+      this.weaveRef.onNewDraftLoaded(id);
+      //return this.simRef.loadNewDraft(this.draft, this.loom_settings);
+      return Promise.resolve(null);
+    
+    // }else{
+
+    //   //set up a clone of this draft if it has a parent, so that major changes can spawn a new draft to be created
+
+    //   this.clone_id  = id;
+    //   const newid = this.tree.createNode('draft', null, null);
+
+    //   let d = this.tree.getDraft(id);
+      
+    //   const draft= copyDraft(d);
+    //   this.draftname = getDraftName(draft)
+
+    //   draft.id =newid;
+    //   this.id = newid;
+
+    //   //copy over the loom settings
+    //   const old_loom_settings:LoomSettings = this.tree.getLoomSettings(id);
+    //   const loom_settings = {
+    //     type: old_loom_settings.type,
+    //     epi: old_loom_settings.epi,
+    //     units: old_loom_settings.units,
+    //     frames: old_loom_settings.frames,
+    //     treadles: old_loom_settings.treadles
+    //   }
+
+    //   this.tree.setLoomSettings(this.id, loom_settings)
+
+    //   let loom = this.tree.getLoom(id);
+    //   const loom_fns = [];
+
+    //   if(loom === null){
+    //     let loom_util = getLoomUtilByType(loom_settings.type);
+    //     loom_fns.push( loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option))
+    //   }else{
+    //     loom = copyLoom(this.tree.getLoom(id));
+    //     this.tree.setLoom(this.id, loom);
+    //   }
+
+
+    //   return Promise.all(loom_fns)
+    //   .then(loom => {
+
+    //     if(loom.length > 0){
+    //       let new_loom = copyLoom(loom[0]);
+    //       this.tree.setLoom(this.id, new_loom)
+    //     }
+
+    //     let new_loom = this.tree.getLoom(this.id);
+    //     return  this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, draft, new_loom, loom_settings, false)
+    //   }).then(d => {
+
+
+    //     this.render.loadNewDraft(draft);
+    //     this.weaveRef.onNewDraftLoaded(this.id);
+    //     return Promise.resolve(null)
+
+    //     })
+    //     .catch(err => {console.error(err)})
+    // }
    
   }
-
-  windowClosed(){
-    this.draft = null;
-    this.id = null;
-    this.loom_settings = null;
-   // this.simRef.endSimulation();
-  }
-
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
@@ -304,8 +396,22 @@ export class DraftDetailComponent implements OnInit {
 
   //  this.simRef.setDirty();
     this.redrawSimulation();
+    this.addTimelineState();
     
+  }  
+
+  addTimelineState(){
+
+
+   this.fs.saver.ada(
+      'mixer', 
+      true,
+      this.zs.zoom)
+      .then(so => {
+        this.state.addMixerHistoryState(so);
+      });
   }
+
 
   public loomSettingsUpdated(){
     this.saveChanges.emit();
@@ -472,6 +578,118 @@ warpThresholdChange(){
 //   console.log("layer spacing change ", this.layer_spacing, e);
 //   this.simRef.changeLayerSpacing(this.layer_spacing)
 // }
+
+
+
+//SIDEBAR SUPPORT: 
+
+drawModeChange(name: string) {
+  var obj: any = {};
+  obj.name = name;
+  obj.target = "draw_modes";
+  this.weaveRef.unsetSelection();
+}
+
+openActions(){
+  if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;
+ 
+   this.actions_modal  =  this.dialog.open(ActionsComponent,
+     {disableClose: true,
+       maxWidth:350, 
+       hasBackdrop: false,
+       data: {id: this.id}});
+ 
+ 
+        this.actions_modal.componentInstance.onUpdateWarpShuttles.subscribe(event => { if(this.id !== -1) this.weaveRef.updateWarpShuttles(event)});
+        this.actions_modal.componentInstance.onUpdateWarpSystems.subscribe(event => { if(this.id !== -1) this.weaveRef.updateWarpSystems(event)});
+        this.actions_modal.componentInstance.onUpdateWeftShuttles.subscribe(event => { if(this.id !== -1) this.weaveRef.updateWeftShuttles(event)});
+        this.actions_modal.componentInstance.onUpdateWeftSystems.subscribe(event => { if(this.id !== -1) this.weaveRef.updateWeftSystems(event)});
+ 
+
+ }
+
+ select(){
+  var obj: any = {};
+   obj.name = "select";
+   obj.target = "design_modes";
+   this.dm.selectDesignMode(obj.name, obj.target);
+   //this.weaveRef.designModeChange(obj);
+}
+
+ 
+
+
+swapEditingStyleClicked(){
+  if(this.id == -1) return;
+
+  const loom_type = this.tree.getLoomSettings(this.id);
+
+  if(loom_type.type !== 'jacquard'){
+    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value === 'drawdown'){
+      this.dm.selectDesignMode('loom', 'drawdown_editing_style')
+    }else{
+      this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+    }
+    this.weaveRef.unsetSelection();
+  }
+
+}
+
+viewChange(e:any){
+  console.log("ON VIEW CHANGE ", e)
+  if(e.checked){
+    this.weaveRef.viewChange('visual');
+    this.dm.selectDesignMode('visual', 'view_modes');
+  } else{
+    this.weaveRef.viewChange('pattern');
+    this.dm.selectDesignMode('pattern', 'view_modes');
+  }     
+
+}
+
+
+zoomChange(e:any, source: string){
+  e.source = source;
+  this.weaveRef.renderChange(e);
+}
+
+
+zoomIn(){
+  this.weaveRef.renderChange({source: 'in', val: -1});
+}
+
+
+zoomOut(){
+  this.weaveRef.renderChange({source: 'out', val: -1});
+}
+
+
+
+epiChange(f: NgForm) {
+
+  if(this.id == -1) return;
+
+  const loom_settings = this.tree.getLoomSettings(this.id);
+
+  if(!f.value.epi){
+    f.value.epi = 1;
+    loom_settings.epi = f.value.epi;
+    this.tree.setLoomSettings(this.id, loom_settings);
+  } 
+  
+  //this.loom.overloadEpi(f.value.epi);
+  this.ws.epi = f.value.epi;
+
+  this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
+  f.value.width = this.width;
+  
+  this.loomSettingsUpdated();
+  this.materialChange();
+
+
+  }
+
+
 
 
 

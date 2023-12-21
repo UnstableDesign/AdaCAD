@@ -1,13 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { BlankdraftModal } from '../../../core/modal/blankdraft/blankdraft.modal';
-import { Draft, LoomSettings } from '../../../core/model/datatypes';
-import { DesignmodesService } from '../../../core/provider/designmodes.service';
-import { MaterialsService } from '../../../core/provider/materials.service';
-import { TreeService } from '../../../core/provider/tree.service';
-import { InkService } from '../../../mixer/provider/ink.service';
-import { ActionsComponent } from '../../actions/actions.component';
-import { RenderService } from '../../provider/render.service';
+import { defaults } from '../../core/model/defaults';
+import { BlankdraftModal } from '../../core/modal/blankdraft/blankdraft.modal';
+import { Draft, LoomSettings } from '../../core/model/datatypes';
+import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { MaterialsService } from '../../core/provider/materials.service';
+import { TreeService } from '../../core/provider/tree.service';
+import { InkService } from '../../mixer/provider/ink.service';
+import { ActionsComponent } from '../actions/actions.component';
+import { RenderService } from '../provider/render.service';
 
 
 @Component({
@@ -21,7 +22,6 @@ export class SidebarComponent implements OnInit {
 
 
   @Input() timeline;
-  @Input() id;
   @Input() expanded;
 
   @Output() onUndo: any = new EventEmitter();
@@ -34,20 +34,14 @@ export class SidebarComponent implements OnInit {
   @Output() onShowWeftSystem: any = new EventEmitter();
   @Output() onHideWeftSystem: any = new EventEmitter();
   @Output() onLocalLoomNeedsRedraw: any = new EventEmitter();
-  @Output() onGlobalLoomChange: any = new EventEmitter();
-  @Output() onOperationAdded: any = new EventEmitter();
-  @Output() onImport: any = new EventEmitter();
   @Output() onViewPortMove: any = new EventEmitter();
   @Output() onUpdateWarpSystems: any = new EventEmitter();
   @Output() onUpdateWeftSystems: any = new EventEmitter();
   @Output() onUpdateWarpShuttles: any = new EventEmitter();
   @Output() onUpdateWeftShuttles: any = new EventEmitter();
   @Output() onMaterialChange: any = new EventEmitter();
-  @Output() onNoteCreate: any = new EventEmitter();
-  @Output() onMLChange: any = new EventEmitter();
-  @Output() onNewDraftCreated: any = new EventEmitter();
   @Output() closeDrawer: any = new EventEmitter();
-  @Output() onExpand: any = new EventEmitter();
+  @Output() swapEditingStyle: any = new EventEmitter();
 
   
   draft:Draft;
@@ -58,9 +52,10 @@ export class SidebarComponent implements OnInit {
 
   view: string = 'pattern';
   front: boolean = true;
+  type: string = 'jacquard';
 
   actions_modal: MatDialogRef<ActionsComponent, any>;
-
+  active_id: number = -1;
 
   constructor(
     public dm: DesignmodesService, 
@@ -75,45 +70,13 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit() {
 
-    this.draft = this.tree.getDraft(this.id);
-    this.loom_settings = this.tree.getLoomSettings(this.id);
+    this.type  = defaults.loom_type;
     this.front = this.render.view_front;
 
   }
 
-  expand(){
-    this.onExpand.emit();
-  }
-
-  select(){
-    var obj: any = {};
-     obj.name = "select";
-     obj.target = "design_modes";
-     this.dm.selectDesignMode(obj.name, obj.target);
-     this.onDesignModeChange.emit(obj);
-  }
-
-  createNewDraft(){
-
-    const dialogRef = this.dialog.open(BlankdraftModal, {
-    });
-
-    dialogRef.afterClosed().subscribe(obj => {
-      // if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
-      if(obj !== undefined && obj !== null) this.onNewDraftCreated.emit(obj);
-   });
-  }
 
 
-
-  shapeChange(name:string){
-    var obj: any = {};
-    obj.name = name;
-    obj.target = "shapes";
-    console.log('setting shape', name)
-    this.dm.selectDesignMode(obj.name, obj.target);
-    this.onDesignModeChange.emit(obj);
-  }
 
   drawModeChange(name: string) {
      var obj: any = {};
@@ -124,7 +87,6 @@ export class SidebarComponent implements OnInit {
   }
 
   drawWithMaterial(material_id: number){
-    console.log("draw with material", material_id)
     var obj: any = {};
     obj.name = 'material';
     obj.target = 'draw_modes';
@@ -134,24 +96,9 @@ export class SidebarComponent implements OnInit {
     const mode = this.dm.getDesignMode(obj.name, obj.target);
     mode.children = [];
     mode.children.push({value: obj.id, viewValue:"", icon:"", children:[], selected:false});
-    console.log("children", mode.children);
     this.onDesignModeChange.emit(obj);
   }
 
-  zoomChange(e:any, source: string){
-    e.source = source;
-    this.onZoomChange.emit(e);
-  }
-
-
-  zoomIn(){
-    this.onZoomChange.emit({source: 'in', val: -1});
-  }
-
-
-  zoomOut(){
-    this.onZoomChange.emit({source: 'out', val: -1});
-  }
 
   // viewFront(e:any, value:any, source: string){
   //   e.source = source;
@@ -159,16 +106,7 @@ export class SidebarComponent implements OnInit {
   //   this.onViewFront.emit(e);
   // }
 
-  viewChange(e:any){
-    if(e.checked){
-      this.onViewChange.emit('visual');
-      this.dm.selectDesignMode('visual', 'view_modes');
-    } else{
-      this.onViewChange.emit('pattern');
-      this.dm.selectDesignMode('pattern', 'view_modes');
-    }     
-
-  }
+ 
 
     
  visibleButton(id, visible, type) {
@@ -227,27 +165,6 @@ export class SidebarComponent implements OnInit {
 // }
 
 
-openActions(){
- if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;
-
-  this.actions_modal  =  this.dialog.open(ActionsComponent,
-    {disableClose: true,
-      maxWidth:350, 
-      hasBackdrop: false,
-      data: {id: this.id}});
-
-
-       this.actions_modal.componentInstance.onUpdateWarpShuttles.subscribe(event => { this.onUpdateWarpShuttles.emit(event)});
-       this.actions_modal.componentInstance.onUpdateWarpSystems.subscribe(event => { this.onUpdateWarpSystems.emit(event)});
-       this.actions_modal.componentInstance.onUpdateWeftShuttles.subscribe(event => { this.onUpdateWeftShuttles.emit(event)});
-       this.actions_modal.componentInstance.onUpdateWeftSystems.subscribe(event => { this.onUpdateWeftSystems.emit(event)});
-
-  
-    //   this.view_modal.afterClosed().subscribe(result => {
-    //     //this.onLoomChange.emit();
-    //    // dialogRef.componentInstance.onChange.removeSubscription();
-    // });
-}
 
   
 
@@ -274,8 +191,5 @@ openActions(){
   }
 
 
-  addNote(){
-    this.onNoteCreate.emit();
-  }
 
 }

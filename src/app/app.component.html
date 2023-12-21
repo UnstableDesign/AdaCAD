@@ -52,12 +52,13 @@
         <mat-menu #settings="matMenu">
           <button mat-menu-item>Origin</button>
           <button mat-menu-item >Default Loom Type</button>
+          <button mat-menu-item >Default Draft View</button>
           <button mat-menu-item >Default Density Units</button>
           <button mat-menu-item >Default Density</button>
           <button mat-menu-item >Optimize for Device</button>
         </mat-menu>
         <button mat-button>Materials</button> <!-- open as modal -->
-        <button mat-button>Examples</button> <!-- open as modal --> 
+        <button mat-button (click)="openExamples()">Examples</button> <!-- open as modal --> 
       </div>
       
       <div class="topbar-button-group">
@@ -124,11 +125,14 @@
               <i class="fa-solid fa-maximize"></i></button>
             </div>
 
-            <app-draftdetail id="detail_viewer"
+            <app-draftdetail id="draftdetail"
             #details 
             [hasFocus]="ui.main == 'detail'"  
             (saveChanges)="saveFile()"
-            (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
+            (updateSimulation)="updateSimulation()"
+            (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
+            (updateMixer)="updateMixer()"
+             ></app-draftdetail>
         </div>
 
 
