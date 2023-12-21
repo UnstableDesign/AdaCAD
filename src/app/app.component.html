@@ -13,6 +13,9 @@
 <div class="view-window">
 
   <div *ngIf="!ui.fullscreen" class="header">
+    <div id="logo" class="logo"></div>
+
+    <div class="header-content">
     <mat-toolbar class="topbar">
       <div class="topbar-button-group">
         <span>AdaCAD</span>
@@ -20,7 +23,7 @@
         <button mat-button [matMenuTriggerFor]="file">File</button>
 
         <mat-menu #file="matMenu">
-          <button mat-menu-item>New Workspace</button>
+          <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button >
           <button mat-menu-item>Save</button>
           <button mat-menu-item>Import</button>
@@ -58,7 +61,14 @@
       </div>
       
       <div class="topbar-button-group">
-        <button mat-button>Sign In</button>
+        <div class="auth" *ngIf="(auth.showLogoutButton)">
+          <span class="loggedInUserName">Hi {{auth.username}} </span>
+          <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+        </div>
+
+        <div *ngIf="!auth.isLoggedIn">
+          <button mat-stroked-button class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
+        </div>
       </div>
       
       </mat-toolbar>
@@ -67,39 +77,44 @@
 
           <!-- Open Files List-->
       <div class="filelist">
-        <div class="fileitem" *ngFor="let tab of tabs; index as index;">
-          <button mat-button >{{tab}} </button>
+        <div class="fileitem" *ngFor="let tab of open_files; index as index;">
+          <button mat-button >{{tab.name}} </button>
             <button mat-button >x</button>
         </div>
         <button class="addfile" mat-button >+</button>
       </div>
+    </div>
 </div>
 
 
       <div class="ui-grid">
 
 
-        <div class="mixer" id="mixer">
-       
+        <div class="mixer" id="mixer" [class.hasFocus]="ui.main=='mixer'" [class.isSide]="ui.main!='mixer'">
           <div class="view-controls" [class.main]="ui.main=='mixer'" [class.fullscreen]="ui.fullscreen">
-          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">
+            <span> dataflow</span>
+
+          <button *ngIf="ui.fullscreen" mat-button (click)="collapseFullScreen()">
             <i  class="fa-solid fa-minimize"></i></button> 
-          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('mixer', false)">
+          <button *ngIf="!ui.fullscreen" mat-button (click)="focusUIView('mixer', false)">
             <i class="fa-solid fa-maximize"></i></button>
           </div>
           
       <app-mixer class="app-mixer" 
+      #mixer
       [hasFocus]="ui.main == 'mixer'"  
       (onDraftDetailOpen)="showDraftDetails($event)"
        >
       </app-mixer> 
     </div>
 
-        <div class="detail" id="detail">
+        <div class="detail" id="detail"  [class.hasFocus]="ui.main=='detail'" [class.isSide]="ui.main!='detail'">
           <div class="view-controls" [class.main]="ui.main=='detail'" [class.fullscreen]="ui.fullscreen">
-            <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">
+            <span>draft</span>
+
+            <button *ngIf="ui.fullscreen" mat-button (click)="collapseFullScreen()">
               <i  class="fa-solid fa-minimize"></i></button> 
-            <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('detail', false)">
+            <button *ngIf="!ui.fullscreen" mat-button  (click)="focusUIView('detail', false)">
               <i class="fa-solid fa-maximize"></i></button>
             </div>
 
@@ -112,11 +127,13 @@
 
 
       
-      <div class="sim" id="sim">
+      <div class="sim" id="sim"  [class.hasFocus]="ui.main=='sim'" [class.isSide]="ui.main!='sim'">
         <div class="view-controls" [class.main]="ui.main=='sim'" [class.fullscreen]="ui.fullscreen">
-          <button *ngIf="ui.fullscreen" mat-button color="primary" (click)="collapseFullScreen()">
+          <span> simulation</span>
+
+          <button *ngIf="ui.fullscreen" mat-button (click)="collapseFullScreen()">
             <i  class="fa-solid fa-minimize"></i></button> 
-          <button *ngIf="!ui.fullscreen" mat-button color="primary" (click)="focusUIView('sim', false)">
+          <button *ngIf="!ui.fullscreen" mat-button  (click)="focusUIView('sim', false)">
             <i class="fa-solid fa-maximize"></i></button>
           </div>
 

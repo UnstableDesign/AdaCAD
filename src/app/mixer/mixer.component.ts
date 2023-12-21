@@ -7,7 +7,7 @@ import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/
 import * as htmlToImage from 'html-to-image';
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
-import { DesignMode, Loom, LoomSettings } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { warps, wefts } from '../core/model/drafts';
 import { copyLoom } from '../core/model/looms';
@@ -536,6 +536,20 @@ zoomChange(e:any, source: string){
     this.palette.loadSubDraft(id, obj.draft, null, null, this.zs.zoom);
     //id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number
   }
+
+  public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
+    this.palette.loadSubDraft(id, d, nodep, draftp, saved_scale);
+  }
+
+  loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point, saved_scale: number){
+    this.palette.loadOperation(id, name, params, inlets, topleft, saved_scale)
+  }
+
+  loadConnection(id: number){
+    this.palette.loadConnection(id);
+  }
+
+
 
 
 

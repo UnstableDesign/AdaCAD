@@ -116,6 +116,13 @@ export class StateService {
     const user = auth.currentUser;
 
     if(user !== null){
+      //do a quick correction for any undefined loom settings
+      ada.file.draft_nodes.forEach(dn => {
+        if(dn.loom_settings == undefined){
+          dn.loom_settings = null;
+        }
+      })
+
       this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
     } 
 

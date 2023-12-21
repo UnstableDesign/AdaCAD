@@ -706,7 +706,7 @@ export class DraftviewerComponent implements OnInit {
   private onEnd(event) {
     this.mouse_pressed = false;
 
-
+    if(this.id == -1) return;
     const draft = this.tree.getDraft(this.id);
 
 

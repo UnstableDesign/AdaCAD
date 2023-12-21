@@ -7,13 +7,39 @@
   height: 100%;
 }
 
+#logo{
+  width: 60px;
+  margin: 20px;
+}
+
+.logo {
+  display: block;
+  opacity: .5;
+  background: url(../assets/svg/logo.svg);
+  background-position: center;
+  /* background-position-y: center; */
+  background-size: 60px 60px;
+}
+
+.header-content{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+
 .header{
+  display: flex;
+  flex-direction: row;
   flex: 0 1 auto;
+  background-color: #3f51b5;
 }
 
 .topbar{
   display: flex;
   justify-content: space-between;
+  color: white;
+  background-color: #3f51b5;
   
 }
 
@@ -45,10 +71,27 @@
     justify-content: end;
     display: flex;
     padding-right: 8px;
+
+    span{
+      display: block;
+      font-size: .8em;
+      font-style: italic;
+      height: 100%;
+      line-height: 36px;
+    }
   }
 
   .main{
     width: 67%;
+  }
+
+  .hasFocus{
+    border-right: thin solid grey;
+  }
+
+  .isSide{
+    border-bottom: thin solid grey;
+
   }
 
   .fullscreen{
@@ -87,6 +130,7 @@
     display: flex;
     flex: 1 1 auto;
     height: 100%;
+    background-color: #f0f0f0;
   }
 
   #sim_viewer{
@@ -97,9 +141,20 @@
     display: flex;
     flex-direction: row;
     flex-wrap: row;
+    background-color: #3f51b5;
+    color: white;
+
   }
 
   .fileitem{
     margin: 0 1px;
+    background-color: white;
+    opacity: .5;
+    color: #3f51b5;
+
+  }
+
+  .selected{
+    opacity: .9;
   }
   

@@ -23,6 +23,9 @@ import { SimulationComponent } from './simulation/simulation.component';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { FormControl } from '@angular/forms';
+import { LoginComponent } from './core/login/login.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AboutModal } from './core/modal/about/about.modal';
 
 
 @Component({
@@ -42,8 +45,11 @@ export class AppComponent implements OnInit{
   
   loading: boolean;
   selected_origin: number;
+
   active_file: number;
-  tabs = ['Filename1', 'Filename 2', 'Filename 3'];
+
+  open_files = [];
+  
   ui = {
     main: 'mixer',
     fullscreen: false
@@ -52,7 +58,8 @@ export class AppComponent implements OnInit{
 
 
   constructor(
-    private auth: AuthService,
+    public auth: AuthService,
+    private dialog: MatDialog,
     private ss: StateService,
     @Optional() private fbauth: Auth,
     private files: FilesystemService,
@@ -112,13 +119,6 @@ export class AppComponent implements OnInit{
 
   }
 
-  addTab(selectAfterAdding: boolean) {
-    this.tabs.push('New');
-
-    // if (selectAfterAdding) {
-    //   this.selected.setValue(this.tabs.length - 1);
-    // }
-  }
 
 
   clearAll() : void{
@@ -159,6 +159,10 @@ export class AppComponent implements OnInit{
       this.loadFromDB(this.files.file_tree[0].id)
     }else{
       this.files.setCurrentFileInfo(this.files.generateFileId(), 'new blank file', '');
+      this.open_files.push({
+        id: this.files.current_file_id,
+        name: this.files.current_file_name
+      });
     }
     this.saveFile();
   }
@@ -256,6 +260,10 @@ export class AppComponent implements OnInit{
     if(user === null){
       //this is a logout event
       this.files.setCurrentFileInfo(this.files.generateFileId(), 'blank draft','');
+      this.open_files.push({
+        id: this.files.current_file_id,
+        name: this.files.current_file_name
+      });
       this.files.clearTree();
 
 
@@ -359,7 +367,11 @@ export class AppComponent implements OnInit{
 
   loadBlankFile(){
     this.clearAll();
-    this.files.setCurrentFileInfo(this.files.generateFileId(), 'load blank', '');
+    this.files.setCurrentFileInfo(this.files.generateFileId(), 'new file', '');
+    this.open_files.push({
+      id: this.files.current_file_id,
+      name: this.files.current_file_name
+    });
     this.saveFile();
     
   }
@@ -392,6 +404,10 @@ export class AppComponent implements OnInit{
 
     //DO NOT CALL CLEAR ALL HERE AS IT WILL OVERWRITE LOADED FILE DATA
     this.files.setCurrentFileInfo(result.id, result.name, result.desc);
+    this.open_files.push({
+      id: this.files.current_file_id,
+      name: this.files.current_file_name
+    });
     
 
     this.processFileData(result.data).then(data => {
@@ -493,6 +509,11 @@ export class AppComponent implements OnInit{
 
   }
 
+  logout(){
+    this.auth.logout();
+  }
+
+
   /**
  * something in the materials library changed, check to see if
  * there is a modal showing materials open and update it if there is
@@ -528,6 +549,18 @@ onPasteSelections(){
     this.multiselect.clearSelections();
     
   }
+
+  openLoginDialog() {
+    const dialogRef = this.dialog.open(LoginComponent, {
+      width: '600px',
+    });
+  }
+
+  openAboutDialog() {
+    const dialogRef = this.dialog.open(AboutModal);
+
+  }
+
 
 
   /**
@@ -708,7 +741,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
       switch (node.type){
         case 'draft':
-          
           this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id), data.scale);
           break;
         case 'op':
@@ -825,7 +857,7 @@ redo() {
 }
 
 removeTab(index: number) {
-  this.tabs.splice(index, 1);
+  this.open_files.splice(index, 1);
 }
 
 saveFile(){

@@ -1,6 +1,6 @@
 <app-sidebar *ngIf="hasFocus" id="draft_sidebar"
 #sidebar
-[expanded]="expanded"
+[expanded]="hasFocus"
 (onDesignModeChange)='designModeChange($event)'
 (onZoomChange) ="renderChange($event);"
 (onViewChange) ="viewChange($event);"
@@ -18,7 +18,7 @@
 
 
 
-<div class="draft-container {{source}}"  [class.expanded] ="expanded" id="draft-container">
+<div class="draft-container {{source}}"  [class.expanded] ="hasFocus" id="draft-container">
 
   <app-selection
   #selection
@@ -182,7 +182,7 @@
      </div>
 
       <div class="controls" 
-      [style.display]="(expanded) ? 'flex' : 'none'" 
+      [style.display]="(hasFocus) ? 'flex' : 'none'" 
       *ngIf="id !== -1">
 
         <div class="left-side">
