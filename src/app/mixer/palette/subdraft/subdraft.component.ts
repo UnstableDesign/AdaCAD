@@ -829,6 +829,7 @@ export class SubdraftComponent implements OnInit {
    * @param e 
    */
      mousedown(e: any){
+      this.onShowDetails.emit(this.id);
       e.stopPropagation();
   
   

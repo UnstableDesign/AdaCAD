@@ -26,6 +26,8 @@ import { FormControl } from '@angular/forms';
 import { LoginComponent } from './core/login/login.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AboutModal } from './core/modal/about/about.modal';
+import { FilebrowserComponent } from './core/filebrowser/filebrowser.component';
+import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 
 
 @Component({
@@ -42,6 +44,10 @@ export class AppComponent implements OnInit{
   @ViewChild(DraftDetailComponent) details;
   @ViewChild(SimulationComponent) sim;
   
+
+  //modals to manage
+  filebrowser_modal: MatDialog |any;
+  upload_modal: MatDialog |any;
   
   loading: boolean;
   selected_origin: number;
@@ -561,6 +567,42 @@ onPasteSelections(){
 
   }
 
+  openAdaFiles(selectOnly:boolean) {
+      if(this.filebrowser_modal != undefined && this.filebrowser_modal.componentInstance != null) return;
+
+    this.filebrowser_modal = this.dialog.open(FilebrowserComponent, {data: {
+      selectOnly: selectOnly
+     }});
+
+    this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe(event => {
+      this.loadFromDB(event);
+    });
+
+
+  }
+
+   //need to handle this and load the file somehow
+   openNewFileDialog() {
+    if(this.upload_modal != undefined && this.upload_modal != null) return;
+
+
+    this.upload_modal = this.dialog.open(LoadfileComponent, {
+      data: {
+        multiple: false,
+        accepts: '.ada',
+        type: 'ada',
+        title: 'Select an AdaCAD (.ada) file to Import'
+      }
+    });
+
+    this.upload_modal.afterClosed().subscribe(loadResponse => {
+      console.log("LoadReSP", loadResponse)
+      if(loadResponse !== undefined && loadResponse != true) 
+      this.loadNewFile(loadResponse);
+
+   });
+  }
+
 
 
   /**
@@ -872,7 +914,12 @@ saveFile(){
 }
 
 showDraftDetails(id: number){
-  console.log("SHOW DRAFT DETAILS")
+  console.log("SHOW DRAFT DETAILS", id);
+  this.details.loadDraft(id);
+  let draft = this.tree.getDraft(id);
+  let loom_settings = this.tree.getLoomSettings(id);
+  this.sim.loadNewDraft(draft, loom_settings)
+
   // this.dm.selectDesignMode('toggle','draw_modes')
   // this.detail_drawer.open().then(res => {
   //    this.details.loadDraft(id);

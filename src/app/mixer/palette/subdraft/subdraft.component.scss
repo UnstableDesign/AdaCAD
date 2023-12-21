@@ -1,5 +1,9 @@
 
-
+.subdraft-parent-container{
+	position: absolute;
+	top:0;
+	left: 0;
+}
 
 canvas{
 	width: fit-content;
@@ -152,7 +156,6 @@ flex-direction: row;
 
 .subdraft-container{
 	background: rgba(255, 255, 255, 0.6);
-
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -162,8 +165,6 @@ flex-direction: row;
 	min-width: 300px;
 	height: fit-content;
 	padding: 0px 10px 0px 0px;
-
-
 }
 
 .multiselected{

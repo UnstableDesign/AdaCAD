@@ -24,10 +24,7 @@ button{
 }
 
 .filebrowser{
-    margin: 20px;
-    display: flex;
-    flex-direction: column;
-    font-size: .8em;
+    width: 60vw;
 }
 
 .file-item-block{
@@ -54,10 +51,7 @@ button{
     width: 100%;
 }
 
-.mat-list-item{
-    padding: 0px !important;
-    width: 100%;
-}
+
 
 // .mat-list-item-content{
 //     width: 100%;

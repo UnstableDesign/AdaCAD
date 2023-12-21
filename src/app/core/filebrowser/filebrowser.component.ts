@@ -1,7 +1,7 @@
-import { Component, EventEmitter, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
 import { AuthService } from '../provider/auth.service';
 import { FilesystemService } from '../provider/filesystem.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LoginComponent } from '../login/login.component';
 import { WorkspaceService } from '../provider/workspace.service';
 import { LoadfileComponent } from '../modal/loadfile/loadfile.component';
@@ -15,10 +15,10 @@ import { LoadfileComponent } from '../modal/loadfile/loadfile.component';
 })
 export class FilebrowserComponent implements OnInit {
 
-  @Output() onLoadNewFile: any = new EventEmitter();
-  @Output() onClearScreen: any = new EventEmitter();
+  //@Output() onLoadNewFile: any = new EventEmitter();
+  //@Output() onClearScreen: any = new EventEmitter();
   @Output() onCurrentFileDeleted: any = new EventEmitter();
-  @Output() onSave: any = new EventEmitter();
+  //@Output() onSave: any = new EventEmitter();
   @Output() onLoadFromDB: any = new EventEmitter();
 
   
@@ -31,9 +31,12 @@ export class FilebrowserComponent implements OnInit {
     public files: FilesystemService, 
     public auth: AuthService,
     public ws: WorkspaceService,
-    private dialog: MatDialog) { 
+    private dialog: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data: any
+    ) { 
     
-  
+  console.log("data is ", data)
+
     this.filelist = this.files.file_tree;
 
       this.files.file_tree_change$.subscribe(data => {
@@ -118,67 +121,50 @@ export class FilebrowserComponent implements OnInit {
   }
 
 
-  public saveAsBmp() {
-    var obj: any = {
-      type: "bmp"
-    }
-    console.log(obj);
-  	this.onSave.emit(obj);
-  }
+  // public saveAsBmp() {
+  //   var obj: any = {
+  //     type: "bmp"
+  //   }
+  //   console.log(obj);
+  // 	this.onSave.emit(obj);
+  // }
 
-  public saveAsAda() {
-    var obj: any = {
-      type: "ada"
-    }
-    console.log(obj);
-    this.onSave.emit(obj);
-  }
+  // public saveAsAda() {
+  //   var obj: any = {
+  //     type: "ada"
+  //   }
+  //   console.log(obj);
+  //   this.onSave.emit(obj);
+  // }
 
-  public saveAsWif() {
-    var obj: any = {
-      type: "wif"
-    }
-    this.onSave.emit(obj);
-  }
+  // public saveAsWif() {
+  //   var obj: any = {
+  //     type: "wif"
+  //   }
+  //   this.onSave.emit(obj);
+  // }
 
-  public saveAsPrint() {
-    var obj: any = {
-      type: "jpg"
-    }
-    this.onSave.emit(obj);
-  }
-
-
-   //need to handle this and load the file somehow
-   openNewFileDialog() {
+  // public saveAsPrint() {
+  //   var obj: any = {
+  //     type: "jpg"
+  //   }
+  //   this.onSave.emit(obj);
+  // }
 
 
-    const dialogRef = this.dialog.open(LoadfileComponent, {
-      data: {
-        multiple: false,
-        accepts: '.ada',
-        type: 'ada',
-        title: 'Select an AdaCAD (.ada) file to Import'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(loadResponse => {
-      if(loadResponse !== undefined) this.onLoadNewFile.emit(loadResponse);
-
-   });
-  }
+  
 
 
 
-openLoginDialog() {
-    const dialogRef = this.dialog.open(LoginComponent, {
-      width: '600px',
-    });
-}
+// openLoginDialog() {
+//     const dialogRef = this.dialog.open(LoginComponent, {
+//       width: '600px',
+//     });
+// }
 
-onNewWorkspace(){
-  this.onClearScreen.emit();
-}
+// onNewWorkspace(){
+//   this.onClearScreen.emit();
+// }
 
 
 

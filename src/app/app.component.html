@@ -32,8 +32,8 @@
         </mat-menu>
         
         <mat-menu #openFile="matMenu">
-          <button mat-menu-item>From Computer</button>
-          <button mat-menu-item >From AdaCAD Cloud</button>
+          <button mat-menu-item (click)="openNewFileDialog()">From Computer</button>
+          <button mat-menu-item (click)="openAdaFiles(true)">From AdaCAD Cloud</button>
         </mat-menu>
 
         <button mat-button [matMenuTriggerFor]="edit">Edit</button>
@@ -62,8 +62,14 @@
       
       <div class="topbar-button-group">
         <div class="auth" *ngIf="(auth.showLogoutButton)">
-          <span class="loggedInUserName">Hi {{auth.username}} </span>
-          <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+      
+
+          <button mat-button [matMenuTriggerFor]="account">Hi {{auth.username}} </button>
+
+          <mat-menu #account="matMenu">
+            <button mat-menu-item (click)="openAdaFiles(false)">Manage Saved Files</button>
+            <button mat-menu-item (click)="logout()">Log Off</button>
+          </mat-menu>
         </div>
 
         <div *ngIf="!auth.isLoggedIn">

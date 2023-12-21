@@ -60,6 +60,7 @@ export class OperationComponent implements OnInit {
    @Output() onOpLoaded = new EventEmitter <any> ();
 
 
+
    params_visible: boolean = true;
     /**
     * reference to top, left positioin as absolute interlacement

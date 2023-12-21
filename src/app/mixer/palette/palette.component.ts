@@ -2733,6 +2733,8 @@ drawStarted(){
         return this.performAndUpdateDownstream(obj.id)
       } )
       .then(el => {
+        let children = this.tree.getNonCxnOutputs(obj.id);
+        if(children.length > 0) this.revealDraftDetails(children[0]);
         return this.tree.sweepOutlets(obj.id)
       })
       .then(viewRefs => {
